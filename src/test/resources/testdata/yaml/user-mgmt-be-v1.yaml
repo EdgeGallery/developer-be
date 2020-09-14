@@ -1,0 +1,625 @@
+swagger: "2.0"
+info:
+  version: "1.0.0"
+  title: "swagger definition for org.mec.houp.user.controller.UserController"
+  x-java-interface: "cse.gen.openMec.user_mgmt_be.user_mgmt_be.UserControllerIntf"
+basePath: "/v1/users"
+consumes:
+- "application/json"
+produces:
+- "application/json"
+paths:
+  /checktoken:
+    get:
+      summary: "check token"
+      description: "The API can receive the check token request, and the authorization\
+        \ token should be added to request header. \r\nIf the token has been timeout,\
+        \ it will be response with state 401."
+      operationId: "checkToken"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "Authorization"
+        in: "header"
+        description: "Authorization token"
+        required: true
+        type: "string"
+        x-example: "Basic 18zgoYu4sSAP/RZ1lVrTVA=="
+      responses:
+        200:
+          description: "response of 200"
+          schema:
+            type: "object"
+        401:
+          description: "Unauthorized"
+          schema:
+            $ref: "#/definitions/RequestErrorWrapper"
+  /{userId}:
+    get:
+      summary: "get user information"
+      description: "The API can receive the get user information request, and the\
+        \ authorization token should be added to request header. \r\nIf the token\
+        \ has been timeout, it will be response with state 401. \r\nOnly the user\
+        \ himself and admin permission owner can get user information, if the operator\
+        \ don't have allowable permission, it will be response with state 403. \r\n\
+        If can not get user information by userId, then it will be response with state\
+        \ 417."
+      operationId: "getUser"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "userId"
+        in: "path"
+        description: "userId"
+        required: true
+        type: "string"
+      - name: "Authorization"
+        in: "header"
+        description: "Authorization token"
+        required: true
+        type: "string"
+        x-example: "Basic 18zgoYu4sSAP/RZ1lVrTVA=="
+      responses:
+        200:
+          description: "response of 200"
+          schema:
+            type: "object"
+        401:
+          description: "Unauthorized"
+          schema:
+            $ref: "#/definitions/RequestErrorWrapper"
+        403:
+          description: "Forbidden"
+          schema:
+            $ref: "#/definitions/RequestErrorWrapper"
+        417:
+          description: "Expectation Failed"
+          schema:
+            $ref: "#/definitions/RequestErrorWrapper"
+    put:
+      summary: "modify user basic information"
+      description: "The API can receive the modify user basic information request,\
+        \ and the authorization token should be added to request header. \r\nIf the\
+        \ token has been timeout, it will be response with state 401. \r\nOnly the\
+        \ user himself and admin permission owner can modify user basic information,\
+        \ if the operator don't have allowable permission, it will be response with\
+        \ state 403. \r\nThe username in the modify request should be with size range\
+        \ from 6 to 50, otherwise it will be response with state 400. \r\nThe username\
+        \ in the modify request should be unique, otherwise it will be response with\
+        \ state 417."
+      operationId: "modifyUser"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "userId"
+        in: "path"
+        description: "userId"
+        required: true
+        type: "string"
+      - in: "body"
+        name: "modifyRequest"
+        description: "TenantModifyBasicRequest"
+        required: true
+        schema:
+          $ref: "#/definitions/TenantModifyBasicRequest"
+      - name: "Authorization"
+        in: "header"
+        description: "Authorization token"
+        required: true
+        type: "string"
+        x-example: "Basic 18zgoYu4sSAP/RZ1lVrTVA=="
+      responses:
+        200:
+          description: "response of 200"
+          schema:
+            type: "object"
+        400:
+          description: "Bad Request"
+          schema:
+            $ref: "#/definitions/RequestErrorWrapper"
+        401:
+          description: "Unauthorized"
+          schema:
+            $ref: "#/definitions/RequestErrorWrapper"
+        403:
+          description: "Forbidden"
+          schema:
+            $ref: "#/definitions/RequestErrorWrapper"
+        417:
+          description: "Expectation Failed"
+          schema:
+            $ref: "#/definitions/RequestErrorWrapper"
+    delete:
+      summary: "delete user"
+      description: "The API can receive the delete request, and the authorization\
+        \ token should be added to request header. \r\nIf the token has been timeout,\
+        \ it will be response with state 401. \r\nNoticed that only the operator with\
+        \ admin permission can delete user, if the operator don't have the allowable\
+        \ permission, it will be response with state 403. \r\nDuring the delete process,\
+        \ if there are something wrong result in delete failed, it will be response\
+        \ with state 417. \r\nIf successfully delete user, it will be response with\
+        \ state 200."
+      operationId: "delete"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "userId"
+        in: "path"
+        description: "userId"
+        required: true
+        type: "string"
+      - name: "Authorization"
+        in: "header"
+        description: "Authorization token"
+        required: true
+        type: "string"
+        x-example: "Basic 18zgoYu4sSAP/RZ1lVrTVA=="
+      responses:
+        200:
+          description: "response of 200"
+          schema:
+            type: "object"
+        401:
+          description: "Unauthorized"
+          schema:
+            $ref: "#/definitions/RequestErrorWrapper"
+        403:
+          description: "Forbidden"
+          schema:
+            $ref: "#/definitions/RequestErrorWrapper"
+        417:
+          description: "Expectation Failed"
+          schema:
+            $ref: "#/definitions/RequestErrorWrapper"
+  /:
+    get:
+      summary: "get all user informations"
+      description: "The API can receive the get all users information request, and\
+        \ the authorization token should be added to request header. \r\nIf the token\
+        \ has been timeout, it will be response with state 401. \r\nOnly the admin\
+        \ permission owner can get user information, if the operator don't have allowable\
+        \ permission, it will be response with state 403. \r\nIf can not get all users\
+        \ information, then it will be response with state 417."
+      operationId: "getUserAll"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "Authorization"
+        in: "header"
+        description: "Authorization token"
+        required: true
+        type: "string"
+        x-example: "Basic 18zgoYu4sSAP/RZ1lVrTVA=="
+      responses:
+        200:
+          description: "response of 200"
+          schema:
+            type: "array"
+            items:
+              type: "object"
+        401:
+          description: "Unauthorized"
+          schema:
+            $ref: "#/definitions/RequestErrorWrapper"
+        403:
+          description: "Forbidden"
+          schema:
+            $ref: "#/definitions/RequestErrorWrapper"
+        417:
+          description: "Expectation Failed"
+          schema:
+            $ref: "#/definitions/RequestErrorWrapper"
+    post:
+      summary: "register"
+      description: "The API can receive the register request from registration screen,\
+        \ and there are five kinds of messages are needed. \r\nNoticed that the username\
+        \ and password must be the length range from 6 to 50, if the size are not\
+        \ allowable, it will be response with state 400. \r\nAlso the username should\
+        \ be unique, if the username has existed or the username is same as admin,\
+        \ it will be response with state 417. \r\nIf the register is successful, then\
+        \ it will be response with state 201 and TenantResponse object."
+      operationId: "register"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "request"
+        description: "TenantRegisterRequest"
+        required: true
+        schema:
+          $ref: "#/definitions/TenantRegisterRequest"
+      responses:
+        200:
+          description: "response of 200"
+          schema:
+            type: "object"
+        201:
+          description: "register success"
+          schema:
+            $ref: "#/definitions/TenantResponse"
+        400:
+          description: "Bad Request"
+          schema:
+            $ref: "#/definitions/RequestErrorWrapper"
+        417:
+          description: "Expectation Failed"
+          schema:
+            $ref: "#/definitions/RequestErrorWrapper"
+  /auth:
+    post:
+      summary: "login"
+      description: "The API can receive the login request from login interface, and\
+        \ the username and password are needed. \r\nIf username and password are not\
+        \ matching, it will be response with state 401. \r\nIf username and password\
+        \ are matching, it will be response with state 200 and TokenResponse object."
+      operationId: "login"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "loginRequest"
+        description: "LoginRequest"
+        required: true
+        schema:
+          $ref: "#/definitions/LoginRequest"
+      responses:
+        200:
+          description: "response of 200"
+          schema:
+            type: "object"
+        401:
+          description: "Unauthorized"
+          schema:
+            $ref: "#/definitions/RequestErrorWrapper"
+        400:
+          description: "Bad Request"
+          schema:
+            $ref: "#/definitions/RequestErrorWrapper"
+  /logout:
+    post:
+      summary: "logout"
+      description: "The API can receive the logout request, and the authorization\
+        \ token should be added to request header. \r\nIf the token has been timeout,\
+        \ it will be response with state 401. \r\nIf the token has not been timeout,\
+        \ it will be response with state 200. \r\nNoticed that the request body can\
+        \ be empty, but the request header must contains \"Content-Type\"."
+      operationId: "logout"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "Authorization"
+        in: "header"
+        description: "Authorization token"
+        required: true
+        type: "string"
+        x-example: "Basic 18zgoYu4sSAP/RZ1lVrTVA=="
+      - in: "body"
+        name: "logout"
+        description: "not needed"
+        required: false
+        schema:
+          type: "string"
+      responses:
+        200:
+          description: "response of 200"
+          schema:
+            type: "object"
+        401:
+          description: "Unauthorized"
+          schema:
+            $ref: "#/definitions/RequestErrorWrapper"
+  /{userId}/password:
+    put:
+      summary: "modify user password"
+      description: "The API can receive the modify user password request, and the\
+        \ authorization token should be added to request header. \r\nIf the token\
+        \ has been timeout, it will be response with state 401. \r\nOnly the user\
+        \ himself and admin permission owner can modify user basic information, if\
+        \ the operator don't have allowable permission, it will be response with state\
+        \ 403. \r\nIf the userId is wrong or the old password is wrong, it will be\
+        \ response with state 403. \r\nIf modify password failed, it will be response\
+        \ with state 417."
+      operationId: "modifyPassword"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "userId"
+        in: "path"
+        description: "userId"
+        required: true
+        type: "string"
+      - in: "body"
+        name: "reqParam"
+        description: "PasswordModifyRequest"
+        required: true
+        schema:
+          $ref: "#/definitions/PasswordModifyRequest"
+      - name: "Authorization"
+        in: "header"
+        description: "Authorization token"
+        required: true
+        type: "string"
+        x-example: "Basic 18zgoYu4sSAP/RZ1lVrTVA=="
+      responses:
+        200:
+          description: "response of 200"
+          schema:
+            type: "object"
+        400:
+          description: "Bad Request"
+          schema:
+            $ref: "#/definitions/RequestErrorWrapper"
+        401:
+          description: "Unauthorized"
+          schema:
+            $ref: "#/definitions/RequestErrorWrapper"
+        403:
+          description: "Forbidden"
+          schema:
+            $ref: "#/definitions/RequestErrorWrapper"
+        417:
+          description: "Expectation Failed"
+          schema:
+            $ref: "#/definitions/RequestErrorWrapper"
+  /{userId}/permissions:
+    put:
+      summary: "modify user information and permissions"
+      description: "The API can receive the modify user basic information and permissions\
+        \ request, and the authorization token should be added to request header.\
+        \ \r\nIf the token has been timeout, it will be response with state 401. \r\
+        \nOnly the admin permission owner can modify user basic information and permissions,\
+        \ if the operator don't have allowable permission, it will be response with\
+        \ state 403. \r\nThe username in the modify request should be with size range\
+        \ from 6 to 50, otherwise it will be response with state 400. \r\nThe username\
+        \ in the modify request should be unique, the platform and permission should\
+        \ be allowable, otherwise it will be response with state 417."
+      operationId: "modifyUserAndPermissions"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "userId"
+        in: "path"
+        description: "userId"
+        required: true
+        type: "string"
+      - in: "body"
+        name: "reqParam"
+        description: "TenantModifyRequest"
+        required: true
+        schema:
+          $ref: "#/definitions/TenantModifyRequest"
+      - name: "Authorization"
+        in: "header"
+        description: "Authorization token"
+        required: true
+        type: "string"
+        x-example: "Basic 18zgoYu4sSAP/RZ1lVrTVA=="
+      responses:
+        200:
+          description: "response of 200"
+          schema:
+            type: "object"
+        400:
+          description: "Bad Request"
+          schema:
+            $ref: "#/definitions/RequestErrorWrapper"
+        401:
+          description: "Unauthorized"
+          schema:
+            $ref: "#/definitions/RequestErrorWrapper"
+        403:
+          description: "Forbidden"
+          schema:
+            $ref: "#/definitions/RequestErrorWrapper"
+        417:
+          description: "Expectation Failed"
+          schema:
+            $ref: "#/definitions/RequestErrorWrapper"
+definitions:
+  RequestErrorWrapper:
+    type: "object"
+    properties:
+      code:
+        type: "integer"
+        format: "int32"
+      message:
+        type: "string"
+      detail:
+        type: "string"
+    x-java-class: "com.mec.cbb.exception.RequestErrorWrapper"
+  LoginRequest:
+    type: "object"
+    required:
+    - "password"
+    - "username"
+    properties:
+      username:
+        type: "string"
+        example: "TestUser1"
+        minLength: 6
+        maxLength: 50
+      password:
+        type: "string"
+        example: "TestPassword1"
+        minLength: 6
+        maxLength: 50
+    x-java-class: "org.mec.houp.user.request.LoginRequest"
+  PasswordModifyRequest:
+    type: "object"
+    required:
+    - "new_password"
+    - "old_password"
+    properties:
+      old_password:
+        type: "string"
+        example: "TestPassword1"
+        minLength: 6
+        maxLength: 50
+      new_password:
+        type: "string"
+        example: "TestPasswordNew1"
+        minLength: 6
+        maxLength: 50
+    x-java-class: "org.mec.houp.user.request.PasswordModifyRequest"
+  TenantModifyBasicRequest:
+    type: "object"
+    required:
+    - "company"
+    - "gender"
+    - "telephone"
+    - "username"
+    properties:
+      username:
+        type: "string"
+        example: "TestUser1"
+        minLength: 6
+        maxLength: 50
+      company:
+        type: "string"
+        example: "huawei"
+      gender:
+        type: "string"
+        example: "male"
+      telephone:
+        type: "string"
+        example: "15533449966"
+    x-java-class: "org.mec.houp.user.request.TenantModifyBasicRequest"
+  RolePo:
+    type: "object"
+    required:
+    - "platform"
+    - "role"
+    properties:
+      id:
+        type: "integer"
+        format: "int32"
+      platform:
+        type: "string"
+        enum:
+        - "ONAPaaS"
+        - "MEAPP"
+        - "MEDEVELOPER"
+        - "MEO"
+      role:
+        type: "string"
+        enum:
+        - "GUEST"
+        - "ADMIN"
+        - "TENANT"
+        - "DEVELOPER"
+    x-java-class: "org.mec.houp.user.db.entity.RolePo"
+  TenantModifyRequest:
+    type: "object"
+    required:
+    - "company"
+    - "gender"
+    - "permissions"
+    - "telephone"
+    - "username"
+    properties:
+      username:
+        type: "string"
+        example: "TestUser1"
+        minLength: 6
+        maxLength: 50
+      company:
+        type: "string"
+        example: "huawei"
+      gender:
+        type: "string"
+        example: "male"
+      telephone:
+        type: "string"
+        example: "15533449966"
+      permissions:
+        type: "array"
+        items:
+          $ref: "#/definitions/RolePo"
+    x-java-class: "org.mec.houp.user.request.TenantModifyRequest"
+  RolePageIds:
+    type: "object"
+    required:
+    - "pageIds"
+    - "platform"
+    - "role"
+    properties:
+      platform:
+        type: "string"
+        enum:
+        - "ONAPaaS"
+        - "MEAPP"
+        - "MEDEVELOPER"
+        - "MEO"
+      role:
+        type: "string"
+        enum:
+        - "GUEST"
+        - "ADMIN"
+        - "TENANT"
+        - "DEVELOPER"
+      pageIds:
+        type: "array"
+        example: "[1.0,2.0,3.0]"
+        items:
+          type: "string"
+    x-java-class: "org.mec.houp.user.response.RolePageIds"
+  TenantResponse:
+    type: "object"
+    required:
+    - "company"
+    - "gender"
+    - "permissions"
+    - "telephone"
+    - "userId"
+    - "username"
+    properties:
+      username:
+        type: "string"
+        example: "TestUser1"
+      company:
+        type: "string"
+        example: "hauwei"
+      gender:
+        type: "string"
+        example: "male"
+      telephone:
+        type: "string"
+        example: "15533449966"
+      userId:
+        type: "string"
+        example: "37423702-051a-46b4-bf2b-f190759cc0b8"
+      permissions:
+        type: "array"
+        items:
+          $ref: "#/definitions/RolePageIds"
+    x-java-class: "org.mec.houp.user.response.TenantResponse"
+  TenantRegisterRequest:
+    type: "object"
+    required:
+    - "company"
+    - "gender"
+    - "password"
+    - "telephone"
+    - "username"
+    properties:
+      username:
+        type: "string"
+        example: "TestUser1"
+        minLength: 6
+        maxLength: 50
+      company:
+        type: "string"
+        example: "huawei"
+      gender:
+        type: "string"
+        example: "male"
+      telephone:
+        type: "string"
+        example: "15533449966"
+      password:
+        type: "string"
+        example: "TestPassword1"
+        minLength: 6
+        maxLength: 50

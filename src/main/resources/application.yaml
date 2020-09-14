@@ -1,0 +1,59 @@
+#
+#    Copyright 2020 Huawei Technologies Co., Ltd.
+#
+#    Licensed under the Apache License, Version 2.0 (the "License");
+#    you may not use this file except in compliance with the License.
+#    You may obtain a copy of the License at
+#
+#        http://www.apache.org/licenses/LICENSE-2.0
+#
+#    Unless required by applicable law or agreed to in writing, software
+#    distributed under the License is distributed on an "AS IS" BASIS,
+#    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#    See the License for the specific language governing permissions and
+#    limitations under the License.
+#
+
+###servicecomb config####
+servicecomb-config-order: 1
+APPLICATION_ID: edgegallery  #应用名
+service_description:
+  name: mec-developer  #微服务名
+  version: 1.0.0   #微服务版本
+  environment: development
+servicecomb:
+  service:
+    registry:
+      address: ${SC_ADDRESS} #连接SC(Service Center,注册中心)的地址
+  rest:
+    address: ${LISTEN_IP:0.0.0.0}:9082  #Rest通信地址
+    servlet:
+      urlPattern: /cse/*  #using spring mvc rest server to handle requests
+###spring config####
+server:
+  port: 9082
+  ssl:
+    enabled: ${SSL_ENABLED:false}
+    key-store: ${SSL_KEY_STORE_PATH:}
+    key-store-password: ${SSL_KEY_STORE_PASSWORD:}
+    key-store-type: ${SSL_KEY_STORE_TYPE:}
+    key-alias: ${SSL_KEY_ALIAS:}
+###pgsql config######
+spring:
+  datasource:
+    url: jdbc:postgresql://${POSTGRES_IP:developer-be-postgres-svc}:${POSTGRES_PORT:5432}/${POSTGRES_DB_NAME:developerdb}
+    username: ${POSTGRES_USERNAME}
+    password: ${POSTGRES_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+  main:
+    allow-bean-definition-overriding: true
+
+###mybtis####
+mybatis:
+  mapper-locations: classpath:mapper/*.xml
+
+security:
+  oauth2:
+    resource:
+      jwt:
+        key-uri: ${AUTH_SERVER_ADDRESS:http://user-mgmt-svc:8067}/oauth/token_key

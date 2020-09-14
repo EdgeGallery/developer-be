@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+  ~    Copyright 2020 Huawei Technologies Co., Ltd.
+  ~
+  ~    Licensed under the Apache License, Version 2.0 (the "License");
+  ~    you may not use this file except in compliance with the License.
+  ~    You may obtain a copy of the License at
+  ~
+  ~        http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~    Unless required by applicable law or agreed to in writing, software
+  ~    distributed under the License is distributed on an "AS IS" BASIS,
+  ~    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~    See the License for the specific language governing permissions and
+  ~    limitations under the License.
+  -->
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.edgegallery.developer.mapper.TestCaseMapper">
+
+    <resultMap type="org.edgegallery.developer.model.TaskBean"
+               id="taskStatusInfo">
+        <result property="taskid" column="taskid"/>
+        <result property="appid" column="appid"/>
+        <result property="telnetid" column="telnetid"/>
+        <result property="status" column="status"/>
+        <result property="createtime" column="createtime"/>
+    </resultMap>
+    <resultMap type="org.edgegallery.developer.model.SubTaskBean"
+               id="subTaskStatusInfo">
+        <result property="executionid" column="executionid"/>
+        <result property="taskid" column="taskid"/>
+        <result property="testcaseid" column="testcaseid"/>
+        <result property="status" column="status"/>
+        <result property="parameters" column="parameters"/>
+    </resultMap>
+
+    <insert id="saveTask"
+            parameterType="org.edgegallery.developer.model.TaskBean">
+        INSERT INTO
+        tbl_taskstatus
+        (taskid,appid,telnetid,status,createtime)
+        VALUES
+        (#{taskid},#{appid},#{telnetid},#{status},#{createtime})
+    </insert>
+
+    <update id="updateTask" parameterType="java.util.HashMap">
+        UPDATE tbl_taskstatus
+        SET
+        status = #{status} WHERE taskid = #{taskid}
+    </update>
+
+    <insert id="saveSubTask"
+            parameterType="org.edgegallery.developer.model.SubTaskBean">
+        INSERT INTO
+        tbl_subtaskstatus
+        (executionid,taskid,testcaseid,status,parameters)
+        VALUES
+        (#{executionid},#{taskid},#{testcaseid},#{status},#{parameters})
+    </insert>
+
+    <update id="updateSubTask" parameterType="java.util.HashMap">
+        UPDATE
+        tbl_subtaskstatus
+        SET status = #{status}
+        WHERE executionid =
+        #{executionid}
+    </update>
+
+
+    <select id="getTaskList"
+            resultType="org.edgegallery.developer.model.TaskBean">
+        SELECT * FROM tbl_taskstatus
+        <where>
+            <if test="telnetId != null">
+                telnetid = #{telnetId}
+            </if>
+        </where>
+        ORDER BY
+        createtime DESC LIMIT 10
+    </select>
+
+    <select id="getRunningTaskIDs" resultType="java.lang.String">
+        SELECT taskid FROM
+        tbl_taskstatus WHERE status != 'COMPLETED'
+    </select>
+
+
+    <select id="getSubTaskList" resultMap="subTaskStatusInfo">
+        SELECT * FROM
+        tbl_subtaskstatus WHERE taskid = #{taskId}
+    </select>
+</mapper>

@@ -1,0 +1,330 @@
+swagger: "2.0"
+info:
+  version: "1.0.0"
+  title: "swagger definition for org.edgegallery.developer.controller.TestAppController"
+  x-java-interface: "cse.gen.openMec.mec_developer.testapp.TestAppControllerIntf"
+basePath: "/mec/developer/v1/apps"
+consumes:
+  - "application/json"
+produces:
+  - "application/json"
+paths:
+  /tags:
+    get:
+      tags:
+        - "App"
+      summary: "query apptag list"
+      operationId: "getTagList"
+      produces:
+        - "application/json;charset=UTF-8"
+      parameters: []
+      responses:
+        200:
+          description: "OK"
+          schema:
+            $ref: "#/definitions/AppTagsResponse"
+        400:
+          description: "Bad Request"
+          schema:
+            $ref: "#/definitions/ErrorRespDto"
+        500:
+          description: "Internal Server Error"
+          schema:
+            $ref: "#/definitions/ErrorRespDto"
+  /:
+    get:
+      tags:
+        - "App"
+      summary: "query test task list"
+      operationId: "getTaskByParam"
+      produces:
+        - "application/json;charset=UTF-8"
+      parameters:
+        - name: "appName"
+          in: "query"
+          description: "app name"
+          required: false
+          type: "string"
+        - name: "status"
+          in: "query"
+          description: "test status"
+          required: false
+          type: "string"
+        - name: "beginTime"
+          in: "query"
+          description: "test begin Time"
+          required: false
+          type: "string"
+        - name: "endTime"
+          in: "query"
+          description: "test end Time"
+          required: false
+          type: "string"
+        - name: "userId"
+          in: "query"
+          description: "app author"
+          required: true
+          type: "string"
+      responses:
+        200:
+          description: "OK"
+          schema:
+            $ref: "#/definitions/TestTaskListResponse"
+        400:
+          description: "Bad Request"
+          schema:
+            $ref: "#/definitions/ErrorRespDto"
+        500:
+          description: "Internal Server Error"
+          schema:
+            $ref: "#/definitions/ErrorRespDto"
+    post:
+      tags:
+        - "App"
+      summary: "upload app to server"
+      operationId: "upload"
+      consumes:
+        - "multipart/form-data"
+      produces:
+        - "application/json;charset=UTF-8"
+      parameters:
+        - name: "appFile"
+          in: "formData"
+          description: "appfile"
+          required: true
+          type: "file"
+        - name: "logoFile"
+          in: "formData"
+          description: "logoFile"
+          required: true
+          type: "file"
+        - name: "affinity"
+          in: "query"
+          description: "app main function"
+          required: true
+          type: "string"
+        - name: "industry"
+          in: "query"
+          description: "industry"
+          required: true
+          type: "string"
+        - name: "type"
+          in: "query"
+          description: "app type"
+          required: true
+          type: "string"
+        - name: "appDesc"
+          in: "query"
+          description: "app description"
+          required: true
+          type: "string"
+        - name: "userId"
+          in: "query"
+          description: "app author"
+          required: true
+          type: "string"
+      responses:
+        200:
+          description: "OK"
+          schema:
+            $ref: "#/definitions/TestApp"
+        400:
+          description: "Bad Request"
+          schema:
+            $ref: "#/definitions/ErrorRespDto"
+        500:
+          description: "Internal Server Error"
+          schema:
+            $ref: "#/definitions/ErrorRespDto"
+  /{appId}/action/start-test:
+    get:
+      tags:
+        - "App"
+      summary: "start to run testcase(task and subtask)"
+      operationId: "startTest"
+      parameters:
+        - name: "appId"
+          in: "path"
+          description: "appId"
+          required: true
+          type: "string"
+        - name: "userId"
+          in: "query"
+          description: "userId"
+          required: true
+          type: "string"
+      responses:
+        200:
+          description: "OK"
+          schema:
+            type: "boolean"
+        400:
+          description: "Bad Request"
+          schema:
+            $ref: "#/definitions/ErrorRespDto"
+        500:
+          description: "Internal Server Error"
+          schema:
+            $ref: "#/definitions/ErrorRespDto"
+  /{appId}/task/{taskId}/subtasks:
+    get:
+      tags:
+        - "App"
+      summary: "query all subtask"
+      operationId: "subtasks"
+      parameters:
+        - name: "appId"
+          in: "path"
+          description: "appId"
+          required: true
+          type: "string"
+        - name: "taskId"
+          in: "path"
+          description: "taskId"
+          required: true
+          type: "string"
+      responses:
+        200:
+          description: "OK"
+          schema:
+            $ref: "#/definitions/SubTaskListResponse"
+        400:
+          description: "Bad Request"
+          schema:
+            $ref: "#/definitions/ErrorRespDto"
+        500:
+          description: "Internal Server Error"
+          schema:
+            $ref: "#/definitions/ErrorRespDto"
+  /{appId}/action/upload:
+    post:
+      tags:
+        - "App"
+      summary: "upload the app that completed the test task to the appstore"
+      operationId: "uploadToAppStore"
+      produces:
+        - "text/plain"
+      parameters:
+        - name: "appId"
+          in: "path"
+          required: true
+          type: "string"
+        - name: "userId"
+          in: "query"
+          required: true
+          type: "string"
+        - name: "userName"
+          in: "query"
+          required: true
+          type: "string"
+      responses:
+        200:
+          description: "OK"
+          schema:
+            type: "string"
+        400:
+          description: "Bad Request"
+          schema:
+            $ref: "#/definitions/ErrorRespDto"
+        500:
+          description: "Internal Server Error"
+          schema:
+            $ref: "#/definitions/ErrorRespDto"
+definitions:
+  AppTagsResponse:
+    type: "object"
+    properties:
+      tags:
+        type: "array"
+        items:
+          type: "string"
+    x-java-class: "org.edgegallery.developer.response.AppTagsResponse"
+  ErrorRespDto:
+    type: "object"
+    properties:
+      code:
+        type: "integer"
+        format: "int32"
+      message:
+        type: "string"
+      detail:
+        type: "string"
+    x-java-class: "org.edgegallery.developer.response.ErrorRespDto"
+  TestTask:
+    type: "object"
+    properties:
+      taskId:
+        type: "string"
+      taskNo:
+        type: "string"
+      status:
+        type: "string"
+      beginTime:
+        type: "string"
+        format: "date-time"
+      endTime:
+        type: "string"
+        format: "date-time"
+      appId:
+        type: "string"
+    x-java-class: "org.edgegallery.developer.model.TestTask"
+  TestTaskListResponse:
+    type: "object"
+    properties:
+      tasks:
+        type: "array"
+        items:
+          $ref: "#/definitions/TestTask"
+    x-java-class: "org.edgegallery.developer.response.TestTaskListResponse"
+  SubTaskBean:
+    type: "object"
+    properties:
+      executionid:
+        type: "string"
+      taskid:
+        type: "string"
+      testcaseid:
+        type: "integer"
+        format: "int32"
+      status:
+        type: "string"
+      parameters:
+        type: "string"
+    x-java-class: "org.edgegallery.developer.model.SubTaskBean"
+  SubTaskListResponse:
+    type: "object"
+    properties:
+      subTasks:
+        type: "array"
+        items:
+          $ref: "#/definitions/SubTaskBean"
+    x-java-class: "org.edgegallery.developer.response.SubTaskListResponse"
+  TestApp:
+    type: "object"
+    properties:
+      appId:
+        type: "string"
+      appName:
+        type: "string"
+      appFile:
+        type: "string"
+      logoFile:
+        type: "string"
+      affinity:
+        type: "string"
+      industry:
+        type: "string"
+      appDesc:
+        type: "string"
+      uploadTime:
+        type: "string"
+        format: "date-time"
+      userId:
+        type: "string"
+      appVersion:
+        type: "string"
+      type:
+        type: "string"
+      task:
+        $ref: "#/definitions/TestTask"
+    x-java-class: "org.edgegallery.developer.model.TestApp"

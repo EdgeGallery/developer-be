@@ -1,0 +1,245 @@
+#
+#    Copyright 2020 Huawei Technologies Co., Ltd.
+#
+#    Licensed under the Apache License, Version 2.0 (the "License");
+#    you may not use this file except in compliance with the License.
+#    You may obtain a copy of the License at
+#
+#        http://www.apache.org/licenses/LICENSE-2.0
+#
+#    Unless required by applicable law or agreed to in writing, software
+#    distributed under the License is distributed on an "AS IS" BASIS,
+#    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#    See the License for the specific language governing permissions and
+#    limitations under the License.
+#
+swagger: "2.0"
+info:
+  version: "1.0.0"
+  title: "swagger definition for org.edgegallery.developer.controller.UploadedFilesController"
+  x-java-interface: "cse.gen.openMec.mec_developer.files.UploadedFilesControllerIntf"
+basePath: "/mec/developer/v1/files"
+consumes:
+  - "application/json"
+produces:
+  - "application/json"
+paths:
+  /helm-template-yaml:
+    get:
+      tags:
+        - "File"
+      summary: "get helm template yaml list"
+      operationId: "getHelmTemplateYamlList"
+      produces:
+        - "application/json;charset=UTF-8"
+      parameters:
+        - name: "userId"
+          in: "query"
+          description: "userId"
+          required: true
+          type: "string"
+        - name: "projectId"
+          in: "query"
+          description: "projectId"
+          required: true
+          type: "string"
+      responses:
+        200:
+          description: "OK"
+          schema:
+            type: "array"
+            items:
+              type: "object"
+        400:
+          description: "Bad Request"
+          schema:
+            $ref: "#/definitions/ErrorRespDto"
+    post:
+      tags:
+        - "File"
+      summary: "upload helm template yaml"
+      operationId: "uploadHelmTemplateYaml"
+      consumes:
+        - "multipart/form-data"
+      produces:
+        - "application/json;charset=UTF-8"
+      parameters:
+        - name: "file"
+          in: "formData"
+          description: "file"
+          required: true
+          type: "file"
+        - name: "userId"
+          in: "query"
+          description: "userId"
+          required: true
+          type: "string"
+        - name: "projectId"
+          in: "query"
+          description: "projectId"
+          required: true
+          type: "string"
+      responses:
+        200:
+          description: "OK"
+          schema:
+            $ref: "#/definitions/HelmTemplateYamlRespDto"
+        400:
+          description: "Bad Request"
+          schema:
+            $ref: "#/definitions/ErrorRespDto"
+    delete:
+      tags:
+        - "File"
+      summary: "delete helm template yaml"
+      operationId: "deleteHelmTemplateYamlByFileId"
+      produces:
+        - "application/json;charset=UTF-8"
+      parameters:
+        - name: "fileId"
+          in: "query"
+          description: "fileId"
+          required: true
+          type: "string"
+      responses:
+        200:
+          description: "OK"
+          schema:
+            type: "string"
+        400:
+          description: "Bad Request"
+          schema:
+            $ref: "#/definitions/ErrorRespDto"
+  /{fileId}:
+    get:
+      tags:
+        - "File"
+      summary: "get a file"
+      operationId: "getFile"
+      produces:
+        - "application/octet-stream"
+      parameters:
+        - name: "fileId"
+          in: "path"
+          description: "fileId"
+          required: true
+          type: "string"
+        - name: "userId"
+          in: "query"
+          description: "userId"
+          required: true
+          type: "string"
+        - name: "type"
+          in: "query"
+          description: "type"
+          required: true
+          type: "string"
+      responses:
+        200:
+          description: "OK"
+          schema:
+            type: "file"
+        400:
+          description: "Bad Request"
+          schema:
+            $ref: "#/definitions/ErrorRespDto"
+  /samplecode:
+    post:
+      tags:
+        - "File"
+      summary: "get sample code"
+      operationId: "getSampleCode"
+      consumes:
+        - "application/json;charset=UTF-8"
+      produces:
+        - "application/octet-stream"
+      parameters:
+        - in: "body"
+          name: "apiFileIds"
+          description: "apiFileIds"
+          required: true
+          schema:
+            type: "array"
+            items:
+              type: "string"
+      responses:
+        200:
+          description: "OK"
+          schema:
+            type: "file"
+        400:
+          description: "Bad Request"
+          schema:
+            $ref: "#/definitions/ErrorRespDto"
+  /:
+    post:
+      tags:
+        - "File"
+      summary: "upload file"
+      operationId: "uploadFile"
+      consumes:
+        - "multipart/form-data"
+      produces:
+        - "application/json;charset=UTF-8"
+      parameters:
+        - name: "file"
+          in: "formData"
+          description: "file"
+          required: true
+          type: "file"
+        - name: "userId"
+          in: "query"
+          description: "userId"
+          required: true
+          type: "string"
+      responses:
+        200:
+          description: "OK"
+          schema:
+            $ref: "#/definitions/UploadedFile"
+        400:
+          description: "Bad Request"
+          schema:
+            $ref: "#/definitions/ErrorRespDto"
+definitions:
+  ErrorRespDto:
+    type: "object"
+    properties:
+      code:
+        type: "integer"
+        format: "int32"
+      message:
+        type: "string"
+      detail:
+        type: "string"
+    x-java-class: "org.edgegallery.developer.response.ErrorRespDto"
+  UploadedFile:
+    type: "object"
+    properties:
+      fileId:
+        type: "string"
+      fileName:
+        type: "string"
+      url:
+        type: "string"
+      userId:
+        type: "string"
+      uploadDate:
+        type: "string"
+        format: "date-time"
+      filePath:
+        type: "string"
+      temp:
+        type: "boolean"
+    x-java-class: "org.edgegallery.developer.model.workspace.UploadedFile"
+  HelmTemplateYamlRespDto:
+    type: "object"
+    required:
+      - "fileId"
+      - "fileName"
+    properties:
+      fileId:
+        type: "string"
+      fileName:
+        type: "string"
+    x-java-class: "org.edgegallery.developer.response.HelmTemplateYamlRespDto"

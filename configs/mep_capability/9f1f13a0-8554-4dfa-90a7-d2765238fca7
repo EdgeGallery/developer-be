@@ -1,0 +1,717 @@
+{
+  "openapi": "3.0.2",
+  "servers": [
+    {
+      "url": "http://{HOST}/mec_app_support/v1"
+    },
+    {
+      "url": "https://{HOST}/mec_app_support/v1"
+    }
+  ],
+  "info": {
+    "title": "App Traffic Rules API",
+    "version": "2.1.1",
+    "description": "The ETSI MEC ISG MEC011 App Traffic Rules API described using OpenAPI",
+    "license": {
+      "name": "BSD-3-Clause",
+      "url": "https://forge.etsi.org/legal-matters"
+    },
+    "contact": {
+      "email": "cti_support@etsi.org"
+    }
+  },
+  "externalDocs": {
+    "description": "ETSI GS MEC011 Application Enablement API, V2.1.1",
+    "url": "https://www.etsi.org/deliver/etsi_gs/MEC/001_099/011/02.01.01_60/gs_MEC011v020101p.pdf"
+  },
+  "tags": [
+    {
+      "name": "appTrafficRules"
+    }
+  ],
+  "paths": {
+    "/applications/{appInstanceId}/traffic_rules": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/Path.AppInstanceId"
+        }
+      ],
+      "get": {
+        "description": "This method retrieves information about all the traffic rules associated with a MEC application instance.",
+        "operationId": "ApplicationsTrafficRules_GET",
+        "tags": [
+          "appTrafficRules"
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/ApplicationsTrafficRules.200"
+          },
+          "400": {
+            "$ref": "#/components/responses/Error.400"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error.403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error.404"
+          }
+        }
+      }
+    },
+    "/applications/{appInstanceId}/traffic_rules/{trafficRuleId}": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/Path.AppInstanceId"
+        },
+        {
+          "$ref": "#/components/parameters/Path.TrafficRuleId"
+        }
+      ],
+      "get": {
+        "description": "This method retrieves information about all the traffic rules associated with a MEC application instance.",
+        "operationId": "ApplicationsTrafficRule_GET",
+        "tags": [
+          "appTrafficRules"
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/ApplicationsTrafficRule.200"
+          },
+          "400": {
+            "$ref": "#/components/responses/Error.400"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error.403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error.404"
+          }
+        }
+      },
+      "put": {
+        "description": "This method retrieves information about all the traffic rules associated with a MEC application instance.",
+        "operationId": "ApplicationsTrafficRule_PUT",
+        "tags": [
+          "appTrafficRules"
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/ApplicationsTrafficRule.200"
+          },
+          "400": {
+            "$ref": "#/components/responses/Error.400"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error.403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error.404"
+          },
+          "412": {
+            "$ref": "#/components/responses/Error.412"
+          }
+        },
+        "requestBody": {
+          "$ref": "#/components/requestBodies/ApplicationsTrafficRule"
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Empty": {
+        "description": "Empty schema"
+      },
+      "DestinationInterface.InterfaceType": {
+        "description": "Type of the interface",
+        "type": "string",
+        "enum": [
+          "TUNNEL",
+          "MAC",
+          "IP"
+        ],
+        "example": "TUNNEL"
+      },
+      "DestinationInterface.IpAddress": {
+        "description": "IP address of the remote destination",
+        "type": "string",
+        "example": "192.0.2.0"
+      },
+      "DestinationInterface.MacAddress": {
+        "description": "Source address identifies the MAC address of the interface",
+        "type": "string",
+        "example": "02-00-00-00-00-00"
+      },
+      "DestinationInterface": {
+        "description": "This type represents the destination interface. If the action is FORWARD_DECAPSULATED, FORWARD_ENCAPSULATED or PASSTHROUGH one value shall be provided. If the action is DUPLICATE_DECAPSULATED or DUPLICATE_ENCAPSULATED, two values shall be provided. If the action is DROP, no value shall be provided.",
+        "type": "object",
+        "required": [
+          "interfaceType"
+        ],
+        "properties": {
+          "interfaceType": {
+            "$ref": "#/components/schemas/DestinationInterface.InterfaceType"
+          },
+          "tunnelInfo": {
+            "$ref": "#/components/schemas/TunnelInfo"
+          },
+          "srcMacAddress": {
+            "$ref": "#/components/schemas/DestinationInterface.MacAddress"
+          },
+          "dstMacAddress": {
+            "$ref": "#/components/schemas/DestinationInterface.MacAddress"
+          },
+          "dstIpAddress": {
+            "$ref": "#/components/schemas/DestinationInterface.IpAddress"
+          }
+        }
+      },
+      "ProblemDetails": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "$ref": "#/components/schemas/Problem.type"
+          },
+          "title": {
+            "$ref": "#/components/schemas/Problem.title"
+          },
+          "status": {
+            "$ref": "#/components/schemas/Problem.status"
+          },
+          "detail": {
+            "$ref": "#/components/schemas/Problem.detail"
+          },
+          "instance": {
+            "$ref": "#/components/schemas/Problem.instance"
+          }
+        }
+      },
+      "Problem.detail": {
+        "type": "string",
+        "description": "A human-readable explanation specific to this occurrence of the problem"
+      },
+      "Problem.instance": {
+        "type": "string",
+        "format": "uri",
+        "description": "A URI reference that identifies the specific occurrence of the problem"
+      },
+      "Problem.status": {
+        "type": "integer",
+        "format": "uint32",
+        "description": "The HTTP status code for this occurrence of the problem"
+      },
+      "Problem.title": {
+        "type": "string",
+        "description": "A short, human-readable summary of the problem type"
+      },
+      "Problem.type": {
+        "type": "string",
+        "format": "uri",
+        "description": "A URI reference according to IETF RFC 3986 that identifies the problem type"
+      },
+      "TrafficFilter.Address": {
+        "description": "Identify the traffic ip address.",
+        "type": "string",
+        "example": "192.168.1.1"
+      },
+      "TrafficFilter.DSCP": {
+        "description": "Used to match all IPv4 packets that have the same Differentiated Services Code Point (DSCP)",
+        "type": "integer",
+        "format": "uint32",
+        "example": 0
+      },
+      "TrafficFilter.Port": {
+        "description": "A port",
+        "type": "string",
+        "example": "8080"
+      },
+      "TrafficFilter.Protocol": {
+        "description": "Protocol of the traffic filter",
+        "type": "string",
+        "example": "?"
+      },
+      "TrafficFilter.QCI": {
+        "description": "Used to match all packets that have the same Quality Class Indicator (QCI).",
+        "type": "integer",
+        "format": "uint32",
+        "example": 1
+      },
+      "TrafficFilter.TC": {
+        "description": "Used to match all IPv6 packets that have the same Traffic Class.",
+        "type": "integer",
+        "format": "uint32",
+        "example": 1
+      },
+      "TrafficFilter.Token": {
+        "description": "Used for token based traffic rule",
+        "type": "string",
+        "example": "?"
+      },
+      "TrafficFilter.TunnelAddress": {
+        "description": "Used for GTP tunnel based traffic rule",
+        "type": "string",
+        "example": "?"
+      },
+      "TrafficFilter.TunnelPort": {
+        "description": "Used for GTP tunnel based traffic rule",
+        "type": "string",
+        "example": "?"
+      },
+      "TrafficFilter": {
+        "description": "This type represents the traffic filter.",
+        "type": "object",
+        "properties": {
+          "srcAddress": {
+            "description": "An IP address or a range of IP address. For IPv4, the IP address could be an IP address plus mask, or an individual IP address, or a range of IP addresses. For IPv6, the IP address could be an IP prefix, or a range of IP prefixes.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TrafficFilter.Address"
+            }
+          },
+          "dstAddress": {
+            "description": "An IP address or a range of IP address. For IPv4, the IP address could be an IP address plus mask, or an individual IP address, or a range of IP addresses. For IPv6, the IP address could be an IP prefix, or a range of IP prefixes.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TrafficFilter.Address"
+            }
+          },
+          "srcPort": {
+            "description": "A port or a range of ports",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TrafficFilter.Port"
+            }
+          },
+          "dstPort": {
+            "description": "A port or a range of ports",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TrafficFilter.Port"
+            }
+          },
+          "protocol": {
+            "description": "Specify the protocol of the traffic filter",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TrafficFilter.Protocol"
+            }
+          },
+          "token": {
+            "description": "Used for token based traffic rule",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TrafficFilter.Token"
+            }
+          },
+          "srcTunnelAddress": {
+            "description": "Used for GTP tunnel based traffic rule",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TrafficFilter.TunnelAddress"
+            }
+          },
+          "tgtTunnelAddress": {
+            "description": "Used for GTP tunnel based traffic rule",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TrafficFilter.TunnelAddress"
+            }
+          },
+          "srcTunnelPort": {
+            "description": "Used for GTP tunnel based traffic rule",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TrafficFilter.TunnelPort"
+            }
+          },
+          "dstTunnelPort": {
+            "description": "Used for GTP tunnel based traffic rule",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TrafficFilter.TunnelPort"
+            }
+          },
+          "qCI": {
+            "$ref": "#/components/schemas/TrafficFilter.QCI"
+          },
+          "dSCP": {
+            "$ref": "#/components/schemas/TrafficFilter.DSCP"
+          },
+          "tC": {
+            "$ref": "#/components/schemas/TrafficFilter.TC"
+          }
+        }
+      },
+      "TrafficRule.Action": {
+        "description": "The action of the MEC host data plane when a packet matches the trafficFilter\n   ",
+        "type": "string",
+        "enum": [
+          "DROP",
+          "FORWARD_DECAPSULATED",
+          "FORWARD_ENCAPSULATED",
+          "PASSTHROUGH",
+          "DUPLICATE_DECAPSULATED",
+          "DUPLICATE_ENCAPSULATED"
+        ],
+        "example": "DROP"
+      },
+      "TrafficRule.FilterType": {
+        "description": "Definition of filter per FLOW or PACKET. If flow the filter match UE->EPC packet and the reverse packet is handled in the same context",
+        "type": "string",
+        "enum": [
+          "FLOW",
+          "PACKET"
+        ],
+        "example": "FLOW"
+      },
+      "TrafficRule.Id": {
+        "description": "Identify the traffic rule.",
+        "type": "string",
+        "example": "TrafficRule1"
+      },
+      "TrafficRule_Priority": {
+        "description": "Priority of this traffic rule. If traffic rule conflicts, the one with higher priority take precedence",
+        "type": "integer",
+        "format": "uint32",
+        "example": 1
+      },
+      "TrafficRule.State": {
+        "description": "Contains the traffic rule state. This attribute may be updated using HTTP PUT method",
+        "type": "string",
+        "enum": [
+          "ACTIVE",
+          "INACTIVE"
+        ],
+        "example": "ACTIVE"
+      },
+      "TrafficRule": {
+        "description": "This type represents the general information of a traffic rule.",
+        "type": "object",
+        "required": [
+          "trafficRuleId",
+          "filterType",
+          "priority",
+          "trafficFilter",
+          "action",
+          "state"
+        ],
+        "properties": {
+          "trafficRuleId": {
+            "$ref": "#/components/schemas/TrafficRule.Id"
+          },
+          "filterType": {
+            "$ref": "#/components/schemas/TrafficRule.FilterType"
+          },
+          "priority": {
+            "$ref": "#/components/schemas/TrafficRule_Priority"
+          },
+          "trafficFilter": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TrafficFilter"
+            }
+          },
+          "action": {
+            "$ref": "#/components/schemas/TrafficRule.Action"
+          },
+          "dstInterface": {
+            "$ref": "#/components/schemas/DestinationInterface"
+          },
+          "state": {
+            "$ref": "#/components/schemas/TrafficRule.State"
+          }
+        }
+      },
+      "TunnelInfo.TunnelDstAddress": {
+        "description": "Destination address of the tunnel",
+        "type": "string",
+        "example": "?"
+      },
+      "TunnelInfo.TunnelSrcAddress": {
+        "description": "Source address of the tunnel",
+        "type": "string",
+        "example": "?"
+      },
+      "TunnelInfo.TunnelType": {
+        "description": "This type represents the tunnel information.",
+        "type": "string",
+        "enum": [
+          "GTP_U",
+          "GRE"
+        ],
+        "example": "GTP_U"
+      },
+      "TunnelInfo": {
+        "description": "This type represents the tunnel information.",
+        "type": "object",
+        "required": [
+          "tunnelType"
+        ],
+        "properties": {
+          "tunnelType": {
+            "$ref": "#/components/schemas/TunnelInfo.TunnelType"
+          },
+          "tunnelDstAddress": {
+            "$ref": "#/components/schemas/TunnelInfo.TunnelDstAddress"
+          },
+          "tunnelSrcAddress": {
+            "$ref": "#/components/schemas/TunnelInfo.TunnelSrcAddress"
+          }
+        }
+      }
+    },
+    "parameters": {
+      "Path.AppInstanceId": {
+        "name": "appInstanceId",
+        "description": "Represents a MEC application instance. Note that the appInstanceId is allocated by the MEC platform manager.",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      },
+      "Path.TrafficRuleId": {
+        "name": "trafficRuleId",
+        "description": "Represents a traffic rule.",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      }
+    },
+    "responses": {
+      "ApplicationsTrafficRules.200": {
+        "description": "It is used to indicate nonspecific success. The response body contains a representation of the resource.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "array",
+              "minItems": 0,
+              "items": {
+                "$ref": "#/components/schemas/TrafficRule"
+              }
+            },
+            "examples": {
+              "TrafficRules": {
+                "$ref": "#/components/examples/TrafficRules"
+              }
+            }
+          }
+        },
+        "links": {
+          "getIndividualMeTrafficRule": {
+            "$ref": "#/components/links/GetIndividualMeTrafficRule"
+          },
+          "putIndividualMeTrafficRule": {
+            "$ref": "#/components/links/PutIndividualMeTrafficRule"
+          }
+        }
+      },
+      "ApplicationsTrafficRule.200": {
+        "description": "It is used to indicate nonspecific success. The response body contains a representation of the resource.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/TrafficRule"
+            },
+            "examples": {
+              "TrafficRule": {
+                "$ref": "#/components/examples/TrafficRule"
+              }
+            }
+          }
+        }
+      },
+      "Error.400": {
+        "description": "Bad Request. It is used to indicate that incorrect parameters were passed to the request.",
+        "content": {
+          "application/problem+json": {
+            "schema": {
+              "$ref": "#/components/schemas/ProblemDetails"
+            }
+          },
+          "text/plain": {
+            "schema": {
+              "$ref": "#/components/schemas/Empty"
+            }
+          }
+        }
+      },
+      "Error.401": {
+        "description": "Unauthorized. It is used when the client did not submit the appropriate credentials.",
+        "content": {
+          "application/problem+json": {
+            "schema": {
+              "$ref": "#/components/schemas/ProblemDetails"
+            }
+          },
+          "text/plain": {
+            "schema": {
+              "$ref": "#/components/schemas/Empty"
+            }
+          }
+        }
+      },
+      "Error.403": {
+        "description": "Forbidden. The operation is not allowed given the current status of the resource. ",
+        "content": {
+          "application/problem+json": {
+            "schema": {
+              "$ref": "#/components/schemas/ProblemDetails"
+            }
+          }
+        }
+      },
+      "Error.404": {
+        "description": "Not Found. It is used when a client provided a URI that cannot be mapped  to a valid resource URI.",
+        "content": {
+          "application/problem+json": {
+            "schema": {
+              "$ref": "#/components/schemas/ProblemDetails"
+            }
+          },
+          "text/plain": {
+            "schema": {
+              "$ref": "#/components/schemas/Empty"
+            }
+          }
+        }
+      },
+      "Error.409": {
+        "description": "Conflict. The operation cannot be executed currently, due to a conflict with  the state of the resource. Typically, this is because the application  instance resource is in NOT_INSTANTIATED state.",
+        "content": {
+          "application/problem+json": {
+            "schema": {
+              "$ref": "#/components/schemas/ProblemDetails"
+            }
+          },
+          "text/plain": {
+            "schema": {
+              "$ref": "#/components/schemas/Empty"
+            }
+          }
+        }
+      },
+      "Error.412": {
+        "description": "Precondition Failed. It is used when a condition has failed during conditional requests,  e.g. when using ETags to avoid write conflicts.",
+        "content": {
+          "application/problem+json": {
+            "schema": {
+              "$ref": "#/components/schemas/ProblemDetails"
+            }
+          },
+          "text/plain": {
+            "schema": {
+              "$ref": "#/components/schemas/Empty"
+            }
+          }
+        }
+      },
+      "Error.429": {
+        "description": "Too Many Requests. It is used when a rate limiter has triggered.",
+        "content": {
+          "application/problem+json": {
+            "schema": {
+              "$ref": "#/components/schemas/ProblemDetails"
+            }
+          },
+          "text/plain": {
+            "schema": {
+              "$ref": "#/components/schemas/Empty"
+            }
+          }
+        }
+      }
+    },
+    "requestBodies": {
+      "ApplicationsTrafficRule": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/TrafficRule"
+            }
+          }
+        },
+        "description": "One or more updated attributes that are allowed to be changed",
+        "required": true
+      }
+    },
+    "links": {
+      "GetIndividualMeTrafficRule": {
+        "operationId": "ApplicationsTrafficRule_GET",
+        "description": "The `trafficRuleId` value returned in the response can be used as the `trafficRuleId` parameter in `GET /applications/{appInstanceId}/traffic_rules/{trafficRuleId}`",
+        "parameters": {
+          "trafficRuleId": "$response.body#/trafficRuleId"
+        }
+      },
+      "PutIndividualMeTrafficRule": {
+        "operationId": "ApplicationsTrafficRule_PUT",
+        "description": "The `trafficRuleId` value returned in the response can be used as the `trafficRuleId` parameter in `PUT /applications/{appInstanceId}/traffic_rules/{trafficRuleId}`",
+        "parameters": {
+          "trafficRuleId": "$response.body#/trafficRuleId"
+        }
+      }
+    },
+    "examples": {
+      "TrafficRule": {
+        "value": {
+          "trafficRuleId": "TrafficRule123",
+          "serName": "ExampleService",
+          "filterType": "FLOW",
+          "priority": 1,
+          "trafficFilter": [
+            {
+              "srcAddress": [
+                "192.168.2.0/24",
+                "192.168.3.0/24"
+              ],
+              "dstAddress": [
+                "192.127.4.100/32"
+              ],
+              "dstPort": [
+                "80"
+              ]
+            }
+          ],
+          "action": "FORWARD_DECAPSULATED",
+          "dstInterface": {
+            "interfaceType": "IP",
+            "dstIpAddress": "20.1.1.1"
+          },
+          "state": "ACTIVE"
+        }
+      },
+      "TrafficRules": {
+        "value": [
+          {
+            "trafficRuleId": "TrafficRule123",
+            "serName": "ExampleService",
+            "filterType": "FLOW",
+            "priority": 1,
+            "trafficFilter": [
+              {
+                "srcAddress": [
+                  "192.168.2.0/24",
+                  "192.168.3.0/24"
+                ],
+                "dstAddress": [
+                  "192.127.4.100/32"
+                ],
+                "dstPort": [
+                  "80"
+                ]
+              }
+            ],
+            "action": "FORWARD_DECAPSULATED",
+            "dstInterface": {
+              "interfaceType": "IP",
+              "dstIpAddress": "20.1.1.1"
+            },
+            "state": "ACTIVE"
+          }
+        ]
+      }
+    }
+  }
+}

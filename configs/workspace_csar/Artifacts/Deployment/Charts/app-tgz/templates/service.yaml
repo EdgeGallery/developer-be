@@ -1,0 +1,18 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {name}-service-{timeStamp}
+  labels:
+    app: {name}
+spec:
+  type: NodePort
+  ports:
+---IMAGE_LOOP_START---
+    - port: {imageNodePort}
+      targetPort: {imageNodePort}
+      nodePort: {imageNodePort}
+      name: mesher-{imageNameSpe}
+---IMAGE_LOOP_END---
+  selector:
+    app: {name}

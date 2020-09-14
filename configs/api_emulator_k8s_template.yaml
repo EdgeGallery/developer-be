@@ -1,0 +1,29 @@
+metadata:
+  name: api-emulator-{NODE_PORT}
+  labels:
+    app: api-emulator-{NODE_PORT}
+apiVersion: v1
+kind: Pod
+spec:
+  containers:
+    - image: edgegallery/api-emulator:latest
+      imagePullPolicy: Always
+      name: api-emulator-{NODE_PORT}
+      ports:
+        - containerPort: 8089
+---
+metadata:
+  name: api-emulator-{NODE_PORT}
+  labels:
+    app: api-emulator-{NODE_PORT}
+apiVersion: v1
+kind: Service
+spec:
+  selector:
+    app: api-emulator-{NODE_PORT}
+  type: NodePort
+  ports:
+    - port: 8089
+      name: api-emulator-{NODE_PORT}
+      targetPort: 8089
+      nodePort: {NODE_PORT}

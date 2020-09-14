@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~    Copyright 2020 Huawei Technologies Co., Ltd.
+  ~
+  ~    Licensed under the Apache License, Version 2.0 (the "License");
+  ~    you may not use this file except in compliance with the License.
+  ~    You may obtain a copy of the License at
+  ~
+  ~        http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~    Unless required by applicable law or agreed to in writing, software
+  ~    distributed under the License is distributed on an "AS IS" BASIS,
+  ~    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~    See the License for the specific language governing permissions and
+  ~    limitations under the License.
+  -->
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.edgegallery.developer.mapper.HostMapper">
+
+    <resultMap id="HostMap"
+               type="org.edgegallery.developer.model.workspace.MepHost">
+        <id property="hostId" column="host_id"/>
+        <result property="name" column="name"/>
+        <result property="address" column="address"/>
+        <result property="architecture" column="architecture"/>
+        <result property="status" column="status"/>
+        <result property="protocol" column="protocol"/>
+        <result property="ip" column="ip"/>
+        <result property="port" column="port"/>
+        <result property="os" column="os"/>
+        <result property="portRangeMin" column="port_range_min"/>
+        <result property="portRangeMax" column="port_range_max"/>
+    </resultMap>
+
+    <insert id="saveHost"
+            parameterType="org.edgegallery.developer.model.workspace.MepHost">
+        insert into
+        tbl_service_host (host_id, name, address, architecture, status, ip, port, os, port_range_min, port_range_max)
+        values
+        ( #{hostId}, #{name}, #{address}, #{architecture}, #{status}, #{ip},
+        #{port}, #{os}, #{portRangeMin}, #{portRangeMax})
+    </insert>
+
+    <select id="getAllHosts" resultMap="HostMap">
+        SELECT
+        *
+        FROM
+        tbl_service_host
+    </select>
+
+    <select id="getNormalHosts" resultMap="HostMap">
+        SELECT
+        *
+        FROM
+        tbl_service_host
+        WHERE
+        status = 'NORMAL'
+    </select>
+
+    <select id="getHost" parameterType="String" resultMap="HostMap">
+        SELECT
+        *
+        FROM
+        tbl_service_host
+        WHERE
+        host_id = #{hostId}
+    </select>
+
+    <update id="updateHost" parameterType="org.edgegallery.developer.model.workspace.MepHost">
+        UPDATE
+        tbl_service_host
+        SET name = #{name}, address = #{address}, architecture=#{architecture},
+        status=#{status}, ip=#{ip}, port=#{port}, os=#{os}, port_range_min=#{portRangeMin},
+        port_range_max=#{portRangeMax}
+        WHERE
+        host_id = #{hostId}
+    </update>
+
+    <delete id="deleteHost" parameterType="String">
+        DELETE FROM
+        tbl_service_host
+        WHERE
+        host_id = #{hostId}
+    </delete>
+
+</mapper>

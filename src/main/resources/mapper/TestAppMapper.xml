@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~    Copyright 2020 Huawei Technologies Co., Ltd.
+  ~
+  ~    Licensed under the Apache License, Version 2.0 (the "License");
+  ~    you may not use this file except in compliance with the License.
+  ~    You may obtain a copy of the License at
+  ~
+  ~        http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~    Unless required by applicable law or agreed to in writing, software
+  ~    distributed under the License is distributed on an "AS IS" BASIS,
+  ~    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~    See the License for the specific language governing permissions and
+  ~    limitations under the License.
+  -->
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.edgegallery.developer.mapper.TestAppMapper">
+    <resultMap id="BaseResultMap"
+               type="org.edgegallery.developer.model.TestTask">
+        <id column="taskid" property="taskId" jdbcType="VARCHAR"/>
+        <result column="taskno" property="taskNo" jdbcType="VARCHAR"/>
+        <result column="status" property="status" jdbcType="INTEGER"/>
+        <result column="begintime" property="beginTime"
+                jdbcType="VARCHAR"/>
+        <result column="endTime" property="endTime" jdbcType="VARCHAR"/>
+        <result column="appid" property="appId" jdbcType="VARCHAR"/>
+    </resultMap>
+    <resultMap id="taskMap"
+               type="org.edgegallery.developer.model.TestApp">
+        <id column="appid" property="appId" jdbcType="VARCHAR"/>
+        <result column="appname" property="appName" jdbcType="VARCHAR"/>
+        <result column="appfile" property="appFile" jdbcType="VARCHAR"/>
+        <result column="affinity" property="affinity"
+                jdbcType="VARCHAR"/>
+        <result column="industry" property="industry"
+                jdbcType="VARCHAR"/>
+        <result column="logofile" property="logoFile"
+                jdbcType="VARCHAR"/>
+        <result column="appdesc" property="appDesc" jdbcType="VARCHAR"/>
+        <result column="userid" property="userId" jdbcType="VARCHAR"/>
+        <result column="appversion" property="appVersion"
+                jdbcType="VARCHAR"/>
+        <result column="type" property="type" jdbcType="VARCHAR"/>
+        <result column="uploadtime" property="uploadTime"
+                jdbcType="DATE"/>
+        <association property="task"
+                     javaType="org.edgegallery.developer.model.TestTask">
+            <id column="taskid" property="taskId" jdbcType="VARCHAR"/>
+            <result column="taskno" property="taskNo" jdbcType="VARCHAR"/>
+            <result column="status" property="status" jdbcType="VARCHAR"/>
+            <result column="begintime" property="beginTime"
+                    jdbcType="VARCHAR"/>
+            <result column="endtime" property="endTime" jdbcType="VARCHAR"/>
+            <result column="appid" property="appId" jdbcType="VARCHAR"/>
+        </association>
+    </resultMap>
+    <sql id="Base_Column_List">
+        taskid,taskno,status,begintime,endtime,appid
+    </sql>
+    <sql id="APP_Column_List">
+        appid, appname, appfile,
+        logofile,affinity,industry,appdesc,uploadtime,userid,appversion,type
+    </sql>
+    <select id="getAllTask" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM tbl_testtask
+    </select>
+    <select id="getAllTaskId" resultType="java.lang.String">
+        SELECT
+        taskid
+        FROM
+        tbl_testtask
+        WHERE
+        status !='COMPLETED'
+    </select>
+    <update id="updateTestTask" parameterType="java.util.HashMap">
+        UPDATE
+        tbl_testtask
+        SET
+        status = #{status},endtime = #{endtime}
+        WHERE
+        taskid = #{taskid}
+    </update>
+    <update id="updateTask" parameterType="java.util.HashMap">
+        UPDATE
+        tbl_testtask
+        SET
+        status = #{status}
+        WHERE
+        taskid = #{taskid}
+    </update>
+    <update id="updateTaskId" parameterType="java.util.HashMap">
+        UPDATE tbl_testtask
+        SET
+        taskid = #{taskid}
+        WHERE appid = #{appid}
+    </update>
+
+    <select id="getTaskByParam"
+            parameterType="org.edgegallery.developer.request.TaskRequestParam"
+            resultMap="taskMap">
+        SELECT
+        app.appid,
+        app.appname,
+        app.appversion,
+        task.taskid,
+        task.taskno,
+        left(cast(max(task.begintime) as VARCHAR),19) AS begintime,
+        left(cast(max(task.endtime) as VARCHAR),19) AS endtime,
+        task.status
+        FROM
+        tbl_testapp app,
+        tbl_testtask task
+        <where>
+            <if test="_parameter.appname !=null and _parameter.appname !=''">
+                and app.appname like #{appName}
+            </if>
+            <if test="_parameter.status!=null">
+                and task.status =#{status}
+            </if>
+            <if test="_parameter.begintime!=null and _parameter.begintime!=''">
+                and to_char(task.begintime,'YYYY-MM-DD') = #{beginTime}
+            </if>
+            <if test="_parameter.endtime!=null and _parameter.endtime!=''">
+                and to_char(task.endtime,'YYYY-MM-DD') = #{endTime}
+            </if>
+            and app.userid = #{userId}
+            and app.appid = task.appid
+        </where>
+        GROUP BY
+        app.appid,
+        app.appname,
+        app.appversion,
+        task.taskno,
+        task.status,
+        task.taskid
+        ORDER BY
+        begintime DESC
+    </select>
+
+    <insert id="uploadApp"
+            parameterType="org.edgegallery.developer.model.TestApp">
+        INSERT INTO
+        tbl_testapp
+        (appid,appfile,affinity,industry,appdesc,uploadtime,userid,logofile,type,appname,appversion)
+        VALUES
+        (#{appId},#{appFile},
+        #{affinity},#{industry},#{appDesc},#{uploadTime},#{userId},#{logoFile},#{type},#{appName},#{appVersion})
+    </insert>
+    <insert id="addTestTask"
+            parameterType="org.edgegallery.developer.model.TestTask">
+        INSERT INTO
+        tbl_testtask
+        (taskid,
+        taskno,status,begintime,appid)
+        VALUES
+        (#{taskId},
+        #{taskNo},#{status},#{beginTime},#{appId})
+    </insert>
+    <select id="getTaskNo" parameterType="java.lang.String"
+            resultType="java.lang.String">
+        SELECT taskno FROM tbl_testtask WHERE taskno LIKE
+        #{queryCondtion} ORDER BY taskno DESC LIMIT 1
+    </select>
+    <select id="getTestTaskById" parameterType="java.lang.String"
+            resultType="org.edgegallery.developer.model.TestTask">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM tbl_testtask WHERE taskid = #{taskId}
+    </select>
+
+    <select id="getAppById" parameterType="java.lang.String"
+            resultType="org.edgegallery.developer.model.TestApp">
+        SELECT
+        <include refid="APP_Column_List"/>
+        FROM tbl_testapp
+        WHERE appid = #{appId}
+    </select>
+    <select id="getAppByUploadTime"
+            resultType="org.edgegallery.developer.model.TestApp">
+        SELECT * FROM tbl_testapp ORDER BY uploadtime DESC LIMIT 1
+    </select>
+</mapper>

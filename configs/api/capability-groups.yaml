@@ -1,0 +1,275 @@
+#
+#    Copyright 2020 Huawei Technologies Co., Ltd.
+#
+#    Licensed under the Apache License, Version 2.0 (the "License");
+#    you may not use this file except in compliance with the License.
+#    You may obtain a copy of the License at
+#
+#        http://www.apache.org/licenses/LICENSE-2.0
+#
+#    Unless required by applicable law or agreed to in writing, software
+#    distributed under the License is distributed on an "AS IS" BASIS,
+#    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#    See the License for the specific language governing permissions and
+#    limitations under the License.
+#
+swagger: "2.0"
+info:
+  version: "1.0.0"
+  title: "swagger definition for org.edgegallery.developer.controller.MepCapabilityController"
+  x-java-interface: "cse.gen.openMec.mec_developer.capability_groups.MepCapabilityControllerIntf"
+basePath: "/mec/developer/v1/capability-groups"
+consumes:
+  - "application/json"
+produces:
+  - "application/json"
+paths:
+  /{groupId}:
+    get:
+      tags:
+        - "MEPCapability"
+      summary: "get all EdgeGalleryCapability"
+      operationId: "getCapalitiesByGroupId"
+      produces:
+        - "application/json;charset=UTF-8"
+      parameters:
+        - name: "groupId"
+          in: "path"
+          description: "groupId"
+          required: true
+          type: "string"
+      responses:
+        200:
+          description: "OK"
+          schema:
+            $ref: "#/definitions/OpenMepCapabilityGroup"
+        400:
+          description: "Bad Request"
+          schema:
+            $ref: "#/definitions/ErrorRespDto"
+    post:
+      tags:
+        - "MEPCapability"
+      summary: "create one EdgeGalleryCapability"
+      operationId: "createCapability"
+      consumes:
+        - "application/json;charset=UTF-8"
+      produces:
+        - "application/json;charset=UTF-8"
+      parameters:
+        - name: "groupId"
+          in: "path"
+          description: "groupId"
+          required: true
+          type: "string"
+        - in: "body"
+          name: "capability"
+          description: "EdgeGalleryCapabilityDetail"
+          required: true
+          schema:
+            $ref: "#/definitions/OpenMepCapabilityDetail"
+      responses:
+        200:
+          description: "OK"
+          schema:
+            $ref: "#/definitions/OpenMepCapabilityDetail"
+        400:
+          description: "Bad Request"
+          schema:
+            $ref: "#/definitions/ErrorRespDto"
+    delete:
+      tags:
+        - "MEPCapability"
+      summary: "delete one EdgeGalleryCapabilityGroup by groupId"
+      operationId: "deleteGroup"
+      produces:
+        - "application/json;charset=UTF-8"
+      parameters:
+        - name: "groupId"
+          in: "path"
+          description: "groupId"
+          required: true
+          type: "string"
+      responses:
+        200:
+          description: "OK"
+          schema:
+            type: "boolean"
+        400:
+          description: "Bad Request"
+          schema:
+            $ref: "#/definitions/ErrorRespDto"
+  /:
+    get:
+      tags:
+        - "MEPCapability"
+      summary: "get all EdgeGalleryCapability"
+      operationId: "getAllCapalities"
+      produces:
+        - "application/json;charset=UTF-8"
+      parameters: []
+      responses:
+        200:
+          description: "OK"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/OpenMepCapabilityGroup"
+        400:
+          description: "Bad Request"
+          schema:
+            $ref: "#/definitions/ErrorRespDto"
+    post:
+      tags:
+        - "MEPCapability"
+      summary: "create one EdgeGalleryCapabilityGroup"
+      operationId: "createGroup"
+      consumes:
+        - "application/json;charset=UTF-8"
+      produces:
+        - "application/json;charset=UTF-8"
+      parameters:
+        - in: "body"
+          name: "group"
+          description: "EdgeGalleryCapabilityGroup"
+          required: true
+          schema:
+            $ref: "#/definitions/OpenMepCapabilityGroup"
+      responses:
+        200:
+          description: "OK"
+          schema:
+            $ref: "#/definitions/OpenMepCapabilityGroup"
+        400:
+          description: "Bad Request"
+          schema:
+            $ref: "#/definitions/ErrorRespDto"
+  /capabilities/{capabilityId}:
+    delete:
+      tags:
+        - "MEPCapability"
+      summary: "delete one EdgeGalleryCapability"
+      operationId: "deleteCapability"
+      produces:
+        - "application/json;charset=UTF-8"
+      parameters:
+        - name: "capabilityId"
+          in: "path"
+          description: "capabilityId"
+          required: true
+          type: "string"
+      responses:
+        200:
+          description: "OK"
+          schema:
+            type: "boolean"
+        400:
+          description: "Bad Request"
+          schema:
+            $ref: "#/definitions/ErrorRespDto"
+  /openmep-api:
+    get:
+      tags:
+        - "MEPCapability"
+      summary: "get all EdgeGallery API"
+      operationId: "getOpenMepApi"
+      produces:
+        - "application/json;charset=UTF-8"
+      parameters: []
+      responses:
+        200:
+          description: "OK"
+          schema:
+            $ref: "#/definitions/OpenMepApiResponse"
+  /openmepeco-api:
+    get:
+      tags:
+        - "MEPCapability"
+      summary: "get all EdgeGallery ECO API"
+      operationId: "getOpenMepEcoApi"
+      produces:
+        - "application/json;charset=UTF-8"
+      parameters: []
+      responses:
+        200:
+          description: "OK"
+          schema:
+            $ref: "#/definitions/OpenMepEcoApiResponse"
+definitions:
+  OpenMepCapabilityDetail:
+    type: "object"
+    properties:
+      detailId:
+        type: "string"
+      groupId:
+        type: "string"
+      service:
+        type: "string"
+      version:
+        type: "string"
+      description:
+        type: "string"
+      provider:
+        type: "string"
+      apiFileId:
+        type: "string"
+    x-java-class: "org.edgegallery.developer.model.workspace.OpenMepCapabilityDetail"
+  ErrorRespDto:
+    type: "object"
+    properties:
+      code:
+        type: "integer"
+        format: "int32"
+      message:
+        type: "string"
+      detail:
+        type: "string"
+    x-java-class: "org.edgegallery.developer.response.ErrorRespDto"
+  OpenMepCapabilityGroup:
+    type: "object"
+    properties:
+      groupId:
+        type: "string"
+      name:
+        type: "string"
+      type:
+        type: "string"
+        enum:
+          - "OPENMEP"
+          - "OPENMEP_ECO"
+        x-java-class: "org.edgegallery.developer.model.workspace.EnumOpenMepType"
+      description:
+        type: "string"
+      capabilityDetailList:
+        type: "array"
+        items:
+          $ref: "#/definitions/OpenMepCapabilityDetail"
+    x-java-class: "org.edgegallery.developer.model.workspace.OpenMepCapabilityGroup"
+  OpenMepApi:
+    type: "object"
+    properties:
+      name:
+        type: "string"
+      service:
+        type: "string"
+      description:
+        type: "string"
+      apiFileId:
+        type: "string"
+    x-java-class: "org.edgegallery.developer.model.workspace.OpenMepApi"
+  OpenMepApiResponse:
+    type: "object"
+    properties:
+      openMeps:
+        type: "array"
+        items:
+          $ref: "#/definitions/OpenMepApi"
+    x-java-class: "org.edgegallery.developer.response.OpenMepApiResponse"
+  OpenMepEcoApiResponse:
+    type: "object"
+    properties:
+      openMepEcos:
+        type: "array"
+        items:
+          $ref: "#/definitions/OpenMepApi"
+    x-java-class: "org.edgegallery.developer.response.OpenMepEcoApiResponse"

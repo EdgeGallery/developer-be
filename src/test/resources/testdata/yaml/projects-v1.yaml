@@ -1,0 +1,605 @@
+---
+swagger: "2.0"
+info:
+  version: "1.0.0"
+  title: "swagger definition for org.edgegallery.developer.controller.ProjectController"
+  x-java-interface: "cse.gen.openMec.mec_developer.projects.ProjectControllerIntf"
+basePath: "/mec/developer/v1/projects"
+schemes:
+- "http"
+consumes:
+- "application/json"
+produces:
+- "application/json"
+paths:
+  /{projectId}/image:
+    get:
+      summary: "getImagesByProjectId."
+      operationId: "getImagesByProjectId"
+      parameters:
+      - name: "projectId"
+        in: "path"
+        description: "projectId"
+        required: true
+        type: "string"
+      - name: "Authorization"
+        in: "header"
+        description: "Authorization token"
+        required: true
+        type: "string"
+        x-example: "Basic 18zgoYu4sSAP/RZ1lVrTVA=="
+      responses:
+        200:
+          description: "OK"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/ProjectImageConfig"
+    post:
+      summary: "addImageToProject."
+      operationId: "addImageToProject"
+      parameters:
+      - in: "body"
+        name: "imageConfig"
+        description: "ProjectImageConfig"
+        required: true
+        schema:
+          $ref: "#/definitions/ProjectImageConfig"
+      - name: "projectId"
+        in: "path"
+        description: "projectId"
+        required: true
+        type: "string"
+      - name: "Authorization"
+        in: "header"
+        description: "Authorization token"
+        required: true
+        type: "string"
+        x-example: "Basic 18zgoYu4sSAP/RZ1lVrTVA=="
+      responses:
+        200:
+          description: "OK"
+          schema:
+            $ref: "#/definitions/ProjectImageConfig"
+  /{projectId}/action/clean:
+    post:
+      summary: "clean the test environment"
+      operationId: "clean"
+      parameters:
+      - name: "projectId"
+        in: "path"
+        description: "projectId"
+        required: true
+        type: "string"
+      - name: "Authorization"
+        in: "header"
+        description: "Authorization token"
+        required: true
+        type: "string"
+        x-example: "Basic 18zgoYu4sSAP/RZ1lVrTVA=="
+      responses:
+        200:
+          description: "OK"
+          schema:
+            $ref: "#/definitions/ApplicationProject"
+  /:
+    get:
+      summary: "get users all projects "
+      operationId: "getAllProjects"
+      parameters:
+      - name: "Authorization"
+        in: "header"
+        description: "Authorization token"
+        required: true
+        type: "string"
+        x-example: "Basic 18zgoYu4sSAP/RZ1lVrTVA=="
+      responses:
+        200:
+          description: "OK"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/ApplicationProject"
+    post:
+      summary: "create one project"
+      operationId: "createProject"
+      parameters:
+      - in: "body"
+        name: "project"
+        description: "ApplicationProject"
+        required: true
+        schema:
+          $ref: "#/definitions/ApplicationProject"
+      - name: "Authorization"
+        in: "header"
+        description: "Authorization token"
+        required: true
+        type: "string"
+        x-example: "Basic 18zgoYu4sSAP/RZ1lVrTVA=="
+      responses:
+        200:
+          description: "OK"
+          schema:
+            $ref: "#/definitions/ApplicationProject"
+  /{projectId}/test-config:
+    get:
+      summary: "get one test configuration"
+      operationId: "getTestConfig"
+      parameters:
+      - name: "projectId"
+        in: "path"
+        description: "projectId"
+        required: true
+        type: "string"
+      - name: "Authorization"
+        in: "header"
+        description: "Authorization token"
+        required: true
+        type: "string"
+        x-example: "Basic 18zgoYu4sSAP/RZ1lVrTVA=="
+      responses:
+        200:
+          description: "OK"
+          schema:
+            $ref: "#/definitions/ProjectTestConfig"
+    post:
+      summary: "create one test configuration"
+      operationId: "createTestConfig"
+      parameters:
+      - name: "projectId"
+        in: "path"
+        description: "projectId"
+        required: true
+        type: "string"
+      - in: "body"
+        name: "testConfig"
+        description: "ProjectTestConfig"
+        required: true
+        schema:
+          $ref: "#/definitions/ProjectTestConfig"
+      - name: "Authorization"
+        in: "header"
+        description: "Authorization token"
+        required: true
+        type: "string"
+        x-example: "Basic 18zgoYu4sSAP/RZ1lVrTVA=="
+      responses:
+        200:
+          description: "OK"
+          schema:
+            $ref: "#/definitions/ProjectTestConfig"
+    put:
+      summary: "modify one test configuration"
+      operationId: "modifyTestConfig"
+      parameters:
+      - name: "projectId"
+        in: "path"
+        description: "projectId"
+        required: true
+        type: "string"
+      - in: "body"
+        name: "testConfig"
+        description: "ProjectTestConfig"
+        required: true
+        schema:
+          $ref: "#/definitions/ProjectTestConfig"
+      - name: "Authorization"
+        in: "header"
+        description: "Authorization token"
+        required: true
+        type: "string"
+        x-example: "Basic 18zgoYu4sSAP/RZ1lVrTVA=="
+      responses:
+        200:
+          description: "OK"
+          schema:
+            $ref: "#/definitions/ProjectTestConfig"
+  /{projectId}/image/{imageId}:
+    delete:
+      summary: "ProjectImageConfig."
+      operationId: "deleteImageById"
+      parameters:
+      - name: "projectId"
+        in: "path"
+        description: "projectId"
+        required: true
+        type: "string"
+      - name: "imageId"
+        in: "path"
+        description: "imageId"
+        required: true
+        type: "string"
+      - name: "Authorization"
+        in: "header"
+        description: "Authorization token"
+        required: true
+        type: "string"
+        x-example: "Basic 18zgoYu4sSAP/RZ1lVrTVA=="
+      responses:
+        200:
+          description: "OK"
+          schema:
+            type: "string"
+  /{projectId}:
+    get:
+      summary: "get one project by projectId"
+      operationId: "getProject"
+      parameters:
+      - name: "projectId"
+        in: "path"
+        description: "projectId"
+        required: true
+        type: "string"
+      - name: "Authorization"
+        in: "header"
+        description: "Authorization token"
+        required: true
+        type: "string"
+        x-example: "Basic 18zgoYu4sSAP/RZ1lVrTVA=="
+      responses:
+        200:
+          description: "OK"
+          schema:
+            $ref: "#/definitions/ApplicationProject"
+    put:
+      summary: "modify one project"
+      operationId: "modifyProject"
+      parameters:
+      - name: "projectId"
+        in: "path"
+        description: "projectId"
+        required: true
+        type: "string"
+      - in: "body"
+        name: "project"
+        description: "ApplicationProject"
+        required: true
+        schema:
+          $ref: "#/definitions/ApplicationProject"
+      - name: "Authorization"
+        in: "header"
+        description: "Authorization token"
+        required: true
+        type: "string"
+        x-example: "Basic 18zgoYu4sSAP/RZ1lVrTVA=="
+      responses:
+        200:
+          description: "OK"
+          schema:
+            $ref: "#/definitions/ApplicationProject"
+    delete:
+      summary: "delete one project"
+      operationId: "deleteProject"
+      parameters:
+      - name: "projectId"
+        in: "path"
+        description: "projectId"
+        required: true
+        type: "string"
+      - name: "Authorization"
+        in: "header"
+        description: "Authorization token"
+        required: true
+        type: "string"
+        x-example: "Basic 18zgoYu4sSAP/RZ1lVrTVA=="
+      responses:
+        200:
+          description: "OK"
+          schema:
+            type: "boolean"
+  /{projectId}/action/deploy:
+    post:
+      summary: "deploy one project"
+      operationId: "deployPorject"
+      parameters:
+      - name: "projectId"
+        in: "path"
+        description: "projectId"
+        required: true
+        type: "string"
+      - name: "Authorization"
+        in: "header"
+        description: "Authorization token"
+        required: true
+        type: "string"
+        x-example: "Basic 18zgoYu4sSAP/RZ1lVrTVA=="
+      responses:
+        200:
+          description: "OK"
+          schema:
+            $ref: "#/definitions/ApplicationProject"
+  /{projectId}/action/open-api:
+    post:
+      summary: "open this project to mec eco"
+      operationId: "openToMecEco"
+      parameters:
+      - name: "projectId"
+        in: "path"
+        description: "projectId"
+        required: true
+        type: "string"
+      - name: "Authorization"
+        in: "header"
+        description: "Authorization token"
+        required: true
+        type: "string"
+        x-example: "Basic 18zgoYu4sSAP/RZ1lVrTVA=="
+      responses:
+        200:
+          description: "OK"
+          schema:
+            $ref: "#/definitions/OpenMEPCapabilityGroup"
+  /{projectId}/action/upload:
+    post:
+      summary: "upload this project to AppStore."
+      operationId: "uploadToAppStore"
+      parameters:
+      - name: "projectId"
+        in: "path"
+        description: "projectId"
+        required: true
+        type: "string"
+      - name: "Authorization"
+        in: "header"
+        description: "Authorization token"
+        required: true
+        type: "string"
+        x-example: "Basic 18zgoYu4sSAP/RZ1lVrTVA=="
+      responses:
+        200:
+          description: "OK"
+          schema:
+            type: "string"
+definitions:
+  ProjectImageConfig:
+    type: "object"
+    properties:
+      id:
+        type: "string"
+      name:
+        type: "string"
+      port:
+        type: "integer"
+        format: "int32"
+      version:
+        type: "string"
+      projectId:
+        type: "string"
+      type:
+        type: "string"
+        enum:
+        - "PLATFORM"
+        - "DEVELOPER"
+        - "OTHER"
+        x-java-class: "org.edgegallery.developer.model.workspace.EnumProjectImage"
+      nodePort:
+        type: "integer"
+        format: "int32"
+    x-java-class: "org.edgegallery.developer.model.workspace.ProjectImageConfig"
+  ApplicationProject:
+    type: "object"
+    properties:
+      id:
+        type: "string"
+      projectType:
+        type: "string"
+        enum:
+        - "CREATE_NEW"
+        - "MIGRATE"
+        x-java-class: "org.edgegallery.developer.model.workspace.EnumProjectType"
+      name:
+        type: "string"
+      version:
+        type: "string"
+      provider:
+        type: "string"
+      platform:
+        type: "string"
+      type:
+        type: "string"
+      description:
+        type: "string"
+      iconFileId:
+        type: "string"
+      status:
+        type: "string"
+        enum:
+        - "ONLINE"
+        - "DEPLOYING"
+        - "DEPLOYED"
+        - "DEPLOYEDFAIDED"
+        - "TESTING"
+        - "TESTED"
+        x-java-class: "org.edgegallery.developer.model.workspace.EnumProjectStatus"
+      capabilityList:
+        type: "array"
+        items:
+          $ref: "#/definitions/OpenMEPCapabilityGroup"
+      lastTestId:
+        type: "string"
+      userId:
+        type: "string"
+      createDate:
+        type: "string"
+        format: "date-time"
+      openCapabilityId:
+        type: "string"
+    x-java-class: "org.edgegallery.developer.model.workspace.ApplicationProject"
+  OpenMEPCapabilityDetail:
+    type: "object"
+    properties:
+      detailId:
+        type: "string"
+      groupId:
+        type: "string"
+      service:
+        type: "string"
+      version:
+        type: "string"
+      description:
+        type: "string"
+      provider:
+        type: "string"
+      apiFileId:
+        type: "string"
+    x-java-class: "org.edgegallery.developer.model.workspace.OpenMEPCapabilityDetail"
+  OpenMEPCapabilityGroup:
+    type: "object"
+    properties:
+      groupId:
+        type: "string"
+      name:
+        type: "string"
+      type:
+        type: "string"
+        enum:
+        - "OPENMEP"
+        - "OPENMEP_ECO"
+        x-java-class: "org.edgegallery.developer.model.workspace.EnumOpenMEPType"
+      description:
+        type: "string"
+      capabilityDetailList:
+        type: "array"
+        items:
+          $ref: "#/definitions/OpenMEPCapabilityDetail"
+    x-java-class: "org.edgegallery.developer.model.workspace.OpenMEPCapabilityGroup"
+  CommonImage:
+    type: "object"
+    properties:
+      imageId:
+        type: "string"
+      serviceName:
+        type: "string"
+      imageName:
+        type: "string"
+      version:
+        type: "string"
+      env:
+        type: "array"
+        items:
+          $ref: "#/definitions/EnvMap"
+      ports:
+        type: "array"
+        items:
+          $ref: "#/definitions/PortMap"
+      imagePullPolicy:
+        type: "string"
+        enum:
+        - "IfNotPresent"
+        x-java-class: "org.edgegallery.developer.model.workspace.EnumImagePullPolicy"
+      volumeMounts:
+        type: "array"
+        items:
+          $ref: "#/definitions/VolumeMountMap"
+    x-java-class: "org.edgegallery.developer.model.workspace.CommonImage"
+  EnvMap:
+    type: "object"
+    properties:
+      name:
+        type: "string"
+      value:
+        type: "string"
+    x-java-class: "org.edgegallery.developer.model.workspace.CommonImage$EnvMap"
+  MEPAgentConfig:
+    type: "object"
+    properties:
+      serviceName:
+        type: "string"
+      href:
+        type: "string"
+      port:
+        type: "integer"
+        format: "int32"
+    x-java-class: "org.edgegallery.developer.model.workspace.MEPAgentConfig"
+  MEPHost:
+    type: "object"
+    properties:
+      hostId:
+        type: "string"
+      name:
+        type: "string"
+      address:
+        type: "string"
+      architecture:
+        type: "string"
+      status:
+        type: "string"
+        enum:
+        - "NORMAL"
+        - "BUSY"
+        x-java-class: "org.edgegallery.developer.model.workspace.EnumHostStatus"
+      ip:
+        type: "string"
+      port:
+        type: "integer"
+        format: "int32"
+      os:
+        type: "string"
+      portRangeMin:
+        type: "integer"
+        format: "int32"
+      portRangeMax:
+        type: "integer"
+        format: "int32"
+    x-java-class: "org.edgegallery.developer.model.workspace.MEPHost"
+  PortMap:
+    type: "object"
+    properties:
+      containerPort:
+        type: "integer"
+        format: "int32"
+      protocol:
+        type: "string"
+      nodePort:
+        type: "integer"
+        format: "int32"
+    x-java-class: "org.edgegallery.developer.model.workspace.CommonImage$PortMap"
+  ProjectTestConfig:
+    type: "object"
+    properties:
+      testId:
+        type: "string"
+      projectId:
+        type: "string"
+      agentConfig:
+        $ref: "#/definitions/MEPAgentConfig"
+      imageFileIds:
+        type: "array"
+        items:
+          type: "string"
+      appImages:
+        type: "array"
+        items:
+          $ref: "#/definitions/CommonImage"
+      otherImages:
+        type: "array"
+        items:
+          $ref: "#/definitions/CommonImage"
+      hosts:
+        type: "array"
+        items:
+          $ref: "#/definitions/MEPHost"
+      appApiFileId:
+        type: "string"
+      status:
+        type: "string"
+      accessURL:
+        type: "string"
+      errorLog:
+        type: "string"
+      workLoadId:
+        type: "string"
+      appInstanceId:
+        type: "string"
+      deployDate:
+        type: "string"
+        format: "date-time"
+    x-java-class: "org.edgegallery.developer.model.workspace.ProjectTestConfig"
+  VolumeMountMap:
+    type: "object"
+    properties:
+      name:
+        type: "string"
+      mountPath:
+        type: "string"
+    x-java-class: "org.edgegallery.developer.model.workspace.CommonImage$VolumeMountMap"

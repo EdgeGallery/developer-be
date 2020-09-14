@@ -1,0 +1,133 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "description": "face_recognition",
+    "version": "1.0.0",
+    "title": "face_recognition",
+    "termsOfService": "http://159.138.5.41:32100"
+  },
+  "host": "{HOST}",
+  "basePath": "/v1/face-recognition",
+  "schemes": [
+    "http"
+  ],
+  "paths": {
+    "/": {
+      "get": {
+        "summary": "helloworld",
+        "description": "test",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "/upload": {
+      "post": {
+        "tags": [
+          "upload"
+        ],
+        "summary": "upload images",
+        "consumes": [
+          "multipart/form-data"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "file",
+            "in": "formData",
+            "description": "file to upload",
+            "required": false,
+            "type": "file"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "文件上传成功"
+          },
+          "400": {
+            "description": "上传失败"
+          }
+        }
+      }
+    },
+    "/recognition": {
+      "post": {
+        "tags": [
+          "recognition"
+        ],
+        "summary": "images face recognition",
+        "consumes": [
+          "multipart/form-data"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "file",
+            "in": "formData",
+            "description": "file to upload",
+            "required": false,
+            "type": "file"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/video": {
+      "post": {
+        "tags": [
+          "video"
+        ],
+        "summary": "video face recognition",
+        "description": "",
+        "operationId": "add url",
+        "consumes": [
+          "application/json",
+          "application/xml"
+        ],
+        "produces": [
+          "application/xml",
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "description": "video url",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/body"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "body": {
+      "type": "object",
+      "properties": {
+        "url": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

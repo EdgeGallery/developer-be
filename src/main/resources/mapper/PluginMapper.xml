@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~    Copyright 2020 Huawei Technologies Co., Ltd.
+  ~
+  ~    Licensed under the Apache License, Version 2.0 (the "License");
+  ~    you may not use this file except in compliance with the License.
+  ~    You may obtain a copy of the License at
+  ~
+  ~        http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~    Unless required by applicable law or agreed to in writing, software
+  ~    distributed under the License is distributed on an "AS IS" BASIS,
+  ~    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~    See the License for the specific language governing permissions and
+  ~    limitations under the License.
+  -->
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.edgegallery.developer.infrastructure.persistence.plugin.PluginMapper">
+    <resultMap id="BaseResultMap"
+               type="org.edgegallery.developer.infrastructure.persistence.plugin.PluginPO">
+        <id column="pluginid" property="pluginId" jdbcType="VARCHAR"/>
+        <result column="pluginname" property="pluginName"
+                jdbcType="VARCHAR"/>
+        <result column="introduction" property="introduction"
+                jdbcType="VARCHAR"/>
+        <result column="satisfaction" property="satisfaction"
+                jdbcType="FLOAT"/>
+        <result column="codelanguage" property="codeLanguage"
+                jdbcType="VARCHAR"/>
+        <result column="plugintype" property="pluginType"
+                jdbcType="INTEGER"/>
+        <result column="version" property="version" jdbcType="VARCHAR"/>
+        <result column="downloadcount" property="downloadCount"
+                jdbcType="INTEGER"/>
+        <result column="logofile" property="logoFile"
+                jdbcType="VARCHAR"/>
+        <result column="pluginfile" property="pluginFile"
+                jdbcType="VARCHAR"/>
+        <result column="uploadtime" property="uploadTime"
+                jdbcType="VARCHAR"/>
+        <result column="userid" property="userId" jdbcType="VARCHAR"/>
+        <result column="username" property="userName"
+                jdbcType="VARCHAR"/>
+        <result column="pluginsize" property="pluginSize"
+                jdbcType="VARCHAR"/>
+        <result column="apifile" property="apiFile" jdbcType="VARCHAR"/>
+        <result column="scorecount" property="scoreCount"
+                jdbcType="INTEGER"/>
+    </resultMap>
+
+
+    <sql id="Base_Column_List">
+        pluginid, pluginname, introduction,
+        satisfaction,codelanguage,plugintype,version,downloadcount,logofile,pluginfile,uploadtime,userid,username,pluginsize,apifile,scorecount
+    </sql>
+
+    <select id="getAllPlugin" parameterType="java.lang.Integer"
+            resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM tbl_plugin WHERE plugintype = #{pluginType} ORDER BY uploadtime
+        DESC
+    </select>
+    <select id="getPluginById" parameterType="java.lang.String"
+            resultType="org.edgegallery.developer.infrastructure.persistence.plugin.PluginPO">
+        SELECT * FROM tbl_plugin
+        WHERE pluginid =#{pluginId}
+    </select>
+    <select id="getPluginByUploadTime"
+            parameterType="java.util.Date"
+            resultType="org.edgegallery.developer.infrastructure.persistence.plugin.PluginPO">
+        SELECT * FROM tbl_plugin
+        WHERE uploadtime =#{uploadtime}
+    </select>
+    <update id="updateScore" parameterType="java.util.Map">
+        UPDATE tbl_plugin
+        SET
+        satisfaction = #{satisfaction},scorecount =#{scoreCount}
+        WHERE pluginid
+        =
+        #{pluginId}
+    </update>
+    <select id="getScorecount" parameterType="java.lang.String"
+            resultType="java.lang.Integer">
+        SELECT scorecount FROM tbl_plugin
+        WHERE pluginid =
+        #{pluginId}
+    </select>
+    <select id="getSatisfaction" parameterType="java.lang.String"
+            resultType="java.lang.Float">
+        SELECT satisfaction FROM tbl_plugin
+        WHERE pluginid =
+        #{pluginId}
+    </select>
+
+    <insert id="insert"
+            parameterType="org.edgegallery.developer.infrastructure.persistence.plugin.PluginPO">
+        INSERT INTO
+        tbl_plugin
+        (pluginid,pluginname, introduction,
+        satisfaction,codelanguage,plugintype,version,downloadcount,logofile,pluginfile,uploadtime,userid,username,pluginsize,apifile,scorecount)
+        VALUES
+        (#{pluginId},#{pluginName}, #{introduction},
+        #{satisfaction},#{codeLanguage},#{pluginType},#{version},
+        #{downloadCount},#{logoFile},#{pluginFile},#{uploadTime},#{userId},#{userName},#{pluginSize},#{apiFile},#{scoreCount})
+    </insert>
+    <insert id="saveDownloadRecord"
+            parameterType="org.edgegallery.developer.domain.model.comment.PluginDownloadRecord">
+        INSERT INTO
+        tbl_downloadrecord
+        (recordid,pluginid, downloaduserid,
+        downloadusername,score,scoretype,downloadtime)
+        VALUES
+        (#{recordId},#{pluginId},
+        #{downloadUserId},
+        #{downloadUserName},#{score},#{scoreType},#{downloadTime})
+    </insert>
+    <delete id="delPlugin" parameterType="java.lang.String">
+        DELETE FROM
+        tbl_plugin
+        WHERE
+        pluginid = #{pluginId}
+    </delete>
+    <select id="getPluginPath" parameterType="java.lang.String"
+            resultType="java.lang.String">
+        SELECT pluginfile
+        FROM tbl_plugin WHERE pluginid =
+        #{pluginId}
+    </select>
+    <select id="getLogoPath" parameterType="java.lang.String"
+            resultType="java.lang.String">
+        SELECT logofile
+        FROM tbl_plugin WHERE pluginid =
+        #{pluginId}
+    </select>
+    <select id="getApiPath" parameterType="java.lang.String"
+            resultType="java.lang.String">
+        SELECT apifile
+        FROM tbl_plugin WHERE pluginid =
+        #{pluginId}
+    </select>
+    <update id="updownloadCount" parameterType="java.lang.String">
+        UPDATE
+        tbl_plugin
+        SET
+        downloadcount = downloadcount+1
+        WHERE
+        pluginid=#{pluginId}
+    </update>
+    <update id="update" parameterType="org.edgegallery.developer.infrastructure.persistence.plugin.PluginPO">
+        UPDATE tbl_plugin SET
+        pluginname = #{pluginName},
+        plugintype=#{pluginType},
+        version=#{version},
+        introduction=#{introduction},
+        codelanguage=#{codeLanguage},
+        pluginfile=#{pluginFile},
+        logofile=#{logoFile},
+        apifile=#{apiFile},
+        satisfaction=#{satisfaction},
+        downloadcount=#{downloadCount},
+        scorecount=#{scoreCount}
+        WHERE
+        pluginid=#{pluginId}
+    </update>
+
+
+    <select id="count" resultType="java.lang.Long"
+            parameterType="java.lang.Integer">
+        select count(*) FROM tbl_plugin where plugintype = #{pluginType}
+    </select>
+
+    <select id="findAllWithPagination"
+            resultMap="BaseResultMap">
+        select * from tbl_plugin
+        <where>
+            <if test="criteria.type != null">
+                plugintype = #{criteria.type}
+            </if>
+        </where>
+        limit #{criteria.limit} offset #{criteria.offset}
+    </select>
+</mapper>
