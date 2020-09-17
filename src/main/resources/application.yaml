@@ -47,6 +47,10 @@ spring:
     driver-class-name: org.postgresql.Driver
   main:
     allow-bean-definition-overriding: true
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 50MB
 
 ###mybtis####
 mybatis:
