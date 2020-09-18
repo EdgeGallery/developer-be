@@ -296,7 +296,7 @@ public class TestCaseService {
                 }
                 taskMap.put("taskid", taskId);
                 taskMap.put("status", taskStatus);
-                testMapper.updateTask(taskMap);
+                testMapper.updateTestTask(taskMap);
 
             }
         } catch (PersistenceException e) {
