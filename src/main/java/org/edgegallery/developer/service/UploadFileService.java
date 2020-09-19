@@ -105,6 +105,24 @@ public class UploadFileService {
         }
     }
 
+    /**
+     * getApiFile.
+     *
+     * @return
+     */
+    public Either<FormatRespDto, UploadedFile> getApiFile(String fileId, String userId) {
+
+        UploadedFile uploadedFile = uploadedFileMapper.getFileById(fileId);
+        if (uploadedFile != null) {
+            File file = new File(InitConfigUtil.getWorkSpaceBaseDir() + uploadedFile.getFilePath());
+            if (!file.exists()) {
+                LOGGER.error("can not find file {} in repository", fileId);
+                return Either.left(new FormatRespDto(Status.BAD_REQUEST, "can not find file in repository."));
+            }
+        }
+        return Either.right(uploadedFile);
+    }
+
     private byte[] getFileByteArray(File file, String userId, String type) throws IOException {
         if (userId == null || !EnumOpenMepType.OPENMEP.name().equals(type)) {
             return FileUtils.readFileToByteArray(file);

@@ -56,7 +56,7 @@ public class UploadedFilesController {
     private UploadFileService uploadFileService;
 
     /**
-     * get a file.
+     * get a file stream.
      */
     @ApiOperation(value = "get a file", response = File.class)
     @ApiResponses(value = {
@@ -76,6 +76,25 @@ public class UploadedFilesController {
         } else {
             return null;
         }
+    }
+
+    /**
+     * get a api file .
+     */
+    @ApiOperation(value = "get a file", response = File.class)
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = "OK", response = File.class),
+        @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
+    })
+    @RequestMapping(value = "/api-info/{fileId}", method = RequestMethod.GET,
+        produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
+    @PreAuthorize("hasRole('DEVELOPER_TENANT')")
+    public ResponseEntity<UploadedFile> getApiFile(@Pattern(regexp = REGEX_UUID, message = "fileId must be in UUID format")
+    @ApiParam(value = "fileId", required = true) @PathVariable("fileId") String fileId,
+        @Pattern(regexp = REGEX_UUID, message = "userId must be in UUID format") @ApiParam(value = "userId")
+        @RequestParam("userId") String userId) {
+        Either<FormatRespDto, UploadedFile> either = uploadFileService.getApiFile(fileId, userId);
+        return ResponseDataUtil.buildResponse(either);
     }
 
     /**
