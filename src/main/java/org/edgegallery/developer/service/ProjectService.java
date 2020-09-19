@@ -503,17 +503,26 @@ public class ProjectService {
 
         // move api.yaml to project directory
         String apiFileId = testConfig.getAppApiFileId();
-        if (apiFileId == null) {
-            LOGGER.error("Api file id is null");
-            FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "Api file id is null");
-            return Either.left(error);
-        }
-        try {
-            moveFileToWorkSpaceById(apiFileId, projectId);
-        } catch (IOException e) {
-            LOGGER.error("Move api file error {}", e.getMessage());
-            FormatRespDto error = gson.fromJson(e.getMessage(), FormatRespDto.class);
-            return Either.left(error);
+//        if (apiFileId == null) {
+//            LOGGER.error("Api file id is null");
+//            FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "Api file id is null");
+//            return Either.left(error);
+//        }
+//        try {
+//            moveFileToWorkSpaceById(apiFileId, projectId);
+//        } catch (IOException e) {
+//            LOGGER.error("Move api file error {}", e.getMessage());
+//            FormatRespDto error = gson.fromJson(e.getMessage(), FormatRespDto.class);
+//            return Either.left(error);
+//        }
+        if (apiFileId !=null) {
+            try {
+                moveFileToWorkSpaceById(apiFileId, projectId);
+            } catch (IOException e) {
+                LOGGER.error("Move api file error {}", e.getMessage());
+                FormatRespDto error = gson.fromJson(e.getMessage(), FormatRespDto.class);
+                return Either.left(error);
+            }
         }
 
         testConfig.setProjectId(projectId);
