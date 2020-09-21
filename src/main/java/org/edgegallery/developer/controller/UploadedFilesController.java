@@ -87,7 +87,7 @@ public class UploadedFilesController {
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
     @RequestMapping(value = "/api-info/{fileId}", method = RequestMethod.GET,
-        produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
+        produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT')")
     public ResponseEntity<UploadedFile> getApiFile(@Pattern(regexp = REGEX_UUID, message = "fileId must be in UUID format")
     @ApiParam(value = "fileId", required = true) @PathVariable("fileId") String fileId,
