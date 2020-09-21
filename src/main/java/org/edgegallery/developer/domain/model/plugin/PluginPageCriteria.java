@@ -31,7 +31,7 @@ public class PluginPageCriteria extends PageCriteria {
      * @param offset start with
      * @param type plugin type
      */
-    public PluginPageCriteria(int limit, String pluginName, String codeLanguage, long offset, String type) {
+    public PluginPageCriteria(int limit, String codeLanguage, String pluginName,  long offset, String type) {
         super(limit, offset);
 
         this.codeLanguage = codeLanguage;

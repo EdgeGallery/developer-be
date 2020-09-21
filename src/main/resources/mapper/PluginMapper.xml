@@ -168,21 +168,32 @@
 
     <select id="count" resultType="java.lang.Long"
             parameterType="java.lang.Integer">
-        select count(*) FROM tbl_plugin where plugintype = #{pluginType}
+        select count(*) FROM tbl_plugin
+        <where>
+            <if test="criteria.pluginName != null and criteria.pluginName != ''">
+                pluginname like concat('%', #{criteria.pluginName}, '%')
+            </if>
+            <if test="criteria.codeLanguage != null and criteria.codeLanguage != ''">
+                and codelanguage = #{criteria.codeLanguage}
+            </if>
+            <if test="criteria.type != null">
+                and plugintype = #{criteria.type}
+            </if>
+        </where>
     </select>
 
     <select id="findAllWithPagination"
             resultMap="BaseResultMap">
         select * from tbl_plugin
         <where>
-            <if test="criteria.pluginName != null">
-                pluginname = #{criteria.pluginName}
+            <if test="criteria.pluginName != null and criteria.pluginName != ''">
+                pluginname like concat('%', #{criteria.pluginName}, '%')
             </if>
-            <if test="criteria.codeLanguage != null">
-                codelanguage = #{criteria.codeLanguage}
+            <if test="criteria.codeLanguage != null and criteria.codeLanguage != ''">
+                and codelanguage = #{criteria.codeLanguage}
             </if>
             <if test="criteria.type != null">
-                plugintype = #{criteria.type}
+                and plugintype = #{criteria.type}
             </if>
         </where>
         limit #{criteria.limit} offset #{criteria.offset}

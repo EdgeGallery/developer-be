@@ -60,6 +60,6 @@ public interface PluginMapper {
 
     List<PluginPO> findAllWithPagination(@Param("criteria") PluginPageCriteria pluginPageCriteria);
 
-    long count(@Param("pluginType") Integer plugintype);
+    long count(@Param("criteria") PluginPageCriteria pluginPageCriteria);
 
 }
