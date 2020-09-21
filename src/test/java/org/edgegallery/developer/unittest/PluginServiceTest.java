@@ -85,7 +85,7 @@ public class PluginServiceTest {
    @Test
    @WithMockUser(roles = "DEVELOPER_TENANT")
    public void getPluginList() {
-       Page<Plugin> page= pluginRepository.findAllWithPagination(new PluginPageCriteria(15,0,"1"));
+       Page<Plugin> page= pluginRepository.findAllWithPagination(new PluginPageCriteria(15, "", "",0,"1"));
 
        Assert.assertNotNull(page);
    }

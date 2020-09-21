@@ -46,7 +46,7 @@ public class PluginRepositoryImpl implements PluginRepository {
 
     @Override
     public Page<Plugin> findAllWithPagination(PluginPageCriteria pluginPageCriteria) {
-        long total = pluginMapper.count(pluginPageCriteria.getType());
+        long total = pluginMapper.count(pluginPageCriteria);
         List<Plugin> pluginList = pluginMapper.findAllWithPagination(pluginPageCriteria)
             .stream().map(PluginPO::toDomainModel).collect(Collectors.toList());
         return new Page<>(pluginList, pluginPageCriteria.getLimit(), pluginPageCriteria.getOffset(), total);
