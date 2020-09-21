@@ -22,6 +22,8 @@ import org.edgegallery.developer.infrastructure.persistence.plugin.PluginPO;
 public class PluginPageCriteria extends PageCriteria {
 
     private Integer type;
+    private String pluginName;
+    private  String codeLanguage;
 
     /**
      * create a page object.
@@ -29,9 +31,11 @@ public class PluginPageCriteria extends PageCriteria {
      * @param offset start with
      * @param type plugin type
      */
-    public PluginPageCriteria(int limit, long offset, String type) {
+    public PluginPageCriteria(int limit, String pluginName, String codeLanguage, long offset, String type) {
         super(limit, offset);
 
+        this.codeLanguage = codeLanguage;
+        this.pluginName = pluginName;
         try {
             this.type = Integer.valueOf(type);
         } catch (NumberFormatException e) {
@@ -42,4 +46,13 @@ public class PluginPageCriteria extends PageCriteria {
     public Integer getType() {
         return type;
     }
+
+    public String getCodeLanguage() {
+        return codeLanguage;
+    }
+
+    public String getPluginName() {
+        return pluginName;
+    }
+
 }

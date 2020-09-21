@@ -175,6 +175,12 @@
             resultMap="BaseResultMap">
         select * from tbl_plugin
         <where>
+            <if test="criteria.pluginName != null">
+                pluginname = #{criteria.pluginName}
+            </if>
+            <if test="criteria.codeLanguage != null">
+                codelanguage = #{criteria.codeLanguage}
+            </if>
             <if test="criteria.type != null">
                 plugintype = #{criteria.type}
             </if>
