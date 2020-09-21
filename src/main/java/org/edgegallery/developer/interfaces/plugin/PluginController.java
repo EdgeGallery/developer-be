@@ -134,9 +134,13 @@ public class PluginController {
     @PreAuthorize("hasRole('DEVELOPER_TENANT')")
     public ResponseEntity<Page<PluginDto>> getAll(
         @ApiParam(value = "plugin type:plugin or sdk", required = true) @RequestParam("pluginType") String pluginType,
+        @Pattern(regexp = REGEX_UUID, message = "codeLanguage must be" + " in UUID format")
+        @ApiParam(value = "codeLanguage") @PathVariable("codeLanguage") String codeLanguage,
+        @Pattern(regexp = REGEX_UUID, message = "pluginName must be" + " in UUID format")
+        @ApiParam(value = "pluginName") @PathVariable("pluginName") String pluginName,
         @ApiParam(value = "the max count of one page", required = true) @Min(1) @RequestParam("limit") int limit,
         @ApiParam(value = "start index of the page", required = true) @Min(0) @RequestParam("offset") int offset) {
-        return ResponseEntity.ok(pluginServiceFacade.qurey(pluginType, limit, offset));
+        return ResponseEntity.ok(pluginServiceFacade.qurey(pluginType, codeLanguage, pluginName, limit, offset));
     }
 
     /**
