@@ -90,7 +90,7 @@ public class PluginApiTest {
         Page<PluginDto> page = new Page<PluginDto>(list, 15, 0, 10);
         Mockito.when(pluginServiceFacade.qurey("1", "", "", 15, 0)).thenReturn(page);
 
-        mvc.perform(MockMvcRequestBuilders.get("/mec/developer/v1/plugins/?pluginType=1&limit=15&offset=0")
+        mvc.perform(MockMvcRequestBuilders.get("/mec/developer/v1/plugins/?pluginType=1&limit=15&offset=0&codeLanguage=''&pluginName=''")
             .contentType(MediaType.APPLICATION_JSON_UTF8).accept(MediaType.APPLICATION_JSON_UTF8))
             .andExpect(MockMvcResultMatchers.status().isOk());
     }
