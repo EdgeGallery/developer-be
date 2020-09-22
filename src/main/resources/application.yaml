@@ -51,6 +51,9 @@ spring:
     multipart:
       max-file-size: 20MB
       max-request-size: 20MB
+  autoconfigure:
+    exclude: org.springframework.boot.autoconfigure.security.SecurityAutoConfiguration
+
 
 ###mybtis####
 mybatis:
