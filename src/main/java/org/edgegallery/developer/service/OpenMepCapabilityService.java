@@ -140,9 +140,10 @@ public class OpenMepCapabilityService {
     public Either<FormatRespDto, Boolean> deleteGroup(String groupId) {
         int res = openMepCapabilityMapper.deleteGroup(groupId);
         if (res < 1) {
-            LOGGER.error("Delete group {} failed", groupId);
+            LOGGER.info("{} can not find", groupId);
+        } else {
+            LOGGER.info("Delete group {} success", groupId);
         }
-        LOGGER.info("Delete group {} success", groupId);
         return Either.right(true);
     }
 
@@ -154,9 +155,10 @@ public class OpenMepCapabilityService {
     public Either<FormatRespDto, Boolean> deleteCapability(String capabilityId) {
         int res = openMepCapabilityMapper.deleteCapability(capabilityId);
         if (res < 1) {
-            LOGGER.error("Delete capability {} failed", capabilityId);
+            LOGGER.info("{} can not find", capabilityId);
+        } else {
+            LOGGER.info("Delete capability {} success", capabilityId);
         }
-        LOGGER.info("Delete capability {} success", capabilityId);
         return Either.right(true);
     }
 
