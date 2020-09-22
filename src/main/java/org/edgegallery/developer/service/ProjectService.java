@@ -493,13 +493,13 @@ public class ProjectService {
             FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, Consts.RESPONSE_MESSAGE_CAN_NOT_FIND_PROJECT);
             return Either.left(error);
         }
-        List<ProjectTestConfig> tests = projectMapper.getTestConfigByProjectId(projectId);
-        if (!CollectionUtils.isEmpty(tests)) {
-            // one project just have only one test config
-            LOGGER.error("The project {} has owned a test config", projectId);
-            FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "The project has owned a test config");
-            return Either.left(error);
-        }
+//        List<ProjectTestConfig> tests = projectMapper.getTestConfigByProjectId(projectId);
+//        if (!CollectionUtils.isEmpty(tests)) {
+//            // one project just have only one test config
+//            LOGGER.error("The project {} has owned a test config", projectId);
+//            FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "The project has owned a test config");
+//            return Either.left(error);
+//        }
 
         // move api.yaml to project directory
         String apiFileId = testConfig.getAppApiFileId();
@@ -524,9 +524,14 @@ public class ProjectService {
                 return Either.left(error);
             }
         }
-
         testConfig.setProjectId(projectId);
-        int ret = projectMapper.saveTestConfig(testConfig);
+        List<ProjectTestConfig> tests = projectMapper.getTestConfigByProjectId(projectId);
+        int ret;
+        if (!CollectionUtils.isEmpty(tests)) {
+            ret = projectMapper.updateTestConfig(testConfig);
+        } else {
+            ret = projectMapper.saveTestConfig(testConfig);
+        }
         if (ret > 0) {
             LOGGER.info("Create test {} config success.", testConfig.getTestId());
             return Either.right(projectMapper.getTestConfig(testConfig.getTestId()));
