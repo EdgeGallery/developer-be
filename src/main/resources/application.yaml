@@ -53,8 +53,8 @@ spring:
       max-request-size: 20MB
   security:
     user:
-      name: {SECURITY_NAME: user}
-      password: {SECURITY_PASSWORD: admin}
+      name: {SECURITY_NAME:user}
+      password: {SECURITY_PASSWORD:admin}
 
 
 ###mybtis####
