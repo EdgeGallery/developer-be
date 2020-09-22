@@ -59,7 +59,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.multipart.MultipartFile;
 
-@RunWith(MockitoJUnitRunner.class)
+@RunWith(MockitoJUnitRunner.Silent.class)
 public class PluginApiTest {
     private Gson gson = new Gson();
 
@@ -88,7 +88,7 @@ public class PluginApiTest {
     public void testQueryAllPlugin() throws Exception {
         List<PluginDto> list = new ArrayList<PluginDto>();
         Page<PluginDto> page = new Page<PluginDto>(list, 15, 0, 10);
-        Mockito.when(pluginServiceFacade.qurey("1", "", "", 15, 0)).thenReturn(page);
+        Mockito.when(pluginServiceFacade.qurey("1", "python", "csa", 15, 0)).thenReturn(page);
 
         mvc.perform(MockMvcRequestBuilders.get("/mec/developer/v1/plugins/?pluginType=1&limit=15&offset=0&codeLanguage=''&pluginName=''")
             .contentType(MediaType.APPLICATION_JSON_UTF8).accept(MediaType.APPLICATION_JSON_UTF8))
