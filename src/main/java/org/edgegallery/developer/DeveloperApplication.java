@@ -31,7 +31,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
-@SpringBootApplication(scanBasePackages = "org.edgegallery.developer")
+@SpringBootApplication(exclude = {SecurityAutoConfiguration.class}, scanBasePackages = "org.edgegallery.developer")
 @MapperScan(basePackages = {"org.edgegallery.developer.mapper","org.edgegallery.developer.infrastructure.persistence"})
 @EnableScheduling
 @EnableServiceComb
