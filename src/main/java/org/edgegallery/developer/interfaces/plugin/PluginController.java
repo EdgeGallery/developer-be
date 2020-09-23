@@ -44,7 +44,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -113,7 +112,7 @@ public class PluginController {
         @ApiParam(value = "the author's Id of upload plugin", required = true) @RequestParam(name = "userId")
             String userId, @Pattern(regexp = REGEX_USERNAME,
         message = "username can only be a combination of letters and numbers, the length is 6 to 30")
-    @ApiParam(value = "the author's name of upload plugin", required = true) @RequestParam(name = "userName")
+        @ApiParam(value = "the author's name of upload plugin", required = true) @RequestParam(name = "userName")
         String userName) throws IOException {
         Plugin plugin = new Plugin(pluginName, introduction, codeLanguage, pluginType, version,
             new User(userId, userName));
@@ -168,9 +167,6 @@ public class PluginController {
     public ResponseEntity<Boolean> deletePlugin(
         @Pattern(regexp = REGEX_UUID, message = "pluginId must be in UUID format") @PathVariable("pluginId")
             String pluginId) {
-        if (StringUtils.isEmpty(pluginId) || !pluginId.matches(REGEX_UUID)) {
-            return ResponseEntity.badRequest().body(false);
-        }
         String userId = AccessUserUtil.getUser().getUserId();
         pluginServiceFacade.deleteByPluginId(pluginId, userId);
         return ResponseEntity.ok(true);
@@ -198,10 +194,8 @@ public class PluginController {
     public ResponseEntity<InputStreamResource> downloadFile(
         @Pattern(regexp = REGEX_UUID, message = "pluginId must be in UUID format")
         @ApiParam(value = "pluginId", required = true) @PathVariable("pluginId") String pluginId) throws IOException {
-        if (StringUtils.isEmpty(pluginId) || !pluginId.matches(REGEX_UUID)) {
-            return ResponseEntity.badRequest().body(null);
-        }
-        return ResponseEntity.ok().header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_OCTET_STREAM_VALUE)
+        return ResponseEntity.ok()
+            .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_OCTET_STREAM_VALUE)
             .header(HttpHeaders.CONTENT_DISPOSITION,
                 "attachment;filename=" + pluginServiceFacade.getPluginName(pluginId))
             .body(new InputStreamResource(pluginServiceFacade.downloadFile(pluginId)));
@@ -224,9 +218,6 @@ public class PluginController {
     public ResponseEntity<InputStreamResource> getLogoFile(
         @Pattern(regexp = REGEX_UUID, message = "pluginId must be" + " in UUID format")
         @ApiParam(value = "pluginId", required = true) @PathVariable("pluginId") String pluginId) throws IOException {
-        if (StringUtils.isEmpty(pluginId) || !pluginId.matches(REGEX_UUID)) {
-            return ResponseEntity.badRequest().body(null);
-        }
         return new ResponseEntity<>(new InputStreamResource(pluginServiceFacade.downloadLogo(pluginId)), HttpStatus.OK);
     }
 
@@ -252,9 +243,6 @@ public class PluginController {
     public ResponseEntity<InputStreamResource> getApiFile(
         @Pattern(regexp = REGEX_UUID, message = "pluginId must be" + " in UUID format")
         @ApiParam(value = "pluginId", required = true) @PathVariable("pluginId") String pluginId) throws IOException {
-        if (StringUtils.isEmpty(pluginId) || !pluginId.matches(REGEX_UUID)) {
-            return ResponseEntity.badRequest().body(null);
-        }
         return new ResponseEntity<>(new InputStreamResource(pluginServiceFacade.downloadApiFile(pluginId)),
             HttpStatus.OK);
     }
@@ -299,9 +287,6 @@ public class PluginController {
         @ApiParam(value = "plugin introduction", required = false) @RequestPart("introduction") String introduction,
         @Pattern(regexp = REGEX_UUID, message = "pluginId must be in UUID format") @PathVariable("pluginId")
             String pluginId) throws IOException {
-        if (StringUtils.isEmpty(pluginId) || !pluginId.matches(REGEX_UUID)) {
-            return ResponseEntity.badRequest().body(null);
-        }
         Plugin plugin = new Plugin(pluginId, pluginName, introduction, codeLanguage, pluginType, version);
         return ResponseEntity.ok(pluginServiceFacade.updatePlugin(plugin, pluginFile, logoFile, apiFile));
     }
@@ -338,10 +323,7 @@ public class PluginController {
         @Pattern(regexp = REGEX_UUID, message = "userId must be in UUID format") @RequestParam(value = "userId")
             String userId, @Pattern(regexp = REGEX_USERNAME,
         message = "username can only be a combination of letters and numbers, the length is 6 to 30")
-    @RequestParam(value = "userName") String userName) {
-        if (StringUtils.isEmpty(pluginId) || StringUtils.isEmpty(userId) || !pluginId.matches(REGEX_UUID)) {
-            return ResponseEntity.badRequest().body(null);
-        }
+        @RequestParam(value = "userName") String userName) {
         return ResponseEntity.ok(PluginDto.of(pluginServiceFacade.mark(pluginId, score, new User(userId, userName))));
 
     }

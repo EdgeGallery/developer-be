@@ -25,7 +25,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
-import java.util.regex.Pattern;
 import javax.ws.rs.core.Response.Status;
 import org.apache.commons.io.FileUtils;
 import org.edgegallery.developer.common.Consts;
@@ -52,7 +51,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 import org.yaml.snakeyaml.Yaml;
 
@@ -81,14 +79,7 @@ public class UploadFileService {
      * @return
      */
     public Either<FormatRespDto, ResponseEntity<byte[]>> getFile(String fileId, String userId, String type) {
-        if(StringUtils.isEmpty(fileId)||StringUtils.isEmpty(userId)){
-            return Either.left(new FormatRespDto(Status.BAD_REQUEST, "fileId or userId is empty."));
-        }
-        if (!fileId.matches(REGEX_UUID) || !userId.matches(REGEX_UUID)) {
-            LOGGER.error("fileId {} or userId {} must be UUID format", fileId, userId);
-            FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "fileId or userId must be UUID format.");
-            return Either.left(error);
-        }
+
         UploadedFile uploadedFile = uploadedFileMapper.getFileById(fileId);
         if (uploadedFile == null) {
             LOGGER.error("can not find file {} in db", fileId);
@@ -120,14 +111,7 @@ public class UploadFileService {
      * @return
      */
     public Either<FormatRespDto, UploadedFile> getApiFile(String fileId, String userId) {
-        if(StringUtils.isEmpty(fileId)||StringUtils.isEmpty(userId)){
-            return Either.left(new FormatRespDto(Status.BAD_REQUEST, "fileId or userId is empty."));
-        }
-        if (!fileId.matches(REGEX_UUID) || !userId.matches(REGEX_UUID)) {
-            LOGGER.error("fileId {} or userId {} must be UUID format", fileId, userId);
-            FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "fileId or userId must be UUID format.");
-            return Either.left(error);
-        }
+
         UploadedFile uploadedFile = uploadedFileMapper.getFileById(fileId);
         if (uploadedFile != null) {
             File file = new File(InitConfigUtil.getWorkSpaceBaseDir() + uploadedFile.getFilePath());
@@ -329,14 +313,6 @@ public class UploadFileService {
      */
     public Either<FormatRespDto, List<HelmTemplateYamlRespDto>> getHelmTemplateYamlList(String userId,
         String projectId) {
-        if(StringUtils.isEmpty(userId)){
-            return Either.left(new FormatRespDto(Status.BAD_REQUEST, "userId is empty."));
-        }
-        if (!projectId.matches(REGEX_UUID) || !userId.matches(REGEX_UUID)) {
-            LOGGER.error("projectId {} or userId {} must be UUID format", projectId, userId);
-            FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "projectId or userId must be UUID format.");
-            return Either.left(error);
-        }
         List<HelmTemplateYamlPo> templateYamlPoList = helmTemplateYamlMapper
             .queryTemplateYamlByProjectId(userId, projectId);
         List<HelmTemplateYamlRespDto> helmTemplateYamlRespDtoList = new ArrayList<>();
@@ -355,12 +331,6 @@ public class UploadFileService {
      * @return
      */
     public Either<FormatRespDto, String> deleteHelmTemplateYamlByFileId(String fileId) {
-        boolean isFileId = Pattern.compile(REGEX_UUID).matcher(fileId).find();
-        if (!isFileId) {
-            LOGGER.error("fileId {}  must be UUID format", fileId);
-            FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "fileId  must be UUID format.");
-            return Either.left(error);
-        }
         int deleteResult = helmTemplateYamlMapper.deleteYamlByFileId(fileId);
         if (deleteResult <= 0) {
             LOGGER.error("Failed to delete helm template yaml with file id : {}", fileId);
