@@ -33,14 +33,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 
 @Service("openMepCapabilityService")
 public class OpenMepCapabilityService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OpenMepCapabilityService.class);
-
-    private static final String REGEX_UUID = "[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}";
 
     @Autowired
     private OpenMepCapabilityMapper openMepCapabilityMapper;
@@ -82,13 +79,6 @@ public class OpenMepCapabilityService {
      * @return
      */
     public Either<FormatRespDto, OpenMepCapabilityGroup> getCapabilitiesByGroupId(String groupId) {
-        if (StringUtils.isEmpty(groupId)) {
-            return Either.left(new FormatRespDto(Status.BAD_REQUEST, "groupId is empty."));
-        }
-        if (!groupId.matches(REGEX_UUID)) {
-            LOGGER.error("{} must be UUID format", groupId);
-            return Either.left(new FormatRespDto(Status.BAD_REQUEST, "groupId must be in UUID format"));
-        }
         OpenMepCapabilityGroup group = openMepCapabilityMapper.getOpenMepCapabilitiesByGroupId(groupId);
         if (group != null) {
             LOGGER.info("Get capability by {} success", groupId);
@@ -120,7 +110,7 @@ public class OpenMepCapabilityService {
      * @return
      */
     public Either<FormatRespDto, OpenMepCapabilityDetail> createCapability(String groupId,
-        OpenMepCapabilityDetail capability) {
+                                                                           OpenMepCapabilityDetail capability) {
         OpenMepCapabilityGroup group = openMepCapabilityMapper.getGroup(groupId);
         if (group == null) {
             LOGGER.error("Can not find capability by {}", groupId);
@@ -148,13 +138,6 @@ public class OpenMepCapabilityService {
      * @return
      */
     public Either<FormatRespDto, Boolean> deleteGroup(String groupId) {
-        if (StringUtils.isEmpty(groupId)) {
-            return Either.left(new FormatRespDto(Status.BAD_REQUEST, "groupId is empty."));
-        }
-        if (!groupId.matches(REGEX_UUID)) {
-            LOGGER.error("{} must be UUID format", groupId);
-            return Either.left(new FormatRespDto(Status.BAD_REQUEST, "groupId must be in UUID format"));
-        }
         int res = openMepCapabilityMapper.deleteGroup(groupId);
         if (res < 1) {
             LOGGER.info("{} can not find", groupId);
@@ -170,13 +153,6 @@ public class OpenMepCapabilityService {
      * @return
      */
     public Either<FormatRespDto, Boolean> deleteCapability(String capabilityId) {
-        if (StringUtils.isEmpty(capabilityId)) {
-            return Either.left(new FormatRespDto(Status.BAD_REQUEST, "capabilityId is empty."));
-        }
-        if (!capabilityId.matches(REGEX_UUID)) {
-            LOGGER.error("{} must be UUID format", capabilityId);
-            return Either.left(new FormatRespDto(Status.BAD_REQUEST, "capabilityId must be in UUID format"));
-        }
         int res = openMepCapabilityMapper.deleteCapability(capabilityId);
         if (res < 1) {
             LOGGER.info("{} can not find", capabilityId);
