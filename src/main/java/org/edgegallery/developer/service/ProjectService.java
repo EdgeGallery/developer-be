@@ -19,6 +19,7 @@ package org.edgegallery.developer.service;
 import static org.edgegallery.developer.common.Consts.QUERY_APPLICATIONS_PERIOD;
 import static org.edgegallery.developer.common.Consts.QUERY_APPLICATIONS_TIMES;
 
+
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.spencerwi.either.Either;
@@ -31,6 +32,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.regex.Pattern;
 import javax.ws.rs.core.Response.Status;
 import org.apache.commons.lang3.StringUtils;
 import org.edgegallery.developer.common.Consts;
@@ -77,6 +79,8 @@ public class ProjectService {
 
     private static Gson gson = new Gson();
 
+    private static final String REGEX_UUID = "[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}";
+
     @Autowired
     private ProjectMapper projectMapper;
 
@@ -112,6 +116,15 @@ public class ProjectService {
      * @return
      */
     public Either<FormatRespDto, ApplicationProject> getProject(String userId, String projectId) {
+        if (org.apache.commons.lang3.StringUtils.isEmpty(projectId) || org.apache.commons.lang3.StringUtils
+            .isEmpty(userId)) {
+            return Either.left(new FormatRespDto(Status.BAD_REQUEST, "projectId or userId is empty."));
+        }
+        if (!userId.matches(REGEX_UUID) || !projectId.matches(REGEX_UUID)) {
+            LOGGER.error("userId {} or projectId {} must be UUID format", userId, projectId);
+            FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "userId or projectId must be UUID format.");
+            return Either.left(error);
+        }
         ApplicationProject project = projectMapper.getProject(userId, projectId);
         if (project == null) {
             LOGGER.error("Can not find the project by userId {} and projectId {}", userId, projectId);
@@ -223,6 +236,14 @@ public class ProjectService {
      * @return
      */
     public Either<FormatRespDto, Boolean> deleteProject(String userId, String projectId) {
+        if (org.apache.commons.lang3.StringUtils.isEmpty(projectId) || org.apache.commons.lang3.StringUtils
+            .isEmpty(userId)) {
+            return Either.left(new FormatRespDto(Status.BAD_REQUEST, "projectId or userId is empty."));
+        }
+        if (!userId.matches(REGEX_UUID) || !!projectId.matches(REGEX_UUID)) {
+            LOGGER.error("projectId {} or userId {} must be UUID format", projectId, userId);
+            return Either.left(new FormatRespDto(Status.BAD_REQUEST, "projectId or userId must be UUID format."));
+        }
         ApplicationProject project = projectMapper.getProject(userId, projectId);
         if (project == null) {
             LOGGER.info("Can not find project by userId {} and projectId {}, do not need delete.", userId, projectId);
@@ -445,10 +466,9 @@ public class ProjectService {
             .getWorkloadStatus(host.getProtocol(), host.getIp(), host.getPort(), appInstanceId, token);
         int times = 1;
         while (workloadStatus == null) {
-            LOGGER.error(
-                "Failed to get workloadStatus which appInstanceId is : "
-                    + "{}, and will try for {} times every {} milliseconds",
-                appInstanceId, QUERY_APPLICATIONS_TIMES, QUERY_APPLICATIONS_PERIOD);
+            LOGGER.error("Failed to get workloadStatus which appInstanceId is : "
+                    + "{}, and will try for {} times every {} milliseconds", appInstanceId, QUERY_APPLICATIONS_TIMES,
+                QUERY_APPLICATIONS_PERIOD);
             Thread.sleep(QUERY_APPLICATIONS_PERIOD);
             workloadStatus = HttpClientUtil
                 .getWorkloadStatus(host.getProtocol(), host.getIp(), host.getPort(), appInstanceId, token);
@@ -493,29 +513,29 @@ public class ProjectService {
             FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, Consts.RESPONSE_MESSAGE_CAN_NOT_FIND_PROJECT);
             return Either.left(error);
         }
-//        List<ProjectTestConfig> tests = projectMapper.getTestConfigByProjectId(projectId);
-//        if (!CollectionUtils.isEmpty(tests)) {
-//            // one project just have only one test config
-//            LOGGER.error("The project {} has owned a test config", projectId);
-//            FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "The project has owned a test config");
-//            return Either.left(error);
-//        }
+        //        List<ProjectTestConfig> tests = projectMapper.getTestConfigByProjectId(projectId);
+        //        if (!CollectionUtils.isEmpty(tests)) {
+        //            // one project just have only one test config
+        //            LOGGER.error("The project {} has owned a test config", projectId);
+        //            FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "The project has owned a test config");
+        //            return Either.left(error);
+        //        }
 
         // move api.yaml to project directory
         String apiFileId = testConfig.getAppApiFileId();
-//        if (apiFileId == null) {
-//            LOGGER.error("Api file id is null");
-//            FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "Api file id is null");
-//            return Either.left(error);
-//        }
-//        try {
-//            moveFileToWorkSpaceById(apiFileId, projectId);
-//        } catch (IOException e) {
-//            LOGGER.error("Move api file error {}", e.getMessage());
-//            FormatRespDto error = gson.fromJson(e.getMessage(), FormatRespDto.class);
-//            return Either.left(error);
-//        }
-        if (apiFileId !=null) {
+        //        if (apiFileId == null) {
+        //            LOGGER.error("Api file id is null");
+        //            FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "Api file id is null");
+        //            return Either.left(error);
+        //        }
+        //        try {
+        //            moveFileToWorkSpaceById(apiFileId, projectId);
+        //        } catch (IOException e) {
+        //            LOGGER.error("Move api file error {}", e.getMessage());
+        //            FormatRespDto error = gson.fromJson(e.getMessage(), FormatRespDto.class);
+        //            return Either.left(error);
+        //        }
+        if (apiFileId != null) {
             try {
                 moveFileToWorkSpaceById(apiFileId, projectId);
             } catch (IOException e) {
@@ -585,6 +605,14 @@ public class ProjectService {
      * @return
      */
     public Either<FormatRespDto, ProjectTestConfig> getTestConfig(String projectId) {
+        if(org.apache.commons.lang3.StringUtils.isEmpty(projectId)){
+            return Either.left(new FormatRespDto(Status.BAD_REQUEST, "projectId is empty."));
+        }
+        if (!projectId.matches(REGEX_UUID)) {
+            LOGGER.error("projectId {} must be UUID format", projectId);
+            FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "projectId must be UUID format.");
+            return Either.left(error);
+        }
         List<ProjectTestConfig> tests = projectMapper.getTestConfigByProjectId(projectId);
         if (CollectionUtils.isEmpty(tests)) {
             LOGGER.warn("Can not find the test config by projectId {}", projectId);
@@ -685,6 +713,16 @@ public class ProjectService {
      * @return
      */
     public Either<FormatRespDto, Boolean> deleteImageById(String projectId, String imageId) {
+
+        if (org.apache.commons.lang3.StringUtils.isEmpty(projectId) || org.apache.commons.lang3.StringUtils
+            .isEmpty(imageId)) {
+            return Either.left(new FormatRespDto(Status.BAD_REQUEST, "projectId or imageId is empty."));
+        }
+        if (!projectId.matches(REGEX_UUID) || !imageId.matches(REGEX_UUID)) {
+            LOGGER.error("projectId {} or imageId {} must be UUID format", projectId, imageId);
+            FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "projectId or imageId must be UUID format.");
+            return Either.left(error);
+        }
         ProjectImageConfig imageConfig = projectMapper.getImageConfigByImageId(imageId);
         if (imageConfig == null || !imageConfig.getProjectId().equals(projectId)) {
             LOGGER.error("Can not find image {} with projectId {}", imageId, projectId);
@@ -702,6 +740,14 @@ public class ProjectService {
      * @return
      */
     public Either<FormatRespDto, ProjectImageResponse> getImagesByProjectId(String projectId) {
+        if (org.apache.commons.lang3.StringUtils.isEmpty(projectId)) {
+            return Either.left(new FormatRespDto(Status.BAD_REQUEST, "projectId is empty."));
+        }
+        if (!projectId.matches(REGEX_UUID)) {
+            LOGGER.error("projectId {} must be UUID format", projectId);
+            FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "projectId  must be UUID format.");
+            return Either.left(error);
+        }
         List<ProjectImageConfig> imageConfigList = projectMapper.getImageConfigByProjectId(projectId);
         ProjectImageResponse res = new ProjectImageResponse();
         res.setImages(imageConfigList);

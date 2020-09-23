@@ -58,6 +58,8 @@ public class TestCaseService {
 
     private static final Logger log = LoggerFactory.getLogger(TestCaseService.class);
 
+    private static final String REGEX_UUID = "[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}";
+
     private static final int TASK_START_SUCCESS = 0;
 
     private static final int TASK_START_FAILED = 1;
@@ -196,6 +198,10 @@ public class TestCaseService {
 
         if (StringUtils.isEmpty(appId) || StringUtils.isEmpty(taskId)) {
             return Either.left(new FormatRespDto(Response.Status.BAD_REQUEST, "appId or taskId is empty."));
+        }
+
+        if (!appId.matches(REGEX_UUID) || !taskId.matches(REGEX_UUID)) {
+            return Either.left(new FormatRespDto(Response.Status.BAD_REQUEST, "appId or taskId must be UUID Format."));
         }
         TestApp app = testMapper.getAppById(appId);
         TestTask task = testMapper.getTestTaskById(taskId);

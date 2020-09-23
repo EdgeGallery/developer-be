@@ -45,12 +45,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 @Service("testAppService")
 public class TestAppService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TestAppService.class);
+
+    private static final String REGEX_UUID = "[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}";
 
     @Autowired
     private TestAppMapper testAppMapper;
@@ -90,7 +93,7 @@ public class TestAppService {
         } catch (IllegalStateException | IOException e) {
             LOGGER.error("upload app or it's logo file,occur {}", e.getMessage());
             return Either.left(new FormatRespDto(Response.Status.INTERNAL_SERVER_ERROR,
-                    Consts.RESPONSE_MESSAGE_INTERNAL_SERVER_ERROR));
+                Consts.RESPONSE_MESSAGE_INTERNAL_SERVER_ERROR));
 
         }
         return addApp(app);
@@ -130,7 +133,7 @@ public class TestAppService {
         } catch (PersistenceException e) {
             LOGGER.error("upload app occur exception", e.getMessage());
             return Either.left(new FormatRespDto(Response.Status.INTERNAL_SERVER_ERROR,
-                    Consts.RESPONSE_MESSAGE_INTERNAL_SERVER_ERROR));
+                Consts.RESPONSE_MESSAGE_INTERNAL_SERVER_ERROR));
         }
     }
 
@@ -141,6 +144,12 @@ public class TestAppService {
      */
     public Either<FormatRespDto, TestTaskListResponse> getTaskByParam(String appName, String status, String beginTime,
         String endTime, String userId) {
+        if (StringUtils.isEmpty(userId)) {
+            return Either.left(new FormatRespDto(Response.Status.BAD_REQUEST, "userId is empty."));
+        }
+        if (!userId.matches(REGEX_UUID)) {
+            return Either.left(new FormatRespDto(Response.Status.BAD_REQUEST, "userId must be UUID format"));
+        }
         TaskRequestParam task = new TaskRequestParam();
         task.setUserId(userId);
         if (appName != null && !appName.equals("")) {
@@ -163,7 +172,7 @@ public class TestAppService {
         } catch (PersistenceException e) {
             LOGGER.error("query test task,occur exception", e.getMessage());
             return Either.left(new FormatRespDto(Response.Status.INTERNAL_SERVER_ERROR,
-                    Consts.RESPONSE_MESSAGE_INTERNAL_SERVER_ERROR));
+                Consts.RESPONSE_MESSAGE_INTERNAL_SERVER_ERROR));
         }
     }
 
@@ -181,7 +190,7 @@ public class TestAppService {
         } catch (PersistenceException e) {
             LOGGER.error("get app tag list,occur exception", e.getMessage());
             return Either.left(new FormatRespDto(Response.Status.INTERNAL_SERVER_ERROR,
-                    Consts.RESPONSE_MESSAGE_INTERNAL_SERVER_ERROR));
+                Consts.RESPONSE_MESSAGE_INTERNAL_SERVER_ERROR));
         }
     }
 
@@ -211,7 +220,7 @@ public class TestAppService {
         } catch (PersistenceException e) {
             LOGGER.error("upload app to appstore with error", e.getMessage());
             return Either.left(new FormatRespDto(Response.Status.INTERNAL_SERVER_ERROR,
-                    Consts.RESPONSE_MESSAGE_INTERNAL_SERVER_ERROR));
+                Consts.RESPONSE_MESSAGE_INTERNAL_SERVER_ERROR));
         }
     }
 
