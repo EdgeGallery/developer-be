@@ -28,15 +28,6 @@ CREATE TABLE IF NOT EXISTS tbl_appfunction (
 ;
 
 -- ----------------------------
--- Records of tbl_appfunction
--- ----------------------------
-INSERT INTO  tbl_appfunction VALUES ('53fc40e9a1f048e4b4310e8ac30856b3', 'CPU', '处理速度', '2019-10-23 03:27:36');
-INSERT INTO  tbl_appfunction VALUES ('343d42a3b59c46f9afda063b8be4cc8f', 'GPU', '处理图片', '2019-10-23 03:27:54');
-INSERT INTO  tbl_appfunction VALUES ('526f86afd6b841ae9df56e30d37f0574', 'Memory Disk', '存储优先', '2019-11-02 10:48:33');
-INSERT INTO  tbl_appfunction VALUES ('8167fc046c2d4e42997c612fdfbd7c8f', 'AI', '存储', '2019-10-23 05:37:46');
-
-
--- ----------------------------
 -- Table structure for tbl_downloadrecord
 -- ----------------------------
 CREATE TABLE IF NOT EXISTS tbl_downloadrecord (
@@ -262,35 +253,44 @@ CREATE TABLE IF NOT EXISTS tbl_api_emulator (
 ;
 -- workspace table end -----------------
 
+
+-- ----------------------------
+-- Records of tbl_appfunction
+-- ----------------------------
+MERGE INTO tbl_appfunction  KEY(functionid) VALUES ('53fc40e9a1f048e4b4310e8ac30856b3', 'CPU', '处理速度', '2019-10-23 03:27:36'),
+('343d42a3b59c46f9afda063b8be4cc8f', 'GPU', '处理图片', '2019-10-23 03:27:54'),
+('526f86afd6b841ae9df56e30d37f0574', 'Memory Disk', '存储优先', '2019-11-02 10:48:33'),
+('8167fc046c2d4e42997c612fdfbd7c8f', 'AI', '存储', '2019-10-23 05:37:46');
+
 -- workspace mep capability init --
-INSERT INTO tbl_openmep_capability (group_id, name, type, description) VALUES ('c0db376b-ae50-48fc-b9f7-58a609e3ee12', 'Traffic', 'OPENMEP', 'L3/L4规则API,L7规则API');
-INSERT INTO tbl_openmep_capability (group_id, name, type, description) VALUES ('a6efaa2c-ad99-432f-9405-e28e90f44f15', 'Service Discovery', 'OPENMEP', 'Service Discovery');
-INSERT INTO tbl_openmep_capability (group_id, name, type, description) VALUES ('406593b4-c782-409c-8f46-a6fd5e1f6221', 'Location', 'OPENMEP', '自定义不规则区域分析API,标准栅格区域分析API,特定人群流动分析API,API区域原子报表分析,匿名历史位置轨');
-INSERT INTO tbl_openmep_capability (group_id, name, type, description) VALUES ('72a1434d-fbb0-459b-9b92-ce1e02a121c2', 'Bandwidth', 'OPENMEP', 'MBB应用,FMC应用,UIC应用');
-INSERT INTO tbl_openmep_capability (group_id, name, type, description) VALUES ('d8f06d28-390c-4a06-905e-120f56279bbc', 'Face Recognition', 'OPENMEP', 'Face Recognition');
+MERGE INTO tbl_openmep_capability (group_id, name, type, description) KEY(group_id) VALUES ('c0db376b-ae50-48fc-b9f7-58a609e3ee12', 'Traffic', 'OPENMEP', 'L3/L4规则API,L7规则API'),
+('a6efaa2c-ad99-432f-9405-e28e90f44f15', 'Service Discovery', 'OPENMEP', 'Service Discovery'),
+('406593b4-c782-409c-8f46-a6fd5e1f6221', 'Location', 'OPENMEP', '自定义不规则区域分析API,标准栅格区域分析API,特定人群流动分析API,API区域原子报表分析,匿名历史位置轨'),
+('72a1434d-fbb0-459b-9b92-ce1e02a121c2', 'Bandwidth', 'OPENMEP', 'MBB应用,FMC应用,UIC应用'),
+('d8f06d28-390c-4a06-905e-120f56279bbc', 'Face Recognition', 'OPENMEP', 'Face Recognition');
 
 
-INSERT INTO tbl_openmep_capability_detail (detail_id, service, version, description, provider, group_id, api_file_id) VALUES ('8d93cb64-e9ff-468f-a5b1-160efa5c4f05', 'Face Recognition service plus', 'v1', 'provide the face recognition plus capabilities for apps', 'Huawei', 'd8f06d28-390c-4a06-905e-120f56279bbc', '7dd477d8-bcc0-4e2a-a48d-2b587a30026a');
-INSERT INTO tbl_openmep_capability_detail (detail_id, service, version, description, provider, group_id, api_file_id) VALUES ('6f250fc0-0961-470f-bf17-e9bba8e56c12', 'Face Recognition service', 'v1', 'provide the face recognition capabilities for apps', 'Huawei', 'd8f06d28-390c-4a06-905e-120f56279bbc', 'd0f8fa57-2f4c-4182-be33-0a508964d04a');
-INSERT INTO tbl_openmep_capability_detail (detail_id, service, version, description, provider, group_id, api_file_id) VALUES ('143e8608-7304-4932-9d99-4bd6b115dac8', 'Service Discovery', 'v1', 'provide the service discovery capabilities for apps', 'Huawei', 'a6efaa2c-ad99-432f-9405-e28e90f44f15', '540e0817-f6ea-42e5-8c5b-cb2daf9925a3');
-INSERT INTO tbl_openmep_capability_detail (detail_id, service, version, description, provider, group_id, api_file_id) VALUES ('ee7fbc17-f370-4c02-a9ab-680a41cd0255', 'Bandwidth service', 'v1', 'provide the bandwidth capabilities for apps', 'Huawei', '72a1434d-fbb0-459b-9b92-ce1e02a121c2', '7c544903-aa4f-40e0-bd8c-cf6e17c37c12');
-INSERT INTO tbl_openmep_capability_detail (detail_id, service, version, description, provider, group_id, api_file_id) VALUES ('146f4f87-4027-4ad8-af99-ec4a6f6bcc3c', 'Location service', 'v1', 'provide the location capabilities for apps', 'Huawei', '406593b4-c782-409c-8f46-a6fd5e1f6221', '688f259e-48eb-407d-8604-7feb19cf1f44');
-INSERT INTO tbl_openmep_capability_detail (detail_id, service, version, description, provider, group_id, api_file_id) VALUES ('3fda958c-ef56-44c9-bf3b-469cf5d54e33', 'Traffic service', 'v1', 'provide the traffic capabilities for apps', 'Huawei', 'c0db376b-ae50-48fc-b9f7-58a609e3ee12', '9f1f13a0-8554-4dfa-90a7-d2765238fca7');
+MERGE INTO tbl_openmep_capability_detail (detail_id, service, version, description, provider, group_id, api_file_id) KEY(detail_id) VALUES ('8d93cb64-e9ff-468f-a5b1-160efa5c4f05', 'Face Recognition service plus', 'v1', 'provide the face recognition plus capabilities for apps', 'Huawei', 'd8f06d28-390c-4a06-905e-120f56279bbc', '7dd477d8-bcc0-4e2a-a48d-2b587a30026a');
+MERGE INTO tbl_openmep_capability_detail (detail_id, service, version, description, provider, group_id, api_file_id) KEY(detail_id) VALUES ('6f250fc0-0961-470f-bf17-e9bba8e56c12', 'Face Recognition service', 'v1', 'provide the face recognition capabilities for apps', 'Huawei', 'd8f06d28-390c-4a06-905e-120f56279bbc', 'd0f8fa57-2f4c-4182-be33-0a508964d04a');
+MERGE INTO tbl_openmep_capability_detail (detail_id, service, version, description, provider, group_id, api_file_id) KEY(detail_id) VALUES ('143e8608-7304-4932-9d99-4bd6b115dac8', 'Service Discovery', 'v1', 'provide the service discovery capabilities for apps', 'Huawei', 'a6efaa2c-ad99-432f-9405-e28e90f44f15', '540e0817-f6ea-42e5-8c5b-cb2daf9925a3');
+MERGE INTO tbl_openmep_capability_detail (detail_id, service, version, description, provider, group_id, api_file_id) KEY(detail_id) VALUES ('ee7fbc17-f370-4c02-a9ab-680a41cd0255', 'Bandwidth service', 'v1', 'provide the bandwidth capabilities for apps', 'Huawei', '72a1434d-fbb0-459b-9b92-ce1e02a121c2', '7c544903-aa4f-40e0-bd8c-cf6e17c37c12');
+MERGE INTO tbl_openmep_capability_detail (detail_id, service, version, description, provider, group_id, api_file_id) KEY(detail_id) VALUES ('146f4f87-4027-4ad8-af99-ec4a6f6bcc3c', 'Location service', 'v1', 'provide the location capabilities for apps', 'Huawei', '406593b4-c782-409c-8f46-a6fd5e1f6221', '688f259e-48eb-407d-8604-7feb19cf1f44');
+MERGE INTO tbl_openmep_capability_detail (detail_id, service, version, description, provider, group_id, api_file_id) KEY(detail_id) VALUES ('3fda958c-ef56-44c9-bf3b-469cf5d54e33', 'Traffic service', 'v1', 'provide the traffic capabilities for apps', 'Huawei', 'c0db376b-ae50-48fc-b9f7-58a609e3ee12', '9f1f13a0-8554-4dfa-90a7-d2765238fca7');
 
 
-INSERT INTO tbl_uploaded_file (file_id, file_name, is_temp, user_id, upload_date, file_path) VALUES ('7dd477d8-bcc0-4e2a-a48d-2b587a30026a', 'Face Recognition service plus.json', false, 'admin', '2020-01-01 00:00:00.000000', '/uploaded_files/mep_capability/7dd477d8-bcc0-4e2a-a48d-2b587a30026a');
-INSERT INTO tbl_uploaded_file (file_id, file_name, is_temp, user_id, upload_date, file_path) VALUES ('d0f8fa57-2f4c-4182-be33-0a508964d04a', 'Face Recognition service.json', false, 'admin', '2020-01-01 00:00:00.000000', '/uploaded_files/mep_capability/d0f8fa57-2f4c-4182-be33-0a508964d04a');
-INSERT INTO tbl_uploaded_file (file_id, file_name, is_temp, user_id, upload_date, file_path) VALUES ('540e0817-f6ea-42e5-8c5b-cb2daf9925a3', 'Service Discovery.json', false, 'admin', '2020-01-01 00:00:00.000000', '/uploaded_files/mep_capability/540e0817-f6ea-42e5-8c5b-cb2daf9925a3');
-INSERT INTO tbl_uploaded_file (file_id, file_name, is_temp, user_id, upload_date, file_path) VALUES ('7c544903-aa4f-40e0-bd8c-cf6e17c37c12', 'Bandwidth service.json', false, 'admin', '2020-01-01 00:00:00.000000', '/uploaded_files/mep_capability/7c544903-aa4f-40e0-bd8c-cf6e17c37c12');
-INSERT INTO tbl_uploaded_file (file_id, file_name, is_temp, user_id, upload_date, file_path) VALUES ('688f259e-48eb-407d-8604-7feb19cf1f44', 'Location service.json', false, 'admin', '2020-01-01 00:00:00.000000', '/uploaded_files/mep_capability/688f259e-48eb-407d-8604-7feb19cf1f44');
-INSERT INTO tbl_uploaded_file (file_id, file_name, is_temp, user_id, upload_date, file_path) VALUES ('9f1f13a0-8554-4dfa-90a7-d2765238fca7', 'Traffic service.json', false, 'admin', '2020-01-01 00:00:00.000000', '/uploaded_files/mep_capability/9f1f13a0-8554-4dfa-90a7-d2765238fca7');
+MERGE INTO tbl_uploaded_file (file_id, file_name, is_temp, user_id, upload_date, file_path) KEY(file_id) VALUES ('7dd477d8-bcc0-4e2a-a48d-2b587a30026a', 'Face Recognition service plus.json', false, 'admin', '2020-01-01 00:00:00.000000', '/uploaded_files/mep_capability/7dd477d8-bcc0-4e2a-a48d-2b587a30026a');
+MERGE INTO tbl_uploaded_file (file_id, file_name, is_temp, user_id, upload_date, file_path) KEY(file_id) VALUES ('d0f8fa57-2f4c-4182-be33-0a508964d04a', 'Face Recognition service.json', false, 'admin', '2020-01-01 00:00:00.000000', '/uploaded_files/mep_capability/d0f8fa57-2f4c-4182-be33-0a508964d04a');
+MERGE INTO tbl_uploaded_file (file_id, file_name, is_temp, user_id, upload_date, file_path) KEY(file_id) VALUES ('540e0817-f6ea-42e5-8c5b-cb2daf9925a3', 'Service Discovery.json', false, 'admin', '2020-01-01 00:00:00.000000', '/uploaded_files/mep_capability/540e0817-f6ea-42e5-8c5b-cb2daf9925a3');
+MERGE INTO tbl_uploaded_file (file_id, file_name, is_temp, user_id, upload_date, file_path) KEY(file_id) VALUES ('7c544903-aa4f-40e0-bd8c-cf6e17c37c12', 'Bandwidth service.json', false, 'admin', '2020-01-01 00:00:00.000000', '/uploaded_files/mep_capability/7c544903-aa4f-40e0-bd8c-cf6e17c37c12');
+MERGE INTO tbl_uploaded_file (file_id, file_name, is_temp, user_id, upload_date, file_path) KEY(file_id) VALUES ('688f259e-48eb-407d-8604-7feb19cf1f44', 'Location service.json', false, 'admin', '2020-01-01 00:00:00.000000', '/uploaded_files/mep_capability/688f259e-48eb-407d-8604-7feb19cf1f44');
+MERGE INTO tbl_uploaded_file (file_id, file_name, is_temp, user_id, upload_date, file_path) KEY(file_id) VALUES ('9f1f13a0-8554-4dfa-90a7-d2765238fca7', 'Traffic service.json', false, 'admin', '2020-01-01 00:00:00.000000', '/uploaded_files/mep_capability/9f1f13a0-8554-4dfa-90a7-d2765238fca7');
 
 -- workspace mep capability init end--
 
 
 -- workspace mep host init --
 
-INSERT INTO tbl_service_host (host_id, name, address, architecture, status, ip, os, port_range_min, port_range_max, port, delete) VALUES ('3c55ac26-60e9-42c0-958b-1bf7ea4da60a', 'Node1', 'XIAN', 'X86', 'NORMAL', '159.138.63.8', 'Ubuntu', 30000, 32767, 30201, null);
+MERGE INTO tbl_service_host (host_id, name, address, architecture, status, ip, os, port_range_min, port_range_max, port, delete) KEY(host_id) VALUES ('3c55ac26-60e9-42c0-958b-1bf7ea4da60a', 'Node1', 'XIAN', 'X86', 'NORMAL', '159.138.63.8', 'Ubuntu', 30000, 32767, 30201, null);
 
 -- workspace mep host init end--
 -- workspace table end -----------------

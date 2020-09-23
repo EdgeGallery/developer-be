@@ -34,7 +34,7 @@ public final class ResponseDataUtil {
     public static <T> ResponseEntity<T> buildResponse(Either<FormatRespDto, T> either) {
         if (either.isLeft()) {
             throw new InvocationException(either.getLeft().getEnumStatus().getStatusCode(),
-                either.getLeft().getEnumStatus().getReasonPhrase(), either.getLeft().getErrorRespDto());
+                either.getLeft().getEnumStatus().getReasonPhrase(), either.getLeft().getErrorRespDto().getDetail());
         }
         return ResponseEntity.ok(either.getRight());
     }

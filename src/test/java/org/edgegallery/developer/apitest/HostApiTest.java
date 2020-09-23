@@ -121,7 +121,7 @@ public class HostApiTest {
             .andExpect(MockMvcResultMatchers.status().isOk());
     }
 
-    @Test(expected = NestedServletException.class)
+    @Test
     @WithMockUser(roles = "DEVELOPER_TENANT")
     public void getHostByIdFailed() throws Exception {
         mvc.perform(MockMvcRequestBuilders.get("/mec/developer/v1/hosts/can-not-be-find")
@@ -129,7 +129,7 @@ public class HostApiTest {
             .andExpect(MockMvcResultMatchers.status().isBadRequest());
     }
 
-    @Test(expected = NestedServletException.class)
+    @Test
     @WithMockUser(roles = "DEVELOPER_TENANT")
     public void deleteHostFailed() throws Exception {
         mvc.perform(MockMvcRequestBuilders.delete("/mec/developer/v1/hosts/can-not-be-find").with(csrf())
@@ -159,7 +159,7 @@ public class HostApiTest {
         deleteHost(host);
     }
 
-    @Test(expected = NestedServletException.class)
+    @Test
     @WithMockUser(roles = "DEVELOPER_TENANT")
     public void updateHostByErrorId() throws Exception {
         MepHost host = createHost();
