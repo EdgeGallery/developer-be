@@ -34,12 +34,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.stereotype.Controller;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+@Controller
 @RestSchema(schemaId = "hosts")
 @RequestMapping("/mec/developer/v1/hosts")
 @Api(tags = "Host")
@@ -70,7 +72,7 @@ public class HostController {
     @RequestMapping(value = "/{hostId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT')")
     public ResponseEntity<MepHost> getHost(@ApiParam(value = "hostId", required = true) @PathVariable("hostId")
-                @Pattern(regexp = REG_UUID, message = "hostId must be in UUID format") String hostId) {
+    @Pattern(regexp = REG_UUID, message = "hostId must be in UUID format") String hostId) {
         Either<FormatRespDto, MepHost> either = hostService.getHost(hostId);
         return ResponseDataUtil.buildResponse(either);
     }
@@ -98,7 +100,7 @@ public class HostController {
         produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT')")
     public ResponseEntity<Boolean> deleteHost(@ApiParam(value = "hostId", required = true) @PathVariable("hostId")
-        @Pattern(regexp = REG_UUID, message = "hostId must be in UUID format")  String hostId) {
+    @Pattern(regexp = REG_UUID, message = "hostId must be in UUID format") String hostId) {
         Either<FormatRespDto, Boolean> either = hostService.deleteHost(hostId);
         return ResponseDataUtil.buildResponse(either);
     }

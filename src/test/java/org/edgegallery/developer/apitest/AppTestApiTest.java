@@ -39,7 +39,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-import org.springframework.web.util.NestedServletException;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = DeveloperApplicationTests.class)
@@ -54,16 +53,12 @@ public class AppTestApiTest {
 
     @Before
     public void setUp() {
-        //        this.mvc = MockMvcBuilders.standaloneSetup(testAppController).build();
         MockitoAnnotations.initMocks(this);
     }
 
     @Test
     @WithMockUser(roles = "DEVELOPER_TENANT")
     public void testQueryAllTestTaskSuccess() throws Exception {
-        //        Either<FormatRespDto, TestTaskListResponse> response = Either.right(new TestTaskListResponse());
-        //        Mockito.when(testAppService.getTaskByParam("", "", "", "", "123")).thenReturn(response);
-
         mvc.perform(
             MockMvcRequestBuilders.get("/mec/developer/v1/apps/?userId=123&appName=&status=&beginTime=&endTime=")
                 .contentType(MediaType.APPLICATION_JSON_UTF8).accept(MediaType.APPLICATION_JSON_UTF8))
@@ -73,33 +68,25 @@ public class AppTestApiTest {
     @Test
     @WithMockUser(roles = "DEVELOPER_TENANT")
     public void testQueryAllTestTaskFail() throws Exception {
-        //        Either<FormatRespDto, TestTaskListResponse> response = Either.right(new TestTaskListResponse());
-        //        Mockito.when(testAppService.getTaskByParam("", "", "", "", "123")).thenReturn(response);
-
-        mvc.perform(
-            MockMvcRequestBuilders.get("/mec/developer/v1/apps/?appName=&status=&beginTime=&endTime=")
-                .contentType(MediaType.APPLICATION_JSON_UTF8).accept(MediaType.APPLICATION_JSON_UTF8))
+        mvc.perform(MockMvcRequestBuilders.get("/mec/developer/v1/apps/?appName=&status=&beginTime=&endTime=")
+            .contentType(MediaType.APPLICATION_JSON_UTF8).accept(MediaType.APPLICATION_JSON_UTF8))
             .andExpect(MockMvcResultMatchers.status().isBadRequest());
     }
 
     @Test
     @WithMockUser(roles = "DEVELOPER_TENANT")
     public void testGetAppTagListSuccess1() throws Exception {
-        //        Either<FormatRespDto, AppTagsResponse> response = Either.right(new AppTagsResponse());
-        //        Mockito.when(testAppService.getTagList()).thenReturn(response);
-        mvc.perform(
-            MockMvcRequestBuilders.get("/mec/developer/v1/apps/tags/?appName=").contentType(MediaType.APPLICATION_JSON_UTF8)
-                .accept(MediaType.APPLICATION_JSON_UTF8)).andExpect(MockMvcResultMatchers.status().isOk());
+        mvc.perform(MockMvcRequestBuilders.get("/mec/developer/v1/apps/tags/?appName=")
+            .contentType(MediaType.APPLICATION_JSON_UTF8).accept(MediaType.APPLICATION_JSON_UTF8))
+            .andExpect(MockMvcResultMatchers.status().isOk());
     }
 
     @Test
     @WithMockUser(roles = "DEVELOPER_TENANT")
     public void testGetAppTagListSuccess2() throws Exception {
-        //        Either<FormatRespDto, AppTagsResponse> response = Either.right(new AppTagsResponse());
-        //        Mockito.when(testAppService.getTagList()).thenReturn(response);
-        mvc.perform(
-            MockMvcRequestBuilders.get("/mec/developer/v1/apps/tags/?appName=&status=&beginTime=&endTime=").contentType(MediaType.APPLICATION_JSON_UTF8)
-                .accept(MediaType.APPLICATION_JSON_UTF8)).andExpect(MockMvcResultMatchers.status().isOk());
+        mvc.perform(MockMvcRequestBuilders.get("/mec/developer/v1/apps/tags/?appName=&status=&beginTime=&endTime=")
+            .contentType(MediaType.APPLICATION_JSON_UTF8).accept(MediaType.APPLICATION_JSON_UTF8))
+            .andExpect(MockMvcResultMatchers.status().isOk());
     }
 
     @Test
@@ -108,12 +95,13 @@ public class AppTestApiTest {
         Either<FormatRespDto, String> response = Either.right("ok");
         String url = String.format("/mec/developer/v1/apps/%s/action/upload?userId=%s&userName=%s",
             "4c22f069-e489-47cd-9c3c-e21741c857db", "test-userId", "test-userName");
-        Mockito.when(utilsService.storeToAppStore(Mockito.anyMap(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
+        Mockito.when(utilsService
+            .storeToAppStore(Mockito.anyMap(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
             .thenReturn(response);
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.set("access_token", "token");
-        mvc.perform(
-            MockMvcRequestBuilders.post(url).with(csrf()).headers(httpHeaders).contentType(MediaType.APPLICATION_JSON_UTF8).accept(MediaType.TEXT_PLAIN))
+        mvc.perform(MockMvcRequestBuilders.post(url).with(csrf()).headers(httpHeaders)
+            .contentType(MediaType.APPLICATION_JSON_UTF8).accept(MediaType.TEXT_PLAIN))
             .andExpect(MockMvcResultMatchers.status().isOk());
     }
 
@@ -121,14 +109,16 @@ public class AppTestApiTest {
     @WithMockUser(roles = "DEVELOPER_TENANT")
     public void testUploadAppToStoreFail() throws Exception {
         Either<FormatRespDto, String> response = Either.right("ok");
-        String url = String.format("/mec/developer/v1/apps/%s/action/upload?userId=%s",
-            "4c22f069-e489-47cd-9c3c-e21741c857db", "test-userId");
-        Mockito.when(utilsService.storeToAppStore(Mockito.anyMap(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
+        String url = String
+            .format("/mec/developer/v1/apps/%s/action/upload?userId=%s", "4c22f069-e489-47cd-9c3c-e21741c857db",
+                "test-userId");
+        Mockito.when(utilsService
+            .storeToAppStore(Mockito.anyMap(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
             .thenReturn(response);
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.set("access_token", "token");
-        mvc.perform(
-            MockMvcRequestBuilders.post(url).with(csrf()).headers(httpHeaders).contentType(MediaType.APPLICATION_JSON_UTF8).accept(MediaType.TEXT_PLAIN))
+        mvc.perform(MockMvcRequestBuilders.post(url).with(csrf()).headers(httpHeaders)
+            .contentType(MediaType.APPLICATION_JSON_UTF8).accept(MediaType.TEXT_PLAIN))
             .andExpect(MockMvcResultMatchers.status().isBadRequest());
     }
 
@@ -144,33 +134,25 @@ public class AppTestApiTest {
     @Test
     @WithMockUser(roles = "DEVELOPER_TENANT")
     public void testStartTaskFail() throws Exception {
-        mvc.perform(MockMvcRequestBuilders.get(
-            "/mec/developer/v1/apps/4c22f069-e489-47cd-9c3c-e21741c857db/action/start-test")
-            .contentType(MediaType.APPLICATION_JSON_UTF8).accept(MediaType.APPLICATION_JSON_UTF8))
+        mvc.perform(
+            MockMvcRequestBuilders.get("/mec/developer/v1/apps/4c22f069-e489-47cd-9c3c-e21741c857db/action/start-test")
+                .contentType(MediaType.APPLICATION_JSON_UTF8).accept(MediaType.APPLICATION_JSON_UTF8))
             .andExpect(MockMvcResultMatchers.status().isBadRequest());
     }
 
     @Test
     @WithMockUser(roles = "DEVELOPER_TENANT")
     public void testSubTaskListSuccess() throws Exception {
-
-        //        Either<FormatRespDto, SubTaskListResponse> response = Either.right(new SubTaskListResponse());
-        //        Mockito.when(testCaseService.getSubtasks("fd497d95-7c98-40cb-bc90-308bdefc0e39",
-        //                "11e12b66-508f-48d4-bbc8-3ed99631cf92")).thenReturn(response);
         mvc.perform(MockMvcRequestBuilders.get(
             "/mec/developer/v1/apps/fd497d95-7c98-40cb-bc90-308bdefc0e39/task/11e12b66-508f-48d4-bbc8-3ed99631cf92/subtasks")
             .contentType(MediaType.APPLICATION_JSON_UTF8).accept(MediaType.APPLICATION_JSON_UTF8))
             .andExpect(MockMvcResultMatchers.status().isOk());
     }
 
-    @Test(expected = NestedServletException.class)
+    @Test
     @WithMockUser(roles = "DEVELOPER_TENANT")
     public void testSubTaskListFail() throws Exception { // appId or taskId invalid
 
-        //        Either<FormatRespDto, SubTaskListResponse> response =
-        //                Either.left(new FormatRespDto(Status.BAD_REQUEST, "appId or taskId invalid"));
-        //        Mockito.when(testCaseService.getSubtasks("fd497d95-7c98-40cb-bc90-308bdefc0e39999",
-        //                "11e12b66-508f-48d4-bbc8-3ed99631cf92")).thenReturn(response);
         mvc.perform(MockMvcRequestBuilders.get(
             "/mec/developer/v1/apps/fd497d95-7c98-40cb-bc90-308bdefc0e39999/task/11e12b66-508f-48d4-bbc8-3ed99631cf92/subtasks")
             .contentType(MediaType.APPLICATION_JSON_UTF8).accept(MediaType.APPLICATION_JSON_UTF8))

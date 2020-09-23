@@ -17,14 +17,12 @@
 package org.edgegallery.developer.apitest;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 
 
 import com.google.gson.Gson;
 import com.spencerwi.either.Either;
 import java.io.File;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -51,13 +49,9 @@ import org.edgegallery.developer.unittest.UploadFilesServiceTest;
 import org.edgegallery.developer.util.DeveloperFileUtils;
 import org.edgegallery.developer.util.InitConfigUtil;
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -73,7 +67,6 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.util.NestedServletException;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = DeveloperApplicationTests.class)
@@ -95,18 +88,14 @@ public class CreateProjectTest {
 
     private ApplicationProject testProject = null;
 
-    // private String userId = "ccb46180-9fa3-465f-8693-2a6a4495cabe";
     private String userId = "f24ea0a2-d8e6-467c-8039-94f0d29bac43";
-    // private String projectId = "5cb37730-09c5-42e5-a638-6e1a3b8836b9";
+
     private String projectId = "200dfab1-3c30-4fc7-a6ca-ed6f0620a85e";
+
     @Before
     @WithMockUser(roles = "DEVELOPER_TENENT")
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
-        // this.iconFile = uploadOneFile("/testdata/test-icon.png", "file-name");
-        // testProject = createProject();
-        // projectId = testProject.getId();
-
     }
 
     private UploadedFile uploadOneFile(String resourceFile, String fileName) throws IOException {
@@ -163,9 +152,9 @@ public class CreateProjectTest {
         project.setIconFileId(iconFile.getFileId());
 
         ResultActions result = mvc.perform(
-            MockMvcRequestBuilders.post("/mec/developer/v1/projects/?userId=" + userId).with(csrf()).content(gson.toJson(project))
-                .contentType(MediaType.APPLICATION_JSON_UTF8).accept(MediaType.APPLICATION_JSON_UTF8))
-            .andExpect(MockMvcResultMatchers.status().isOk());
+            MockMvcRequestBuilders.post("/mec/developer/v1/projects/?userId=" + userId).with(csrf())
+                .content(gson.toJson(project)).contentType(MediaType.APPLICATION_JSON_UTF8)
+                .accept(MediaType.APPLICATION_JSON_UTF8)).andExpect(MockMvcResultMatchers.status().isOk());
         return gson.fromJson(result.andReturn().getResponse().getContentAsString(), ApplicationProject.class);
     }
 
@@ -220,7 +209,7 @@ public class CreateProjectTest {
     public void testGetAllProjects() throws Exception {
 
         // String url = String.format("/mec/developer/v1/projects/?userId=%s", "f24ea0a2-d8e6-467c-8039-94f0d29bac43");
-        String url = String.format("/mec/developer/v1/projects/?userId=%s",userId);
+        String url = String.format("/mec/developer/v1/projects/?userId=%s", userId);
         mvc.perform(MockMvcRequestBuilders.get(url).contentType(MediaType.APPLICATION_JSON_UTF8)
             .accept(MediaType.APPLICATION_JSON_UTF8)).andExpect(MockMvcResultMatchers.status().isOk());
     }
@@ -228,12 +217,13 @@ public class CreateProjectTest {
     @Test
     @WithMockUser(roles = "DEVELOPER_TENANT")
     public void testGetProjectByIdCorrect() throws Exception {
-        String url = String.format("/mec/developer/v1/projects/200dfab1-3c30-4fc7-a6ca-ed6f0620a85e?userId=f24ea0a2-d8e6-467c-8039-94f0d29bac43");
+        String url = String.format(
+            "/mec/developer/v1/projects/200dfab1-3c30-4fc7-a6ca-ed6f0620a85e?userId=f24ea0a2-d8e6-467c-8039-94f0d29bac43");
         mvc.perform(MockMvcRequestBuilders.get(url).contentType(MediaType.APPLICATION_JSON_UTF8)
             .accept(MediaType.APPLICATION_JSON_UTF8)).andExpect(MockMvcResultMatchers.status().isOk());
     }
 
-    @Test(expected = NestedServletException.class)
+    @Test
     @WithMockUser(roles = "DEVELOPER_TENANT")
     public void testGetProjectByIdFailed1() throws Exception {
 
@@ -242,11 +232,12 @@ public class CreateProjectTest {
             .accept(MediaType.APPLICATION_JSON_UTF8));
     }
 
-    @Test(expected = NestedServletException.class)
+    @Test
     @WithMockUser(roles = "DEVELOPER_TENANT")
     public void testGetProjectByIdFailed2() throws Exception {
 
-        String url = String.format("/mec/developer/v1/projects/%s?userId=%s", "5cb37730-09c5-42e5-a638-6e1a3b8836b9", userId);
+        String url = String
+            .format("/mec/developer/v1/projects/%s?userId=%s", "5cb37730-09c5-42e5-a638-6e1a3b8836b9", userId);
         mvc.perform(MockMvcRequestBuilders.get(url).contentType(MediaType.APPLICATION_JSON_UTF8)
             .accept(MediaType.APPLICATION_JSON_UTF8));
     }
@@ -263,7 +254,7 @@ public class CreateProjectTest {
             .accept(MediaType.APPLICATION_JSON_UTF8)).andExpect(MockMvcResultMatchers.status().isOk());
     }
 
-    @Test(expected = NestedServletException.class)
+    @Test
     @WithMockUser(roles = "DEVELOPER_TENANT")
     public void testDeleteProjectByIdBad() throws Exception {
 
@@ -324,16 +315,6 @@ public class CreateProjectTest {
             .accept(MediaType.APPLICATION_JSON_UTF8)).andDo(MockMvcResultHandlers.print())
             .andExpect(MockMvcResultMatchers.status().isOk());
     }
-    @Ignore
-    @Test
-    @WithMockUser(roles = "DEVELOPER_TENANT")
-    public void testDeployProjectById() throws Exception {
-        ApplicationProject project = getProject();
-        ProjectImageConfig image = addImageToProject(project);
-        System.out.println(image.getId());
-        createTestConfig(project, image.getId());
-        deployProject(project);
-    }
 
     private ApplicationProject getProjectById(String projectId, String userId) throws Exception {
         String url = String.format("/mec/developer/v1/projects/%s?userId=%s", projectId, userId);
@@ -342,7 +323,7 @@ public class CreateProjectTest {
         return gson.fromJson(result.andReturn().getResponse().getContentAsString(), ApplicationProject.class);
     }
 
-    @Test(expected = NestedServletException.class)
+    @Test
     @WithMockUser(roles = "DEVELOPER_TENANT")
     public void testCleanTestEnvProjectNull() throws Exception {
         // ApplicationProject project = testProject;
@@ -357,40 +338,13 @@ public class CreateProjectTest {
     @WithMockUser(roles = "DEVELOPER_TENANT")
     public void testCleanTestEnvProjectTestConfigNull() throws Exception {
         // ApplicationProject project = testProject;
-        String url = String.format("/mec/developer/v1/projects/%s/action/clean?userId=%s&completed=%s", projectId,
-            userId, false);
+        String url = String
+            .format("/mec/developer/v1/projects/%s/action/clean?userId=%s&completed=%s", projectId, userId, false);
         mvc.perform(MockMvcRequestBuilders.post(url).with(csrf()).contentType(MediaType.APPLICATION_JSON_UTF8)
             .accept(MediaType.APPLICATION_JSON_UTF8)).andExpect(MockMvcResultMatchers.status().isOk());
     }
 
-    @Ignore
     @Test
-    @WithMockUser(roles = "DEVELOPER_TENANT")
-    public void testCleanTestEnv() throws Exception {
-        ApplicationProject project = testProject;
-        ProjectImageConfig image = addImageToProject(project);
-        createTestConfig(project, image.getId());
-        deployProject(project);
-
-        // new project, not be tested
-        // test not completed
-        String url = String.format("/mec/developer/v1/projects/%s/action/clean?userId=%s&completed=%s", project.getId(),
-            project.getUserId(), false);
-        mvc.perform(MockMvcRequestBuilders.post(url).contentType(MediaType.APPLICATION_JSON_UTF8)
-            .accept(MediaType.APPLICATION_JSON_UTF8)).andExpect(MockMvcResultMatchers.status().isOk());
-        ApplicationProject modifiedProject = getProjectById(project.getId(), project.getUserId());
-        Assert.assertEquals(modifiedProject.getStatus(), EnumProjectStatus.ONLINE);
-
-        // test completed
-        url = String.format("/mec/developer/v1/projects/%s/action/clean?userId=%s&completed=%s", project.getId(),
-            project.getUserId(), true);
-        mvc.perform(MockMvcRequestBuilders.post(url).contentType(MediaType.APPLICATION_JSON_UTF8)
-            .accept(MediaType.APPLICATION_JSON_UTF8)).andExpect(MockMvcResultMatchers.status().isOk());
-        modifiedProject = getProjectById(project.getId(), project.getUserId());
-        Assert.assertEquals(modifiedProject.getStatus(), EnumProjectStatus.TESTED);
-    }
-
-    @Test(expected = NestedServletException.class)
     @WithMockUser(roles = "DEVELOPER_TENANT")
     public void testCreateTestConfigCorrect() throws Exception {
 
@@ -438,7 +392,8 @@ public class CreateProjectTest {
         request.content(gson.toJson(test));
         request.accept(MediaType.APPLICATION_JSON);
         request.contentType(MediaType.APPLICATION_JSON);
-        mvc.perform(request).andDo(MockMvcResultHandlers.print()).andExpect(MockMvcResultMatchers.status().isBadRequest());
+        mvc.perform(request).andDo(MockMvcResultHandlers.print())
+            .andExpect(MockMvcResultMatchers.status().isBadRequest());
 
         this.deleteTempFile(apiFile);
     }
@@ -502,36 +457,8 @@ public class CreateProjectTest {
 
         mvc.perform(
             MockMvcRequestBuilders.post("/mec/developer/v1/projects/200dfab1-3c30-4fc7-a6ca-ed6f0620a85e/test-config")
-                .with(csrf())
-                .contentType(MediaType.APPLICATION_JSON_UTF8).accept(MediaType.APPLICATION_JSON_UTF8))
+                .with(csrf()).contentType(MediaType.APPLICATION_JSON_UTF8).accept(MediaType.APPLICATION_JSON_UTF8))
             .andExpect(MockMvcResultMatchers.status().isBadRequest());
-    }
-
-    @Ignore
-    @Test
-    @WithMockUser(roles = "DEVELOPER_TENANT")
-    public void testUploadProToStore() throws Exception {
-        String url = String
-            .format("/mec/developer/v1/projects/%s/action/upload?userId=%s&userName=developer-001", testProject.getId(),
-                testProject.getUserId());
-        mvc.perform(MockMvcRequestBuilders.post(url).contentType(MediaType.APPLICATION_JSON_UTF8)
-            .accept(MediaType.APPLICATION_JSON_UTF8)).andExpect(MockMvcResultMatchers.status().isOk());
-    }
-    @Ignore
-    @Test
-    @WithMockUser(roles = "DEVELOPER_TENANT")
-    public void testOpenToMecEco() throws Exception {
-        // project to be tested
-        String testUrl = String
-            .format("/mec/developer/v1/projects/%s/action/clean?userId=%s&completed=%s", projectId,
-                userId, true);
-        mvc.perform(MockMvcRequestBuilders.post(testUrl).contentType(MediaType.APPLICATION_JSON_UTF8)
-            .accept(MediaType.APPLICATION_JSON_UTF8)).andExpect(MockMvcResultMatchers.status().isOk());
-
-        String url = String.format("/mec/developer/v1/projects/%s/action/open-api?userId=%s", projectId,
-            userId);
-        mvc.perform(MockMvcRequestBuilders.post(url).contentType(MediaType.APPLICATION_JSON_UTF8)
-            .accept(MediaType.APPLICATION_JSON_UTF8)).andExpect(MockMvcResultMatchers.status().isOk());
     }
 
     private ProjectImageConfig addImageToProject(ApplicationProject project) throws Exception {
@@ -558,23 +485,27 @@ public class CreateProjectTest {
     @WithMockUser(roles = "DEVELOPER_TENANT")
     public void testAddImageToProjectCorrect() throws Exception {
 
-        ApplicationProject applicationProject =  getProject();
+        ApplicationProject applicationProject = getProject();
         addImageToProject(applicationProject);
     }
+
     private ApplicationProject getProject() throws Exception {
-        String url = String.format("/mec/developer/v1/projects/200dfab1-3c30-4fc7-a6ca-ed6f0620a85e?userId=f24ea0a2-d8e6-467c-8039-94f0d29bac43");
-        ResultActions resultActions = mvc.perform(MockMvcRequestBuilders.get(url).contentType(MediaType.APPLICATION_JSON_UTF8)
-            .accept(MediaType.APPLICATION_JSON_UTF8)).andExpect(MockMvcResultMatchers.status().isOk());
-        ApplicationProject applicationProject =  gson.fromJson(resultActions.andReturn().getResponse().getContentAsString(),ApplicationProject.class);
-        return  applicationProject;
+        String url = String.format(
+            "/mec/developer/v1/projects/200dfab1-3c30-4fc7-a6ca-ed6f0620a85e?userId=f24ea0a2-d8e6-467c-8039-94f0d29bac43");
+        ResultActions resultActions = mvc.perform(
+            MockMvcRequestBuilders.get(url).contentType(MediaType.APPLICATION_JSON_UTF8)
+                .accept(MediaType.APPLICATION_JSON_UTF8)).andExpect(MockMvcResultMatchers.status().isOk());
+        ApplicationProject applicationProject = gson
+            .fromJson(resultActions.andReturn().getResponse().getContentAsString(), ApplicationProject.class);
+        return applicationProject;
     }
+
     @Test
     @WithMockUser(roles = "DEVELOPER_TENANT")
     public void testDeleteImageById() throws Exception {
         mvc.perform(MockMvcRequestBuilders.delete(
             "/mec/developer/v1/projects/200dfab1-3c30-4fc7-a6ca-ed6f0620a85e/image/78055873-58cf-4712-8f12-cfdd4e19f268")
-            .with(csrf())
-            .contentType(MediaType.APPLICATION_JSON_UTF8).accept(MediaType.APPLICATION_JSON_UTF8))
+            .with(csrf()).contentType(MediaType.APPLICATION_JSON_UTF8).accept(MediaType.APPLICATION_JSON_UTF8))
             .andExpect(MockMvcResultMatchers.status().isOk());
     }
 

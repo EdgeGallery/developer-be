@@ -31,10 +31,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+@Controller
 @RestSchema(schemaId = "localapi")
 @RequestMapping("/mec/developer/v1/localapi")
 public class LocalApiController {
@@ -57,7 +59,7 @@ public class LocalApiController {
         produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT')")
     public ResponseEntity<byte[]> getFile(@ApiParam(value = "fileName", required = true) @PathVariable("fileName")
-        @Length(max = MAX_FILE_NAME_LENGTH) String fileName) {
+    @Length(max = MAX_FILE_NAME_LENGTH) String fileName) {
         Either<FormatRespDto, ResponseEntity<byte[]>> either = swaggerService.getFile(fileName);
         if (either.isRight()) {
             return either.getRight();

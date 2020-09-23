@@ -493,8 +493,28 @@ public class ProjectService {
             FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, Consts.RESPONSE_MESSAGE_CAN_NOT_FIND_PROJECT);
             return Either.left(error);
         }
+//        List<ProjectTestConfig> tests = projectMapper.getTestConfigByProjectId(projectId);
+//        if (!CollectionUtils.isEmpty(tests)) {
+//            // one project just have only one test config
+//            LOGGER.error("The project {} has owned a test config", projectId);
+//            FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "The project has owned a test config");
+//            return Either.left(error);
+//        }
+
         // move api.yaml to project directory
         String apiFileId = testConfig.getAppApiFileId();
+//        if (apiFileId == null) {
+//            LOGGER.error("Api file id is null");
+//            FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "Api file id is null");
+//            return Either.left(error);
+//        }
+//        try {
+//            moveFileToWorkSpaceById(apiFileId, projectId);
+//        } catch (IOException e) {
+//            LOGGER.error("Move api file error {}", e.getMessage());
+//            FormatRespDto error = gson.fromJson(e.getMessage(), FormatRespDto.class);
+//            return Either.left(error);
+//        }
         if (apiFileId !=null) {
             try {
                 moveFileToWorkSpaceById(apiFileId, projectId);
