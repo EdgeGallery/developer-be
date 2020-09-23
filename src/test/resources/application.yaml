@@ -28,6 +28,10 @@ spring:
   main:
     allow-bean-definition-overriding: true
 
+servicecomb:
+  boot:
+    waitUp.timeoutInMilliseconds: 1000
+
 ###mybtis####
 mybatis:
   mapper-locations: classpath:mapper/*.xml
