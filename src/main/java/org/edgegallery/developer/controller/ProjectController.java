@@ -64,9 +64,6 @@ public class ProjectController {
     @Autowired
     private ProjectService projectService;
 
-    @Autowired
-    private ApiEmulatorMgr apiEmulatorMgr;
-
     /**
      * get all project.
      */
@@ -120,11 +117,7 @@ public class ProjectController {
         @Pattern(regexp = REGEX_UUID, message = "userId must be in UUID format")
         @ApiParam(value = "userId", required = true) @RequestParam("userId") String userId, HttpServletRequest request)
         throws IOException {
-//        String token = request.getHeader(Consts.ACCESS_TOKEN_STR);
         Either<FormatRespDto, ApplicationProject> either = projectService.createProject(userId, project);
-//        if (either.isRight()) {
-//            apiEmulatorMgr.createApiEmulatorIfNotExist(userId, token);
-//        }
         return ResponseDataUtil.buildResponse(either);
     }
 
@@ -145,11 +138,7 @@ public class ProjectController {
         @Pattern(regexp = REGEX_UUID, message = "userId must be in UUID format")
         @ApiParam(value = "userId", required = true) @RequestParam("userId") String userId,
         HttpServletRequest request) {
-//        String token = request.getHeader(Consts.ACCESS_TOKEN_STR);
         Either<FormatRespDto, Boolean> either = projectService.deleteProject(userId, projectId);
-//        if (either.isRight()) {
-//            apiEmulatorMgr.deleteApiEmulatorIfProjectsNotExist(userId, token);
-//        }
         return ResponseDataUtil.buildResponse(either);
     }
 
