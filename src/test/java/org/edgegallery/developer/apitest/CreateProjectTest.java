@@ -107,8 +107,6 @@ public class CreateProjectTest {
 
     @After
     public void clean() throws IOException {
-        // deleteTempFile(iconFile);
-        // iconFile = null;
     }
 
     private void deleteTempFile(UploadedFile uploadFile) {
@@ -163,12 +161,10 @@ public class CreateProjectTest {
         test.setProjectId(project.getId());
         // MEPAgentConfig
         MepAgentConfig agent = new MepAgentConfig();
-        // {"serviceName":"codelab2223","href":"codelab2223","port":32119}
         agent.setServiceName("codelab2223");
         agent.setHref("codelab2223");
         agent.setPort(32119);
         test.setAgentConfig(agent);
-        // imageFileIds ["3c056221-65c9-4845-8e0a-84126c286142","09f9d78f-93fb-47bc-88bc-1a2b805d6bf4"]
         List<String> imageFileIds = new ArrayList<String>();
         imageFileIds.add(imageId);
         test.setImageFileIds(imageFileIds);
@@ -208,7 +204,6 @@ public class CreateProjectTest {
     @WithMockUser(roles = "DEVELOPER_TENANT")
     public void testGetAllProjects() throws Exception {
 
-        // String url = String.format("/mec/developer/v1/projects/?userId=%s", "f24ea0a2-d8e6-467c-8039-94f0d29bac43");
         String url = String.format("/mec/developer/v1/projects/?userId=%s", userId);
         mvc.perform(MockMvcRequestBuilders.get(url).contentType(MediaType.APPLICATION_JSON_UTF8)
             .accept(MediaType.APPLICATION_JSON_UTF8)).andExpect(MockMvcResultMatchers.status().isOk());
@@ -235,7 +230,6 @@ public class CreateProjectTest {
     @Test
     @WithMockUser(roles = "DEVELOPER_TENANT")
     public void testGetProjectByIdFailed2() throws Exception {
-
         String url = String
             .format("/mec/developer/v1/projects/%s?userId=%s", "5cb37730-09c5-42e5-a638-6e1a3b8836b9", userId);
         mvc.perform(MockMvcRequestBuilders.get(url).contentType(MediaType.APPLICATION_JSON_UTF8)
@@ -245,10 +239,6 @@ public class CreateProjectTest {
     @Test
     @WithMockUser(roles = "DEVELOPER_TENANT")
     public void testDeleteProjectById() throws Exception {
-        // Either<FormatRespDto, Boolean> response = Either
-        //     .right(true);
-        // Mockito.when(projectService.deleteProject(projectId,userId)).thenReturn(response);
-
         String url = String.format("/mec/developer/v1/projects/%s?userId=%s", projectId, userId);
         mvc.perform(MockMvcRequestBuilders.delete(url).with(csrf()).contentType(MediaType.APPLICATION_JSON_UTF8)
             .accept(MediaType.APPLICATION_JSON_UTF8)).andExpect(MockMvcResultMatchers.status().isOk());
@@ -326,7 +316,6 @@ public class CreateProjectTest {
     @Test
     @WithMockUser(roles = "DEVELOPER_TENANT")
     public void testCleanTestEnvProjectNull() throws Exception {
-        // ApplicationProject project = testProject;
         String url = String
             .format("/mec/developer/v1/projects/%s/action/clean?userId=%s&completed=%s", "can not find projectId",
                 userId, false);
@@ -337,7 +326,6 @@ public class CreateProjectTest {
     @Test
     @WithMockUser(roles = "DEVELOPER_TENANT")
     public void testCleanTestEnvProjectTestConfigNull() throws Exception {
-        // ApplicationProject project = testProject;
         String url = String
             .format("/mec/developer/v1/projects/%s/action/clean?userId=%s&completed=%s", projectId, userId, false);
         mvc.perform(MockMvcRequestBuilders.post(url).with(csrf()).contentType(MediaType.APPLICATION_JSON_UTF8)
@@ -353,7 +341,6 @@ public class CreateProjectTest {
         test.setProjectId("a66c4932-d254-4596-bec1-8ac7d80c2631");
         // MEPAgentConfig
         MepAgentConfig agent = new MepAgentConfig();
-        // {"serviceName":"codelab2223","href":"codelab2223","port":32119}
         agent.setServiceName("codelab2223");
         agent.setHref("codelab2223");
         agent.setPort(32119);
@@ -362,10 +349,7 @@ public class CreateProjectTest {
         imageFileIds.add("3c056221-65c9-4845-8e0a-84126c286142");
         imageFileIds.add("09f9d78f-93fb-47bc-88bc-1a2b805d6bf4");
         test.setImageFileIds(imageFileIds);
-
         // MEPHost
-        // [{"hostId":"4eb3503e-f546-4580-b946-4fd35e4c727d","name":"Node2","address":"XIAN","architecture":"ARM","status":"NORMAL","ip":"159.138.53.90",
-        // "port":30101.0,"os":"Ubuntu","portRangeMin":30000.0,"portRangeMax":32767.0}]
         List<MepHost> hosts = new ArrayList<MepHost>();
         MepHost host = new MepHost();
         host.setHostId("4eb3503e-f546-4580-b946-4fd35e4c727d");
@@ -385,8 +369,6 @@ public class CreateProjectTest {
         test.setAppApiFileId(apiFile.getFileId());
 
         test.setAppInstanceId("app-instance-id");
-        // Either<FormatRespDto, ProjectTestConfig> response = Either.right(test);
-        // Mockito.when(projectService.createTestConfig(Mockito.eq(projectId),Mockito.eq(userId),Mockito.any(ProjectTestConfig.class))).thenReturn(response);
         String url = String.format("/mec/developer/v1/projects/%s/test-config?userId=%s", projectId, userId);
         MockHttpServletRequestBuilder request = MockMvcRequestBuilders.post(url).with(csrf());
         request.content(gson.toJson(test));
@@ -410,15 +392,11 @@ public class CreateProjectTest {
         agent.setHref("codelab2223");
         agent.setPort(32119);
         test.setAgentConfig(agent);
-        // imageFileIds ["3c056221-65c9-4845-8e0a-84126c286142","09f9d78f-93fb-47bc-88bc-1a2b805d6bf4"]
         List<String> imageFileIds = new ArrayList<String>();
         imageFileIds.add("3c056221-65c9-4845-8e0a-84126c286142");
         imageFileIds.add("09f9d78f-93fb-47bc-88bc-1a2b805d6bf4");
         test.setImageFileIds(imageFileIds);
-
         // MEPHost
-        // [{"hostId":"4eb3503e-f546-4580-b946-4fd35e4c727d","name":"Node2","address":"XIAN","architecture":"ARM","status":"NORMAL","ip":"159.138.53.90",
-        // "port":30101.0,"os":"Ubuntu","portRangeMin":30000.0,"portRangeMax":32767.0}]
         List<MepHost> hosts = new ArrayList<MepHost>();
         MepHost host = new MepHost();
         host.setHostId("4eb3503e-f546-4580-b946-4fd35e4c727d");
