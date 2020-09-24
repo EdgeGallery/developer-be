@@ -19,6 +19,7 @@ package org.edgegallery.developer.service;
 import static org.edgegallery.developer.common.Consts.QUERY_APPLICATIONS_PERIOD;
 import static org.edgegallery.developer.common.Consts.QUERY_APPLICATIONS_TIMES;
 
+
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.spencerwi.either.Either;
@@ -445,10 +446,9 @@ public class ProjectService {
             .getWorkloadStatus(host.getProtocol(), host.getIp(), host.getPort(), appInstanceId, token);
         int times = 1;
         while (workloadStatus == null) {
-            LOGGER.error(
-                "Failed to get workloadStatus which appInstanceId is : "
-                    + "{}, and will try for {} times every {} milliseconds",
-                appInstanceId, QUERY_APPLICATIONS_TIMES, QUERY_APPLICATIONS_PERIOD);
+            LOGGER.error("Failed to get workloadStatus which appInstanceId is : "
+                    + "{}, and will try for {} times every {} milliseconds", appInstanceId, QUERY_APPLICATIONS_TIMES,
+                QUERY_APPLICATIONS_PERIOD);
             Thread.sleep(QUERY_APPLICATIONS_PERIOD);
             workloadStatus = HttpClientUtil
                 .getWorkloadStatus(host.getProtocol(), host.getIp(), host.getPort(), appInstanceId, token);
@@ -495,7 +495,7 @@ public class ProjectService {
         }
         // move api.yaml to project directory
         String apiFileId = testConfig.getAppApiFileId();
-        if (apiFileId !=null) {
+        if (apiFileId != null) {
             try {
                 moveFileToWorkSpaceById(apiFileId, projectId);
             } catch (IOException e) {

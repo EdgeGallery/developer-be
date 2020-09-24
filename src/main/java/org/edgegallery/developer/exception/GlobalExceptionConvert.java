@@ -178,8 +178,7 @@ public class GlobalExceptionConvert {
     @ResponseBody
     public RestReturn invocationException(HttpServletRequest request, InvocationException e) {
         return RestReturn.builder().code(e.getStatusCode()).error(e.getReasonPhrase())
-            .message(e.getErrorData().toString()).
-                path(request.getRequestURI()).build();
+            .message(e.getErrorData().toString()).path(request.getRequestURI()).build();
     }
 
 }

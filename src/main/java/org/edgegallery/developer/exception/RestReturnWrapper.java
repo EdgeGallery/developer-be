@@ -41,13 +41,7 @@ public class RestReturnWrapper implements ResponseBodyAdvice<Object> {
     /**
      * Process the body, request, response and other requests before returning.
      *
-     * @param body
-     * @param methodParameter
-     * @param mediaType
-     * @param httpMessageConverter
-     * @param serverHttpRequest
-     * @param serverHttpResponse
-     * @return
+     *  @return
      */
     @Override
     @ResponseBody
