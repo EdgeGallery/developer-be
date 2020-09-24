@@ -23,7 +23,7 @@ import lombok.Builder;
 import lombok.Data;
 
 /**
- * Interface Return Contractor
+ * Interface Return Contractor.
  */
 @Data
 @Builder
@@ -45,6 +45,9 @@ public class RestReturn {
     // request path
     private String path;
 
+    /**
+     * getTimestamp.
+     */
     public Date getTimestamp() {
         return new Date(timestamp.getTime());
     }

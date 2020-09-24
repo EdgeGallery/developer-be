@@ -53,7 +53,8 @@ public class PluginServiceFacade {
     }
 
     public Page<PluginDto> qurey(String pluginType, String codeLanguage, String pluginName, int limit, int offset) {
-        return pluginRepository.findAllWithPagination(new PluginPageCriteria(limit, codeLanguage, pluginName, offset, pluginType))
+        return pluginRepository
+            .findAllWithPagination(new PluginPageCriteria(limit, codeLanguage, pluginName, offset, pluginType))
             .map(PluginDto::of);
     }
 
