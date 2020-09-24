@@ -121,7 +121,6 @@ public class HttpPostFileRequest {
                 reader.close();
                 return builder.toString();
             } else {
-                System.out.println("rest connect error: " + responseCode);
                 return connection.getResponseMessage();
             }
         } finally {
