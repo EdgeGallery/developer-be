@@ -16,10 +16,6 @@
 
 package org.edgegallery.developer.service;
 
-import static org.edgegallery.developer.common.Consts.QUERY_APPLICATIONS_PERIOD;
-import static org.edgegallery.developer.common.Consts.QUERY_APPLICATIONS_TIMES;
-
-
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.spencerwi.either.Either;
@@ -423,7 +419,7 @@ public class ProjectService {
         String workloadStatus = null;
         try {
             LOGGER.info("Wait for deploy");
-            Thread.sleep(QUERY_APPLICATIONS_PERIOD);
+            Thread.sleep(Consts.QUERY_APPLICATIONS_PERIOD);
             workloadStatus = getWorkloadStatus(host, appInstanceId, token);
         } catch (InterruptedException e) {
             LOGGER.error("sleep exception: {}", e.getMessage());
@@ -433,7 +429,7 @@ public class ProjectService {
         if (workloadStatus == null) {
             // deploy failed
             LOGGER.error("Failed to get workloadStatus after {} times which appInstanceId is : {}",
-                QUERY_APPLICATIONS_TIMES, appInstanceId);
+                Consts.QUERY_APPLICATIONS_TIMES, appInstanceId);
             updateDeployResult(EnumTestStatus.NETWORK_ERROR, EnumProjectStatus.DEPLOYED_FAILED, project, testConfig,
                 token);
         }
@@ -447,12 +443,12 @@ public class ProjectService {
         int times = 1;
         while (workloadStatus == null) {
             LOGGER.error("Failed to get workloadStatus which appInstanceId is : "
-                    + "{}, and will try for {} times every {} milliseconds", appInstanceId, QUERY_APPLICATIONS_TIMES,
-                QUERY_APPLICATIONS_PERIOD);
-            Thread.sleep(QUERY_APPLICATIONS_PERIOD);
+                    + "{}, and will try for {} times every {} milliseconds", appInstanceId, Consts.QUERY_APPLICATIONS_TIMES,
+                Consts.QUERY_APPLICATIONS_PERIOD);
+            Thread.sleep(Consts.QUERY_APPLICATIONS_PERIOD);
             workloadStatus = HttpClientUtil
                 .getWorkloadStatus(host.getProtocol(), host.getIp(), host.getPort(), appInstanceId, token);
-            if (++times > QUERY_APPLICATIONS_TIMES) {
+            if (++times > Consts.QUERY_APPLICATIONS_TIMES) {
                 break;
             }
         }

@@ -47,11 +47,17 @@ public class PluginServiceFacade {
     @Autowired
     private PluginRepository pluginRepository;
 
+    /**
+     * upload plugin.
+     */
     public PluginDto publish(Plugin newPlugin, MultipartFile pluginFile, MultipartFile logoFile, MultipartFile apiFile)
         throws IOException {
         return PluginDto.of(pluginService.publish(newPlugin, pluginFile, logoFile, apiFile));
     }
 
+    /**
+     * query plugin.
+     */
     public Page<PluginDto> qurey(String pluginType, String codeLanguage, String pluginName, int limit, int offset) {
         return pluginRepository
             .findAllWithPagination(new PluginPageCriteria(limit, codeLanguage, pluginName, offset, pluginType))
@@ -80,14 +86,23 @@ public class PluginServiceFacade {
         return plugin.getPluginFile().getName();
     }
 
+    /**
+     * get plugin.
+     */
     public InputStream downloadFile(String pluginId) throws IOException {
         return pluginService.download(pluginId);
     }
 
+    /**
+     * get plugin logo.
+     */
     public InputStream downloadLogo(String pluginId) throws IOException {
         return pluginService.downloadLogo(pluginId);
     }
 
+    /**
+     * get plugin api.
+     */
     public InputStream downloadApiFile(String pluginId) throws IOException {
         return pluginService.downloadApiFile(pluginId);
     }
@@ -109,6 +124,9 @@ public class PluginServiceFacade {
         return PluginDto.of(pluginService.publish(plugin, pluginFile, logoFile, apiFile));
     }
 
+    /**
+     * mark plugin.
+     */
     public Plugin mark(String pluginId, Integer score, User user) {
         return pluginService.mark(pluginId, score, user);
     }
