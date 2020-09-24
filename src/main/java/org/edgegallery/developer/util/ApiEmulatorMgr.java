@@ -123,7 +123,6 @@ public class ApiEmulatorMgr {
 
     private MepHost selectAvailableHost() {
         List<MepHost> normalHosts = hostMapper.getNormalHosts();
-        // TODO filter normal hosts
         if (CollectionUtils.isEmpty(normalHosts)) {
             return null;
         }
@@ -134,7 +133,6 @@ public class ApiEmulatorMgr {
         MepHost host = hostMapper.getHost(hostId);
         int maxPort = apiEmulatorMapper.selectMaxPort(hostId);
         if (maxPort == 0 || maxPort == host.getPortRangeMax()) {
-            // TODO reuse release port
             return host.getPortRangeMin();
         }
         return ++maxPort;
