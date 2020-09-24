@@ -18,6 +18,7 @@ package org.edgegallery.developer.exception;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import java.util.Date;
+import java.util.Objects;
 import lombok.Builder;
 import lombok.Data;
 
@@ -43,4 +44,27 @@ public class RestReturn {
 
     // request path
     private String path;
+
+    public Date getTimestamp() {
+        return new Date(timestamp.getTime());
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof RestReturn)) {
+            return false;
+        }
+        RestReturn that = (RestReturn) o;
+        return getCode() == that.getCode() && Objects.equals(getTimestamp(), that.getTimestamp())
+            && Objects.equals(getError(), that.getError()) && Objects.equals(getMessage(), that.getMessage())
+            && Objects.equals(getPath(), that.getPath());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getTimestamp(), getCode(), getError(), getMessage(), getPath());
+    }
 }

@@ -59,7 +59,7 @@ public class LocalApiController {
         produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT')")
     public ResponseEntity<byte[]> getFile(@ApiParam(value = "fileName", required = true) @PathVariable("fileName")
-    @Length(max = MAX_FILE_NAME_LENGTH) String fileName) {
+        @Length(max = MAX_FILE_NAME_LENGTH) String fileName) {
         Either<FormatRespDto, ResponseEntity<byte[]>> either = swaggerService.getFile(fileName);
         if (either.isRight()) {
             return either.getRight();
