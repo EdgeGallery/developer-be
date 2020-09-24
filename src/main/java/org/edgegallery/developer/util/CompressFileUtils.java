@@ -152,6 +152,10 @@ public final class CompressFileUtils {
     }
 
     private static File compressToCsar(String resourcesPath, String targetPath, String fileName) throws ZipException {
+        File file = new File(targetPath + File.separator + fileName + ".csar");
+        if ((file.exists() && file.isFile())) {
+            file.delete();
+        }
         ZipFile zipFile = new ZipFile(targetPath + File.separator + fileName + ".csar");
         ZipParameters parameters = new ZipParameters();
         parameters.setCompressionMethod(CompressionMethod.DEFLATE);
