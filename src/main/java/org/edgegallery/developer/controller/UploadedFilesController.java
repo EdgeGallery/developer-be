@@ -91,8 +91,9 @@ public class UploadedFilesController {
     @RequestMapping(value = "/api-info/{fileId}", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT')")
-    public ResponseEntity<UploadedFile> getApiFile(@Pattern(regexp = REGEX_UUID, message = "fileId must be in UUID format")
-    @ApiParam(value = "fileId", required = true) @PathVariable("fileId") String fileId,
+    public ResponseEntity<UploadedFile> getApiFile(
+        @Pattern(regexp = REGEX_UUID, message = "fileId must be in UUID format")
+        @ApiParam(value = "fileId", required = true) @PathVariable("fileId") String fileId,
         @Pattern(regexp = REGEX_UUID, message = "userId must be in UUID format") @ApiParam(value = "userId")
         @RequestParam("userId") String userId) {
         Either<FormatRespDto, UploadedFile> either = uploadFileService.getApiFile(fileId, userId);
@@ -136,8 +137,8 @@ public class UploadedFilesController {
         @ApiParam(value = "userId", required = true) @RequestParam("userId") String userId,
         @Pattern(regexp = REGEX_UUID, message = "projectId must be in UUID format")
         @ApiParam(value = "projectId", required = true) @RequestParam("projectId") String projectId) {
-        Either<FormatRespDto, HelmTemplateYamlRespDto> either = uploadFileService.uploadHelmTemplateYaml(
-            helmTemplateYaml, userId, projectId);
+        Either<FormatRespDto, HelmTemplateYamlRespDto> either = uploadFileService
+            .uploadHelmTemplateYaml(helmTemplateYaml, userId, projectId);
         return ResponseDataUtil.buildResponse(either);
     }
 
@@ -157,8 +158,8 @@ public class UploadedFilesController {
         @ApiParam(value = "userId", required = true) @RequestParam("userId") String userId,
         @Pattern(regexp = REGEX_UUID, message = "projectId must be in UUID format")
         @ApiParam(value = "projectId", required = true) @RequestParam("projectId") String projectId) {
-        Either<FormatRespDto, List<HelmTemplateYamlRespDto>> either = uploadFileService.getHelmTemplateYamlList(userId,
-            projectId);
+        Either<FormatRespDto, List<HelmTemplateYamlRespDto>> either = uploadFileService
+            .getHelmTemplateYamlList(userId, projectId);
         return ResponseDataUtil.buildResponse(either);
     }
 
