@@ -113,6 +113,7 @@
         FROM
         tbl_app_project
         where user_id = #{userId}
+        order by create_date desc
     </select>
 
     <select id="countProjects" parameterType="String" resultType="integer">
