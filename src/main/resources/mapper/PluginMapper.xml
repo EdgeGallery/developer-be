@@ -196,6 +196,7 @@
                 and plugintype = #{criteria.type}
             </if>
         </where>
+        order by uploadtime desc 
         limit #{criteria.limit} offset #{criteria.offset}
     </select>
 </mapper>
