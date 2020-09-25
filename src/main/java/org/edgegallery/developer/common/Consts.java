@@ -43,7 +43,7 @@ public final class Consts {
 
     public static final String PATTERN = "[\n`~!@#$%^&*()+=|{}':;',\\[\\].<>/?~_！@#￥%……&*（）——+|{}【】‘；：”“’。， 、？]";
 
-    public static final int QUERY_APPLICATIONS_TIMES = 5;
+    public static final int QUERY_APPLICATIONS_TIMES = 8;
 
     public static final int QUERY_APPLICATIONS_PERIOD = 10000;
 
