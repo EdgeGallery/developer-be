@@ -432,9 +432,10 @@ public class ProjectService {
                 Consts.QUERY_APPLICATIONS_TIMES, appInstanceId);
             updateDeployResult(EnumTestStatus.NETWORK_ERROR, EnumProjectStatus.DEPLOYED_FAILED, project, testConfig,
                 token);
+        } else {
+            LOGGER.info("Query workload status response: {}", workloadStatus);
+            updateDeployResult(EnumTestStatus.RUNNING, EnumProjectStatus.DEPLOYED, project, testConfig, token);
         }
-        LOGGER.info("Query workload status response: {}", workloadStatus);
-        updateDeployResult(EnumTestStatus.RUNNING, EnumProjectStatus.DEPLOYED, project, testConfig, token);
     }
 
     private String getWorkloadStatus(MepHost host, String appInstanceId, String token) throws InterruptedException {
