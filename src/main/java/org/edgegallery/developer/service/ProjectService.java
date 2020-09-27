@@ -388,6 +388,7 @@ public class ProjectService {
     private void deployCsarToAppLcm(File csar, ApplicationProject project, ProjectTestConfig testConfig, String token) {
 
         String appInstanceId = testConfig.getAppInstanceId();
+        String userId = testConfig.getTestId();
         Type type = new TypeToken<List<MepHost>>() { }.getType();
         List<MepHost> hosts = gson.fromJson(gson.toJson(testConfig.getHosts()), type);
         MepHost host = hosts.get(0);
@@ -404,7 +405,7 @@ public class ProjectService {
 
         boolean instantiateAppResult = HttpClientUtil
             .instantiateApplication(host.getProtocol(), host.getIp(), host.getPort(), csar.getPath(), appInstanceId,
-                token);
+                userId, token);
 
         if (!instantiateAppResult) {
             // deploy failed

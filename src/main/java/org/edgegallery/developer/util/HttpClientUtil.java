@@ -47,7 +47,7 @@ public final class HttpClientUtil {
      * @return InstantiateAppResult
      */
     public static boolean instantiateApplication(String protocol, String ip, int port, String filePath,
-        String appInstanceId, String token) {
+        String appInstanceId, String userId, String token) {
         MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
         body.add("file", new FileSystemResource(filePath));
         body.add("hostIp", ip);
@@ -56,7 +56,7 @@ public final class HttpClientUtil {
         headers.set(Consts.ACCESS_TOKEN_STR, token);
         HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
         String url = getUrlPrefix(protocol, ip, port) + Consts.APP_LCM_INSTANTIATE_APP_URL
-            .replaceAll("appInstanceId", appInstanceId);
+            .replaceAll("appInstanceId", appInstanceId).replaceAll("tenantId", userId);
         ResponseEntity<String> response;
         try {
             response = REST_TEMPLATE.exchange(url, HttpMethod.POST, requestEntity, String.class);
