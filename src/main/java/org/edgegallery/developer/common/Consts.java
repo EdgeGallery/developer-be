@@ -21,13 +21,13 @@ public final class Consts {
     public static final String DOWNLOAD_FILE_URL_V1 = "/mec/developer/v1/files/";
 
     public static final String APP_LCM_INSTANTIATE_APP_URL
-        = "/lcmcontroller/v1/tenants/appInstanceId/app_instances/appInstanceId/instantiate";
+        = "/lcmcontroller/v1/tenants/tenantId/app_instances/appInstanceId/instantiate";
 
     public static final String APP_LCM_TERMINATE_APP_URL
-        = "/lcmcontroller/v1/tenants/appInstanceId/app_instances/appInstanceId/terminate";
+        = "/lcmcontroller/v1/tenants/tenantId/app_instances/appInstanceId/terminate";
 
     public static final String APP_LCM_GET_WORKLOAD_STATUS_URL
-        = "/lcmcontroller/v1/tenants/appInstanceId/app_instances/appInstanceId";
+        = "/lcmcontroller/v1/tenants/tenantId/app_instances/appInstanceId";
 
     public static final long MINUTE = 60000;
 
