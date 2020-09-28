@@ -156,7 +156,6 @@ public class CreateProjectTest {
             MockMvcRequestBuilders.post("/mec/developer/v1/projects/?userId=" + userId).with(csrf())
                 .content(gson.toJson(project)).contentType(MediaType.APPLICATION_JSON_UTF8)
                 .accept(MediaType.APPLICATION_JSON_UTF8)).andExpect(MockMvcResultMatchers.status().isOk());
-        // return gson.fromJson(result.andReturn().getResponse().getContentAsString(), ApplicationProject.class);
     }
 
     private ApplicationProject createNewProject() throws Exception {
@@ -516,7 +515,6 @@ public class CreateProjectTest {
 
         MockHttpServletRequestBuilder request = MockMvcRequestBuilders
             .put("/mec/developer/v1/projects/200dfab1-3c30-4fc7-a6ca-ed6f0620a85e/test-config").with(csrf());
-        // request.header("Authorization", "Basic 18zgoYu4sSAP/RZ1lVrTVA==");
         request.content(gson.toJson(test));
         request.accept(MediaType.APPLICATION_JSON);
         request.contentType(MediaType.APPLICATION_JSON);

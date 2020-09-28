@@ -305,7 +305,6 @@ public class ProjectServiceTest {
 
         test.setAppInstanceId("app-instance-id");
 
-        // String userId = "f24ea0a2-d8e6-467c-8039-94f0d29bac43";
         Either<FormatRespDto, ProjectTestConfig> result = projectService
             .createTestConfig(project.getRight().getUserId(), project.getRight().getId(), test);
         Assert.assertNotNull(result.getRight());
