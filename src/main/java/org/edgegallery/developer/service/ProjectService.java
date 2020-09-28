@@ -273,7 +273,7 @@ public class ProjectService {
      * @return
      */
     // deploy this app to test hosts
-    public Either<FormatRespDto, ApplicationProject> deployPorject(String userId, String projectId, String token) {
+    public Either<FormatRespDto, ApplicationProject> deployProject(String userId, String projectId, String token) {
         // check config. upload app image, hosts must be required.
         List<ProjectTestConfig> testConfigList = projectMapper.getTestConfigByProjectId(projectId);
         if (CollectionUtils.isEmpty(testConfigList)) {
@@ -283,7 +283,7 @@ public class ProjectService {
         }
 
         ProjectTestConfig testConfig = testConfigList.get(0);
-        if (testConfig.getStatus() == EnumTestStatus.RUNNING && !deleteDeployApp(testConfig, token)) {
+        if (testConfig.getStatus() == EnumTestStatus.RUNNING && !deleteDeployApp(testConfig, userId, token)) {
             LOGGER.error("Delete deployed app failed.");
             FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "Delete deployed app failed.");
             return Either.left(error);
@@ -354,7 +354,7 @@ public class ProjectService {
         }
         CompletableFuture.supplyAsync(() -> {
             LOGGER.info("Begin deploy csar to AppLcm.");
-            deployCsarToAppLcm(csar, project, testConfig, token);
+            deployCsarToAppLcm(csar, project, testConfig, userId, token);
             return null;
         });
 
@@ -385,10 +385,10 @@ public class ProjectService {
             .compressToCsarAndDeleteSrc(csarPkgDir.getCanonicalPath(), projectPath, csarPkgDir.getName());
     }
 
-    private void deployCsarToAppLcm(File csar, ApplicationProject project, ProjectTestConfig testConfig, String token) {
+    private void deployCsarToAppLcm(File csar, ApplicationProject project, ProjectTestConfig testConfig,
+        String userId, String token) {
 
         String appInstanceId = testConfig.getAppInstanceId();
-        String userId = testConfig.getTestId();
         Type type = new TypeToken<List<MepHost>>() { }.getType();
         List<MepHost> hosts = gson.fromJson(gson.toJson(testConfig.getHosts()), type);
         MepHost host = hosts.get(0);
@@ -411,7 +411,7 @@ public class ProjectService {
             // deploy failed
             LOGGER.error("Failed to instantiate app which appInstanceId is : {}.", appInstanceId);
             updateDeployResult(EnumTestStatus.NETWORK_ERROR, EnumProjectStatus.DEPLOYED_FAILED, project, testConfig,
-                token);
+                userId, token);
             return;
         }
 
@@ -421,7 +421,7 @@ public class ProjectService {
         try {
             LOGGER.info("Wait for deploy");
             Thread.sleep(Consts.QUERY_APPLICATIONS_PERIOD);
-            workloadStatus = getWorkloadStatus(host, appInstanceId, token);
+            workloadStatus = getWorkloadStatus(host, appInstanceId, userId, token);
         } catch (InterruptedException e) {
             LOGGER.error("sleep exception: {}", e.getMessage());
             Thread.currentThread().interrupt();
@@ -432,16 +432,17 @@ public class ProjectService {
             LOGGER.error("Failed to get workloadStatus after {} times which appInstanceId is : {}",
                 Consts.QUERY_APPLICATIONS_TIMES, appInstanceId);
             updateDeployResult(EnumTestStatus.NETWORK_ERROR, EnumProjectStatus.DEPLOYED_FAILED, project, testConfig,
-                token);
+                userId, token);
         } else {
             LOGGER.info("Query workload status response: {}", workloadStatus);
-            updateDeployResult(EnumTestStatus.RUNNING, EnumProjectStatus.DEPLOYED, project, testConfig, token);
+            updateDeployResult(EnumTestStatus.RUNNING, EnumProjectStatus.DEPLOYED, project, testConfig, userId, token);
         }
     }
 
-    private String getWorkloadStatus(MepHost host, String appInstanceId, String token) throws InterruptedException {
+    private String getWorkloadStatus(MepHost host, String appInstanceId, String userId, String token)
+        throws InterruptedException {
         String workloadStatus = HttpClientUtil
-            .getWorkloadStatus(host.getProtocol(), host.getIp(), host.getPort(), appInstanceId, token);
+            .getWorkloadStatus(host.getProtocol(), host.getIp(), host.getPort(), appInstanceId, userId, token);
         int times = 1;
         while (workloadStatus == null) {
             LOGGER.error("Failed to get workloadStatus which appInstanceId is : "
@@ -449,7 +450,7 @@ public class ProjectService {
                 Consts.QUERY_APPLICATIONS_TIMES, Consts.QUERY_APPLICATIONS_PERIOD);
             Thread.sleep(Consts.QUERY_APPLICATIONS_PERIOD);
             workloadStatus = HttpClientUtil
-                .getWorkloadStatus(host.getProtocol(), host.getIp(), host.getPort(), appInstanceId, token);
+                .getWorkloadStatus(host.getProtocol(), host.getIp(), host.getPort(), appInstanceId, userId, token);
             if (++times > Consts.QUERY_APPLICATIONS_TIMES) {
                 break;
             }
@@ -458,7 +459,7 @@ public class ProjectService {
     }
 
     private void updateDeployResult(EnumTestStatus testStatus, EnumProjectStatus status, ApplicationProject project,
-        ProjectTestConfig testConfig, String token) {
+        ProjectTestConfig testConfig, String userId, String token) {
         LOGGER.info("Update deploy test status: {}", testStatus);
         project.setStatus(status);
         int res = projectMapper.updateProject(project);
@@ -473,7 +474,7 @@ public class ProjectService {
             LOGGER.error("Update testconfig {} error ", testConfig.getTestId());
         }
         if (status == EnumProjectStatus.DEPLOYED_FAILED && testConfig.getWorkLoadId() != null) {
-            deleteDeployApp(testConfig, token);
+            deleteDeployApp(testConfig, userId, token);
             LOGGER.warn("Deploy failed, delete deploy app.");
         }
     }
@@ -796,7 +797,7 @@ public class ProjectService {
             FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "deploy failed, can not finish test");
             return Either.left(error);
         }
-        if (deleteDeployApp(testConfig, token)) {
+        if (deleteDeployApp(testConfig, userId, token)) {
             project.setStatus(completed ? EnumProjectStatus.TESTED : EnumProjectStatus.ONLINE);
             int res = projectMapper.updateProject(project);
             if (res < 1) {
@@ -825,11 +826,12 @@ public class ProjectService {
      *
      * @return
      */
-    private boolean deleteDeployApp(ProjectTestConfig testConfig, String token) {
+    private boolean deleteDeployApp(ProjectTestConfig testConfig, String userId, String token) {
         String workloadId = testConfig.getWorkLoadId();
         Type type = new TypeToken<List<MepHost>>() { }.getType();
         List<MepHost> hosts = gson.fromJson(gson.toJson(testConfig.getHosts()), type);
         MepHost host = hosts.get(0);
-        return HttpClientUtil.terminateAppInstance(host.getProtocol(), host.getIp(), host.getPort(), workloadId, token);
+        return HttpClientUtil.terminateAppInstance(host.getProtocol(), host.getIp(), host.getPort(), workloadId,
+            userId, token);
     }
 }

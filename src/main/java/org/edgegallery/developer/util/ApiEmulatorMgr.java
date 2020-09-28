@@ -152,7 +152,7 @@ public class ApiEmulatorMgr {
         String instanceId = emulator.getId();
         MepHost host = hostMapper.getHost(emulator.getHostId());
         boolean terminateResult = HttpClientUtil
-            .terminateAppInstance(host.getProtocol(), host.getIp(), host.getPort(), workloadId, token);
+            .terminateAppInstance(host.getProtocol(), host.getIp(), host.getPort(), workloadId, userId, token);
         if (!terminateResult) {
             LOGGER.error("Failed to terminate application which userId is: {}, instanceId is {}", userId, instanceId);
             return;

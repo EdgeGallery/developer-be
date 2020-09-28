@@ -182,7 +182,7 @@ public class ProjectController {
         @ApiParam(value = "userId", required = true) @RequestParam("userId") String userId,
         HttpServletRequest request) {
         String token = request.getHeader(Consts.ACCESS_TOKEN_STR);
-        Either<FormatRespDto, ApplicationProject> either = projectService.deployPorject(userId, projectId, token);
+        Either<FormatRespDto, ApplicationProject> either = projectService.deployProject(userId, projectId, token);
         return ResponseDataUtil.buildResponse(either);
     }
 

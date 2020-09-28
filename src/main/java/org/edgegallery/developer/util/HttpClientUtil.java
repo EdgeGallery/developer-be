@@ -78,9 +78,9 @@ public final class HttpClientUtil {
      * @return boolean
      */
     public static boolean terminateAppInstance(String protocol, String ip, int port, String appInstanceId,
-        String token) {
+        String userId, String token) {
         String url = getUrlPrefix(protocol, ip, port) + Consts.APP_LCM_TERMINATE_APP_URL
-            .replaceAll("appInstanceId", appInstanceId);
+            .replaceAll("appInstanceId", appInstanceId).replaceAll("tenantId", userId);
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.set(Consts.ACCESS_TOKEN_STR, token);
@@ -104,9 +104,10 @@ public final class HttpClientUtil {
      *
      * @return String
      */
-    public static String getWorkloadStatus(String protocol, String ip, int port, String appInstanceId, String token) {
+    public static String getWorkloadStatus(String protocol, String ip, int port, String appInstanceId,
+        String userId, String token) {
         String url = getUrlPrefix(protocol, ip, port) + Consts.APP_LCM_GET_WORKLOAD_STATUS_URL
-            .replaceAll("appInstanceId", appInstanceId);
+            .replaceAll("appInstanceId", appInstanceId).replaceAll("tenantId", userId);
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.set(Consts.ACCESS_TOKEN_STR, token);
