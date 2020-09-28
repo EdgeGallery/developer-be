@@ -24,26 +24,33 @@ import java.util.Date;
 import java.util.List;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.ibatis.io.Resources;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.edgegallery.developer.DeveloperApplicationTests;
+import org.edgegallery.developer.config.security.AccessUserUtil;
 import org.edgegallery.developer.model.workspace.ApplicationProject;
+import org.edgegallery.developer.model.workspace.EnumHostStatus;
 import org.edgegallery.developer.model.workspace.EnumOpenMepType;
+import org.edgegallery.developer.model.workspace.EnumProjectImage;
 import org.edgegallery.developer.model.workspace.EnumProjectStatus;
 import org.edgegallery.developer.model.workspace.EnumProjectType;
+import org.edgegallery.developer.model.workspace.MepAgentConfig;
+import org.edgegallery.developer.model.workspace.MepHost;
 import org.edgegallery.developer.model.workspace.OpenMepCapabilityDetail;
 import org.edgegallery.developer.model.workspace.OpenMepCapabilityGroup;
+import org.edgegallery.developer.model.workspace.ProjectImageConfig;
 import org.edgegallery.developer.model.workspace.ProjectTestConfig;
 import org.edgegallery.developer.model.workspace.UploadedFile;
 import org.edgegallery.developer.response.FormatRespDto;
 import org.edgegallery.developer.service.ProjectService;
 import org.edgegallery.developer.service.UploadFileService;
 import org.edgegallery.developer.util.DeveloperFileUtils;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.multipart.MultipartFile;
@@ -57,6 +64,8 @@ public class ProjectServiceTest {
 
     @Autowired
     private UploadFileService uploadFileService;
+
+    private String userId = "f24ea0a2-d8e6-467c-8039-94f0d29bac43";
 
     @Before
     public void init() {
@@ -112,12 +121,62 @@ public class ProjectServiceTest {
         return projectService.createProject(userId, project);
     }
 
+    private Either<FormatRespDto, ApplicationProject> createNewProjectWithNullIcon() throws IOException {
+        String userId = "test-user";
+        ApplicationProject project = new ApplicationProject();
+        project.setStatus(EnumProjectStatus.ONLINE);
+        project.setName("test_app_1");
+        project.setVersion("1.0.1");
+        project.setProvider("huawei");
+        List<String> platforms = new ArrayList<>();
+        platforms.add("KunPeng");
+        project.setPlatform(platforms);
+        project.setUserId("8595621b-d567-4331-b964-c3288815bd7b");
+        project.setProjectType(EnumProjectType.CREATE_NEW);
+        project.setCreateDate(new Date());
+        project.setType("new");
+        return projectService.createProject(userId, project);
+    }
+
+    private Either<FormatRespDto, ApplicationProject> createNewProjectWithErrorIcon() throws IOException {
+        String userId = "test-user";
+        ApplicationProject project = new ApplicationProject();
+        project.setStatus(EnumProjectStatus.ONLINE);
+        project.setName("test_app_1");
+        project.setVersion("1.0.1");
+        project.setProvider("huawei");
+        List<String> platforms = new ArrayList<>();
+        platforms.add("KunPeng");
+        project.setPlatform(platforms);
+        project.setUserId("8595621b-d567-4331-b964-c3288815bd7b");
+        project.setProjectType(EnumProjectType.CREATE_NEW);
+        project.setCreateDate(new Date());
+        project.setType("new");
+        project.setIconFileId("1111");
+        return projectService.createProject(userId, project);
+    }
+
     @Test
     @WithMockUser(roles = "DEVELOPER_TENANT")
     public void testCreateProject() throws IOException {
         Either<FormatRespDto, ApplicationProject> response = createNewProject();
         Assert.assertEquals(true, response.isRight());
         Assert.assertNotNull(response.getRight().getId());
+    }
+
+    @Test
+    @WithMockUser(roles = "DEVELOPER_TENANT")
+    public void testCreateProjectWithNullIcon() throws IOException {
+        Either<FormatRespDto, ApplicationProject> response = createNewProjectWithNullIcon();
+        Assert.assertEquals(true, response.isLeft());
+        Assert.assertEquals("icon file is null", response.getLeft().getErrorRespDto().getDetail());
+    }
+
+    @Test
+    @WithMockUser(roles = "DEVELOPER_TENANT")
+    public void testCreateProjectWithErrorIcon() throws IOException {
+        Either<FormatRespDto, ApplicationProject> response = createNewProjectWithErrorIcon();
+        Assert.assertEquals(true, response.isLeft());
     }
 
     @Test
@@ -148,6 +207,15 @@ public class ProjectServiceTest {
 
     @Test
     @WithMockUser(roles = "DEVELOPER_TENANT")
+    public void testDeleteProjectError() throws IOException {
+        String userId = "f24ea0a2-d8e6-467c-8039-94f0d29bac43";
+        String projectId = "aaaaa";
+        Either<FormatRespDto, Boolean> response = projectService.deleteProject(userId, projectId);
+        Assert.assertTrue(response.isRight());
+    }
+
+    @Test
+    @WithMockUser(roles = "DEVELOPER_TENANT")
     public void testCreateTestConfigError() {
         Either<FormatRespDto, ProjectTestConfig> response = projectService
             .createTestConfig("18db0288-3c67-4042-a708-a8e4a10c6b3", "200dfab1-3c30-4fc7-a6ca-ed6f0620a85e", null);
@@ -169,5 +237,230 @@ public class ProjectServiceTest {
             .getTestConfig("200dfab1-3c30-4fc7-a6ca-ed6f0620a85e");
         Assert.assertTrue(result.isRight());
         Assert.assertEquals(result.getRight().getTestId(), "00001");
+    }
+
+    @Test
+    @WithMockUser(roles = "DEVELOPER_TENANT")
+    public void testModifyProject() throws IOException {
+        Either<FormatRespDto, ApplicationProject> project = createNewProject();
+        String userId = "f24ea0a2-d8e6-467c-8039-94f0d29bac43";
+        Either<FormatRespDto, ApplicationProject> result = projectService
+            .modifyProject(userId, "200dfab1-3c30-4fc7-a6ca-ed6f0620a85e", project.getRight());
+        Assert.assertTrue(result.isRight());
+        Assert.assertEquals(result.getRight().getUserId(), userId);
+    }
+
+    @Test
+    @WithMockUser(roles = "DEVELOPER_TENANT")
+    public void testModifyProjectError() throws IOException {
+        Either<FormatRespDto, ApplicationProject> project = createNewProject();
+        String userId = "f24ea0a2-d8e6-467c-8039-94f0d29bac43";
+        Either<FormatRespDto, ApplicationProject> result = projectService
+            .modifyProject(userId, "aaaa", project.getRight());
+        Assert.assertTrue(result.isLeft());
+    }
+
+    @Test
+    @WithMockUser(roles = "DEVELOPER_TENANT")
+    public void testDeployProjectError() throws IOException {
+        Either<FormatRespDto, ApplicationProject> project = createNewProject();
+        String userId = "f24ea0a2-d8e6-467c-8039-94f0d29bac43";
+        Either<FormatRespDto, ApplicationProject> result = projectService.deployProject(userId, "aaaa", "");
+        Assert.assertTrue(result.isLeft());
+    }
+
+    @Test
+    @WithMockUser(roles = "DEVELOPER_TENANT")
+    public void testCreateTestConfig() throws IOException {
+        Either<FormatRespDto, ApplicationProject> project = createNewProject();
+        ProjectTestConfig test = new ProjectTestConfig();
+        test.setProjectId(project.getRight().getId());
+        // MEPAgentConfig
+        MepAgentConfig agent = new MepAgentConfig();
+        agent.setServiceName("codelab2223");
+        agent.setHref("codelab2223");
+        agent.setPort(32119);
+        test.setAgentConfig(agent);
+        List<String> imageFileIds = new ArrayList<String>();
+        imageFileIds.add("78055873-58cf-4712-8f12-cfdd4e19f268");
+        test.setImageFileIds(imageFileIds);
+
+        List<MepHost> hosts = new ArrayList<MepHost>();
+        MepHost host = new MepHost();
+        host.setHostId("4eb3503e-f546-4580-b946-4fd35e4c727d");
+        host.setName("Node2");
+        host.setAddress("XIAN");
+        host.setArchitecture("ARM");
+        host.setStatus(EnumHostStatus.NORMAL);
+        host.setIp("192.168.0.5");
+        host.setPort(30101);
+        host.setOs("Ubuntu");
+        host.setPortRangeMin(30000);
+        host.setPortRangeMax(32767);
+        hosts.add(host);
+        test.setHosts(hosts);
+
+        UploadedFile apiFile = uploadOneFile("/testdata/plugin.json", "api-file");
+        test.setAppApiFileId(apiFile.getFileId());
+
+        test.setAppInstanceId("app-instance-id");
+
+        Either<FormatRespDto, ProjectTestConfig> result = projectService
+            .createTestConfig(project.getRight().getUserId(), project.getRight().getId(), test);
+        Assert.assertNotNull(result.getRight());
+
+    }
+
+    @Test
+    @WithMockUser(roles = "DEVELOPER_TENANT")
+    public void testModifyTestConfig() throws IOException {
+        Either<FormatRespDto, ApplicationProject> project = createNewProject();
+        ProjectTestConfig test = new ProjectTestConfig();
+        test.setProjectId(project.getRight().getId());
+        // MEPAgentConfig
+        MepAgentConfig agent = new MepAgentConfig();
+        agent.setServiceName("codelab2223");
+        agent.setHref("codelab2223");
+        agent.setPort(32119);
+        test.setAgentConfig(agent);
+        List<String> imageFileIds = new ArrayList<String>();
+        imageFileIds.add("78055873-58cf-4712-8f12-cfdd4e19f268");
+        test.setImageFileIds(imageFileIds);
+
+        List<MepHost> hosts = new ArrayList<MepHost>();
+        MepHost host = new MepHost();
+        host.setHostId("4eb3503e-f546-4580-b946-4fd35e4c727d");
+        host.setName("Node2");
+        host.setAddress("XIAN");
+        host.setArchitecture("ARM");
+        host.setStatus(EnumHostStatus.NORMAL);
+        host.setIp("192.168.0.5");
+        host.setPort(30101);
+        host.setOs("Ubuntu");
+        host.setPortRangeMin(30000);
+        host.setPortRangeMax(32767);
+        hosts.add(host);
+        test.setHosts(hosts);
+
+        UploadedFile apiFile = uploadOneFile("/testdata/plugin.json", "api-file");
+        test.setAppApiFileId(apiFile.getFileId());
+
+        test.setAppInstanceId("app-instance-id");
+
+        String userId = "f24ea0a2-d8e6-467c-8039-94f0d29bac43";
+        AccessUserUtil.setUser(project.getRight().getUserId(), "hhh");
+        Either<FormatRespDto, ProjectTestConfig> result = projectService
+            .modifyTestConfig(project.getRight().getId(), test);
+        Assert.assertNotNull(result.getLeft());
+
+    }
+
+    @Test
+    @WithMockUser(roles = "DEVELOPER_TENANT")
+    public void testGetTestConfigError() throws IOException {
+        Either<FormatRespDto, ApplicationProject> project = createNewProject();
+        Either<FormatRespDto, ProjectTestConfig> result = projectService.getTestConfig(project.getRight().getId());
+        Assert.assertNull(result.getRight());
+
+    }
+
+    @Test
+    @WithMockUser(roles = "DEVELOPER_TENANT")
+    public void testUploadProToStoreError1() throws IOException {
+        Either<FormatRespDto, ApplicationProject> project = createNewProject();
+        String userId = project.getRight().getUserId();
+        String userName = "mec";
+        String projectId = project.getRight().getId();
+        String token = "";
+        Either<FormatRespDto, String> result = projectService.uploadToAppStore(userId, projectId, userName, token);
+        Assert.assertTrue(result.isLeft());
+
+    }
+
+    @Test
+    @WithMockUser(roles = "DEVELOPER_TENANT")
+    public void testUploadProToStoreError2() throws IOException {
+        Either<FormatRespDto, ApplicationProject> project = createNewProject();
+        String userId = "hello";
+        String userName = "mec";
+        String projectId = project.getRight().getId();
+        String token = "";
+        Either<FormatRespDto, String> result = projectService.uploadToAppStore(userId, projectId, userName, token);
+        Assert.assertTrue(result.isLeft());
+
+    }
+
+    @Test
+    @WithMockUser(roles = "DEVELOPER_TENANT")
+    public void testAddImageToProject() throws Exception {
+        Either<FormatRespDto, ApplicationProject> project = createNewProject();
+        ProjectImageConfig image = new ProjectImageConfig();
+        image.setName("test-image");
+        image.setPort(9998);
+        image.setVersion("v1.0");
+        image.setProjectId(project.getRight().getId());
+        image.setType(EnumProjectImage.DEVELOPER);
+        image.setNodePort(32115);
+        Either<FormatRespDto, ProjectImageConfig> result = projectService
+            .createProjectImage(project.getRight().getId(), image);
+        Assert.assertTrue(result.isRight());
+
+    }
+
+    @Test
+    @WithMockUser(roles = "DEVELOPER_TENANT")
+    public void testDeleteImage() throws Exception {
+        Either<FormatRespDto, ApplicationProject> project = createNewProject();
+        ProjectImageConfig image = new ProjectImageConfig();
+        image.setName("test-image");
+        image.setPort(9998);
+        image.setVersion("v1.0");
+        image.setProjectId(project.getRight().getId());
+        image.setType(EnumProjectImage.DEVELOPER);
+        image.setNodePort(32115);
+        Either<FormatRespDto, ProjectImageConfig> imageResult = projectService
+            .createProjectImage(project.getRight().getId(), image);
+        Assert.assertTrue(imageResult.isRight());
+        Either<FormatRespDto, Boolean> result = projectService
+            .deleteImageById(project.getRight().getId(), imageResult.getRight().getId());
+        Assert.assertTrue(result.isRight());
+
+    }
+
+    @Test
+    @WithMockUser(roles = "DEVELOPER_TENANT")
+    public void testDeleteImageError() throws Exception {
+        Either<FormatRespDto, ApplicationProject> project = createNewProject();
+        Either<FormatRespDto, Boolean> result = projectService.deleteImageById(project.getRight().getId(), "aaaa");
+        Assert.assertTrue(result.isLeft());
+
+    }
+
+    @Test
+    @WithMockUser(roles = "DEVELOPER_TENANT")
+    public void testOpenToMecEco() throws Exception {
+        Either<FormatRespDto, ApplicationProject> project = createNewProject();
+        Either<FormatRespDto, OpenMepCapabilityGroup> result = projectService
+            .openToMecEco(project.getRight().getUserId(), project.getRight().getId());
+        Assert.assertTrue(result.isLeft());
+
+    }
+
+    @Test
+    @WithMockUser(roles = "DEVELOPER_TENANT")
+    public void testCleanEnv() throws Exception {
+        Either<FormatRespDto, ApplicationProject> project = createNewProject();
+        String userId =  project.getRight().getUserId();
+        String projectId = project.getRight().getId();
+        Either<FormatRespDto, Boolean> result = projectService.cleanTestEnv(userId, projectId, true, "");
+        Assert.assertTrue(result.isRight());
+
+    }
+
+    private UploadedFile uploadOneFile(String resourceFile, String fileName) throws IOException {
+        MultipartFile uploadFile = new MockMultipartFile(fileName, fileName, null,
+            UploadFilesServiceTest.class.getClassLoader().getResourceAsStream(resourceFile));
+        Either<FormatRespDto, UploadedFile> uoloadFile = uploadFileService.uploadFile(userId, uploadFile);
+        return uoloadFile.getRight();
     }
 }
