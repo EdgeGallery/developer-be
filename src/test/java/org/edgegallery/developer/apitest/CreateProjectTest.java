@@ -24,10 +24,10 @@ import com.spencerwi.either.Either;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 import org.edgegallery.developer.DeveloperApplicationTests;
+import org.edgegallery.developer.controller.ProjectController;
 import org.edgegallery.developer.model.workspace.ApplicationProject;
 import org.edgegallery.developer.model.workspace.EnumHostStatus;
 import org.edgegallery.developer.model.workspace.EnumOpenMepType;
@@ -52,6 +52,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -72,6 +73,9 @@ import org.springframework.web.multipart.MultipartFile;
 @SpringBootTest(classes = DeveloperApplicationTests.class)
 @AutoConfigureMockMvc
 public class CreateProjectTest {
+
+    @InjectMocks
+    private ProjectController projectController;
 
     private Gson gson = new Gson();
 
@@ -266,9 +270,10 @@ public class CreateProjectTest {
     public void testDeployProject() throws Exception {
         ApplicationProject project = createNewProject();
         String url = String
-            .format("/mec/developer/v1/projects/" + project.getId() + "/action/deploy?userId=%s", project.getUserId());
-        mvc.perform(MockMvcRequestBuilders.post(url).contentType(MediaType.APPLICATION_JSON_UTF8)
-            .accept(MediaType.APPLICATION_JSON_UTF8)).andExpect(MockMvcResultMatchers.status().is4xxClientError());
+            .format("/mec/developer/v1/projects/%s/action/deploy?userId=%s", project.getId(), project.getUserId());
+        ResultActions resultActions = mvc.perform(
+            MockMvcRequestBuilders.post(url).with(csrf()).contentType(MediaType.APPLICATION_JSON_UTF8)
+                .accept(MediaType.APPLICATION_JSON_UTF8)).andExpect(MockMvcResultMatchers.status().is4xxClientError());
     }
 
     @Test
@@ -288,7 +293,7 @@ public class CreateProjectTest {
         String url = String
             .format("/mec/developer/v1/projects/" + project.getId() + "/action/upload?userId=%s&userName=%s", userId,
                 "lidazhao");
-        mvc.perform(MockMvcRequestBuilders.post(url).contentType(MediaType.APPLICATION_JSON_UTF8)
+        mvc.perform(MockMvcRequestBuilders.post(url).with(csrf()).contentType(MediaType.APPLICATION_JSON_UTF8)
             .accept(MediaType.APPLICATION_JSON_UTF8)).andExpect(MockMvcResultMatchers.status().is4xxClientError());
     }
 
@@ -299,7 +304,7 @@ public class CreateProjectTest {
         ApplicationProject project = createNewProject();
         String url = String
             .format("/mec/developer/v1/projects/" + project.getId() + "/action/open-api?userId=%s", userId);
-        mvc.perform(MockMvcRequestBuilders.post(url).contentType(MediaType.APPLICATION_JSON_UTF8)
+        mvc.perform(MockMvcRequestBuilders.post(url).with(csrf()).contentType(MediaType.APPLICATION_JSON_UTF8)
             .accept(MediaType.APPLICATION_JSON_UTF8)).andExpect(MockMvcResultMatchers.status().is4xxClientError());
     }
 
@@ -477,7 +482,7 @@ public class CreateProjectTest {
     @Test
     @WithMockUser(roles = "DEVELOPER_TENANT")
     public void testModifyTestConfig() throws Exception {
-
+        ApplicationProject project = createNewProject();
         ProjectTestConfig test = new ProjectTestConfig();
         test.setProjectId("71481045-1344-4073-98b1-cec155470273");
         // MEPAgentConfig
@@ -511,15 +516,14 @@ public class CreateProjectTest {
         test.setErrorLog("ImagePullBackOff");
         test.setWorkLoadId("test11111579664939869");
         test.setAppInstanceId("a250418e-a805-4e18-b3d4-a5cad716cbf0");
-        test.setDeployDate(new Date());
 
-        MockHttpServletRequestBuilder request = MockMvcRequestBuilders
-            .put("/mec/developer/v1/projects/200dfab1-3c30-4fc7-a6ca-ed6f0620a85e/test-config").with(csrf());
+        String url = String.format("/mec/developer/v1/projects/%s/test-config", "200dfab1-3c30-4fc7-a6ca-ed6f0620a85e");
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.put(url).with(csrf());
         request.content(gson.toJson(test));
         request.accept(MediaType.APPLICATION_JSON);
         request.contentType(MediaType.APPLICATION_JSON);
         mvc.perform(request).andDo(MockMvcResultHandlers.print())
-            .andExpect(MockMvcResultMatchers.status().isBadRequest());
+            .andExpect(MockMvcResultMatchers.status().is4xxClientError());
     }
 
     private ProjectImageConfig addImageToProject(ApplicationProject project) throws Exception {
