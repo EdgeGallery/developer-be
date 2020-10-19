@@ -17,8 +17,8 @@
 <Configuration monitorInterval="10">
     <Appenders>
         <RollingFile name="RollingFileInfo"
-                     fileName="${env:LOG_DIR:-/var/log/developer}/developer-be.log"
-                     filePattern="${env:LOG_DIR:-/var/log/developer}/$${date:yyyy-MM}/developer-be-%d{yyyy-MM-dd}-%i.log"
+                     fileName="${env:LOG_DIR:-/usr/app/log}/developer-be.log"
+                     filePattern="${env:LOG_DIR:-/usr/app/log}/$${date:yyyy-MM}/developer-be-%d{yyyy-MM-dd}-%i.log"
                      filePermissions="rw-------">
             <ThresholdFilter level="INFO" onMatch="ACCEPT" onMismatch="DENY"/>
             <PatternLayout
