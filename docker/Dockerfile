@@ -14,14 +14,54 @@
 #    limitations under the License.
 #
 FROM openjdk:8u201-jdk-alpine
+#define all environment variable here
+ENV JAVA_HOME /usr/lib/jvm/java-1.8-openjdk
 ENV TZ='Asia/Shanghai'
 ENV APP_FILE mec-developer-platform.jar
 ENV APP_HOME /usr/app
-EXPOSE 9080
-COPY target/*.jar $APP_HOME/
-COPY target/output $APP_HOME/
-COPY configs/mep_capability/ /home/mec-developer/mep_capability/
+ENV UID=166
+ENV GID=166
+ENV USER_NAME=eguser
+ENV GROUP_NAME=eggroup
+ENV ENV="/etc/profile"
+
+# # CREATE APP USER ##
+# Set umask
+RUN sed -i "s|umask 022|umask 027|g" /etc/profile
+
+# Create the home directory for the new app user.
+RUN mkdir -p /usr/app
+RUN mkdir -p /usr/app/bin
+
 RUN mkdir -p /home/mec-developer/user/workspace/csar/
+# Create an app user so our program doesn't run as root.
+RUN apk update &&\
+    apk add shadow &&\
+    groupadd -r -g $GID $GROUP_NAME &&\
+    useradd -r -u $UID -g $GID -d $APP_HOME -s /sbin/nologin -c "Docker image user" $USER_NAME
+
 WORKDIR $APP_HOME
-ENTRYPOINT ["sh", "-c"]
-CMD ["exec java -jar $APP_FILE"]
+
+COPY target/*.jar $APP_HOME/bin
+COPY target/output $APP_HOME/bin
+COPY configs/*.sh $APP_HOME/bin
+COPY configs/mep_capability/ /home/mec-developer/mep_capability/
+
+RUN chmod 750 $APP_HOME &&\
+    chmod -R 550 $APP_HOME/bin &&\
+    mkdir -p -m 750 $APP_HOME/config &&\
+    mkdir -p -m 750 $APP_HOME/log &&\
+    mkdir -p -m 750 $APP_HOME/packages &&\
+    mkdir -p -m 700 $APP_HOME/ssl &&\
+    chown -R $USER_NAME:$GROUP_NAME $APP_HOME
+
+
+EXPOSE 9080
+
+# Change to the app user.
+USER $USER_NAME
+
+# Execute script & application
+ENTRYPOINT ["sh", "./bin/start.sh"]
+#ENTRYPOINT ["sh", "-c"]
+#CMD ["exec java -jar $APP_FILE"]
