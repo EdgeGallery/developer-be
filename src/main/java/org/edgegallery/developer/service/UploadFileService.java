@@ -171,7 +171,7 @@ public class UploadFileService {
             result.setFilePath(BusinessConfigUtil.getUploadfilesPath() + fileId);
             uploadedFileMapper.saveFile(result);
         } catch (IOException e) {
-            LOGGER.error("Failed to save file with IOException. ", e.getMessage());
+            LOGGER.error("Failed to save file with IOException. {}", e.getMessage());
             return Either.left(new FormatRespDto(Status.BAD_REQUEST, "Failed to save file."));
         }
         LOGGER.info("upload file success {}", fileName);
