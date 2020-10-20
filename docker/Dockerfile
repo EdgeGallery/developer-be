@@ -56,8 +56,9 @@ RUN chmod 750 $APP_HOME &&\
     mkdir -p -m 750 $$APP_HOME/user/plugin &&\
     mkdir -p -m 750 $$APP_HOME/user/workspace &&\
     chown -R $USER_NAME:$GROUP_NAME $APP_HOME &&\
-    chown -R $USER_NAME:$GROUP_NAME /home/mec-developer &&\
-    chown -R $USER_NAME:$GROUP_NAME $APP_HOME/user &&\
+    chown -R $USER_NAME:$GROUP_NAME /home/mec-developer
+
+RUN chown -R $USER_NAME:$GROUP_NAME $APP_HOME/user &&\
     chown -R $USER_NAME:$GROUP_NAME $APP_HOME/user/workspace
 
 EXPOSE 9080
