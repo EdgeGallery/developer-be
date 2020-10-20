@@ -51,10 +51,10 @@ RUN chmod 750 $APP_HOME &&\
     chmod -R 550 $APP_HOME/bin &&\
     mkdir -p -m 750 $APP_HOME/config &&\
     mkdir -p -m 700 $APP_HOME/ssl &&\
-    mkdir -p -m 750 $$APP_HOME/user &&\
-    mkdir -p -m 750 $$APP_HOME/user/app &&\
-    mkdir -p -m 750 $$APP_HOME/user/plugin &&\
-    mkdir -p -m 750 $$APP_HOME/user/workspace &&\
+    mkdir -p -m 750 $APP_HOME/user &&\
+    mkdir -p -m 750 $APP_HOME/user/app &&\
+    mkdir -p -m 750 $APP_HOME/user/plugin &&\
+    mkdir -p -m 750 $APP_HOME/user/workspace &&\
     chown -R $USER_NAME:$GROUP_NAME $APP_HOME &&\
     chown -R $USER_NAME:$GROUP_NAME /home/mec-developer
 
