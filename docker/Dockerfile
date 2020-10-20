@@ -33,7 +33,6 @@ RUN sed -i "s|umask 022|umask 027|g" /etc/profile
 RUN mkdir -p /usr/app
 RUN mkdir -p /usr/app/bin
 
-RUN mkdir -p /home/mec-developer/user/workspace/csar/
 # Create an app user so our program doesn't run as root.
 RUN apk update &&\
     apk add shadow &&\
@@ -41,6 +40,18 @@ RUN apk update &&\
     useradd -r -u $UID -g $GID -d $APP_HOME -s /sbin/nologin -c "Docker image user" $USER_NAME
 
 WORKDIR $APP_HOME
+
+USER $USER_NAME
+RUN mkdir -p /home/mec-developer/user/workspace
+RUN mkdir -p /home/mec-developer/user/workspace/csar/
+RUN mkdir -p /home/mec-developer/user/workspace/chart
+RUN mkdir -p /home/mec-developer/user/app/
+RUN mkdir -p /home/mec-developer/user/plugin
+RUN mkdir -p /home/mec-developer/user/uploaded_files/
+
+RUN chown -R $USER_NAME:$GROUP_NAME /home/mec-developer/user
+RUN chown -R $USER_NAME:$GROUP_NAME /home/mec-developer/workspace
+
 
 COPY target/*.jar $APP_HOME/bin
 COPY target/output $APP_HOME/bin
@@ -52,15 +63,12 @@ RUN chmod 750 $APP_HOME &&\
     mkdir -p -m 750 $APP_HOME/config &&\
     mkdir -p -m 700 $APP_HOME/ssl &&\
     chown -R $USER_NAME:$GROUP_NAME $APP_HOME &&\
-    chown -R $USER_NAME:$GROUP_NAME /home/mec-developer &&\
-    chown -R $USER_NAME:$GROUP_NAME /home/mec-developer/user
-
+    chown -R $USER_NAME:$GROUP_NAME /home/mec-developer
 
 EXPOSE 9080
 
 # Change to the app user.
 USER $USER_NAME
-
 # Execute script & application
 ENTRYPOINT ["sh", "./bin/start.sh"]
 #ENTRYPOINT ["sh", "-c"]
