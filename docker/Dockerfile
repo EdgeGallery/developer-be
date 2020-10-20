@@ -44,22 +44,24 @@ WORKDIR $APP_HOME
 COPY target/*.jar $APP_HOME/bin
 COPY target/output $APP_HOME/bin
 COPY configs/*.sh $APP_HOME/bin
-COPY configs/mep_capability/ /home/mec-developer/mep_capability/
+COPY configs/mep_capability/ $APP_HOME/mep_capability/
 
 
 RUN chmod 750 $APP_HOME &&\
     chmod -R 550 $APP_HOME/bin &&\
     mkdir -p -m 750 $APP_HOME/config &&\
+    mkdir -p -m 750 $APP_HOME/log &&\
     mkdir -p -m 700 $APP_HOME/ssl &&\
     mkdir -p -m 750 $APP_HOME/user &&\
     mkdir -p -m 750 $APP_HOME/user/app &&\
     mkdir -p -m 750 $APP_HOME/user/plugin &&\
     mkdir -p -m 750 $APP_HOME/user/workspace &&\
-    chown -R $USER_NAME:$GROUP_NAME $APP_HOME &&\
-    chown -R $USER_NAME:$GROUP_NAME /home/mec-developer
+    mkdir -p -m 750 $APP_HOME/user/uploaded_files &&\
+    chown -R $USER_NAME:$GROUP_NAME $APP_HOME &&
 
 RUN chown -R $USER_NAME:$GROUP_NAME $APP_HOME/user &&\
-    chown -R $USER_NAME:$GROUP_NAME $APP_HOME/user/workspace
+    chown -R $USER_NAME:$GROUP_NAME $APP_HOME/user/workspace &&\
+    chown -R $USER_NAME:$GROUP_NAME $APP_HOME/user/uploaded_files
 
 EXPOSE 9080
 
