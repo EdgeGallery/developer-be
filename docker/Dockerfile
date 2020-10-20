@@ -41,18 +41,6 @@ RUN apk update &&\
 
 WORKDIR $APP_HOME
 
-USER $USER_NAME
-RUN mkdir -p /home/mec-developer/user/workspace
-RUN mkdir -p /home/mec-developer/user/workspace/csar/
-RUN mkdir -p /home/mec-developer/user/workspace/chart
-RUN mkdir -p /home/mec-developer/user/app/
-RUN mkdir -p /home/mec-developer/user/plugin
-RUN mkdir -p /home/mec-developer/user/uploaded_files/
-
-RUN chown -R $USER_NAME:$GROUP_NAME /home/mec-developer/user
-RUN chown -R $USER_NAME:$GROUP_NAME /home/mec-developer/workspace
-
-
 COPY target/*.jar $APP_HOME/bin
 COPY target/output $APP_HOME/bin
 COPY configs/*.sh $APP_HOME/bin
@@ -66,6 +54,19 @@ RUN chmod 750 $APP_HOME &&\
     chown -R $USER_NAME:$GROUP_NAME /home/mec-developer
 
 EXPOSE 9080
+
+WORKDIR /home/mec-developer
+
+USER $USER_NAME
+RUN mkdir -p /user/workspace
+RUN mkdir -p /user/workspace/csar/
+RUN mkdir -p /user/workspace/chart/
+RUN mkdir -p /user/app/
+RUN mkdir -p /user/plugin/
+RUN mkdir -p /user/uploaded_files/
+
+RUN chown -R $USER_NAME:$GROUP_NAME /user
+RUN chown -R $USER_NAME:$GROUP_NAME /user/workspace
 
 # Change to the app user.
 USER $USER_NAME
