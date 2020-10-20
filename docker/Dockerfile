@@ -52,7 +52,8 @@ RUN chmod 750 $APP_HOME &&\
     mkdir -p -m 750 $APP_HOME/config &&\
     mkdir -p -m 700 $APP_HOME/ssl &&\
     chown -R $USER_NAME:$GROUP_NAME $APP_HOME &&\
-    chown -R $USER_NAME:$GROUP_NAME /home/mec-developer
+    chown -R $USER_NAME:$GROUP_NAME /home/mec-developer &&\
+    chown -R $USER_NAME:$GROUP_NAME /home/mec-developer/user
 
 
 EXPOSE 9080
