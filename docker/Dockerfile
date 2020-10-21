@@ -57,7 +57,8 @@ RUN chmod 750 $APP_HOME &&\
     mkdir -p -m 750 $APP_HOME/user/plugin &&\
     mkdir -p -m 750 $APP_HOME/user/workspace &&\
     mkdir -p -m 750 $APP_HOME/user/uploaded_files &&\
-    chown -R $USER_NAME:$GROUP_NAME $APP_HOME
+    chown -R $USER_NAME:$GROUP_NAME $APP_HOME &&\
+    chown -R $USER_NAME:$GROUP_NAME $APP_HOME/ssl
 
 RUN chown -R $USER_NAME:$GROUP_NAME $APP_HOME/user &&\
     chown -R $USER_NAME:$GROUP_NAME $APP_HOME/user/workspace &&\
