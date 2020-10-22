@@ -263,7 +263,6 @@ public class UploadFileService {
                 uploadedFileMapper.deleteFile(tempId);
                 LOGGER.info("Delete temp file {} success.", tempFile.getFileName());
             }
-            LOGGER.warn("Can not find temp file {}, delete failed.", tempFile.getFileName());
         }
     }
 
