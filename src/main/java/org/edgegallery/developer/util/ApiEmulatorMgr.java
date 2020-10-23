@@ -143,12 +143,11 @@ public class ApiEmulatorMgr {
      */
     public void deleteApiEmulatorIfProjectsNotExist(String userId, String token) {
         int projectsNum = projectMapper.countProjects(userId);
-        List<ApiEmulator> emulatorList = apiEmulatorMapper.getEmulatorByUserId(userId);
+        ApiEmulator emulator = apiEmulatorMapper.getEmulatorByUserId(userId);
 
-        if (projectsNum != 0 || emulatorList == null || emulatorList.size() == 0) {
+        if (projectsNum != 0 || emulator == null) {
             return;
         }
-        for(ApiEmulator emulator:emulatorList){
             String workloadId = emulator.getWorkloadId();
             String instanceId = emulator.getId();
             MepHost host = hostMapper.getHost(emulator.getHostId());
@@ -166,7 +165,6 @@ public class ApiEmulatorMgr {
             }
             LOGGER.info("Succeed to delete emulator app for user: {}, appInstanceId: {}, workload id: {}.", userId,
                 instanceId, workloadId);
-        }
 
     }
 }
