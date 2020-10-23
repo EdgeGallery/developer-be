@@ -105,6 +105,7 @@
         FROM
         tbl_app_project
         where user_id = #{param1} and id = #{param2}
+        order by create_date desc limit 1;
     </select>
 
     <select id="getAllProject" parameterType="String" resultMap="AppProjectMap">

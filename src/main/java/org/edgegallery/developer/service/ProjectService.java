@@ -153,7 +153,7 @@ public class ProjectService {
 
         // set default value
         project.setStatus(EnumProjectStatus.ONLINE);
-
+        project.setCreateDate(new Date());
         // save project to DB
         int res = projectMapper.save(project);
         if (res < 1) {
