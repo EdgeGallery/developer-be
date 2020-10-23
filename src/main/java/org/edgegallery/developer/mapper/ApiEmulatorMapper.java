@@ -16,6 +16,7 @@
 
 package org.edgegallery.developer.mapper;
 
+import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
 import org.edgegallery.developer.model.workspace.ApiEmulator;
 
@@ -26,7 +27,7 @@ public interface ApiEmulatorMapper {
 
     int deleteEmulatorById(String id);
 
-    ApiEmulator getEmulatorByUserId(String userId);
+    List<ApiEmulator> getEmulatorByUserId(String userId);
 
     int selectMaxPort(String hostId);
 }

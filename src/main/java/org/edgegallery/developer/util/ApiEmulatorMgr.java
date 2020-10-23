@@ -111,8 +111,8 @@ public class ApiEmulatorMgr {
         FileUtils.deleteQuietly(new File(csarFilePath));
 
         // save ApiEmulator
-        ApiEmulator apiEmulator = new ApiEmulator(emulatorInstanceId, userId, host.getHostId(),
-            nodePort, emulatorInstanceId);
+        ApiEmulator apiEmulator = new ApiEmulator(emulatorInstanceId, userId, host.getHostId(), nodePort,
+            emulatorInstanceId);
         int saveResult = apiEmulatorMapper.saveEmulator(apiEmulator);
         if (saveResult != 1) {
             LOGGER.error("Failed to save emulator for user: {}, appInstanceId: {}.", userId, emulatorInstanceId);
@@ -143,27 +143,30 @@ public class ApiEmulatorMgr {
      */
     public void deleteApiEmulatorIfProjectsNotExist(String userId, String token) {
         int projectsNum = projectMapper.countProjects(userId);
-        ApiEmulator emulator = apiEmulatorMapper.getEmulatorByUserId(userId);
+        List<ApiEmulator> emulatorList = apiEmulatorMapper.getEmulatorByUserId(userId);
 
-        if (projectsNum != 0 || emulator == null) {
+        if (projectsNum != 0 || emulatorList == null || emulatorList.size() == 0) {
             return;
         }
-        String workloadId = emulator.getWorkloadId();
-        String instanceId = emulator.getId();
-        MepHost host = hostMapper.getHost(emulator.getHostId());
-        boolean terminateResult = HttpClientUtil
-            .terminateAppInstance(host.getProtocol(), host.getIp(), host.getPort(), workloadId, userId, token);
-        if (!terminateResult) {
-            LOGGER.error("Failed to terminate application which userId is: {}, instanceId is {}", userId, instanceId);
-            return;
-        }
-        int deleteResult = apiEmulatorMapper.deleteEmulatorById(emulator.getId());
-        if (deleteResult != 1) {
-            LOGGER.error("Failed to delete emulator for user: {}, appInstanceId: {}, workload id: {}.", userId,
+        for(ApiEmulator emulator:emulatorList){
+            String workloadId = emulator.getWorkloadId();
+            String instanceId = emulator.getId();
+            MepHost host = hostMapper.getHost(emulator.getHostId());
+            boolean terminateResult = HttpClientUtil
+                .terminateAppInstance(host.getProtocol(), host.getIp(), host.getPort(), workloadId, userId, token);
+            if (!terminateResult) {
+                LOGGER.error("Failed to terminate application which userId is: {}, instanceId is {}", userId, instanceId);
+                return;
+            }
+            int deleteResult = apiEmulatorMapper.deleteEmulatorById(emulator.getId());
+            if (deleteResult != 1) {
+                LOGGER.error("Failed to delete emulator for user: {}, appInstanceId: {}, workload id: {}.", userId,
+                    instanceId, workloadId);
+                return;
+            }
+            LOGGER.info("Succeed to delete emulator app for user: {}, appInstanceId: {}, workload id: {}.", userId,
                 instanceId, workloadId);
-            return;
         }
-        LOGGER.info("Succeed to delete emulator app for user: {}, appInstanceId: {}, workload id: {}.", userId,
-            instanceId, workloadId);
+
     }
 }
