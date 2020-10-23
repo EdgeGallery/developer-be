@@ -58,7 +58,7 @@
         status = 'NORMAL'
     </select>
 
-    <select id="getHost" parameterType="String" resultMap="HostMap">
+    <select id="getHost" parameterType="String" resultType="org.edgegallery.developer.model.workspace.MepHost">
         SELECT
         *
         FROM
