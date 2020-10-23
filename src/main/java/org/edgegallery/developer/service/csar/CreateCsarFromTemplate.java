@@ -74,7 +74,7 @@ public class CreateCsarFromTemplate {
         File projectDir = new File(projectPath);
 
         // copy template files to the new project path
-        File csar = DeveloperFileUtils.copyDirAndReName(new File(WORKSPACE_CSAR_PATH), projectDir, project.getId());
+        File csar = DeveloperFileUtils.copyDirAndReName(new File(WORKSPACE_CSAR_PATH), projectDir, config.getAppInstanceId());
 
         // get data to Map<String, String>
         String timeStamp = String.valueOf(new Date().getTime());
