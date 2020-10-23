@@ -123,11 +123,11 @@ public class ProjectController {
         @ApiParam(value = "userId", required = true) @RequestParam("userId") String userId, HttpServletRequest request)
         throws IOException {
 
-        String token = request.getHeader(Consts.ACCESS_TOKEN_STR);
+        // String token = request.getHeader(Consts.ACCESS_TOKEN_STR);
         Either<FormatRespDto, ApplicationProject> either = projectService.createProject(userId, project);
-        if (either.isRight()) {
-            apiEmulatorMgr.createApiEmulatorIfNotExist(userId, token);
-        }
+        // if (either.isRight()) {
+        //     apiEmulatorMgr.createApiEmulatorIfNotExist(userId, token);
+        // }
         return ResponseDataUtil.buildResponse(either);
     }
 
