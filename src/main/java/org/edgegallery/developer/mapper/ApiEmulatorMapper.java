@@ -27,7 +27,7 @@ public interface ApiEmulatorMapper {
 
     int deleteEmulatorById(String id);
 
-    List<ApiEmulator> getEmulatorByUserId(String userId);
+    ApiEmulator getEmulatorByUserId(String userId);
 
     int selectMaxPort(String hostId);
 }

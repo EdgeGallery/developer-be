@@ -39,7 +39,8 @@
         DELETE FROM tbl_api_emulator WHERE id = #{id};
     </delete>
 
-    <select id="getEmulatorByUserId" parameterType="String" resultMap="ApiEmulatorMap">
+    <select id="getEmulatorByUserId" parameterType="String"
+            resultType="org.edgegallery.developer.model.workspace.ApiEmulator">
         SELECT
         id, user_id, host_id, port, workload_id
         FROM
