@@ -16,7 +16,6 @@
 
 package org.edgegallery.developer.model.workspace;
 
-import java.util.UUID;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import lombok.Getter;
@@ -56,15 +55,5 @@ public class MepHost {
     private int portRangeMin;
 
     private int portRangeMax;
-
-    /**
-     * getHostId.
-     */
-    public String getHostId() {
-        if (this.hostId == null) {
-            this.hostId = UUID.randomUUID().toString();
-        }
-        return this.hostId;
-    }
 
 }
