@@ -33,7 +33,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.util.CollectionUtils;
 
 @Component
 public class ApiEmulatorMgr {
@@ -45,6 +44,10 @@ public class ApiEmulatorMgr {
     private static final String APP_NAME_PREFIX = "api-emulator-";
 
     private static final String NODE_PORT_STR = "{NODE_PORT}";
+
+    private static final int MIN_PORT = 30400;
+
+    private static final int MAX_PORT = 30500;
 
     @Autowired
     private ApiEmulatorMapper apiEmulatorMapper;
@@ -80,10 +83,6 @@ public class ApiEmulatorMgr {
 
         // select available host and nodePort
         MepHost host = selectAvailableHost();
-        if (host == null) {
-            LOGGER.error("No available test node, will not deploy api emulator");
-            return;
-        }
         int nodePort = selectAvailablePortByHost(host.getHostId());
         String emulatorInstanceId = UUID.randomUUID().toString();
 
@@ -92,49 +91,47 @@ public class ApiEmulatorMgr {
         try {
             csarFilePath = createEmulatorCsar(nodePort);
         } catch (IOException e) {
-            LOGGER.error("Failed to create emulator csar file for user: {},ex:{},port:{}", userId, e.getMessage(),
-                nodePort);
+            LOGGER.error("Failed to create emulator csar file for user: {}", userId);
             return;
         }
         LOGGER.info("Succeed to create emulator csar file for user: {}", userId);
-        boolean instantiateAppResult = HttpClientUtil
+        Boolean instantiateAppResult = HttpClientUtil
             .instantiateApplication(host.getProtocol(), host.getIp(), host.getPort(), csarFilePath, emulatorInstanceId,
                 userId, token);
 
-        if (!instantiateAppResult) {
+         if (!instantiateAppResult) {
             LOGGER.error("Failed to instantiate emulator app for user: {}.", userId);
             return;
         }
 
-        LOGGER.info("Succeed to instantiate emulator app for user: {}, appInstanceId: {}.", userId, emulatorInstanceId);
 
         // remove csar file
         FileUtils.deleteQuietly(new File(csarFilePath));
 
         // save ApiEmulator
-        ApiEmulator apiEmulator = new ApiEmulator(emulatorInstanceId, userId, host.getHostId(), nodePort,
-            emulatorInstanceId);
+        String workloadId = UUID.randomUUID().toString();
+        ApiEmulator apiEmulator = new ApiEmulator(emulatorInstanceId, userId, host.getHostId(), nodePort, workloadId);
         int saveResult = apiEmulatorMapper.saveEmulator(apiEmulator);
         if (saveResult != 1) {
-            LOGGER.error("Failed to save emulator for user: {}, appInstanceId: {}.", userId, emulatorInstanceId);
+            LOGGER.error("Failed to save emulator for user: {}, appInstanceId: {}, workload id: {}.", userId,
+                emulatorInstanceId, workloadId);
             return;
         }
-        LOGGER.info("Succeed to save emulator for user: {}, appInstanceId: {}.", userId, emulatorInstanceId);
+        LOGGER.info("Succeed to save emulator for user: {}, appInstanceId: {}, workload id: {}.", userId,
+            emulatorInstanceId, workloadId);
     }
 
     private MepHost selectAvailableHost() {
         List<MepHost> normalHosts = hostMapper.getNormalHosts();
-        if (CollectionUtils.isEmpty(normalHosts)) {
-            return null;
-        }
+        // TODO filter normal hosts
         return normalHosts.get(0);
     }
 
     private int selectAvailablePortByHost(String hostId) {
-        MepHost host = hostMapper.getHost(hostId);
         int maxPort = apiEmulatorMapper.selectMaxPort(hostId);
-        if (maxPort == 0 || maxPort == host.getPortRangeMax()) {
-            return host.getPortRangeMin();
+        if (maxPort == 0 || maxPort == MAX_PORT) {
+            // TODO reuse release port
+            return MIN_PORT;
         }
         return ++maxPort;
     }
@@ -153,7 +150,7 @@ public class ApiEmulatorMgr {
         String instanceId = emulator.getId();
         MepHost host = hostMapper.getHost(emulator.getHostId());
         boolean terminateResult = HttpClientUtil
-            .terminateAppInstance(host.getProtocol(), host.getIp(), host.getPort(), workloadId, userId, token);
+            .terminateAppInstance(host.getProtocol(), host.getIp(), host.getPort(), instanceId, userId, token);
         if (!terminateResult) {
             LOGGER.error("Failed to terminate application which userId is: {}, instanceId is {}", userId, instanceId);
             return;
@@ -166,6 +163,5 @@ public class ApiEmulatorMgr {
         }
         LOGGER.info("Succeed to delete emulator app for user: {}, appInstanceId: {}, workload id: {}.", userId,
             instanceId, workloadId);
-
     }
 }
