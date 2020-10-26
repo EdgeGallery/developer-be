@@ -42,7 +42,7 @@ RUN apk update &&\
 WORKDIR $APP_HOME
 
 COPY target/*.jar $APP_HOME/bin
-COPY target/output $APP_HOME/bin
+COPY target/output $APP_HOME
 COPY configs/*.sh $APP_HOME/bin
 COPY configs/mep_capability/ $APP_HOME/mep_capability/
 
