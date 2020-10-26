@@ -19,6 +19,7 @@ package org.edgegallery.developer.unittest;
 import com.google.gson.Gson;
 import com.spencerwi.either.Either;
 import java.util.List;
+import java.util.UUID;
 import javax.ws.rs.core.Response;
 import org.junit.Assert;
 import org.junit.Before;
@@ -49,6 +50,7 @@ public class HostServiceTest {
 
     private MepHost createTempHost() {
         MepHost host = new MepHost();
+        host.setHostId(UUID.randomUUID().toString());
         host.setName("host-test");
         host.setAddress("xi'an jinyelu 127#");
         host.setArchitecture("ARM");
@@ -67,7 +69,7 @@ public class HostServiceTest {
     public void createHost() {
         MepHost host = createTempHost();
         Assert.assertNotNull(host);
-        Assert.assertNotNull(host.getHostId());
+        // Assert.assertNotNull(host.getHostId());
 
         // clear data
         hostService.deleteHost(host.getHostId());
@@ -131,8 +133,10 @@ public class HostServiceTest {
     @Test
     @WithMockUser(roles = "DEVELOPER_TENANT")
     public void getHost() {
-        Either<FormatRespDto, MepHost> result = hostService.getHost("c8aac2b2-4162-40fe-9d99-0630e3245cf7");
+        MepHost host = createTempHost();
+        Either<FormatRespDto, MepHost> result = hostService.getHost("3c55ac26-60e9-42c0-958b-1bf7ea4da60a");
         Assert.assertTrue(result.isRight());
+        System.out.println(result.getRight().getPort());
     }
 
     @Test
