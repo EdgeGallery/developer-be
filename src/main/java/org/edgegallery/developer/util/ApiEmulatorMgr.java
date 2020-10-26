@@ -92,7 +92,8 @@ public class ApiEmulatorMgr {
         try {
             csarFilePath = createEmulatorCsar(nodePort);
         } catch (IOException e) {
-            LOGGER.error("Failed to create emulator csar file for user: {}", userId);
+            LOGGER.error("Failed to create emulator csar file for user: {},ex:{},port:{}", userId, e.getMessage(),
+                nodePort);
             return;
         }
         LOGGER.info("Succeed to create emulator csar file for user: {}", userId);
