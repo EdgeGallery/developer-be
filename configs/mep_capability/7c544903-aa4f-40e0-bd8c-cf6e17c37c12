@@ -21,8 +21,12 @@
     }
   ],
   "schemes": [
-    "http",
-    "https"
+    {
+      "url": "http://{HOST}/bwm/v1"
+    },
+    {
+      "url": "https://{HOST}/bwm/v1"
+    }
   ],
   "consumes": [
     "application/json"
