@@ -171,7 +171,7 @@ public class UploadFileService {
             result.setFilePath(BusinessConfigUtil.getUploadfilesPath() + fileId);
             uploadedFileMapper.saveFile(result);
         } catch (IOException e) {
-            LOGGER.error("Failed to save file with IOException. ");
+            LOGGER.error("Failed to save file with IOException. {}", e.getMessage());
             return Either.left(new FormatRespDto(Status.BAD_REQUEST, "Failed to save file."));
         }
         LOGGER.info("upload file success {}", fileName);
@@ -263,7 +263,6 @@ public class UploadFileService {
                 uploadedFileMapper.deleteFile(tempId);
                 LOGGER.info("Delete temp file {} success.", tempFile.getFileName());
             }
-            LOGGER.warn("Can not find temp file {}, delete failed.", tempFile.getFileName());
         }
     }
 

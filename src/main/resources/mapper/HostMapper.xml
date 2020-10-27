@@ -58,7 +58,8 @@
         status = 'NORMAL'
     </select>
 
-    <select id="getHost" parameterType="String" resultMap="HostMap">
+    <select id="getHost" parameterType="java.lang.String"
+            resultType="org.edgegallery.developer.model.workspace.MepHost">
         SELECT
         *
         FROM
@@ -77,7 +78,7 @@
         host_id = #{hostId}
     </update>
 
-    <delete id="deleteHost" parameterType="String">
+    <delete id="deleteHost" parameterType="java.lang.String">
         DELETE FROM
         tbl_service_host
         WHERE

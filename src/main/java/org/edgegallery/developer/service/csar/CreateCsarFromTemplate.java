@@ -40,22 +40,16 @@ import org.edgegallery.developer.util.DeveloperFileUtils;
 public class CreateCsarFromTemplate {
 
     private static final String[] simpleFiles = {
-        "/MainServiceTemplate.mf",
-        "/TOSCA-Metadata/TOSCA.meta",
-        "/Definitions/MainServiceTemplate.yaml",
-        "/Artifacts/Deployment/Charts/app-tgz/Chart.yaml",
-        "/Artifacts/Deployment/Charts/app-tgz/values.yaml",
+        "/MainServiceTemplate.mf", "/TOSCA-Metadata/TOSCA.meta", "/Definitions/MainServiceTemplate.yaml",
+        "/Artifacts/Deployment/Charts/app-tgz/Chart.yaml", "/Artifacts/Deployment/Charts/app-tgz/values.yaml",
         "/Artifacts/Deployment/Charts/app-tgz/templates/configmap.yaml",
         "/Artifacts/Deployment/Charts/app-tgz/templates/pod.yaml",
         "/Artifacts/Deployment/Charts/app-tgz/templates/service.yaml"
     };
 
     private static final String[] simpleFilesWithoutChart = {
-        "/MainServiceTemplate.mf",
-        "/TOSCA-Metadata/TOSCA.meta",
-        "/Definitions/MainServiceTemplate.yaml",
+        "/MainServiceTemplate.mf", "/TOSCA-Metadata/TOSCA.meta", "/Definitions/MainServiceTemplate.yaml",
     };
-
 
     private static final String WORKSPACE_CSAR_PATH = "./configs/workspace_csar";
 
@@ -74,7 +68,8 @@ public class CreateCsarFromTemplate {
         File projectDir = new File(projectPath);
 
         // copy template files to the new project path
-        File csar = DeveloperFileUtils.copyDirAndReName(new File(WORKSPACE_CSAR_PATH), projectDir, project.getId());
+        File csar = DeveloperFileUtils
+            .copyDirAndReName(new File(WORKSPACE_CSAR_PATH), projectDir, config.getAppInstanceId());
 
         // get data to Map<String, String>
         String timeStamp = String.valueOf(new Date().getTime());
@@ -117,7 +112,6 @@ public class CreateCsarFromTemplate {
                 throw new IOException("Create tgz exception");
             }
         }
-
 
         return csar;
     }

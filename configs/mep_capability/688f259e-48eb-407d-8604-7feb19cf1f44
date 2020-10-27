@@ -12,8 +12,12 @@
   "host": "{HOST}",
   "basePath": "/mep/location/v1",
   "schemes": [
-    "http",
-    "https"
+    {
+      "url": "http://{HOST}/mep/location/v1"
+    },
+    {
+      "url": "https://{HOST}/mep/location/v1"
+    }
   ],
   "consumes": [
     "application/json"

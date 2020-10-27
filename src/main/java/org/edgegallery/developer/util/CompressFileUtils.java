@@ -21,9 +21,6 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.zip.GZIPOutputStream;
 import net.lingala.zip4j.ZipFile;
 import net.lingala.zip4j.model.ZipParameters;
@@ -154,12 +151,11 @@ public final class CompressFileUtils {
     }
 
     private static File compressToCsar(String resourcesPath, String targetPath, String fileName) throws IOException {
-        Path path = Paths.get(targetPath + File.separator + fileName + ".csar");
-        Files.deleteIfExists(path);
         ZipFile zipFile = new ZipFile(targetPath + File.separator + fileName + ".csar");
         ZipParameters parameters = new ZipParameters();
         parameters.setCompressionMethod(CompressionMethod.DEFLATE);
         parameters.setCompressionLevel(CompressionLevel.NORMAL);
+
         zipFile.addFolder(new File(resourcesPath), parameters);
         File csar = new File(targetPath + File.separator + fileName + ".csar");
         if (csar.exists()) {
