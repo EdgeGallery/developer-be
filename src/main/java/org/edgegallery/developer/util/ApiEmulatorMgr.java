@@ -99,7 +99,7 @@ public class ApiEmulatorMgr {
             .instantiateApplication(host.getProtocol(), host.getIp(), host.getPort(), csarFilePath, emulatorInstanceId,
                 userId, token);
 
-         if (!instantiateAppResult) {
+        if (!instantiateAppResult) {
             LOGGER.error("Failed to instantiate emulator app for user: {}.", userId);
             return;
         }
