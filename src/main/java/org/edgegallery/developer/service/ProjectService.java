@@ -446,8 +446,8 @@ public class ProjectService {
         int times = 1;
         while (workloadStatus == null) {
             LOGGER.error("Failed to get workloadStatus which appInstanceId is : "
-                    + "{}, and will try for {} times every {} milliseconds", appInstanceId, Consts.QUERY_APPLICATIONS_TIMES,
-                Consts.QUERY_APPLICATIONS_PERIOD);
+                    + "{}, and will try for {} times every {} milliseconds", appInstanceId,
+                Consts.QUERY_APPLICATIONS_TIMES, Consts.QUERY_APPLICATIONS_PERIOD);
             Thread.sleep(Consts.QUERY_APPLICATIONS_PERIOD);
             workloadStatus = HttpClientUtil
                 .getWorkloadStatus(host.getProtocol(), host.getIp(), host.getPort(), appInstanceId, userId, token);
