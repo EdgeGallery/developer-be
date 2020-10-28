@@ -385,8 +385,8 @@ public class ProjectService {
             .compressToCsarAndDeleteSrc(csarPkgDir.getCanonicalPath(), projectPath, csarPkgDir.getName());
     }
 
-    private void deployCsarToAppLcm(File csar, ApplicationProject project, ProjectTestConfig testConfig,
-        String userId, String token) {
+    private void deployCsarToAppLcm(File csar, ApplicationProject project, ProjectTestConfig testConfig, String userId,
+        String token) {
 
         String appInstanceId = testConfig.getAppInstanceId();
         Type type = new TypeToken<List<MepHost>>() { }.getType();
@@ -446,8 +446,8 @@ public class ProjectService {
         int times = 1;
         while (workloadStatus == null) {
             LOGGER.error("Failed to get workloadStatus which appInstanceId is : "
-                    + "{}, and will try for {} times every {} milliseconds", appInstanceId,
-                Consts.QUERY_APPLICATIONS_TIMES, Consts.QUERY_APPLICATIONS_PERIOD);
+                    + "{}, and will try for {} times every {} milliseconds", appInstanceId, Consts.QUERY_APPLICATIONS_TIMES,
+                Consts.QUERY_APPLICATIONS_PERIOD);
             Thread.sleep(Consts.QUERY_APPLICATIONS_PERIOD);
             workloadStatus = HttpClientUtil
                 .getWorkloadStatus(host.getProtocol(), host.getIp(), host.getPort(), appInstanceId, userId, token);
@@ -579,8 +579,8 @@ public class ProjectService {
      *
      * @return
      */
-    public Either<FormatRespDto, String> uploadToAppStore(String userId, String projectId, String userName,
-        String token) {
+    public Either<FormatRespDto, String> uploadToAppStore(String userId, String projectId, String appInstanceId,
+        String userName, String token) {
         // 0 check data. must be tested, and deployed status must be ok, can not be error.
         ApplicationProject project = projectMapper.getProject(userId, projectId);
         if (project == null) {
@@ -602,7 +602,7 @@ public class ProjectService {
         }
 
         // 1 get CSAR package
-        File csar = new File(getProjectPath(projectId) + projectId + ".csar");
+        File csar = new File(getProjectPath(projectId) + appInstanceId + ".csar");
         if (!csar.exists()) {
             LOGGER.error("Can not find csar package");
             FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "Can not find csar package");
@@ -831,7 +831,7 @@ public class ProjectService {
         Type type = new TypeToken<List<MepHost>>() { }.getType();
         List<MepHost> hosts = gson.fromJson(gson.toJson(testConfig.getHosts()), type);
         MepHost host = hosts.get(0);
-        return HttpClientUtil.terminateAppInstance(host.getProtocol(), host.getIp(), host.getPort(), workloadId,
-            userId, token);
+        return HttpClientUtil
+            .terminateAppInstance(host.getProtocol(), host.getIp(), host.getPort(), workloadId, userId, token);
     }
 }
