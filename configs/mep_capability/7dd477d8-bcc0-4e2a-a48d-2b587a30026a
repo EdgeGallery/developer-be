@@ -8,7 +8,7 @@
   },
   "host": "{HOST}",
   "basePath": "/v1/face-recognition",
-  "schemes": [
+  "servers": [
     {
       "url": "http://{HOST}/v1/face-recognition"
     },
