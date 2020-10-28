@@ -11,7 +11,7 @@
   },
   "host": "{HOST}",
   "basePath": "/mep/location/v1",
-  "schemes": [
+  "servers": [
     {
       "url": "http://{HOST}/mep/location/v1"
     },

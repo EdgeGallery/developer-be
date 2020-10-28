@@ -20,7 +20,7 @@
       "name": "bwm"
     }
   ],
-  "schemes": [
+  "servers": [
     {
       "url": "http://{HOST}/bwm/v1"
     },
