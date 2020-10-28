@@ -20,13 +20,9 @@
       "name": "bwm"
     }
   ],
-  "servers": [
-    {
-      "url": "http://{HOST}/bwm/v1"
-    },
-    {
-      "url": "https://{HOST}/bwm/v1"
-    }
+  "schemes": [
+    "http",
+    "https"
   ],
   "consumes": [
     "application/json"
