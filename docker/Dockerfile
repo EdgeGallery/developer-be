@@ -68,8 +68,7 @@ EXPOSE 9080
 
 # Change to the app user.
 USER $USER_NAME
-#go to jar home dir
-WORKDIR $APP_HOME/bin
+
 # Execute script & application
 ENTRYPOINT ["sh", "-c"]
-CMD ["exec java -jar $APP_FILE"]
+CMD ["exec java -jar ./bin/$APP_FILE"]
