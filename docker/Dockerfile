@@ -43,7 +43,6 @@ WORKDIR $APP_HOME
 
 COPY target/*.jar $APP_HOME/bin
 COPY target/output $APP_HOME
-COPY configs/*.sh $APP_HOME/bin
 COPY configs/mep_capability/ $APP_HOME/mep_capability/
 
 
@@ -67,22 +66,10 @@ RUN chown -R $USER_NAME:$GROUP_NAME $APP_HOME/user &&\
 
 EXPOSE 9080
 
-#WORKDIR /home/mec-developer
-#
-#USER $USER_NAME
-#RUN mkdir -p /user/workspace
-#RUN mkdir -p /user/workspace/csar/
-#RUN mkdir -p /user/workspace/chart/
-#RUN mkdir -p /user/app/
-#RUN mkdir -p /user/plugin/
-#RUN mkdir -p /user/uploaded_files/
-#
-#RUN chown -R $USER_NAME:$GROUP_NAME /user
-#RUN chown -R $USER_NAME:$GROUP_NAME /user/workspace
-
 # Change to the app user.
 USER $USER_NAME
+#go to jar home dir
+WORKDIR $APP_HOME/bin
 # Execute script & application
-ENTRYPOINT ["sh", "./bin/start.sh"]
-#ENTRYPOINT ["sh", "-c"]
-#CMD ["exec java -jar $APP_FILE"]
+ENTRYPOINT ["sh", "-c"]
+CMD ["exec java -jar $APP_FILE"]
