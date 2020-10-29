@@ -292,12 +292,15 @@ public class ProjectController {
         @ApiParam(value = "projectId", required = true) @PathVariable("projectId") String projectId,
         @Pattern(regexp = REGEX_UUID, message = "userId must be in UUID format")
         @ApiParam(value = "userId", required = true) @RequestParam("userId") String userId,
+        @Pattern(regexp = REGEX_UUID, message = "appInstanceId must be in UUID format")
+        @ApiParam(value = "appInstanceId", required = true) @RequestParam("appInstanceId") String appInstanceId,
         @NotNull @Length(min = 6, max = 30) @Pattern(regexp = REGEX_USERNAME,
             message = "username can only be a combination of letters and numbers, the length is 6 to 30")
         @ApiParam(value = "userName", required = true) @RequestParam(value = "userName", required = true)
             String userName, HttpServletRequest request) {
         String token = request.getHeader(Consts.ACCESS_TOKEN_STR);
-        Either<FormatRespDto, String> either = projectService.uploadToAppStore(userId, projectId, userName, token);
+        Either<FormatRespDto, String> either = projectService
+            .uploadToAppStore(userId, projectId, appInstanceId, userName, token);
         return ResponseDataUtil.buildResponse(either);
     }
 

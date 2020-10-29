@@ -372,7 +372,8 @@ public class ProjectServiceTest {
         String userName = "mec";
         String projectId = project.getRight().getId();
         String token = "";
-        Either<FormatRespDto, String> result = projectService.uploadToAppStore(userId, projectId, userName, token);
+        Either<FormatRespDto, String> result = projectService
+            .uploadToAppStore(userId, projectId, projectId, userName, token);
         Assert.assertTrue(result.isLeft());
 
     }
@@ -385,7 +386,8 @@ public class ProjectServiceTest {
         String userName = "mec";
         String projectId = project.getRight().getId();
         String token = "";
-        Either<FormatRespDto, String> result = projectService.uploadToAppStore(userId, projectId, userName, token);
+        Either<FormatRespDto, String> result = projectService
+            .uploadToAppStore(userId, projectId, projectId, userName, token);
         Assert.assertTrue(result.isLeft());
 
     }
@@ -450,7 +452,7 @@ public class ProjectServiceTest {
     @WithMockUser(roles = "DEVELOPER_TENANT")
     public void testCleanEnv() throws Exception {
         Either<FormatRespDto, ApplicationProject> project = createNewProject();
-        String userId =  project.getRight().getUserId();
+        String userId = project.getRight().getUserId();
         String projectId = project.getRight().getId();
         Either<FormatRespDto, Boolean> result = projectService.cleanTestEnv(userId, projectId, true, "");
         Assert.assertTrue(result.isRight());

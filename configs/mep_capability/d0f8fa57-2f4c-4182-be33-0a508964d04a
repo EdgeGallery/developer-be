@@ -9,12 +9,8 @@
   "host": "{HOST}",
   "basePath": "/v1/face-recognition",
   "schemes": [
-    {
-      "url": "http://{HOST}/v1/face-recognition"
-    },
-    {
-      "url": "https://{HOST}/v1/face-recognition"
-    }
+    "http",
+    "https"
   ],
   "paths": {
     "/": {
