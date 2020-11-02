@@ -93,8 +93,7 @@
         DELETE FROM
         tbl_openmep_capability_detail
         WHERE
-        detail_id = #{param2} and group_id =
-        #{param1};
+        detail_id = #{param1};
     </delete>
 
     <select id="getOpenMepCapabilities" resultMap="GroupMap">
