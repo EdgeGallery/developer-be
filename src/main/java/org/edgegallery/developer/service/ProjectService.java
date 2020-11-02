@@ -241,7 +241,7 @@ public class ProjectService {
         if (openCapabilityDetailId != null) {
             openMepCapabilityMapper.deleteCapability(openCapabilityDetailId);
         }
-        
+
         OpenMepCapabilityGroup capabilityGroup = openMepCapabilityMapper.getEcoGroupByName(project.getType());
         if (capabilityGroup != null) {
             String groupId = capabilityGroup.getGroupId();
@@ -251,24 +251,8 @@ public class ProjectService {
                 if (openMepCapabilityGroup == null) {
                     openMepCapabilityMapper.deleteGroup(groupId);
                 }
-                openMepCapabilityMapper.deleteGroup(groupId);
             }
         }
-
-
-//        String openCapabilityDetailId = project.getOpenCapabilityId();
-//        String groupId ="";
-//        if (openCapabilityDetailId != null && !openCapabilityDetailId.equals("")) {
-//            groupId = openMepCapabilityMapper.getGroupIdByDetailId(openCapabilityDetailId);
-//            openMepCapabilityMapper.deleteCapability(openCapabilityDetailId);
-//        }
-//        OpenMepCapabilityGroup openMepCapabilityGroup = openMepCapabilityMapper
-//            .getOpenMepCapabilitiesByGroupId(groupId);
-//        if (!groupId.equals("")) {
-//            if (openMepCapabilityGroup == null) {
-//                openMepCapabilityMapper.deleteGroup(groupId);
-//            }
-//        }
 
         LOGGER.info("Delete project {} success.", projectId);
         return Either.right(true);
