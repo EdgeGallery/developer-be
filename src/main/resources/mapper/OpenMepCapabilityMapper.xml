@@ -93,8 +93,7 @@
         DELETE FROM
         tbl_openmep_capability_detail
         WHERE
-        detail_id = #{param2} and group_id =
-        #{param1};
+        detail_id = #{param1};
     </delete>
 
     <select id="getOpenMepCapabilities" resultMap="GroupMap">
@@ -128,6 +127,14 @@
         FROM
         tbl_openmep_capability
         WHERE name = #{name} and type = 'OPENMEP_ECO'
+    </select>
+
+    <select id="getGroupIdByDetailId" parameterType="String" resultType="java.lang.String">
+        SELECT
+        group_id
+        FROM
+        tbl_openmep_capability_detail
+        WHERE detail_id= #{detailId}
     </select>
 
     <select id="getDetail" parameterType="String"

@@ -226,6 +226,27 @@ public class ProjectService {
             return Either.right(true);
         }
 
+        //delete capabilityGroup and
+        String openCapabilityDetailId = project.getOpenCapabilityId();
+        LOGGER.info("openCapabilityDetailId: {} .", openCapabilityDetailId);
+        if (openCapabilityDetailId != null) {
+            openMepCapabilityMapper.deleteCapability(openCapabilityDetailId);
+        }
+
+        OpenMepCapabilityGroup capabilityGroup = openMepCapabilityMapper.getEcoGroupByName(project.getType());
+        LOGGER.info("capabilityGroup: {} .", capabilityGroup);
+        if (capabilityGroup != null) {
+            String groupId = capabilityGroup.getGroupId();
+            if (groupId != null && !groupId.equals("")) {
+                OpenMepCapabilityGroup openMepCapabilityGroup = openMepCapabilityMapper
+                    .getOpenMepCapabilitiesByGroupId(groupId);
+                LOGGER.info("openMepCapabilityGroup: {} .", openMepCapabilityGroup);
+                if (openMepCapabilityGroup.getCapabilityDetailList().size() < 1 ) {
+                    openMepCapabilityMapper.deleteGroup(groupId);
+                }
+            }
+        }
+
         // delete the project from db
         Either<FormatRespDto, Boolean> delResult = projectDto.deleteProject(userId, projectId);
         if (delResult.isLeft()) {
@@ -235,6 +256,7 @@ public class ProjectService {
         // delete files of project
         String projectPath = getProjectPath(projectId);
         DeveloperFileUtils.deleteDir(projectPath);
+
 
         LOGGER.info("Delete project {} success.", projectId);
         return Either.right(true);
@@ -389,7 +411,8 @@ public class ProjectService {
         String token) {
 
         String appInstanceId = testConfig.getAppInstanceId();
-        Type type = new TypeToken<List<MepHost>>() { }.getType();
+        Type type = new TypeToken<List<MepHost>>() {
+        }.getType();
         List<MepHost> hosts = gson.fromJson(gson.toJson(testConfig.getHosts()), type);
         MepHost host = hosts.get(0);
 
@@ -760,7 +783,7 @@ public class ProjectService {
             return Either.left(error);
         }
 
-        project.setOpenCapabilityId(groupId);
+        project.setOpenCapabilityId(detail.getDetailId());
         int updateRes = projectMapper.updateProject(project);
         if (updateRes < 1) {
             LOGGER.error("update project is_open error");
@@ -828,7 +851,8 @@ public class ProjectService {
      */
     private boolean deleteDeployApp(ProjectTestConfig testConfig, String userId, String token) {
         String workloadId = testConfig.getWorkLoadId();
-        Type type = new TypeToken<List<MepHost>>() { }.getType();
+        Type type = new TypeToken<List<MepHost>>() {
+        }.getType();
         List<MepHost> hosts = gson.fromJson(gson.toJson(testConfig.getHosts()), type);
         MepHost host = hosts.get(0);
         return HttpClientUtil
