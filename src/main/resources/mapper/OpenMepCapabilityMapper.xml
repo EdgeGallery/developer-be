@@ -130,6 +130,14 @@
         WHERE name = #{name} and type = 'OPENMEP_ECO'
     </select>
 
+    <select id="getGroupIdByDetailId" parameterType="String" resultType="java.lang.String">
+        SELECT
+        group_id
+        FROM
+        tbl_openmep_capability_detail
+        WHERE detail_id= #{detailId}
+    </select>
+
     <select id="getDetail" parameterType="String"
             resultMap="CapabilityMap">
         SELECT
