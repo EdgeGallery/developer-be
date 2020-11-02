@@ -225,19 +225,22 @@ public class ProjectService {
             LOGGER.info("Can not find project by userId {} and projectId {}, do not need delete.", userId, projectId);
             return Either.right(true);
         }
-        
+
         //delete capabilityGroup and
         String openCapabilityDetailId = project.getOpenCapabilityId();
+        LOGGER.info("openCapabilityDetailId: {} .", openCapabilityDetailId);
         if (openCapabilityDetailId != null) {
             openMepCapabilityMapper.deleteCapability(openCapabilityDetailId);
         }
 
         OpenMepCapabilityGroup capabilityGroup = openMepCapabilityMapper.getEcoGroupByName(project.getType());
+        LOGGER.info("capabilityGroup: {} .", capabilityGroup);
         if (capabilityGroup != null) {
             String groupId = capabilityGroup.getGroupId();
             if (groupId != null && !groupId.equals("")) {
                 OpenMepCapabilityGroup openMepCapabilityGroup = openMepCapabilityMapper
                     .getOpenMepCapabilitiesByGroupId(groupId);
+                LOGGER.info("openMepCapabilityGroup: {} .", openMepCapabilityGroup);
                 if (openMepCapabilityGroup.getCapabilityDetailList().size() < 1 ) {
                     openMepCapabilityMapper.deleteGroup(groupId);
                 }
