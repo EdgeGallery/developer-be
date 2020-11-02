@@ -237,20 +237,38 @@ public class ProjectService {
         DeveloperFileUtils.deleteDir(projectPath);
 
         //delete capabilityGroup and
-
         String openCapabilityDetailId = project.getOpenCapabilityId();
-        String groupId ="";
-        if (openCapabilityDetailId != null && !openCapabilityDetailId.equals("")) {
-            groupId = openMepCapabilityMapper.getGroupIdByDetailId(openCapabilityDetailId);
+        if (openCapabilityDetailId != null) {
             openMepCapabilityMapper.deleteCapability(openCapabilityDetailId);
         }
-        OpenMepCapabilityGroup openMepCapabilityGroup = openMepCapabilityMapper
-            .getOpenMepCapabilitiesByGroupId(groupId);
-        if (!groupId.equals("")) {
-            if (openMepCapabilityGroup == null) {
+        
+        OpenMepCapabilityGroup capabilityGroup = openMepCapabilityMapper.getEcoGroupByName(project.getType());
+        if (capabilityGroup != null) {
+            String groupId = capabilityGroup.getGroupId();
+            if (groupId != null && !groupId.equals("")) {
+                OpenMepCapabilityGroup openMepCapabilityGroup = openMepCapabilityMapper
+                    .getOpenMepCapabilitiesByGroupId(groupId);
+                if (openMepCapabilityGroup == null) {
+                    openMepCapabilityMapper.deleteGroup(groupId);
+                }
                 openMepCapabilityMapper.deleteGroup(groupId);
             }
         }
+
+
+//        String openCapabilityDetailId = project.getOpenCapabilityId();
+//        String groupId ="";
+//        if (openCapabilityDetailId != null && !openCapabilityDetailId.equals("")) {
+//            groupId = openMepCapabilityMapper.getGroupIdByDetailId(openCapabilityDetailId);
+//            openMepCapabilityMapper.deleteCapability(openCapabilityDetailId);
+//        }
+//        OpenMepCapabilityGroup openMepCapabilityGroup = openMepCapabilityMapper
+//            .getOpenMepCapabilitiesByGroupId(groupId);
+//        if (!groupId.equals("")) {
+//            if (openMepCapabilityGroup == null) {
+//                openMepCapabilityMapper.deleteGroup(groupId);
+//            }
+//        }
 
         LOGGER.info("Delete project {} success.", projectId);
         return Either.right(true);
