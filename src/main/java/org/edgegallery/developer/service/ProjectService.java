@@ -236,6 +236,19 @@ public class ProjectService {
         String projectPath = getProjectPath(projectId);
         DeveloperFileUtils.deleteDir(projectPath);
 
+        //delete capabilityGroup and detail
+        OpenMepCapabilityGroup capabilityGroup = openMepCapabilityMapper.getEcoGroupByName(project.getType());
+        if (capabilityGroup != null) {
+            String groupId = capabilityGroup.getGroupId();
+            if (groupId != null && !groupId.equals("")) {
+                openMepCapabilityMapper.deleteGroup(groupId);
+            }
+        }
+        String openCapabilityDetailId = project.getOpenCapabilityId();
+        if (openCapabilityDetailId != null) {
+            openMepCapabilityMapper.deleteCapability(openCapabilityDetailId);
+        }
+
         LOGGER.info("Delete project {} success.", projectId);
         return Either.right(true);
     }
@@ -389,7 +402,8 @@ public class ProjectService {
         String token) {
 
         String appInstanceId = testConfig.getAppInstanceId();
-        Type type = new TypeToken<List<MepHost>>() { }.getType();
+        Type type = new TypeToken<List<MepHost>>() {
+        }.getType();
         List<MepHost> hosts = gson.fromJson(gson.toJson(testConfig.getHosts()), type);
         MepHost host = hosts.get(0);
 
@@ -694,6 +708,7 @@ public class ProjectService {
      * @return
      */
     public Either<FormatRespDto, OpenMepCapabilityGroup> openToMecEco(String userId, String projectId) {
+        String projectPath = getProjectPath(projectId);
         ApplicationProject project = projectMapper.getProject(userId, projectId);
         // verify app project and test config
         if (project == null) {
@@ -828,7 +843,8 @@ public class ProjectService {
      */
     private boolean deleteDeployApp(ProjectTestConfig testConfig, String userId, String token) {
         String workloadId = testConfig.getWorkLoadId();
-        Type type = new TypeToken<List<MepHost>>() { }.getType();
+        Type type = new TypeToken<List<MepHost>>() {
+        }.getType();
         List<MepHost> hosts = gson.fromJson(gson.toJson(testConfig.getHosts()), type);
         MepHost host = hosts.get(0);
         return HttpClientUtil
