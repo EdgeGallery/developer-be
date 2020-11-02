@@ -225,17 +225,7 @@ public class ProjectService {
             LOGGER.info("Can not find project by userId {} and projectId {}, do not need delete.", userId, projectId);
             return Either.right(true);
         }
-
-        // delete the project from db
-        Either<FormatRespDto, Boolean> delResult = projectDto.deleteProject(userId, projectId);
-        if (delResult.isLeft()) {
-            return delResult;
-        }
-
-        // delete files of project
-        String projectPath = getProjectPath(projectId);
-        DeveloperFileUtils.deleteDir(projectPath);
-
+        
         //delete capabilityGroup and
         String openCapabilityDetailId = project.getOpenCapabilityId();
         if (openCapabilityDetailId != null) {
@@ -253,6 +243,17 @@ public class ProjectService {
                 }
             }
         }
+
+        // delete the project from db
+        Either<FormatRespDto, Boolean> delResult = projectDto.deleteProject(userId, projectId);
+        if (delResult.isLeft()) {
+            return delResult;
+        }
+
+        // delete files of project
+        String projectPath = getProjectPath(projectId);
+        DeveloperFileUtils.deleteDir(projectPath);
+
 
         LOGGER.info("Delete project {} success.", projectId);
         return Either.right(true);
