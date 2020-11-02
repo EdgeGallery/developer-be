@@ -248,7 +248,7 @@ public class ProjectService {
             if (groupId != null && !groupId.equals("")) {
                 OpenMepCapabilityGroup openMepCapabilityGroup = openMepCapabilityMapper
                     .getOpenMepCapabilitiesByGroupId(groupId);
-                if (openMepCapabilityGroup == null) {
+                if (openMepCapabilityGroup.getCapabilityDetailList().size() < 1 ) {
                     openMepCapabilityMapper.deleteGroup(groupId);
                 }
             }
@@ -779,7 +779,7 @@ public class ProjectService {
             return Either.left(error);
         }
 
-        project.setOpenCapabilityId(groupId);
+        project.setOpenCapabilityId(detail.getDetailId());
         int updateRes = projectMapper.updateProject(project);
         if (updateRes < 1) {
             LOGGER.error("update project is_open error");
