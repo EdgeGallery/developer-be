@@ -236,17 +236,20 @@ public class ProjectService {
         String projectPath = getProjectPath(projectId);
         DeveloperFileUtils.deleteDir(projectPath);
 
-        //delete capabilityGroup and detail
-        OpenMepCapabilityGroup capabilityGroup = openMepCapabilityMapper.getEcoGroupByName(project.getType());
-        if (capabilityGroup != null) {
-            String groupId = capabilityGroup.getGroupId();
-            if (groupId != null && !groupId.equals("")) {
+        //delete capabilityGroup and
+
+        String openCapabilityDetailId = project.getOpenCapabilityId();
+        String groupId ="";
+        if (openCapabilityDetailId != null && !openCapabilityDetailId.equals("")) {
+            groupId = openMepCapabilityMapper.getGroupIdByDetailId(openCapabilityDetailId);
+            openMepCapabilityMapper.deleteCapability(openCapabilityDetailId);
+        }
+        OpenMepCapabilityGroup openMepCapabilityGroup = openMepCapabilityMapper
+            .getOpenMepCapabilitiesByGroupId(groupId);
+        if (!groupId.equals("")) {
+            if (openMepCapabilityGroup == null) {
                 openMepCapabilityMapper.deleteGroup(groupId);
             }
-        }
-        String openCapabilityDetailId = project.getOpenCapabilityId();
-        if (openCapabilityDetailId != null) {
-            openMepCapabilityMapper.deleteCapability(openCapabilityDetailId);
         }
 
         LOGGER.info("Delete project {} success.", projectId);
@@ -708,7 +711,6 @@ public class ProjectService {
      * @return
      */
     public Either<FormatRespDto, OpenMepCapabilityGroup> openToMecEco(String userId, String projectId) {
-        String projectPath = getProjectPath(projectId);
         ApplicationProject project = projectMapper.getProject(userId, projectId);
         // verify app project and test config
         if (project == null) {
