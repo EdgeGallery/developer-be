@@ -232,7 +232,7 @@ public class ProjectService {
 
         //delete capabilityGroup and
         String openCapabilityDetailId = project.getOpenCapabilityId();
-        LOGGER.info("openCapabilityDetailId: {} .", openCapabilityDetailId);
+        LOGGER.info("detailId: {} .", openCapabilityDetailId);
         String groupId = "";
         if (openCapabilityDetailId != null) {
             groupId = openMepCapabilityMapper.getGroupIdByDetailId(openCapabilityDetailId);
@@ -240,11 +240,13 @@ public class ProjectService {
         }
 
         if (!groupId.equals("")) {
-            OpenMepCapabilityGroup openMepCapabilityGroup = openMepCapabilityMapper
-                .getOpenMepCapabilitiesByGroupId(groupId);
-            LOGGER.info("openMepCapabilityGroup: {} .", openMepCapabilityGroup);
-            if (openMepCapabilityGroup.getCapabilityDetailList().size() < 1) {
-                openMepCapabilityMapper.deleteGroup(groupId);
+            LOGGER.info("groupId: {} .", groupId);
+            List<OpenMepCapabilityDetail> detailList = openMepCapabilityMapper.getDetailByGroupId(groupId);
+            if (detailList != null) {
+                LOGGER.info("detailList size: {} .", detailList.size());
+                if (detailList.size() < 1) {
+                    openMepCapabilityMapper.deleteGroup(groupId);
+                }
             }
         }
 

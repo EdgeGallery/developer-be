@@ -26,7 +26,7 @@ public interface OpenMepCapabilityMapper {
 
     int saveGroup(OpenMepCapabilityGroup group);
 
-    String getGroupIdByDetailId(@Param(value = "detailId") String detailId);
+    String getGroupIdByDetailId(String detailId);
 
     int deleteGroup(String groupId);
 
@@ -39,6 +39,8 @@ public interface OpenMepCapabilityMapper {
     OpenMepCapabilityGroup getEcoGroupByName(String name);
 
     OpenMepCapabilityDetail getDetail(String capabilityId);
+
+    List<OpenMepCapabilityDetail> getDetailByGroupId(String groupId);
 
     List<OpenMepCapabilityGroup> getOpenMepCapabilitiesDetail();
 
