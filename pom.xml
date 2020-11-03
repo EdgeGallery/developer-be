@@ -92,6 +92,10 @@
                     <artifactId>jackson-core</artifactId>
                     <groupId>com.fasterxml.jackson.core</groupId>
                 </exclusion>
+                <exclusion>
+                    <artifactId>spring-beans</artifactId>
+                    <groupId>org.springframework</groupId>
+                </exclusion>
             </exclusions>
             <version>1.3.0</version>
         </dependency>
@@ -129,11 +133,23 @@
         </dependency>
         <dependency>
             <artifactId>spring-web</artifactId>
+            <exclusions>
+                <exclusion>
+                    <artifactId>spring-beans</artifactId>
+                    <groupId>org.springframework</groupId>
+                </exclusion>
+            </exclusions>
             <groupId>org.springframework</groupId>
             <version>5.1.13.RELEASE</version>
         </dependency>
         <dependency>
             <artifactId>spring-aop</artifactId>
+            <exclusions>
+                <exclusion>
+                    <artifactId>spring-beans</artifactId>
+                    <groupId>org.springframework</groupId>
+                </exclusion>
+            </exclusions>
             <groupId>org.springframework</groupId>
             <version>5.1.13.RELEASE</version>
         </dependency>
@@ -141,6 +157,11 @@
             <artifactId>bcprov-jdk15on</artifactId>
             <groupId>org.bouncycastle</groupId>
             <version>1.66</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-beans</artifactId>
+            <version>5.1.13.RELEASE</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
@@ -181,9 +202,13 @@
                     <artifactId>spring-security-web</artifactId>
                     <groupId>org.springframework.security</groupId>
                 </exclusion>
+                <exclusion>
+                    <artifactId>spring-beans</artifactId>
+                    <groupId>org.springframework</groupId>
+                </exclusion>
             </exclusions>
             <groupId>org.springframework.security.oauth</groupId>
-            <version>2.5.0.RELEASE</version>
+            <version>2.4.1.RELEASE</version>
         </dependency>
         <dependency>
             <artifactId>spring-core</artifactId>
@@ -258,10 +283,16 @@
         <dependency>
             <groupId>org.mybatis.spring.boot</groupId>
             <artifactId>mybatis-spring-boot-starter</artifactId>
-            <version>2.1.1</version>
+            <version>2.1.3</version>
         </dependency>
         <dependency>
             <artifactId>spring-tx</artifactId>
+            <exclusions>
+                <exclusion>
+                    <artifactId>spring-beans</artifactId>
+                    <groupId>org.springframework</groupId>
+                </exclusion>
+            </exclusions>
             <groupId>org.springframework</groupId>
             <version>5.1.13.RELEASE</version>
         </dependency>
@@ -441,18 +472,36 @@
             <groupId>org.springframework</groupId>
             <artifactId>spring-jdbc</artifactId>
             <version>5.2.8.RELEASE</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>spring-beans</artifactId>
+                    <groupId>org.springframework</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <!-- spring-security-core -->
         <dependency>
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-core</artifactId>
-            <version>5.3.4.RELEASE</version>
+            <version>5.3.5.RELEASE</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>spring-beans</artifactId>
+                    <groupId>org.springframework</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <!-- spring-security-web -->
         <dependency>
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-web</artifactId>
             <version>5.3.4.RELEASE</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>spring-beans</artifactId>
+                    <groupId>org.springframework</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
     </dependencies>
