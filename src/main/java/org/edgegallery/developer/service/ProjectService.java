@@ -241,7 +241,7 @@ public class ProjectService {
                 OpenMepCapabilityGroup openMepCapabilityGroup = openMepCapabilityMapper
                     .getOpenMepCapabilitiesByGroupId(groupId);
                 LOGGER.info("openMepCapabilityGroup: {} .", openMepCapabilityGroup);
-                if (openMepCapabilityGroup.getCapabilityDetailList().size() < 1 ) {
+                if (openMepCapabilityGroup.getCapabilityDetailList().size() < 1) {
                     openMepCapabilityMapper.deleteGroup(groupId);
                 }
             }
@@ -256,7 +256,6 @@ public class ProjectService {
         // delete files of project
         String projectPath = getProjectPath(projectId);
         DeveloperFileUtils.deleteDir(projectPath);
-
 
         LOGGER.info("Delete project {} success.", projectId);
         return Either.right(true);
@@ -411,8 +410,7 @@ public class ProjectService {
         String token) {
 
         String appInstanceId = testConfig.getAppInstanceId();
-        Type type = new TypeToken<List<MepHost>>() {
-        }.getType();
+        Type type = new TypeToken<List<MepHost>>() { }.getType();
         List<MepHost> hosts = gson.fromJson(gson.toJson(testConfig.getHosts()), type);
         MepHost host = hosts.get(0);
 
@@ -469,8 +467,8 @@ public class ProjectService {
         int times = 1;
         while (workloadStatus == null) {
             LOGGER.error("Failed to get workloadStatus which appInstanceId is : "
-                    + "{}, and will try for {} times every {} milliseconds", appInstanceId,
-                Consts.QUERY_APPLICATIONS_TIMES, Consts.QUERY_APPLICATIONS_PERIOD);
+                    + "{}, and will try for {} times every {} milliseconds", appInstanceId, Consts.QUERY_APPLICATIONS_TIMES,
+                Consts.QUERY_APPLICATIONS_PERIOD);
             Thread.sleep(Consts.QUERY_APPLICATIONS_PERIOD);
             workloadStatus = HttpClientUtil
                 .getWorkloadStatus(host.getProtocol(), host.getIp(), host.getPort(), appInstanceId, userId, token);
@@ -851,8 +849,7 @@ public class ProjectService {
      */
     private boolean deleteDeployApp(ProjectTestConfig testConfig, String userId, String token) {
         String workloadId = testConfig.getWorkLoadId();
-        Type type = new TypeToken<List<MepHost>>() {
-        }.getType();
+        Type type = new TypeToken<List<MepHost>>() { }.getType();
         List<MepHost> hosts = gson.fromJson(gson.toJson(testConfig.getHosts()), type);
         MepHost host = hosts.get(0);
         return HttpClientUtil
