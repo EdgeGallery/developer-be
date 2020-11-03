@@ -644,7 +644,7 @@ public class ProjectService {
             FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "Create app icon file failed");
             return Either.left(error);
         }
-
+        LOGGER.info("check over!");
         // 2 upload to app store
         Map<String, Object> map = new HashMap<>();
         map.put("file", new FileSystemResource(csar));
