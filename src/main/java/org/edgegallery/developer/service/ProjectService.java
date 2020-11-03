@@ -74,6 +74,10 @@ public class ProjectService {
 
     private static Gson gson = new Gson();
 
+    private static final int TIMES = Consts.QUERY_APPLICATIONS_TIMES;
+
+    private static final int PERIOD = Consts.QUERY_APPLICATIONS_PERIOD;
+
     @Autowired
     private ProjectMapper projectMapper;
 
@@ -229,21 +233,18 @@ public class ProjectService {
         //delete capabilityGroup and
         String openCapabilityDetailId = project.getOpenCapabilityId();
         LOGGER.info("openCapabilityDetailId: {} .", openCapabilityDetailId);
+        String groupId = "";
         if (openCapabilityDetailId != null) {
+            groupId = openMepCapabilityMapper.getGroupIdByDetailId(openCapabilityDetailId);
             openMepCapabilityMapper.deleteCapability(openCapabilityDetailId);
         }
 
-        OpenMepCapabilityGroup capabilityGroup = openMepCapabilityMapper.getEcoGroupByName(project.getType());
-        LOGGER.info("capabilityGroup: {} .", capabilityGroup);
-        if (capabilityGroup != null) {
-            String groupId = capabilityGroup.getGroupId();
-            if (groupId != null && !groupId.equals("")) {
-                OpenMepCapabilityGroup openMepCapabilityGroup = openMepCapabilityMapper
-                    .getOpenMepCapabilitiesByGroupId(groupId);
-                LOGGER.info("openMepCapabilityGroup: {} .", openMepCapabilityGroup);
-                if (openMepCapabilityGroup.getCapabilityDetailList().size() < 1) {
-                    openMepCapabilityMapper.deleteGroup(groupId);
-                }
+        if (!groupId.equals("")) {
+            OpenMepCapabilityGroup openMepCapabilityGroup = openMepCapabilityMapper
+                .getOpenMepCapabilitiesByGroupId(groupId);
+            LOGGER.info("openMepCapabilityGroup: {} .", openMepCapabilityGroup);
+            if (openMepCapabilityGroup.getCapabilityDetailList().size() < 1) {
+                openMepCapabilityMapper.deleteGroup(groupId);
             }
         }
 
@@ -467,8 +468,7 @@ public class ProjectService {
         int times = 1;
         while (workloadStatus == null) {
             LOGGER.error("Failed to get workloadStatus which appInstanceId is : "
-                    + "{}, and will try for {} times every {} milliseconds", appInstanceId, Consts.QUERY_APPLICATIONS_TIMES,
-                Consts.QUERY_APPLICATIONS_PERIOD);
+                + "{}, and will try for {} times every {} milliseconds", appInstanceId, TIMES, PERIOD);
             Thread.sleep(Consts.QUERY_APPLICATIONS_PERIOD);
             workloadStatus = HttpClientUtil
                 .getWorkloadStatus(host.getProtocol(), host.getIp(), host.getPort(), appInstanceId, userId, token);
@@ -606,8 +606,8 @@ public class ProjectService {
         ApplicationProject project = projectMapper.getProject(userId, projectId);
         if (project == null) {
             LOGGER.error("Can not get project by inputs of userId and projectId.");
-            return Either
-                .left(new FormatRespDto(Status.BAD_REQUEST, "Can not get project, userId or projectId is error."));
+            String message = "Can not get project, userId or projectId is error.";
+            return Either.left(new FormatRespDto(Status.BAD_REQUEST, message));
 
         }
         if (project.getStatus() != EnumProjectStatus.TESTED) {
@@ -644,7 +644,6 @@ public class ProjectService {
             FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "Create app icon file failed");
             return Either.left(error);
         }
-        LOGGER.info("check over!");
         // 2 upload to app store
         Map<String, Object> map = new HashMap<>();
         map.put("file", new FileSystemResource(csar));

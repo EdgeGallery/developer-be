@@ -64,7 +64,6 @@ public class UtilsService {
                 .format("%s/mec/appstore/v1/apps?userId=%s&userName=%s", appstoreAddress, userId, userName);
             ResponseEntity<String> responses = restTemplate
                 .exchange(url, HttpMethod.POST, new HttpEntity<>(map, headers), String.class);
-            LOGGER.info("upload over!");
             return Either.right(responses.getBody());
         } catch (InvocationException e) {
             LOGGER.error("failed to call the apptstore microservice interface", e.getMessage());
