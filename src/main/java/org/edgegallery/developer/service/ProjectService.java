@@ -56,6 +56,7 @@ import org.edgegallery.developer.service.dao.ProjectDao;
 import org.edgegallery.developer.template.ChartFileCreator;
 import org.edgegallery.developer.util.BusinessConfigUtil;
 import org.edgegallery.developer.util.CompressFileUtils;
+import org.edgegallery.developer.util.CompressFileUtilsJava;
 import org.edgegallery.developer.util.DeveloperFileUtils;
 import org.edgegallery.developer.util.HttpClientUtil;
 import org.edgegallery.developer.util.InitConfigUtil;
@@ -403,8 +404,8 @@ public class ProjectService {
         } else {
             csarPkgDir = new CreateCsarFromTemplate().create(projectPath, testConfig, project, null);
         }
-        return CompressFileUtils
-            .compressToCsarAndDeleteSrc(csarPkgDir.getCanonicalPath(), projectPath, csarPkgDir.getName());
+        return CompressFileUtilsJava
+            .compressToCSARAndDeleteSrc(csarPkgDir.getCanonicalPath(), projectPath, csarPkgDir.getName());
     }
 
     private void deployCsarToAppLcm(File csar, ApplicationProject project, ProjectTestConfig testConfig, String userId,
