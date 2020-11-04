@@ -17,7 +17,6 @@
 package org.edgegallery.developer.mapper;
 
 import java.util.List;
-import org.apache.ibatis.annotations.Param;
 import org.edgegallery.developer.model.workspace.OpenMepApi;
 import org.edgegallery.developer.model.workspace.OpenMepCapabilityDetail;
 import org.edgegallery.developer.model.workspace.OpenMepCapabilityGroup;
@@ -26,7 +25,7 @@ public interface OpenMepCapabilityMapper {
 
     int saveGroup(OpenMepCapabilityGroup group);
 
-    String getGroupIdByDetailId(@Param(value = "detailId") String detailId);
+    String getGroupIdByDetailId(String detailId);
 
     int deleteGroup(String groupId);
 
@@ -39,6 +38,8 @@ public interface OpenMepCapabilityMapper {
     OpenMepCapabilityGroup getEcoGroupByName(String name);
 
     OpenMepCapabilityDetail getDetail(String capabilityId);
+
+    List<OpenMepCapabilityDetail> getDetailByGroupId(String groupId);
 
     List<OpenMepCapabilityGroup> getOpenMepCapabilitiesDetail();
 

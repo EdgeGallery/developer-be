@@ -56,6 +56,7 @@ import org.edgegallery.developer.service.dao.ProjectDao;
 import org.edgegallery.developer.template.ChartFileCreator;
 import org.edgegallery.developer.util.BusinessConfigUtil;
 import org.edgegallery.developer.util.CompressFileUtils;
+import org.edgegallery.developer.util.CompressFileUtilsJava;
 import org.edgegallery.developer.util.DeveloperFileUtils;
 import org.edgegallery.developer.util.HttpClientUtil;
 import org.edgegallery.developer.util.InitConfigUtil;
@@ -73,6 +74,10 @@ public class ProjectService {
     private static final Logger LOGGER = LoggerFactory.getLogger(ProjectService.class);
 
     private static Gson gson = new Gson();
+
+    private static final int TIMES = Consts.QUERY_APPLICATIONS_TIMES;
+
+    private static final int PERIOD = Consts.QUERY_APPLICATIONS_PERIOD;
 
     @Autowired
     private ProjectMapper projectMapper;
@@ -228,20 +233,19 @@ public class ProjectService {
 
         //delete capabilityGroup and
         String openCapabilityDetailId = project.getOpenCapabilityId();
-        LOGGER.info("openCapabilityDetailId: {} .", openCapabilityDetailId);
+        LOGGER.info("detailId: {} .", openCapabilityDetailId);
+        String groupId = "";
         if (openCapabilityDetailId != null) {
+            groupId = openMepCapabilityMapper.getGroupIdByDetailId(openCapabilityDetailId);
             openMepCapabilityMapper.deleteCapability(openCapabilityDetailId);
         }
 
-        OpenMepCapabilityGroup capabilityGroup = openMepCapabilityMapper.getEcoGroupByName(project.getType());
-        LOGGER.info("capabilityGroup: {} .", capabilityGroup);
-        if (capabilityGroup != null) {
-            String groupId = capabilityGroup.getGroupId();
-            if (groupId != null && !groupId.equals("")) {
-                OpenMepCapabilityGroup openMepCapabilityGroup = openMepCapabilityMapper
-                    .getOpenMepCapabilitiesByGroupId(groupId);
-                LOGGER.info("openMepCapabilityGroup: {} .", openMepCapabilityGroup);
-                if (openMepCapabilityGroup.getCapabilityDetailList().size() < 1 ) {
+        if (!groupId.equals("")) {
+            LOGGER.info("groupId: {} .", groupId);
+            List<OpenMepCapabilityDetail> detailList = openMepCapabilityMapper.getDetailByGroupId(groupId);
+            if (detailList != null) {
+                LOGGER.info("detailList size: {} .", detailList.size());
+                if (detailList.size() < 1) {
                     openMepCapabilityMapper.deleteGroup(groupId);
                 }
             }
@@ -256,7 +260,6 @@ public class ProjectService {
         // delete files of project
         String projectPath = getProjectPath(projectId);
         DeveloperFileUtils.deleteDir(projectPath);
-
 
         LOGGER.info("Delete project {} success.", projectId);
         return Either.right(true);
@@ -403,16 +406,15 @@ public class ProjectService {
         } else {
             csarPkgDir = new CreateCsarFromTemplate().create(projectPath, testConfig, project, null);
         }
-        return CompressFileUtils
-            .compressToCsarAndDeleteSrc(csarPkgDir.getCanonicalPath(), projectPath, csarPkgDir.getName());
+        return CompressFileUtilsJava
+            .compressToCSARAndDeleteSrc(csarPkgDir.getCanonicalPath(), projectPath, csarPkgDir.getName());
     }
 
     private void deployCsarToAppLcm(File csar, ApplicationProject project, ProjectTestConfig testConfig, String userId,
         String token) {
 
         String appInstanceId = testConfig.getAppInstanceId();
-        Type type = new TypeToken<List<MepHost>>() {
-        }.getType();
+        Type type = new TypeToken<List<MepHost>>() { }.getType();
         List<MepHost> hosts = gson.fromJson(gson.toJson(testConfig.getHosts()), type);
         MepHost host = hosts.get(0);
 
@@ -469,8 +471,7 @@ public class ProjectService {
         int times = 1;
         while (workloadStatus == null) {
             LOGGER.error("Failed to get workloadStatus which appInstanceId is : "
-                    + "{}, and will try for {} times every {} milliseconds", appInstanceId,
-                Consts.QUERY_APPLICATIONS_TIMES, Consts.QUERY_APPLICATIONS_PERIOD);
+                + "{}, and will try for {} times every {} milliseconds", appInstanceId, TIMES, PERIOD);
             Thread.sleep(Consts.QUERY_APPLICATIONS_PERIOD);
             workloadStatus = HttpClientUtil
                 .getWorkloadStatus(host.getProtocol(), host.getIp(), host.getPort(), appInstanceId, userId, token);
@@ -608,8 +609,8 @@ public class ProjectService {
         ApplicationProject project = projectMapper.getProject(userId, projectId);
         if (project == null) {
             LOGGER.error("Can not get project by inputs of userId and projectId.");
-            return Either
-                .left(new FormatRespDto(Status.BAD_REQUEST, "Can not get project, userId or projectId is error."));
+            String message = "Can not get project, userId or projectId is error.";
+            return Either.left(new FormatRespDto(Status.BAD_REQUEST, message));
 
         }
         if (project.getStatus() != EnumProjectStatus.TESTED) {
@@ -646,7 +647,6 @@ public class ProjectService {
             FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "Create app icon file failed");
             return Either.left(error);
         }
-
         // 2 upload to app store
         Map<String, Object> map = new HashMap<>();
         map.put("file", new FileSystemResource(csar));
@@ -851,8 +851,7 @@ public class ProjectService {
      */
     private boolean deleteDeployApp(ProjectTestConfig testConfig, String userId, String token) {
         String workloadId = testConfig.getWorkLoadId();
-        Type type = new TypeToken<List<MepHost>>() {
-        }.getType();
+        Type type = new TypeToken<List<MepHost>>() { }.getType();
         List<MepHost> hosts = gson.fromJson(gson.toJson(testConfig.getHosts()), type);
         MepHost host = hosts.get(0);
         return HttpClientUtil

@@ -46,8 +46,8 @@ public class UtilsService {
     /**
      * upload app to appstore.
      */
-    public Either<FormatRespDto, String> storeToAppStore(
-        Map<String, Object> params, String userId, String userName, String token) {
+    public Either<FormatRespDto, String> storeToAppStore(Map<String, Object> params, String userId, String userName,
+        String token) {
         RestTemplate restTemplate = RestTemplateBuilder.create();
         if (params == null || params.size() == 0) {
             LOGGER.error("failed to call the apptstore microservice interface, params can not be null");
@@ -62,8 +62,8 @@ public class UtilsService {
         try {
             String url = String
                 .format("%s/mec/appstore/v1/apps?userId=%s&userName=%s", appstoreAddress, userId, userName);
-            ResponseEntity<String> responses = restTemplate.exchange(
-                url, HttpMethod.POST, new HttpEntity<>(map, headers), String.class);
+            ResponseEntity<String> responses = restTemplate
+                .exchange(url, HttpMethod.POST, new HttpEntity<>(map, headers), String.class);
             return Either.right(responses.getBody());
         } catch (InvocationException e) {
             LOGGER.error("failed to call the apptstore microservice interface", e.getMessage());
