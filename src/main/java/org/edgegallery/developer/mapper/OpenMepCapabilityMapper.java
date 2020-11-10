@@ -17,6 +17,7 @@
 package org.edgegallery.developer.mapper;
 
 import java.util.List;
+import org.apache.ibatis.annotations.Param;
 import org.edgegallery.developer.model.workspace.OpenMepApi;
 import org.edgegallery.developer.model.workspace.OpenMepCapabilityDetail;
 import org.edgegallery.developer.model.workspace.OpenMepCapabilityGroup;
@@ -40,6 +41,10 @@ public interface OpenMepCapabilityMapper {
     OpenMepCapabilityDetail getDetail(String capabilityId);
 
     List<OpenMepCapabilityDetail> getDetailByGroupId(String groupId);
+
+    OpenMepCapabilityDetail getOpenMepByFileId(String fileId);
+
+    OpenMepCapabilityDetail updateOpenMepByFileId(OpenMepCapabilityDetail capability);
 
     List<OpenMepCapabilityGroup> getOpenMepCapabilitiesDetail();
 
