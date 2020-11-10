@@ -116,6 +116,7 @@ public class MepCapabilityApiTest {
         detail.setDescription("provide the face recognition capabilities for apps");
         detail.setProvider("Huawei");
         detail.setApiFileId("d0f8fa57-2f4c-4182-be33-0a508964d04a");
+        detail.setUserId("d0f8fa57-2f4c-4182-be33-0a508964d0");
 
         Either<FormatRespDto, OpenMepCapabilityDetail> response = Either.right(new OpenMepCapabilityDetail());
         Mockito.when(
@@ -134,11 +135,11 @@ public class MepCapabilityApiTest {
     @WithMockUser(roles = "DEVELOPER_TENANT")
     public void deleteCapability() throws Exception {
         Either<FormatRespDto, Boolean> response = Either.right(true);
-        Mockito.when(openMEPCapabilityService.deleteCapability("e111f3e7-90d8-4a39-9874-ea6ea6752ef4"))
+        Mockito.when(openMEPCapabilityService.deleteCapabilityByUserId("e111f3e7-90d8-4a39-9874-ea6ea6752ef4", "d0f8fa57-2f4c-4182-be33-0a508964d0"))
             .thenReturn(response);
 
         MockHttpServletRequestBuilder request = MockMvcRequestBuilders
-            .delete("/mec/developer/v1/capability-groups/capabilities/e111f3e7-90d8-4a39-9874-ea6ea6752ef4");
+            .delete("/mec/developer/v1/capability-groups/capabilities/e111f3e7-90d8-4a39-9874-ea6ea6752ef4?userId=d0f8fa57-2f4c-4182-be33-0a508964d0");
         request.accept(MediaType.APPLICATION_JSON);
         request.contentType(MediaType.APPLICATION_JSON);
         mvc.perform(request).andDo(MockMvcResultHandlers.print()).andExpect(MockMvcResultMatchers.status().isOk());

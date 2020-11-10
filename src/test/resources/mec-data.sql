@@ -24,8 +24,9 @@ MERGE INTO tbl_service_host(host_id,name,address,architecture,status,ip,port,os,
 -- Records of tbl_openmep_capability   tbl_openmep_capability_detail
 -- ----------------------------
 MERGE INTO tbl_openmep_capability (group_id,name,type,description)  KEY(group_id) values ('e111f3e7-90d8-4a39-9874-ea6ea6752ef3','group-1','OPENMEP','group1');
-MERGE INTO tbl_openmep_capability_detail (detail_id,group_id, service, version, description, api_file_id, provider)  KEY(detail_id) values
-( 'e111f3e7-90d8-4a39-9874-ea6ea6752ef4', 'e111f3e7-90d8-4a39-9874-ea6ea6752ef3', 'Face Reg', '1.0.0', 'Face Reg','e111f3e7-90d8-4a39-9874-ea6ea6752ef5', 'huawei');
+MERGE INTO tbl_openmep_capability_detail (detail_id,group_id, service, version, description, api_file_id, provider, guide_file_id, port, host, upload_time, user_id)  KEY(detail_id) values
+( 'e111f3e7-90d8-4a39-9874-ea6ea6752ef4', 'e111f3e7-90d8-4a39-9874-ea6ea6752ef3', 'Face Reg', '1.0.0', 'Face Reg','e111f3e7-90d8-4a39-9874-ea6ea6752ef5', 'huawei',
+'b8b5d055-1024-4ea8-8439-64de19875834', 9999, 'face-recognition-plus', '2020-11-20 00:00:00.000000', 'admin');
 
 -- ----------------------------
 -- Records of tbl_uploaded_file

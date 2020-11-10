@@ -17,7 +17,9 @@
 package org.edgegallery.developer.unittest;
 
 import com.spencerwi.either.Either;
+import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -96,6 +98,10 @@ public class OpenMEPCapabilityGroupTest {
         detail.setDescription("provide the face recognition capabilities for apps");
         detail.setProvider("Huawei");
         detail.setApiFileId("9f1f13a0-8554-4dfa-90a7-d2765238fca7");
+        detail.setGuideFileId("9f1f13a0-8554-4dfa-90a7-d2765238fca7");
+        detail.setUserId("d0f8fa57-2f4c-4182-be33-0a508964d0");
+        detail.setUploadTime(new Date());
+        detail.setDetailId("e111f3e7-90d8-4a39-9874-ea6ea6752ef4");
         Either<FormatRespDto, OpenMepCapabilityDetail> response = openMEPCapabilityService
             .createCapability("c0db376b-ae50-48fc-b9f7-58a609e3ee12", detail);
         Assert.assertTrue(response.isRight());
@@ -113,7 +119,7 @@ public class OpenMEPCapabilityGroupTest {
     @WithMockUser(roles = "DEVELOPER_TENANT")
     public void deleteCapability() {
         Either<FormatRespDto, Boolean> response = openMEPCapabilityService
-            .deleteCapability("e111f3e7-90d8-4a39-9874-ea6ea6752ef4");
+            .deleteCapabilityByUserId("e111f3e7-90d8-4a39-9874-ea6ea6752ef4", "d0f8fa57-2f4c-4182-be33-0a508964d0");
         Assert.assertTrue(response.isRight());
     }
 }
