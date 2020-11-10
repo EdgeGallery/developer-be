@@ -42,6 +42,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
 @RestSchema(schemaId = "capability-groups")
@@ -117,11 +118,11 @@ public class MepCapabilityController {
     }
 
     /**
-     * delete capability.
+     * delete capability by userId.
      *
      * @return
      */
-    @ApiOperation(value = "delete one EdgeGalleryCapability", response = Boolean.class)
+    @ApiOperation(value = "delete one EdgeGalleryCapability by userId", response = Boolean.class)
     @ApiResponses(value = {
         @ApiResponse(code = 200, message = "OK", response = Boolean.class),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
@@ -129,10 +130,12 @@ public class MepCapabilityController {
     @RequestMapping(value = "/capabilities/{capabilityId}", method = RequestMethod.DELETE,
         produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT')")
-    public ResponseEntity<Boolean> deleteCapability(
+    public ResponseEntity<Boolean> deleteCapabilityByUserId(
         @ApiParam(value = "capabilityId", required = true) @PathVariable("capabilityId")
-        @Pattern(regexp = REG_UUID) String capabilityId) {
-        Either<FormatRespDto, Boolean> either = openService.deleteCapability(capabilityId);
+        @Pattern(regexp = REG_UUID) String capabilityId,
+        @Pattern(regexp = REG_UUID, message = "userId must be in UUID format") @ApiParam(value = "userId")
+        @RequestParam("userId") String userId) {
+        Either<FormatRespDto, Boolean> either = openService.deleteCapabilityByUserId(capabilityId, userId);
         return ResponseDataUtil.buildResponse(either);
     }
 
@@ -202,4 +205,24 @@ public class MepCapabilityController {
         Either<FormatRespDto, OpenMepEcoApiResponse> either = openService.getOpenMepEcoList();
         return ResponseDataUtil.buildResponse(either);
     }
+
+    /**
+     * get EdgeGallery API by file id.
+     *
+     * @return
+     */
+    @ApiOperation(value = "get EdgeGallery API by file id", response = OpenMepCapabilityDetail.class)
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "OK", response = OpenMepApiResponse.class)})
+    @RequestMapping(value = "/openmep-api/{file_id}", method = RequestMethod.GET,
+        produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @PreAuthorize("hasRole('DEVELOPER_TENANT')")
+    public ResponseEntity<OpenMepCapabilityDetail> getOpenMepApiByFileId(
+        @Pattern(regexp = REG_UUID, message = "fileId must be in UUID format")
+        @ApiParam(value = "file_id", required = true) @PathVariable("fileId") String fileId,
+        @Pattern(regexp = REG_UUID, message = "userId must be in UUID format") @ApiParam(value = "userId")
+        @RequestParam("userId") String userId) {
+        Either<FormatRespDto, OpenMepCapabilityDetail> either = openService.getOpenMepByFileId(fileId, userId);
+        return ResponseDataUtil.buildResponse(either);
+    }
+
 }

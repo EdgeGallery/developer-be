@@ -17,6 +17,7 @@
 package org.edgegallery.developer.service;
 
 import com.spencerwi.either.Either;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 import javax.ws.rs.core.Response.Status;
@@ -33,6 +34,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.stringtemplate.v4.ST;
 
 @Service("openMepCapabilityService")
 public class OpenMepCapabilityService {
@@ -120,12 +122,18 @@ public class OpenMepCapabilityService {
             LOGGER.error("Create {} detail failed, api file id is null", groupId);
             return Either.left(new FormatRespDto(Status.BAD_REQUEST, "Api file id is wrong"));
         }
+        if (capability.getGuideFileId() == null || capability.getGuideFileId().length() < 1) {
+            LOGGER.error("Create {} detail failed, guide file id is null", groupId);
+            return Either.left(new FormatRespDto(Status.BAD_REQUEST, "guide file id is wrong"));
+        }
         capability.setGroupId(groupId);
+        capability.setUploadTime(new Date());
         int ret = openMepCapabilityMapper.saveCapability(capability);
         if (ret > 0) {
             LOGGER.info("Create {} detail success", groupId);
             // update api file to un temp
             uploadedFileMapper.updateFileStatus(capability.getApiFileId(), false);
+            uploadedFileMapper.updateFileStatus(capability.getGuideFileId(), false);
             return Either.right(openMepCapabilityMapper.getDetail(capability.getDetailId()));
         }
         LOGGER.error("Create {} detail failed", groupId);
@@ -148,11 +156,16 @@ public class OpenMepCapabilityService {
     }
 
     /**
-     * deleteCapability.
+     * deleteCapability by userId.
      *
      * @return
      */
-    public Either<FormatRespDto, Boolean> deleteCapability(String capabilityId) {
+    public Either<FormatRespDto, Boolean> deleteCapabilityByUserId(String capabilityId, String userId) {
+        OpenMepCapabilityDetail openMepCapabilityDetail = openMepCapabilityMapper.getDetail(capabilityId);
+        if(!openMepCapabilityDetail.getUserId().equals(userId)) {
+            LOGGER.info("The user is not the owner of the capability");
+            return Either.right(true);
+        }
         int res = openMepCapabilityMapper.deleteCapability(capabilityId);
         if (res < 1) {
             LOGGER.info("{} can not find", capabilityId);
@@ -183,6 +196,16 @@ public class OpenMepCapabilityService {
         List<OpenMepApi> list = openMepCapabilityMapper.getOpenMepEcoList();
         OpenMepEcoApiResponse res = new OpenMepEcoApiResponse();
         res.setOpenMepEcos(list);
+        return Either.right(res);
+    }
+
+    /**
+     * getOpenMep by fileId.
+     *
+     * @return
+     */
+    public Either<FormatRespDto, OpenMepCapabilityDetail> getOpenMepByFileId(String fileId, String userId) {
+        OpenMepCapabilityDetail res = openMepCapabilityMapper.getOpenMepByFileId(fileId);
         return Either.right(res);
     }
 
