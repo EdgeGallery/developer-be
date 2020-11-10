@@ -207,18 +207,18 @@ public class MepCapabilityController {
     }
 
     /**
-     * get EdgeGallery API by file id.
+     * get EdgeGallery API detail by file id.
      *
      * @return
      */
     @ApiOperation(value = "get EdgeGallery API by file id", response = OpenMepCapabilityDetail.class)
     @ApiResponses(value = {@ApiResponse(code = 200, message = "OK", response = OpenMepApiResponse.class)})
-    @RequestMapping(value = "/openmep-api/{file_id}", method = RequestMethod.GET,
+    @RequestMapping(value = "/openmep-api/{fileId}", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT')")
     public ResponseEntity<OpenMepCapabilityDetail> getOpenMepApiByFileId(
         @Pattern(regexp = REG_UUID, message = "fileId must be in UUID format")
-        @ApiParam(value = "file_id", required = true) @PathVariable("fileId") String fileId,
+        @ApiParam(value = "fileId", required = true) @PathVariable("fileId") String fileId,
         @Pattern(regexp = REG_UUID, message = "userId must be in UUID format") @ApiParam(value = "userId")
         @RequestParam("userId") String userId) {
         Either<FormatRespDto, OpenMepCapabilityDetail> either = openService.getOpenMepByFileId(fileId, userId);

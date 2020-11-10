@@ -20,6 +20,7 @@ import java.util.Date;
 import java.util.UUID;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.validator.constraints.Range;
 
 @Getter
 @Setter
@@ -44,9 +45,11 @@ public class OpenMepCapabilityDetail {
 
     private Date uploadTime;
 
-    private String port;
+    private int port;
 
     private String host;
+
+    private String protocol;
 
     private String appId;
 
