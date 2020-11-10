@@ -45,7 +45,7 @@
         <result property="apiFileId" column="api_file_id"/>
         <result property="guideFileId" column="guide_file_id"/>
         <result property="uploadTime" column="upload_time"/>
-        <result property="port" column="=port"/>
+        <result property="port" column="port"/>
         <result property="host" column="host"/>
         <result property="protocol" column="protocol"/>
         <result property="appId" column="app_id"/>
