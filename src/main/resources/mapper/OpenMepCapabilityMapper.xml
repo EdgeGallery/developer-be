@@ -47,6 +47,7 @@
         <result property="uploadTime" column="upload_time"/>
         <result property="port" column="=port"/>
         <result property="host" column="host"/>
+        <result property="protocol" column="protocol"/>
         <result property="appId" column="app_id"/>
         <result property="packageId" column="package_id"/>
         <result property="userId" column="user_id"/>
@@ -72,6 +73,7 @@
             <result property="uploadTime" column="upload_time"/>
             <result property="port" column="=port"/>
             <result property="host" column="host"/>
+            <result property="protocol" column="protocol"/>
             <result property="appId" column="app_id"/>
             <result property="packageId" column="package_id"/>
             <result property="userId" column="user_id"/>
@@ -91,10 +93,10 @@
       parameterType="org.edgegallery.developer.model.workspace.OpenMepCapabilityDetail">
         insert into
         tbl_openmep_capability_detail (detail_id,
-        group_id, service, version, description, api_file_id, provider, upload_time, guide_file_id, host, port, app_id, package_id, user_id)
+        group_id, service, version, description, api_file_id, provider, upload_time, guide_file_id, host, port, protocol, app_id, package_id, user_id)
         values
         ( #{detailId}, #{groupId}, #{service}, #{version}, #{description},
-        #{apiFileId}, #{provider}, #{uploadTime}, #{guideFileId}, #{host}, #{port}, #{appId}, #{packageId}, #{userId})
+        #{apiFileId}, #{provider}, #{uploadTime}, #{guideFileId}, #{host}, #{port}, #{protocol}, #{appId}, #{packageId}, #{userId})
     </insert>
 
     <delete id="deleteGroup" parameterType="String">
