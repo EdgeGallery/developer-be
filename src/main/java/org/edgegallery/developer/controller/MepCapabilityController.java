@@ -151,7 +151,7 @@ public class MepCapabilityController {
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
     @RequestMapping(value = "", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    @PreAuthorize("hasRole('DEVELOPER_TENANT')")
+    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_GUEST')")
     public ResponseEntity<List<OpenMepCapabilityGroup>> getAllCapalities() {
         Either<FormatRespDto, List<OpenMepCapabilityGroup>> either = openService.getAllCapabilityGroups();
         return ResponseDataUtil.buildResponse(either);
@@ -168,7 +168,7 @@ public class MepCapabilityController {
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
     @RequestMapping(value = "/{groupId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    @PreAuthorize("hasRole('DEVELOPER_TENANT')")
+    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_GUEST')")
     public ResponseEntity<OpenMepCapabilityGroup> getCapalitiesByGroupId(
         @ApiParam(value = "groupId", required = true) @PathVariable("groupId")
         @Pattern(regexp = REG_UUID) String groupId) {
@@ -185,7 +185,7 @@ public class MepCapabilityController {
     @ApiResponses(value = {@ApiResponse(code = 200, message = "OK", response = OpenMepApiResponse.class)})
     @RequestMapping(value = "/openmep-api", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    @PreAuthorize("hasRole('DEVELOPER_TENANT')")
+    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_GUEST')")
     public ResponseEntity<OpenMepApiResponse> getOpenMepApi() {
         Either<FormatRespDto, OpenMepApiResponse> either = openService.getOpenMepList();
         return ResponseDataUtil.buildResponse(either);
@@ -200,7 +200,7 @@ public class MepCapabilityController {
     @ApiResponses(value = {@ApiResponse(code = 200, message = "OK", response = OpenMepEcoApiResponse.class)})
     @RequestMapping(value = "/openmepeco-api", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    @PreAuthorize("hasRole('DEVELOPER_TENANT')")
+    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_GUEST')")
     public ResponseEntity<OpenMepEcoApiResponse> getOpenMepEcoApi() {
         Either<FormatRespDto, OpenMepEcoApiResponse> either = openService.getOpenMepEcoList();
         return ResponseDataUtil.buildResponse(either);

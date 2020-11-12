@@ -133,7 +133,7 @@ public class PluginController {
         @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorRespDto.class)
     })
     @RequestMapping(value = "/", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    @PreAuthorize("hasRole('DEVELOPER_TENANT')")
+    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_GUEST')")
     public ResponseEntity<Page<PluginDto>> getAll(
         @ApiParam(value = "plugin type:plugin or sdk", required = true) @RequestParam("pluginType") String pluginType,
         @ApiParam(value = "codeLanguage") @RequestParam("codeLanguage") String codeLanguage,
