@@ -42,6 +42,9 @@
         <result property="imageFileIds" column="image_file_id"
                 typeHandler="org.edgegallery.developer.model.handler.JsonCollectionTypeHandler"/>
         <result property="appApiFileId" column="app_api_file_id"/>
+        <result property="deployFileId" column="deploy_file_id"/>
+        <result property="privateHost" column="private_host"/>
+        <result property="platform" column="platform"/>
         <result property="status" column="status"/>
         <result property="accessUrl" column="access_url"/>
         <result property="errorLog" column="error_log"/>
@@ -126,9 +129,9 @@
 
     <insert id="saveTestConfig" parameterType="org.edgegallery.developer.model.workspace.ProjectTestConfig">
         insert into
-        tbl_project_test_config (test_id, project_id, app_api_file_id, agent_config, image_file_id, hosts)
+        tbl_project_test_config (test_id, project_id, app_api_file_id, deploy_file_id, private_host, platform, agent_config, image_file_id, hosts)
         values
-        ( #{testId}, #{projectId}, #{appApiFileId},
+        ( #{testId}, #{projectId}, #{appApiFileId}, #{deployFileId}, #{privateHost}, #{platform},
         #{agentConfig, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonTypeHandler},
         #{imageFileIds, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonCollectionTypeHandler},
         #{hosts, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonCollectionTypeHandler} )
@@ -160,7 +163,7 @@
         #{agentConfig, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonTypeHandler},
         image_file_id =
         #{imageFileIds, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonCollectionTypeHandler},
-        app_api_file_id = #{appApiFileId},
+        app_api_file_id = #{appApiFileId}, deploy_file_id = #{deployFileId}, private_host = #{privateHost}, platform = #{platform},
         hosts = #{hosts, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonCollectionTypeHandler},
         status = #{status}, access_url = #{accessUrl}, error_log = #{errorLog}, deploy_date = #{deployDate},
         app_instance_id = #{appInstanceId}, work_load_id = #{workLoadId}

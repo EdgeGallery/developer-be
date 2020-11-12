@@ -17,8 +17,8 @@
 -- ----------------------------
 -- Records of tbl_service_host
 -- ----------------------------
-MERGE INTO tbl_service_host(host_id,name,address,architecture,status,ip,port,os,port_range_min,port_range_max) KEY(host_id) VALUES ('c8aac2b2-4162-40fe-9d99-0630e3245cf7', 'host-1', 'xian', 'ARM','NORMAL','10.1.12.1',8999,'liunx',30000,300001);
-MERGE INTO tbl_service_host(host_id,name,address,architecture,status,ip,port,os,port_range_min,port_range_max) KEY(host_id) VALUES ('c8aac2b2-4162-40fe-9d99-0630e3245cf8', 'host-2', 'xian', 'ARM','NORMAL','10.1.12.1',8999,'liunx',30000,300001);
+MERGE INTO tbl_service_host(host_id,name,address,architecture,status,ip,port,os,port_range_min,port_range_max, user_id) KEY(host_id) VALUES ('c8aac2b2-4162-40fe-9d99-0630e3245cf7', 'host-1', 'xian', 'ARM','NORMAL','10.1.12.1',8999,'liunx',30000,300001,'e111f3e7-90d8-4a39-9874-ea6ea6752ef6');
+MERGE INTO tbl_service_host(host_id,name,address,architecture,status,ip,port,os,port_range_min,port_range_max, user_id) KEY(host_id) VALUES ('c8aac2b2-4162-40fe-9d99-0630e3245cf8', 'host-2', 'xian', 'ARM','NORMAL','10.1.12.1',8999,'liunx',30000,300001,'e111f3e7-90d8-4a39-9874-ea6ea6752ef6');
 
 -- ----------------------------
 -- Records of tbl_openmep_capability   tbl_openmep_capability_detail
@@ -78,4 +78,4 @@ MERGE INTO tbl_project_image KEY(id) VALUES ('78055873-58cf-4712-8f12-cfdd4e19f2
 -- Records of tbl_project_test_config
 -- ----------------------------
 -- MERGE INTO tbl_project_test_config VALUES ("TEST-CONFIG-ID-fwegert", "200dfab1-3c30-4fc7-a6ca-ed6f0620a85e", "agent_config", "image_file_id", "e111f3e7-90d8-4a39-9874-ea6ea6752ef5", "status", "access_url", "error_log", "deploy_date", "hosts", "app_instance_id", "work_load_id");
-MERGE INTO tbl_project_test_config  KEY(test_id) VALUES ('00001', '200dfab1-3c30-4fc7-a6ca-ed6f0620a85e', '{"serviceName":"servicename-001","href":"http://127.0.0.1","port":8254}', '["image-file-id-001","image-file-id-001"]', 'e111f3e7-90d8-4a39-9874-ea6ea6752ef5', 'RUNNING', 'access_url', 'error_log', '2020-03-20 09:57:36.074+08', '[{"host_id":"c8aac2b2-4162-40fe-9d99-0630e3245cf7","name":"host-1","address":"xian","architecture":"ARM","status":"NORMAL","ip":"10.1.12.1","port":8999,"os":"liunx","port_range_min":30000,"port_range_max":30200}]', 'app_instance_id', 'work_load_id');
+MERGE INTO tbl_project_test_config  KEY(test_id) VALUES ('00001', '200dfab1-3c30-4fc7-a6ca-ed6f0620a85e', '{"serviceName":"servicename-001","href":"http://127.0.0.1","port":8254}', '["image-file-id-001","image-file-id-001"]', 'ad66d1b6-5d29-487b-9769-be48b62aec2e', 'e111f3e7-90d8-4a39-9874-ea6ea6752ef5', false,  'KUBERNETES', 'RUNNING', 'access_url', 'error_log', '2020-03-20 09:57:36.074+08', '[{"host_id":"c8aac2b2-4162-40fe-9d99-0630e3245cf7","name":"host-1","address":"xian","architecture":"ARM","status":"NORMAL","ip":"10.1.12.1","port":8999,"os":"liunx","port_range_min":30000,"port_range_max":30200}]', 'app_instance_id', 'work_load_id');

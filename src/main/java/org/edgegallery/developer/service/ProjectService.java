@@ -515,19 +515,37 @@ public class ProjectService {
             FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, Consts.RESPONSE_MESSAGE_CAN_NOT_FIND_PROJECT);
             return Either.left(error);
         }
-        // move api.yaml to project directory
-        String apiFileId = testConfig.getAppApiFileId();
-        if (apiFileId != null) {
-            try {
-                moveFileToWorkSpaceById(apiFileId, projectId);
-            } catch (IOException e) {
-                LOGGER.error("Move api file error {}", e.getMessage());
-                FormatRespDto error = gson.fromJson(e.getMessage(), FormatRespDto.class);
+
+        // validate mep host if privateHost is true
+        if (testConfig.isPrivateHost()) {
+            if (testConfig.getHosts().size() != 1) {
+                LOGGER.error("The mep host for project {} is required.", projectId);
+                FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "The mep host for project is required.");
+                return Either.left(error);
+            }
+            MepHost mepHost = testConfig.getHosts().get(0);
+            if (!mepHost.getUserId().equals(userId)) {
+                LOGGER.error("The mep host for project {} not private.", projectId);
+                FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "The mep host for project not private.");
                 return Either.left(error);
             }
         }
+
+//        TODO(ch) move to deploy stage
+//        // move api.yaml to project directory
+//        String apiFileId = testConfig.getAppApiFileId();
+//        if (apiFileId != null) {
+//            try {
+//                moveFileToWorkSpaceById(apiFileId, projectId);
+//            } catch (IOException e) {
+//                LOGGER.error("Move api file error {}", e.getMessage());
+//                FormatRespDto error = gson.fromJson(e.getMessage(), FormatRespDto.class);
+//                return Either.left(error);
+//            }
+//        }
         testConfig.setProjectId(projectId);
         List<ProjectTestConfig> tests = projectMapper.getTestConfigByProjectId(projectId);
+
         int ret;
         if (!CollectionUtils.isEmpty(tests)) {
             ret = projectMapper.updateTestConfig(testConfig);

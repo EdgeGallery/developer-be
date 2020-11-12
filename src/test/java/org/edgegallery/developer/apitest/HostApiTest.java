@@ -58,6 +58,7 @@ public class HostApiTest {
 
     private MepHost createHost() throws Exception {
         MepHost host = new MepHost();
+        host.setUserId("admin");
         host.setName("Node_Test");
         host.setAddress("xi'an");
         host.setArchitecture("x86");
@@ -91,6 +92,7 @@ public class HostApiTest {
     @WithMockUser(roles = "DEVELOPER_TENANT")
     public void createHostFailed() throws Exception {
         MepHost host = new MepHost();
+        host.setUserId("admin");
         host.setName("1234");
         host.setAddress("xi'an");
         host.setArchitecture("x86");
@@ -141,6 +143,7 @@ public class HostApiTest {
     @WithMockUser(roles = "DEVELOPER_TENANT")
     public void updateHostById() throws Exception {
         MepHost host = createHost();
+        host.setUserId("admin");
         host.setName("Node_test2");
         host.setAddress("beijing");
         host.setArchitecture("ARM");

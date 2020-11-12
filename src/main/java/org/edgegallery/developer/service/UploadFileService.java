@@ -285,6 +285,17 @@ public class UploadFileService {
             return Either
                 .left(new FormatRespDto(Status.INTERNAL_SERVER_ERROR, "Failed to read content of helm template yaml"));
         }
+        // verify yaml scheme
+        try {
+            Yaml yaml = new Yaml();
+            yaml.load(content);
+        }catch (Exception  e) {
+            LOGGER.error("Failed to validate yaml scheme, userId: {}, projectId: {},exception: {}",
+                    userId, projectId, e.getMessage());
+            return Either.left(
+                    new FormatRespDto(Status.INTERNAL_SERVER_ERROR, "Failed to validate yaml scheme."));
+        }
+        // create HelmTemplateYamlPo
         HelmTemplateYamlPo helmTemplateYamlPo = new HelmTemplateYamlPo();
         helmTemplateYamlPo.setContent(content);
         String fileId = UUID.randomUUID().toString();
