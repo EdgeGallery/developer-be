@@ -33,6 +33,7 @@
         <result property="service" column="service"/>
         <result property="description" column="description"/>
         <result property="apiFileId" column="api_file_Id"/>
+        <result property="guideFileId" column="guide_file_Id"/>
     </resultMap>
 
     <resultMap id="CapabilityMap"
@@ -211,7 +212,8 @@
         a.name,
         b.service,
         b.description,
-        b.api_file_id
+        b.api_file_id,
+        b.guide_file_id
         FROM
         tbl_openmep_capability a
         LEFT JOIN tbl_openmep_capability_detail b ON a.group_id = b.group_id
@@ -223,7 +225,8 @@
         a.name,
         b.service,
         b.description,
-        b.api_file_id
+        b.api_file_id,
+        b.guide_file_id
         FROM
         tbl_openmep_capability a
         LEFT JOIN tbl_openmep_capability_detail b ON a.group_id = b.group_id

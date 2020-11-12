@@ -33,4 +33,6 @@ public class OpenMepApi {
 
     private String apiFileId;
 
+    private String guideFileId;
+
 }
