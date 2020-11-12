@@ -20,6 +20,8 @@ import com.spencerwi.either.Either;
 import java.util.List;
 import java.util.UUID;
 import javax.ws.rs.core.Response.Status;
+
+import org.apache.commons.lang3.StringUtils;
 import org.edgegallery.developer.mapper.HostMapper;
 import org.edgegallery.developer.model.workspace.MepHost;
 import org.edgegallery.developer.response.FormatRespDto;
@@ -41,8 +43,13 @@ public class HostService {
      *
      * @return
      */
-    public Either<FormatRespDto, List<MepHost>> getALlHosts() {
-        List<MepHost> list = hostMapper.getAllHosts();
+    public Either<FormatRespDto, List<MepHost>> getAllHosts(String userId) {
+        List<MepHost> list;
+        if (StringUtils.isNoneBlank(userId)){
+            list = hostMapper.getHostsByUserId(userId);
+        }else{
+            list = hostMapper.getAllHosts();
+        }
         LOGGER.info("Get all hosts success.");
         return Either.right(list);
     }

@@ -36,10 +36,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.*;
 
 @Controller
 @RestSchema(schemaId = "hosts")
@@ -59,8 +56,9 @@ public class HostController {
     })
     @RequestMapping(value = "", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT')")
-    public ResponseEntity<List<MepHost>> getAllHosts() {
-        Either<FormatRespDto, List<MepHost>> either = hostService.getALlHosts();
+    public ResponseEntity<List<MepHost>> getAllHosts(
+            @ApiParam(value = "userId", required = false) @RequestParam(value = "userId", required = false) String userId) {
+        Either<FormatRespDto, List<MepHost>> either = hostService.getAllHosts(userId);
         return ResponseDataUtil.buildResponse(either);
     }
 

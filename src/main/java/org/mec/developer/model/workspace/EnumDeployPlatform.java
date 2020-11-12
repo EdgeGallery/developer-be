@@ -14,25 +14,14 @@
  *    limitations under the License.
  */
 
-package org.edgegallery.developer.mapper;
+package org.mec.developer.model.workspace;
 
-import java.util.List;
-import org.edgegallery.developer.model.workspace.MepHost;
+/**
+ * @author chenhui
+ * The platform for deploy
+ */
 
-public interface HostMapper {
-
-    int saveHost(MepHost host);
-
-    int updateHost(MepHost host);
-
-    int deleteHost(String hostId);
-
-    MepHost getHost(String hostId);
-
-    List<MepHost> getAllHosts();
-
-    List<MepHost> getNormalHosts();
-
-    List<MepHost> getHostsByUserId(String userId);
+public enum EnumDeployPlatform {
+    KUBERNETES,
+    OPENSTACK;
 }
-

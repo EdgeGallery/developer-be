@@ -23,15 +23,37 @@ import java.util.UUID;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import org.mec.developer.model.workspace.EnumDeployPlatform;
 
 @Getter
 @Setter
 @ToString
 public class ProjectTestConfig {
 
+    /**
+     * the uniqueId for ProjectTestConfig
+     */
     private String testId;
 
+    /**
+     * projectId
+     */
     private String projectId;
+
+    /**
+     * the platform where deploy
+     */
+    private EnumDeployPlatform platform;
+
+    /**
+     * the id of deploy file
+     */
+    private String deployFileId;
+
+    /**
+     * if privateHost is true, deploy project with local mep host
+     */
+    private boolean privateHost;
 
     // yaml config
     private MepAgentConfig agentConfig;
@@ -45,6 +67,9 @@ public class ProjectTestConfig {
 
     private List<MepHost> hosts;
 
+    /**
+     *  the swagger api file id
+     */
     private String appApiFileId;
 
     // when deployed, will fill the three parameters.

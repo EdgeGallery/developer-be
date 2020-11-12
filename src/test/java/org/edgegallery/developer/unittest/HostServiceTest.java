@@ -149,7 +149,7 @@ public class HostServiceTest {
     @Test
     @WithMockUser(roles = "DEVELOPER_TENANT")
     public void getAllHosts() {
-        Either<FormatRespDto, List<MepHost>> result = hostService.getALlHosts();
+        Either<FormatRespDto, List<MepHost>> result = hostService.getAllHosts(null);
         Assert.assertTrue(result.isRight());
     }
 
