@@ -23,8 +23,6 @@ import lombok.Setter;
 import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.Range;
 
-import java.util.UUID;
-
 @Getter
 @Setter
 public class MepHost {
@@ -59,15 +57,5 @@ public class MepHost {
     private int portRangeMax;
 
     private String userId;
-
-    /**
-     * getHostId.
-     */
-    public String getHostId() {
-        if (this.hostId == null) {
-            this.hostId = UUID.randomUUID().toString();
-        }
-        return this.hostId;
-    }
 
 }

@@ -18,5 +18,6 @@ package org.edgegallery.developer.model.workspace;
 
 public enum EnumHostStatus {
     NORMAL,
-    BUSY
+    BUSY,
+    STOP
 }

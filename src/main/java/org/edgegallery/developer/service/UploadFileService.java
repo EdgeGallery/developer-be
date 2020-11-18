@@ -16,17 +16,16 @@
 
 package org.edgegallery.developer.service;
 
+import com.google.common.collect.Lists;
 import com.google.gson.Gson;
 import com.spencerwi.either.Either;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import javax.ws.rs.core.Response.Status;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
 import org.edgegallery.developer.common.Consts;
 import org.edgegallery.developer.domain.shared.FileChecker;
 import org.edgegallery.developer.mapper.ApiEmulatorMapper;
@@ -51,6 +50,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
 import org.yaml.snakeyaml.Yaml;
 
@@ -272,7 +272,7 @@ public class UploadFileService {
      * @return
      */
     public Either<FormatRespDto, HelmTemplateYamlRespDto> uploadHelmTemplateYaml(MultipartFile helmTemplateYaml,
-        String userId, String projectId) {
+                                                                                 String userId, String projectId) {
         String content;
         try {
             File tempFile = File.createTempFile(UUID.randomUUID().toString(), null);
@@ -280,21 +280,48 @@ public class UploadFileService {
             content = FileUtils.readFileToString(tempFile, Consts.FILE_ENCODING);
         } catch (IOException e) {
             LOGGER
-                .error("Failed to read content of helm template yaml, userId: {}, projectId: {},exception: {}", userId,
-                    projectId, e.getMessage());
+                    .error("Failed to read content of helm template yaml, userId: {}, projectId: {},exception: {}", userId,
+                            projectId, e.getMessage());
             return Either
-                .left(new FormatRespDto(Status.INTERNAL_SERVER_ERROR, "Failed to read content of helm template yaml"));
+                    .left(new FormatRespDto(Status.INTERNAL_SERVER_ERROR, "Failed to read content of helm template yaml"));
+        }
+        HelmTemplateYamlRespDto helmTemplateYamlRespDto = new HelmTemplateYamlRespDto();
+        if (!Objects.requireNonNull(helmTemplateYaml.getOriginalFilename()).endsWith(".yaml")) {
+            return Either.right(helmTemplateYamlRespDto);
         }
         // verify yaml scheme
+        String[] multiContent = content.split("---");
+        List<Map<String, Object>> mapList = new ArrayList<>();
         try {
-            Yaml yaml = new Yaml();
-            yaml.load(content);
+            for(String str : multiContent){
+                if (StringUtils.isBlank(str)){
+                    continue;
+                }
+                Yaml yaml = new Yaml();
+                Map<String, Object> loaded = yaml.load(str);
+                mapList.add(loaded);
+            }
+            helmTemplateYamlRespDto.setFormatSuccess(true);
         }catch (Exception  e) {
             LOGGER.error("Failed to validate yaml scheme, userId: {}, projectId: {},exception: {}",
                     userId, projectId, e.getMessage());
-            return Either.left(
-                    new FormatRespDto(Status.INTERNAL_SERVER_ERROR, "Failed to validate yaml scheme."));
+            helmTemplateYamlRespDto.setFormatSuccess(false);
+            helmTemplateYamlRespDto.setMepAgentSuccess(null);
+            helmTemplateYamlRespDto.setServiceSuccess(null);
+            helmTemplateYamlRespDto.setImageSuccess(null);
+            return Either.right(helmTemplateYamlRespDto);
         }
+        List<String> requiredItems = Lists.newArrayList("image","service","mep-agent");
+        // verify service,image,mep-agent
+        verifyHelmTemplate(mapList, requiredItems, helmTemplateYamlRespDto);
+
+        if (!requiredItems.isEmpty()){
+            LOGGER
+                    .error("Failed to verify helm template yaml, userId: {}, projectId: {},exception: verify: {} failed", userId,
+                            projectId, String.join(",",requiredItems));
+            return Either.right(helmTemplateYamlRespDto);
+        }
+
         // create HelmTemplateYamlPo
         HelmTemplateYamlPo helmTemplateYamlPo = new HelmTemplateYamlPo();
         helmTemplateYamlPo.setContent(content);
@@ -310,10 +337,43 @@ public class UploadFileService {
             LOGGER.error("Failed to save helm template yaml, file id : {}", fileId);
             return Either.left(new FormatRespDto(Status.INTERNAL_SERVER_ERROR, "Failed to save helm template yaml"));
         }
-        HelmTemplateYamlRespDto helmTemplateYamlRespDto = new HelmTemplateYamlRespDto();
         helmTemplateYamlRespDto.setResponse(helmTemplateYamlPo);
         LOGGER.info("Succeed to save helm template yaml with file id : {}", fileId);
         return Either.right(helmTemplateYamlRespDto);
+    }
+
+    private void verifyHelmTemplate(List<Map<String, Object>> mapList, List<String> requiredItems, HelmTemplateYamlRespDto helmTemplateYamlRespDto){
+        for (Map<String, Object> stringMap : mapList){
+            for (String key : stringMap.keySet()) {
+                if ("kind".equals(key)){
+                    if ("Service".equalsIgnoreCase(stringMap.get(key).toString())){
+                        requiredItems.remove("service");
+                        helmTemplateYamlRespDto.setServiceSuccess(true);
+                        continue;
+                    }
+                    if ("Pod".equalsIgnoreCase(stringMap.get(key).toString()) && stringMap.get("spec") != null){
+                        LinkedHashMap<String, List<LinkedHashMap<String, Object>>> specMap =
+                                (LinkedHashMap<String, List<LinkedHashMap<String, Object>>> )stringMap.get("spec");
+                        if (!CollectionUtils.isEmpty(specMap.get("containers"))) {
+                            for (LinkedHashMap<String, Object> container : specMap.get("containers")){
+                                if (container == null){
+                                    continue;
+                                }
+                                if (container.get("name") != null && container.get("name").toString().equals("mep-agent")){
+                                    helmTemplateYamlRespDto.setMepAgentSuccess(true);
+                                    requiredItems.remove("mep-agent");
+                                    continue;
+                                }
+                                if (container.get("image") != null){
+                                    requiredItems.remove("image");
+                                    helmTemplateYamlRespDto.setImageSuccess(true);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
     /**
