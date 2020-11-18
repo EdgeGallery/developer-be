@@ -33,6 +33,14 @@ public class HelmTemplateYamlRespDto {
     @ApiModelProperty(required = true)
     private String fileName;
 
+    private Boolean formatSuccess = false;
+
+    private Boolean imageSuccess = false;
+
+    private Boolean serviceSuccess = false;
+
+    private Boolean mepAgentSuccess = false;
+
     /**
      * set tenant response value.
      */

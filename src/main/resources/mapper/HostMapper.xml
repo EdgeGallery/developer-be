@@ -69,7 +69,7 @@
     </select>
 
     <select id="getHost" parameterType="java.lang.String"
-            resultType="org.edgegallery.developer.model.workspace.MepHost">
+            resultMap="HostMap">
         SELECT
         *
         FROM
