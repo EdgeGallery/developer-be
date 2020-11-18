@@ -207,18 +207,14 @@
         WHERE a.group_id = #{groupId}
     </select>
 
-    <select id="getOpenMepList" resultMap="OpenMEPList">
+    <select id="getOpenMepList" parameterType="String" resultMap="OpenMEPDetail">
         SELECT
-        a.name,
-        b.service,
-        b.description,
-        b.api_file_id,
-        b.guide_file_id
+        a.*, b.*, b.description as detail_description
         FROM
-        tbl_openmep_capability a
-        LEFT JOIN tbl_openmep_capability_detail b ON a.group_id = b.group_id
+        tbl_openmep_capability a LEFT JOIN tbl_openmep_capability_detail b on
+        a.group_id = b.group_id
         WHERE
-        a.type = 'OPENMEP'
+        a.type = #{type}
     </select>
     <select id="getOpenMepEcoList" resultMap="OpenMEPList">
         SELECT

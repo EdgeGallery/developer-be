@@ -177,17 +177,19 @@ public class MepCapabilityController {
     }
 
     /**
-     * get all EdgeGallery API.
+     * get all EdgeGallery API by type.
      *
      * @return
      */
     @ApiOperation(value = "get all EdgeGallery API", response = OpenMepApiResponse.class)
     @ApiResponses(value = {@ApiResponse(code = 200, message = "OK", response = OpenMepApiResponse.class)})
-    @RequestMapping(value = "/openmep-api", method = RequestMethod.GET,
+    @RequestMapping(value = "/open-api/{type}", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_GUEST')")
-    public ResponseEntity<OpenMepApiResponse> getOpenMepApi() {
-        Either<FormatRespDto, OpenMepApiResponse> either = openService.getOpenMepList();
+    public ResponseEntity<OpenMepApiResponse> getOpenMepApi(
+        @ApiParam(value = "type", required = true) @PathVariable("type")
+        @Pattern(regexp = REG_UUID) String type ) {
+        Either<FormatRespDto, OpenMepApiResponse> either = openService.getOpenMepList(type);
         return ResponseDataUtil.buildResponse(either);
     }
 

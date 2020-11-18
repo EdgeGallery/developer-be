@@ -180,10 +180,10 @@ public class OpenMepCapabilityService {
      *
      * @return
      */
-    public Either<FormatRespDto, OpenMepApiResponse> getOpenMepList() {
-        List<OpenMepApi> list = openMepCapabilityMapper.getOpenMepList();
+    public Either<FormatRespDto, OpenMepApiResponse> getOpenMepList(String type) {
+        List<OpenMepCapabilityGroup>  list = openMepCapabilityMapper.getOpenMepList(type);
         OpenMepApiResponse res = new OpenMepApiResponse();
-        res.setOpenMeps(list);
+        res.setOpenCapability(list);
         return Either.right(res);
     }
 

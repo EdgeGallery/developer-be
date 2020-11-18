@@ -21,6 +21,7 @@ import org.apache.ibatis.annotations.Param;
 import org.edgegallery.developer.model.workspace.OpenMepApi;
 import org.edgegallery.developer.model.workspace.OpenMepCapabilityDetail;
 import org.edgegallery.developer.model.workspace.OpenMepCapabilityGroup;
+import org.edgegallery.developer.response.OpenMepApiResponse;
 
 public interface OpenMepCapabilityMapper {
 
@@ -52,7 +53,7 @@ public interface OpenMepCapabilityMapper {
 
     OpenMepCapabilityGroup getOpenMepCapabilitiesByGroupId(String groupId);
 
-    List<OpenMepApi> getOpenMepList();
+    List<OpenMepCapabilityGroup> getOpenMepList(String type);
 
     List<OpenMepApi> getOpenMepEcoList();
 }
