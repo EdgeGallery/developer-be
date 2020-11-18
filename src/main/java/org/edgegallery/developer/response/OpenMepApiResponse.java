@@ -21,12 +21,13 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import org.edgegallery.developer.model.workspace.OpenMepApi;
+import org.edgegallery.developer.model.workspace.OpenMepCapabilityGroup;
 
 @Getter
 @Setter
 @ToString
 public class OpenMepApiResponse {
 
-    private List<OpenMepApi> openMeps;
+    private List<OpenMepCapabilityGroup> openCapability;
 
 }
