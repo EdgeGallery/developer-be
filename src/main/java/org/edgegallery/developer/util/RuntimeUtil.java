@@ -85,8 +85,7 @@ public class RuntimeUtil {
         command.add(System.getProperty("user.dir") + "/lib/swagger-codegen-cli-3.0.21.jar");
         command.add("generate");
         command.add("-i");
-        //command.add(config.getInputSpec());
-        command.add(System.getProperty("user.dir") + "/lib/openapi.json");
+        command.add(config.getInputSpec());
         command.add("-l");
         command.add(lan);
         command.add("-o");

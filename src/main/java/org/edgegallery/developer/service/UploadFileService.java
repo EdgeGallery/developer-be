@@ -431,7 +431,7 @@ public class UploadFileService {
         config.setGroupId("org.edgegallery");
         config.setOutput(InitConfigUtil.getWorkSpaceBaseDir());
         config.setProjectName(openMepCapabilityDetail.getHost());
-        config.setInputSpec(InitConfigUtil.getWorkSpaceBaseDir() + uploadedFile.getFilePath());
+        config.setInputSpec(uploadedFile.getFilePath());
         String sdkPath = config.getOutput()+openMepCapabilityDetail.getHost();
 
         try {
@@ -462,7 +462,7 @@ public class UploadFileService {
         try {
             HttpHeaders headers = new HttpHeaders();
             headers.add("Content-Type", MediaType.APPLICATION_OCTET_STREAM_VALUE);
-            headers.add("Content-Disposition", "attachment; filename=" + openMepCapabilityDetail.getHost()+"tgz");
+            headers.add("Content-Disposition", "attachment; filename=" + openMepCapabilityDetail.getHost()+".tgz");
             byte[] fileData = FileUtils.readFileToByteArray(tar);
             LOGGER.info("get sample code file success");
             DeveloperFileUtils.deleteTempFile(tar);
