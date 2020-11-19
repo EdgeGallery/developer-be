@@ -130,7 +130,7 @@ public class TestAppController {
         @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorRespDto.class)
     })
     @RequestMapping(value = "/", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    @PreAuthorize("hasRole('DEVELOPER_TENANT')")
+    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_GUEST')")
     public ResponseEntity<TestTaskListResponse> getTaskByParam(
         @Length(max = MAX_COMMON_STRING_LENGTH, message = "Length of app name cannot exceed 255")
         @ApiParam(value = "app name", required = false) @RequestParam(value = "appName", required = false)
@@ -162,7 +162,7 @@ public class TestAppController {
         @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorRespDto.class)
     })
     @RequestMapping(value = "/tags", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    @PreAuthorize("hasRole('DEVELOPER_TENANT')")
+    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_GUEST')")
     public ResponseEntity<AppTagsResponse> getTagList() {
         // get all app tags
         Either<FormatRespDto, AppTagsResponse> either = testAppService.getTagList();
