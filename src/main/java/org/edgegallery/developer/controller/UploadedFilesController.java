@@ -203,4 +203,26 @@ public class UploadedFilesController {
             return null;
         }
     }
+
+
+    @ApiOperation(value = "get sdk code", response = File.class)
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK", response = File.class),
+            @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
+    })
+    @RequestMapping(value = "/sdk", method = RequestMethod.GET,
+            consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
+    @PreAuthorize("hasRole('DEVELOPER_TENANT')")
+    public ResponseEntity<byte[]> getSDKProject(
+            @ApiParam(value = "fileId", required = true) @RequestParam("fileId") String fileId,
+            @ApiParam(value = "lan", required = true) @RequestParam("lan") String lan
+           )throws IOException {
+        Either<FormatRespDto, ResponseEntity<byte[]>> either = uploadFileService.getSDKProject(fileId,lan);
+        if (either.isRight()) {
+            return either.getRight();
+        } else {
+            return null;
+        }
+    }
+
 }

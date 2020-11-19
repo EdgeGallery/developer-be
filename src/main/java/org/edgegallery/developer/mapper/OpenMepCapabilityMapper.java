@@ -56,4 +56,6 @@ public interface OpenMepCapabilityMapper {
     List<OpenMepCapabilityGroup> getOpenMepList(String type);
 
     List<OpenMepApi> getOpenMepEcoList();
+
+    OpenMepCapabilityDetail getDetailByApiFileId (String apiFileId);
 }
