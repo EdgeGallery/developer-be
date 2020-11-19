@@ -28,20 +28,12 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.edgegallery.developer.common.Consts;
 import org.edgegallery.developer.domain.shared.FileChecker;
-import org.edgegallery.developer.mapper.ApiEmulatorMapper;
-import org.edgegallery.developer.mapper.HelmTemplateYamlMapper;
-import org.edgegallery.developer.mapper.HostMapper;
-import org.edgegallery.developer.mapper.UploadedFileMapper;
-import org.edgegallery.developer.model.workspace.ApiEmulator;
-import org.edgegallery.developer.model.workspace.EnumOpenMepType;
-import org.edgegallery.developer.model.workspace.HelmTemplateYamlPo;
-import org.edgegallery.developer.model.workspace.MepHost;
-import org.edgegallery.developer.model.workspace.UploadedFile;
+import org.edgegallery.developer.mapper.*;
+import org.edgegallery.developer.model.GeneralConfig;
+import org.edgegallery.developer.model.workspace.*;
 import org.edgegallery.developer.response.FormatRespDto;
 import org.edgegallery.developer.response.HelmTemplateYamlRespDto;
-import org.edgegallery.developer.util.BusinessConfigUtil;
-import org.edgegallery.developer.util.DeveloperFileUtils;
-import org.edgegallery.developer.util.InitConfigUtil;
+import org.edgegallery.developer.util.*;
 import org.edgegallery.developer.util.samplecode.SampleCodeServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -72,6 +64,10 @@ public class UploadFileService {
 
     @Autowired
     private HelmTemplateYamlMapper helmTemplateYamlMapper;
+
+    @Autowired
+    private OpenMepCapabilityMapper openMepCapabilityMapper;
+
 
     /**
      * getFile.
@@ -409,4 +405,74 @@ public class UploadFileService {
         LOGGER.info("Succeed to delete helm template yaml with file id : {}", fileId);
         return Either.right("Failed to delete helm template yaml");
     }
+
+
+
+    /**
+     * getgetSDKProject
+     *
+     * @return
+     */
+    public Either<FormatRespDto, ResponseEntity<byte[]>> getSDKProject(String fileId,
+                                                                       String lan) {
+        UploadedFile uploadedFile = uploadedFileMapper.getFileById(fileId);
+        if (uploadedFile == null) {
+            LOGGER.error("can not find file {} in db", fileId);
+            return Either.left(new FormatRespDto(Status.BAD_REQUEST, "can not find file in db."));
+        }
+        OpenMepCapabilityDetail openMepCapabilityDetail = openMepCapabilityMapper.getDetailByApiFileId(fileId);
+        //generate code
+        GeneralConfig config = new GeneralConfig();
+        config.setApiPackage("jar");
+        config.setArtifactId("org.edgegallery");
+        config.setInvokerPackage("edgegallerys");
+        config.setModelPackage("edgegallerysdk");
+        config.setArtifactVersion(openMepCapabilityDetail.getVersion());
+        config.setGroupId("org.edgegallery");
+        config.setOutput(InitConfigUtil.getWorkSpaceBaseDir());
+        config.setProjectName(openMepCapabilityDetail.getHost());
+        config.setInputSpec(InitConfigUtil.getWorkSpaceBaseDir() + uploadedFile.getFilePath());
+        String sdkPath = config.getOutput()+openMepCapabilityDetail.getHost();
+
+        try {
+
+            List<String> commandList= RuntimeUtil.buildCommand(lan,config);
+            String ret = RuntimeUtil.execCommand(commandList);
+            if (ret.endsWith("SUCCESS")) {
+                LOGGER.info("codegenSDK {} successful", config.getProjectName());
+            }
+        } catch (Exception e) {
+            LOGGER
+                    .error("Failed to build project", e.getMessage());
+            return Either
+                    .left(new FormatRespDto(Status.INTERNAL_SERVER_ERROR, "Failed to build project"));
+        }
+
+        try {
+            CompressFileUtils.compressToTgzAndDeleteSrc(sdkPath, config.getOutput(), config.getProjectName());
+        }catch (IOException e) {
+            LOGGER
+                    .error("Failed to compress project", e.getMessage());
+            return Either
+                    .left(new FormatRespDto(Status.INTERNAL_SERVER_ERROR, "Failed to compress project"));
+        }
+
+        File tar = new File(sdkPath+".tgz");
+
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.add("Content-Type", MediaType.APPLICATION_OCTET_STREAM_VALUE);
+            headers.add("Content-Disposition", "attachment; filename=" + openMepCapabilityDetail.getHost()+"tgz");
+            byte[] fileData = FileUtils.readFileToByteArray(tar);
+            LOGGER.info("get sample code file success");
+            DeveloperFileUtils.deleteTempFile(tar);
+            return Either.right(ResponseEntity.ok().headers(headers).body(fileData));
+        } catch (IOException e) {
+            LOGGER.error("get sample code file failed : {}", e.getMessage());
+            return Either.left(new FormatRespDto(Status.BAD_REQUEST, "get sample code file failed "));
+        }
+
+    }
+
+
 }

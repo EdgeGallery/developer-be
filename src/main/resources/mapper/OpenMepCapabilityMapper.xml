@@ -229,5 +229,13 @@
         WHERE
         a.type = 'OPENMEP_ECO'
     </select>
-
+    <select id="getDetailByApiFileId" parameterType="String"
+            resultMap="CapabilityMap">
+        SELECT
+        *
+        FROM
+        tbl_openmep_capability_detail
+        WHERE api_file_id =
+        #{apiFileId}
+    </select>
 </mapper>
