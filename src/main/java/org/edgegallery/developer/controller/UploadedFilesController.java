@@ -210,12 +210,15 @@ public class UploadedFilesController {
             @ApiResponse(code = 200, message = "OK", response = File.class),
             @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
-    @RequestMapping(value = "/sdk", method = RequestMethod.GET,
-            consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
+    @RequestMapping(value = "/sdk/{fileId}/download/{lan}", method = RequestMethod.GET,
+            produces = MediaType.APPLICATION_OCTET_STREAM_VALUE
+            )
     @PreAuthorize("hasRole('DEVELOPER_TENANT')")
     public ResponseEntity<byte[]> getSDKProject(
-            @ApiParam(value = "fileId", required = true) @RequestParam("fileId") String fileId,
-            @ApiParam(value = "lan", required = true) @RequestParam("lan") String lan
+            @Pattern(regexp = REGEX_UUID, message = "fileId must be in UUID format")
+            @ApiParam(value = "fileId", required = true) @PathVariable("fileId") String fileId,
+            @Pattern(regexp = REGEX_UUID, message = "lan must be in UUID format")
+            @ApiParam(value = "lan", required = true) @PathVariable("lan") String lan
            )throws IOException {
         Either<FormatRespDto, ResponseEntity<byte[]>> either = uploadFileService.getSDKProject(fileId,lan);
         if (either.isRight()) {

@@ -89,15 +89,15 @@ public class RuntimeUtil {
         command.add("-l");
         command.add(lan);
         command.add("-o");
-        command.add(config.getOutput()+"/"+config.getProjectName());
+        command.add(config.getOutput()+config.getProjectName());
 
 
         //根据不同语言不同配置
         switch (lan){
-            case "java":
+            case "JAVA":
                 buildJavaCommand(command,config);
                 break;
-            case "go":
+            case "Go":
                 break;
             default:
                 break;
