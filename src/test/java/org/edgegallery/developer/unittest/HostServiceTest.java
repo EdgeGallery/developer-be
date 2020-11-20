@@ -93,7 +93,7 @@ public class HostServiceTest {
         modifiedHost.setPortRangeMax(30300);
 
         Either<FormatRespDto, MepHost> result = hostService.updateHost(host.getHostId(), modifiedHost);
-        Assert.assertTrue(result.isLeft());
+        Assert.assertTrue(result.isRight());
         // modifiedHost.setHostId(result.getRight().getHostId());
         // Gson gson = new Gson();
         // Assert.assertEquals(gson.toJson(modifiedHost), gson.toJson(result.getRight()));
