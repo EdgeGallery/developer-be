@@ -82,14 +82,14 @@ public class RuntimeUtil {
         List<String> command = new ArrayList<String>();
         command.add("java");
         command.add("-jar");
-        command.add(InitConfigUtil.getWorkSpaceBaseDir() + "swagger-codegen-cli-3.0.21.jar");
+        command.add(InitConfigUtil.getSdkCodeDir() + "swagger-codegen-cli-3.0.21.jar");
         command.add("generate");
         command.add("-i");
-        command.add(config.getInputSpec());
+        command.add(InitConfigUtil.getWorkSpaceBaseDir() + config.getInputSpec());
         command.add("-l");
-        command.add(lan);
+        command.add("java");
         command.add("-o");
-        command.add(config.getOutput()+config.getProjectName());
+        command.add(InitConfigUtil.getWorkSpaceBaseDir()+config.getOutput()+config.getProjectName());
 
 
         //根据不同语言不同配置

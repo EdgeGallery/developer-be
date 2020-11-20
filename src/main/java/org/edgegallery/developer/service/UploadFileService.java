@@ -441,7 +441,7 @@ public class UploadFileService {
         config.setOutput(InitConfigUtil.getWorkSpaceBaseDir());
         config.setProjectName(openMepCapabilityDetail.getHost());
         config.setInputSpec(uploadedFile.getFilePath());
-        String sdkPath = config.getOutput()+openMepCapabilityDetail.getHost();
+        String sdkPath = InitConfigUtil.getWorkSpaceBaseDir()+config.getOutput()+openMepCapabilityDetail.getHost();
 
         try {
 
@@ -458,7 +458,7 @@ public class UploadFileService {
         }
 
         try {
-            CompressFileUtils.compressToTgzAndDeleteSrc(sdkPath, config.getOutput(), config.getProjectName());
+            CompressFileUtils.compressToTgzAndDeleteSrc(sdkPath, InitConfigUtil.getWorkSpaceBaseDir()+config.getOutput(), config.getProjectName());
         }catch (IOException e) {
             LOGGER
                     .error("Failed to compress project", e.getMessage());
