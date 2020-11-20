@@ -85,11 +85,11 @@ public class RuntimeUtil {
         command.add(InitConfigUtil.getSdkCodeDir() + "swagger-codegen-cli-3.0.21.jar");
         command.add("generate");
         command.add("-i");
-        command.add(InitConfigUtil.getWorkSpaceBaseDir() + config.getInputSpec());
+        command.add("/usr/app" + config.getInputSpec());
         command.add("-l");
         command.add("java");
         command.add("-o");
-        command.add(InitConfigUtil.getWorkSpaceBaseDir()+config.getOutput()+config.getProjectName());
+        command.add("/usr/app"+config.getOutput()+config.getProjectName());
 
 
         //根据不同语言不同配置
