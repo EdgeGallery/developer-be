@@ -23,6 +23,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.regex.Pattern;
 import javax.ws.rs.core.Response.Status;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
@@ -52,6 +53,10 @@ public class UploadFileService {
     private static final Logger LOGGER = LoggerFactory.getLogger(UploadFileService.class);
 
     private static final String REGEX_UUID = "[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}";
+
+    public static final String REGEX_START = Pattern.quote("{{");
+    public static final String REGEX_END = Pattern.quote("}}");
+    public static final Pattern REPLACE_PATTERN = Pattern.compile(REGEX_START + "(.*?)" + REGEX_END);
 
     @Autowired
     private UploadedFileMapper uploadedFileMapper;
@@ -285,6 +290,10 @@ public class UploadFileService {
         if (!Objects.requireNonNull(helmTemplateYaml.getOriginalFilename()).endsWith(".yaml")) {
             return Either.right(helmTemplateYamlRespDto);
         }
+        // replace {{(.*?)}}
+        String originalContent = content;
+        content = content.replaceAll(REPLACE_PATTERN.toString(), "");
+
         // verify yaml scheme
         String[] multiContent = content.split("---");
         List<Map<String, Object>> mapList = new ArrayList<>();
@@ -320,7 +329,7 @@ public class UploadFileService {
 
         // create HelmTemplateYamlPo
         HelmTemplateYamlPo helmTemplateYamlPo = new HelmTemplateYamlPo();
-        helmTemplateYamlPo.setContent(content);
+        helmTemplateYamlPo.setContent(originalContent);
         String fileId = UUID.randomUUID().toString();
         String filename = helmTemplateYaml.getOriginalFilename();
         helmTemplateYamlPo.setFileId(fileId);
