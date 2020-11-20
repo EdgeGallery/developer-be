@@ -32,6 +32,7 @@ RUN sed -i "s|umask 022|umask 027|g" /etc/profile
 # Create the home directory for the new app user.
 RUN mkdir -p /usr/app
 RUN mkdir -p /usr/app/bin
+RUN mkdir -p /usr/app/lib
 
 # Create an app user so our program doesn't run as root.
 RUN apk update &&\
@@ -44,7 +45,7 @@ WORKDIR $APP_HOME
 COPY target/*.jar $APP_HOME/bin
 COPY target/output $APP_HOME
 COPY configs/mep_capability/ $APP_HOME/mep_capability/
-COPY lib/*.jar  $APP_HOME/usr/app/
+COPY lib/*.jar  $APP_HOME/lib/
 
 RUN chmod 750 $APP_HOME &&\
     chmod -R 550 $APP_HOME/bin &&\

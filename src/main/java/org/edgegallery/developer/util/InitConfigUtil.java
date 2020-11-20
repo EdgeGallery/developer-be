@@ -58,4 +58,10 @@ public final class InitConfigUtil {
     public static String getSampleCodeDir() {
         return PROPERTIES.getProperty("sample_code_dir");
     }
+
+    public static String getSdkCodeDir() {
+        return PROPERTIES.getProperty("workspace_sdk_dir_linux");
+    }
+
+
 }
