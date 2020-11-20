@@ -44,7 +44,7 @@ WORKDIR $APP_HOME
 COPY target/*.jar $APP_HOME/bin
 COPY target/output $APP_HOME
 COPY configs/mep_capability/ $APP_HOME/mep_capability/
-
+COPY lib/*.jar  $APP_HOME/usr/app/
 
 RUN chmod 750 $APP_HOME &&\
     chmod -R 550 $APP_HOME/bin &&\

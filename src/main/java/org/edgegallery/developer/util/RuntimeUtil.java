@@ -82,7 +82,7 @@ public class RuntimeUtil {
         List<String> command = new ArrayList<String>();
         command.add("java");
         command.add("-jar");
-        command.add(System.getProperty("user.dir") + "/lib/swagger-codegen-cli-3.0.21.jar");
+        command.add(InitConfigUtil.getWorkSpaceBaseDir() + "swagger-codegen-cli-3.0.21.jar");
         command.add("generate");
         command.add("-i");
         command.add(config.getInputSpec());
