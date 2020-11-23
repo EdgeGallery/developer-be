@@ -87,17 +87,17 @@ public class RuntimeUtil {
         command.add("-i");
         command.add("/usr/app" + config.getInputSpec());
         command.add("-l");
-        command.add("java");
+        command.add("lan");
         command.add("-o");
         command.add("/usr/app"+config.getOutput()+config.getProjectName());
 
 
         //根据不同语言不同配置
         switch (lan){
-            case "JAVA":
+            case "java":
                 buildJavaCommand(command,config);
                 break;
-            case "Go":
+            case "go":
                 break;
             default:
                 break;
