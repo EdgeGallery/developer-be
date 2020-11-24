@@ -87,7 +87,7 @@ public class RuntimeUtil {
         command.add("-i");
         command.add("/usr/app" + config.getInputSpec());
         command.add("-l");
-        command.add("lan");
+        command.add(lan);
         command.add("-o");
         command.add("/usr/app"+config.getOutput()+config.getProjectName());
 
