@@ -31,7 +31,6 @@ import org.edgegallery.developer.model.workspace.UploadedFile;
 import org.edgegallery.developer.response.ErrorRespDto;
 import org.edgegallery.developer.response.FormatRespDto;
 import org.edgegallery.developer.response.HelmTemplateYamlRespDto;
-import org.edgegallery.developer.response.OpenMepApiResponse;
 import org.edgegallery.developer.service.UploadFileService;
 import org.edgegallery.developer.util.ResponseDataUtil;
 import org.springframework.beans.factory.annotation.Autowired;

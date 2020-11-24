@@ -19,6 +19,7 @@ package org.edgegallery.developer.mapper;
 import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
 import org.edgegallery.developer.model.workspace.ApplicationProject;
+import org.edgegallery.developer.model.workspace.EnumTestConfigDeployStatus;
 import org.edgegallery.developer.model.workspace.ProjectImageConfig;
 import org.edgegallery.developer.model.workspace.ProjectTestConfig;
 
@@ -52,5 +53,7 @@ public interface ProjectMapper {
     ProjectImageConfig getImageConfigByImageId(String imageId);
 
     int deleteImageConfigByImageId(String imageId);
+
+    List<ProjectTestConfig> getTestConfigByDeployStatus(String deployStatus);
 
 }

@@ -22,12 +22,7 @@ import com.spencerwi.either.Either;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Type;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
+import java.util.*;
 import javax.ws.rs.core.Response.Status;
 import org.apache.commons.lang3.StringUtils;
 import org.edgegallery.developer.common.Consts;
@@ -36,23 +31,12 @@ import org.edgegallery.developer.mapper.HelmTemplateYamlMapper;
 import org.edgegallery.developer.mapper.OpenMepCapabilityMapper;
 import org.edgegallery.developer.mapper.ProjectMapper;
 import org.edgegallery.developer.mapper.UploadedFileMapper;
-import org.edgegallery.developer.model.workspace.ApplicationProject;
-import org.edgegallery.developer.model.workspace.CommonImage;
-import org.edgegallery.developer.model.workspace.EnumImagePullPolicy;
-import org.edgegallery.developer.model.workspace.EnumOpenMepType;
-import org.edgegallery.developer.model.workspace.EnumProjectStatus;
-import org.edgegallery.developer.model.workspace.EnumTestStatus;
-import org.edgegallery.developer.model.workspace.HelmTemplateYamlPo;
-import org.edgegallery.developer.model.workspace.MepHost;
-import org.edgegallery.developer.model.workspace.OpenMepCapabilityDetail;
-import org.edgegallery.developer.model.workspace.OpenMepCapabilityGroup;
-import org.edgegallery.developer.model.workspace.ProjectImageConfig;
-import org.edgegallery.developer.model.workspace.ProjectTestConfig;
-import org.edgegallery.developer.model.workspace.UploadedFile;
+import org.edgegallery.developer.model.workspace.*;
 import org.edgegallery.developer.response.FormatRespDto;
 import org.edgegallery.developer.response.ProjectImageResponse;
 import org.edgegallery.developer.service.csar.CreateCsarFromTemplate;
 import org.edgegallery.developer.service.dao.ProjectDao;
+import org.edgegallery.developer.service.deploy.IConfigDeployStage;
 import org.edgegallery.developer.template.ChartFileCreator;
 import org.edgegallery.developer.util.BusinessConfigUtil;
 import org.edgegallery.developer.util.CompressFileUtilsJava;
@@ -74,10 +58,6 @@ public class ProjectService {
 
     private static Gson gson = new Gson();
 
-    private static final int TIMES = Consts.QUERY_APPLICATIONS_TIMES;
-
-    private static final int PERIOD = Consts.QUERY_APPLICATIONS_PERIOD;
-
     @Autowired
     private ProjectMapper projectMapper;
 
@@ -95,6 +75,9 @@ public class ProjectService {
 
     @Autowired
     private UtilsService utilsService;
+
+    @Autowired
+    private Map<String, IConfigDeployStage> deployServiceMap;
 
     /**
      * getAllProjects.
@@ -170,7 +153,7 @@ public class ProjectService {
         return Either.right(projectMapper.getProject(userId, project.getId()));
     }
 
-    private String getProjectPath(String projectId) {
+    public String getProjectPath(String projectId) {
         return InitConfigUtil.getWorkSpaceBaseDir() + BusinessConfigUtil.getWorkspacePath() + projectId
             + File.separator;
     }
@@ -292,100 +275,80 @@ public class ProjectService {
     }
 
     /**
-     * deployPorject.
-     *
+     * processDeploy.
+     * task job for scheduler
      * @return
      */
-    // deploy this app to test hosts
+    public void processDeploy(){
+        // get deploying config list from db
+        List<ProjectTestConfig> configList =
+                projectMapper.getTestConfigByDeployStatus(EnumTestConfigDeployStatus.DEPLOYING.toString());
+        if (CollectionUtils.isEmpty(configList)) {
+            return;
+        }
+        configList.forEach(this::processConfig);
+    }
+
+    public void processConfig(ProjectTestConfig config){
+        String nextStage = config.getNextStage();
+        if (StringUtils.isBlank(nextStage)){
+            return;
+        }
+        try{
+            IConfigDeployStage stageService = deployServiceMap.get(nextStage + "_service");
+            stageService.execute(config);
+        }catch (Exception e){
+            LOGGER.error("Deploy project config:{} failed on stage :{}.",config.getTestId(), nextStage);
+        }
+    }
+
+
+    /**
+     * deployProject.
+     * @return
+     */
     public Either<FormatRespDto, ApplicationProject> deployProject(String userId, String projectId, String token) {
-        // check config. upload app image, hosts must be required.
+        // check config. hosts must be required.
         List<ProjectTestConfig> testConfigList = projectMapper.getTestConfigByProjectId(projectId);
         if (CollectionUtils.isEmpty(testConfigList)) {
             LOGGER.error("Can not find test config by project id.");
             FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "Can not find project test config.");
             return Either.left(error);
         }
-
+        // only one test-config for each project
         ProjectTestConfig testConfig = testConfigList.get(0);
-        if (testConfig.getStatus() == EnumTestStatus.RUNNING && !deleteDeployApp(testConfig, userId, token)) {
-            LOGGER.error("Delete deployed app failed.");
-            FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "Delete deployed app failed.");
+        // check status
+        if (testConfig.getDeployStatus() != null && !(EnumTestConfigDeployStatus.NOTDEPLOY).equals(testConfig.getDeployStatus())){
+            // not ready
+            LOGGER.error("The test config not ready with status:{}", testConfig.getDeployStatus());
+            FormatRespDto error = new FormatRespDto(Status.INTERNAL_SERVER_ERROR, "The test config not ready.");
             return Either.left(error);
         }
-
-        List<String> imageIds = testConfig.getImageFileIds();
-        if (CollectionUtils.isEmpty(imageIds)) {
-            LOGGER.error("Image file id is null.");
-            FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "Image file id is null");
-            return Either.left(error);
-        }
-        List<MepHost> hosts = testConfig.getHosts();
-        if (CollectionUtils.isEmpty(hosts)) {
-            LOGGER.error("Host config is null");
-            FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "Host config is null");
-            return Either.left(error);
-        }
-
-        // set the appImages and otherImages in testConfig
-        for (String imageId : imageIds) {
-            ProjectImageConfig imageConfig = projectMapper.getImageConfigByImageId(imageId);
-            LOGGER.info("Set image id: {}", imageConfig.getId());
-
-            CommonImage commonImage = new CommonImage();
-            commonImage.setImageId(imageConfig.getId());
-            commonImage.setImageName(imageConfig.getName());
-            commonImage.setImagePullPolicy(EnumImagePullPolicy.IF_NOT_PRESENT);
-            commonImage.setVersion(imageConfig.getVersion());
-            commonImage.addPort(imageConfig.getPort(), imageConfig.getNodePort());
-            testConfig.addAppImages(commonImage);
-
-        }
-
-        // move api.yaml to project workspace dir, if has moved ,continue
-
-        ApplicationProject project = projectMapper.getProject(userId, projectId);
-        if (project == null) {
-            LOGGER.error("Can not find project by userId and projectId.");
-            FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, Consts.RESPONSE_MESSAGE_CAN_NOT_FIND_PROJECT);
-            return Either.left(error);
-        }
-
-        // create app instance id
+        // update test-config status
         String appInstanceId = UUID.randomUUID().toString();
+        testConfig.setDeployStatus(EnumTestConfigDeployStatus.DEPLOYING);
+        ProjectTestConfigStageStatus stageStatus = new ProjectTestConfigStageStatus();
+        testConfig.setStageStatus(stageStatus);
         testConfig.setAppInstanceId(appInstanceId);
-
-        File csar;
-        // make deploy csar pkg
-        try {
-            csar = createCsarPkg(userId, project, testConfig);
-        } catch (IOException e) {
-            LOGGER.error("Create csar package failed: {}", e.getMessage());
-            FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "Create csar package fail.");
-            return Either.left(error);
+        testConfig.setLcmToken(token);
+        int tes = projectMapper.updateTestConfig(testConfig);
+        if (tes < 1) {
+            LOGGER.error("Update test-config {} failed.", testConfig.getTestId());
         }
-
-        // send to APPLcm to deploy the app
-        // get result from APPLcm. deploy ok or error, error messages
-        // maybe need so much time to deploy, so it is a asyn-interface, deployed result maybe saved to db.
-        // and another api to query the result.
+        // update project status
+        ApplicationProject project = projectMapper.getProject(userId, projectId);
         project.setStatus(EnumProjectStatus.DEPLOYING);
         project.setLastTestId(testConfig.getTestId());
         int res = projectMapper.updateProject(project);
         if (res < 1) {
-            LOGGER.error("Update project {} in db error.", project.getId());
-            FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "update db error.");
+            LOGGER.error("Update project {} in db failed.", project.getId());
+            FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "update product in db failed.");
             return Either.left(error);
         }
-        CompletableFuture.supplyAsync(() -> {
-            LOGGER.info("Begin deploy csar to AppLcm.");
-            deployCsarToAppLcm(csar, project, testConfig, userId, token);
-            return null;
-        });
-
         return Either.right(projectMapper.getProject(userId, projectId));
     }
 
-    private File createCsarPkg(String userId, ApplicationProject project, ProjectTestConfig testConfig)
+    public File createCsarPkg(String userId, ApplicationProject project, ProjectTestConfig testConfig)
         throws IOException {
         String projectId = project.getId();
         String projectPath = getProjectPath(projectId);
@@ -409,97 +372,21 @@ public class ProjectService {
             .compressToCsarAndDeleteSrc(csarPkgDir.getCanonicalPath(), projectPath, csarPkgDir.getName());
     }
 
-    private void deployCsarToAppLcm(File csar, ApplicationProject project, ProjectTestConfig testConfig, String userId,
-        String token) {
-
+    /**
+     * deplay test config and csar package to appLcm.
+     * @return
+     */
+    public boolean deployTestConfigToAppLcm(File csar, ApplicationProject project, ProjectTestConfig testConfig, String userId,
+                                         String token) {
         String appInstanceId = testConfig.getAppInstanceId();
         Type type = new TypeToken<List<MepHost>>() { }.getType();
         List<MepHost> hosts = gson.fromJson(gson.toJson(testConfig.getHosts()), type);
         MepHost host = hosts.get(0);
+        testConfig.setAccessUrl( "http://" + host.getIp());
 
-        // update testconfig accessUrl
-        List<CommonImage> images = testConfig.getAppImages();
-        StringBuilder accessPorts = new StringBuilder();
-        for (CommonImage image : images) {
-            accessPorts.append(image.getPorts().get(0).getNodePort());
-            accessPorts.append("||");
-        }
-        testConfig.setAccessUrl(
-            "http://" + host.getIp() + ":" + accessPorts.toString().substring(0, accessPorts.length() - 2));
-
-        boolean instantiateAppResult = HttpClientUtil
-            .instantiateApplication(host.getProtocol(), host.getIp(), host.getPort(), csar.getPath(), appInstanceId,
-                userId, token);
-
-        if (!instantiateAppResult) {
-            // deploy failed
-            LOGGER.error("Failed to instantiate app which appInstanceId is : {}.", appInstanceId);
-            updateDeployResult(EnumTestStatus.NETWORK_ERROR, EnumProjectStatus.DEPLOYED_FAILED, project, testConfig,
-                userId, token);
-            return;
-        }
-
-        testConfig.setAppInstanceId(appInstanceId);
-        testConfig.setWorkLoadId(appInstanceId);
-        String workloadStatus = null;
-        try {
-            LOGGER.info("Wait for deploy");
-            Thread.sleep(Consts.QUERY_APPLICATIONS_PERIOD);
-            workloadStatus = getWorkloadStatus(host, appInstanceId, userId, token);
-        } catch (InterruptedException e) {
-            LOGGER.error("sleep exception: {}", e.getMessage());
-            Thread.currentThread().interrupt();
-        }
-
-        if (workloadStatus == null) {
-            // deploy failed
-            LOGGER.error("Failed to get workloadStatus after {} times which appInstanceId is : {}",
-                Consts.QUERY_APPLICATIONS_TIMES, appInstanceId);
-            updateDeployResult(EnumTestStatus.NETWORK_ERROR, EnumProjectStatus.DEPLOYED_FAILED, project, testConfig,
-                userId, token);
-        } else {
-            LOGGER.info("Query workload status response: {}", workloadStatus);
-            updateDeployResult(EnumTestStatus.RUNNING, EnumProjectStatus.DEPLOYED, project, testConfig, userId, token);
-        }
-    }
-
-    private String getWorkloadStatus(MepHost host, String appInstanceId, String userId, String token)
-        throws InterruptedException {
-        String workloadStatus = HttpClientUtil
-            .getWorkloadStatus(host.getProtocol(), host.getIp(), host.getPort(), appInstanceId, userId, token);
-        int times = 1;
-        while (workloadStatus == null) {
-            LOGGER.error("Failed to get workloadStatus which appInstanceId is : "
-                + "{}, and will try for {} times every {} milliseconds", appInstanceId, TIMES, PERIOD);
-            Thread.sleep(Consts.QUERY_APPLICATIONS_PERIOD);
-            workloadStatus = HttpClientUtil
-                .getWorkloadStatus(host.getProtocol(), host.getIp(), host.getPort(), appInstanceId, userId, token);
-            if (++times > Consts.QUERY_APPLICATIONS_TIMES) {
-                break;
-            }
-        }
-        return workloadStatus;
-    }
-
-    private void updateDeployResult(EnumTestStatus testStatus, EnumProjectStatus status, ApplicationProject project,
-        ProjectTestConfig testConfig, String userId, String token) {
-        LOGGER.info("Update deploy test status: {}", testStatus);
-        project.setStatus(status);
-        int res = projectMapper.updateProject(project);
-        if (res < 1) {
-            LOGGER.error("Update project {} error ", project.getId());
-        }
-        testConfig.setStatus(testStatus);
-        testConfig.setErrorLog(testStatus.name());
-        testConfig.setDeployDate(new Date());
-        int tes = projectMapper.updateTestConfig(testConfig);
-        if (tes < 1) {
-            LOGGER.error("Update testconfig {} error ", testConfig.getTestId());
-        }
-        if (status == EnumProjectStatus.DEPLOYED_FAILED && testConfig.getWorkLoadId() != null) {
-            deleteDeployApp(testConfig, userId, token);
-            LOGGER.warn("Deploy failed, delete deploy app.");
-        }
+        return HttpClientUtil
+                .instantiateApplication(host.getProtocol(), host.getIp(), host.getPort(), csar.getPath(), appInstanceId,
+                        userId, token);
     }
 
     /**
@@ -531,18 +418,6 @@ public class ProjectService {
             }
         }
 
-//        TODO(ch) move to deploy stage
-//        // move api.yaml to project directory
-//        String apiFileId = testConfig.getAppApiFileId();
-//        if (apiFileId != null) {
-//            try {
-//                moveFileToWorkSpaceById(apiFileId, projectId);
-//            } catch (IOException e) {
-//                LOGGER.error("Move api file error {}", e.getMessage());
-//                FormatRespDto error = gson.fromJson(e.getMessage(), FormatRespDto.class);
-//                return Either.left(error);
-//            }
-//        }
         testConfig.setProjectId(projectId);
         List<ProjectTestConfig> tests = projectMapper.getTestConfigByProjectId(projectId);
 
@@ -831,34 +706,93 @@ public class ProjectService {
             LOGGER.info("This project is not tested, do not need to clean env.");
             return Either.right(true);
         }
-        if (project.getStatus() == EnumProjectStatus.DEPLOYED_FAILED
-            || testConfig.getStatus() != EnumTestStatus.RUNNING) {
-            LOGGER.error("Deploy failed, can not finish test by status {}", project.getStatus());
-            FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "deploy failed, can not finish test");
-            return Either.left(error);
+        return null;
+        // TODO(chenhui)
+//        if (project.getStatus() == EnumProjectStatus.DEPLOYED_FAILED
+//            || testConfig.getStatus() != EnumTestStatus.RUNNING) {
+//            LOGGER.error("Deploy failed, can not finish test by status {}", project.getStatus());
+//            FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "deploy failed, can not finish test");
+//            return Either.left(error);
+//        }
+//        if (deleteDeployApp(testConfig, userId, token)) {
+//            project.setStatus(completed ? EnumProjectStatus.TESTED : EnumProjectStatus.ONLINE);
+//            int res = projectMapper.updateProject(project);
+//            if (res < 1) {
+//                LOGGER.error("Update project status failed");
+//                FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "update project failed");
+//                return Either.left(error);
+//            }
+//            LOGGER.info("Update project status to TESTED success");
+//
+//            testConfig.setStatus(EnumTestStatus.DELETED);
+//            int tes = projectMapper.updateTestConfig(testConfig);
+//            if (tes < 1) {
+//                LOGGER.error("Update test config {} failed", testConfig.getTestId());
+//            }
+//            LOGGER.info("Update test config {} status to Deleted success", testConfig.getTestId());
+//            return Either.right(true);
+//        } else {
+//            FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "delete deploy app failed");
+//            return Either.left(error);
+//        }
+
+    }
+
+    /**
+     * updateDeployResult.
+     * @return
+     */
+    @Transactional
+    public void updateDeployResult(ProjectTestConfig testConfig, ApplicationProject project,
+                                   String stage, EnumTestConfigStatus stageStatus) {
+        LOGGER.info("Update deploy test on stage:{} status: {}", stage, stageStatus);
+        // update test config always && update product if necessary
+        switch (stage) {
+            case "csar":
+                testConfig.getStageStatus().setCsar(stageStatus);
+                break;
+            case "hostInfo":
+                testConfig.getStageStatus().setHostInfo(stageStatus);
+                break;
+            case "instantiateInfo":
+                testConfig.getStageStatus().setInstantiateInfo(stageStatus);
+                break;
+            case "workStatus":
+                testConfig.getStageStatus().setWorkStatus(stageStatus);
+                break;
+            default:
+                testConfig.setStageStatus(new ProjectTestConfigStageStatus());
+                break;
         }
-        if (deleteDeployApp(testConfig, userId, token)) {
-            project.setStatus(completed ? EnumProjectStatus.TESTED : EnumProjectStatus.ONLINE);
+        boolean productUpdate = false;
+        if (EnumTestConfigStatus.Success.equals(stageStatus) && "workStatus".equalsIgnoreCase(stage)) {
+            productUpdate = true;
+            project.setStatus(EnumProjectStatus.DEPLOYED);
+            testConfig.setDeployStatus(EnumTestConfigDeployStatus.SUCCESS);
+            testConfig.setDeployDate(new Date());
+        } else if (EnumTestConfigStatus.Failed.equals(stageStatus)){
+            productUpdate = true;
+            project.setStatus(EnumProjectStatus.DEPLOYED_FAILED);
+            testConfig.setDeployStatus(EnumTestConfigDeployStatus.FAILED);
+        }
+        // update status if necessary
+        if (productUpdate == true){
             int res = projectMapper.updateProject(project);
             if (res < 1) {
-                LOGGER.error("Update project status failed");
-                FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "update project failed");
-                return Either.left(error);
+                LOGGER.error("Update project {} error.", project.getId());
             }
-            LOGGER.info("Update project status to TESTED success");
-
-            testConfig.setStatus(EnumTestStatus.DELETED);
-            int tes = projectMapper.updateTestConfig(testConfig);
-            if (tes < 1) {
-                LOGGER.error("Update test config {} failed", testConfig.getTestId());
-            }
-            LOGGER.info("Update test config {} status to Deleted success", testConfig.getTestId());
-            return Either.right(true);
-        } else {
-            FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "delete deploy app failed");
-            return Either.left(error);
         }
 
+        int tes = projectMapper.updateTestConfig(testConfig);
+        if (tes < 1) {
+            LOGGER.error("Update test-config {} error.", testConfig.getTestId());
+        }
+        // delete resource after deploying failed
+        if (EnumTestConfigStatus.Failed.equals(stageStatus) && testConfig.getWorkLoadId() != null) {
+            // TODO(ch) get userI from thread?
+            deleteDeployApp(testConfig, AccessUserUtil.getUserId(), testConfig.getLcmToken());
+            LOGGER.warn("Deploy failed, delete deploy app.");
+        }
     }
 
     /**
@@ -872,6 +806,6 @@ public class ProjectService {
         List<MepHost> hosts = gson.fromJson(gson.toJson(testConfig.getHosts()), type);
         MepHost host = hosts.get(0);
         return HttpClientUtil
-            .terminateAppInstance(host.getProtocol(), host.getIp(), host.getPort(), workloadId, userId, token);
+                .terminateAppInstance(host.getProtocol(), host.getIp(), host.getPort(), workloadId, userId, token);
     }
 }

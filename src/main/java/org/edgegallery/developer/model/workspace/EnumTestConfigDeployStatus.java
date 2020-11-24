@@ -14,29 +14,14 @@
  *    limitations under the License.
  */
 
-package org.edgegallery.developer.mapper;
+package org.edgegallery.developer.model.workspace;
 
-import java.util.List;
-
-import org.edgegallery.developer.model.workspace.EnumHostStatus;
-import org.edgegallery.developer.model.workspace.MepHost;
-
-public interface HostMapper {
-
-    int saveHost(MepHost host);
-
-    int updateHost(MepHost host);
-
-    int deleteHost(String hostId);
-
-    MepHost getHost(String hostId);
-
-    List<MepHost> getAllHosts();
-
-    List<MepHost> getNormalHosts();
-
-    List<MepHost> getHostsByUserId(String userId);
-
-    List<MepHost> getHostsByStatus(EnumHostStatus status);
+/**
+ * @author chenhui
+ */
+public enum EnumTestConfigDeployStatus {
+    NOTDEPLOY,
+    DEPLOYING,
+    FAILED,
+    SUCCESS
 }
-

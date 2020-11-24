@@ -237,7 +237,7 @@ public class CreateProjectTest {
         test.setAppApiFileId(apiFile.getFileId());
 
         test.setAppInstanceId("app-instance-id");
-        test.setStatus(EnumTestStatus.RUNNING);
+//        test.setStatus(EnumTestStatus.RUNNING);
         String url = String
             .format("/mec/developer/v1/projects/%s/test-config?userId=%s", project.getId(), project.getUserId());
         MockHttpServletRequestBuilder request = MockMvcRequestBuilders.post(url).with(csrf());
@@ -511,7 +511,7 @@ public class CreateProjectTest {
         hosts.add(host);
         test.setHosts(hosts);
         test.setAppApiFileId("f5a1a689-d606-41ed-a5f3-526b0e56004c");
-        test.setStatus(EnumTestStatus.RUNNING);
+//        test.setStatus(EnumTestStatus.RUNNING);
         test.setAccessUrl("http://159.138.53.90:30116");
         test.setErrorLog("ImagePullBackOff");
         test.setWorkLoadId("test11111579664939869");
