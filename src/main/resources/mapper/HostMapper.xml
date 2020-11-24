@@ -59,6 +59,15 @@
         user_id = #{userId}
    </select>
 
+   <select id="getHostsByStatus" resultMap="HostMap">
+        SELECT
+        *
+        FROM
+        tbl_service_host
+        WHERE
+        status = #{status}
+   </select>
+
     <select id="getNormalHosts" resultMap="HostMap">
         SELECT
         *

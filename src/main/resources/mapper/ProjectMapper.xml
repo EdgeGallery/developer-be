@@ -45,7 +45,11 @@
         <result property="deployFileId" column="deploy_file_id"/>
         <result property="privateHost" column="private_host"/>
         <result property="platform" column="platform"/>
-        <result property="status" column="status"/>
+        <result property="deployStatus" column="deploy_status"/>
+        <result property="stageStatus" column="stage_status"
+                typeHandler="org.edgegallery.developer.model.handler.JsonTypeHandler"/>
+        <result property="pods" column="pods"
+                typeHandler="org.edgegallery.developer.model.handler.JsonCollectionTypeHandler"/>
         <result property="accessUrl" column="access_url"/>
         <result property="errorLog" column="error_log"/>
         <result property="deployDate" column="deploy_date"/>
@@ -155,6 +159,15 @@
         project_id = #{projectId}
     </select>
 
+    <select id="getTestConfigByDeployStatus" parameterType="String" resultMap="TestConfigMap">
+        SELECT
+        *
+        FROM
+        tbl_project_test_config
+        WHERE
+        deploy_status = #{deployStatus}
+    </select>
+
     <update id="updateTestConfig" parameterType="org.edgegallery.developer.model.workspace.ProjectTestConfig">
         UPDATE
         tbl_project_test_config
@@ -165,8 +178,9 @@
         #{imageFileIds, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonCollectionTypeHandler},
         app_api_file_id = #{appApiFileId}, deploy_file_id = #{deployFileId}, private_host = #{privateHost}, platform = #{platform},
         hosts = #{hosts, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonCollectionTypeHandler},
-        status = #{status}, access_url = #{accessUrl}, error_log = #{errorLog}, deploy_date = #{deployDate},
-        app_instance_id = #{appInstanceId}, work_load_id = #{workLoadId}
+        stage_status = #{stageStatus, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonTypeHandler}, access_url = #{accessUrl}, error_log = #{errorLog}, deploy_date = #{deployDate},
+        pods = #{pods, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonCollectionTypeHandler},
+        app_instance_id = #{appInstanceId}, work_load_id = #{workLoadId}, deploy_status = #{deployStatus}
         WHERE
         test_id = #{testId}
     </update>

@@ -16,6 +16,7 @@
 
 package org.edgegallery.developer.util;
 
+import org.edgegallery.developer.service.ProjectService;
 import org.edgegallery.developer.service.TestCaseService;
 import org.edgegallery.developer.service.UploadFileService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +34,9 @@ public class ScheduleTask {
     @Autowired
     private UploadFileService uploadFileService;
 
+    @Autowired
+    private ProjectService projectService;
+
     @Scheduled(cron = "0/10 * * * * ?")
     public void reportCurrentTime() {
         testCaseService.scanRunningTask();
@@ -41,5 +45,10 @@ public class ScheduleTask {
     @Scheduled(cron = "0 0/30 * * * ?")
     public void deleteTempFile() {
         uploadFileService.deleteTempFile();
+    }
+
+    @Scheduled(cron = "0/30 * * * * ?")
+    public void processConfigDeploy() {
+        projectService.processDeploy();
     }
 }

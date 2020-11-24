@@ -68,7 +68,7 @@
         <include refid="Base_Column_List"/>
         FROM tbl_testtask
     </select>
-    <select id="getAllTaskId" resultType="java.lang.String">
+        <select id="getAllTaskId" resultType="java.lang.String">
         SELECT
         taskid
         FROM

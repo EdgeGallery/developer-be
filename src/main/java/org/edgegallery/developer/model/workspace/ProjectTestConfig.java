@@ -55,6 +55,56 @@ public class ProjectTestConfig {
      */
     private boolean privateHost;
 
+    /**
+     * the pod list from mep after exec deploy job
+     */
+    private List<String> pods = new ArrayList<>();
+
+    /**
+     * the deploy status for this test_config
+     */
+    private EnumTestConfigDeployStatus deployStatus;
+
+    /**
+     * the exec stage status under deploying
+     */
+    private ProjectTestConfigStageStatus stageStatus;
+
+    /**
+     * the mep host list for deploy
+     */
+    private List<MepHost> hosts;
+
+    /**
+     * create errorLog when deploying
+     */
+    private String errorLog;
+
+    /**
+     * get workLoadId at deploying stage: workStatus
+     */
+    private String workLoadId;
+
+    /**
+     * get appInstanceId at deploying stage:instantiateInfo
+     */
+    private String appInstanceId;
+
+    /**
+     * get appInstanceId after deploy success
+     */
+    private Date deployDate;
+
+    /**
+     * the tmp token for call lcm
+     */
+    private String lcmToken;
+
+    /**
+     * the number of deploying retry
+     */
+    private int retry;
+
     // yaml config
     private MepAgentConfig agentConfig;
 
@@ -65,25 +115,29 @@ public class ProjectTestConfig {
 
     private List<CommonImage> otherImages;
 
-    private List<MepHost> hosts;
-
     /**
      *  the swagger api file id
      */
     private String appApiFileId;
 
-    // when deployed, will fill the three parameters.
-    private EnumTestStatus status;
-
     private String accessUrl;
 
-    private String errorLog;
 
-    private String workLoadId;
-
-    private String appInstanceId;
-
-    private Date deployDate;
+    /**
+     *  get next stage for deploy
+     */
+    public String getNextStage(){
+        if (this.getStageStatus() == null || this.getStageStatus().getCsar() == null ){
+            return "csar";
+        } else if (this.getStageStatus().getHostInfo() == null){
+            return "hostInfo";
+        } else if (this.getStageStatus().getInstantiateInfo() ==null){
+            return "instantiateInfo";
+        } else if (this.getStageStatus().getWorkStatus() == null){
+            return "workStatus";
+        }
+        return null;
+    }
 
     /**
      * getTestId.
