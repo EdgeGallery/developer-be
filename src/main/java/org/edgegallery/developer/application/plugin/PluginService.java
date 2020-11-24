@@ -44,7 +44,7 @@ public class PluginService {
     private FileService fileService;
 
     /**
-     * publish plugin.
+     * publish plugin over.
      *
      * @param newPlugin object of Plugin.
      * @param pluginFile file of plugin.
