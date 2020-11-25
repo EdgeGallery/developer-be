@@ -192,7 +192,7 @@ public class PluginController {
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
     @RequestMapping(value = "/{pluginId}/action/download", method = RequestMethod.GET)
-    @PreAuthorize("hasRole('DEVELOPER_TENANT')")
+    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_GUEST')")
     public ResponseEntity<InputStreamResource> downloadFile(
         @Pattern(regexp = REGEX_UUID, message = "pluginId must be in UUID format")
         @ApiParam(value = "pluginId", required = true) @PathVariable("pluginId") String pluginId) throws IOException {
@@ -216,7 +216,7 @@ public class PluginController {
         @ApiResponse(code = 404, message = "Not Found", response = ErrorRespDto.class)
     })
     @RequestMapping(value = "/{pluginId}/action/get-logofile", method = RequestMethod.GET)
-    @PreAuthorize("hasRole('DEVELOPER_TENANT')")
+    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_GUEST')")
     public ResponseEntity<InputStreamResource> getLogoFile(
         @Pattern(regexp = REGEX_UUID, message = "pluginId must be" + " in UUID format")
         @ApiParam(value = "pluginId", required = true) @PathVariable("pluginId") String pluginId) throws IOException {
