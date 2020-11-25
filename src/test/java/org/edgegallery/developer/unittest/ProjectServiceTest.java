@@ -454,7 +454,7 @@ public class ProjectServiceTest {
         Either<FormatRespDto, ApplicationProject> project = createNewProject();
         String userId = project.getRight().getUserId();
         String projectId = project.getRight().getId();
-        Either<FormatRespDto, Boolean> result = projectService.cleanTestEnv(userId, projectId, true, "");
+        Either<FormatRespDto, Boolean> result = projectService.cleanTestEnv(userId, projectId);
         Assert.assertTrue(result.isRight());
 
     }
