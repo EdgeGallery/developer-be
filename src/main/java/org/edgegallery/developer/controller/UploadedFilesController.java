@@ -212,7 +212,7 @@ public class UploadedFilesController {
     @RequestMapping(value = "/sdk/{fileId}/download/{lan}", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_OCTET_STREAM_VALUE
             )
-    @PreAuthorize("hasRole('DEVELOPER_TENANT')")
+    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_GUEST')")
     public ResponseEntity<byte[]> getSDKProject(
             @Pattern(regexp = REGEX_UUID, message = "fileId must be in UUID format")
             @ApiParam(value = "fileId", required = true) @PathVariable("fileId") String fileId,
