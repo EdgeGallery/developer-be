@@ -1,0 +1,7 @@
+VNFD-Meta-File-Version: 1.0
+CSAR-Version: 1.1
+Created-by: EdgeGallery
+Entry-Definitions: Definition/MainServiceTemplate.yaml
+
+Name: Definition/MainServiceTemplate.yaml
+Content-Type: VNFD

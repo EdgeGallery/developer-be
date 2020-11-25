@@ -1,0 +1,19 @@
+global:
+  mepagent:
+    enabled: <IS_MEP_AGENT>
+  namespace:
+    enabled: <IS_NAMESPACE>
+
+appconfig:
+  appnamespace: <NAMESPACE>
+  aksk:
+    secretname: <random_value>
+    accesskey: <akvalue>
+    secretkey: <skvalue>
+    appInsId: <idvalue>
+
+serviceconfig:
+  - servicename: <service_name>
+    port: <port>
+    version: <version>
+    protocol: <HTTP or HTTPS>

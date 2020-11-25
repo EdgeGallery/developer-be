@@ -42,6 +42,14 @@ public class ChartFileCreator implements BaseFileCreator {
 
     private String chartName;
 
+    private String isMepAgent;
+
+    private String isNamespace;
+
+    private String namespace;
+
+
+
     private Map<String, String> yamlNameToContentMap = new HashMap<>();
 
     public ChartFileCreator() {
@@ -58,6 +66,7 @@ public class ChartFileCreator implements BaseFileCreator {
     public void config() throws IOException {
         generateTemplateYaml();
         replaceChartYaml();
+        replaceChartValues();
     }
 
     @Override
@@ -76,16 +85,36 @@ public class ChartFileCreator implements BaseFileCreator {
         }
     }
 
+    private void replaceChartValues() throws IOException {
+        File chartValues = new File(temporaryPath + File.separator + "values.yaml");
+        FileUtils.writeStringToFile(chartValues,
+            FileUtils.readFileToString(chartValues, Consts.FILE_ENCODING).replace("<IS_MEP_AGENT>", isMepAgent)
+                .replace("<IS_NAMESPACE>", isNamespace).replace("<NAMESPACE>", namespace),
+            Consts.FILE_ENCODING);
+    }
+
+
+
     private void replaceChartYaml() throws IOException {
         File chartYamlFile = new File(temporaryPath + File.separator + "Chart.yaml");
         FileUtils.writeStringToFile(chartYamlFile,
-            FileUtils.readFileToString(chartYamlFile, Consts.FILE_ENCODING).replace("{CHART_NAME}", chartName),
+            FileUtils.readFileToString(chartYamlFile, Consts.FILE_ENCODING).replace("<CHART_NAME>", chartName),
             Consts.FILE_ENCODING);
     }
+
+
 
     public void setChartName(String chartName) {
         this.chartName = chartName;
     }
+
+    public void setChartValues(String isMepAgent, String isNamespace, String namespace) {
+        this.isMepAgent = isMepAgent;
+        this.isNamespace = isNamespace;
+        this.namespace = namespace;
+    }
+
+
 
     public void addTemplateYaml(String name, String content) {
         yamlNameToContentMap.put(name, content);

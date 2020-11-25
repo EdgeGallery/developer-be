@@ -32,6 +32,8 @@ public interface ProjectMapper {
 
     ApplicationProject getProject(String userId, String projectId);
 
+    ApplicationProject getProjectById(String projectId);
+
     List<ApplicationProject> getAllProject(String userId);
 
     int countProjects(String userId);

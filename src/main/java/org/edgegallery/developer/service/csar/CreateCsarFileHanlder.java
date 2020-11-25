@@ -33,7 +33,7 @@ import org.edgegallery.developer.common.Consts;
 public class CreateCsarFileHanlder implements ICsarFileHanlder {
 
     private static final String[] loopFiles = {
-        "MainServiceTemplate.yaml", "pod.yaml", "service.yaml", "configmap.yaml"
+        "pod.yaml", "service.yaml", "configmap.yaml"
     };
 
     private static final String START = "---IMAGE_LOOP_START---";
@@ -57,10 +57,10 @@ public class CreateCsarFileHanlder implements ICsarFileHanlder {
             for (Map.Entry<String, String> entry : fillData.entrySet()) {
                 fileToString = fileToString.replaceAll(entry.getKey(), entry.getValue());
             }
-            List<String> loop = Arrays.asList(loopFiles);
-            if (loop.contains(f.getName())) {
-                fileToString = doLoop(fileToString, fillData);
-            }
+//            List<String> loop = Arrays.asList(loopFiles);
+//            if (loop.contains(f.getName())) {
+//                fileToString = doLoop(fileToString, fillData);
+//            }
             FileUtils.writeStringToFile(f, fileToString, StandardCharsets.UTF_8, false);
         } catch (IOException e) {
             throw new IOException("replace file exception");

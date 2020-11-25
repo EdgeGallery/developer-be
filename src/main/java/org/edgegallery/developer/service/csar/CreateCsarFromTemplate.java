@@ -77,10 +77,7 @@ public class CreateCsarFromTemplate {
 
         // modify the csar files and fill in the data
         List<CreateCsarFileHanlder> hanlders = new ArrayList<>();
-        String[] files = simpleFiles;
-        if (chart != null) {
-            files = simpleFilesWithoutChart;
-        }
+        String[] files = simpleFilesWithoutChart;
         for (String file : files) {
             CreateCsarFileHanlder hanlder = new CreateCsarFileHanlder();
             hanlder.setFilePath(csar.getCanonicalPath() + file);
@@ -125,25 +122,25 @@ public class CreateCsarFromTemplate {
         valueMap.put("\\{time}", new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").format(new Date()) + "+00:00");
         valueMap.put("\\{timeStamp}", timeStamp);
 
-        int imageCount = 0;
-        for (CommonImage appImage : config.getAppImages()) {
-            imageCount++;
-            valueMap.put("imageName" + imageCount, appImage.getImageName());
-            valueMap.put("imageVersion" + imageCount, appImage.getVersion());
-            valueMap.put("imageNodePort" + imageCount, String.valueOf(appImage.getPorts().get(0).getNodePort()));
-            valueMap
-                .put("imageContainerPort" + imageCount, String.valueOf(appImage.getPorts().get(0).getContainerPort()));
-        }
-        valueMap.put("imageCount", String.valueOf(imageCount));
-        Type type = new TypeToken<List<MepHost>>() { }.getType();
-        Gson gson = new Gson();
-        List<MepHost> hosts = gson.fromJson(gson.toJson(config.getHosts()), type);
-        valueMap.put("\\{hostIp}", hosts.get(0).getIp());
-
+//        int imageCount = 0;
+//        for (CommonImage appImage : config.getAppImages()) {
+//            imageCount++;
+//            valueMap.put("imageName" + imageCount, appImage.getImageName());
+//            valueMap.put("imageVersion" + imageCount, appImage.getVersion());
+//            valueMap.put("imageNodePort" + imageCount, String.valueOf(appImage.getPorts().get(0).getNodePort()));
+//            valueMap
+//                .put("imageContainerPort" + imageCount, String.valueOf(appImage.getPorts().get(0).getContainerPort()));
+//        }
+//        valueMap.put("imageCount", String.valueOf(imageCount));
+//        Type type = new TypeToken<List<MepHost>>() { }.getType();
+//        Gson gson = new Gson();
+//        List<MepHost> hosts = gson.fromJson(gson.toJson(config.getHosts()), type);
+//        valueMap.put("\\{hostIp}", hosts.get(0).getIp());
+//
         valueMap.put("\\{appInstanceId}", UUID.randomUUID().toString());
-        valueMap.put("\\{agentName}",
-            config.getAgentConfig().getServiceName().replaceAll(Consts.PATTERN, "-").toLowerCase());
-        valueMap.put("\\{agentPort}", String.valueOf(config.getAgentConfig().getPort()));
+//        valueMap.put("\\{agentName}",
+//            config.getAgentConfig().getServiceName().replaceAll(Consts.PATTERN, "-").toLowerCase());
+//        valueMap.put("\\{agentPort}", String.valueOf(config.getAgentConfig().getPort()));
 
         return valueMap;
     }
