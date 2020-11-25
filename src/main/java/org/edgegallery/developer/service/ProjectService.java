@@ -351,7 +351,9 @@ public class ProjectService {
     public File createCsarPkg(String userId, ApplicationProject project, ProjectTestConfig testConfig)
         throws IOException {
         String projectId = project.getId();
+        List<OpenMepCapabilityGroup>  mepCapability = project.getCapabilityList();
         String projectPath = getProjectPath(projectId);
+
         String projectName = project.getName().replaceAll(Consts.PATTERN, "").toLowerCase();
         List<HelmTemplateYamlPo> yamlPoList = helmTemplateYamlMapper.queryTemplateYamlByProjectId(userId, projectId);
         File csarPkgDir;
@@ -359,6 +361,11 @@ public class ProjectService {
             // create chart file
             ChartFileCreator chartFileCreator = new ChartFileCreator();
             chartFileCreator.setChartName(projectName);
+            if (mepCapability==null || mepCapability.size()==0) {
+                chartFileCreator.setChartValues("false","false","default");
+            }
+            chartFileCreator.setChartValues("true","false","default");
+//stop
             yamlPoList.forEach(helmTemplateYamlPo -> chartFileCreator
                 .addTemplateYaml(helmTemplateYamlPo.getFileName(), helmTemplateYamlPo.getContent()));
             String tgzFilePath = chartFileCreator.build();
@@ -370,7 +377,28 @@ public class ProjectService {
         }
         return CompressFileUtilsJava
             .compressToCsarAndDeleteSrc(csarPkgDir.getCanonicalPath(), projectPath, csarPkgDir.getName());
-    }
+        }
+
+//        String projectPath = getProjectPath(projectId);
+//        String projectName = project.getName().replaceAll(Consts.PATTERN, "").toLowerCase();
+//        List<HelmTemplateYamlPo> yamlPoList = helmTemplateYamlMapper.queryTemplateYamlByProjectId(userId, projectId);
+//        File csarPkgDir;
+//        if (!CollectionUtils.isEmpty(yamlPoList)) {
+//            // create chart file
+//            ChartFileCreator chartFileCreator = new ChartFileCreator();
+//            chartFileCreator.setChartName(projectName);
+//            yamlPoList.forEach(helmTemplateYamlPo -> chartFileCreator
+//                .addTemplateYaml(helmTemplateYamlPo.getFileName(), helmTemplateYamlPo.getContent()));
+//            String tgzFilePath = chartFileCreator.build();
+//
+//            // create csar file directory
+//            csarPkgDir = new CreateCsarFromTemplate().create(projectPath, testConfig, project, new File(tgzFilePath));
+//        } else {
+//            csarPkgDir = new CreateCsarFromTemplate().create(projectPath, testConfig, project, null);
+//        }
+//        return CompressFileUtilsJava
+//            .compressToCsarAndDeleteSrc(csarPkgDir.getCanonicalPath(), projectPath, csarPkgDir.getName());
+//    }
 
     /**
      * deplay test config and csar package to appLcm.

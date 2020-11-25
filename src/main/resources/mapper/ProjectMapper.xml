@@ -114,6 +114,14 @@
         where user_id = #{param1} and id = #{param2}
     </select>
 
+    <select id="getProjectById" parameterType="String" resultMap="AppProjectMap">
+        SELECT
+        *
+        FROM
+        tbl_app_project
+        where id = #{projectId}
+    </select>
+
     <select id="getAllProject" parameterType="String" resultMap="AppProjectMap">
         SELECT
         *

@@ -1,0 +1,14 @@
+metadata:
+app_product_name: {name}
+app_provider_id: {provider}
+app_package_version: {version}
+app_release_data_time: {time}
+app_package_description: {description}
+
+Source: Artifacts/Deployment/Charts/{ChartName}.tgz
+Algorithm: SHA-256
+Hash: c21317143c6c2618e61afc8e1e599b32a470705cdcc979c9c9b69f5f00017930
+
+Source: APPD/Definition/MainServiceTemplate.yaml
+Algorithm: SHA-256
+Hash: c21317143c6c2618e61afc8e1e599b32a470705cdcc979c9c9b69f5f00017930

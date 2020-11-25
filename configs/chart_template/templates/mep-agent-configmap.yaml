@@ -1,0 +1,58 @@
+{{- if .Values.global.mepagent.enabled }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mep-agent-service-config
+data:
+  app_instance_info.yaml: |-
+    serviceInfoPosts:
+      - serName: {{ .Values.serviceconfig.servicename }}
+        serCategory:
+          href: "/example/catalogue1"
+          id: id12345
+          name: RNI
+          version: version1
+        version: {{ .Values.serviceconfig.version }}
+        state: ACTIVE
+        transportId: Rest1
+        transportInfo:
+          id: 33b13d69-79ff-4d4f-bb61-eb7d81f59b44
+          name: REST
+          description: REST API
+          type: REST_HTTP
+          protocol: {{ .Values.serviceconfig.protocol }}
+          version: '2.0'
+          endpoint:
+            addresses: [
+              {
+                host: {{ .Values.serviceconfig.servicename }}.{{ .Values.appconfig.appnamespace }}
+                port: {{ .Values.serviceconfig.port }}
+              }
+            ]
+          implSpecificInfo: {}
+        serializer: JSON
+        scopeOfLocality: MEC_SYSTEM
+        consumedLocalOnly: false
+        isLocal: true
+    serAvailabilityNotificationSubscriptions:
+      - subscriptionType: SerAvailabilityNotificationSubscription
+        callbackReference: string
+        links:
+          self:
+            href: /mecSerMgmtApi/example
+        filteringCriteria:
+          serInstanceIds:
+            - ServiceInstance123
+          serNames:
+            - ExampleService
+          serCategories:
+            - href: /example/catalogue1
+              id: id12345
+              name: RNI
+              version: version1
+          states:
+            - ACTIVE
+          isLocal: true
+
+{{- end }}

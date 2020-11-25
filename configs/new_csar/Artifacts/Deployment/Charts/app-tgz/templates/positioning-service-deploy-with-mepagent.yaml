@@ -1,0 +1,71 @@
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: positioning-service
+  namespace: {{ .Value.appconfig.appnamespace }}
+  labels:
+    app: positioning-service
+spec:
+  containers:
+    - name: positioning
+      image: swr.ap-southeast-1.myhuaweicloud.com/edgegallery/positioning_service:1.0
+      imagePullPolicy: IfNotPresent
+      ports:
+        - containerPort: 9997
+    - name: mep-agent
+      image: swr.ap-southeast-1.myhuaweicloud.com/edgegallery/mep-agent:1.0
+      imagePullPolicy: Always
+      env:
+        - name: ENABLE_WAIT
+          value: "true"
+        - name: MEP_IP
+          value: "mep-api-gw"
+        - name: MEP_APIGW_PORT
+          value: "8443"
+        - name: CA_CERT_DOMAIN_NAME
+          value: "edgegallery"
+        - name: CA_CERT
+          value: /usr/mep/ssl/ca.crt
+        - name: AK
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Value.appconfig.aksk.secretname }}
+              key: accesskey
+        - name: SK
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Value.appconfig.aksk.secretname }}
+              key: secretkey
+        - name: APPINSTID
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Value.appconfig.aksk.secretname }}
+              key: appInsId
+      volumeMounts:
+        - name: mep-agent-service-config-volume
+          mountPath: /usr/mep/conf/app_instance_info.yaml
+          subPath: app_instance_info.yaml
+              
+  volumes:
+    - name: mep-agent-service-config-volume
+      configMap:
+        name: mep-agent-service-config   
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: positioning-service
+  namespace: {{ .Value.appconfig.appnamespace }}
+  labels:
+    svc: positioning-service
+spec:
+  type: NodePort
+  ports:
+    - port: 9997
+      targetPort: 9997
+      protocol: TCP
+      nodePort: 32115
+  selector:
+    app: positioning-service

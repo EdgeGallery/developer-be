@@ -1,0 +1,19 @@
+global:
+  mepagent:
+    enabled: false
+  namespace:
+    enabled: false
+
+appconfig:
+  appnamespace: default
+  aksk:
+    secretname: {SECRET_NAME}
+    accesskey: {ACCESS_KEY}
+    secretkey: {SECRET_KEY}
+    appInsId: {APPINS_ID}
+
+serviceconfig:
+  servicename: {SERVICE_NAME}
+  port: {PORT}
+  version: {VERSION}
+  protocol: {PROTOCOL}

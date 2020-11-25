@@ -1,0 +1,251 @@
+tosca_definitions_version: tosca_simple_profile_yaml_1_2
+description: the VNFD definition
+
+metadata:
+  template_name: EdgeGallery-Template-positioning-service
+  template_author: EdgeGallery
+  template_version: 1.0.0
+  vnfm_type: MEPM
+  vnfd_id: EdgeGallery-positioning-service
+  vnfd_version: v1.0
+  vnfd_name: EdgeGallery_MEC_Sample_APPD
+  vnfd_description: EdgeGallery MEC sample for vnf
+
+topology_template: 
+  inputs:
+    APP_Name: 
+      type: string
+      description: APP_Name
+    DC_ID:
+      type: string
+      description: DC_ID
+    INTERNAL_IP_VERSION:
+      type: string
+      default: IPV4
+      description: INTERNAL_IP_VERSION
+    network_name_1:
+      type: string
+      default: fst01_OM_Plane
+      description: APP_NETWORK
+    network1_physnet:
+      type: string
+      default: physnet1
+      description: APP_NETWORK_Physnet
+    network1_vlanid:
+      type: string
+      default: 1001
+      description: network1_vlanid
+	  
+  node_templates:
+    Simple_VNF:
+      type: tosca.nodes.nfv.VNF
+      properties:
+        vnfd_id: EdgeGallery-positioning-service
+        vnfd_version: v1.0
+        provider: EdgeGallery
+        product_name: MEC
+        software_version: v1.0.0
+        product_info_name: vMEC_APP
+        product_info_description: EdgeGallery MEC APP
+        flavour_id: default
+        flavour_description: default flavor
+        ve_vnfm_vnf_enable: false
+        ve_vnfm_em_enable: false
+  
+      
+    logic0:
+      type: tosca.nodes.nfv.Vdu.Compute
+      properties:
+        name: logic0
+        description: node logic template
+        sw_image_data:
+          name: swr.ap-southeast-1.myhuaweicloud.com/edgegallery/mep-agent:1.0
+        vdu_mec_host_requirements:
+          mec_host_GPU_affinity:
+            schemaVersion: 0
+            schemaSelector: " "
+            hardwarePlatform: "EdgeGallery"
+            mandatory: true
+            configurationValue: "GPU"
+          mec_host_mem_affinity:
+            schemaVersion: 0
+            schemaSelector: " "
+            hardwarePlatform: "EdgeGallery"
+            mandatory: true
+            configurationValue: "memory"
+          mec_host_cpu_affinity:
+            schemaVersion: 0
+            schemaSelector: " "
+            hardwarePlatform: "EdgeGallery"
+            mandatory: true
+            configurationValue: "shared"
+        vdu_profile:
+          min_number_of_instances: 1
+          max_number_of_instances: 2
+          initial_number_of_instances: 1
+          flavor_extra_specs:
+            "X86_HA": 'true'
+      capabilities:
+        virtual_compute:
+          properties:
+            virtual_memory:
+              virtual_mem_size: 4096
+            virtual_cpu:
+              num_virtual_cpu: 4
+            virtual_local_storage: 
+              size_of_storage: 20
+
+    logic1:
+      type: tosca.nodes.nfv.Vdu.Compute
+      properties:
+        name: logic1
+        description: node logic template
+        sw_image_data:
+          name: swr.ap-southeast-1.myhuaweicloud.com/edgegallery/positioning_service:1.0
+        vdu_mec_host_requirements:
+          mec_host_GPU_affinity:
+            schemaVersion: 0
+            schemaSelector: " "
+            hardwarePlatform: "EdgeGallery"
+            mandatory: true
+            configurationValue: "GPU"
+          mec_host_mem_affinity:
+            schemaVersion: 0
+            schemaSelector: " "
+            hardwarePlatform: "EdgeGallery"
+            mandatory: true
+            configurationValue: "memory"
+          mec_host_cpu_affinity:
+            schemaVersion: 0
+            schemaSelector: " "
+            hardwarePlatform: "EdgeGallery"
+            mandatory: true
+            configurationValue: "shared"
+        vdu_profile:
+          min_number_of_instances: 1
+          max_number_of_instances: 2
+          initial_number_of_instances: 1
+          flavor_extra_specs:
+            "X86_HA": 'true'
+      capabilities:
+        virtual_compute:
+          properties:
+            virtual_memory:
+              virtual_mem_size: 4096
+            virtual_cpu:
+              num_virtual_cpu: 4
+            virtual_local_storage: 
+              size_of_storage: 20        
+
+    MEC_APP_CP0: 
+      type: tosca.nodes.nfv.VduCp
+      properties:
+        description: network definition
+        vnic_name: eth0
+        order: 0
+        vnic_type: normal
+        port_security_enabled: true
+      requirements:
+        - virtual_binding: logic0
+        - virtual_link: MEC_APP_VL0
+		
+    MEC_APP_CP1: 
+      type: tosca.nodes.nfv.VduCp
+      properties:
+        description: network definition
+        vnic_name: eth0
+        order: 0
+        vnic_type: normal
+        port_security_enabled: true
+      requirements:
+        - virtual_binding: logic1
+        - virtual_link: MEC_APP_VL0
+		
+    MEC_APP_VL0:
+      type: tosca.nodes.nfv.VnfVirtualLink
+      properties:
+        vl_profile:
+          network_name: {get_input: network_name_1}
+          network_type: vlan
+          physical_network: {get_input: network1_physnet}
+          provider_segmentation_id: {get_input: network1_vlanid}	
+		
+    app_configuration:
+      type: tosca.nodes.nfv.app.configuration
+      properties:
+        appServiceRequired:
+          - serName: face-recognize
+            version: 1.0
+            requestedPermissions: true
+            appId: ea8ebc1a-db88-11ea-87d0-0242ac130003
+            packageId: b1bb0ce7-ebca-4fa7-95ed-4840d70a1177
+        appServiceOptional:
+          - serName: appService2
+            version: 3.0
+            requestedPermissions: true
+        appServiceProduced:
+          - serName: positioning-service
+            version: 1.0
+            dnsRuleIdList:
+              - dnsRule1
+            trafficRuleIdList:
+              - trafficRule1
+        appSupportMp1: true
+        appName: positioning-service
+        appTrafficRule:
+          - trafficRuleId: trafficRule1
+            filterType: FLOW
+            priority: 1
+            trafficFilter:
+              - srcAddress:
+                  - 0.0.0.0/0
+                dstAddress:
+                  - 172.30.2.0/28
+                srcPort:
+                  - 8080
+                dstPort:
+                  - 8080
+                protocol:
+                  - ANY
+                tag:
+                  - 1234
+                srcTunnelAddress:
+                  - 10.10.10.10
+                tgtTunnelAddress:
+                  - 10.10.10.10
+                srcTunnelPort:
+                  - 8080
+                dstTunnelPort:
+                  - 8080
+                qCI: 1
+                dSCP: 0
+                tC: 1
+            action: PASSTHROUGH
+            dstInterface:
+              interfaceType: TUNNEL
+              tunnelInfo:
+                tunnelType: GTP_U
+                tunnelDstAddress: 10.10.10.10
+                tunnelSrcAddress: 11.11.11.11
+              srcMacAddress: 02-00-00-00-00-00
+              dstMacAddress: 02-00-00-00-00-00
+              dstIpAddress: 192.0.2.0
+        appDNSRule:
+          - dnsRuleId: dnsRule1
+            domainName: positioningservice.org
+            ipAddressType: IP_V4
+            ipAddress: 172.30.2.17
+            ttl: 100
+  groups:
+    AntiAffinityGroup:
+      type: tosca.groups.nfv.PlacementGroup
+      properties:
+        description: antiaffinity group 
+      members: [logic0, logic1]
+  policies:
+    - antiaffinity_policy:
+        type: tosca.policies.nfv.AntiAffinityRule
+        targets: [AntiAffinityGroup]
+        properties:
+          scope: nfvi_node
+          enforced: true

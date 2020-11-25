@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.stringtemplate.v4.ST;
 
 
 import javax.annotation.Resource;
@@ -35,8 +36,8 @@ public class StageCreateCsar implements IConfigDeployStage {
     public boolean execute(ProjectTestConfig config) throws InterruptedException {
         boolean processSuccess = false;
         EnumTestConfigStatus csarStatus = EnumTestConfigStatus.Failed;
-        String userId = AccessUserUtil.getUserId();
-        ApplicationProject project = projectMapper.getProject(userId, config.getProjectId());
+        ApplicationProject project = projectMapper.getProjectById(config.getProjectId());
+        String userId = project.getUserId();
         try {
             // create csar package
             projectService.createCsarPkg(userId, project, config);
