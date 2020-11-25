@@ -23,5 +23,6 @@ public enum EnumTestConfigDeployStatus {
     NOTDEPLOY,
     DEPLOYING,
     FAILED,
-    SUCCESS
+    SUCCESS,
+    TERMINATE
 }

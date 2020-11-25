@@ -302,6 +302,34 @@ public class ProjectService {
         }
     }
 
+    /**
+     * terminateProject.
+     * @return
+     */
+    public Either<FormatRespDto, Boolean> terminateProject(String userId, String projectId, String token) {
+        ProjectTestConfig testConfig = projectMapper.getTestConfig(projectId);
+        if (testConfig == null) {
+            LOGGER.info("This project has not test config, do not terminate.");
+            return Either.right(true);
+        }
+        if (!EnumTestConfigStatus.Success.equals(testConfig.getStageStatus().getInstantiateInfo()) || testConfig.getWorkLoadId() == null) {
+            LOGGER.error("Failed to terminate application when instantiateInfo not success.");
+            FormatRespDto error = new FormatRespDto(Status.INTERNAL_SERVER_ERROR, "Failed to terminate application when instantiateInfo not success.");
+            return Either.left(error);
+        }
+        MepHost host = testConfig.getHosts().get(0);
+        boolean terminateResult = HttpClientUtil
+                .terminateAppInstance(host.getProtocol(), host.getIp(), host.getPort(), testConfig.getAppInstanceId(), userId, token);
+        if (!terminateResult) {
+            LOGGER.error("Failed to terminate application which userId is: {}, instanceId is {}", userId, testConfig.getAppInstanceId());
+            FormatRespDto error = new FormatRespDto(Status.INTERNAL_SERVER_ERROR, "Failed to terminate application.");
+            return Either.left(error);
+        }
+        // update config status
+        testConfig.setDeployStatus(EnumTestConfigDeployStatus.TERMINATE);
+        projectMapper.updateTestConfig(testConfig);
+        return Either.right(true);
+    }
 
     /**
      * deployProject.
@@ -365,7 +393,7 @@ public class ProjectService {
                 chartFileCreator.setChartValues("false","false","default");
             }
             chartFileCreator.setChartValues("true","false","default");
-//stop
+            //stop
             yamlPoList.forEach(helmTemplateYamlPo -> chartFileCreator
                 .addTemplateYaml(helmTemplateYamlPo.getFileName(), helmTemplateYamlPo.getContent()));
             String tgzFilePath = chartFileCreator.build();
@@ -379,26 +407,6 @@ public class ProjectService {
             .compressToCsarAndDeleteSrc(csarPkgDir.getCanonicalPath(), projectPath, csarPkgDir.getName());
         }
 
-//        String projectPath = getProjectPath(projectId);
-//        String projectName = project.getName().replaceAll(Consts.PATTERN, "").toLowerCase();
-//        List<HelmTemplateYamlPo> yamlPoList = helmTemplateYamlMapper.queryTemplateYamlByProjectId(userId, projectId);
-//        File csarPkgDir;
-//        if (!CollectionUtils.isEmpty(yamlPoList)) {
-//            // create chart file
-//            ChartFileCreator chartFileCreator = new ChartFileCreator();
-//            chartFileCreator.setChartName(projectName);
-//            yamlPoList.forEach(helmTemplateYamlPo -> chartFileCreator
-//                .addTemplateYaml(helmTemplateYamlPo.getFileName(), helmTemplateYamlPo.getContent()));
-//            String tgzFilePath = chartFileCreator.build();
-//
-//            // create csar file directory
-//            csarPkgDir = new CreateCsarFromTemplate().create(projectPath, testConfig, project, new File(tgzFilePath));
-//        } else {
-//            csarPkgDir = new CreateCsarFromTemplate().create(projectPath, testConfig, project, null);
-//        }
-//        return CompressFileUtilsJava
-//            .compressToCsarAndDeleteSrc(csarPkgDir.getCanonicalPath(), projectPath, csarPkgDir.getName());
-//    }
 
     /**
      * deplay test config and csar package to appLcm.
@@ -410,8 +418,8 @@ public class ProjectService {
         Type type = new TypeToken<List<MepHost>>() { }.getType();
         List<MepHost> hosts = gson.fromJson(gson.toJson(testConfig.getHosts()), type);
         MepHost host = hosts.get(0);
+        // Note(ch) only ip?
         testConfig.setAccessUrl( "http://" + host.getIp());
-
         return HttpClientUtil
                 .instantiateApplication(host.getProtocol(), host.getIp(), host.getPort(), csar.getPath(), appInstanceId,
                         userId, token);
@@ -720,50 +728,35 @@ public class ProjectService {
      *
      * @return
      */
-    public Either<FormatRespDto, Boolean> cleanTestEnv(String userId, String projectId, boolean completed,
-        String token) {
+    public Either<FormatRespDto, Boolean> cleanTestEnv(String userId, String projectId) {
         ApplicationProject project = projectMapper.getProject(userId, projectId);
         if (project == null) {
             LOGGER.error("Can not find project by userId and projectId");
             FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "can not find project");
             return Either.left(error);
         }
-
         ProjectTestConfig testConfig = projectMapper.getTestConfig(project.getLastTestId());
         if (testConfig == null) {
-            LOGGER.info("This project is not tested, do not need to clean env.");
+            LOGGER.info("This project has no config, do not need to clean env.");
             return Either.right(true);
         }
-        return null;
-        // TODO(chenhui)
-//        if (project.getStatus() == EnumProjectStatus.DEPLOYED_FAILED
-//            || testConfig.getStatus() != EnumTestStatus.RUNNING) {
-//            LOGGER.error("Deploy failed, can not finish test by status {}", project.getStatus());
-//            FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "deploy failed, can not finish test");
-//            return Either.left(error);
-//        }
-//        if (deleteDeployApp(testConfig, userId, token)) {
-//            project.setStatus(completed ? EnumProjectStatus.TESTED : EnumProjectStatus.ONLINE);
-//            int res = projectMapper.updateProject(project);
-//            if (res < 1) {
-//                LOGGER.error("Update project status failed");
-//                FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "update project failed");
-//                return Either.left(error);
-//            }
-//            LOGGER.info("Update project status to TESTED success");
-//
-//            testConfig.setStatus(EnumTestStatus.DELETED);
-//            int tes = projectMapper.updateTestConfig(testConfig);
-//            if (tes < 1) {
-//                LOGGER.error("Update test config {} failed", testConfig.getTestId());
-//            }
-//            LOGGER.info("Update test config {} status to Deleted success", testConfig.getTestId());
-//            return Either.right(true);
-//        } else {
-//            FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "delete deploy app failed");
-//            return Either.left(error);
-//        }
+        // init project and config
+        testConfig.initialConfig();
+        project.initialProject();
+        int res = projectMapper.updateProject(project);
+        if (res < 1) {
+            LOGGER.error("Update project status failed");
+            FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "update project failed");
+            return Either.left(error);
+        }
+        LOGGER.info("Update project status to TESTED success");
 
+        int tes = projectMapper.updateTestConfig(testConfig);
+        if (tes < 1) {
+            LOGGER.error("Update test config {} failed", testConfig.getTestId());
+        }
+        LOGGER.info("Update test config {} status to Deleted success", testConfig.getTestId());
+        return Either.right(true);
     }
 
     /**

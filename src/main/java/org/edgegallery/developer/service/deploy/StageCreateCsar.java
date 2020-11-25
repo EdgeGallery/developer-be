@@ -1,6 +1,5 @@
 package org.edgegallery.developer.service.deploy;
 
-import org.edgegallery.developer.config.security.AccessUserUtil;
 import org.edgegallery.developer.mapper.ProjectMapper;
 import org.edgegallery.developer.model.workspace.ApplicationProject;
 import org.edgegallery.developer.model.workspace.EnumTestConfigStatus;
@@ -10,7 +9,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.stringtemplate.v4.ST;
 
 
 import javax.annotation.Resource;
