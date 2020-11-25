@@ -16,9 +16,6 @@
 package org.edgegallery.developer.model;
 
 import lombok.Data;
-import lombok.Getter;
-
-import java.io.Serializable;
 
 @Data
 public class GeneralConfig {

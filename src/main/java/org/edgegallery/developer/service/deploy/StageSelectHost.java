@@ -55,7 +55,11 @@ public class StageSelectHost implements IConfigDeployStage {
             }
         }
         projectService.updateDeployResult(config, project,"hostInfo", hostStatus);
-        return processSuccess == true?instantiateService.execute(config):false;
+        if(processSuccess){
+            return  instantiateService.execute(config);
+        }else {
+            return false;
+        }
     }
 
     @Override

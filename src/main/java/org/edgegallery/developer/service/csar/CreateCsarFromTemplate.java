@@ -16,11 +16,8 @@
 
 package org.edgegallery.developer.service.csar;
 
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Type;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -29,23 +26,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import org.apache.commons.io.FileUtils;
-import org.edgegallery.developer.common.Consts;
 import org.edgegallery.developer.model.workspace.ApplicationProject;
-import org.edgegallery.developer.model.workspace.CommonImage;
-import org.edgegallery.developer.model.workspace.MepHost;
 import org.edgegallery.developer.model.workspace.ProjectTestConfig;
 import org.edgegallery.developer.util.CompressFileUtils;
 import org.edgegallery.developer.util.DeveloperFileUtils;
 
 public class CreateCsarFromTemplate {
-
-    private static final String[] simpleFiles = {
-        "/MainServiceTemplate.mf", "/TOSCA-Metadata/TOSCA.meta", "/Definitions/MainServiceTemplate.yaml",
-        "/Artifacts/Deployment/Charts/app-tgz/Chart.yaml", "/Artifacts/Deployment/Charts/app-tgz/values.yaml",
-        "/Artifacts/Deployment/Charts/app-tgz/templates/configmap.yaml",
-        "/Artifacts/Deployment/Charts/app-tgz/templates/pod.yaml",
-        "/Artifacts/Deployment/Charts/app-tgz/templates/service.yaml"
-    };
 
     private static final String[] simpleFilesWithoutChart = {
         "/MainServiceTemplate.mf", "/TOSCA-Metadata/TOSCA.meta", "/Definitions/MainServiceTemplate.yaml",
@@ -73,7 +59,7 @@ public class CreateCsarFromTemplate {
 
         // get data to Map<String, String>
         String timeStamp = String.valueOf(new Date().getTime());
-        Map<String, String> values = initValueMap(config, project, timeStamp);
+        Map<String, String> values = initValueMap(project, timeStamp);
 
         // modify the csar files and fill in the data
         List<CreateCsarFileHanlder> hanlders = new ArrayList<>();
@@ -113,7 +99,7 @@ public class CreateCsarFromTemplate {
         return csar;
     }
 
-    private Map<String, String> initValueMap(ProjectTestConfig config, ApplicationProject project, String timeStamp) {
+    private Map<String, String> initValueMap(ApplicationProject project, String timeStamp) {
         Map<String, String> valueMap = new HashMap<>();
         valueMap.put("\\{name}", project.getName());
         valueMap.put("\\{version}", project.getVersion());
@@ -121,27 +107,7 @@ public class CreateCsarFromTemplate {
         valueMap.put("\\{id}", UUID.randomUUID().toString());
         valueMap.put("\\{time}", new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").format(new Date()) + "+00:00");
         valueMap.put("\\{timeStamp}", timeStamp);
-
-//        int imageCount = 0;
-//        for (CommonImage appImage : config.getAppImages()) {
-//            imageCount++;
-//            valueMap.put("imageName" + imageCount, appImage.getImageName());
-//            valueMap.put("imageVersion" + imageCount, appImage.getVersion());
-//            valueMap.put("imageNodePort" + imageCount, String.valueOf(appImage.getPorts().get(0).getNodePort()));
-//            valueMap
-//                .put("imageContainerPort" + imageCount, String.valueOf(appImage.getPorts().get(0).getContainerPort()));
-//        }
-//        valueMap.put("imageCount", String.valueOf(imageCount));
-//        Type type = new TypeToken<List<MepHost>>() { }.getType();
-//        Gson gson = new Gson();
-//        List<MepHost> hosts = gson.fromJson(gson.toJson(config.getHosts()), type);
-//        valueMap.put("\\{hostIp}", hosts.get(0).getIp());
-//
         valueMap.put("\\{appInstanceId}", UUID.randomUUID().toString());
-//        valueMap.put("\\{agentName}",
-//            config.getAgentConfig().getServiceName().replaceAll(Consts.PATTERN, "-").toLowerCase());
-//        valueMap.put("\\{agentPort}", String.valueOf(config.getAgentConfig().getPort()));
-
         return valueMap;
     }
 
