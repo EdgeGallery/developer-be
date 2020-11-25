@@ -150,34 +150,19 @@ public class ProjectTestConfig {
     }
 
     /**
-     * addAppImages.
+     * init config if necessary。
      */
-    public void addAppImages(CommonImage image) {
-        if (appImages == null) {
-            appImages = new ArrayList<>();
-        }
-        appImages.add(image);
-    }
-
-    /**
-     * addOtherImages.
-     */
-    public void addOtherImages(CommonImage image) {
-        if (otherImages == null) {
-            otherImages = new ArrayList<>();
-        }
-        otherImages.add(image);
-    }
-
-    /**
-     * getDeployDate.
-     */
-    public Date getDeployDate() {
-        if (this.deployDate != null) {
-            return new Date(this.deployDate.getTime());
-        } else {
-            return null;
-        }
+    public void initialConfig(){
+        this.pods = null;
+        this.deployStatus = EnumTestConfigDeployStatus.NOTDEPLOY;
+        this.stageStatus = null;
+        this.workLoadId = null;
+        this.appInstanceId = null;
+        this.lcmToken = null;
+        this.accessUrl = null;
+        this.deployDate = null;
+        this.errorLog = null;
+        this.retry = 0;
     }
 
     /**

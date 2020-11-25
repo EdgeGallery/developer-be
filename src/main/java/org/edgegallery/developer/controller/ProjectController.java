@@ -197,6 +197,28 @@ public class ProjectController {
     }
 
     /**
+     * terminate one project.
+     */
+    @ApiOperation(value = "terminate one project", response = ApplicationProject.class)
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK", response = ApplicationProject.class),
+            @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
+    })
+    @RequestMapping(value = "/{projectId}/action/terminate", method = RequestMethod.POST,
+            consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @PreAuthorize("hasRole('DEVELOPER_TENANT')")
+    public ResponseEntity<Boolean> terminateProject(
+            @Pattern(regexp = REGEX_UUID, message = "projectId must be in UUID format")
+            @ApiParam(value = "projectId", required = true) @PathVariable("projectId") String projectId,
+            @Pattern(regexp = REGEX_UUID, message = "userId must be in UUID format")
+            @ApiParam(value = "userId", required = true) @RequestParam("userId") String userId,
+            HttpServletRequest request) {
+        String token = request.getHeader(Consts.ACCESS_TOKEN_STR);
+        Either<FormatRespDto, Boolean> either = projectService.terminateProject(userId, projectId, token);
+        return ResponseDataUtil.buildResponse(either);
+    }
+
+    /**
      * clean the test environment.
      */
     @ApiOperation(value = "clean the test environment", response = Boolean.class)
@@ -209,12 +231,10 @@ public class ProjectController {
     @PreAuthorize("hasRole('DEVELOPER_TENANT')")
     public ResponseEntity<Boolean> clean(@Pattern(regexp = REGEX_UUID, message = "projectId must be in UUID format")
         @ApiParam(value = "projectId", required = true) @PathVariable("projectId") String projectId,
-        @NotNull @ApiParam(value = "completed", required = true) @RequestParam("completed") Boolean completed,
         @Pattern(regexp = REGEX_UUID, message = "userId must be in UUID format")
         @ApiParam(value = "userId", required = true) @RequestParam("userId") String userId,
         HttpServletRequest request) {
-        String token = request.getHeader(Consts.ACCESS_TOKEN_STR);
-        Either<FormatRespDto, Boolean> either = projectService.cleanTestEnv(userId, projectId, completed, token);
+        Either<FormatRespDto, Boolean> either = projectService.cleanTestEnv(userId, projectId);
         return ResponseDataUtil.buildResponse(either);
     }
 
