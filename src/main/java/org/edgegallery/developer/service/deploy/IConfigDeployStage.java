@@ -3,6 +3,8 @@ package org.edgegallery.developer.service.deploy;
 import org.edgegallery.developer.model.workspace.ProjectTestConfig;
 
 /**
+ * IConfigDeployStage.
+ *
  * @author chenhui
  */
 public interface IConfigDeployStage {

@@ -36,6 +36,19 @@ public class SwaggerService {
 
     private static final Logger log = LoggerFactory.getLogger(SwaggerService.class);
 
+    private static boolean isInclude(String fileName) {
+        if (StringUtils.isEmpty(fileName)) {
+            return false;
+        }
+        String[] fileNames = {"plugin", "testapp", "hosts", "files", "capability-groups", "projects"};
+        for (String name : fileNames) {
+            if (name.equals(fileName)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     /**
      * getFile.
      *
@@ -58,18 +71,5 @@ public class SwaggerService {
             FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "get file failed.");
             return Either.left(error);
         }
-    }
-
-    private static  boolean isInclude(String fileName) {
-        if (StringUtils.isEmpty(fileName)) {
-            return false;
-        }
-        String[] fileNames = {"plugin", "testapp", "hosts", "files", "capability-groups", "projects"};
-        for (String name : fileNames) {
-            if (name.equals(fileName)) {
-                return true;
-            }
-        }
-        return false;
     }
 }

@@ -1,21 +1,24 @@
 package org.edgegallery.developer.service.deploy;
 
+import java.io.File;
 import org.edgegallery.developer.config.security.AccessUserUtil;
 import org.edgegallery.developer.mapper.ProjectMapper;
-import org.edgegallery.developer.model.workspace.*;
+import org.edgegallery.developer.model.workspace.ApplicationProject;
+import org.edgegallery.developer.model.workspace.EnumTestConfigStatus;
+import org.edgegallery.developer.model.workspace.ProjectTestConfig;
 import org.edgegallery.developer.service.ProjectService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.File;
-
 /**
+ * StageInstantiate.
+ *
  * @author chenhui
  */
 @Service("instantiateInfo_service")
-public class StageInstantiate implements IConfigDeployStage{
+public class StageInstantiate implements IConfigDeployStage {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(StageInstantiate.class);
 
@@ -34,13 +37,14 @@ public class StageInstantiate implements IConfigDeployStage{
         File csar = null;
         try {
             csar = new File(projectService.getProjectPath(config.getProjectId()));
-        }catch (Exception e){
+        } catch (Exception e) {
             // cannot find csar file
-            config.setErrorLog("Cannot find csar file: "+ projectService.getProjectPath(config.getProjectId()));
+            config.setErrorLog("Cannot find csar file: " + projectService.getProjectPath(config.getProjectId()));
             LOGGER.error("Cannot find csar file: {}.", projectService.getProjectPath(config.getProjectId()));
         }
-        if (csar != null){
-            boolean instantiateAppResult = projectService.deployTestConfigToAppLcm(csar, project, config, userId, config.getLcmToken());
+        if (csar != null) {
+            boolean instantiateAppResult = projectService
+                .deployTestConfigToAppLcm(csar, project, config, userId, config.getLcmToken());
             if (!instantiateAppResult) {
                 // deploy failed
                 config.setErrorLog("Failed to instantiate app which appInstanceId is: " + config.getAppInstanceId());
@@ -52,7 +56,7 @@ public class StageInstantiate implements IConfigDeployStage{
             processSuccess = true;
             instantiateStatus = EnumTestConfigStatus.Success;
         }
-        projectService.updateDeployResult(config, project,"instantiateInfo", instantiateStatus);
+        projectService.updateDeployResult(config, project, "instantiateInfo", instantiateStatus);
         return processSuccess;
     }
 

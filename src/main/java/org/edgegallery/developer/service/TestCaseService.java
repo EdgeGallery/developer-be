@@ -69,6 +69,30 @@ public class TestCaseService {
     private TestCaseMapper testCaseMapper;
 
     /**
+     * getXnfTestCases.
+     *
+     * @return
+     */
+    public static Map<TestCase, VnfParas> getXnfTestCases(String appAddress) {
+        Map<TestCase, VnfParas> map = new HashMap<>();
+        Set<TestCase> testCaseSet = TaskRunningHandler.getInstance().getTestCaseSet();
+        for (TestCase tc : testCaseSet) {
+            VnfParas paras = new VnfParas();
+            String inputs = tc.getInputs();
+            JsonArray jsonArray = new JsonParser().parse(inputs).getAsJsonArray();
+            Map<String, String> keyValue = new HashMap<>();
+            for (int j = 0; j < jsonArray.size(); j++) {
+                JsonElement inputJson = jsonArray.get(j);
+                String inputName = inputJson.getAsJsonObject().get("name").getAsString();
+                keyValue.put(inputName, appAddress);
+            }
+            paras.setKeyValue(keyValue);
+            map.put(tc, paras);
+        }
+        return map;
+    }
+
+    /**
      * startToTest.
      *
      * @return
@@ -125,30 +149,6 @@ public class TestCaseService {
             log.error("save subtask occur xception,{}", e.getMessage());
             return TASK_START_FAILED;
         }
-    }
-
-    /**
-     * getXnfTestCases.
-     *
-     * @return
-     */
-    public static Map<TestCase, VnfParas> getXnfTestCases(String appAddress) {
-        Map<TestCase, VnfParas> map = new HashMap<>();
-        Set<TestCase> testCaseSet = TaskRunningHandler.getInstance().getTestCaseSet();
-        for (TestCase tc : testCaseSet) {
-            VnfParas paras = new VnfParas();
-            String inputs = tc.getInputs();
-            JsonArray jsonArray = new JsonParser().parse(inputs).getAsJsonArray();
-            Map<String, String> keyValue = new HashMap<>();
-            for (int j = 0; j < jsonArray.size(); j++) {
-                JsonElement inputJson = jsonArray.get(j);
-                String inputName = inputJson.getAsJsonObject().get("name").getAsString();
-                keyValue.put(inputName, appAddress);
-            }
-            paras.setKeyValue(keyValue);
-            map.put(tc, paras);
-        }
-        return map;
     }
 
     /**

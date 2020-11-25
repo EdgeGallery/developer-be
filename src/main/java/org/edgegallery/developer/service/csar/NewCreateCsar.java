@@ -40,14 +40,13 @@ public class NewCreateCsar {
 
         // modify the csar files and fill in the data
         try {
-            File CSARValue = new File(csar.getCanonicalPath() +simpleFiles);
+            File CsarValue = new File(csar.getCanonicalPath() + simpleFiles);
             String projectName = project.getName().replaceAll(Consts.PATTERN, "").toLowerCase();
-            FileUtils.writeStringToFile(CSARValue,
-                FileUtils.readFileToString(CSARValue,  StandardCharsets.UTF_8).replace("{name}", project.getName())
+            FileUtils.writeStringToFile(CsarValue,
+                FileUtils.readFileToString(CsarValue, StandardCharsets.UTF_8).replace("{name}", project.getName())
                     .replace("{provider}", project.getProvider()).replace("{version}", project.getVersion())
-                    .replace("{time}",timeStamp).replace("{description}",project.getDescription())
-                    .replace("{ChartName}", projectName ),
-                StandardCharsets.UTF_8, false);
+                    .replace("{time}", timeStamp).replace("{description}", project.getDescription())
+                    .replace("{ChartName}", projectName), StandardCharsets.UTF_8, false);
 
         } catch (IOException e) {
             throw new IOException("replace file exception");
@@ -76,6 +75,5 @@ public class NewCreateCsar {
 
         return csar;
     }
-
 
 }

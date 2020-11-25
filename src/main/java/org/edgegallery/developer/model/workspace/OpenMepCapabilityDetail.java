@@ -79,6 +79,7 @@ public class OpenMepCapabilityDetail {
         }
         return this.detailId;
     }
+
     /**
      * getUploadTime.
      */

@@ -55,5 +55,5 @@ public interface OpenMepCapabilityMapper {
 
     List<OpenMepApi> getOpenMepEcoList();
 
-    OpenMepCapabilityDetail getDetailByApiFileId (String apiFileId);
+    OpenMepCapabilityDetail getDetailByApiFileId(String apiFileId);
 }

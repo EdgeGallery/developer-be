@@ -15,15 +15,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
+ * StageWorkStatus.
+ *
  * @author chenhui
  */
 @Service("workStatus_service")
-public class StageWorkStatus implements IConfigDeployStage{
+public class StageWorkStatus implements IConfigDeployStage {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(StageWorkStatus.class);
 
     /**
-     * the max retry time for get workStatus
+     * the max retry time for get workStatus.
      */
     private static final int maxRetry = 30;
 
@@ -40,15 +42,15 @@ public class StageWorkStatus implements IConfigDeployStage{
         String userId = AccessUserUtil.getUserId();
         ApplicationProject project = projectMapper.getProject(userId, config.getProjectId());
         MepHost host = config.getHosts().get(0);
-        String workStatus = HttpClientUtil.
-                getWorkloadStatus(host.getProtocol(), host.getIp(), host.getPort(),
-                        config.getAppInstanceId(), userId, config.getLcmToken());
+        String workStatus = HttpClientUtil
+            .getWorkloadStatus(host.getProtocol(), host.getIp(), host.getPort(), config.getAppInstanceId(), userId,
+                config.getLcmToken());
         if (workStatus == null) {
             // verify retry times
-            if (config.getRetry() > maxRetry){
+            if (config.getRetry() > maxRetry) {
                 config.setErrorLog("Failed to get workloadStatus with appInstanceId:" + config.getAppInstanceId());
-                LOGGER.error("Failed to get workloadStatus after {} times which appInstanceId is : {}",
-                        maxRetry, config.getAppInstanceId());
+                LOGGER.error("Failed to get workloadStatus after {} times which appInstanceId is : {}", maxRetry,
+                    config.getAppInstanceId());
             } else {
                 config.setRetry(config.getRetry() + 1);
                 projectMapper.updateTestConfig(config);
@@ -61,7 +63,7 @@ public class StageWorkStatus implements IConfigDeployStage{
             LOGGER.info("Query workload status response: {}", workStatus);
         }
         // update test-config
-        projectService.updateDeployResult(config, project,"workStatus", status);
+        projectService.updateDeployResult(config, project, "workStatus", status);
         return processStatus;
     }
 

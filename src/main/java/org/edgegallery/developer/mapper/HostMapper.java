@@ -17,7 +17,6 @@
 package org.edgegallery.developer.mapper;
 
 import java.util.List;
-
 import org.edgegallery.developer.model.workspace.EnumHostStatus;
 import org.edgegallery.developer.model.workspace.MepHost;
 

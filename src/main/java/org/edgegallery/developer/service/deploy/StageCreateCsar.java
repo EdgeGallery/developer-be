@@ -1,5 +1,6 @@
 package org.edgegallery.developer.service.deploy;
 
+import javax.annotation.Resource;
 import org.edgegallery.developer.mapper.ProjectMapper;
 import org.edgegallery.developer.model.workspace.ApplicationProject;
 import org.edgegallery.developer.model.workspace.EnumTestConfigStatus;
@@ -10,10 +11,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-
-import javax.annotation.Resource;
-
 /**
+ * StageCreateCsar.
+ *
  * @author chenhui
  */
 @Service("csar_service")
@@ -46,9 +46,9 @@ public class StageCreateCsar implements IConfigDeployStage {
             config.setErrorLog("Deploying on csar failed:" + e.getMessage());
             LOGGER.error("Deploying with test id:{} on csar failed:{}", config.getTestId(), e.getMessage());
         } finally {
-            projectService.updateDeployResult(config, project,"csar", csarStatus);
+            projectService.updateDeployResult(config, project, "csar", csarStatus);
         }
-        return processSuccess == true?stageService.execute(config):processSuccess;
+        return processSuccess == true ? stageService.execute(config) : processSuccess;
     }
 
     @Override

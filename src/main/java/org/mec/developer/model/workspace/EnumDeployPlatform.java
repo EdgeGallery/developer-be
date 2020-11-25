@@ -17,8 +17,9 @@
 package org.mec.developer.model.workspace;
 
 /**
+ * The platform for deploy.
+ *
  * @author chenhui
- * The platform for deploy
  */
 
 public enum EnumDeployPlatform {

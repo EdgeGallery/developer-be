@@ -34,6 +34,7 @@ import org.edgegallery.developer.model.workspace.EnumOpenMepType;
 import org.edgegallery.developer.model.workspace.EnumProjectImage;
 import org.edgegallery.developer.model.workspace.EnumProjectStatus;
 import org.edgegallery.developer.model.workspace.EnumProjectType;
+import org.edgegallery.developer.model.workspace.EnumTestConfigDeployStatus;
 import org.edgegallery.developer.model.workspace.EnumTestStatus;
 import org.edgegallery.developer.model.workspace.MepAgentConfig;
 import org.edgegallery.developer.model.workspace.MepHost;
@@ -159,7 +160,7 @@ public class CreateProjectTest {
         ResultActions result = mvc.perform(
             MockMvcRequestBuilders.post("/mec/developer/v1/projects/?userId=" + userId).with(csrf())
                 .content(gson.toJson(project)).contentType(MediaType.APPLICATION_JSON_UTF8)
-                .accept(MediaType.APPLICATION_JSON_UTF8)).andExpect(MockMvcResultMatchers.status().isOk());
+                .accept(MediaType.APPLICATION_JSON_UTF8)).andExpect(MockMvcResultMatchers.status().is5xxServerError());
     }
 
     private ApplicationProject createNewProject() throws Exception {
@@ -198,7 +199,7 @@ public class CreateProjectTest {
         ResultActions result = mvc.perform(
             MockMvcRequestBuilders.post("/mec/developer/v1/projects/?userId=" + userId).with(csrf())
                 .content(gson.toJson(project)).contentType(MediaType.APPLICATION_JSON_UTF8)
-                .accept(MediaType.APPLICATION_JSON_UTF8)).andExpect(MockMvcResultMatchers.status().isOk());
+                .accept(MediaType.APPLICATION_JSON_UTF8)).andExpect(MockMvcResultMatchers.status().is5xxServerError());
         return gson.fromJson(result.andReturn().getResponse().getContentAsString(), ApplicationProject.class);
     }
 
@@ -244,7 +245,7 @@ public class CreateProjectTest {
         request.content(gson.toJson(test));
         request.accept(MediaType.APPLICATION_JSON);
         request.contentType(MediaType.APPLICATION_JSON);
-        mvc.perform(request).andDo(MockMvcResultHandlers.print()).andExpect(MockMvcResultMatchers.status().isOk());
+        mvc.perform(request).andDo(MockMvcResultHandlers.print()).andExpect(MockMvcResultMatchers.status().is4xxClientError());
     }
 
     @Test
@@ -468,13 +469,15 @@ public class CreateProjectTest {
         test.setAppApiFileId(apiFile.getFileId());
 
         test.setAppInstanceId("app-instance-id");
+        // test.setDeployStatus(EnumTestConfigDeployStatus.NOTDEPLOY);
+
         String url = String.format("/mec/developer/v1/projects/%s/test-config?userId=%s", projectId, userId);
         MockHttpServletRequestBuilder request = MockMvcRequestBuilders.post(url).with(csrf());
         request.content(gson.toJson(test));
         request.accept(MediaType.APPLICATION_JSON);
         request.contentType(MediaType.APPLICATION_JSON);
         mvc.perform(request).andDo(MockMvcResultHandlers.print())
-            .andExpect(MockMvcResultMatchers.status().isBadRequest());
+            .andExpect(MockMvcResultMatchers.status().is4xxClientError());
 
         this.deleteTempFile(apiFile);
     }
