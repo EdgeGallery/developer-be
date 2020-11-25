@@ -203,7 +203,9 @@ public class UploadedFilesController {
         }
     }
 
-
+    /**
+     * get sdk code.
+     */
     @ApiOperation(value = "get sdk code", response = File.class)
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "OK", response = File.class),
@@ -213,13 +215,12 @@ public class UploadedFilesController {
             produces = MediaType.APPLICATION_OCTET_STREAM_VALUE
             )
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_GUEST')")
-    public ResponseEntity<byte[]> getSDKProject(
+    public ResponseEntity<byte[]> getSdkProject(
             @Pattern(regexp = REGEX_UUID, message = "fileId must be in UUID format")
             @ApiParam(value = "fileId", required = true) @PathVariable("fileId") String fileId,
             @Pattern(regexp = REGEX_UUID, message = "lan must be in UUID format")
-            @ApiParam(value = "lan", required = true) @PathVariable("lan") String lan
-           )throws IOException {
-        Either<FormatRespDto, ResponseEntity<byte[]>> either = uploadFileService.getSDKProject(fileId,lan);
+            @ApiParam(value = "lan", required = true) @PathVariable("lan") String lan)throws IOException {
+        Either<FormatRespDto, ResponseEntity<byte[]>> either = uploadFileService.getSdkProject(fileId,lan);
         if (either.isRight()) {
             return either.getRight();
         } else {

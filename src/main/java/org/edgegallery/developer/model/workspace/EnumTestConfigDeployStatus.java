@@ -17,6 +17,7 @@
 package org.edgegallery.developer.model.workspace;
 
 /**
+ * EnumTestConfigDeployStatus.
  * @author chenhui
  */
 public enum EnumTestConfigDeployStatus {

@@ -187,8 +187,7 @@ public class MepCapabilityController {
         produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_GUEST')")
     public ResponseEntity<OpenMepApiResponse> getOpenMepApi(
-        @ApiParam(value = "type", required = true) @PathVariable("type")
-        @Pattern(regexp = REG_UUID) String type ) {
+        @ApiParam(value = "type", required = true) @PathVariable("type") @Pattern(regexp = REG_UUID) String type) {
         Either<FormatRespDto, OpenMepApiResponse> either = openService.getOpenMepList(type);
         return ResponseDataUtil.buildResponse(either);
     }

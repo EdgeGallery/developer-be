@@ -13,21 +13,26 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
+
 package org.edgegallery.developer.util;
 
-import org.edgegallery.developer.model.GeneralConfig;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.commons.lang3.StringUtils;
+import org.edgegallery.developer.model.GeneralConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
-
 public class RuntimeUtil {
     private static final Logger LOGGER = LoggerFactory.getLogger(HttpClientUtil.class);
-    
 
+    /**
+     * execCommand.
+     */
     public static String execCommand(List<String> cmd) throws IOException {
         StringBuilder builder = new StringBuilder();
         ProcessBuilder pb = new ProcessBuilder(cmd);
@@ -65,8 +70,9 @@ public class RuntimeUtil {
         return builder.toString();
     }
 
-
-
+    /**
+     * readInputstream.
+     */
     public static String readInputstream(InputStream in) throws Exception {
         InputStream inputStream = in;
         InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
@@ -78,7 +84,11 @@ public class RuntimeUtil {
         }
         return sb.toString();
     }
-    public static List<String> buildCommand(String lan,GeneralConfig config) {
+
+    /**
+     * buildCommand.
+     */
+    public static List<String> buildCommand(String lan, GeneralConfig config) {
         List<String> command = new ArrayList<String>();
         command.add("java");
         command.add("-jar");
@@ -89,13 +99,12 @@ public class RuntimeUtil {
         command.add("-l");
         command.add(lan);
         command.add("-o");
-        command.add("/usr/app"+config.getOutput()+config.getProjectName());
-
+        command.add("/usr/app" + config.getOutput() + config.getProjectName());
 
         //根据不同语言不同配置
-        switch (lan){
+        switch (lan) {
             case "java":
-                buildJavaCommand(command,config);
+                buildJavaCommand(command, config);
                 break;
             case "go":
                 break;
@@ -106,7 +115,10 @@ public class RuntimeUtil {
         return command;
     }
 
-    public static void buildJavaCommand(List<String> command,GeneralConfig config){
+    /**
+     * buildJavaCommand.
+     */
+    public static void buildJavaCommand(List<String> command, GeneralConfig config) {
         command.add("--api-package");
         command.add(config.getApiPackage());
         command.add("--invoker-package");
@@ -122,6 +134,5 @@ public class RuntimeUtil {
         command.add("--group-id");
         command.add(config.getGroupId());
     }
-
 
 }

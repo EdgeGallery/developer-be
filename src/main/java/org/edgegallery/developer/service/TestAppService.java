@@ -90,7 +90,7 @@ public class TestAppService {
         } catch (IllegalStateException | IOException e) {
             LOGGER.error("upload app or it's logo file,occur {}", e.getMessage());
             return Either.left(new FormatRespDto(Response.Status.INTERNAL_SERVER_ERROR,
-                    Consts.RESPONSE_MESSAGE_INTERNAL_SERVER_ERROR));
+                Consts.RESPONSE_MESSAGE_INTERNAL_SERVER_ERROR));
 
         }
         return addApp(app);
@@ -130,7 +130,7 @@ public class TestAppService {
         } catch (PersistenceException e) {
             LOGGER.error("upload app occur exception", e.getMessage());
             return Either.left(new FormatRespDto(Response.Status.INTERNAL_SERVER_ERROR,
-                    Consts.RESPONSE_MESSAGE_INTERNAL_SERVER_ERROR));
+                Consts.RESPONSE_MESSAGE_INTERNAL_SERVER_ERROR));
         }
     }
 
@@ -163,7 +163,7 @@ public class TestAppService {
         } catch (PersistenceException e) {
             LOGGER.error("query test task,occur exception", e.getMessage());
             return Either.left(new FormatRespDto(Response.Status.INTERNAL_SERVER_ERROR,
-                    Consts.RESPONSE_MESSAGE_INTERNAL_SERVER_ERROR));
+                Consts.RESPONSE_MESSAGE_INTERNAL_SERVER_ERROR));
         }
     }
 
@@ -181,7 +181,7 @@ public class TestAppService {
         } catch (PersistenceException e) {
             LOGGER.error("get app tag list,occur exception", e.getMessage());
             return Either.left(new FormatRespDto(Response.Status.INTERNAL_SERVER_ERROR,
-                    Consts.RESPONSE_MESSAGE_INTERNAL_SERVER_ERROR));
+                Consts.RESPONSE_MESSAGE_INTERNAL_SERVER_ERROR));
         }
     }
 
@@ -211,7 +211,7 @@ public class TestAppService {
         } catch (PersistenceException e) {
             LOGGER.error("upload app to appstore with error", e.getMessage());
             return Either.left(new FormatRespDto(Response.Status.INTERNAL_SERVER_ERROR,
-                    Consts.RESPONSE_MESSAGE_INTERNAL_SERVER_ERROR));
+                Consts.RESPONSE_MESSAGE_INTERNAL_SERVER_ERROR));
         }
     }
 

@@ -212,6 +212,9 @@ CREATE TABLE IF NOT EXISTS tbl_project_test_config (
   hosts varchar(255)  DEFAULT NULL,
   app_instance_id varchar(50)  DEFAULT NULL,
   work_load_id varchar(255)  DEFAULT NULL,
+  pods varchar(255)  DEFAULT NULL,
+  deploy_status varchar(255)  DEFAULT NULL,
+  stage_status  varchar(255)  DEFAULT NULL,
   CONSTRAINT tbl_project_test_config_pkey PRIMARY KEY (test_id)
 )
 ;

@@ -22,7 +22,11 @@ import com.spencerwi.either.Either;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Type;
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import javax.ws.rs.core.Response.Status;
 import org.apache.commons.lang3.StringUtils;
 import org.edgegallery.developer.common.Consts;
@@ -31,7 +35,19 @@ import org.edgegallery.developer.mapper.HelmTemplateYamlMapper;
 import org.edgegallery.developer.mapper.OpenMepCapabilityMapper;
 import org.edgegallery.developer.mapper.ProjectMapper;
 import org.edgegallery.developer.mapper.UploadedFileMapper;
-import org.edgegallery.developer.model.workspace.*;
+import org.edgegallery.developer.model.workspace.ApplicationProject;
+import org.edgegallery.developer.model.workspace.EnumOpenMepType;
+import org.edgegallery.developer.model.workspace.EnumProjectStatus;
+import org.edgegallery.developer.model.workspace.EnumTestConfigDeployStatus;
+import org.edgegallery.developer.model.workspace.EnumTestConfigStatus;
+import org.edgegallery.developer.model.workspace.HelmTemplateYamlPo;
+import org.edgegallery.developer.model.workspace.MepHost;
+import org.edgegallery.developer.model.workspace.OpenMepCapabilityDetail;
+import org.edgegallery.developer.model.workspace.OpenMepCapabilityGroup;
+import org.edgegallery.developer.model.workspace.ProjectImageConfig;
+import org.edgegallery.developer.model.workspace.ProjectTestConfig;
+import org.edgegallery.developer.model.workspace.ProjectTestConfigStageStatus;
+import org.edgegallery.developer.model.workspace.UploadedFile;
 import org.edgegallery.developer.response.FormatRespDto;
 import org.edgegallery.developer.response.ProjectImageResponse;
 import org.edgegallery.developer.service.csar.CreateCsarFromTemplate;
@@ -277,33 +293,38 @@ public class ProjectService {
     /**
      * processDeploy.
      * task job for scheduler
+     *
      * @return
      */
-    public void processDeploy(){
+    public void processDeploy() {
         // get deploying config list from db
-        List<ProjectTestConfig> configList =
-                projectMapper.getTestConfigByDeployStatus(EnumTestConfigDeployStatus.DEPLOYING.toString());
+        List<ProjectTestConfig> configList = projectMapper
+            .getTestConfigByDeployStatus(EnumTestConfigDeployStatus.DEPLOYING.toString());
         if (CollectionUtils.isEmpty(configList)) {
             return;
         }
         configList.forEach(this::processConfig);
     }
 
-    public void processConfig(ProjectTestConfig config){
+    /**
+     * processConfig.
+     */
+    public void processConfig(ProjectTestConfig config) {
         String nextStage = config.getNextStage();
-        if (StringUtils.isBlank(nextStage)){
+        if (StringUtils.isBlank(nextStage)) {
             return;
         }
-        try{
+        try {
             IConfigDeployStage stageService = deployServiceMap.get(nextStage + "_service");
             stageService.execute(config);
-        }catch (Exception e){
-            LOGGER.error("Deploy project config:{} failed on stage :{}.",config.getTestId(), nextStage);
+        } catch (Exception e) {
+            LOGGER.error("Deploy project config:{} failed on stage :{}.", config.getTestId(), nextStage);
         }
     }
 
     /**
      * terminateProject.
+     *
      * @return
      */
     public Either<FormatRespDto, Boolean> terminateProject(String userId, String projectId, String token) {
@@ -312,16 +333,20 @@ public class ProjectService {
             LOGGER.info("This project has not test config, do not terminate.");
             return Either.right(true);
         }
-        if (!EnumTestConfigStatus.Success.equals(testConfig.getStageStatus().getInstantiateInfo()) || testConfig.getWorkLoadId() == null) {
+        if (!EnumTestConfigStatus.Success.equals(testConfig.getStageStatus().getInstantiateInfo())
+            || testConfig.getWorkLoadId() == null) {
             LOGGER.error("Failed to terminate application when instantiateInfo not success.");
-            FormatRespDto error = new FormatRespDto(Status.INTERNAL_SERVER_ERROR, "Failed to terminate application when instantiateInfo not success.");
+            FormatRespDto error = new FormatRespDto(Status.INTERNAL_SERVER_ERROR,
+                "Failed to terminate application when instantiateInfo not success.");
             return Either.left(error);
         }
         MepHost host = testConfig.getHosts().get(0);
         boolean terminateResult = HttpClientUtil
-                .terminateAppInstance(host.getProtocol(), host.getIp(), host.getPort(), testConfig.getAppInstanceId(), userId, token);
+            .terminateAppInstance(host.getProtocol(), host.getIp(), host.getPort(), testConfig.getAppInstanceId(),
+                userId, token);
         if (!terminateResult) {
-            LOGGER.error("Failed to terminate application which userId is: {}, instanceId is {}", userId, testConfig.getAppInstanceId());
+            LOGGER.error("Failed to terminate application which userId is: {}, instanceId is {}", userId,
+                testConfig.getAppInstanceId());
             FormatRespDto error = new FormatRespDto(Status.INTERNAL_SERVER_ERROR, "Failed to terminate application.");
             return Either.left(error);
         }
@@ -333,6 +358,7 @@ public class ProjectService {
 
     /**
      * deployProject.
+     *
      * @return
      */
     public Either<FormatRespDto, ApplicationProject> deployProject(String userId, String projectId, String token) {
@@ -346,7 +372,8 @@ public class ProjectService {
         // only one test-config for each project
         ProjectTestConfig testConfig = testConfigList.get(0);
         // check status
-        if (testConfig.getDeployStatus() != null && !(EnumTestConfigDeployStatus.NOTDEPLOY).equals(testConfig.getDeployStatus())){
+        if (testConfig.getDeployStatus() != null && !(EnumTestConfigDeployStatus.NOTDEPLOY)
+            .equals(testConfig.getDeployStatus())) {
             // not ready
             LOGGER.error("The test config not ready with status:{}", testConfig.getDeployStatus());
             FormatRespDto error = new FormatRespDto(Status.INTERNAL_SERVER_ERROR, "The test config not ready.");
@@ -376,10 +403,13 @@ public class ProjectService {
         return Either.right(projectMapper.getProject(userId, projectId));
     }
 
+    /**
+     * createCsarPkg.
+     */
     public File createCsarPkg(String userId, ApplicationProject project, ProjectTestConfig testConfig)
         throws IOException {
         String projectId = project.getId();
-        List<OpenMepCapabilityGroup>  mepCapability = project.getCapabilityList();
+        List<OpenMepCapabilityGroup> mepCapability = project.getCapabilityList();
         String projectPath = getProjectPath(projectId);
 
         String projectName = project.getName().replaceAll(Consts.PATTERN, "").toLowerCase();
@@ -389,10 +419,10 @@ public class ProjectService {
             // create chart file
             ChartFileCreator chartFileCreator = new ChartFileCreator();
             chartFileCreator.setChartName(projectName);
-            if (mepCapability==null || mepCapability.size()==0) {
-                chartFileCreator.setChartValues("false","false","default");
+            if (mepCapability == null || mepCapability.size() == 0) {
+                chartFileCreator.setChartValues("false", "false", "default");
             }
-            chartFileCreator.setChartValues("true","false","default");
+            chartFileCreator.setChartValues("true", "false", "default");
             //stop
             yamlPoList.forEach(helmTemplateYamlPo -> chartFileCreator
                 .addTemplateYaml(helmTemplateYamlPo.getFileName(), helmTemplateYamlPo.getContent()));
@@ -405,24 +435,24 @@ public class ProjectService {
         }
         return CompressFileUtilsJava
             .compressToCsarAndDeleteSrc(csarPkgDir.getCanonicalPath(), projectPath, csarPkgDir.getName());
-        }
-
+    }
 
     /**
      * deplay test config and csar package to appLcm.
+     *
      * @return
      */
-    public boolean deployTestConfigToAppLcm(File csar, ApplicationProject project, ProjectTestConfig testConfig, String userId,
-                                         String token) {
+    public boolean deployTestConfigToAppLcm(File csar, ApplicationProject project, ProjectTestConfig testConfig,
+        String userId, String token) {
         String appInstanceId = testConfig.getAppInstanceId();
         Type type = new TypeToken<List<MepHost>>() { }.getType();
         List<MepHost> hosts = gson.fromJson(gson.toJson(testConfig.getHosts()), type);
         MepHost host = hosts.get(0);
         // Note(ch) only ip?
-        testConfig.setAccessUrl( "http://" + host.getIp());
+        testConfig.setAccessUrl("http://" + host.getIp());
         return HttpClientUtil
-                .instantiateApplication(host.getProtocol(), host.getIp(), host.getPort(), csar.getPath(), appInstanceId,
-                        userId, token);
+            .instantiateApplication(host.getProtocol(), host.getIp(), host.getPort(), csar.getPath(), appInstanceId,
+                userId, token);
     }
 
     /**
@@ -761,11 +791,12 @@ public class ProjectService {
 
     /**
      * updateDeployResult.
+     *
      * @return
      */
     @Transactional
-    public void updateDeployResult(ProjectTestConfig testConfig, ApplicationProject project,
-                                   String stage, EnumTestConfigStatus stageStatus) {
+    public void updateDeployResult(ProjectTestConfig testConfig, ApplicationProject project, String stage,
+        EnumTestConfigStatus stageStatus) {
         LOGGER.info("Update deploy test on stage:{} status: {}", stage, stageStatus);
         // update test config always && update product if necessary
         switch (stage) {
@@ -791,13 +822,13 @@ public class ProjectService {
             project.setStatus(EnumProjectStatus.DEPLOYED);
             testConfig.setDeployStatus(EnumTestConfigDeployStatus.SUCCESS);
             testConfig.setDeployDate(new Date());
-        } else if (EnumTestConfigStatus.Failed.equals(stageStatus)){
+        } else if (EnumTestConfigStatus.Failed.equals(stageStatus)) {
             productUpdate = true;
             project.setStatus(EnumProjectStatus.DEPLOYED_FAILED);
             testConfig.setDeployStatus(EnumTestConfigDeployStatus.FAILED);
         }
         // update status if necessary
-        if (productUpdate == true){
+        if (productUpdate == true) {
             int res = projectMapper.updateProject(project);
             if (res < 1) {
                 LOGGER.error("Update project {} error.", project.getId());
@@ -827,6 +858,6 @@ public class ProjectService {
         List<MepHost> hosts = gson.fromJson(gson.toJson(testConfig.getHosts()), type);
         MepHost host = hosts.get(0);
         return HttpClientUtil
-                .terminateAppInstance(host.getProtocol(), host.getIp(), host.getPort(), workloadId, userId, token);
+            .terminateAppInstance(host.getProtocol(), host.getIp(), host.getPort(), workloadId, userId, token);
     }
 }

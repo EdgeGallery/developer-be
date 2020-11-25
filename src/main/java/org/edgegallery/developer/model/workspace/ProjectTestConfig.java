@@ -31,77 +31,77 @@ import org.mec.developer.model.workspace.EnumDeployPlatform;
 public class ProjectTestConfig {
 
     /**
-     * the uniqueId for ProjectTestConfig
+     * the uniqueId for ProjectTestConfig.
      */
     private String testId;
 
     /**
-     * projectId
+     * projectId.
      */
     private String projectId;
 
     /**
-     * the platform where deploy
+     * the platform where deploy.
      */
     private EnumDeployPlatform platform;
 
     /**
-     * the id of deploy file
+     * the id of deploy file.
      */
     private String deployFileId;
 
     /**
-     * if privateHost is true, deploy project with local mep host
+     * if privateHost is true, deploy project with local mep host.
      */
     private boolean privateHost;
 
     /**
-     * the pod list from mep after exec deploy job
+     * the pod list from mep after exec deploy job.
      */
     private List<String> pods = new ArrayList<>();
 
     /**
-     * the deploy status for this test_config
+     * the deploy status for this test_config.
      */
     private EnumTestConfigDeployStatus deployStatus;
 
     /**
-     * the exec stage status under deploying
+     * the exec stage status under deploying.
      */
     private ProjectTestConfigStageStatus stageStatus;
 
     /**
-     * the mep host list for deploy
+     * the mep host list for deploy.
      */
     private List<MepHost> hosts;
 
     /**
-     * create errorLog when deploying
+     * create errorLog when deploying.
      */
     private String errorLog;
 
     /**
-     * get workLoadId at deploying stage: workStatus
+     * get workLoadId at deploying stage: workStatus.
      */
     private String workLoadId;
 
     /**
-     * get appInstanceId at deploying stage:instantiateInfo
+     * get appInstanceId at deploying stage:instantiateInfo.
      */
     private String appInstanceId;
 
     /**
-     * get appInstanceId after deploy success
+     * get appInstanceId after deploy success.
      */
     private Date deployDate;
 
     /**
-     * the tmp token for call lcm
+     * the tmp token for call lcm.
      */
     private String lcmToken;
 
     /**
-     * the number of deploying retry
+     * the number of deploying retry.
      */
     private int retry;
 
@@ -116,24 +116,23 @@ public class ProjectTestConfig {
     private List<CommonImage> otherImages;
 
     /**
-     *  the swagger api file id
+     * the swagger api file id.
      */
     private String appApiFileId;
 
     private String accessUrl;
 
-
     /**
-     *  get next stage for deploy
+     * get next stage for deploy.
      */
-    public String getNextStage(){
-        if (this.getStageStatus() == null || this.getStageStatus().getCsar() == null ){
+    public String getNextStage() {
+        if (this.getStageStatus() == null || this.getStageStatus().getCsar() == null) {
             return "csar";
-        } else if (this.getStageStatus().getHostInfo() == null){
+        } else if (this.getStageStatus().getHostInfo() == null) {
             return "hostInfo";
-        } else if (this.getStageStatus().getInstantiateInfo() ==null){
+        } else if (this.getStageStatus().getInstantiateInfo() == null) {
             return "instantiateInfo";
-        } else if (this.getStageStatus().getWorkStatus() == null){
+        } else if (this.getStageStatus().getWorkStatus() == null) {
             return "workStatus";
         }
         return null;
@@ -150,9 +149,9 @@ public class ProjectTestConfig {
     }
 
     /**
-     * init config if necessary。
+     * init config if necessary.
      */
-    public void initialConfig(){
+    public void initialConfig() {
         this.pods = null;
         this.deployStatus = EnumTestConfigDeployStatus.NOTDEPLOY;
         this.stageStatus = null;

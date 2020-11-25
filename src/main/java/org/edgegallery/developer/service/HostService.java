@@ -20,7 +20,6 @@ import com.spencerwi.either.Either;
 import java.util.List;
 import java.util.UUID;
 import javax.ws.rs.core.Response.Status;
-
 import org.apache.commons.lang3.StringUtils;
 import org.edgegallery.developer.mapper.HostMapper;
 import org.edgegallery.developer.model.workspace.MepHost;
@@ -45,9 +44,9 @@ public class HostService {
      */
     public Either<FormatRespDto, List<MepHost>> getAllHosts(String userId) {
         List<MepHost> list;
-        if (StringUtils.isNoneBlank(userId)){
+        if (StringUtils.isNoneBlank(userId)) {
             list = hostMapper.getHostsByUserId(userId);
-        }else{
+        } else {
             list = hostMapper.getAllHosts();
         }
         LOGGER.info("Get all hosts success.");
@@ -63,7 +62,7 @@ public class HostService {
         host.setHostId(UUID.randomUUID().toString()); // no need to set hostId by user
         int ret = hostMapper.saveHost(host);
         if (ret > 0) {
-            LOGGER.info("Crete host {} success ",host.getHostId());
+            LOGGER.info("Crete host {} success ", host.getHostId());
             return Either.right(hostMapper.getHost(host.getHostId()));
         }
         LOGGER.error("Create host failed ");

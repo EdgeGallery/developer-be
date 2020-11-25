@@ -13,6 +13,7 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
+
 package org.edgegallery.developer.model;
 
 import lombok.Data;
@@ -20,40 +21,36 @@ import lombok.Data;
 @Data
 public class GeneralConfig {
 
-        private String projectName;
+    private String projectName;
 
-        private String inputSpec; //--input-spec
+    private String inputSpec; //--input-spec
 
-        private String apiPackage;
+    private String apiPackage;
 
-        private String invokerPackage;
+    private String invokerPackage;
 
-        private String  modelPackage;
+    private String modelPackage;
 
-        private String  output;
+    private String output;
 
-        /**
-         *Different configuration files can be selected according to different languages
-         */
-        private String config;
+    /**
+     * Different configuration files can be selected according to different languages.
+     */
+    private String config;
 
-        /**
-         * java config
-         */
-        private String artifactId;
-        /**
-         *Specify the version of the artifact of pom.xml;
-         */
-        private String artifactVersion ;
-        /**
-         *Specify the value of groupId in pom.xml;
-         */
-        private String groupId;
+    /**
+     * java config.
+     */
+    private String artifactId;
 
+    /**
+     * Specify the version of the artifact of pom.xml.
+     */
+    private String artifactVersion;
 
-
-
-
-
+    /**
+     * Specify the value of groupId in pom.xml.
+     */
+    private String groupId;
 
 }

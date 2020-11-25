@@ -1,13 +1,14 @@
 package org.edgegallery.developer.model.workspace;
 
 import com.google.common.collect.ImmutableList;
+import java.util.List;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.List;
-
 /**
+ * ProjectTestConfigStageStatus.
+ *
  * @author chenhui
  */
 @Getter
@@ -23,13 +24,15 @@ public class ProjectTestConfigStageStatus {
 
     private EnumTestConfigStatus workStatus;
 
-    public static List<String> getOrderedStage(){
-        return ImmutableList.of("csar","hostInfo","instantiateInfo","workStatus");
+    public static List<String> getOrderedStage() {
+        return ImmutableList.of("csar", "hostInfo", "instantiateInfo", "workStatus");
     }
 
-    public static String getNextStage(String currentStage){
-        if ("workStatus".equalsIgnoreCase(currentStage) ||
-                !getOrderedStage().contains(currentStage)){
+    /**
+     * getNextStage.
+     */
+    public static String getNextStage(String currentStage) {
+        if ("workStatus".equalsIgnoreCase(currentStage) || !getOrderedStage().contains(currentStage)) {
             return null;
         }
         int currentIndex = getOrderedStage().indexOf(currentStage);

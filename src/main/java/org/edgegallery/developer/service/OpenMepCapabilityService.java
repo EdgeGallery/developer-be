@@ -111,7 +111,7 @@ public class OpenMepCapabilityService {
      * @return
      */
     public Either<FormatRespDto, OpenMepCapabilityDetail> createCapability(String groupId,
-                                                                           OpenMepCapabilityDetail capability) {
+        OpenMepCapabilityDetail capability) {
         OpenMepCapabilityGroup group = openMepCapabilityMapper.getGroup(groupId);
         if (group == null) {
             LOGGER.error("Can not find capability by {}", groupId);
@@ -161,7 +161,7 @@ public class OpenMepCapabilityService {
      */
     public Either<FormatRespDto, Boolean> deleteCapabilityByUserId(String capabilityId, String userId) {
         OpenMepCapabilityDetail openMepCapabilityDetail = openMepCapabilityMapper.getDetail(capabilityId);
-        if(!openMepCapabilityDetail.getUserId().equals(userId)) {
+        if (!openMepCapabilityDetail.getUserId().equals(userId)) {
             LOGGER.info("The user is not the owner of the capability");
             return Either.right(true);
         }
@@ -180,7 +180,7 @@ public class OpenMepCapabilityService {
      * @return
      */
     public Either<FormatRespDto, OpenMepApiResponse> getOpenMepList(String type) {
-        List<OpenMepCapabilityGroup>  list = openMepCapabilityMapper.getOpenMepList(type);
+        List<OpenMepCapabilityGroup> list = openMepCapabilityMapper.getOpenMepList(type);
         OpenMepApiResponse res = new OpenMepApiResponse();
         res.setOpenCapability(list);
         return Either.right(res);
