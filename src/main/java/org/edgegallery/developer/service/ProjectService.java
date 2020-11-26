@@ -51,6 +51,7 @@ import org.edgegallery.developer.model.workspace.UploadedFile;
 import org.edgegallery.developer.response.FormatRespDto;
 import org.edgegallery.developer.response.ProjectImageResponse;
 import org.edgegallery.developer.service.csar.CreateCsarFromTemplate;
+import org.edgegallery.developer.service.csar.NewCreateCsar;
 import org.edgegallery.developer.service.dao.ProjectDao;
 import org.edgegallery.developer.service.deploy.IConfigDeployStage;
 import org.edgegallery.developer.template.ChartFileCreator;
@@ -421,17 +422,18 @@ public class ProjectService {
             chartFileCreator.setChartName(projectName);
             if (mepCapability == null || mepCapability.size() == 0) {
                 chartFileCreator.setChartValues("false", "false", "default");
+            } else {
+                chartFileCreator.setChartValues("true", "false", "default");
             }
-            chartFileCreator.setChartValues("true", "false", "default");
             //stop
             yamlPoList.forEach(helmTemplateYamlPo -> chartFileCreator
                 .addTemplateYaml(helmTemplateYamlPo.getFileName(), helmTemplateYamlPo.getContent()));
             String tgzFilePath = chartFileCreator.build();
 
             // create csar file directory
-            csarPkgDir = new CreateCsarFromTemplate().create(projectPath, testConfig, project, new File(tgzFilePath));
+            csarPkgDir = new NewCreateCsar().create(projectPath, testConfig, project, new File(tgzFilePath));
         } else {
-            csarPkgDir = new CreateCsarFromTemplate().create(projectPath, testConfig, project, null);
+            csarPkgDir = new NewCreateCsar().create(projectPath, testConfig, project, null);
         }
         return CompressFileUtilsJava
             .compressToCsarAndDeleteSrc(csarPkgDir.getCanonicalPath(), projectPath, csarPkgDir.getName());
