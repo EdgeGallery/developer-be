@@ -57,6 +57,7 @@
                 typeHandler="org.edgegallery.developer.model.handler.JsonCollectionTypeHandler"/>
         <result property="workLoadId" column="work_load_id"/>
         <result property="appInstanceId" column="app_instance_id"/>
+        <result property="lcmToken" column="lcm_token"/>
     </resultMap>
 
     <resultMap id="ImageConfigMap" type="org.edgegallery.developer.model.workspace.ProjectImageConfig">
@@ -188,7 +189,7 @@
         hosts = #{hosts, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonCollectionTypeHandler},
         stage_status = #{stageStatus, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonTypeHandler}, access_url = #{accessUrl}, error_log = #{errorLog}, deploy_date = #{deployDate},
         pods = #{pods, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonCollectionTypeHandler},
-        app_instance_id = #{appInstanceId}, work_load_id = #{workLoadId}, deploy_status = #{deployStatus}
+        app_instance_id = #{appInstanceId}, work_load_id = #{workLoadId}, deploy_status = #{deployStatus}, lcm_token = #{lcmToken}
         WHERE
         test_id = #{testId}
     </update>
