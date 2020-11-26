@@ -1,6 +1,8 @@
 package org.edgegallery.developer.service.deploy;
 
 import java.io.File;
+import java.util.Date;
+
 import org.edgegallery.developer.config.security.AccessUserUtil;
 import org.edgegallery.developer.mapper.ProjectMapper;
 import org.edgegallery.developer.model.workspace.ApplicationProject;
@@ -31,32 +33,33 @@ public class StageInstantiate implements IConfigDeployStage {
     @Override
     public boolean execute(ProjectTestConfig config) {
         boolean processSuccess = false;
+        boolean instantiateAppResult;
         String userId = AccessUserUtil.getUserId();
         ApplicationProject project = projectMapper.getProject(userId, config.getProjectId());
         EnumTestConfigStatus instantiateStatus = EnumTestConfigStatus.Failed;
-        File csar = null;
+        File csar;
         try {
             csar = new File(projectService.getProjectPath(config.getProjectId()));
-        } catch (Exception e) {
-            // cannot find csar file
-            config.setErrorLog("Cannot find csar file: " + projectService.getProjectPath(config.getProjectId()));
-            LOGGER.error("Cannot find csar file: {}.", projectService.getProjectPath(config.getProjectId()));
-        }
-        if (csar != null) {
-            boolean instantiateAppResult = projectService
-                .deployTestConfigToAppLcm(csar, project, config, userId, config.getLcmToken());
+            instantiateAppResult = projectService
+                    .deployTestConfigToAppLcm(csar, project, config, userId, config.getLcmToken());
             if (!instantiateAppResult) {
                 // deploy failed
                 config.setErrorLog("Failed to instantiate app which appInstanceId is: " + config.getAppInstanceId());
                 LOGGER.error("Failed to instantiate app which appInstanceId is : {}.", config.getAppInstanceId());
+            } else {
+                // update status when instantiate success
+                config.setAppInstanceId(config.getAppInstanceId());
+                config.setWorkLoadId(config.getAppInstanceId());
+                config.setDeployDate(new Date());
+                processSuccess = true;
+                instantiateStatus = EnumTestConfigStatus.Success;
             }
-            // update status
-            config.setAppInstanceId(config.getAppInstanceId());
-            config.setWorkLoadId(config.getAppInstanceId());
-            processSuccess = true;
-            instantiateStatus = EnumTestConfigStatus.Success;
+        } catch (Exception e) {
+            config.setErrorLog("Failed to instantiate app with err:" + e.getMessage());
+            LOGGER.error("Failed to instantiate app with err: {}.", e.getMessage());
+        } finally {
+            projectService.updateDeployResult(config, project, "instantiateInfo", instantiateStatus);
         }
-        projectService.updateDeployResult(config, project, "instantiateInfo", instantiateStatus);
         return processSuccess;
     }
 

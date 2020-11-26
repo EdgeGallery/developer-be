@@ -821,7 +821,6 @@ public class ProjectService {
             productUpdate = true;
             project.setStatus(EnumProjectStatus.DEPLOYED);
             testConfig.setDeployStatus(EnumTestConfigDeployStatus.SUCCESS);
-            testConfig.setDeployDate(new Date());
         } else if (EnumTestConfigStatus.Failed.equals(stageStatus)) {
             productUpdate = true;
             project.setStatus(EnumProjectStatus.DEPLOYED_FAILED);
@@ -841,7 +840,6 @@ public class ProjectService {
         }
         // delete resource after deploying failed
         if (EnumTestConfigStatus.Failed.equals(stageStatus) && testConfig.getWorkLoadId() != null) {
-            // TODO(ch) get userI from thread?
             deleteDeployApp(testConfig, AccessUserUtil.getUserId(), testConfig.getLcmToken());
             LOGGER.warn("Deploy failed, delete deploy app.");
         }
