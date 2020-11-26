@@ -100,11 +100,6 @@ public class ProjectTestConfig {
      */
     private String lcmToken;
 
-    /**
-     * the number of deploying retry.
-     */
-    private int retry;
-
     // yaml config
     private MepAgentConfig agentConfig;
 
@@ -161,7 +156,6 @@ public class ProjectTestConfig {
         this.accessUrl = null;
         this.deployDate = null;
         this.errorLog = null;
-        this.retry = 0;
     }
 
     /**

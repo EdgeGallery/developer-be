@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+
 /**
  * StageWorkStatus.
  *
@@ -25,9 +26,9 @@ public class StageWorkStatus implements IConfigDeployStage {
     private static final Logger LOGGER = LoggerFactory.getLogger(StageWorkStatus.class);
 
     /**
-     * the max retry time for get workStatus.
+     * the max time for wait workStatus.
      */
-    private static final int maxRetry = 30;
+    private static final Long MAX_SECONDS = 3600L;
 
     @Autowired
     private ProjectService projectService;
@@ -46,14 +47,13 @@ public class StageWorkStatus implements IConfigDeployStage {
             .getWorkloadStatus(host.getProtocol(), host.getIp(), host.getPort(), config.getAppInstanceId(), userId,
                 config.getLcmToken());
         if (workStatus == null) {
-            // verify retry times
-            if (config.getRetry() > maxRetry) {
+            // compare time between now and deployDate
+            if (config.getDeployDate() == null ||
+                    (System.currentTimeMillis() - config.getDeployDate().getTime()) > MAX_SECONDS * 1000) {
                 config.setErrorLog("Failed to get workloadStatus with appInstanceId:" + config.getAppInstanceId());
-                LOGGER.error("Failed to get workloadStatus after {} times which appInstanceId is : {}", maxRetry,
+                LOGGER.error("Failed to get workloadStatus after wait {} seconds which appInstanceId is : {}", MAX_SECONDS,
                     config.getAppInstanceId());
             } else {
-                config.setRetry(config.getRetry() + 1);
-                projectMapper.updateTestConfig(config);
                 return true;
             }
         } else {
