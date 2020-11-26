@@ -34,12 +34,13 @@ public class StageInstantiate implements IConfigDeployStage {
     public boolean execute(ProjectTestConfig config) {
         boolean processSuccess = false;
         boolean instantiateAppResult;
-        String userId = AccessUserUtil.getUserId();
-        ApplicationProject project = projectMapper.getProject(userId, config.getProjectId());
+
+        ApplicationProject project = projectMapper.getProjectById(config.getProjectId());
+        String userId = project.getUserId();
         EnumTestConfigStatus instantiateStatus = EnumTestConfigStatus.Failed;
         File csar;
         try {
-            csar = new File(projectService.getProjectPath(config.getProjectId()));
+            csar = new File(projectService.getProjectPath(config.getProjectId()) + config.getAppInstanceId() + ".csar");
             instantiateAppResult = projectService
                     .deployTestConfigToAppLcm(csar, project, config, userId, config.getLcmToken());
             if (!instantiateAppResult) {

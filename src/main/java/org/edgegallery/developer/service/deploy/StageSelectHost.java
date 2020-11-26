@@ -42,8 +42,7 @@ public class StageSelectHost implements IConfigDeployStage {
     @Override
     public boolean execute(ProjectTestConfig config) throws InterruptedException {
         boolean processSuccess = false;
-        String userId = AccessUserUtil.getUserId();
-        ApplicationProject project = projectMapper.getProject(userId, config.getProjectId());
+        ApplicationProject project = projectMapper.getProjectById(config.getProjectId());
         EnumTestConfigStatus hostStatus = EnumTestConfigStatus.Failed;
         if (config.isPrivateHost()) {
             hostStatus = EnumTestConfigStatus.Success;

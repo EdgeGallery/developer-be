@@ -40,8 +40,9 @@ public class StageWorkStatus implements IConfigDeployStage {
     public boolean execute(ProjectTestConfig config) throws InterruptedException {
         boolean processStatus = false;
         EnumTestConfigStatus status = EnumTestConfigStatus.Failed;
-        String userId = AccessUserUtil.getUserId();
-        ApplicationProject project = projectMapper.getProject(userId, config.getProjectId());
+
+        ApplicationProject project = projectMapper.getProjectById(config.getProjectId());
+        String userId = project.getUserId();
         MepHost host = config.getHosts().get(0);
         String workStatus = HttpClientUtil
             .getWorkloadStatus(host.getProtocol(), host.getIp(), host.getPort(), config.getAppInstanceId(), userId,
