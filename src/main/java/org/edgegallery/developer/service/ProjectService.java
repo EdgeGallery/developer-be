@@ -354,6 +354,7 @@ public class ProjectService {
             return Either.left(error);
         }
         // update config status
+        testConfig.setErrorLog("The test has been completed and the application is terminated.");
         testConfig.setDeployStatus(EnumTestConfigDeployStatus.TERMINATE);
         projectMapper.updateTestConfig(testConfig);
         return Either.right(true);
@@ -774,6 +775,11 @@ public class ProjectService {
             LOGGER.info("This project has no config, do not need to clean env.");
             return Either.right(true);
         }
+        
+        if (testConfig.getDeployStatus().equals(EnumTestConfigDeployStatus.SUCCESS)) {
+            deleteDeployApp(testConfig, AccessUserUtil.getUserId(), testConfig.getLcmToken());
+            LOGGER.warn("Deploy failed, delete deploy app.");
+        }
         // init project and config
         testConfig.initialConfig();
         project.initialProject();
@@ -824,6 +830,7 @@ public class ProjectService {
         if (EnumTestConfigStatus.Success.equals(stageStatus) && "workStatus".equalsIgnoreCase(stage)) {
             productUpdate = true;
             project.setStatus(EnumProjectStatus.DEPLOYED);
+            testConfig.setErrorLog("Your application can be integrated by EdgeGallery platform, please test the APP");
             testConfig.setDeployStatus(EnumTestConfigDeployStatus.SUCCESS);
         } else if (EnumTestConfigStatus.Failed.equals(stageStatus)) {
             productUpdate = true;
