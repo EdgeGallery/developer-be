@@ -121,7 +121,7 @@ public final class HttpClientUtil {
             return null;
         }
         if (response.getStatusCode() == HttpStatus.OK) {
-            return response.toString();
+            return response.getBody();
         }
         LOGGER.error("Failed to get workload status which appInstanceId is {}", appInstanceId);
         return null;
