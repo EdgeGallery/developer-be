@@ -13,7 +13,7 @@ import org.edgegallery.developer.util.DeveloperFileUtils;
 
 public class NewCreateCsar {
 
-    private static final String simpleFiles = "/app-name.mf";
+    private static final String simpleFiles = "/positioning-service.mf";
 
     private static final String WORKSPACE_CSAR_PATH = "./configs/new_csar";
 
