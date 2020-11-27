@@ -433,7 +433,7 @@ public class UploadFileService {
             return Either.left(new FormatRespDto(Status.INTERNAL_SERVER_ERROR, "Failed to delete helm template yaml"));
         }
         LOGGER.info("Succeed to delete helm template yaml with file id : {}", fileId);
-        return Either.right("Failed to delete helm template yaml");
+        return Either.right("Delete helm template yaml success");
     }
 
     /**
