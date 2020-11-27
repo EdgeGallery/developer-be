@@ -188,7 +188,7 @@
         app_api_file_id = #{appApiFileId}, deploy_file_id = #{deployFileId}, private_host = #{privateHost}, platform = #{platform},
         hosts = #{hosts, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonCollectionTypeHandler},
         stage_status = #{stageStatus, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonTypeHandler}, access_url = #{accessUrl}, error_log = #{errorLog}, deploy_date = #{deployDate},
-        pods = #{pods, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonCollectionTypeHandler},
+        pods = #{pods},
         app_instance_id = #{appInstanceId}, work_load_id = #{workLoadId}, deploy_status = #{deployStatus}, lcm_token = #{lcmToken}
         WHERE
         test_id = #{testId}
