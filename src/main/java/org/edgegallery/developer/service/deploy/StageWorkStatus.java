@@ -50,7 +50,7 @@ public class StageWorkStatus implements IConfigDeployStage {
         if (workStatus == null) {
             // compare time between now and deployDate
             if (config.getDeployDate() == null ||
-                    (System.currentTimeMillis() - config.getDeployDate().getTime()) > MAX_SECONDS * 1000) {
+                    (System.currentTimeMillis() - config.getDeployDate().getTime()) > MAX_SECONDS * 10) {
                 config.setErrorLog("Failed to get workloadStatus with appInstanceId:" + config.getAppInstanceId());
                 LOGGER.error("Failed to get workloadStatus after wait {} seconds which appInstanceId is : {}", MAX_SECONDS,
                     config.getAppInstanceId());

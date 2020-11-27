@@ -108,6 +108,7 @@ public final class HttpClientUtil {
         String userId, String token) {
         String url = getUrlPrefix(protocol, ip, port) + Consts.APP_LCM_GET_WORKLOAD_STATUS_URL
             .replaceAll("appInstanceId", appInstanceId).replaceAll("tenantId", userId);
+        LOGGER.info("url is {}",url);
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.set(Consts.ACCESS_TOKEN_STR, token);
