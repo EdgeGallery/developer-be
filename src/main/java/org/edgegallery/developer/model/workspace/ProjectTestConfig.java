@@ -58,7 +58,7 @@ public class ProjectTestConfig {
     /**
      * the pod list from mep after exec deploy job.
      */
-    private List<String> pods = new ArrayList<>();
+    private String pods;
 
     /**
      * the deploy status for this test_config.

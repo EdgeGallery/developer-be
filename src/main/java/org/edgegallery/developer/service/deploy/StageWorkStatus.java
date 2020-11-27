@@ -60,7 +60,7 @@ public class StageWorkStatus implements IConfigDeployStage {
         } else {
             processStatus = true;
             status = EnumTestConfigStatus.Success;
-            config.setPods(Lists.newArrayList(workStatus));
+            config.setPods(workStatus);
             LOGGER.info("Query workload status response: {}", workStatus);
         }
         // update test-config
