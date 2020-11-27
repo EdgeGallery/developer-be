@@ -341,7 +341,9 @@ public class ProjectService {
                 "Failed to terminate application when instantiateInfo not success.");
             return Either.left(error);
         }
-        MepHost host = testConfig.getHosts().get(0);
+        Type type = new TypeToken<List<MepHost>>() { }.getType();
+        List<MepHost> hosts = gson.fromJson(gson.toJson(testConfig.getHosts()), type);
+        MepHost host = hosts.get(0);
         boolean terminateResult = HttpClientUtil
             .terminateAppInstance(host.getProtocol(), host.getIp(), host.getPort(), testConfig.getAppInstanceId(),
                 userId, token);

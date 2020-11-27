@@ -1,6 +1,10 @@
 package org.edgegallery.developer.service.deploy;
 
+import java.lang.reflect.Type;
+import java.util.List;
 import com.google.common.collect.Lists;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import org.edgegallery.developer.config.security.AccessUserUtil;
 import org.edgegallery.developer.mapper.ProjectMapper;
 import org.edgegallery.developer.model.workspace.ApplicationProject;
@@ -25,6 +29,8 @@ public class StageWorkStatus implements IConfigDeployStage {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(StageWorkStatus.class);
 
+    private static Gson gson = new Gson();
+
     /**
      * the max time for wait workStatus.
      */
@@ -43,7 +49,9 @@ public class StageWorkStatus implements IConfigDeployStage {
 
         ApplicationProject project = projectMapper.getProjectById(config.getProjectId());
         String userId = project.getUserId();
-        MepHost host = config.getHosts().get(0);
+        Type type = new TypeToken<List<MepHost>>() { }.getType();
+        List<MepHost> hosts = gson.fromJson(gson.toJson(config.getHosts()), type);
+        MepHost host = hosts.get(0);
         String workStatus = HttpClientUtil
             .getWorkloadStatus(host.getProtocol(), host.getIp(), host.getPort(), config.getAppInstanceId(), userId,
                 config.getLcmToken());
