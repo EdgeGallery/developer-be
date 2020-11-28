@@ -50,7 +50,6 @@ import org.edgegallery.developer.model.workspace.ProjectTestConfigStageStatus;
 import org.edgegallery.developer.model.workspace.UploadedFile;
 import org.edgegallery.developer.response.FormatRespDto;
 import org.edgegallery.developer.response.ProjectImageResponse;
-import org.edgegallery.developer.service.csar.CreateCsarFromTemplate;
 import org.edgegallery.developer.service.csar.NewCreateCsar;
 import org.edgegallery.developer.service.dao.ProjectDao;
 import org.edgegallery.developer.service.deploy.IConfigDeployStage;

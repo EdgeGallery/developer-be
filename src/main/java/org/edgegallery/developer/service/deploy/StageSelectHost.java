@@ -2,7 +2,6 @@ package org.edgegallery.developer.service.deploy;
 
 import java.util.List;
 import javax.annotation.Resource;
-import org.edgegallery.developer.config.security.AccessUserUtil;
 import org.edgegallery.developer.mapper.HostMapper;
 import org.edgegallery.developer.mapper.ProjectMapper;
 import org.edgegallery.developer.model.workspace.ApplicationProject;
