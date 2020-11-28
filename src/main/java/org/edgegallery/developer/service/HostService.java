@@ -59,11 +59,20 @@ public class HostService {
      * @return
      */
     public Either<FormatRespDto, MepHost> createHost(MepHost host) {
+        List<MepHost> hostList = hostMapper.getHostsByUserId(host.getUserId());
         host.setHostId(UUID.randomUUID().toString()); // no need to set hostId by user
-        int ret = hostMapper.saveHost(host);
-        if (ret > 0) {
-            LOGGER.info("Crete host {} success ", host.getHostId());
-            return Either.right(hostMapper.getHost(host.getHostId()));
+        if (hostList==null || hostList.size()==0) {
+            int ret = hostMapper.saveHost(host);
+            if (ret > 0) {
+                LOGGER.info("Crete host {} success ", host.getHostId());
+                return Either.right(hostMapper.getHost(host.getHostId()));
+            }
+        } else {
+            int ret = hostMapper.updateHost(host);
+            if (ret > 0) {
+                LOGGER.info("Update host {} success", host.getIp());
+                return Either.right(hostMapper.getHost(host.getHostId()));
+            }
         }
         LOGGER.error("Create host failed ");
         return Either.left(new FormatRespDto(Status.BAD_REQUEST, "Can not create a host."));
