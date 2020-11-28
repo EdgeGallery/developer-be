@@ -31,6 +31,9 @@ public class AppReleaseService {
 
     private List<String> listLocal = new ArrayList<>();
 
+    /**
+     * getPkgStruById.
+     */
     public Either<FormatRespDto, AppPkgStructure> getPkgStruById(String projectId, String csarId) {
         if (projectId == null || projectId.equals("")) {
             LOGGER.error("project id can not be empty!");
@@ -63,6 +66,9 @@ public class AppReleaseService {
         return Either.right(structure);
     }
 
+    /**
+     * getPkgContentByFileName.
+     */
     public Either<FormatRespDto, String> getPkgContentByFileName(String projectId, String fileName) {
         if (projectId == null || projectId.equals("")) {
             LOGGER.error("project id can not be empty!");
@@ -211,7 +217,7 @@ public class AppReleaseService {
         return listLocal;
     }
 
-    public String readFileIntoString(String filePath) {
+    private String readFileIntoString(String filePath) {
         StringBuffer sb = new StringBuffer();
         try {
             String encoding = "UTF-8";

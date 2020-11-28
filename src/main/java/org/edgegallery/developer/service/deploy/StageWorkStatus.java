@@ -1,11 +1,9 @@
 package org.edgegallery.developer.service.deploy;
 
-import java.lang.reflect.Type;
-import java.util.List;
-import com.google.common.collect.Lists;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import org.edgegallery.developer.config.security.AccessUserUtil;
+import java.lang.reflect.Type;
+import java.util.List;
 import org.edgegallery.developer.mapper.ProjectMapper;
 import org.edgegallery.developer.model.workspace.ApplicationProject;
 import org.edgegallery.developer.model.workspace.EnumTestConfigStatus;
@@ -57,11 +55,11 @@ public class StageWorkStatus implements IConfigDeployStage {
                 config.getLcmToken());
         if (workStatus == null) {
             // compare time between now and deployDate
-            if (config.getDeployDate() == null ||
-                    (System.currentTimeMillis() - config.getDeployDate().getTime()) > MAX_SECONDS * 10) {
+            long time = System.currentTimeMillis() - config.getDeployDate().getTime();
+            if (config.getDeployDate() == null || time > MAX_SECONDS * 10) {
                 config.setErrorLog("Failed to get workloadStatus with appInstanceId:" + config.getAppInstanceId());
-                LOGGER.error("Failed to get workloadStatus after wait {} seconds which appInstanceId is : {}", MAX_SECONDS,
-                    config.getAppInstanceId());
+                String message = "Failed to get workloadStatus after wait {} seconds which appInstanceId is : {}";
+                LOGGER.error(message, MAX_SECONDS, config.getAppInstanceId());
             } else {
                 return true;
             }

@@ -344,32 +344,30 @@ public class UploadFileService {
             LOGGER.error("Failed to verify helm template yaml, userId: {}, projectId: {},exception: verify: {} failed",
                 userId, projectId, String.join(",", requiredItems));
             return Either.right(helmTemplateYamlRespDto);
-        } else if (!requiredItems.isEmpty() && requiredItems.size() == 1) {
-            if (requiredItems.get(0).equals("mep-agent")) {
-                // create HelmTemplateYamlPo
-                HelmTemplateYamlPo helmTemplateYamlPo = new HelmTemplateYamlPo();
-                helmTemplateYamlPo.setContent(originalContent);
-                String fileId = UUID.randomUUID().toString();
-                String filename = helmTemplateYaml.getOriginalFilename();
-                helmTemplateYamlPo.setFileId(fileId);
-                helmTemplateYamlPo.setFileName(filename);
-                helmTemplateYamlPo.setUserId(userId);
-                helmTemplateYamlPo.setProjectId(projectId);
-                helmTemplateYamlPo.setUploadTimeStamp(System.currentTimeMillis());
-                int saveResult = helmTemplateYamlMapper.saveYaml(helmTemplateYamlPo);
-                if (saveResult <= 0) {
-                    LOGGER.error("Failed to save helm template yaml, file id : {}", fileId);
-                    String message = "Failed to save helm template yaml";
-                    return Either.left(new FormatRespDto(Status.INTERNAL_SERVER_ERROR, message));
-                }
-                helmTemplateYamlRespDto.setResponse(helmTemplateYamlPo);
-                helmTemplateYamlRespDto.setImageSuccess(true);
-                helmTemplateYamlRespDto.setServiceSuccess(true);
-                helmTemplateYamlRespDto.setMepAgentSuccess(false);
-
-                LOGGER.info("Succeed to save helm template yaml with file id : {}", fileId);
-                return Either.right(helmTemplateYamlRespDto);
+        } else if (!requiredItems.isEmpty() && requiredItems.size() == 1 && requiredItems.get(0).equals("mep-agent")) {
+            // create HelmTemplateYamlPo
+            HelmTemplateYamlPo helmTemplateYamlPo = new HelmTemplateYamlPo();
+            helmTemplateYamlPo.setContent(originalContent);
+            String fileId = UUID.randomUUID().toString();
+            String filename = helmTemplateYaml.getOriginalFilename();
+            helmTemplateYamlPo.setFileId(fileId);
+            helmTemplateYamlPo.setFileName(filename);
+            helmTemplateYamlPo.setUserId(userId);
+            helmTemplateYamlPo.setProjectId(projectId);
+            helmTemplateYamlPo.setUploadTimeStamp(System.currentTimeMillis());
+            int saveResult = helmTemplateYamlMapper.saveYaml(helmTemplateYamlPo);
+            if (saveResult <= 0) {
+                LOGGER.error("Failed to save helm template yaml, file id : {}", fileId);
+                return Either
+                    .left(new FormatRespDto(Status.INTERNAL_SERVER_ERROR, "Failed to save helm template yaml"));
             }
+            helmTemplateYamlRespDto.setResponse(helmTemplateYamlPo);
+            helmTemplateYamlRespDto.setImageSuccess(true);
+            helmTemplateYamlRespDto.setServiceSuccess(true);
+            helmTemplateYamlRespDto.setMepAgentSuccess(false);
+
+            LOGGER.info("Succeed to save helm template yaml with file id : {}", fileId);
+            return Either.right(helmTemplateYamlRespDto);
         }
         Either<FormatRespDto, HelmTemplateYamlRespDto> either = getSuccessResult(helmTemplateYaml, userId, projectId,
             originalContent, helmTemplateYamlRespDto);

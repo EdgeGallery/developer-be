@@ -16,7 +16,6 @@
 
 package org.edgegallery.developer.model.workspace;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -166,6 +165,17 @@ public class ProjectTestConfig {
             this.deployDate = (Date) deployDate.clone();
         } else {
             this.deployDate = null;
+        }
+    }
+
+    /**
+     * getDeployDate.
+     */
+    public Date getDeployDate() {
+        if (this.deployDate != null) {
+            return new Date(this.deployDate.getTime());
+        } else {
+            return null;
         }
     }
 }

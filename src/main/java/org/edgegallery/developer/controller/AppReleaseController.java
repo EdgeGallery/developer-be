@@ -38,15 +38,13 @@ public class AppReleaseController {
     })
     @RequestMapping(value = "/{projectId}/{csarId}/action/get-pkg-structure", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    // @PreAuthorize("hasRole('DEVELOPER_TENANT')")
+    @PreAuthorize("hasRole('DEVELOPER_TENANT')")
     public ResponseEntity<AppPkgStructure> getCsarPkgStructure(
         @Pattern(regexp = REGEX_UUID, message = "projectId must be in UUID format")
         @ApiParam(value = "projectId", required = true) @PathVariable(value = "projectId", required = true)
-            String projectId,
-        @Pattern(regexp = REGEX_UUID, message = "csarId must be in UUID format")
-        @ApiParam(value = "csarId", required = true) @PathVariable(value = "csarId", required = true)
-            String csarId) {
-        Either<FormatRespDto, AppPkgStructure> either = releaseService.getPkgStruById(projectId,csarId);
+            String projectId, @Pattern(regexp = REGEX_UUID, message = "csarId must be in UUID format")
+        @ApiParam(value = "csarId", required = true) @PathVariable(value = "csarId", required = true) String csarId) {
+        Either<FormatRespDto, AppPkgStructure> either = releaseService.getPkgStruById(projectId, csarId);
         return ResponseDataUtil.buildResponse(either);
     }
 
@@ -57,7 +55,7 @@ public class AppReleaseController {
     })
     @RequestMapping(value = "/{projectId}/action/get-pkg-content", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    // @PreAuthorize("hasRole('DEVELOPER_TENANT')")
+    @PreAuthorize("hasRole('DEVELOPER_TENANT')")
     public ResponseEntity<String> getPkgContent(
         @Pattern(regexp = REGEX_UUID, message = "projectId must be in UUID format")
         @ApiParam(value = "projectId", required = true) @PathVariable(value = "projectId", required = true)
