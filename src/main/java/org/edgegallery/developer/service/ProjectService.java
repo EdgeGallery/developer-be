@@ -32,6 +32,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.edgegallery.developer.common.Consts;
 import org.edgegallery.developer.config.security.AccessUserUtil;
 import org.edgegallery.developer.mapper.HelmTemplateYamlMapper;
+import org.edgegallery.developer.mapper.HostMapper;
 import org.edgegallery.developer.mapper.OpenMepCapabilityMapper;
 import org.edgegallery.developer.mapper.ProjectMapper;
 import org.edgegallery.developer.mapper.UploadedFileMapper;
@@ -77,6 +78,9 @@ public class ProjectService {
 
     @Autowired
     private ProjectMapper projectMapper;
+
+    @Autowired
+    private HostMapper hostMapper;
 
     @Autowired
     private UploadedFileMapper uploadedFileMapper;
@@ -477,6 +481,8 @@ public class ProjectService {
 
         // validate mep host if privateHost is true
         if (testConfig.isPrivateHost()) {
+            List<MepHost> privateHosts = hostMapper.getHostsByUserId(project.getUserId());
+            testConfig.setHosts(privateHosts.subList(0, 1));
             if (testConfig.getHosts().size() != 1) {
                 LOGGER.error("The mep host for project {} is required.", projectId);
                 FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "The mep host for project is required.");

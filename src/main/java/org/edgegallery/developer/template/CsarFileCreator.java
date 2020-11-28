@@ -27,7 +27,7 @@ import org.edgegallery.developer.util.InitConfigUtil;
 
 public class CsarFileCreator implements BaseFileCreator {
 
-    private static final String CSAR_TEMPLATE_PATH = "./configs/csar_template";
+    private static final String CSAR_TEMPLATE_PATH = "./configs/new_csar";
 
     private static final String TEMPORARY_BASE_PATH = InitConfigUtil.getWorkSpaceBaseDir() + BusinessConfigUtil
         .getWorkspacePath();
@@ -70,7 +70,7 @@ public class CsarFileCreator implements BaseFileCreator {
     }
 
     private void replaceAppName() throws IOException {
-        File mainServiceTemplateFile = new File(temporaryPath + File.separator + "MainServiceTemplate.mf");
+        File mainServiceTemplateFile = new File(temporaryPath + File.separator + "positioning-service.mf");
         FileUtils.writeStringToFile(mainServiceTemplateFile,
             FileUtils.readFileToString(mainServiceTemplateFile, Consts.FILE_ENCODING).replace("{APP_NAME}", appName),
             Consts.FILE_ENCODING);
