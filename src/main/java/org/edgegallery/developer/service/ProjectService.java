@@ -329,11 +329,12 @@ public class ProjectService {
      * @return
      */
     public Either<FormatRespDto, Boolean> terminateProject(String userId, String projectId, String token) {
-        ProjectTestConfig testConfig = projectMapper.getTestConfig(projectId);
-        if (testConfig == null) {
+        List<ProjectTestConfig> testConfigList = projectMapper.getTestConfigByProjectId(projectId);
+        if (CollectionUtils.isEmpty(testConfigList)) {
             LOGGER.info("This project has not test config, do not terminate.");
             return Either.right(true);
         }
+        ProjectTestConfig testConfig = testConfigList.get(0);
         if (!EnumTestConfigStatus.Success.equals(testConfig.getStageStatus().getInstantiateInfo())
             || testConfig.getWorkLoadId() == null) {
             LOGGER.error("Failed to terminate application when instantiateInfo not success.");
@@ -775,7 +776,7 @@ public class ProjectService {
             LOGGER.info("This project has no config, do not need to clean env.");
             return Either.right(true);
         }
-        
+
         if (testConfig.getDeployStatus().equals(EnumTestConfigDeployStatus.SUCCESS)) {
             deleteDeployApp(testConfig, AccessUserUtil.getUserId(), testConfig.getLcmToken());
             LOGGER.warn("Deploy failed, delete deploy app.");
