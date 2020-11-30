@@ -94,9 +94,14 @@ public class AppReleaseService {
             }
         }
         if (fileContent.equals("")) {
-            LOGGER.error("read file occuer exception or file is null!");
-            FormatRespDto error = new FormatRespDto(Response.Status.BAD_REQUEST,
-                "read file occuer exception or file is null!");
+            LOGGER.warn("file has not any content!");
+            FormatRespDto error = new FormatRespDto(Response.Status.BAD_REQUEST, "file is null!");
+            return Either.left(error);
+        }
+
+        if (fileContent.equals("error")) {
+            LOGGER.warn("file is not readable!");
+            FormatRespDto error = new FormatRespDto(Response.Status.BAD_REQUEST, "file is not readable!");
             return Either.left(error);
         }
         return Either.right(fileContent);
@@ -218,6 +223,7 @@ public class AppReleaseService {
     }
 
     private String readFileIntoString(String filePath) {
+        String msg = "error";
         StringBuffer sb = new StringBuffer();
         try {
             String encoding = "UTF-8";
@@ -234,11 +240,11 @@ public class AppReleaseService {
                 read.close();
             } else {
                 LOGGER.error("There are no files in this directory!");
-                return "";
+                return msg;
             }
         } catch (Exception e) {
             LOGGER.error("read file occur exception {}", e.getMessage());
-            return "";
+            return msg;
         }
 
         return sb.toString();
