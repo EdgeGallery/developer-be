@@ -1,15 +1,17 @@
 /*
- * Copyright 2020 Huawei Technologies Co., Ltd.
+ *    Copyright 2020 Huawei Technologies Co., Ltd.
  *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License. You may obtain a copy of the License at
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *        http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software distributed under the License
- * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
- * or implied. See the License for the specific language governing permissions and limitations under
- * the License.
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
  */
 
 package org.edgegallery.developer.service;
@@ -142,7 +144,7 @@ public class ProjectService {
      */
     @Transactional
     public Either<FormatRespDto, ApplicationProject> createProject(String userId, ApplicationProject project)
-            throws IOException {
+        throws IOException {
         project.setUserId(userId);
         String projectId = UUID.randomUUID().toString();
         String projectPath = getProjectPath(projectId);
@@ -183,7 +185,7 @@ public class ProjectService {
 
     public String getProjectPath(String projectId) {
         return InitConfigUtil.getWorkSpaceBaseDir() + BusinessConfigUtil.getWorkspacePath() + projectId
-                + File.separator;
+            + File.separator;
     }
 
     /**
@@ -241,7 +243,7 @@ public class ProjectService {
             return Either.right(true);
         }
 
-        // delete capabilityGroup and
+        //delete capabilityGroup and
         String openCapabilityDetailId = project.getOpenCapabilityId();
         LOGGER.info("detailId: {} .", openCapabilityDetailId);
         String groupId = "";
@@ -281,7 +283,7 @@ public class ProjectService {
      * @return
      */
     public Either<FormatRespDto, ApplicationProject> modifyProject(String userId, String projectId,
-            ApplicationProject newProject) {
+        ApplicationProject newProject) {
         ApplicationProject oldProject = projectMapper.getProject(userId, projectId);
         if (oldProject == null) {
             LOGGER.error("Can not find project by userId {} and projectId {}.", userId, projectId);
@@ -303,14 +305,15 @@ public class ProjectService {
     }
 
     /**
-     * processDeploy. task job for scheduler
+     * processDeploy.
+     * task job for scheduler
      *
      * @return
      */
     public void processDeploy() {
         // get deploying config list from db
-        List<ProjectTestConfig> configList =
-                projectMapper.getTestConfigByDeployStatus(EnumTestConfigDeployStatus.DEPLOYING.toString());
+        List<ProjectTestConfig> configList = projectMapper
+            .getTestConfigByDeployStatus(EnumTestConfigDeployStatus.DEPLOYING.toString());
         if (CollectionUtils.isEmpty(configList)) {
             return;
         }
@@ -346,20 +349,21 @@ public class ProjectService {
         }
         ProjectTestConfig testConfig = testConfigList.get(0);
         if (!EnumTestConfigStatus.Success.equals(testConfig.getStageStatus().getInstantiateInfo())
-                || testConfig.getWorkLoadId() == null) {
+            || testConfig.getWorkLoadId() == null) {
             LOGGER.error("Failed to terminate application when instantiateInfo not success.");
             FormatRespDto error = new FormatRespDto(Status.INTERNAL_SERVER_ERROR,
-                    "Failed to terminate application when instantiateInfo not success.");
+                "Failed to terminate application when instantiateInfo not success.");
             return Either.left(error);
         }
-        Type type = new TypeToken<List<MepHost>>() {}.getType();
+        Type type = new TypeToken<List<MepHost>>() { }.getType();
         List<MepHost> hosts = gson.fromJson(gson.toJson(testConfig.getHosts()), type);
         MepHost host = hosts.get(0);
-        boolean terminateResult = HttpClientUtil.terminateAppInstance(host.getProtocol(), host.getIp(), host.getPort(),
-                testConfig.getAppInstanceId(), userId, token);
+        boolean terminateResult = HttpClientUtil
+            .terminateAppInstance(host.getProtocol(), host.getIp(), host.getPort(), testConfig.getAppInstanceId(),
+                userId, token);
         if (!terminateResult) {
             LOGGER.error("Failed to terminate application which userId is: {}, instanceId is {}", userId,
-                    testConfig.getAppInstanceId());
+                testConfig.getAppInstanceId());
             FormatRespDto error = new FormatRespDto(Status.INTERNAL_SERVER_ERROR, "Failed to terminate application.");
             return Either.left(error);
         }
@@ -386,8 +390,8 @@ public class ProjectService {
         // only one test-config for each project
         ProjectTestConfig testConfig = testConfigList.get(0);
         // check status
-        if (testConfig.getDeployStatus() != null
-                && !(EnumTestConfigDeployStatus.NOTDEPLOY).equals(testConfig.getDeployStatus())) {
+        if (testConfig.getDeployStatus() != null && !(EnumTestConfigDeployStatus.NOTDEPLOY)
+            .equals(testConfig.getDeployStatus())) {
             // not ready
             LOGGER.error("The test config not ready with status:{}", testConfig.getDeployStatus());
             FormatRespDto error = new FormatRespDto(Status.INTERNAL_SERVER_ERROR, "The test config not ready.");
@@ -421,7 +425,7 @@ public class ProjectService {
      * createCsarPkg.
      */
     public File createCsarPkg(String userId, ApplicationProject project, ProjectTestConfig testConfig)
-            throws IOException {
+        throws IOException {
         String projectId = project.getId();
         List<OpenMepCapabilityGroup> mepCapability = project.getCapabilityList();
         String projectPath = getProjectPath(projectId);
@@ -438,9 +442,9 @@ public class ProjectService {
             } else {
                 chartFileCreator.setChartValues("true", "false", "default");
             }
-            // stop
-            yamlPoList.forEach(helmTemplateYamlPo -> chartFileCreator.addTemplateYaml(helmTemplateYamlPo.getFileName(),
-                    helmTemplateYamlPo.getContent()));
+            //stop
+            yamlPoList.forEach(helmTemplateYamlPo -> chartFileCreator
+                .addTemplateYaml(helmTemplateYamlPo.getFileName(), helmTemplateYamlPo.getContent()));
             String tgzFilePath = chartFileCreator.build();
 
             // create csar file directory
@@ -448,8 +452,8 @@ public class ProjectService {
         } else {
             csarPkgDir = new NewCreateCsar().create(projectPath, testConfig, project, null);
         }
-        return CompressFileUtilsJava.compressToCsarAndDeleteSrc(csarPkgDir.getCanonicalPath(), projectPath,
-                csarPkgDir.getName());
+        return CompressFileUtilsJava
+            .compressToCsarAndDeleteSrc(csarPkgDir.getCanonicalPath(), projectPath, csarPkgDir.getName());
     }
 
     /**
@@ -458,15 +462,16 @@ public class ProjectService {
      * @return
      */
     public boolean deployTestConfigToAppLcm(File csar, ApplicationProject project, ProjectTestConfig testConfig,
-            String userId, String token) {
+        String userId, String token) {
         String appInstanceId = testConfig.getAppInstanceId();
-        Type type = new TypeToken<List<MepHost>>() {}.getType();
+        Type type = new TypeToken<List<MepHost>>() { }.getType();
         List<MepHost> hosts = gson.fromJson(gson.toJson(testConfig.getHosts()), type);
         MepHost host = hosts.get(0);
         // Note(ch) only ip?
         testConfig.setAccessUrl("https://" + host.getIp());
-        return HttpClientUtil.instantiateApplication(host.getProtocol(), host.getIp(), host.getPort(), csar.getPath(),
-                appInstanceId, userId, token);
+        return HttpClientUtil
+            .instantiateApplication(host.getProtocol(), host.getIp(), host.getPort(), csar.getPath(), appInstanceId,
+                userId, token);
     }
 
     /**
@@ -475,7 +480,7 @@ public class ProjectService {
      * @return
      */
     public Either<FormatRespDto, ProjectTestConfig> createTestConfig(String userId, String projectId,
-            ProjectTestConfig testConfig) {
+        ProjectTestConfig testConfig) {
         ApplicationProject project = projectMapper.getProject(userId, projectId);
         if (project == null) {
             LOGGER.error("Can not find project by userId {} and projectId {}", userId, projectId);
@@ -578,7 +583,7 @@ public class ProjectService {
      * @return
      */
     public Either<FormatRespDto, String> uploadToAppStore(String userId, String projectId, String appInstanceId,
-            String userName, String token) {
+        String userName, String token) {
         // 0 check data. must be tested, and deployed status must be ok, can not be error.
         ApplicationProject project = projectMapper.getProject(userId, projectId);
         if (project == null) {
@@ -638,7 +643,7 @@ public class ProjectService {
      * @return
      */
     public Either<FormatRespDto, ProjectImageConfig> createProjectImage(String projectId,
-            ProjectImageConfig imageConfig) {
+        ProjectImageConfig imageConfig) {
         if (imageConfig.getName() == null) {
             LOGGER.error("Crete project image failed, image name is error");
             return Either.left(new FormatRespDto(Status.BAD_REQUEST, "Create project image error"));
@@ -696,7 +701,7 @@ public class ProjectService {
         if (project == null) {
             LOGGER.error("Can not get project by userId {} and projectId {}", userId, projectId);
             return Either
-                    .left(new FormatRespDto(Status.BAD_REQUEST, "Can not get project, userId or projectId is error."));
+                .left(new FormatRespDto(Status.BAD_REQUEST, "Can not get project, userId or projectId is error."));
 
         }
         if (project.getStatus() != EnumProjectStatus.TESTED) {
@@ -817,7 +822,7 @@ public class ProjectService {
      */
     @Transactional
     public void updateDeployResult(ProjectTestConfig testConfig, ApplicationProject project, String stage,
-            EnumTestConfigStatus stageStatus) {
+        EnumTestConfigStatus stageStatus) {
         LOGGER.info("Update deploy test on stage:{} status: {}", stage, stageStatus);
         // update test config always && update product if necessary
         switch (stage) {
@@ -935,7 +940,6 @@ public class ProjectService {
 
     }
 
-
     /**
      * deleteDeployApp.
      *
@@ -943,10 +947,10 @@ public class ProjectService {
      */
     private boolean deleteDeployApp(ProjectTestConfig testConfig, String userId, String token) {
         String workloadId = testConfig.getWorkLoadId();
-        Type type = new TypeToken<List<MepHost>>() {}.getType();
+        Type type = new TypeToken<List<MepHost>>() { }.getType();
         List<MepHost> hosts = gson.fromJson(gson.toJson(testConfig.getHosts()), type);
         MepHost host = hosts.get(0);
-        return HttpClientUtil.terminateAppInstance(host.getProtocol(), host.getIp(), host.getPort(), workloadId, userId,
-                token);
+        return HttpClientUtil
+            .terminateAppInstance(host.getProtocol(), host.getIp(), host.getPort(), workloadId, userId, token);
     }
 }
