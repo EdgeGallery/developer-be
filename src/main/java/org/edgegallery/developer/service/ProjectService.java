@@ -468,7 +468,7 @@ public class ProjectService {
         List<MepHost> hosts = gson.fromJson(gson.toJson(testConfig.getHosts()), type);
         MepHost host = hosts.get(0);
         // Note(ch) only ip?
-        testConfig.setAccessUrl("https://" + host.getIp());
+        testConfig.setAccessUrl("http://" + host.getIp());
         return HttpClientUtil
             .instantiateApplication(host.getProtocol(), host.getIp(), host.getPort(), csar.getPath(), appInstanceId,
                 userId, token);
