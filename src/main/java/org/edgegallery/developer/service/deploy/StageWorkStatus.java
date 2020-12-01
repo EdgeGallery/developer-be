@@ -32,7 +32,7 @@ public class StageWorkStatus implements IConfigDeployStage {
     /**
      * the max time for wait workStatus.
      */
-    private static final Long MAX_SECONDS = 3600L;
+    private static final Long MAX_SECONDS = 360L;
 
     @Autowired
     private ProjectService projectService;
@@ -56,7 +56,7 @@ public class StageWorkStatus implements IConfigDeployStage {
         if (workStatus == null) {
             // compare time between now and deployDate
             long time = System.currentTimeMillis() - config.getDeployDate().getTime();
-            if (config.getDeployDate() == null || time > MAX_SECONDS * 10) {
+            if (config.getDeployDate() == null || time > MAX_SECONDS * 1) {
                 config.setErrorLog("Failed to get workloadStatus with appInstanceId:" + config.getAppInstanceId());
                 String message = "Failed to get workloadStatus after wait {} seconds which appInstanceId is : {}";
                 LOGGER.error(message, MAX_SECONDS, config.getAppInstanceId());
