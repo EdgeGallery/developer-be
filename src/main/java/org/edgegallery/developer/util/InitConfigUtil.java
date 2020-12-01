@@ -63,5 +63,9 @@ public final class InitConfigUtil {
         return PROPERTIES.getProperty("workspace_sdk_dir_linux");
     }
 
+    public static String getProperties(String key) {
+        return PROPERTIES.getProperty(key);
+    }
+
 
 }

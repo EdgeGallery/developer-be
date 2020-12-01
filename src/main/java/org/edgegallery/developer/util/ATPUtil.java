@@ -26,11 +26,11 @@ import com.google.gson.JsonParser;
 public class ATPUtil {
     private static final Logger LOGGER = LoggerFactory.getLogger(ATPUtil.class);
 
-    private static final String ATP_PROTOCOL = "https://atp-svc:8073";
-
     private static final String WAITING = "waiting";
 
     private static final String RUNNING = "running";
+
+    private static final String ATP_ADDRESS = "atp_address";
 
     private static final RestTemplate restTemplate = new RestTemplate();
 
@@ -50,7 +50,7 @@ public class ATPUtil {
         headers.set(Consts.ACCESS_TOKEN_STR, token);
 
         HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
-        String url = ATP_PROTOCOL.concat(Consts.CREATE_TASK_FROM_ATP);
+        String url = InitConfigUtil.getProperties(ATP_ADDRESS).concat(Consts.CREATE_TASK_FROM_ATP);
         LOGGER.info("url: {}", url);
         try {
             ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.POST, requestEntity, String.class);
@@ -78,7 +78,7 @@ public class ATPUtil {
         headers.set(Consts.ACCESS_TOKEN_STR, token);
         HttpEntity<String> request = new HttpEntity<>(headers);
 
-        String url = ATP_PROTOCOL.concat(String.format(Consts.GET_TASK_FROM_ATP, taskId));
+        String url = InitConfigUtil.getProperties(ATP_ADDRESS).concat(String.format(Consts.GET_TASK_FROM_ATP, taskId));
         LOGGER.info("get task status frm atp, url: {}", url);
 
         long startTime = System.currentTimeMillis();
