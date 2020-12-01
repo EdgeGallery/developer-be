@@ -1,24 +1,19 @@
 /*
- *    Copyright 2020 Huawei Technologies Co., Ltd.
+ * Copyright 2020 Huawei Technologies Co., Ltd.
  *
- *    Licensed under the Apache License, Version 2.0 (the "License");
- *    you may not use this file except in compliance with the License.
- *    You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  *
- *        http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *    Unless required by applicable law or agreed to in writing, software
- *    distributed under the License is distributed on an "AS IS" BASIS,
- *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *    See the License for the specific language governing permissions and
- *    limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
  */
 
 package org.edgegallery.developer.service;
 
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
-import com.spencerwi.either.Either;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Type;
@@ -27,6 +22,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import javax.ws.rs.core.Response.Status;
 import org.apache.commons.lang3.StringUtils;
 import org.edgegallery.developer.common.Consts;
@@ -36,6 +33,7 @@ import org.edgegallery.developer.mapper.HostMapper;
 import org.edgegallery.developer.mapper.OpenMepCapabilityMapper;
 import org.edgegallery.developer.mapper.ProjectMapper;
 import org.edgegallery.developer.mapper.UploadedFileMapper;
+import org.edgegallery.developer.model.atp.ATPResultInfo;
 import org.edgegallery.developer.model.workspace.ApplicationProject;
 import org.edgegallery.developer.model.workspace.EnumOpenMepType;
 import org.edgegallery.developer.model.workspace.EnumProjectStatus;
@@ -55,6 +53,7 @@ import org.edgegallery.developer.service.csar.NewCreateCsar;
 import org.edgegallery.developer.service.dao.ProjectDao;
 import org.edgegallery.developer.service.deploy.IConfigDeployStage;
 import org.edgegallery.developer.template.ChartFileCreator;
+import org.edgegallery.developer.util.ATPUtil;
 import org.edgegallery.developer.util.BusinessConfigUtil;
 import org.edgegallery.developer.util.CompressFileUtilsJava;
 import org.edgegallery.developer.util.DeveloperFileUtils;
@@ -64,9 +63,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
+import com.google.gson.reflect.TypeToken;
+import com.spencerwi.either.Either;
 
 @Service("projectService")
 public class ProjectService {
@@ -74,6 +80,8 @@ public class ProjectService {
     private static final Logger LOGGER = LoggerFactory.getLogger(ProjectService.class);
 
     private static Gson gson = new Gson();
+
+    ExecutorService threadPool = Executors.newSingleThreadExecutor();
 
     @Autowired
     private ProjectMapper projectMapper;
@@ -134,7 +142,7 @@ public class ProjectService {
      */
     @Transactional
     public Either<FormatRespDto, ApplicationProject> createProject(String userId, ApplicationProject project)
-        throws IOException {
+            throws IOException {
         project.setUserId(userId);
         String projectId = UUID.randomUUID().toString();
         String projectPath = getProjectPath(projectId);
@@ -175,7 +183,7 @@ public class ProjectService {
 
     public String getProjectPath(String projectId) {
         return InitConfigUtil.getWorkSpaceBaseDir() + BusinessConfigUtil.getWorkspacePath() + projectId
-            + File.separator;
+                + File.separator;
     }
 
     /**
@@ -233,7 +241,7 @@ public class ProjectService {
             return Either.right(true);
         }
 
-        //delete capabilityGroup and
+        // delete capabilityGroup and
         String openCapabilityDetailId = project.getOpenCapabilityId();
         LOGGER.info("detailId: {} .", openCapabilityDetailId);
         String groupId = "";
@@ -273,7 +281,7 @@ public class ProjectService {
      * @return
      */
     public Either<FormatRespDto, ApplicationProject> modifyProject(String userId, String projectId,
-        ApplicationProject newProject) {
+            ApplicationProject newProject) {
         ApplicationProject oldProject = projectMapper.getProject(userId, projectId);
         if (oldProject == null) {
             LOGGER.error("Can not find project by userId {} and projectId {}.", userId, projectId);
@@ -295,15 +303,14 @@ public class ProjectService {
     }
 
     /**
-     * processDeploy.
-     * task job for scheduler
+     * processDeploy. task job for scheduler
      *
      * @return
      */
     public void processDeploy() {
         // get deploying config list from db
-        List<ProjectTestConfig> configList = projectMapper
-            .getTestConfigByDeployStatus(EnumTestConfigDeployStatus.DEPLOYING.toString());
+        List<ProjectTestConfig> configList =
+                projectMapper.getTestConfigByDeployStatus(EnumTestConfigDeployStatus.DEPLOYING.toString());
         if (CollectionUtils.isEmpty(configList)) {
             return;
         }
@@ -339,21 +346,20 @@ public class ProjectService {
         }
         ProjectTestConfig testConfig = testConfigList.get(0);
         if (!EnumTestConfigStatus.Success.equals(testConfig.getStageStatus().getInstantiateInfo())
-            || testConfig.getWorkLoadId() == null) {
+                || testConfig.getWorkLoadId() == null) {
             LOGGER.error("Failed to terminate application when instantiateInfo not success.");
             FormatRespDto error = new FormatRespDto(Status.INTERNAL_SERVER_ERROR,
-                "Failed to terminate application when instantiateInfo not success.");
+                    "Failed to terminate application when instantiateInfo not success.");
             return Either.left(error);
         }
-        Type type = new TypeToken<List<MepHost>>() { }.getType();
+        Type type = new TypeToken<List<MepHost>>() {}.getType();
         List<MepHost> hosts = gson.fromJson(gson.toJson(testConfig.getHosts()), type);
         MepHost host = hosts.get(0);
-        boolean terminateResult = HttpClientUtil
-            .terminateAppInstance(host.getProtocol(), host.getIp(), host.getPort(), testConfig.getAppInstanceId(),
-                userId, token);
+        boolean terminateResult = HttpClientUtil.terminateAppInstance(host.getProtocol(), host.getIp(), host.getPort(),
+                testConfig.getAppInstanceId(), userId, token);
         if (!terminateResult) {
             LOGGER.error("Failed to terminate application which userId is: {}, instanceId is {}", userId,
-                testConfig.getAppInstanceId());
+                    testConfig.getAppInstanceId());
             FormatRespDto error = new FormatRespDto(Status.INTERNAL_SERVER_ERROR, "Failed to terminate application.");
             return Either.left(error);
         }
@@ -380,8 +386,8 @@ public class ProjectService {
         // only one test-config for each project
         ProjectTestConfig testConfig = testConfigList.get(0);
         // check status
-        if (testConfig.getDeployStatus() != null && !(EnumTestConfigDeployStatus.NOTDEPLOY)
-            .equals(testConfig.getDeployStatus())) {
+        if (testConfig.getDeployStatus() != null
+                && !(EnumTestConfigDeployStatus.NOTDEPLOY).equals(testConfig.getDeployStatus())) {
             // not ready
             LOGGER.error("The test config not ready with status:{}", testConfig.getDeployStatus());
             FormatRespDto error = new FormatRespDto(Status.INTERNAL_SERVER_ERROR, "The test config not ready.");
@@ -415,7 +421,7 @@ public class ProjectService {
      * createCsarPkg.
      */
     public File createCsarPkg(String userId, ApplicationProject project, ProjectTestConfig testConfig)
-        throws IOException {
+            throws IOException {
         String projectId = project.getId();
         List<OpenMepCapabilityGroup> mepCapability = project.getCapabilityList();
         String projectPath = getProjectPath(projectId);
@@ -432,9 +438,9 @@ public class ProjectService {
             } else {
                 chartFileCreator.setChartValues("true", "false", "default");
             }
-            //stop
-            yamlPoList.forEach(helmTemplateYamlPo -> chartFileCreator
-                .addTemplateYaml(helmTemplateYamlPo.getFileName(), helmTemplateYamlPo.getContent()));
+            // stop
+            yamlPoList.forEach(helmTemplateYamlPo -> chartFileCreator.addTemplateYaml(helmTemplateYamlPo.getFileName(),
+                    helmTemplateYamlPo.getContent()));
             String tgzFilePath = chartFileCreator.build();
 
             // create csar file directory
@@ -442,8 +448,8 @@ public class ProjectService {
         } else {
             csarPkgDir = new NewCreateCsar().create(projectPath, testConfig, project, null);
         }
-        return CompressFileUtilsJava
-            .compressToCsarAndDeleteSrc(csarPkgDir.getCanonicalPath(), projectPath, csarPkgDir.getName());
+        return CompressFileUtilsJava.compressToCsarAndDeleteSrc(csarPkgDir.getCanonicalPath(), projectPath,
+                csarPkgDir.getName());
     }
 
     /**
@@ -452,16 +458,15 @@ public class ProjectService {
      * @return
      */
     public boolean deployTestConfigToAppLcm(File csar, ApplicationProject project, ProjectTestConfig testConfig,
-        String userId, String token) {
+            String userId, String token) {
         String appInstanceId = testConfig.getAppInstanceId();
-        Type type = new TypeToken<List<MepHost>>() { }.getType();
+        Type type = new TypeToken<List<MepHost>>() {}.getType();
         List<MepHost> hosts = gson.fromJson(gson.toJson(testConfig.getHosts()), type);
         MepHost host = hosts.get(0);
         // Note(ch) only ip?
         testConfig.setAccessUrl("https://" + host.getIp());
-        return HttpClientUtil
-            .instantiateApplication(host.getProtocol(), host.getIp(), host.getPort(), csar.getPath(), appInstanceId,
-                userId, token);
+        return HttpClientUtil.instantiateApplication(host.getProtocol(), host.getIp(), host.getPort(), csar.getPath(),
+                appInstanceId, userId, token);
     }
 
     /**
@@ -470,7 +475,7 @@ public class ProjectService {
      * @return
      */
     public Either<FormatRespDto, ProjectTestConfig> createTestConfig(String userId, String projectId,
-        ProjectTestConfig testConfig) {
+            ProjectTestConfig testConfig) {
         ApplicationProject project = projectMapper.getProject(userId, projectId);
         if (project == null) {
             LOGGER.error("Can not find project by userId {} and projectId {}", userId, projectId);
@@ -573,7 +578,7 @@ public class ProjectService {
      * @return
      */
     public Either<FormatRespDto, String> uploadToAppStore(String userId, String projectId, String appInstanceId,
-        String userName, String token) {
+            String userName, String token) {
         // 0 check data. must be tested, and deployed status must be ok, can not be error.
         ApplicationProject project = projectMapper.getProject(userId, projectId);
         if (project == null) {
@@ -633,7 +638,7 @@ public class ProjectService {
      * @return
      */
     public Either<FormatRespDto, ProjectImageConfig> createProjectImage(String projectId,
-        ProjectImageConfig imageConfig) {
+            ProjectImageConfig imageConfig) {
         if (imageConfig.getName() == null) {
             LOGGER.error("Crete project image failed, image name is error");
             return Either.left(new FormatRespDto(Status.BAD_REQUEST, "Create project image error"));
@@ -691,7 +696,7 @@ public class ProjectService {
         if (project == null) {
             LOGGER.error("Can not get project by userId {} and projectId {}", userId, projectId);
             return Either
-                .left(new FormatRespDto(Status.BAD_REQUEST, "Can not get project, userId or projectId is error."));
+                    .left(new FormatRespDto(Status.BAD_REQUEST, "Can not get project, userId or projectId is error."));
 
         }
         if (project.getStatus() != EnumProjectStatus.TESTED) {
@@ -812,7 +817,7 @@ public class ProjectService {
      */
     @Transactional
     public void updateDeployResult(ProjectTestConfig testConfig, ApplicationProject project, String stage,
-        EnumTestConfigStatus stageStatus) {
+            EnumTestConfigStatus stageStatus) {
         LOGGER.info("Update deploy test on stage:{} status: {}", stage, stageStatus);
         // update test config always && update product if necessary
         switch (stage) {
@@ -862,6 +867,75 @@ public class ProjectService {
         }
     }
 
+    public Either<FormatRespDto, Boolean> createATPTestTask(String projectId, String token) {
+        String path = ATPUtil.getProjectPath(projectId);
+        String fileName = getFileName(projectId);
+        if (StringUtils.isEmpty(fileName)) {
+            String msg = "get file name is null";
+            LOGGER.error(msg);
+            FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, msg);
+            return Either.left(error);
+        }
+
+        String filePath = path.concat("/").concat(fileName);
+        LOGGER.info("file path is : {}", filePath);
+
+        ResponseEntity<String> response = ATPUtil.sendCreatTask2ATP(filePath, token);
+        JsonArray jsonArray = new JsonParser().parse(response.getBody()).getAsJsonArray();
+        ATPResultInfo atpResultInfo = new ATPResultInfo();
+        // request is one file, reponse array just has one data.
+        jsonArray.forEach(taskInfo -> {
+            LOGGER.info("taskInfo is not empty");
+            JsonElement id = taskInfo.getAsJsonObject().get("id");
+            JsonElement appName = taskInfo.getAsJsonObject().get("appName");
+            JsonElement status = taskInfo.getAsJsonObject().get("status");
+            JsonElement createTime = taskInfo.getAsJsonObject().get("createTime");
+            if (null != id) {
+                atpResultInfo.setId(id.getAsString());
+                atpResultInfo.setAppName(null != appName ? appName.getAsString() : null);
+                atpResultInfo.setStatus(null != status ? status.getAsString() : null);
+                atpResultInfo.setCreateTime(null != createTime ? new Date(createTime.getAsInt()) : null);
+            }
+        });
+
+        // TODO save to db
+        threadPool.execute(new getATPStatusProcessor(atpResultInfo, token));
+
+        return Either.right(true);
+    }
+
+    private String getFileName(String projectId) {
+        List<ProjectTestConfig> testConfigList = projectMapper.getTestConfigByProjectId(projectId);
+        if (CollectionUtils.isEmpty(testConfigList)) {
+            LOGGER.info("This project has not test config, do not terminate.");
+            return null;
+        }
+        ProjectTestConfig testConfig = testConfigList.get(0);
+        return null != testConfig ? testConfig.getAppInstanceId() : null;
+    }
+
+    private class getATPStatusProcessor implements Runnable {
+
+        ATPResultInfo atpResultInfo;
+
+        String token;
+
+        public getATPStatusProcessor(ATPResultInfo atpResultInfo, String token) {
+            this.atpResultInfo = atpResultInfo;
+            this.token = token;
+        }
+
+        @Override
+        public void run() {
+            String taskId = atpResultInfo.getId();
+            atpResultInfo.setStatus(ATPUtil.getTaskStatusFromATP(taskId, token));
+            LOGGER.info("after status update: ", atpResultInfo.getStatus());
+            // TODO update db data.
+        }
+
+    }
+
+
     /**
      * deleteDeployApp.
      *
@@ -869,10 +943,10 @@ public class ProjectService {
      */
     private boolean deleteDeployApp(ProjectTestConfig testConfig, String userId, String token) {
         String workloadId = testConfig.getWorkLoadId();
-        Type type = new TypeToken<List<MepHost>>() { }.getType();
+        Type type = new TypeToken<List<MepHost>>() {}.getType();
         List<MepHost> hosts = gson.fromJson(gson.toJson(testConfig.getHosts()), type);
         MepHost host = hosts.get(0);
-        return HttpClientUtil
-            .terminateAppInstance(host.getProtocol(), host.getIp(), host.getPort(), workloadId, userId, token);
+        return HttpClientUtil.terminateAppInstance(host.getProtocol(), host.getIp(), host.getPort(), workloadId, userId,
+                token);
     }
 }
