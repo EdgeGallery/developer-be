@@ -16,9 +16,6 @@
 
 package org.edgegallery.developer.service;
 
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
-import com.spencerwi.either.Either;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Type;
@@ -27,6 +24,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import javax.ws.rs.core.Response.Status;
 import org.apache.commons.lang3.StringUtils;
 import org.edgegallery.developer.common.Consts;
@@ -36,6 +35,7 @@ import org.edgegallery.developer.mapper.HostMapper;
 import org.edgegallery.developer.mapper.OpenMepCapabilityMapper;
 import org.edgegallery.developer.mapper.ProjectMapper;
 import org.edgegallery.developer.mapper.UploadedFileMapper;
+import org.edgegallery.developer.model.atp.ATPResultInfo;
 import org.edgegallery.developer.model.workspace.ApplicationProject;
 import org.edgegallery.developer.model.workspace.EnumOpenMepType;
 import org.edgegallery.developer.model.workspace.EnumProjectStatus;
@@ -55,6 +55,7 @@ import org.edgegallery.developer.service.csar.NewCreateCsar;
 import org.edgegallery.developer.service.dao.ProjectDao;
 import org.edgegallery.developer.service.deploy.IConfigDeployStage;
 import org.edgegallery.developer.template.ChartFileCreator;
+import org.edgegallery.developer.util.ATPUtil;
 import org.edgegallery.developer.util.BusinessConfigUtil;
 import org.edgegallery.developer.util.CompressFileUtilsJava;
 import org.edgegallery.developer.util.DeveloperFileUtils;
@@ -64,9 +65,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
+import com.google.gson.reflect.TypeToken;
+import com.spencerwi.either.Either;
 
 @Service("projectService")
 public class ProjectService {
@@ -74,6 +82,8 @@ public class ProjectService {
     private static final Logger LOGGER = LoggerFactory.getLogger(ProjectService.class);
 
     private static Gson gson = new Gson();
+
+    ExecutorService threadPool = Executors.newSingleThreadExecutor();
 
     @Autowired
     private ProjectMapper projectMapper;
@@ -860,6 +870,74 @@ public class ProjectService {
             deleteDeployApp(testConfig, AccessUserUtil.getUserId(), testConfig.getLcmToken());
             LOGGER.warn("Deploy failed, delete deploy app.");
         }
+    }
+
+    public Either<FormatRespDto, Boolean> createATPTestTask(String projectId, String token) {
+        String path = ATPUtil.getProjectPath(projectId);
+        String fileName = getFileName(projectId);
+        if (StringUtils.isEmpty(fileName)) {
+            String msg = "get file name is null";
+            LOGGER.error(msg);
+            FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, msg);
+            return Either.left(error);
+        }
+
+        String filePath = path.concat("/").concat(fileName);
+        LOGGER.info("file path is : {}", filePath);
+
+        ResponseEntity<String> response = ATPUtil.sendCreatTask2ATP(filePath, token);
+        JsonArray jsonArray = new JsonParser().parse(response.getBody()).getAsJsonArray();
+        ATPResultInfo atpResultInfo = new ATPResultInfo();
+        // request is one file, reponse array just has one data.
+        jsonArray.forEach(taskInfo -> {
+            LOGGER.info("taskInfo is not empty");
+            JsonElement id = taskInfo.getAsJsonObject().get("id");
+            JsonElement appName = taskInfo.getAsJsonObject().get("appName");
+            JsonElement status = taskInfo.getAsJsonObject().get("status");
+            JsonElement createTime = taskInfo.getAsJsonObject().get("createTime");
+            if (null != id) {
+                atpResultInfo.setId(id.getAsString());
+                atpResultInfo.setAppName(null != appName ? appName.getAsString() : null);
+                atpResultInfo.setStatus(null != status ? status.getAsString() : null);
+                atpResultInfo.setCreateTime(null != createTime ? new Date(createTime.getAsInt()) : null);
+            }
+        });
+
+        // TODO save to db
+        threadPool.execute(new getATPStatusProcessor(atpResultInfo, token));
+
+        return Either.right(true);
+    }
+
+    private String getFileName(String projectId) {
+        List<ProjectTestConfig> testConfigList = projectMapper.getTestConfigByProjectId(projectId);
+        if (CollectionUtils.isEmpty(testConfigList)) {
+            LOGGER.info("This project has not test config, do not terminate.");
+            return null;
+        }
+        ProjectTestConfig testConfig = testConfigList.get(0);
+        return null != testConfig ? testConfig.getAppInstanceId() : null;
+    }
+
+    private class getATPStatusProcessor implements Runnable {
+
+        ATPResultInfo atpResultInfo;
+
+        String token;
+
+        public getATPStatusProcessor(ATPResultInfo atpResultInfo, String token) {
+            this.atpResultInfo = atpResultInfo;
+            this.token = token;
+        }
+
+        @Override
+        public void run() {
+            String taskId = atpResultInfo.getId();
+            atpResultInfo.setStatus(ATPUtil.getTaskStatusFromATP(taskId, token));
+            LOGGER.info("after status update: ", atpResultInfo.getStatus());
+            // TODO update db data.
+        }
+
     }
 
     /**
