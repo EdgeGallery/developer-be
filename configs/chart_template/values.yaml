@@ -13,7 +13,7 @@ appconfig:
     appInsId: <idvalue>
 
 serviceconfig:
-  - servicename: <service_name>
-    port: <port>
-    version: <version>
-    protocol: <HTTP or HTTPS>
+#  - servicename: <service_name>
+#    port: <port>
+#    version: <version>
+#    protocol: <HTTP or HTTPS>
