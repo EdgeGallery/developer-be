@@ -44,6 +44,7 @@ public class ATPUtil {
     public static ResponseEntity<String> sendCreatTask2ATP(String filePath, String token) {
         MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
         body.add("file", new FileSystemResource(filePath));
+        body.add("isRun", Boolean.TRUE);
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);
