@@ -7,34 +7,30 @@ import lombok.Setter;
 @Getter
 public class TrafficFilter {
 
-    private String ipAddressType;
+    private String[] protocal;
 
-    private String protocal;
-
-    private String srcAddress;
+    private String[] srcAddress;
 
     private int qCI;
 
-    private String srcPort;
+    private String[] srcPort;
 
     private int dSCP;
 
-    private String dstAddress;
+    private String[] dstAddress;
 
     private int tC;
 
-    private String dstPort;
+    private String[] dstPort;
 
-    private String tag;
+    private String[] tag;
 
-    private String srcTunnelAddress;
+    private String[] srcTunnelAddress;
 
-    private String tgtTunnelAddress;
+    private String[] tgtTunnelAddress;
 
-    private String srcTunnelPort;
+    private String[] srcTunnelPort;
 
-    private String dstTunnelPort;
-
-
+    private String[] dstTunnelPort;
 
 }
