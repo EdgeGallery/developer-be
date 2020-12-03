@@ -13,16 +13,28 @@ public class TrafficFilter {
 
     private String srcAddress;
 
-    private int qci;
+    private int qCI;
 
     private String srcPort;
 
-    private int dscp;
+    private int dSCP;
 
     private String dstAddress;
 
-    private int tc;
+    private int tC;
 
     private String dstPort;
+
+    private String tag;
+
+    private String srcTunnelAddress;
+
+    private String tgtTunnelAddress;
+
+    private String srcTunnelPort;
+
+    private String dstTunnelPort;
+
+
 
 }

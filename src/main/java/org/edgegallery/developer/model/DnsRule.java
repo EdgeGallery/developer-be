@@ -13,7 +13,7 @@ public class DnsRule {
 
     private String ipAddressType;
 
-    private String dnsServerIp;
+    private String ipAddress;
 
     private String ttl;
 

@@ -16,6 +16,8 @@ public class TrafficRule {
 
     private String filterType;
 
-    private List<TrafficFilter> trafficFilters;
+    private List<TrafficFilter> trafficFilter;
+
+    private DstInterface dstInterface;
 
 }

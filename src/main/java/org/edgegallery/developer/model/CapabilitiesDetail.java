@@ -7,9 +7,9 @@ import lombok.Setter;
 @Getter
 @Setter
 public class CapabilitiesDetail {
-    private List<TrafficRule> trafficRules;
+    private List<TrafficRule> appTrafficRule;
 
-    private List<DnsRule> dnsRules;
+    private List<DnsRule> appDNSRule;
 
     private List<ServiceDetail> serviceDetails;
 
