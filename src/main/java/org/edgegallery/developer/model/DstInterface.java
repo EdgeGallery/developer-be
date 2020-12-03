@@ -1,10 +1,15 @@
 package org.edgegallery.developer.model;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Getter;
 import lombok.Setter;
 
+/**
+ * @author chenhui
+ */
 @Getter
 @Setter
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class DstInterface {
 
     private String interfaceType;
