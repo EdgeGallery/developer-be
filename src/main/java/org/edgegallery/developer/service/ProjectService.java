@@ -34,6 +34,7 @@ import org.edgegallery.developer.mapper.HelmTemplateYamlMapper;
 import org.edgegallery.developer.mapper.HostMapper;
 import org.edgegallery.developer.mapper.OpenMepCapabilityMapper;
 import org.edgegallery.developer.mapper.ProjectMapper;
+import org.edgegallery.developer.mapper.ReleaseConfigMapper;
 import org.edgegallery.developer.mapper.UploadedFileMapper;
 import org.edgegallery.developer.model.ReleaseConfig;
 import org.edgegallery.developer.model.atp.ATPResultInfo;
@@ -44,7 +45,6 @@ import org.edgegallery.developer.model.workspace.EnumTestConfigDeployStatus;
 import org.edgegallery.developer.model.workspace.EnumTestConfigStatus;
 import org.edgegallery.developer.model.workspace.HelmTemplateYamlPo;
 import org.edgegallery.developer.model.workspace.MepHost;
-import org.edgegallery.developer.mapper.ReleaseConfigMapper;
 import org.edgegallery.developer.model.workspace.OpenMepCapabilityDetail;
 import org.edgegallery.developer.model.workspace.OpenMepCapabilityGroup;
 import org.edgegallery.developer.model.workspace.ProjectImageConfig;
@@ -73,8 +73,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import com.google.gson.Gson;
-import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.reflect.TypeToken;
 import com.spencerwi.either.Either;
@@ -908,22 +908,25 @@ public class ProjectService {
         LOGGER.info("file path is : {}", filePath);
 
         ResponseEntity<String> response = ATPUtil.sendCreatTask2ATP(filePath, token);
-        JsonArray jsonArray = new JsonParser().parse(response.getBody()).getAsJsonArray();
+        JsonObject jsonObject = new JsonParser().parse(response.getBody()).getAsJsonObject();
+        if (null == jsonObject) {
+            String msg = "response from atp is null.";
+            LOGGER.error(msg);
+            FormatRespDto error = new FormatRespDto(Status.INTERNAL_SERVER_ERROR, msg);
+            return Either.left(error);
+        }
+
         ATPResultInfo atpResultInfo = new ATPResultInfo();
-        // request is one file, reponse array just has one data.
-        jsonArray.forEach(taskInfo -> {
-            LOGGER.info("taskInfo is not empty");
-            JsonElement id = taskInfo.getAsJsonObject().get("id");
-            JsonElement appName = taskInfo.getAsJsonObject().get("appName");
-            JsonElement status = taskInfo.getAsJsonObject().get("status");
-            JsonElement createTime = taskInfo.getAsJsonObject().get("createTime");
-            if (null != id) {
-                atpResultInfo.setId(id.getAsString());
-                atpResultInfo.setAppName(null != appName ? appName.getAsString() : null);
-                atpResultInfo.setStatus(null != status ? status.getAsString() : null);
-                atpResultInfo.setCreateTime(null != createTime ? new Date(createTime.getAsInt()) : null);
-            }
-        });
+        JsonElement id = jsonObject.get("id");
+        JsonElement appName = jsonObject.get("appName");
+        JsonElement status = jsonObject.get("status");
+        JsonElement createTime = jsonObject.get("createTime");
+        if (null != id) {
+            atpResultInfo.setId(id.getAsString());
+            atpResultInfo.setAppName(null != appName ? appName.getAsString() : null);
+            atpResultInfo.setStatus(null != status ? status.getAsString() : null);
+            atpResultInfo.setCreateTime(null != createTime ? new Date(createTime.getAsInt()) : null);
+        }
 
         // TODO save to db
         threadPool.execute(new getATPStatusProcessor(atpResultInfo, token));
