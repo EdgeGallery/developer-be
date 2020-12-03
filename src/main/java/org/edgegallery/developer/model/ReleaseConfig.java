@@ -1,11 +1,13 @@
 package org.edgegallery.developer.model;
 
-import com.google.gson.Gson;
 import java.util.Date;
 import lombok.Getter;
 import lombok.Setter;
 import org.edgegallery.developer.model.atp.ATPResultInfo;
 
+/**
+ * @author chenhui
+ */
 @Setter
 @Getter
 public class ReleaseConfig {

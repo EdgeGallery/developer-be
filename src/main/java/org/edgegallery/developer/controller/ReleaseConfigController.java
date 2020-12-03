@@ -78,4 +78,5 @@ public class ReleaseConfigController {
         Either<FormatRespDto, ReleaseConfig> either = releaseService.getConfigById(projectId);
         return ResponseDataUtil.buildResponse(either);
     }
+
 }

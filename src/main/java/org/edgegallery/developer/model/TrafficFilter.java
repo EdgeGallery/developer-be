@@ -1,10 +1,15 @@
 package org.edgegallery.developer.model;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Getter;
 import lombok.Setter;
 
+/**
+ * @author chenhui
+ */
 @Setter
 @Getter
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class TrafficFilter {
 
     private String ipAddressType;
@@ -13,15 +18,15 @@ public class TrafficFilter {
 
     private String srcAddress;
 
-    private int qCI;
+    private Integer qCI;
 
     private String srcPort;
 
-    private int dSCP;
+    private Integer dSCP;
 
     private String dstAddress;
 
-    private int tC;
+    private Integer tC;
 
     private String dstPort;
 
@@ -34,7 +39,5 @@ public class TrafficFilter {
     private String srcTunnelPort;
 
     private String dstTunnelPort;
-
-
 
 }
