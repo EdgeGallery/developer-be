@@ -748,7 +748,7 @@ public class ProjectService {
             OpenMepCapabilityGroup group = new OpenMepCapabilityGroup();
             groupId = UUID.randomUUID().toString();
             group.setGroupId(groupId);
-            group.setName(project.getType());
+            group.setOneLevelName(project.getType());
             group.setType(EnumOpenMepType.OPENMEP_ECO);
             group.setDescription("Open MEP ecology group.");
 
