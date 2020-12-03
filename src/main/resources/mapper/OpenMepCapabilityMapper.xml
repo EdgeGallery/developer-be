@@ -22,7 +22,9 @@
     <resultMap id="GroupMap"
       type="org.edgegallery.developer.model.workspace.OpenMepCapabilityGroup">
         <id property="groupId" column="group_id"/>
-        <result property="name" column="name"/>
+        <result property="oneLevelName" column="one_level_name"/>
+        <result property="twoLevelName" column="two_level_name"/>
+        <result property="threeLevelName" column="three_level_name"/>
         <result property="type" column="type"/>
         <result property="description" column="description"/>
     </resultMap>
@@ -58,7 +60,9 @@
     <resultMap id="OpenMEPDetail"
       type="org.edgegallery.developer.model.workspace.OpenMepCapabilityGroup">
         <id column="group_id" property="groupId"/>
-        <result column="name" property="name"/>
+        <result property="oneLevelName" column="one_level_name"/>
+        <result property="twoLevelName" column="two_level_name"/>
+        <result property="threeLevelName" column="three_level_name"/>
         <result column="type" property="type"/>
         <result column="description" property="description"/>
         <collection property="capabilityDetailList"
@@ -84,10 +88,10 @@
     <insert id="saveGroup"
       parameterType="org.edgegallery.developer.model.workspace.OpenMepCapabilityGroup">
         insert into
-        tbl_openmep_capability (group_id, name, type,
+        tbl_openmep_capability (group_id, one_level_name, two_level_name, three_level_name, type,
         description)
         values
-        ( #{groupId}, #{name}, #{type}, #{description})
+        ( #{groupId}, #{oneLevelName}, #{twoLevelName}, #{threeLevelName}, #{type}, #{description})
     </insert>
 
     <insert id="saveCapability"
