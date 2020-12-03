@@ -12,32 +12,30 @@ import lombok.Setter;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class TrafficFilter {
 
-    private String ipAddressType;
+    private String[] protocal;
 
-    private String protocal;
-
-    private String srcAddress;
+    private String[] srcAddress;
 
     private Integer qCI;
 
-    private String srcPort;
+    private String[] srcPort;
 
     private Integer dSCP;
 
-    private String dstAddress;
+    private String[] dstAddress;
 
     private Integer tC;
 
-    private String dstPort;
+    private String[] dstPort;
 
-    private String tag;
+    private String[] tag;
 
-    private String srcTunnelAddress;
+    private String[] srcTunnelAddress;
 
-    private String tgtTunnelAddress;
+    private String[] tgtTunnelAddress;
 
-    private String srcTunnelPort;
+    private String[] srcTunnelPort;
 
-    private String dstTunnelPort;
+    private String[] dstTunnelPort;
 
 }

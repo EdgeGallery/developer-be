@@ -372,9 +372,9 @@ public class ProjectServiceTest {
         String userName = "mec";
         String projectId = project.getRight().getId();
         String token = "";
-//        Either<FormatRespDto, String> result = projectService
-//            .uploadToAppStore(userId, projectId, projectId, userName, token);
-//        Assert.assertTrue(result.isLeft());
+        Either<FormatRespDto, Boolean> result = projectService
+            .uploadToAppStore(userId, projectId, projectId, userName, token);
+        Assert.assertTrue(result.isLeft());
 
     }
 
@@ -386,9 +386,9 @@ public class ProjectServiceTest {
         String userName = "mec";
         String projectId = project.getRight().getId();
         String token = "";
-//        Either<FormatRespDto, String> result = projectService
-//            .uploadToAppStore(userId, projectId, projectId, userName, token);
-//        Assert.assertTrue(result.isLeft());
+        Either<FormatRespDto, Boolean> result = projectService
+            .uploadToAppStore(userId, projectId, projectId, userName, token);
+        Assert.assertTrue(result.isLeft());
 
     }
 
