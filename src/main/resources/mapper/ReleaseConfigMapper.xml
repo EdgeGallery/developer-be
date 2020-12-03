@@ -24,8 +24,10 @@
         <result property="projectId" column="project_id"/>
         <result property="guideFileId" column="guide_file_id"/>
         <result property="appInstanceId" column="appinstance_id"/>
-        <result property="capabilitiesDetail" column="capabilities_detail"/>
-        <result property="atpTest" column="atp_test"/>
+        <result property="capabilitiesDetail" column="capabilities_detail"
+                typeHandler="org.edgegallery.developer.model.handler.JsonTypeHandler"/>
+        <result property="atpTest" column="atp_test"
+                typeHandler="org.edgegallery.developer.model.handler.JsonTypeHandler"/>
         <result property="testStatus" column="test_status"/>
         <result property="createTime" column="create_time"/>
     </resultMap>
@@ -36,7 +38,9 @@
         tbl_release_config (release_id, project_id, guide_file_id, appinstance_id, capabilities_detail, atp_test,
         test_status, create_time)
         values
-        ( #{releaseId}, #{projectId}, #{guideFileId}, #{appInstanceId}, #{capabilitiesDetail}, #{atpTest},
+        ( #{releaseId}, #{projectId}, #{guideFileId}, #{appInstanceId},
+        #{capabilitiesDetail, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonTypeHandler},
+        #{atpTest, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonTypeHandler},
         #{testStatus}, #{createTime})
     </insert>
 
@@ -62,7 +66,9 @@
         tbl_release_config
         SET
         release_id = #{releaseId}, project_id = #{projectId}, guide_file_id = #{guideFileId},
-        appinstance_id = #{appInstanceId}, capabilities_detail = #{capabilitiesDetail}, atp_test = #{atpTest},
+        appinstance_id = #{appInstanceId}, capabilities_detail =
+        #{capabilitiesDetail, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonTypeHandler},
+        atp_test = #{atpTest, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonTypeHandler},
         test_status = #{testStatus}, create_time=#{createTime}
         where
         project_id = #{projectId}
