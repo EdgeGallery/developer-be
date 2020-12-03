@@ -50,52 +50,54 @@ public class AccessTokenFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
         throws ServletException, IOException {
-        String accessTokenStr = request.getHeader(Consts.ACCESS_TOKEN_STR);
-        if (StringUtils.isEmpty(accessTokenStr)) {
-            LOGGER.error("Access token is empty");
-            response.sendError(HttpStatus.UNAUTHORIZED.value(), "Access token is empty");
-            return;
-        }
-        OAuth2AccessToken accessToken = jwtTokenStore.readAccessToken(accessTokenStr);
-        if (accessToken == null) {
-            LOGGER.error("Invalid access token, token string is null");
-            response.sendError(HttpStatus.UNAUTHORIZED.value(), "Invalid access token, token string is null.");
-            return;
-        }
-        if (accessToken.isExpired()) {
-            LOGGER.error("Access token expired");
-            response.sendError(HttpStatus.UNAUTHORIZED.value(), "Access token expired");
-            return;
-        }
-        Map<String, Object> additionalInfoMap = accessToken.getAdditionalInformation();
-        if (additionalInfoMap == null) {
-            LOGGER.error("Invalid access token, additional info map is null.");
-            response.sendError(HttpStatus.UNAUTHORIZED.value(), "Invalid access token, additional info map is null.");
-            return;
-        }
-        String userIdFromToken = additionalInfoMap.get("userId").toString();
-        String userNameFromToken = additionalInfoMap.get("userName").toString();
-        AccessUserUtil.setUser(userIdFromToken, userNameFromToken);
-        String userIdFromRequest = request.getParameter("userId");
-        if (!StringUtils.isEmpty(userIdFromRequest) && !userIdFromRequest.equals(userIdFromToken)) {
-            LOGGER.error("Illegal userId");
-            response.sendError(HttpStatus.UNAUTHORIZED.value(), "Illegal userId");
-            return;
-        }
-        String userNameFromRequest = request.getParameter("userName");
+        if (request.getRequestURI() == null || !request.getRequestURI().equals("/health")) {
+            String accessTokenStr = request.getHeader(Consts.ACCESS_TOKEN_STR);
+            if (StringUtils.isEmpty(accessTokenStr)) {
+                LOGGER.error("Access token is empty");
+                response.sendError(HttpStatus.UNAUTHORIZED.value(), "Access token is empty");
+                return;
+            }
+            OAuth2AccessToken accessToken = jwtTokenStore.readAccessToken(accessTokenStr);
+            if (accessToken == null) {
+                LOGGER.error("Invalid access token, token string is null");
+                response.sendError(HttpStatus.UNAUTHORIZED.value(), "Invalid access token, token string is null.");
+                return;
+            }
+            if (accessToken.isExpired()) {
+                LOGGER.error("Access token expired");
+                response.sendError(HttpStatus.UNAUTHORIZED.value(), "Access token expired");
+                return;
+            }
+            Map<String, Object> additionalInfoMap = accessToken.getAdditionalInformation();
+            if (additionalInfoMap == null) {
+                LOGGER.error("Invalid access token, additional info map is null.");
+                response.sendError(HttpStatus.UNAUTHORIZED.value(), "Invalid access token, additional info map is null.");
+                return;
+            }
+            String userIdFromToken = additionalInfoMap.get("userId").toString();
+            String userNameFromToken = additionalInfoMap.get("userName").toString();
+            AccessUserUtil.setUser(userIdFromToken, userNameFromToken);
+            String userIdFromRequest = request.getParameter("userId");
+            if (!StringUtils.isEmpty(userIdFromRequest) && !userIdFromRequest.equals(userIdFromToken)) {
+                LOGGER.error("Illegal userId");
+                response.sendError(HttpStatus.UNAUTHORIZED.value(), "Illegal userId");
+                return;
+            }
+            String userNameFromRequest = request.getParameter("userName");
 
-        if (!StringUtils.isEmpty(userNameFromRequest) && !userNameFromRequest.equals(userNameFromToken)) {
-            LOGGER.error("Illegal userName");
-            response.sendError(HttpStatus.UNAUTHORIZED.value(), "Illegal userName");
-            return;
+            if (!StringUtils.isEmpty(userNameFromRequest) && !userNameFromRequest.equals(userNameFromToken)) {
+                LOGGER.error("Illegal userName");
+                response.sendError(HttpStatus.UNAUTHORIZED.value(), "Illegal userName");
+                return;
+            }
+            OAuth2Authentication auth = jwtTokenStore.readAuthentication(accessToken);
+            if (auth == null) {
+                LOGGER.error("Invalid access token, authentication info is null.");
+                response.sendError(HttpStatus.UNAUTHORIZED.value(), "Invalid access token, authentication info is null.");
+                return;
+            }
+            SecurityContextHolder.getContext().setAuthentication(auth);
         }
-        OAuth2Authentication auth = jwtTokenStore.readAuthentication(accessToken);
-        if (auth == null) {
-            LOGGER.error("Invalid access token, authentication info is null.");
-            response.sendError(HttpStatus.UNAUTHORIZED.value(), "Invalid access token, authentication info is null.");
-            return;
-        }
-        SecurityContextHolder.getContext().setAuthentication(auth);
         filterChain.doFilter(request, response);
     }
 }
