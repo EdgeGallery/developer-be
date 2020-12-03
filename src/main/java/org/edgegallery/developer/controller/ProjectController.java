@@ -300,15 +300,15 @@ public class ProjectController {
     /**
      * upload this project to AppStore.
      */
-    @ApiOperation(value = "upload this project to AppStore.", response = String.class)
+    @ApiOperation(value = "upload this project to AppStore.", response = Boolean.class)
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "OK", response = String.class),
+        @ApiResponse(code = 200, message = "OK", response = Boolean.class),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
     @RequestMapping(value = "/{projectId}/action/upload", method = RequestMethod.POST,
         consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT')")
-    public ResponseEntity<String> uploadToAppStore(
+    public ResponseEntity<Boolean> uploadToAppStore(
         @Pattern(regexp = REGEX_UUID, message = "projectId must be in UUID format")
         @ApiParam(value = "projectId", required = true) @PathVariable("projectId") String projectId,
         @Pattern(regexp = REGEX_UUID, message = "userId must be in UUID format")
@@ -320,7 +320,7 @@ public class ProjectController {
         @ApiParam(value = "userName", required = true) @RequestParam(value = "userName", required = true)
             String userName, HttpServletRequest request) {
         String token = request.getHeader(Consts.ACCESS_TOKEN_STR);
-        Either<FormatRespDto, String> either = projectService
+        Either<FormatRespDto, Boolean> either = projectService
             .uploadToAppStore(userId, projectId, appInstanceId, userName, token);
         return ResponseDataUtil.buildResponse(either);
     }

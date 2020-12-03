@@ -35,6 +35,7 @@ import org.edgegallery.developer.mapper.HostMapper;
 import org.edgegallery.developer.mapper.OpenMepCapabilityMapper;
 import org.edgegallery.developer.mapper.ProjectMapper;
 import org.edgegallery.developer.mapper.UploadedFileMapper;
+import org.edgegallery.developer.model.ReleaseConfig;
 import org.edgegallery.developer.model.atp.ATPResultInfo;
 import org.edgegallery.developer.model.workspace.ApplicationProject;
 import org.edgegallery.developer.model.workspace.EnumOpenMepType;
@@ -43,6 +44,7 @@ import org.edgegallery.developer.model.workspace.EnumTestConfigDeployStatus;
 import org.edgegallery.developer.model.workspace.EnumTestConfigStatus;
 import org.edgegallery.developer.model.workspace.HelmTemplateYamlPo;
 import org.edgegallery.developer.model.workspace.MepHost;
+import org.edgegallery.developer.mapper.ReleaseConfigMapper;
 import org.edgegallery.developer.model.workspace.OpenMepCapabilityDetail;
 import org.edgegallery.developer.model.workspace.OpenMepCapabilityGroup;
 import org.edgegallery.developer.model.workspace.ProjectImageConfig;
@@ -56,6 +58,7 @@ import org.edgegallery.developer.service.dao.ProjectDao;
 import org.edgegallery.developer.service.deploy.IConfigDeployStage;
 import org.edgegallery.developer.template.ChartFileCreator;
 import org.edgegallery.developer.util.ATPUtil;
+import org.edgegallery.developer.util.AppStoreUtil;
 import org.edgegallery.developer.util.BusinessConfigUtil;
 import org.edgegallery.developer.util.CompressFileUtilsJava;
 import org.edgegallery.developer.util.DeveloperFileUtils;
@@ -90,6 +93,9 @@ public class ProjectService {
 
     @Autowired
     private HostMapper hostMapper;
+
+    @Autowired
+    private ReleaseConfigMapper configMapper;
 
     @Autowired
     private UploadedFileMapper uploadedFileMapper;
@@ -506,6 +512,7 @@ public class ProjectService {
         }
 
         testConfig.setProjectId(projectId);
+        testConfig.setDeployStatus(EnumTestConfigDeployStatus.NOTDEPLOY);
         List<ProjectTestConfig> tests = projectMapper.getTestConfigByProjectId(projectId);
 
         int ret;
@@ -582,7 +589,7 @@ public class ProjectService {
      *
      * @return
      */
-    public Either<FormatRespDto, String> uploadToAppStore(String userId, String projectId, String appInstanceId,
+    public Either<FormatRespDto, Boolean> uploadToAppStore(String userId, String projectId, String appInstanceId,
         String userName, String token) {
         // 0 check data. must be tested, and deployed status must be ok, can not be error.
         ApplicationProject project = projectMapper.getProject(userId, projectId);
@@ -601,6 +608,19 @@ public class ProjectService {
         if (testConfig == null) {
             LOGGER.error("Can not find project by project id.");
             FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "can not get test config");
+            return Either.left(error);
+        }
+        ReleaseConfig releaseConfig = configMapper.getConfigByProjectId(projectId);
+        if (releaseConfig == null) {
+            LOGGER.error("Can not find ReleaseConfig by project id.");
+            FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "can not get release config");
+            return Either.left(error);
+        }
+        //todo
+        //判断atp测试是否成功
+        if (releaseConfig.getAtpTest() == null) {
+            LOGGER.error("Can not upload appstore because apt test fail.");
+            FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "can not upload appstore");
             return Either.left(error);
         }
 
@@ -634,7 +654,9 @@ public class ProjectService {
         map.put("shortDesc", project.getDescription());
         map.put("affinity", StringUtils.join(project.getPlatform().toArray(), ","));
         map.put("industry", StringUtils.join(project.getIndustry().toArray(), ","));
-        return utilsService.storeToAppStore(map, userId, userName, token);
+        ResponseEntity<String> uploadReslut = AppStoreUtil.storeToAppStore(map, userId, userName, token);
+        //todo 获取apppackage并发布能力详情
+        return Either.right(true);
     }
 
     /**
