@@ -13,5 +13,5 @@ public class ATPResultInfo {
 
     String status;
 
-    Date createTime;
+    String createTime;
 }
