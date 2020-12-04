@@ -904,10 +904,10 @@ public class ProjectService {
             return Either.left(error);
         }
 
-        String filePath = path.concat(fileName).concat(".csar");
-        LOGGER.info("file path is : {}", filePath);
+        LOGGER.info("file path is : {}", path.concat(fileName).concat(".csar"));
+        File csar = new File(path.concat(fileName).concat(".csar"));
 
-        ResponseEntity<String> response = ATPUtil.sendCreatTask2ATP(filePath, token);
+        ResponseEntity<String> response = ATPUtil.sendCreatTask2ATP(csar.getPath(), token);
         JsonObject jsonObject = new JsonParser().parse(response.getBody()).getAsJsonObject();
         if (null == jsonObject) {
             String msg = "response from atp is null.";
