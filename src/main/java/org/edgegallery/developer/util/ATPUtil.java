@@ -43,6 +43,7 @@ public class ATPUtil {
      */
     public static ResponseEntity<String> sendCreatTask2ATP(String filePath, String token) {
         MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
+        LOGGER.info("filePath: {}", filePath);
         body.add("file", new FileSystemResource(filePath));
         body.add("isRun", Boolean.TRUE);
 
@@ -93,7 +94,6 @@ public class ATPUtil {
                             "Get task status from atp reponse failed.");
                 }
 
-                LOGGER.info("response: {}", response.toString());
                 JsonObject jsonObject = new JsonParser().parse(response.getBody()).getAsJsonObject();
                 String status = jsonObject.get("status").getAsString();
 

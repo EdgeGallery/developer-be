@@ -15,4 +15,6 @@ public interface ReleaseConfigMapper {
 
     int modifyReleaseConfig(ReleaseConfig config);
 
+    int updateATPStatus(ReleaseConfig config);
+
 }
