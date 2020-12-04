@@ -904,7 +904,7 @@ public class ProjectService {
             return Either.left(error);
         }
 
-        String filePath = path.concat("/").concat(fileName);
+        String filePath = path.concat(fileName).concat(".csar");
         LOGGER.info("file path is : {}", filePath);
 
         ResponseEntity<String> response = ATPUtil.sendCreatTask2ATP(filePath, token);
