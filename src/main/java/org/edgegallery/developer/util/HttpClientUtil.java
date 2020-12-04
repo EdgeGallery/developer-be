@@ -48,6 +48,7 @@ public final class HttpClientUtil {
      */
     public static boolean instantiateApplication(String protocol, String ip, int port, String filePath,
         String appInstanceId, String userId, String token) {
+        LOGGER.info("instantiateApplication path: {}", filePath);
         MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
         body.add("file", new FileSystemResource(filePath));
         body.add("hostIp", ip);
