@@ -903,9 +903,9 @@ public class ProjectService {
             FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, msg);
             return Either.left(error);
         }
-        File csar = new File(path.concat(fileName).concat(".csar"));
 
         LOGGER.info("file path is : {}", path.concat(fileName).concat(".csar"));
+        File csar = new File(path.concat(fileName).concat(".csar"));
 
         ResponseEntity<String> response = ATPUtil.sendCreatTask2ATP(csar.getPath(), token);
         JsonObject jsonObject = new JsonParser().parse(response.getBody()).getAsJsonObject();
