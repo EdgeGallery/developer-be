@@ -73,5 +73,14 @@
         where
         project_id = #{projectId}
     </update>
+    
+     <update id="updateATPStatus" parameterType="org.edgegallery.developer.model.ReleaseConfig">
+        UPDATE
+        tbl_release_config
+        SET
+        atp_test = #{atpTest, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonTypeHandler},
+        where
+        project_id = #{projectId}
+    </update>
 
 </mapper>

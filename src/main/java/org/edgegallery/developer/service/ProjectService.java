@@ -904,11 +904,8 @@ public class ProjectService {
             return Either.left(error);
         }
 
-        LOGGER.info("file path is : {}", path.concat(fileName).concat(".csar"));
         File csar = new File(path.concat(fileName).concat(".csar"));
-
         ResponseEntity<String> response = ATPUtil.sendCreatTask2ATP(csar.getPath(), token);
-        LOGGER.info("response: {}", response.getBody());
         JsonObject jsonObject = new JsonParser().parse(response.getBody()).getAsJsonObject();
 
         if (null == jsonObject) {
@@ -919,15 +916,10 @@ public class ProjectService {
         }
 
         ATPResultInfo atpResultInfo = new ATPResultInfo();
-        LOGGER.info("jsonObject", jsonObject.toString());
         JsonElement id = jsonObject.get("id");
         JsonElement appName = jsonObject.get("appName");
         JsonElement status = jsonObject.get("status");
         JsonElement createTime = jsonObject.get("createTime");
-        LOGGER.info("id", id);
-        LOGGER.info("appName", appName);
-        LOGGER.info("status", status);
-        LOGGER.info("createTime", createTime);
         if (null != id) {
             atpResultInfo.setId(id.getAsString());
             atpResultInfo.setAppName(null != appName ? appName.getAsString() : null);
@@ -935,9 +927,13 @@ public class ProjectService {
             atpResultInfo.setCreateTime(null != createTime ? createTime.getAsString() : null);
         }
 
-        LOGGER.info("createTime", createTime);
-        // TODO save to db
-        threadPool.execute(new getATPStatusProcessor(atpResultInfo, token));
+        // save to db
+        ReleaseConfig config = new ReleaseConfig();
+        config.setProjectId(projectId);
+        config.setAtpTest(atpResultInfo);
+        configMapper.updateATPStatus(config);
+
+        threadPool.execute(new getATPStatusProcessor(config, token));
 
         return Either.right(true);
     }
@@ -953,23 +949,21 @@ public class ProjectService {
     }
 
     private class getATPStatusProcessor implements Runnable {
-
-        ATPResultInfo atpResultInfo;
-
+        ReleaseConfig config;
         String token;
 
-        public getATPStatusProcessor(ATPResultInfo atpResultInfo, String token) {
-            this.atpResultInfo = atpResultInfo;
+        public getATPStatusProcessor(ReleaseConfig config, String token) {
+            this.config = config;
             this.token = token;
         }
 
         @Override
         public void run() {
-            LOGGER.info("run in.");
+            ATPResultInfo atpResultInfo = config.getAtpTest();
             String taskId = atpResultInfo.getId();
             atpResultInfo.setStatus(ATPUtil.getTaskStatusFromATP(taskId, token));
-            LOGGER.info("after status update: ", atpResultInfo.getStatus());
-            // TODO update db data.
+            LOGGER.info("after status update: ", config.getAtpTest().getStatus());
+            configMapper.updateATPStatus(config);
         }
 
     }
