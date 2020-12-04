@@ -908,7 +908,9 @@ public class ProjectService {
         File csar = new File(path.concat(fileName).concat(".csar"));
 
         ResponseEntity<String> response = ATPUtil.sendCreatTask2ATP(csar.getPath(), token);
+        LOGGER.info("response: {}", response.getBody());
         JsonObject jsonObject = new JsonParser().parse(response.getBody()).getAsJsonObject();
+
         if (null == jsonObject) {
             String msg = "response from atp is null.";
             LOGGER.error(msg);
@@ -917,17 +919,23 @@ public class ProjectService {
         }
 
         ATPResultInfo atpResultInfo = new ATPResultInfo();
+        LOGGER.info("jsonObject", jsonObject.toString());
         JsonElement id = jsonObject.get("id");
         JsonElement appName = jsonObject.get("appName");
         JsonElement status = jsonObject.get("status");
         JsonElement createTime = jsonObject.get("createTime");
+        LOGGER.info("id", id);
+        LOGGER.info("appName", appName);
+        LOGGER.info("status", status);
+        LOGGER.info("createTime", createTime);
         if (null != id) {
             atpResultInfo.setId(id.getAsString());
             atpResultInfo.setAppName(null != appName ? appName.getAsString() : null);
             atpResultInfo.setStatus(null != status ? status.getAsString() : null);
-            atpResultInfo.setCreateTime(null != createTime ? new Date(createTime.getAsInt()) : null);
+            atpResultInfo.setCreateTime(null != createTime ? createTime.getAsString() : null);
         }
 
+        LOGGER.info("createTime", createTime);
         // TODO save to db
         threadPool.execute(new getATPStatusProcessor(atpResultInfo, token));
 
@@ -957,6 +965,7 @@ public class ProjectService {
 
         @Override
         public void run() {
+            LOGGER.info("run in.");
             String taskId = atpResultInfo.getId();
             atpResultInfo.setStatus(ATPUtil.getTaskStatusFromATP(taskId, token));
             LOGGER.info("after status update: ", atpResultInfo.getStatus());
