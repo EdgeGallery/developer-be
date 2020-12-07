@@ -170,11 +170,11 @@ topology_template:
       type: tosca.nodes.nfv.app.configuration
       properties:
         appServiceRequired:
-          - serName: face-recognize
-            version: 1.0
-            requestedPermissions: true
-            appId: ea8ebc1a-db88-11ea-87d0-0242ac130003
-            packageId: b1bb0ce7-ebca-4fa7-95ed-4840d70a1177
+#          - serName: face-recognize
+#            version: 1.0
+#            requestedPermissions: true
+#            appId: ea8ebc1a-db88-11ea-87d0-0242ac130003
+#            packageId: b1bb0ce7-ebca-4fa7-95ed-4840d70a1177
         appServiceOptional:
           - serName: appService2
             version: 3.0

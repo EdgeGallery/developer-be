@@ -655,7 +655,10 @@ public class ProjectService {
         map.put("affinity", StringUtils.join(project.getPlatform().toArray(), ","));
         map.put("industry", StringUtils.join(project.getIndustry().toArray(), ","));
         ResponseEntity<String> uploadReslut = AppStoreUtil.storeToAppStore(map, userId, userName, token);
-        //todo 获取apppackage并发布能力详情
+        //todo 获取apppackage并发布到appstore
+
+
+        //todo 保存到api详情
         return Either.right(true);
     }
 
