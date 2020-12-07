@@ -35,13 +35,14 @@ public class AppStoreUtil {
         headers.set("access_token", token);
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);
         String url = String
-            .format("%s/mec/appstore/v1/apps?userId=%s&userName=%s", InitConfigUtil.getProperties(APPSTORE_ADDRESS), userId, userName);
+            .format("%s/mec/appstore/v1/apps?userId=%s&userName=%s", InitConfigUtil.getProperties(APPSTORE_ADDRESS),
+                userId, userName);
 
         try {
             ResponseEntity<String> responses = restTemplate
                 .exchange(url, HttpMethod.POST, new HttpEntity<>(map, headers), String.class);
-            if (HttpStatus.OK.equals(responses.getStatusCode())
-                || HttpStatus.ACCEPTED.equals(responses.getStatusCode())) {
+            if (HttpStatus.OK.equals(responses.getStatusCode()) || HttpStatus.ACCEPTED
+                .equals(responses.getStatusCode())) {
                 return responses;
             }
             LOGGER.error("Upload appstore failed,  status is {}", responses.getStatusCode());
@@ -50,6 +51,31 @@ public class AppStoreUtil {
 
         }
         throw new InvocationException(Response.Status.INTERNAL_SERVER_ERROR, "Upload appstore failed.");
+    }
+
+    /**
+     * publish app to appstore.
+     */
+    public static ResponseEntity<String> publishToAppStore(String appId, String pkgId,String token) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("access_token", token);
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        String url = String.format("%s/mec/appstore/v1/app/%s/packages/%s/action/publish",
+            InitConfigUtil.getProperties(APPSTORE_ADDRESS), appId, pkgId);
+
+        try {
+            ResponseEntity<String> responses = restTemplate
+                .exchange(url, HttpMethod.POST, new HttpEntity<>(headers), String.class);
+            if (HttpStatus.OK.equals(responses.getStatusCode()) || HttpStatus.ACCEPTED
+                .equals(responses.getStatusCode())) {
+                return responses;
+            }
+            LOGGER.error("publish app failed,  status is {}", responses.getStatusCode());
+        } catch (InvocationException e) {
+            LOGGER.error("publish app  failed,  exception {}", e.getMessage());
+
+        }
+        throw new InvocationException(Response.Status.INTERNAL_SERVER_ERROR, "publish app failed.");
     }
 
 }
