@@ -918,6 +918,7 @@ public class ProjectService {
                 break;
         }
         boolean productUpdate = false;
+        LOGGER.info("get workStatus status:{}, stage:{}", stageStatus, stage);
         if (EnumTestConfigStatus.Success.equals(stageStatus) && "workStatus".equalsIgnoreCase(stage)) {
             productUpdate = true;
             project.setStatus(EnumProjectStatus.DEPLOYED);
