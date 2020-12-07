@@ -338,7 +338,7 @@ public class ProjectService {
             IConfigDeployStage stageService = deployServiceMap.get(nextStage + "_service");
             stageService.execute(config);
         } catch (Exception e) {
-            LOGGER.error("Deploy project config:{} failed on stage :{}.", config.getTestId(), nextStage);
+            LOGGER.error("Deploy project config:{} failed on stage :{}, res:{}", config.getTestId(), nextStage, e.getMessage());
         }
     }
 
