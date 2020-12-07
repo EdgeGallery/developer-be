@@ -16,6 +16,12 @@
 
 package org.edgegallery.developer.controller;
 
+import com.spencerwi.either.Either;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import java.io.IOException;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
@@ -46,12 +52,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import com.spencerwi.either.Either;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
 
 @Controller
 @RestSchema(schemaId = "projects")
@@ -126,9 +126,9 @@ public class ProjectController {
 
         String token = request.getHeader(Consts.ACCESS_TOKEN_STR);
         Either<FormatRespDto, ApplicationProject> either = projectService.createProject(userId, project);
-//        if (either.isRight()) {
-////            apiEmulatorMgr.createApiEmulatorIfNotExist(userId, token);
-////        }
+        //        if (either.isRight()) {
+        ////            apiEmulatorMgr.createApiEmulatorIfNotExist(userId, token);
+        ////        }
         return ResponseDataUtil.buildResponse(either);
     }
 
@@ -230,7 +230,7 @@ public class ProjectController {
         consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT')")
     public ResponseEntity<Boolean> clean(@Pattern(regexp = REGEX_UUID, message = "projectId must be in UUID format")
-        @ApiParam(value = "projectId", required = true) @PathVariable("projectId") String projectId,
+    @ApiParam(value = "projectId", required = true) @PathVariable("projectId") String projectId,
         @Pattern(regexp = REGEX_UUID, message = "userId must be in UUID format")
         @ApiParam(value = "userId", required = true) @RequestParam("userId") String userId,
         HttpServletRequest request) {
@@ -318,10 +318,12 @@ public class ProjectController {
         @NotNull @Length(min = 6, max = 30) @Pattern(regexp = REGEX_USERNAME,
             message = "username can only be a combination of letters and numbers, the length is 6 to 30")
         @ApiParam(value = "userName", required = true) @RequestParam(value = "userName", required = true)
-            String userName, HttpServletRequest request) {
+            String userName,
+        @Pattern(regexp = REGEX_UUID, message = "groupId must be in UUID format")
+        @ApiParam(value = "groupId", required = true) @RequestParam("groupId") String groupId, HttpServletRequest request) {
         String token = request.getHeader(Consts.ACCESS_TOKEN_STR);
         Either<FormatRespDto, Boolean> either = projectService
-            .uploadToAppStore(userId, projectId, appInstanceId, userName, token);
+            .uploadToAppStore(userId, projectId, appInstanceId, userName, token,groupId);
         return ResponseDataUtil.buildResponse(either);
     }
 
@@ -405,15 +407,17 @@ public class ProjectController {
     }
 
     @ApiOperation(value = "create atp test task.", response = Boolean.class)
-    @ApiResponses(value = {@ApiResponse(code = 202, message = "Accept", response = Boolean.class),
-            @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)})
+    @ApiResponses(value = {
+        @ApiResponse(code = 202, message = "Accept", response = Boolean.class),
+        @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
+    })
     @RequestMapping(value = "/{projectId}/action/atp", method = RequestMethod.GET,
-            produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+        produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT')")
     public ResponseEntity<Boolean> createATPTestTask(
-            @Pattern(regexp = REGEX_UUID, message = "projectId must be in UUID format") @ApiParam(value = "projectId",
-                    required = true) @PathVariable("projectId") String projectId,
-            HttpServletRequest request) {
+        @Pattern(regexp = REGEX_UUID, message = "projectId must be in UUID format")
+        @ApiParam(value = "projectId", required = true) @PathVariable("projectId") String projectId,
+        HttpServletRequest request) {
         String token = request.getHeader(Consts.ACCESS_TOKEN_STR);
         Either<FormatRespDto, Boolean> either = projectService.createATPTestTask(projectId, token);
         return ResponseDataUtil.buildResponse(either);

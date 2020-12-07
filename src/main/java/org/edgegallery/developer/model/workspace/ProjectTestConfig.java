@@ -22,7 +22,6 @@ import java.util.UUID;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import org.mec.developer.model.workspace.EnumDeployPlatform;
 
 @Getter
 @Setter

@@ -16,6 +16,12 @@
 
 package org.edgegallery.developer.service;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.google.gson.reflect.TypeToken;
+import com.spencerwi.either.Either;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Type;
@@ -37,6 +43,7 @@ import org.edgegallery.developer.mapper.ProjectMapper;
 import org.edgegallery.developer.mapper.ReleaseConfigMapper;
 import org.edgegallery.developer.mapper.UploadedFileMapper;
 import org.edgegallery.developer.model.ReleaseConfig;
+import org.edgegallery.developer.model.ServiceDetail;
 import org.edgegallery.developer.model.atp.ATPResultInfo;
 import org.edgegallery.developer.model.workspace.ApplicationProject;
 import org.edgegallery.developer.model.workspace.EnumOpenMepType;
@@ -68,16 +75,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
-import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import com.google.gson.reflect.TypeToken;
-import com.spencerwi.either.Either;
 
 @Service("projectService")
 public class ProjectService {
@@ -590,7 +592,7 @@ public class ProjectService {
      * @return
      */
     public Either<FormatRespDto, Boolean> uploadToAppStore(String userId, String projectId, String appInstanceId,
-        String userName, String token) {
+        String userName, String token, String groupId) {
         // 0 check data. must be tested, and deployed status must be ok, can not be error.
         ApplicationProject project = projectMapper.getProject(userId, projectId);
         if (project == null) {
@@ -616,9 +618,7 @@ public class ProjectService {
             FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "can not get release config");
             return Either.left(error);
         }
-        //todo
-        //判断atp测试是否成功
-        if (releaseConfig.getAtpTest() == null) {
+        if (releaseConfig.getAtpTest() == null && !releaseConfig.getAtpTest().getStatus().equals("success")) {
             LOGGER.error("Can not upload appstore because apt test fail.");
             FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "can not upload appstore");
             return Either.left(error);
@@ -654,12 +654,62 @@ public class ProjectService {
         map.put("shortDesc", project.getDescription());
         map.put("affinity", StringUtils.join(project.getPlatform().toArray(), ","));
         map.put("industry", StringUtils.join(project.getIndustry().toArray(), ","));
+        //add Field testTaskId
+        map.put("testTaskId", releaseConfig.getAtpTest().getId());
         ResponseEntity<String> uploadReslut = AppStoreUtil.storeToAppStore(map, userId, userName, token);
-        //todo 获取apppackage并发布到appstore
-
-
-        //todo 保存到api详情
+        JsonObject jsonObject = new JsonParser().parse(uploadReslut.getBody()).getAsJsonObject();
+        if (jsonObject == null) {
+            LOGGER.error("upload app to appstore fail!");
+            FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "upload app to appstore fail!");
+            return Either.left(error);
+        }
+        //publish app to appstore
+        JsonElement appId = jsonObject.get("appId");
+        JsonElement packageId = jsonObject.get("packageId");
+        if (appId != null && packageId != null) {
+            ResponseEntity<String> publishRes = AppStoreUtil
+                .publishToAppStore(appId.getAsString(), packageId.getAsString(), token);
+            if (!publishRes.getStatusCode().equals(HttpStatus.OK)) {
+                LOGGER.error("publish app to appstore fail!");
+                FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "publish app to appstore fail!");
+                return Either.left(error);
+            }
+        }
+        //save db to openmepcapabilitydetail
+        OpenMepCapabilityDetail detail = new OpenMepCapabilityDetail();
+        fillCapability(groupId, releaseConfig, detail, jsonObject, userId);
+        int res = openMepCapabilityMapper.saveCapability(detail);
+        if (res < 1) {
+            LOGGER.error("store db to openmepcapabilitydetail fail!");
+            FormatRespDto error = new FormatRespDto(Status.INTERNAL_SERVER_ERROR, "save detail db fail!");
+            return Either.left(error);
+        }
         return Either.right(true);
+    }
+
+    private void fillCapability(String groupId, ReleaseConfig config, OpenMepCapabilityDetail detail, JsonObject obj,
+        String userId) {
+        detail.setDetailId(UUID.randomUUID().toString());
+        detail.setGroupId(groupId);
+        JsonElement provider = obj.get("provider");
+        if (provider != null) {
+            detail.setProvider(provider.getAsString());
+        }
+        List<ServiceDetail> list = config.getCapabilitiesDetail().getServiceDetails();
+        if (list != null && list.size() > 0) {
+            detail.setService(list.get(0).getServiceName());
+            detail.setVersion(list.get(0).getVersion());
+            detail.setDescription("desc");
+            detail.setApiFileId(list.get(0).getApiJson());
+            detail.setGuideFileId(list.get(0).getApiMd());
+            detail.setUploadTime(new Date());
+            detail.setPort(list.get(0).getInternalPort());
+            detail.setHost(list.get(0).getServiceName());
+            detail.setProtocol(list.get(0).getProtocal());
+            detail.setAppId(obj.get("appId").getAsString());
+            detail.setPackageId(obj.get("packageId").getAsString());
+            detail.setUserId(userId);
+        }
     }
 
     /**
@@ -953,6 +1003,7 @@ public class ProjectService {
 
     private class getATPStatusProcessor implements Runnable {
         ReleaseConfig config;
+
         String token;
 
         public getATPStatusProcessor(ReleaseConfig config, String token) {
