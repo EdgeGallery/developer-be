@@ -36,7 +36,7 @@ public class ReleaseConfigController {
         @ApiResponse(code = 200, message = "OK", response = ReleaseConfig.class),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
-    @RequestMapping(value = "/{projectId}/action/save-release-config", method = RequestMethod.POST,
+    @RequestMapping(value = "/{projectId}/action/release-config", method = RequestMethod.POST,
         produces = MediaType.APPLICATION_JSON_UTF8_VALUE, consumes = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT')")
     public ResponseEntity<ReleaseConfig> saveReleaseConfig(
@@ -52,7 +52,7 @@ public class ReleaseConfigController {
         @ApiResponse(code = 200, message = "OK", response = ReleaseConfig.class),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
-    @RequestMapping(value = "/{projectId}/action/modify-release-config", method = RequestMethod.PUT,
+    @RequestMapping(value = "/{projectId}/action/release-config", method = RequestMethod.PUT,
         produces = MediaType.APPLICATION_JSON_UTF8_VALUE, consumes = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT')")
     public ResponseEntity<ReleaseConfig> updateReleaseConfig(
@@ -68,7 +68,7 @@ public class ReleaseConfigController {
         @ApiResponse(code = 200, message = "OK", response = ReleaseConfig.class),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
-    @RequestMapping(value = "/{projectId}/action/get-release-config", method = RequestMethod.GET,
+    @RequestMapping(value = "/{projectId}/action/release-config", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_UTF8_VALUE, consumes = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT')")
     public ResponseEntity<ReleaseConfig> getReleaseConfig(
