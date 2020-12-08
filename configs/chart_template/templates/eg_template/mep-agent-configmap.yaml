@@ -14,7 +14,7 @@ data:
           href: "/example/catalogue1"
           id: id12345
           name: RNI
-          version: version1
+          version: {{ .version}}
         version: {{ .version }}
         state: ACTIVE
         transportId: Rest1
@@ -26,12 +26,9 @@ data:
           protocol: {{ .protocol }}
           version: '2.0'
           endpoint:
-            addresses: [
-              {
-                host: {{ .servicename }}.{{ .appnamespace }}
-                port: {{ .port }}
-              }
-            ]
+            addresses:
+              - host: {{ .servicename}}.{{ .appnamespace}}
+                port: {{ .port}}
           implSpecificInfo: {}
         serializer: JSON
         scopeOfLocality: MEC_SYSTEM
@@ -53,9 +50,9 @@ data:
             - href: /example/catalogue1
               id: id12345
               name: RNI
-              version: version1
+              version: {{ .version}}
           states:
             - ACTIVE
           isLocal: true
 
-{{- end }}
+  {{- end }}

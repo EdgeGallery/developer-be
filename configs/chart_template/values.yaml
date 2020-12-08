@@ -13,7 +13,8 @@ appconfig:
     appInsId: <idvalue>
 
 serviceconfig:
-#  - servicename: <service_name>
-#    port: <port>
-#    version: <version>
-#    protocol: <HTTP or HTTPS>
+  - servicename: positionsvc
+    port: 9997
+    version: 1.0
+    protocol: HTTP
+    appnamespace: default
