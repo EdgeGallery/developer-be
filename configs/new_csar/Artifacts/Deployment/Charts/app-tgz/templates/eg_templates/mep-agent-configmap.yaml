@@ -1,18 +1,21 @@
+{{- if .Values.global.mepagent.enabled }}
 ---
 apiVersion: v1
 kind: ConfigMap
 metadata:
   name: mep-agent-service-config
+  namespace: {{ .Values.appconfig.appnamespace }}
 data:
   app_instance_info.yaml: |-
     serviceInfoPosts:
-      - serName: {{ .Values.serviceconfig[0].servicename }}
+    {{- range .Values.serviceconfig }}
+      - serName: {{ .servicename }}
         serCategory:
           href: "/example/catalogue1"
           id: id12345
           name: RNI
-          version: version1
-        version: {{ .Values.serviceconfig[0].version }}
+          version: {{ .version}}
+        version: {{ .version }}
         state: ACTIVE
         transportId: Rest1
         transportInfo:
@@ -20,20 +23,18 @@ data:
           name: REST
           description: REST API
           type: REST_HTTP
-          protocol: {{ .Values.serviceconfig[0].protocol }}
+          protocol: {{ .protocol }}
           version: '2.0'
           endpoint:
-            addresses: [
-              {
-                host: {{ .Values.serviceconfig[0].servicename }}.{{ .Values.appconfig.appnamespace }}
-                port: {{ .Values.serviceconfig[0].port }}
-              }
-            ]
+            addresses:
+              - host: {{ .servicename}}.{{ .appnamespace}}
+                port: {{ .port}}
           implSpecificInfo: {}
         serializer: JSON
         scopeOfLocality: MEC_SYSTEM
         consumedLocalOnly: false
         isLocal: true
+    {{- end }}
     serAvailabilityNotificationSubscriptions:
       - subscriptionType: SerAvailabilityNotificationSubscription
         callbackReference: string
@@ -49,9 +50,9 @@ data:
             - href: /example/catalogue1
               id: id12345
               name: RNI
-              version: version1
+              version: {{ .version}}
           states:
             - ACTIVE
           isLocal: true
 
-
+  {{- end }}
