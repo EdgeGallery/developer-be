@@ -17,4 +17,6 @@ public class TunnelInfo {
     private String tunnelDstAddress;
 
     private String tunnelSrcAddress;
+
+    private String tunnelSpecificData;
 }
