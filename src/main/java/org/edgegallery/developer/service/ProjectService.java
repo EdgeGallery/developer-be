@@ -42,6 +42,7 @@ import org.edgegallery.developer.mapper.OpenMepCapabilityMapper;
 import org.edgegallery.developer.mapper.ProjectMapper;
 import org.edgegallery.developer.mapper.ReleaseConfigMapper;
 import org.edgegallery.developer.mapper.UploadedFileMapper;
+import org.edgegallery.developer.model.CapabilitiesDetail;
 import org.edgegallery.developer.model.ReleaseConfig;
 import org.edgegallery.developer.model.ServiceDetail;
 import org.edgegallery.developer.model.atp.ATPResultInfo;
@@ -340,7 +341,8 @@ public class ProjectService {
             IConfigDeployStage stageService = deployServiceMap.get(nextStage + "_service");
             stageService.execute(config);
         } catch (Exception e) {
-            LOGGER.error("Deploy project config:{} failed on stage :{}, res:{}", config.getTestId(), nextStage, e.getMessage());
+            LOGGER.error("Deploy project config:{} failed on stage :{}, res:{}", config.getTestId(), nextStage,
+                e.getMessage());
         }
     }
 
@@ -675,15 +677,23 @@ public class ProjectService {
                 return Either.left(error);
             }
         }
-        //save db to openmepcapabilitydetail
-        OpenMepCapabilityDetail detail = new OpenMepCapabilityDetail();
-        fillCapability(groupId, releaseConfig, detail, jsonObject, userId);
-        int res = openMepCapabilityMapper.saveCapability(detail);
-        if (res < 1) {
-            LOGGER.error("store db to openmepcapabilitydetail fail!");
-            FormatRespDto error = new FormatRespDto(Status.INTERNAL_SERVER_ERROR, "save detail db fail!");
+        CapabilitiesDetail capabilitiesDetail = releaseConfig.getCapabilitiesDetail();
+        if (capabilitiesDetail.getServiceDetails() != null && capabilitiesDetail.getServiceDetails().size() != 0) {
+            //save db to openmepcapabilitydetail
+            OpenMepCapabilityDetail detail = new OpenMepCapabilityDetail();
+            fillCapability(groupId, releaseConfig, detail, jsonObject, userId);
+            int res = openMepCapabilityMapper.saveCapability(detail);
+            if (res < 1) {
+                LOGGER.error("store db to openmepcapabilitydetail fail!");
+                FormatRespDto error = new FormatRespDto(Status.INTERNAL_SERVER_ERROR, "save detail db fail!");
+                return Either.left(error);
+            }
+        } else {
+            LOGGER.error("no application service publishing configuration!");
+            FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "no app service configuration!");
             return Either.left(error);
         }
+
         return Either.right(true);
     }
 

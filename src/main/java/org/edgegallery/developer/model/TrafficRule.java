@@ -24,6 +24,6 @@ public class TrafficRule {
 
     private List<TrafficFilter> trafficFilter;
 
-    private DstInterface dstInterface;
+    private List<DstInterface> dstInterface;
 
 }
