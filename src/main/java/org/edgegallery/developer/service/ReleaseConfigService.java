@@ -2,9 +2,12 @@ package org.edgegallery.developer.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import com.google.common.reflect.TypeToken;
+import com.google.gson.Gson;
 import com.google.gson.internal.LinkedTreeMap;
 import com.spencerwi.either.Either;
 import java.io.File;
+import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Date;
@@ -240,9 +243,12 @@ public class ReleaseConfigService {
             properties.setAppTrafficRule(trafficRules);
         }
         if (!CollectionUtils.isEmpty(project.getCapabilityList())) {
+            Gson gson = new Gson();
+            Type type = new TypeToken<List<OpenMepCapabilityGroup>>() { }.getType();
+            List<OpenMepCapabilityGroup> groups = gson.fromJson(gson.toJson(project.getCapabilityList()), type);
             List<AppConfigurationModel.ServiceRequired> requiredList = new ArrayList<>();
             ObjectMapper mapper = new ObjectMapper();
-            for (Object obj : project.getCapabilityList()) {
+            for (Object obj : groups) {
                 LinkedTreeMap treeMap = (LinkedTreeMap) obj;
                 OpenMepCapabilityGroup group = mapper.convertValue(treeMap, OpenMepCapabilityGroup.class);
                 for (OpenMepCapabilityDetail capabilityDetail : group.getCapabilityDetailList()) {
