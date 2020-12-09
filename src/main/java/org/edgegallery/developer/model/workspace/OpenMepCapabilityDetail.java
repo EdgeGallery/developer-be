@@ -80,25 +80,4 @@ public class OpenMepCapabilityDetail {
         return this.detailId;
     }
 
-    /**
-     * getUploadTime.
-     */
-    public Date getUploadTime() {
-        if (this.uploadTime != null) {
-            return new Date(this.uploadTime.getTime());
-        } else {
-            return null;
-        }
-    }
-
-    /**
-     * setUploadTime.
-     */
-    public void setUploadTime(Date deployDate) {
-        if (deployDate != null) {
-            this.uploadTime = (Date) deployDate.clone();
-        } else {
-            this.uploadTime = null;
-        }
-    }
 }
