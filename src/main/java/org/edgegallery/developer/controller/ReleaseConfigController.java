@@ -37,7 +37,7 @@ public class ReleaseConfigController {
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
     @RequestMapping(value = "/{projectId}/action/release-config", method = RequestMethod.POST,
-        produces = MediaType.APPLICATION_JSON_UTF8_VALUE, consumes = MediaType.APPLICATION_JSON_UTF8_VALUE)
+        produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT')")
     public ResponseEntity<ReleaseConfig> saveReleaseConfig(
         @Pattern(regexp = REGEX_UUID, message = "projectId must be in UUID format")
@@ -53,7 +53,7 @@ public class ReleaseConfigController {
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
     @RequestMapping(value = "/{projectId}/action/release-config", method = RequestMethod.PUT,
-        produces = MediaType.APPLICATION_JSON_UTF8_VALUE, consumes = MediaType.APPLICATION_JSON_UTF8_VALUE)
+        produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT')")
     public ResponseEntity<ReleaseConfig> updateReleaseConfig(
         @Pattern(regexp = REGEX_UUID, message = "projectId must be in UUID format")
@@ -69,7 +69,7 @@ public class ReleaseConfigController {
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
     @RequestMapping(value = "/{projectId}/action/release-config", method = RequestMethod.GET,
-        produces = MediaType.APPLICATION_JSON_UTF8_VALUE, consumes = MediaType.APPLICATION_JSON_UTF8_VALUE)
+        produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT')")
     public ResponseEntity<ReleaseConfig> getReleaseConfig(
         @Pattern(regexp = REGEX_UUID, message = "projectId must be in UUID format")

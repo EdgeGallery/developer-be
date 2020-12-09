@@ -323,7 +323,7 @@ public class ProjectController {
         @ApiParam(value = "groupId", required = true) @RequestParam("groupId") String groupId, HttpServletRequest request) {
         String token = request.getHeader(Consts.ACCESS_TOKEN_STR);
         Either<FormatRespDto, Boolean> either = projectService
-            .uploadToAppStore(userId, projectId, appInstanceId, userName, token,groupId);
+            .uploadToAppStore(userId, projectId, appInstanceId, userName, token);
         return ResponseDataUtil.buildResponse(either);
     }
 

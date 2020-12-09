@@ -14,6 +14,8 @@ import lombok.Setter;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ServiceDetail {
 
+    private  String groupId;
+
     private String serviceName;
 
     private Integer internalPort;
