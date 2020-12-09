@@ -48,20 +48,4 @@ public class ReleaseConfig {
             this.createTime = null;
         }
     }
-
-    // /**
-    //  * setCapabilitiesDetail.
-    //  */
-    // public void setCapabilitiesDetail(CapabilitiesDetail capabilitiesDetail) {
-    //     Gson gson = new Gson();
-    //     this.capabilitiesDetail = gson.toJson(capabilitiesDetail);
-    // }
-    //
-    // /**
-    //  * setAtpTest.
-    //  */
-    // public void setAtpTest(ATPResultInfo atpTest) {
-    //     Gson gson = new Gson();
-    //     this.atpTest = gson.toJson(atpTest);
-    // }
 }
