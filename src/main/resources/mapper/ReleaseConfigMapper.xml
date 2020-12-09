@@ -44,8 +44,7 @@
         #{testStatus}, #{createTime})
     </insert>
 
-    <select id="getConfigByReleaseId" parameterType="java.lang.String"
-            resultType="org.edgegallery.developer.model.ReleaseConfig">
+    <select id="getConfigByReleaseId" parameterType="java.lang.String" resultMap="ConfigMap">
         SELECT
         *
         FROM

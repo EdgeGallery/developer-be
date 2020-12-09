@@ -121,11 +121,6 @@ public class ReleaseConfigService {
             return Either.left(dto);
         }
         ReleaseConfig oldConfig = configMapper.getConfigByProjectId(projectId);
-        if (oldConfig == null) {
-            LOGGER.error("projectId error,can not find any project!");
-            FormatRespDto dto = new FormatRespDto(Response.Status.BAD_REQUEST, "projectId error!");
-            return Either.left(dto);
-        }
         LOGGER.info("get release config success!");
         return Either.right(oldConfig);
     }
