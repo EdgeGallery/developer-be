@@ -2,9 +2,9 @@ package org.edgegallery.developer.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 import com.google.gson.internal.LinkedTreeMap;
+import com.google.gson.reflect.TypeToken;
 import com.spencerwi.either.Either;
 import java.io.File;
 import java.lang.reflect.Type;
@@ -243,15 +243,16 @@ public class ReleaseConfigService {
             properties.setAppTrafficRule(trafficRules);
         }
         if (!CollectionUtils.isEmpty(project.getCapabilityList())) {
-            Gson gson = new Gson();
-            Type type = new TypeToken<List<OpenMepCapabilityGroup>>() { }.getType();
-            List<OpenMepCapabilityGroup> groups = gson.fromJson(gson.toJson(project.getCapabilityList()), type);
             List<AppConfigurationModel.ServiceRequired> requiredList = new ArrayList<>();
             ObjectMapper mapper = new ObjectMapper();
-            for (Object obj : groups) {
+            for (Object obj : project.getCapabilityList()) {
                 LinkedTreeMap treeMap = (LinkedTreeMap) obj;
                 OpenMepCapabilityGroup group = mapper.convertValue(treeMap, OpenMepCapabilityGroup.class);
-                for (OpenMepCapabilityDetail capabilityDetail : group.getCapabilityDetailList()) {
+                Gson gson = new Gson();
+                Type type = new TypeToken<List<OpenMepCapabilityDetail>>() { }.getType();
+                List<OpenMepCapabilityDetail> mepDetails = gson
+                    .fromJson(gson.toJson(group.getCapabilityDetailList()), type);
+                for (OpenMepCapabilityDetail capabilityDetail : mepDetails) {
                     AppConfigurationModel.ServiceRequired required = new AppConfigurationModel.ServiceRequired();
                     required.setSerName(capabilityDetail.getService());
                     required.setAppId(capabilityDetail.getAppId());
