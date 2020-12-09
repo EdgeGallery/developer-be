@@ -60,6 +60,7 @@ public final class HttpClientUtil {
         ResponseEntity<String> response;
         try {
             response = REST_TEMPLATE.exchange(url, HttpMethod.POST, requestEntity, String.class);
+            LOGGER.info("APPlCM log:{}",response);
         } catch (RestClientException e) {
             LOGGER.error("Failed to instantiate application which appInstanceId is {} exception {}", appInstanceId,
                 e.getMessage());
