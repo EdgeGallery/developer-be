@@ -648,6 +648,7 @@ public class ProjectService {
         //add Field testTaskId
         map.put("testTaskId", releaseConfig.getAtpTest().getId());
         ResponseEntity<String> uploadReslut = AppStoreUtil.storeToAppStore(map, userId, userName, token);
+        LOGGER.info("upload appstore result:{}", uploadReslut);
         JsonObject jsonObject = new JsonParser().parse(uploadReslut.getBody()).getAsJsonObject();
         if (jsonObject == null) {
             LOGGER.error("upload app to appstore fail!");

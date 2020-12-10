@@ -6,7 +6,6 @@ import org.apache.servicecomb.swagger.invocation.exception.InvocationException;
 import org.edgegallery.developer.service.UtilsService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -60,16 +59,17 @@ public class AppStoreUtil {
     /**
      * publish app to appstore.
      */
-    public static ResponseEntity<String> publishToAppStore(String appId, String pkgId,String token) {
+    public static ResponseEntity<String> publishToAppStore(String appId, String pkgId, String token) {
         HttpHeaders headers = new HttpHeaders();
         headers.set("access_token", token);
         headers.setContentType(MediaType.APPLICATION_JSON);
-        String url = String.format("%s/mec/appstore/v1/app/%s/packages/%s/action/publish",
+        String url = String.format("%s/mec/appstore/v1/apps/%s/packages/%s/action/publish",
             InitConfigUtil.getProperties(APPSTORE_ADDRESS), appId, pkgId);
-
+        LOGGER.info("url: {}", url);
         try {
             ResponseEntity<String> responses = restTemplate
                 .exchange(url, HttpMethod.POST, new HttpEntity<>(headers), String.class);
+            LOGGER.info("res: {}", responses);
             if (HttpStatus.OK.equals(responses.getStatusCode()) || HttpStatus.ACCEPTED
                 .equals(responses.getStatusCode())) {
                 return responses;
