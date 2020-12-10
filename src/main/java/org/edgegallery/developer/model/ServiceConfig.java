@@ -39,4 +39,6 @@ public class ServiceConfig {
      */
     private String protocol;
 
+    private String appnamespace;
+
 }
