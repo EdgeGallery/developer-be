@@ -648,13 +648,20 @@ public class ProjectService {
         //add Field testTaskId
         map.put("testTaskId", releaseConfig.getAtpTest().getId());
         ResponseEntity<String> uploadReslut = AppStoreUtil.storeToAppStore(map, userId, userName, token);
+        LOGGER.info("upload appstore result:{}", uploadReslut);
         JsonObject jsonObject = new JsonParser().parse(uploadReslut.getBody()).getAsJsonObject();
         if (jsonObject == null) {
             LOGGER.error("upload app to appstore fail!");
             FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "upload app to appstore fail!");
             return Either.left(error);
         }
-        LOGGER.warn("upload over! " + uploadReslut.getBody());
+        LOGGER.info("upload over! {}", uploadReslut.getBody());
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            LOGGER.error("sleep fail! {}", e.getMessage());
+        }
+
         //publish app to appstore
         JsonElement appId = jsonObject.get("appId");
         JsonElement packageId = jsonObject.get("packageId");
@@ -666,7 +673,7 @@ public class ProjectService {
                 FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "publish app to appstore fail!");
                 return Either.left(error);
             }
-            LOGGER.warn("publish over! " + publishRes.getBody());
+            LOGGER.info("publish over! {}", publishRes.getBody());
         }
 
         CapabilitiesDetail capabilitiesDetail = releaseConfig.getCapabilitiesDetail();
