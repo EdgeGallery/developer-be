@@ -406,25 +406,16 @@ public class UploadFileService {
                         helmTemplateYamlRespDto.setServiceSuccess(true);
                         continue;
                     }
-                    if ("Pod".equalsIgnoreCase(stringMap.get(key).toString()) && stringMap.get("spec") != null) {
-                        LinkedHashMap<String, List<LinkedHashMap<String, Object>>> specMap
-                            = (LinkedHashMap<String, List<LinkedHashMap<String, Object>>>) stringMap.get("spec");
-                        if (!CollectionUtils.isEmpty(specMap.get("containers"))) {
-                            for (LinkedHashMap<String, Object> container : specMap.get("containers")) {
-                                if (container == null) {
-                                    continue;
-                                }
-                                if (container.get("name") != null && container.get("name").toString()
-                                    .equals("mep-agent")) {
-                                    helmTemplateYamlRespDto.setMepAgentSuccess(true);
-                                    requiredItems.remove("mep-agent");
-                                    continue;
-                                }
-                                if (container.get("image") != null) {
-                                    requiredItems.remove("image");
-                                    helmTemplateYamlRespDto.setImageSuccess(true);
-                                }
-                            }
+                    if (stringMap.get("spec") != null) {
+                        String specContent = stringMap.get("spec").toString();
+                        if (specContent.contains("image")){
+                            requiredItems.remove("image");
+                            helmTemplateYamlRespDto.setImageSuccess(true);
+                            continue;
+                        }
+                        if (specContent.contains("mep-agent")){
+                            helmTemplateYamlRespDto.setMepAgentSuccess(true);
+                            requiredItems.remove("mep-agent");
                         }
                     }
                 }
