@@ -445,7 +445,7 @@ public class ProjectService {
         File csarPkgDir;
         if (!CollectionUtils.isEmpty(yamlPoList)) {
             // create chart file
-            ChartFileCreator chartFileCreator = new ChartFileCreator();
+            ChartFileCreator chartFileCreator = new ChartFileCreator(projectName);
             chartFileCreator.setChartName(projectName);
             if (mepCapability == null || mepCapability.size() == 0) {
                 chartFileCreator.setChartValues("false", "false", "default");
@@ -964,6 +964,7 @@ public class ProjectService {
         File csar = new File(path.concat(fileName).concat(".csar"));
         ResponseEntity<String> response = ATPUtil.sendCreatTask2ATP(csar.getPath(), token);
         JsonObject jsonObject = new JsonParser().parse(response.getBody()).getAsJsonObject();
+        LOGGER.info("atp test result:{}", jsonObject);
 
         if (null == jsonObject) {
             String msg = "response from atp is null.";
@@ -988,6 +989,7 @@ public class ProjectService {
         ReleaseConfig config = new ReleaseConfig();
         config.setProjectId(projectId);
         config.setAtpTest(atpResultInfo);
+        LOGGER.info("update release config:{}", config);
         configMapper.updateATPStatus(config);
 
         threadPool.execute(new getATPStatusProcessor(config, token));

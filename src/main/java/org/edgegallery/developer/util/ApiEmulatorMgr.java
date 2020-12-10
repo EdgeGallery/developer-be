@@ -60,7 +60,7 @@ public class ApiEmulatorMgr {
 
     private static String createEmulatorCsar(int nodePort) throws IOException {
         String appName = APP_NAME_PREFIX + nodePort;
-        ChartFileCreator chartFileCreator = new ChartFileCreator();
+        ChartFileCreator chartFileCreator = new ChartFileCreator("apiEmulator");
         chartFileCreator.setChartValues("false", "false", "default");
         String templateYamlContent = FileUtils
             .readFileToString(new File(API_EMULATOR_K8S_TEMPLATE_FILE_PATH), Consts.FILE_ENCODING)
