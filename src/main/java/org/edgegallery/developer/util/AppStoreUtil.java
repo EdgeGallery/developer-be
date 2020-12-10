@@ -37,7 +37,7 @@ public class AppStoreUtil {
         String url = String
             .format("%s/mec/appstore/v1/apps?userId=%s&userName=%s", InitConfigUtil.getProperties(APPSTORE_ADDRESS),
                 userId, userName);
-
+        LOGGER.warn(url);
         try {
             ResponseEntity<String> responses = restTemplate
                 .exchange(url, HttpMethod.POST, new HttpEntity<>(map, headers), String.class);
