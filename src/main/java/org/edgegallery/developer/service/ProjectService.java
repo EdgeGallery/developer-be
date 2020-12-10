@@ -603,17 +603,6 @@ public class ProjectService {
             return Either.left(new FormatRespDto(Status.BAD_REQUEST, message));
 
         }
-        if (project.getStatus() != EnumProjectStatus.TESTED) {
-            LOGGER.error("Status {} is not TESTED, can not upload to appstore", project.getStatus());
-            FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "Only TESTED App can be upload.");
-            return Either.left(error);
-        }
-        ProjectTestConfig testConfig = projectMapper.getTestConfig(project.getLastTestId());
-        if (testConfig == null) {
-            LOGGER.error("Can not find project by project id.");
-            FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "can not get test config");
-            return Either.left(error);
-        }
         ReleaseConfig releaseConfig = configMapper.getConfigByProjectId(projectId);
         if (releaseConfig == null) {
             LOGGER.error("Can not find ReleaseConfig by project id.");
