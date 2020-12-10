@@ -94,7 +94,7 @@
         status=#{status}, ip=#{ip}, port=#{port}, os=#{os}, port_range_min=#{portRangeMin},
         port_range_max=#{portRangeMax}
         WHERE
-        host_id = #{hostId}
+        user_id = #{userId}
     </update>
 
     <delete id="deleteHost" parameterType="java.lang.String">
