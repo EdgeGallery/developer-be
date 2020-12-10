@@ -244,15 +244,15 @@ public class ReleaseConfigService {
         }
         if (!CollectionUtils.isEmpty(project.getCapabilityList())) {
             List<AppConfigurationModel.ServiceRequired> requiredList = new ArrayList<>();
-            ObjectMapper mapper = new ObjectMapper();
-            for (Object obj : project.getCapabilityList()) {
-                LinkedTreeMap treeMap = (LinkedTreeMap) obj;
-                OpenMepCapabilityGroup group = mapper.convertValue(treeMap, OpenMepCapabilityGroup.class);
-                Gson gson = new Gson();
-                Type type = new TypeToken<List<OpenMepCapabilityDetail>>() { }.getType();
-                List<OpenMepCapabilityDetail> mepDetails = gson
-                    .fromJson(gson.toJson(group.getCapabilityDetailList()), type);
-                for (OpenMepCapabilityDetail capabilityDetail : mepDetails) {
+            Gson gson = new Gson();
+            Type type = new TypeToken<List<OpenMepCapabilityGroup>>() { }.getType();
+            List<OpenMepCapabilityGroup> capabilities = gson.fromJson(gson.toJson(project.getCapabilityList()), type);
+            for (OpenMepCapabilityGroup obj : capabilities) {
+                List<OpenMepCapabilityDetail> openMepCapabilityGroups = obj.getCapabilityDetailList();
+                Type openMepCapabilityType = new TypeToken<List<OpenMepCapabilityDetail>>() { }.getType();
+                List<OpenMepCapabilityDetail> openMepCapabilityDetails = gson.fromJson(gson.toJson(openMepCapabilityGroups), openMepCapabilityType);
+
+                for (OpenMepCapabilityDetail capabilityDetail : openMepCapabilityDetails) {
                     AppConfigurationModel.ServiceRequired required = new AppConfigurationModel.ServiceRequired();
                     required.setSerName(capabilityDetail.getService());
                     required.setAppId(capabilityDetail.getAppId());

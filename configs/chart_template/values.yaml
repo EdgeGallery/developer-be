@@ -13,7 +13,7 @@ appconfig:
     appInsId: <idvalue>
 
 serviceconfig:
-  - servicename: positionsvc
+  - servicename: positioning-service
     port: 9997
     version: 1.0
     protocol: HTTP
