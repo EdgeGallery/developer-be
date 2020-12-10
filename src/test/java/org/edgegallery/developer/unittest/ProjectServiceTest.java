@@ -373,7 +373,7 @@ public class ProjectServiceTest {
         String projectId = project.getRight().getId();
         String token = "";
         Either<FormatRespDto, Boolean> result = projectService
-            .uploadToAppStore(userId, projectId, projectId, userName, token,"");
+            .uploadToAppStore(userId, projectId, projectId, userName, token);
         Assert.assertTrue(result.isLeft());
 
     }
@@ -387,7 +387,7 @@ public class ProjectServiceTest {
         String projectId = project.getRight().getId();
         String token = "";
         Either<FormatRespDto, Boolean> result = projectService
-            .uploadToAppStore(userId, projectId, projectId, userName, token,"");
+            .uploadToAppStore(userId, projectId, projectId, userName, token);
         Assert.assertTrue(result.isLeft());
 
     }

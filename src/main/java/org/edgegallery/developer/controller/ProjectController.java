@@ -318,9 +318,7 @@ public class ProjectController {
         @NotNull @Length(min = 6, max = 30) @Pattern(regexp = REGEX_USERNAME,
             message = "username can only be a combination of letters and numbers, the length is 6 to 30")
         @ApiParam(value = "userName", required = true) @RequestParam(value = "userName", required = true)
-            String userName,
-        @Pattern(regexp = REGEX_UUID, message = "groupId must be in UUID format")
-        @ApiParam(value = "groupId", required = true) @RequestParam("groupId") String groupId, HttpServletRequest request) {
+            String userName,HttpServletRequest request) {
         String token = request.getHeader(Consts.ACCESS_TOKEN_STR);
         Either<FormatRespDto, Boolean> either = projectService
             .uploadToAppStore(userId, projectId, appInstanceId, userName, token);
