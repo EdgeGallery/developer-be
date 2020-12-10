@@ -20,8 +20,8 @@ import org.springframework.web.client.RestTemplate;
 public class AppStoreUtil {
     private static final Logger LOGGER = LoggerFactory.getLogger(UtilsService.class);
 
-    @Value("${appstore.address}")
-    private static String appstoreAddress;
+    // @Value("${appstore.address}")
+    // private static String appstoreAddress;
 
     private static final String APPSTORE_ADDRESS = "appstore.address";
 
@@ -39,7 +39,7 @@ public class AppStoreUtil {
         headers.set("access_token", token);
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);
         String url = String
-            .format("%s/mec/appstore/v1/apps?userId=%s&userName=%s", appstoreAddress,
+            .format("%s/mec/appstore/v1/apps?userId=%s&userName=%s", InitConfigUtil.getProperties(APPSTORE_ADDRESS),
                 userId, userName);
         LOGGER.warn(url);
         try {
