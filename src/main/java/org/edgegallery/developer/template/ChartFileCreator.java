@@ -50,8 +50,8 @@ public class ChartFileCreator implements BaseFileCreator {
 
     private Map<String, String> yamlNameToContentMap = new HashMap<>();
 
-    public ChartFileCreator() {
-        this.dirName = UUID.randomUUID().toString();
+    public ChartFileCreator(String chartName) {
+        this.dirName = chartName;
         this.temporaryPath = TEMPORARY_BASE_PATH + dirName;
     }
 
