@@ -6,6 +6,7 @@ import org.apache.servicecomb.swagger.invocation.exception.InvocationException;
 import org.edgegallery.developer.service.UtilsService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -18,6 +19,9 @@ import org.springframework.web.client.RestTemplate;
 
 public class AppStoreUtil {
     private static final Logger LOGGER = LoggerFactory.getLogger(UtilsService.class);
+
+    @Value("${appstore.address}")
+    private static String appstoreAddress;
 
     private static final String APPSTORE_ADDRESS = "appstore.address";
 
@@ -35,7 +39,7 @@ public class AppStoreUtil {
         headers.set("access_token", token);
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);
         String url = String
-            .format("%s/mec/appstore/v1/apps?userId=%s&userName=%s", InitConfigUtil.getProperties(APPSTORE_ADDRESS),
+            .format("%s/mec/appstore/v1/apps?userId=%s&userName=%s", appstoreAddress,
                 userId, userName);
         LOGGER.warn(url);
         try {
