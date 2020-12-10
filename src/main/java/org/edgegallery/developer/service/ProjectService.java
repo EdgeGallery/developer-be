@@ -654,6 +654,7 @@ public class ProjectService {
             FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "upload app to appstore fail!");
             return Either.left(error);
         }
+        LOGGER.warn("upload over! " + uploadReslut.getBody());
         //publish app to appstore
         JsonElement appId = jsonObject.get("appId");
         JsonElement packageId = jsonObject.get("packageId");
@@ -665,19 +666,22 @@ public class ProjectService {
                 FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "publish app to appstore fail!");
                 return Either.left(error);
             }
+            LOGGER.warn("publish over! " + publishRes.getBody());
         }
+
         CapabilitiesDetail capabilitiesDetail = releaseConfig.getCapabilitiesDetail();
         if (capabilitiesDetail.getServiceDetails() != null && capabilitiesDetail.getServiceDetails().size() != 0) {
             //save db to openmepcapabilitydetail
-            for (ServiceDetail serviceDetail:capabilitiesDetail.getServiceDetails()){
+            for (ServiceDetail serviceDetail : capabilitiesDetail.getServiceDetails()) {
                 OpenMepCapabilityDetail detail = new OpenMepCapabilityDetail();
-                fillCapability(serviceDetail,detail, jsonObject, userId);
+                fillCapability(serviceDetail, detail, jsonObject, userId);
                 int res = openMepCapabilityMapper.saveCapability(detail);
                 if (res < 1) {
                     LOGGER.error("store db to openmepcapabilitydetail fail!");
                     FormatRespDto error = new FormatRespDto(Status.INTERNAL_SERVER_ERROR, "save detail db fail!");
                     return Either.left(error);
                 }
+                LOGGER.warn("save db success! ");
             }
         } else {
             LOGGER.error("no application service publishing configuration!");
@@ -688,7 +692,7 @@ public class ProjectService {
         return Either.right(true);
     }
 
-    private void fillCapability(ServiceDetail serviceDetail,OpenMepCapabilityDetail detail, JsonObject obj,
+    private void fillCapability(ServiceDetail serviceDetail, OpenMepCapabilityDetail detail, JsonObject obj,
         String userId) {
         detail.setDetailId(UUID.randomUUID().toString());
 
@@ -697,18 +701,18 @@ public class ProjectService {
         if (provider != null) {
             detail.setProvider(provider.getAsString());
         }
-            detail.setService(serviceDetail.getServiceName());
-            detail.setVersion(serviceDetail.getVersion());
-            detail.setDescription("desc");
-            detail.setApiFileId(serviceDetail.getApiJson());
-            detail.setGuideFileId(serviceDetail.getApiMd());
-            detail.setUploadTime(new Date());
-            detail.setPort(serviceDetail.getInternalPort());
-            detail.setHost(serviceDetail.getServiceName());
-            detail.setProtocol(serviceDetail.getProtocal());
-            detail.setAppId(obj.get("appId").getAsString());
-            detail.setPackageId(obj.get("packageId").getAsString());
-            detail.setUserId(userId);
+        detail.setService(serviceDetail.getServiceName());
+        detail.setVersion(serviceDetail.getVersion());
+        detail.setDescription("desc");
+        detail.setApiFileId(serviceDetail.getApiJson());
+        detail.setGuideFileId(serviceDetail.getApiMd());
+        detail.setUploadTime(new Date());
+        detail.setPort(serviceDetail.getInternalPort());
+        detail.setHost(serviceDetail.getServiceName());
+        detail.setProtocol(serviceDetail.getProtocal());
+        detail.setAppId(obj.get("appId").getAsString());
+        detail.setPackageId(obj.get("packageId").getAsString());
+        detail.setUserId(userId);
     }
 
     /**
