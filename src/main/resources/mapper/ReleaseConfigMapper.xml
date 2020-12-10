@@ -78,7 +78,7 @@
         UPDATE
         tbl_release_config
         SET
-        atp_test = #{atpTest, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonTypeHandler},
+        atp_test = #{atpTest, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonTypeHandler}
         where
         project_id = #{projectId}
     </update>
