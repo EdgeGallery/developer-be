@@ -309,7 +309,7 @@ public class ReleaseConfigService {
             // build node template
             // TODO(ch) use HTTP as default
             List<ServiceConfig> configs = detailList.stream()
-                .map(t -> new ServiceConfig(t.getServiceName(), t.getInternalPort(), t.getVersion(), "HTTP"))
+                .map(t -> new ServiceConfig(t.getServiceName(), t.getInternalPort(), t.getVersion(), t.getProtocal(), "default"))
                 .collect(Collectors.toList());
             // update node in template
             loaded.put("serviceconfig", configs);
