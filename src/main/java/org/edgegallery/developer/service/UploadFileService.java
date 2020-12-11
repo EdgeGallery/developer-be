@@ -411,7 +411,6 @@ public class UploadFileService {
                         if (specContent.contains("image")){
                             requiredItems.remove("image");
                             helmTemplateYamlRespDto.setImageSuccess(true);
-                            continue;
                         }
                         if (specContent.contains("mep-agent")){
                             helmTemplateYamlRespDto.setMepAgentSuccess(true);
