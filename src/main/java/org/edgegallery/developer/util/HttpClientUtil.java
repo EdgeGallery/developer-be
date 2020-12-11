@@ -51,7 +51,7 @@ public final class HttpClientUtil {
         MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
         body.add("file", new FileSystemResource(filePath));
         body.add("hostIp", ip);
-        body.add("AppName", projectName);
+        body.add("appName", projectName);
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);
         headers.set(Consts.ACCESS_TOKEN_STR, token);
