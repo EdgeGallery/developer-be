@@ -593,7 +593,7 @@ public class ProjectService {
      *
      * @return
      */
-    public Either<FormatRespDto, Boolean> uploadToAppStore(String userId, String projectId, String appInstanceId,
+    public Either<FormatRespDto, Boolean> uploadToAppStore(String userId, String projectId,
         String userName, String token) {
         // 0 check data. must be tested, and deployed status must be ok, can not be error.
         ApplicationProject project = projectMapper.getProject(userId, projectId);
@@ -617,6 +617,11 @@ public class ProjectService {
 
         // 1 get CSAR package
         String fileName = getFileName(projectId);
+        if(StringUtils.isEmpty(fileName)){
+            LOGGER.error("Can not find appInstanceId!");
+            FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "Can not find appInstanceId!");
+            return Either.left(error);
+        }
         File csar = new File(getProjectPath(projectId) + fileName + ".csar");
         if (!csar.exists()) {
             LOGGER.error("Can not find csar package");
