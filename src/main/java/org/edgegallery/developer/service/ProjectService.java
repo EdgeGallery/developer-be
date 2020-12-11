@@ -616,7 +616,8 @@ public class ProjectService {
         }
 
         // 1 get CSAR package
-        File csar = new File(getProjectPath(projectId) + appInstanceId + ".csar");
+        String fileName = getFileName(projectId);
+        File csar = new File(getProjectPath(projectId) + fileName + ".csar");
         if (!csar.exists()) {
             LOGGER.error("Can not find csar package");
             FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "Can not find csar package");
