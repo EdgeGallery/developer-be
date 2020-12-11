@@ -98,7 +98,7 @@ public class ApiEmulatorMgr {
         LOGGER.info("Succeed to create emulator csar file for user: {}", userId);
         Boolean instantiateAppResult = HttpClientUtil
             .instantiateApplication(host.getProtocol(), host.getIp(), host.getPort(), csarFilePath, emulatorInstanceId,
-                userId, token);
+                userId, token,"testName");
 
         if (!instantiateAppResult) {
             LOGGER.error("Failed to instantiate emulator app for user: {}.", userId);
