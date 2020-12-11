@@ -379,7 +379,7 @@ public class ProjectService {
         }
         // update config status
         testConfig.setErrorLog("The test has been completed and the application is terminated.");
-        testConfig.setDeployStatus(EnumTestConfigDeployStatus.TERMINATE);
+        testConfig.setAccessUrl("");
         projectMapper.updateTestConfig(testConfig);
         return Either.right(true);
     }
