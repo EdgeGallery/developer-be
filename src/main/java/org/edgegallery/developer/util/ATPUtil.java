@@ -86,6 +86,11 @@ public class ATPUtil {
         long startTime = System.currentTimeMillis();
         while (true) {
             try {
+                if ((System.currentTimeMillis() - startTime) > 30000) {
+                    LOGGER.error("Get atp task {} status from appo time out", taskId);
+                    throw new InvocationException(Response.Status.INTERNAL_SERVER_ERROR,
+                            "Get atp task status from appo time out.");
+                }
                 ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, request, String.class);
                 if (!HttpStatus.OK.equals(response.getStatusCode())) {
                     LOGGER.error("Get task status from atp reponse failed, the taskId is {}, The status code is {}",
@@ -103,17 +108,15 @@ public class ATPUtil {
                     return status;
                 }
 
-                if ((System.currentTimeMillis() - startTime) > 30000) {
-                    LOGGER.error("Get atp task {} status from appo time out", taskId);
-                    throw new InvocationException(Response.Status.INTERNAL_SERVER_ERROR,
-                            "Get atp task status from appo time out.");
-                }
-                Thread.sleep(5000);
             } catch (RestClientException e) {
                 LOGGER.error("Failed to get task status from atp which taskId is {} exception {}", taskId,
                         e.getMessage());
-            } catch (InterruptedException e) {
-                LOGGER.error("thead sleep exception.");
+            } finally {
+                try {
+                    Thread.sleep(5000);
+                } catch (InterruptedException e) {
+                    LOGGER.error("interrupt failed.");
+                }
             }
         }
     }
