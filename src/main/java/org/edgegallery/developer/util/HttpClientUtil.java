@@ -47,11 +47,11 @@ public final class HttpClientUtil {
      * @return InstantiateAppResult
      */
     public static boolean instantiateApplication(String protocol, String ip, int port, String filePath,
-        String appInstanceId, String userId, String token) {
+        String appInstanceId, String userId, String token, String projectName) {
         MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
         body.add("file", new FileSystemResource(filePath));
         body.add("hostIp", ip);
-        body.add("appName","abc");
+        body.add("appName", projectName);
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);
         headers.set(Consts.ACCESS_TOKEN_STR, token);
