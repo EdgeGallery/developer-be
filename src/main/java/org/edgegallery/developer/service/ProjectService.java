@@ -473,6 +473,7 @@ public class ProjectService {
      */
     public boolean deployTestConfigToAppLcm(File csar, ApplicationProject project, ProjectTestConfig testConfig,
         String userId, String token) {
+        String projectName = project.getName().replaceAll(Consts.PATTERN, "").toLowerCase();
         String appInstanceId = testConfig.getAppInstanceId();
         Type type = new TypeToken<List<MepHost>>() { }.getType();
         List<MepHost> hosts = gson.fromJson(gson.toJson(testConfig.getHosts()), type);
@@ -481,7 +482,7 @@ public class ProjectService {
         testConfig.setAccessUrl("http://" + host.getIp());
         return HttpClientUtil
             .instantiateApplication(host.getProtocol(), host.getIp(), host.getPort(), csar.getPath(), appInstanceId,
-                userId, token);
+                userId, token, projectName);
     }
 
     /**
