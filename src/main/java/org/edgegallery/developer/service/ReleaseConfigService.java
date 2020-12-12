@@ -35,6 +35,7 @@ import org.edgegallery.developer.model.workspace.ProjectTestConfig;
 import org.edgegallery.developer.model.workspace.UploadedFile;
 import org.edgegallery.developer.response.FormatRespDto;
 import org.edgegallery.developer.util.CompressFileUtils;
+import org.edgegallery.developer.util.InitConfigUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -172,7 +173,7 @@ public class ReleaseConfigService {
             String readmeFileId = releaseConfig.getGuideFileId();
             if (readmeFileId != null && !readmeFileId.equals("")) {
                 UploadedFile path = uploadedFileMapper.getFileById(readmeFileId);
-                FileUtils.copyFile(new File(path.getFilePath()),new File(readmePath));
+                FileUtils.copyFile(new File(InitConfigUtil.getWorkSpaceBaseDir() + path.getFilePath()),new File(readmePath));
             }
 
             // verify service template file
