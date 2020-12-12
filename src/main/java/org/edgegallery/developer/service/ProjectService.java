@@ -724,7 +724,7 @@ public class ProjectService {
         detail.setUploadTime(new Date());
         detail.setPort(serviceDetail.getInternalPort());
         detail.setHost(serviceDetail.getServiceName());
-        detail.setProtocol(serviceDetail.getProtocal());
+        detail.setProtocol(serviceDetail.getProtocol());
         detail.setAppId(obj.get("appId").getAsString());
         detail.setPackageId(obj.get("packageId").getAsString());
         detail.setUserId(userId);

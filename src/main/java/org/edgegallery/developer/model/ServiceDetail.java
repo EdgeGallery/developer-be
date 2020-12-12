@@ -22,7 +22,7 @@ public class ServiceDetail {
 
     private String version;
 
-    private String protocal;
+    private String protocol;
 
     private String apiJson;
 
