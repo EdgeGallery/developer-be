@@ -52,14 +52,4 @@ public class OpenMepCapabilityGroup {
         this.threeLevelName = threeLevelName;
         this.type = type;
     }
-
-    /**
-     * getGroupId.
-     */
-    public String getGroupId() {
-        if (this.groupId == null) {
-            this.groupId = UUID.randomUUID().toString();
-        }
-        return this.groupId;
-    }
 }

@@ -1,6 +1,7 @@
 global:
   mepagent:
     enabled: <IS_MEP_AGENT>
+    configmapname: <CONFIGMAP_NAME>
   namespace:
     enabled: <IS_NAMESPACE>
 

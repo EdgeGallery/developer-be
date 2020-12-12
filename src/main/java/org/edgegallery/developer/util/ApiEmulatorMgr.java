@@ -43,6 +43,8 @@ public class ApiEmulatorMgr {
 
     private static final String APP_NAME_PREFIX = "api-emulator-";
 
+    private static final String config_NAME_PREFIX = "configmap-name-";
+
     private static final String NODE_PORT_STR = "{NODE_PORT}";
 
     private static final int MIN_PORT = 30400;
@@ -60,8 +62,9 @@ public class ApiEmulatorMgr {
 
     private static String createEmulatorCsar(int nodePort) throws IOException {
         String appName = APP_NAME_PREFIX + nodePort;
+        String configMapName = config_NAME_PREFIX + nodePort;
         ChartFileCreator chartFileCreator = new ChartFileCreator("apiEmulator");
-        chartFileCreator.setChartValues("false", "false", "default");
+        chartFileCreator.setChartValues("false", "false", "default", configMapName);
         String templateYamlContent = FileUtils
             .readFileToString(new File(API_EMULATOR_K8S_TEMPLATE_FILE_PATH), Consts.FILE_ENCODING)
             .replace(NODE_PORT_STR, Integer.toString(nodePort));

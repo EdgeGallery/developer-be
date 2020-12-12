@@ -69,15 +69,4 @@ public class OpenMepCapabilityDetail {
         this.version = version;
         this.description = description;
     }
-
-    /**
-     * getDetailId.
-     */
-    public String getDetailId() {
-        if (this.detailId == null) {
-            this.detailId = UUID.randomUUID().toString();
-        }
-        return this.detailId;
-    }
-
 }

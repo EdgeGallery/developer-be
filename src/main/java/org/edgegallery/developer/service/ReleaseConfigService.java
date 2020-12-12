@@ -21,6 +21,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.edgegallery.developer.mapper.ProjectMapper;
 import org.edgegallery.developer.mapper.ReleaseConfigMapper;
+import org.edgegallery.developer.mapper.UploadedFileMapper;
 import org.edgegallery.developer.model.AppConfigurationModel;
 import org.edgegallery.developer.model.DnsRule;
 import org.edgegallery.developer.model.ReleaseConfig;
@@ -31,6 +32,7 @@ import org.edgegallery.developer.model.workspace.ApplicationProject;
 import org.edgegallery.developer.model.workspace.OpenMepCapabilityDetail;
 import org.edgegallery.developer.model.workspace.OpenMepCapabilityGroup;
 import org.edgegallery.developer.model.workspace.ProjectTestConfig;
+import org.edgegallery.developer.model.workspace.UploadedFile;
 import org.edgegallery.developer.response.FormatRespDto;
 import org.edgegallery.developer.util.CompressFileUtils;
 import org.slf4j.Logger;
@@ -53,6 +55,9 @@ public class ReleaseConfigService {
 
     @Autowired
     private ProjectService projectService;
+
+    @Autowired
+    private UploadedFileMapper uploadedFileMapper;
 
     public Either<FormatRespDto, ReleaseConfig> saveConfig(String projectId, ReleaseConfig config) {
         if (StringUtils.isEmpty(projectId)) {
@@ -160,6 +165,16 @@ public class ReleaseConfigService {
         try {
             // decompress csar
             CompressFileUtils.decompress(csarFilePath, csar.getParent());
+            //verify md docs
+
+            String readmePath = csar.getParent() + File.separator + config.getAppInstanceId()
+                + File.separator + "Artifacts/Docs/template.md";
+            String readmeFileId = releaseConfig.getGuideFileId();
+            if (readmeFileId != null && !readmeFileId.equals("")) {
+                UploadedFile path = uploadedFileMapper.getFileById(readmeFileId);
+                FileUtils.copyFile(new File(path.getFilePath()),new File(readmePath));
+            }
+
             // verify service template file
             String mainServiceTemplatePath = csar.getParent() + File.separator + config.getAppInstanceId()
                 + File.separator + "APPD/Definition/MainServiceTemplate.yaml";
