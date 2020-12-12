@@ -3,7 +3,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ .Values.mepagent.configmapname}}
+  name: {{ .Values.global.mepagent.configmapname }}
   namespace: {{ .Values.appconfig.appnamespace }}
 data:
   app_instance_info.yaml: |-
