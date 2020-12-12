@@ -435,6 +435,43 @@ public class UploadFileService {
         templateYamlPoList.forEach(helmTemplateYamlPo -> {
             HelmTemplateYamlRespDto helmTemplateYamlRespDto = new HelmTemplateYamlRespDto();
             helmTemplateYamlRespDto.setResponse(helmTemplateYamlPo);
+            // replace {{(.*?)}}
+            String content = helmTemplateYamlPo.getContent().replaceAll("\r","");
+            content = content.replaceAll(REPLACE_PATTERN.toString(), "");
+
+            // verify yaml scheme
+            String[] multiContent = content.split("---");
+            List<Map<String, Object>> mapList = new ArrayList<>();
+            try {
+                for (String str : multiContent) {
+                    if (StringUtils.isBlank(str)) {
+                        continue;
+                    }
+                    Yaml yaml = new Yaml();
+                    Map<String, Object> loaded = yaml.load(str);
+                    mapList.add(loaded);
+                }
+                helmTemplateYamlRespDto.setFormatSuccess(true);
+            } catch (Exception e) {
+                LOGGER.error("Failed to validate yaml scheme, userId: {}, projectId: {},exception: {}", userId, projectId,
+                    e.getMessage());
+                helmTemplateYamlRespDto.setFormatSuccess(false);
+                helmTemplateYamlRespDto.setMepAgentSuccess(null);
+                helmTemplateYamlRespDto.setServiceSuccess(null);
+                helmTemplateYamlRespDto.setImageSuccess(null);
+            }
+            List<String> requiredItems = Lists.newArrayList("image", "service", "mep-agent");
+            // verify service,image,mep-agent
+            verifyHelmTemplate(mapList, requiredItems, helmTemplateYamlRespDto);
+
+            if (!requiredItems.isEmpty() && requiredItems.size() >= 2) {
+                LOGGER.error("Failed to verify helm template yaml, userId: {}, projectId: {},exception: verify: {} failed",
+                    userId, projectId, String.join(",", requiredItems));
+            } else if (!requiredItems.isEmpty() && requiredItems.size() == 1 && requiredItems.get(0).equals("mep-agent")) {
+                helmTemplateYamlRespDto.setImageSuccess(true);
+                helmTemplateYamlRespDto.setServiceSuccess(true);
+                helmTemplateYamlRespDto.setMepAgentSuccess(false);
+            }
             helmTemplateYamlRespDtoList.add(helmTemplateYamlRespDto);
         });
         LOGGER.info("Succeed to query helm template yaml with user id : {}, project id : {}", userId, projectId);
