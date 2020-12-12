@@ -18,6 +18,7 @@ package org.edgegallery.developer.service;
 
 import com.spencerwi.either.Either;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 import javax.ws.rs.core.Response.Status;
@@ -82,10 +83,21 @@ public class OpenMepCapabilityService {
     public Either<FormatRespDto, OpenMepCapabilityGroup> getCapabilitiesByGroupId(String groupId) {
         OpenMepCapabilityGroup group = openMepCapabilityMapper.getOpenMepCapabilitiesByGroupId(groupId);
         if (group != null) {
+            List<OpenMepCapabilityDetail> details = group.getCapabilityDetailList();
+            if (details != null) {
+                Iterator<OpenMepCapabilityDetail> iterator = details.iterator();
+                while (iterator.hasNext()) {
+                    if (iterator.next().getDetailId() == null) {
+                        iterator.remove();
+                    }
+                }
+            }
             LOGGER.info("Get capability by {} success", groupId);
             return Either.right(group);
+        } else {
         }
         LOGGER.error("Can not get capability by {}", groupId);
+
         return Either.left(new FormatRespDto(Status.BAD_REQUEST, "get capabilities by group failed"));
     }
 
@@ -127,6 +139,7 @@ public class OpenMepCapabilityService {
         }
         capability.setGroupId(groupId);
         capability.setUploadTime(new Date());
+        capability.setDetailId(UUID.randomUUID().toString());
         int ret = openMepCapabilityMapper.saveCapability(capability);
         if (ret > 0) {
             LOGGER.info("Create {} detail success", groupId);

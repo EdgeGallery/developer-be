@@ -3,7 +3,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: mep-agent-service-config
+  name: {{ .Values.mepagent.configmapname}}
   namespace: {{ .Values.appconfig.appnamespace }}
 data:
   app_instance_info.yaml: |-

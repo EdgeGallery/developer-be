@@ -441,6 +441,7 @@ public class ProjectService {
         String projectPath = getProjectPath(projectId);
 
         String projectName = project.getName().replaceAll(Consts.PATTERN, "").toLowerCase();
+        String configMapName = "mepagent" + UUID.randomUUID().toString();
         List<HelmTemplateYamlPo> yamlPoList = helmTemplateYamlMapper.queryTemplateYamlByProjectId(userId, projectId);
         File csarPkgDir;
         if (!CollectionUtils.isEmpty(yamlPoList)) {
@@ -448,9 +449,9 @@ public class ProjectService {
             ChartFileCreator chartFileCreator = new ChartFileCreator(projectName);
             chartFileCreator.setChartName(projectName);
             if (mepCapability == null || mepCapability.size() == 0) {
-                chartFileCreator.setChartValues("false", "false", "default");
+                chartFileCreator.setChartValues("false", "false", "default", configMapName);
             } else {
-                chartFileCreator.setChartValues("true", "false", "default");
+                chartFileCreator.setChartValues("true", "false", "default", configMapName);
             }
             //stop
             yamlPoList.forEach(helmTemplateYamlPo -> chartFileCreator
