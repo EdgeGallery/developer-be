@@ -61,17 +61,20 @@ public class HostService {
     public Either<FormatRespDto, MepHost> createHost(MepHost host) {
         List<MepHost> hostList = hostMapper.getHostsByUserId(host.getUserId());
         host.setHostId(UUID.randomUUID().toString()); // no need to set hostId by user
+        host.setProtocol("https");
+        host.setPortRangeMin(30000);
+        host.setPortRangeMax(32000);
         if (hostList==null || hostList.size()==0) {
             int ret = hostMapper.saveHost(host);
             if (ret > 0) {
                 LOGGER.info("Crete host {} success ", host.getHostId());
-                return Either.right(hostMapper.getHost(host.getHostId()));
+                return Either.right(hostMapper.getHostsByUserId(host.getUserId()).get(0));
             }
         } else {
             int ret = hostMapper.updateHost(host);
             if (ret > 0) {
                 LOGGER.info("Update host {} success", host.getIp());
-                return Either.right(hostMapper.getHost(host.getHostId()));
+                return Either.right(hostMapper.getHostsByUserId(host.getUserId()).get(0));
             }
         }
         LOGGER.error("Create host failed ");
