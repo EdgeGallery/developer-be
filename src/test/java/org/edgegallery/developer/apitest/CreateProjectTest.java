@@ -160,7 +160,7 @@ public class CreateProjectTest {
         ResultActions result = mvc.perform(
             MockMvcRequestBuilders.post("/mec/developer/v1/projects/?userId=" + userId).with(csrf())
                 .content(gson.toJson(project)).contentType(MediaType.APPLICATION_JSON_UTF8)
-                .accept(MediaType.APPLICATION_JSON_UTF8)).andExpect(MockMvcResultMatchers.status().is5xxServerError());
+                .accept(MediaType.APPLICATION_JSON_UTF8)).andExpect(MockMvcResultMatchers.status().isOk());
     }
 
     private ApplicationProject createNewProject() throws Exception {
@@ -169,6 +169,7 @@ public class CreateProjectTest {
         project.setName("test_app_1");
         project.setVersion("1.0.1");
         project.setProvider("huawei");
+        project.setDescription("test");
         List<String> platforms = new ArrayList<>();
         platforms.add("KunPeng");
         project.setPlatform(platforms);
@@ -199,7 +200,7 @@ public class CreateProjectTest {
         ResultActions result = mvc.perform(
             MockMvcRequestBuilders.post("/mec/developer/v1/projects/?userId=" + userId).with(csrf())
                 .content(gson.toJson(project)).contentType(MediaType.APPLICATION_JSON_UTF8)
-                .accept(MediaType.APPLICATION_JSON_UTF8)).andExpect(MockMvcResultMatchers.status().is5xxServerError());
+                .accept(MediaType.APPLICATION_JSON_UTF8)).andExpect(MockMvcResultMatchers.status().isOk());
         return gson.fromJson(result.andReturn().getResponse().getContentAsString(), ApplicationProject.class);
     }
 
@@ -245,7 +246,7 @@ public class CreateProjectTest {
         request.content(gson.toJson(test));
         request.accept(MediaType.APPLICATION_JSON);
         request.contentType(MediaType.APPLICATION_JSON);
-        mvc.perform(request).andDo(MockMvcResultHandlers.print()).andExpect(MockMvcResultMatchers.status().is4xxClientError());
+        mvc.perform(request).andDo(MockMvcResultHandlers.print()).andExpect(MockMvcResultMatchers.status().isOk());
     }
 
     @Test
