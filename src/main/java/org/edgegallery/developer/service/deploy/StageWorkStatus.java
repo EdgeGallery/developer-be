@@ -15,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.stringtemplate.v4.ST;
 
 
 /**
@@ -56,6 +57,7 @@ public class StageWorkStatus implements IConfigDeployStage {
         if (workStatus == null) {
             // compare time between now and deployDate
             long time = System.currentTimeMillis() - config.getDeployDate().getTime();
+            LOGGER.info("find time:{}, wait max time:{}", time, MAX_SECONDS);
             if (config.getDeployDate() == null || time > MAX_SECONDS * 1) {
                 config.setErrorLog("Failed to get workloadStatus with appInstanceId:" + config.getAppInstanceId());
                 String message = "Failed to get workloadStatus after wait {} seconds which appInstanceId is : {}";
@@ -69,6 +71,7 @@ public class StageWorkStatus implements IConfigDeployStage {
             config.setPods(workStatus);
             LOGGER.info("Query workload status response: {}", workStatus);
         }
+        
         // update test-config
         projectService.updateDeployResult(config, project, "workStatus", status);
         return processStatus;
