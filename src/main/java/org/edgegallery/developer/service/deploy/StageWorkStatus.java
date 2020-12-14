@@ -57,8 +57,8 @@ public class StageWorkStatus implements IConfigDeployStage {
         if (workStatus == null) {
             // compare time between now and deployDate
             long time = System.currentTimeMillis() - config.getDeployDate().getTime();
-            LOGGER.info("find time:{}, wait max time:{}", time, MAX_SECONDS);
-            if (config.getDeployDate() == null || time > MAX_SECONDS * 1) {
+            LOGGER.info("over time:{}, wait max time:{}, start time:{}", time, MAX_SECONDS, config.getDeployDate().getTime());
+            if (config.getDeployDate() == null || time > MAX_SECONDS * 1000) {
                 config.setErrorLog("Failed to get workloadStatus with appInstanceId:" + config.getAppInstanceId());
                 String message = "Failed to get workloadStatus after wait {} seconds which appInstanceId is : {}";
                 LOGGER.error(message, MAX_SECONDS, config.getAppInstanceId());
@@ -71,7 +71,6 @@ public class StageWorkStatus implements IConfigDeployStage {
             config.setPods(workStatus);
             LOGGER.info("Query workload status response: {}", workStatus);
         }
-        
         // update test-config
         projectService.updateDeployResult(config, project, "workStatus", status);
         return processStatus;
