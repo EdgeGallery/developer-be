@@ -699,9 +699,8 @@ public class ProjectService {
                 LOGGER.warn("save db success! ");
             }
         } else {
-            LOGGER.error("no application service publishing configuration!");
-            FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "no app service configuration!");
-            return Either.left(error);
+            LOGGER.info("no application service publishing configuration!");
+            return Either.right(true);
         }
 
         return Either.right(true);
