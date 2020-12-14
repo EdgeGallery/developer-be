@@ -42,7 +42,7 @@ public class NewCreateCsar {
         // modify the csar files and fill in the data
         try {
             File csarValue = new File(csar.getCanonicalPath() + simpleFiles);
-            String projectName = project.getName().replaceAll(Consts.PATTERN, "").toLowerCase();
+            String projectName = project.getName().replaceAll(Consts.PATTERN, "").toLowerCase() + config.getAppInstanceId();
             FileUtils.writeStringToFile(csarValue,
                 FileUtils.readFileToString(csarValue, StandardCharsets.UTF_8).replace("{name}", projectName)
                     .replace("{provider}", project.getProvider()).replace("{version}", project.getVersion())

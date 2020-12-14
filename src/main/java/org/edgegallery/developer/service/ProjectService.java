@@ -440,7 +440,7 @@ public class ProjectService {
         List<OpenMepCapabilityGroup> mepCapability = project.getCapabilityList();
         String projectPath = getProjectPath(projectId);
 
-        String projectName = project.getName().replaceAll(Consts.PATTERN, "").toLowerCase();
+        String projectName = project.getName().replaceAll(Consts.PATTERN, "").toLowerCase() + testConfig.getAppInstanceId();
         String configMapName = "mepagent" + UUID.randomUUID().toString();
         List<HelmTemplateYamlPo> yamlPoList = helmTemplateYamlMapper.queryTemplateYamlByProjectId(userId, projectId);
         File csarPkgDir;
@@ -885,7 +885,7 @@ public class ProjectService {
         }
 
         if (testConfig.getDeployStatus().equals(EnumTestConfigDeployStatus.SUCCESS)) {
-            deleteDeployApp(testConfig, AccessUserUtil.getUserId(), testConfig.getLcmToken());
+            deleteDeployApp(testConfig, project.getUserId(), testConfig.getLcmToken());
             LOGGER.warn("Deploy failed, delete deploy app.");
         }
         // init project and config
