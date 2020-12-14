@@ -960,7 +960,7 @@ public class ProjectService {
         }
         // delete resource after deploying failed
         if (EnumTestConfigStatus.Failed.equals(stageStatus) && testConfig.getWorkLoadId() != null) {
-            deleteDeployApp(testConfig, AccessUserUtil.getUserId(), testConfig.getLcmToken());
+            deleteDeployApp(testConfig, project.getUserId(), testConfig.getLcmToken());
             LOGGER.warn("Deploy failed, delete deploy app.");
         }
     }
