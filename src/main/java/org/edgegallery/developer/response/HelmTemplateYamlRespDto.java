@@ -33,6 +33,8 @@ public class HelmTemplateYamlRespDto {
     @ApiModelProperty(required = true)
     private String fileName;
 
+    private String fileContent;
+
     private Boolean formatSuccess = false;
 
     private Boolean imageSuccess = false;
@@ -47,6 +49,7 @@ public class HelmTemplateYamlRespDto {
     public void setResponse(HelmTemplateYamlPo helmTemplateYamlPo) {
         this.setFileId(helmTemplateYamlPo.getFileId());
         this.setFileName(helmTemplateYamlPo.getFileName());
+        this.setFileContent(helmTemplateYamlPo.getContent());
     }
 
 }
