@@ -440,7 +440,8 @@ public class ProjectService {
         List<OpenMepCapabilityGroup> mepCapability = project.getCapabilityList();
         String projectPath = getProjectPath(projectId);
 
-        String projectName = project.getName().replaceAll(Consts.PATTERN, "").toLowerCase() + testConfig.getAppInstanceId();
+        String projectName = project.getName().replaceAll(Consts.PATTERN, "").toLowerCase() + testConfig
+            .getAppInstanceId();
         String configMapName = "mepagent" + UUID.randomUUID().toString();
         List<HelmTemplateYamlPo> yamlPoList = helmTemplateYamlMapper.queryTemplateYamlByProjectId(userId, projectId);
         File csarPkgDir;
@@ -595,8 +596,8 @@ public class ProjectService {
      *
      * @return
      */
-    public Either<FormatRespDto, Boolean> uploadToAppStore(String userId, String projectId,
-        String userName, String token) {
+    public Either<FormatRespDto, Boolean> uploadToAppStore(String userId, String projectId, String userName,
+        String token) {
         // 0 check data. must be tested, and deployed status must be ok, can not be error.
         ApplicationProject project = projectMapper.getProject(userId, projectId);
         if (project == null) {
@@ -619,7 +620,7 @@ public class ProjectService {
 
         // 1 get CSAR package
         String fileName = getFileName(projectId);
-        if(StringUtils.isEmpty(fileName)){
+        if (StringUtils.isEmpty(fileName)) {
             LOGGER.error("Can not find appInstanceId!");
             FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "Can not find appInstanceId!");
             return Either.left(error);
@@ -694,6 +695,21 @@ public class ProjectService {
                 if (res < 1) {
                     LOGGER.error("store db to openmepcapabilitydetail fail!");
                     FormatRespDto error = new FormatRespDto(Status.INTERNAL_SERVER_ERROR, "save detail db fail!");
+                    return Either.left(error);
+                }
+                //update file status
+                int apiRes = uploadedFileMapper.updateFileStatus(serviceDetail.getApiJson(), false);
+                if (apiRes < 1) {
+                    LOGGER.error("after publish,update api file {} status fail!", serviceDetail.getApiJson());
+                    FormatRespDto error = new FormatRespDto(Status.INTERNAL_SERVER_ERROR,
+                        "update api file status fail!");
+                    return Either.left(error);
+                }
+                int mdRes = uploadedFileMapper.updateFileStatus(serviceDetail.getApiMd(), false);
+                if (mdRes < 1) {
+                    LOGGER.error("after publish,update md file {} status fail!", serviceDetail.getApiMd());
+                    FormatRespDto error = new FormatRespDto(Status.INTERNAL_SERVER_ERROR,
+                        "update md file status fail!");
                     return Either.left(error);
                 }
                 LOGGER.warn("save db success! ");
