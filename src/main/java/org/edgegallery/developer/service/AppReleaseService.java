@@ -76,7 +76,7 @@ public class AppReleaseService {
             return Either.left(error);
         }
         if (fileName == null || fileName.equals("")) {
-            LOGGER.error("project id can not be empty!");
+            LOGGER.error("fileName can not be empty!");
             FormatRespDto error = new FormatRespDto(Response.Status.BAD_REQUEST, "file name can not be empty!");
             return Either.left(error);
         }
