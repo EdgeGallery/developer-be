@@ -487,8 +487,14 @@ public class ProjectService {
             LOGGER.error("the project being deployed does not have any capabilities selected ");
             return false;
         }
-        for (OpenMepCapabilityGroup group : groups.get()) {
-            for (OpenMepCapabilityDetail detail : group.getCapabilityDetailList()) {
+        Gson gson = new Gson();
+        Type groupType = new TypeToken<List<OpenMepCapabilityGroup>>() { }.getType();
+        List<OpenMepCapabilityGroup> capabilities = gson.fromJson(gson.toJson(project.getCapabilityList()), groupType);
+        for (OpenMepCapabilityGroup group : capabilities) {
+            List<OpenMepCapabilityDetail> openMepCapabilityGroups = group.getCapabilityDetailList();
+            Type openMepCapabilityType = new TypeToken<List<OpenMepCapabilityDetail>>() { }.getType();
+            List<OpenMepCapabilityDetail> openMepCapabilityDetails = gson.fromJson(gson.toJson(openMepCapabilityGroups), openMepCapabilityType);
+            for (OpenMepCapabilityDetail detail : openMepCapabilityDetails) {
                 if (!StringUtils.isEmpty(detail.getPackageId())) {
                     boolean isDeploy = HttpClientUtil
                         .queryAppDeployStatus(host.getProtocol(), host.getIp(), host.getPort(), detail.getPackageId(),
