@@ -441,8 +441,7 @@ public class ProjectService {
         List<OpenMepCapabilityGroup> mepCapability = project.getCapabilityList();
         String projectPath = getProjectPath(projectId);
 
-        String projectName = project.getName().replaceAll(Consts.PATTERN, "").toLowerCase() + testConfig
-            .getAppInstanceId();
+        String projectName = project.getName().replaceAll(Consts.PATTERN, "").toLowerCase();
         String configMapName = "mepagent" + UUID.randomUUID().toString();
         List<HelmTemplateYamlPo> yamlPoList = helmTemplateYamlMapper.queryTemplateYamlByProjectId(userId, projectId);
         File csarPkgDir;

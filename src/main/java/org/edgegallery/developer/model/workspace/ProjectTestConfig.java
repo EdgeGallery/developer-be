@@ -149,7 +149,6 @@ public class ProjectTestConfig {
         this.deployStatus = EnumTestConfigDeployStatus.NOTDEPLOY;
         this.stageStatus = null;
         this.workLoadId = null;
-        this.appInstanceId = null;
         this.lcmToken = null;
         this.accessUrl = null;
         this.deployDate = null;
