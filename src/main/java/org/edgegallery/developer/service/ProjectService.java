@@ -29,6 +29,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -482,9 +483,26 @@ public class ProjectService {
         MepHost host = hosts.get(0);
         // Note(ch) only ip?
         testConfig.setAccessUrl("http://" + host.getIp());
-        return HttpClientUtil
-            .instantiateApplication(host.getProtocol(), host.getIp(), host.getPort(), csar.getPath(), appInstanceId,
-                userId, token, projectName);
+        Optional<List<OpenMepCapabilityGroup>> groups = Optional.ofNullable(project.getCapabilityList());
+        if (!groups.isPresent()) {
+            LOGGER.error("the project being deployed does not have any capabilities selected ");
+            return false;
+        }
+        for (OpenMepCapabilityGroup group : groups.get()) {
+            for (OpenMepCapabilityDetail detail : group.getCapabilityDetailList()) {
+                if (!StringUtils.isEmpty(detail.getPackageId())) {
+                    boolean isDeploy = HttpClientUtil
+                        .queryAppDeployStatus(host.getProtocol(), host.getIp(), host.getPort(), detail.getPackageId(),
+                            testConfig.getLcmToken());
+                    if (!isDeploy) {
+                        return HttpClientUtil
+                            .instantiateApplication(host.getProtocol(), host.getIp(), host.getPort(), csar.getPath(),
+                                appInstanceId, userId, token, projectName);
+                    }
+                }
+            }
+        }
+        return false;
     }
 
     /**
