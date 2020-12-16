@@ -482,6 +482,14 @@ public class ProjectService {
         MepHost host = hosts.get(0);
         // Note(ch) only ip?
         testConfig.setAccessUrl("http://" + host.getIp());
+        return HttpClientUtil
+            .instantiateApplication(host.getProtocol(), host.getIp(), host.getPort(), csar.getPath(), appInstanceId,
+                userId, token, projectName);
+    }
+
+    private boolean checkDependency(String userId, String token, File csar, MepHost host, ApplicationProject project,
+        ProjectTestConfig testConfig) {
+        String projectName = project.getName().replaceAll(Consts.PATTERN, "").toLowerCase();
         Optional<List<OpenMepCapabilityGroup>> groups = Optional.ofNullable(project.getCapabilityList());
         if (!groups.isPresent()) {
             LOGGER.error("the project being deployed does not have any capabilities selected ");
@@ -493,7 +501,8 @@ public class ProjectService {
         for (OpenMepCapabilityGroup group : capabilities) {
             List<OpenMepCapabilityDetail> openMepCapabilityGroups = group.getCapabilityDetailList();
             Type openMepCapabilityType = new TypeToken<List<OpenMepCapabilityDetail>>() { }.getType();
-            List<OpenMepCapabilityDetail> openMepCapabilityDetails = gson.fromJson(gson.toJson(openMepCapabilityGroups), openMepCapabilityType);
+            List<OpenMepCapabilityDetail> openMepCapabilityDetails = gson
+                .fromJson(gson.toJson(openMepCapabilityGroups), openMepCapabilityType);
             for (OpenMepCapabilityDetail detail : openMepCapabilityDetails) {
                 if (!StringUtils.isEmpty(detail.getPackageId())) {
                     boolean isDeploy = HttpClientUtil
@@ -502,12 +511,13 @@ public class ProjectService {
                     if (!isDeploy) {
                         return HttpClientUtil
                             .instantiateApplication(host.getProtocol(), host.getIp(), host.getPort(), csar.getPath(),
-                                appInstanceId, userId, token, projectName);
+                                testConfig.getAppInstanceId(), userId, token, projectName);
                     }
                 }
             }
         }
         return false;
+
     }
 
     /**

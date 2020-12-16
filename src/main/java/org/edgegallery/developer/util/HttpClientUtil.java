@@ -85,9 +85,9 @@ public final class HttpClientUtil {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.set(Consts.ACCESS_TOKEN_STR, token);
-        ResponseEntity<String> response;
+        ResponseEntity<Boolean> response;
         try {
-            response = REST_TEMPLATE.exchange(url, HttpMethod.GET, new HttpEntity<>(headers), String.class);
+            response = REST_TEMPLATE.exchange(url, HttpMethod.GET, new HttpEntity<>(headers), Boolean.class);
         } catch (RestClientException e) {
             LOGGER.error("Failed to get deploy status which packageId is {} exception {}", packageId,
                 e.getMessage());
