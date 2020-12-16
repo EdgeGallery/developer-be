@@ -115,7 +115,7 @@ public class ReleaseConfigService {
         int res = configMapper.modifyReleaseConfig(config);
         if (res < 1) {
             LOGGER.error("create project {} release-config data fail!", projectId);
-            FormatRespDto dto = new FormatRespDto(Response.Status.INTERNAL_SERVER_ERROR, "save config data fail");
+            FormatRespDto dto = new FormatRespDto(Response.Status.INTERNAL_SERVER_ERROR, "modify config data fail");
             return Either.left(dto);
         }
         LOGGER.info("modify release config success!");
