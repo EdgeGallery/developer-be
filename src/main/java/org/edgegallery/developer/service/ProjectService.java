@@ -261,8 +261,8 @@ public class ProjectService {
         if (!StringUtils.isEmpty(openCapabilityDetailId)){
              String[] ids = openCapabilityDetailId.substring(1,openCapabilityDetailId.length()-1).split(",");
              for (String detailId:ids){
-                 openMepCapabilityMapper.deleteCapability(detailId);
                  groupId = openMepCapabilityMapper.getGroupIdByDetailId(detailId);
+                 openMepCapabilityMapper.deleteCapability(detailId);
                  if (!groupId.equals("")) {
                      LOGGER.info("groupId: {} .", groupId);
                      List<OpenMepCapabilityDetail> detailList = openMepCapabilityMapper.getDetailByGroupId(groupId);
