@@ -18,7 +18,7 @@ public class ServiceConfig {
      * the name for service.
      * example: position-service
      */
-    private String name;
+    private String servicename;
 
     /**
      * the port of service
