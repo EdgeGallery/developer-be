@@ -25,6 +25,7 @@ import com.spencerwi.either.Either;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -253,15 +254,17 @@ public class ProjectService {
             return Either.right(true);
         }
 
-        //delete capabilityGroup and
+        //delete capabilityGroup and CapabilityDetail
         String openCapabilityDetailId = project.getOpenCapabilityId();
         LOGGER.info("detailId: {} .", openCapabilityDetailId);
         String groupId = "";
-        if (openCapabilityDetailId != null) {
-            groupId = openMepCapabilityMapper.getGroupIdByDetailId(openCapabilityDetailId);
-            openMepCapabilityMapper.deleteCapability(openCapabilityDetailId);
+        if (!StringUtils.isEmpty(openCapabilityDetailId)){
+             String[] ids = openCapabilityDetailId.substring(1,openCapabilityDetailId.length()-1).split(",");
+             for (String detailId:ids){
+                 groupId = openMepCapabilityMapper.getGroupIdByDetailId(detailId);
+                 openMepCapabilityMapper.deleteCapability(detailId);
+             }
         }
-
         if (!groupId.equals("")) {
             LOGGER.info("groupId: {} .", groupId);
             List<OpenMepCapabilityDetail> detailList = openMepCapabilityMapper.getDetailByGroupId(groupId);
@@ -719,8 +722,10 @@ public class ProjectService {
         }
 
         CapabilitiesDetail capabilitiesDetail = releaseConfig.getCapabilitiesDetail();
+
         if (capabilitiesDetail.getServiceDetails() != null && capabilitiesDetail.getServiceDetails().size() != 0) {
             //save db to openmepcapabilitydetail
+            List<String> openCapabilityIds = new ArrayList<String>();
             for (ServiceDetail serviceDetail : capabilitiesDetail.getServiceDetails()) {
                 OpenMepCapabilityDetail detail = new OpenMepCapabilityDetail();
                 fillCapability(serviceDetail, detail, jsonObject, userId);
@@ -730,6 +735,8 @@ public class ProjectService {
                     FormatRespDto error = new FormatRespDto(Status.INTERNAL_SERVER_ERROR, "save detail db fail!");
                     return Either.left(error);
                 }
+                //set open_capability_id
+                openCapabilityIds.add(detail.getDetailId());
                 //update file status
                 int apiRes = uploadedFileMapper.updateFileStatus(serviceDetail.getApiJson(), false);
                 if (apiRes < 1) {
@@ -747,6 +754,13 @@ public class ProjectService {
                 }
                 LOGGER.warn("save db success! ");
             }
+            project.setOpenCapabilityId(openCapabilityIds.toString());
+            int updRes = projectMapper.updateProject(project);
+            if (updRes < 1) {
+                FormatRespDto error = new FormatRespDto(Status.INTERNAL_SERVER_ERROR, "set openCapabilityId fail!");
+                return Either.left(error);
+            }
+
         } else {
             LOGGER.info("no application service publishing configuration!");
             return Either.right(true);
