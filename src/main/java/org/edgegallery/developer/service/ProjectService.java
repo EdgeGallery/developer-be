@@ -263,18 +263,19 @@ public class ProjectService {
              for (String detailId:ids){
                  groupId = openMepCapabilityMapper.getGroupIdByDetailId(detailId);
                  openMepCapabilityMapper.deleteCapability(detailId);
+                 if (!groupId.equals("")) {
+                     LOGGER.info("groupId: {} .", groupId);
+                     List<OpenMepCapabilityDetail> detailList = openMepCapabilityMapper.getDetailByGroupId(groupId);
+                     if (detailList != null) {
+                         LOGGER.info("detailList size: {} .", detailList.size());
+                         if (detailList.size() < 1) {
+                             openMepCapabilityMapper.deleteGroup(groupId);
+                         }
+                     }
+                 }
              }
         }
-        if (!groupId.equals("")) {
-            LOGGER.info("groupId: {} .", groupId);
-            List<OpenMepCapabilityDetail> detailList = openMepCapabilityMapper.getDetailByGroupId(groupId);
-            if (detailList != null) {
-                LOGGER.info("detailList size: {} .", detailList.size());
-                if (detailList.size() < 1) {
-                    openMepCapabilityMapper.deleteGroup(groupId);
-                }
-            }
-        }
+
 
         // delete the project from db
         Either<FormatRespDto, Boolean> delResult = projectDto.deleteProject(userId, projectId);
