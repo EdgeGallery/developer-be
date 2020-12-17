@@ -261,20 +261,21 @@ public class ProjectService {
         if (!StringUtils.isEmpty(openCapabilityDetailId)){
              String[] ids = openCapabilityDetailId.substring(1,openCapabilityDetailId.length()-1).split(",");
              for (String detailId:ids){
-                 groupId = openMepCapabilityMapper.getGroupIdByDetailId(detailId);
                  openMepCapabilityMapper.deleteCapability(detailId);
+                 groupId = openMepCapabilityMapper.getGroupIdByDetailId(detailId);
+                 if (!groupId.equals("")) {
+                     LOGGER.info("groupId: {} .", groupId);
+                     List<OpenMepCapabilityDetail> detailList = openMepCapabilityMapper.getDetailByGroupId(groupId);
+                     if (detailList != null) {
+                         LOGGER.info("detailList size: {} .", detailList.size());
+                         if (detailList.size() < 1) {
+                             openMepCapabilityMapper.deleteGroup(groupId);
+                         }
+                     }
+                 }
              }
         }
-        if (!groupId.equals("")) {
-            LOGGER.info("groupId: {} .", groupId);
-            List<OpenMepCapabilityDetail> detailList = openMepCapabilityMapper.getDetailByGroupId(groupId);
-            if (detailList != null) {
-                LOGGER.info("detailList size: {} .", detailList.size());
-                if (detailList.size() < 1) {
-                    openMepCapabilityMapper.deleteGroup(groupId);
-                }
-            }
-        }
+
 
         // delete the project from db
         Either<FormatRespDto, Boolean> delResult = projectDto.deleteProject(userId, projectId);
