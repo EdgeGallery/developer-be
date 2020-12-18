@@ -935,7 +935,7 @@ public class ProjectService {
      *
      * @return
      */
-    public Either<FormatRespDto, Boolean> cleanTestEnv(String userId, String projectId) {
+    public Either<FormatRespDto, Boolean> cleanTestEnv(String userId, String projectId,String token) {
         ApplicationProject project = projectMapper.getProject(userId, projectId);
         if (project == null) {
             LOGGER.error("Can not find project by userId and projectId");
@@ -949,7 +949,7 @@ public class ProjectService {
         }
 
         if (testConfig.getDeployStatus().equals(EnumTestConfigDeployStatus.SUCCESS)) {
-            deleteDeployApp(testConfig, project.getUserId(), testConfig.getLcmToken());
+            deleteDeployApp(testConfig, project.getUserId(), token);
             LOGGER.warn("Deploy failed, delete deploy app.");
         }
         // init project and config
