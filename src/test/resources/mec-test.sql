@@ -271,14 +271,14 @@ CREATE TABLE IF NOT EXISTS tbl_api_emulator (
 )
 ;
 CREATE TABLE IF NOT EXISTS tbl_release_config (
-  release_id varchar(255),
-  project_id varchar(255),
-  guide_file_id varchar(255),
-  appinstance_id varchar(255),
-  capabilities_detail text NOT NULL DEFAULT NULL,
+  release_id varchar(255) NOT NULL,
+  project_id varchar(255) NOT NULL,
+  guide_file_id varchar(255) DEFAULT NULL,
+  appinstance_id varchar(255) DEFAULT NULL,
+  capabilities_detail text  DEFAULT NULL,
   atp_test text DEFAULT NULL,
-  test_status varchar(255),
-  create_time varchar(50) NOT NULL DEFAULT NULL,
+  test_status varchar(255) DEFAULT NULL,
+  create_time TIMESTAMP(0) DEFAULT NULL,
   CONSTRAINT tbl_release_config_pkey PRIMARY KEY (release_id)
 )
 ;

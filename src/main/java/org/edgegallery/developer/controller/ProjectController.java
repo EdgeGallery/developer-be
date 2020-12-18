@@ -234,7 +234,8 @@ public class ProjectController {
         @Pattern(regexp = REGEX_UUID, message = "userId must be in UUID format")
         @ApiParam(value = "userId", required = true) @RequestParam("userId") String userId,
         HttpServletRequest request) {
-        Either<FormatRespDto, Boolean> either = projectService.cleanTestEnv(userId, projectId);
+        String token = request.getHeader(Consts.ACCESS_TOKEN_STR);
+        Either<FormatRespDto, Boolean> either = projectService.cleanTestEnv(userId, projectId,token);
         return ResponseDataUtil.buildResponse(either);
     }
 
