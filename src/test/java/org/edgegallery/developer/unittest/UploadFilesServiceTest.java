@@ -22,6 +22,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
 import org.junit.Assert;
@@ -91,4 +93,93 @@ public class UploadFilesServiceTest {
         byte[] input = fileStream.getRight().getBody();
         Assert.assertEquals(sourceData, new String(input,"UTF-8"));
     }
+
+    @Test
+    @WithMockUser(roles = "DEVELOPER_TENANT")
+    public void  testGetFileBad() throws Exception{
+        Either<FormatRespDto, ResponseEntity<byte[]>> fileStream = uploadFileService
+            .getFile("ss", "test-user", "OPENMEP_ECO");
+        Assert.assertTrue(fileStream.isLeft());
+        Assert.assertEquals(400,fileStream.getLeft().getErrorRespDto().getCode());
+    }
+
+    @Test
+    @WithMockUser(roles = "DEVELOPER_TENANT")
+    public void  testGetFileBad1() throws Exception{
+        Either<FormatRespDto, ResponseEntity<byte[]>> fileStream = uploadFileService
+            .getFile("ad66d1b6-5d29-487b-9769-be48b62aec2e", "test-user", "OPENMEP_ECO");
+        Assert.assertTrue(fileStream.isLeft());
+        Assert.assertEquals(400,fileStream.getLeft().getErrorRespDto().getCode());
+    }
+
+    @Test
+    @WithMockUser(roles = "DEVELOPER_TENANT")
+    public void  testGetApiFile() throws Exception{
+        Either<FormatRespDto, UploadedFile> fileStream = uploadFileService
+            .getApiFile("ad66d1b6-5d29-487b-9769-be48b62aec2e", "test-user");
+        Assert.assertTrue(fileStream.isLeft());
+        Assert.assertEquals(400,fileStream.getLeft().getErrorRespDto().getCode());
+    }
+
+    @Test
+    @WithMockUser(roles = "DEVELOPER_TENANT")
+    public void  testUploadFileBad() throws Exception{
+        MultipartFile multipartFile = new MockMultipartFile("test",new byte[10]);
+        Either<FormatRespDto, UploadedFile> fileStream = uploadFileService
+            .uploadFile("ad66d1b6-5d29-487b-9769-be48b62aec2e", multipartFile);
+        Assert.assertTrue(fileStream.isLeft());
+        Assert.assertEquals(400,fileStream.getLeft().getErrorRespDto().getCode());
+    }
+
+    @Test
+    @WithMockUser(roles = "DEVELOPER_TENANT")
+    public void  testDownloadSampleCodeBad() throws Exception{
+        List<String> apiFileIds = new ArrayList<>();
+        apiFileIds.add("test1");
+        apiFileIds.add("test2");
+        Either<FormatRespDto, ResponseEntity<byte[]>> fileStream = uploadFileService
+            .downloadSampleCode(apiFileIds);
+        Assert.assertTrue(fileStream.isLeft());
+        Assert.assertEquals(400,fileStream.getLeft().getErrorRespDto().getCode());
+    }
+
+    @Test
+    @WithMockUser(roles = "DEVELOPER_TENANT")
+    public void  testDownloadSampleCodeSuccess() throws Exception{
+        List<String> apiFileIds = new ArrayList<>();
+        Either<FormatRespDto, ResponseEntity<byte[]>> fileStream = uploadFileService
+            .downloadSampleCode(apiFileIds);
+       Assert.assertTrue(fileStream.isRight());
+      Assert.assertEquals(200,fileStream.getRight().getStatusCode().value());
+    }
+
+    @Test
+    @WithMockUser(roles = "DEVELOPER_TENANT")
+    public void  testDownloadSampleCodeBad1() throws Exception{
+        List<String> apiFileIds = new ArrayList<>();
+        apiFileIds.add("db8c7b17-0be3-4ca4-b22e-fa6d62e9a6e0");
+        Either<FormatRespDto, ResponseEntity<byte[]>> fileStream = uploadFileService
+            .downloadSampleCode(apiFileIds);
+        Assert.assertTrue(fileStream.isLeft());
+        Assert.assertEquals(400,fileStream.getLeft().getErrorRespDto().getCode());
+    }
+
+    @Test
+    @WithMockUser(roles = "DEVELOPER_TENANT")
+    public void  testDownloadSampleCodeBad2() throws Exception{
+        List<String> apiFileIds = new ArrayList<>();
+        apiFileIds.add("ad66d1b6-5d29-487b-9769-be48b62aec2e");
+        Either<FormatRespDto, ResponseEntity<byte[]>> fileStream = uploadFileService
+            .downloadSampleCode(apiFileIds);
+        Assert.assertTrue(fileStream.isLeft());
+        Assert.assertEquals(400,fileStream.getLeft().getErrorRespDto().getCode());
+    }
+
+
+
+
+
+
+
+
 }
