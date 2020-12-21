@@ -2,7 +2,6 @@ package org.edgegallery.developer.unittest;
 
 import com.google.gson.Gson;
 import com.spencerwi.either.Either;
-import javax.ws.rs.core.Response;
 import org.edgegallery.developer.DeveloperApplicationTests;
 import org.edgegallery.developer.config.security.AccessUserUtil;
 import org.edgegallery.developer.model.CapabilitiesDetail;
@@ -15,10 +14,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -80,7 +77,7 @@ public class ReleaseConfigServiceTest {
     @Test
     @WithMockUser(roles = "DEVELOPER_TENANT")
     public void testUpdateRelConfig() {
-        Either<FormatRespDto, ReleaseConfig> stru = releaseConfigService.modifyConfig(projectId, new ReleaseConfig());
+        Either<FormatRespDto, ReleaseConfig> stru = releaseConfigService.modifyConfig("200dfab1-3c30-4fc7-a6ca-ed6f0620a85d", new ReleaseConfig());
         Assert.assertTrue(stru.isRight());
     }
 
@@ -101,11 +98,20 @@ public class ReleaseConfigServiceTest {
 
     @Test
     @WithMockUser(roles = "DEVELOPER_TENANT")
+    public void testUpdateRelConfigWithCsarError() {
+        ReleaseConfig releaseConfig = new ReleaseConfig();
+        releaseConfig.setCapabilitiesDetail(new CapabilitiesDetail());
+        Either<FormatRespDto, ReleaseConfig> stru = releaseConfigService.modifyConfig(projectId, releaseConfig);
+        Assert.assertTrue(stru.isLeft());
+        Assert.assertEquals(400, stru.getLeft().getEnumStatus().getStatusCode());
+    }
+
+    @Test
+    @WithMockUser(roles = "DEVELOPER_TENANT")
     public void testGetRelConfig() {
         AccessUserUtil.setUser("f24ea0a2-d8e6-467c-8039-94f0d29bac43", "test-user");
         Either<FormatRespDto, ReleaseConfig> stru = releaseConfigService.getConfigById("200dfab1-3c30-4fc7-a6ca-ed6f0620a85e");
         Assert.assertTrue(stru.isRight());
-        Assert.assertNotNull(stru.getRight());
     }
 
     @Test

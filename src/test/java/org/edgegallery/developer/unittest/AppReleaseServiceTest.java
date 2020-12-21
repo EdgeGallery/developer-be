@@ -2,10 +2,8 @@ package org.edgegallery.developer.unittest;
 
 import com.google.gson.Gson;
 import com.spencerwi.either.Either;
-import javax.ws.rs.core.Response;
 import org.edgegallery.developer.DeveloperApplicationTests;
 import org.edgegallery.developer.model.AppPkgStructure;
-import org.edgegallery.developer.model.workspace.ProjectTestConfig;
 import org.edgegallery.developer.response.FormatRespDto;
 import org.edgegallery.developer.service.AppReleaseService;
 import org.edgegallery.developer.service.ProjectService;
@@ -14,11 +12,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -58,6 +53,13 @@ public class AppReleaseServiceTest {
     @WithMockUser(roles = "DEVELOPER_TENANT")
     public void testGetPkgStruByNullProId() {
         Either<FormatRespDto, AppPkgStructure> stru = appReleaseService.getPkgStruById("", "csarId");
+        Assert.assertTrue(stru.isLeft());
+    }
+
+    @Test
+    @WithMockUser(roles = "DEVELOPER_TENANT")
+    public void testGetPkgStruByNullPid() {
+        Either<FormatRespDto, AppPkgStructure> stru = appReleaseService.getPkgStruById(null, "csarId");
         Assert.assertTrue(stru.isLeft());
     }
 
