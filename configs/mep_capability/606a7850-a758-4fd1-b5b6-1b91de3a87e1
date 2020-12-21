@@ -1,0 +1,631 @@
+swagger: "2.0"
+info:
+  description: "图片文字识别处理通用文档、火车票、发票、网络文字图片、身份证、车牌等识别，印章检测等功能。"
+  version: "1.0.0"
+  title: "图片文字识别"
+
+basePath: "/ecloud/ai/v1"
+tags:
+- name: "OCR"
+  description: "图片文字识别"
+
+schemes:
+- "https"
+paths:
+  /ocr/v1/generic:
+    post:
+      tags:
+      - "ocr"
+      summary: "通用文档识别"
+      description: "通用文档识别"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "通用文档识别请求体"
+        required: true
+        schema:
+          type: "object"
+          properties:
+            imageFile:
+              type: "string"
+              description: "图片的base64 编码，不包含头部格式信息"
+      responses:
+        "405":
+          description: "Invalid input"
+        "200":
+          description: "识别通用文档中文字信息成功"  
+          schema:
+            $ref: "#/definitions/ImageResponseBody"
+  /ocr/v1/trainticket:
+    post:
+      tags:
+      - "ocr"
+      summary: "火车票识别"
+      description: "火车票识别"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "火车票识别请求体"
+        required: true
+        schema:
+          type: "object"
+          properties:
+            imageFile:
+              type: "string"
+              description: "图片的base64 编码，不包含头部格式信息"
+      responses:
+        "405":
+          description: "Invalid input"
+        "200":
+          description: "火车票识别成功"  
+          schema:
+            $ref: "#/definitions/TrainticketResponseBody"
+  /ocr/v1/invoice:
+    post:
+      tags:
+      - "ocr"
+      summary: "增值税发票识别"
+      description: "增值税发票识别"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "增值税发票识别请求体"
+        required: true
+        schema:
+          type: "object"
+          properties:
+            imageFile:
+              type: "string"
+              description: "图片的base64 编码，不包含头部格式信息"
+      responses:
+        "405":
+          description: "Invalid input"
+        "200":
+          description: "增值税发票识别成功"  
+          schema:
+            $ref: "#/definitions/InvoiceResponseBody"
+  /ocr/v1/webimage:
+    post:
+      tags:
+      - "ocr"
+      summary: "网络文字图片识别"
+      description: "网络文字图片识别"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "网络文字图片识别请求体"
+        required: true
+        schema:
+          type: "object"
+          properties:
+            imageFile:
+              type: "string"
+              description: "图片的base64 编码，不包含头部格式信息"
+      responses:
+        "405":
+          description: "Invalid input"
+        "200":
+          description: "识别网络图片中文字信息成功"  
+          schema:
+            $ref: "#/definitions/ImageResponseBody"
+  /ocr/v1/seal:
+    post:
+      tags:
+      - "ocr"
+      summary: "印章检测"
+      description: "印章检测"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "印章检测请求体"
+        required: true
+        schema:
+          type: "object"
+          properties:
+            imageFile:
+              type: "string"
+              description: "图片的base64 编码，不包含头部格式信息"
+      responses:
+        "405":
+          description: "Invalid input"
+        "200":
+          description: "印章检测成功"  
+          schema: 
+            $ref: "#/definitions/SealResponseBody"
+  /ocr/v1/idcard:
+    post:
+      tags:
+      - "ocr"
+      summary: "身份证识别"
+      description: "身份证识别"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "身份证识别请求体"
+        required: true
+        schema:
+          type: "object"
+          properties:
+            imageFile:
+              type: "string"
+              description: "图片的base64 编码，不包含头部格式信息"
+      responses:
+        "405":
+          description: "Invalid input"
+        "200":
+          description: "身份证识别成功"  
+          schema:
+            $ref: "#/definitions/IdcardResponseBody" 
+  /ocr/v1/businesslicense:
+    post:
+      tags:
+      - "ocr"
+      summary: "营业执照识别"
+      description: "营业执照识别"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "营业执照识别请求体"
+        required: true
+        schema:
+          type: "object"
+          properties:
+            imageFile:
+              type: "string"
+              description: "图片的base64 编码，不包含头部格式信息"
+      responses:
+        "405":
+          description: "Invalid input"
+        "200":
+          description: "营业执照识别成功"  
+          schema:
+            $ref: "#/definitions/BusinesslicenseResponseBody"
+  /ocr/v1/licenseplate:
+    post:
+      tags:
+      - "ocr"
+      summary: "车牌识别"
+      description: "车牌识别"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "车牌识别请求体"
+        required: true
+        schema:
+          type: "object"
+          properties:
+            imageFile:
+              type: "string"
+              description: "图片的base64 编码，不包含头部格式信息"
+      responses:
+        "405":
+          description: "Invalid input"
+        "200":
+          description: "车牌识别成功"  
+          schema:
+            $ref: "#/definitions/LicenseplateResponseBody"
+  /ocr/v1/ammeter:
+    post:
+      tags:
+      - "ocr"
+      summary: "抄表识别"
+      description: "抄表识别"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "抄表识别请求体"
+        required: true
+        schema:
+          type: "object"
+          properties:
+            imageFile:
+              type: "string"
+              description: "图片的base64 编码，不包含头部格式信息"
+      responses:
+        "405":
+          description: "Invalid input"
+        "200":
+          description: "抄表识别成功"  
+          schema:
+            $ref: "#/definitions/AmmeterResponseBody"
+definitions:
+  PosInfo:
+    type: "object"
+    properties:
+      x: 
+        type: "integer"
+        description: "水平方向坐标"
+      y: 
+        type: "integer"
+        description: "垂直方向坐标"
+  LocationInfo:
+    type: "object"
+    properties:
+      x: 
+        type: "string"
+        description: "x坐标"
+      y: 
+        type: "string"
+        description: "y坐标"
+      width: 
+        type: "string"
+        description: "矩形框宽"
+      high: 
+        type: "string"
+        description: "矩形框高"
+  ImageRecInfo:
+      type: "object"
+      properties:
+        content: 
+          type: "object"
+          properties:
+            prism_wnum:
+              type: "integer"
+              description: "一共识别出的文字的行数"
+            prisim_wordsInfo:
+              type: "array"
+              description: "每一行文字的识别的具体结果"
+              items:
+                type: "object"
+                properties:
+                  position:
+                    type: "array"
+                    description: "文本行的位置信息"
+                    items:
+                      $ref: "#/definitions/PosInfo"
+                  prob:
+                    type: "number"
+                    description: "文本行置信度"
+                  word:
+                    type: "string"
+                    description: "文本行内容"
+                  chars:
+                    type: "array"
+                    description: "文本行中每个字符的详细信息"
+                    items:
+                      type: "object"
+                      properties:
+                        pos:
+                          $ref: "#/definitions/PosInfo"
+                        confidence:
+                          type: "number"
+                          description: "每个字符的置信度"
+                        char:
+                          type: "string"
+                          description: "字符内容"
+  TrainticketInfo:
+    type: "object"
+    properties:
+      ticketNum: 
+        type: "string"
+        description: "票号。若无或者未识别则返回空字符串"
+      ticketGate: 
+        type: "string"
+        description: "检票口。若无或者未识别则返回空字符串"
+      startingStation: 
+        type: "string"
+        description: "出发地。若无或者未识别则返回空字符串"
+      destinationStation: 
+        type: "string"
+        description: "目的地。若无或者未识别则返回空字符串"
+      trainNum: 
+        type: "string"
+        description: "车次。若无或者未识别则返回空字符串"
+      time: 
+        type: "string"
+        description: "发车时间。若无或者未识别则返回空字符串"
+      date: 
+        type: "string"
+        description: "发车日期。若无或者未识别则返回空字符串"
+      ticketRates: 
+        type: "string"
+        description: "票价。若无或者未识别则返回空字符串"
+      ticketLocation: 
+        type: "string"
+        description: "售票地点。若无或者未识别则返回空字符串"
+      ticketCode: 
+        type: "string"
+        description: "车票编码。若无或者未识别则返回空字符串"
+      seatCategory: 
+        type: "string"
+        description: "座次。若无或者未识别则返回空字符串"
+      name: 
+        type: "string"
+        description: "姓名。若无或者未识别则返回空字符串"
+      idNumber: 
+        type: "string"
+        description: "身份证号。若无或者未识别则返回空字符串"
+  InvoiceInfo:
+    type: "object"
+    properties:
+      invoiceCode: 
+        type: "string"
+        description: "发票代码"
+      invoiceNumber: 
+        type: "string"
+        description: "发票号码"
+      invoiceDate: 
+        type: "string"
+        description: "开票日期"
+      taxAmount: 
+        type: "string"
+        description: "税额"
+      amountWithoutTax: 
+        type: "string"
+        description: "不含税金额"
+      amount: 
+        type: "string"
+        description: "金额"
+      buyerName: 
+        type: "string"
+        description: "购买方名称"
+      buyerTaxNumber: 
+        type: "string"
+        description: "购买方税号"
+      buyerAddressAndPhone: 
+        type: "string"
+        description: "购买方地址和电话"
+      buyerBankAndAccount: 
+        type: "string"
+        description: "购买方银行和账号"
+      sellerName: 
+        type: "string"
+        description: "销售方名称"
+      sellerTaxNumber: 
+        type: "string"
+        description: "销售方税号"
+      sellerAddressAndPhone: 
+        type: "string"
+        description: "销售方地址和电话"
+      sellerBankAndAccount: 
+        type: "string"
+        description: "销售方银行和账号"
+  IdcardInfo:
+    type: "object"
+    properties:
+      name: 
+        type: "string"
+        description: "姓名信息"
+      sex: 
+        type: "string"
+        description: "性别信息"
+      ethnicity: 
+        type: "string"
+        description: "民族信息"
+      birth: 
+        type: "string"
+        description: "出生日期"
+      address: 
+        type: "string"
+        description: "住址信息"
+      id: 
+        type: "string"
+        description: "身份证号码信息"
+      authority: 
+        type: "string"
+        description: "签发机关信息"
+      validPeriod: 
+        type: "string"
+        description: "有效期限信息"
+  BusinesslicenseInfo:
+    type: "object"
+    properties:
+      NO: 
+        type: "string"
+        description: "证件编号信息"
+      registered_number: 
+        type: "string"
+        description: "注册号信息"
+      credit_code: 
+        type: "string"
+        description: "社会信用代码"
+      enterprise_name: 
+        type: "string"
+        description: "公司名称"
+      legal_representative: 
+        type: "string"
+        description: "法定代表人"
+      enterprise_type: 
+        type: "string"
+        description: "主体类型"
+      enterprise_address: 
+        type: "string"
+        description: "地址信息"
+      registered_capital: 
+        type: "string"
+        description: "注册资本信息"
+      paid-in_capital: 
+        type: "string"
+        description: "实收资本信息"
+      establish_date: 
+        type: "string"
+        description: "成立日期"
+      operation_period: 
+        type: "string"
+        description: "营业期限信息"
+      expire_date: 
+        type: "string"
+        description: "有效期信息"
+      business_scope: 
+        type: "string"
+        description: "经营范围信息"
+  LicenseplateInfo:
+    type: "object"
+    properties:
+      number: 
+        type: "string"
+        description: "车牌号"
+      color: 
+        type: "string"
+        description: "车牌类型blue:蓝色车牌;yellow:黄色车牌;white:白色车牌;black:黑色车牌,green:绿色车牌;unknown:未知颜色车牌颜色"
+  AmmeterInfo:
+    type: "object"
+    properties:
+      number: 
+        type: "string"
+        description: "电表数值"
+      prob: 
+        type: "string"
+        description: "电表数值的置信度"
+      location: 
+        type: "array"
+        description: "电表数值各组成数字的坐标位置"
+        items:
+          type: "object"
+          properties:
+            location:
+              $ref: "#/definitions/LocationInfo" 
+  ImageResponseBody:
+    type: "object"
+    properties:
+      requestId: 
+        type: "string"
+        description: "请求标识"
+      state: 
+        type: "string"
+        description: "请求状态"
+        enum:
+        - "OK"
+        - "ERROR"
+      body:
+        $ref: "#/definitions/ImageRecInfo" 
+  TrainticketResponseBody:
+    type: "object"
+    properties:
+      requestId: 
+        type: "string"
+        description: "请求标识"
+      state: 
+        type: "string"
+        description: "请求状态"
+        enum:
+        - "OK"
+        - "ERROR"
+      body:
+        $ref: "#/definitions/TrainticketInfo" 
+  InvoiceResponseBody:
+    type: "object"
+    properties:
+      requestId: 
+        type: "string"
+        description: "请求标识"
+      state: 
+        type: "string"
+        description: "请求状态"
+        enum:
+        - "OK"
+        - "ERROR"
+      body:
+        $ref: "#/definitions/InvoiceInfo"
+  SealInfo:
+    type: "object"
+    properties:
+      text: 
+        type: "string"
+        description: "印章内容"
+  SealResponseBody:
+    type: "object"
+    properties:
+      requestId: 
+        type: "string"
+        description: "请求标识"
+      state: 
+        type: "string"
+        description: "请求状态"
+        enum:
+        - "OK"
+        - "ERROR"
+      body:
+        $ref: "#/definitions/SealInfo"
+  IdcardResponseBody:
+    type: "object"
+    properties:
+      requestId: 
+        type: "string"
+        description: "请求标识"
+      state: 
+        type: "string"
+        description: "请求状态"
+        enum:
+        - "OK"
+        - "ERROR"
+      body:
+        $ref: "#/definitions/IdcardInfo"
+  BusinesslicenseResponseBody:
+    type: "object"
+    properties:
+      requestId: 
+        type: "string"
+        description: "请求标识"
+      state: 
+        type: "string"
+        description: "请求状态"
+        enum:
+        - "OK"
+        - "ERROR"
+      body:
+        $ref: "#/definitions/BusinesslicenseInfo"
+  LicenseplateResponseBody:
+    type: "object"
+    properties:
+      requestId: 
+        type: "string"
+        description: "请求标识"
+      state: 
+        type: "string"
+        description: "请求状态"
+        enum:
+        - "OK"
+        - "ERROR"
+      body:
+        $ref: "#/definitions/LicenseplateInfo"
+  AmmeterResponseBody:
+    type: "object"
+    properties:
+      requestId: 
+        type: "string"
+        description: "请求标识"
+      state: 
+        type: "string"
+        description: "请求状态"
+        enum:
+        - "OK"
+        - "ERROR"
+      body:
+        $ref: "#/definitions/AmmeterInfo"

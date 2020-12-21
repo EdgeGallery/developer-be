@@ -1,6 +1,7 @@
 global:
   mepagent:
     enabled: <IS_MEP_AGENT>
+    configmapname: <CONFIGMAP_NAME>
   namespace:
     enabled: <IS_NAMESPACE>
 
@@ -13,7 +14,8 @@ appconfig:
     appInsId: <idvalue>
 
 serviceconfig:
-  - servicename: <service_name>
-    port: <port>
-    version: <version>
-    protocol: <HTTP or HTTPS>
+#  - servicename: positioning-service
+#    port: 9997
+#    version: 1.0
+#    protocol: HTTP
+#    appnamespace: default

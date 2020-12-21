@@ -340,15 +340,44 @@ public class UploadFileService {
         // verify service,image,mep-agent
         verifyHelmTemplate(mapList, requiredItems, helmTemplateYamlRespDto);
 
-        if (!requiredItems.isEmpty()) {
+        if (!requiredItems.isEmpty() && requiredItems.size() >= 2) {
             LOGGER.error("Failed to verify helm template yaml, userId: {}, projectId: {},exception: verify: {} failed",
                 userId, projectId, String.join(",", requiredItems));
             return Either.right(helmTemplateYamlRespDto);
-        }
+        } else if (!requiredItems.isEmpty() && requiredItems.size() == 1 && requiredItems.get(0).equals("mep-agent")) {
+            // create HelmTemplateYamlPo
+            HelmTemplateYamlPo helmTemplateYamlPo = new HelmTemplateYamlPo();
+            helmTemplateYamlPo.setContent(originalContent);
+            String fileId = UUID.randomUUID().toString();
+            String filename = helmTemplateYaml.getOriginalFilename();
+            helmTemplateYamlPo.setFileId(fileId);
+            helmTemplateYamlPo.setFileName(filename);
+            helmTemplateYamlPo.setUserId(userId);
+            helmTemplateYamlPo.setProjectId(projectId);
+            helmTemplateYamlPo.setUploadTimeStamp(System.currentTimeMillis());
+            int saveResult = helmTemplateYamlMapper.saveYaml(helmTemplateYamlPo);
+            if (saveResult <= 0) {
+                LOGGER.error("Failed to save helm template yaml, file id : {}", fileId);
+                return Either
+                    .left(new FormatRespDto(Status.INTERNAL_SERVER_ERROR, "Failed to save helm template yaml"));
+            }
+            helmTemplateYamlRespDto.setResponse(helmTemplateYamlPo);
+            helmTemplateYamlRespDto.setImageSuccess(true);
+            helmTemplateYamlRespDto.setServiceSuccess(true);
+            helmTemplateYamlRespDto.setMepAgentSuccess(false);
 
-        // create HelmTemplateYamlPo
+            LOGGER.info("Succeed to save helm template yaml with file id : {}", fileId);
+            return Either.right(helmTemplateYamlRespDto);
+        }
+        Either<FormatRespDto, HelmTemplateYamlRespDto> either = getSuccessResult(helmTemplateYaml, userId, projectId,
+            originalContent, helmTemplateYamlRespDto);
+        return either;
+    }
+
+    private Either<FormatRespDto, HelmTemplateYamlRespDto> getSuccessResult(MultipartFile helmTemplateYaml,
+        String userId, String projectId, String content, HelmTemplateYamlRespDto helmTemplateYamlRespDto) {
         HelmTemplateYamlPo helmTemplateYamlPo = new HelmTemplateYamlPo();
-        helmTemplateYamlPo.setContent(originalContent);
+        helmTemplateYamlPo.setContent(content);
         String fileId = UUID.randomUUID().toString();
         String filename = helmTemplateYaml.getOriginalFilename();
         helmTemplateYamlPo.setFileId(fileId);
@@ -364,6 +393,7 @@ public class UploadFileService {
         helmTemplateYamlRespDto.setResponse(helmTemplateYamlPo);
         LOGGER.info("Succeed to save helm template yaml with file id : {}", fileId);
         return Either.right(helmTemplateYamlRespDto);
+
     }
 
     private void verifyHelmTemplate(List<Map<String, Object>> mapList, List<String> requiredItems,
@@ -376,25 +406,15 @@ public class UploadFileService {
                         helmTemplateYamlRespDto.setServiceSuccess(true);
                         continue;
                     }
-                    if ("Pod".equalsIgnoreCase(stringMap.get(key).toString()) && stringMap.get("spec") != null) {
-                        LinkedHashMap<String, List<LinkedHashMap<String, Object>>> specMap
-                            = (LinkedHashMap<String, List<LinkedHashMap<String, Object>>>) stringMap.get("spec");
-                        if (!CollectionUtils.isEmpty(specMap.get("containers"))) {
-                            for (LinkedHashMap<String, Object> container : specMap.get("containers")) {
-                                if (container == null) {
-                                    continue;
-                                }
-                                if (container.get("name") != null && container.get("name").toString()
-                                    .equals("mep-agent")) {
-                                    helmTemplateYamlRespDto.setMepAgentSuccess(true);
-                                    requiredItems.remove("mep-agent");
-                                    continue;
-                                }
-                                if (container.get("image") != null) {
-                                    requiredItems.remove("image");
-                                    helmTemplateYamlRespDto.setImageSuccess(true);
-                                }
-                            }
+                    if (stringMap.get("spec") != null) {
+                        String specContent = stringMap.get("spec").toString();
+                        if (specContent.contains("image")){
+                            requiredItems.remove("image");
+                            helmTemplateYamlRespDto.setImageSuccess(true);
+                        }
+                        if (specContent.contains("mep-agent")){
+                            helmTemplateYamlRespDto.setMepAgentSuccess(true);
+                            requiredItems.remove("mep-agent");
                         }
                     }
                 }
@@ -415,6 +435,43 @@ public class UploadFileService {
         templateYamlPoList.forEach(helmTemplateYamlPo -> {
             HelmTemplateYamlRespDto helmTemplateYamlRespDto = new HelmTemplateYamlRespDto();
             helmTemplateYamlRespDto.setResponse(helmTemplateYamlPo);
+            // replace {{(.*?)}}
+            String content = helmTemplateYamlPo.getContent().replaceAll("\r","");
+            content = content.replaceAll(REPLACE_PATTERN.toString(), "");
+
+            // verify yaml scheme
+            String[] multiContent = content.split("---");
+            List<Map<String, Object>> mapList = new ArrayList<>();
+            try {
+                for (String str : multiContent) {
+                    if (StringUtils.isBlank(str)) {
+                        continue;
+                    }
+                    Yaml yaml = new Yaml();
+                    Map<String, Object> loaded = yaml.load(str);
+                    mapList.add(loaded);
+                }
+                helmTemplateYamlRespDto.setFormatSuccess(true);
+            } catch (Exception e) {
+                LOGGER.error("Failed to validate yaml scheme, userId: {}, projectId: {},exception: {}", userId, projectId,
+                    e.getMessage());
+                helmTemplateYamlRespDto.setFormatSuccess(false);
+                helmTemplateYamlRespDto.setMepAgentSuccess(null);
+                helmTemplateYamlRespDto.setServiceSuccess(null);
+                helmTemplateYamlRespDto.setImageSuccess(null);
+            }
+            List<String> requiredItems = Lists.newArrayList("image", "service", "mep-agent");
+            // verify service,image,mep-agent
+            verifyHelmTemplate(mapList, requiredItems, helmTemplateYamlRespDto);
+
+            if (!requiredItems.isEmpty() && requiredItems.size() >= 2) {
+                LOGGER.error("Failed to verify helm template yaml, userId: {}, projectId: {},exception: verify: {} failed",
+                    userId, projectId, String.join(",", requiredItems));
+            } else if (!requiredItems.isEmpty() && requiredItems.size() == 1 && requiredItems.get(0).equals("mep-agent")) {
+                helmTemplateYamlRespDto.setImageSuccess(true);
+                helmTemplateYamlRespDto.setServiceSuccess(true);
+                helmTemplateYamlRespDto.setMepAgentSuccess(false);
+            }
             helmTemplateYamlRespDtoList.add(helmTemplateYamlRespDto);
         });
         LOGGER.info("Succeed to query helm template yaml with user id : {}, project id : {}", userId, projectId);
@@ -433,7 +490,7 @@ public class UploadFileService {
             return Either.left(new FormatRespDto(Status.INTERNAL_SERVER_ERROR, "Failed to delete helm template yaml"));
         }
         LOGGER.info("Succeed to delete helm template yaml with file id : {}", fileId);
-        return Either.right("Failed to delete helm template yaml");
+        return Either.right("Delete helm template yaml success");
     }
 
     /**

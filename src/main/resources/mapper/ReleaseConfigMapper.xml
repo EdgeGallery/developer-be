@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~    Copyright 2020 Huawei Technologies Co., Ltd.
+  ~
+  ~    Licensed under the Apache License, Version 2.0 (the "License");
+  ~    you may not use this file except in compliance with the License.
+  ~    You may obtain a copy of the License at
+  ~
+  ~        http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~    Unless required by applicable law or agreed to in writing, software
+  ~    distributed under the License is distributed on an "AS IS" BASIS,
+  ~    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~    See the License for the specific language governing permissions and
+  ~    limitations under the License.
+  -->
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.edgegallery.developer.mapper.ReleaseConfigMapper">
+
+    <resultMap id="ConfigMap"
+               type="org.edgegallery.developer.model.ReleaseConfig">
+        <id property="releaseId" column="release_id"/>
+        <result property="projectId" column="project_id"/>
+        <result property="guideFileId" column="guide_file_id"/>
+        <result property="appInstanceId" column="appinstance_id"/>
+        <result property="capabilitiesDetail" column="capabilities_detail"
+                typeHandler="org.edgegallery.developer.model.handler.JsonTypeHandler"/>
+        <result property="atpTest" column="atp_test"
+                typeHandler="org.edgegallery.developer.model.handler.JsonTypeHandler"/>
+        <result property="testStatus" column="test_status"/>
+        <result property="createTime" column="create_time"/>
+    </resultMap>
+
+    <insert id="saveConfig"
+            parameterType="org.edgegallery.developer.model.ReleaseConfig">
+        insert into
+        tbl_release_config (release_id, project_id, guide_file_id, appinstance_id, capabilities_detail, atp_test,
+        test_status, create_time)
+        values
+        ( #{releaseId}, #{projectId}, #{guideFileId}, #{appInstanceId},
+        #{capabilitiesDetail, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonTypeHandler},
+        #{atpTest, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonTypeHandler},
+        #{testStatus}, #{createTime})
+    </insert>
+
+    <select id="getConfigByReleaseId" parameterType="java.lang.String" resultMap="ConfigMap">
+        SELECT
+        *
+        FROM
+        tbl_release_config
+        where release_id = #{releaseId}
+    </select>
+
+    <select id="getConfigByProjectId" parameterType="java.lang.String" resultMap="ConfigMap">
+        SELECT
+        *
+        FROM
+        tbl_release_config
+        where project_id = #{projectId}
+    </select>
+
+    <update id="modifyReleaseConfig" parameterType="org.edgegallery.developer.model.ReleaseConfig">
+        UPDATE
+        tbl_release_config
+        SET
+        release_id = #{releaseId}, project_id = #{projectId}, guide_file_id = #{guideFileId},
+        appinstance_id = #{appInstanceId}, capabilities_detail =
+        #{capabilitiesDetail, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonTypeHandler},
+        atp_test = #{atpTest, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonTypeHandler},
+        test_status = #{testStatus}, create_time=#{createTime}
+        where
+        project_id = #{projectId}
+    </update>
+    
+     <update id="updateATPStatus" parameterType="org.edgegallery.developer.model.ReleaseConfig">
+        UPDATE
+        tbl_release_config
+        SET
+        atp_test = #{atpTest, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonTypeHandler}
+        where
+        project_id = #{projectId}
+    </update>
+
+</mapper>

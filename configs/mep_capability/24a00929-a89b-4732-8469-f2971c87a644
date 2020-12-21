@@ -1,0 +1,738 @@
+swagger: "2.0"
+info:
+  description: "人脸识别与人体识别处理人脸识别，客流数量统计，人脸对比等功能。"
+  version: "1.0.0"
+  title: "人脸识别与人体识别"
+
+basePath: "/ecloud/ai/v1"
+tags:
+- name: "face"
+  description: "人脸识别和人体识别"
+
+schemes:
+- "https"
+paths:
+  /face/v1/search:
+    post:
+      tags:
+      - "face"
+      summary: "搜索人脸"
+      description: "搜索人脸"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "搜索人脸请求体"
+        required: true
+        schema:
+          type: "object"
+          properties:
+            faceNumber:
+              type: "integer"
+              description: "最相似的人脸数量，区间[1,10]"
+            faceSetId:
+              type: "string"
+              description: "人脸集合id，多个id用英文逗号分隔"
+            imageFile:
+              type: "string"
+              description: "图片的Base64编码"
+      responses:
+        "405":
+          description: "Invalid input"
+        "200":
+          description: "查找人脸成功"  
+          schema:
+            $ref: "#/definitions/SearchResult"
+  /face/v1/faceset/add:
+    post:
+      tags:
+      - "face"
+      summary: "添加人脸库"
+      description: "添加人脸库"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "添加人脸库请求体"
+        required: true
+        schema:
+          type: "object"
+          properties:
+            faceSetName:
+              type: "string"
+              description: "人脸库名称，最长256个字符，不能有特殊字符"
+            faceSetDescription:
+              type: "string"
+              description: "可选参数，人脸集合的描述，暂时不用"
+      responses:
+        "405":
+          description: "Invalid input"
+        "200":
+          description: "添加人脸库成功"  
+          schema:
+            $ref: "#/definitions/FaceSetResposeBody"
+  /face/v1/faceset/delete:
+    post:
+      tags:
+      - "face"
+      summary: "删除人脸库"
+      description: "删除人脸库"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "删除人脸库请求体"
+        required: true
+        schema:
+          type: "object"
+          properties:
+            faceSetIds:
+              type: "string"
+              description: "需要删除人脸库ID列表，多个ID用逗号隔开"
+      responses:
+        "405":
+          description: "Invalid input"
+        "200":
+          description: "删除人脸库成功"  
+          schema:
+            $ref: "#/definitions/CommonDelResposeBody"
+  /face/v1/faceset/get:
+    get:
+      tags:
+      - "face"
+      summary: "查询人脸库"
+      description: "查询人脸库"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "name"
+        in: "query"
+        description: "过滤的人脸库名称"
+        required: false
+        type: "string"
+      - name: "page"
+        in: "query"
+        description: "查询的页数，默认为1"
+        required: false
+        type: "integer"
+      - name: "rows"
+        in: "query"
+        description: "查询的每页行数，默认为10"
+        required: false
+        type: "integer"
+      responses:
+        "405":
+          description: "Invalid input"
+        "200":
+          description: "查询人脸库成功"  
+          schema:
+            $ref: "#/definitions/FaceSetGetResposeBody"  
+  /face/v1/faceset/user/add:
+    post:
+      tags:
+      - "face"
+      summary: "创建人脸"
+      description: "创建人脸"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "创建人脸库请求体"
+        required: true
+        schema:
+          type: "object"
+          properties:
+            faceName:
+              type: "string"
+              description: "人脸名称"
+            faceSetId:
+              type: "integer"
+              description: "人脸库ID"
+            faceExtraInfo:
+              type: "string"
+              description: "人脸额外信息，暂时不用"
+            imageFile:
+              type: "string"
+              description: "人脸图片的base64编码"
+      responses:
+        "405":
+          description: "Invalid input"
+        "200":
+          description: "添加人脸成功"  
+          schema:
+            $ref: "#/definitions/FaceAddResposeBody"  
+  /face/v1/faceset/user/delete:
+    post:
+      tags:
+      - "face"
+      summary: "删除人脸"
+      description: "删除人脸"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "删除人脸请求体"
+        required: true
+        schema:
+          type: "object"
+          properties:
+            faceId:
+              type: "integer"
+              description: "需要删除人脸ID"
+            faceSetId:
+              type: "integer"
+              description: "需要删除人脸所属的人脸库ID"
+      responses:
+        "405":
+          description: "Invalid input"
+        "200":
+          description: "删除人脸库成功"  
+          schema:
+            $ref: "#/definitions/CommonDelResposeBody"
+  /face/v1/faceset/user/get:
+    post:
+      tags:
+      - "face"
+      summary: "查询人脸"
+      description: "查询人脸"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "查询人脸请求体"
+        required: true
+        schema:
+          type: "object"
+          properties:
+            faceId:
+              type: "integer"
+              description: "需要查询人脸ID"
+            faceSetId:
+              type: "integer"
+              description: "需要查询人脸所属的人脸库ID"
+      responses:
+        "405":
+          description: "Invalid input"
+        "200":
+          description: "查询人脸库成功"  
+          schema:
+            $ref: "#/definitions/FaceGetResposeBody"
+  /face/v1/detect:
+    post:
+      tags:
+      - "face"
+      summary: "人脸检测"
+      description: "人脸检测"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "人脸检测请求体"
+        required: true
+        schema:
+          type: "object"
+          properties:
+            imageFile:
+              type: "string"
+              description: "图片的Base64编码，不包括头部格式信息"
+      responses:
+        "405":
+          description: "Invalid input"
+        "200":
+          description: "检测人脸成功"  
+          schema:
+            $ref: "#/definitions/FaceDetectResposeBody"
+  /face/v1/match:
+    post:
+      tags:
+      - "face"
+      summary: "人脸比对"
+      description: "人脸比对"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "人脸比对请求体"
+        required: true
+        schema:
+          type: "object"
+          properties:
+            imageFile1:
+              type: "string"
+              description: "图片1的Base64编码，不包括头部格式信息"
+            imageFile2:
+              type: "string"
+              description: "图片2的Base64编码，不包括头部格式信息"
+      responses:
+        "405":
+          description: "Invalid input"
+        "200":
+          description: "人脸比对成功"  
+          schema:
+            $ref: "#/definitions/FaceMatchResposeBody"
+  /face/v1/densitydetect:
+    post:
+      tags:
+      - "face"
+      summary: "客流统计"
+      description: "客流统计"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "客流统计请求体"
+        required: true
+        schema:
+          type: "object"
+          properties:
+            imageFile:
+              type: "string"
+              description: "图片的Base64编码，不包括头部格式信息"
+      responses:
+        "405":
+          description: "Invalid input"
+        "200":
+          description: "客流统计成功"  
+          schema:
+            $ref: "#/definitions/DensityDetectResposeBody"
+definitions:
+  FaceSet:
+    type: "object"
+    properties:
+      id:
+        type: "integer"
+        format: "int64"
+      name:
+        type: "string"
+      description:
+        type: "string"
+      count:
+        type: "integer"
+        format: "int64"
+      account:
+        type: "string"
+        description: "创建人脸库的用户，暂时不用，为null"
+      createTime:
+        type: "string"
+        format: "date-time"
+    xml:
+      name: "FaceDictionary"
+  FaceSetList:
+    type: "object"
+    properties:
+      total:
+        type: "integer"
+        description: "人脸库总量"
+      list:
+        type: "array"
+        items:
+          $ref: "#/definitions/FaceSet"
+  Face:
+    type: "object"
+    properties:
+      faceName:
+        type: "string"
+      faceId:
+        type: "integer"
+        format: "int64"
+      faceExtraInfo:
+        type: "string"
+        description: "人脸额外信息，暂时不用"
+      faceInfoImageList:
+        type: "array"
+        items:
+          type: "object"
+          properties:
+            imageId: 
+              type: "integer"
+    xml:
+      name: "Face"
+  SearchResult: 
+    type: "object"
+    properties: 
+      cost:
+        type: "string"
+        description: "请求耗时，单位毫秒"
+      results:
+        type: "array"
+        items:
+          type: "object"
+          properties:
+            faceName: 
+              type: "string"
+              description: "搜索出来的人脸名字"
+            faceId:
+              type: "integer"
+              description: "搜索出来的人脸id"
+            confidence:
+              type: "number"
+              description: "人脸置信度，根据算法计算得到"
+      faces:
+        type: "array"
+        description: "传入图片的人脸检测结果，数组数量和传入的faceNum一致"
+        items:
+          type: "object"
+          properties:
+            upperLeftX: 
+              type: "number"
+              description: "左上角X坐标"
+            upperLeftY:
+              type: "number"
+              description: "左上角Y坐标"
+            lowerRightX:
+              type: "number"
+              description: "右下角X坐标"
+            lowerRightY:
+              type: "number"
+              description: "右下角Y坐标"
+  
+  FaceSetResposeBody:
+    type: "object"
+    properties:
+      requestId: 
+        type: "string"
+        description: "请求标识"
+      state: 
+        type: "string"
+        description: "请求状态"
+        enum:
+        - "OK"
+        - "ERROR"
+      body:
+        type: "object"
+        properties:
+          cost: 
+            type: "integer"
+            description: "消耗时长，毫秒"
+          faceStoreId:
+            type: "string"
+            description: "人脸库ID"
+          faceStoreName:
+            type: "string"
+            description: "人脸库名称"
+  CommonDelResposeBody:
+    type: "object"
+    properties:
+      requestId: 
+        type: "string"
+        description: "请求标识"
+      state: 
+        type: "string"
+        description: "请求状态"
+        enum:
+        - "OK"
+        - "ERROR"
+      body: 
+        type: "object"
+  FaceSetGetResposeBody:
+    type: "object"
+    properties:
+      requestId: 
+        type: "string"
+        description: "请求标识"
+      state: 
+        type: "string"
+        description: "请求状态"
+        enum:
+        - "OK"
+        - "ERROR"
+      body: 
+        $ref: "#/definitions/FaceSetList"
+  FaceAddInfo:
+    type: "object"
+    properties:
+      faceName:
+        type: "string"
+      faceId:
+        type: "integer"
+        format: "int64"
+      faceExtraInfo:
+        type: "string"
+        description: "人脸额外信息，暂时不用"
+      cost:
+        type: "string"
+      faceSetName:
+        type: "string"
+        description: "人脸库ID"
+  
+  FaceAddResposeBody:
+    type: "object"
+    properties:
+      requestId: 
+        type: "string"
+        description: "请求标识"
+      state: 
+        type: "string"
+        description: "请求状态"
+        enum:
+        - "OK"
+        - "ERROR"
+      body: 
+        $ref: "#/definitions/FaceAddInfo" 
+  FaceGetResposeBody:
+    type: "object"
+    properties:
+      requestId: 
+        type: "string"
+        description: "请求标识"
+      state: 
+        type: "string"
+        description: "请求状态"
+        enum:
+        - "OK"
+        - "ERROR"
+      body: 
+        $ref: "#/definitions/Face" 
+  FaceDetectResult:
+    type: "object"
+    properties:
+      imageId: 
+        type: "string"
+        description: "图片的唯一标识"
+      cost: 
+        type: "integer"
+        description: "人脸检测耗时"
+      faceNum:
+        type: "integer"
+        description: "图片检测到的人脸数量"
+      faceDetectDetailList:
+        type: "array"
+        description: "检测出来的人脸结果的列表，列表中的信息数量和faceNum数量相同"
+        items:
+          type: "object"
+          properties:
+            faceI:
+              type: "string"
+              description: "检测出来的人脸标识ID"
+            faceDetectRectangleArea:
+              type: "object"
+              properties:
+                upperLeftX: 
+                  type: "number"
+                  description: "左上角坐标X"
+                upperLeftY:
+                  type: "number"
+                  description: "左上角坐标Y"
+                lowerRightX: 
+                  type: "number"
+                  description: "右下角坐标X"
+                lowerRightY                :
+                  type: "number"
+                  description: "右下角坐标Y"
+            faceDetectLandmarkAreaList:
+              type: "object"
+              description: "人脸检测结果关键点列表"
+              properties:
+                pointX:
+                  type: "integer"
+                  description: "人脸关键点X坐标"
+                pointY:
+                  type: "integer"
+                  description: "人脸关键点Y坐标"
+            faceScore:
+              type: "number"
+              description: "人脸检测得分，该区域是人脸的可能性"
+            roll:
+              type: "number"
+              description: "人脸角度"
+            pitch:
+              type: "number"
+              description: "人脸角度"
+            row:
+              type: "number"
+              description: "人脸角度"
+            faceLandmarkNumber:
+              type: "integer"
+              description: "检测的人脸关键点数量"
+            faceDetectAttributes:
+              type: "object"
+              description: "检测出的人脸的属性,目前只有faceDetectEmotion"
+              properties:
+                faceDetectEmotion:
+                  type: "object"
+                  description: "人脸属性之情绪识别，共有7种属性"
+                  properties:
+                    anger:
+                      type: "number"
+                      description: "愤怒"
+                    disgust:
+                      type: "number"
+                      description: "厌恶"
+                    fear:
+                      type: "number"
+                      description: "恐惧"
+                    happiness:
+                      type: "number"
+                      description: "高兴"
+                    neutral:
+                      type: "number"
+                      description: "平静"
+                    sadness:
+                      type: "number"
+                      description: "伤心"
+                    surprise:
+                      type: "number"
+                      description: "惊讶"
+  FaceDetectResposeBody:
+    type: "object"
+    properties:
+      requestId: 
+        type: "string"
+        description: "请求标识"
+      state: 
+        type: "string"
+        description: "请求状态"
+        enum:
+        - "OK"
+        - "ERROR"
+      body: 
+        $ref: "#/definitions/FaceDetectResult" 
+  FaceMatchResult:
+    type: "object"
+    properties:
+      confidence:
+        type: "number"
+        description: "人脸比对置信度"
+      cost:
+        type: "integer"
+        description: "人脸比对耗时"
+      imageId1:
+        type: "string"
+        description: "图片1的标识ID"
+      imageId2:
+        type: "string"
+        description: "图片2的标识ID"
+      faces1:
+        type: "array"
+        description: "图片1中检测出来的人脸信息"
+        items:
+          type: "object"
+          properties:
+            faceId: 
+              type: "string"
+              description: "图片中检测出来的人脸标识ID"
+            faceRectangle:
+              type: "object"
+              description: "人脸矩形框对象"
+            upperLeftX:
+              type: "number"
+              description: "人脸矩形框左上角X"
+            upperLeftY:
+              type: "number"
+              description: "人脸矩形框左上角Y"   
+            lowerRightX:
+              type: "number"
+              description: "人脸矩形框右下角X"
+            lowerRightY:
+              type: "number"
+              description: "人脸矩形框右下角Y" 
+      faces2:
+        type: "array"
+        description: "图片2中检测出来的人脸信息"
+        items:
+          type: "object"
+          properties:
+            faceId: 
+              type: "string"
+              description: "图片中检测出来的人脸标识ID"
+            faceRectangle:
+              type: "object"
+              description: "人脸矩形框对象"
+            upperLeftX:
+              type: "number"
+              description: "人脸矩形框左上角X"
+            upperLeftY:
+              type: "number"
+              description: "人脸矩形框左上角Y"   
+            lowerRightX:
+              type: "number"
+              description: "人脸矩形框右下角X"
+            lowerRightY:
+              type: "number"
+              description: "人脸矩形框右下角Y"   
+  DensityDetectResult:
+    type: "object"
+    properties:
+      imageId:
+        type: "integer"
+        description: "图片的唯一标识"
+      faceNum:
+        type: "integer"
+        description: "图像中的人脸数量"
+      faceDetails:
+        type: "object"
+        description: "坐标信息检测结果"
+        properties:
+          leftX:
+            type: "number"
+            description: "左上角横坐标"
+          leftY:
+            type: "number"
+            description: "左上角纵坐标"
+          wight:
+            type: "number"
+            description: "矩形宽"
+          htight:
+            type: "number"
+            description: "矩形高"
+          confidence:
+            type: "number"
+            description: "置信度"
+  DensityDetectResposeBody:
+    type: "object"
+    properties:
+      requestId: 
+        type: "string"
+        description: "请求标识"
+      state: 
+        type: "string"
+        description: "请求状态"
+        enum:
+        - "OK"
+        - "ERROR"
+      body: 
+        $ref: "#/definitions/DensityDetectResult" 
+  FaceMatchResposeBody:
+    type: "object"
+    properties:
+      requestId: 
+        type: "string"
+        description: "请求标识"
+      state: 
+        type: "string"
+        description: "请求状态"
+        enum:
+        - "OK"
+        - "ERROR"
+      body: 
+        $ref: "#/definitions/FaceMatchResult" 
+              

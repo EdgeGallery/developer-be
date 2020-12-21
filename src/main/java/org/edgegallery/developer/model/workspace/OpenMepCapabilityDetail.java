@@ -69,36 +69,4 @@ public class OpenMepCapabilityDetail {
         this.version = version;
         this.description = description;
     }
-
-    /**
-     * getDetailId.
-     */
-    public String getDetailId() {
-        if (this.detailId == null) {
-            this.detailId = UUID.randomUUID().toString();
-        }
-        return this.detailId;
-    }
-
-    /**
-     * getUploadTime.
-     */
-    public Date getUploadTime() {
-        if (this.uploadTime != null) {
-            return new Date(this.uploadTime.getTime());
-        } else {
-            return null;
-        }
-    }
-
-    /**
-     * setUploadTime.
-     */
-    public void setUploadTime(Date deployDate) {
-        if (deployDate != null) {
-            this.uploadTime = (Date) deployDate.clone();
-        } else {
-            this.uploadTime = null;
-        }
-    }
 }

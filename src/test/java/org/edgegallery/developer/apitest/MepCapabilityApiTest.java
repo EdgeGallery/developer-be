@@ -65,7 +65,7 @@ public class MepCapabilityApiTest {
     public void createGroup() throws Exception {
         OpenMepCapabilityGroup group = new OpenMepCapabilityGroup();
         group.setGroupId("e111f3e7-90d8-4a39-9874-ea6ea6752ee3");
-        group.setName("Face recognition");
+        group.setOneLevelName("Face recognition");
         group.setType(EnumOpenMepType.OPENMEP);
         group.setDescription("face recognition");
 

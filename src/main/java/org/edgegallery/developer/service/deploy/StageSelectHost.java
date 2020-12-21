@@ -2,7 +2,6 @@ package org.edgegallery.developer.service.deploy;
 
 import java.util.List;
 import javax.annotation.Resource;
-import org.edgegallery.developer.config.security.AccessUserUtil;
 import org.edgegallery.developer.mapper.HostMapper;
 import org.edgegallery.developer.mapper.ProjectMapper;
 import org.edgegallery.developer.model.workspace.ApplicationProject;
@@ -45,13 +44,16 @@ public class StageSelectHost implements IConfigDeployStage {
         ApplicationProject project = projectMapper.getProjectById(config.getProjectId());
         EnumTestConfigStatus hostStatus = EnumTestConfigStatus.Failed;
         if (config.isPrivateHost()) {
+            List<MepHost> privateHosts = hostMapper.getHostsByUserId(project.getUserId());
+            config.setHosts(privateHosts.subList(0, 1));
             hostStatus = EnumTestConfigStatus.Success;
             processSuccess = true;
         } else {
-            List<MepHost> enabledHosts = hostMapper.getHostsByStatus(EnumHostStatus.NORMAL);
+            List<MepHost> enabledHosts = hostMapper.getHostsByStatus(EnumHostStatus.NORMAL,"admin");
             if (CollectionUtils.isEmpty(enabledHosts)) {
                 processSuccess = false;
-                LOGGER.error("Cannot find enabledHosts");
+                LOGGER.error("Cannot find available hosts information");
+                config.setErrorLog("Cannot find enabledHosts");
             } else {
                 processSuccess = true;
                 config.setHosts(enabledHosts.subList(0, 1));

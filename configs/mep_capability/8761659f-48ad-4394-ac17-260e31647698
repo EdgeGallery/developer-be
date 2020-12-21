@@ -1,0 +1,876 @@
+swagger: "2.0"
+info:
+  description: "知识图谱用于企业名称、企业经营异常信息、企业人员董监高信息等查询功能。"
+  version: "1.0.0"
+  title: "知识图谱"
+
+basePath: "/ecloud/ai/v1"
+tags:
+- name: "compkg"
+  description: "知识图谱"
+
+schemes:
+- "https"
+paths:
+  /compkg/v1/basicinfo:
+    get:
+      tags:
+      - "compkg"
+      summary: "企业名称精准查询"
+      description: "企业名称精准查询"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "keyword"
+        in: "query"
+        description: "搜索关键字（公司名、注册号或社会统一信用代码）"
+        required: true
+        type: "string"
+      responses:
+        "405":
+          description: "Invalid input"
+        "200":
+          description: "企业名称精准查询成功"  
+          schema:
+            $ref: "#/definitions/BasicResposeBody"
+  /compkg/v1/search:
+    get:
+      tags:
+      - "compkg"
+      summary: "企业名称模糊查询"
+      description: "企业名称模糊查询"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "keyword"
+        in: "query"
+        description: "搜索关键字（公司名、注册号或社会统一信用代码）"
+        required: true
+        type: "string"
+      - name: "cityCode"
+        in: "query"
+        description: "地级市代码"
+        required: false
+        type: "string"
+      - name: "pageIndex"
+        in: "query"
+        description: "页码"
+        required: false
+        type: "integer"
+      - name: "pageSize"
+        in: "query"
+        description: "每页条数"
+        required: false
+        type: "integer"
+      - name: "provinceCode"
+        in: "query"
+        description: "省份代码"
+        required: false
+        type: "string"
+      responses:
+        "405":
+          description: "Invalid input"
+        "200":
+          description: "企业名称模糊查询成功"  
+          schema:
+            $ref: "#/definitions/SearchResposeBody"
+  /compkg/v1/problem:
+    get:
+      tags:
+      - "compkg"
+      summary: "企业经营异常信息查询"
+      description: "企业经营异常信息查询"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "keyNo"
+        in: "query"
+        description: "公司KeyNo或社会统一信用代码或公司名称或注册号"
+        required: true
+        type: "string"
+      responses:
+        "405":
+          description: "Invalid input"
+        "200":
+          description: "企业经营异常信息查询成功"  
+          schema:
+            $ref: "#/definitions/ProblemResposeBody"
+  /compkg/v1/getstockrelationinfo:
+    get:
+      tags:
+      - "compkg"
+      summary: "企业人员董监高信息查询"
+      description: "企业人员董监高信息查询"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "companyName"
+        in: "query"
+        description: "公司名称"
+        required: true
+        type: "string"
+      - name: "name"
+        in: "query"
+        description: "人员姓名"
+        required: true
+        type: "string"
+      responses:
+        "405":
+          description: "Invalid input"
+        "200":
+          description: "企业人员董监高信息查询成功"  
+          schema:
+            $ref: "#/definitions/StockrelationResposeBody"
+definitions:
+  WebSiteInfo:
+    type: "object"
+    properties:
+      Name: 
+        type: "string"
+        description: "网址名称"
+      Url: 
+        type: "string"
+        description: "网址地址"
+  PermissionInfo:
+    type: "object"
+    properties:
+      Name: 
+        type: "string"
+        description: "项目名称"
+      Province: 
+        type: "string"
+        description: "地域"
+      Liandate: 
+        type: "string"
+        description: "决定日期"
+      CaseNo: 
+        type: "string"
+        description: "决定文书号"
+  PenaltyInfo:
+    type: "object"
+    properties:
+      DocNo: 
+        type: "string"
+        description: "行政处罚决定书文号"
+      PenaltyType: 
+        type: "string"
+        description: "违法行为类型"
+      OfficeName: 
+        type: "string"
+        description: "行政处罚决定机关名称"
+      Content: 
+        type: "string"
+        description: "行政处罚内容"
+      PenaltyDate: 
+        type: "string"
+        description: "作出行政处罚决定日期"
+      EndDate: 
+        type: "string"
+        description: "作出行政公示日期"
+      Remark: 
+        type: "string"
+        description: "备注"
+  ExceptionsInfo:
+    type: "object"
+    properties:
+      AddReason: 
+        type: "string"
+        description: "列入经营异常名录原因"
+      AddDate: 
+        type: "string"
+        description: "列入日期"
+      RomoveReason: 
+        type: "string"
+        description: "移出经营异常名录原因"
+      RemoveDate: 
+        type: "string"
+        description: "移出日期"
+      DecisionOffice: 
+        type: "string"
+        description: "作出决定机关"
+      RemoveDecisionOffice: 
+        type: "string"
+        description: "移除决定机关"
+  DiscreditionInfo:
+    type: "object"
+    properties:
+      Name: 
+        type: "string"
+        description: "公司名"
+      Liandate: 
+        type: "string"
+        description: "立案日期"
+      Anno: 
+        type: "string"
+        description: "立案文书号"
+      Orgno: 
+        type: "string"
+        description: "组织机构代码"
+      Executeno: 
+        type: "string"
+        description: "执行依据文号"
+      Publicdate: 
+        type: "string"
+        description: "发布时间"
+      Executestatus: 
+        type: "string"
+        description: "被执行人的履行情况"
+      Actionremark: 
+        type: "string"
+        description: "行为备注"
+      Executegov: 
+        type: "string"
+        description: "执行法院"
+  ExecutionInfo:
+    type: "object"
+    properties:
+      Id: 
+        type: "string"
+        description: "ID"
+      Sourceid: 
+        type: "integer"
+        description: "官网系统ID"
+      Name: 
+        type: "string"
+        description: "名称"
+      Liandate: 
+        type: "string"
+        description: "立案时间"
+      Anno: 
+        type: "string"
+        description: "立案号"
+      ExecuteGov: 
+        type: "string"
+        description: "执行法院"
+      Biaodi: 
+        type: "string"
+        description: "标地"
+      Status: 
+        type: "string"
+        description: "状态"
+      PartyCardNum: 
+        type: "string"
+        description: "身份证号码/组织机构代码"
+      Updatedate: 
+        type: "string"
+        description: "数据更新时间"
+  MPledgeInfo:
+    type: "object"
+    properties:
+      RegisterNo: 
+        type: "string"
+        description: "登记编号"
+      RegisterDate: 
+        type: "string"
+        description: "登记时间"
+      PublicDate: 
+        type: "string"
+        description: "公示时间"
+      RegisterOffice: 
+        type: "string"
+        description: "登记机关"
+      DebtSecuredAmount: 
+        type: "string"
+        description: "被担保债权数额"
+      Status: 
+        type: "string"
+        description: "状态"
+  LiquidationInfo:
+    type: "object"
+    properties:
+      Leader: 
+        type: "string"
+        description: "清算组负责人"
+      Member: 
+        type: "string"
+        description: "清算组成员"
+  PledgeInfo:
+    type: "object"
+    properties:
+      CompanyId: 
+        type: "string"
+        description: "企业ID"
+      RegistNo: 
+        type: "string"
+        description: "质权登记编号"
+      Pledgor: 
+        type: "string"
+        description: "出质人"
+      PledgorNo: 
+        type: "string"
+        description: "出质人证照编号"
+      Pledgee: 
+        type: "string"
+        description: "质权人"
+      PledgeeNo: 
+        type: "string"
+        description: "质权人证照编号"
+      PledgedAmount: 
+        type: "string"
+        description: "出质股权数额"
+      RegDate: 
+        type: "string"
+        description: "股权出质设立登记日期"
+      PublicDate: 
+        type: "string"
+        description: "公示时间"
+      Status: 
+        type: "string"
+        description: "出质状态"
+  SpotCheckInfo:
+    type: "object"
+    properties:
+      No: 
+        type: "string"
+        description: "登记编号"
+      ExecutiveOrg: 
+        type: "string"
+        description: "检查实施机关"
+      Type: 
+        type: "string"
+        description: "类型"
+      Date: 
+        type: "string"
+        description: "日期"
+      Consequence: 
+        type: "string"
+        description: "结果"
+      Remark: 
+        type: "string"
+        description: "备注"
+  CompanyTaxCreditItemsInfo:
+    type: "object"
+    properties:
+      No: 
+        type: "string"
+        description: "纳税人识别号"
+      Name: 
+        type: "string"
+        description: "纳税人名称"
+      Year: 
+        type: "string"
+        description: "评价年度"
+      Level: 
+        type: "string"
+        description: "信用等级"
+  CompanyProductsInfo:
+    type: "object"
+    properties:
+      CompanyName: 
+        type: "string"
+        description: "企业名称"
+      Link: 
+        type: "string"
+        description: "企业的关联链接"
+      ImageUrl: 
+        type: "string"
+        description: "产品的图片"
+      Name: 
+        type: "string"
+        description: "产品名称"
+      Domain: 
+        type: "string"
+        description: "产品领域"
+      Tags: 
+        type: "string"
+        description: "产品标签"
+      Description: 
+        type: "string"
+        description: "产品描述"
+      Category: 
+        type: "string"
+        description: "产品类型"
+  PermissionEciInfo:
+    type: "object"
+    properties:
+      LicensDocNo: 
+        type: "string"
+        description: "许可文件编号"
+      LicensDocName: 
+        type: "string"
+        description: "许可文件名称"
+      ValidityFrom: 
+        type: "string"
+        description: "有效期自"
+      ValidityTo: 
+        type: "string"
+        description: "有效期至"
+      LicensOffice: 
+        type: "string"
+        description: "许可机关"
+      LicensContent: 
+        type: "string"
+        description: "许可内容"
+  PenaltyCreditInfo:
+    type: "object"
+    properties:
+      CaseNo: 
+        type: "string"
+        description: "决定文书号"
+      Name: 
+        type: "string"
+        description: "处罚名称"
+      Liandate: 
+        type: "string"
+        description: "决定日期"
+      Province: 
+        type: "string"
+        description: "地域"
+      OwnerName: 
+        type: "string"
+        description: "所属人"
+      CaseReason: 
+        type: "string"
+        description: "处罚事由"
+  PartnersInfo:
+    type: "object"
+    properties:
+      StockName: 
+        type: "string"
+        description: "投资人"
+      StockType: 
+        type: "string"
+        description: "投资人类型"
+      StockPercent: 
+        type: "string"
+        description: "出资比例"
+      ShouldCapi: 
+        type: "string"
+        description: "认缴出资额"
+      ShoudDate: 
+        type: "string"
+        description: "认缴出资时间"
+      InvestType: 
+        type: "string"
+        description: "认出资方式"
+      InvestName: 
+        type: "string"
+        description: "实出资方式"
+      RealCapi: 
+        type: "string"
+        description: "实缴出资额"
+      CapiDate: 
+        type: "string"
+        description: "实缴时间"
+  EmployeesInfo:
+    type: "object"
+    properties:
+      Name: 
+        type: "string"
+        description: "名称"
+      Job: 
+        type: "string"
+        description: "职位"
+  BranchesInfo:
+    type: "object"
+    properties:
+      CompanyId: 
+        type: "string"
+        description: "公司KeyNo"
+      RegNo: 
+        type: "string"
+        description: "注册号或社会统一信用代码（存在社会统一信用代码显示社会统一信用代码，否则显示注册号）"
+      Name: 
+        type: "string"
+        description: "名称"
+      BelongOrg: 
+        type: "string"
+        description: "登记机关"
+      CreditCode: 
+        type: "string"
+        description: "社会统一信用代码（保留字段，目前为空）"
+      OperName: 
+        type: "string"
+        description: "法人姓名（保留字段，目前为空）"
+  ChangeRecordsInfo:
+    type: "object"
+    properties:
+      ProjectName: 
+        type: "string"
+        description: "变更事项"
+      BeforeContent: 
+        type: "string"
+        description: "变更前内容"
+      AfterContent: 
+        type: "string"
+        description: "变更后内容"
+      ChangeDate: 
+        type: "string"
+        description: "变更日期"
+  ContactInfo:
+    type: "object"
+    properties:
+      WebSite: 
+        $ref: "#/definitions/WebSiteInfo"
+      PhoneNumber: 
+        type: "string"
+        description: "联系电话"
+      Email: 
+        type: "string"
+        description: "邮箱"
+  IndustryInfo:
+    type: "object"
+    properties:
+      IndustryCode: 
+        type: "string"
+        description: "行业门类Code"
+      Industry: 
+        type: "string"
+        description: "行业门类描述"
+      SubIndustryCode: 
+        type: "string"
+        description: "行业大类Code"
+      SubIndustry: 
+        type: "string"
+        description: "行业大类描述"
+      MiddleCategoryCode: 
+        type: "string"
+        description: "行业中类Code"
+      MiddleCategory: 
+        type: "string"
+        description: "行业中类描述"
+      SmallCategoryCode: 
+        type: "string"
+        description: "行业小类Code"
+      SmallCategory: 
+        type: "string"
+        description: "SmallCategory"
+  OriginalNameInfo:
+    type: "object"
+    properties:
+      Name: 
+        type: "string"
+        description: "名称"
+      ChangeDate: 
+        type: "string"
+        description: "变更日期"
+  AreaInfo:
+    type: "object"
+    properties:
+      Province: 
+        type: "string"
+        description: "省份"
+      City: 
+        type: "string"
+        description: "城市"
+      County: 
+        type: "string"
+        description: "区域"
+  BasicInfo:
+    type: "object"
+    properties:
+      KeyNo: 
+        type: "string"
+        description: "根据此字段获取详细信息"
+      Name: 
+        type: "string"
+        description: "公司名称"
+      No: 
+        type: "string"
+        description: "注册号"
+      BelongOrg: 
+        type: "string"
+        description: "登记机关"
+      OperName: 
+        type: "string"
+        description: "法人"
+      StartDate: 
+        type: "string"
+        description: "成立日期"
+      EndDate: 
+        type: "string"
+        description: "吊销日期"
+      Status: 
+        type: "string"
+        description: "状态"
+      Province: 
+        type: "string"
+        description: "省份"
+      UpdatedDate: 
+        type: "string"
+        description: "更新日期"
+      CreditCode: 
+        type: "string"
+        description: "信用代码"
+      RegistCapi: 
+        type: "string"
+        description: "注册资本"
+      EconKind: 
+        type: "string"
+        description: "类型"
+      Address: 
+        type: "string"
+        description: "地址"
+      Scope: 
+        type: "string"
+        description: "营业范围"
+      TermStart: 
+        type: "string"
+        description: "营业期限始"
+      TeamEnd: 
+        type: "string"
+        description: "营业期限至"
+      CheckDate: 
+        type: "string"
+        description: "发照日期"
+      OrgNo: 
+        type: "string"
+        description: "组织机构代码"
+      IsOnStock: 
+        type: "string"
+        description: "是否IPO上市"
+      StockNumber: 
+        type: "string"
+        description: "证券号"
+      StockType: 
+        type: "string"
+        description: "证券类型"
+      ImageUrl: 
+        type: "string"
+        description: "Logo地址"
+      EntType: 
+        type: "string"
+        description: "企业类型，0-公司，1-社会组织，3-香港公司，4 政府机构，5-台湾公司，6-基金会，7-医院，8-海外公司，9-律师事务所，10-学校，-1-其他"
+      RecCap: 
+        type: "string"
+        description: "实缴资本"
+      InsuredCount: 
+        type: "string"
+        description: "参保人"
+      EnglishName: 
+        type: "string"
+        description: "英文名"
+      PersonScope: 
+        type: "string"
+        description: "人员规模"
+      PermissionInfo: 
+        $ref: "#/definitions/PermissionInfo" 
+      Penalty: 
+        $ref: "#/definitions/PenaltyInfo" 
+      Exceptions: 
+        $ref: "#/definitions/ExceptionsInfo" 
+      ShiXinItems: 
+        $ref: "#/definitions/DiscreditionInfo" 
+      ZhiXingItems: 
+        $ref: "#/definitions/ExecutionInfo" 
+      MPledge: 
+        $ref: "#/definitions/MPledgeInfo" 
+      Liquidation: 
+        $ref: "#/definitions/LiquidationInfo" 
+      Pledge: 
+        $ref: "#/definitions/PledgeInfo" 
+      SpotCheck: 
+        $ref: "#/definitions/SpotCheckInfo" 
+      CompanyTaxCreditItems: 
+        $ref: "#/definitions/CompanyTaxCreditItemsInfo" 
+      CompanyProducts: 
+        $ref: "#/definitions/CompanyProductsInfo" 
+      PermissionEciInfo: 
+        $ref: "#/definitions/PermissionEciInfo" 
+      PenaltyCreditChina: 
+        $ref: "#/definitions/PenaltyCreditInfo" 
+      Partners: 
+        $ref: "#/definitions/PartnersInfo" 
+      Employees: 
+        $ref: "#/definitions/EmployeesInfo" 
+      Branches: 
+        $ref: "#/definitions/BranchesInfo" 
+      ChangeRecords: 
+        $ref: "#/definitions/ChangeRecordsInfo" 
+      ContactInfo: 
+        $ref: "#/definitions/ContactInfo" 
+      Industry: 
+        $ref: "#/definitions/IndustryInfo" 
+      OriginalName: 
+        $ref: "#/definitions/OriginalNameInfo" 
+      Area: 
+        $ref: "#/definitions/AreaInfo" 
+  CompsInfo:
+    type: "object"
+    properties:
+      KeyNo:
+        type: "string"
+        description: "内部KeyNo"
+      Name:
+        type: "string"
+        description: "公司名称"
+      OperName:
+        type: "string"
+        description: "法人名称"
+      StartDate:
+        type: "string"
+        description: "成立日期"
+      Status:
+        type: "string"
+        description: "企业状态"
+      No:
+        type: "string"
+        description: "注册号"
+      CreditCode:
+        type: "string"
+        description: "社会统一信用代码"
+  PageInfo:
+    type: "object"
+    properties:
+      PageSize:
+        type: "integer"
+        description: "社会统一信用代码"
+      PageIndex:
+        type: "integer"
+        description: "页数"
+      TotalRecords:
+        type: "integer"
+        description: "总数"
+  SearchInfo:
+    type: "object"
+    properties:
+      comps: 
+        type: "array"
+        description: "公司表"
+        items:
+          $ref: "#/definitions/CompsInfo"
+      Paging:
+        $ref: "#/definitions/PageInfo"
+  ProblemInfo:
+    type: "object"
+    properties:
+      items: 
+        type: "array"
+        description: "公司表"
+        items:
+          type: "object"
+          properties:
+            AddReason:
+              type: "string"
+              description: "列入经营异常名录原因"
+            AddDate:
+              type: "string"
+              description: "列入日期"
+            RomoveReason:
+              type: "string"
+              description: "移出经营异常名录原因"
+            RemoveDate:
+              type: "string"
+              description: "移出日期"
+            DecisionOffice:
+              type: "string"
+              description: "作出决定机关"
+            RemoveDecisionOffice:
+              type: "string"
+              description: "移除决定机关"
+  PathListInfo:
+    type: "object"
+    properties:
+      KeyNo:
+        type: "string"
+        description: "KeyNo"
+      Name:
+        type: "string"
+        description: "名称"
+      PercentTotal:
+        type: "string"
+        description: "控股比例"
+      Level:
+        type: "string"
+        description: "层级"
+  OperInfo:
+    type: "object"
+    properties:
+      KeyNo:
+        type: "string"
+        description: "KeyNo"
+      Name:
+        type: "string"
+        description: "名称"
+  StockrelationInfo:
+    type: "object"
+    properties:
+      Name:
+        type: "string"
+        description: "企业名称"
+      PercentTotal:
+        type: "string"
+        description: "总控股比例"
+      ImageUrl:
+        type: "string"
+        description: "公司Logo"
+      ShortStatus:
+        type: "string"
+        description: "企业状态"
+      StartDate:
+        type: "string"
+        description: "成立日期"
+      RegistCapi:
+        type: "string"
+        description: "注册资本"
+      EconKind:
+        type: "string"
+        description: "企业类型"
+      PathList:
+        $ref: "#/definitions/PathListInfo"
+      Oper:
+        $ref: "#/definitions/OperInfo"
+  BasicResposeBody:
+    type: "object"
+    properties:
+      requestId: 
+        type: "string"
+        description: "请求标识"
+      state: 
+        type: "string"
+        description: "请求状态"
+        enum:
+        - "OK"
+        - "ERROR"
+      body:
+        $ref: "#/definitions/BasicInfo"
+  SearchResposeBody:
+    type: "object"
+    properties:
+      requestId: 
+        type: "string"
+        description: "请求标识"
+      state: 
+        type: "string"
+        description: "请求状态"
+        enum:
+        - "OK"
+        - "ERROR"
+      body:
+        $ref: "#/definitions/SearchInfo"
+  ProblemResposeBody:
+    type: "object"
+    properties:
+      requestId: 
+        type: "string"
+        description: "请求标识"
+      state: 
+        type: "string"
+        description: "请求状态"
+        enum:
+        - "OK"
+        - "ERROR"
+      body:
+        $ref: "#/definitions/ProblemInfo"
+  StockrelationResposeBody:
+    type: "object"
+    properties:
+      requestId: 
+        type: "string"
+        description: "请求标识"
+      state: 
+        type: "string"
+        description: "请求状态"
+        enum:
+        - "OK"
+        - "ERROR"
+      body:
+        $ref: "#/definitions/StockrelationInfo"

@@ -13,7 +13,7 @@ import org.edgegallery.developer.util.DeveloperFileUtils;
 
 public class NewCreateCsar {
 
-    private static final String simpleFiles = "/app-name.mf";
+    private static final String simpleFiles = "/positioning-service.mf";
 
     private static final String WORKSPACE_CSAR_PATH = "./configs/new_csar";
 
@@ -31,6 +31,7 @@ public class NewCreateCsar {
         throws IOException {
         File projectDir = new File(projectPath);
 
+
         // copy template files to the new project path
         File csar = DeveloperFileUtils
             .copyDirAndReName(new File(WORKSPACE_CSAR_PATH), projectDir, config.getAppInstanceId());
@@ -40,10 +41,10 @@ public class NewCreateCsar {
 
         // modify the csar files and fill in the data
         try {
-            File CsarValue = new File(csar.getCanonicalPath() + simpleFiles);
+            File csarValue = new File(csar.getCanonicalPath() + simpleFiles);
             String projectName = project.getName().replaceAll(Consts.PATTERN, "").toLowerCase();
-            FileUtils.writeStringToFile(CsarValue,
-                FileUtils.readFileToString(CsarValue, StandardCharsets.UTF_8).replace("{name}", project.getName())
+            FileUtils.writeStringToFile(csarValue,
+                FileUtils.readFileToString(csarValue, StandardCharsets.UTF_8).replace("{name}", projectName)
                     .replace("{provider}", project.getProvider()).replace("{version}", project.getVersion())
                     .replace("{time}", timeStamp).replace("{description}", project.getDescription())
                     .replace("{ChartName}", projectName), StandardCharsets.UTF_8, false);

@@ -2,8 +2,6 @@ package org.edgegallery.developer.service.deploy;
 
 import java.io.File;
 import java.util.Date;
-
-import org.edgegallery.developer.config.security.AccessUserUtil;
 import org.edgegallery.developer.mapper.ProjectMapper;
 import org.edgegallery.developer.model.workspace.ApplicationProject;
 import org.edgegallery.developer.model.workspace.EnumTestConfigStatus;
@@ -44,8 +42,8 @@ public class StageInstantiate implements IConfigDeployStage {
             instantiateAppResult = projectService
                     .deployTestConfigToAppLcm(csar, project, config, userId, config.getLcmToken());
             if (!instantiateAppResult) {
-                // deploy failed
-                config.setErrorLog("Failed to instantiate app which appInstanceId is: " + config.getAppInstanceId());
+                config.setAccessUrl("");
+                config.setErrorLog("Instantiate failed: deploy env error ");
                 LOGGER.error("Failed to instantiate app which appInstanceId is : {}.", config.getAppInstanceId());
             } else {
                 // update status when instantiate success

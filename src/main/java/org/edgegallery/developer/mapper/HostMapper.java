@@ -36,6 +36,6 @@ public interface HostMapper {
 
     List<MepHost> getHostsByUserId(String userId);
 
-    List<MepHost> getHostsByStatus(EnumHostStatus status);
+    List<MepHost> getHostsByStatus(EnumHostStatus status, String userId);
 }
 

@@ -1,7 +1,9 @@
 package org.edgegallery.developer.service.deploy;
 
-import com.google.common.collect.Lists;
-import org.edgegallery.developer.config.security.AccessUserUtil;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import java.lang.reflect.Type;
+import java.util.List;
 import org.edgegallery.developer.mapper.ProjectMapper;
 import org.edgegallery.developer.model.workspace.ApplicationProject;
 import org.edgegallery.developer.model.workspace.EnumTestConfigStatus;
@@ -13,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.stringtemplate.v4.ST;
 
 
 /**
@@ -25,10 +28,12 @@ public class StageWorkStatus implements IConfigDeployStage {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(StageWorkStatus.class);
 
+    private static Gson gson = new Gson();
+
     /**
      * the max time for wait workStatus.
      */
-    private static final Long MAX_SECONDS = 3600L;
+    private static final Long MAX_SECONDS = 360L;
 
     @Autowired
     private ProjectService projectService;
@@ -43,24 +48,28 @@ public class StageWorkStatus implements IConfigDeployStage {
 
         ApplicationProject project = projectMapper.getProjectById(config.getProjectId());
         String userId = project.getUserId();
-        MepHost host = config.getHosts().get(0);
+        Type type = new TypeToken<List<MepHost>>() { }.getType();
+        List<MepHost> hosts = gson.fromJson(gson.toJson(config.getHosts()), type);
+        MepHost host = hosts.get(0);
         String workStatus = HttpClientUtil
             .getWorkloadStatus(host.getProtocol(), host.getIp(), host.getPort(), config.getAppInstanceId(), userId,
                 config.getLcmToken());
         if (workStatus == null) {
             // compare time between now and deployDate
-            if (config.getDeployDate() == null ||
-                    (System.currentTimeMillis() - config.getDeployDate().getTime()) > MAX_SECONDS * 1000) {
-                config.setErrorLog("Failed to get workloadStatus with appInstanceId:" + config.getAppInstanceId());
-                LOGGER.error("Failed to get workloadStatus after wait {} seconds which appInstanceId is : {}", MAX_SECONDS,
-                    config.getAppInstanceId());
+            long time = System.currentTimeMillis() - config.getDeployDate().getTime();
+            LOGGER.info("over time:{}, wait max time:{}, start time:{}", time, MAX_SECONDS, config.getDeployDate().getTime());
+            if (config.getDeployDate() == null || time > MAX_SECONDS * 1000) {
+                config.setAccessUrl("");
+                config.setErrorLog("Failed to get workloadStatus: pull images failed " );
+                String message = "Failed to get workloadStatus after wait {} seconds which appInstanceId is : {}";
+                LOGGER.error(message, MAX_SECONDS, config.getAppInstanceId());
             } else {
                 return true;
             }
         } else {
             processStatus = true;
             status = EnumTestConfigStatus.Success;
-            config.setPods(Lists.newArrayList(workStatus));
+            config.setPods(workStatus);
             LOGGER.info("Query workload status response: {}", workStatus);
         }
         // update test-config

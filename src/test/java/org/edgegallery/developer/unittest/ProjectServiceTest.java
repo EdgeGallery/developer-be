@@ -93,7 +93,7 @@ public class ProjectServiceTest {
         project.setType("new");
 
         List<OpenMepCapabilityGroup> capabilities = new ArrayList<>();
-        OpenMepCapabilityGroup capability = new OpenMepCapabilityGroup("3", "Location", EnumOpenMepType.OPENMEP);
+        OpenMepCapabilityGroup capability = new OpenMepCapabilityGroup("3", "Location", "", "", EnumOpenMepType.OPENMEP);
         List<OpenMepCapabilityDetail> capabilitiesDetail = new ArrayList<>();
         OpenMepCapabilityDetail detail = new OpenMepCapabilityDetail("3", "3", "LocationService", "version",
             "description");
@@ -101,7 +101,7 @@ public class ProjectServiceTest {
         capability.setCapabilityDetailList(capabilitiesDetail);
         capabilities.add(capability);
 
-        OpenMepCapabilityGroup capabilityGPU = new OpenMepCapabilityGroup("10", "GPU", EnumOpenMepType.OPENMEP);
+        OpenMepCapabilityGroup capabilityGPU = new OpenMepCapabilityGroup("10", "GPU", "", "", EnumOpenMepType.OPENMEP);
         capabilitiesDetail = new ArrayList<>();
         detail = new OpenMepCapabilityDetail("2", "10", "GPUService-CMCC", "1.2", "Sample GPU Service");
         capabilitiesDetail.add(detail);
@@ -372,8 +372,8 @@ public class ProjectServiceTest {
         String userName = "mec";
         String projectId = project.getRight().getId();
         String token = "";
-        Either<FormatRespDto, String> result = projectService
-            .uploadToAppStore(userId, projectId, projectId, userName, token);
+        Either<FormatRespDto, Boolean> result = projectService
+            .uploadToAppStore(userId, projectId, userName, token);
         Assert.assertTrue(result.isLeft());
 
     }
@@ -386,8 +386,8 @@ public class ProjectServiceTest {
         String userName = "mec";
         String projectId = project.getRight().getId();
         String token = "";
-        Either<FormatRespDto, String> result = projectService
-            .uploadToAppStore(userId, projectId, projectId, userName, token);
+        Either<FormatRespDto, Boolean> result = projectService
+            .uploadToAppStore(userId, projectId, userName, token);
         Assert.assertTrue(result.isLeft());
 
     }
@@ -454,7 +454,8 @@ public class ProjectServiceTest {
         Either<FormatRespDto, ApplicationProject> project = createNewProject();
         String userId = project.getRight().getUserId();
         String projectId = project.getRight().getId();
-        Either<FormatRespDto, Boolean> result = projectService.cleanTestEnv(userId, projectId);
+        String token = "test";
+        Either<FormatRespDto, Boolean> result = projectService.cleanTestEnv(userId, projectId,token);
         Assert.assertTrue(result.isRight());
 
     }

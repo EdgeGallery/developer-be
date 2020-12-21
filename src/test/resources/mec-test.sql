@@ -154,7 +154,9 @@ CREATE TABLE IF NOT EXISTS tbl_app_project (
 
 CREATE TABLE IF NOT EXISTS tbl_openmep_capability (
   group_id varchar(50)  NOT NULL DEFAULT NULL,
-  name varchar(255)  DEFAULT NULL,
+  one_level_name varchar(255)  DEFAULT NULL,
+  two_level_name varchar(255)  DEFAULT NULL,
+  three_level_name varchar(255)  DEFAULT NULL,
   type varchar(20)  DEFAULT NULL,
   description text  DEFAULT NULL,
   CONSTRAINT tbl_openmep_capability_pkey PRIMARY KEY (group_id)
@@ -215,6 +217,7 @@ CREATE TABLE IF NOT EXISTS tbl_project_test_config (
   pods varchar(255)  DEFAULT NULL,
   deploy_status varchar(255)  DEFAULT NULL,
   stage_status  varchar(255)  DEFAULT NULL,
+  lcm_token  varchar(1000) DEFAULT NULL,
   CONSTRAINT tbl_project_test_config_pkey PRIMARY KEY (test_id)
 )
 ;
@@ -253,6 +256,7 @@ CREATE TABLE IF NOT EXISTS tbl_service_host (
   port_range_min int DEFAULT '-1',
   port_range_max int DEFAULT '-1',
   port int DEFAULT '-1',
+  protocol varchar(20)  DEFAULT NULL,
   delete int DEFAULT NULL
 )
 ;
@@ -264,6 +268,18 @@ CREATE TABLE IF NOT EXISTS tbl_api_emulator (
   port int NOT NULL,
   workload_id varchar(50) NOT NULL,
   create_time varchar(50) NOT NULL
+)
+;
+CREATE TABLE IF NOT EXISTS tbl_release_config (
+  release_id varchar(255) NOT NULL,
+  project_id varchar(255) NOT NULL,
+  guide_file_id varchar(255) DEFAULT NULL,
+  appinstance_id varchar(255) DEFAULT NULL,
+  capabilities_detail text  DEFAULT NULL,
+  atp_test text DEFAULT NULL,
+  test_status varchar(255) DEFAULT NULL,
+  create_time TIMESTAMP(0) DEFAULT NULL,
+  CONSTRAINT tbl_release_config_pkey PRIMARY KEY (release_id)
 )
 ;
 -- workspace table end -----------------
@@ -278,11 +294,11 @@ MERGE INTO tbl_appfunction  KEY(functionid) VALUES ('53fc40e9a1f048e4b4310e8ac30
 ('8167fc046c2d4e42997c612fdfbd7c8f', 'AI', '存储', '2019-10-23 05:37:46');
 
 -- workspace mep capability init --
-MERGE INTO tbl_openmep_capability (group_id, name, type, description) KEY(group_id) VALUES ('c0db376b-ae50-48fc-b9f7-58a609e3ee12', 'Traffic', 'OPENMEP', 'L3/L4规则API,L7规则API'),
-('a6efaa2c-ad99-432f-9405-e28e90f44f15', 'Service Discovery', 'OPENMEP', 'Service Discovery'),
-('406593b4-c782-409c-8f46-a6fd5e1f6221', 'Location', 'OPENMEP', '自定义不规则区域分析API,标准栅格区域分析API,特定人群流动分析API,API区域原子报表分析,匿名历史位置轨'),
-('72a1434d-fbb0-459b-9b92-ce1e02a121c2', 'Bandwidth', 'OPENMEP', 'MBB应用,FMC应用,UIC应用'),
-('d8f06d28-390c-4a06-905e-120f56279bbc', 'Face Recognition', 'OPENMEP', 'Face Recognition');
+MERGE INTO tbl_openmep_capability (group_id, one_level_name, two_level_name, three_level_name, type, description) KEY(group_id) VALUES ('c0db376b-ae50-48fc-b9f7-58a609e3ee12', 'Platform basic services', 'Traffic', '', 'OPENMEP', 'L3/L4规则API,L7规则API'),
+('a6efaa2c-ad99-432f-9405-e28e90f44f15', 'Platform basic services', 'Service Discovery', '', 'OPENMEP', 'Service Discovery'),
+('406593b4-c782-409c-8f46-a6fd5e1f6221', 'Platform basic services', 'Location', '', 'OPENMEP', '自定义不规则区域分析API,标准栅格区域分析API,特定人群流动分析API,API区域原子报表分析,匿名历史位置轨'),
+('72a1434d-fbb0-459b-9b92-ce1e02a121c2', 'Platform basic services', 'Bandwidth', '', 'OPENMEP', 'MBB应用,FMC应用,UIC应用'),
+('d8f06d28-390c-4a06-905e-120f56279bbc', 'Platform basic services', 'Face Recognition', '', 'OPENMEP', 'Face Recognition');
 
 
 INSERT INTO tbl_openmep_capability_detail (detail_id, service, version, description, provider, group_id, api_file_id, guide_file_id, port, host, upload_time, user_id)
@@ -310,7 +326,7 @@ MERGE INTO tbl_uploaded_file (file_id, file_name, is_temp, user_id, upload_date,
 
 -- workspace mep host init --
 
-MERGE INTO tbl_service_host (host_id, name, address, architecture, status, ip, os, port_range_min, port_range_max, port, delete) KEY(host_id) VALUES ('3c55ac26-60e9-42c0-958b-1bf7ea4da60a', 'Node1', 'XIAN', 'X86', 'NORMAL', '159.138.63.8', 'Ubuntu', 30000, 32767, 30201, null);
+MERGE INTO tbl_service_host (host_id, name, address, architecture, status, ip, os, port_range_min, port_range_max, port, protocol, delete) KEY(host_id) VALUES ('3c55ac26-60e9-42c0-958b-1bf7ea4da60a', 'Node1', 'XIAN', 'X86', 'NORMAL', '159.138.63.8', 'Ubuntu', 30000, 32767, 30201, 'http', null);
 
 -- workspace mep host init end--
 -- workspace table end -----------------

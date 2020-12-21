@@ -48,8 +48,7 @@
         <result property="deployStatus" column="deploy_status"/>
         <result property="stageStatus" column="stage_status"
                 typeHandler="org.edgegallery.developer.model.handler.JsonTypeHandler"/>
-        <result property="pods" column="pods"
-                typeHandler="org.edgegallery.developer.model.handler.JsonCollectionTypeHandler"/>
+        <result property="pods" column="pods"/>
         <result property="accessUrl" column="access_url"/>
         <result property="errorLog" column="error_log"/>
         <result property="deployDate" column="deploy_date"/>
@@ -188,7 +187,7 @@
         app_api_file_id = #{appApiFileId}, deploy_file_id = #{deployFileId}, private_host = #{privateHost}, platform = #{platform},
         hosts = #{hosts, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonCollectionTypeHandler},
         stage_status = #{stageStatus, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonTypeHandler}, access_url = #{accessUrl}, error_log = #{errorLog}, deploy_date = #{deployDate},
-        pods = #{pods, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonCollectionTypeHandler},
+        pods = #{pods},
         app_instance_id = #{appInstanceId}, work_load_id = #{workLoadId}, deploy_status = #{deployStatus}, lcm_token = #{lcmToken}
         WHERE
         test_id = #{testId}

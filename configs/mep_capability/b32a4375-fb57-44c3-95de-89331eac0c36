@@ -1,0 +1,633 @@
+#人脸识别与人体识别
+##  人脸搜索接口
+###  功能介绍
+   在指定的人脸集合中，找到最相似的一个或者多个人脸，即 1：N 识别
+####请求消息
+```
+URI: /ecloud/ai/v1/face/v1/search
+Method: GET
+```
+参数说明
+
+|参数名称| 参数类型| 是否必须 |参数说明|
+|-----|------|-----|------|
+|faceNumber| int |是| 最相似的人脸数量，区间[1,10]（界 面显示为 6 个）|
+|faceSetId |string |是 |人脸集合 ID，多个 ID 用英文逗号 “,”隔开|
+|imageFile |string |是 |图片的 Base64 编码|
+
+请求参考示例
+```
+{
+    "imageFile":"xxxxff", 
+	"faceSetId":"1510", 
+	"faceNumber": 3
+}
+```
+
+####响应消息
+响应参数说明
+
+|参数名称| 参数类型 |参数描述|
+|---------|---------|----------|
+|cost |int |请求耗时，单位毫秒|
+|results |Array| 搜索的结果|
+|+faceName |String |搜索出来的人脸的名字|
+|+faceId |Int |搜索出来的人脸的 Id|
+|+confidence| double |人脸置信度，依据算法计算得到|
+|faces |Array| 传入图片的人脸检测结果（简略）， 数组数量和传入的 faceNum 一致|
+|+upperLeftX |double |左上角 X 坐标|
+|+upperLeftY |double |左上角 Y 坐标|
+|+lowerRightX| double |右下角 X 坐标|
+|+lowerRightY |double |右下角 Y 坐标|
+
+响应参考示例
+```
+{
+    "requestId":"reqId-0adc8f5fed2e49e7907672275d9c877c",
+    "state":"OK",
+    "body":{
+        "cost":5,
+        "faces":[
+            {
+                "upperLeftY":68.06655540317297,
+                "lowerRightX":357.6205370426178,
+                "lowerRightY":290.5286032985896,
+                "upperLeftX":199.52914912998676
+            }
+        ],
+        "results":[
+            {
+                "faceName":"迪丽热巴",
+                "confidence":1,
+                "faceId":2194
+            },
+            {
+                "faceName":"袁姗姗",
+                "confidence":0.6447127883946064,
+                "faceId":2197
+            },
+            {
+                "faceName":"张柏芝",
+                "confidence":0.5847587711234932,
+                "faceId":2191
+            }
+        ]
+    }
+}
+```
+##创建人脸库
+###功能介绍
+创建一个新的人脸库
+####请求消息
+
+```
+URI: /ecloud/ai/v1/face/v1/faceset/add 
+Method: POST
+```
+参数说明
+
+|参数名称| 参数类型 |是否必须| 参数说明|
+|-----|------|-----|------|
+|faceSetName |string| 是 |必选参数，人脸库名称，最长 256 个字符，不能有特殊字符。|
+|faceSetDescription| string |否 |可选参数，人脸集合的描述，暂 时不用|
+
+请求参考示例
+```
+{
+    "faceSetName":"xxx",
+    "faceSetDescription":"faceset for test"
+}
+```
+#### 响应消息
+响应参数说明
+
+|参数名称| 参数类型 |参数描述|
+|---------|---------|----------|
+|faceStoreId |int |创建的人脸库的 ID|
+|faceStoreName |String| 创建的人脸库的名称|
+|cost| int |操作耗时，单位为毫秒|
+响应参考示例
+```
+{
+    "requestId":"reqId-e691ec2f92e34830a118ac400dab4256",
+    "state":"OK",
+    "body":{
+        "cost":4,
+        "faceStoreId":1513,
+        "faceStoreName":"testset110603"
+    }
+}
+```
+##  删除人脸库
+###功能介绍
+删除某个指定 ID 或者多个 ID 的人脸库 
+####请求消息
+```
+URI: /ecloud/ai/v1/face/v1/faceset/delete
+Method: POST
+```
+参数说明
+
+|参数名称 |参数类型 |是否必须 |参数说明|
+|-----|------|-----|------|
+|faceSetIds| string |是 |必选参数，需要删除的人脸集合 的 ID，多个 ID 用英文逗号隔开|
+请求参考示例
+```
+{
+       "faceSetIds":"1,23,3"
+} 
+```
+#### 响应消息
+响应参数说明
+参考 [附2 响应消息体](#2) 说明
+响应参考示例
+```
+{
+    "requestId":"reqId-67d67aeba10c4311b577968dbbac18fd",
+    "state":"OK",
+    "body":null
+}
+```
+响应错误码
+参考 [附3 错误信息](#3)
+## 查询人脸库
+### 功能介绍
+获取人脸库的列表
+#### 请求信息
+
+```
+URI: /ecloud/ai/v1/face/v1/faceset/get
+Method: POST
+```
+参数说明
+
+|参数名称| 参数类型| 是否必须| 参数说明|
+|-----|------|-----|------|
+|name |string| 否 |人脸库名称|
+|page| integer| 否 |列表页数，默认值是 1|
+|rows |integer |否 |列表行数，默认值是 10|
+请求参考示例
+https://mephost/ecloud/ai/v1/face/v1/faceset/get?access_token=token&name=test&page=1&rows=5
+####响应消息
+响应参数说明
+
+|参数名称| 参数类型 |参数描述|
+|---------|----------|----------|
+|list |Array |查询的人脸库结果，list 长度=rows 参数或者<rows |
+|+id| int |人脸库的 Id|
+|+name |String |人脸库的名称|
+|+description| String |人脸库描述|
+|+count| int |人脸库中含有的人员数量|
+|+account |String| 创建该人脸库的用户，暂时不用，为 null|
+|+createTime |Date| 创建时间|
+|total| int |查询到的人脸库数量，是所有人脸库 的数量|
+
+响应参考示例
+```
+{
+    "requestId":"reqId-fb2f21ed8a5b4167838317178b8f53d8",
+    "state":"OK",
+    "body":{
+        "total":2,
+        "list":[
+            {
+                "createTime":"2019-11-06T08:57:44.000+0000",
+                "name":"testset110603",
+                "count":0,
+                "description":"facesetfortest",
+                "id":1513,
+                "account":null
+            },
+            {
+                "createTime":"2019-11-06T08:55:46.000+0000",
+                "name":"testset110602",
+                "count":0,
+                "description":"facesetfortest",
+                "id":1510,
+                "account":null
+            }
+        ]
+    }
+}
+```
+响应错误码
+参考 [附3 错误信息](#3)
+
+## 创建人脸
+###功能介绍
+向指定的人脸集合中添加一个人员信息
+#### 请求消息
+
+```
+URI: /ecloud/ai/v1/face/v1/faceset/user/add
+Method: POST
+```
+参数说明
+
+|参数名称 |参数类型 |是否必须| 参数说明|
+|-----|------|-----|------|
+|faceName |string |是 |必选参数人脸名称|
+|faceSetId |int| 是 |必选参数，向 ID 为 faceSetId 的人 脸集合中添加数据。|
+|faceExtraInfo| string| 否 |可选参数，人脸额外信息，JSON 格式，后续扩展使用，暂时不用|
+|imageFile| string| 是 |者图片的 base64 编码|
+请求参考示例
+```
+{
+    "faceSetId":1510,
+    "imageFile":"12dddxxx",
+    "faceName":"某某某",
+    "faceExtraInfo":"age:12, sex : male"
+}
+```
+#### 响应消息
+响应参数说明
+
+|参数名称 |参数类型 |参数描述|
+|---------|----------|----------|
+|+faceSetId |int |人脸所属的人脸集合的 ID|
+|+faceSetName| String |人脸所属的人脸集合的名称|
+|+faceName |String| 创建的人脸的 Name|
+|+faceExtraInfo| String |创建的人脸的 extraInfo|
+|+faceId |int| 创建的人脸的 ID|
+|+cost |int |请求耗时，单位毫秒|
+响应参考示例
+```
+{
+    "requestId":"reqId-adbaca7c89184ccc86207076e998c796",
+    "state":"OK",
+    "body":{
+        "faceName":"某某某",
+        "faceExtraInfo":"age:12, sex : male",
+        "cost":null,
+        "faceSetName":"testset110602",
+        "faceSetId":1510,
+        "faceId":2191
+    }
+}
+```
+响应错误码
+参考 [附3 错误信息 ](#3)
+
+##POST 删除人脸
+###功能介绍
+删除某个人脸
+#### 请求消息
+
+```
+URI: /ecloud/ai/v1/face/v1/faceset/user/delete
+Method: POST
+```
+参数说明
+
+|参数名称 |参数类型| 是否必须 |参数说明|
+|-----|------|-----|------|
+|faceId |int |是 |必选参数，需要删除的人脸 ID。 （ 后 续 该 faceId 必 须 属 于 faceSetId 的人脸集合）|
+|faceSetId |int |是 |必选参数，用户创建的人脸集合 的 ID。|
+请求参考示例
+```
+{
+    "faceId":2,
+    "faceSetId":2
+}
+```
+####响应消息
+响应参数说明
+参考 [附2 响应消息体](#2)
+响应参考示例
+```
+{
+    "state":"OK",
+    "requestId":"31r34deq5r432",
+    "body":null
+}
+```
+响应错误码
+参考 [附3 错误信息](#3)
+## 查询人脸
+###功能介绍
+查询人脸
+####请求消息
+
+```
+URI: /ecloud/ai/v1/face/v1/faceset/user/get
+Method: GET
+```
+参数说明
+
+|参数名称| 参数类型 |是否必须| 参数说明|
+|---------|----------|----------|
+|faceId |int |是| 必选参数，需要删除的人脸 ID|
+|faceSetId| int| 是 |必选参数，用户创建的人脸集合 的 ID|
+请求参考示例
+```
+{
+    "faceId":2191,
+    "faceSetId":1510
+}
+```
+#### 响应消息
+响应参数说明
+
+|参数名称| 参数类型 |参数描述|
+|---------|----------|----------|
+|faceName| String |人脸名称|
+|faceId |int |人脸 ID|
+|faceExtraInfo |String| 人脸额外信息|
+|faceInfoImageList |Array |人脸图片列表|
+|+imageId| int |人脸图片 ID|
+
+响应参考示例
+```
+{
+    "requestId":"reqId-ce7e60f5faa14ebfb9a2f4bd1e7e296f",
+    "state":"OK",
+    "body":{
+        "faceName":"张柏芝",
+        "faceInfoImageList":[
+            {
+                "imageId":2173
+            }
+        ],
+        "faceExtraInfo":"age:12,sex:male",
+        "faceId":2191
+    }
+}
+```
+响应错误码
+参考 [附3 错误信息](#3)
+##人脸检测
+###功能介绍
+检测图片中的人脸并标记处位置信息和人脸关键点坐标
+####请求消息
+
+```
+URI: /ecloud/ai/v1/face/v1/detect
+Method: POST
+```
+参数说明
+
+|参数名称 |参数类型| 是否必须 |参数说明|
+|---------|----------|----------|
+|imageFile |string |是 图片的 Base64 编码，不包括头部 格式信息|
+
+请求参考示例
+```
+{
+    "imageFile":"fadfrewqrerer"
+}
+```
+####响应消息
+响应参数说明
+
+|参数名称 |参数类型 |参数描述|
+|---------|----------|----------|
+|imageId |String| 图片的唯一标识|
+|cost| int |人脸检测耗时|
+|faceNum| int| 图片检测到的人脸数量|
+|faceDetectDetailList| Array| 检测出来的人脸结果的列表，列表中 的信息数量和 faceNum 相同|
+|+faceId |String |检测出来的人脸标识 ID|
+|+faceDetectRectangleArea |Object| 检测出来的人脸矩形框的信息|
+|++upperLeftX| float |矩形框的左上角 X 坐标|
+|++upperLeftY |Float| 矩形框的左上角 Y 坐标|
+|++lowerRightX| Float| 矩形框的右下角 X 坐标|
+|++lowerRightY |Float 矩形框的右下角 Y 坐标|
+|+faceDetectLandmarkAreaList |Array |人脸检测结果的关键点列表，此处设 计成列表，为以后可以检测出更多关 键点准备，现在是 5 个|
+|++pointX |int |人脸关键点 X 坐标|
+|++pointY| int |人脸关键点 Y 坐标|
+|+faceScore| float |人脸检测得分，该区域是人脸的可能 性|
+|+roll |float| 人脸角度|
+|+pitch |float| 人脸角度|
+|+raw| float |人脸角度|
+|+faceLandmarkNumber |int| 检测的人脸关键点的数量，等于 faceDetectLandmarkAreaList 的长度， 目前是 5|
+|+faceDetectAttributes |Object| 检测出的人脸的属性。目前属性只有 一个子元素 faceDetectEmotion，未来 可以添加其他属性例如性别等|
+|++faceDetectEmotion |Object| 人脸属性之情绪识别，共有 7 种属性|
+|+++anger |float |愤怒|
+|+++disgust |float| 厌恶|
+|+++fear |float |恐惧|
+|+++happiness |float| 高兴|
+|+++neutral |float |平静|
+|+++sadness| float| 伤心|
+|+++surprise| float |惊讶|
+
+响应参考示例
+```
+{
+    "requestId":"reqId-c4f17a4e7e214f898a82f569026c82ca",
+    "state":"OK",
+    "body":{
+        "imageId":14341,
+        "cost":322,
+        "faceDetectDetailList":[
+            {
+                "roll":0,
+                "raw":0,
+                "faceDetectAttributes":{
+                    "faceDetectEmotion":{
+                        "surprise":0,
+                        "happiness":0,
+                        "neutral":0,
+                        "sadness":0,
+                        "disgust":0,
+                        "anger":0,
+                        "fear":0
+                    }
+                },
+                "faceId":"26e67471-0bbe-4311-a2b3-2a81ff38ec0a",
+                "pitch":0,
+                "faceScore":0,
+                "faceLandmarkNumber":5,
+                "faceDectectRectangleArea":{
+                    "upperLeftY":-12.509401440620422,
+                    "lowerRightX":336.8826832175255,
+                    "lowerRightY":229.0391325354576,
+                    "upperLeftX":143.3384312391281
+                },
+                "faceDetectLandmarkAreaList":[
+                    {
+                        "pointX":205.73414611816406,
+                        "pointY":78.70276641845703
+                    },
+                    {
+                        "pointX":303.4182434082031,
+                        "pointY":79.1040267944336
+                    },
+                    {
+                        "pointX":256.4573669433594,
+                        "pointY":140.6848907470703
+                    },
+                    {
+                        "pointX":211.76402282714844,
+                        "pointY":176.91256713867188
+                    },
+                    {
+                        "pointX":291.27850341796875,
+                        "pointY":177.58251953125
+                    }
+                ]
+            }
+        ],
+        "faceNum":1
+    }
+}
+```
+响应错误码
+参考 [附3 错误信息](#3)
+##人脸比对
+###功能介绍
+两张图片相似度对比，比对两个图片中的人脸，如果图片中存在多个人脸，则选取人脸区域面积最大的一 个人脸，并返回相似度分值
+####请求消息
+```
+URI:/ecloud/ai/v1/face/v1/match
+Method: POST
+```
+参数说明
+
+|参数名称 |参数类型 |是否必须 |参数说明|
+|-----|------|-----|------|
+|imageFile1| string |是| 图片 1 的 Base64 编码，不包括头部格式信息|
+|imageFile2| string |是| 图片 2 的 Base64 编码，不包括头 部格式信息|
+请求参考示例
+```
+{
+    "imageFile1":"aaaaaa",
+    "imageFile2":"bbbbbb"
+}
+```
+####响应消息
+响应参数说明
+
+|参数名称 |参数类型 |参数描述|
+|---------|----------|----------|
+|confidence |float |人脸比对置信度|
+|cost |int| 人脸比对耗时|
+|imageId1 |String| 图片 1 的标识 ID|
+|imageId2 |String| 图片 2 的标识 ID|
+|faces1 |Array |图片 1 中检测出来的人脸信息（有可 能有多个人脸，默认选取最大人脸）|
+|+faceId |String |图片中检测出来的人脸标识 ID|
+|+faceRectangle |Object |人脸矩形框对象|
+|++upperLeftX |float |人脸矩形框左上角 X|
+|++upperLeftY| float |人脸矩形框左上角 Y|
+|++lowerRightX |float| 人脸矩形框右下角 X|
+|++lowerRightY |float |人脸矩形框右下角 Y|
+|faces2 |Array| 图片 2 中检测出的人脸信息数组，和 faces1 内容一致|
+响应参考示例
+```
+{
+    "requestId":"reqId-282ba80eb8cc4090b9df11c48ee80dca",
+    "state":"OK",
+    "body":{
+        "cost":6,
+        "confidence":0.4916292065623228,
+        "imageId1":14344,
+        "faces1":[
+            {
+                "faceRectangle":{
+                    "upperLeftY":-12.509401440620422,
+                    "lowerRightX":336.8826832175255,
+                    "lowerRightY":229.0391325354576,
+                    "upperLeftX":143.3384312391281
+                },
+                "faceId":"10749271-1185-40a5-992b-c644ed382999"
+            }
+        ],
+        "imageId2":14347,
+        "faces2":[
+            {
+                "faceRectangle":{
+                    "upperLeftY":103.6138978600502,
+                    "lowerRightX":310.41612789034843,
+                    "lowerRightY":320.95671356935054,
+                    "upperLeftX":138.41415168344975
+                },
+                "faceId":"830bce64-ee04-4b89-8bc2-10d318415d16"
+            }
+        ]
+    }
+}
+```
+响应错误码
+参考 [附3 错误信息]
+## 客流统计
+###功能介绍
+输入一个图片，输出这个图片中人员的数量和图片中人员头部的位置信息
+####请求消息
+
+```
+URI: /ecloud/ai/v1/face/v1/densitydetect
+Method: POST
+```
+参数说明
+
+|参数名称 |参数类型| 是否必须 |参数说明|
+|-----|------|-----|------|
+|imageFile |string |是| 图片的 Base64 编码，不包括头部 格式信息|
+请求参考示例
+```
+{
+     "imageFile":fffffxxxxx
+}
+```
+#### 响应消息
+响应参数说明
+
+|参数名称| 参数类型 |参数描述|
+|---------|----------|----------|
+|imageId| Int| 图片的唯一标识|
+|faceNum |Int |图像中人脸数量|
+|faceDetails| Object| 坐标信息检测结果|
+|+leftX| float |左上角横坐标|
+|+leftY |float |左上角纵坐标|
+|+wight| float |矩形宽|
+|+hight| float| 矩形高|
+|+confidence |float |置信度|
+
+响应参考示例
+```
+{
+    "requestId":"reqId-7838d36a47d8447f8b223f80d2ec3e17",
+    "state":"OK",
+    "body":{
+        "imageId":14338,
+        "faceDetails":[
+            {
+                "leftX":111,
+                "leftY":0,
+                "confidence":0.928092,
+                "hight":198,
+                "wight":159
+            }
+        ],
+        "faceNum":1
+    }
+}
+```
+
+##附 响应错误码
+###返回结果
+<h3 id="1">附1 响应消息头</h3>
+
+|名称 |描述 |示例|
+|----|----|----|
+|Content-type |消息体的 MIME 类型 |application/json|
+<h3 id="2">附2 响应消息体</h3>
+
+|参数名称| 值|
+|--|--|
+|requestId| 每次请求的唯一表示 ID|
+|state |请求响应状态 OK-请求成功 ERROR-请求报错|
+|errorCode |请求失败时的错误码|
+|errorMessage |请求失败时的错误消息|
+|body |响应体具体内容|
+<h3 id="3">附3 错误信息</h3>
+接口流量控制及鉴权错误码
+
+|错误码 |错误信息 |描述| 抛出模块|
+|-------|----------|-----|--------|
+|InvalidParameterError |请求参数有误|接口请求参数不规范| 公共模块|
+|InvalidAKSKError |无效的AK、 SK|请求的 AK、SK 参数不规范| 公共模块|
+|InvalidTokenError| token 已 失 效或者错误|API 接口请求携带的为无效的 token（包括无效的 token 和已 过期的 token）|公共错误|
+|AuthorityError |产品已退订 或已被冻结|产品已退订或已被冻结| 公共错误|
+|InternalError| 内部错误 |算法服务或内部服务器异常| 公共错误|
+|TooLargeFileError |输入文件过大|输入的图片或文件大于 10M |业 务 错 误 -OCR 类 、或 NLP 类|
+|DetectError |未检测出有 效图片|imageFile参数不是该接口对应 识别图片类型的 base64 编码|业 务 错 误 -OCR 类|
+|TextTooLongError |输入文本过 长|输入文本过长 |业 务 错 误 -NLP 类|

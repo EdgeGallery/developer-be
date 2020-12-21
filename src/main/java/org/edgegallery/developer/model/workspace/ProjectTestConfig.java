@@ -16,14 +16,12 @@
 
 package org.edgegallery.developer.model.workspace;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import org.mec.developer.model.workspace.EnumDeployPlatform;
 
 @Getter
 @Setter
@@ -58,7 +56,7 @@ public class ProjectTestConfig {
     /**
      * the pod list from mep after exec deploy job.
      */
-    private List<String> pods = new ArrayList<>();
+    private String pods;
 
     /**
      * the deploy status for this test_config.
@@ -151,7 +149,6 @@ public class ProjectTestConfig {
         this.deployStatus = EnumTestConfigDeployStatus.NOTDEPLOY;
         this.stageStatus = null;
         this.workLoadId = null;
-        this.appInstanceId = null;
         this.lcmToken = null;
         this.accessUrl = null;
         this.deployDate = null;
@@ -166,6 +163,17 @@ public class ProjectTestConfig {
             this.deployDate = (Date) deployDate.clone();
         } else {
             this.deployDate = null;
+        }
+    }
+
+    /**
+     * getDeployDate.
+     */
+    public Date getDeployDate() {
+        if (this.deployDate != null) {
+            return new Date(this.deployDate.getTime());
+        } else {
+            return null;
         }
     }
 }

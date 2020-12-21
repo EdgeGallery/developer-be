@@ -47,10 +47,12 @@ public final class HttpClientUtil {
      * @return InstantiateAppResult
      */
     public static boolean instantiateApplication(String protocol, String ip, int port, String filePath,
-        String appInstanceId, String userId, String token) {
+        String appInstanceId, String userId, String token, String projectName) {
         MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
         body.add("file", new FileSystemResource(filePath));
         body.add("hostIp", ip);
+        body.add("appName", projectName);
+        body.add("packageId","");
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);
         headers.set(Consts.ACCESS_TOKEN_STR, token);
@@ -60,6 +62,7 @@ public final class HttpClientUtil {
         ResponseEntity<String> response;
         try {
             response = REST_TEMPLATE.exchange(url, HttpMethod.POST, requestEntity, String.class);
+            LOGGER.info("APPlCM log:{}",response);
         } catch (RestClientException e) {
             LOGGER.error("Failed to instantiate application which appInstanceId is {} exception {}", appInstanceId,
                 e.getMessage());
@@ -69,6 +72,31 @@ public final class HttpClientUtil {
             return true;
         }
         LOGGER.error("Failed to instantiate application which appInstanceId is {}", appInstanceId);
+        return false;
+    }
+    /**
+     * queryAppDeployStatus.
+     *
+     * @return InstantiateAppResult
+     */
+    public static boolean queryAppDeployStatus(String protocol,String ip,int port,String packageId,String token) {
+        String url = getUrlPrefix(protocol, ip, port) + Consts.APP_LCM_GET_DEPLOY_STATUS_URL
+            .replaceAll("hostIp", ip).replaceAll("packageId", packageId);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.set(Consts.ACCESS_TOKEN_STR, token);
+        ResponseEntity<Boolean> response;
+        try {
+            response = REST_TEMPLATE.exchange(url, HttpMethod.GET, new HttpEntity<>(headers), Boolean.class);
+        } catch (RestClientException e) {
+            LOGGER.error("Failed to get deploy status which packageId is {} exception {}", packageId,
+                e.getMessage());
+            return false;
+        }
+        if (response.getStatusCode() == HttpStatus.OK) {
+            return true;
+        }
+        LOGGER.error("Failed to get deploy status which packageId is {}", packageId);
         return false;
     }
 
@@ -108,6 +136,7 @@ public final class HttpClientUtil {
         String userId, String token) {
         String url = getUrlPrefix(protocol, ip, port) + Consts.APP_LCM_GET_WORKLOAD_STATUS_URL
             .replaceAll("appInstanceId", appInstanceId).replaceAll("tenantId", userId);
+        LOGGER.info("url is {}",url);
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.set(Consts.ACCESS_TOKEN_STR, token);
@@ -120,7 +149,7 @@ public final class HttpClientUtil {
             return null;
         }
         if (response.getStatusCode() == HttpStatus.OK) {
-            return response.toString();
+            return response.getBody();
         }
         LOGGER.error("Failed to get workload status which appInstanceId is {}", appInstanceId);
         return null;

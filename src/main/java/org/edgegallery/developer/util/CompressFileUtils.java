@@ -16,18 +16,21 @@
 
 package org.edgegallery.developer.util;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.util.Enumeration;
 import java.util.zip.GZIPOutputStream;
+import java.util.zip.ZipEntry;
+
 import net.lingala.zip4j.ZipFile;
 import net.lingala.zip4j.model.ZipParameters;
 import net.lingala.zip4j.model.enums.CompressionLevel;
 import net.lingala.zip4j.model.enums.CompressionMethod;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
+import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
+import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream;
+import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,6 +71,161 @@ public final class CompressFileUtils {
         }
         FileUtils.deleteDirectory(new File(sourcePath));
         return res;
+    }
+
+    /**
+     * decompress .zip or .csar or .targz
+     *
+     * @param filePath
+     * @param outputDir
+     */
+    public static boolean decompress(String filePath, String outputDir) {
+        File file = new File(filePath);
+        if (!file.exists()) {
+            System.out.println("decompress file not exist.");
+            return false;
+        }
+        try {
+            if (filePath.endsWith(".zip") || filePath.endsWith(".csar") ) {
+                unZip(file, outputDir);
+            }
+            if (filePath.endsWith(".tar.gz") || filePath.endsWith(".tgz")) {
+                decompressTarGz(file, outputDir);
+            }
+            if (filePath.endsWith(".tar.bz2")) {
+                decompressTarBz2(file, outputDir);
+            }
+            return true;
+        } catch (IOException e) {
+            e.printStackTrace();
+            LOGGER.error("Failed to decompress file:{}.", filePath);
+        }
+        return false;
+    }
+
+    /**
+     * decompress .zip or .csar
+     *
+     * @param file
+     * @param outputDir
+     * @throws IOException
+     */
+    public static void unZip(File file, String outputDir) throws IOException {
+        try (java.util.zip.ZipFile zipFile = new java.util.zip.ZipFile(file, StandardCharsets.UTF_8)) {
+            // create out dir
+            createDirectory(outputDir, null);
+            Enumeration<?> enums = zipFile.entries();
+            while (enums.hasMoreElements()) {
+                ZipEntry entry = (ZipEntry) enums.nextElement();
+                if (entry.isDirectory()) {
+                    // create empty dir
+                    createDirectory(outputDir, entry.getName());
+                } else {
+                    try (InputStream in = zipFile.getInputStream(entry)) {
+                        try (OutputStream out = new FileOutputStream(
+                                new File(outputDir + File.separator + entry.getName()))) {
+                            writeFile(in, out);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * decompress tar.gz
+     *
+     * @param file
+     * @param outputDir
+     */
+    public static void decompressTarGz(File file, String outputDir) throws IOException {
+        try (TarArchiveInputStream tarIn = new TarArchiveInputStream(
+                new GzipCompressorInputStream(
+                        new BufferedInputStream(
+                                new FileInputStream(file))))) {
+            // create out directory
+            createDirectory(outputDir, null);
+            TarArchiveEntry entry = null;
+            while ((entry = tarIn.getNextTarEntry()) != null) {
+                // check is dir
+                if (entry.isDirectory()) {
+                    createDirectory(outputDir, entry.getName());
+                } else {
+                    // check is file
+                    File temp = new File(outputDir + File.separator + entry.getName());
+                    // create dir for file
+                    createDirectory(temp.getParent(), null);
+                    if (!temp.exists()){
+                        temp.createNewFile();
+                    }
+                    try (OutputStream out = new FileOutputStream(
+                            new File(outputDir + File.separator + entry.getName()))) {
+                        writeFile(tarIn, out);
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * decompress tar.bz2
+     *
+     * @param file
+     * @param outputDir
+     */
+    public static void decompressTarBz2(File file, String outputDir) throws IOException {
+        try (TarArchiveInputStream tarIn =
+                     new TarArchiveInputStream(
+                             new BZip2CompressorInputStream(
+                                     new FileInputStream(file)))) {
+            createDirectory(outputDir, null);
+            TarArchiveEntry entry;
+            while ((entry = tarIn.getNextTarEntry()) != null) {
+                if (entry.isDirectory()) {
+                    createDirectory(outputDir, entry.getName());
+                } else {
+                    try (OutputStream out = new FileOutputStream(
+                            new File(outputDir + File.separator + entry.getName()))) {
+                        writeFile(tarIn, out);
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * create directory
+     *
+     * @param outputDir
+     * @param subDir
+     */
+    public static void createDirectory(String outputDir, String subDir) {
+        File file = new File(outputDir);
+        // if subDir exists
+        if (!(subDir == null || "".equals(subDir.trim()))) {
+            file = new File(outputDir + File.separator + subDir);
+        }
+        if (!file.exists()) {
+            if (!file.getParentFile().exists()) {
+                file.getParentFile().mkdirs();
+            }
+            file.mkdirs();
+        }
+    }
+
+    /**
+     * writeFile
+     *
+     * @param in
+     * @param out
+     * @throws IOException
+     */
+    public static void writeFile(InputStream in, OutputStream out) throws IOException {
+        int length;
+        byte[] b = new byte[BUFFER];
+        while ((length = in.read(b)) != -1) {
+            out.write(b, 0, length);
+        }
     }
 
     /**
