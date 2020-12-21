@@ -618,9 +618,15 @@ public class ProjectService {
      * @return
      */
     public Either<FormatRespDto, ProjectTestConfig> getTestConfig(String projectId) {
+        ApplicationProject project = projectMapper.getProject(AccessUserUtil.getUserId(), projectId);
+        if (project == null) {
+            LOGGER
+                .warn("Can not find the project by userId {} and projectId {}.", AccessUserUtil.getUserId(), projectId);
+            return Either.right(null);
+        }
         List<ProjectTestConfig> tests = projectMapper.getTestConfigByProjectId(projectId);
         if (CollectionUtils.isEmpty(tests)) {
-            LOGGER.warn("Can not find the test config by projectId {}", projectId);
+            LOGGER.warn("Can not find the test config by projectId {}.", projectId);
             return Either.right(null);
         } else {
             LOGGER.info("Get test config {} success.", tests.get(0).getTestId());

@@ -3,7 +3,6 @@ package org.edgegallery.developer.service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.google.gson.Gson;
-import com.google.gson.internal.LinkedTreeMap;
 import com.google.gson.reflect.TypeToken;
 import com.spencerwi.either.Either;
 import java.io.File;
@@ -19,6 +18,7 @@ import java.util.stream.Collectors;
 import javax.ws.rs.core.Response;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.edgegallery.developer.config.security.AccessUserUtil;
 import org.edgegallery.developer.mapper.ProjectMapper;
 import org.edgegallery.developer.mapper.ReleaseConfigMapper;
 import org.edgegallery.developer.mapper.UploadedFileMapper;
@@ -129,6 +129,13 @@ public class ReleaseConfigService {
             FormatRespDto dto = new FormatRespDto(Response.Status.BAD_REQUEST, "projectId is null");
             return Either.left(dto);
         }
+        ApplicationProject project = projectMapper.getProject(AccessUserUtil.getUserId(), projectId);
+        if (project == null) {
+            LOGGER.error("can not find the project by userId {} and projectId {}.", AccessUserUtil.getUserId(),
+                projectId);
+            FormatRespDto dto = new FormatRespDto(Response.Status.BAD_REQUEST, "projectId is null");
+            return Either.left(dto);
+        }
         ReleaseConfig oldConfig = configMapper.getConfigByProjectId(projectId);
         LOGGER.info("get release config success!");
         return Either.right(oldConfig);
@@ -168,12 +175,13 @@ public class ReleaseConfigService {
             CompressFileUtils.decompress(csarFilePath, csar.getParent());
             //verify md docs
 
-            String readmePath = csar.getParent() + File.separator + config.getAppInstanceId()
-                + File.separator + "Artifacts/Docs/template.md";
+            String readmePath = csar.getParent() + File.separator + config.getAppInstanceId() + File.separator
+                + "Artifacts/Docs/template.md";
             String readmeFileId = releaseConfig.getGuideFileId();
             if (readmeFileId != null && !readmeFileId.equals("")) {
                 UploadedFile path = uploadedFileMapper.getFileById(readmeFileId);
-                FileUtils.copyFile(new File(InitConfigUtil.getWorkSpaceBaseDir() + path.getFilePath()),new File(readmePath));
+                FileUtils.copyFile(new File(InitConfigUtil.getWorkSpaceBaseDir() + path.getFilePath()),
+                    new File(readmePath));
             }
 
             // verify service template file
@@ -266,7 +274,8 @@ public class ReleaseConfigService {
             for (OpenMepCapabilityGroup obj : capabilities) {
                 List<OpenMepCapabilityDetail> openMepCapabilityGroups = obj.getCapabilityDetailList();
                 Type openMepCapabilityType = new TypeToken<List<OpenMepCapabilityDetail>>() { }.getType();
-                List<OpenMepCapabilityDetail> openMepCapabilityDetails = gson.fromJson(gson.toJson(openMepCapabilityGroups), openMepCapabilityType);
+                List<OpenMepCapabilityDetail> openMepCapabilityDetails = gson
+                    .fromJson(gson.toJson(openMepCapabilityGroups), openMepCapabilityType);
 
                 for (OpenMepCapabilityDetail capabilityDetail : openMepCapabilityDetails) {
                     AppConfigurationModel.ServiceRequired required = new AppConfigurationModel.ServiceRequired();
@@ -324,9 +333,9 @@ public class ReleaseConfigService {
             Map<String, Object> loaded = yaml.load(valueContent);
             // build node template
             // TODO(ch) use HTTP as default
-            List<ServiceConfig> configs = detailList.stream()
-                .map(t -> new ServiceConfig(t.getServiceName(), t.getInternalPort(), t.getVersion(), t.getProtocol(), "default"))
-                .collect(Collectors.toList());
+            List<ServiceConfig> configs = detailList.stream().map(
+                t -> new ServiceConfig(t.getServiceName(), t.getInternalPort(), t.getVersion(), t.getProtocol(),
+                    "default")).collect(Collectors.toList());
             // update node in template
             loaded.put("serviceconfig", configs);
             // write content to yaml
