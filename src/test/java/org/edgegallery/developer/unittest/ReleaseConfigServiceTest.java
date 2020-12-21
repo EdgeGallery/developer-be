@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.spencerwi.either.Either;
 import javax.ws.rs.core.Response;
 import org.edgegallery.developer.DeveloperApplicationTests;
+import org.edgegallery.developer.config.security.AccessUserUtil;
 import org.edgegallery.developer.model.CapabilitiesDetail;
 import org.edgegallery.developer.model.ReleaseConfig;
 import org.edgegallery.developer.response.FormatRespDto;
@@ -101,10 +102,20 @@ public class ReleaseConfigServiceTest {
     @Test
     @WithMockUser(roles = "DEVELOPER_TENANT")
     public void testGetRelConfig() {
+        AccessUserUtil.setUser("f24ea0a2-d8e6-467c-8039-94f0d29bac43", "test-user");
         Either<FormatRespDto, ReleaseConfig> stru = releaseConfigService.getConfigById("200dfab1-3c30-4fc7-a6ca-ed6f0620a85e");
         Assert.assertTrue(stru.isRight());
         Assert.assertNotNull(stru.getRight());
     }
+
+    @Test
+    @WithMockUser(roles = "DEVELOPER_TENANT")
+    public void should_failed_when_use_userid_A_to_get_project_of_userB() {
+        AccessUserUtil.setUser("otheruid-d8e6-467c-8039-94f0d29bac43", "test-user");
+        Either<FormatRespDto, ReleaseConfig> stru = releaseConfigService.getConfigById("200dfab1-3c30-4fc7-a6ca-ed6f0620a85e");
+        Assert.assertTrue(stru.isLeft());
+    }
+
 
     @Test
     @WithMockUser(roles = "DEVELOPER_TENANT")

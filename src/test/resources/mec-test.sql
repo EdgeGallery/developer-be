@@ -301,17 +301,17 @@ MERGE INTO tbl_openmep_capability (group_id, one_level_name, two_level_name, thr
 ('d8f06d28-390c-4a06-905e-120f56279bbc', 'Platform basic services', 'Face Recognition', '', 'OPENMEP', 'Face Recognition');
 
 
-INSERT INTO tbl_openmep_capability_detail (detail_id, service, version, description, provider, group_id, api_file_id, guide_file_id, port, host, upload_time, user_id)
+MERGE INTO tbl_openmep_capability_detail (detail_id, service, version, description, provider, group_id, api_file_id, guide_file_id, port, host, upload_time, user_id) KEY(detail_id)
 VALUES ('8d93cb64-e9ff-468f-a5b1-160efa5c4f05', 'Face Recognition service plus', 'v1', 'provide the face recognition plus capabilities for apps', 'Huawei', 'd8f06d28-390c-4a06-905e-120f56279bbc', '7dd477d8-bcc0-4e2a-a48d-2b587a30026a', 'b8b5d055-1024-4ea8-8439-64de19875834', 9999, 'face-recognition-plus', '2020-11-20 00:00:00.000000', 'admin');
-INSERT INTO tbl_openmep_capability_detail (detail_id, service, version, description, provider, group_id, api_file_id, guide_file_id, port, host, upload_time, user_id)
+MERGE INTO tbl_openmep_capability_detail (detail_id, service, version, description, provider, group_id, api_file_id, guide_file_id, port, host, upload_time, user_id) KEY(detail_id)
 VALUES ('6f250fc0-0961-470f-bf17-e9bba8e56c12', 'Face Recognition service', 'v1', 'provide the face recognition capabilities for apps', 'Huawei', 'd8f06d28-390c-4a06-905e-120f56279bbc', 'd0f8fa57-2f4c-4182-be33-0a508964d04a', '10d8a909-742a-433f-8f7a-5c7667adf825', 9997, 'face-recognition', '2020-11-20 00:00:00.000000', 'admin');
-INSERT INTO tbl_openmep_capability_detail (detail_id, service, version, description, provider, group_id, api_file_id, guide_file_id, port, host, upload_time, user_id)
+MERGE INTO tbl_openmep_capability_detail (detail_id, service, version, description, provider, group_id, api_file_id, guide_file_id, port, host, upload_time, user_id) KEY(detail_id)
 VALUES ('143e8608-7304-4932-9d99-4bd6b115dac8', 'Service Discovery', 'v1', 'provide the service discovery capabilities for apps', 'Huawei', 'a6efaa2c-ad99-432f-9405-e28e90f44f15', '540e0817-f6ea-42e5-8c5b-cb2daf9925a3', '9bb4a85f-e985-47e1-99a4-20c03a486864', 8684, 'service-discovery', '2020-11-20 00:00:00.000000', 'admin');
-INSERT INTO tbl_openmep_capability_detail (detail_id, service, version, description, provider, group_id, api_file_id, guide_file_id, port, host, upload_time, user_id)
+MERGE INTO tbl_openmep_capability_detail (detail_id, service, version, description, provider, group_id, api_file_id, guide_file_id, port, host, upload_time, user_id) KEY(detail_id)
 VALUES ('ee7fbc17-f370-4c02-a9ab-680a41cd0255', 'Bandwidth service', 'v1', 'provide the bandwidth capabilities for apps', 'Huawei', '72a1434d-fbb0-459b-9b92-ce1e02a121c2', '7c544903-aa4f-40e0-bd8c-cf6e17c37c12', '6736ec41-eb7e-4dca-bda2-3b4e10d0a294', 8489, 'bandwidth-service', '2020-11-20 00:00:00.000000', 'admin');
-INSERT INTO tbl_openmep_capability_detail (detail_id, service, version, description, provider, group_id, api_file_id, guide_file_id, port, host, upload_time, user_id)
+MERGE INTO tbl_openmep_capability_detail (detail_id, service, version, description, provider, group_id, api_file_id, guide_file_id, port, host, upload_time, user_id) KEY(detail_id)
 VALUES ('146f4f87-4027-4ad8-af99-ec4a6f6bcc3c', 'Location service', 'v1', 'provide the location capabilities for apps', 'Huawei', '406593b4-c782-409c-8f46-a6fd5e1f6221', '688f259e-48eb-407d-8604-7feb19cf1f44', 'b0819798-e932-415c-95f5-dead04ef2fba', 8487, 'location-service', '2020-11-20 00:00:00.000000', 'admin');
-INSERT INTO tbl_openmep_capability_detail (detail_id, service, version, description, provider, group_id, api_file_id, guide_file_id, port, host, upload_time, user_id)
+MERGE INTO tbl_openmep_capability_detail (detail_id, service, version, description, provider, group_id, api_file_id, guide_file_id, port, host, upload_time, user_id) KEY(detail_id)
 VALUES ('3fda958c-ef56-44c9-bf3b-469cf5d54e33', 'Traffic service', 'v1', 'provide the traffic capabilities for apps', 'Huawei', 'c0db376b-ae50-48fc-b9f7-58a609e3ee12', '9f1f13a0-8554-4dfa-90a7-d2765238fca7', '5110740f-305c-4553-920e-2b11cd9f64c1', 8456, 'traffice-service', '2020-11-20 00:00:00.000000', 'admin');
 
 MERGE INTO tbl_uploaded_file (file_id, file_name, is_temp, user_id, upload_date, file_path) KEY(file_id) VALUES ('7dd477d8-bcc0-4e2a-a48d-2b587a30026a', 'Face Recognition service plus.json', false, 'admin', '2020-01-01 00:00:00.000000', '/uploaded_files/mep_capability/7dd477d8-bcc0-4e2a-a48d-2b587a30026a');
