@@ -655,7 +655,7 @@ public class ProjectService {
             FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "can not get release config");
             return Either.left(error);
         }
-        if (releaseConfig.getAtpTest() == null && !releaseConfig.getAtpTest().getStatus().equals("success")) {
+        if (releaseConfig.getAtpTest() == null || !releaseConfig.getAtpTest().getStatus().equals("success")) {
             LOGGER.error("Can not upload appstore because apt test fail.");
             FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "can not upload appstore");
             return Either.left(error);
@@ -903,12 +903,14 @@ public class ProjectService {
         }
 
         OpenMepCapabilityDetail detail = new OpenMepCapabilityDetail();
+        detail.setDetailId(UUID.randomUUID().toString());
         detail.setGroupId(groupId);
         detail.setService(project.getName());
         detail.setVersion(project.getVersion());
         detail.setDescription(project.getDescription());
         detail.setProvider(project.getProvider());
         detail.setApiFileId(test.getAppApiFileId());
+        detail.setUploadTime(new Date());
 
         int detailRes = openMepCapabilityMapper.saveCapability(detail);
         if (detailRes < 1) {

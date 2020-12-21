@@ -148,7 +148,7 @@
         *
         FROM
         tbl_openmep_capability
-        WHERE name = #{name} and type = 'OPENMEP_ECO'
+        WHERE one_level_name = #{name} and type = 'OPENMEP_ECO'
     </select>
 
     <select id="getGroupIdByDetailId" parameterType="String" resultType="java.lang.String">

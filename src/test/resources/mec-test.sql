@@ -211,7 +211,7 @@ CREATE TABLE IF NOT EXISTS tbl_project_test_config (
   access_url varchar(200)  DEFAULT NULL,
   error_log text  DEFAULT NULL,
   deploy_date timestamp DEFAULT NULL,
-  hosts varchar(255)  DEFAULT NULL,
+  hosts text  DEFAULT NULL,
   app_instance_id varchar(50)  DEFAULT NULL,
   work_load_id varchar(255)  DEFAULT NULL,
   pods varchar(255)  DEFAULT NULL,
