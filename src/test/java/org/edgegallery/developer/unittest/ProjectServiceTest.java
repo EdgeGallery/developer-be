@@ -527,7 +527,8 @@ public class ProjectServiceTest {
     @WithMockUser(roles = "DEVELOPER_TENANT")
     public void testCreateCsarPkg() throws Exception {
         String userId = "f24ea0a2-d8e6-467c-8039-94f0d29bac43";
-        String projectId = "200dfab1-3c30-4fc7-a6ca-ed6f0620a85e";
+        String projectId = "200dfab1-3c30-4fc7-a6ca-ed6f0620a85d";
+        AccessUserUtil.setUser(userId,"test-user");
         Either<FormatRespDto, ApplicationProject> res = projectService.getProject(userId,projectId);
         Assert.assertTrue(res.isRight());
         res.getRight().setDescription("hello");
@@ -543,6 +544,7 @@ public class ProjectServiceTest {
     public void testDeployTestConfigToAppLcm() throws Exception {
         String userId = "f24ea0a2-d8e6-467c-8039-94f0d29bac43";
         String projectId = "200dfab1-3c30-4fc7-a6ca-ed6f0620a85g";
+        AccessUserUtil.setUser(userId,"test-user");
         Either<FormatRespDto, ApplicationProject> res = projectService.getProject(userId,projectId);
       //  Assert.assertTrue(res.isRight());
         Either<FormatRespDto, ProjectTestConfig> resConfig = projectService.getTestConfig(projectId);
@@ -559,6 +561,7 @@ public class ProjectServiceTest {
     @WithMockUser(roles = "DEVELOPER_TENANT")
     public void testCreateTestConfigSuccess() throws Exception {
         String userId = "f24ea0a2-d8e6-467c-8039-94f0d29bac43";
+        AccessUserUtil.setUser(userId,"test-user");
         String projectId = "200dfab1-3c30-4fc7-a6ca-ed6f0620a85e";
         Either<FormatRespDto, ProjectTestConfig> resConfig = projectService.getTestConfig(projectId);
         Assert.assertTrue(resConfig.isRight());
