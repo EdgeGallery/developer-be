@@ -510,9 +510,10 @@ public class ProjectService {
                 .fromJson(gson.toJson(openMepCapabilityGroups), openMepCapabilityType);
             for (OpenMepCapabilityDetail detail : openMepCapabilityDetails) {
                 if (!StringUtils.isEmpty(detail.getPackageId())) {
-                    return HttpClientUtil
-                        .queryAppDeployStatus(host.getProtocol(), host.getIp(), host.getPort(), detail.getPackageId(),
-                            testConfig.getLcmToken());
+                    return true;
+//                    return HttpClientUtil
+//                        .queryAppDeployStatus(host.getProtocol(), host.getIp(), host.getPort(), detail.getPackageId(),
+//                            testConfig.getLcmToken());
                 }
             }
         }
