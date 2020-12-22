@@ -46,6 +46,11 @@ public class StageInstantiate implements IConfigDeployStage {
             projectService.updateDeployResult(config, project, "instantiateInfo", instantiateStatus);
             return false;
         }
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            LOGGER.error("sleep fail! {}", e.getMessage());
+        }
         // deploy app
         File csar;
         try {

@@ -43,6 +43,11 @@ public class StageSelectHost implements IConfigDeployStage {
         boolean processSuccess = false;
         ApplicationProject project = projectMapper.getProjectById(config.getProjectId());
         EnumTestConfigStatus hostStatus = EnumTestConfigStatus.Failed;
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            LOGGER.error("sleep fail! {}", e.getMessage());
+        }
         if (config.isPrivateHost()) {
             List<MepHost> privateHosts = hostMapper.getHostsByUserId(project.getUserId());
             config.setHosts(privateHosts.subList(0, 1));
