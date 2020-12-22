@@ -109,7 +109,6 @@ public class RuntimeUtil {
             case "go":
                 break;
             default:
-                buildPythonCommand(command, config);
                 break;
         }
 
@@ -142,7 +141,7 @@ public class RuntimeUtil {
     public static void buildPythonCommand(List<String> command, GeneralConfig config) {
         command.add("-c");
         command.add(InitConfigUtil.getSdkCodeDir() + "config.json");
-        
+
     }
 
 
