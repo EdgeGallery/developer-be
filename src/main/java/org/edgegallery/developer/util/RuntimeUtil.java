@@ -140,12 +140,9 @@ public class RuntimeUtil {
      * buildPythonCommand.
      */
     public static void buildPythonCommand(List<String> command, GeneralConfig config) {
-        command.add("--package-name");
-        command.add(config.getProjectName());
-        command.add("--project-name");
-        command.add("EdgeGallery-" + config.getInvokerPackage());
-        command.add("--package-version");
-        command.add(config.getArtifactVersion());
+        command.add("-c");
+        command.add(InitConfigUtil.getSdkCodeDir() + "config.json");
+        
     }
 
 
