@@ -77,12 +77,12 @@ public class PluginDto {
      */
     public static PluginDto of(Plugin plugin) {
         PluginDto pluginDto = new PluginDto();
-        pluginDto.setApiFile(plugin.getApiFile().getStorageAddress());
+        pluginDto.setApiFile("");
         pluginDto.setCodeLanguage(plugin.getCodeLanguage());
         pluginDto.setDownloadCount(plugin.getDownloadCount());
         pluginDto.setIntroduction(plugin.getIntroduction());
-        pluginDto.setLogoFile(plugin.getLogoFile().getStorageAddress());
-        pluginDto.setPluginFile(plugin.getPluginFile().getStorageAddress());
+        pluginDto.setLogoFile("");
+        pluginDto.setPluginFile("");
         pluginDto.setPluginId(plugin.getPluginId());
         pluginDto.setPluginName(plugin.getPluginName());
         pluginDto.setPluginType(plugin.getPluginType());
