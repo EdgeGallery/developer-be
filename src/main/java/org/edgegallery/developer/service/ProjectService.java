@@ -491,13 +491,14 @@ public class ProjectService {
                 userId, token, projectName);
     }
 
-    private boolean checkDependency(String userId, String token, File csar, MepHost host, ApplicationProject project,
-        ProjectTestConfig testConfig) {
-        String projectName = project.getName().replaceAll(Consts.PATTERN, "").toLowerCase();
+    public boolean checkDependency(ApplicationProject project, ProjectTestConfig testConfig) {
         Optional<List<OpenMepCapabilityGroup>> groups = Optional.ofNullable(project.getCapabilityList());
+        Type type = new TypeToken<List<MepHost>>() { }.getType();
+        List<MepHost> hosts = gson.fromJson(gson.toJson(testConfig.getHosts()), type);
+        MepHost host = hosts.get(0);
         if (!groups.isPresent()) {
             LOGGER.error("the project being deployed does not have any capabilities selected ");
-            return false;
+            return true;
         }
         Gson gson = new Gson();
         Type groupType = new TypeToken<List<OpenMepCapabilityGroup>>() { }.getType();
@@ -509,18 +510,13 @@ public class ProjectService {
                 .fromJson(gson.toJson(openMepCapabilityGroups), openMepCapabilityType);
             for (OpenMepCapabilityDetail detail : openMepCapabilityDetails) {
                 if (!StringUtils.isEmpty(detail.getPackageId())) {
-                    boolean isDeploy = HttpClientUtil
+                    return HttpClientUtil
                         .queryAppDeployStatus(host.getProtocol(), host.getIp(), host.getPort(), detail.getPackageId(),
                             testConfig.getLcmToken());
-                    if (!isDeploy) {
-                        return HttpClientUtil
-                            .instantiateApplication(host.getProtocol(), host.getIp(), host.getPort(), csar.getPath(),
-                                testConfig.getAppInstanceId(), userId, token, projectName);
-                    }
                 }
             }
         }
-        return false;
+        return true;
 
     }
 
