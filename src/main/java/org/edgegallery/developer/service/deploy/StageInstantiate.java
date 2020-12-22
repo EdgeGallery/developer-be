@@ -32,10 +32,21 @@ public class StageInstantiate implements IConfigDeployStage {
     public boolean execute(ProjectTestConfig config) {
         boolean processSuccess = false;
         boolean instantiateAppResult;
+        boolean dependencyResult;
 
         ApplicationProject project = projectMapper.getProjectById(config.getProjectId());
         String userId = project.getUserId();
         EnumTestConfigStatus instantiateStatus = EnumTestConfigStatus.Failed;
+        // check dependency app
+        dependencyResult = projectService.checkDependency(project, config);
+        if (!dependencyResult) {
+            config.setAccessUrl("");
+            config.setErrorLog("dependency app not deploy");
+            LOGGER.error("Failed to instantiate app: dependency app not deploy");
+            projectService.updateDeployResult(config, project, "instantiateInfo", instantiateStatus);
+            return false;
+        }
+        // deploy app
         File csar;
         try {
             csar = new File(projectService.getProjectPath(config.getProjectId()) + config.getAppInstanceId() + ".csar");
