@@ -109,6 +109,7 @@ public class RuntimeUtil {
             case "go":
                 break;
             default:
+                buildPythonCommand(command, config);
                 break;
         }
 
@@ -134,5 +135,18 @@ public class RuntimeUtil {
         command.add("--group-id");
         command.add(config.getGroupId());
     }
+
+    /**
+     * buildPythonCommand.
+     */
+    public static void buildPythonCommand(List<String> command, GeneralConfig config) {
+        command.add("--package-name");
+        command.add(config.getProjectName());
+        command.add("--project-name");
+        command.add("EdgeGallery-" + config.getInvokerPackage());
+        command.add("--package-version");
+        command.add(config.getArtifactVersion());
+    }
+
 
 }
