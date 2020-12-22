@@ -24,7 +24,6 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -62,7 +61,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
 import org.yaml.snakeyaml.Yaml;
 
@@ -196,6 +194,8 @@ public class UploadFileService {
             return Either.left(new FormatRespDto(Status.BAD_REQUEST, "Failed to save file."));
         }
         LOGGER.info("upload file success {}", fileName);
+        //upload success
+        result.setFilePath("");
         return Either.right(result);
     }
 
@@ -408,11 +408,11 @@ public class UploadFileService {
                     }
                     if (stringMap.get("spec") != null) {
                         String specContent = stringMap.get("spec").toString();
-                        if (specContent.contains("image")){
+                        if (specContent.contains("image")) {
                             requiredItems.remove("image");
                             helmTemplateYamlRespDto.setImageSuccess(true);
                         }
-                        if (specContent.contains("mep-agent")){
+                        if (specContent.contains("mep-agent")) {
                             helmTemplateYamlRespDto.setMepAgentSuccess(true);
                             requiredItems.remove("mep-agent");
                         }
@@ -436,7 +436,7 @@ public class UploadFileService {
             HelmTemplateYamlRespDto helmTemplateYamlRespDto = new HelmTemplateYamlRespDto();
             helmTemplateYamlRespDto.setResponse(helmTemplateYamlPo);
             // replace {{(.*?)}}
-            String content = helmTemplateYamlPo.getContent().replaceAll("\r","");
+            String content = helmTemplateYamlPo.getContent().replaceAll("\r", "");
             content = content.replaceAll(REPLACE_PATTERN.toString(), "");
 
             // verify yaml scheme
@@ -453,8 +453,9 @@ public class UploadFileService {
                 }
                 helmTemplateYamlRespDto.setFormatSuccess(true);
             } catch (Exception e) {
-                LOGGER.error("Failed to validate yaml scheme, userId: {}, projectId: {},exception: {}", userId, projectId,
-                    e.getMessage());
+                LOGGER
+                    .error("Failed to validate yaml scheme, userId: {}, projectId: {},exception: {}", userId, projectId,
+                        e.getMessage());
                 helmTemplateYamlRespDto.setFormatSuccess(false);
                 helmTemplateYamlRespDto.setMepAgentSuccess(null);
                 helmTemplateYamlRespDto.setServiceSuccess(null);
@@ -465,9 +466,11 @@ public class UploadFileService {
             verifyHelmTemplate(mapList, requiredItems, helmTemplateYamlRespDto);
 
             if (!requiredItems.isEmpty() && requiredItems.size() >= 2) {
-                LOGGER.error("Failed to verify helm template yaml, userId: {}, projectId: {},exception: verify: {} failed",
+                LOGGER.error(
+                    "Failed to verify helm template yaml, userId: {}, projectId: {},exception: verify: {} failed",
                     userId, projectId, String.join(",", requiredItems));
-            } else if (!requiredItems.isEmpty() && requiredItems.size() == 1 && requiredItems.get(0).equals("mep-agent")) {
+            } else if (!requiredItems.isEmpty() && requiredItems.size() == 1 && requiredItems.get(0)
+                .equals("mep-agent")) {
                 helmTemplateYamlRespDto.setImageSuccess(true);
                 helmTemplateYamlRespDto.setServiceSuccess(true);
                 helmTemplateYamlRespDto.setMepAgentSuccess(false);
