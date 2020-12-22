@@ -963,7 +963,7 @@ public class ProjectService {
         }
         LOGGER.info("Update project status to TESTED success");
 
-        int tes = projectMapper.updateTestConfig(testConfig);
+        int tes = projectMapper.cleanTestConfig(testConfig);
         if (tes < 1) {
             LOGGER.error("Update test config {} failed", testConfig.getTestId());
         }
