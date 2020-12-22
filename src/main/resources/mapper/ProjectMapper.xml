@@ -180,6 +180,61 @@
         UPDATE
         tbl_project_test_config
         SET
+        <if test="projectId !=null and projectId !=''">
+            project_id = #{projectId},
+        </if>
+        <if test="appApiFileId !=null and appApiFileId !=''">
+            app_api_file_id = #{appApiFileId},
+        </if>
+        <if test="deployFileId !=null and deployFileId !=''">
+            deploy_file_id = #{deployFileId},
+        </if>
+        <if test="privateHost !=null">
+            private_host = #{privateHost},
+        </if>
+        <if test="platform !=null">
+            platform = #{platform},
+        </if>
+        <if test="hosts !=null">
+            hosts = #{hosts, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonCollectionTypeHandler},
+        </if>
+        <if test="errorLog !=null and errorLog !=''">
+            error_log = #{errorLog},
+        </if>
+        <if test="stageStatus !=null">
+            stage_status = #{stageStatus, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonTypeHandler},
+        </if>
+
+        <if test="accessUrl !=null and accessUrl !=''">
+            access_url = #{accessUrl},
+        </if>
+        <if test="deployDate !=null">
+            deploy_date = #{deployDate},
+        </if>
+        <if test="pods !=null and pods !=''">
+            pods = #{pods},
+        </if>
+        <if test="appInstanceId !=null and appInstanceId !=''">
+            app_instance_id = #{appInstanceId},
+        </if>
+        <if test="workLoadId !=null and workLoadId !=''">
+            work_load_id = #{workLoadId},
+        </if>
+        <if test="deployStatus !=null">
+            deploy_status = #{deployStatus},
+        </if>
+        <if test="lcmToken !=null and lcmToken !=''">
+            lcm_token = #{lcmToken},
+        </if>
+        test_id = #{testId}
+        WHERE
+        test_id = #{testId}
+    </update>
+
+    <update id="cleanTestConfig" parameterType="org.edgegallery.developer.model.workspace.ProjectTestConfig">
+        UPDATE
+        tbl_project_test_config
+        SET
         project_id = #{projectId}, agent_config =
         #{agentConfig, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonTypeHandler},
         image_file_id =
