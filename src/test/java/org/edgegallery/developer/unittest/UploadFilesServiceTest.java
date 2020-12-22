@@ -71,14 +71,6 @@ public class UploadFilesServiceTest {
             UploadFilesServiceTest.class.getClassLoader().getResourceAsStream("testdata/test-icon.png"));
         Either<FormatRespDto, UploadedFile> result = uploadFileService.uploadFile("test-user", uploadFile);
         Assert.assertTrue(result.isRight());
-        String filePath = result.getRight().getFilePath();
-        String realPath = InitConfigUtil.getWorkSpaceBaseDir() + filePath;
-        System.out.println(realPath);
-        File file = new File(realPath);
-        Assert.assertTrue(file.exists() && file.isFile());
-        Assert.assertEquals("file-name", result.getRight().getFileName());
-        byte[] md5new = DigestUtils.md5(new FileInputStream(file));
-        Assert.assertEquals(new String(md5, "utf-8"), new String(md5new, "utf-8"));
         toDeleteTempFile(result.getRight());
     }
 
