@@ -5,7 +5,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class ATPResultInfo {
+public class AtpResultInfo {
     String id;
 
     String appName;

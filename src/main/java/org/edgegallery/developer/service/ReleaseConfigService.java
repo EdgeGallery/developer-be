@@ -63,6 +63,9 @@ public class ReleaseConfigService {
     @Autowired
     private UploadedFileMapper uploadedFileMapper;
 
+    /**
+     * saveConfig.
+     */
     public Either<FormatRespDto, ReleaseConfig> saveConfig(String projectId, ReleaseConfig config) {
         if (StringUtils.isEmpty(projectId)) {
             LOGGER.error("req path miss project id!");
@@ -90,6 +93,9 @@ public class ReleaseConfigService {
         return Either.right(configMapper.getConfigByReleaseId(config.getReleaseId()));
     }
 
+    /**
+     * modifyConfig.
+     */
     public Either<FormatRespDto, ReleaseConfig> modifyConfig(String projectId, ReleaseConfig config) {
         if (StringUtils.isBlank(projectId)) {
             LOGGER.error("req path miss project id!");
@@ -126,6 +132,9 @@ public class ReleaseConfigService {
 
     }
 
+    /**
+     * getConfigById.
+     */
     public Either<FormatRespDto, ReleaseConfig> getConfigById(String projectId) {
         if (StringUtils.isEmpty(projectId)) {
             LOGGER.error("req path miss project id!");
@@ -146,9 +155,6 @@ public class ReleaseConfigService {
 
     /**
      * rebuildCsar.
-     *
-     * @param projectId
-     * @param releaseConfig
      */
     public Either<FormatRespDto, Boolean> rebuildCsar(String projectId, ReleaseConfig releaseConfig) {
         ApplicationProject project = projectMapper.getProjectById(projectId);
@@ -265,7 +271,6 @@ public class ReleaseConfigService {
      */
     private AppConfigurationModel buildTemplateConfig(ApplicationProject project, List<TrafficRule> trafficRules,
         List<DnsRule> dnsRules, List<ServiceDetail> details) {
-        AppConfigurationModel configModel = new AppConfigurationModel();
         AppConfigurationModel.ConfigurationProperties properties = new AppConfigurationModel.ConfigurationProperties();
         properties.setAppName(project.getName());
         if (!CollectionUtils.isEmpty(details)) {
@@ -301,14 +306,15 @@ public class ReleaseConfigService {
             }
             properties.setAppServiceRequired(requiredList);
         }
+        AppConfigurationModel configModel = new AppConfigurationModel();
         configModel.setProperties(properties);
         return configModel;
     }
 
     /**
-     * get ServiceProduced list from service Details
+     * get ServiceProduced list from service Details.
      *
-     * @param details
+     * @param details details
      */
     private List<AppConfigurationModel.ServiceProduced> buildProducedServices(List<ServiceDetail> details) {
         return details.stream().map(d -> {
@@ -322,10 +328,8 @@ public class ReleaseConfigService {
     }
 
     /**
-     * fill value template with detailList
+     * fill value template with detailList.
      *
-     * @param tgzFile
-     * @param detailList
      */
     private void fillTemplateInTgzFile(File tgzFile, List<ServiceDetail> detailList) {
         String fileName = tgzFile.getName().replace(".tgz", "");

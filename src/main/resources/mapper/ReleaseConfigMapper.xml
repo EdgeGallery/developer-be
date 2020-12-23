@@ -73,7 +73,7 @@
         project_id = #{projectId}
     </update>
     
-     <update id="updateATPStatus" parameterType="org.edgegallery.developer.model.ReleaseConfig">
+     <update id="updateAtpStatus" parameterType="org.edgegallery.developer.model.ReleaseConfig">
         UPDATE
         tbl_release_config
         SET

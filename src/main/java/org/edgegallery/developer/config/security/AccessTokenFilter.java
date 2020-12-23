@@ -44,6 +44,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 public class AccessTokenFilter extends OncePerRequestFilter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AccessTokenFilter.class);
+
     @Autowired
     TokenStore jwtTokenStore;
 
@@ -71,7 +72,8 @@ public class AccessTokenFilter extends OncePerRequestFilter {
             Map<String, Object> additionalInfoMap = accessToken.getAdditionalInformation();
             if (additionalInfoMap == null) {
                 LOGGER.error("Invalid access token, additional info map is null.");
-                response.sendError(HttpStatus.UNAUTHORIZED.value(), "Invalid access token, additional info map is null.");
+                String msg = "Invalid access token, additional info map is null.";
+                response.sendError(HttpStatus.UNAUTHORIZED.value(), msg);
                 return;
             }
             String userIdFromToken = additionalInfoMap.get("userId").toString();
@@ -93,7 +95,8 @@ public class AccessTokenFilter extends OncePerRequestFilter {
             OAuth2Authentication auth = jwtTokenStore.readAuthentication(accessToken);
             if (auth == null) {
                 LOGGER.error("Invalid access token, authentication info is null.");
-                response.sendError(HttpStatus.UNAUTHORIZED.value(), "Invalid access token, authentication info is null.");
+                String msg = "Invalid access token, authentication info is null.";
+                response.sendError(HttpStatus.UNAUTHORIZED.value(), msg);
                 return;
             }
             SecurityContextHolder.getContext().setAuthentication(auth);

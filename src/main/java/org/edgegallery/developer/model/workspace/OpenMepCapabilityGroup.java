@@ -44,7 +44,8 @@ public class OpenMepCapabilityGroup {
     /**
      * OpenMepCapabilityGroup.
      */
-    public OpenMepCapabilityGroup(String id, String oneLevelName, String twoLevelName, String threeLevelName, EnumOpenMepType type) {
+    public OpenMepCapabilityGroup(String id, String oneLevelName, String twoLevelName, String threeLevelName,
+        EnumOpenMepType type) {
         this.groupId = id;
         this.oneLevelName = oneLevelName;
         this.twoLevelName = twoLevelName;

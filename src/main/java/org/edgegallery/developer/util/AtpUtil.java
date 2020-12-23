@@ -1,5 +1,7 @@
 package org.edgegallery.developer.util;
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import java.io.File;
 import javax.ws.rs.core.Response;
 import org.apache.servicecomb.swagger.invocation.exception.InvocationException;
@@ -17,14 +19,9 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 
-/**
- * ATP Util
- */
-public class ATPUtil {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ATPUtil.class);
+public class AtpUtil {
+    private static final Logger LOGGER = LoggerFactory.getLogger(AtpUtil.class);
 
     private static final String WAITING = "waiting";
 
@@ -41,7 +38,7 @@ public class ATPUtil {
      * @param token request token
      * @return response from atp
      */
-    public static ResponseEntity<String> sendCreatTask2ATP(String filePath, String token) {
+    public static ResponseEntity<String> sendCreatTask2Atp(String filePath, String token) {
         MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
         LOGGER.info("filePath: {}", filePath);
         body.add("file", new FileSystemResource(filePath));
@@ -69,13 +66,13 @@ public class ATPUtil {
     }
 
     /**
-     * get task status by taskId from atp
+     * get task status by taskId from atp.
      * 
      * @param taskId taskId
      * @param token token
      * @return task status
      */
-    public static String getTaskStatusFromATP(String taskId, String token) {
+    public static String getTaskStatusFromAtp(String taskId, String token) {
         HttpHeaders headers = new HttpHeaders();
         headers.set(Consts.ACCESS_TOKEN_STR, token);
         HttpEntity<String> request = new HttpEntity<>(headers);
@@ -122,7 +119,7 @@ public class ATPUtil {
     }
 
     /**
-     * get file path by projectId
+     * get file path by projectId.
      * 
      * @param projectId projectId
      * @return filePath
