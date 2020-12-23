@@ -115,9 +115,6 @@ public class ProjectService {
     private ProjectDao projectDto;
 
     @Autowired
-    private UtilsService utilsService;
-
-    @Autowired
     private Map<String, IConfigDeployStage> deployServiceMap;
 
     /**
@@ -491,11 +488,8 @@ public class ProjectService {
                 userId, token, projectName);
     }
 
-    public boolean checkDependency(ApplicationProject project, ProjectTestConfig testConfig) {
+    public boolean checkDependency(ApplicationProject project) {
         Optional<List<OpenMepCapabilityGroup>> groups = Optional.ofNullable(project.getCapabilityList());
-        Type type = new TypeToken<List<MepHost>>() { }.getType();
-        List<MepHost> hosts = gson.fromJson(gson.toJson(testConfig.getHosts()), type);
-        MepHost host = hosts.get(0);
         if (!groups.isPresent()) {
             LOGGER.error("the project being deployed does not have any capabilities selected ");
             return true;
@@ -511,9 +505,6 @@ public class ProjectService {
             for (OpenMepCapabilityDetail detail : openMepCapabilityDetails) {
                 if (!StringUtils.isEmpty(detail.getPackageId())) {
                     return true;
-//                    return HttpClientUtil
-//                        .queryAppDeployStatus(host.getProtocol(), host.getIp(), host.getPort(), detail.getPackageId(),
-//                            testConfig.getLcmToken());
                 }
             }
         }
