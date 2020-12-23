@@ -599,7 +599,7 @@ public class ProjectService {
 
         testConfig.setProjectId(projectId);
         testConfig.setTestId(tests.get(0).getTestId());
-        int ret = projectMapper.updateTestConfig(testConfig);
+        int ret = projectMapper.modifyTestConfig(testConfig);
         if (ret > 0) {
             LOGGER.info("Update test config {} success.", testConfig.getTestId());
             return Either.right(projectMapper.getTestConfig(testConfig.getTestId()));
@@ -627,6 +627,7 @@ public class ProjectService {
             return Either.right(null);
         } else {
             LOGGER.info("Get test config {} success.", tests.get(0).getTestId());
+            tests.get(0).setLcmToken("");
             return Either.right(tests.get(0));
         }
     }
@@ -968,7 +969,7 @@ public class ProjectService {
         }
         LOGGER.info("Update project status to TESTED success");
 
-        int tes = projectMapper.cleanTestConfig(testConfig);
+        int tes = projectMapper.updateTestConfig(testConfig);
         if (tes < 1) {
             LOGGER.error("Update test config {} failed", testConfig.getTestId());
         }

@@ -45,7 +45,7 @@ public interface ProjectMapper {
 
     int updateTestConfig(ProjectTestConfig testConfig);
 
-    int cleanTestConfig(ProjectTestConfig testConfig);
+    int modifyTestConfig(ProjectTestConfig testConfig);
 
     List<ProjectTestConfig> getTestConfigByProjectId(String projectId);
 
