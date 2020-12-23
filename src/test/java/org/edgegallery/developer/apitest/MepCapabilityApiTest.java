@@ -18,12 +18,18 @@ package org.edgegallery.developer.apitest;
 
 import com.google.gson.Gson;
 import com.spencerwi.either.Either;
+import java.util.ArrayList;
+import java.util.List;
 import org.edgegallery.developer.controller.MepCapabilityController;
+import org.edgegallery.developer.model.AppPkgStructure;
 import org.edgegallery.developer.model.workspace.EnumOpenMepType;
 import org.edgegallery.developer.model.workspace.OpenMepCapabilityDetail;
 import org.edgegallery.developer.model.workspace.OpenMepCapabilityGroup;
 import org.edgegallery.developer.response.FormatRespDto;
+import org.edgegallery.developer.response.OpenMepApiResponse;
+import org.edgegallery.developer.response.OpenMepEcoApiResponse;
 import org.edgegallery.developer.service.OpenMepCapabilityService;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -35,6 +41,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
@@ -153,6 +160,61 @@ public class MepCapabilityApiTest {
         request.contentType(MediaType.APPLICATION_JSON_UTF8);
         mvc.perform(request).andDo(MockMvcResultHandlers.print())
             .andExpect(MockMvcResultMatchers.status().isNotFound());
+    }
+
+    @Test
+    @WithMockUser(roles = "DEVELOPER_TENANT")
+    public void getAllCapalitiesSuccess() throws Exception {
+        Either<FormatRespDto, List<OpenMepCapabilityGroup>> response = Either.right(new ArrayList<>());
+        String url = String.format("/mec/developer/v1/capability-groups");
+        Mockito.when(openMEPCapabilityService.getAllCapabilityGroups()).thenReturn(response);
+        ResultActions actions = mvc.perform(MockMvcRequestBuilders.get(url).contentType(MediaType.APPLICATION_JSON_UTF8)
+            .accept(MediaType.APPLICATION_JSON_UTF8)).andExpect(MockMvcResultMatchers.status().isOk());
+        Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
+    }
+
+    @Test
+    @WithMockUser(roles = "DEVELOPER_TENANT")
+    public void getAllCapalitiesByGroupIdSuccess() throws Exception {
+        Either<FormatRespDto, OpenMepCapabilityGroup> response = Either.right(new OpenMepCapabilityGroup());
+        String url = String.format("/mec/developer/v1/capability-groups/%s","test-group-id");
+        Mockito.when(openMEPCapabilityService.getCapabilitiesByGroupId(Mockito.anyString())).thenReturn(response);
+        ResultActions actions = mvc.perform(MockMvcRequestBuilders.get(url).contentType(MediaType.APPLICATION_JSON_UTF8)
+            .accept(MediaType.APPLICATION_JSON_UTF8)).andExpect(MockMvcResultMatchers.status().isOk());
+        Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
+    }
+
+    @Test
+    @WithMockUser(roles = "DEVELOPER_TENANT")
+    public void getOpenMepApiSuccess() throws Exception {
+        Either<FormatRespDto, OpenMepApiResponse> response = Either.right(new OpenMepApiResponse());
+        String url = String.format("/mec/developer/v1/capability-groups/open-api/%s","test-type");
+        Mockito.when(openMEPCapabilityService.getOpenMepList(Mockito.anyString())).thenReturn(response);
+        ResultActions actions = mvc.perform(MockMvcRequestBuilders.get(url).contentType(MediaType.APPLICATION_JSON_UTF8)
+            .accept(MediaType.APPLICATION_JSON_UTF8)).andExpect(MockMvcResultMatchers.status().isOk());
+        Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
+    }
+
+    @Test
+    @WithMockUser(roles = "DEVELOPER_TENANT")
+    public void getOpenMepEcoApiByFileIdSuccess() throws Exception {
+        Either<FormatRespDto, OpenMepCapabilityDetail> response = Either.right(new OpenMepCapabilityDetail());
+        String url = String.format("/mec/developer/v1/capability-groups/openmep-api/%s?userId=%s","test-fileId","test-userId");
+        Mockito.when(openMEPCapabilityService.getOpenMepByFileId(Mockito.anyString(),Mockito.anyString())).thenReturn(response);
+        ResultActions actions = mvc.perform(MockMvcRequestBuilders.get(url).contentType(MediaType.APPLICATION_JSON_UTF8)
+            .accept(MediaType.APPLICATION_JSON_UTF8)).andExpect(MockMvcResultMatchers.status().isOk());
+        Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
+    }
+
+    @Test
+    @WithMockUser(roles = "DEVELOPER_TENANT")
+    public void getOpenMepEcoApiSuccess() throws Exception {
+        Either<FormatRespDto, OpenMepEcoApiResponse> response = Either.right(new OpenMepEcoApiResponse());
+        String url = String.format("/mec/developer/v1/capability-groups/openmepeco-api");
+        Mockito.when(openMEPCapabilityService.getOpenMepEcoList()).thenReturn(response);
+        ResultActions actions = mvc.perform(MockMvcRequestBuilders.get(url).contentType(MediaType.APPLICATION_JSON_UTF8)
+            .accept(MediaType.APPLICATION_JSON_UTF8)).andExpect(MockMvcResultMatchers.status().isOk());
+        Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
     }
 
     @Test
