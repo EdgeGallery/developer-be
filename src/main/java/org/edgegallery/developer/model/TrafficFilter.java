@@ -41,6 +41,7 @@ public class TrafficFilter {
 
     /**
      * getProtocal.
+     *
      * @return
      */
     public String[] getProtocal() {
@@ -53,6 +54,7 @@ public class TrafficFilter {
 
     /**
      * setProtocal.
+     *
      * @param protocal protocal
      */
     public void setProtocal(String[] protocal) {
@@ -65,216 +67,234 @@ public class TrafficFilter {
 
     /**
      * getSrcAddress.
+     *
      * @return
      */
     public String[] getSrcAddress() {
-        if (this.srcAddress!=null){
-          return  this.srcAddress.clone();
-        }else {
+        if (this.srcAddress != null) {
+            return this.srcAddress.clone();
+        } else {
             return null;
         }
     }
 
     /**
      * srcAddress.
+     *
      * @param srcAddress srcAddress
      */
     public void setSrcAddress(String[] srcAddress) {
-        if(srcAddress!=null){
+        if (srcAddress != null) {
             this.srcAddress = srcAddress.clone();
-        }else {
-            this.srcAddress=null;
+        } else {
+            this.srcAddress = null;
         }
     }
 
     /**
      * getSrcPort.
+     *
      * @return
      */
     public String[] getSrcPort() {
-        if(this.srcPort!=null){
+        if (this.srcPort != null) {
             return this.srcPort.clone();
-        }else {
+        } else {
             return null;
         }
     }
 
     /**
      * setSrcPort.
+     *
      * @param srcPort srcPort
      */
     public void setSrcPort(String[] srcPort) {
-        if (srcPort!=null){
+        if (srcPort != null) {
             this.srcPort = srcPort.clone();
-        }else {
+        } else {
             this.srcPort = null;
         }
     }
 
     /**
      * getDstAddress.
+     *
      * @return
      */
     public String[] getDstAddress() {
-        if(this.dstAddress!=null){
+        if (this.dstAddress != null) {
             return this.dstAddress.clone();
-        }else {
+        } else {
             return null;
         }
     }
 
     /**
      * setDstAddress.
+     *
      * @param dstAddress dstAddress
      */
     public void setDstAddress(String[] dstAddress) {
-        if (dstAddress!=null){
+        if (dstAddress != null) {
             this.dstAddress = dstAddress.clone();
-        }else {
+        } else {
             this.dstAddress = null;
         }
     }
 
     /**
      * getDstPort.
+     *
      * @return
      */
     public String[] getDstPort() {
-        if(this.dstPort!=null){
+        if (this.dstPort != null) {
             return this.dstPort.clone();
-        }else {
+        } else {
             return null;
         }
     }
 
     /**
      * setDstPort.
+     *
      * @param dstPort dstPort
      */
     public void setDstPort(String[] dstPort) {
-        if (dstPort!=null){
+        if (dstPort != null) {
             this.dstPort = dstPort.clone();
-        }else {
+        } else {
             this.dstPort = null;
         }
     }
 
     /**
      * getTag.
+     *
      * @return
      */
     public String[] getTag() {
-        if(this.tag!=null){
+        if (this.tag != null) {
             return this.tag.clone();
-        }else {
+        } else {
             return null;
         }
     }
 
     /**
      * setTag.
+     *
      * @param tag tag
      */
     public void setTag(String[] tag) {
-        if (tag!=null){
+        if (tag != null) {
             this.tag = tag.clone();
-        }else {
+        } else {
             this.tag = null;
         }
     }
 
     /**
      * getSrcTunnelAddress.
+     *
      * @return
      */
     public String[] getSrcTunnelAddress() {
-        if(this.srcTunnelAddress!=null){
+        if (this.srcTunnelAddress != null) {
             return this.srcTunnelAddress.clone();
-        }else {
+        } else {
             return null;
         }
     }
 
     /**
      * setSrcTunnelAddress.
+     *
      * @param srcTunnelAddress srcTunnelAddress
      */
     public void setSrcTunnelAddress(String[] srcTunnelAddress) {
-        if (srcTunnelAddress!=null){
+        if (srcTunnelAddress != null) {
             this.srcTunnelAddress = srcTunnelAddress.clone();
-        }else {
+        } else {
             this.srcTunnelAddress = null;
         }
     }
 
     /**
      * getTgtTunnelAddress.
+     *
      * @return
      */
     public String[] getTgtTunnelAddress() {
-        if(this.tgtTunnelAddress!=null){
+        if (this.tgtTunnelAddress != null) {
             return this.tgtTunnelAddress.clone();
-        }else {
+        } else {
             return null;
         }
     }
 
     /**
      * setTgtTunnelAddress.
+     *
      * @param tgtTunnelAddress tgtTunnelAddress
      */
     public void setTgtTunnelAddress(String[] tgtTunnelAddress) {
-        if (tgtTunnelAddress!=null){
+        if (tgtTunnelAddress != null) {
             this.tgtTunnelAddress = tgtTunnelAddress.clone();
-        }else {
+        } else {
             this.tgtTunnelAddress = null;
         }
     }
 
     /**
      * getSrcTunnelPort.
+     *
      * @return
      */
     public String[] getSrcTunnelPort() {
-        if(this.srcTunnelPort!=null){
+        if (this.srcTunnelPort != null) {
             return this.srcTunnelPort.clone();
-        }else {
+        } else {
             return null;
         }
     }
 
     /**
      * setSrcTunnelPort.
+     *
      * @param srcTunnelPort srcTunnelPort
      */
     public void setSrcTunnelPort(String[] srcTunnelPort) {
-        if (srcTunnelPort!=null){
+        if (srcTunnelPort != null) {
             this.srcTunnelPort = srcTunnelPort.clone();
-        }else {
+        } else {
             this.srcTunnelPort = null;
         }
     }
 
     /**
      * getDstTunnelPort.
+     *
      * @return
      */
     public String[] getDstTunnelPort() {
-        if(this.dstTunnelPort!=null){
+        if (this.dstTunnelPort != null) {
             return this.dstTunnelPort.clone();
-        }else {
+        } else {
             return null;
         }
     }
 
     /**
      * setDstTunnelPort.
+     *
      * @param dstTunnelPort dstTunnelPort
      */
     public void setDstTunnelPort(String[] dstTunnelPort) {
-        if (dstTunnelPort!=null){
+        if (dstTunnelPort != null) {
             this.dstTunnelPort = dstTunnelPort.clone();
-        }else {
+        } else {
             this.dstTunnelPort = null;
         }
     }

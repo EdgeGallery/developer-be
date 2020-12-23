@@ -79,10 +79,7 @@ public final class CompressFileUtils {
     }
 
     /**
-     * decompress .zip or .csar or .targz
-     *
-     * @param filePath
-     * @param outputDir
+     * decompress .zip or .csar or .targz.
      */
     public static boolean decompress(String filePath, String outputDir) {
         File file = new File(filePath);
@@ -109,11 +106,7 @@ public final class CompressFileUtils {
     }
 
     /**
-     * decompress .zip or .csar
-     *
-     * @param file
-     * @param outputDir
-     * @throws IOException
+     * decompress .zip or .csar.
      */
     public static void unZip(File file, String outputDir) throws IOException {
         try (java.util.zip.ZipFile zipFile = new java.util.zip.ZipFile(file, StandardCharsets.UTF_8)) {
@@ -138,10 +131,7 @@ public final class CompressFileUtils {
     }
 
     /**
-     * decompress tar.gz
-     *
-     * @param file
-     * @param outputDir
+     * decompress tar.gz.
      */
     public static void decompressTarGz(File file, String outputDir) throws IOException {
         try (TarArchiveInputStream tarIn = new TarArchiveInputStream(
@@ -174,10 +164,7 @@ public final class CompressFileUtils {
     }
 
     /**
-     * decompress tar.bz2
-     *
-     * @param file
-     * @param outputDir
+     * decompress tar.bz2.
      */
     public static void decompressTarBz2(File file, String outputDir) throws IOException {
         try (TarArchiveInputStream tarIn = new TarArchiveInputStream(
@@ -198,10 +185,7 @@ public final class CompressFileUtils {
     }
 
     /**
-     * create directory
-     *
-     * @param outputDir
-     * @param subDir
+     * create directory.
      */
     public static void createDirectory(String outputDir, String subDir) {
         File file = new File(outputDir);
@@ -224,11 +208,7 @@ public final class CompressFileUtils {
     }
 
     /**
-     * writeFile
-     *
-     * @param in
-     * @param out
-     * @throws IOException
+     * writeFile.
      */
     public static void writeFile(InputStream in, OutputStream out) throws IOException {
         int length;
@@ -240,8 +220,6 @@ public final class CompressFileUtils {
 
     /**
      * compressToTgz.
-     *
-     * @return
      */
     private static File compressToTgz(String sourcePath, String outPutPath, String fileName) throws IOException {
         File tar = pack(sourcePath);
@@ -332,5 +310,4 @@ public final class CompressFileUtils {
             return null;
         }
     }
-
 }

@@ -47,7 +47,7 @@ import org.edgegallery.developer.mapper.UploadedFileMapper;
 import org.edgegallery.developer.model.CapabilitiesDetail;
 import org.edgegallery.developer.model.ReleaseConfig;
 import org.edgegallery.developer.model.ServiceDetail;
-import org.edgegallery.developer.model.atp.ATPResultInfo;
+import org.edgegallery.developer.model.atp.AtpResultInfo;
 import org.edgegallery.developer.model.workspace.ApplicationProject;
 import org.edgegallery.developer.model.workspace.EnumOpenMepType;
 import org.edgegallery.developer.model.workspace.EnumProjectStatus;
@@ -67,8 +67,8 @@ import org.edgegallery.developer.service.csar.NewCreateCsar;
 import org.edgegallery.developer.service.dao.ProjectDao;
 import org.edgegallery.developer.service.deploy.IConfigDeployStage;
 import org.edgegallery.developer.template.ChartFileCreator;
-import org.edgegallery.developer.util.ATPUtil;
 import org.edgegallery.developer.util.AppStoreUtil;
+import org.edgegallery.developer.util.AtpUtil;
 import org.edgegallery.developer.util.BusinessConfigUtil;
 import org.edgegallery.developer.util.CompressFileUtilsJava;
 import org.edgegallery.developer.util.DeveloperFileUtils;
@@ -255,24 +255,23 @@ public class ProjectService {
         String openCapabilityDetailId = project.getOpenCapabilityId();
         LOGGER.info("detailId: {} .", openCapabilityDetailId);
         String groupId = "";
-        if (!StringUtils.isEmpty(openCapabilityDetailId)){
-             String[] ids = openCapabilityDetailId.substring(1,openCapabilityDetailId.length()-1).split(",");
-             for (String detailId:ids){
-                 groupId = openMepCapabilityMapper.getGroupIdByDetailId(detailId);
-                 openMepCapabilityMapper.deleteCapability(detailId);
-                 if (!groupId.equals("")) {
-                     LOGGER.info("groupId: {} .", groupId);
-                     List<OpenMepCapabilityDetail> detailList = openMepCapabilityMapper.getDetailByGroupId(groupId);
-                     if (detailList != null) {
-                         LOGGER.info("detailList size: {} .", detailList.size());
-                         if (detailList.size() < 1) {
-                             openMepCapabilityMapper.deleteGroup(groupId);
-                         }
-                     }
-                 }
-             }
+        if (!StringUtils.isEmpty(openCapabilityDetailId)) {
+            String[] ids = openCapabilityDetailId.substring(1, openCapabilityDetailId.length() - 1).split(",");
+            for (String detailId : ids) {
+                groupId = openMepCapabilityMapper.getGroupIdByDetailId(detailId);
+                openMepCapabilityMapper.deleteCapability(detailId);
+                if (!groupId.equals("")) {
+                    LOGGER.info("groupId: {} .", groupId);
+                    List<OpenMepCapabilityDetail> detailList = openMepCapabilityMapper.getDetailByGroupId(groupId);
+                    if (detailList != null) {
+                        LOGGER.info("detailList size: {} .", detailList.size());
+                        if (detailList.size() < 1) {
+                            openMepCapabilityMapper.deleteGroup(groupId);
+                        }
+                    }
+                }
+            }
         }
-
 
         // delete the project from db
         Either<FormatRespDto, Boolean> delResult = projectDto.deleteProject(userId, projectId);
@@ -488,6 +487,11 @@ public class ProjectService {
                 userId, token, projectName);
     }
 
+    /**
+     * checkDependency.
+     * @param project project
+     * @return
+     */
     public boolean checkDependency(ApplicationProject project) {
         Optional<List<OpenMepCapabilityGroup>> groups = Optional.ofNullable(project.getCapabilityList());
         if (!groups.isPresent()) {
@@ -932,7 +936,7 @@ public class ProjectService {
      *
      * @return
      */
-    public Either<FormatRespDto, Boolean> cleanTestEnv(String userId, String projectId,String token) {
+    public Either<FormatRespDto, Boolean> cleanTestEnv(String userId, String projectId, String token) {
         ApplicationProject project = projectMapper.getProject(userId, projectId);
         if (project == null) {
             LOGGER.error("Can not find project by userId and projectId");
@@ -1026,8 +1030,11 @@ public class ProjectService {
         }
     }
 
-    public Either<FormatRespDto, Boolean> createATPTestTask(String projectId, String token) {
-        String path = ATPUtil.getProjectPath(projectId);
+    /**
+     * createAtpTestTask.
+     */
+    public Either<FormatRespDto, Boolean> createAtpTestTask(String projectId, String token) {
+        String path = AtpUtil.getProjectPath(projectId);
         String fileName = getFileName(projectId);
         if (StringUtils.isEmpty(fileName)) {
             String msg = "get file name is null";
@@ -1037,7 +1044,7 @@ public class ProjectService {
         }
 
         File csar = new File(path.concat(fileName).concat(".csar"));
-        ResponseEntity<String> response = ATPUtil.sendCreatTask2ATP(csar.getPath(), token);
+        ResponseEntity<String> response = AtpUtil.sendCreatTask2Atp(csar.getPath(), token);
         JsonObject jsonObject = new JsonParser().parse(response.getBody()).getAsJsonObject();
         LOGGER.info("atp test result:{}", jsonObject);
 
@@ -1048,7 +1055,7 @@ public class ProjectService {
             return Either.left(error);
         }
 
-        ATPResultInfo atpResultInfo = new ATPResultInfo();
+        AtpResultInfo atpResultInfo = new AtpResultInfo();
         JsonElement id = jsonObject.get("id");
         JsonElement appName = jsonObject.get("appName");
         JsonElement status = jsonObject.get("status");
@@ -1065,9 +1072,9 @@ public class ProjectService {
         config.setProjectId(projectId);
         config.setAtpTest(atpResultInfo);
         LOGGER.info("update release config:{}", config);
-        configMapper.updateATPStatus(config);
+        configMapper.updateAtpStatus(config);
 
-        threadPool.execute(new getATPStatusProcessor(config, token));
+        threadPool.execute(new GetAtpStatusProcessor(config, token));
 
         return Either.right(true);
     }
@@ -1082,23 +1089,23 @@ public class ProjectService {
         return null != testConfig ? testConfig.getAppInstanceId() : null;
     }
 
-    private class getATPStatusProcessor implements Runnable {
+    private class GetAtpStatusProcessor implements Runnable {
         ReleaseConfig config;
 
         String token;
 
-        public getATPStatusProcessor(ReleaseConfig config, String token) {
+        public GetAtpStatusProcessor(ReleaseConfig config, String token) {
             this.config = config;
             this.token = token;
         }
 
         @Override
         public void run() {
-            ATPResultInfo atpResultInfo = config.getAtpTest();
+            AtpResultInfo atpResultInfo = config.getAtpTest();
             String taskId = atpResultInfo.getId();
-            atpResultInfo.setStatus(ATPUtil.getTaskStatusFromATP(taskId, token));
+            atpResultInfo.setStatus(AtpUtil.getTaskStatusFromAtp(taskId, token));
             LOGGER.info("after status update: ", config.getAtpTest().getStatus());
-            configMapper.updateATPStatus(config);
+            configMapper.updateAtpStatus(config);
         }
 
     }

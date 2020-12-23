@@ -16,7 +16,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-
 /**
  * StageWorkStatus.
  *
@@ -56,10 +55,11 @@ public class StageWorkStatus implements IConfigDeployStage {
         if (workStatus == null) {
             // compare time between now and deployDate
             long time = System.currentTimeMillis() - config.getDeployDate().getTime();
-            LOGGER.info("over time:{}, wait max time:{}, start time:{}", time, MAX_SECONDS, config.getDeployDate().getTime());
+            LOGGER.info("over time:{}, wait max time:{}, start time:{}", time, MAX_SECONDS,
+                config.getDeployDate().getTime());
             if (config.getDeployDate() == null || time > MAX_SECONDS * 1000) {
                 config.setAccessUrl("");
-                config.setErrorLog("Failed to get workloadStatus: pull images failed " );
+                config.setErrorLog("Failed to get workloadStatus: pull images failed ");
                 String message = "Failed to get workloadStatus after wait {} seconds which appInstanceId is : {}";
                 LOGGER.error(message, MAX_SECONDS, config.getAppInstanceId());
             } else {
