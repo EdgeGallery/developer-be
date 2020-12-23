@@ -16,12 +16,18 @@
 
 package org.edgegallery.developer.util;
 
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Enumeration;
 import java.util.zip.GZIPOutputStream;
 import java.util.zip.ZipEntry;
-
 import net.lingala.zip4j.ZipFile;
 import net.lingala.zip4j.model.ZipParameters;
 import net.lingala.zip4j.model.enums.CompressionLevel;
@@ -40,7 +46,6 @@ public final class CompressFileUtils {
     private static final Logger LOGGER = LoggerFactory.getLogger(CompressFileUtils.class);
 
     private static final int BUFFER = 1048576;
-
 
     private CompressFileUtils() {
     }
@@ -86,7 +91,7 @@ public final class CompressFileUtils {
             return false;
         }
         try {
-            if (filePath.endsWith(".zip") || filePath.endsWith(".csar") ) {
+            if (filePath.endsWith(".zip") || filePath.endsWith(".csar")) {
                 unZip(file, outputDir);
             }
             if (filePath.endsWith(".tar.gz") || filePath.endsWith(".tgz")) {
@@ -123,7 +128,7 @@ public final class CompressFileUtils {
                 } else {
                     try (InputStream in = zipFile.getInputStream(entry)) {
                         try (OutputStream out = new FileOutputStream(
-                                new File(outputDir + File.separator + entry.getName()))) {
+                            new File(outputDir + File.separator + entry.getName()))) {
                             writeFile(in, out);
                         }
                     }
@@ -140,9 +145,7 @@ public final class CompressFileUtils {
      */
     public static void decompressTarGz(File file, String outputDir) throws IOException {
         try (TarArchiveInputStream tarIn = new TarArchiveInputStream(
-                new GzipCompressorInputStream(
-                        new BufferedInputStream(
-                                new FileInputStream(file))))) {
+            new GzipCompressorInputStream(new BufferedInputStream(new FileInputStream(file))))) {
             // create out directory
             createDirectory(outputDir, null);
             TarArchiveEntry entry = null;
@@ -155,11 +158,14 @@ public final class CompressFileUtils {
                     File temp = new File(outputDir + File.separator + entry.getName());
                     // create dir for file
                     createDirectory(temp.getParent(), null);
-                    if (!temp.exists()){
-                        temp.createNewFile();
+                    if (!temp.exists()) {
+                        boolean isCreate = temp.createNewFile();
+                        if (!isCreate) {
+                            return;
+                        }
                     }
                     try (OutputStream out = new FileOutputStream(
-                            new File(outputDir + File.separator + entry.getName()))) {
+                        new File(outputDir + File.separator + entry.getName()))) {
                         writeFile(tarIn, out);
                     }
                 }
@@ -174,10 +180,8 @@ public final class CompressFileUtils {
      * @param outputDir
      */
     public static void decompressTarBz2(File file, String outputDir) throws IOException {
-        try (TarArchiveInputStream tarIn =
-                     new TarArchiveInputStream(
-                             new BZip2CompressorInputStream(
-                                     new FileInputStream(file)))) {
+        try (TarArchiveInputStream tarIn = new TarArchiveInputStream(
+            new BZip2CompressorInputStream(new FileInputStream(file)))) {
             createDirectory(outputDir, null);
             TarArchiveEntry entry;
             while ((entry = tarIn.getNextTarEntry()) != null) {
@@ -185,7 +189,7 @@ public final class CompressFileUtils {
                     createDirectory(outputDir, entry.getName());
                 } else {
                     try (OutputStream out = new FileOutputStream(
-                            new File(outputDir + File.separator + entry.getName()))) {
+                        new File(outputDir + File.separator + entry.getName()))) {
                         writeFile(tarIn, out);
                     }
                 }
@@ -207,9 +211,15 @@ public final class CompressFileUtils {
         }
         if (!file.exists()) {
             if (!file.getParentFile().exists()) {
-                file.getParentFile().mkdirs();
+                boolean isMk = file.getParentFile().mkdirs();
+                if (!isMk) {
+                    return;
+                }
             }
-            file.mkdirs();
+            boolean isMk = file.mkdirs();
+            if (!isMk) {
+                return;
+            }
         }
     }
 

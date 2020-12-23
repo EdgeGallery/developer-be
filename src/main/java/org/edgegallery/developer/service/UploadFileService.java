@@ -26,7 +26,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.UUID;
 import java.util.regex.Pattern;
 import javax.ws.rs.core.Response.Status;
@@ -307,7 +306,8 @@ public class UploadFileService {
                 .left(new FormatRespDto(Status.INTERNAL_SERVER_ERROR, "Failed to read content of helm template yaml"));
         }
         HelmTemplateYamlRespDto helmTemplateYamlRespDto = new HelmTemplateYamlRespDto();
-        if (!Objects.requireNonNull(helmTemplateYaml.getOriginalFilename()).endsWith(".yaml")) {
+        String oriName = helmTemplateYaml.getOriginalFilename();
+        if (!StringUtils.isEmpty(oriName) && !oriName.endsWith(".yaml")) {
             return Either.right(helmTemplateYamlRespDto);
         }
         // replace {{(.*?)}}
@@ -369,9 +369,11 @@ public class UploadFileService {
             LOGGER.info("Succeed to save helm template yaml with file id : {}", fileId);
             return Either.right(helmTemplateYamlRespDto);
         }
+
         Either<FormatRespDto, HelmTemplateYamlRespDto> either = getSuccessResult(helmTemplateYaml, userId, projectId,
             originalContent, helmTemplateYamlRespDto);
         return either;
+
     }
 
     private Either<FormatRespDto, HelmTemplateYamlRespDto> getSuccessResult(MultipartFile helmTemplateYaml,
@@ -399,9 +401,9 @@ public class UploadFileService {
     private void verifyHelmTemplate(List<Map<String, Object>> mapList, List<String> requiredItems,
         HelmTemplateYamlRespDto helmTemplateYamlRespDto) {
         for (Map<String, Object> stringMap : mapList) {
-            for (String key : stringMap.keySet()) {
-                if ("kind".equals(key)) {
-                    if ("Service".equalsIgnoreCase(stringMap.get(key).toString())) {
+            for (Map.Entry<String,Object> entry: stringMap.entrySet()) {
+                if ("kind".equals(entry.getKey())) {
+                    if ("Service".equalsIgnoreCase(stringMap.get(entry.getKey()).toString())) {
                         requiredItems.remove("service");
                         helmTemplateYamlRespDto.setServiceSuccess(true);
                         continue;

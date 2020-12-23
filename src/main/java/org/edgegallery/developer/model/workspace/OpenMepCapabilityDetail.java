@@ -68,4 +68,26 @@ public class OpenMepCapabilityDetail {
         this.version = version;
         this.description = description;
     }
+
+    /**
+     * getUploadTime.
+     */
+    public Date getUploadTime() {
+        if (this.uploadTime != null) {
+            return new Date(this.uploadTime.getTime());
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * setUploadTime.
+     */
+    public void setUploadTime(Date uploadTime) {
+        if (uploadTime != null) {
+            this.uploadTime = (Date) uploadTime.clone();
+        } else {
+            this.uploadTime = null;
+        }
+    }
 }
