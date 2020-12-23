@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
@@ -225,28 +226,29 @@ public class AppReleaseService {
     private String readFileIntoString(String filePath) {
         String msg = "error";
         StringBuffer sb = new StringBuffer();
-        try {
-            String encoding = "UTF-8";
-            File file = new File(filePath);
-            if (file.isFile() && file.exists()) {
-                InputStreamReader read = new InputStreamReader(new FileInputStream(file), encoding);
-                BufferedReader bufferedReader = new BufferedReader(read);
+        String encoding = "UTF-8";
+        File file = new File(filePath);
+        if (file.isFile() && file.exists()) {
+            try (InputStreamReader read = new InputStreamReader(new FileInputStream(file), encoding);
+                 BufferedReader bufferedReader = new BufferedReader(read)) {
                 String lineTxt = null;
-
                 while ((lineTxt = bufferedReader.readLine()) != null) {
                     sb.append(lineTxt + "\r\n");
                 }
-                bufferedReader.close();
-                read.close();
-            } else {
-                LOGGER.error("There are no files in this directory!");
+            } catch (UnsupportedEncodingException e) {
+                LOGGER.error("read file occur exception {}", e.getMessage());
+                return msg;
+            } catch (FileNotFoundException e) {
+                LOGGER.error("read file occur exception {}", e.getMessage());
+                return msg;
+            } catch (IOException e) {
+                LOGGER.error("read file occur exception {}", e.getMessage());
                 return msg;
             }
-        } catch (Exception e) {
-            LOGGER.error("read file occur exception {}", e.getMessage());
+        } else {
+            LOGGER.error("There are no files in this directory!");
             return msg;
         }
-
         return sb.toString();
     }
 }

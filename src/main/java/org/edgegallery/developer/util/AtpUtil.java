@@ -113,6 +113,7 @@ public class AtpUtil {
                     Thread.sleep(5000);
                 } catch (InterruptedException e) {
                     LOGGER.error("interrupt failed.");
+                    Thread.currentThread().interrupt();
                 }
             }
         }

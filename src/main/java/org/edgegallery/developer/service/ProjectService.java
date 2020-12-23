@@ -705,6 +705,7 @@ public class ProjectService {
             Thread.sleep(3000);
         } catch (InterruptedException e) {
             LOGGER.error("sleep fail! {}", e.getMessage());
+            Thread.currentThread().interrupt();
         }
 
         //publish app to appstore
