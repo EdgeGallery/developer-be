@@ -1,11 +1,14 @@
 package org.edgegallery.developer.service;
 
+import com.fasterxml.jackson.core.JsonGenerationException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.spencerwi.either.Either;
 import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -226,29 +229,39 @@ public class ReleaseConfigService {
             // compress csar
             CompressFileUtils.compressToCsarAndDeleteSrc(csar.getParent() + File.separator + config.getAppInstanceId(),
                 projectService.getProjectPath(projectId), config.getAppInstanceId());
-
-        } catch (Exception e) {
-            LOGGER.error("Update csar failed:{}.", e.getMessage());
-            FormatRespDto error = new FormatRespDto(Response.Status.BAD_REQUEST,
-                "Update csar failed:" + e.getMessage());
+        } catch (JsonGenerationException e) {
+            String msg = "Update csar failed: occur JsonGenerationException";
+            LOGGER.error("Update csar failed: occur JsonGenerationException {}.", e.getMessage());
+            FormatRespDto error = new FormatRespDto(Response.Status.BAD_REQUEST, msg + e.getMessage());
             return Either.left(error);
-        } finally {
-            // delete csar dir if exists
-            File csarDir = new File(csarFilePath.replace(".csar", ""));
-            if (csarDir.exists()) {
-                csarDir.delete();
+        } catch (JsonMappingException e) {
+            String msg = "Update csar failed: occur JsonMappingException";
+            LOGGER.error("Update csar failed: occur JsonMappingException {}.", e.getMessage());
+            FormatRespDto error = new FormatRespDto(Response.Status.BAD_REQUEST, msg + e.getMessage());
+            return Either.left(error);
+        } catch (IOException e) {
+            String msg = "Update csar failed: occur IOException";
+            LOGGER.error("Update csar failed: occur IOException {}.", e.getMessage());
+            FormatRespDto error = new FormatRespDto(Response.Status.BAD_REQUEST, msg + e.getMessage());
+            return Either.left(error);
+        }
+        // delete csar dir if exists
+        File csarDir = new File(csarFilePath.replace(".csar", ""));
+        if (csarDir.exists()) {
+            boolean isDelete = csarDir.delete();
+            if (!isDelete) {
+                String msg = "delete csar dir failed!";
+                LOGGER.error(msg);
+                FormatRespDto error = new FormatRespDto(Response.Status.BAD_REQUEST, msg);
+                return Either.left(error);
             }
         }
+
         return Either.right(true);
     }
 
     /**
-     * build appConfigurationConfig data
-     *
-     * @param project
-     * @param trafficRules
-     * @param dnsRules
-     * @param details
+     * build appConfigurationConfig data.
      */
     private AppConfigurationModel buildTemplateConfig(ApplicationProject project, List<TrafficRule> trafficRules,
         List<DnsRule> dnsRules, List<ServiceDetail> details) {
@@ -345,15 +358,23 @@ public class ReleaseConfigService {
             CompressFileUtils
                 .compressToTgzAndDeleteSrc(tgzFile.getAbsolutePath().replace(".tgz", ""), tgzFile.getParent(),
                     fileName);
-        } catch (Exception e) {
-            LOGGER.info("FillTemplateInTgzFile failed: {}", e.getMessage());
-        } finally {
-            // delete decompress dir if exists
-            File tmpDir = new File(tgzFile.getParent() + File.separator + fileName);
-            if (tmpDir.exists()) {
-                tmpDir.delete();
+        } catch (JsonGenerationException e) {
+            LOGGER.error("FillTemplateInTgzFile failed: occur JsonGenerationException {}", e.getMessage());
+        } catch (JsonMappingException e) {
+            LOGGER.error("FillTemplateInTgzFile failed:  occur JsonMappingException {}", e.getMessage());
+        } catch (IOException e) {
+            LOGGER.error("FillTemplateInTgzFile failed: occur IOException {}", e.getMessage());
+        }
+        // delete decompress dir if exists
+        File tmpDir = new File(tgzFile.getParent() + File.separator + fileName);
+        if (tmpDir.exists()) {
+            boolean isDelete = tmpDir.delete();
+            if (!isDelete) {
+                LOGGER.error("delete decompress dir failed");
+                return;
             }
         }
+
     }
 
 }

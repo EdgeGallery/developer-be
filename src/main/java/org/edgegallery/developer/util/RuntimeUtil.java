@@ -18,7 +18,6 @@ package org.edgegallery.developer.util;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
@@ -68,21 +67,6 @@ public class RuntimeUtil {
         }
         System.out.println(builder.toString());
         return builder.toString();
-    }
-
-    /**
-     * readInputstream.
-     */
-    public static String readInputstream(InputStream in) throws Exception {
-        InputStream inputStream = in;
-        InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
-        BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
-        StringBuilder sb = new StringBuilder();
-        String line = null;
-        while ((line = bufferedReader.readLine()) != null) {
-            sb.append(line).append("\n");
-        }
-        return sb.toString();
     }
 
     /**
