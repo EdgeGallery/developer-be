@@ -17,7 +17,6 @@
 package org.edgegallery.developer.model.workspace;
 
 import java.util.List;
-import java.util.UUID;
 import lombok.Getter;
 import lombok.Setter;
 

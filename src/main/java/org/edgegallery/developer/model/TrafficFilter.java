@@ -38,4 +38,27 @@ public class TrafficFilter {
 
     private String[] dstTunnelPort;
 
+    /**
+     * getProtocal.
+     * @return
+     */
+    public String[] getProtocal() {
+        if (this.protocal != null) {
+            return protocal.clone();
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * setProtocal.
+     * @param protocal
+     */
+    public void setProtocal(String[] protocal) {
+        if (protocal != null) {
+            this.protocal = protocal.clone();
+        } else {
+            this.protocal = null;
+        }
+    }
 }

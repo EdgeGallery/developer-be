@@ -38,7 +38,7 @@ public class StageInstantiate implements IConfigDeployStage {
         String userId = project.getUserId();
         EnumTestConfigStatus instantiateStatus = EnumTestConfigStatus.Failed;
         // check dependency app
-        dependencyResult = projectService.checkDependency(project, config);
+        dependencyResult = projectService.checkDependency(project);
         if (!dependencyResult) {
             config.setAccessUrl("");
             config.setErrorLog("dependency app not deploy");

@@ -94,10 +94,8 @@ public class OpenMepCapabilityService {
             }
             LOGGER.info("Get capability by {} success", groupId);
             return Either.right(group);
-        } else {
         }
         LOGGER.error("Can not get capability by {}", groupId);
-
         return Either.left(new FormatRespDto(Status.BAD_REQUEST, "get capabilities by group failed"));
     }
 

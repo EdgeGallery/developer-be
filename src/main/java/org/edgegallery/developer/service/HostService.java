@@ -111,10 +111,11 @@ public class HostService {
         }
 
         host.setHostId(hostId); // no need to set hostId by user
+        host.setUserId(currentHost.getUserId());
         int ret = hostMapper.updateHost(host);
         if (ret > 0) {
             LOGGER.info("Update host {} success", hostId);
-            return Either.right(hostMapper.getHost(hostId));
+            return Either.right(hostMapper.getHostsByUserId(host.getUserId()).get(0));
         }
         LOGGER.error("Update host {} failed", hostId);
         return Either.left(new FormatRespDto(Status.BAD_REQUEST, "Can not update the host"));
