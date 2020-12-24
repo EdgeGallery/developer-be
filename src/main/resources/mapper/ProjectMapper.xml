@@ -32,7 +32,7 @@
         <result property="iconFileId" column="icon_file_id"/>
         <result property="lastTestId" column="last_test_id"/>
         <result property="openCapabilityId" column="open_capability_id"/>
-        <result property="deploy_platform" column="deployPlatform"/>
+        <result property="deployPlatform" column="deploy_platform"/>
     </resultMap>
 
     <resultMap id="TestConfigMap" type="org.edgegallery.developer.model.workspace.ProjectTestConfig">

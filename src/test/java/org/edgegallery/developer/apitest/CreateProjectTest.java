@@ -29,6 +29,7 @@ import java.util.UUID;
 import org.edgegallery.developer.DeveloperApplicationTests;
 import org.edgegallery.developer.controller.ProjectController;
 import org.edgegallery.developer.model.workspace.ApplicationProject;
+import org.edgegallery.developer.model.workspace.EnumDeployPlatform;
 import org.edgegallery.developer.model.workspace.EnumHostStatus;
 import org.edgegallery.developer.model.workspace.EnumOpenMepType;
 import org.edgegallery.developer.model.workspace.EnumProjectImage;
@@ -156,7 +157,7 @@ public class CreateProjectTest {
         project.setCapabilityList(capabilities);
         iconFile = uploadOneFile("/testdata/face.png", "face");
         project.setIconFileId(iconFile.getFileId());
-
+        project.setDeployPlatform(EnumDeployPlatform.KUBERNETES);
         ResultActions result = mvc.perform(
             MockMvcRequestBuilders.post("/mec/developer/v1/projects/?userId=" + userId).with(csrf())
                 .content(gson.toJson(project)).contentType(MediaType.APPLICATION_JSON_UTF8)
@@ -176,6 +177,7 @@ public class CreateProjectTest {
         project.setUserId(userId);
         project.setProjectType(EnumProjectType.CREATE_NEW);
         project.setType("new");
+        project.setDeployPlatform(EnumDeployPlatform.KUBERNETES);
 
         List<OpenMepCapabilityGroup> capabilities = new ArrayList<>();
         OpenMepCapabilityGroup capability = new OpenMepCapabilityGroup("3", "Location", "", "", EnumOpenMepType.OPENMEP);
@@ -389,6 +391,7 @@ public class CreateProjectTest {
         project.setCapabilityList(capabilities);
         project.setLastTestId(null);
         project.setCreateDate(null);
+        project.setDeployPlatform(EnumDeployPlatform.KUBERNETES);
 
         String url = String.format("/mec/developer/v1/projects/%s?userId=%s", "200dfab1-3c30-4fc7-a6ca-ed6f0620a85e",
             "f24ea0a2-d8e6-467c-8039-94f0d29bac43");
