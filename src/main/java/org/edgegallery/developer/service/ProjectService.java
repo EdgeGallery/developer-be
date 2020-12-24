@@ -49,6 +49,7 @@ import org.edgegallery.developer.model.ReleaseConfig;
 import org.edgegallery.developer.model.ServiceDetail;
 import org.edgegallery.developer.model.atp.AtpResultInfo;
 import org.edgegallery.developer.model.workspace.ApplicationProject;
+import org.edgegallery.developer.model.workspace.EnumDeployPlatform;
 import org.edgegallery.developer.model.workspace.EnumOpenMepType;
 import org.edgegallery.developer.model.workspace.EnumProjectStatus;
 import org.edgegallery.developer.model.workspace.EnumTestConfigDeployStatus;
@@ -553,6 +554,7 @@ public class ProjectService {
 
         testConfig.setProjectId(projectId);
         testConfig.setDeployStatus(EnumTestConfigDeployStatus.NOTDEPLOY);
+        testConfig.setPlatform(EnumDeployPlatform.KUBERNETES);
         List<ProjectTestConfig> tests = projectMapper.getTestConfigByProjectId(projectId);
 
         int ret;
@@ -598,6 +600,7 @@ public class ProjectService {
 
         testConfig.setProjectId(projectId);
         testConfig.setTestId(tests.get(0).getTestId());
+        testConfig.setPlatform(EnumDeployPlatform.KUBERNETES);
         int ret = projectMapper.modifyTestConfig(testConfig);
         if (ret > 0) {
             LOGGER.info("Update test config {} success.", testConfig.getTestId());

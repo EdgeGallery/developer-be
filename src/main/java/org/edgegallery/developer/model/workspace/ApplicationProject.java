@@ -41,6 +41,11 @@ public class ApplicationProject {
 
     private List<String> platform;
 
+    /**
+     * the platform where deploy.
+     */
+    private EnumDeployPlatform deployPlatform;
+
     // add to match app store
     private String type;
 
