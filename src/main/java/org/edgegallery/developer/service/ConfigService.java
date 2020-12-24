@@ -16,10 +16,10 @@
 
 package org.edgegallery.developer.service;
 
-
 import com.spencerwi.either.Either;
+import java.util.HashMap;
+import java.util.Map;
 import javax.ws.rs.core.Response.Status;
-import org.edgegallery.developer.common.Consts;
 import org.edgegallery.developer.model.DeployPlatformConfig;
 import org.edgegallery.developer.response.FormatRespDto;
 import org.springframework.stereotype.Service;
@@ -27,47 +27,50 @@ import org.springframework.stereotype.Service;
 @Service("configService")
 public class ConfigService {
 
+    private Map<String, String> virtualMachineUrl = new HashMap<>();
+
+    private Map<String, Boolean> isVirtualMachine = new HashMap<>();
+
     /**
-     * config deploy platform
+     * config deploy platform.
      *
      * @return
      */
-    public Either<FormatRespDto, DeployPlatformConfig> configDeployPlatform(
-        DeployPlatformConfig deployPlatformConfig) {
+    public Either<FormatRespDto, DeployPlatformConfig> configDeployPlatform(DeployPlatformConfig deployPlatformConfig) {
         if (deployPlatformConfig.getIsVirtualMachine()) {
             if (deployPlatformConfig.getVirtualMachineUrl().equals("")
                 || deployPlatformConfig.getVirtualMachineUrl() == null) {
                 FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "openStack url is null");
                 return Either.left(error);
             }
-            Consts.IS_VIRTUAL_MACHINE.put("isVirtualMachine", true);
-            Consts.VIRTUAL_MACHINE_URL.put("virtualMachineUrl", deployPlatformConfig.getVirtualMachineUrl());
+            isVirtualMachine.put("isVirtualMachine", true);
+            virtualMachineUrl.put("virtualMachineUrl", deployPlatformConfig.getVirtualMachineUrl());
         }
-        Consts.IS_VIRTUAL_MACHINE.put("isVirtualMachine", false);
-        Consts.VIRTUAL_MACHINE_URL.put("virtualMachineUrl", "");
+        isVirtualMachine.put("isVirtualMachine", false);
+        virtualMachineUrl.put("virtualMachineUrl", "");
 
         DeployPlatformConfig response = new DeployPlatformConfig();
-        response.setIsVirtualMachine(Consts.IS_VIRTUAL_MACHINE.get("isVirtualMachine"));
-        response.setVirtualMachineUrl(Consts.VIRTUAL_MACHINE_URL.get("virtualMachineUrl"));
+        response.setIsVirtualMachine(isVirtualMachine.get("isVirtualMachine"));
+        response.setVirtualMachineUrl(virtualMachineUrl.get("virtualMachineUrl"));
 
         return Either.right(response);
     }
 
     /**
-     * get deploy platform config
+     * get deploy platform config.
      *
      * @return
      */
     public Either<FormatRespDto, DeployPlatformConfig> getConfigDeployPlatform() {
 
-        if (Consts.IS_VIRTUAL_MACHINE.isEmpty() || Consts.IS_VIRTUAL_MACHINE.get("isVirtualMachine") == null) {
-            Consts.IS_VIRTUAL_MACHINE.put("isVirtualMachine", false);
-            Consts.VIRTUAL_MACHINE_URL.put("virtualMachineUrl", "");
+        if (isVirtualMachine.isEmpty() || isVirtualMachine.get("isVirtualMachine") == null) {
+            isVirtualMachine.put("isVirtualMachine", false);
+            virtualMachineUrl.put("virtualMachineUrl", "");
         }
 
         DeployPlatformConfig response = new DeployPlatformConfig();
-        response.setIsVirtualMachine(Consts.IS_VIRTUAL_MACHINE.get("isVirtualMachine"));
-        response.setVirtualMachineUrl(Consts.VIRTUAL_MACHINE_URL.get("virtualMachineUrl"));
+        response.setIsVirtualMachine(isVirtualMachine.get("isVirtualMachine"));
+        response.setVirtualMachineUrl(virtualMachineUrl.get("virtualMachineUrl"));
 
         return Either.right(response);
     }
