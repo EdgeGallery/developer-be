@@ -29,6 +29,7 @@ import org.checkerframework.checker.units.qual.A;
 import org.edgegallery.developer.DeveloperApplicationTests;
 import org.edgegallery.developer.config.security.AccessUserUtil;
 import org.edgegallery.developer.model.workspace.ApplicationProject;
+import org.edgegallery.developer.model.workspace.EnumDeployPlatform;
 import org.edgegallery.developer.model.workspace.EnumHostStatus;
 import org.edgegallery.developer.model.workspace.EnumOpenMepType;
 import org.edgegallery.developer.model.workspace.EnumProjectImage;
@@ -95,6 +96,7 @@ public class ProjectServiceTest {
         project.setProjectType(EnumProjectType.CREATE_NEW);
         project.setCreateDate(new Date());
         project.setType("new");
+        project.setDeployPlatform(EnumDeployPlatform.KUBERNETES);
 
         List<OpenMepCapabilityGroup> capabilities = new ArrayList<>();
         OpenMepCapabilityGroup capability = new OpenMepCapabilityGroup("3", "Location", "", "",
