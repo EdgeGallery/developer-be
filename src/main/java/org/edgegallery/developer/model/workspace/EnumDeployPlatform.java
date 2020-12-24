@@ -24,5 +24,5 @@ package org.edgegallery.developer.model.workspace;
 
 public enum EnumDeployPlatform {
     KUBERNETES,
-    OPENSTACK;
+    VIRTUALMACHINE;
 }

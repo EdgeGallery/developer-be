@@ -32,6 +32,7 @@
         <result property="iconFileId" column="icon_file_id"/>
         <result property="lastTestId" column="last_test_id"/>
         <result property="openCapabilityId" column="open_capability_id"/>
+        <result property="deploy_platform" column="deployPlatform"/>
     </resultMap>
 
     <resultMap id="TestConfigMap" type="org.edgegallery.developer.model.workspace.ProjectTestConfig">
@@ -73,7 +74,7 @@
         insert into
         tbl_app_project (id, project_type, name, version, provider, platform, icon_file_id, type, description, status,
         user_id,
-        create_date, capabilities, industries)
+        create_date, capabilities, industries, deploy_platform)
         values
         ( #{id}, #{projectType}, #{name}, #{version}, #{provider},
         #{platform, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonCollectionTypeHandler},
@@ -81,7 +82,8 @@
         #{userId},
         #{createDate},
         #{capabilityList, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonCollectionTypeHandler},
-        #{industry, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonCollectionTypeHandler} )
+        #{industry, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonCollectionTypeHandler},
+        #{deployPlatform} )
     </insert>
 
     <update id="updateProject" parameterType="org.edgegallery.developer.model.workspace.ApplicationProject">
@@ -95,7 +97,7 @@
         last_test_id = #{lastTestId}, capabilities =
         #{capabilityList, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonCollectionTypeHandler},
         industries = #{industry, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonCollectionTypeHandler},
-        open_capability_id = #{openCapabilityId}
+        open_capability_id = #{openCapabilityId}, deploy_platform = #{deployPlatform}
         WHERE
         id = #{id}
     </update>

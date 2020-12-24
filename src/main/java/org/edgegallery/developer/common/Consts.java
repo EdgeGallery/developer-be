@@ -14,6 +14,9 @@
 
 package org.edgegallery.developer.common;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public final class Consts {
 
     public static final String DOWNLOAD_FILE_URL_V1 = "/mec/developer/v1/files/";
@@ -53,4 +56,9 @@ public final class Consts {
     public static final String GET_TASK_FROM_ATP = "/edgegallery/atp/v1/tasks/%s";
 
     private Consts() {}
+
+    public static Map<String,String> VIRTUAL_MACHINE_URL = new HashMap<>();
+
+    public static Map<String,Boolean> IS_VIRTUAL_MACHINE = new HashMap<>();
+
 }
