@@ -57,7 +57,6 @@ public class RuntimeUtil {
             }
             builder.append("SUCCESS");//作为判断命令输出流是标准输出还是错误输出
         } catch (Exception e) {
-            e.printStackTrace();
             LOGGER.error(e.getMessage());
             builder.append(e.getMessage()).append("FAILED");
         } finally {
