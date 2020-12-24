@@ -97,13 +97,15 @@ public class CompressFileUtilsJava {
         TarArchiveEntry entry = new TarArchiveEntry(dir + file.getName());
         entry.setSize(file.length());
         taos.putArchiveEntry(entry);
-        BufferedInputStream bis = new BufferedInputStream(new FileInputStream(file));
-        int count;
-        byte[] data = new byte[BUFFER];
-        while ((count = bis.read(data, 0, BUFFER)) != -1) {
-            taos.write(data, 0, count);
+        try (BufferedInputStream bis = new BufferedInputStream(new FileInputStream(file))) {
+            int count;
+            byte[] data = new byte[BUFFER];
+            while ((count = bis.read(data, 0, BUFFER)) != -1) {
+                taos.write(data, 0, count);
+            }
+        } catch (FileNotFoundException e) {
+            LOGGER.error("archiveFile occur exception: {}", e.getMessage());
         }
-        bis.close();
         taos.closeArchiveEntry();
     }
 
