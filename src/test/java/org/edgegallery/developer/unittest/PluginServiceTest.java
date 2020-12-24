@@ -23,7 +23,10 @@ import java.io.InputStream;
 import java.util.Date;
 import org.apache.http.entity.ContentType;
 import org.apache.ibatis.io.Resources;
+import org.apache.servicecomb.swagger.invocation.exception.InvocationException;
 import org.edgegallery.developer.DeveloperApplicationTests;
+import org.edgegallery.developer.application.plugin.PluginService;
+import org.edgegallery.developer.config.security.AccessUserUtil;
 import org.edgegallery.developer.domain.model.plugin.ApiChecker;
 import org.edgegallery.developer.domain.model.plugin.Plugin;
 import org.edgegallery.developer.domain.model.user.User;
@@ -56,6 +59,9 @@ public class PluginServiceTest {
     private PluginServiceFacade pluginServiceFacade;
 
     @Autowired
+    private PluginService pluginService;
+
+    @Autowired
     private FileService fileService;
 
     @Before
@@ -66,6 +72,27 @@ public class PluginServiceTest {
     @After
     public void after() {
         System.out.println("test over");
+    }
+
+    @Test
+    @WithMockUser(roles = "DEVELOPER_TENANT")
+    public void testGetPluginNameSuccess() {
+        String name = pluginServiceFacade.getPluginName("586224da-e1a2-4893-a5b5-bf766fdfb8c8");
+        Assert.assertNotNull(name);
+    }
+
+    @Test
+    @WithMockUser(roles = "DEVELOPER_TENANT")
+    public void testUpdatePluginBad() throws Exception {
+        AccessUserUtil.setUser("123", "test-user");
+        Plugin plugin = new Plugin();
+        plugin.setPluginId("586224da-e1a2-4893-a5b5-bf766fdfb8c8");
+        plugin.setUser(new User("234", "test-111"));
+        try {
+            pluginServiceFacade.updatePlugin(plugin, null, null, null);
+        } catch (InvocationException e) {
+            Assert.assertEquals(400, e.getStatusCode());
+        }
     }
 
     @Test
@@ -81,6 +108,23 @@ public class PluginServiceTest {
     public void delPlugin() {
         pluginServiceFacade
             .deleteByPluginId("586224da-e1a2-4893-a5b5-bf766fdfb8c7", "f24ea0a2-d8e6-467c-8039-94f0d29bac43");
+    }
+
+    @Test
+    @WithMockUser(roles = "DEVELOPER_TENANT")
+    public void delPluginByBadUserId() {
+        pluginServiceFacade
+            .deleteByPluginId("586224da-e1a2-4893-a5b5-bf766fdfb8c7", "d24ea0a2-d8e6-467c-8039-94f0d29bac43");
+    }
+
+    @Test
+    @WithMockUser(roles = "DEVELOPER_TENANT")
+    public void testGetPluginName() {
+        try {
+            pluginServiceFacade.getPluginName("586224da-e1a2-4893-a5b5-bf766fdfb8c9");
+        } catch (EntityNotFoundException e) {
+            Assert.assertEquals("cannot find the plugin with id 586224da-e1a2-4893-a5b5-bf766fdfb8c9", e.getMessage());
+        }
     }
 
     @Test
@@ -164,6 +208,18 @@ public class PluginServiceTest {
     private AFile getFile(MultipartFile file, FileChecker fileChecker) throws IOException {
         String fileAddress = fileService.saveTo(file, fileChecker);
         return new AFile(file.getOriginalFilename(), fileAddress, file.getSize());
+    }
+
+    @Test
+    @WithMockUser(roles = "DEVELOPER_TENANT")
+    public void testUpdatePlugin() throws Exception {
+        Plugin plugin = new Plugin();
+        plugin.setPluginId("test");
+        try {
+            pluginServiceFacade.updatePlugin(plugin, null, null, null);
+        } catch (EntityNotFoundException e) {
+            Assert.assertEquals("cannot find the plugin with id test", e.getMessage());
+        }
     }
 
 }
