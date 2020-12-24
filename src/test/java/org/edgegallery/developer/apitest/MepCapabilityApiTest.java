@@ -199,8 +199,8 @@ public class MepCapabilityApiTest {
     @WithMockUser(roles = "DEVELOPER_TENANT")
     public void getOpenMepEcoApiByFileIdSuccess() throws Exception {
         Either<FormatRespDto, OpenMepCapabilityDetail> response = Either.right(new OpenMepCapabilityDetail());
-        String url = String.format("/mec/developer/v1/capability-groups/openmep-api/%s?userId=%s","test-fileId","test-userId");
-        Mockito.when(openMEPCapabilityService.getOpenMepByFileId(Mockito.anyString(),Mockito.anyString())).thenReturn(response);
+        String url = String.format("/mec/developer/v1/capability-groups/openmep-api/%s","test-fileId");
+        Mockito.when(openMEPCapabilityService.getOpenMepByFileId(Mockito.anyString())).thenReturn(response);
         ResultActions actions = mvc.perform(MockMvcRequestBuilders.get(url).contentType(MediaType.APPLICATION_JSON_UTF8)
             .accept(MediaType.APPLICATION_JSON_UTF8)).andExpect(MockMvcResultMatchers.status().isOk());
         Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());

@@ -20,11 +20,13 @@ public class AppStoreUtil {
     private static final Logger LOGGER = LoggerFactory.getLogger(UtilsService.class);
 
     // @Value("${appstore.address}")
-    // private static String appstoreAddress;
-
     private static final String APPSTORE_ADDRESS = "appstore.address";
 
     private static final RestTemplate restTemplate = new RestTemplate();
+
+    private AppStoreUtil() {
+        throw new IllegalStateException("AppStoreUtil class");
+    }
 
     /**
      * upload app to appstore.

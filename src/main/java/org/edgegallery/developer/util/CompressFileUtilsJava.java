@@ -20,6 +20,10 @@ public class CompressFileUtilsJava {
 
     private static final int BUFFER = 1048576;
 
+    private CompressFileUtilsJava() {
+        throw new IllegalStateException("CompressFileUtilsJava class");
+    }
+
     /**
      * compressToTgzAndDeleteSrc.
      */
@@ -169,9 +173,7 @@ public class CompressFileUtilsJava {
                 }
             }
         } else {
-            FileInputStream fis = null;
-            try {
-                fis = new FileInputStream(file);
+            try (FileInputStream fis = new FileInputStream(file)) {
                 out.putNextEntry(new ZipEntry(dir));
                 int j = 0;
                 byte[] buffer = new byte[1024];
@@ -182,14 +184,6 @@ public class CompressFileUtilsJava {
                 LOGGER.error("createCompressedFile: can not find param file,{}", fe.getMessage());
             } catch (IOException ie) {
                 LOGGER.error("createCompressedFile: file putNextEntry failed, {}", ie.getMessage());
-            } finally {
-                if (fis != null) {
-                    try {
-                        fis.close();
-                    } catch (IOException e) {
-                        LOGGER.error("createCompressedFile: close stream failed");
-                    }
-                }
             }
         }
     }

@@ -219,10 +219,8 @@ public class MepCapabilityController {
     @PreAuthorize("hasRole('DEVELOPER_TENANT')")
     public ResponseEntity<OpenMepCapabilityDetail> getOpenMepApiByFileId(
         @Pattern(regexp = REG_UUID, message = "fileId must be in UUID format")
-        @ApiParam(value = "fileId", required = true) @PathVariable("fileId") String fileId,
-        @Pattern(regexp = REG_UUID, message = "userId must be in UUID format") @ApiParam(value = "userId")
-        @RequestParam("userId") String userId) {
-        Either<FormatRespDto, OpenMepCapabilityDetail> either = openService.getOpenMepByFileId(fileId, userId);
+        @ApiParam(value = "fileId", required = true) @PathVariable("fileId") String fileId) {
+        Either<FormatRespDto, OpenMepCapabilityDetail> either = openService.getOpenMepByFileId(fileId);
         return ResponseDataUtil.buildResponse(either);
     }
 

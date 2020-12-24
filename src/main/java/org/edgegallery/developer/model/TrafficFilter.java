@@ -48,7 +48,7 @@ public class TrafficFilter {
         if (this.protocal != null) {
             return this.protocal.clone();
         } else {
-            return null;
+            return new String[0];
         }
     }
 
@@ -74,7 +74,7 @@ public class TrafficFilter {
         if (this.srcAddress != null) {
             return this.srcAddress.clone();
         } else {
-            return null;
+            return new String[0];
         }
     }
 
@@ -100,7 +100,7 @@ public class TrafficFilter {
         if (this.srcPort != null) {
             return this.srcPort.clone();
         } else {
-            return null;
+            return new String[0];
         }
     }
 
@@ -126,7 +126,7 @@ public class TrafficFilter {
         if (this.dstAddress != null) {
             return this.dstAddress.clone();
         } else {
-            return null;
+            return new String[0];
         }
     }
 
@@ -152,7 +152,7 @@ public class TrafficFilter {
         if (this.dstPort != null) {
             return this.dstPort.clone();
         } else {
-            return null;
+            return new String[0];
         }
     }
 
@@ -178,7 +178,7 @@ public class TrafficFilter {
         if (this.tag != null) {
             return this.tag.clone();
         } else {
-            return null;
+            return new String[0];
         }
     }
 
@@ -204,7 +204,7 @@ public class TrafficFilter {
         if (this.srcTunnelAddress != null) {
             return this.srcTunnelAddress.clone();
         } else {
-            return null;
+            return new String[0];
         }
     }
 
@@ -230,7 +230,7 @@ public class TrafficFilter {
         if (this.tgtTunnelAddress != null) {
             return this.tgtTunnelAddress.clone();
         } else {
-            return null;
+            return new String[0];
         }
     }
 
@@ -256,7 +256,7 @@ public class TrafficFilter {
         if (this.srcTunnelPort != null) {
             return this.srcTunnelPort.clone();
         } else {
-            return null;
+            return new String[0];
         }
     }
 
@@ -282,7 +282,7 @@ public class TrafficFilter {
         if (this.dstTunnelPort != null) {
             return this.dstTunnelPort.clone();
         } else {
-            return null;
+            return new String[0];
         }
     }
 

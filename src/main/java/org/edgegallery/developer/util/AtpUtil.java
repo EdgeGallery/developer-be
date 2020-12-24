@@ -31,9 +31,13 @@ public class AtpUtil {
 
     private static final RestTemplate restTemplate = new RestTemplate();
 
+    private AtpUtil() {
+        throw new IllegalStateException("AtpUtil class");
+    }
+
     /**
      * send request to atp to create test task.
-     * 
+     *
      * @param filePath csar file path
      * @param token request token
      * @return response from atp
@@ -53,8 +57,8 @@ public class AtpUtil {
         LOGGER.info("url: {}", url);
         try {
             ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.POST, requestEntity, String.class);
-            if (HttpStatus.OK.equals(response.getStatusCode())
-                    || HttpStatus.ACCEPTED.equals(response.getStatusCode())) {
+            if (HttpStatus.OK.equals(response.getStatusCode()) || HttpStatus.ACCEPTED
+                .equals(response.getStatusCode())) {
                 return response;
             }
             LOGGER.error("Create instance from atp failed,  status is {}", response.getStatusCode());
@@ -67,7 +71,7 @@ public class AtpUtil {
 
     /**
      * get task status by taskId from atp.
-     * 
+     *
      * @param taskId taskId
      * @param token token
      * @return task status
@@ -86,14 +90,14 @@ public class AtpUtil {
                 if ((System.currentTimeMillis() - startTime) > 30000) {
                     LOGGER.error("Get atp task {} status from appo time out", taskId);
                     throw new InvocationException(Response.Status.INTERNAL_SERVER_ERROR,
-                            "Get atp task status from appo time out.");
+                        "Get atp task status from appo time out.");
                 }
                 ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, request, String.class);
                 if (!HttpStatus.OK.equals(response.getStatusCode())) {
                     LOGGER.error("Get task status from atp reponse failed, the taskId is {}, The status code is {}",
-                            taskId, response.getStatusCode());
+                        taskId, response.getStatusCode());
                     throw new InvocationException(Response.Status.INTERNAL_SERVER_ERROR,
-                            "Get task status from atp reponse failed.");
+                        "Get task status from atp reponse failed.");
                 }
 
                 JsonObject jsonObject = new JsonParser().parse(response.getBody()).getAsJsonObject();
@@ -107,7 +111,7 @@ public class AtpUtil {
 
             } catch (RestClientException e) {
                 LOGGER.error("Failed to get task status from atp which taskId is {} exception {}", taskId,
-                        e.getMessage());
+                    e.getMessage());
             } finally {
                 try {
                     Thread.sleep(5000);
@@ -121,12 +125,12 @@ public class AtpUtil {
 
     /**
      * get file path by projectId.
-     * 
+     *
      * @param projectId projectId
      * @return filePath
      */
     public static String getProjectPath(String projectId) {
         return InitConfigUtil.getWorkSpaceBaseDir() + BusinessConfigUtil.getWorkspacePath() + projectId
-                + File.separator;
+            + File.separator;
     }
 }

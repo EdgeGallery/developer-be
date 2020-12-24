@@ -29,6 +29,10 @@ import org.slf4j.LoggerFactory;
 public class RuntimeUtil {
     private static final Logger LOGGER = LoggerFactory.getLogger(HttpClientUtil.class);
 
+    private RuntimeUtil() {
+        throw new IllegalStateException("RuntimeUtil class");
+    }
+
     /**
      * execCommand.
      */
@@ -65,7 +69,6 @@ public class RuntimeUtil {
             }
 
         }
-        System.out.println(builder.toString());
         return builder.toString();
     }
 
@@ -73,7 +76,7 @@ public class RuntimeUtil {
      * buildCommand.
      */
     public static List<String> buildCommand(String lan, GeneralConfig config) {
-        List<String> command = new ArrayList<String>();
+        List<String> command = new ArrayList<>();
         command.add("java");
         command.add("-jar");
         command.add(InitConfigUtil.getSdkCodeDir() + "swagger-codegen-cli-3.0.21.jar");
@@ -102,7 +105,7 @@ public class RuntimeUtil {
     /**
      * buildJavaCommand.
      */
-    public static void buildJavaCommand(List<String> command, GeneralConfig config) {
+    private static void buildJavaCommand(List<String> command, GeneralConfig config) {
         command.add("--api-package");
         command.add(config.getApiPackage());
         command.add("--invoker-package");
@@ -118,15 +121,5 @@ public class RuntimeUtil {
         command.add("--group-id");
         command.add(config.getGroupId());
     }
-
-    /**
-     * buildPythonCommand.
-     */
-    public static void buildPythonCommand(List<String> command, GeneralConfig config) {
-        command.add("-c");
-        command.add(InitConfigUtil.getSdkCodeDir() + "config.json");
-
-    }
-
 
 }

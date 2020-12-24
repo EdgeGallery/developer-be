@@ -247,7 +247,7 @@ public class ProjectService {
     public Either<FormatRespDto, Boolean> deleteProject(String userId, String projectId) {
         ApplicationProject project = projectMapper.getProject(userId, projectId);
         if (project == null) {
-            LOGGER.info("Can not find project by userId {} and projectId {}, do not need delete.", userId, projectId);
+            LOGGER.warn("Can not find project by userId {} and projectId {}, do not need delete.", userId, projectId);
             return Either.right(true);
         }
 
@@ -255,19 +255,21 @@ public class ProjectService {
         String openCapabilityDetailId = project.getOpenCapabilityId();
         LOGGER.info("detailId: {} .", openCapabilityDetailId);
         String groupId = "";
-        if (!StringUtils.isEmpty(openCapabilityDetailId)) {
-            String[] ids = openCapabilityDetailId.substring(1, openCapabilityDetailId.length() - 1).split(",");
-            for (String detailId : ids) {
-                groupId = openMepCapabilityMapper.getGroupIdByDetailId(detailId);
-                openMepCapabilityMapper.deleteCapability(detailId);
-                if (!groupId.equals("")) {
-                    LOGGER.info("groupId: {} .", groupId);
-                    List<OpenMepCapabilityDetail> detailList = openMepCapabilityMapper.getDetailByGroupId(groupId);
-                    if (detailList != null) {
-                        LOGGER.info("detailList size: {} .", detailList.size());
-                        if (detailList.size() < 1) {
-                            openMepCapabilityMapper.deleteGroup(groupId);
-                        }
+        if (StringUtils.isEmpty(openCapabilityDetailId)) {
+            LOGGER.warn("project {} not open any cpability", projectId);
+            return Either.right(true);
+        }
+        String[] ids = openCapabilityDetailId.substring(1, openCapabilityDetailId.length() - 1).split(",");
+        for (String detailId : ids) {
+            groupId = openMepCapabilityMapper.getGroupIdByDetailId(detailId);
+            openMepCapabilityMapper.deleteCapability(detailId);
+            if (!groupId.equals("")) {
+                LOGGER.info("groupId: {} .", groupId);
+                List<OpenMepCapabilityDetail> detailList = openMepCapabilityMapper.getDetailByGroupId(groupId);
+                if (detailList != null) {
+                    LOGGER.info("detailList size: {} .", detailList.size());
+                    if (detailList.isEmpty()) {
+                        openMepCapabilityMapper.deleteGroup(groupId);
                     }
                 }
             }
@@ -449,7 +451,7 @@ public class ProjectService {
             // create chart file
             ChartFileCreator chartFileCreator = new ChartFileCreator(projectName);
             chartFileCreator.setChartName(projectName);
-            if (mepCapability == null || mepCapability.size() == 0) {
+            if (mepCapability == null || mepCapability.isEmpty()) {
                 chartFileCreator.setChartValues("false", "false", "default", configMapName);
             } else {
                 chartFileCreator.setChartValues("true", "false", "default", configMapName);
@@ -489,6 +491,7 @@ public class ProjectService {
 
     /**
      * checkDependency.
+     *
      * @param project project
      * @return
      */
@@ -498,14 +501,15 @@ public class ProjectService {
             LOGGER.error("the project being deployed does not have any capabilities selected ");
             return true;
         }
-        Gson gson = new Gson();
+        Gson gsonGroup = new Gson();
         Type groupType = new TypeToken<List<OpenMepCapabilityGroup>>() { }.getType();
-        List<OpenMepCapabilityGroup> capabilities = gson.fromJson(gson.toJson(project.getCapabilityList()), groupType);
+        List<OpenMepCapabilityGroup> capabilities = gsonGroup
+            .fromJson(gsonGroup.toJson(project.getCapabilityList()), groupType);
         for (OpenMepCapabilityGroup group : capabilities) {
             List<OpenMepCapabilityDetail> openMepCapabilityGroups = group.getCapabilityDetailList();
             Type openMepCapabilityType = new TypeToken<List<OpenMepCapabilityDetail>>() { }.getType();
-            List<OpenMepCapabilityDetail> openMepCapabilityDetails = gson
-                .fromJson(gson.toJson(openMepCapabilityGroups), openMepCapabilityType);
+            List<OpenMepCapabilityDetail> openMepCapabilityDetails = gsonGroup
+                .fromJson(gsonGroup.toJson(openMepCapabilityGroups), openMepCapabilityType);
             for (OpenMepCapabilityDetail detail : openMepCapabilityDetails) {
                 if (!StringUtils.isEmpty(detail.getPackageId())) {
                     return true;
@@ -724,9 +728,9 @@ public class ProjectService {
 
         CapabilitiesDetail capabilitiesDetail = releaseConfig.getCapabilitiesDetail();
 
-        if (capabilitiesDetail.getServiceDetails() != null && capabilitiesDetail.getServiceDetails().size() != 0) {
+        if (capabilitiesDetail.getServiceDetails() != null && !capabilitiesDetail.getServiceDetails().isEmpty()) {
             //save db to openmepcapabilitydetail
-            List<String> openCapabilityIds = new ArrayList<String>();
+            List<String> openCapabilityIds = new ArrayList<>();
             for (ServiceDetail serviceDetail : capabilitiesDetail.getServiceDetails()) {
                 OpenMepCapabilityDetail detail = new OpenMepCapabilityDetail();
                 fillCapability(serviceDetail, detail, jsonObject, userId);
@@ -1013,7 +1017,7 @@ public class ProjectService {
             testConfig.setDeployStatus(EnumTestConfigDeployStatus.FAILED);
         }
         // update status if necessary
-        if (productUpdate == true) {
+        if (productUpdate) {
             int res = projectMapper.updateProject(project);
             if (res < 1) {
                 LOGGER.error("Update project {} error.", project.getId());
