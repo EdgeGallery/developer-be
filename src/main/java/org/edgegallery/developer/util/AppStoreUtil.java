@@ -76,7 +76,7 @@ public class AppStoreUtil {
                 .equals(responses.getStatusCode())) {
                 return responses;
             }
-            LOGGER.error("publish app failed,  status is {}", responses.getStatusCode());
+            LOGGER.error("publish app failed: the app have exist,  status is {}", responses.getStatusCode());
         } catch (InvocationException e) {
             LOGGER.error("publish app  failed,  exception {}", e.getMessage());
 
