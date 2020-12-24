@@ -159,7 +159,7 @@ public class ReleaseConfigService {
     public Either<FormatRespDto, Boolean> rebuildCsar(String projectId, ReleaseConfig releaseConfig) {
         ApplicationProject project = projectMapper.getProjectById(projectId);
         List<ProjectTestConfig> testConfigs = projectMapper.getTestConfigByProjectId(projectId);
-        if (testConfigs == null || testConfigs.size() == 0) {
+        if (testConfigs == null || testConfigs.isEmpty()) {
             LOGGER.error("Project {} has not test config!", projectId);
             FormatRespDto error = new FormatRespDto(Response.Status.BAD_REQUEST, "Project has not test config!");
             return Either.left(error);
@@ -349,7 +349,6 @@ public class ReleaseConfigService {
             Yaml yaml = new Yaml();
             Map<String, Object> loaded = yaml.load(valueContent);
             // build node template
-            // TODO(ch) use HTTP as default
             List<ServiceConfig> configs = detailList.stream().map(
                 t -> new ServiceConfig(t.getServiceName(), t.getInternalPort(), t.getVersion(), t.getProtocol(),
                     "default")).collect(Collectors.toList());
@@ -375,7 +374,6 @@ public class ReleaseConfigService {
             boolean isDelete = tmpDir.delete();
             if (!isDelete) {
                 LOGGER.error("delete decompress dir failed");
-                return;
             }
         }
 

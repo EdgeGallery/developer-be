@@ -43,7 +43,7 @@ public class ApiEmulatorMgr {
 
     private static final String APP_NAME_PREFIX = "api-emulator-";
 
-    private static final String config_NAME_PREFIX = "configmap-name-";
+    private static final String CONFIG_NAME_PREFIX = "configmap-name-";
 
     private static final String NODE_PORT_STR = "{NODE_PORT}";
 
@@ -62,7 +62,7 @@ public class ApiEmulatorMgr {
 
     private static String createEmulatorCsar(int nodePort) throws IOException {
         String appName = APP_NAME_PREFIX + nodePort;
-        String configMapName = config_NAME_PREFIX + nodePort;
+        String configMapName = CONFIG_NAME_PREFIX + nodePort;
         ChartFileCreator chartFileCreator = new ChartFileCreator("apiEmulator");
         chartFileCreator.setChartValues("false", "false", "default", configMapName);
         String templateYamlContent = FileUtils

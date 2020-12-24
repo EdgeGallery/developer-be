@@ -214,7 +214,7 @@ public class OpenMepCapabilityService {
      *
      * @return
      */
-    public Either<FormatRespDto, OpenMepCapabilityDetail> getOpenMepByFileId(String fileId, String userId) {
+    public Either<FormatRespDto, OpenMepCapabilityDetail> getOpenMepByFileId(String fileId) {
         OpenMepCapabilityDetail res = openMepCapabilityMapper.getOpenMepByFileId(fileId);
         return Either.right(res);
     }

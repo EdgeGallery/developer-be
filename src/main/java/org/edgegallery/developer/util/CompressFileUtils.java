@@ -84,7 +84,7 @@ public final class CompressFileUtils {
     public static boolean decompress(String filePath, String outputDir) {
         File file = new File(filePath);
         if (!file.exists()) {
-            System.out.println("decompress file not exist.");
+            LOGGER.error("decompress file not exist.");
             return false;
         }
         try {
@@ -197,12 +197,13 @@ public final class CompressFileUtils {
             if (!file.getParentFile().exists()) {
                 boolean isMk = file.getParentFile().mkdirs();
                 if (!isMk) {
+                    LOGGER.error("mk parent dir failed!");
                     return;
                 }
             }
             boolean isMk = file.mkdirs();
             if (!isMk) {
-                return;
+                LOGGER.error("mk dir failed!");
             }
         }
     }

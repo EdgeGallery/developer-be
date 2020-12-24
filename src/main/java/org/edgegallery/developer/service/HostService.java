@@ -64,7 +64,7 @@ public class HostService {
         host.setPortRangeMin(30000);
         host.setPortRangeMax(32000);
         List<MepHost> hostList = hostMapper.getHostsByUserId(host.getUserId());
-        if (hostList == null || hostList.size() == 0) {
+        if (hostList == null || hostList.isEmpty()) {
             int ret = hostMapper.saveHost(host);
             if (ret > 0) {
                 LOGGER.info("Crete host {} success ", host.getHostId());

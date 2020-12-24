@@ -370,9 +370,7 @@ public class UploadFileService {
             return Either.right(helmTemplateYamlRespDto);
         }
 
-        Either<FormatRespDto, HelmTemplateYamlRespDto> either = getSuccessResult(helmTemplateYaml, userId, projectId,
-            originalContent, helmTemplateYamlRespDto);
-        return either;
+        return getSuccessResult(helmTemplateYaml, userId, projectId, originalContent, helmTemplateYamlRespDto);
 
     }
 
@@ -401,7 +399,7 @@ public class UploadFileService {
     private void verifyHelmTemplate(List<Map<String, Object>> mapList, List<String> requiredItems,
         HelmTemplateYamlRespDto helmTemplateYamlRespDto) {
         for (Map<String, Object> stringMap : mapList) {
-            for (Map.Entry<String,Object> entry: stringMap.entrySet()) {
+            for (Map.Entry<String, Object> entry : stringMap.entrySet()) {
                 if ("kind".equals(entry.getKey())) {
                     if ("Service".equalsIgnoreCase(stringMap.get(entry.getKey()).toString())) {
                         requiredItems.remove("service");

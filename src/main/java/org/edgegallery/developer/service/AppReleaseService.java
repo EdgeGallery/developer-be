@@ -10,7 +10,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
@@ -42,7 +41,7 @@ public class AppReleaseService {
             return Either.left(error);
         }
         String csarPath = getProjectPath(projectId);
-        if (csarPath == null || csarPath.equals("")) {
+        if (csarPath.equals("")) {
             LOGGER.error("can not find this project!");
             FormatRespDto error = new FormatRespDto(Response.Status.BAD_REQUEST, "can not find this project!");
             return Either.left(error);
@@ -83,7 +82,7 @@ public class AppReleaseService {
         }
         File file = new File(getProjectPath(projectId));
         List<String> paths = getFilesPath(file);
-        if (paths == null || paths.size() == 0) {
+        if (paths == null || paths.isEmpty()) {
             LOGGER.error("can not find any file!");
             FormatRespDto error = new FormatRespDto(Response.Status.BAD_REQUEST, "can not find any file!");
             return Either.left(error);
@@ -114,10 +113,9 @@ public class AppReleaseService {
             boolean isMk = pathFile.mkdirs();
             isSuccess(isMk);
         }
-        // ZipFile zip = null;
         try (ZipFile zip = new ZipFile(zipFile);) {
-            for (Enumeration entries = zip.entries(); entries.hasMoreElements(); ) {
-                ZipEntry entry = (ZipEntry) entries.nextElement();
+            for (Enumeration<? extends ZipEntry> entries = zip.entries(); entries.hasMoreElements(); ) {
+                ZipEntry entry = entries.nextElement();
                 String zipEntryName = entry.getName();
                 try (InputStream in = zip.getInputStream(entry)) {
                     String outPath = (descDir + zipEntryName).replaceAll("\\*", "/");
@@ -202,20 +200,18 @@ public class AppReleaseService {
     }
 
     private List<String> getFilesPath(File dir) {
-        if (dir != null) {
-            File[] files = dir.listFiles();
-            if (files != null && files.length != 0) {
-                for (File file : files) {
-                    if (file.isDirectory()) {
-                        getFilesPath(file);
-                    }
-                    if (file.isFile()) {
-                        try {
-                            listLocal.add(file.getCanonicalPath());
-                        } catch (IOException e) {
-                            LOGGER.error("get unzip dir occur exception {}", e.getMessage());
-                            return new ArrayList<>();
-                        }
+        File[] files = dir.listFiles();
+        if (files != null && files.length != 0) {
+            for (File file : files) {
+                if (file.isDirectory()) {
+                    getFilesPath(file);
+                }
+                if (file.isFile()) {
+                    try {
+                        listLocal.add(file.getCanonicalPath());
+                    } catch (IOException e) {
+                        LOGGER.error("get unzip dir occur exception {}", e.getMessage());
+                        return new ArrayList<>();
                     }
                 }
             }
@@ -235,12 +231,6 @@ public class AppReleaseService {
                 while ((lineTxt = bufferedReader.readLine()) != null) {
                     sb.append(lineTxt + "\r\n");
                 }
-            } catch (UnsupportedEncodingException e) {
-                LOGGER.error("read file occur exception {}", e.getMessage());
-                return msg;
-            } catch (FileNotFoundException e) {
-                LOGGER.error("read file occur exception {}", e.getMessage());
-                return msg;
             } catch (IOException e) {
                 LOGGER.error("read file occur exception {}", e.getMessage());
                 return msg;
