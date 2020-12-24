@@ -99,7 +99,6 @@ public final class CompressFileUtils {
             }
             return true;
         } catch (IOException e) {
-            e.printStackTrace();
             LOGGER.error("Failed to decompress file:{}.", filePath);
         }
         return false;
