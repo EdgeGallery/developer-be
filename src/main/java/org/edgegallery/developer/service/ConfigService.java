@@ -37,17 +37,16 @@ public class ConfigService {
      * @return
      */
     public Either<FormatRespDto, DeployPlatformConfig> configDeployPlatform(DeployPlatformConfig deployPlatformConfig) {
-        if (deployPlatformConfig.getIsVirtualMachine()) {
-            if (deployPlatformConfig.getVirtualMachineUrl().equals("")
-                || deployPlatformConfig.getVirtualMachineUrl() == null) {
-                FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "openStack url is null");
-                return Either.left(error);
-            }
-            isVirtualMachine.put("isVirtualMachine", true);
-            virtualMachineUrl.put("virtualMachineUrl", deployPlatformConfig.getVirtualMachineUrl());
+
+        if (deployPlatformConfig.getVirtualMachineUrl().equals("")
+            && deployPlatformConfig.getIsVirtualMachine()) {
+            FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "openStack url is null");
+            return Either.left(error);
         }
-        isVirtualMachine.put("isVirtualMachine", false);
-        virtualMachineUrl.put("virtualMachineUrl", "");
+
+        isVirtualMachine.put("isVirtualMachine", deployPlatformConfig.getIsVirtualMachine());
+        virtualMachineUrl.put("virtualMachineUrl", deployPlatformConfig.getVirtualMachineUrl());
+
 
         DeployPlatformConfig response = new DeployPlatformConfig();
         response.setIsVirtualMachine(isVirtualMachine.get("isVirtualMachine"));

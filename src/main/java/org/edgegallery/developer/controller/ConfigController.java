@@ -17,6 +17,7 @@
 package org.edgegallery.developer.controller;
 
 import com.spencerwi.either.Either;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
@@ -33,6 +34,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -40,6 +42,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 @Controller
 @RestSchema(schemaId = "config")
 @RequestMapping("/mec/developer/v1/config")
+@Api(tags = "configs")
+@Validated
 public class ConfigController {
 
     @Autowired
@@ -57,17 +61,16 @@ public class ConfigController {
         consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT')")
     public ResponseEntity<DeployPlatformConfig> deployPlatformConfig(
-
-        @NotNull @ApiParam(value = "DeployPlatformConfig", required = true) @RequestBody
-            DeployPlatformConfig deployPlatformConfig) {
-        Either<FormatRespDto, DeployPlatformConfig> either = configService.configDeployPlatform(deployPlatformConfig);
+        @ApiParam(value = "DeployPlatformConfig", required = true) @RequestBody
+            DeployPlatformConfig deployPlatform) {
+        Either<FormatRespDto, DeployPlatformConfig> either = configService.configDeployPlatform(deployPlatform);
         return ResponseDataUtil.buildResponse(either);
     }
 
     /**
-     * modify config of deployPlatform virtual machine.
+     * get config of deployPlatform virtual machine.
      */
-    @ApiOperation(value = "modify config of deployPlatform", response = DeployPlatformConfig.class)
+    @ApiOperation(value = "get config of deployPlatform", response = DeployPlatformConfig.class)
     @ApiResponses(value = {
         @ApiResponse(code = 200, message = "OK", response = DeployPlatformConfig.class),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
