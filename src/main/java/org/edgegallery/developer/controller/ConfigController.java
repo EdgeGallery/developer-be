@@ -73,8 +73,8 @@ public class ConfigController {
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
     @RequestMapping(value = "/deploy-platform", method = RequestMethod.GET,
-        consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    @PreAuthorize("hasRole('DEVELOPER_TENANT')")
+        produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @PreAuthorize("hasRole('DEVELOPER_TENANT')|| hasRole('DEVELOPER_GUEST')")
     public ResponseEntity<DeployPlatformConfig> getDeployPlatformConfig() {
         Either<FormatRespDto, DeployPlatformConfig> either = configService.getConfigDeployPlatform();
         return ResponseDataUtil.buildResponse(either);
