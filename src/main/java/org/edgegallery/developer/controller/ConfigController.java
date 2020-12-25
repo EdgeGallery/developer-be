@@ -22,43 +22,31 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.edgegallery.developer.model.DeployPlatformConfig;
-import org.edgegallery.developer.model.workspace.ApplicationProject;
-import org.edgegallery.developer.model.workspace.OpenMepCapabilityDetail;
-import org.edgegallery.developer.model.workspace.OpenMepCapabilityGroup;
 import org.edgegallery.developer.response.ErrorRespDto;
 import org.edgegallery.developer.response.FormatRespDto;
 import org.edgegallery.developer.service.ConfigService;
-import org.edgegallery.developer.service.ProjectService;
 import org.edgegallery.developer.util.ResponseDataUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
 @RestSchema(schemaId = "config")
 @RequestMapping("/mec/developer/v1/config")
 public class ConfigController {
 
-    private static final String REGEX_UUID = "[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}";
-
-    private static final String REGEX_USERNAME = "^[a-zA-Z][a-zA-Z0-9_]{5,29}$";
-
     @Autowired
     private ConfigService configService;
 
-
     /**
-     * modify config of deployPlatform virtual machine
+     * modify config of deployPlatform virtual machine.
      */
     @ApiOperation(value = "modify config of deployPlatform", response = DeployPlatformConfig.class)
     @ApiResponses(value = {
@@ -70,7 +58,6 @@ public class ConfigController {
     @PreAuthorize("hasRole('DEVELOPER_TENANT')")
     public ResponseEntity<DeployPlatformConfig> deployPlatformConfig(
 
-
         @NotNull @ApiParam(value = "DeployPlatformConfig", required = true) @RequestBody
             DeployPlatformConfig deployPlatformConfig) {
         Either<FormatRespDto, DeployPlatformConfig> either = configService.configDeployPlatform(deployPlatformConfig);
@@ -78,7 +65,7 @@ public class ConfigController {
     }
 
     /**
-     * modify config of deployPlatform virtual machine
+     * modify config of deployPlatform virtual machine.
      */
     @ApiOperation(value = "modify config of deployPlatform", response = DeployPlatformConfig.class)
     @ApiResponses(value = {
@@ -88,7 +75,7 @@ public class ConfigController {
     @RequestMapping(value = "/deploy-platform", method = RequestMethod.GET,
         consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT')")
-    public ResponseEntity<DeployPlatformConfig> getDeployPlatformConfig( ) {
+    public ResponseEntity<DeployPlatformConfig> getDeployPlatformConfig() {
         Either<FormatRespDto, DeployPlatformConfig> either = configService.getConfigDeployPlatform();
         return ResponseDataUtil.buildResponse(either);
     }
