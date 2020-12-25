@@ -256,25 +256,24 @@ public class ProjectService {
         String openCapabilityDetailId = project.getOpenCapabilityId();
         LOGGER.info("detailId: {} .", openCapabilityDetailId);
         String groupId = "";
-        if (StringUtils.isEmpty(openCapabilityDetailId)) {
-            LOGGER.warn("project {} not open any cpability", projectId);
-            return Either.right(true);
-        }
-        String[] ids = openCapabilityDetailId.substring(1, openCapabilityDetailId.length() - 1).split(",");
-        for (String detailId : ids) {
-            groupId = openMepCapabilityMapper.getGroupIdByDetailId(detailId);
-            openMepCapabilityMapper.deleteCapability(detailId);
-            if (!groupId.equals("")) {
-                LOGGER.info("groupId: {} .", groupId);
-                List<OpenMepCapabilityDetail> detailList = openMepCapabilityMapper.getDetailByGroupId(groupId);
-                if (detailList != null) {
-                    LOGGER.info("detailList size: {} .", detailList.size());
-                    if (detailList.isEmpty()) {
-                        openMepCapabilityMapper.deleteGroup(groupId);
+        if (!StringUtils.isEmpty(openCapabilityDetailId)) {
+            String[] ids = openCapabilityDetailId.substring(1, openCapabilityDetailId.length() - 1).split(",");
+            for (String detailId : ids) {
+                groupId = openMepCapabilityMapper.getGroupIdByDetailId(detailId);
+                openMepCapabilityMapper.deleteCapability(detailId);
+                if (!groupId.equals("")) {
+                    LOGGER.info("groupId: {} .", groupId);
+                    List<OpenMepCapabilityDetail> detailList = openMepCapabilityMapper.getDetailByGroupId(groupId);
+                    if (detailList != null) {
+                        LOGGER.info("detailList size: {} .", detailList.size());
+                        if (detailList.isEmpty()) {
+                            openMepCapabilityMapper.deleteGroup(groupId);
+                        }
                     }
                 }
             }
         }
+
 
         // delete the project from db
         Either<FormatRespDto, Boolean> delResult = projectDto.deleteProject(userId, projectId);
