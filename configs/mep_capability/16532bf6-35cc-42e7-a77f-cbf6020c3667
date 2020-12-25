@@ -1,0 +1,87 @@
+swagger: '2.0'
+info:
+  description: 无损解压缩服务提供端侧与边缘之间的无损解压缩服务，应用可以在端侧对图片，视频等内容使用无损解压缩服务进行压缩，传输到边缘后使用解压服务进行解压，以降低对传输带宽的诉求。
+  version: 1.0.0
+  title: 无损解压缩服务
+host: 'localhost:8883'
+tags:
+  - name: Decompression
+    description: 无损解压缩
+schemes:
+  - https
+  - http
+paths:
+  /cpsrv/v1/compression:
+    post:
+      tags:
+        - Decompression
+      summary: 压缩
+      description: ''
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          description: 压缩请求信息，将filePath无损压缩成fileName的文件
+          required: true
+          schema:
+            $ref: '#/definitions/decompression'
+      responses:
+        '200':
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/decompressionInfo'
+        '404':
+          description: Bad request
+  /cpsrv/v1/decompression:
+    post:
+      tags:
+        - Decompression
+      summary: 解压缩
+      description: ''
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          description: 解压缩请求信息，将fileName的文件无损解压到filePath
+          required: true
+          schema:
+            $ref: '#/definitions/decompression'
+      responses:
+        '200':
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/decompressionInfo'
+        '404':
+          description: Bad request
+definitions:
+  decompressionInfo:
+    type: object
+    required:
+      - message
+    properties:
+      message:
+        type: string
+        example: Opertaion succeeded.
+        description: Location information
+  decompression:
+    type: object
+    required:
+      - appId
+      - fileName
+      - targetFilePath
+      - interfaces
+    properties:
+      appId:
+        type: string
+        example: id_9999
+        description: App ID
+      fileName:
+        type: string
+        example: '/opt/Test01.tar'
+      FilePath:
+        type: string
+        example: '/opt/Test01/'
