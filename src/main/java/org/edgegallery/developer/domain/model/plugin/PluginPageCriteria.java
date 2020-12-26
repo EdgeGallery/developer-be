@@ -22,16 +22,19 @@ import org.edgegallery.developer.infrastructure.persistence.plugin.PluginPO;
 public class PluginPageCriteria extends PageCriteria {
 
     private Integer type;
+
     private String pluginName;
-    private  String codeLanguage;
+
+    private String codeLanguage;
 
     /**
      * create a page object.
+     *
      * @param limit max count one page
      * @param offset start with
      * @param type plugin type
      */
-    public PluginPageCriteria(int limit, String codeLanguage, String pluginName,  long offset, String type) {
+    public PluginPageCriteria(int limit, String codeLanguage, String pluginName, long offset, String type) {
         super(limit, offset);
 
         this.codeLanguage = codeLanguage;

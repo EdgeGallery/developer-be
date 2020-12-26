@@ -18,6 +18,8 @@ package org.edgegallery.developer.application.plugin;
 
 import java.io.IOException;
 import java.io.InputStream;
+import javax.ws.rs.core.Response;
+import org.apache.servicecomb.swagger.invocation.exception.InvocationException;
 import org.edgegallery.developer.domain.model.comment.PluginDownloadRecord;
 import org.edgegallery.developer.domain.model.plugin.ApiChecker;
 import org.edgegallery.developer.domain.model.plugin.Plugin;
@@ -29,6 +31,10 @@ import org.edgegallery.developer.domain.shared.FileChecker;
 import org.edgegallery.developer.domain.shared.IconChecker;
 import org.edgegallery.developer.domain.shared.PluginChecker;
 import org.edgegallery.developer.domain.shared.exceptions.EntityNotFoundException;
+import org.edgegallery.developer.response.FormatRespDto;
+import org.edgegallery.developer.util.FileHashCode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,6 +42,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 @Service("pluginService")
 public class PluginService {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(PluginService.class);
 
     @Autowired
     private PluginRepository pluginRepository;
@@ -56,11 +64,21 @@ public class PluginService {
     public Plugin publish(Plugin newPlugin, MultipartFile pluginFile, MultipartFile logoFile, MultipartFile apiFile)
         throws IOException {
         AFile plugin = getFile(pluginFile, new PluginChecker());
+        String hashCode = FileHashCode.generateHashCode(plugin.getStorageAddress());
+        if (pluginRepository.findPlugInByHashCode(hashCode) > 0) {
+            LOGGER.error("this plugin file has been uploaded, hash code {}", hashCode);
+            FormatRespDto error = new FormatRespDto(Response.Status.BAD_REQUEST,
+                "this plugin file has been uploaded.");
+            throw new InvocationException(error.getEnumStatus().getStatusCode(),
+                error.getEnumStatus().getReasonPhrase(), error.getErrorRespDto().getDetail());
+        }
+        plugin.setHashCode(hashCode);
         AFile logo = getFile(logoFile, new IconChecker());
         AFile api = getFile(apiFile, new ApiChecker());
         newPlugin.updateFile(logo, plugin, api);
         pluginRepository.store(newPlugin);
         return newPlugin;
+
     }
 
     private AFile getFile(MultipartFile file, FileChecker fileChecker) throws IOException {

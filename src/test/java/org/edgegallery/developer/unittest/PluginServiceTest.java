@@ -39,6 +39,7 @@ import org.edgegallery.developer.domain.shared.PluginChecker;
 import org.edgegallery.developer.domain.shared.exceptions.EntityNotFoundException;
 import org.edgegallery.developer.interfaces.plugin.facade.PluginServiceFacade;
 import org.edgegallery.developer.interfaces.plugin.facade.dto.PluginDto;
+import org.edgegallery.developer.util.FileHashCode;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -98,7 +99,7 @@ public class PluginServiceTest {
     @Test
     @WithMockUser(roles = "DEVELOPER_TENANT")
     public void getPluginList() {
-        Page<PluginDto> page1 = pluginServiceFacade.qurey("1", "", "", 10, 0);
+        Page<PluginDto> page1 = pluginServiceFacade.query("1", "", "", 10, 0);
 
         Assert.assertNotNull(page1);
     }
@@ -221,5 +222,7 @@ public class PluginServiceTest {
             Assert.assertEquals("cannot find the plugin with id test", e.getMessage());
         }
     }
+
+
 
 }
