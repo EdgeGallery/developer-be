@@ -71,4 +71,42 @@ public class CreateSampleCodeTest {
         File tar = service.analysis(jsons);
         Assert.assertTrue(tar.exists());
     }
+
+    @Test
+    @WithMockUser(roles = "DEVELOPER_TENANT")
+    public void should_successful_when_gen_code_from_openapi_file() throws IOException {
+        SampleCodeServer service = new SampleCodeServer();
+        String[] jsonFiles = {"testdata/json/540e0817-f6ea-42e5-8c5b-cb2daf9925a3"};
+        List<String> jsons = new ArrayList<>();
+        for (String jsonPath : jsonFiles) {
+            try {
+                URL url = CreateSampleCodeTest.class.getClassLoader().getResource(jsonPath);
+                String apiJson = FileUtils.readFileToString(new File(url.toURI()), "UTF-8");
+                jsons.add(apiJson);
+            } catch (URISyntaxException e) {
+                Assert.fail("read test file error.");
+            }
+        }
+        File tar = service.analysis(jsons);
+        Assert.assertTrue(tar.exists());
+    }
+
+    @Test
+    @WithMockUser(roles = "DEVELOPER_TENANT")
+    public void should_successful_when_gen_code_from_yaml_file() throws IOException {
+        SampleCodeServer service = new SampleCodeServer();
+        String[] yamlFiles = {"testdata/yaml/9f1f13a0-8554-4dfa-90a7-d2765238fca7"};
+        List<String> jsons = new ArrayList<>();
+        for (String yamlPath : yamlFiles) {
+            try (InputStream input = CreateSampleCodeTest.class.getClassLoader().getResourceAsStream(yamlPath)) {
+                Yaml yaml = new Yaml();
+                Map<String, Object> loaded = yaml.load(input);
+                String apiJson = new Gson().toJson(loaded);
+                jsons.add(apiJson);
+            }
+        }
+
+        File tar = service.analysis(jsons);
+        Assert.assertTrue(tar.exists());
+    }
 }

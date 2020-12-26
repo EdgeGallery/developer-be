@@ -60,7 +60,6 @@ public class PluginControllerTest extends TestCase {
         MockitoAnnotations.initMocks(this);
     }
 
-
     @Test
     @WithMockUser(roles = "DEVELOPER_TENANT")
     public void registerAppSuccess() throws Exception {
