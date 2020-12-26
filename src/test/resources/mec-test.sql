@@ -14,6 +14,23 @@
 
  Date: 30/12/2019 14:40:23
 */
+DROP TABLE IF  EXISTS tbl_appfunction;
+DROP TABLE IF  EXISTS tbl_downloadrecord;
+DROP TABLE IF  EXISTS  tbl_plugin;
+DROP TABLE IF  EXISTS tbl_subtaskstatus;
+DROP TABLE IF  EXISTS tbl_testCase;
+DROP TABLE  IF  EXISTS tbl_testapp;
+DROP TABLE  IF  EXISTS  tbl_testtask;
+DROP TABLE  IF  EXISTS tbl_app_project;
+DROP TABLE  IF  EXISTS tbl_openmep_capability;
+DROP TABLE  IF  EXISTS tbl_openmep_capability_detail;
+DROP TABLE  IF  EXISTS tbl_project_image;
+DROP TABLE  IF  EXISTS tbl_project_test_config;
+DROP TABLE  IF  EXISTS tbl_uploaded_file;
+DROP TABLE  IF  EXISTS tbl_helm_template_yaml;
+DROP TABLE  IF  EXISTS tbl_service_host;
+DROP TABLE  IF  EXISTS tbl_api_emulator;
+DROP TABLE  IF  EXISTS tbl_release_config;
 
 -- ----------------------------
 -- Table structure for tbl_appfunction
@@ -62,6 +79,7 @@ CREATE TABLE IF NOT EXISTS  tbl_plugin (
   pluginsize int NOT NULL DEFAULT NULL,
   apifile varchar(500)  NOT NULL DEFAULT NULL,
   scorecount int NOT NULL DEFAULT NULL,
+  pluginFileHashCode varchar(50) DEFAULT NULL,
   CONSTRAINT tbl_plugin_pkey PRIMARY KEY (pluginid)
 )
 ;

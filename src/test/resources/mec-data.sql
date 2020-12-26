@@ -52,8 +52,8 @@ MERGE INTO tbl_app_project KEY(id) VALUES ('200dfab1-3c30-4fc7-a6ca-ed6f0620a85y
 -- ----------------------------
 -- Records of tbl_plugin
 -- ----------------------------
-MERGE INTO tbl_plugin KEY(pluginid) VALUES ('586224da-e1a2-4893-a5b5-bf766fdfb8c7', 'test001', 'test 0318', 4, 'JAVA', 1, '1.0.0', 1, 'testdata/idea.png', 'testdata/IDEAPluginDev.zip', 'f24ea0a2-d8e6-467c-8039-94f0d29bac43', '2020-03-18 09:18:05.188+08', 'helongfei999', 3440123, 'testdata/plugin.json', 1);
-MERGE INTO tbl_plugin KEY(pluginid) VALUES ('586224da-e1a2-4893-a5b5-bf766fdfb8c8', 'test001', 'test 0318', 4, 'JAVA', 1, '1.0.0', 1, 'testdata/idea.png', 'testdata/IDEAPluginDev.zip', 'f24ea0a2-d8e6-467c-8039-94f0d29bac43', '2020-03-18 09:18:05.188+08', 'helongfei999', 3440123, 'testdata/plugin.json', 1);
+MERGE INTO tbl_plugin KEY(pluginid) VALUES ('586224da-e1a2-4893-a5b5-bf766fdfb8c7', 'test001', 'test 0318', 4, 'JAVA', 1, '1.0.0', 1, 'testdata/idea.png', 'testdata/IDEAPluginDev.zip', 'f24ea0a2-d8e6-467c-8039-94f0d29bac43', '2020-03-18 09:18:05.188+08', 'helongfei999', 3440123, 'testdata/plugin.json', 1, null);
+MERGE INTO tbl_plugin KEY(pluginid) VALUES ('586224da-e1a2-4893-a5b5-bf766fdfb8c8', 'test001', 'test 0318', 4, 'JAVA', 1, '1.0.0', 1, 'testdata/idea.png', 'testdata/IDEAPluginDev.zip', 'f24ea0a2-d8e6-467c-8039-94f0d29bac43', '2020-03-18 09:18:05.188+08', 'helongfei999', 3440123, 'testdata/plugin.json', 1, null);
 
 -- ----------------------------
 -- Records of tbl_testapp

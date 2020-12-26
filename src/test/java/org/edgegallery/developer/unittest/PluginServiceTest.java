@@ -145,6 +145,7 @@ public class PluginServiceTest {
         upload();
         InputStream stream = pluginServiceFacade.downloadFile("b7370981-f199-4bf1-9814-30c3ea48b1d9");
         Assert.assertNotNull(stream);
+        pluginServiceFacade.deleteByPluginId("b7370981-f199-4bf1-9814-30c3ea48b1d9", "b7370981-f199-4bf1-9814-30c3ea48b1d8");
     }
 
     @Test
@@ -153,6 +154,7 @@ public class PluginServiceTest {
         upload();
         InputStream stream = pluginServiceFacade.downloadLogo("b7370981-f199-4bf1-9814-30c3ea48b1d9");
         Assert.assertNotNull(stream);
+        pluginServiceFacade.deleteByPluginId("b7370981-f199-4bf1-9814-30c3ea48b1d9", "b7370981-f199-4bf1-9814-30c3ea48b1d8");
     }
 
     @Test
@@ -161,6 +163,7 @@ public class PluginServiceTest {
         upload();
         InputStream stream = pluginServiceFacade.downloadApiFile("b7370981-f199-4bf1-9814-30c3ea48b1d9");
         Assert.assertNotNull(stream);
+        pluginServiceFacade.deleteByPluginId("b7370981-f199-4bf1-9814-30c3ea48b1d9", "b7370981-f199-4bf1-9814-30c3ea48b1d8");
     }
 
     @Test
@@ -170,7 +173,7 @@ public class PluginServiceTest {
         User user = new User("b7370981-f199-4bf1-9814-30c3ea48b1d8", "hello");
         Plugin either = pluginServiceFacade.mark("b7370981-f199-4bf1-9814-30c3ea48b1d9", 5, user);
         Assert.assertEquals(Float.toString(5f), Float.toString(either.getSatisfaction()));
-
+        pluginServiceFacade.deleteByPluginId(either.getPluginId(), user.getUserId());
     }
 
     private void upload() throws Exception {
