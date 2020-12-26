@@ -66,4 +66,8 @@ public class PluginRepositoryImpl implements PluginRepository {
     public void saveDownloadRecord(PluginDownloadRecord record) {
         pluginMapper.saveDownloadRecord(record);
     }
+
+    public long findPlugInByHashCode(String hashCode) {
+        return pluginMapper.findPlugInByHashCode(hashCode);
+    }
 }

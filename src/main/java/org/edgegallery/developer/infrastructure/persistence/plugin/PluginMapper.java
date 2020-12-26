@@ -62,4 +62,5 @@ public interface PluginMapper {
 
     long count(@Param("criteria") PluginPageCriteria pluginPageCriteria);
 
+    long findPlugInByHashCode(@Param("hashcode") String hashCode);
 }

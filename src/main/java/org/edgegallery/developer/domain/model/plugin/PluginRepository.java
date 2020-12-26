@@ -31,4 +31,5 @@ public interface PluginRepository {
 
     void saveDownloadRecord(PluginDownloadRecord record);
 
+    long findPlugInByHashCode(String hashCode);
 }
