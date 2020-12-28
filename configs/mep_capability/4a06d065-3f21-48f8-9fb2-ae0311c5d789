@@ -1,8 +1,8 @@
-#知识图谱
-##GET 企业名称精准查询
-###功能介绍
+# 知识图谱
+## GET 企业名称精准查询
+### 功能介绍
 输入企业名称，返回企业精准信息
-####请求消息
+#### 请求消息
 ```
 URI: /ecloud/ai/v1/compkg/v1/basicinfo
 Method: GET
@@ -19,7 +19,7 @@ Method: GET
 https://smartlib-api-changsha-1.cmecloud.cn:8444/ecloud/ai/v1/compkg/v1/basicinfo?access_token=4f0bddbf-f101-4c24-9fe7-cb60f03df872&keyword=小桔科技
 ```
 
-####响应消息
+#### 响应消息
 **响应参数说明**
 
 | 参数名称  | 参数类型  | 参数描述  |
@@ -313,10 +313,10 @@ WebSite
 **响应错误码**
 参考 [附 错误信息]
 
-##GET 企业名称模糊查询
-###功能介绍
+## GET 企业名称模糊查询
+### 功能介绍
 输入企业名称，返回相关企业信息
-####请求消息
+#### 请求消息
 ```
 URI: /ecloud/ai/v1/compkg/v1/search
 Method: GET
@@ -337,7 +337,7 @@ Method: GET
 https://smartlib-api-changsha-1.cmecloud.cn:8444/ecloud/ai/v1/compkg/v1/search?access_token=4f0bddbf-f101-4c24-9fe7-cb60f03df872&keyword=小桔科技&provinceCode=BJ&cityCode=1&pageSize=10&pageIndex=1
 ```
 
-####响应消息
+#### 响应消息
 **响应参数说明**
 
 | 参数名称  | 参数类型  | 参数描述  |
@@ -383,10 +383,10 @@ https://smartlib-api-changsha-1.cmecloud.cn:8444/ecloud/ai/v1/compkg/v1/search?a
 **响应错误码**
 参考 [附 错误信息]
 
-##GET 企业经营异常信息查询
-###功能介绍
+## GET 企业经营异常信息查询
+### 功能介绍
 输入经营异常企业信用码，返回企业异常经营信息
-####请求消息
+#### 请求消息
 ```
 URI: /ecloud/ai/v1/compkg/v1/problem
 Method: GET
@@ -403,7 +403,7 @@ Method: GET
 https://smartlib-api-changsha-1.cmecloud.cn:8444/ecloud/ai/v1/compkg/v1/problem?access_token=4f0bddbf-f101-4c24-9fe7-cb60f03df872&keyNo=北京小桔科技有限公司
 ```
 
-####响应消息
+#### 响应消息
 **响应参数说明**
 
 | 参数名称  | 参数类型  | 参数描述  |
@@ -438,10 +438,10 @@ https://smartlib-api-changsha-1.cmecloud.cn:8444/ecloud/ai/v1/compkg/v1/problem?
 **响应错误码**
 参考 [附 错误信息]
 
-##GET 企业人员董监高信息
-###功能介绍
+## GET 企业人员董监高信息
+### 功能介绍
 输入企业名和人员名，返回该员工在该企业的任职信息。
-####请求消息
+#### 请求消息
 ```
 URI: /ecloud/ai/v1/compkg/v1/getstockrelationinfo
 Method: GET
@@ -459,7 +459,7 @@ Method: GET
 https://smartlib-api-changsha-1.cmecloud.cn:8444/ecloud/ai/v1/compkg/v1/getstockrelationinfo?access_token=4f0bddbf-f101-4c24-9fe7-cb60f03df872&companyName=北京普思投资有限公司&name=王思聪
 ```
 
-####响应消息
+#### 响应消息
 **响应参数说明**
 
 | 参数名称  | 参数类型  | 参数描述  |
@@ -497,7 +497,7 @@ Oper
 参考 [附 错误信息]
 
 
-##附 错误信息
+## 附 错误信息
 |错误码 |错误信息 |描述| 抛出模块|
 |-------|----------|-----|--------|
 |InvalidParameterError |请求参数有误|接口请求参数不规范| 公共模块|
