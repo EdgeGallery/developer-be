@@ -40,7 +40,7 @@ import org.edgegallery.developer.mapper.OpenMepCapabilityMapper;
 import org.edgegallery.developer.mapper.UploadedFileMapper;
 import org.edgegallery.developer.model.GeneralConfig;
 import org.edgegallery.developer.model.workspace.ApiEmulator;
-import org.edgegallery.developer.model.workspace.EnumOpenMepType;
+import org.edgegallery.developer.model.workspace.EnumHostStatus;
 import org.edgegallery.developer.model.workspace.HelmTemplateYamlPo;
 import org.edgegallery.developer.model.workspace.MepHost;
 import org.edgegallery.developer.model.workspace.OpenMepCapabilityDetail;
@@ -142,15 +142,13 @@ public class UploadFileService {
     }
 
     private byte[] getFileByteArray(File file, String userId, String type) throws IOException {
-        if (userId == null || !EnumOpenMepType.OPENMEP.name().equals(type)) {
-            return FileUtils.readFileToByteArray(file);
-        }
-        ApiEmulator apiEmulator = apiEmulatorMapper.getEmulatorByUserId(userId);
-        if (apiEmulator != null) {
-            MepHost mepHost = hostMapper.getHost(apiEmulator.getHostId());
-            String host = mepHost.getIp() + ":" + apiEmulator.getPort();
+        List<MepHost> enabledHosts = hostMapper.getHostsByStatus(EnumHostStatus.NORMAL,"admin");
+        if (enabledHosts.size()!=0 ) {
+            String host = enabledHosts.get(0).getIp() + ":" + "32119";
+            ApiEmulator apiEmulator = apiEmulatorMapper.getEmulatorByUserId(userId);
             return FileUtils.readFileToString(file, "UTF-8").replace("{HOST}", host).getBytes(StandardCharsets.UTF_8);
         }
+
         return FileUtils.readFileToByteArray(file);
     }
 
