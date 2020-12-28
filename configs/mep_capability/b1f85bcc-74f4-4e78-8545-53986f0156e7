@@ -1,0 +1,272 @@
+swagger: "2.0"
+info:
+  description: "基于mmseg算法的一个轻量级中文分词器，同时集成了关键字提取，关键短语提取，关键句子提取和文章自动摘要等功能。"
+  version: "1.0.0"
+  title: "轻量级中文分词器"
+
+tags:
+- name: "jcseg"
+  description: "关键字、关键短语、关键句子、摘要提取，文章分词"
+
+schemes:
+- "http"
+paths:
+  /extractor/keywords:
+    get:
+      tags:
+      - "key words"
+      summary: "关键字提取"
+      description: "关键字提取"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "text"
+        in: "query"
+        description: "待分析的文本内容"
+        required: true
+        type: "string"
+      - name: "number"
+        in: "query"
+        description: "要提取的关键词个数"
+        required: false
+        type: "integer"
+      - name: "autoFilter"
+        in: "query"
+        description: "是否自动过滤掉低分数关键字"
+        required: false
+        type: "boolean"
+      responses:
+        "400":
+          description: "Bad Request"
+        "200":
+          description: "提取信息成功"  
+          schema:
+            $ref: "#/definitions/Keywords"
+  /extractor/keyphrase:
+    get:
+      tags:
+      - "key phrase"
+      summary: "关键短语提取"
+      description: "关键短语提取"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "text"
+        in: "query"
+        description: "待分析的文本内容"
+        required: true
+        type: "string"
+      - name: "number"
+        in: "query"
+        description: "要提取的关键短语个数"
+        required: false
+        type: "integer"
+      responses:
+        "400":
+          description: "Bad Request"
+        "200":
+          description: "提取信息成功"  
+          schema:
+            $ref: "#/definitions/Keyphrase"
+  /extractor/sentence:
+    get:
+      tags:
+      - "sentence"
+      summary: "关键句子提取"
+      description: "关键句子提取"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "text"
+        in: "query"
+        description: "待分析的文本内容"
+        required: true
+        type: "string"
+      - name: "number"
+        in: "query"
+        description: "要提取的关键句子个数"
+        required: false
+        type: "integer"
+      responses:
+        "400":
+          description: "Bad Request"
+        "200":
+          description: "提取信息成功"  
+          schema:
+            $ref: "#/definitions/Sentence"
+  /extractor/summary:
+    get:
+      tags:
+      - "summary"
+      summary: "文章摘要提取"
+      description: "文章摘要提取"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "text"
+        in: "query"
+        description: "待分析的文本内容"
+        required: true
+        type: "string"
+      - name: "length"
+        in: "query"
+        description: "要提取的摘要的长度"
+        required: false
+        type: "integer"
+      responses:
+        "400":
+          description: "Bad Request"
+        "200":
+          description: "提取信息成功"  
+          schema:
+            $ref: "#/definitions/Summary"
+  /tokenizer/{tokenizer_instance}:
+    get:
+      tags:
+      - "tokenizer"
+      summary: "文章自动分词"
+      description: "文章自动分词"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "tokenizer_instance"
+        in: "path"
+        description: "分词实例名称"
+        required: true
+        type: "integer"
+      - name: "text"
+        in: "query"
+        description: "待分析的文本内容"
+        required: true
+        type: "string"
+      responses:
+        "400":
+          description: "Bad Request"
+        "200":
+          description: "提取信息成功"  
+          schema:
+            $ref: "#/definitions/Tokenizer"
+definitions:
+  Keywords:
+    type: "object"
+    properties: 
+      code:
+        type: "integer"
+        description: "错误码，1参数错误, -1内部错误"
+      data: 
+        type: "object"
+        properties: 
+          took:
+            type: "number"
+            description: "操作耗时"
+          keywords:
+            type: "array"
+            items:
+              type: "string"
+              description: "关键字数组"
+  Keyphrase:
+    type: "object"
+    properties: 
+      code:
+        type: "integer"
+        description: "错误码，1参数错误, -1内部错误"
+      data: 
+        type: "object"
+        properties: 
+          took:
+            type: "number"
+            description: "操作耗时"
+          keyphrase:
+            type: "array"
+            items:
+              type: "string"
+              description: "关键字数组"
+  Sentence:
+    type: "object"
+    properties: 
+      code:
+        type: "integer"
+        description: "错误码，1参数错误, -1内部错误"
+      data: 
+        type: "object"
+        properties: 
+          took:
+            type: "number"
+            description: "操作耗时"
+          sentence:
+            type: "array"
+            items:
+              type: "string"
+              description: "关键字数组"
+  Summary:
+    type: "object"
+    properties: 
+      code:
+        type: "integer"
+        description: "错误码，1参数错误, -1内部错误"
+      data: 
+        type: "object"
+        properties: 
+          took:
+            type: "number"
+            description: "操作耗时"
+          summary:
+            type: "string"
+            description: "关键字数组"
+  Tokenizer:
+    type: "object"
+    properties: 
+      code:
+        type: "integer"
+        description: "错误码，1参数错误, -1内部错误"
+      data: 
+        type: "object"
+        properties: 
+          took:
+            type: "number"
+            description: "操作耗时"
+          list:
+            type: "array"
+            description: "分词列表"
+            items:
+              $ref: "#/definitions/Words"
+  Words:
+    type: "object"
+    properties: 
+      word:
+        type: "string"
+        description: "词条内容"
+      type:
+        type: "integer"
+        description: "类型"
+      position:
+        type: "integer"
+        description: "词条在原文中的索引位置"
+      length:
+        type: "integer"
+        description: "词条的词个数（非字节数）"
+      pinyin:
+        type: "string"
+        description: "词条的拼音"
+      pos:
+        type: "string"
+        description: "词条的词性标注"
+      entity:
+        type: "string"
+        description: "词条的实体标注"
+      root:
+        type: "string"
+        description: "词条根"
+      parameter:
+        type: "string"
+        description: "参数"

@@ -1,0 +1,247 @@
+#中文分词器
+##  关键字提取
+###  功能介绍
+   提取输入文本中的关键字。
+####请求消息
+```
+URI: /extractor/keywords
+Method: GET
+```
+参数说明
+
+|参数名称| 参数类型| 是否必须 |参数说明|
+|-----|------|-----|------|
+|text| string |是|待分析的文本内容|
+|number | Int |否 |要提取的关键词个数|
+|autoFilter| boolean |否|是否自动过滤掉低分数关键字|
+
+请求参考示例
+```
+http://jcseg_server_host:port/extractor/keywords?text='一年之计在于春'&autoFilter=false
+```
+
+####响应消息
+响应参数说明
+
+|参数名称| 参数类型 |参数描述|
+|---------|---------|----------|
+|code |Int |错误码，1参数错误, -1内部错误|
+|took |Double |操作耗时|
+|keywords |Array |关键字数组|
+
+响应参考示例
+```
+{
+	"code": 0
+	"data": {
+		"took": 0.001,
+		"keywords": [
+			"一年之计在于春"
+		]
+	}
+}
+```
+
+##  关键短语提取
+###  功能介绍
+   提取输入文本中的关键短语。
+####请求消息
+```
+URI: /extractor/keyphrase
+Method: GET
+```
+参数说明
+
+|参数名称| 参数类型| 是否必须 |参数说明|
+|-----|------|-----|------|
+|text| string |是|待分析的文本内容|
+|number | Int |否 |要提取的关键词个数|
+
+请求参考示例
+```
+http://jcseg_server_host:port/extractor/keyphrase?text='一年之计在于春'&number=10
+```
+
+####响应消息
+响应参数说明
+
+|参数名称| 参数类型 |参数描述|
+|---------|---------|----------|
+|code |Int |错误码，1参数错误, -1内部错误|
+|took |Double |操作耗时|
+|keyphrase |Array |关键短语数组|
+
+响应参考示例
+```
+{
+	"code": 0
+	"data": {
+		"took": 0.001,
+		"keyphrase": [
+			"一年之计在于春"
+		]
+	}
+}
+```
+
+##  关键句子提取
+###  功能介绍
+   提取输入文本中的关键句子。
+####请求消息
+```
+URI: /extractor/sentence
+Method: GET
+```
+参数说明
+
+|参数名称| 参数类型| 是否必须 |参数说明|
+|-----|------|-----|------|
+|text| string |是|待分析的文本内容|
+|number | Int |否 |要提取的关键句子个数|
+
+请求参考示例
+```
+http://jcseg_server_host:port/extractor/sentence?text='师者，所以传道授业解惑也……闻道有先后，术业有专攻，如是而已。'&number=1
+```
+
+####响应消息
+响应参数说明
+
+|参数名称| 参数类型 |参数描述|
+|---------|---------|----------|
+|code |Int |错误码，1参数错误, -1内部错误|
+|took |Double |操作耗时|
+|sentence |Array |关键句子数组|
+
+响应参考示例
+```
+{
+	"code": 0
+	"data": {
+		"took": 0.001,
+		"sentence": [
+			"师者，所以传道授业解惑也……"
+		]
+	}
+}
+```
+
+##  文章摘要提取
+###  功能介绍
+   提取输入文本中的摘要。
+####请求消息
+```
+URI: /extractor/summary
+Method: GET
+```
+参数说明
+
+|参数名称| 参数类型| 是否必须 |参数说明|
+|-----|------|-----|------|
+|text| string |是|待分析的文本内容|
+|length | Int |否 |要提取的摘要的长度|
+
+请求参考示例
+```
+http://jcseg_server_host:port/extractor/summary?text='师者，所以传道授业解惑也……闻道有先后，术业有专攻，如是而已。'&length=10
+```
+
+####响应消息
+响应参数说明
+
+|参数名称| 参数类型 |参数描述|
+|---------|---------|----------|
+|code |Int |错误码，1参数错误, -1内部错误|
+|took |Double |操作耗时|
+|summary |string |文章摘要|
+
+响应参考示例
+```
+{
+	"code": 0
+	"data": {
+		"took": 0.001,
+		"summary": "师者，所以传道授业解"
+	}
+}
+```
+
+##  文章自动分词
+###  功能介绍
+   文章自动分词。
+####请求消息
+```
+URI: /tokenizer/{tokenizer_instance}
+Method: GET
+```
+参数说明
+
+|参数名称| 参数类型| 是否必须 |参数说明|
+|-----|------|-----|------|
+|tokenizer_instance| string |是|表示在jcseg-server.properties中定义的分词实例名称|
+|text| string |是|待分析的文本内容|
+
+请求参考示例
+```
+http://jcseg_server_host:port/tokenizer/extractor?text='天下兴亡多少事'
+```
+
+####响应消息
+响应参数说明
+
+|参数名称| 参数类型 |参数描述|
+|---------|---------|----------|
+|code |Int |错误码，1参数错误, -1内部错误|
+|took |Double |操作耗时|
+|word |string |词条内容|
+|type |Int |类型|
+|position |Int |词条在原文中的索引位置|
+|length |Int |词条的词个数（非字节数）|
+|pinyin |string |词条的拼音|
+|pos |string |词条的词性标注|
+|entity |string |词条的实体标注|
+|root |string |词条根|
+|parameter |string |参数|
+
+响应参考示例
+```
+{
+	"code": 0
+	"data": {
+		"took": 0.001,
+		"list": [{
+				"word": "天下兴亡",
+				"type": 1,
+				"position": 0,
+				"length": 4,
+				"pinyin": "tian xia xing wang",
+				"pos": "i",
+				"entity": null,
+				"root": null,
+				"parameter": null
+			},{
+				"word": "多少",
+				"type": 1,
+				"position": 4,
+				"length": 2,
+				"pinyin": "duo shao",
+				"pos": "a",
+				"entity": null,
+				"root": null,
+				"parameter": null
+			},
+			{
+				"word": "事",
+				"type": 1,
+				"position": 6,
+				"length": 2,
+				"pinyin": "shi",
+				"pos": "i",
+				"entity": null,
+				"root": null,
+				"parameter": null
+			},
+		]
+	}
+}
+```
