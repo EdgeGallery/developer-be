@@ -62,6 +62,7 @@ public class AppStoreUtil {
         try {
             ResponseEntity<String> responses = restTemplate
                 .exchange(url, HttpMethod.POST, new HttpEntity<>(map, headers), String.class);
+            LOGGER.info("upload appstore response:{}", responses);
             if (HttpStatus.OK.equals(responses.getStatusCode()) || HttpStatus.ACCEPTED
                 .equals(responses.getStatusCode())) {
                 return responses;
