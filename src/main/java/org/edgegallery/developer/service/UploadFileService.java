@@ -41,6 +41,7 @@ import org.edgegallery.developer.mapper.UploadedFileMapper;
 import org.edgegallery.developer.model.GeneralConfig;
 import org.edgegallery.developer.model.workspace.ApiEmulator;
 import org.edgegallery.developer.model.workspace.EnumHostStatus;
+import org.edgegallery.developer.model.workspace.EnumOpenMepType;
 import org.edgegallery.developer.model.workspace.HelmTemplateYamlPo;
 import org.edgegallery.developer.model.workspace.MepHost;
 import org.edgegallery.developer.model.workspace.OpenMepCapabilityDetail;
@@ -141,8 +142,13 @@ public class UploadFileService {
         return Either.right(uploadedFile);
     }
 
+
     private byte[] getFileByteArray(File file, String userId, String type) throws IOException {
+        if (userId == null || !EnumOpenMepType.OPENMEP.name().equals(type)) {
+            return FileUtils.readFileToByteArray(file);
+        }
         List<MepHost> enabledHosts = hostMapper.getHostsByStatus(EnumHostStatus.NORMAL,"admin");
+
         if (enabledHosts.size()!=0 ) {
             String host = enabledHosts.get(0).getIp() + ":" + "32119";
             ApiEmulator apiEmulator = apiEmulatorMapper.getEmulatorByUserId(userId);
