@@ -1,4 +1,4 @@
-#中文分词器
+# 中文分词器
 ##  关键字提取
 ###  功能介绍
    提取输入文本中的关键字。
@@ -20,7 +20,7 @@ Method: GET
 http://jcseg_server_host:port/extractor/keywords?text='一年之计在于春'&autoFilter=false
 ```
 
-####响应消息
+#### 响应消息
 响应参数说明
 
 |参数名称| 参数类型 |参数描述|
@@ -45,7 +45,7 @@ http://jcseg_server_host:port/extractor/keywords?text='一年之计在于春'&au
 ##  关键短语提取
 ###  功能介绍
    提取输入文本中的关键短语。
-####请求消息
+#### 请求消息
 ```
 URI: /extractor/keyphrase
 Method: GET
@@ -62,7 +62,7 @@ Method: GET
 http://jcseg_server_host:port/extractor/keyphrase?text='一年之计在于春'&number=10
 ```
 
-####响应消息
+#### 响应消息
 响应参数说明
 
 |参数名称| 参数类型 |参数描述|
@@ -87,7 +87,7 @@ http://jcseg_server_host:port/extractor/keyphrase?text='一年之计在于春'&n
 ##  关键句子提取
 ###  功能介绍
    提取输入文本中的关键句子。
-####请求消息
+#### 请求消息
 ```
 URI: /extractor/sentence
 Method: GET
@@ -104,7 +104,7 @@ Method: GET
 http://jcseg_server_host:port/extractor/sentence?text='师者，所以传道授业解惑也……闻道有先后，术业有专攻，如是而已。'&number=1
 ```
 
-####响应消息
+#### 响应消息
 响应参数说明
 
 |参数名称| 参数类型 |参数描述|
@@ -129,7 +129,7 @@ http://jcseg_server_host:port/extractor/sentence?text='师者，所以传道授�
 ##  文章摘要提取
 ###  功能介绍
    提取输入文本中的摘要。
-####请求消息
+#### 请求消息
 ```
 URI: /extractor/summary
 Method: GET
@@ -146,7 +146,7 @@ Method: GET
 http://jcseg_server_host:port/extractor/summary?text='师者，所以传道授业解惑也……闻道有先后，术业有专攻，如是而已。'&length=10
 ```
 
-####响应消息
+#### 响应消息
 响应参数说明
 
 |参数名称| 参数类型 |参数描述|
@@ -169,7 +169,7 @@ http://jcseg_server_host:port/extractor/summary?text='师者，所以传道授�
 ##  文章自动分词
 ###  功能介绍
    文章自动分词。
-####请求消息
+#### 请求消息
 ```
 URI: /tokenizer/{tokenizer_instance}
 Method: GET
