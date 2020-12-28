@@ -18,13 +18,19 @@ package org.edgegallery.developer.util;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 public class FileHashCode {
 
+    private FileHashCode() {
+        throw new IllegalStateException("FileHashCode class");
+    }
+
     /**
-     * get the file md5 code
+     * get the file md5 code.
      *
      * @param filePaht filePaht
      * @return MD5 code
@@ -53,9 +59,8 @@ public class FileHashCode {
                 hexValue.append(Integer.toHexString(val));
             }
             return hexValue.toString();
-        } catch (Exception e) {
+        } catch (NoSuchAlgorithmException | IOException e) {
             return "";
         }
     }
-
 }

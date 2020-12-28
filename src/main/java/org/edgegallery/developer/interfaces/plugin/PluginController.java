@@ -114,7 +114,7 @@ public class PluginController {
         @ApiParam(value = "the author's Id of upload plugin", required = true) @RequestParam(name = "userId")
             String userId, @Pattern(regexp = REGEX_USERNAME,
         message = "username can only be a combination of letters and numbers, the length is 6 to 30")
-    @ApiParam(value = "the author's name of upload plugin", required = true) @RequestParam(name = "userName")
+        @ApiParam(value = "the author's name of upload plugin", required = true) @RequestParam(name = "userName")
         String userName) throws IOException {
         Plugin plugin = new Plugin(pluginName, introduction, codeLanguage, pluginType, version,
             new User(userId, userName));
@@ -324,7 +324,7 @@ public class PluginController {
         @Pattern(regexp = REGEX_UUID, message = "userId must be in UUID format") @RequestParam(value = "userId")
             String userId, @Pattern(regexp = REGEX_USERNAME,
         message = "username can only be a combination of letters and numbers, the length is 6 to 30")
-    @RequestParam(value = "userName") String userName) {
+        @RequestParam(value = "userName") String userName) {
         return ResponseEntity.ok(PluginDto.of(pluginServiceFacade.mark(pluginId, score, new User(userId, userName))));
 
     }
