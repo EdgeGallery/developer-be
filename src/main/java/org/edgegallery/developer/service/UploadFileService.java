@@ -149,9 +149,8 @@ public class UploadFileService {
         }
         List<MepHost> enabledHosts = hostMapper.getHostsByStatus(EnumHostStatus.NORMAL,"admin");
 
-        if (enabledHosts.size()!=0 ) {
+        if (!enabledHosts.isEmpty() ) {
             String host = enabledHosts.get(0).getIp() + ":" + "32119";
-            ApiEmulator apiEmulator = apiEmulatorMapper.getEmulatorByUserId(userId);
             return FileUtils.readFileToString(file, "UTF-8").replace("{HOST}", host).getBytes(StandardCharsets.UTF_8);
         }
 
