@@ -42,12 +42,7 @@ RUN apk update &&\
 
 WORKDIR $APP_HOME
 
-COPY target/*.jar $APP_HOME/bin
-COPY target/output $APP_HOME
-COPY configs/mep_capability/ $APP_HOME/mep_capability/
-COPY lib/*.jar  $APP_HOME/lib/
-
-RUN chmod 750 $APP_HOME &&\
+RUN chmod -R 750 $APP_HOME &&\
     chmod -R 550 $APP_HOME/bin &&\
     mkdir -p -m 750 $APP_HOME/config &&\
     mkdir -p -m 750 $APP_HOME/log &&\
@@ -58,12 +53,17 @@ RUN chmod 750 $APP_HOME &&\
     mkdir -p -m 750 $APP_HOME/user/workspace &&\
     mkdir -p -m 750 $APP_HOME/user/workspace/csar &&\
     mkdir -p -m 750 $APP_HOME/user/uploaded_files &&\
+    mkdir -p -m 750 $APP_HOME/mep_capability &&\
     chown -R $USER_NAME:$GROUP_NAME $APP_HOME &&\
-    chown -R $USER_NAME:$GROUP_NAME $APP_HOME/log
-
-RUN chown -R $USER_NAME:$GROUP_NAME $APP_HOME/user &&\
+    chown -R $USER_NAME:$GROUP_NAME $APP_HOME/log &&\
+    chown -R $USER_NAME:$GROUP_NAME $APP_HOME/user &&\
     chown -R $USER_NAME:$GROUP_NAME $APP_HOME/user/workspace &&\
     chown -R $USER_NAME:$GROUP_NAME $APP_HOME/user/uploaded_files
+
+COPY --chown=$USER_NAME:$GROUP_NAME target/*.jar $APP_HOME/bin
+COPY --chown=$USER_NAME:$GROUP_NAME target/output $APP_HOME
+COPY --chown=$USER_NAME:$GROUP_NAME configs/mep_capability $APP_HOME/mep_capability
+COPY --chown=$USER_NAME:$GROUP_NAME lib/*.jar  $APP_HOME/lib/
 
 EXPOSE 9080
 
