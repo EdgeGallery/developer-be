@@ -24,6 +24,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.edgegallery.developer.mapper.HostMapper;
 import org.edgegallery.developer.model.workspace.MepHost;
 import org.edgegallery.developer.response.FormatRespDto;
+import org.edgegallery.developer.util.HttpClientUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,6 +60,14 @@ public class HostService {
      * @return
      */
     public Either<FormatRespDto, MepHost> createHost(MepHost host) {
+        //health check
+        String healRes = HttpClientUtil.getHealth(host.getIp(), host.getPort());
+        if (healRes == null) {
+            String msg = "health check faild,current ip or port cann't be used!";
+            LOGGER.error(msg);
+            FormatRespDto dto = new FormatRespDto(Status.BAD_REQUEST, msg);
+            return Either.left(dto);
+        }
         host.setHostId(UUID.randomUUID().toString()); // no need to set hostId by user
         host.setProtocol("https");
         host.setPortRangeMin(30000);
@@ -103,6 +112,14 @@ public class HostService {
      * @return
      */
     public Either<FormatRespDto, MepHost> updateHost(String hostId, MepHost host) {
+        //health check
+        String healRes = HttpClientUtil.getHealth(host.getIp(), host.getPort());
+        if (healRes == null) {
+            String msg = "health check faild,current ip or port cann't be used!";
+            LOGGER.error(msg);
+            FormatRespDto dto = new FormatRespDto(Status.BAD_REQUEST, msg);
+            return Either.left(dto);
+        }
         MepHost currentHost = hostMapper.getHost(hostId);
         if (currentHost == null) {
             LOGGER.error("Can not find host by {}", hostId);

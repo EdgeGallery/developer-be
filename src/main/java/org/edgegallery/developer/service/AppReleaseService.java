@@ -184,7 +184,10 @@ public class AppReleaseService {
             + File.separator;
     }
 
-    private AppPkgStructure getFiles(String filePath, AppPkgStructure appPkgStructure) throws IOException {
+    /**
+     * getFiles.
+     */
+    public AppPkgStructure getFiles(String filePath, AppPkgStructure appPkgStructure) throws IOException {
         File root = new File(filePath);
         File[] files = root.listFiles();
         if (files == null || files.length == 0) {
@@ -215,7 +218,13 @@ public class AppReleaseService {
         return appPkgStructure;
     }
 
-    private List<String> getFilesPath(File dir) {
+    /**
+     * getFilesPath.
+     *
+     * @param dir file dir
+     * @return
+     */
+    public List<String> getFilesPath(File dir) {
         File[] files = dir.listFiles();
         if (files != null && files.length != 0) {
             for (File file : files) {
@@ -235,7 +244,13 @@ public class AppReleaseService {
         return listLocal;
     }
 
-    private String readFileIntoString(String filePath) {
+    /**
+     * readFileIntoString.
+     *
+     * @param filePath filepath
+     * @return
+     */
+    public String readFileIntoString(String filePath) {
         String msg = "error";
         StringBuffer sb = new StringBuffer();
         String encoding = "UTF-8";

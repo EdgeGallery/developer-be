@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.regex.Pattern;
+import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
@@ -37,6 +38,7 @@ import org.edgegallery.developer.mapper.HelmTemplateYamlMapper;
 import org.edgegallery.developer.mapper.HostMapper;
 import org.edgegallery.developer.mapper.OpenMepCapabilityMapper;
 import org.edgegallery.developer.mapper.UploadedFileMapper;
+import org.edgegallery.developer.model.AppPkgStructure;
 import org.edgegallery.developer.model.GeneralConfig;
 import org.edgegallery.developer.model.workspace.EnumHostStatus;
 import org.edgegallery.developer.model.workspace.EnumOpenMepType;
@@ -75,6 +77,8 @@ public class UploadFileService {
 
     private static final String REGEX_UUID = "[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}";
 
+    private String sampleCodePath;
+
     @Autowired
     private UploadedFileMapper uploadedFileMapper;
 
@@ -86,6 +90,9 @@ public class UploadFileService {
 
     @Autowired
     private OpenMepCapabilityMapper openMepCapabilityMapper;
+
+    @Autowired
+    private AppReleaseService appReleaseService;
 
     /**
      * getFile.
@@ -200,14 +207,116 @@ public class UploadFileService {
      *
      * @return
      */
-    public Either<FormatRespDto, ResponseEntity<byte[]>> downloadSampleCode(List<String> apiFileIds)
-        throws IOException {
+    public Either<FormatRespDto, ResponseEntity<byte[]>> downloadSampleCode(List<String> apiFileIds) {
+        Either<FormatRespDto, File> res = generateTgz(apiFileIds);
+        if (res.isLeft()) {
+            return Either.left(res.getLeft());
+        }
+        File tar = res.getRight();
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.add("Content-Type", MediaType.APPLICATION_OCTET_STREAM_VALUE);
+            headers.add("Content-Disposition", "attachment; filename=SampleCode.tgz");
+            byte[] fileData = FileUtils.readFileToByteArray(tar);
+            LOGGER.info("get sample code file success");
+            DeveloperFileUtils.deleteTempFile(tar);
+            return Either.right(ResponseEntity.ok().headers(headers).body(fileData));
+        } catch (IOException e) {
+            LOGGER.error("get sample code file failed : {}", e.getMessage());
+            return Either.left(new FormatRespDto(Status.BAD_REQUEST, "get sample code file failed "));
+        }
 
+    }
+
+    /**
+     * getSampleCodeStru.
+     *
+     * @return
+     */
+    public Either<FormatRespDto, AppPkgStructure> getSampleCodeStru(List<String> apiFileIds) {
+        Either<FormatRespDto, File> res = generateTgz(apiFileIds);
+        if (res.isLeft()) {
+            return Either.left(res.getLeft());
+        }
+        File sampleTgz = res.getRight();
+        boolean decompressRes = false;
+        String samplePath = "";
+        try {
+            samplePath = sampleTgz.getCanonicalPath();
+            decompressRes = CompressFileUtils.decompress(samplePath, samplePath.substring(0, samplePath.length() - 15));
+        } catch (IOException e) {
+            LOGGER.error("get sample code dir fail,{}", e.getMessage());
+            return Either.left(new FormatRespDto(Status.BAD_REQUEST, "get sample code dir fail"));
+        }
+
+        if (!decompressRes) {
+            LOGGER.error("decompress sample code file fail");
+            return Either.left(new FormatRespDto(Status.BAD_REQUEST, "decompress sample code file fail"));
+        }
+        DeveloperFileUtils.deleteTempFile(sampleTgz);
+        // get csar pkg structure
+        AppPkgStructure structure;
+        try {
+            structure = appReleaseService
+                .getFiles(samplePath.substring(0, samplePath.length() - 15), new AppPkgStructure());
+            sampleCodePath = samplePath.substring(0, samplePath.length() - 15);
+        } catch (IOException ex) {
+            LOGGER.error("get sample code pkg occur io exception: {}", ex.getMessage());
+            String message = "get sample code pkg occur io exception!";
+            FormatRespDto error = new FormatRespDto(Response.Status.BAD_REQUEST, message);
+            return Either.left(error);
+        }
+        return Either.right(structure);
+    }
+
+    /**
+     * getSampleCodeContent.
+     *
+     * @return
+     */
+    public Either<FormatRespDto, String> getSampleCodeContent(String fileName) {
+        if (StringUtils.isEmpty(sampleCodePath)) {
+            LOGGER.error("decompress sample code tgz failed!");
+            return Either.left(new FormatRespDto(Status.BAD_REQUEST, "get sample code path fail!"));
+        }
+        File dir = new File(sampleCodePath);
+        List<String> paths = appReleaseService.getFilesPath(dir);
+        if (paths == null || paths.isEmpty()) {
+            LOGGER.error("can not find any file!");
+            FormatRespDto error = new FormatRespDto(Response.Status.BAD_REQUEST, "can not find any file!");
+            return Either.left(error);
+        }
+        String fileContent = "";
+        for (String path : paths) {
+            if (path.contains(fileName)) {
+                fileContent = appReleaseService.readFileIntoString(path);
+            }
+        }
+        if (fileContent.equals("")) {
+            LOGGER.warn("file has not any content!");
+            FormatRespDto error = new FormatRespDto(Response.Status.BAD_REQUEST, "file is null!");
+            return Either.left(error);
+        }
+
+        if (fileContent.equals("error")) {
+            LOGGER.warn("file is not readable!");
+            FormatRespDto error = new FormatRespDto(Response.Status.BAD_REQUEST, "file is not readable!");
+            return Either.left(error);
+        }
+        return Either.right(fileContent);
+    }
+
+    private Either<FormatRespDto, File> generateTgz(List<String> apiFileIds) {
         File tempDir = DeveloperFileUtils.createTempDir("mec_sample_code");
-
         // add sample resources code
         File sampleResource = new File(tempDir, InitConfigUtil.getSampleCodeDir());
-        DeveloperFileUtils.deleteAndCreateDir(sampleResource);
+        try {
+            DeveloperFileUtils.deleteAndCreateDir(sampleResource);
+        } catch (IOException e) {
+            String msg = "create sample code dir failed!";
+            LOGGER.error("create sample code dir failed! occur {}", e.getMessage());
+            return Either.left(new FormatRespDto(Status.BAD_REQUEST, msg));
+        }
 
         for (String apiFileId : apiFileIds) {
             if (!apiFileId.matches(REGEX_UUID)) {
@@ -240,20 +349,7 @@ public class UploadFileService {
 
         SampleCodeServer generateCode = new SampleCodeServer();
         File tar = generateCode.analysis(apiJsonList);
-
-        try {
-            HttpHeaders headers = new HttpHeaders();
-            headers.add("Content-Type", MediaType.APPLICATION_OCTET_STREAM_VALUE);
-            headers.add("Content-Disposition", "attachment; filename=SampleCode.tgz");
-            byte[] fileData = FileUtils.readFileToByteArray(tar);
-            LOGGER.info("get sample code file success");
-            DeveloperFileUtils.deleteTempFile(tar);
-            return Either.right(ResponseEntity.ok().headers(headers).body(fileData));
-        } catch (IOException e) {
-            LOGGER.error("get sample code file failed : {}", e.getMessage());
-            return Either.left(new FormatRespDto(Status.BAD_REQUEST, "get sample code file failed "));
-        }
-
+        return Either.right(tar);
     }
 
     /**
