@@ -74,7 +74,6 @@ public class StageWorkStatus implements IConfigDeployStage {
             LOGGER.info("over time:{}, wait max time:{}, start time:{}", time, MAX_SECONDS,
                 config.getDeployDate().getTime());
             if (config.getDeployDate() == null || time > MAX_SECONDS * 1000) {
-                config.setAccessUrl("");
                 config.setErrorLog("Failed to get workloadStatus: pull images failed ");
                 String message = "Failed to get workloadStatus after wait {} seconds which appInstanceId is : {}";
                 LOGGER.error(message, MAX_SECONDS, config.getAppInstanceId());
