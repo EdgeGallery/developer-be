@@ -56,7 +56,6 @@ public class StageInstantiate implements IConfigDeployStage {
         // check dependency app
         dependencyResult = projectService.checkDependency(project);
         if (!dependencyResult) {
-            config.setAccessUrl("");
             config.setErrorLog("dependency app not deploy");
             LOGGER.error("Failed to instantiate app: dependency app not deploy");
             projectService.updateDeployResult(config, project, "instantiateInfo", instantiateStatus);
@@ -74,7 +73,6 @@ public class StageInstantiate implements IConfigDeployStage {
             instantiateAppResult = projectService
                     .deployTestConfigToAppLcm(csar, project, config, userId, config.getLcmToken());
             if (!instantiateAppResult) {
-                config.setAccessUrl("");
                 config.setErrorLog("Instantiate failed: deploy env error ");
                 LOGGER.error("Failed to instantiate app which appInstanceId is : {}.", config.getAppInstanceId());
             } else {

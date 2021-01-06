@@ -483,7 +483,7 @@ public class ProjectService {
         List<MepHost> hosts = gson.fromJson(gson.toJson(testConfig.getHosts()), type);
         MepHost host = hosts.get(0);
         // Note(ch) only ip?
-        testConfig.setAccessUrl("http://" + host.getIp());
+        testConfig.setAccessUrl(host.getIp());
         return HttpClientUtil
             .instantiateApplication(host.getProtocol(), host.getIp(), host.getPort(), csar.getPath(), appInstanceId,
                 userId, token, projectName);
@@ -1011,7 +1011,7 @@ public class ProjectService {
         if (EnumTestConfigStatus.Success.equals(stageStatus) && "workStatus".equalsIgnoreCase(stage)) {
             productUpdate = true;
             project.setStatus(EnumProjectStatus.DEPLOYED);
-            testConfig.setErrorLog("Your application can be integrated by EdgeGallery platform, please test the APP");
+            testConfig.setErrorLog("");
             testConfig.setDeployStatus(EnumTestConfigDeployStatus.SUCCESS);
         } else if (EnumTestConfigStatus.Failed.equals(stageStatus)) {
             productUpdate = true;
