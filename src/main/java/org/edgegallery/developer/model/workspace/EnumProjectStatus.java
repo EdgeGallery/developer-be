@@ -23,7 +23,8 @@ public enum EnumProjectStatus {
     DEPLOYED("Deployed"),
     DEPLOYED_FAILED("DeployFailed"),
     TESTING("Testing"),
-    TESTED("Tested");
+    TESTED("Tested"),
+    RELEASED("Released");
 
     private String name;
 

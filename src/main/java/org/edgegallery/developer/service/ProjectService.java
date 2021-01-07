@@ -762,12 +762,12 @@ public class ProjectService {
                 LOGGER.warn("save db success! ");
             }
             project.setOpenCapabilityId(openCapabilityIds.toString());
+            project.setStatus(EnumProjectStatus.RELEASED);
             int updRes = projectMapper.updateProject(project);
             if (updRes < 1) {
                 FormatRespDto error = new FormatRespDto(Status.INTERNAL_SERVER_ERROR, "set openCapabilityId fail!");
                 return Either.left(error);
             }
-
         } else {
             LOGGER.info("no application service publishing configuration!");
             return Either.right(true);
