@@ -13,7 +13,7 @@ data:
         serCategory:
           href: "/example/catalogue1"
           id: id12345
-          name: RNI
+          name: face-recognition-app
           version: {{ .version}}
         version: {{ .version }}
         state: ACTIVE
