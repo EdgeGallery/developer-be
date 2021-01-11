@@ -70,7 +70,8 @@ public class StageSelectHost implements IConfigDeployStage {
             hostStatus = EnumTestConfigStatus.Success;
             processSuccess = true;
         } else {
-            List<MepHost> enabledHosts = hostMapper.getHostsByStatus(EnumHostStatus.NORMAL,"admin");
+            List<MepHost> enabledHosts = hostMapper
+                .getHostsByStatus(EnumHostStatus.NORMAL, "admin", project.getPlatform().get(0));
             if (CollectionUtils.isEmpty(enabledHosts)) {
                 processSuccess = false;
                 LOGGER.error("Cannot find available hosts information");
