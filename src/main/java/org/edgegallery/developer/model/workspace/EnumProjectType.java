@@ -18,5 +18,5 @@ package org.edgegallery.developer.model.workspace;
 
 public enum EnumProjectType {
     CREATE_NEW,
-    MIGRATE
+    INTEGRATED
 }
