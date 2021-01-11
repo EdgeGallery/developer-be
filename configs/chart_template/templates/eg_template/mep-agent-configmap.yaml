@@ -13,7 +13,7 @@ data:
         serCategory:
           href: "/example/catalogue1"
           id: id12345
-          name: face-recognition-app
+          name: {{ .servicename }}
           version: {{ .version}}
         version: {{ .version }}
         state: ACTIVE
