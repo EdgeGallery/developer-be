@@ -65,7 +65,7 @@
         FROM
         tbl_service_host
         WHERE
-        status = #{param1} and user_id = #{param2}
+        status = #{param1} and user_id = #{param2} and architecture = #{param3}
    </select>
 
     <select id="getNormalHosts" resultMap="HostMap">

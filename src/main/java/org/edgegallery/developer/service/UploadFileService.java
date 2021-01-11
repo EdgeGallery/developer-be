@@ -148,8 +148,7 @@ public class UploadFileService {
         if (userId == null || !EnumOpenMepType.OPENMEP.name().equals(type)) {
             return FileUtils.readFileToByteArray(file);
         }
-        List<MepHost> enabledHosts = hostMapper.getHostsByStatus(EnumHostStatus.NORMAL, "admin");
-
+        List<MepHost> enabledHosts = hostMapper.getHostsByStatus(EnumHostStatus.NORMAL, "admin", "x86");
         if (!enabledHosts.isEmpty()) {
             String host = enabledHosts.get(0).getIp() + ":" + "32119";
             return FileUtils.readFileToString(file, "UTF-8").replace("{HOST}", host).getBytes(StandardCharsets.UTF_8);
