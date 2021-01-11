@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 import org.apache.commons.io.FileUtils;
 import org.edgegallery.developer.common.Consts;
 import org.edgegallery.developer.util.BusinessConfigUtil;
@@ -95,8 +96,9 @@ public class ChartFileCreator implements BaseFileCreator {
 
     private void replaceChartYaml() throws IOException {
         File chartYamlFile = new File(temporaryPath + File.separator + "Chart.yaml");
+        String appName = chartName + UUID.randomUUID().toString();
         FileUtils.writeStringToFile(chartYamlFile,
-            FileUtils.readFileToString(chartYamlFile, Consts.FILE_ENCODING).replace("<CHART_NAME>", chartName),
+            FileUtils.readFileToString(chartYamlFile, Consts.FILE_ENCODING).replace("<CHART_NAME>", appName),
             Consts.FILE_ENCODING);
     }
 
