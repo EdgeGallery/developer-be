@@ -313,7 +313,7 @@ public class ReleaseConfigService {
 
                 for (OpenMepCapabilityDetail capabilityDetail : openMepCapabilityDetails) {
                     AppConfigurationModel.ServiceRequired required = new AppConfigurationModel.ServiceRequired();
-                    required.setSerName(capabilityDetail.getService());
+                    required.setSerName(capabilityDetail.getHost());
                     required.setAppId(capabilityDetail.getAppId());
                     required.setPackageId(capabilityDetail.getPackageId());
                     required.setVersion(capabilityDetail.getVersion());
