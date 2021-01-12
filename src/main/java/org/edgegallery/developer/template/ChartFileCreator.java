@@ -96,7 +96,7 @@ public class ChartFileCreator implements BaseFileCreator {
 
     private void replaceChartYaml() throws IOException {
         File chartYamlFile = new File(temporaryPath + File.separator + "Chart.yaml");
-        String appName = chartName + UUID.randomUUID().toString();
+        String appName = chartName + UUID.randomUUID().toString().substring(0, 16);
         FileUtils.writeStringToFile(chartYamlFile,
             FileUtils.readFileToString(chartYamlFile, Consts.FILE_ENCODING).replace("<CHART_NAME>", appName),
             Consts.FILE_ENCODING);
