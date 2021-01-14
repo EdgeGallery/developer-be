@@ -17,7 +17,6 @@
 package org.edgegallery.developer.model.workspace;
 
 import java.util.List;
-import java.util.UUID;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -27,7 +26,11 @@ public class OpenMepCapabilityGroup {
 
     private String groupId;
 
-    private String name;
+    private String oneLevelName;
+
+    private String twoLevelName;
+
+    private String threeLevelName;
 
     private EnumOpenMepType type;
 
@@ -41,19 +44,12 @@ public class OpenMepCapabilityGroup {
     /**
      * OpenMepCapabilityGroup.
      */
-    public OpenMepCapabilityGroup(String id, String name, EnumOpenMepType type) {
+    public OpenMepCapabilityGroup(String id, String oneLevelName, String twoLevelName, String threeLevelName,
+        EnumOpenMepType type) {
         this.groupId = id;
-        this.name = name;
+        this.oneLevelName = oneLevelName;
+        this.twoLevelName = twoLevelName;
+        this.threeLevelName = threeLevelName;
         this.type = type;
-    }
-
-    /**
-     * getGroupId.
-     */
-    public String getGroupId() {
-        if (this.groupId == null) {
-            this.groupId = UUID.randomUUID().toString();
-        }
-        return this.groupId;
     }
 }

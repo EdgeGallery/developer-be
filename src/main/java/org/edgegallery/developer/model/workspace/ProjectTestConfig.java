@@ -22,7 +22,6 @@ import java.util.UUID;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import org.mec.developer.model.workspace.EnumDeployPlatform;
 
 @Getter
 @Setter
@@ -150,7 +149,6 @@ public class ProjectTestConfig {
         this.deployStatus = EnumTestConfigDeployStatus.NOTDEPLOY;
         this.stageStatus = null;
         this.workLoadId = null;
-        this.appInstanceId = null;
         this.lcmToken = null;
         this.accessUrl = null;
         this.deployDate = null;

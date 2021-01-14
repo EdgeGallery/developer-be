@@ -17,12 +17,17 @@
 package org.edgegallery.developer.domain.shared;
 
 import java.io.File;
+import lombok.Getter;
+import lombok.Setter;
 
+@Getter
+@Setter
 public class AFile {
 
     private String originalFileName;
     private String storageAddress;
     private long fileSize;
+    private String hashCode;
 
     /**
      * Constructor of AFile.

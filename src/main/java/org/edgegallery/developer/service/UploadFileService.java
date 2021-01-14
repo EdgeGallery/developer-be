@@ -24,24 +24,23 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.UUID;
 import java.util.regex.Pattern;
+import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.edgegallery.developer.common.Consts;
 import org.edgegallery.developer.domain.shared.FileChecker;
-import org.edgegallery.developer.mapper.ApiEmulatorMapper;
 import org.edgegallery.developer.mapper.HelmTemplateYamlMapper;
 import org.edgegallery.developer.mapper.HostMapper;
 import org.edgegallery.developer.mapper.OpenMepCapabilityMapper;
 import org.edgegallery.developer.mapper.UploadedFileMapper;
+import org.edgegallery.developer.model.AppPkgStructure;
 import org.edgegallery.developer.model.GeneralConfig;
-import org.edgegallery.developer.model.workspace.ApiEmulator;
+import org.edgegallery.developer.model.workspace.EnumHostStatus;
 import org.edgegallery.developer.model.workspace.EnumOpenMepType;
 import org.edgegallery.developer.model.workspace.HelmTemplateYamlPo;
 import org.edgegallery.developer.model.workspace.MepHost;
@@ -62,7 +61,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
 import org.yaml.snakeyaml.Yaml;
 
@@ -79,11 +77,10 @@ public class UploadFileService {
 
     private static final String REGEX_UUID = "[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}";
 
-    @Autowired
-    private UploadedFileMapper uploadedFileMapper;
+    private String sampleCodePath;
 
     @Autowired
-    private ApiEmulatorMapper apiEmulatorMapper;
+    private UploadedFileMapper uploadedFileMapper;
 
     @Autowired
     private HostMapper hostMapper;
@@ -93,6 +90,9 @@ public class UploadFileService {
 
     @Autowired
     private OpenMepCapabilityMapper openMepCapabilityMapper;
+
+    @Autowired
+    private AppReleaseService appReleaseService;
 
     /**
      * getFile.
@@ -148,12 +148,12 @@ public class UploadFileService {
         if (userId == null || !EnumOpenMepType.OPENMEP.name().equals(type)) {
             return FileUtils.readFileToByteArray(file);
         }
-        ApiEmulator apiEmulator = apiEmulatorMapper.getEmulatorByUserId(userId);
-        if (apiEmulator != null) {
-            MepHost mepHost = hostMapper.getHost(apiEmulator.getHostId());
-            String host = mepHost.getIp() + ":" + apiEmulator.getPort();
+        List<MepHost> enabledHosts = hostMapper.getHostsByStatus(EnumHostStatus.NORMAL, "admin", "x86");
+        if (!enabledHosts.isEmpty()) {
+            String host = enabledHosts.get(0).getIp() + ":" + "32119";
             return FileUtils.readFileToString(file, "UTF-8").replace("{HOST}", host).getBytes(StandardCharsets.UTF_8);
         }
+
         return FileUtils.readFileToByteArray(file);
     }
 
@@ -196,6 +196,8 @@ public class UploadFileService {
             return Either.left(new FormatRespDto(Status.BAD_REQUEST, "Failed to save file."));
         }
         LOGGER.info("upload file success {}", fileName);
+        //upload success
+        result.setFilePath("");
         return Either.right(result);
     }
 
@@ -204,14 +206,116 @@ public class UploadFileService {
      *
      * @return
      */
-    public Either<FormatRespDto, ResponseEntity<byte[]>> downloadSampleCode(List<String> apiFileIds)
-        throws IOException {
+    public Either<FormatRespDto, ResponseEntity<byte[]>> downloadSampleCode(List<String> apiFileIds) {
+        Either<FormatRespDto, File> res = generateTgz(apiFileIds);
+        if (res.isLeft()) {
+            return Either.left(res.getLeft());
+        }
+        File tar = res.getRight();
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.add("Content-Type", MediaType.APPLICATION_OCTET_STREAM_VALUE);
+            headers.add("Content-Disposition", "attachment; filename=SampleCode.tgz");
+            byte[] fileData = FileUtils.readFileToByteArray(tar);
+            LOGGER.info("get sample code file success");
+            DeveloperFileUtils.deleteTempFile(tar);
+            return Either.right(ResponseEntity.ok().headers(headers).body(fileData));
+        } catch (IOException e) {
+            LOGGER.error("get sample code file failed : {}", e.getMessage());
+            return Either.left(new FormatRespDto(Status.BAD_REQUEST, "get sample code file failed "));
+        }
 
+    }
+
+    /**
+     * getSampleCodeStru.
+     *
+     * @return
+     */
+    public Either<FormatRespDto, AppPkgStructure> getSampleCodeStru(List<String> apiFileIds) {
+        Either<FormatRespDto, File> res = generateTgz(apiFileIds);
+        if (res.isLeft()) {
+            return Either.left(res.getLeft());
+        }
+        File sampleTgz = res.getRight();
+        boolean decompressRes = false;
+        String samplePath = "";
+        try {
+            samplePath = sampleTgz.getCanonicalPath();
+            decompressRes = CompressFileUtils.decompress(samplePath, samplePath.substring(0, samplePath.length() - 15));
+        } catch (IOException e) {
+            LOGGER.error("get sample code dir fail,{}", e.getMessage());
+            return Either.left(new FormatRespDto(Status.BAD_REQUEST, "get sample code dir fail"));
+        }
+
+        if (!decompressRes) {
+            LOGGER.error("decompress sample code file fail");
+            return Either.left(new FormatRespDto(Status.BAD_REQUEST, "decompress sample code file fail"));
+        }
+        DeveloperFileUtils.deleteTempFile(sampleTgz);
+        // get csar pkg structure
+        AppPkgStructure structure;
+        try {
+            structure = appReleaseService
+                .getFiles(samplePath.substring(0, samplePath.length() - 15), new AppPkgStructure());
+            sampleCodePath = samplePath.substring(0, samplePath.length() - 15);
+        } catch (IOException ex) {
+            LOGGER.error("get sample code pkg occur io exception: {}", ex.getMessage());
+            String message = "get sample code pkg occur io exception!";
+            FormatRespDto error = new FormatRespDto(Response.Status.BAD_REQUEST, message);
+            return Either.left(error);
+        }
+        return Either.right(structure);
+    }
+
+    /**
+     * getSampleCodeContent.
+     *
+     * @return
+     */
+    public Either<FormatRespDto, String> getSampleCodeContent(String fileName) {
+        if (StringUtils.isEmpty(sampleCodePath)) {
+            LOGGER.error("decompress sample code tgz failed!");
+            return Either.left(new FormatRespDto(Status.BAD_REQUEST, "get sample code path fail!"));
+        }
+        File dir = new File(sampleCodePath);
+        List<String> paths = appReleaseService.getFilesPath(dir);
+        if (paths == null || paths.isEmpty()) {
+            LOGGER.error("can not find any file!");
+            FormatRespDto error = new FormatRespDto(Response.Status.BAD_REQUEST, "can not find any file!");
+            return Either.left(error);
+        }
+        String fileContent = "";
+        for (String path : paths) {
+            if (path.contains(fileName)) {
+                fileContent = appReleaseService.readFileIntoString(path);
+            }
+        }
+        if (fileContent.equals("")) {
+            LOGGER.warn("file has not any content!");
+            FormatRespDto error = new FormatRespDto(Response.Status.BAD_REQUEST, "file is null!");
+            return Either.left(error);
+        }
+
+        if (fileContent.equals("error")) {
+            LOGGER.warn("file is not readable!");
+            FormatRespDto error = new FormatRespDto(Response.Status.BAD_REQUEST, "file is not readable!");
+            return Either.left(error);
+        }
+        return Either.right(fileContent);
+    }
+
+    private Either<FormatRespDto, File> generateTgz(List<String> apiFileIds) {
         File tempDir = DeveloperFileUtils.createTempDir("mec_sample_code");
-
         // add sample resources code
         File sampleResource = new File(tempDir, InitConfigUtil.getSampleCodeDir());
-        DeveloperFileUtils.deleteAndCreateDir(sampleResource);
+        try {
+            DeveloperFileUtils.deleteAndCreateDir(sampleResource);
+        } catch (IOException e) {
+            String msg = "create sample code dir failed!";
+            LOGGER.error("create sample code dir failed! occur {}", e.getMessage());
+            return Either.left(new FormatRespDto(Status.BAD_REQUEST, msg));
+        }
 
         for (String apiFileId : apiFileIds) {
             if (!apiFileId.matches(REGEX_UUID)) {
@@ -244,20 +348,7 @@ public class UploadFileService {
 
         SampleCodeServer generateCode = new SampleCodeServer();
         File tar = generateCode.analysis(apiJsonList);
-
-        try {
-            HttpHeaders headers = new HttpHeaders();
-            headers.add("Content-Type", MediaType.APPLICATION_OCTET_STREAM_VALUE);
-            headers.add("Content-Disposition", "attachment; filename=SampleCode.tgz");
-            byte[] fileData = FileUtils.readFileToByteArray(tar);
-            LOGGER.info("get sample code file success");
-            DeveloperFileUtils.deleteTempFile(tar);
-            return Either.right(ResponseEntity.ok().headers(headers).body(fileData));
-        } catch (IOException e) {
-            LOGGER.error("get sample code file failed : {}", e.getMessage());
-            return Either.left(new FormatRespDto(Status.BAD_REQUEST, "get sample code file failed "));
-        }
-
+        return Either.right(tar);
     }
 
     /**
@@ -307,7 +398,8 @@ public class UploadFileService {
                 .left(new FormatRespDto(Status.INTERNAL_SERVER_ERROR, "Failed to read content of helm template yaml"));
         }
         HelmTemplateYamlRespDto helmTemplateYamlRespDto = new HelmTemplateYamlRespDto();
-        if (!Objects.requireNonNull(helmTemplateYaml.getOriginalFilename()).endsWith(".yaml")) {
+        String oriName = helmTemplateYaml.getOriginalFilename();
+        if (!StringUtils.isEmpty(oriName) && !oriName.endsWith(".yaml")) {
             return Either.right(helmTemplateYamlRespDto);
         }
         // replace {{(.*?)}}
@@ -369,9 +461,9 @@ public class UploadFileService {
             LOGGER.info("Succeed to save helm template yaml with file id : {}", fileId);
             return Either.right(helmTemplateYamlRespDto);
         }
-        Either<FormatRespDto, HelmTemplateYamlRespDto> either = getSuccessResult(helmTemplateYaml, userId, projectId,
-            originalContent, helmTemplateYamlRespDto);
-        return either;
+
+        return getSuccessResult(helmTemplateYaml, userId, projectId, originalContent, helmTemplateYamlRespDto);
+
     }
 
     private Either<FormatRespDto, HelmTemplateYamlRespDto> getSuccessResult(MultipartFile helmTemplateYaml,
@@ -399,32 +491,22 @@ public class UploadFileService {
     private void verifyHelmTemplate(List<Map<String, Object>> mapList, List<String> requiredItems,
         HelmTemplateYamlRespDto helmTemplateYamlRespDto) {
         for (Map<String, Object> stringMap : mapList) {
-            for (String key : stringMap.keySet()) {
-                if ("kind".equals(key)) {
-                    if ("Service".equalsIgnoreCase(stringMap.get(key).toString())) {
+            for (Map.Entry<String, Object> entry : stringMap.entrySet()) {
+                if ("kind".equals(entry.getKey())) {
+                    if ("Service".equalsIgnoreCase(stringMap.get(entry.getKey()).toString())) {
                         requiredItems.remove("service");
                         helmTemplateYamlRespDto.setServiceSuccess(true);
                         continue;
                     }
-                    if ("Pod".equalsIgnoreCase(stringMap.get(key).toString()) && stringMap.get("spec") != null) {
-                        LinkedHashMap<String, List<LinkedHashMap<String, Object>>> specMap
-                            = (LinkedHashMap<String, List<LinkedHashMap<String, Object>>>) stringMap.get("spec");
-                        if (!CollectionUtils.isEmpty(specMap.get("containers"))) {
-                            for (LinkedHashMap<String, Object> container : specMap.get("containers")) {
-                                if (container == null) {
-                                    continue;
-                                }
-                                if (container.get("name") != null && container.get("name").toString()
-                                    .equals("mep-agent")) {
-                                    helmTemplateYamlRespDto.setMepAgentSuccess(true);
-                                    requiredItems.remove("mep-agent");
-                                    continue;
-                                }
-                                if (container.get("image") != null) {
-                                    requiredItems.remove("image");
-                                    helmTemplateYamlRespDto.setImageSuccess(true);
-                                }
-                            }
+                    if (stringMap.get("spec") != null) {
+                        String specContent = stringMap.get("spec").toString();
+                        if (specContent.contains("image")) {
+                            requiredItems.remove("image");
+                            helmTemplateYamlRespDto.setImageSuccess(true);
+                        }
+                        if (specContent.contains("mep-agent")) {
+                            helmTemplateYamlRespDto.setMepAgentSuccess(true);
+                            requiredItems.remove("mep-agent");
                         }
                     }
                 }
@@ -445,6 +527,46 @@ public class UploadFileService {
         templateYamlPoList.forEach(helmTemplateYamlPo -> {
             HelmTemplateYamlRespDto helmTemplateYamlRespDto = new HelmTemplateYamlRespDto();
             helmTemplateYamlRespDto.setResponse(helmTemplateYamlPo);
+            // replace {{(.*?)}}
+            String content = helmTemplateYamlPo.getContent().replaceAll("\r", "");
+            content = content.replaceAll(REPLACE_PATTERN.toString(), "");
+
+            // verify yaml scheme
+            String[] multiContent = content.split("---");
+            List<Map<String, Object>> mapList = new ArrayList<>();
+            try {
+                for (String str : multiContent) {
+                    if (StringUtils.isBlank(str)) {
+                        continue;
+                    }
+                    Yaml yaml = new Yaml();
+                    Map<String, Object> loaded = yaml.load(str);
+                    mapList.add(loaded);
+                }
+                helmTemplateYamlRespDto.setFormatSuccess(true);
+            } catch (Exception e) {
+                LOGGER
+                    .error("Failed to validate yaml scheme, userId: {}, projectId: {},exception: {}", userId, projectId,
+                        e.getMessage());
+                helmTemplateYamlRespDto.setFormatSuccess(false);
+                helmTemplateYamlRespDto.setMepAgentSuccess(null);
+                helmTemplateYamlRespDto.setServiceSuccess(null);
+                helmTemplateYamlRespDto.setImageSuccess(null);
+            }
+            List<String> requiredItems = Lists.newArrayList("image", "service", "mep-agent");
+            // verify service,image,mep-agent
+            verifyHelmTemplate(mapList, requiredItems, helmTemplateYamlRespDto);
+
+            if (!requiredItems.isEmpty() && requiredItems.size() >= 2) {
+                LOGGER.error(
+                    "Failed to verify helm template yaml, userId: {}, projectId: {},exception: verify: {} failed",
+                    userId, projectId, String.join(",", requiredItems));
+            } else if (!requiredItems.isEmpty() && requiredItems.size() == 1 && requiredItems.get(0)
+                .equals("mep-agent")) {
+                helmTemplateYamlRespDto.setImageSuccess(true);
+                helmTemplateYamlRespDto.setServiceSuccess(true);
+                helmTemplateYamlRespDto.setMepAgentSuccess(false);
+            }
             helmTemplateYamlRespDtoList.add(helmTemplateYamlRespDto);
         });
         LOGGER.info("Succeed to query helm template yaml with user id : {}, project id : {}", userId, projectId);

@@ -48,12 +48,12 @@ public class OpenMEPCapabilityGroupTest {
         OpenMepCapabilityGroups all = openMEPCapabilityService.getAll(null);
         Assert.assertNotNull(all);
         Assert.assertNotNull(all.getValues());
-        Assert.assertEquals(all.getValues().size(), 6);
+        Assert.assertEquals(all.getValues().size(), 7);
         Assert.assertNull(all.getValues().get(0).getCapabilityDetailList());
         all = openMEPCapabilityService.getAll("detail");
         Assert.assertNotNull(all);
         Assert.assertNotNull(all.getValues());
-        Assert.assertEquals(all.getValues().size(), 6);
+        Assert.assertEquals(all.getValues().size(), 7);
         Assert.assertNotNull(all.getValues().get(0).getCapabilityDetailList());
     }
 
@@ -80,8 +80,8 @@ public class OpenMEPCapabilityGroupTest {
     @WithMockUser(roles = "DEVELOPER_TENANT")
     public void createGroup() {
         OpenMepCapabilityGroup group = new OpenMepCapabilityGroup();
-        group.setGroupId("e111f3e7-90d8-4a39-9874-ea6ea6752ef3");
-        group.setName("Face recognition");
+        group.setGroupId("e111f3e7-90d8-4a39-9874-ea6ea6752e44");
+        group.setOneLevelName("Face recognition");
         group.setType(EnumOpenMepType.OPENMEP);
         group.setDescription("face recognition");
         Either<FormatRespDto, OpenMepCapabilityGroup> response = openMEPCapabilityService.createGroup(group);
@@ -111,7 +111,7 @@ public class OpenMEPCapabilityGroupTest {
     @WithMockUser(roles = "DEVELOPER_TENANT")
     public void deleteGroup() {
         Either<FormatRespDto, Boolean> response = openMEPCapabilityService
-            .deleteGroup("e111f3e7-90d8-4a39-9874-ea6ea6752ef3");
+            .deleteGroup("e111f3e7-90d8-4a39-9874-ea6ea6752e44");
         Assert.assertTrue(response.isRight());
     }
 

@@ -99,11 +99,13 @@
         INSERT INTO
         tbl_plugin
         (pluginid,pluginname, introduction,
-        satisfaction,codelanguage,plugintype,version,downloadcount,logofile,pluginfile,uploadtime,userid,username,pluginsize,apifile,scorecount)
+        satisfaction,codelanguage,plugintype,version,downloadcount,logofile,pluginfile,uploadtime,userid,username,
+        pluginsize,apifile,scorecount, pluginfilehashcode)
         VALUES
         (#{pluginId},#{pluginName}, #{introduction},
         #{satisfaction},#{codeLanguage},#{pluginType},#{version},
-        #{downloadCount},#{logoFile},#{pluginFile},#{uploadTime},#{userId},#{userName},#{pluginSize},#{apiFile},#{scoreCount})
+        #{downloadCount},#{logoFile},#{pluginFile},#{uploadTime},#{userId},#{userName},#{pluginSize},
+        #{apiFile},#{scoreCount}, #{pluginFileHashCode})
     </insert>
     <insert id="saveDownloadRecord"
             parameterType="org.edgegallery.developer.domain.model.comment.PluginDownloadRecord">
@@ -198,5 +200,9 @@
         </where>
         order by uploadtime desc 
         limit #{criteria.limit} offset #{criteria.offset}
+    </select>
+
+    <select id="findPlugInByHashCode" resultType="java.lang.Long">
+        select count(*) from tbl_plugin where pluginfilehashcode = #{hashcode}
     </select>
 </mapper>

@@ -4,9 +4,6 @@ import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 
-/**
- * @author chenhui
- */
 @Getter
 @Setter
 public class CapabilitiesDetail {

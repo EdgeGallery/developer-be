@@ -24,6 +24,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.edgegallery.developer.mapper.HostMapper;
 import org.edgegallery.developer.model.workspace.MepHost;
 import org.edgegallery.developer.response.FormatRespDto;
+import org.edgegallery.developer.util.HttpClientUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,19 +60,30 @@ public class HostService {
      * @return
      */
     public Either<FormatRespDto, MepHost> createHost(MepHost host) {
-        List<MepHost> hostList = hostMapper.getHostsByUserId(host.getUserId());
+        //health check
+        String healRes = HttpClientUtil.getHealth(host.getIp(), host.getPort());
+        if (healRes == null) {
+            String msg = "health check faild,current ip or port cann't be used!";
+            LOGGER.error(msg);
+            FormatRespDto dto = new FormatRespDto(Status.BAD_REQUEST, msg);
+            return Either.left(dto);
+        }
         host.setHostId(UUID.randomUUID().toString()); // no need to set hostId by user
-        if (hostList==null || hostList.size()==0) {
+        host.setProtocol("https");
+        host.setPortRangeMin(30000);
+        host.setPortRangeMax(32000);
+        List<MepHost> hostList = hostMapper.getHostsByUserId(host.getUserId());
+        if (hostList == null || hostList.isEmpty()) {
             int ret = hostMapper.saveHost(host);
             if (ret > 0) {
                 LOGGER.info("Crete host {} success ", host.getHostId());
-                return Either.right(hostMapper.getHost(host.getHostId()));
+                return Either.right(hostMapper.getHostsByUserId(host.getUserId()).get(0));
             }
         } else {
             int ret = hostMapper.updateHost(host);
             if (ret > 0) {
                 LOGGER.info("Update host {} success", host.getIp());
-                return Either.right(hostMapper.getHost(host.getHostId()));
+                return Either.right(hostMapper.getHostsByUserId(host.getUserId()).get(0));
             }
         }
         LOGGER.error("Create host failed ");
@@ -100,6 +112,14 @@ public class HostService {
      * @return
      */
     public Either<FormatRespDto, MepHost> updateHost(String hostId, MepHost host) {
+        //health check
+        String healRes = HttpClientUtil.getHealth(host.getIp(), host.getPort());
+        if (healRes == null) {
+            String msg = "health check faild,current ip or port cann't be used!";
+            LOGGER.error(msg);
+            FormatRespDto dto = new FormatRespDto(Status.BAD_REQUEST, msg);
+            return Either.left(dto);
+        }
         MepHost currentHost = hostMapper.getHost(hostId);
         if (currentHost == null) {
             LOGGER.error("Can not find host by {}", hostId);
@@ -108,10 +128,11 @@ public class HostService {
         }
 
         host.setHostId(hostId); // no need to set hostId by user
+        host.setUserId(currentHost.getUserId());
         int ret = hostMapper.updateHost(host);
         if (ret > 0) {
             LOGGER.info("Update host {} success", hostId);
-            return Either.right(hostMapper.getHost(hostId));
+            return Either.right(hostMapper.getHostsByUserId(host.getUserId()).get(0));
         }
         LOGGER.error("Update host {} failed", hostId);
         return Either.left(new FormatRespDto(Status.BAD_REQUEST, "Can not update the host"));

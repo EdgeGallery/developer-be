@@ -1,0 +1,332 @@
+# 分布式键值(key-value)数据库
+##  新增或者修改数据
+###  功能介绍
+   存入指定的键值对，或者修改指定键的值
+#### 请求消息
+```
+URI: /v3/kv/put
+Method: POST
+```
+参数说明
+
+|参数名称| 参数类型| 是否必须 |参数说明|
+|-----|------|-----|------|
+|key| string |是|数据库存储的键|
+|value |string |是 |与键对应的值|
+
+请求参考示例
+```
+{
+    "key":"Zm9v", 
+	"value":"YmFy"
+}
+```
+
+#### 响应消息
+响应参数说明
+
+|参数名称| 参数类型 |参数描述|
+|---------|---------|----------|
+|cluster_id |String |集群ID|
+|member_id |String |集群成员ID|
+|revision |Int |数据修改的版本号|
+|raft_term |Int |Raft期限|
+
+响应参考示例
+```
+{
+	"header": {
+		"cluster_id": "14841639068965178418",
+		"member_id": "10276657743932975437",
+		"revision": "14",
+		"raft_term": "5"
+	}
+}
+```
+
+##  查询数据
+###  功能介绍
+   查询指定键的值
+#### 请求消息
+```
+URI: /v3/kv/range
+Method: POST
+```
+参数说明
+
+|参数名称| 参数类型| 是否必须 |参数说明|
+|-----|------|-----|------|
+|key| string |是|数据库存储的键|
+|range_end |string |否 |键序列结尾|
+
+请求参考示例
+```
+{
+    "key":"Zm9v", 
+	"range_end":"Zm9z"
+}
+```
+
+#### 响应消息
+响应参数说明
+
+|参数名称| 参数类型 |参数描述|
+|---------|---------|----------|
+|cluster_id |String |集群ID|
+|member_id |String |处理成员ID|
+|revision |Int |数据修改的版本号|
+|raft_term |Int |Raft 期限|
+|kvs |String |键|
+|create_revision |Int |此键创建版本号|
+|mod_revision |Int |修改版本号|
+|version |Int |值的版本号|
+|value |String |与键对应的值|
+|count |Int |返回的键值对数量|
+
+响应参考示例
+```
+{
+	"header": {
+		"cluster_id": "14841639068965178418",
+		"member_id": "10276657743932975437",
+		"revision": "14",
+		"raft_term": "5"
+	}
+	"kvs": [{
+			"key": "Zm9v",
+			"create_revision": "1",
+			"mod_revision": "22",
+			"version": "1",
+			"value": "Ymfy"
+		}, {
+			"key": "Zm9w",
+			"create_revision": "1",
+			"mod_revision": "23",
+			"version": "1",
+			"value": "Ymfw"
+		}
+	],
+	"count": "2"
+}
+```
+
+##  添加用户
+###  功能介绍
+   为数据库添加用户
+#### 请求消息
+```
+URI: /v3/auth/user/add
+Method: POST
+```
+参数说明
+
+|参数名称| 参数类型| 是否必须 |参数说明|
+|-----|------|-----|------|
+|name| string |是|用户名|
+|password |string |否 |密码|
+
+请求参考示例
+```
+{
+	"name": "root",
+	"password": "pass"
+}
+```
+
+#### 响应消息
+响应参数说明
+
+|参数名称| 参数类型 |参数描述|
+|---------|---------|----------|
+|cluster_id |String |集群ID|
+|member_id |String |处理成员ID|
+|revision |Int |数据修改的版本号|
+|raft_term |Int |Raft 期限|
+
+响应参考示例
+```
+{
+	"header": {
+		"cluster_id": "14841639068965178418",
+		"member_id": "10276657743932975437",
+		"revision": "1",
+		"raft_term": "2"
+	}
+}
+```
+
+##  添加角色
+###  功能介绍
+   为数据库添加角色
+#### 请求消息
+```
+URI: /v3/auth/role/add
+Method: POST
+```
+参数说明
+
+|参数名称| 参数类型| 是否必须 |参数说明|
+|-----|------|-----|------|
+|name| string |是|角色名称|
+
+请求参考示例
+```
+{
+	"name": "root"
+}
+```
+
+#### 响应消息
+响应参数说明
+
+|参数名称| 参数类型 |参数描述|
+|---------|---------|----------|
+|cluster_id |String |集群ID|
+|member_id |String |处理成员ID|
+|revision |Int |数据修改的版本号|
+|raft_term |Int |Raft 期限|
+
+响应参考示例
+```
+{
+	"header": {
+		"cluster_id": "14841639068965178418",
+		"member_id": "10276657743932975437",
+		"revision": "1",
+		"raft_term": "2"
+	}
+}
+```
+
+##  角色授权
+###  功能介绍
+   为用户指定角色
+#### 请求消息
+```
+URI: /v3/auth/user/grant
+Method: POST
+```
+参数说明
+
+|参数名称| 参数类型| 是否必须 |参数说明|
+|-----|------|-----|------|
+|user| string |是|用户名称|
+|role| string |是|角色名称|
+
+请求参考示例
+```
+{
+	"user": "root",
+	"role": "root"
+}
+```
+
+#### 响应消息
+响应参数说明
+
+|参数名称| 参数类型 |参数描述|
+|---------|---------|----------|
+|cluster_id |String |集群ID|
+|member_id |String |处理成员ID|
+|revision |Int |数据修改的版本号|
+|raft_term |Int |Raft 期限|
+
+响应参考示例
+```
+{
+	"header": {
+		"cluster_id": "14841639068965178418",
+		"member_id": "10276657743932975437",
+		"revision": "1",
+		"raft_term": "2"
+	}
+}
+```
+
+##  使能权限控制
+###  功能介绍
+   使能权限控制后，数据库根据授权情况决定是否有权限访问，使能权限控制后访问数据库需要带上Token（Header增加Authorization:{Token}）
+#### 请求消息
+```
+URI: /v3/auth/enable
+Method: POST
+```
+参数说明
+
+|参数名称| 参数类型| 是否必须 |参数说明|
+|-----|------|-----|------|
+
+请求参考示例
+```
+{}
+```
+
+#### 响应消息
+响应参数说明
+
+|参数名称| 参数类型 |参数描述|
+|---------|---------|----------|
+|cluster_id |String |集群ID|
+|member_id |String |处理成员ID|
+|revision |Int |数据修改的版本号|
+|raft_term |Int |Raft 期限|
+
+响应参考示例
+```
+{
+	"header": {
+		"cluster_id": "14841639068965178418",
+		"member_id": "10276657743932975437",
+		"revision": "1",
+		"raft_term": "2"
+	}
+}
+```
+
+##  获取Token
+###  功能介绍
+   根据用户名和密码获取Token
+#### 请求消息
+```
+URI: /v3/auth/authenticate
+Method: POST
+```
+参数说明
+
+|参数名称| 参数类型| 是否必须 |参数说明|
+|-----|------|-----|------|
+|name| string |是|用户名|
+|password |string |否 |密码|
+
+请求参考示例
+```
+{
+	"name": "root",
+	"password": "pass"
+}
+```
+
+#### 响应消息
+响应参数说明
+
+|参数名称| 参数类型 |参数描述|
+|---------|---------|----------|
+|cluster_id |String |集群ID|
+|member_id |String |处理成员ID|
+|revision |Int |数据修改的版本号|
+|raft_term |Int |Raft 期限|
+|token |String |根据用户名和密码生成的Token|
+
+响应参考示例
+```
+{
+	"header": {
+		"cluster_id": "14841639068965178418",
+		"member_id": "10276657743932975437",
+		"revision": "1",
+		"raft_term": "2"
+	},
+	"token": "sssvIpwfnLAcWAQH.9"
+}
+
+```

@@ -1,3 +1,19 @@
+/*
+ *    Copyright 2020 Huawei Technologies Co., Ltd.
+ *
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
+ */
+
 package org.edgegallery.developer.service;
 
 import com.spencerwi.either.Either;
@@ -41,7 +57,7 @@ public class AppReleaseService {
             return Either.left(error);
         }
         String csarPath = getProjectPath(projectId);
-        if (csarPath == null || csarPath.equals("")) {
+        if (csarPath.equals("")) {
             LOGGER.error("can not find this project!");
             FormatRespDto error = new FormatRespDto(Response.Status.BAD_REQUEST, "can not find this project!");
             return Either.left(error);
@@ -76,13 +92,13 @@ public class AppReleaseService {
             return Either.left(error);
         }
         if (fileName == null || fileName.equals("")) {
-            LOGGER.error("project id can not be empty!");
+            LOGGER.error("fileName can not be empty!");
             FormatRespDto error = new FormatRespDto(Response.Status.BAD_REQUEST, "file name can not be empty!");
             return Either.left(error);
         }
         File file = new File(getProjectPath(projectId));
         List<String> paths = getFilesPath(file);
-        if (paths == null || paths.size() == 0) {
+        if (paths == null || paths.isEmpty()) {
             LOGGER.error("can not find any file!");
             FormatRespDto error = new FormatRespDto(Response.Status.BAD_REQUEST, "can not find any file!");
             return Either.left(error);
@@ -113,10 +129,9 @@ public class AppReleaseService {
             boolean isMk = pathFile.mkdirs();
             isSuccess(isMk);
         }
-        // ZipFile zip = null;
         try (ZipFile zip = new ZipFile(zipFile);) {
-            for (Enumeration entries = zip.entries(); entries.hasMoreElements(); ) {
-                ZipEntry entry = (ZipEntry) entries.nextElement();
+            for (Enumeration<? extends ZipEntry> entries = zip.entries(); entries.hasMoreElements(); ) {
+                ZipEntry entry = entries.nextElement();
                 String zipEntryName = entry.getName();
                 try (InputStream in = zip.getInputStream(entry)) {
                     String outPath = (descDir + zipEntryName).replaceAll("\\*", "/");
@@ -169,7 +184,10 @@ public class AppReleaseService {
             + File.separator;
     }
 
-    private AppPkgStructure getFiles(String filePath, AppPkgStructure appPkgStructure) throws IOException {
+    /**
+     * getFiles.
+     */
+    public AppPkgStructure getFiles(String filePath, AppPkgStructure appPkgStructure) throws IOException {
         File root = new File(filePath);
         File[] files = root.listFiles();
         if (files == null || files.length == 0) {
@@ -200,21 +218,25 @@ public class AppReleaseService {
         return appPkgStructure;
     }
 
-    private List<String> getFilesPath(File dir) {
-        if (dir != null) {
-            File[] files = dir.listFiles();
-            if (files != null && files.length != 0) {
-                for (File file : files) {
-                    if (file.isDirectory()) {
-                        getFilesPath(file);
-                    }
-                    if (file.isFile()) {
-                        try {
-                            listLocal.add(file.getCanonicalPath());
-                        } catch (IOException e) {
-                            LOGGER.error("get unzip dir occur exception {}", e.getMessage());
-                            return new ArrayList<>();
-                        }
+    /**
+     * getFilesPath.
+     *
+     * @param dir file dir
+     * @return
+     */
+    public List<String> getFilesPath(File dir) {
+        File[] files = dir.listFiles();
+        if (files != null && files.length != 0) {
+            for (File file : files) {
+                if (file.isDirectory()) {
+                    getFilesPath(file);
+                }
+                if (file.isFile()) {
+                    try {
+                        listLocal.add(file.getCanonicalPath());
+                    } catch (IOException e) {
+                        LOGGER.error("get unzip dir occur exception {}", e.getMessage());
+                        return new ArrayList<>();
                     }
                 }
             }
@@ -222,31 +244,32 @@ public class AppReleaseService {
         return listLocal;
     }
 
-    private String readFileIntoString(String filePath) {
+    /**
+     * readFileIntoString.
+     *
+     * @param filePath filepath
+     * @return
+     */
+    public String readFileIntoString(String filePath) {
         String msg = "error";
         StringBuffer sb = new StringBuffer();
-        try {
-            String encoding = "UTF-8";
-            File file = new File(filePath);
-            if (file.isFile() && file.exists()) {
-                InputStreamReader read = new InputStreamReader(new FileInputStream(file), encoding);
-                BufferedReader bufferedReader = new BufferedReader(read);
+        String encoding = "UTF-8";
+        File file = new File(filePath);
+        if (file.isFile() && file.exists()) {
+            try (InputStreamReader read = new InputStreamReader(new FileInputStream(file), encoding);
+                 BufferedReader bufferedReader = new BufferedReader(read)) {
                 String lineTxt = null;
-
                 while ((lineTxt = bufferedReader.readLine()) != null) {
                     sb.append(lineTxt + "\r\n");
                 }
-                bufferedReader.close();
-                read.close();
-            } else {
-                LOGGER.error("There are no files in this directory!");
+            } catch (IOException e) {
+                LOGGER.error("read file occur exception {}", e.getMessage());
                 return msg;
             }
-        } catch (Exception e) {
-            LOGGER.error("read file occur exception {}", e.getMessage());
+        } else {
+            LOGGER.error("There are no files in this directory!");
             return msg;
         }
-
         return sb.toString();
     }
 }

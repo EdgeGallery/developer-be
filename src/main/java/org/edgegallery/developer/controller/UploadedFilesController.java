@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.util.List;
 import javax.validation.constraints.Pattern;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
+import org.edgegallery.developer.model.AppPkgStructure;
 import org.edgegallery.developer.model.workspace.UploadedFile;
 import org.edgegallery.developer.response.ErrorRespDto;
 import org.edgegallery.developer.response.FormatRespDto;
@@ -69,7 +70,7 @@ public class UploadedFilesController {
         produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_GUEST')")
     public ResponseEntity<byte[]> getFile(@Pattern(regexp = REGEX_UUID, message = "fileId must be in UUID format")
-        @ApiParam(value = "fileId", required = true) @PathVariable("fileId") String fileId,
+    @ApiParam(value = "fileId", required = true) @PathVariable("fileId") String fileId,
         @Pattern(regexp = REGEX_UUID, message = "userId must be in UUID format") @ApiParam(value = "userId")
         @RequestParam("userId") String userId, @ApiParam(value = "type") @RequestParam("type") String type) {
         Either<FormatRespDto, ResponseEntity<byte[]>> either = uploadFileService.getFile(fileId, userId, type);
@@ -99,7 +100,6 @@ public class UploadedFilesController {
         Either<FormatRespDto, UploadedFile> either = uploadFileService.getApiFile(fileId, userId);
         return ResponseDataUtil.buildResponse(either);
     }
-
 
     /**
      * upload file.
@@ -194,7 +194,7 @@ public class UploadedFilesController {
         consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_GUEST')")
     public ResponseEntity<byte[]> getSampleCode(
-        @ApiParam(value = "apiFileIds", required = true) @RequestBody List<String> apiFileIds) throws IOException {
+        @ApiParam(value = "apiFileIds", required = true) @RequestBody List<String> apiFileIds) {
         Either<FormatRespDto, ResponseEntity<byte[]>> either = uploadFileService.downloadSampleCode(apiFileIds);
         if (either.isRight()) {
             return either.getRight();
@@ -204,23 +204,55 @@ public class UploadedFilesController {
     }
 
     /**
+     * get sample code struc.
+     */
+    @ApiOperation(value = "get sample code struc", response = AppPkgStructure.class)
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = "OK", response = AppPkgStructure.class),
+        @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
+    })
+    @RequestMapping(value = "/samplecode/get-pkg-structure", method = RequestMethod.POST,
+        produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_GUEST')")
+    public ResponseEntity<AppPkgStructure> getSampleCodeStru(
+        @ApiParam(value = "apiFileIds", required = true) @RequestBody List<String> apiFileIds) {
+        Either<FormatRespDto, AppPkgStructure> either = uploadFileService.getSampleCodeStru(apiFileIds);
+        return ResponseDataUtil.buildResponse(either);
+    }
+
+    /**
+     * get sample code content.
+     */
+    @ApiOperation(value = "get sample code content", response = String.class)
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = "OK", response = String.class),
+        @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
+    })
+    @RequestMapping(value = "/samplecode/get-file-content", method = RequestMethod.GET,
+        produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_GUEST')")
+    public ResponseEntity<String> getSampleCodeContent(
+        @ApiParam(value = "fileName", required = true) @RequestParam String fileName) {
+        Either<FormatRespDto, String> either = uploadFileService.getSampleCodeContent(fileName);
+        return ResponseDataUtil.buildResponse(either);
+    }
+
+    /**
      * get sdk code.
      */
     @ApiOperation(value = "get sdk code", response = File.class)
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "OK", response = File.class),
-            @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
+        @ApiResponse(code = 200, message = "OK", response = File.class),
+        @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
     @RequestMapping(value = "/sdk/{fileId}/download/{lan}", method = RequestMethod.GET,
-            produces = MediaType.APPLICATION_OCTET_STREAM_VALUE
-            )
+        produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_GUEST')")
-    public ResponseEntity<byte[]> getSdkProject(
-            @Pattern(regexp = REGEX_UUID, message = "fileId must be in UUID format")
-            @ApiParam(value = "fileId", required = true) @PathVariable("fileId") String fileId,
-            @Pattern(regexp = REGEX_UUID, message = "lan must be in UUID format")
-            @ApiParam(value = "lan", required = true) @PathVariable("lan") String lan)throws IOException {
-        Either<FormatRespDto, ResponseEntity<byte[]>> either = uploadFileService.getSdkProject(fileId,lan);
+    public ResponseEntity<byte[]> getSdkProject(@Pattern(regexp = REGEX_UUID, message = "fileId must be in UUID format")
+    @ApiParam(value = "fileId", required = true) @PathVariable("fileId") String fileId,
+        @Pattern(regexp = REGEX_UUID, message = "lan must be in UUID format") @ApiParam(value = "lan", required = true)
+        @PathVariable("lan") String lan) throws IOException {
+        Either<FormatRespDto, ResponseEntity<byte[]>> either = uploadFileService.getSdkProject(fileId, lan);
         if (either.isRight()) {
             return either.getRight();
         } else {

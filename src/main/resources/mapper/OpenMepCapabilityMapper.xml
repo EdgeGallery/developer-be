@@ -22,7 +22,9 @@
     <resultMap id="GroupMap"
       type="org.edgegallery.developer.model.workspace.OpenMepCapabilityGroup">
         <id property="groupId" column="group_id"/>
-        <result property="name" column="name"/>
+        <result property="oneLevelName" column="one_level_name"/>
+        <result property="twoLevelName" column="two_level_name"/>
+        <result property="threeLevelName" column="three_level_name"/>
         <result property="type" column="type"/>
         <result property="description" column="description"/>
     </resultMap>
@@ -58,7 +60,9 @@
     <resultMap id="OpenMEPDetail"
       type="org.edgegallery.developer.model.workspace.OpenMepCapabilityGroup">
         <id column="group_id" property="groupId"/>
-        <result column="name" property="name"/>
+        <result property="oneLevelName" column="one_level_name"/>
+        <result property="twoLevelName" column="two_level_name"/>
+        <result property="threeLevelName" column="three_level_name"/>
         <result column="type" property="type"/>
         <result column="description" property="description"/>
         <collection property="capabilityDetailList"
@@ -72,7 +76,7 @@
             <result column="api_file_id" property="apiFileId"/>
             <result property="guideFileId" column="guide_file_id"/>
             <result property="uploadTime" column="upload_time"/>
-            <result property="port" column="=port"/>
+            <result property="port" column="port"/>
             <result property="host" column="host"/>
             <result property="protocol" column="protocol"/>
             <result property="appId" column="app_id"/>
@@ -84,10 +88,10 @@
     <insert id="saveGroup"
       parameterType="org.edgegallery.developer.model.workspace.OpenMepCapabilityGroup">
         insert into
-        tbl_openmep_capability (group_id, name, type,
+        tbl_openmep_capability (group_id, one_level_name, two_level_name, three_level_name, type,
         description)
         values
-        ( #{groupId}, #{name}, #{type}, #{description})
+        ( #{groupId}, #{oneLevelName}, #{twoLevelName}, #{threeLevelName}, #{type}, #{description})
     </insert>
 
     <insert id="saveCapability"
@@ -144,7 +148,7 @@
         *
         FROM
         tbl_openmep_capability
-        WHERE name = #{name} and type = 'OPENMEP_ECO'
+        WHERE one_level_name = #{name} and type = 'OPENMEP_ECO'
     </select>
 
     <select id="getGroupIdByDetailId" parameterType="String" resultType="java.lang.String">

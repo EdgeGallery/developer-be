@@ -32,6 +32,7 @@
         <result property="iconFileId" column="icon_file_id"/>
         <result property="lastTestId" column="last_test_id"/>
         <result property="openCapabilityId" column="open_capability_id"/>
+        <result property="deployPlatform" column="deploy_platform"/>
     </resultMap>
 
     <resultMap id="TestConfigMap" type="org.edgegallery.developer.model.workspace.ProjectTestConfig">
@@ -73,7 +74,7 @@
         insert into
         tbl_app_project (id, project_type, name, version, provider, platform, icon_file_id, type, description, status,
         user_id,
-        create_date, capabilities, industries)
+        create_date, capabilities, industries, deploy_platform)
         values
         ( #{id}, #{projectType}, #{name}, #{version}, #{provider},
         #{platform, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonCollectionTypeHandler},
@@ -81,7 +82,8 @@
         #{userId},
         #{createDate},
         #{capabilityList, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonCollectionTypeHandler},
-        #{industry, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonCollectionTypeHandler} )
+        #{industry, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonCollectionTypeHandler},
+        #{deployPlatform} )
     </insert>
 
     <update id="updateProject" parameterType="org.edgegallery.developer.model.workspace.ApplicationProject">
@@ -95,7 +97,7 @@
         last_test_id = #{lastTestId}, capabilities =
         #{capabilityList, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonCollectionTypeHandler},
         industries = #{industry, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonCollectionTypeHandler},
-        open_capability_id = #{openCapabilityId}
+        open_capability_id = #{openCapabilityId}, deploy_platform = #{deployPlatform}
         WHERE
         id = #{id}
     </update>
@@ -189,6 +191,16 @@
         stage_status = #{stageStatus, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonTypeHandler}, access_url = #{accessUrl}, error_log = #{errorLog}, deploy_date = #{deployDate},
         pods = #{pods},
         app_instance_id = #{appInstanceId}, work_load_id = #{workLoadId}, deploy_status = #{deployStatus}, lcm_token = #{lcmToken}
+        WHERE
+        test_id = #{testId}
+    </update>
+
+    <update id="modifyTestConfig" parameterType="org.edgegallery.developer.model.workspace.ProjectTestConfig">
+        UPDATE
+        tbl_project_test_config
+        SET
+        project_id = #{projectId},
+        deploy_file_id = #{deployFileId}, private_host = #{privateHost}, platform = #{platform}
         WHERE
         test_id = #{testId}
     </update>

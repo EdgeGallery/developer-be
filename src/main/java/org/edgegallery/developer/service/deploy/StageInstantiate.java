@@ -1,3 +1,19 @@
+/*
+ *    Copyright 2020 Huawei Technologies Co., Ltd.
+ *
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
+ */
+
 package org.edgegallery.developer.service.deploy;
 
 import java.io.File;
@@ -32,17 +48,32 @@ public class StageInstantiate implements IConfigDeployStage {
     public boolean execute(ProjectTestConfig config) {
         boolean processSuccess = false;
         boolean instantiateAppResult;
+        boolean dependencyResult;
 
         ApplicationProject project = projectMapper.getProjectById(config.getProjectId());
         String userId = project.getUserId();
         EnumTestConfigStatus instantiateStatus = EnumTestConfigStatus.Failed;
+        // check dependency app
+        dependencyResult = projectService.checkDependency(project);
+        if (!dependencyResult) {
+            config.setErrorLog("dependency app not deploy");
+            LOGGER.error("Failed to instantiate app: dependency app not deploy");
+            projectService.updateDeployResult(config, project, "instantiateInfo", instantiateStatus);
+            return false;
+        }
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            LOGGER.error("sleep fail! {}", e.getMessage());
+        }
+        // deploy app
         File csar;
         try {
             csar = new File(projectService.getProjectPath(config.getProjectId()) + config.getAppInstanceId() + ".csar");
             instantiateAppResult = projectService
                     .deployTestConfigToAppLcm(csar, project, config, userId, config.getLcmToken());
             if (!instantiateAppResult) {
-                config.setErrorLog("Failed to instantiate app which appInstanceId is: " + config.getAppInstanceId());
+                config.setErrorLog("Instantiate failed: deploy env error ");
                 LOGGER.error("Failed to instantiate app which appInstanceId is : {}.", config.getAppInstanceId());
             } else {
                 // update status when instantiate success

@@ -1,11 +1,12 @@
 package org.edgegallery.developer.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
-/**
- * @author chenhui
- */
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
@@ -18,25 +19,27 @@ public class ServiceConfig {
      * the name for service.
      * example: position-service
      */
-    private String name;
+    private String servicename;
 
     /**
-     * the port of service
+     * the port of service.
      * example: 9999
      */
     private int port;
 
     /**
-     * version
+     * version.
      * example: 1.0
      */
     private String version;
 
 
     /**
-     * protocol
+     * protocol.
      * example: HTTP or HTTPS
      */
     private String protocol;
+
+    private String appnamespace;
 
 }

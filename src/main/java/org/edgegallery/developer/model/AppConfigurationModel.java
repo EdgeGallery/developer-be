@@ -1,16 +1,12 @@
 package org.edgegallery.developer.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import java.util.List;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
-import java.util.List;
-
-/**
- * @author chenhui
- */
 @NoArgsConstructor
 @ToString
 @Getter
@@ -28,8 +24,7 @@ public class AppConfigurationModel {
     @Getter
     @Setter
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    public static class ConfigurationProperties{
-
+    public static class ConfigurationProperties {
         private List<ServiceRequired> appServiceRequired;
 
         private List<ServiceProduced> appServiceProduced;
@@ -48,8 +43,7 @@ public class AppConfigurationModel {
     @Getter
     @Setter
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    public static class ServiceProduced{
-
+    public static class ServiceProduced {
         private String serName;
 
         private String version;
@@ -64,8 +58,7 @@ public class AppConfigurationModel {
     @Getter
     @Setter
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    public static class ServiceRequired{
-
+    public static class ServiceRequired {
         private String serName;
 
         private String version;

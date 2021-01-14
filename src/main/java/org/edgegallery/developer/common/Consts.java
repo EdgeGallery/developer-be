@@ -18,14 +18,18 @@ public final class Consts {
 
     public static final String DOWNLOAD_FILE_URL_V1 = "/mec/developer/v1/files/";
 
-    public static final String APP_LCM_INSTANTIATE_APP_URL =
-            "/lcmcontroller/v1/tenants/tenantId/app_instances/appInstanceId/instantiate";
+    public static final String APP_LCM_INSTANTIATE_APP_URL
+        = "/lcmcontroller/v1/tenants/tenantId/app_instances/appInstanceId/instantiate";
 
-    public static final String APP_LCM_TERMINATE_APP_URL =
-            "/lcmcontroller/v1/tenants/tenantId/app_instances/appInstanceId/terminate";
+    public static final String APP_LCM_TERMINATE_APP_URL
+        = "/lcmcontroller/v1/tenants/tenantId/app_instances/appInstanceId/terminate";
 
-    public static final String APP_LCM_GET_WORKLOAD_STATUS_URL =
-            "/lcmcontroller/v1/tenants/tenantId/app_instances/appInstanceId";
+    public static final String APP_LCM_GET_WORKLOAD_STATUS_URL
+        = "/lcmcontroller/v1/tenants/tenantId/app_instances/appInstanceId";
+
+    public static final String APP_LCM_GET_HEALTH = "/lcmcontroller/v1/health";
+
+    public static final String APP_LCM_GET_DEPLOY_STATUS_URL = "/lcmcontroller/v1/hosts/hostIp/packages/packageId";
 
     public static final long MINUTE = 60000;
 
@@ -49,5 +53,6 @@ public final class Consts {
 
     public static final String GET_TASK_FROM_ATP = "/edgegallery/atp/v1/tasks/%s";
 
-    private Consts() {}
+    private Consts() {
+    }
 }

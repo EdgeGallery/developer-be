@@ -24,20 +24,25 @@ import java.util.Date;
 import java.util.List;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.ibatis.io.Resources;
+import org.apache.servicecomb.swagger.invocation.exception.InvocationException;
+import org.checkerframework.checker.units.qual.A;
 import org.edgegallery.developer.DeveloperApplicationTests;
 import org.edgegallery.developer.config.security.AccessUserUtil;
 import org.edgegallery.developer.model.workspace.ApplicationProject;
+import org.edgegallery.developer.model.workspace.EnumDeployPlatform;
 import org.edgegallery.developer.model.workspace.EnumHostStatus;
 import org.edgegallery.developer.model.workspace.EnumOpenMepType;
 import org.edgegallery.developer.model.workspace.EnumProjectImage;
 import org.edgegallery.developer.model.workspace.EnumProjectStatus;
 import org.edgegallery.developer.model.workspace.EnumProjectType;
+import org.edgegallery.developer.model.workspace.EnumTestConfigStatus;
 import org.edgegallery.developer.model.workspace.MepAgentConfig;
 import org.edgegallery.developer.model.workspace.MepHost;
 import org.edgegallery.developer.model.workspace.OpenMepCapabilityDetail;
 import org.edgegallery.developer.model.workspace.OpenMepCapabilityGroup;
 import org.edgegallery.developer.model.workspace.ProjectImageConfig;
 import org.edgegallery.developer.model.workspace.ProjectTestConfig;
+import org.edgegallery.developer.model.workspace.ProjectTestConfigStageStatus;
 import org.edgegallery.developer.model.workspace.UploadedFile;
 import org.edgegallery.developer.response.FormatRespDto;
 import org.edgegallery.developer.service.ProjectService;
@@ -91,9 +96,11 @@ public class ProjectServiceTest {
         project.setProjectType(EnumProjectType.CREATE_NEW);
         project.setCreateDate(new Date());
         project.setType("new");
+        project.setDeployPlatform(EnumDeployPlatform.KUBERNETES);
 
         List<OpenMepCapabilityGroup> capabilities = new ArrayList<>();
-        OpenMepCapabilityGroup capability = new OpenMepCapabilityGroup("3", "Location", EnumOpenMepType.OPENMEP);
+        OpenMepCapabilityGroup capability = new OpenMepCapabilityGroup("3", "Location", "", "",
+            EnumOpenMepType.OPENMEP);
         List<OpenMepCapabilityDetail> capabilitiesDetail = new ArrayList<>();
         OpenMepCapabilityDetail detail = new OpenMepCapabilityDetail("3", "3", "LocationService", "version",
             "description");
@@ -101,7 +108,7 @@ public class ProjectServiceTest {
         capability.setCapabilityDetailList(capabilitiesDetail);
         capabilities.add(capability);
 
-        OpenMepCapabilityGroup capabilityGPU = new OpenMepCapabilityGroup("10", "GPU", EnumOpenMepType.OPENMEP);
+        OpenMepCapabilityGroup capabilityGPU = new OpenMepCapabilityGroup("10", "GPU", "", "", EnumOpenMepType.OPENMEP);
         capabilitiesDetail = new ArrayList<>();
         detail = new OpenMepCapabilityDetail("2", "10", "GPUService-CMCC", "1.2", "Sample GPU Service");
         capabilitiesDetail.add(detail);
@@ -372,8 +379,7 @@ public class ProjectServiceTest {
         String userName = "mec";
         String projectId = project.getRight().getId();
         String token = "";
-        Either<FormatRespDto, Boolean> result = projectService
-            .uploadToAppStore(userId, projectId, projectId, userName, token);
+        Either<FormatRespDto, Boolean> result = projectService.uploadToAppStore(userId, projectId, userName, token);
         Assert.assertTrue(result.isLeft());
 
     }
@@ -386,8 +392,7 @@ public class ProjectServiceTest {
         String userName = "mec";
         String projectId = project.getRight().getId();
         String token = "";
-        Either<FormatRespDto, Boolean> result = projectService
-            .uploadToAppStore(userId, projectId, projectId, userName, token);
+        Either<FormatRespDto, Boolean> result = projectService.uploadToAppStore(userId, projectId, userName, token);
         Assert.assertTrue(result.isLeft());
 
     }
@@ -454,7 +459,8 @@ public class ProjectServiceTest {
         Either<FormatRespDto, ApplicationProject> project = createNewProject();
         String userId = project.getRight().getUserId();
         String projectId = project.getRight().getId();
-        Either<FormatRespDto, Boolean> result = projectService.cleanTestEnv(userId, projectId);
+        String token = "test";
+        Either<FormatRespDto, Boolean> result = projectService.cleanTestEnv(userId, projectId, token);
         Assert.assertTrue(result.isRight());
 
     }
@@ -462,7 +468,245 @@ public class ProjectServiceTest {
     private UploadedFile uploadOneFile(String resourceFile, String fileName) throws IOException {
         MultipartFile uploadFile = new MockMultipartFile(fileName, fileName, null,
             UploadFilesServiceTest.class.getClassLoader().getResourceAsStream(resourceFile));
-        Either<FormatRespDto, UploadedFile> uoloadFile = uploadFileService.uploadFile(userId, uploadFile);
-        return uoloadFile.getRight();
+        Either<FormatRespDto, UploadedFile> uloadFile = uploadFileService.uploadFile(userId, uploadFile);
+        return uloadFile.getRight();
     }
+
+    @Test
+    @WithMockUser(roles = "DEVELOPER_TENANT")
+    public void testProcessDeploy() throws Exception {
+        projectService.processDeploy();
+        Assert.assertTrue(true);
+    }
+
+    @Test
+    @WithMockUser(roles = "DEVELOPER_TENANT")
+    public void testTerminateProjectNoConfig() throws Exception {
+        Either<FormatRespDto, Boolean> res = projectService.terminateProject("userId", "proId", "test");
+        Assert.assertTrue(res.isRight());
+    }
+
+    @Test
+    @WithMockUser(roles = "DEVELOPER_TENANT")
+    public void testTerminateProjectWithNullWorkStatu() throws Exception {
+        Either<FormatRespDto, Boolean> res = projectService
+            .terminateProject("userId", "200dfab1-3c30-4fc7-a6ca-ed6f0620a85f", "test");
+        Assert.assertTrue(res.isLeft());
+    }
+
+    @Test
+    @WithMockUser(roles = "DEVELOPER_TENANT")
+    public void testTerminateProjectWithTerFail() throws Exception {
+        Either<FormatRespDto, Boolean> res = projectService
+            .terminateProject("userId", "200dfab1-3c30-4fc7-a6ca-ed6f0620a85d", "test");
+        Assert.assertTrue(res.isLeft());
+    }
+
+    @Test
+    @WithMockUser(roles = "DEVELOPER_TENANT")
+    public void testDeployProjectWithNoConfig() throws Exception {
+        Either<FormatRespDto, ApplicationProject> res = projectService.deployProject("userId", "test", "test");
+        Assert.assertTrue(res.isLeft());
+    }
+
+    @Test
+    @WithMockUser(roles = "DEVELOPER_TENANT")
+    public void testDeployProjectWithBadStatus() throws Exception {
+        Either<FormatRespDto, ApplicationProject> res = projectService
+            .deployProject("userId", "200dfab1-3c30-4fc7-a6ca-ed6f0620a85f", "test");
+        Assert.assertTrue(res.isLeft());
+    }
+
+    @Test
+    @WithMockUser(roles = "DEVELOPER_TENANT")
+    public void testDeployProjectSuccess() throws Exception {
+        Either<FormatRespDto, ApplicationProject> res = projectService
+            .deployProject("f24ea0a2-d8e6-467c-8039-94f0d29bac43", "200dfab1-3c30-4fc7-a6ca-ed6f0620a85e", "test");
+        Assert.assertTrue(res.isRight());
+    }
+
+    @Test
+    @WithMockUser(roles = "DEVELOPER_TENANT")
+    public void testCreateCsarPkg() throws Exception {
+        String userId = "f24ea0a2-d8e6-467c-8039-94f0d29bac43";
+        String projectId = "200dfab1-3c30-4fc7-a6ca-ed6f0620a85d";
+        AccessUserUtil.setUser(userId,"test-user");
+        Either<FormatRespDto, ApplicationProject> res = projectService.getProject(userId,projectId);
+        Assert.assertTrue(res.isRight());
+        res.getRight().setDescription("hello");
+        Either<FormatRespDto, ProjectTestConfig> resConfig = projectService.getTestConfig(projectId);
+        Assert.assertTrue(resConfig.isRight());
+        File file = projectService
+            .createCsarPkg(userId, res.getRight(), resConfig.getRight());
+        Assert.assertNotNull(file);
+    }
+
+    @Test
+    @WithMockUser(roles = "DEVELOPER_TENANT")
+    public void testDeployTestConfigToAppLcm() throws Exception {
+        String userId = "f24ea0a2-d8e6-467c-8039-94f0d29bac43";
+        String projectId = "200dfab1-3c30-4fc7-a6ca-ed6f0620a85g";
+        AccessUserUtil.setUser(userId,"test-user");
+        Either<FormatRespDto, ApplicationProject> res = projectService.getProject(userId,projectId);
+      //  Assert.assertTrue(res.isRight());
+        Either<FormatRespDto, ProjectTestConfig> resConfig = projectService.getTestConfig(projectId);
+       // Assert.assertTrue(resConfig.isRight());
+        File file = projectService
+            .createCsarPkg(userId, res.getRight(), resConfig.getRight());
+        Assert.assertNotNull(file);
+        boolean isSuccess = projectService
+            .deployTestConfigToAppLcm(file, res.getRight(), resConfig.getRight(),userId,"token");
+        Assert.assertEquals(false,isSuccess);
+    }
+
+    @Test
+    @WithMockUser(roles = "DEVELOPER_TENANT")
+    public void testCreateTestConfigSuccess() throws Exception {
+        String userId = "f24ea0a2-d8e6-467c-8039-94f0d29bac43";
+        AccessUserUtil.setUser(userId,"test-user");
+        String projectId = "200dfab1-3c30-4fc7-a6ca-ed6f0620a85e";
+        Either<FormatRespDto, ProjectTestConfig> resConfig = projectService.getTestConfig(projectId);
+        Assert.assertTrue(resConfig.isRight());
+        resConfig.getRight().setPrivateHost(true);
+        Either<FormatRespDto, ProjectTestConfig> res= projectService
+            .createTestConfig(userId,projectId,resConfig.getRight());
+        Assert.assertTrue(res.isRight());
+    }
+
+
+    @Test
+    @WithMockUser(roles = "DEVELOPER_TENANT")
+    public void testUploadToAppStoreFail() throws Exception {
+        String userId = "f24ea0a2-d8e6-467c-8039-94f0d29bac43";
+        String projectId = "200dfab1-3c30-4fc7-a6ca-ed6f0620a85d";
+        Either<FormatRespDto, Boolean> res= projectService
+            .uploadToAppStore(userId,projectId,"hello","hello");
+        Assert.assertTrue(res.isLeft());
+    }
+
+    @Test
+    @WithMockUser(roles = "DEVELOPER_TENANT")
+    public void testUploadToAppStoreFail1() throws Exception {
+        String userId = "f24ea0a2-d8e6-467c-8039-94f0d29bac43";
+        String projectId = "200dfab1-3c30-4fc7-a6ca-ed6f0620a85e";
+        Either<FormatRespDto, Boolean> res= projectService
+            .uploadToAppStore(userId,projectId,"hello","hello");
+        Assert.assertTrue(res.isLeft());
+    }
+
+    @Test
+    @WithMockUser(roles = "DEVELOPER_TENANT")
+    public void testUploadToAppStoreFail2() throws Exception {
+        String userId = "f24ea0a2-d8e6-467c-8039-94f0d29bac43";
+        String projectId = "200dfab1-3c30-4fc7-a6ca-ed6f0620a85d";
+        Either<FormatRespDto, Boolean> res= projectService
+            .uploadToAppStore(userId,projectId,"hello","hello");
+        Assert.assertTrue(res.isLeft());
+    }
+
+    @Test
+    @WithMockUser(roles = "DEVELOPER_TENANT")
+    public void testOpenToMecFail() throws Exception {
+        Either<FormatRespDto, OpenMepCapabilityGroup> res= projectService
+            .openToMecEco("test","test1");
+        Assert.assertTrue(res.isLeft());
+    }
+
+    @Test
+    @WithMockUser(roles = "DEVELOPER_TENANT")
+    public void testOpenToMecFail1() throws Exception {
+        String userId = "f24ea0a2-d8e6-467c-8039-94f0d29bac43";
+        String projectId = "200dfab1-3c30-4fc7-a6ca-ed6f0620a85d";
+        Either<FormatRespDto, OpenMepCapabilityGroup> res= projectService
+            .openToMecEco(userId,projectId);
+        Assert.assertTrue(res.isLeft());
+    }
+
+    @Test
+    @WithMockUser(roles = "DEVELOPER_TENANT")
+    public void testOpenToMecFail2() throws Exception {
+        String userId = "f24ea0a2-d8e6-467c-8039-94f0d29bac43";
+        String projectId = "200dfab1-3c30-4fc7-a6ca-ed6f0620a85f";
+        Either<FormatRespDto, OpenMepCapabilityGroup> res= projectService
+            .openToMecEco(userId,projectId);
+        Assert.assertTrue(res.isLeft());
+    }
+
+    @Test
+    @WithMockUser(roles = "DEVELOPER_TENANT")
+    public void testOpenToMecSuccess() throws Exception {
+        String userId = "f24ea0a2-d8e6-467c-8039-94f0d29bac43";
+        String projectId = "200dfab1-3c30-4fc7-a6ca-ed6f0620a85h";
+        Either<FormatRespDto, OpenMepCapabilityGroup> res= projectService
+            .openToMecEco(userId,projectId);
+        Assert.assertTrue(res.isRight());
+    }
+
+    @Test
+    @WithMockUser(roles = "DEVELOPER_TENANT")
+    public void testCleanEnvBad() throws Exception {
+        String userId = "f24ea0a2-d8e6-467c-8039-94f0d29bac43";
+        Either<FormatRespDto, Boolean> res= projectService
+            .cleanTestEnv(userId,"aa","aa");
+        Assert.assertTrue(res.isLeft());
+    }
+
+    @Test
+    @WithMockUser(roles = "DEVELOPER_TENANT")
+    public void testCleanEnvWithNoConfig() throws Exception {
+        String userId = "f24ea0a2-d8e6-467c-8039-94f0d29bac43";
+        String projectId = "200dfab1-3c30-4fc7-a6ca-ed6f0620a85f";
+        Either<FormatRespDto, Boolean> res= projectService
+            .cleanTestEnv(userId,projectId,"aa");
+        Assert.assertTrue(res.isRight());
+    }
+
+    @Test
+    @WithMockUser(roles = "DEVELOPER_TENANT")
+    public void testCleanEnvSuccess() throws Exception {
+        String userId = "f24ea0a2-d8e6-467c-8039-94f0d29bac43";
+        String projectId = "200dfab1-3c30-4fc7-a6ca-ed6f0620a85h";
+        Either<FormatRespDto, Boolean> res= projectService
+            .cleanTestEnv(userId,projectId,"aa");
+        Assert.assertTrue(res.isRight());
+    }
+
+    @Test
+    @WithMockUser(roles = "DEVELOPER_TENANT")
+    public void testUpdateDeployResult() throws Exception {
+        ApplicationProject project = new ApplicationProject();
+        ProjectTestConfig testConfig = new ProjectTestConfig();
+        ProjectTestConfigStageStatus stageStatus = new ProjectTestConfigStageStatus();
+        testConfig.setStageStatus(stageStatus);
+        projectService.updateDeployResult(testConfig,project,"workStatus", EnumTestConfigStatus.Success);
+        Assert.assertTrue(true);
+    }
+
+    @Test(expected= InvocationException.class)
+    @WithMockUser(roles = "DEVELOPER_TENANT")
+    public void testCreateATPTestTask() throws Exception {
+        String projectId = "200dfab1-3c30-4fc7-a6ca-ed6f0620a85e";
+        Either<FormatRespDto, Boolean> res = projectService.createAtpTestTask(projectId, "EnumTestConfigStatus.Success");
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }

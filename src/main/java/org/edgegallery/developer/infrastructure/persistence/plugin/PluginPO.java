@@ -68,6 +68,8 @@ public class PluginPO {
 
     private String pluginFile;
 
+    private String pluginFileHashCode;
+
     private Date uploadTime;
 
     private String userId;
@@ -103,6 +105,7 @@ public class PluginPO {
         pluginPO.setUserName(plugin.getUser().getUserName());
         pluginPO.setVersion(plugin.getVersion());
         pluginPO.setPluginSize(Math.toIntExact(plugin.getPluginFile().getSize()));
+        pluginPO.setPluginFileHashCode(plugin.getPluginFile().getHashCode());
         return pluginPO;
     }
 

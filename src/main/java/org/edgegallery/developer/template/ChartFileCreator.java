@@ -48,10 +48,12 @@ public class ChartFileCreator implements BaseFileCreator {
 
     private String namespace;
 
+    private String configMapName;
+
     private Map<String, String> yamlNameToContentMap = new HashMap<>();
 
-    public ChartFileCreator() {
-        this.dirName = UUID.randomUUID().toString();
+    public ChartFileCreator(String chartName) {
+        this.dirName = chartName;
         this.temporaryPath = TEMPORARY_BASE_PATH + dirName;
     }
 
@@ -87,13 +89,16 @@ public class ChartFileCreator implements BaseFileCreator {
         File chartValues = new File(temporaryPath + File.separator + "values.yaml");
         FileUtils.writeStringToFile(chartValues,
             FileUtils.readFileToString(chartValues, Consts.FILE_ENCODING).replace("<IS_MEP_AGENT>", isMepAgent)
-                .replace("<IS_NAMESPACE>", isNamespace).replace("<NAMESPACE>", namespace), Consts.FILE_ENCODING);
+                .replace("<IS_NAMESPACE>", isNamespace)
+                .replace("<NAMESPACE>", namespace)
+                .replace("<CONFIGMAP_NAME>", configMapName), Consts.FILE_ENCODING);
     }
 
     private void replaceChartYaml() throws IOException {
         File chartYamlFile = new File(temporaryPath + File.separator + "Chart.yaml");
+        String appName = chartName + UUID.randomUUID().toString().substring(0, 16);
         FileUtils.writeStringToFile(chartYamlFile,
-            FileUtils.readFileToString(chartYamlFile, Consts.FILE_ENCODING).replace("<CHART_NAME>", chartName),
+            FileUtils.readFileToString(chartYamlFile, Consts.FILE_ENCODING).replace("<CHART_NAME>", appName),
             Consts.FILE_ENCODING);
     }
 
@@ -104,10 +109,11 @@ public class ChartFileCreator implements BaseFileCreator {
     /**
      * setChartValues.
      */
-    public void setChartValues(String isMepAgent, String isNamespace, String namespace) {
+    public void setChartValues(String isMepAgent, String isNamespace, String namespace, String configMapName) {
         this.isMepAgent = isMepAgent;
         this.isNamespace = isNamespace;
         this.namespace = namespace;
+        this.configMapName = configMapName;
     }
 
     public void addTemplateYaml(String name, String content) {

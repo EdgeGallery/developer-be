@@ -18,7 +18,6 @@ package org.edgegallery.developer.util;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
@@ -29,6 +28,10 @@ import org.slf4j.LoggerFactory;
 
 public class RuntimeUtil {
     private static final Logger LOGGER = LoggerFactory.getLogger(HttpClientUtil.class);
+
+    private RuntimeUtil() {
+        throw new IllegalStateException("RuntimeUtil class");
+    }
 
     /**
      * execCommand.
@@ -54,7 +57,6 @@ public class RuntimeUtil {
             }
             builder.append("SUCCESS");//作为判断命令输出流是标准输出还是错误输出
         } catch (Exception e) {
-            e.printStackTrace();
             LOGGER.error(e.getMessage());
             builder.append(e.getMessage()).append("FAILED");
         } finally {
@@ -66,30 +68,14 @@ public class RuntimeUtil {
             }
 
         }
-        System.out.println(builder.toString());
         return builder.toString();
-    }
-
-    /**
-     * readInputstream.
-     */
-    public static String readInputstream(InputStream in) throws Exception {
-        InputStream inputStream = in;
-        InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
-        BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
-        StringBuilder sb = new StringBuilder();
-        String line = null;
-        while ((line = bufferedReader.readLine()) != null) {
-            sb.append(line).append("\n");
-        }
-        return sb.toString();
     }
 
     /**
      * buildCommand.
      */
     public static List<String> buildCommand(String lan, GeneralConfig config) {
-        List<String> command = new ArrayList<String>();
+        List<String> command = new ArrayList<>();
         command.add("java");
         command.add("-jar");
         command.add(InitConfigUtil.getSdkCodeDir() + "swagger-codegen-cli-3.0.21.jar");
@@ -118,7 +104,7 @@ public class RuntimeUtil {
     /**
      * buildJavaCommand.
      */
-    public static void buildJavaCommand(List<String> command, GeneralConfig config) {
+    private static void buildJavaCommand(List<String> command, GeneralConfig config) {
         command.add("--api-package");
         command.add(config.getApiPackage());
         command.add("--invoker-package");

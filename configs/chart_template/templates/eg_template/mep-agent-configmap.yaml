@@ -3,7 +3,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: mep-agent-service-config
+  name: {{ .Values.global.mepagent.configmapname }}
   namespace: {{ .Values.appconfig.appnamespace }}
 data:
   app_instance_info.yaml: |-
@@ -13,8 +13,8 @@ data:
         serCategory:
           href: "/example/catalogue1"
           id: id12345
-          name: RNI
-          version: version1
+          name: {{ .servicename }}
+          version: {{ .version}}
         version: {{ .version }}
         state: ACTIVE
         transportId: Rest1
@@ -26,12 +26,9 @@ data:
           protocol: {{ .protocol }}
           version: '2.0'
           endpoint:
-            addresses: [
-              {
-                host: {{ .servicename }}.{{ .appnamespace }}
-                port: {{ .port }}
-              }
-            ]
+            addresses:
+              - host: {{ .servicename}}.{{ .appnamespace}}
+                port: {{ .port}}
           implSpecificInfo: {}
         serializer: JSON
         scopeOfLocality: MEC_SYSTEM
@@ -53,9 +50,9 @@ data:
             - href: /example/catalogue1
               id: id12345
               name: RNI
-              version: version1
+              version: {{ .version}}
           states:
             - ACTIVE
           isLocal: true
 
-{{- end }}
+  {{- end }}

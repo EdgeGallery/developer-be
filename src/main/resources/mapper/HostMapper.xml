@@ -37,10 +37,10 @@
     <insert id="saveHost"
             parameterType="org.edgegallery.developer.model.workspace.MepHost">
         insert into
-        tbl_service_host (host_id, user_id, name, address, architecture, status, ip, port, os, port_range_min, port_range_max)
+        tbl_service_host (host_id, user_id, name, address, architecture, status, ip, port, os, port_range_min, port_range_max, protocol)
         values
         ( #{hostId}, #{userId}, #{name}, #{address}, #{architecture}, #{status}, #{ip},
-        #{port}, #{os}, #{portRangeMin}, #{portRangeMax})
+        #{port}, #{os}, #{portRangeMin}, #{portRangeMax}, #{protocol})
     </insert>
 
     <select id="getAllHosts" resultMap="HostMap">
@@ -65,7 +65,7 @@
         FROM
         tbl_service_host
         WHERE
-        status = #{param1} and user_id = #{param2}
+        status = #{param1} and user_id = #{param2} and architecture = #{param3}
    </select>
 
     <select id="getNormalHosts" resultMap="HostMap">
@@ -77,8 +77,7 @@
         status = 'NORMAL'
     </select>
 
-    <select id="getHost" parameterType="java.lang.String"
-            resultMap="HostMap">
+    <select id="getHost" parameterType="java.lang.String" resultMap="HostMap">
         SELECT
         *
         FROM
@@ -90,11 +89,9 @@
     <update id="updateHost" parameterType="org.edgegallery.developer.model.workspace.MepHost">
         UPDATE
         tbl_service_host
-        SET name = #{name}, address = #{address}, architecture=#{architecture},
-        status=#{status}, ip=#{ip}, port=#{port}, os=#{os}, port_range_min=#{portRangeMin},
-        port_range_max=#{portRangeMax}
+        SET ip=#{ip}, port=#{port}
         WHERE
-        host_id = #{hostId}
+        user_id = #{userId}
     </update>
 
     <delete id="deleteHost" parameterType="java.lang.String">

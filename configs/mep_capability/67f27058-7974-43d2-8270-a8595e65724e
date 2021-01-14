@@ -1,0 +1,530 @@
+# 自然语言处理
+## 关键词提取接口
+### 功能介绍
+对输入的文本进行关键词提取，输出结果
+####  请求消息
+```
+URI: /ecloud/ai/v1/nlp/v1/keyword
+Method: POST
+```
+参数说明
+
+|参数名称 |参数类型 |是否必须 |参数说明|
+|-----|------|-----|------|
+|items |array| 是 |待分析的文本数组，支持批量|
+|-text |string| 是 |待分析的文本，最大长度 400|
+|-textId| string |是|文本序列表示，在items内部唯一， 通过此字段保证批量输入时，输 入文本和返回结果的对应关系， 最多长度 200|
+请求参考示例
+```
+{
+    "items":[
+        {
+            "textId":"0",
+            "text":"其实只差3步路的距离，黄先生就能进到家门口，但实在喝得太醉， 才成为小偷觊觎的目标，更让他无奈的是，当时是清晨5点多，经过买早餐、要去运动的人也不 少，算一算，至少有14人经过，却没有人发现小偷正在下手，也没人帮忙把他叫醒，就这样让他 一路瘫睡了3小时。"
+        }
+    ]
+}
+```
+#### 响应消息
+响应参数说明
+
+|参数名称 |参数类型 |参数描述|
+|---------|---------|----------|
+|items| JSONArray |结果数组|
+|+textId |String |文本序列标识|
+|+keywords |JSONArray |单个文档的关键词列表|
+|++name |String |文本中关键词|
+|++nature| String| 关键词对应的词性|
+|++weight |Double |关键词对应的权值|
+响应参考示例
+```
+{
+    "requestId":"reqId-5b8d6ac13b71496bb8794a47cd72548d",
+    "state":"OK",
+    "body":{
+        "items":[
+            {
+                "textId":"0",
+                "keywords":[
+                    {
+                        "nature":"n",
+                        "name":"小偷",
+                        "weight":0.11187907085404891
+                    },
+                    {
+                        "nature":"v",
+                        "name":"喝得",
+                        "weight":0.06139349879077111
+                    }
+                ]
+            }
+        ]
+    }
+}
+```
+响应错误码
+
+|编号 |错误码 |错误信息| 描述|
+|-----|------|-----|------|
+|1 |ParameterError| 参数错误 |1、textId 参数为空 2、text 参数为空|
+|2| InternalError |内部错误 |1、 网络、算法地址错误等原 因造成算法无法请求 2、 算法返回结果为空3、 算法内部错误，没有正常 识别 4、 算法请求超时|
+|3| TextTooLongError |输入文本内容过长 |1、text 的文本内容过长|
+详情参考 [附3 错误信息](#3)
+## 智能分词接口
+### 功能介绍
+对输入文本进行分词，输出结果
+####  请求消息
+```
+URI: /ecloud/ai/v1/nlp/v1/segmentation
+Method: POST
+```
+参数说明
+
+|参数名称 |参数类型 |是否必须 |参数说明|
+|-----|------|-----|------|
+|items |array |是 |待分析的文本数组，支持批量|
+|-text |string |是 |待分词的文本，最大长度 400|
+|-textId| string| 是|文本序列表示，在items内部唯一， 通过此字段保证批量输入时，输 入文本和返回结果的对应关系， 最大长度 200|
+
+请求参考示例
+```
+{
+    "items":[
+        {
+            "textId":"222",
+            "text":"要理解 systemd 与 cgroups 的关系，我 们需要先区分 cgroups 的两个方面：层级和资源"
+        }
+    ]
+}
+```
+#### 响应消息
+响应参数说明
+
+|参数名称| 参数类型| 参数描述|
+|---------|---------|----------|
+|items |JSONArray| 结果数组|
+|+textId| String| 文本序列标识|
+|+bean |JSONArray| 单个文本的分词结果|
+|++word| String |分词后的单词|
+|++nature |String |该单词的词性|
+响应参考示例
+```
+{
+    "requestId":"reqId-63f124cccc5f45db8fcec02c93d8e91d",
+    "state":"OK",
+    "body":{
+        "items":[
+            {
+                "textId":"0",
+                "bean":[
+                    {
+                        "nature":"d",
+                        "word":"其实"
+                    },
+                    {
+                        "nature":"d",
+                        "word":"只"
+                    }
+                ]
+            }
+        ]
+    }
+}
+```
+响应错误码
+
+|编号 |错误码 |错误信息 |描述|
+|---------|---------|----------|
+|1 |ParameterError |参数错误| 1、textId 参数为空 2、text 参数为空|
+|2 |InternalError |内部错误| 1、 网络、算法地址错误等 原因造成算法无法请求 2、 算法返回结果为空 3、 算法内部错误，没有正 常识别 4、算法请求超时|
+|3| TextTooLongError| 输入文本内容过长 |1、text 的文本内容过长|
+详情参考 [附3 错误信息](#3)
+## 文本信息抽取接口
+### 功能介绍
+对输入的 doc、pdf、docx 文本进行分析，输出结果
+####  请求消息
+```
+URI: /ecloud/ai/v1/nlp/v1/sentiment/convertdoc
+Method: POST
+```
+参数说明
+
+|参数名称 |参数类型 |是否必须| 参数说明|
+|-----|------|-----|------|
+|auditFile| multipart/form-data |是| 以 form-data 形式上传文件 必须 是 doc\docx\pdf 格式 小于 10M|
+
+请求参考示例
+无
+#### 响应消息
+响应参数说明
+
+|参数名称 |参数类型| 参数描述|
+|---------|---------|----------|
+|data |JsonArray |文本提取信息 jsonarray|
+|contractTitle |String |合同标题，只有当文档解析成功时， 才为必有项。|
+|vendeeName| String |甲方名称，只有当文档解析成功时， 才为必有项。|
+|vendeeAddress |String |甲方地址，只有当文档解析成功时， 才为必有项。|
+|vendeeAccountName| String| 甲方户名，只有当文档解析成功时， 才为必有项。|
+|vendeeBank |String| 甲方开户行，只有当文档解析成功 时，才为必有项。|
+|vendeeAccountNum |String| 甲方账户，只有当文档解析成功时， 才为必有项。|
+|vendorName |String |乙方名称，只有当文档解析成功时， 才为必有项。|
+|vendorAddress |String |乙方地址，只有当文档解析成功时， 才为必有项。|
+|vendorAccountName| String |乙方户名，只有当文档解析成功时， 才为必有项。|
+|vendorBank| String |乙方开户行，只有当文档解析成功 时，才为必有项。|
+|vendorAccountNum| String| 乙方账户，只有当文档解析成功时， 才为必有项。|
+|contractStartDate| String |合同开始时间，只有当文档解析成功 时，才为必有项。|
+|contractEndDate |String |合同结束时间，只有当文档解析成功 时，才为必有项。|
+响应参考示例
+```
+{
+    "requestId":"reqId-5e43b5dd0ed54408a4ad1b5f648130b9",
+    "state":"OK",
+    "body":{
+        "data":[
+            {
+                "vendeeAccountName":"中国移动通信集团福建有限公司",
+                "vendorAccountName":"豆豆集团股份有限公司",
+                "contractStartDate":"",
+                "vendeeName":"中国移动通信集团福建有限公司",
+                "contractEndDate":"",
+                "vendorName":"豆豆集团股份有限公司",
+                "contractTitle":"中国移动福建公司IT软硬件维保服务合同",
+                "vendeeBank":"福建省兴业银行福州杨桥支行",
+                "vendeeAccountNum":"566666666",
+                "vendorAccountNum":"77777777",
+                "vendeeAddress":"福建省福州市湖东路140号",
+                "logId":"5c748d06e819cfac",
+                "vendorAddress":"北京市海淀区东北旺西路8号中关村软件园6号楼",
+                "vendorBank":"招商银行沈阳南湖支行",
+                "status":"success"
+            }
+        ]
+    }
+}
+```
+响应错误码
+
+|编号| 错误码 |错误信息|描述|
+|---------|---------|----------|
+|1 |ParameterError |参数错误 |1. 文件格式错误（仅支持 pdf，docx，doc） 2. 文件为空 3. 文件名字为空|
+|2 |InternalError |内部错误 |2、 网络、算法地址错误等 原因造成算法无法请求 3、 算法返回结果为空 4、 算法内部错误，没有正 常识别算法请求超时|
+|3 |TooLargeFileError |文件过大 |1. 文件大小超出限制（最 大为 10M）|
+详情参考 [附3 错误信息 ](#3)
+## 情感分析接口（微博文本+ 新闻文本）
+### 功能介绍
+对输入的文本进行情感分析，输出结果
+####  请求消息
+```
+URI: /ecloud/ai/v1/nlp/v1/sentiment/wb
+Method: POST
+```
+参数说明
+
+|参数名称 |参数类型 |是否必须 |参数说明|
+|-----|------|-----|------|
+|items| array<object> |是 |待分析的文本数组（支持批量）|
+|-text |string| 是 |待分析的文本，最长不超过 4096 个字符|
+|-textId |string |是 |文本序列标识 最长不超过 1024|
+|- contentType |String| 否| 枚举类型， “weibo”表示这是一个 微博文本， “news”表示这个一个 新闻文本，默认为 weibo|
+|- title |String |否 |新闻的标题，如果 contentType 为 news 的话，titile 必选，长度不超 过 1024 个字符|
+请求参考示例
+```
+{
+    "items":[
+        {
+            "textId":"0",
+            "text":"其实只差3步路的距离，黄先生就能进到家门口，但实在喝得太醉，才成为 小偷"
+        },
+        {
+            "textId":"1",
+            "text":"让他无奈的是，当时是清晨5点多，经过买早餐、要去运动的人也不少。"
+        }
+    ]
+}
+```
+#### 响应消息
+响应参数说明
+
+|参数名称| 参数类型| 参数描述|
+|---------|---------|----------|
+|items |JSONArray |结果数组|
+|textId |String| 文本序列标识|
+|label| String| 情感值：-1 负面；0 中性；1 正面 prob DoubleArray 情感的概率值，分别是负面、中性、 正面|
+响应参考示例
+```
+{
+    "requestId":"reqId-cc39d2407d8041e2bcb07dc443940cef",
+    "state":"OK",
+    "body":{
+        "items":[
+            {
+                "prob":[
+                    0.00009145203603753142,
+                    0.005916347958001966,
+                    0.9939922000059606
+                ],
+                "textId":"0",
+                "label":-1
+            }
+        ]
+    }
+}
+```
+响应错误码
+
+|编号 |错误码 |错误信息 |描述|
+|---------|---------|----------|
+|1 |ParameterError |参数错误| 1、textId 参数为空 2、text 参数为空 3、title 参数为空|
+|2| InternalError |内部错误 |1、 网络、算法地址错误等 原因造成算法无法请求 2、 算法返回结果为空 3、 算法内部错误，没有正常识别算法请求超时|
+|3| TextTooLongError| 输入文本内容过长 |1、text 的文本内容过长 2、title 的文本内容过长
+详情参考 [附3 错误信息](#3)
+## 行业分类识别接口
+### 功能介绍
+为批量文本正文打上行业标签。
+####  请求消息
+```
+URI: /ecloud/ai/v1/nlp/v1/industry
+Method: POST
+```
+参数说明
+
+|参数名称| 参数类型 |是否必须| 参数说明|
+|-----|------|-----|------|
+|items |array<object> |是 |待分析的文本数组（支持批量 ， 最多支持 20 个）|
+|-title| string |是 |待分析的文本标题（目前仅支持UTF-8 编码） ，长度不超过 1024， 内容不为空|
+|-content| string |是 |待分析的文本内容，长度不超过 4096 ，内容不为空|
+|-textId |string |是 |文本序列标识，输入时确保 textId 唯一，否则无法区别返回结果的 顺序。长度不超过 1024。|
+请求参考示例
+```
+{
+    "items":[
+        {
+            "textId":"example_text_id",
+            "title":"example_text_title",
+            "content":"example_content"
+        }
+    ]
+}
+```
+#### 响应消息
+响应参数说明
+
+|参数名称| 参数类型 |参数描述|
+|---------|---------|----------|
+|state |ReturnState |返回状态枚举值|
+|requestId |String| 请求唯一标识|
+|body |Object |泛型，封装响应内容|
+|-items |Array |items 数组|
+|--textId| String| items 的内容，文本 Id --industries Array items 的内容，一级行业（array 可能 为 0size，默认最多输出 1 个标签）|
+|---labelName |String |行业名称|
+|---label |string |标签|
+|---prob |double |行业类型的概率值（0-1 之间）|
+|--subIndustries |String |items 的内容，二级行业标签|
+|--events |String| items 的内容，三级行业标签|
+响应参考示例
+```
+{
+    "requestId":"test_request_id",
+    "state":"OK",
+    "body":{
+        "items":[
+            {
+                "textId":"1xxxx2d1",
+                "industries":[
+                    {
+                        "labelName":"旅游"
+                    }
+                ],
+                "subIndustries":[
+
+                ],
+                "events":[
+
+                ]
+            }
+        ]
+    }
+}
+```
+#### 响应错误码
+
+|编号 |错误码 |错误信息 |描述|
+|---------|---------|----------|
+|1 |ParameterError |参数错误 |1、textId 参数为空 2、title 参数为空 3、content 参数为空|
+|2 |InternalError |内部错误 |1、 网络、算法地址错误等 原因造成算法无法请求 2、 算法返回结果为空 3、 算法内部错误，没有正 常识别 4、算法请求超时|
+|3| TextTooLongError| 输入文本内容过长 |1、title 文本内容超长（最 大 1024 字节） 2、 content 文本内容超长（最 大 4096 字节）|
+详情参考 [附3 错误信息](#3)
+## 命名实体识别接口
+### 功能介绍
+识别一些通用领域实体如地名、人名、机构名等。
+####  请求消息
+```
+URI: /ecloud/ai/v1/nlp/v1/entity
+Method: POST
+```
+参数说明
+
+|参数名称 |参数类型 |是否必须 |参数说明|
+|-----|------|-----|------|
+|items |array<object> |是| 待分析的文本数组（支持批量）|
+|-text| string |是 |待分析的文本内容（目前仅支持 UTF-8 编码），长度不超过 200 , 内容不能为空|
+|-textId| string| 是 |文本序列标识，输入时确保 textId 唯一，否则无法区别返回结果的 顺序，长度不超过 1024。|
+请求参考示例
+```
+{
+    "items":[
+        {
+            "textId":"abcdefg",
+            "text":"北京欢迎你。"
+        }
+    ]
+}
+```
+#### 响应消息
+响应参数说明
+
+|参数名称| 参数类型| 参数描述|
+|---------|---------|----------|
+|state |ReturnState| 返回状态枚举值|
+|errorCode |String |返回错误码|
+|errorMessage |String| 返回消息描述|
+|requestId| String| 请求唯一标识|
+|body| Object| 泛型，封装响应内容|
+|-items |Array<Object> |body 的内容，返回结果|
+|--textId |string| items 的内容，传入的文本的 Id 信息|
+|--nerTokens |int |items 的内容，命名分析结果集|
+|---beginOffset| int |itmes 的内容，（索引）文本位置|
+|---type| string|itmes 的内容,实体类型 || 枚举类型 PER 人名 LOC 地名 ORG 机构名|
+|---word |string |items 的内容，实体词|
+|---length| string |items 的内容，实体词的词长|
+响应参考示例
+```
+{
+    "requestId":"test_request_id",
+    "state":"OK",
+    "body":{
+        "items":[
+            {
+                "textId":"11",
+                "nerTokens":[
+                    {
+                        "beginOffset":0,
+                        "type":"LOC",
+                        "word":"北京",
+                        "length":2
+                    }
+                ]
+            }
+        ]
+    }
+}
+```
+响应错误码
+
+|编号| 错误码| 错误信息 |描述|
+|---------|---------|----------|
+|1| ParameterError |参数错误 |1、textId 参数为空 2、text 参数为空|
+|2 |InternalError |内部错误 |1、 网络、算法地址错误等 原因造成算法无法请求 2、 算法返回结果为空 3、 算法内部错误，没有正 常识别 4、算法请求超时|
+|3| TextTooLongError |输入文本内容过长| 1、 text 文本内容超长（最大 200 字节）|
+详情参考 [附3 错误信息](#3)
+##POST 对话情绪识别接口
+### 功能介绍
+针对带有主观描述的自然语言文本，可自动判断该文本的情感正负倾向并给出相应的结果。
+####  请求消息
+```
+URI: /ecloud/ai/v1/nlp/v1/emotion
+Method: POST
+```
+参数说明
+
+|参数名称 |参数类型 |是否必须 |参数说明|
+|-----|------|-----|------|
+|items |array<object> |是 |待分析的文本数组（支持批量）|
+|-text| string |是| 待分析的文本内容（目前仅支持 UTF-8 编码），长度不超过 4096 , 内容不能为空|
+|-textId |string| 是| 文本序列标识，输入时确保 textId 唯一，否则无法区别返回结果的 顺序，长度不超过 1024。|
+请求参考示例
+```
+{
+    "items":[
+        {
+            "textId":"abcdefg",
+            "text":"这是一段对话语句"
+        }
+    ]
+}
+```
+#### 响应消息
+响应参数说明
+
+|参数名称 |参数类型 |参数描述|
+|---------|---------|----------|
+|state |ReturnState| 返回状态枚举值|
+|errorCode |String |返回错误码|
+|errorMessage| String |返回消息描述|
+|requestId| String| 请求唯一标识|
+|body |Object| 泛型，封装响应内容|
+|-items| Array<Object> |body 的内容，返回结果|
+|--textId |string| items 的内容，传入的文本的 Id 信息|
+|--label |int|items 的内容，文本的情感标签，情 绪标签：感谢(0)、愉快(1)；中性情绪 (2)；负面情绪：抱怨(3)、愤怒(4)|
+|--prob| Array| 上述每种情绪的概率的值|
+响应参考示例
+```
+{
+    "requestId":"test_request_id",
+    "state":"OK",
+    "body":{
+        "items":[
+            {
+                "textId":"11",
+                "label":0,
+                "prob":[
+                    0.01,
+                    0.6,
+                    0.09,
+                    0.2,
+                    0.1
+                ]
+            }
+        ]
+    }
+}
+```
+响应错误码
+
+|编号 |错误码 |错误信息 |描述|
+|---------|---------|----------|
+|1 |ParameterError |参数错误 1、textId 参数为空 2、text 参数为空|
+|2 |InternalError |内部错误 |1、 网络、算法地址错误等 原因造成算法无法请求 2、 算法返回结果为空 3、 算法内部错误，没有正 常识别 4、算法请求超时|
+|3 |TextTooLongError| 输入文本内容过长 1、 text 文本内容超长（最大 4096 字节）|
+详情参考 [附3 错误信息](#3)
+
+
+##附 响应错误码
+### 返回结果
+<h3 id="1">附1 响应消息头</h3>
+
+|名称 |描述 |示例|
+|----|----|----|
+|Content-type |消息体的 MIME 类型 |application/json|
+<h3 id="2">附2 响应消息体</h3>
+
+|参数名称| 值|
+|--|--|
+|requestId| 每次请求的唯一表示 ID|
+|state |请求响应状态 OK-请求成功 ERROR-请求报错|
+|errorCode |请求失败时的错误码|
+|errorMessage |请求失败时的错误消息|
+|body |响应体具体内容|
+<h3 id="3">附3 错误信息</h3>
+接口流量控制及鉴权错误码
+
+|错误码 |错误信息 |描述| 抛出模块|
+|-------|----------|-----|--------|
+|InvalidParameterError |请求参数有误|接口请求参数不规范| 公共模块|
+|InvalidAKSKError |无效的AK、 SK|请求的 AK、SK 参数不规范| 公共模块|
+|InvalidTokenError| token 已 失 效或者错误|API 接口请求携带的为无效的 token（包括无效的 token 和已 过期的 token）|公共错误|
+|AuthorityError |产品已退订 或已被冻结|产品已退订或已被冻结| 公共错误|
+|InternalError| 内部错误 |算法服务或内部服务器异常| 公共错误|
+|TooLargeFileError |输入文件过大|输入的图片或文件大于 10M |业 务 错 误 -OCR 类 、或 NLP 类|
+|DetectError |未检测出有 效图片|imageFile参数不是该接口对应 识别图片类型的 base64 编码|业 务 错 误 -OCR 类|
+|TextTooLongError |输入文本过 长|输入文本过长 |业 务 错 误 -NLP 类|

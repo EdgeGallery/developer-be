@@ -140,7 +140,7 @@ public class PluginController {
         @ApiParam(value = "pluginName") @RequestParam("pluginName") String pluginName,
         @ApiParam(value = "the max count of one page", required = true) @Min(1) @RequestParam("limit") int limit,
         @ApiParam(value = "start index of the page", required = true) @Min(0) @RequestParam("offset") int offset) {
-        return ResponseEntity.ok(pluginServiceFacade.qurey(pluginType, codeLanguage, pluginName, limit, offset));
+        return ResponseEntity.ok(pluginServiceFacade.query(pluginType, codeLanguage, pluginName, limit, offset));
     }
 
     /**
@@ -196,8 +196,7 @@ public class PluginController {
     public ResponseEntity<InputStreamResource> downloadFile(
         @Pattern(regexp = REGEX_UUID, message = "pluginId must be in UUID format")
         @ApiParam(value = "pluginId", required = true) @PathVariable("pluginId") String pluginId) throws IOException {
-        return ResponseEntity.ok()
-            .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_OCTET_STREAM_VALUE)
+        return ResponseEntity.ok().header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_OCTET_STREAM_VALUE)
             .header(HttpHeaders.CONTENT_DISPOSITION,
                 "attachment;filename=" + pluginServiceFacade.getPluginName(pluginId))
             .body(new InputStreamResource(pluginServiceFacade.downloadFile(pluginId)));

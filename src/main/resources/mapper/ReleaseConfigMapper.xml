@@ -44,8 +44,7 @@
         #{testStatus}, #{createTime})
     </insert>
 
-    <select id="getConfigByReleaseId" parameterType="java.lang.String"
-            resultType="org.edgegallery.developer.model.ReleaseConfig">
+    <select id="getConfigByReleaseId" parameterType="java.lang.String" resultMap="ConfigMap">
         SELECT
         *
         FROM
@@ -74,7 +73,7 @@
         project_id = #{projectId}
     </update>
     
-     <update id="updateATPStatus" parameterType="org.edgegallery.developer.model.ReleaseConfig">
+     <update id="updateAtpStatus" parameterType="org.edgegallery.developer.model.ReleaseConfig">
         UPDATE
         tbl_release_config
         SET

@@ -29,6 +29,7 @@ import java.util.UUID;
 import org.edgegallery.developer.DeveloperApplicationTests;
 import org.edgegallery.developer.controller.ProjectController;
 import org.edgegallery.developer.model.workspace.ApplicationProject;
+import org.edgegallery.developer.model.workspace.EnumDeployPlatform;
 import org.edgegallery.developer.model.workspace.EnumHostStatus;
 import org.edgegallery.developer.model.workspace.EnumOpenMepType;
 import org.edgegallery.developer.model.workspace.EnumProjectImage;
@@ -138,7 +139,7 @@ public class CreateProjectTest {
         project.setType("new");
 
         List<OpenMepCapabilityGroup> capabilities = new ArrayList<>();
-        OpenMepCapabilityGroup capability = new OpenMepCapabilityGroup("3", "Location", EnumOpenMepType.OPENMEP);
+        OpenMepCapabilityGroup capability = new OpenMepCapabilityGroup("3", "Location", "", "", EnumOpenMepType.OPENMEP);
         List<OpenMepCapabilityDetail> capabilitiesDetail = new ArrayList<>();
         OpenMepCapabilityDetail detail = new OpenMepCapabilityDetail("3", "3", "LocationService", "version",
             "description");
@@ -146,7 +147,7 @@ public class CreateProjectTest {
         capability.setCapabilityDetailList(capabilitiesDetail);
         capabilities.add(capability);
 
-        OpenMepCapabilityGroup capabilityGPU = new OpenMepCapabilityGroup("10", "GPU", EnumOpenMepType.OPENMEP);
+        OpenMepCapabilityGroup capabilityGPU = new OpenMepCapabilityGroup("10", "GPU", "", "", EnumOpenMepType.OPENMEP);
         capabilitiesDetail = new ArrayList<>();
         detail = new OpenMepCapabilityDetail("2", "10", "GPUService-CMCC", "1.2", "Sample GPU Service");
         capabilitiesDetail.add(detail);
@@ -156,11 +157,11 @@ public class CreateProjectTest {
         project.setCapabilityList(capabilities);
         iconFile = uploadOneFile("/testdata/face.png", "face");
         project.setIconFileId(iconFile.getFileId());
-
+        project.setDeployPlatform(EnumDeployPlatform.KUBERNETES);
         ResultActions result = mvc.perform(
             MockMvcRequestBuilders.post("/mec/developer/v1/projects/?userId=" + userId).with(csrf())
                 .content(gson.toJson(project)).contentType(MediaType.APPLICATION_JSON_UTF8)
-                .accept(MediaType.APPLICATION_JSON_UTF8)).andExpect(MockMvcResultMatchers.status().is5xxServerError());
+                .accept(MediaType.APPLICATION_JSON_UTF8)).andExpect(MockMvcResultMatchers.status().isOk());
     }
 
     private ApplicationProject createNewProject() throws Exception {
@@ -169,15 +170,17 @@ public class CreateProjectTest {
         project.setName("test_app_1");
         project.setVersion("1.0.1");
         project.setProvider("huawei");
+        project.setDescription("test");
         List<String> platforms = new ArrayList<>();
         platforms.add("KunPeng");
         project.setPlatform(platforms);
         project.setUserId(userId);
         project.setProjectType(EnumProjectType.CREATE_NEW);
         project.setType("new");
+        project.setDeployPlatform(EnumDeployPlatform.KUBERNETES);
 
         List<OpenMepCapabilityGroup> capabilities = new ArrayList<>();
-        OpenMepCapabilityGroup capability = new OpenMepCapabilityGroup("3", "Location", EnumOpenMepType.OPENMEP);
+        OpenMepCapabilityGroup capability = new OpenMepCapabilityGroup("3", "Location", "", "", EnumOpenMepType.OPENMEP);
         List<OpenMepCapabilityDetail> capabilitiesDetail = new ArrayList<>();
         OpenMepCapabilityDetail detail = new OpenMepCapabilityDetail("3", "3", "LocationService", "version",
             "description");
@@ -185,7 +188,7 @@ public class CreateProjectTest {
         capability.setCapabilityDetailList(capabilitiesDetail);
         capabilities.add(capability);
 
-        OpenMepCapabilityGroup capabilityGPU = new OpenMepCapabilityGroup("10", "GPU", EnumOpenMepType.OPENMEP);
+        OpenMepCapabilityGroup capabilityGPU = new OpenMepCapabilityGroup("10", "GPU", "", "", EnumOpenMepType.OPENMEP);
         capabilitiesDetail = new ArrayList<>();
         detail = new OpenMepCapabilityDetail("2", "10", "GPUService-CMCC", "1.2", "Sample GPU Service");
         capabilitiesDetail.add(detail);
@@ -199,7 +202,7 @@ public class CreateProjectTest {
         ResultActions result = mvc.perform(
             MockMvcRequestBuilders.post("/mec/developer/v1/projects/?userId=" + userId).with(csrf())
                 .content(gson.toJson(project)).contentType(MediaType.APPLICATION_JSON_UTF8)
-                .accept(MediaType.APPLICATION_JSON_UTF8)).andExpect(MockMvcResultMatchers.status().is5xxServerError());
+                .accept(MediaType.APPLICATION_JSON_UTF8)).andExpect(MockMvcResultMatchers.status().isOk());
         return gson.fromJson(result.andReturn().getResponse().getContentAsString(), ApplicationProject.class);
     }
 
@@ -245,7 +248,7 @@ public class CreateProjectTest {
         request.content(gson.toJson(test));
         request.accept(MediaType.APPLICATION_JSON);
         request.contentType(MediaType.APPLICATION_JSON);
-        mvc.perform(request).andDo(MockMvcResultHandlers.print()).andExpect(MockMvcResultMatchers.status().is4xxClientError());
+        mvc.perform(request).andDo(MockMvcResultHandlers.print()).andExpect(MockMvcResultMatchers.status().isOk());
     }
 
     @Test
@@ -370,7 +373,7 @@ public class CreateProjectTest {
         project.setStatus(EnumProjectStatus.ONLINE);
 
         List<OpenMepCapabilityGroup> capabilities = new ArrayList<>();
-        OpenMepCapabilityGroup capability = new OpenMepCapabilityGroup("3", "Location", EnumOpenMepType.OPENMEP);
+        OpenMepCapabilityGroup capability = new OpenMepCapabilityGroup("3", "Location", "", "", EnumOpenMepType.OPENMEP);
         List<OpenMepCapabilityDetail> capabilitiesDetail = new ArrayList<>();
         OpenMepCapabilityDetail detail = new OpenMepCapabilityDetail("3", "3", "LocationService", "version",
             "description");
@@ -378,7 +381,7 @@ public class CreateProjectTest {
         capability.setCapabilityDetailList(capabilitiesDetail);
         capabilities.add(capability);
 
-        OpenMepCapabilityGroup capabilityGPU = new OpenMepCapabilityGroup("10", "GPU", EnumOpenMepType.OPENMEP);
+        OpenMepCapabilityGroup capabilityGPU = new OpenMepCapabilityGroup("10", "GPU", "", "", EnumOpenMepType.OPENMEP);
         capabilitiesDetail = new ArrayList<>();
         detail = new OpenMepCapabilityDetail("2", "10", "GPUService-CMCC", "1.2", "Sample GPU Service");
         capabilitiesDetail.add(detail);
@@ -388,6 +391,7 @@ public class CreateProjectTest {
         project.setCapabilityList(capabilities);
         project.setLastTestId(null);
         project.setCreateDate(null);
+        project.setDeployPlatform(EnumDeployPlatform.KUBERNETES);
 
         String url = String.format("/mec/developer/v1/projects/%s?userId=%s", "200dfab1-3c30-4fc7-a6ca-ed6f0620a85e",
             "f24ea0a2-d8e6-467c-8039-94f0d29bac43");

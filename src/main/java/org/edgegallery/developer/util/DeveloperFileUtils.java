@@ -116,7 +116,7 @@ public final class DeveloperFileUtils {
     public static void deleteAndCreateDir(String dir) throws IOException {
         Path path = Paths.get(dir);
         Files.deleteIfExists(path);
-        Files.createDirectory(path);
+        Files.createDirectories(path);
     }
 
     /**

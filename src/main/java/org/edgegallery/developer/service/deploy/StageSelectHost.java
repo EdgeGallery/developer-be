@@ -1,3 +1,19 @@
+/*
+ *    Copyright 2020 Huawei Technologies Co., Ltd.
+ *
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
+ */
+
 package org.edgegallery.developer.service.deploy;
 
 import java.util.List;
@@ -43,16 +59,23 @@ public class StageSelectHost implements IConfigDeployStage {
         boolean processSuccess = false;
         ApplicationProject project = projectMapper.getProjectById(config.getProjectId());
         EnumTestConfigStatus hostStatus = EnumTestConfigStatus.Failed;
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            LOGGER.error("sleep fail! {}", e.getMessage());
+        }
         if (config.isPrivateHost()) {
             List<MepHost> privateHosts = hostMapper.getHostsByUserId(project.getUserId());
             config.setHosts(privateHosts.subList(0, 1));
             hostStatus = EnumTestConfigStatus.Success;
             processSuccess = true;
         } else {
-            List<MepHost> enabledHosts = hostMapper.getHostsByStatus(EnumHostStatus.NORMAL,"admin");
+            List<MepHost> enabledHosts = hostMapper
+                .getHostsByStatus(EnumHostStatus.NORMAL, "admin", project.getPlatform().get(0));
             if (CollectionUtils.isEmpty(enabledHosts)) {
                 processSuccess = false;
-                LOGGER.error("Cannot find enabledHosts");
+                LOGGER.error("Cannot find available hosts information");
+                config.setErrorLog("Cannot find enabledHosts");
             } else {
                 processSuccess = true;
                 config.setHosts(enabledHosts.subList(0, 1));

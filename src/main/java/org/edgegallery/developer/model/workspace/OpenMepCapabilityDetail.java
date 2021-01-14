@@ -17,7 +17,6 @@
 package org.edgegallery.developer.model.workspace;
 
 import java.util.Date;
-import java.util.UUID;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -71,16 +70,6 @@ public class OpenMepCapabilityDetail {
     }
 
     /**
-     * getDetailId.
-     */
-    public String getDetailId() {
-        if (this.detailId == null) {
-            this.detailId = UUID.randomUUID().toString();
-        }
-        return this.detailId;
-    }
-
-    /**
      * getUploadTime.
      */
     public Date getUploadTime() {
@@ -94,9 +83,9 @@ public class OpenMepCapabilityDetail {
     /**
      * setUploadTime.
      */
-    public void setUploadTime(Date deployDate) {
-        if (deployDate != null) {
-            this.uploadTime = (Date) deployDate.clone();
+    public void setUploadTime(Date uploadTime) {
+        if (uploadTime != null) {
+            this.uploadTime = (Date) uploadTime.clone();
         } else {
             this.uploadTime = null;
         }

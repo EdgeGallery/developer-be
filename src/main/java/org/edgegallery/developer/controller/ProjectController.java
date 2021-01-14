@@ -16,6 +16,12 @@
 
 package org.edgegallery.developer.controller;
 
+import com.spencerwi.either.Either;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import java.io.IOException;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
@@ -32,7 +38,6 @@ import org.edgegallery.developer.response.ErrorRespDto;
 import org.edgegallery.developer.response.FormatRespDto;
 import org.edgegallery.developer.response.ProjectImageResponse;
 import org.edgegallery.developer.service.ProjectService;
-import org.edgegallery.developer.util.ApiEmulatorMgr;
 import org.edgegallery.developer.util.ResponseDataUtil;
 import org.hibernate.validator.constraints.Length;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,12 +51,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import com.spencerwi.either.Either;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
 
 @Controller
 @RestSchema(schemaId = "projects")
@@ -66,9 +65,6 @@ public class ProjectController {
 
     @Autowired
     private ProjectService projectService;
-
-    @Autowired
-    private ApiEmulatorMgr apiEmulatorMgr;
 
     /**
      * get all project.
@@ -123,12 +119,7 @@ public class ProjectController {
         @Pattern(regexp = REGEX_UUID, message = "userId must be in UUID format")
         @ApiParam(value = "userId", required = true) @RequestParam("userId") String userId, HttpServletRequest request)
         throws IOException {
-
-        String token = request.getHeader(Consts.ACCESS_TOKEN_STR);
         Either<FormatRespDto, ApplicationProject> either = projectService.createProject(userId, project);
-//        if (either.isRight()) {
-////            apiEmulatorMgr.createApiEmulatorIfNotExist(userId, token);
-////        }
         return ResponseDataUtil.buildResponse(either);
     }
 
@@ -234,7 +225,8 @@ public class ProjectController {
         @Pattern(regexp = REGEX_UUID, message = "userId must be in UUID format")
         @ApiParam(value = "userId", required = true) @RequestParam("userId") String userId,
         HttpServletRequest request) {
-        Either<FormatRespDto, Boolean> either = projectService.cleanTestEnv(userId, projectId);
+        String token = request.getHeader(Consts.ACCESS_TOKEN_STR);
+        Either<FormatRespDto, Boolean> either = projectService.cleanTestEnv(userId, projectId,token);
         return ResponseDataUtil.buildResponse(either);
     }
 
@@ -313,15 +305,13 @@ public class ProjectController {
         @ApiParam(value = "projectId", required = true) @PathVariable("projectId") String projectId,
         @Pattern(regexp = REGEX_UUID, message = "userId must be in UUID format")
         @ApiParam(value = "userId", required = true) @RequestParam("userId") String userId,
-        @Pattern(regexp = REGEX_UUID, message = "appInstanceId must be in UUID format")
-        @ApiParam(value = "appInstanceId", required = true) @RequestParam("appInstanceId") String appInstanceId,
         @NotNull @Length(min = 6, max = 30) @Pattern(regexp = REGEX_USERNAME,
             message = "username can only be a combination of letters and numbers, the length is 6 to 30")
         @ApiParam(value = "userName", required = true) @RequestParam(value = "userName", required = true)
-            String userName, HttpServletRequest request) {
+            String userName,HttpServletRequest request) {
         String token = request.getHeader(Consts.ACCESS_TOKEN_STR);
         Either<FormatRespDto, Boolean> either = projectService
-            .uploadToAppStore(userId, projectId, appInstanceId, userName, token);
+            .uploadToAppStore(userId, projectId, userName, token);
         return ResponseDataUtil.buildResponse(either);
     }
 
@@ -404,18 +394,23 @@ public class ProjectController {
         return ResponseDataUtil.buildResponse(either);
     }
 
+    /**
+     * createATPTestTask.
+     */
     @ApiOperation(value = "create atp test task.", response = Boolean.class)
-    @ApiResponses(value = {@ApiResponse(code = 202, message = "Accept", response = Boolean.class),
-            @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)})
+    @ApiResponses(value = {
+        @ApiResponse(code = 202, message = "Accept", response = Boolean.class),
+        @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
+    })
     @RequestMapping(value = "/{projectId}/action/atp", method = RequestMethod.GET,
-            produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+        produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT')")
-    public ResponseEntity<Boolean> createATPTestTask(
-            @Pattern(regexp = REGEX_UUID, message = "projectId must be in UUID format") @ApiParam(value = "projectId",
-                    required = true) @PathVariable("projectId") String projectId,
-            HttpServletRequest request) {
+    public ResponseEntity<Boolean> createAtpTestTask(
+        @Pattern(regexp = REGEX_UUID, message = "projectId must be in UUID format")
+        @ApiParam(value = "projectId", required = true) @PathVariable("projectId") String projectId,
+        HttpServletRequest request) {
         String token = request.getHeader(Consts.ACCESS_TOKEN_STR);
-        Either<FormatRespDto, Boolean> either = projectService.createATPTestTask(projectId, token);
+        Either<FormatRespDto, Boolean> either = projectService.createAtpTestTask(projectId, token);
         return ResponseDataUtil.buildResponse(either);
     }
 }

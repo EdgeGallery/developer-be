@@ -14,7 +14,7 @@
  *    limitations under the License.
  */
 
-package org.mec.developer.model.workspace;
+package org.edgegallery.developer.model.workspace;
 
 /**
  * The platform for deploy.
@@ -24,5 +24,5 @@ package org.mec.developer.model.workspace;
 
 public enum EnumDeployPlatform {
     KUBERNETES,
-    OPENSTACK;
+    VIRTUALMACHINE;
 }

@@ -1,0 +1,273 @@
+swagger: "2.0"
+info:
+  description: "分布式键值(key-value)数据库，采用键值对(key-value)方式存储数据。"
+  version: "1.0.0"
+  title: "分布式键值(key-value)数据库"
+
+basePath: "/v3"
+tags:
+- name: "key-value"
+  description: "数据存储、修改、查询"
+
+schemes:
+- "http"
+paths:
+  /kv/put:
+    post:
+      tags:
+      - "key-value"
+      summary: "存储、修改数据"
+      description: "存储、修改数据"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "存储、修改的数据"
+        required: true
+        schema:
+          type: "object"
+          properties:
+            key:
+              type: "string"
+              description: "存储、修改数据的键(key)"
+            value:
+              type: "string"
+              description: "与键对应的值"
+      responses:
+        "400":
+          description: "Bad Request"
+        "200":
+          description: "存储、修改数据成功"  
+          schema:
+            $ref: "#/definitions/PutResult"
+  /kv/range:
+    post:
+      tags:
+      - "key-value"
+      summary: "查询给定键序列的值"
+      description: "查询给定键序列的值"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "键序列"
+        required: true
+        schema:
+          type: "object"
+          properties:
+            key:
+              type: "string"
+              description: "键序列的起始值"
+            range_end:
+              type: "string"
+              description: "键序列的结束值"
+      responses:
+        "400":
+          description: "Bad Request"
+        "200":
+          description: "返回的值列表"  
+          schema:
+            $ref: "#/definitions/RangeResult"
+  /auth/user/add:
+    post:
+      tags:
+      - "auth"
+      summary: "添加用户"
+      description: "添加用户"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "用户信息"
+        required: true
+        schema:
+          type: "object"
+          properties:
+            name:
+              type: "string"
+              description: "用户名"
+            password:
+              type: "string"
+              description: "密码"
+      responses:
+        "400":
+          description: "Bad Request"
+        "200":
+          description: "添加用户成功"  
+          schema:
+            $ref: "#/definitions/PutResult"
+  /auth/role/add:
+    post:
+      tags:
+      - "auth"
+      summary: "添加角色"
+      description: "添加角色"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "角色信息"
+        required: true
+        schema:
+          type: "object"
+          properties:
+            name:
+              type: "string"
+              description: "角色名"
+      responses:
+        "400":
+          description: "Bad Request"
+        "200":
+          description: "添加用户成功"  
+          schema:
+            $ref: "#/definitions/PutResult"
+  /auth/user/grant:
+    post:
+      tags:
+      - "auth"
+      summary: "为用户指定角色"
+      description: "为用户指定角色"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "用户和角色信息"
+        required: true
+        schema:
+          type: "object"
+          properties:
+            user:
+              type: "string"
+              description: "用户名"
+            role:
+              type: "string"
+              description: "角色名"
+      responses:
+        "400":
+          description: "Bad Request"
+        "200":
+          description: "添加用户成功"  
+          schema:
+            $ref: "#/definitions/PutResult"
+  /auth/enable:
+    post:
+      tags:
+      - "auth"
+      summary: "使能权限控制"
+      description: "使能权限控制，使能权限控制后访问数据库时，Header需要增加Authorization:{Token}"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      responses:
+        "400":
+          description: "Bad Request"
+        "200":
+          description: "添加用户成功"  
+          schema:
+            $ref: "#/definitions/PutResult"
+  /authenticate:
+    post:
+      tags:
+      - "auth"
+      summary: "获取Token"
+      description: "获取Token(使能权限控制后需要获取并携带Token访问数据库)"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "用户信息"
+        required: true
+        schema:
+          type: "object"
+          properties:
+            name:
+              type: "string"
+              description: "用户名"
+            password:
+              type: "string"
+              description: "密码"
+      responses:
+        "400":
+          description: "Bad Request"
+        "200":
+          description: "添加用户成功"  
+          schema:
+            $ref: "#/definitions/TokenResult"
+definitions:
+  Header:
+    type: "object"
+    properties: 
+      cluster_id:
+        type: "string"
+        description: "集群ID"
+      member_id: 
+        type: "string"
+        description: "集群成员ID"
+      revision:
+        type: "integer"
+        description: "数据修改的版本号"
+      raft_term:
+        type: "integer"
+        description: "Raft期限"
+  PutResult: 
+    type: "object"
+    properties: 
+      header:
+        $ref: "#/definitions/Header" 
+  KvObject:
+    type: "object"
+    properties:
+      key:
+        type: "string"
+        description: "键"
+      create_revision:
+        type: "integer"
+        description: "此键创建版本号"
+      mod_revision:
+        type: "integer"
+        description: "修改版本号"
+      version:
+        type: "integer"
+        description: "值的版本号"
+      value:
+        type: "string"
+        description: "与键对应的值"
+  RangeResult:
+    type: "object"
+    properties: 
+      header:
+        $ref: "#/definitions/Header" 
+      kvs:
+        type: "array"
+        items:
+          $ref: "#/definitions/KvObject"
+      count:
+        type: "integer"
+        description: "返回的键值对数量"
+  TokenResult:
+    type: "object"
+    properties: 
+      header:
+        $ref: "#/definitions/Header" 
+      token:
+        type: "string"
+        description: "获取到的Token(访问数据库时Header增加Authorization:{Token})"

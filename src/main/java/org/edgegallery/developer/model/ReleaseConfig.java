@@ -3,11 +3,8 @@ package org.edgegallery.developer.model;
 import java.util.Date;
 import lombok.Getter;
 import lombok.Setter;
-import org.edgegallery.developer.model.atp.ATPResultInfo;
+import org.edgegallery.developer.model.atp.AtpResultInfo;
 
-/**
- * @author chenhui
- */
 @Setter
 @Getter
 public class ReleaseConfig {
@@ -21,7 +18,7 @@ public class ReleaseConfig {
 
     private CapabilitiesDetail capabilitiesDetail;
 
-    private ATPResultInfo atpTest;
+    private AtpResultInfo atpTest;
 
     private String testStatus;
 
@@ -48,20 +45,4 @@ public class ReleaseConfig {
             this.createTime = null;
         }
     }
-
-    // /**
-    //  * setCapabilitiesDetail.
-    //  */
-    // public void setCapabilitiesDetail(CapabilitiesDetail capabilitiesDetail) {
-    //     Gson gson = new Gson();
-    //     this.capabilitiesDetail = gson.toJson(capabilitiesDetail);
-    // }
-    //
-    // /**
-    //  * setAtpTest.
-    //  */
-    // public void setAtpTest(ATPResultInfo atpTest) {
-    //     Gson gson = new Gson();
-    //     this.atpTest = gson.toJson(atpTest);
-    // }
 }

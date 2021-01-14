@@ -58,7 +58,7 @@ public class PluginServiceFacade {
     /**
      * query plugin.
      */
-    public Page<PluginDto> qurey(String pluginType, String codeLanguage, String pluginName, int limit, int offset) {
+    public Page<PluginDto> query(String pluginType, String codeLanguage, String pluginName, int limit, int offset) {
         return pluginRepository
             .findAllWithPagination(new PluginPageCriteria(limit, codeLanguage, pluginName, offset, pluginType))
             .map(PluginDto::of);
