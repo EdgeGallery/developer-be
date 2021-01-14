@@ -10,7 +10,11 @@ import lombok.Setter;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ServiceDetail {
 
-    private  String groupId;
+    private String oneLevelName;
+
+    private  String twoLevelName;
+
+    private String description;
 
     private String serviceName;
 
