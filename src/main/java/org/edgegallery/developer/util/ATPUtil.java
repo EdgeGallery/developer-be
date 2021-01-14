@@ -86,7 +86,7 @@ public class ATPUtil {
         long startTime = System.currentTimeMillis();
         while (true) {
             try {
-                if ((System.currentTimeMillis() - startTime) > 30000) {
+                if ((System.currentTimeMillis() - startTime) > 100000) {
                     LOGGER.error("Get atp task {} status from appo time out", taskId);
                     throw new InvocationException(Response.Status.INTERNAL_SERVER_ERROR,
                             "Get atp task status from appo time out.");
@@ -107,17 +107,20 @@ public class ATPUtil {
                 if (!WAITING.equalsIgnoreCase(status) && !RUNNING.equals(status)) {
                     return status;
                 }
-
+                sleep5Mins();
             } catch (RestClientException e) {
                 LOGGER.error("Failed to get task status from atp which taskId is {} exception {}", taskId,
                         e.getMessage());
-            } finally {
-                try {
-                    Thread.sleep(5000);
-                } catch (InterruptedException e) {
-                    LOGGER.error("interrupt failed.");
-                }
+                sleep5Mins();
             }
+        }
+    }
+
+    private static void sleep5Mins() {
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            LOGGER.error("interrupt failed.");
         }
     }
 
