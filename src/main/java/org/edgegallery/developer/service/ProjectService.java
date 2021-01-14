@@ -274,7 +274,6 @@ public class ProjectService {
             }
         }
 
-
         // delete the project from db
         Either<FormatRespDto, Boolean> delResult = projectDto.deleteProject(userId, projectId);
         if (delResult.isLeft()) {
@@ -659,7 +658,105 @@ public class ProjectService {
             FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "can not upload appstore");
             return Either.left(error);
         }
+        Either<FormatRespDto, JsonObject> resCsar = getCsarAndUpload(projectId, project, releaseConfig, userId,
+            userName, token);
+        if (resCsar.isLeft()) {
+            return Either.left(resCsar.getLeft());
+        }
+        JsonObject jsonObject = resCsar.getRight();
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            LOGGER.error("sleep fail! {}", e.getMessage());
+            Thread.currentThread().interrupt();
+        }
+        Either<FormatRespDto, Boolean> pubRes = publishApp(jsonObject, token);
+        if (pubRes.isLeft()) {
+            return Either.left(pubRes.getLeft());
+        }
+        CapabilitiesDetail capabilitiesDetail = releaseConfig.getCapabilitiesDetail();
+        if (capabilitiesDetail.getServiceDetails() != null && !capabilitiesDetail.getServiceDetails().isEmpty()) {
+            //save db to openmepcapabilitydetail
+            List<String> openCapabilityIds = new ArrayList<>();
+            for (ServiceDetail serviceDetail : capabilitiesDetail.getServiceDetails()) {
+                OpenMepCapabilityDetail detail = new OpenMepCapabilityDetail();
+                OpenMepCapabilityGroup group = new OpenMepCapabilityGroup();
+                String groupId = UUID.randomUUID().toString();
+                fillCapabilityGroup(serviceDetail, groupId, group);
+                fillCapabilityDetail(serviceDetail, detail, jsonObject, userId, groupId);
+                Either<FormatRespDto, Boolean> resDb = doSomeDbOperation(group, detail, serviceDetail,
+                    openCapabilityIds);
+                if (resDb.isLeft()) {
+                    return Either.left(resDb.getLeft());
+                }
+            }
+            project.setOpenCapabilityId(openCapabilityIds.toString());
+            project.setStatus(EnumProjectStatus.RELEASED);
+            int updRes = projectMapper.updateProject(project);
+            if (updRes < 1) {
+                FormatRespDto error = new FormatRespDto(Status.INTERNAL_SERVER_ERROR, "set openCapabilityId fail!");
+                return Either.left(error);
+            }
+        } else {
+            LOGGER.info("no application service publishing configuration!");
+            return Either.right(true);
+        }
+        return Either.right(true);
+    }
 
+    private Either<FormatRespDto, Boolean> doSomeDbOperation(OpenMepCapabilityGroup group,
+        OpenMepCapabilityDetail detail, ServiceDetail serviceDetail, List<String> openCapabilityIds) {
+        int resGroup = openMepCapabilityMapper.saveGroup(group);
+        if (resGroup < 1) {
+            LOGGER.error("store db to openmepcapability fail!");
+            FormatRespDto error = new FormatRespDto(Status.INTERNAL_SERVER_ERROR, "save openmepcapability db fail!");
+            return Either.left(error);
+        }
+        int res = openMepCapabilityMapper.saveCapability(detail);
+        if (res < 1) {
+            LOGGER.error("store db to openmepcapabilitydetail fail!");
+            FormatRespDto error = new FormatRespDto(Status.INTERNAL_SERVER_ERROR,
+                "save openmepcapabilitydetail db fail!");
+            return Either.left(error);
+        }
+        //set open_capability_id
+        openCapabilityIds.add(detail.getDetailId());
+        //update file status
+        int apiRes = uploadedFileMapper.updateFileStatus(serviceDetail.getApiJson(), false);
+        if (apiRes < 1) {
+            LOGGER.error("after publish,update api file {} status fail!", serviceDetail.getApiJson());
+            FormatRespDto error = new FormatRespDto(Status.INTERNAL_SERVER_ERROR, "update api file status fail!");
+            return Either.left(error);
+        }
+        int mdRes = uploadedFileMapper.updateFileStatus(serviceDetail.getApiMd(), false);
+        if (mdRes < 1) {
+            LOGGER.error("after publish,update md file {} status fail!", serviceDetail.getApiMd());
+            FormatRespDto error = new FormatRespDto(Status.INTERNAL_SERVER_ERROR, "update md file status fail!");
+            return Either.left(error);
+        }
+        LOGGER.warn("save db success! ");
+        return Either.right(true);
+    }
+
+    private Either<FormatRespDto, Boolean> publishApp(JsonObject jsonObject, String token) {
+        //publish app to appstore
+        JsonElement appId = jsonObject.get("appId");
+        JsonElement packageId = jsonObject.get("packageId");
+        if (appId != null && packageId != null) {
+            ResponseEntity<String> publishRes = AppStoreUtil
+                .publishToAppStore(appId.getAsString(), packageId.getAsString(), token);
+            if (!publishRes.getStatusCode().equals(HttpStatus.OK)) {
+                LOGGER.error("publish app to appstore fail!");
+                FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "publish app to appstore fail!");
+                return Either.left(error);
+            }
+            LOGGER.info("publish over! {}", publishRes.getBody());
+        }
+        return Either.right(true);
+    }
+
+    private Either<FormatRespDto, JsonObject> getCsarAndUpload(String projectId, ApplicationProject project,
+        ReleaseConfig releaseConfig, String userId, String userName, String token) {
         // 1 get CSAR package
         String fileName = getFileName(projectId);
         if (StringUtils.isEmpty(fileName)) {
@@ -707,87 +804,20 @@ public class ProjectService {
             return Either.left(error);
         }
         LOGGER.info("upload over! {}", uploadReslut.getBody());
-        try {
-            Thread.sleep(3000);
-        } catch (InterruptedException e) {
-            LOGGER.error("sleep fail! {}", e.getMessage());
-            Thread.currentThread().interrupt();
-        }
-
-        //publish app to appstore
-        JsonElement appId = jsonObject.get("appId");
-        JsonElement packageId = jsonObject.get("packageId");
-        if (appId != null && packageId != null) {
-            ResponseEntity<String> publishRes = AppStoreUtil
-                .publishToAppStore(appId.getAsString(), packageId.getAsString(), token);
-            if (!publishRes.getStatusCode().equals(HttpStatus.OK)) {
-                LOGGER.error("publish app to appstore fail!");
-                FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "publish app to appstore fail!");
-                return Either.left(error);
-            }
-            LOGGER.info("publish over! {}", publishRes.getBody());
-        }
-
-        CapabilitiesDetail capabilitiesDetail = releaseConfig.getCapabilitiesDetail();
-
-        if (capabilitiesDetail.getServiceDetails() != null && !capabilitiesDetail.getServiceDetails().isEmpty()) {
-            //save db to openmepcapabilitydetail
-            List<String> openCapabilityIds = new ArrayList<>();
-            for (ServiceDetail serviceDetail : capabilitiesDetail.getServiceDetails()) {
-                OpenMepCapabilityDetail detail = new OpenMepCapabilityDetail();
-                fillCapability(serviceDetail, detail, jsonObject, userId);
-                int res = openMepCapabilityMapper.saveCapability(detail);
-                if (res < 1) {
-                    LOGGER.error("store db to openmepcapabilitydetail fail!");
-                    FormatRespDto error = new FormatRespDto(Status.INTERNAL_SERVER_ERROR, "save detail db fail!");
-                    return Either.left(error);
-                }
-                //set open_capability_id
-                openCapabilityIds.add(detail.getDetailId());
-                //update file status
-                int apiRes = uploadedFileMapper.updateFileStatus(serviceDetail.getApiJson(), false);
-                if (apiRes < 1) {
-                    LOGGER.error("after publish,update api file {} status fail!", serviceDetail.getApiJson());
-                    FormatRespDto error = new FormatRespDto(Status.INTERNAL_SERVER_ERROR,
-                        "update api file status fail!");
-                    return Either.left(error);
-                }
-                int mdRes = uploadedFileMapper.updateFileStatus(serviceDetail.getApiMd(), false);
-                if (mdRes < 1) {
-                    LOGGER.error("after publish,update md file {} status fail!", serviceDetail.getApiMd());
-                    FormatRespDto error = new FormatRespDto(Status.INTERNAL_SERVER_ERROR,
-                        "update md file status fail!");
-                    return Either.left(error);
-                }
-                LOGGER.warn("save db success! ");
-            }
-            project.setOpenCapabilityId(openCapabilityIds.toString());
-            project.setStatus(EnumProjectStatus.RELEASED);
-            int updRes = projectMapper.updateProject(project);
-            if (updRes < 1) {
-                FormatRespDto error = new FormatRespDto(Status.INTERNAL_SERVER_ERROR, "set openCapabilityId fail!");
-                return Either.left(error);
-            }
-        } else {
-            LOGGER.info("no application service publishing configuration!");
-            return Either.right(true);
-        }
-
-        return Either.right(true);
+        return Either.right(jsonObject);
     }
 
-    private void fillCapability(ServiceDetail serviceDetail, OpenMepCapabilityDetail detail, JsonObject obj,
-        String userId) {
+    private void fillCapabilityDetail(ServiceDetail serviceDetail, OpenMepCapabilityDetail detail, JsonObject obj,
+        String userId, String groupId) {
         detail.setDetailId(UUID.randomUUID().toString());
-
-        detail.setGroupId(serviceDetail.getGroupId());
+        detail.setGroupId(groupId);
         JsonElement provider = obj.get("provider");
         if (provider != null) {
             detail.setProvider(provider.getAsString());
         }
         detail.setService(serviceDetail.getServiceName());
         detail.setVersion(serviceDetail.getVersion());
-        detail.setDescription("desc");
+        detail.setDescription(serviceDetail.getDescription());
         detail.setApiFileId(serviceDetail.getApiJson());
         detail.setGuideFileId(serviceDetail.getApiMd());
         detail.setUploadTime(new Date());
@@ -797,6 +827,15 @@ public class ProjectService {
         detail.setAppId(obj.get("appId").getAsString());
         detail.setPackageId(obj.get("packageId").getAsString());
         detail.setUserId(userId);
+    }
+
+    private void fillCapabilityGroup(ServiceDetail serviceDetail, String groupId, OpenMepCapabilityGroup group) {
+        group.setGroupId(groupId);
+        group.setOneLevelName(serviceDetail.getOneLevelName());
+        group.setTwoLevelName(serviceDetail.getTwoLevelName());
+        group.setThreeLevelName(null);
+        group.setType(EnumOpenMepType.OPENMEP);
+        group.setDescription(serviceDetail.getDescription());
     }
 
     /**
