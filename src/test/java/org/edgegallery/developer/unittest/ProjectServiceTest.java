@@ -686,7 +686,8 @@ public class ProjectServiceTest {
     @WithMockUser(roles = "DEVELOPER_TENANT")
     public void testCreateATPTestTask() throws Exception {
         String projectId = "200dfab1-3c30-4fc7-a6ca-ed6f0620a85e";
-        Either<FormatRespDto, Boolean> res = projectService.createAtpTestTask(projectId, "EnumTestConfigStatus.Success");
+        String token = "";
+        Either<FormatRespDto, Boolean> res = projectService.createAtpTestTask(projectId, token,"EnumTestConfigStatus.Success");
     }
 
 
