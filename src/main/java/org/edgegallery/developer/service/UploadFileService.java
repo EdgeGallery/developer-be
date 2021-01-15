@@ -111,13 +111,14 @@ public class UploadFileService {
             LOGGER.error("can not find file {} in repository", fileId);
             return Either.left(new FormatRespDto(Status.BAD_REQUEST, "can not find file in repository."));
         }
+        String fileName =uploadedFile.getFileName();
 
         try {
             HttpHeaders headers = new HttpHeaders();
             headers.add("Content-Type", "application/octet-stream");
             headers.add("Content-Disposition", "attachment; filename=" + file.getName());
             LOGGER.info("get file success {}", fileId);
-            byte[] fileData = getFileByteArray(file, userId, type);
+            byte[] fileData = getFileByteArray(file, userId, type, fileName);
             return Either.right(ResponseEntity.ok().headers(headers).body(fileData));
         } catch (IOException e) {
             LOGGER.error("Failed to get file stream: {}", e.getMessage());
@@ -144,14 +145,17 @@ public class UploadFileService {
         return Either.right(uploadedFile);
     }
 
-    private byte[] getFileByteArray(File file, String userId, String type) throws IOException {
+    private byte[] getFileByteArray(File file, String userId, String type, String fileName) throws IOException {
+        String fileFormat = fileName.substring(fileName.lastIndexOf("."));
         if (userId == null || !EnumOpenMepType.OPENMEP.name().equals(type)) {
             return FileUtils.readFileToByteArray(file);
         }
-        List<MepHost> enabledHosts = hostMapper.getHostsByStatus(EnumHostStatus.NORMAL, "admin", "x86");
-        if (!enabledHosts.isEmpty()) {
-            String host = enabledHosts.get(0).getIp() + ":" + "32119";
-            return FileUtils.readFileToString(file, "UTF-8").replace("{HOST}", host).getBytes(StandardCharsets.UTF_8);
+        if (fileFormat.equals(".yaml") || fileFormat.equals(".json")) {
+            List<MepHost> enabledHosts = hostMapper.getHostsByStatus(EnumHostStatus.NORMAL, "admin", "X86");
+            if (!enabledHosts.isEmpty()) {
+                String host = enabledHosts.get(0).getIp() + ":" + "32119";
+                return FileUtils.readFileToString(file, "UTF-8").replace("{HOST}", host).getBytes(StandardCharsets.UTF_8);
+            }
         }
 
         return FileUtils.readFileToByteArray(file);
