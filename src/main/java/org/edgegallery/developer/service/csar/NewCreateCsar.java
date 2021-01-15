@@ -10,6 +10,7 @@ import org.edgegallery.developer.model.workspace.ApplicationProject;
 import org.edgegallery.developer.model.workspace.ProjectTestConfig;
 import org.edgegallery.developer.util.CompressFileUtils;
 import org.edgegallery.developer.util.DeveloperFileUtils;
+import org.stringtemplate.v4.ST;
 
 public class NewCreateCsar {
 
@@ -43,11 +44,12 @@ public class NewCreateCsar {
         try {
             File csarValue = new File(csar.getCanonicalPath() + simpleFiles);
             String projectName = project.getName();
+            String chartName = project.getName().replaceAll(Consts.PATTERN, "").toLowerCase();
             FileUtils.writeStringToFile(csarValue,
                 FileUtils.readFileToString(csarValue, StandardCharsets.UTF_8).replace("{name}", projectName)
                     .replace("{provider}", project.getProvider()).replace("{version}", project.getVersion())
                     .replace("{time}", timeStamp).replace("{description}", project.getDescription())
-                    .replace("{ChartName}", projectName), StandardCharsets.UTF_8, false);
+                    .replace("{ChartName}", chartName), StandardCharsets.UTF_8, false);
 
         } catch (IOException e) {
             throw new IOException("replace file exception");
