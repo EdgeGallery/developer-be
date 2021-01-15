@@ -80,7 +80,7 @@ public class UploadFilesServiceTest {
         String sourceData = FileUtils.readFileToString(
             new File(UploadFilesServiceTest.class.getClassLoader().getResource("testdata/test-icon.png").toURI()),
             "UTF-8");
-        MultipartFile uploadFile = new MockMultipartFile("file-name", "file-name", null,
+        MultipartFile uploadFile = new MockMultipartFile("test-icon.png", "test-icon.png", null,
             UploadFilesServiceTest.class.getClassLoader().getResourceAsStream("testdata/test-icon.png"));
         Either<FormatRespDto, UploadedFile> result = uploadFileService.uploadFile("test-user", uploadFile);
         Assert.assertTrue(result.isRight());
