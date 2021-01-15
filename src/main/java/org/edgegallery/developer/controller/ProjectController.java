@@ -408,9 +408,11 @@ public class ProjectController {
     public ResponseEntity<Boolean> createAtpTestTask(
         @Pattern(regexp = REGEX_UUID, message = "projectId must be in UUID format")
         @ApiParam(value = "projectId", required = true) @PathVariable("projectId") String projectId,
+        @Pattern(regexp = REGEX_UUID, message = "userId must be in UUID format")
+        @ApiParam(value = "userId", required = true) @RequestParam("userId") String userId,
         HttpServletRequest request) {
         String token = request.getHeader(Consts.ACCESS_TOKEN_STR);
-        Either<FormatRespDto, Boolean> either = projectService.createAtpTestTask(projectId, token);
+        Either<FormatRespDto, Boolean> either = projectService.createAtpTestTask(projectId, token,userId);
         return ResponseDataUtil.buildResponse(either);
     }
 }

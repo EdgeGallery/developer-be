@@ -1083,7 +1083,7 @@ public class ProjectService {
     /**
      * createAtpTestTask.
      */
-    public Either<FormatRespDto, Boolean> createAtpTestTask(String projectId, String token) {
+    public Either<FormatRespDto, Boolean> createAtpTestTask(String projectId, String token, String userId) {
         String path = AtpUtil.getProjectPath(projectId);
         String fileName = getFileName(projectId);
         if (StringUtils.isEmpty(fileName)) {
@@ -1123,6 +1123,21 @@ public class ProjectService {
         config.setAtpTest(atpResultInfo);
         LOGGER.info("update release config:{}", config);
         configMapper.updateAtpStatus(config);
+
+        ApplicationProject project = projectMapper.getProject(userId, projectId);
+        if (project == null) {
+            return Either.left(new FormatRespDto(Status.BAD_REQUEST, "can not find project"));
+        }
+        //update project status
+        if (status.getAsString().equals("success")) {
+            project.setStatus(EnumProjectStatus.TESTED);
+        } else {
+            project.setStatus(EnumProjectStatus.TESTING);
+        }
+        int res = projectMapper.updateProject(project);
+        if (res < 1) {
+            return Either.left(new FormatRespDto(Status.INTERNAL_SERVER_ERROR, "update project status failed!"));
+        }
 
         threadPool.execute(new GetAtpStatusProcessor(config, token));
 
