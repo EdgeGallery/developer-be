@@ -86,10 +86,9 @@ public class ApplicationProject {
      * initialProject.
      */
     public void initialProject() {
-        this.status = EnumProjectStatus.ONLINE;
+        this.status = EnumProjectStatus.TESTED;
         this.lastTestId = null;
     }
-
 
     /**
      * getCreateDate.

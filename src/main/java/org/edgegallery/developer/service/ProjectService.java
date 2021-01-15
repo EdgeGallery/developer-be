@@ -697,10 +697,14 @@ public class ProjectService {
                 FormatRespDto error = new FormatRespDto(Status.INTERNAL_SERVER_ERROR, "set openCapabilityId fail!");
                 return Either.left(error);
             }
-        } else {
-            LOGGER.info("no application service publishing configuration!");
-            return Either.right(true);
         }
+        project.setStatus(EnumProjectStatus.RELEASED);
+        int updRes = projectMapper.updateProject(project);
+        if (updRes < 1) {
+            FormatRespDto error = new FormatRespDto(Status.INTERNAL_SERVER_ERROR, "set project status fail!");
+            return Either.left(error);
+        }
+        LOGGER.warn("no application service publishing configuration!");
         return Either.right(true);
     }
 
