@@ -1124,22 +1124,34 @@ public class ProjectService {
         LOGGER.info("update release config:{}", config);
         configMapper.updateAtpStatus(config);
 
-        ApplicationProject project = projectMapper.getProject(userId, projectId);
-        if (project == null) {
-            return Either.left(new FormatRespDto(Status.BAD_REQUEST, "can not find project"));
-        }
-        //update project status
-        if (status.getAsString().equals("success")) {
-            project.setStatus(EnumProjectStatus.TESTED);
-        } else {
-            project.setStatus(EnumProjectStatus.TESTING);
-        }
-        int res = projectMapper.updateProject(project);
-        if (res < 1) {
-            return Either.left(new FormatRespDto(Status.INTERNAL_SERVER_ERROR, "update project status failed!"));
-        }
-
         threadPool.execute(new GetAtpStatusProcessor(config, token));
+        threadPool.shutdown();
+        while (true) {
+            if (threadPool.isTerminated()) {
+                ApplicationProject project = projectMapper.getProject(userId, projectId);
+                if (project == null) {
+                    return Either.left(new FormatRespDto(Status.BAD_REQUEST, "can not find project"));
+                }
+                //update project status
+                if (status.getAsString().equals("success")) {
+                    project.setStatus(EnumProjectStatus.TESTED);
+                } else {
+                    project.setStatus(EnumProjectStatus.TESTING);
+                }
+                int res = projectMapper.updateProject(project);
+                if (res < 1) {
+                    return Either
+                        .left(new FormatRespDto(Status.INTERNAL_SERVER_ERROR, "update project status failed!"));
+                }
+                break;
+            }
+            try {
+                Thread.sleep(200);
+            } catch (InterruptedException e) {
+                LOGGER.error("sleep fail! {}", e.getMessage());
+                Thread.currentThread().interrupt();
+            }
+        }
 
         return Either.right(true);
     }
