@@ -1125,34 +1125,6 @@ public class ProjectService {
         configMapper.updateAtpStatus(config);
 
         threadPool.execute(new GetAtpStatusProcessor(config, token));
-        threadPool.shutdown();
-        while (true) {
-            if (threadPool.isTerminated()) {
-                ApplicationProject project = projectMapper.getProject(userId, projectId);
-                if (project == null) {
-                    return Either.left(new FormatRespDto(Status.BAD_REQUEST, "can not find project"));
-                }
-                //update project status
-                if (status.getAsString().equals("success")) {
-                    project.setStatus(EnumProjectStatus.TESTED);
-                } else {
-                    project.setStatus(EnumProjectStatus.TESTING);
-                }
-                int res = projectMapper.updateProject(project);
-                if (res < 1) {
-                    return Either
-                        .left(new FormatRespDto(Status.INTERNAL_SERVER_ERROR, "update project status failed!"));
-                }
-                break;
-            }
-            try {
-                Thread.sleep(200);
-            } catch (InterruptedException e) {
-                LOGGER.error("sleep fail! {}", e.getMessage());
-                Thread.currentThread().interrupt();
-            }
-        }
-
         return Either.right(true);
     }
 
@@ -1183,6 +1155,14 @@ public class ProjectService {
             atpResultInfo.setStatus(AtpUtil.getTaskStatusFromAtp(taskId, token));
             LOGGER.info("after status update: ", config.getAtpTest().getStatus());
             configMapper.updateAtpStatus(config);
+            ApplicationProject project  = projectMapper.getProjectById(config.getProjectId());
+            //update project status
+            if (config.getAtpTest().getStatus().equals("success")) {
+                project.setStatus(EnumProjectStatus.TESTED);
+            } else {
+                project.setStatus(EnumProjectStatus.TESTING);
+            }
+            projectMapper.updateProject(project);
         }
 
     }
