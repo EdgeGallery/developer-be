@@ -18,6 +18,7 @@ package org.edgegallery.developer.util;
 
 import org.edgegallery.developer.common.Consts;
 import org.edgegallery.developer.exception.CustomException;
+import org.edgegallery.developer.model.workspace.ProjectTestConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.FileSystemResource;
@@ -48,7 +49,7 @@ public final class HttpClientUtil {
      * @return InstantiateAppResult
      */
     public static boolean instantiateApplication(String protocol, String ip, int port, String filePath,
-        String appInstanceId, String userId, String token, String projectName) {
+                                                 String appInstanceId, String userId, String token, String projectName, ProjectTestConfig testConfig) {
         MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
         body.add("file", new FileSystemResource(filePath));
         body.add("hostIp", ip);
@@ -67,8 +68,10 @@ public final class HttpClientUtil {
             LOGGER.info("APPlCM log:{}", response);
         } catch (CustomException e) {
             e.printStackTrace();
+            String errorLog = e.getBody();
             LOGGER.error("Failed to instantiate application which appInstanceId is {} exception {}", appInstanceId,
-                    e.getBody());
+                    errorLog);
+            testConfig.setErrorLog(errorLog);
             return false;
         } catch (RestClientException e) {
             LOGGER.error("Failed to instantiate application which appInstanceId is {} exception {}", appInstanceId,
