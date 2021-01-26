@@ -17,6 +17,7 @@
 package org.edgegallery.developer.util;
 
 import org.edgegallery.developer.common.Consts;
+import org.edgegallery.developer.exception.CustomException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.FileSystemResource;
@@ -61,8 +62,14 @@ public final class HttpClientUtil {
             .replaceAll("appInstanceId", appInstanceId).replaceAll("tenantId", userId);
         ResponseEntity<String> response;
         try {
+            REST_TEMPLATE.setErrorHandler(new CustomResponseErrorHandler());
             response = REST_TEMPLATE.exchange(url, HttpMethod.POST, requestEntity, String.class);
             LOGGER.info("APPlCM log:{}", response);
+        } catch (CustomException e) {
+            e.printStackTrace();
+            LOGGER.error("Failed to instantiate application which appInstanceId is {} exception {}", appInstanceId,
+                    e.getBody());
+            return false;
         } catch (RestClientException e) {
             LOGGER.error("Failed to instantiate application which appInstanceId is {} exception {}", appInstanceId,
                 e.getMessage());
