@@ -485,7 +485,7 @@ public class ProjectService {
         testConfig.setAccessUrl(host.getIp());
         return HttpClientUtil
             .instantiateApplication(host.getProtocol(), host.getIp(), host.getPort(), csar.getPath(), appInstanceId,
-                userId, token, projectName);
+                userId, token, projectName,testConfig);
     }
 
     /**

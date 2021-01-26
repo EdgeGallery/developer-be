@@ -27,6 +27,7 @@ import org.edgegallery.developer.mapper.HostMapper;
 import org.edgegallery.developer.mapper.ProjectMapper;
 import org.edgegallery.developer.model.workspace.ApiEmulator;
 import org.edgegallery.developer.model.workspace.MepHost;
+import org.edgegallery.developer.model.workspace.ProjectTestConfig;
 import org.edgegallery.developer.template.ChartFileCreator;
 import org.edgegallery.developer.template.CsarFileCreator;
 import org.slf4j.Logger;
@@ -99,9 +100,10 @@ public class ApiEmulatorMgr {
             return;
         }
         LOGGER.info("Succeed to create emulator csar file for user: {}", userId);
+        ProjectTestConfig testConfig = new ProjectTestConfig();
         Boolean instantiateAppResult = HttpClientUtil
             .instantiateApplication(host.getProtocol(), host.getIp(), host.getPort(), csarFilePath, emulatorInstanceId,
-                userId, token,"testName");
+                userId, token,"testName",testConfig);
 
         if (!instantiateAppResult) {
             LOGGER.error("Failed to instantiate emulator app for user: {}.", userId);
