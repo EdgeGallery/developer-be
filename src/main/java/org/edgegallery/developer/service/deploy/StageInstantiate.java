@@ -73,7 +73,6 @@ public class StageInstantiate implements IConfigDeployStage {
             instantiateAppResult = projectService
                     .deployTestConfigToAppLcm(csar, project, config, userId, config.getLcmToken());
             if (!instantiateAppResult) {
-                config.setErrorLog("Instantiate failed: deploy env error ");
                 LOGGER.error("Failed to instantiate app which appInstanceId is : {}.", config.getAppInstanceId());
             } else {
                 // update status when instantiate success
