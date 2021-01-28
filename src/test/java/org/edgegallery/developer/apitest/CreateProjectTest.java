@@ -32,16 +32,12 @@ import org.edgegallery.developer.model.workspace.ApplicationProject;
 import org.edgegallery.developer.model.workspace.EnumDeployPlatform;
 import org.edgegallery.developer.model.workspace.EnumHostStatus;
 import org.edgegallery.developer.model.workspace.EnumOpenMepType;
-import org.edgegallery.developer.model.workspace.EnumProjectImage;
 import org.edgegallery.developer.model.workspace.EnumProjectStatus;
 import org.edgegallery.developer.model.workspace.EnumProjectType;
-import org.edgegallery.developer.model.workspace.EnumTestConfigDeployStatus;
-import org.edgegallery.developer.model.workspace.EnumTestStatus;
 import org.edgegallery.developer.model.workspace.MepAgentConfig;
 import org.edgegallery.developer.model.workspace.MepHost;
 import org.edgegallery.developer.model.workspace.OpenMepCapabilityDetail;
 import org.edgegallery.developer.model.workspace.OpenMepCapabilityGroup;
-import org.edgegallery.developer.model.workspace.ProjectImageConfig;
 import org.edgegallery.developer.model.workspace.ProjectTestConfig;
 import org.edgegallery.developer.model.workspace.UploadedFile;
 import org.edgegallery.developer.response.FormatRespDto;
@@ -533,34 +529,6 @@ public class CreateProjectTest {
             .andExpect(MockMvcResultMatchers.status().is4xxClientError());
     }
 
-    private ProjectImageConfig addImageToProject(ApplicationProject project) throws Exception {
-        ProjectImageConfig image = new ProjectImageConfig();
-        image.setName("test-image");
-        image.setPort(9998);
-        image.setVersion("v1.0");
-        image.setProjectId("80ec733f-814e-47cc-b22c-6103d5f58c9e");
-        image.setType(EnumProjectImage.DEVELOPER);
-        image.setNodePort(32115);
-
-        String url = String.format("/mec/developer/v1/projects/%s/image", project.getId());
-        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.post(url).with(csrf());
-
-        request.content(gson.toJson(image));
-        request.accept(MediaType.APPLICATION_JSON);
-        request.contentType(MediaType.APPLICATION_JSON);
-        ResultActions result = mvc.perform(request).andDo(MockMvcResultHandlers.print())
-            .andExpect(MockMvcResultMatchers.status().isOk());
-        return gson.fromJson(result.andReturn().getResponse().getContentAsString(), ProjectImageConfig.class);
-    }
-
-    @Test
-    @WithMockUser(roles = "DEVELOPER_TENANT")
-    public void testAddImageToProjectCorrect() throws Exception {
-
-        ApplicationProject applicationProject = getProject();
-        addImageToProject(applicationProject);
-    }
-
     private ApplicationProject getProject() throws Exception {
         String url = String.format(
             "/mec/developer/v1/projects/200dfab1-3c30-4fc7-a6ca-ed6f0620a85e?userId=f24ea0a2-d8e6-467c-8039-94f0d29bac43");
@@ -570,23 +538,6 @@ public class CreateProjectTest {
         ApplicationProject applicationProject = gson
             .fromJson(resultActions.andReturn().getResponse().getContentAsString(), ApplicationProject.class);
         return applicationProject;
-    }
-
-    @Test
-    @WithMockUser(roles = "DEVELOPER_TENANT")
-    public void testDeleteImageById() throws Exception {
-        mvc.perform(MockMvcRequestBuilders.delete(
-            "/mec/developer/v1/projects/200dfab1-3c30-4fc7-a6ca-ed6f0620a85e/image/78055873-58cf-4712-8f12-cfdd4e19f268")
-            .with(csrf()).contentType(MediaType.APPLICATION_JSON_UTF8).accept(MediaType.APPLICATION_JSON_UTF8))
-            .andExpect(MockMvcResultMatchers.status().isOk());
-    }
-
-    @Test
-    @WithMockUser(roles = "DEVELOPER_TENANT")
-    public void testGetImagesByProjectId() throws Exception {
-        mvc.perform(MockMvcRequestBuilders.get("/mec/developer/v1/projects/200dfab1-3c30-4fc7-a6ca-ed6f0620a85e/image")
-            .contentType(MediaType.APPLICATION_JSON_UTF8).accept(MediaType.APPLICATION_JSON_UTF8))
-            .andExpect(MockMvcResultMatchers.status().isOk());
     }
 
 }

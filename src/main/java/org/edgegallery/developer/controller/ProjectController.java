@@ -32,11 +32,9 @@ import org.edgegallery.developer.common.Consts;
 import org.edgegallery.developer.model.workspace.ApplicationProject;
 import org.edgegallery.developer.model.workspace.OpenMepCapabilityDetail;
 import org.edgegallery.developer.model.workspace.OpenMepCapabilityGroup;
-import org.edgegallery.developer.model.workspace.ProjectImageConfig;
 import org.edgegallery.developer.model.workspace.ProjectTestConfig;
 import org.edgegallery.developer.response.ErrorRespDto;
 import org.edgegallery.developer.response.FormatRespDto;
-import org.edgegallery.developer.response.ProjectImageResponse;
 import org.edgegallery.developer.service.ProjectService;
 import org.edgegallery.developer.util.ResponseDataUtil;
 import org.hibernate.validator.constraints.Length;
@@ -333,63 +331,6 @@ public class ProjectController {
         @NotNull @ApiParam(value = "AbilityOpenConfig", required = true) @RequestBody
             OpenMepCapabilityDetail abilityOpenConfig) {
         Either<FormatRespDto, OpenMepCapabilityGroup> either = projectService.openToMecEco(userId, projectId);
-        return ResponseDataUtil.buildResponse(either);
-    }
-
-    /**
-     * addImageToProject.
-     */
-    @ApiOperation(value = "addImageToProject.", response = ProjectImageConfig.class)
-    @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "OK", response = ProjectImageConfig.class),
-        @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
-    })
-    @RequestMapping(value = "/{projectId}/image", method = RequestMethod.POST,
-        consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    @PreAuthorize("hasRole('DEVELOPER_TENANT')")
-    public ResponseEntity<ProjectImageConfig> addImageToProject(
-        @NotNull @ApiParam(value = "ProjectImageConfig", required = true) @RequestBody ProjectImageConfig imageConfig,
-        @Pattern(regexp = REGEX_UUID, message = "projectId must be in UUID format")
-        @ApiParam(value = "projectId", required = true) @PathVariable("projectId") String projectId) {
-        Either<FormatRespDto, ProjectImageConfig> either = projectService.createProjectImage(projectId, imageConfig);
-        return ResponseDataUtil.buildResponse(either);
-    }
-
-    /**
-     * ProjectImageConfig.
-     */
-    @ApiOperation(value = "ProjectImageConfig.", response = Boolean.class)
-    @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "OK", response = Boolean.class),
-        @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
-    })
-    @RequestMapping(value = "/{projectId}/image/{imageId}", method = RequestMethod.DELETE,
-        produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    @PreAuthorize("hasRole('DEVELOPER_TENANT')")
-    public ResponseEntity<Boolean> deleteImageById(
-        @Pattern(regexp = REGEX_UUID, message = "projectId must be in UUID format")
-        @ApiParam(value = "projectId", required = true) @PathVariable("projectId") String projectId,
-        @Pattern(regexp = REGEX_UUID, message = "imageId must be in UUID format")
-        @ApiParam(value = "imageId", required = true) @PathVariable("imageId") String imageId) {
-        Either<FormatRespDto, Boolean> either = projectService.deleteImageById(projectId, imageId);
-        return ResponseDataUtil.buildResponse(either);
-    }
-
-    /**
-     * getImagesByProjectId.
-     */
-    @ApiOperation(value = "getImagesByProjectId.", response = ProjectImageResponse.class)
-    @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "OK", response = ProjectImageResponse.class),
-        @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
-    })
-    @RequestMapping(value = "/{projectId}/image", method = RequestMethod.GET,
-        produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    @PreAuthorize("hasRole('DEVELOPER_TENANT')")
-    public ResponseEntity<ProjectImageResponse> getImagesByProjectId(
-        @Pattern(regexp = REGEX_UUID, message = "projectId must be in UUID format")
-        @ApiParam(value = "projectId", required = true) @PathVariable("projectId") String projectId) {
-        Either<FormatRespDto, ProjectImageResponse> either = projectService.getImagesByProjectId(projectId);
         return ResponseDataUtil.buildResponse(either);
     }
 

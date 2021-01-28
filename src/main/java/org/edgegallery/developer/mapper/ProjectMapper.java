@@ -19,7 +19,6 @@ package org.edgegallery.developer.mapper;
 import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
 import org.edgegallery.developer.model.workspace.ApplicationProject;
-import org.edgegallery.developer.model.workspace.ProjectImageConfig;
 import org.edgegallery.developer.model.workspace.ProjectTestConfig;
 
 @Mapper
@@ -48,14 +47,6 @@ public interface ProjectMapper {
     int modifyTestConfig(ProjectTestConfig testConfig);
 
     List<ProjectTestConfig> getTestConfigByProjectId(String projectId);
-
-    int saveImageConfig(ProjectImageConfig imageConfig);
-
-    List<ProjectImageConfig> getImageConfigByProjectId(String projectId);
-
-    ProjectImageConfig getImageConfigByImageId(String imageId);
-
-    int deleteImageConfigByImageId(String imageId);
 
     List<ProjectTestConfig> getTestConfigByDeployStatus(String deployStatus);
 
