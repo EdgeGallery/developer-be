@@ -60,16 +60,6 @@
         <result property="lcmToken" column="lcm_token"/>
     </resultMap>
 
-    <resultMap id="ImageConfigMap" type="org.edgegallery.developer.model.workspace.ProjectImageConfig">
-        <id property="id" column="id"/>
-        <result property="name" column="name"/>
-        <result property="version" column="version"/>
-        <result property="port" column="port"/>
-        <result property="type" column="type"/>
-        <result property="projectId" column="project_id"/>
-        <result property="nodePort" column="node_port"/>
-    </resultMap>
-
     <insert id="save" parameterType="org.edgegallery.developer.model.workspace.ApplicationProject">
         insert into
         tbl_app_project (id, project_type, name, version, provider, platform, icon_file_id, type, description, status,
@@ -204,36 +194,5 @@
         WHERE
         test_id = #{testId}
     </update>
-
-    <insert id="saveImageConfig" parameterType="org.edgegallery.developer.model.workspace.ProjectImageConfig">
-        INSERT into
-        tbl_project_image (id, name, version, project_id, type, port, node_port)
-        values (#{id}, #{name}, #{version}, #{projectId}, #{type}, #{port}, #{nodePort})
-    </insert>
-
-    <select id="getImageConfigByProjectId" parameterType="String" resultMap="ImageConfigMap">
-        SELECT
-        *
-        FROM
-        tbl_project_image
-        WHERE
-        project_id = #{projectId}
-    </select>
-
-    <select id="getImageConfigByImageId" parameterType="String" resultMap="ImageConfigMap">
-        SELECT
-        *
-        FROM
-        tbl_project_image
-        WHERE
-        id = #{imageId}
-    </select>
-
-    <delete id="deleteImageConfigByImageId" parameterType="String">
-        DELETE FROM
-        tbl_project_image
-        WHERE
-        id = #{imageId}
-    </delete>
 
 </mapper>

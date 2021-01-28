@@ -843,59 +843,6 @@ public class ProjectService {
     }
 
     /**
-     * createProjectImage.
-     *
-     * @return
-     */
-    public Either<FormatRespDto, ProjectImageConfig> createProjectImage(String projectId,
-        ProjectImageConfig imageConfig) {
-        if (imageConfig.getName() == null) {
-            LOGGER.error("Crete project image failed, image name is error");
-            return Either.left(new FormatRespDto(Status.BAD_REQUEST, "Create project image error"));
-        }
-        imageConfig.setId(UUID.randomUUID().toString());
-        imageConfig.setProjectId(projectId);
-        int res = projectMapper.saveImageConfig(imageConfig);
-        if (res > 0) {
-            LOGGER.info("Create project image {} success", imageConfig.getId());
-            return Either.right(imageConfig);
-        }
-        LOGGER.error("Create project image error ");
-        FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "create project image error");
-        return Either.left(error);
-    }
-
-    /**
-     * deleteImageById.
-     *
-     * @return
-     */
-    public Either<FormatRespDto, Boolean> deleteImageById(String projectId, String imageId) {
-        ProjectImageConfig imageConfig = projectMapper.getImageConfigByImageId(imageId);
-        if (imageConfig == null || !imageConfig.getProjectId().equals(projectId)) {
-            LOGGER.error("Can not find image {} with projectId {}", imageId, projectId);
-            FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "data error");
-            return Either.left(error);
-        }
-        projectMapper.deleteImageConfigByImageId(imageId);
-        LOGGER.info("Delete image {} success.", imageId);
-        return Either.right(true);
-    }
-
-    /**
-     * getImagesByProjectId.
-     *
-     * @return
-     */
-    public Either<FormatRespDto, ProjectImageResponse> getImagesByProjectId(String projectId) {
-        List<ProjectImageConfig> imageConfigList = projectMapper.getImageConfigByProjectId(projectId);
-        ProjectImageResponse res = new ProjectImageResponse();
-        res.setImages(imageConfigList);
-        LOGGER.info("Get project {} images success", projectId);
-        return Either.right(res);
-    }
-
-    /**
      * openToMecEco.
      *
      * @return

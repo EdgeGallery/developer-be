@@ -25,14 +25,12 @@ import java.util.List;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.ibatis.io.Resources;
 import org.apache.servicecomb.swagger.invocation.exception.InvocationException;
-import org.checkerframework.checker.units.qual.A;
 import org.edgegallery.developer.DeveloperApplicationTests;
 import org.edgegallery.developer.config.security.AccessUserUtil;
 import org.edgegallery.developer.model.workspace.ApplicationProject;
 import org.edgegallery.developer.model.workspace.EnumDeployPlatform;
 import org.edgegallery.developer.model.workspace.EnumHostStatus;
 import org.edgegallery.developer.model.workspace.EnumOpenMepType;
-import org.edgegallery.developer.model.workspace.EnumProjectImage;
 import org.edgegallery.developer.model.workspace.EnumProjectStatus;
 import org.edgegallery.developer.model.workspace.EnumProjectType;
 import org.edgegallery.developer.model.workspace.EnumTestConfigStatus;
@@ -40,7 +38,6 @@ import org.edgegallery.developer.model.workspace.MepAgentConfig;
 import org.edgegallery.developer.model.workspace.MepHost;
 import org.edgegallery.developer.model.workspace.OpenMepCapabilityDetail;
 import org.edgegallery.developer.model.workspace.OpenMepCapabilityGroup;
-import org.edgegallery.developer.model.workspace.ProjectImageConfig;
 import org.edgegallery.developer.model.workspace.ProjectTestConfig;
 import org.edgegallery.developer.model.workspace.ProjectTestConfigStageStatus;
 import org.edgegallery.developer.model.workspace.UploadedFile;
@@ -393,52 +390,6 @@ public class ProjectServiceTest {
         String projectId = project.getRight().getId();
         String token = "";
         Either<FormatRespDto, Boolean> result = projectService.uploadToAppStore(userId, projectId, userName, token);
-        Assert.assertTrue(result.isLeft());
-
-    }
-
-    @Test
-    @WithMockUser(roles = "DEVELOPER_TENANT")
-    public void testAddImageToProject() throws Exception {
-        Either<FormatRespDto, ApplicationProject> project = createNewProject();
-        ProjectImageConfig image = new ProjectImageConfig();
-        image.setName("test-image");
-        image.setPort(9998);
-        image.setVersion("v1.0");
-        image.setProjectId(project.getRight().getId());
-        image.setType(EnumProjectImage.DEVELOPER);
-        image.setNodePort(32115);
-        Either<FormatRespDto, ProjectImageConfig> result = projectService
-            .createProjectImage(project.getRight().getId(), image);
-        Assert.assertTrue(result.isRight());
-
-    }
-
-    @Test
-    @WithMockUser(roles = "DEVELOPER_TENANT")
-    public void testDeleteImage() throws Exception {
-        Either<FormatRespDto, ApplicationProject> project = createNewProject();
-        ProjectImageConfig image = new ProjectImageConfig();
-        image.setName("test-image");
-        image.setPort(9998);
-        image.setVersion("v1.0");
-        image.setProjectId(project.getRight().getId());
-        image.setType(EnumProjectImage.DEVELOPER);
-        image.setNodePort(32115);
-        Either<FormatRespDto, ProjectImageConfig> imageResult = projectService
-            .createProjectImage(project.getRight().getId(), image);
-        Assert.assertTrue(imageResult.isRight());
-        Either<FormatRespDto, Boolean> result = projectService
-            .deleteImageById(project.getRight().getId(), imageResult.getRight().getId());
-        Assert.assertTrue(result.isRight());
-
-    }
-
-    @Test
-    @WithMockUser(roles = "DEVELOPER_TENANT")
-    public void testDeleteImageError() throws Exception {
-        Either<FormatRespDto, ApplicationProject> project = createNewProject();
-        Either<FormatRespDto, Boolean> result = projectService.deleteImageById(project.getRight().getId(), "aaaa");
         Assert.assertTrue(result.isLeft());
 
     }

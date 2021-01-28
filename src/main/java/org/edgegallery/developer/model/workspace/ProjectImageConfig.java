@@ -26,17 +26,17 @@ public class ProjectImageConfig {
 
     private String id;
 
-    private String name;
+    private String podName;
 
-    private Integer port;
+    private Integer svcPort;
 
-    private String version;
+    private String podContainers;
 
     private String projectId;
 
-    private EnumProjectImage type;
+    private String svcType;
 
-    private Integer nodePort;
+    private Integer svcNodePort;
 
     /**
      * getId.
