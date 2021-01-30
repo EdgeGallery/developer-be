@@ -54,6 +54,7 @@ import org.edgegallery.developer.model.workspace.ProjectTestConfig;
 import org.edgegallery.developer.model.workspace.UploadedFile;
 import org.edgegallery.developer.response.FormatRespDto;
 import org.edgegallery.developer.util.CompressFileUtils;
+import org.edgegallery.developer.util.CompressFileUtilsJava;
 import org.edgegallery.developer.util.InitConfigUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -249,7 +250,7 @@ public class ReleaseConfigService {
                 }
             }
             // compress csar
-            CompressFileUtils.compressToCsarAndDeleteSrc(csar.getParent() + File.separator + config.getAppInstanceId(),
+            CompressFileUtilsJava.compressToCsarAndDeleteSrc(csar.getParent() + File.separator + config.getAppInstanceId(),
                 projectService.getProjectPath(projectId), config.getAppInstanceId());
         } catch (JsonGenerationException e) {
             String msg = "Update csar failed: occur JsonGenerationException";

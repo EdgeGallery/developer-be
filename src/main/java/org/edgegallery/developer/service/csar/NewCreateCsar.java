@@ -7,6 +7,7 @@ import java.util.Date;
 import org.apache.commons.io.FileUtils;
 import org.edgegallery.developer.common.Consts;
 import org.edgegallery.developer.model.workspace.ApplicationProject;
+import org.edgegallery.developer.model.workspace.EnumDeployPlatform;
 import org.edgegallery.developer.model.workspace.ProjectTestConfig;
 import org.edgegallery.developer.util.CompressFileUtils;
 import org.edgegallery.developer.util.DeveloperFileUtils;
@@ -32,6 +33,8 @@ public class NewCreateCsar {
         throws IOException {
         File projectDir = new File(projectPath);
 
+        String deployType = (project.getDeployPlatform() == EnumDeployPlatform.KUBERNETES)?"container":"vm";
+
 
         // copy template files to the new project path
         File csar = DeveloperFileUtils
@@ -49,7 +52,8 @@ public class NewCreateCsar {
                 FileUtils.readFileToString(csarValue, StandardCharsets.UTF_8).replace("{name}", projectName)
                     .replace("{provider}", project.getProvider()).replace("{version}", project.getVersion())
                     .replace("{time}", timeStamp).replace("{description}", project.getDescription())
-                    .replace("{ChartName}", chartName), StandardCharsets.UTF_8, false);
+                    .replace("{ChartName}", chartName).replace("{type}", deployType),
+                StandardCharsets.UTF_8, false);
 
         } catch (IOException e) {
             throw new IOException("replace file exception");
