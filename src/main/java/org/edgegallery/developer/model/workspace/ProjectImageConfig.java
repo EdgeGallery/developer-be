@@ -28,7 +28,7 @@ public class ProjectImageConfig {
 
     private String podName;
 
-    private Integer svcPort;
+    private String svcPort;
 
     private String podContainers;
 
@@ -36,7 +36,7 @@ public class ProjectImageConfig {
 
     private String svcType;
 
-    private Integer svcNodePort;
+    private String svcNodePort;
 
     /**
      * getId.
