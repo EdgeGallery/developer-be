@@ -24,7 +24,9 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
-
+/**
+ * 该样例代码用于调用样例代码的http请求，可以直接使用该方法发送http请求。
+ */
 public class HttpRequest {
 
     public String doRequest(String location, String method, Map<String, String> header, String contentType,
