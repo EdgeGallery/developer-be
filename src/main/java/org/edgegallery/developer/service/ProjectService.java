@@ -25,6 +25,7 @@ import com.spencerwi.either.Either;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -179,7 +180,8 @@ public class ProjectService {
 
         // set default value
         project.setStatus(EnumProjectStatus.ONLINE);
-        project.setCreateDate(new Date());
+        SimpleDateFormat time=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        project.setCreateDate(time.format(new Date()));
         // save project to DB
         int res = projectMapper.save(project);
         if (res < 1) {
