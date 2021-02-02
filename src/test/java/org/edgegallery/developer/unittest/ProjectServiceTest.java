@@ -19,6 +19,7 @@ package org.edgegallery.developer.unittest;
 import com.spencerwi.either.Either;
 import java.io.File;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -91,7 +92,6 @@ public class ProjectServiceTest {
         project.setPlatform(platforms);
         project.setUserId("8595621b-d567-4331-b964-c3288815bd7b");
         project.setProjectType(EnumProjectType.CREATE_NEW);
-        project.setCreateDate(new Date());
         project.setType("new");
         project.setDeployPlatform(EnumDeployPlatform.KUBERNETES);
 
@@ -137,7 +137,8 @@ public class ProjectServiceTest {
         project.setPlatform(platforms);
         project.setUserId("8595621b-d567-4331-b964-c3288815bd7b");
         project.setProjectType(EnumProjectType.CREATE_NEW);
-        project.setCreateDate(new Date());
+        SimpleDateFormat time=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        project.setCreateDate(time.format(new Date()));
         project.setType("new");
         return projectService.createProject(userId, project);
     }
@@ -154,7 +155,8 @@ public class ProjectServiceTest {
         project.setPlatform(platforms);
         project.setUserId("8595621b-d567-4331-b964-c3288815bd7b");
         project.setProjectType(EnumProjectType.CREATE_NEW);
-        project.setCreateDate(new Date());
+        SimpleDateFormat time=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        project.setCreateDate(time.format(new Date()));
         project.setType("new");
         project.setIconFileId("1111");
         return projectService.createProject(userId, project);
