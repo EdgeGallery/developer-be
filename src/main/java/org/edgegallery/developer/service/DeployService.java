@@ -19,6 +19,7 @@ package org.edgegallery.developer.service;
 import com.esotericsoftware.yamlbeans.YamlWriter;
 import com.google.gson.Gson;
 import com.spencerwi.either.Either;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -29,6 +30,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import javax.ws.rs.core.Response;
+import org.apache.commons.lang3.StringUtils;
 import org.edgegallery.developer.mapper.ProjectImageMapper;
 import org.edgegallery.developer.mapper.ProjectMapper;
 import org.edgegallery.developer.mapper.UploadedFileMapper;
@@ -68,6 +70,9 @@ public class DeployService {
 
     @Autowired
     private ProjectMapper projectMapper;
+
+    @Autowired
+    private AppReleaseService appReleaseService;
 
     public Either<FormatRespDto, UploadedFile> genarateDeployYaml(DeployYamls deployYamls, String projectId,
         String userId) throws IOException {
@@ -123,6 +128,10 @@ public class DeployService {
         }
         yamlWriter.close();
         //save pod and service info
+        List<ProjectImageConfig> list = projectImageMapper.getAllImage(projectId);
+        if (list != null) {
+            projectImageMapper.deleteImage(projectId);
+        }
         savePodAndService(deploys, projectId);
         //save deploy yaml
         UploadedFile uploadedFile = new UploadedFile();
@@ -139,6 +148,50 @@ public class DeployService {
         }
         uploadedFile.setFilePath("");
         return Either.right(uploadedFile);
+    }
+
+    /**
+     * get yaml.
+     *
+     * @param fileId file id
+     * @return
+     */
+    public Either<FormatRespDto, String> getDeployYaml(String fileId) {
+        UploadedFile uploadedFile = uploadedFileMapper.getFileById(fileId);
+        if (uploadedFile != null) {
+            if (!StringUtils.isEmpty(uploadedFile.getFilePath())) {
+                String fileContent = appReleaseService.readFileIntoString(uploadedFile.getFilePath());
+                return Either.right(fileContent);
+            }
+        }
+        return Either.left(new FormatRespDto(Response.Status.BAD_REQUEST, "fileId not exist!"));
+    }
+
+    /**
+     * update yaml.
+     *
+     * @param fileId file id
+     * @param content file cotent
+     * @return
+     */
+    public Either<FormatRespDto, String> updateDeployYaml(String fileId, String content) {
+        UploadedFile uploadedFile = uploadedFileMapper.getFileById(fileId);
+        //将content写进文件
+        try {
+            File file = new File(uploadedFile.getFilePath());
+            FileWriter fw = new FileWriter(file.getCanonicalFile());
+            BufferedWriter bw = new BufferedWriter(fw);
+            bw.write(content);
+            bw.close();
+        } catch (IOException e) {
+            LOGGER.error("wirte new content into file,occur {}", e.getMessage());
+            String msg = "wirte new content into file failed!";
+            return Either.left(new FormatRespDto(Response.Status.BAD_REQUEST, msg));
+        }
+        //重新读取文件
+        UploadedFile newFile = uploadedFileMapper.getFileById(fileId);
+        String fileContent = appReleaseService.readFileIntoString(newFile.getFilePath());
+        return Either.right(fileContent);
     }
 
     private void savePodAndService(DeployYaml[] deploys, String projectId) {

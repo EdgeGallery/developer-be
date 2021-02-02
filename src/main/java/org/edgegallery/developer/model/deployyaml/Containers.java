@@ -18,6 +18,8 @@ public class Containers {
 
     private VolumeMounts[] volumeMounts;
 
-    private String[] command;
+    private String command;
+
+    private  Resource resource;
 
 }
