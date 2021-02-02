@@ -60,12 +60,6 @@ topology_template:
         sw_image_data:
           name: [mep-agent:latest, position_service:1.0]
         vdu_mec_host_requirements:
-          mec_host_GPU_affinity:
-            schemaVersion: 0
-            schemaSelector: " "
-            hardwarePlatform: "EdgeGallery"
-            mandatory: true
-            configurationValue: "GPU"
           mec_host_mem_affinity:
             schemaVersion: 0
             schemaSelector: " "

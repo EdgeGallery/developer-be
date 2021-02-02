@@ -114,7 +114,7 @@ public class SampleCodeServer {
             buf.append("\n\n");
             buf.append(sampleData.toSampleCode(++index));
         }
-        return String.format(classTemplate, className, buf.toString());
+        return String.format(classTemplate, api.getBasePath(), className, buf.toString());
     }
 
     private String getClassTemplate() {

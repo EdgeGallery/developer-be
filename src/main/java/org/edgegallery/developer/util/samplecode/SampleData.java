@@ -41,6 +41,8 @@ public class SampleData {
     // json data for body or form
     private String params;
 
+    private String describe;
+
     /**
      * generate sample code.
      *
@@ -49,6 +51,9 @@ public class SampleData {
      */
     public String toSampleCode(int id) {
         List<String> lines = new ArrayList<>();
+        StringBuffer buf = new StringBuffer();
+        buf.append("    /**").append("    * %s").append("    */");
+        lines.add(String.format(buf.toString(), describe));
         lines.add(String.format("    public static String apiSample%d() throws IOException {", id));
         lines.add(String.format("        String url = \"%s\";", url));
         lines.add(String.format("        String type = \"%s\";", type.toUpperCase()));
