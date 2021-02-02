@@ -61,6 +61,7 @@ public class JsonApiBaseBean {
             JsonApiPathBean apiTypes = entry.getValue();
             List<JsonApiParameterBean> params = apiTypes.getParameters();
             for (JsonApiMethodBean methodIdentify : apiTypes.getAll()) {
+
                 // set global parameters to each method.
                 if (params != null) {
                     if (methodIdentify.getParameters() == null) {
@@ -71,6 +72,7 @@ public class JsonApiBaseBean {
                 }
                 SampleData sampleData = new SampleData();
                 sampleData.setUrl(url);
+                sampleData.setDescribe(methodIdentify.getDescription());
                 sampleData.setType(methodIdentify.getApiType());
                 sampleData.setHeaders(methodIdentify.getHeaders());
                 sampleData.setContentType(methodIdentify.getProduces());
