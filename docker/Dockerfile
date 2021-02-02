@@ -13,7 +13,7 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 #
-FROM openjdk:8u201-jdk-alpine
+FROM swr.ap-southeast-1.myhuaweicloud.com/edgegallery/openjdk:8u201-jdk-alpine
 #define all environment variable here
 ENV JAVA_HOME /usr/lib/jvm/java-1.8-openjdk
 ENV TZ='Asia/Shanghai'
