@@ -64,7 +64,7 @@ public class ApplicationProject {
 
     private String userId;
 
-    private Date createDate;
+    private String createDate;
 
     private String openCapabilityId;
 
@@ -89,26 +89,5 @@ public class ApplicationProject {
         this.lastTestId = null;
     }
 
-    /**
-     * getCreateDate.
-     */
-    public Date getCreateDate() {
-        if (this.createDate != null) {
-            return new Date(this.createDate.getTime());
-        } else {
-            return null;
-        }
-    }
-
-    /**
-     * setCreateDate.
-     */
-    public void setCreateDate(Date createDate) {
-        if (createDate != null) {
-            this.createDate = (Date) createDate.clone();
-        } else {
-            this.createDate = null;
-        }
-    }
 
 }
