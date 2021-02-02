@@ -24,13 +24,11 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import java.io.IOException;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
-import org.edgegallery.developer.model.DeployPlatformConfig;
 import org.edgegallery.developer.model.deployyaml.DeployYamls;
 import org.edgegallery.developer.model.workspace.UploadedFile;
 import org.edgegallery.developer.response.ErrorRespDto;
 import org.edgegallery.developer.response.FormatRespDto;
 import org.edgegallery.developer.service.DeployService;
-import org.edgegallery.developer.service.UploadFileService;
 import org.edgegallery.developer.util.ResponseDataUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -54,7 +52,6 @@ public class DeployYamlController {
     @Autowired
     private DeployService deployService;
 
-
     /**
      * genarate deploy yaml.
      */
@@ -70,25 +67,43 @@ public class DeployYamlController {
         @ApiParam(value = "DeployYamls", required = true) @RequestBody DeployYamls deployYamls,
         @ApiParam(value = "userId", required = true) @RequestParam String userId,
         @ApiParam(value = "projectId", required = true) @PathVariable String projectId) throws IOException {
-        Either<FormatRespDto, UploadedFile> either = deployService.genarateDeployYaml(deployYamls,projectId,userId);
+        Either<FormatRespDto, UploadedFile> either = deployService.genarateDeployYaml(deployYamls, projectId, userId);
         return ResponseDataUtil.buildResponse(either);
     }
 
+    /**
+     * get deploy yaml.
+     */
+    @ApiOperation(value = "get deploy yaml", response = String.class)
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = "OK", response = String.class),
+        @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
+    })
+    @RequestMapping(value = "/{fileId}", method = RequestMethod.GET, consumes = MediaType.APPLICATION_JSON_UTF8_VALUE,
+        produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @PreAuthorize("hasRole('DEVELOPER_TENANT')")
+    public ResponseEntity<String> getDeployYaml(
+        @ApiParam(value = "fileId", required = true) @PathVariable String fileId) {
+        Either<FormatRespDto, String> either = deployService.getDeployYaml(fileId);
+        return ResponseDataUtil.buildResponse(either);
+    }
 
     /**
      * update deploy yaml.
      */
-    @ApiOperation(value = "modify config of deployPlatform", response = UploadedFile.class)
+    @ApiOperation(value = "modify deploy yaml", response = String.class)
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "OK", response = UploadedFile.class),
+        @ApiResponse(code = 200, message = "OK", response = String.class),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
-    @RequestMapping(value = "/", method = RequestMethod.PUT,
-        consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @RequestMapping(value = "/{fileId}", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_UTF8_VALUE,
+        produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT')")
-    public ResponseEntity<UploadedFile> uodateDeploy(
-        @ApiParam(value = "DeployPlatformConfig", required = true) @RequestBody DeployYamls deployPlatform) {
-        return null;
+    public ResponseEntity<String> updateDeployYaml(
+        @ApiParam(value = "fileId", required = true) @PathVariable String fileId,
+        @ApiParam(value = "fileContent", required = true) @RequestBody String fileContent) {
+        Either<FormatRespDto, String> either = deployService.updateDeployYaml(fileId,fileContent);
+        return ResponseDataUtil.buildResponse(either);
     }
 
 }

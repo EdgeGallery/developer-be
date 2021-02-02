@@ -34,6 +34,12 @@
         ( #{fileId}, #{fileName}, #{isTemp}, #{userId}, #{uploadDate}, #{filePath})
     </insert>
 
+    <update id="updateFile" parameterType="org.edgegallery.developer.model.workspace.UploadedFile">
+        update tbl_uploaded_file
+        set file_name=#{fileName}, is_temp=#{isTemp}, user_id=#{userId}, upload_date=#{uploadDate},
+        file_path=#{filePath} where file_id=#{fileId}
+    </update>
+
     <select id="getFileById" resultMap="UploadedFileMap">
         SELECT
         *

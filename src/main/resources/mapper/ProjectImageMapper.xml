@@ -35,4 +35,13 @@
         ( #{id}, #{podName}, #{podContainers}, #{projectId}, #{svcType}, #{svcPort},#{svcNodePort})
     </insert>
 
+    <delete id="deleteImage" parameterType="java.lang.String">
+        delete from
+        tbl_project_image where project_id = #{projectId}
+    </delete>
+
+    <select id="getAllImage" parameterType="java.lang.String" resultMap="ImageMap">
+        select * from
+        tbl_project_image where project_id = #{projectId}
+    </select>
 </mapper>
