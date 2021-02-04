@@ -45,7 +45,7 @@ public class AppReleaseServiceTest {
     @WithMockUser(roles = "DEVELOPER_TENANT")
     public void testGetPkgStruById() {
         Either<FormatRespDto, AppPkgStructure> stru = appReleaseService.getPkgStruById(projectId, "csarId");
-        Assert.assertTrue(stru.isLeft());
+        Assert.assertTrue(stru.isRight());
     }
 
 
@@ -68,7 +68,7 @@ public class AppReleaseServiceTest {
     @WithMockUser(roles = "DEVELOPER_TENANT")
     public void testGetPkgStruByNullCsarId() {
         Either<FormatRespDto, AppPkgStructure> stru = appReleaseService.getPkgStruById(projectId, "");
-        Assert.assertTrue(stru.isLeft());
+        Assert.assertTrue(stru.isRight());
     }
 
     @Test
