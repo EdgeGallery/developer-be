@@ -58,7 +58,7 @@ topology_template:
         name: logic0
         description: node logic template
         sw_image_data:
-          name: [mep-agent:latest, position_service:1.0]
+          name: "mep-agent:v1.0.1, position_service:1.0"
         vdu_mec_host_requirements:
           mec_host_mem_affinity:
             schemaVersion: 0

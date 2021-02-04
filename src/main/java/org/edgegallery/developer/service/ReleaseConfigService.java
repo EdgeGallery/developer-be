@@ -187,8 +187,7 @@ public class ReleaseConfigService {
         List<DnsRule> dnsRules = releaseConfig.getCapabilitiesDetail().getAppDNSRule();
         List<ServiceDetail> details = releaseConfig.getCapabilitiesDetail().getServiceDetails();
         // verify csar file
-        String csarFilePath = projectService.getProjectPath(config.getProjectId()) + config.getAppInstanceId()
-            + ".csar";
+        String csarFilePath = projectService.getProjectPath(config.getProjectId()) + config.getAppInstanceId();
         File csar = new File(csarFilePath);
         if (!csar.exists()) {
             LOGGER.error("Cannot find csar file:{}.", csarFilePath);
@@ -197,8 +196,6 @@ public class ReleaseConfigService {
             return Either.left(error);
         }
         try {
-            // decompress csar
-            CompressFileUtils.decompress(csarFilePath, csar.getParent());
             //verify md docs
 
             String readmePath = csar.getParent() + File.separator + config.getAppInstanceId() + File.separator
@@ -267,17 +264,6 @@ public class ReleaseConfigService {
             LOGGER.error("Update csar failed: occur IOException {}.", e.getMessage());
             FormatRespDto error = new FormatRespDto(Response.Status.BAD_REQUEST, msg + e.getMessage());
             return Either.left(error);
-        }
-        // delete csar dir if exists
-        File csarDir = new File(csarFilePath.replace(".csar", ""));
-        if (csarDir.exists()) {
-            boolean isDelete = csarDir.delete();
-            if (!isDelete) {
-                String msg = "delete csar dir failed!";
-                LOGGER.error(msg);
-                FormatRespDto error = new FormatRespDto(Response.Status.BAD_REQUEST, msg);
-                return Either.left(error);
-            }
         }
 
         return Either.right(true);
