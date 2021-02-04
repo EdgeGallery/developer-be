@@ -69,7 +69,7 @@ public class NewCreateCsar {
             FileUtils.moveFileToDirectory(chart, chartDir, true);
         } else {
             //compose apptgz to .tgz and delete apptgz dir
-            String appName = project.getName() + timeStamp;
+            String appName = project.getName().replaceAll(Consts.PATTERN, "").toLowerCase();
             File appTgz = new File(csar.getCanonicalPath() + TEMPLATE_CSAR_BASE_PATH + "app-tgz/");
             File appTgzNew = new File(csar.getCanonicalPath() + TEMPLATE_CSAR_BASE_PATH, appName);
             if (!appTgz.renameTo(appTgzNew)) {
