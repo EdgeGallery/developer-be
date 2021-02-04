@@ -62,13 +62,6 @@ public class AppReleaseService {
             FormatRespDto error = new FormatRespDto(Response.Status.BAD_REQUEST, "can not find this project!");
             return Either.left(error);
         }
-        File csarFile = new File(csarPath + csarId + ".csar");
-        //unzip csar file
-        boolean isSuccess = unZipFiles(csarFile, getProjectPath(projectId));
-        if (!isSuccess) {
-            FormatRespDto error = new FormatRespDto(Response.Status.BAD_REQUEST, "unzip csar file fail!");
-            return Either.left(error);
-        }
         // get csar pkg structure
         AppPkgStructure structure;
         try {

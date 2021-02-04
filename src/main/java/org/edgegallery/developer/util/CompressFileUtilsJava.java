@@ -40,7 +40,6 @@ public class CompressFileUtilsJava {
     public static File compressToCsarAndDeleteSrc(String sourcePath, String outPutPath, String fileName)
         throws IOException {
         File res = compressToCsar(sourcePath, outPutPath, fileName);
-        org.apache.commons.io.FileUtils.deleteDirectory(new File(sourcePath));
         return res;
     }
 
@@ -148,7 +147,7 @@ public class CompressFileUtilsJava {
         FileOutputStream outputStream = new FileOutputStream(targetPath + File.separator + fileName + ".csar");
         ZipOutputStream out = new ZipOutputStream(new BufferedOutputStream(outputStream));
 
-        createCompressedFile(out, resourcesFile, resourcesFile.getName());
+        createCompressedFile(out, resourcesFile, "");
 
         out.close();
         File csar = new File(targetPath + File.separator + fileName + ".csar");
@@ -161,11 +160,15 @@ public class CompressFileUtilsJava {
     private static void createCompressedFile(ZipOutputStream out, File file, String dir) {
         if (file.isDirectory()) {
             File[] files = file.listFiles();
-            try {
-                out.putNextEntry(new ZipEntry(dir + "/"));
-            } catch (IOException e) {
-                LOGGER.error("createCompressedFile: dir putNextEntry failed, {}", e.getMessage());
+            if (!dir.equals("")) {
+                try {
+                    out.putNextEntry(new ZipEntry(dir + "/"));
+                } catch (IOException e) {
+                    LOGGER.error("createCompressedFile: dir putNextEntry failed, {}", e.getMessage());
+                }
+
             }
+
             dir = dir.length() == 0 ? "" : dir + "/";
             if (files != null && files.length > 0) {
                 for (int i = 0; i < files.length; i++) {

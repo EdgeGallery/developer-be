@@ -3,6 +3,7 @@ package org.edgegallery.developer.service.csar;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import org.apache.commons.io.FileUtils;
 import org.edgegallery.developer.common.Consts;
@@ -41,7 +42,8 @@ public class NewCreateCsar {
             .copyDirAndReName(new File(WORKSPACE_CSAR_PATH), projectDir, config.getAppInstanceId());
 
         // get data to Map<String, String>
-        String timeStamp = String.valueOf(new Date().getTime());
+        SimpleDateFormat time=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        String timeStamp = time.format(new Date());
 
         // modify the csar files and fill in the data
         try {
@@ -54,6 +56,7 @@ public class NewCreateCsar {
                     .replace("{time}", timeStamp).replace("{description}", project.getDescription())
                     .replace("{ChartName}", chartName).replace("{type}", deployType),
                 StandardCharsets.UTF_8, false);
+            csarValue.renameTo(new File(csar.getCanonicalPath() + "/" +projectName +".mf"));
 
         } catch (IOException e) {
             throw new IOException("replace file exception");
