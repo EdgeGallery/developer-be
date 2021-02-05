@@ -78,7 +78,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -178,7 +177,7 @@ public class ProjectService {
 
         // set default value
         project.setStatus(EnumProjectStatus.ONLINE);
-        SimpleDateFormat time=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        SimpleDateFormat time = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         project.setCreateDate(time.format(new Date()));
         // save project to DB
         int res = projectMapper.save(project);
@@ -484,7 +483,7 @@ public class ProjectService {
         testConfig.setAccessUrl(host.getIp());
         return HttpClientUtil
             .instantiateApplication(host.getProtocol(), host.getIp(), host.getPort(), csar.getPath(), appInstanceId,
-                userId, token, projectName,testConfig);
+                userId, token, projectName, testConfig);
     }
 
     /**
@@ -748,7 +747,7 @@ public class ProjectService {
         if (appId != null && packageId != null) {
             ResponseEntity<String> publishRes = AppStoreUtil
                 .publishToAppStore(appId.getAsString(), packageId.getAsString(), token);
-            if (!publishRes.getStatusCode().equals(HttpStatus.OK)) {
+            if (publishRes == null) {
                 LOGGER.error("publish app to appstore fail!");
                 FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "publish app to appstore fail!");
                 return Either.left(error);
@@ -799,13 +798,13 @@ public class ProjectService {
         //add Field testTaskId
         map.put("testTaskId", releaseConfig.getAtpTest().getId());
         ResponseEntity<String> uploadReslut = AppStoreUtil.storeToAppStore(map, userId, userName, token);
-        LOGGER.info("upload appstore result:{}", uploadReslut);
-        JsonObject jsonObject = new JsonParser().parse(uploadReslut.getBody()).getAsJsonObject();
-        if (jsonObject == null) {
+        if (uploadReslut == null) {
             LOGGER.error("upload app to appstore fail!");
             FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "upload app to appstore fail!");
             return Either.left(error);
         }
+        LOGGER.info("upload appstore result:{}", uploadReslut);
+        JsonObject jsonObject = new JsonParser().parse(uploadReslut.getBody()).getAsJsonObject();
         LOGGER.info("upload over! {}", uploadReslut.getBody());
         return Either.right(jsonObject);
     }
@@ -1101,7 +1100,7 @@ public class ProjectService {
             atpResultInfo.setStatus(AtpUtil.getTaskStatusFromAtp(taskId, token));
             LOGGER.info("after status update: ", config.getAtpTest().getStatus());
             configMapper.updateAtpStatus(config);
-            ApplicationProject project  = projectMapper.getProjectById(config.getProjectId());
+            ApplicationProject project = projectMapper.getProjectById(config.getProjectId());
             //update project status
             if (config.getAtpTest().getStatus().equals("success")) {
                 project.setStatus(EnumProjectStatus.TESTED);
