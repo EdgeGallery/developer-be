@@ -17,7 +17,6 @@
 package org.edgegallery.developer.util;
 
 import java.util.Map;
-import javax.ws.rs.core.Response;
 import org.apache.servicecomb.swagger.invocation.exception.InvocationException;
 import org.edgegallery.developer.service.UtilsService;
 import org.slf4j.Logger;
@@ -70,9 +69,9 @@ public class AppStoreUtil {
             LOGGER.error("Upload appstore failed,  status is {}", responses.getStatusCode());
         } catch (InvocationException e) {
             LOGGER.error("Failed to upload appstore,  exception {}", e.getMessage());
-
         }
-        throw new InvocationException(Response.Status.INTERNAL_SERVER_ERROR, "Upload appstore failed.");
+        return null;
+        //throw new InvocationException(Response.Status.INTERNAL_SERVER_ERROR, "Upload appstore failed.");
     }
 
     /**
@@ -98,7 +97,8 @@ public class AppStoreUtil {
             LOGGER.error("publish app  failed,  exception {}", e.getMessage());
 
         }
-        throw new InvocationException(Response.Status.INTERNAL_SERVER_ERROR, "publish app failed.");
+        return null;
+        //throw new InvocationException(Response.Status.INTERNAL_SERVER_ERROR, "publish app failed.");
     }
 
 }
