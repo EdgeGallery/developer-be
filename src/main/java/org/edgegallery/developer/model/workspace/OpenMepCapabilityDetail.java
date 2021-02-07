@@ -19,6 +19,8 @@ package org.edgegallery.developer.model.workspace;
 import java.util.Date;
 import lombok.Getter;
 import lombok.Setter;
+import org.edgegallery.developer.common.Consts;
+import org.stringtemplate.v4.ST;
 
 @Getter
 @Setter
@@ -29,6 +31,8 @@ public class OpenMepCapabilityDetail {
     private String groupId;
 
     private String service;
+
+    private String serviceEn;
 
     private String version;
 
@@ -41,7 +45,9 @@ public class OpenMepCapabilityDetail {
 
     private String guideFileId;
 
-    private Date uploadTime;
+    private String guideFileIdEn;
+
+    private String uploadTime;
 
     private int port;
 
@@ -61,33 +67,29 @@ public class OpenMepCapabilityDetail {
     /**
      * OpenMepCapabilityDetail.
      */
-    public OpenMepCapabilityDetail(String id, String groupId, String service, String version, String description) {
+    public OpenMepCapabilityDetail(String id, String groupId, String service, String serviceEn, String version, String description) {
         this.detailId = id;
         this.groupId = groupId;
         this.service = service;
+        this.serviceEn = serviceEn;
         this.version = version;
         this.description = description;
     }
 
-    /**
-     * getUploadTime.
-     */
-    public Date getUploadTime() {
-        if (this.uploadTime != null) {
-            return new Date(this.uploadTime.getTime());
+    public void setGuideFileIdEn(String guideFileIdEn) {
+        if (guideFileIdEn == null || guideFileIdEn.equals("")) {
+            this.guideFileIdEn = this.guideFileId;
         } else {
-            return null;
+            this.guideFileIdEn = guideFileIdEn;
         }
     }
 
-    /**
-     * setUploadTime.
-     */
-    public void setUploadTime(Date uploadTime) {
-        if (uploadTime != null) {
-            this.uploadTime = (Date) uploadTime.clone();
+    public void setServiceEn(String serviceEn) {
+        if (serviceEn == null || serviceEn.equals("")) {
+            this.serviceEn = this.service;
         } else {
-            this.uploadTime = null;
+            this.serviceEn = serviceEn;
         }
     }
+
 }

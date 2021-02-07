@@ -67,11 +67,11 @@ public class AppStoreUtil {
                 return responses;
             }
             LOGGER.error("Upload appstore failed,  status is {}", responses.getStatusCode());
+            return null;
         } catch (InvocationException e) {
             LOGGER.error("Failed to upload appstore,  exception {}", e.getMessage());
+            return null;
         }
-        return null;
-        //throw new InvocationException(Response.Status.INTERNAL_SERVER_ERROR, "Upload appstore failed.");
     }
 
     /**
@@ -93,12 +93,12 @@ public class AppStoreUtil {
                 return responses;
             }
             LOGGER.error("publish app failed: the app have exist,  status is {}", responses.getStatusCode());
+            return null;
         } catch (InvocationException e) {
             LOGGER.error("publish app  failed,  exception {}", e.getMessage());
+            return null;
 
         }
-        return null;
-        //throw new InvocationException(Response.Status.INTERNAL_SERVER_ERROR, "publish app failed.");
     }
 
 }
