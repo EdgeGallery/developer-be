@@ -1,0 +1,84 @@
+# Traffic Rules interface document
+## Features
+
+Provide traffic rule configuration for app.
+
+# Interface list
+## appTrafficRules
+## /applications/{appInstanceId}/traffic_rules GET
+retrieves information about all the traffic rules associated with a MEC application instance.
+
+### Request parameter
+|parameter |format | required | type | description |
+|-----|-----|----|------|-----|
+|appInstanceId | path | Y | String | appInstanceId |
+### Return data
+|return code |description|
+|-----|-----|
+|200 | success |
+|400 | bad request |
+|403 | forbidden |
+|404 | not Found |
+```
+Response Entity
+{
+  "trafficRuleId": "TrafficRule123",
+  "serName": "ExampleService",
+  "filterType": "FLOW",
+  "priority": 1,
+  "trafficFilter": [
+    {
+      "srcAddress": [
+        "192.168.2.0/24",
+        "192.168.3.0/24"
+      ],
+      "dstAddress": [
+        "192.127.4.100/32"
+      ],
+      "dstPort": [
+        "80"
+      ]
+    }
+  ],
+  "action": "FORWARD_DECAPSULATED",
+  "dstInterface": {
+    "interfaceType": "IP",
+    "dstIpAddress": "20.1.1.1"
+  },
+  "state": "ACTIVE"
+}
+```
+
+
+## /applications/{appInstanceId}/traffic_rules/{trafficRuleId} GET
+retrieves information about all the traffic rules associated with a MEC application instance.
+
+### Request parameter
+|parameter |format | required | type | description |
+|-----|-----|----|------|-----|
+|appInstanceId | path | Y | String | appInstanceId |
+|trafficRuleId | path | Y | String | trafficRuleId |
+### Return data
+|return code |description|
+|-----|-----|
+|200 | success |
+|400 | bad request |
+|403 | forbidden |
+|404 | not Found |
+
+## /applications/{appInstanceId}/traffic_rules/{trafficRuleId} PUT
+retrieves information about all the traffic rules associated with a MEC application instance.
+
+### Request parameter
+|parameter |format | required | type | description |
+|-----|-----|----|------|-----|
+|appInstanceId | path | Y | String | appInstanceId |
+|trafficRuleId | path | Y | String | trafficRuleId |
+### return data
+|return code |description|
+|-----|-----|
+|200 | success |
+|400 | bad request |
+|403 | forbidden |
+|404 | not Found |
+|412 | precondition failed |

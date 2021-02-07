@@ -180,7 +180,7 @@ public class ProjectService {
 
         // set default value
         project.setStatus(EnumProjectStatus.ONLINE);
-        SimpleDateFormat time=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        SimpleDateFormat time=new SimpleDateFormat("yyyy-MM-dd HH:mm");
         project.setCreateDate(time.format(new Date()));
         // save project to DB
         int res = projectMapper.save(project);
@@ -712,6 +712,22 @@ public class ProjectService {
 
     private Either<FormatRespDto, Boolean> doSomeDbOperation(OpenMepCapabilityGroup group,
         OpenMepCapabilityDetail detail, ServiceDetail serviceDetail, List<String> openCapabilityIds) {
+        if(StringUtils.isEmpty(group.getDescriptionEn())) {
+            group.setDescriptionEn(group.getDescription());
+        }
+
+        if(StringUtils.isEmpty(group.getOneLevelNameEn())) {
+            group.setOneLevelNameEn(group.getOneLevelName());
+        }
+        if(StringUtils.isEmpty(group.getTwoLevelNameEn())) {
+            group.setTwoLevelNameEn(group.getTwoLevelName());
+        }
+        if(StringUtils.isEmpty(detail.getServiceEn())) {
+            detail.setServiceEn(detail.getService());
+        }
+        if(StringUtils.isEmpty(detail.getGuideFileIdEn())) {
+            detail.setGuideFileIdEn(detail.getGuideFileId());
+        }
         int resGroup = openMepCapabilityMapper.saveGroup(group);
         if (resGroup < 1) {
             LOGGER.error("store db to openmepcapability fail!");
@@ -826,7 +842,8 @@ public class ProjectService {
         detail.setDescription(serviceDetail.getDescription());
         detail.setApiFileId(serviceDetail.getApiJson());
         detail.setGuideFileId(serviceDetail.getApiMd());
-        detail.setUploadTime(new Date());
+        SimpleDateFormat time=new SimpleDateFormat("yyyy-MM-dd HH:mm");
+        detail.setUploadTime(time.format(new Date()));
         detail.setPort(serviceDetail.getInternalPort());
         detail.setHost(serviceDetail.getServiceName());
         detail.setProtocol(serviceDetail.getProtocol());
@@ -839,7 +856,6 @@ public class ProjectService {
         group.setGroupId(groupId);
         group.setOneLevelName(serviceDetail.getOneLevelName());
         group.setTwoLevelName(serviceDetail.getTwoLevelName());
-        group.setThreeLevelName(null);
         group.setType(EnumOpenMepType.OPENMEP);
         group.setDescription(serviceDetail.getDescription());
     }
@@ -955,7 +971,8 @@ public class ProjectService {
         detail.setDescription(project.getDescription());
         detail.setProvider(project.getProvider());
         detail.setApiFileId(test.getAppApiFileId());
-        detail.setUploadTime(new Date());
+        SimpleDateFormat time=new SimpleDateFormat("yyyy-MM-dd HH:mm");
+        detail.setUploadTime(time.format(new Date()));
 
         int detailRes = openMepCapabilityMapper.saveCapability(detail);
         if (detailRes < 1) {

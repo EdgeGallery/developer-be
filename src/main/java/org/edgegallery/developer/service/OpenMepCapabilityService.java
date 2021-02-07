@@ -17,11 +17,13 @@
 package org.edgegallery.developer.service;
 
 import com.spencerwi.either.Either;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 import javax.ws.rs.core.Response.Status;
+import org.apache.commons.lang3.StringUtils;
 import org.edgegallery.developer.mapper.OpenMepCapabilityMapper;
 import org.edgegallery.developer.mapper.UploadedFileMapper;
 import org.edgegallery.developer.model.workspace.OpenMepApi;
@@ -106,6 +108,16 @@ public class OpenMepCapabilityService {
      */
     public Either<FormatRespDto, OpenMepCapabilityGroup> createGroup(OpenMepCapabilityGroup group) {
         group.setGroupId(UUID.randomUUID().toString());
+        if(StringUtils.isEmpty(group.getDescriptionEn())) {
+            group.setDescriptionEn(group.getDescription());
+        }
+
+        if(StringUtils.isEmpty(group.getOneLevelNameEn())) {
+            group.setOneLevelNameEn(group.getOneLevelName());
+        }
+        if(StringUtils.isEmpty(group.getTwoLevelNameEn())) {
+            group.setTwoLevelNameEn(group.getTwoLevelName());
+        }
         int ret = openMepCapabilityMapper.saveGroup(group);
         if (ret > 0) {
             LOGGER.info("Create group {} success", group.getGroupId());
@@ -136,7 +148,8 @@ public class OpenMepCapabilityService {
             return Either.left(new FormatRespDto(Status.BAD_REQUEST, "guide file id is wrong"));
         }
         capability.setGroupId(groupId);
-        capability.setUploadTime(new Date());
+        SimpleDateFormat time=new SimpleDateFormat("yyyy-MM-dd HH:mm");
+        capability.setUploadTime(time.format(new Date()));
         capability.setDetailId(UUID.randomUUID().toString());
         int ret = openMepCapabilityMapper.saveCapability(capability);
         if (ret > 0) {
@@ -144,6 +157,7 @@ public class OpenMepCapabilityService {
             // update api file to un temp
             uploadedFileMapper.updateFileStatus(capability.getApiFileId(), false);
             uploadedFileMapper.updateFileStatus(capability.getGuideFileId(), false);
+            uploadedFileMapper.updateFileStatus(capability.getGuideFileIdEn(), false);
             return Either.right(openMepCapabilityMapper.getDetail(capability.getDetailId()));
         }
         LOGGER.error("Create {} detail failed", groupId);
@@ -180,6 +194,9 @@ public class OpenMepCapabilityService {
         if (res < 1) {
             LOGGER.info("{} can not find", capabilityId);
         } else {
+            uploadedFileMapper.updateFileStatus(openMepCapabilityDetail.getApiFileId(), true);
+            uploadedFileMapper.updateFileStatus(openMepCapabilityDetail.getGuideFileId(), true);
+            uploadedFileMapper.updateFileStatus(openMepCapabilityDetail.getGuideFileIdEn(), true);
             LOGGER.info("Delete capability {} success", capabilityId);
         }
         return Either.right(true);

@@ -1,0 +1,80 @@
+# Lossless compression service interface document
+## Interface features
+The lossless decompression service provides services between the edge and the end side, the application can use the service pictures and files on the end side to perform lossless compression, and then decompress after transmission to the edge to reduce the demand for transmission network bandwidth.
+## compression
+### compression Interface 
+Compress files or directories
+#### Request message
+```
+URI: /cpsrv/v1/compression
+Method: POST
+```
+
+**Request parameter**
+
+| parameter  | type  | required  | description  |
+| ------------ | ------------ | ------------ | ------------ |
+| appId  |  string | Y | app id |
+| fileName  |  string | Y | the output target file |
+|  filePath |  string | Y | filePath |
+**Request example**
+```
+{
+	"appId":" c1cdb449e6bd4a65bdab60dfe1e598da"
+	"fileName": "/opt/test01.tar"
+	"filePath": "/opt/test01"
+}
+```
+
+#### Return data
+**Return parameter**
+
+| parameter  |   type| description  |
+| ------------ | ------------ | ------------ |
+| message  | string  | operation result  |
+
+**Return example**
+```
+{
+	"message" : "compress succeeded."
+}
+```
+
+
+## decompression 
+### decompression interface
+decompress file
+#### Request message
+```
+URI: /cpsrv/v1/decompression
+Method: POST
+```
+**Request parameter**
+
+| parameter  | type  | required  | description  |
+| ------------ | ------------ | ------------ | ------------ |
+| appId  |  string | Y | app id |
+| fileName  |  string | Y | fileName |
+|  filePath |  string | Y | filePath |
+**Request example**
+```
+{
+	"appId":" c1cdb449e6bd4a65bdab60dfe1e598da"
+	"fileName": "/opt/test01.tar"
+	"filePath": "/opt/test01"
+}
+```
+
+#### Return data
+**Return parameter**
+
+| parameter  |   type| description  |
+| ------------ | ------------ | ------------ |
+| message  | string  | operation result  |
+
+**Return example**
+```
+{
+	"message" : "decompress succeeded."
+}
+```

@@ -1,0 +1,73 @@
+# Face recognition service interface document
+## Interface features
+
+Upload picture for face recognition, and return to the location of the face.
+
+## Default
+
+### upload
+
+Upload pictures with one people face
+#### Request message
+
+```
+/uploadDefault
+```
+
+#### Request parameter
+
+| parameter | format | required | type | description |
+|-----|-----|----|------|-----|
+| file | formData |Y| file | Picture with one people face |
+
+#### Return data
+
+| responses code | description |
+|-----|-----|
+| 200 | success |
+
+
+### recognition
+#### Request message
+
+```
+/recognition
+```
+
+#### rR
+| parameter | format | required | type | description |
+|-----|-----|----|------|-----|
+| file | formData |Y| file | Picture with one people face |
+
+#### Return data
+| responses code | description |
+|-----|-----|
+| 200 | success |
+
+### video
+
+#### Request message
+
+```
+/video
+```
+
+#### Request parameter
+
+| parameter | format | required | type | description |
+|-----|-----|----|------|-----|
+| url | body |Y | string | video stream address |
+
+#### example
+```json
+{
+  "url": "string"
+}
+```
+
+#### Return data
+| responses code | description |
+|-----|-----|
+| 200 | success |
+
+
