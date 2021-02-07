@@ -17,6 +17,7 @@
 package org.edgegallery.developer.unittest;
 
 import com.spencerwi.either.Either;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -82,8 +83,12 @@ public class OpenMEPCapabilityGroupTest {
         OpenMepCapabilityGroup group = new OpenMepCapabilityGroup();
         group.setGroupId("e111f3e7-90d8-4a39-9874-ea6ea6752e44");
         group.setOneLevelName("Face recognition");
+        group.setOneLevelNameEn("Face recognition");
+        group.setTwoLevelName("test");
+        group.setTwoLevelNameEn("test");
         group.setType(EnumOpenMepType.OPENMEP);
         group.setDescription("face recognition");
+        group.setDescriptionEn("face recognition");
         Either<FormatRespDto, OpenMepCapabilityGroup> response = openMEPCapabilityService.createGroup(group);
         Assert.assertTrue(response.isRight());
     }
@@ -94,13 +99,16 @@ public class OpenMEPCapabilityGroupTest {
         OpenMepCapabilityDetail detail = new OpenMepCapabilityDetail();
         detail.setGroupId("c0db376b-ae50-48fc-b9f7-58a609e3ee12");
         detail.setService("Face Recognition Service New");
+        detail.setServiceEn(detail.getService());
         detail.setVersion("v2");
         detail.setDescription("provide the face recognition capabilities for apps");
         detail.setProvider("Huawei");
         detail.setApiFileId("9f1f13a0-8554-4dfa-90a7-d2765238fca7");
         detail.setGuideFileId("9f1f13a0-8554-4dfa-90a7-d2765238fca7");
+        detail.setGuideFileIdEn(detail.getGuideFileId());
         detail.setUserId("d0f8fa57-2f4c-4182-be33-0a508964d0");
-        detail.setUploadTime(new Date());
+        SimpleDateFormat time=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        detail.setUploadTime(time.format(new Date()));
         detail.setDetailId("e111f3e7-90d8-4a39-9874-ea6ea6752ef4");
         Either<FormatRespDto, OpenMepCapabilityDetail> response = openMEPCapabilityService
             .createCapability("c0db376b-ae50-48fc-b9f7-58a609e3ee12", detail);

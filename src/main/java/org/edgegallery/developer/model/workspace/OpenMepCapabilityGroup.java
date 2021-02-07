@@ -28,13 +28,17 @@ public class OpenMepCapabilityGroup {
 
     private String oneLevelName;
 
+    private String oneLevelNameEn;
+
     private String twoLevelName;
 
-    private String threeLevelName;
+    private String twoLevelNameEn;
 
     private EnumOpenMepType type;
 
     private String description;
+
+    private String descriptionEn;
 
     private List<OpenMepCapabilityDetail> capabilityDetailList;
 
@@ -44,12 +48,39 @@ public class OpenMepCapabilityGroup {
     /**
      * OpenMepCapabilityGroup.
      */
-    public OpenMepCapabilityGroup(String id, String oneLevelName, String twoLevelName, String threeLevelName,
-        EnumOpenMepType type) {
+    public OpenMepCapabilityGroup(String id, String oneLevelName, String oneLevelNameEn, String twoLevelName,
+        String twoLevelNameEn, EnumOpenMepType type, String description, String descriptionEn) {
         this.groupId = id;
         this.oneLevelName = oneLevelName;
+        this.oneLevelNameEn = oneLevelNameEn;
         this.twoLevelName = twoLevelName;
-        this.threeLevelName = threeLevelName;
+        this.twoLevelNameEn = twoLevelNameEn;
         this.type = type;
+        this.description = description;
+        this.descriptionEn = descriptionEn;
+    }
+
+    public void setOneLevelNameEn(String oneLevelNameEn) {
+        if (oneLevelNameEn == null || oneLevelNameEn.equals("")) {
+            this.oneLevelNameEn = this.oneLevelName;
+        } else {
+            this.oneLevelNameEn = oneLevelNameEn;
+        }
+    }
+
+    public void setTwoLevelNameEn(String twoLevelNameEn) {
+        if (twoLevelNameEn == null || twoLevelNameEn.equals("")) {
+            this.twoLevelNameEn = this.twoLevelName;
+        } else {
+            this.twoLevelNameEn = twoLevelNameEn;
+        }
+    }
+
+    public void setDescriptionEn(String descriptionEn) {
+        if (descriptionEn == null || descriptionEn.equals("")) {
+            this.descriptionEn = this.description;
+        } else {
+            this.descriptionEn = descriptionEn;
+        }
     }
 }
