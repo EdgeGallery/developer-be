@@ -17,7 +17,6 @@
 package org.edgegallery.developer.util;
 
 import java.util.Map;
-import org.apache.servicecomb.swagger.invocation.exception.InvocationException;
 import org.edgegallery.developer.service.UtilsService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,6 +28,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 public class AppStoreUtil {
@@ -68,7 +68,7 @@ public class AppStoreUtil {
             }
             LOGGER.error("Upload appstore failed,  status is {}", responses.getStatusCode());
             return null;
-        } catch (InvocationException e) {
+        } catch (RestClientException e) {
             LOGGER.error("Failed to upload appstore,  exception {}", e.getMessage());
             return null;
         }
@@ -94,7 +94,7 @@ public class AppStoreUtil {
             }
             LOGGER.error("publish app failed: the app have exist,  status is {}", responses.getStatusCode());
             return null;
-        } catch (InvocationException e) {
+        } catch (RestClientException e) {
             LOGGER.error("publish app  failed,  exception {}", e.getMessage());
             return null;
 
