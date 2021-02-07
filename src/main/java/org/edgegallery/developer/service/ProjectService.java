@@ -658,6 +658,7 @@ public class ProjectService {
         }
         Either<FormatRespDto, JsonObject> resCsar = getCsarAndUpload(projectId, project, releaseConfig, userId,
             userName, token);
+        LOGGER.warn("upload result true or false:{}", resCsar.isRight() ? resCsar.getRight() : resCsar.getLeft());
         if (resCsar.isLeft()) {
             return Either.left(resCsar.getLeft());
         }
@@ -669,6 +670,7 @@ public class ProjectService {
             Thread.currentThread().interrupt();
         }
         Either<FormatRespDto, Boolean> pubRes = publishApp(jsonObject, token);
+        LOGGER.warn("publish result true or false:{}", pubRes.isRight() ? pubRes.getRight() : pubRes.getLeft());
         if (pubRes.isLeft()) {
             return Either.left(pubRes.getLeft());
         }
@@ -708,20 +710,20 @@ public class ProjectService {
 
     private Either<FormatRespDto, Boolean> doSomeDbOperation(OpenMepCapabilityGroup group,
         OpenMepCapabilityDetail detail, ServiceDetail serviceDetail, List<String> openCapabilityIds) {
-        if(StringUtils.isEmpty(group.getDescriptionEn())) {
+        if (StringUtils.isEmpty(group.getDescriptionEn())) {
             group.setDescriptionEn(group.getDescription());
         }
 
-        if(StringUtils.isEmpty(group.getOneLevelNameEn())) {
+        if (StringUtils.isEmpty(group.getOneLevelNameEn())) {
             group.setOneLevelNameEn(group.getOneLevelName());
         }
-        if(StringUtils.isEmpty(group.getTwoLevelNameEn())) {
+        if (StringUtils.isEmpty(group.getTwoLevelNameEn())) {
             group.setTwoLevelNameEn(group.getTwoLevelName());
         }
-        if(StringUtils.isEmpty(detail.getServiceEn())) {
+        if (StringUtils.isEmpty(detail.getServiceEn())) {
             detail.setServiceEn(detail.getService());
         }
-        if(StringUtils.isEmpty(detail.getGuideFileIdEn())) {
+        if (StringUtils.isEmpty(detail.getGuideFileIdEn())) {
             detail.setGuideFileIdEn(detail.getGuideFileId());
         }
         int resGroup = openMepCapabilityMapper.saveGroup(group);
@@ -838,7 +840,7 @@ public class ProjectService {
         detail.setDescription(serviceDetail.getDescription());
         detail.setApiFileId(serviceDetail.getApiJson());
         detail.setGuideFileId(serviceDetail.getApiMd());
-        SimpleDateFormat time=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        SimpleDateFormat time = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         detail.setUploadTime(time.format(new Date()));
         detail.setPort(serviceDetail.getInternalPort());
         detail.setHost(serviceDetail.getServiceName());
@@ -914,7 +916,7 @@ public class ProjectService {
         detail.setDescription(project.getDescription());
         detail.setProvider(project.getProvider());
         detail.setApiFileId(test.getAppApiFileId());
-        SimpleDateFormat time=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        SimpleDateFormat time = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         detail.setUploadTime(time.format(new Date()));
 
         int detailRes = openMepCapabilityMapper.saveCapability(detail);
