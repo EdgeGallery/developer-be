@@ -728,6 +728,9 @@ public class ProjectService {
         if(StringUtils.isEmpty(detail.getGuideFileIdEn())) {
             detail.setGuideFileIdEn(detail.getGuideFileId());
         }
+        if(StringUtils.isEmpty(detail.getDescriptionEn())) {
+            detail.setDescriptionEn(detail.getDescription());
+        }
         int resGroup = openMepCapabilityMapper.saveGroup(group);
         if (resGroup < 1) {
             LOGGER.error("store db to openmepcapability fail!");
