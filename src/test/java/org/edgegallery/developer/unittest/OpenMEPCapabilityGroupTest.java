@@ -98,6 +98,7 @@ public class OpenMEPCapabilityGroupTest {
         detail.setServiceEn("Face Recognition Service New");
         detail.setVersion("v2");
         detail.setDescription("provide the face recognition capabilities for apps");
+        detail.setDescriptionEn("provide the face recognition capabilities for apps");
         detail.setProvider("Huawei");
         detail.setApiFileId("9f1f13a0-8554-4dfa-90a7-d2765238fca7");
         detail.setGuideFileId("9f1f13a0-8554-4dfa-90a7-d2765238fca7");

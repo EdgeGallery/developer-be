@@ -35,6 +35,8 @@ public class OpenMepCapabilityDetail {
 
     private String description;
 
+    private String descriptionEn;
+
     private String provider;
 
     // download or show api
@@ -87,6 +89,14 @@ public class OpenMepCapabilityDetail {
             this.serviceEn = this.service;
         } else {
             this.serviceEn = serviceEn;
+        }
+    }
+
+    public void setSescriptionEn(String descriptionEn) {
+        if (descriptionEn == null || descriptionEn.equals("")) {
+            this.descriptionEn = this.description;
+        } else {
+            this.descriptionEn = descriptionEn;
         }
     }
 }
