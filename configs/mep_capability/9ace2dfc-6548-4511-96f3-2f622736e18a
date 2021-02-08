@@ -1,0 +1,250 @@
+# Service register and discovery interface document
+## Interface features
+
+Provide service register and discovery functions for APP.。
+
+## appSubscriptions
+## /applications/{appInstanceId}/subscriptions GET
+Request information about all subscriptions for this requestor. 
+### request parameter
+|parameter |format | required | type | description |
+|-----|-----|----|------|-----|
+|appInstanceId | path |Y| String | appInstanceId ，type is UUID |
+
+### Return data
+|response code |description|
+|-----|-----|
+|200 | success |
+|400 | bad request |
+|403 | forbidden |
+|404 | not Found |
+
+## /applications/{appInstanceId}/subscriptions POST
+ create a new subscription for APP
+### request parameter
+|parameter |format | required | type | description |
+|-----|-----|----|------|-----|
+|appInstanceId | path |Y| String | appInstanceId ，type is UUID |
+
+### Return data
+|response code |description|
+|-----|-----|
+|200 | success |
+|400 | bad request |
+|403 | forbidden |
+|404 | not Found |
+
+```
+Request Body:
+{
+  "subscriptionType": "SerAvailabilityNotificationSubscription",
+  "callbackReference": "string",
+  "filteringCriteria": {
+    "serInstanceIds": [
+      "ServiceInstance123"
+    ],
+    "serNames": [
+      "ExampleService"
+    ],
+    "serCategories": [
+      {
+        "href": "/example/catalogue1",
+        "id": "id12345",
+        "name": "RNI",
+        "version": "version1"
+      }
+    ],
+    "states": [
+      "ACTIVE"
+    ],
+    "isLocal": true
+  }
+}
+```
+
+## 
+​/applications​/{appInstanceId}​/subscriptions​/{subscriptionId} GET
+requests information about a subscription for this requestor
+### request parameter
+|parameter |format | required | type | description |
+|-----|-----|----|------|-----|
+|appInstanceId | path |Y| String | appInstanceId ，type is UUID |
+|subscriptionId | path |Y| String | appInstanceId ，type is UUID |
+
+### Return data
+|response code |description|
+|-----|-----|
+|200 | success |
+|400 | bad request |
+|403 | forbidden |
+|404 | not Found |
+
+## 
+​/applications​/{appInstanceId}​/subscriptions​/{subscriptionId} DELETE
+deletes a mecSrvMgmtSubscription
+### Request parameter
+|parameter |format | required | type | description |
+|-----|-----|----|------|-----|
+|appInstanceId | path |Y| String | appInstanceId ，type is UUID |
+|subscriptionId | path |Y| String | appInstanceId ，type is UUID |
+
+### Return data
+|response code |description|
+|-----|-----|
+|200 | success |
+|204 | no content  |
+|403 | forbidden |
+|404 | not Found |
+
+## appServices
+## applications/{appInstanceId}/services GET
+retrieves information about a list of mecService resources.
+### request parameter
+|parameter |format | required | type | description |
+|-----|-----|----|------|-----|
+|appInstanceId | path |Y| String | appInstanceId ，type is UUID |
+
+### Return data
+|response code |description|
+|-----|-----|
+|200 | success |
+|400 | bad request |
+|403 | forbidden |
+|404 | not Found |
+
+
+## /applications/{appInstanceId}/services POST
+create a mecService resource. 
+### Request parameter
+
+|parameter |format | required | type | description |
+|-----|-----|----|------|-----|
+|appInstanceId | path |Y| String | appInstanceId ，type is UUID |
+```
+Request Body:
+{
+  "subscriptionType": "SerAvailabilityNotificationSubscription",
+  "callbackReference": "string",
+  "filteringCriteria": {
+    "serInstanceIds": [
+      "ServiceInstance123"
+    ],
+    "serNames": [
+      "ExampleService"
+    ],
+    "serCategories": [
+      {
+        "href": "/example/catalogue1",
+        "id": "id12345",
+        "name": "RNI",
+        "version": "version1"
+      }
+    ],
+    "states": [
+      "ACTIVE"
+    ],
+    "isLocal": true
+  }
+}
+```
+
+### Return data
+|response code |description|
+|-----|-----|
+|200 | success |
+|400 | bad request |
+|403 | forbidden |
+|404 | not Found |
+
+## /applications/{appInstanceId}/services/{serviceId} GET
+retrieves information about a mecService resource.
+### request parameter
+|parameter |format | required | type | description |
+|-----|-----|----|------|-----|
+|appInstanceId | path |Y| String | appInstanceId ，type is UUID |
+|serviceId | path |Y| String | appInstanceId ，type is UUID |
+### Return data
+|response code |description|
+|-----|-----|
+|200 | success |
+|400 | bad request |
+|403 | forbidden |
+|404 | not Found |
+
+## /applications/{appInstanceId}/services/{serviceId} PUT
+updates the information about a mecService resource
+### Request parameter
+|parameter |format | required | type | description |
+|-----|-----|----|------|-----|
+|appInstanceId | path |Y| String | appInstanceId ，type is UUID |
+|serviceId | path |Y| String | appInstanceId ，type is UUID |
+### Return data
+|response code |description|
+|-----|-----|
+|200 | success |
+|400 | bad request |
+|403 | forbidden |
+|404 | not Found |
+
+## /applications/{appInstanceId}/services/{serviceId} DELETE
+deletes a mecService resource.
+### Request parameter
+|parameter |format | required | type | description |
+|-----|-----|----|------|-----|
+|appInstanceId | path |Y| String | appInstanceId ，type is UUID |
+|serviceId | path |Y| String | appInstanceId ，type is UUID |
+### Return data
+|response code |description|
+|-----|-----|
+|200 | success |
+|400 | bad request |
+|403 | forbidden |
+|404 | not Found |
+
+### Return data
+|response code |description|
+|-----|-----|
+|200 | success |
+|400 | bad request |
+|403 | forbidden |
+|404 | not Found |
+|414 | url  too long |
+
+## services
+## /services GET
+retrieves information about a list of mecService resources. 
+
+### Return data
+|response code |description|
+|-----|-----|
+|200 | success |
+|400 | bad request |
+|403 | forbidden |
+|404 | not Found |
+|414 | url  too long |
+
+## /services/{serviceId} GET
+retrieves information about a mecService resource.
+### request parameter
+|parameter |format | required | type | description |
+|-----|-----|----|------|-----|
+|serviceId | path |Y| String | appInstanceId ，type is UUID |
+### Return data
+|response code |description|
+|-----|-----|
+|200 | success |
+|400 | bad request |
+|403 | forbidden |
+|404 | not Found |
+
+## transports
+## /transports
+retrieves information about a list of available transports. 
+
+### Return data
+|response code |description|
+|-----|-----|
+|200 | success |
+|400 | bad request |
+|403 | forbidden |
+|404 | not Found |
