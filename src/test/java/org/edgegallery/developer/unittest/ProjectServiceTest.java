@@ -137,7 +137,7 @@ public class ProjectServiceTest {
         project.setPlatform(platforms);
         project.setUserId("8595621b-d567-4331-b964-c3288815bd7b");
         project.setProjectType(EnumProjectType.CREATE_NEW);
-        SimpleDateFormat time=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        SimpleDateFormat time=new SimpleDateFormat("yyyy-MM-dd HH:mm");
         project.setCreateDate(time.format(new Date()));
         project.setType("new");
         return projectService.createProject(userId, project);
@@ -155,7 +155,7 @@ public class ProjectServiceTest {
         project.setPlatform(platforms);
         project.setUserId("8595621b-d567-4331-b964-c3288815bd7b");
         project.setProjectType(EnumProjectType.CREATE_NEW);
-        SimpleDateFormat time=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        SimpleDateFormat time=new SimpleDateFormat("yyyy-MM-dd HH:mm");
         project.setCreateDate(time.format(new Date()));
         project.setType("new");
         project.setIconFileId("1111");

@@ -177,7 +177,7 @@ public class ProjectService {
 
         // set default value
         project.setStatus(EnumProjectStatus.ONLINE);
-        SimpleDateFormat time = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        SimpleDateFormat time = new SimpleDateFormat("yyyy-MM-dd HH:mm");
         project.setCreateDate(time.format(new Date()));
         // save project to DB
         int res = projectMapper.save(project);
@@ -613,10 +613,10 @@ public class ProjectService {
      * @return
      */
     public Either<FormatRespDto, ProjectTestConfig> getTestConfig(String projectId) {
-        ApplicationProject project = projectMapper.getProject(AccessUserUtil.getUserId(), projectId);
+        ApplicationProject project = projectMapper.getProjectById(projectId);
         if (project == null) {
             LOGGER
-                .warn("Can not find the project by userId {} and projectId {}.", AccessUserUtil.getUserId(), projectId);
+                .warn("Can not find the project projectId {}.", projectId);
             return Either.right(null);
         }
         List<ProjectTestConfig> tests = projectMapper.getTestConfigByProjectId(projectId);
@@ -725,6 +725,9 @@ public class ProjectService {
         }
         if (StringUtils.isEmpty(detail.getGuideFileIdEn())) {
             detail.setGuideFileIdEn(detail.getGuideFileId());
+        }
+        if(StringUtils.isEmpty(detail.getDescriptionEn())) {
+            detail.setDescriptionEn(detail.getDescription());
         }
         int resGroup = openMepCapabilityMapper.saveGroup(group);
         if (resGroup < 1) {
@@ -840,7 +843,7 @@ public class ProjectService {
         detail.setDescription(serviceDetail.getDescription());
         detail.setApiFileId(serviceDetail.getApiJson());
         detail.setGuideFileId(serviceDetail.getApiMd());
-        SimpleDateFormat time = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        SimpleDateFormat time = new SimpleDateFormat("yyyy-MM-dd HH:mm");
         detail.setUploadTime(time.format(new Date()));
         detail.setPort(serviceDetail.getInternalPort());
         detail.setHost(serviceDetail.getServiceName());
@@ -916,7 +919,7 @@ public class ProjectService {
         detail.setDescription(project.getDescription());
         detail.setProvider(project.getProvider());
         detail.setApiFileId(test.getAppApiFileId());
-        SimpleDateFormat time = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        SimpleDateFormat time = new SimpleDateFormat("yyyy-MM-dd HH:mm");
         detail.setUploadTime(time.format(new Date()));
 
         int detailRes = openMepCapabilityMapper.saveCapability(detail);
