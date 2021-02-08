@@ -102,12 +102,13 @@ public class OpenMEPCapabilityGroupTest {
         detail.setServiceEn(detail.getService());
         detail.setVersion("v2");
         detail.setDescription("provide the face recognition capabilities for apps");
+        detail.setDescriptionEn("provide the face recognition capabilities for apps");
         detail.setProvider("Huawei");
         detail.setApiFileId("9f1f13a0-8554-4dfa-90a7-d2765238fca7");
         detail.setGuideFileId("9f1f13a0-8554-4dfa-90a7-d2765238fca7");
         detail.setGuideFileIdEn(detail.getGuideFileId());
         detail.setUserId("d0f8fa57-2f4c-4182-be33-0a508964d0");
-        SimpleDateFormat time=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        SimpleDateFormat time=new SimpleDateFormat("yyyy-MM-dd HH:mm");
         detail.setUploadTime(time.format(new Date()));
         detail.setDetailId("e111f3e7-90d8-4a39-9874-ea6ea6752ef4");
         Either<FormatRespDto, OpenMepCapabilityDetail> response = openMEPCapabilityService

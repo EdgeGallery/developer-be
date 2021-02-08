@@ -144,13 +144,12 @@ public class OpenMepCapabilityService {
             LOGGER.error("Create {} detail failed, api file id is null", groupId);
             return Either.left(new FormatRespDto(Status.BAD_REQUEST, "Api file id is wrong"));
         }
-        if (capability.getGuideFileId() == null || capability.getGuideFileIdEn() == null ||
-            capability.getGuideFileId().length() < 1 || capability.getGuideFileIdEn().length() < 1) {
+        if (capability.getGuideFileId() == null || capability.getGuideFileId().length() < 1) {
             LOGGER.error("Create {} detail failed, guide file id is null", groupId);
             return Either.left(new FormatRespDto(Status.BAD_REQUEST, "guide file id is wrong"));
         }
         capability.setGroupId(groupId);
-        SimpleDateFormat time=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        SimpleDateFormat time=new SimpleDateFormat("yyyy-MM-dd HH:mm");
         capability.setUploadTime(time.format(new Date()));
         capability.setDetailId(UUID.randomUUID().toString());
         int ret = openMepCapabilityMapper.saveCapability(capability);
