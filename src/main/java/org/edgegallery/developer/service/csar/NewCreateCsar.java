@@ -37,13 +37,10 @@ public class NewCreateCsar {
         String deployType = (project.getDeployPlatform() == EnumDeployPlatform.KUBERNETES)?"container":"vm";
         String projectName = project.getName();
         String chartName = project.getName().replaceAll(Consts.PATTERN, "").toLowerCase();
-        String csarName = projectName + "_" + project.getVersion() + "_" + project.getPlatform().get(0) +
-            "_" + config.getAppInstanceId().substring(0, 6);
-
 
         // copy template files to the new project path
         File csar = DeveloperFileUtils
-            .copyDirAndReName(new File(WORKSPACE_CSAR_PATH), projectDir, csarName);
+            .copyDirAndReName(new File(WORKSPACE_CSAR_PATH), projectDir, config.getAppInstanceId());
 
         // get data to Map<String, String>
         SimpleDateFormat time=new SimpleDateFormat("yyyy-MM-dd HH:mm");
