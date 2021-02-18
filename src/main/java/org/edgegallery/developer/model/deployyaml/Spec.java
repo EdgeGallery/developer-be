@@ -8,7 +8,7 @@ import lombok.Setter;
 public class Spec {
     private Containers[] containers;
     private Volumes[] volumes;
-    private  String Type;
+    private  String type;
     private  ServicePorts[] ports;
     private  Selector selector;
 

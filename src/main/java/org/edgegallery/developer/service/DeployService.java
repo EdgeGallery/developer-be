@@ -201,11 +201,11 @@ public class DeployService {
         List<String> svcNames = new ArrayList<>();
         for (DeployYaml deployYaml : deploys) {
             if (deployYaml.getKind().equals("Service")) {
-                svcNames.add(deployYaml.getMetaData().getName());
+                svcNames.add(deployYaml.getMetadata().getName());
                 svcList.add(deployYaml);
             }
             if (deployYaml.getKind().equals("Pod")) {
-                podNames.add(deployYaml.getMetaData().getName());
+                podNames.add(deployYaml.getMetadata().getName());
                 podList.add(deployYaml);
             }
         }
@@ -215,7 +215,7 @@ public class DeployService {
             for (DeployYaml deployYaml : deploys) {
                 ProjectImageConfig projectImageConfig = new ProjectImageConfig();
                 projectImageConfig.setId(UUID.randomUUID().toString());
-                projectImageConfig.setPodName(deployYaml.getMetaData().getName());
+                projectImageConfig.setPodName(deployYaml.getMetadata().getName());
                 Containers[] containersArr = deployYaml.getSpec().getContainers();
                 projectImageConfig.setPodContainers(gson.toJson(containersArr));
                 projectImageConfig.setProjectId(projectId);
@@ -226,8 +226,8 @@ public class DeployService {
         //双重循环判断podname是否等于svcname
         for (int i = 0; i < podList.size(); i++) {
             for (int j = 0; j < svcList.size(); j++) {
-                String podName = podList.get(i).getMetaData().getName();
-                String svcName = svcList.get(j).getMetaData().getName();
+                String podName = podList.get(i).getMetadata().getName();
+                String svcName = svcList.get(j).getMetadata().getName();
                 if (podName.equals(svcName)) {
                     ProjectImageConfig projectImageConfig = new ProjectImageConfig();
                     projectImageConfig.setId(UUID.randomUUID().toString());
@@ -265,10 +265,10 @@ public class DeployService {
             //只保存所有pod信息
             for (DeployYaml deployYaml : deployYamls) {
                 for (String podName : newNameList) {
-                    if (deployYaml.getMetaData().getName().equals(podName)) {
+                    if (deployYaml.getMetadata().getName().equals(podName)) {
                         ProjectImageConfig projectImageConfig = new ProjectImageConfig();
                         projectImageConfig.setId(UUID.randomUUID().toString());
-                        projectImageConfig.setPodName(deployYaml.getMetaData().getName());
+                        projectImageConfig.setPodName(deployYaml.getMetadata().getName());
                         Containers[] containersArr = deployYaml.getSpec().getContainers();
                         projectImageConfig.setPodContainers(gson.toJson(containersArr));
                         projectImageConfig.setProjectId(projectId);

@@ -8,7 +8,7 @@ import lombok.Setter;
 public class DeployYaml {
     private String apiVersion;
     private String kind;
-    private MetaData metaData;
+    private MetaData metadata;
     private Spec spec;
 
 }
