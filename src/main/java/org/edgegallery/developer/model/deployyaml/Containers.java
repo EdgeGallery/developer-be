@@ -22,4 +22,11 @@ public class Containers {
 
     private  Resource resource;
 
+    /**
+     * set image.
+     * @param image param image
+     */
+    public void setImage(String image) {
+        this.image = "{{ .Values.imagelocation.domainname }}/{{ .Values.imagelocation.project }}/"+image;
+    }
 }

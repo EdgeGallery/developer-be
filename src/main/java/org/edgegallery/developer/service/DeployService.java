@@ -291,7 +291,7 @@ public class DeployService {
         Containers[] newContainers = new Containers[1];
         Containers containersMepAgent = new Containers();
         containersMepAgent.setName("mep-agent");
-        containersMepAgent.setImage("swr.ap-southeast-1.myhuaweicloud.com/edgegallery/mep-agent:latest");
+        containersMepAgent.setImage("mep-agent:latest");
         containersMepAgent.setImagePullPolicy("Always");
         Environment envWait = new Environment();
         envWait.setName("ENABLE_WAIT");
