@@ -234,9 +234,13 @@ public class ReleaseConfigService {
             // write yaml
             templateNode.put("app_configuration", configModel);
             // write content to yaml
-            String yamlContents = FileUtils.readFileToString(templateFile, StandardCharsets.UTF_8);
+            ObjectMapper om = new ObjectMapper(new YAMLFactory());
+            om.writeValue(templateFile, loaded);
+            // delete yaml "
+            File templateFileModify = new File(mainServiceTemplatePath);
+            String yamlContents = FileUtils.readFileToString(templateFileModify, StandardCharsets.UTF_8);
             yamlContents = yamlContents.replaceAll("\"", "");
-            writeFile(templateFile,yamlContents);
+            writeFile(templateFileModify,yamlContents);
             // update tgz in ~/Charts
             String chartsDir = csar.getParent() + File.separator + config.getAppInstanceId() + File.separator
                 + "Artifacts/Deployment/Charts";

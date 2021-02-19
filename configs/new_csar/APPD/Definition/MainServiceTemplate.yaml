@@ -11,9 +11,9 @@ metadata:
   vnfd_name: EdgeGallery_MEC_Sample_APPD
   vnfd_description: EdgeGallery MEC sample for vnf
 
-topology_template: 
+topology_template:
   inputs:
-    APP_Name: 
+    APP_Name:
       type: string
       description: APP_Name
     DC_ID:
@@ -50,22 +50,16 @@ topology_template:
         flavour_description: default flavor
         ve_vnfm_vnf_enable: false
         ve_vnfm_em_enable: false
-  
-      
+
+
     logic0:
       type: tosca.nodes.nfv.Vdu.Compute
       properties:
         name: logic0
         description: node logic template
         sw_image_data:
-          name: swr.ap-southeast-1.myhuaweicloud.com/edgegallery/mep-agent:1.0
+          name: "mep-agent:v1.0.1, position_service:1.0"
         vdu_mec_host_requirements:
-          mec_host_GPU_affinity:
-            schemaVersion: 0
-            schemaSelector: " "
-            hardwarePlatform: "EdgeGallery"
-            mandatory: true
-            configurationValue: "GPU"
           mec_host_mem_affinity:
             schemaVersion: 0
             schemaSelector: " "
@@ -91,52 +85,10 @@ topology_template:
               virtual_mem_size: 4096
             virtual_cpu:
               num_virtual_cpu: 4
-            virtual_local_storage: 
+              cpu_architecture: X86
+            virtual_local_storage:
               size_of_storage: 20
-
-#    logic1:
-#      type: tosca.nodes.nfv.Vdu.Compute
-#      properties:
-#        name: logic1
-#        description: node logic template
-#        sw_image_data:
-#          name: swr.ap-southeast-1.myhuaweicloud.com/edgegallery/positioning_service:1.0
-#        vdu_mec_host_requirements:
-#          mec_host_GPU_affinity:
-#            schemaVersion: 0
-#            schemaSelector: " "
-#            hardwarePlatform: "EdgeGallery"
-#            mandatory: true
-#            configurationValue: "GPU"
-#          mec_host_mem_affinity:
-#            schemaVersion: 0
-#            schemaSelector: " "
-#            hardwarePlatform: "EdgeGallery"
-#            mandatory: true
-#            configurationValue: "memory"
-#          mec_host_cpu_affinity:
-#            schemaVersion: 0
-#            schemaSelector: " "
-#            hardwarePlatform: "EdgeGallery"
-#            mandatory: true
-#            configurationValue: "shared"
-#        vdu_profile:
-#          min_number_of_instances: 1
-#          max_number_of_instances: 2
-#          initial_number_of_instances: 1
-#          flavor_extra_specs:
-#            "X86_HA": 'true'
-#      capabilities:
-#        virtual_compute:
-#          properties:
-#            virtual_memory:
-#              virtual_mem_size: 4096
-#            virtual_cpu:
-#              num_virtual_cpu: 4
-#            virtual_local_storage:
-#              size_of_storage: 20
-
-    MEC_APP_CP0: 
+    MEC_APP_CP0:
       type: tosca.nodes.nfv.VduCp
       properties:
         description: network definition
@@ -147,17 +99,6 @@ topology_template:
       requirements:
         - virtual_binding: logic0
         - virtual_link: MEC_APP_VL0
-#    MEC_APP_CP1:
-#      type: tosca.nodes.nfv.VduCp
-#      properties:
-#        description: network definition
-#        vnic_name: eth0
-#        order: 0
-#        vnic_type: normal
-#        port_security_enabled: true
-#      requirements:
-#        - virtual_binding: logic1
-#        - virtual_link: MEC_APP_VL0
     MEC_APP_VL0:
       type: tosca.nodes.nfv.VnfVirtualLink
       properties:
@@ -170,11 +111,11 @@ topology_template:
       type: tosca.nodes.nfv.app.configuration
       properties:
         appServiceRequired:
-#          - serName: face-recognize
-#            version: 1.0
-#            requestedPermissions: true
-#            appId: ea8ebc1a-db88-11ea-87d0-0242ac130003
-#            packageId: b1bb0ce7-ebca-4fa7-95ed-4840d70a1177
+        #          - serName: face-recognize
+        #            version: 1.0
+        #            requestedPermissions: true
+        #            appId: ea8ebc1a-db88-11ea-87d0-0242ac130003
+        #            packageId: b1bb0ce7-ebca-4fa7-95ed-4840d70a1177
         appServiceOptional:
           - serName: appService2
             version: 3.0
@@ -238,7 +179,7 @@ topology_template:
       properties:
         description: antiaffinity group
         members: [logic0]
-#      members: [logic0, logic1]
+  #      members: [logic0, logic1]
 
   policies:
     - antiaffinity_policy:
