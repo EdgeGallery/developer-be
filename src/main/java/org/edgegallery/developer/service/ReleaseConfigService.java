@@ -23,7 +23,9 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.spencerwi.either.Either;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
@@ -232,8 +234,9 @@ public class ReleaseConfigService {
             // write yaml
             templateNode.put("app_configuration", configModel);
             // write content to yaml
-            ObjectMapper om = new ObjectMapper(new YAMLFactory());
-            om.writeValue(templateFile, loaded);
+            String yamlContents = FileUtils.readFileToString(templateFile, StandardCharsets.UTF_8);
+            yamlContents = yamlContents.replaceAll("\"", "");
+            writeFile(templateFile,yamlContents);
             // update tgz in ~/Charts
             String chartsDir = csar.getParent() + File.separator + config.getAppInstanceId() + File.separator
                 + "Artifacts/Deployment/Charts";
@@ -281,6 +284,17 @@ public class ReleaseConfigService {
         }
 
         return Either.right(true);
+    }
+
+    private void writeFile(File file,String content){
+        try {
+            FileWriter fw = new FileWriter(file.getCanonicalPath());
+            BufferedWriter bw = new BufferedWriter(fw);
+            bw.write(content);
+            bw.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
