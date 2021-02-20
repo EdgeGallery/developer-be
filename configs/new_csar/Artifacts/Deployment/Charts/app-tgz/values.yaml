@@ -1,19 +1,24 @@
 global:
   mepagent:
     enabled: false
+    configmapname: <CONFIGMAP_NAME>
   namespace:
     enabled: false
 
 appconfig:
   appnamespace: default
   aksk:
-    secretname: {SECRET_NAME}
-    accesskey: {ACCESS_KEY}
-    secretkey: {SECRET_KEY}
-    appInsId: {APPINS_ID}
+    secretname: <random_value>
+    accesskey: <akvalue>
+    secretkey: <skvalue>
+    appInsId: <idvalue>
 
 serviceconfig:
-  servicename: {SERVICE_NAME}
-  port: {PORT}
-  version: {VERSION}
-  protocol: {PROTOCOL}
+#  - servicename: positioning-service
+#    port: 9997
+#    version: 1.0
+#    protocol: HTTP
+#    appnamespace: default
+imagelocation:
+  domainname: swr.ap-southeast-1.myhuaweicloud.com
+  project: edgegallery
