@@ -53,6 +53,10 @@ import org.edgegallery.developer.util.InitConfigUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 @Service("deployService")
@@ -74,7 +78,7 @@ public class DeployService {
     @Autowired
     private AppReleaseService appReleaseService;
 
-    public Either<FormatRespDto, File> genarateDeployYaml(DeployYamls deployYamls, String projectId,
+    public Either<FormatRespDto, UploadedFile> genarateDeployYaml(DeployYamls deployYamls, String projectId,
         String userId) throws IOException {
         if (deployYamls == null) {
             LOGGER.error("no request body param");
@@ -146,8 +150,8 @@ public class DeployService {
             LOGGER.error("save file failed!");
             return Either.left(new FormatRespDto(Response.Status.INTERNAL_SERVER_ERROR, "save file failed!"));
         }
-        File file = new File(uploadedFileMapper.getFileById(fileId).getFilePath());
-        return Either.right(file);
+        uploadedFile.setFilePath("");
+        return Either.right(uploadedFile);
     }
 
     /**
@@ -165,6 +169,28 @@ public class DeployService {
             }
         }
         return Either.left(new FormatRespDto(Response.Status.BAD_REQUEST, "fileId not exist!"));
+    }
+
+    /**
+     * get yaml.
+     *
+     * @param fileId file id
+     * @return
+     */
+    public ResponseEntity<FileSystemResource> getDeployYamlById(String fileId) {
+        UploadedFile uploadedFile = uploadedFileMapper.getFileById(fileId);
+        if (uploadedFile != null) {
+            if (!StringUtils.isEmpty(uploadedFile.getFilePath())) {
+                File file = new File(uploadedFile.getFilePath());
+                HttpHeaders headers = new HttpHeaders();
+                headers.add("Content-Disposition", "attachment; filename=" + file.getName());
+                return ResponseEntity.ok().headers(headers).contentLength(file.length())
+                    .contentType(MediaType.parseMediaType("application/octet-stream"))
+                    .body(new FileSystemResource(file));
+            }
+        }
+        LOGGER.error("fileId not exist!");
+        return null;
     }
 
     /**
