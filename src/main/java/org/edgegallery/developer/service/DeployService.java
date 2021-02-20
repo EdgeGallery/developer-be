@@ -21,16 +21,17 @@ import com.google.gson.Gson;
 import com.spencerwi.either.Either;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import javax.ws.rs.core.Response;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.http.entity.ContentType;
 import org.edgegallery.developer.mapper.ProjectImageMapper;
 import org.edgegallery.developer.mapper.ProjectMapper;
 import org.edgegallery.developer.mapper.UploadedFileMapper;
@@ -48,16 +49,15 @@ import org.edgegallery.developer.model.workspace.OpenMepCapabilityGroup;
 import org.edgegallery.developer.model.workspace.ProjectImageConfig;
 import org.edgegallery.developer.model.workspace.UploadedFile;
 import org.edgegallery.developer.response.FormatRespDto;
+import org.edgegallery.developer.response.HelmTemplateYamlRespDto;
 import org.edgegallery.developer.util.BusinessConfigUtil;
 import org.edgegallery.developer.util.InitConfigUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.FileSystemResource;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service("deployService")
 public class DeployService {
@@ -70,6 +70,9 @@ public class DeployService {
     private UploadedFileMapper uploadedFileMapper;
 
     @Autowired
+    private UploadFileService uploadFileService;
+
+    @Autowired
     private ProjectImageMapper projectImageMapper;
 
     @Autowired
@@ -78,13 +81,13 @@ public class DeployService {
     @Autowired
     private AppReleaseService appReleaseService;
 
-    public Either<FormatRespDto, UploadedFile> genarateDeployYaml(DeployYamls deployYamls, String projectId,
+    public Either<FormatRespDto, HelmTemplateYamlRespDto> genarateDeployYaml(DeployYamls deployYamls, String projectId,
         String userId) throws IOException {
         if (deployYamls == null) {
             LOGGER.error("no request body param");
             return Either.left(new FormatRespDto(Response.Status.BAD_REQUEST, "no param"));
         }
-        String fileId = UUID.randomUUID().toString();
+        // String fileId = UUID.randomUUID().toString();
         File filePath = new File(
             InitConfigUtil.getWorkSpaceBaseDir() + BusinessConfigUtil.getWorkspacePath() + projectId + File.separator);
         if (!filePath.exists()) {
@@ -138,59 +141,15 @@ public class DeployService {
         }
         savePodAndService(deploys, projectId);
         //save deploy yaml
-        UploadedFile uploadedFile = new UploadedFile();
-        uploadedFile.setFileId(fileId);
-        uploadedFile.setFilePath(yamlFile.getCanonicalPath());
-        uploadedFile.setFileName(yamlFile.getName());
-        uploadedFile.setUserId(userId);
-        uploadedFile.setTemp(false);
-        uploadedFile.setUploadDate(new Date());
-        int res = uploadedFileMapper.saveFile(uploadedFile);
-        if (res <= 0) {
-            LOGGER.error("save file failed!");
-            return Either.left(new FormatRespDto(Response.Status.INTERNAL_SERVER_ERROR, "save file failed!"));
+        InputStream inputStream = new FileInputStream(yamlFile);
+        MultipartFile multipartFile = new MockMultipartFile(yamlFile.getName(), yamlFile.getName(),
+            ContentType.APPLICATION_OCTET_STREAM.toString(), inputStream);
+        Either<FormatRespDto, HelmTemplateYamlRespDto> res = uploadFileService
+            .uploadHelmTemplateYaml(multipartFile, userId, projectId);
+        if (res.isLeft()) {
+            return Either.left(res.getLeft());
         }
-        uploadedFile.setFilePath("");
-        return Either.right(uploadedFile);
-    }
-
-    /**
-     * get yaml.
-     *
-     * @param fileId file id
-     * @return
-     */
-    public Either<FormatRespDto, String> getDeployYaml(String fileId) {
-        UploadedFile uploadedFile = uploadedFileMapper.getFileById(fileId);
-        if (uploadedFile != null) {
-            if (!StringUtils.isEmpty(uploadedFile.getFilePath())) {
-                String fileContent = appReleaseService.readFileIntoString(uploadedFile.getFilePath());
-                return Either.right(fileContent);
-            }
-        }
-        return Either.left(new FormatRespDto(Response.Status.BAD_REQUEST, "fileId not exist!"));
-    }
-
-    /**
-     * get yaml.
-     *
-     * @param fileId file id
-     * @return
-     */
-    public ResponseEntity<FileSystemResource> getDeployYamlById(String fileId) {
-        UploadedFile uploadedFile = uploadedFileMapper.getFileById(fileId);
-        if (uploadedFile != null) {
-            if (!StringUtils.isEmpty(uploadedFile.getFilePath())) {
-                File file = new File(uploadedFile.getFilePath());
-                HttpHeaders headers = new HttpHeaders();
-                headers.add("Content-Disposition", "attachment; filename=" + file.getName());
-                return ResponseEntity.ok().headers(headers).contentLength(file.length())
-                    .contentType(MediaType.parseMediaType("application/octet-stream"))
-                    .body(new FileSystemResource(file));
-            }
-        }
-        LOGGER.error("fileId not exist!");
-        return null;
+        return Either.right(res.getRight());
     }
 
     /**
