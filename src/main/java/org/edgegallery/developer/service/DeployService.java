@@ -99,10 +99,10 @@ public class DeployService {
 
         List<OpenMepCapabilityGroup> capabilities = projectMapper.getProjectById(projectId).getCapabilityList();
         DeployYaml[] deploys = deployYamls.getDeployYamls();
-        for (DeployYaml deployYaml : deploys) {
-            if (deployYaml.getKind().equals("Pod")) {
-                if (capabilities != null) {
-                    Containers[] containers = deployYaml.getSpec().getContainers();
+        for (int j = 0; j < deploys.length; j++) {
+            if (deploys[j].getKind().equals("Pod")) {
+                if (capabilities != null && j == 0) {
+                    Containers[] containers = deploys[j].getSpec().getContainers();
                     Containers[] copyContainers = new Containers[containers.length + 1];
                     for (int i = 0; i < containers.length; i++) {
                         copyContainers[i] = containers[i];
@@ -110,7 +110,7 @@ public class DeployService {
                     //add mep-agent container
                     Containers[] newContainers = insertMepAgent();
                     System.arraycopy(newContainers, 0, copyContainers, copyContainers.length - 1, newContainers.length);
-                    deployYaml.getSpec().setContainers(copyContainers);
+                    deploys[j].getSpec().setContainers(copyContainers);
                     Volumes[] volumees = new Volumes[1];
                     Volumes volumes = new Volumes();
                     volumes.setName("mep-agent-service-config-volume");
@@ -118,12 +118,12 @@ public class DeployService {
                     configMap.setName("{{ .Values.global.mepagent.configmapname }}");
                     volumes.setConfigMap(configMap);
                     volumees[0] = volumes;
-                    deployYaml.getSpec().setVolumes(volumees);
+                    deploys[j].getSpec().setVolumes(volumees);
                 }
-                yamlWriter.write(deployYaml);
+                yamlWriter.write(deploys[j]);
             }
-            if (deployYaml.getKind().equals("Service")) {
-                yamlWriter.write(deployYaml);
+            if (deploys[j].getKind().equals("Service")) {
+                yamlWriter.write(deploys[j]);
             }
         }
         yamlWriter.close();
