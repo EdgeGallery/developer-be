@@ -74,7 +74,7 @@ public class DeployService {
     @Autowired
     private AppReleaseService appReleaseService;
 
-    public Either<FormatRespDto, UploadedFile> genarateDeployYaml(DeployYamls deployYamls, String projectId,
+    public Either<FormatRespDto, File> genarateDeployYaml(DeployYamls deployYamls, String projectId,
         String userId) throws IOException {
         if (deployYamls == null) {
             LOGGER.error("no request body param");
@@ -146,8 +146,8 @@ public class DeployService {
             LOGGER.error("save file failed!");
             return Either.left(new FormatRespDto(Response.Status.INTERNAL_SERVER_ERROR, "save file failed!"));
         }
-        uploadedFile.setFilePath("");
-        return Either.right(uploadedFile);
+        File file = new File(uploadedFileMapper.getFileById(fileId).getFilePath());
+        return Either.right(file);
     }
 
     /**
