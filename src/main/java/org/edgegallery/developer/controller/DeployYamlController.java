@@ -22,6 +22,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import java.io.File;
 import java.io.IOException;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.edgegallery.developer.model.deployyaml.DeployYamls;
@@ -55,19 +56,19 @@ public class DeployYamlController {
     /**
      * genarate deploy yaml.
      */
-    @ApiOperation(value = "genarate deploy yaml", response = UploadedFile.class)
+    @ApiOperation(value = "genarate deploy yaml", response = File.class)
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "OK", response = UploadedFile.class),
+        @ApiResponse(code = 200, message = "OK", response = File.class),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
     @RequestMapping(value = "/{projectId}", method = RequestMethod.POST,
         consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT')")
-    public ResponseEntity<UploadedFile> postDeploy(
+    public ResponseEntity<File> postDeploy(
         @ApiParam(value = "DeployYamls", required = true) @RequestBody DeployYamls deployYamls,
         @ApiParam(value = "userId", required = true) @RequestParam String userId,
         @ApiParam(value = "projectId", required = true) @PathVariable String projectId) throws IOException {
-        Either<FormatRespDto, UploadedFile> either = deployService.genarateDeployYaml(deployYamls, projectId, userId);
+        Either<FormatRespDto, File> either = deployService.genarateDeployYaml(deployYamls, projectId, userId);
         return ResponseDataUtil.buildResponse(either);
     }
 
