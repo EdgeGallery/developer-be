@@ -79,8 +79,7 @@ public class DeployYamlController {
         @ApiResponse(code = 200, message = "OK", response = String.class),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
-    @RequestMapping(value = "/{fileId}", method = RequestMethod.GET, consumes = MediaType.APPLICATION_JSON_UTF8_VALUE,
-        produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @RequestMapping(value = "/{fileId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT')")
     public ResponseEntity<String> getDeployYaml(
         @ApiParam(value = "fileId", required = true) @PathVariable String fileId) {
@@ -96,13 +95,12 @@ public class DeployYamlController {
         @ApiResponse(code = 200, message = "OK", response = String.class),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
-    @RequestMapping(value = "/{fileId}", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_UTF8_VALUE,
-        produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @RequestMapping(value = "/{fileId}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT')")
     public ResponseEntity<String> updateDeployYaml(
         @ApiParam(value = "fileId", required = true) @PathVariable String fileId,
         @ApiParam(value = "fileContent", required = true) @RequestBody String fileContent) {
-        Either<FormatRespDto, String> either = deployService.updateDeployYaml(fileId,fileContent);
+        Either<FormatRespDto, String> either = deployService.updateDeployYaml(fileId, fileContent);
         return ResponseDataUtil.buildResponse(either);
     }
 
