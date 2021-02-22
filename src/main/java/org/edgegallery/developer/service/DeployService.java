@@ -19,7 +19,7 @@ package org.edgegallery.developer.service;
 import com.esotericsoftware.yamlbeans.YamlWriter;
 import com.google.gson.Gson;
 import com.spencerwi.either.Either;
-import java.io.BufferedWriter;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileWriter;
@@ -32,6 +32,7 @@ import java.util.Set;
 import java.util.UUID;
 import javax.ws.rs.core.Response;
 import org.apache.http.entity.ContentType;
+import org.edgegallery.developer.mapper.HelmTemplateYamlMapper;
 import org.edgegallery.developer.mapper.ProjectImageMapper;
 import org.edgegallery.developer.mapper.ProjectMapper;
 import org.edgegallery.developer.mapper.UploadedFileMapper;
@@ -45,9 +46,9 @@ import org.edgegallery.developer.model.deployyaml.ServicePorts;
 import org.edgegallery.developer.model.deployyaml.ValueFrom;
 import org.edgegallery.developer.model.deployyaml.VolumeMounts;
 import org.edgegallery.developer.model.deployyaml.Volumes;
+import org.edgegallery.developer.model.workspace.HelmTemplateYamlPo;
 import org.edgegallery.developer.model.workspace.OpenMepCapabilityGroup;
 import org.edgegallery.developer.model.workspace.ProjectImageConfig;
-import org.edgegallery.developer.model.workspace.UploadedFile;
 import org.edgegallery.developer.response.FormatRespDto;
 import org.edgegallery.developer.response.HelmTemplateYamlRespDto;
 import org.edgegallery.developer.util.BusinessConfigUtil;
@@ -68,6 +69,9 @@ public class DeployService {
 
     @Autowired
     private UploadedFileMapper uploadedFileMapper;
+
+    @Autowired
+    private HelmTemplateYamlMapper helmTemplateYamlMapper;
 
     @Autowired
     private UploadFileService uploadFileService;
@@ -159,24 +163,21 @@ public class DeployService {
      * @param content file cotent
      * @return
      */
-    public Either<FormatRespDto, String> updateDeployYaml(String fileId, String content) {
-        UploadedFile uploadedFile = uploadedFileMapper.getFileById(fileId);
-        //将content写进文件
-        try {
-            File file = new File(uploadedFile.getFilePath());
-            FileWriter fw = new FileWriter(file.getCanonicalFile());
-            BufferedWriter bw = new BufferedWriter(fw);
-            bw.write(content);
-            bw.close();
-        } catch (IOException e) {
-            LOGGER.error("wirte new content into file,occur {}", e.getMessage());
-            String msg = "wirte new content into file failed!";
-            return Either.left(new FormatRespDto(Response.Status.BAD_REQUEST, msg));
+    public Either<FormatRespDto, HelmTemplateYamlRespDto> updateDeployYaml(String fileId, String content, String userId,
+        String projectId) throws IOException {
+        HelmTemplateYamlPo helmPo = helmTemplateYamlMapper.queryTemplateYamlByFileId(fileId);
+        helmPo.setContent(content);
+        helmTemplateYamlMapper.updateHelm(helmPo);
+        //save deploy yaml
+        InputStream is = new ByteArrayInputStream(helmPo.getContent().getBytes());
+        MultipartFile multipartFile = new MockMultipartFile(helmPo.getFileName(), helmPo.getFileName(),
+            ContentType.APPLICATION_OCTET_STREAM.toString(), is);
+        Either<FormatRespDto, HelmTemplateYamlRespDto> res = uploadFileService
+            .uploadHelmTemplateYaml(multipartFile, userId, projectId);
+        if (res.isLeft()) {
+            return Either.left(res.getLeft());
         }
-        //重新读取文件
-        UploadedFile newFile = uploadedFileMapper.getFileById(fileId);
-        String fileContent = appReleaseService.readFileIntoString(newFile.getFilePath());
-        return Either.right(fileContent);
+        return Either.right(res.getRight());
     }
 
     private void savePodAndService(DeployYaml[] deploys, String projectId) {

@@ -41,6 +41,19 @@
         WHERE user_id = #{param1} AND project_id = #{param2}
     </select>
 
+    <select id="queryTemplateYamlByFileId" resultType="org.edgegallery.developer.model.workspace.HelmTemplateYamlPo">
+        SELECT
+        *
+        FROM tbl_helm_template_yaml
+        WHERE file_id = #{fileId}
+    </select>
+
+    <update id="updateHelm" parameterType="org.edgegallery.developer.model.workspace.HelmTemplateYamlPo">
+        update tbl_helm_template_yaml set
+        content = #{content}
+        where file_id = #{fileId}
+    </update>
+
     <delete id="deleteYamlByFileId" parameterType="java.lang.String">
         DELETE FROM
         tbl_helm_template_yaml
