@@ -19,18 +19,20 @@ package org.edgegallery.developer.service;
 import com.esotericsoftware.yamlbeans.YamlWriter;
 import com.google.gson.Gson;
 import com.spencerwi.either.Either;
-import java.io.BufferedWriter;
+import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import javax.ws.rs.core.Response;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.http.entity.ContentType;
+import org.edgegallery.developer.mapper.HelmTemplateYamlMapper;
 import org.edgegallery.developer.mapper.ProjectImageMapper;
 import org.edgegallery.developer.mapper.ProjectMapper;
 import org.edgegallery.developer.mapper.UploadedFileMapper;
@@ -44,16 +46,19 @@ import org.edgegallery.developer.model.deployyaml.ServicePorts;
 import org.edgegallery.developer.model.deployyaml.ValueFrom;
 import org.edgegallery.developer.model.deployyaml.VolumeMounts;
 import org.edgegallery.developer.model.deployyaml.Volumes;
+import org.edgegallery.developer.model.workspace.HelmTemplateYamlPo;
 import org.edgegallery.developer.model.workspace.OpenMepCapabilityGroup;
 import org.edgegallery.developer.model.workspace.ProjectImageConfig;
-import org.edgegallery.developer.model.workspace.UploadedFile;
 import org.edgegallery.developer.response.FormatRespDto;
+import org.edgegallery.developer.response.HelmTemplateYamlRespDto;
 import org.edgegallery.developer.util.BusinessConfigUtil;
 import org.edgegallery.developer.util.InitConfigUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service("deployService")
 public class DeployService {
@@ -66,6 +71,12 @@ public class DeployService {
     private UploadedFileMapper uploadedFileMapper;
 
     @Autowired
+    private HelmTemplateYamlMapper helmTemplateYamlMapper;
+
+    @Autowired
+    private UploadFileService uploadFileService;
+
+    @Autowired
     private ProjectImageMapper projectImageMapper;
 
     @Autowired
@@ -74,13 +85,13 @@ public class DeployService {
     @Autowired
     private AppReleaseService appReleaseService;
 
-    public Either<FormatRespDto, UploadedFile> genarateDeployYaml(DeployYamls deployYamls, String projectId,
+    public Either<FormatRespDto, HelmTemplateYamlRespDto> genarateDeployYaml(DeployYamls deployYamls, String projectId,
         String userId) throws IOException {
         if (deployYamls == null) {
             LOGGER.error("no request body param");
             return Either.left(new FormatRespDto(Response.Status.BAD_REQUEST, "no param"));
         }
-        String fileId = UUID.randomUUID().toString();
+        // String fileId = UUID.randomUUID().toString();
         File filePath = new File(
             InitConfigUtil.getWorkSpaceBaseDir() + BusinessConfigUtil.getWorkspacePath() + projectId + File.separator);
         if (!filePath.exists()) {
@@ -99,10 +110,10 @@ public class DeployService {
 
         List<OpenMepCapabilityGroup> capabilities = projectMapper.getProjectById(projectId).getCapabilityList();
         DeployYaml[] deploys = deployYamls.getDeployYamls();
-        for (DeployYaml deployYaml : deploys) {
-            if (deployYaml.getKind().equals("Pod")) {
-                if (capabilities != null) {
-                    Containers[] containers = deployYaml.getSpec().getContainers();
+        for (int j = 0; j < deploys.length; j++) {
+            if (deploys[j].getKind().equals("Pod")) {
+                if (capabilities != null && j == 0) {
+                    Containers[] containers = deploys[j].getSpec().getContainers();
                     Containers[] copyContainers = new Containers[containers.length + 1];
                     for (int i = 0; i < containers.length; i++) {
                         copyContainers[i] = containers[i];
@@ -110,7 +121,7 @@ public class DeployService {
                     //add mep-agent container
                     Containers[] newContainers = insertMepAgent();
                     System.arraycopy(newContainers, 0, copyContainers, copyContainers.length - 1, newContainers.length);
-                    deployYaml.getSpec().setContainers(copyContainers);
+                    deploys[j].getSpec().setContainers(copyContainers);
                     Volumes[] volumees = new Volumes[1];
                     Volumes volumes = new Volumes();
                     volumes.setName("mep-agent-service-config-volume");
@@ -118,12 +129,12 @@ public class DeployService {
                     configMap.setName("{{ .Values.global.mepagent.configmapname }}");
                     volumes.setConfigMap(configMap);
                     volumees[0] = volumes;
-                    deployYaml.getSpec().setVolumes(volumees);
+                    deploys[j].getSpec().setVolumes(volumees);
                 }
-                yamlWriter.write(deployYaml);
+                yamlWriter.write(deploys[j]);
             }
-            if (deployYaml.getKind().equals("Service")) {
-                yamlWriter.write(deployYaml);
+            if (deploys[j].getKind().equals("Service")) {
+                yamlWriter.write(deploys[j]);
             }
         }
         yamlWriter.close();
@@ -134,37 +145,15 @@ public class DeployService {
         }
         savePodAndService(deploys, projectId);
         //save deploy yaml
-        UploadedFile uploadedFile = new UploadedFile();
-        uploadedFile.setFileId(fileId);
-        uploadedFile.setFilePath(yamlFile.getCanonicalPath());
-        uploadedFile.setFileName(yamlFile.getName());
-        uploadedFile.setUserId(userId);
-        uploadedFile.setTemp(false);
-        uploadedFile.setUploadDate(new Date());
-        int res = uploadedFileMapper.saveFile(uploadedFile);
-        if (res <= 0) {
-            LOGGER.error("save file failed!");
-            return Either.left(new FormatRespDto(Response.Status.INTERNAL_SERVER_ERROR, "save file failed!"));
+        InputStream inputStream = new FileInputStream(yamlFile);
+        MultipartFile multipartFile = new MockMultipartFile(yamlFile.getName(), yamlFile.getName(),
+            ContentType.APPLICATION_OCTET_STREAM.toString(), inputStream);
+        Either<FormatRespDto, HelmTemplateYamlRespDto> res = uploadFileService
+            .uploadHelmTemplateYaml(multipartFile, userId, projectId);
+        if (res.isLeft()) {
+            return Either.left(res.getLeft());
         }
-        uploadedFile.setFilePath("");
-        return Either.right(uploadedFile);
-    }
-
-    /**
-     * get yaml.
-     *
-     * @param fileId file id
-     * @return
-     */
-    public Either<FormatRespDto, String> getDeployYaml(String fileId) {
-        UploadedFile uploadedFile = uploadedFileMapper.getFileById(fileId);
-        if (uploadedFile != null) {
-            if (!StringUtils.isEmpty(uploadedFile.getFilePath())) {
-                String fileContent = appReleaseService.readFileIntoString(uploadedFile.getFilePath());
-                return Either.right(fileContent);
-            }
-        }
-        return Either.left(new FormatRespDto(Response.Status.BAD_REQUEST, "fileId not exist!"));
+        return Either.right(res.getRight());
     }
 
     /**
@@ -174,24 +163,21 @@ public class DeployService {
      * @param content file cotent
      * @return
      */
-    public Either<FormatRespDto, String> updateDeployYaml(String fileId, String content) {
-        UploadedFile uploadedFile = uploadedFileMapper.getFileById(fileId);
-        //将content写进文件
-        try {
-            File file = new File(uploadedFile.getFilePath());
-            FileWriter fw = new FileWriter(file.getCanonicalFile());
-            BufferedWriter bw = new BufferedWriter(fw);
-            bw.write(content);
-            bw.close();
-        } catch (IOException e) {
-            LOGGER.error("wirte new content into file,occur {}", e.getMessage());
-            String msg = "wirte new content into file failed!";
-            return Either.left(new FormatRespDto(Response.Status.BAD_REQUEST, msg));
+    public Either<FormatRespDto, HelmTemplateYamlRespDto> updateDeployYaml(String fileId, String content, String userId,
+        String projectId) throws IOException {
+        HelmTemplateYamlPo helmPo = helmTemplateYamlMapper.queryTemplateYamlByFileId(fileId);
+        helmPo.setContent(content);
+        helmTemplateYamlMapper.updateHelm(helmPo);
+        //save deploy yaml
+        InputStream is = new ByteArrayInputStream(helmPo.getContent().getBytes());
+        MultipartFile multipartFile = new MockMultipartFile(helmPo.getFileName(), helmPo.getFileName(),
+            ContentType.APPLICATION_OCTET_STREAM.toString(), is);
+        Either<FormatRespDto, HelmTemplateYamlRespDto> res = uploadFileService
+            .uploadHelmTemplateYaml(multipartFile, userId, projectId);
+        if (res.isLeft()) {
+            return Either.left(res.getLeft());
         }
-        //重新读取文件
-        UploadedFile newFile = uploadedFileMapper.getFileById(fileId);
-        String fileContent = appReleaseService.readFileIntoString(newFile.getFilePath());
-        return Either.right(fileContent);
+        return Either.right(res.getRight());
     }
 
     private void savePodAndService(DeployYaml[] deploys, String projectId) {
@@ -295,16 +281,16 @@ public class DeployService {
         containersMepAgent.setImagePullPolicy("Always");
         Environment envWait = new Environment();
         envWait.setName("ENABLE_WAIT");
-        envWait.setValue("true");
+        envWait.setValue("\"true\"");
         Environment envMep = new Environment();
         envMep.setName("MEP_IP");
-        envMep.setValue("mep-api-gw.mep");
+        envMep.setValue("\"mep-api-gw.mep\"");
         Environment envGate = new Environment();
         envGate.setName("MEP_APIGW_PORT");
-        envGate.setValue("8443");
+        envGate.setValue("\"8443\"");
         Environment envName = new Environment();
         envName.setName("CA_CERT_DOMAIN_NAME");
-        envName.setValue("edgegallery");
+        envName.setValue("\"edgegallery\"");
         Environment envCert = new Environment();
         envCert.setName("CA_CERT");
         envCert.setValue("/usr/mep/ssl/ca.crt");

@@ -18,6 +18,7 @@ package org.edgegallery.developer.mapper;
 
 import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 import org.edgegallery.developer.model.workspace.HelmTemplateYamlPo;
 
 @Mapper
@@ -27,4 +28,8 @@ public interface HelmTemplateYamlMapper {
     List<HelmTemplateYamlPo> queryTemplateYamlByProjectId(String userId, String projectId);
 
     int deleteYamlByFileId(String fileId);
+
+    HelmTemplateYamlPo queryTemplateYamlByFileId(@Param("fileId") String fileId);
+
+    int updateHelm(HelmTemplateYamlPo helmTemplateYamlPo);
 }
