@@ -26,27 +26,22 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-/**
-* @Description: WebSSH业务逻辑实现
-* @Author: NoCortY
-* @Date: 2020/3/8
-*/
+
 @Service
 public class WebSSHServiceImpl implements WebSSHService {
     //存放ssh连接信息的map
     private static Map<String, Object> sshMap = new ConcurrentHashMap<>();
 
+    private static String HOST = "119.8.63.144";
+    private static int PORT = 22;
+    private static String USERNAME = "root";
+    private static String PASSWORD = "CLpn1b81";
+
     private Logger logger = LoggerFactory.getLogger(WebSSHServiceImpl.class);
     //线程池
     private ExecutorService executorService = Executors.newCachedThreadPool();
 
-    /**
-     * @Description: 初始化连接
-     * @Param: [session]
-     * @return: void
-     * @Author: NoCortY
-     * @Date: 2020/3/7
-     */
+
     @Override
     public void initConnection(WebSocketSession session) {
         JSch jSch = new JSch();
@@ -58,13 +53,7 @@ public class WebSSHServiceImpl implements WebSSHService {
         sshMap.put(uuid, sshConnectInfo);
     }
 
-    /**
-     * @Description: 处理客户端发送的数据
-     * @Param: [buffer, session]
-     * @return: void
-     * @Author: NoCortY
-     * @Date: 2020/3/7
-     */
+
     @Override
     public void recvHandle(String buffer, WebSocketSession session) {
         ObjectMapper objectMapper = new ObjectMapper();
@@ -129,22 +118,16 @@ public class WebSSHServiceImpl implements WebSSHService {
         }
     }
 
-    /**
-     * @Description: 使用jsch连接终端
-     * @Param: [cloudSSH, webSSHData, webSocketSession]
-     * @return: void
-     * @Author: NoCortY
-     * @Date: 2020/3/7
-     */
+
     private void connectToSSH(SSHConnectInfo sshConnectInfo, WebSSHData webSSHData, WebSocketSession webSocketSession) throws JSchException, IOException {
         Session session = null;
         Properties config = new Properties();
         config.put("StrictHostKeyChecking", "no");
         //获取jsch的会话
-        session = sshConnectInfo.getjSch().getSession(webSSHData.getUsername(), webSSHData.getHost(), webSSHData.getPort());
+        session = sshConnectInfo.getjSch().getSession(USERNAME, HOST, PORT);
         session.setConfig(config);
         //设置密码
-        session.setPassword(webSSHData.getPassword());
+        session.setPassword(PASSWORD);
         //连接  超时时间30s
         session.connect(30000);
 
@@ -182,13 +165,7 @@ public class WebSSHServiceImpl implements WebSSHService {
 
     }
 
-    /**
-     * @Description: 将消息转发到终端
-     * @Param: [channel, data]
-     * @return: void
-     * @Author: NoCortY
-     * @Date: 2020/3/7
-     */
+
     private void transToSSH(Channel channel, String command) throws IOException {
         if (channel != null) {
             OutputStream outputStream = channel.getOutputStream();

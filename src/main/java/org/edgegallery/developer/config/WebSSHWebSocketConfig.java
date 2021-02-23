@@ -9,11 +9,7 @@ import org.springframework.web.socket.config.annotation.EnableWebSocket;
 import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
 import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry;
 
-/**
-* @Description: websocket配置
-* @Author: NoCortY
-* @Date: 2020/3/8
-*/
+
 @Configuration
 @EnableWebSocket
 public class WebSSHWebSocketConfig implements WebSocketConfigurer{

@@ -1,10 +1,6 @@
 package org.edgegallery.developer.model;
 
-/**
-* @Description: webssh数据传输
-* @Author: NoCortY
-* @Date: 2020/3/8
-*/
+
 public class WebSSHData {
     //操作
     private String operate;
