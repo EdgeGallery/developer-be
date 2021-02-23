@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -24,6 +25,7 @@ import org.edgegallery.developer.util.DeveloperFileUtils;
 import org.edgegallery.developer.util.ImageUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.CollectionUtils;
 
 public class NewCreateCsar {
 
@@ -104,13 +106,15 @@ public class NewCreateCsar {
         if (StringUtils.isNotEmpty(projectId)) {
             list = ImageUtils.getAllImage(projectId);
         }
-        ProjectImageConfig imageConfig = list.get(0);
-        String containers = imageConfig.getPodContainers();
-        String[] cons = containers.split(",");
-        //fill  imageJson data
-        String imageData = getSwImageData(cons, project);
-        // write data into imageJson file
-        writeFile(imageJson, imageData);
+        if (!CollectionUtils.isEmpty(list)) {
+            ProjectImageConfig imageConfig = list.get(0);
+            String containers = imageConfig.getPodContainers();
+            String[] cons = containers.split(",");
+            //fill  imageJson data
+            String imageData = getSwImageData(cons, project);
+            // write data into imageJson file
+            writeFile(imageJson, imageData);
+        }
         return csar;
     }
 
