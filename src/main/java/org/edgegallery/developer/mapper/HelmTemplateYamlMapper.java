@@ -29,7 +29,7 @@ public interface HelmTemplateYamlMapper {
 
     int deleteYamlByFileId(String fileId);
 
-    HelmTemplateYamlPo queryTemplateYamlByFileId(@Param("fileId") String fileId);
+    HelmTemplateYamlPo queryTemplateYamlByType(@Param("fileId") String fileId,@Param("configType") String configType);
 
     int updateHelm(HelmTemplateYamlPo helmTemplateYamlPo);
 }

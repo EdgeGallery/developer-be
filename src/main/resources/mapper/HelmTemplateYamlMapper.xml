@@ -25,13 +25,14 @@
         <result property="projectId" column="project_id"/>
         <result property="content" column="content"/>
         <result property="uploadTimeStamp" column="upload_time_stamp"/>
+        <result property="configType" column="config_type"/>
     </resultMap>
 
     <insert id="saveYaml" parameterType="org.edgegallery.developer.model.workspace.HelmTemplateYamlPo">
         INSERT INTO
-        tbl_helm_template_yaml (file_id, file_name, user_id, project_id, content, upload_time_stamp)
+        tbl_helm_template_yaml (file_id, file_name, user_id, project_id, content, upload_time_stamp,config_type)
         VALUES
-        ( #{fileId}, #{fileName}, #{userId}, #{projectId}, #{content}, #{uploadTimeStamp})
+        ( #{fileId}, #{fileName}, #{userId}, #{projectId}, #{content}, #{uploadTimeStamp},#{configType})
     </insert>
 
     <select id="queryTemplateYamlByProjectId" resultMap="TemplateYamlMap">
@@ -41,11 +42,11 @@
         WHERE user_id = #{param1} AND project_id = #{param2}
     </select>
 
-    <select id="queryTemplateYamlByFileId" resultType="org.edgegallery.developer.model.workspace.HelmTemplateYamlPo">
+    <select id="queryTemplateYamlByType" resultMap="TemplateYamlMap">
         SELECT
         *
         FROM tbl_helm_template_yaml
-        WHERE file_id = #{fileId}
+        WHERE file_id = #{param1} AND config_type = #{param2}
     </select>
 
     <update id="updateHelm" parameterType="org.edgegallery.developer.model.workspace.HelmTemplateYamlPo">

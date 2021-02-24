@@ -66,9 +66,10 @@ public class DeployYamlController {
     public ResponseEntity<HelmTemplateYamlRespDto> postDeploy(
         @ApiParam(value = "DeployYamls", required = true) @RequestBody DeployYamls deployYamls,
         @ApiParam(value = "userId", required = true) @RequestParam String userId,
-        @ApiParam(value = "projectId", required = true) @PathVariable String projectId) throws IOException {
+        @ApiParam(value = "projectId", required = true) @PathVariable String projectId,
+        @ApiParam(value = "configType", required = true) @RequestParam String configType) throws IOException {
         Either<FormatRespDto, HelmTemplateYamlRespDto> either = deployService
-            .genarateDeployYaml(deployYamls, projectId, userId);
+            .genarateDeployYaml(deployYamls, projectId, userId,configType);
         return ResponseDataUtil.buildResponse(either);
     }
 
@@ -86,10 +87,32 @@ public class DeployYamlController {
         @ApiParam(value = "fileId", required = true) @PathVariable String fileId,
         @ApiParam(value = "fileContent", required = true) @RequestBody String fileContent,
         @ApiParam(value = "userId", required = true) @RequestParam String userId,
-        @ApiParam(value = "projectId", required = true) @RequestParam String projectId) throws IOException {
+        @ApiParam(value = "projectId", required = true) @RequestParam String projectId,
+        @ApiParam(value = "configType", required = true) @RequestParam String configType) throws IOException {
         Either<FormatRespDto, HelmTemplateYamlRespDto> either = deployService
-            .updateDeployYaml(fileId, fileContent, userId, projectId);
+            .updateDeployYaml(fileId, fileContent, userId, projectId,configType);
         return ResponseDataUtil.buildResponse(either);
     }
+
+
+    /**
+     * get deploy yaml.
+     */
+    @ApiOperation(value = "modify deploy yaml", response = String.class)
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = "OK", response = String.class),
+        @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
+    })
+    @RequestMapping(value = "/{fileId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @PreAuthorize("hasRole('DEVELOPER_TENANT')")
+    public ResponseEntity<String> getDeployYaml(
+        @ApiParam(value = "fileId", required = true) @PathVariable String fileId,
+        @ApiParam(value = "configType", required = true) @RequestParam String configType) throws IOException {
+        Either<FormatRespDto, String> either = deployService
+            .getDeployYamlContent(fileId,configType);
+        return ResponseDataUtil.buildResponse(either);
+    }
+
+
 
 }

@@ -137,9 +137,10 @@ public class UploadedFilesController {
         @Pattern(regexp = REGEX_UUID, message = "userId must be in UUID format")
         @ApiParam(value = "userId", required = true) @RequestParam("userId") String userId,
         @Pattern(regexp = REGEX_UUID, message = "projectId must be in UUID format")
-        @ApiParam(value = "projectId", required = true) @RequestParam("projectId") String projectId) {
+        @ApiParam(value = "projectId", required = true) @RequestParam("projectId") String projectId,
+        @ApiParam(value = "configType", required = true) @RequestParam("configType") String configType) {
         Either<FormatRespDto, HelmTemplateYamlRespDto> either = uploadFileService
-            .uploadHelmTemplateYaml(helmTemplateYaml, userId, projectId);
+            .uploadHelmTemplateYaml(helmTemplateYaml, userId, projectId,configType);
         return ResponseDataUtil.buildResponse(either);
     }
 

@@ -190,7 +190,7 @@ public class UploadFilesServiceTest {
             ContentType.APPLICATION_OCTET_STREAM.toString(), helmIs);
         String projectId = "200dfab1-3c30-4fc7-a6ca-ed6f0620a85e";
         Either<FormatRespDto, HelmTemplateYamlRespDto> either = uploadFileService
-            .uploadHelmTemplateYaml(helmMultiFile, "userId", projectId);
+            .uploadHelmTemplateYaml(helmMultiFile, "userId", projectId,"UPLOAD");
         Assert.assertTrue(either.isRight());
     }
 
@@ -203,7 +203,7 @@ public class UploadFilesServiceTest {
             ContentType.APPLICATION_OCTET_STREAM.toString(), helmIs);
         String projectId = "200dfab1-3c30-4fc7-a6ca-ed6f0620a85e";
         Either<FormatRespDto, HelmTemplateYamlRespDto> either = uploadFileService
-            .uploadHelmTemplateYaml(helmMultiFile, "userId", projectId);
+            .uploadHelmTemplateYaml(helmMultiFile, "userId", projectId,"UPLOAD");
         Assert.assertTrue(either.isRight());
     }
 
@@ -216,7 +216,7 @@ public class UploadFilesServiceTest {
             ContentType.APPLICATION_OCTET_STREAM.toString(), helmIs);
         String projectId = "200dfab1-3c30-4fc7-a6ca-ed6f0620a85e";
         Either<FormatRespDto, HelmTemplateYamlRespDto> either = uploadFileService
-            .uploadHelmTemplateYaml(helmMultiFile, "userId", projectId);
+            .uploadHelmTemplateYaml(helmMultiFile, "userId", projectId,"UPLOAD");
         Assert.assertTrue(either.isRight());
     }
 

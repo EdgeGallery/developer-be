@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import javax.ws.rs.core.Response;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.entity.ContentType;
 import org.edgegallery.developer.mapper.HelmTemplateYamlMapper;
 import org.edgegallery.developer.mapper.ProjectImageMapper;
@@ -86,7 +87,7 @@ public class DeployService {
     private AppReleaseService appReleaseService;
 
     public Either<FormatRespDto, HelmTemplateYamlRespDto> genarateDeployYaml(DeployYamls deployYamls, String projectId,
-        String userId) throws IOException {
+        String userId,String configType) throws IOException {
         if (deployYamls == null) {
             LOGGER.error("no request body param");
             return Either.left(new FormatRespDto(Response.Status.BAD_REQUEST, "no param"));
@@ -149,7 +150,7 @@ public class DeployService {
         MultipartFile multipartFile = new MockMultipartFile(yamlFile.getName(), yamlFile.getName(),
             ContentType.APPLICATION_OCTET_STREAM.toString(), inputStream);
         Either<FormatRespDto, HelmTemplateYamlRespDto> res = uploadFileService
-            .uploadHelmTemplateYaml(multipartFile, userId, projectId);
+            .uploadHelmTemplateYaml(multipartFile, userId, projectId,configType);
         if (res.isLeft()) {
             return Either.left(res.getLeft());
         }
@@ -164,8 +165,8 @@ public class DeployService {
      * @return
      */
     public Either<FormatRespDto, HelmTemplateYamlRespDto> updateDeployYaml(String fileId, String content, String userId,
-        String projectId) throws IOException {
-        HelmTemplateYamlPo helmPo = helmTemplateYamlMapper.queryTemplateYamlByFileId(fileId);
+        String projectId,String configType) throws IOException {
+        HelmTemplateYamlPo helmPo = helmTemplateYamlMapper.queryTemplateYamlByType(fileId,configType);
         helmPo.setContent(content);
         helmTemplateYamlMapper.updateHelm(helmPo);
         //save deploy yaml
@@ -173,11 +174,25 @@ public class DeployService {
         MultipartFile multipartFile = new MockMultipartFile(helmPo.getFileName(), helmPo.getFileName(),
             ContentType.APPLICATION_OCTET_STREAM.toString(), is);
         Either<FormatRespDto, HelmTemplateYamlRespDto> res = uploadFileService
-            .uploadHelmTemplateYaml(multipartFile, userId, projectId);
+            .uploadHelmTemplateYaml(multipartFile, userId, projectId,configType);
         if (res.isLeft()) {
             return Either.left(res.getLeft());
         }
         return Either.right(res.getRight());
+    }
+
+
+    /**
+     * get yaml.
+     *
+     * @return
+     */
+    public Either<FormatRespDto, String> getDeployYamlContent(String fileId, String configType){
+        HelmTemplateYamlPo helmPo = helmTemplateYamlMapper.queryTemplateYamlByType(fileId,configType);
+        if(StringUtils.isNotEmpty(helmPo.getContent())){
+          return  Either.right(helmPo.getContent());
+        }
+        return Either.left(new FormatRespDto(Response.Status.BAD_REQUEST,"can not find any content!"));
     }
 
     private void savePodAndService(DeployYaml[] deploys, String projectId) {
