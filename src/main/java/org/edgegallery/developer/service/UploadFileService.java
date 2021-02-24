@@ -111,7 +111,7 @@ public class UploadFileService {
             LOGGER.error("can not find file {} in repository", fileId);
             return Either.left(new FormatRespDto(Status.BAD_REQUEST, "can not find file in repository."));
         }
-        String fileName =uploadedFile.getFileName();
+        String fileName = uploadedFile.getFileName();
 
         try {
             HttpHeaders headers = new HttpHeaders();
@@ -154,7 +154,8 @@ public class UploadFileService {
             List<MepHost> enabledHosts = hostMapper.getHostsByStatus(EnumHostStatus.NORMAL, "admin", "X86");
             if (!enabledHosts.isEmpty()) {
                 String host = enabledHosts.get(0).getIp() + ":" + "32119";
-                return FileUtils.readFileToString(file, "UTF-8").replace("{HOST}", host).getBytes(StandardCharsets.UTF_8);
+                return FileUtils.readFileToString(file, "UTF-8").replace("{HOST}", host)
+                    .getBytes(StandardCharsets.UTF_8);
             }
         }
 
@@ -388,7 +389,7 @@ public class UploadFileService {
      * @return
      */
     public Either<FormatRespDto, HelmTemplateYamlRespDto> uploadHelmTemplateYaml(MultipartFile helmTemplateYaml,
-        String userId, String projectId) {
+        String userId, String projectId, String configType) {
         String content;
         try {
             File tempFile = File.createTempFile(UUID.randomUUID().toString(), null);
@@ -451,6 +452,7 @@ public class UploadFileService {
             helmTemplateYamlPo.setUserId(userId);
             helmTemplateYamlPo.setProjectId(projectId);
             helmTemplateYamlPo.setUploadTimeStamp(System.currentTimeMillis());
+            helmTemplateYamlPo.setConfigType(configType);
             int saveResult = helmTemplateYamlMapper.saveYaml(helmTemplateYamlPo);
             if (saveResult <= 0) {
                 LOGGER.error("Failed to save helm template yaml, file id : {}", fileId);
@@ -466,12 +468,14 @@ public class UploadFileService {
             return Either.right(helmTemplateYamlRespDto);
         }
 
-        return getSuccessResult(helmTemplateYaml, userId, projectId, originalContent, helmTemplateYamlRespDto);
+        return getSuccessResult(helmTemplateYaml, userId, projectId, originalContent, helmTemplateYamlRespDto,
+            configType);
 
     }
 
     private Either<FormatRespDto, HelmTemplateYamlRespDto> getSuccessResult(MultipartFile helmTemplateYaml,
-        String userId, String projectId, String content, HelmTemplateYamlRespDto helmTemplateYamlRespDto) {
+        String userId, String projectId, String content, HelmTemplateYamlRespDto helmTemplateYamlRespDto,
+        String configType) {
         HelmTemplateYamlPo helmTemplateYamlPo = new HelmTemplateYamlPo();
         helmTemplateYamlPo.setContent(content);
         String fileId = UUID.randomUUID().toString();
@@ -481,6 +485,7 @@ public class UploadFileService {
         helmTemplateYamlPo.setUserId(userId);
         helmTemplateYamlPo.setProjectId(projectId);
         helmTemplateYamlPo.setUploadTimeStamp(System.currentTimeMillis());
+        helmTemplateYamlPo.setConfigType(configType);
         int saveResult = helmTemplateYamlMapper.saveYaml(helmTemplateYamlPo);
         if (saveResult <= 0) {
             LOGGER.error("Failed to save helm template yaml, file id : {}", fileId);

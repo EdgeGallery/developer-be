@@ -37,6 +37,8 @@ public class HelmTemplateYamlPo {
 
     private Long uploadTimeStamp;
 
+    private String configType;
+
     public HelmTemplateYamlPo() {
     }
 
@@ -44,12 +46,13 @@ public class HelmTemplateYamlPo {
      * HelmTemplateYamlPo.
      */
     public HelmTemplateYamlPo(String fileId, String fileName, String userId, String projectId, String content,
-        Long uploadTimeStamp) {
+        Long uploadTimeStamp, String configType) {
         this.fileId = fileId;
         this.fileName = fileName;
         this.userId = userId;
         this.projectId = projectId;
         this.content = content;
         this.uploadTimeStamp = uploadTimeStamp;
+        this.configType = configType;
     }
 }
