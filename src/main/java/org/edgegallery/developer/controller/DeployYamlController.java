@@ -25,6 +25,7 @@ import io.swagger.annotations.ApiResponses;
 import java.io.IOException;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.edgegallery.developer.model.deployyaml.DeployYamls;
+import org.edgegallery.developer.model.workspace.HelmTemplateYamlPo;
 import org.edgegallery.developer.response.ErrorRespDto;
 import org.edgegallery.developer.response.FormatRespDto;
 import org.edgegallery.developer.response.HelmTemplateYamlRespDto;
@@ -98,18 +99,17 @@ public class DeployYamlController {
     /**
      * get deploy yaml.
      */
-    @ApiOperation(value = "modify deploy yaml", response = String.class)
+    @ApiOperation(value = "modify deploy yaml", response = HelmTemplateYamlPo.class)
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "OK", response = String.class),
+        @ApiResponse(code = 200, message = "OK", response = HelmTemplateYamlPo.class),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
     @RequestMapping(value = "/{fileId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT')")
-    public ResponseEntity<String> getDeployYaml(
-        @ApiParam(value = "fileId", required = true) @PathVariable String fileId,
-        @ApiParam(value = "configType", required = true) @RequestParam String configType) throws IOException {
-        Either<FormatRespDto, String> either = deployService
-            .getDeployYamlContent(fileId,configType);
+    public ResponseEntity<HelmTemplateYamlPo> getDeployYaml(
+        @ApiParam(value = "fileId", required = true) @PathVariable String fileId) {
+        Either<FormatRespDto, HelmTemplateYamlPo> either = deployService
+            .getDeployYamlContent(fileId);
         return ResponseDataUtil.buildResponse(either);
     }
 
