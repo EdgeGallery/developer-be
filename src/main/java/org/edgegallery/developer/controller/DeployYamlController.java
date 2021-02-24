@@ -77,21 +77,18 @@ public class DeployYamlController {
     /**
      * update deploy yaml.
      */
-    @ApiOperation(value = "modify deploy yaml", response = HelmTemplateYamlRespDto.class)
+    @ApiOperation(value = "modify deploy yaml", response = HelmTemplateYamlPo.class)
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "OK", response = HelmTemplateYamlRespDto.class),
+        @ApiResponse(code = 200, message = "OK", response = HelmTemplateYamlPo.class),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
     @RequestMapping(value = "/{fileId}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT')")
-    public ResponseEntity<HelmTemplateYamlRespDto> updateDeployYaml(
+    public ResponseEntity<HelmTemplateYamlPo> updateDeployYaml(
         @ApiParam(value = "fileId", required = true) @PathVariable String fileId,
-        @ApiParam(value = "fileContent", required = true) @RequestBody String fileContent,
-        @ApiParam(value = "userId", required = true) @RequestParam String userId,
-        @ApiParam(value = "projectId", required = true) @RequestParam String projectId,
-        @ApiParam(value = "configType", required = true) @RequestParam String configType) throws IOException {
-        Either<FormatRespDto, HelmTemplateYamlRespDto> either = deployService
-            .updateDeployYaml(fileId, fileContent, userId, projectId,configType);
+        @ApiParam(value = "fileContent", required = true) @RequestBody String fileContent)  {
+        Either<FormatRespDto, HelmTemplateYamlPo> either = deployService
+            .updateDeployYaml(fileId, fileContent);
         return ResponseDataUtil.buildResponse(either);
     }
 

@@ -19,7 +19,6 @@ package org.edgegallery.developer.service;
 import com.esotericsoftware.yamlbeans.YamlWriter;
 import com.google.gson.Gson;
 import com.spencerwi.either.Either;
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileWriter;
@@ -164,21 +163,15 @@ public class DeployService {
      * @param content file cotent
      * @return
      */
-    public Either<FormatRespDto, HelmTemplateYamlRespDto> updateDeployYaml(String fileId, String content, String userId,
-        String projectId, String configType) throws IOException {
-        HelmTemplateYamlPo helmPo = helmTemplateYamlMapper.queryTemplateYamlByType(fileId, configType);
+    public Either<FormatRespDto, HelmTemplateYamlPo> updateDeployYaml(String fileId, String content) {
+        HelmTemplateYamlPo helmPo = helmTemplateYamlMapper.queryTemplateYamlById(fileId);
         helmPo.setContent(content);
-        helmTemplateYamlMapper.updateHelm(helmPo);
+        int res = helmTemplateYamlMapper.updateHelm(helmPo);
         //save deploy yaml
-        InputStream is = new ByteArrayInputStream(helmPo.getContent().getBytes());
-        MultipartFile multipartFile = new MockMultipartFile(helmPo.getFileName(), helmPo.getFileName(),
-            ContentType.APPLICATION_OCTET_STREAM.toString(), is);
-        Either<FormatRespDto, HelmTemplateYamlRespDto> res = uploadFileService
-            .uploadHelmTemplateYaml(multipartFile, userId, projectId, configType);
-        if (res.isLeft()) {
-            return Either.left(res.getLeft());
+        if (res <= 0) {
+            return Either.left(new FormatRespDto(Response.Status.BAD_REQUEST,"update yaml failed"));
         }
-        return Either.right(res.getRight());
+        return Either.right(helmTemplateYamlMapper.queryTemplateYamlById(fileId));
     }
 
     /**
