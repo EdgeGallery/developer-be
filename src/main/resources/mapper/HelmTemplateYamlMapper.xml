@@ -49,6 +49,13 @@
         WHERE file_id = #{param1} AND config_type = #{param2}
     </select>
 
+    <select id="queryTemplateYamlById" resultMap="TemplateYamlMap">
+        SELECT
+        *
+        FROM tbl_helm_template_yaml
+        WHERE file_id = #{fileId}
+    </select>
+
     <update id="updateHelm" parameterType="org.edgegallery.developer.model.workspace.HelmTemplateYamlPo">
         update tbl_helm_template_yaml set
         content = #{content}
