@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~    Copyright 2020 Huawei Technologies Co., Ltd.
+  ~
+  ~    Licensed under the Apache License, Version 2.0 (the "License");
+  ~    you may not use this file except in compliance with the License.
+  ~    You may obtain a copy of the License at
+  ~
+  ~        http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~    Unless required by applicable law or agreed to in writing, software
+  ~    distributed under the License is distributed on an "AS IS" BASIS,
+  ~    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~    See the License for the specific language governing permissions and
+  ~    limitations under the License.
+  -->
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper
+  namespace="org.edgegallery.developer.mapper.VmDeployMapper">
+    <resultMap id="VmRegulation"
+      type="org.edgegallery.developer.model.vm.VmRegulation">
+        <id property="regulationId" column="regulation_id"/>
+        <result property="architecture" column="architecture"/>
+        <result property="name" column="name"/>
+        <result property="description" column="description"/>
+        <result property="memory" column="memory"/>
+        <result property="cpu" column="cpu"/>
+        <result property="systemDisk" column="system_disk"/>
+        <result property="virtualDisk" column="virtual_disk"/>
+        <result property="gpu" column="gpu"/>
+        <result property="otherAbility" column="other_ability"/>
+    </resultMap>
+
+    <resultMap id="VmSystem"
+      type="org.edgegallery.developer.model.vm.VmSystem">
+        <id property="systemId" column="system_id"/>
+        <result property="operateSystem" column="operate_system"/>
+        <result property="version" column="version"/>
+        <result property="systemBit" column="system_bit"/>
+        <result property="systemDisk" column="system_disk"/>
+    </resultMap>
+
+    <resultMap id="VmNetwork"
+      type="org.edgegallery.developer.model.vm.VmNetwork">
+        <id property="networkId" column="network_id"/>
+        <result property="networkType" column="network_type"/>
+        <result property="description" column="description"/>
+    </resultMap>
+
+    <select id="getVmResource"
+      resultMap="VmRegulation">
+        SELECT
+        a.regulationId as regulationId, b.*, c.*
+        FROM
+        tbl_vm_regulation as a,  tbl_vm_system as b,  tbl_vm_network as c;
+    </select>
+    <select id="getVmRegulation"
+      resultMap="VmRegulation">
+        SELECT
+        *
+        FROM
+        tbl_vm_regulation
+    </select>
+
+    <select id="getVmSystem"
+      resultMap="VmSystem">
+        SELECT
+        *
+        FROM
+        tbl_vm_system
+    </select>
+
+    <select id="getVmNetwork"
+      resultMap="VmNetwork">
+        SELECT
+        *
+        FROM
+        tbl_vm_network
+    </select>
+
+</mapper>

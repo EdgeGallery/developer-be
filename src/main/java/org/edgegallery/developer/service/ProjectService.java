@@ -968,7 +968,6 @@ public class ProjectService {
 
         if (testConfig.getDeployStatus().equals(EnumTestConfigDeployStatus.SUCCESS)) {
             deleteDeployApp(testConfig, project.getUserId(), token);
-            LOGGER.warn("Deploy failed, delete deploy app.");
         }
         // init project and config
         testConfig.initialConfig();
