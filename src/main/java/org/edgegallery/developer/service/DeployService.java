@@ -17,6 +17,12 @@
 package org.edgegallery.developer.service;
 
 import com.esotericsoftware.yamlbeans.YamlWriter;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator;
+import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 import com.google.gson.Gson;
 import com.spencerwi.either.Either;
 import java.io.File;
@@ -40,6 +46,7 @@ import org.edgegallery.developer.model.deployyaml.Containers;
 import org.edgegallery.developer.model.deployyaml.DeployYaml;
 import org.edgegallery.developer.model.deployyaml.DeployYamls;
 import org.edgegallery.developer.model.deployyaml.Environment;
+import org.edgegallery.developer.model.deployyaml.PodImage;
 import org.edgegallery.developer.model.deployyaml.SecretKeyRef;
 import org.edgegallery.developer.model.deployyaml.ServicePorts;
 import org.edgegallery.developer.model.deployyaml.ValueFrom;
@@ -58,6 +65,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 @Service("deployService")
@@ -84,6 +92,136 @@ public class DeployService {
 
     @Autowired
     private AppReleaseService appReleaseService;
+
+    public Either<FormatRespDto, HelmTemplateYamlPo> saveDeployYaml(String jsonstr, String projectId, String userId,
+        String configType) throws IOException {
+        if (StringUtils.isEmpty(jsonstr)) {
+            LOGGER.error("no request body param");
+            return Either.left(new FormatRespDto(Response.Status.BAD_REQUEST, "no param"));
+        }
+        String reqContentnew = jsonstr.replaceAll("\r", "").replaceAll("\n", "").replaceAll("\t", "").trim();
+        String[] reqs = reqContentnew.split("\\{\"apiVersion\"");
+        //save pod
+        List<String> sbPod = new ArrayList<>();
+        List<String> sbService = new ArrayList<>();
+        for (int i = 0; i < reqs.length; i++) {
+            if (reqs[i].contains("\"Pod\"")) {
+                sbPod.add("\\{\"apiVersion\"" + reqs[i].substring(0, reqs[i].length() - 1));
+            }
+            if (reqs[i].contains("\"Service\"")) {
+                if (reqs[i].endsWith("}}]")) {
+                    sbService.add("\\{\"apiVersion\"" + reqs[i].substring(0, reqs[i].length() - 1));
+                } else {
+                    sbService.add("\\{\"apiVersion\"" + reqs[i].substring(0, reqs[i].length() - 1));
+                }
+            }
+        }
+
+        //judge mep
+        List<OpenMepCapabilityGroup> list = projectMapper.getProjectById(projectId).getCapabilityList();
+        //save service
+        StringBuilder sb = new StringBuilder();
+        List<String> podName = new ArrayList<>();
+        List<String> podImages = new ArrayList<>();
+        for (int h = 0; h < sbPod.size(); h++) {
+            //get podName and image
+            String jsonPod = sbPod.get(h).substring(1);
+            DeployYaml deployYaml = new Gson().fromJson(jsonPod, DeployYaml.class);
+            if (!CollectionUtils.isEmpty(list) && h == 0) {
+                jsonPod = addMepAgent(deployYaml);
+            }
+            podName.add(deployYaml.getMetadata().getName());
+            PodImage podIm = new PodImage();
+            podIm.setPodName(deployYaml.getMetadata().getName());
+            Containers[] containers = deployYaml.getSpec().getContainers();
+            String[] images = new String[containers.length];
+            for (int i = 0; i < containers.length; i++) {
+                if (null != containers[i]) {
+                    images[i] = containers[i].getImage();
+                }
+            }
+            podIm.setPodImage(images);
+            podImages.add(new Gson().toJson(podIm));
+            //convert to yaml
+            JsonNode jsonNodeTree = new ObjectMapper().readTree(jsonPod);
+            // save it as YAML
+            String jsonAsYaml = new YAMLMapper().configure(YAMLGenerator.Feature.MINIMIZE_QUOTES, true)
+                .configure(YAMLGenerator.Feature.INDENT_ARRAYS, true).writeValueAsString(jsonNodeTree);
+            sb.append(jsonAsYaml);
+        }
+        StringBuilder sbs = new StringBuilder();
+        List<String> svcType = new ArrayList<>();
+        List<String> svcPort = new ArrayList<>();
+        List<String> svcNodePort = new ArrayList<>();
+        for (String svc : sbService) {
+            //get svcType/svcPort/svcNodePort
+            DeployYaml deployYaml = new Gson().fromJson(svc.substring(1), DeployYaml.class);
+            ServicePorts[] ports = deployYaml.getSpec().getPorts();
+            svcType.add(deployYaml.getSpec().getType());
+            for (ServicePorts servicePorts : ports) {
+                svcNodePort.add(String.valueOf(servicePorts.getNodePort()));
+                svcPort.add(String.valueOf(servicePorts.getPort()));
+            }
+            //convert svc to yaml
+            JsonNode jsonNodeTree = new ObjectMapper().readTree(svc.substring(1));
+            // save it as YAML
+            String jsonAsYaml = new YAMLMapper().configure(YAMLGenerator.Feature.MINIMIZE_QUOTES, true)
+                .configure(YAMLGenerator.Feature.INDENT_ARRAYS, true).writeValueAsString(jsonNodeTree);
+            sbs.append(jsonAsYaml);
+        }
+
+        String yamlContent = sb.toString() + sbs.toString();
+        HelmTemplateYamlPo helmPo = new HelmTemplateYamlPo();
+        String fileId = UUID.randomUUID().toString();
+        helmPo.setFileId(fileId);
+        helmPo.setFileName("deploy.yaml");
+        helmPo.setContent(yamlContent);
+        helmPo.setUserId(userId);
+        helmPo.setProjectId(projectId);
+        helmPo.setConfigType(configType);
+        helmPo.setUploadTimeStamp(System.currentTimeMillis());
+        int resHelm = helmTemplateYamlMapper.saveYaml(helmPo);
+        if (resHelm <= 0) {
+            Either.left(new FormatRespDto(Response.Status.BAD_REQUEST, "save deploy failed!"));
+        }
+
+        //save image
+        ProjectImageConfig imageConfig = new ProjectImageConfig();
+        imageConfig.setId(UUID.randomUUID().toString());
+        imageConfig.setProjectId(projectId);
+        imageConfig.setPodName(podName.toString());
+        imageConfig.setPodContainers(podImages.toString());
+        imageConfig.setSvcType(svcType.toString());
+        imageConfig.setSvcNodePort(svcNodePort.toString());
+        imageConfig.setSvcPort(svcPort.toString());
+        int resImage = projectImageMapper.saveImage(imageConfig);
+        if (resImage <= 0) {
+            Either.left(new FormatRespDto(Response.Status.BAD_REQUEST, "save image failed!"));
+        }
+        return Either.right(helmTemplateYamlMapper.queryTemplateYamlById(fileId));
+    }
+
+
+    public String addMepAgent(DeployYaml deployYaml){
+        Containers[] containers = deployYaml.getSpec().getContainers();
+        Containers[] copyContainers = new Containers[containers.length + 1];
+        for (int i = 0; i < containers.length; i++) {
+            copyContainers[i] = containers[i];
+        }
+        //add mep-agent container
+        Containers[] newContainers = insertMepAgent();
+        System.arraycopy(newContainers, 0, copyContainers, copyContainers.length - 1, newContainers.length);
+        deployYaml.getSpec().setContainers(copyContainers);
+        Volumes[] volumees = new Volumes[1];
+        Volumes volumes = new Volumes();
+        volumes.setName("mep-agent-service-config-volume");
+        ConfigMap configMap = new ConfigMap();
+        configMap.setName("{{ .Values.global.mepagent.configmapname }}");
+        volumes.setConfigMap(configMap);
+        volumees[0] = volumes;
+        deployYaml.getSpec().setVolumes(volumees);
+        return new Gson().toJson(deployYaml);
+    }
 
     public Either<FormatRespDto, HelmTemplateYamlRespDto> genarateDeployYaml(DeployYamls deployYamls, String projectId,
         String userId, String configType) throws IOException {
@@ -169,7 +307,7 @@ public class DeployService {
         int res = helmTemplateYamlMapper.updateHelm(helmPo);
         //save deploy yaml
         if (res <= 0) {
-            return Either.left(new FormatRespDto(Response.Status.BAD_REQUEST,"update yaml failed"));
+            return Either.left(new FormatRespDto(Response.Status.BAD_REQUEST, "update yaml failed"));
         }
         return Either.right(helmTemplateYamlMapper.queryTemplateYamlById(fileId));
     }
@@ -183,6 +321,30 @@ public class DeployService {
         HelmTemplateYamlPo helmPo = helmTemplateYamlMapper.queryTemplateYamlById(fileId);
         if (helmPo != null) {
             return Either.right(helmPo);
+        }
+        return Either.left(new FormatRespDto(Response.Status.BAD_REQUEST, "can not find any content!"));
+    }
+
+    /**
+     * get yaml.
+     *
+     * @return
+     */
+    public Either<FormatRespDto, List<String>> getDeployYamJson(String fileId) throws JsonProcessingException {
+        HelmTemplateYamlPo helmPo = helmTemplateYamlMapper.queryTemplateYamlById(fileId);
+        if (helmPo != null) {
+            String content = helmPo.getContent();
+            List<String> list = new ArrayList<>();
+            String[] ys = content.split("---");
+            for (int m = 0; m < ys.length; m++) {
+                if (org.apache.commons.lang3.StringUtils.isNotEmpty(ys[m])) {
+                    ObjectMapper yamlReader = new ObjectMapper(new YAMLFactory());
+                    Object obj = yamlReader.readValue(ys[m], Object.class);
+                    ObjectMapper jsonWriter = new ObjectMapper();
+                    list.add(jsonWriter.writeValueAsString(obj));
+                }
+            }
+            return Either.right(list);
         }
         return Either.left(new FormatRespDto(Response.Status.BAD_REQUEST, "can not find any content!"));
     }

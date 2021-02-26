@@ -16,6 +16,9 @@
 
 package org.edgegallery.developer.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.google.common.collect.Lists;
 import com.google.gson.Gson;
 import com.spencerwi.either.Either;
@@ -37,14 +40,20 @@ import org.edgegallery.developer.domain.shared.FileChecker;
 import org.edgegallery.developer.mapper.HelmTemplateYamlMapper;
 import org.edgegallery.developer.mapper.HostMapper;
 import org.edgegallery.developer.mapper.OpenMepCapabilityMapper;
+import org.edgegallery.developer.mapper.ProjectImageMapper;
 import org.edgegallery.developer.mapper.UploadedFileMapper;
 import org.edgegallery.developer.model.AppPkgStructure;
 import org.edgegallery.developer.model.GeneralConfig;
+import org.edgegallery.developer.model.deployyaml.Containers;
+import org.edgegallery.developer.model.deployyaml.DeployYaml;
+import org.edgegallery.developer.model.deployyaml.PodImage;
+import org.edgegallery.developer.model.deployyaml.ServicePorts;
 import org.edgegallery.developer.model.workspace.EnumHostStatus;
 import org.edgegallery.developer.model.workspace.EnumOpenMepType;
 import org.edgegallery.developer.model.workspace.HelmTemplateYamlPo;
 import org.edgegallery.developer.model.workspace.MepHost;
 import org.edgegallery.developer.model.workspace.OpenMepCapabilityDetail;
+import org.edgegallery.developer.model.workspace.ProjectImageConfig;
 import org.edgegallery.developer.model.workspace.UploadedFile;
 import org.edgegallery.developer.response.FormatRespDto;
 import org.edgegallery.developer.response.HelmTemplateYamlRespDto;
@@ -93,6 +102,9 @@ public class UploadFileService {
 
     @Autowired
     private AppReleaseService appReleaseService;
+
+    @Autowired
+    private ProjectImageMapper projectImageMapper;
 
     /**
      * getFile.
@@ -389,10 +401,11 @@ public class UploadFileService {
      * @return
      */
     public Either<FormatRespDto, HelmTemplateYamlRespDto> uploadHelmTemplateYaml(MultipartFile helmTemplateYaml,
-        String userId, String projectId, String configType) {
+        String userId, String projectId, String configType) throws IOException {
         String content;
+        File tempFile;
         try {
-            File tempFile = File.createTempFile(UUID.randomUUID().toString(), null);
+            tempFile = File.createTempFile(UUID.randomUUID().toString(), null);
             helmTemplateYaml.transferTo(tempFile);
             content = FileUtils.readFileToString(tempFile, Consts.FILE_ENCODING);
         } catch (IOException e) {
@@ -467,9 +480,74 @@ public class UploadFileService {
             LOGGER.info("Succeed to save helm template yaml with file id : {}", fileId);
             return Either.right(helmTemplateYamlRespDto);
         }
-
+        boolean res = saveImage(FileUtils.readFileToString(tempFile, Consts.FILE_ENCODING), projectId);
+        if (!res) {
+            return Either.left(new FormatRespDto(Status.INTERNAL_SERVER_ERROR, "save image failed!"));
+        }
         return getSuccessResult(helmTemplateYaml, userId, projectId, originalContent, helmTemplateYamlRespDto,
             configType);
+
+    }
+
+    private boolean saveImage(String content, String projectId) throws JsonProcessingException {
+        List<String> podNames = new ArrayList<>();
+        List<String> podImages = new ArrayList<>();
+        List<String> svcTypes = new ArrayList<>();
+        List<String> svcNodePorts = new ArrayList<>();
+        List<String> svcPorts = new ArrayList<>();
+        if (content.contains("{{- if .Values.global.mepagent.enabled }}")) {
+            content = content.replaceAll("\\{\\{- if .Values.global.mepagent.enabled \\}\\}", "");
+        }
+        if (content.contains("{{- end }}")) {
+            content = content.replaceAll("\\{\\{- end \\}\\}", "");
+        }
+        String[] ys = content.split("---");
+        List<String> list = new ArrayList<>();
+        for (int m = 0; m < ys.length; m++) {
+            if (org.apache.commons.lang3.StringUtils.isNotEmpty(ys[m])) {
+                ObjectMapper yaml = new ObjectMapper(new YAMLFactory());
+                Object obj = yaml.readValue(ys[m], Object.class);
+                ObjectMapper yamlw = new ObjectMapper();
+                list.add(yamlw.writeValueAsString(obj));
+            }
+        }
+        for (String str : list) {
+            DeployYaml deployYaml = new Gson().fromJson(str, DeployYaml.class);
+            if (deployYaml.getKind().equals("Pod")) {
+                podNames.add(deployYaml.getMetadata().getName());
+                PodImage podImage = new PodImage();
+                Containers[] containers = deployYaml.getSpec().getContainers();
+                String[] images = new String[containers.length];
+                for (int i = 0; i < containers.length; i++) {
+                    images[i] = containers[i].getImage();
+                }
+                podImage.setPodImage(images);
+                podImage.setPodName(deployYaml.getMetadata().getName());
+                podImages.add(new Gson().toJson(podImage));
+            }
+            if (deployYaml.getKind().equals("Service")) {
+                svcTypes.add(deployYaml.getSpec().getType());
+                ServicePorts[] ports = deployYaml.getSpec().getPorts();
+                for (ServicePorts port : ports) {
+                    svcNodePorts.add(String.valueOf(port.getNodePort()));
+                    svcPorts.add(String.valueOf(port.getNodePort()));
+                }
+            }
+        }
+
+        ProjectImageConfig config = new ProjectImageConfig();
+        config.setId(UUID.randomUUID().toString());
+        config.setPodName(podNames.toString());
+        config.setPodContainers(podImages.toString());
+        config.setSvcType(svcTypes.toString());
+        config.setSvcNodePort(svcNodePorts.toString());
+        config.setSvcPort(svcPorts.toString());
+        config.setProjectId(projectId);
+        int res = projectImageMapper.saveImage(config);
+        if (res <= 0) {
+            return false;
+        }
+        return true;
 
     }
 

@@ -1,6 +1,7 @@
 package org.edgegallery.developer.service.csar;
 
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -8,7 +9,6 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -16,6 +16,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.edgegallery.developer.common.Consts;
 import org.edgegallery.developer.model.deployyaml.ImageDesc;
+import org.edgegallery.developer.model.deployyaml.PodImage;
 import org.edgegallery.developer.model.workspace.ApplicationProject;
 import org.edgegallery.developer.model.workspace.EnumDeployPlatform;
 import org.edgegallery.developer.model.workspace.ProjectImageConfig;
@@ -107,32 +108,31 @@ public class NewCreateCsar {
             list = ImageUtils.getAllImage(projectId);
         }
         if (!CollectionUtils.isEmpty(list)) {
+            //[{"podName":"positioning-service","podImage":["positioning_service:1.0","positioning_service:2.0"]},
+            // {"podName":"positioning-service-new","podImage":["positioning_service:1.0"]}]
             ProjectImageConfig imageConfig = list.get(0);
             String containers = imageConfig.getPodContainers();
-            String[] cons = containers.split(",");
+            List<PodImage> images = new Gson().fromJson(containers, new TypeToken<List<PodImage>>() { }.getType());
+            //  String[] cons = containers.split(",");
             //fill  imageJson data
-            String imageData = getSwImageData(cons, project);
+            String imageData = getSwImageData(images, project);
             // write data into imageJson file
             writeFile(imageJson, imageData);
         }
         return csar;
     }
 
-    private String getSwImageData(String[] conArr, ApplicationProject project) {
+    private String getSwImageData(List<PodImage> images, ApplicationProject project) {
         Gson gson = new Gson();
         List<ImageDesc> imageDescs = new ArrayList<>();
-        for (String obj : conArr) {
-            if (obj.startsWith("\"image\":")) {
+        for (PodImage obj : images) {
+            String[] podImages  = obj.getPodImage();
+            for (String pod : podImages) {
                 ImageDesc imageDesc = new ImageDesc();
                 imageDesc.setId(UUID.randomUUID().toString());
-                String[] images = obj.split(":");
-                String image = (images[1] + ":" + images[2]).replaceAll("\"", "");
-                String[] imageNames = image.split("/");
-                String imageName = imageNames[2].replaceAll("\"", "");
-                String[] imageVersions = imageName.split(":");
-                imageDesc.setName(imageName);
-                // String version = image.split(":")[];
-                imageDesc.setVersion(imageVersions[1]);
+                String[] vers = pod.split(":");
+                imageDesc.setName(vers[0]);
+                imageDesc.setVersion(vers[1]);
                 imageDesc.setChecksum("2");
                 imageDesc.setContainerFormat("bare");
                 imageDesc.setDiskFormat("raw");
@@ -140,7 +140,7 @@ public class NewCreateCsar {
                 imageDesc.setMinRam(6);
                 imageDesc.setArchitecture(project.getPlatform().get(0));
                 imageDesc.setSize(688390);
-                imageDesc.setSwImage(image);
+                imageDesc.setSwImage(pod);
                 imageDesc.setHw_scsi_model("virtio-scsi");
                 imageDesc.setHw_disk_bus("scsi");
                 imageDesc.setOperatingSystem("linux");
@@ -148,6 +148,7 @@ public class NewCreateCsar {
                 imageDescs.add(imageDesc);
             }
         }
+
         return gson.toJson(imageDescs);
     }
 
