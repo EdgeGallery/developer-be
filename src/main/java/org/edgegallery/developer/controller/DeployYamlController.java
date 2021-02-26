@@ -16,6 +16,7 @@
 
 package org.edgegallery.developer.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.spencerwi.either.Either;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -23,6 +24,7 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import java.io.IOException;
+import java.util.List;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.edgegallery.developer.model.deployyaml.DeployYamls;
 import org.edgegallery.developer.model.workspace.HelmTemplateYamlPo;
@@ -75,6 +77,26 @@ public class DeployYamlController {
     }
 
     /**
+     * genarate deploy yaml.
+     */
+    @ApiOperation(value = "genarate deploy yaml", response = HelmTemplateYamlPo.class)
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = "OK", response = HelmTemplateYamlPo.class),
+        @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
+    })
+    @RequestMapping(value = "/{projectId}/action/save-yaml", method = RequestMethod.POST,
+        consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @PreAuthorize("hasRole('DEVELOPER_TENANT')")
+    public ResponseEntity<HelmTemplateYamlPo> saveDeploy( @RequestBody String jsonStr,
+        @ApiParam(value = "userId", required = true) @RequestParam String userId,
+        @ApiParam(value = "projectId", required = true) @PathVariable String projectId,
+        @ApiParam(value = "configType", required = true) @RequestParam String configType) throws IOException {
+        Either<FormatRespDto, HelmTemplateYamlPo> either = deployService
+            .saveDeployYaml(jsonStr, projectId, userId,configType);
+        return ResponseDataUtil.buildResponse(either);
+    }
+
+    /**
      * update deploy yaml.
      */
     @ApiOperation(value = "modify deploy yaml", response = HelmTemplateYamlPo.class)
@@ -110,6 +132,23 @@ public class DeployYamlController {
         return ResponseDataUtil.buildResponse(either);
     }
 
+
+    /**
+     * get deploy yaml.
+     */
+    @ApiOperation(value = "modify deploy yaml", response = List.class)
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = "OK", response = List.class),
+        @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
+    })
+    @RequestMapping(value = "/{fileId}/action/get-json", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @PreAuthorize("hasRole('DEVELOPER_TENANT')")
+    public ResponseEntity<List<String>> queryDeployYaml(
+        @ApiParam(value = "fileId", required = true) @PathVariable String fileId) throws JsonProcessingException {
+        Either<FormatRespDto, List<String>> either = deployService
+            .getDeployYamJson(fileId);
+        return ResponseDataUtil.buildResponse(either);
+    }
 
 
 }
