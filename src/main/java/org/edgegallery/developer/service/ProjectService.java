@@ -42,6 +42,7 @@ import org.edgegallery.developer.config.security.AccessUserUtil;
 import org.edgegallery.developer.mapper.HelmTemplateYamlMapper;
 import org.edgegallery.developer.mapper.HostMapper;
 import org.edgegallery.developer.mapper.OpenMepCapabilityMapper;
+import org.edgegallery.developer.mapper.ProjectImageMapper;
 import org.edgegallery.developer.mapper.ProjectMapper;
 import org.edgegallery.developer.mapper.ReleaseConfigMapper;
 import org.edgegallery.developer.mapper.UploadedFileMapper;
@@ -59,6 +60,7 @@ import org.edgegallery.developer.model.workspace.HelmTemplateYamlPo;
 import org.edgegallery.developer.model.workspace.MepHost;
 import org.edgegallery.developer.model.workspace.OpenMepCapabilityDetail;
 import org.edgegallery.developer.model.workspace.OpenMepCapabilityGroup;
+import org.edgegallery.developer.model.workspace.ProjectImageConfig;
 import org.edgegallery.developer.model.workspace.ProjectTestConfig;
 import org.edgegallery.developer.model.workspace.ProjectTestConfigStageStatus;
 import org.edgegallery.developer.model.workspace.UploadedFile;
@@ -115,6 +117,9 @@ public class ProjectService {
 
     @Autowired
     private Map<String, IConfigDeployStage> deployServiceMap;
+
+    @Autowired
+    private ProjectImageMapper projectImageMapper;
 
     /**
      * getAllProjects.
@@ -615,8 +620,7 @@ public class ProjectService {
     public Either<FormatRespDto, ProjectTestConfig> getTestConfig(String projectId) {
         ApplicationProject project = projectMapper.getProjectById(projectId);
         if (project == null) {
-            LOGGER
-                .warn("Can not find the project projectId {}.", projectId);
+            LOGGER.warn("Can not find the project projectId {}.", projectId);
             return Either.right(null);
         }
         List<ProjectTestConfig> tests = projectMapper.getTestConfigByProjectId(projectId);
@@ -726,7 +730,7 @@ public class ProjectService {
         if (StringUtils.isEmpty(detail.getGuideFileIdEn())) {
             detail.setGuideFileIdEn(detail.getGuideFileId());
         }
-        if(StringUtils.isEmpty(detail.getDescriptionEn())) {
+        if (StringUtils.isEmpty(detail.getDescriptionEn())) {
             detail.setDescriptionEn(detail.getDescription());
         }
         int resGroup = openMepCapabilityMapper.saveGroup(group);
@@ -1022,6 +1026,30 @@ public class ProjectService {
             project.setStatus(EnumProjectStatus.DEPLOYED);
             testConfig.setErrorLog("");
             testConfig.setDeployStatus(EnumTestConfigDeployStatus.SUCCESS);
+            //set access url
+            List<ProjectImageConfig> imageConfigs = projectImageMapper.getAllImage(project.getId());
+            if (!CollectionUtils.isEmpty(imageConfigs)) {
+                StringBuilder sb = new StringBuilder();
+                String protocol = testConfig.getHosts().get(0).getProtocol();
+                String ip = testConfig.getHosts().get(0).getIp();
+                ProjectImageConfig imageConfig = imageConfigs.get(0);
+                if (imageConfig.getSvcNodePort().contains(",")) {
+                    String svcPort = imageConfig.getSvcNodePort();
+                    String[] svcNodePorts = svcPort.substring(1, svcPort.length() - 1).split(",");
+                    for (String svc : svcNodePorts) {
+                        String node = protocol + "://" + ip + ":" + svc;
+                        sb.append(node);
+                    }
+                } else {
+                    String svcPort = imageConfig.getSvcNodePort();
+                    String[] svcNodePorts = svcPort.substring(1, svcPort.length() - 1).split(",");
+                    String svc = svcNodePorts[0];
+                    String node = protocol + "://" + ip + ":" + svc;
+                    sb.append(node);
+                }
+                testConfig.setAccessUrl(sb.toString());
+            }
+
         } else if (EnumTestConfigStatus.Failed.equals(stageStatus)) {
             productUpdate = true;
             project.setStatus(EnumProjectStatus.DEPLOYED_FAILED);

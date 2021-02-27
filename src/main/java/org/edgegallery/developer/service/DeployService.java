@@ -103,7 +103,8 @@ public class DeployService {
         String reqContentnew = jsonstr.replaceAll("\r", "").replaceAll("\n", "").replaceAll("\t", "").trim();
         String env = "\"env\":[{\"name\":\"\",\"value\":\"\"}],";
         String command = "\"command\":\"[\\\\\\\"\\\\\\\"]\",";
-        String resources = ",\"resources\":\\{\"limits\":\\{\"memory\":\"\",\"cpu\":\"\"},\"requests\":\\{\"memory\":\"\",\"cpu\":\"\"}}";
+        String resources
+            = ",\"resources\":\\{\"limits\":\\{\"memory\":\"\",\"cpu\":\"\"},\"requests\":\\{\"memory\":\"\",\"cpu\":\"\"}}";
         if (reqContentnew.contains(env)) {
             reqContentnew = reqContentnew.replace(env, "");
         }
@@ -111,9 +112,9 @@ public class DeployService {
             reqContentnew = reqContentnew.replace(command, "");
         }
         if (reqContentnew.contains(StringEscapeUtils.unescapeJava(resources))) {
-            reqContentnew = reqContentnew.replace(StringEscapeUtils.unescapeJava(resources),"");
+            reqContentnew = reqContentnew.replace(StringEscapeUtils.unescapeJava(resources), "");
         }
-        LOGGER.warn("jsonstr---------->"+reqContentnew.trim());
+        LOGGER.warn("jsonstr---------->" + reqContentnew.trim());
         String[] reqs = reqContentnew.trim().split("\\{\"apiVersion\"");
         //save pod
         List<String> sbPod = new ArrayList<>();
@@ -183,7 +184,13 @@ public class DeployService {
                 .configure(YAMLGenerator.Feature.INDENT_ARRAYS, true).writeValueAsString(jsonNodeTree);
             sbs.append(jsonAsYaml);
         }
-
+        //delete all helm by projectId
+        List<HelmTemplateYamlPo> listPo = helmTemplateYamlMapper.queryTemplateYamlByProjectId(userId, projectId);
+        if (!CollectionUtils.isEmpty(listPo)) {
+            for (HelmTemplateYamlPo po : listPo) {
+                helmTemplateYamlMapper.deleteYamlByFileId(po.getFileId());
+            }
+        }
         String yamlContent = sb.toString() + sbs.toString();
         HelmTemplateYamlPo helmPo = new HelmTemplateYamlPo();
         String fileId = UUID.randomUUID().toString();
@@ -199,6 +206,12 @@ public class DeployService {
             Either.left(new FormatRespDto(Response.Status.BAD_REQUEST, "save deploy failed!"));
         }
 
+        List<ProjectImageConfig> listImage = projectImageMapper.getAllImage(projectId);
+        if (!CollectionUtils.isEmpty(listImage)) {
+            for (ProjectImageConfig po : listImage) {
+                projectImageMapper.deleteImage(po.getProjectId());
+            }
+        }
         //save image
         ProjectImageConfig imageConfig = new ProjectImageConfig();
         imageConfig.setId(UUID.randomUUID().toString());
