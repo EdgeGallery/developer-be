@@ -20,7 +20,7 @@ import java.util.List;
 import javax.annotation.Resource;
 import org.edgegallery.developer.mapper.HostMapper;
 import org.edgegallery.developer.mapper.ProjectMapper;
-import org.edgegallery.developer.model.vm.VmConfig;
+import org.edgegallery.developer.model.vm.VmCreateConfig;
 import org.edgegallery.developer.model.workspace.ApplicationProject;
 import org.edgegallery.developer.model.workspace.EnumHostStatus;
 import org.edgegallery.developer.model.workspace.EnumTestConfigStatus;
@@ -50,7 +50,7 @@ public class VmStageSelectHost implements VmCreateStage {
     private VmCreateStage instantiateService;
 
     @Override
-    public boolean execute(VmConfig config) throws InterruptedException {
+    public boolean execute(VmCreateConfig config) throws InterruptedException {
         boolean processSuccess = false;
         ApplicationProject project = projectMapper.getProjectById(config.getProjectId());
         EnumTestConfigStatus hostStatus = EnumTestConfigStatus.Failed;
@@ -80,7 +80,7 @@ public class VmStageSelectHost implements VmCreateStage {
     }
 
     @Override
-    public boolean immediateExecute(VmConfig config) {
+    public boolean immediateExecute(VmCreateConfig config) {
         return false;
     }
 }

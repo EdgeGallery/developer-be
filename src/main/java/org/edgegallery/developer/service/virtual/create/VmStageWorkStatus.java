@@ -1,9 +1,8 @@
 package org.edgegallery.developer.service.virtual.create;
 
 import java.lang.reflect.Type;
-import java.util.List;
 import org.edgegallery.developer.mapper.ProjectMapper;
-import org.edgegallery.developer.model.vm.VmConfig;
+import org.edgegallery.developer.model.vm.VmCreateConfig;
 import org.edgegallery.developer.model.workspace.ApplicationProject;
 import org.edgegallery.developer.model.workspace.EnumTestConfigStatus;
 import org.edgegallery.developer.model.workspace.MepHost;
@@ -35,7 +34,7 @@ public class VmStageWorkStatus implements VmCreateStage {
 
 
     @Override
-    public boolean execute(VmConfig config) throws InterruptedException {
+    public boolean execute(VmCreateConfig config) throws InterruptedException {
         boolean processStatus = false;
         EnumTestConfigStatus status = EnumTestConfigStatus.Failed;
 
@@ -49,10 +48,10 @@ public class VmStageWorkStatus implements VmCreateStage {
         String workStatus = "{\"pods\":[{\"podstatus\":\"Running\",\"podname\":\"positioning\",\"containers\":[{\"containername\":\"positioning\",\"metricsusage\":{\"cpuusage\":\"90/4000\",\"memusage\":\"81469440/16714080256\",\"diskusage\":\"0/94877588119\"}},{\"containername\":\"mep-agent\",\"metricsusage\":{\"cpuusage\":\"0/4000\",\"memusage\":\"8871936/16714080256\",\"diskusage\":\"0/94877588119\"}}]}]}";
         if (workStatus == null) {
             // compare time between now and deployDate
-            long time = System.currentTimeMillis() - config.getCreate_time().getTime();
+            long time = System.currentTimeMillis() - config.getCreateTime().getTime();
             LOGGER.info("over time:{}, wait max time:{}, start time:{}", time, MAX_SECONDS,
-                config.getCreate_time().getTime());
-            if (config.getCreate_time() == null || time > MAX_SECONDS * 1000) {
+                config.getCreateTime().getTime());
+            if (config.getCreateTime() == null || time > MAX_SECONDS * 1000) {
                 config.setLog("Failed to get create vm result ");
                 String message = "Failed to get create vm result after wait {} seconds which appInstanceId is : {}";
                 LOGGER.error(message, MAX_SECONDS, config.getPackageId());
@@ -76,7 +75,7 @@ public class VmStageWorkStatus implements VmCreateStage {
     }
 
     @Override
-    public boolean immediateExecute(VmConfig config) {
+    public boolean immediateExecute(VmCreateConfig config) {
         return true;
     }
 }

@@ -7,21 +7,23 @@ import lombok.Setter;
 @Setter
 public class VmRegulation {
 
-    private String regulationId;
-
     private String architecture;
 
-    private String name;
+    private String nameZh;
 
-    private String description;
+    private String nameEn;
 
-    private String memory;
+    private String sceneZh;
 
-    private String cpu;
+    private String sceneEn;
 
-    private String systemDisk;
+    private Integer memory;
 
-    private String virtualDisk;
+    private Integer cpu;
+
+    private Integer systemDisk;
+
+    private Integer dataDisk;
 
     private String gpu;
 

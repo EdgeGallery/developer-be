@@ -1,6 +1,7 @@
 package org.edgegallery.developer.model.vm;
 
 import java.util.Date;
+import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -11,17 +12,19 @@ import org.stringtemplate.v4.ST;
 @Getter
 @Setter
 @ToString
-public class VmConfig {
+public class VmCreateConfig {
 
     private String vmId;
 
     private String projectId;
 
+    private String templateJson;
+
     private VmRegulation vmRegulationDesc;
 
     private VmSystem vmSystemDesc;
 
-    private VmNetwork vmNetworkDesc;
+    private List<VmNetwork> vmNetworkDesc;
 
     private String vmName;
 
@@ -39,9 +42,24 @@ public class VmConfig {
 
     private String packageId;
 
-    private Date create_time;
+    private Date createTime;
 
     private String log;
 
-    public VmConfig () {}
+    public VmCreateConfig() {}
+    /**
+     * get next stage for deploy.
+     */
+    public String getNextStage() {
+        if (this.getStageStatus() == null || this.getStageStatus().getCsar() == null) {
+            return "csar";
+        } else if (this.getStageStatus().getHostInfo() == null) {
+            return "hostInfo";
+        } else if (this.getStageStatus().getInstantiateInfo() == null) {
+            return "instantiateInfo";
+        } else if (this.getStageStatus().getWorkStatus() == null) {
+            return "workStatus";
+        }
+        return null;
+    }
 }

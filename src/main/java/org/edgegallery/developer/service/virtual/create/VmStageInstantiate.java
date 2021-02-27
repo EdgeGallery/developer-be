@@ -17,11 +17,10 @@
 package org.edgegallery.developer.service.virtual.create;
 
 import java.io.File;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import org.edgegallery.developer.mapper.ProjectMapper;
-import org.edgegallery.developer.mapper.VmDeployMapper;
-import org.edgegallery.developer.model.vm.VmConfig;
+import org.edgegallery.developer.mapper.VmConfigMapper;
+import org.edgegallery.developer.model.vm.VmCreateConfig;
 import org.edgegallery.developer.model.workspace.ApplicationProject;
 import org.edgegallery.developer.model.workspace.EnumTestConfigStatus;
 import org.edgegallery.developer.service.ProjectService;
@@ -46,10 +45,10 @@ public class VmStageInstantiate implements VmCreateStage {
     private VmService vmService;
 
     @Autowired
-    private VmDeployMapper vmDeployMapper;
+    private VmConfigMapper vmConfigMapper;
 
     @Override
-    public boolean execute(VmConfig config) throws InterruptedException {
+    public boolean execute(VmCreateConfig config) throws InterruptedException {
         boolean processSuccess = false;
         boolean instantiateAppResult;
         boolean dependencyResult;
@@ -74,7 +73,7 @@ public class VmStageInstantiate implements VmCreateStage {
 //                instantiateStatus = EnumTestConfigStatus.Success;
 //            }
             // update status when instantiate success
-            config.setCreate_time(new Date());
+            config.setCreateTime(new Date());
             processSuccess = true;
             instantiateStatus = EnumTestConfigStatus.Success;
         } catch (Exception e) {
@@ -92,7 +91,7 @@ public class VmStageInstantiate implements VmCreateStage {
     }
 
     @Override
-    public boolean immediateExecute(VmConfig config) {
+    public boolean immediateExecute(VmCreateConfig config) {
         return true;
     }
 }

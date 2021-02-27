@@ -8,33 +8,22 @@ import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
-import javax.ws.rs.core.Response;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.edgegallery.developer.common.Consts;
-import org.edgegallery.developer.model.AppConfigurationModel;
 import org.edgegallery.developer.model.deployyaml.ImageDesc;
-import org.edgegallery.developer.model.vm.VmConfig;
+import org.edgegallery.developer.model.vm.VmCreateConfig;
 import org.edgegallery.developer.model.workspace.ApplicationProject;
 import org.edgegallery.developer.model.workspace.EnumDeployPlatform;
-import org.edgegallery.developer.model.workspace.ProjectImageConfig;
-import org.edgegallery.developer.model.workspace.ProjectTestConfig;
-import org.edgegallery.developer.response.FormatRespDto;
-import org.edgegallery.developer.util.CompressFileUtils;
 import org.edgegallery.developer.util.DeveloperFileUtils;
-import org.edgegallery.developer.util.ImageUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.util.CollectionUtils;
-import org.yaml.snakeyaml.Yaml;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator;
+import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 import com.google.gson.Gson;
-import com.spencerwi.either.Either;
 
 public class NewCreateVmCsar {
     private static final String simpleFiles = "/app-name.mf";
@@ -48,14 +37,14 @@ public class NewCreateVmCsar {
     private static final Logger LOGGER = LoggerFactory.getLogger(NewCreateVmCsar.class);
 
     /**
-     * create csar.
+     * create vm csar.
      *
      * @param projectPath path of project
-     * @param config test config of project
+     * @param config vm create config of project
      * @param project project self
      * @return package gz
      */
-    public File create(String projectPath, VmConfig config, ApplicationProject project)
+    public File create(String projectPath, VmCreateConfig config, ApplicationProject project)
         throws IOException {
         File projectDir = new File(projectPath);
 
@@ -86,44 +75,13 @@ public class NewCreateVmCsar {
             throw new IOException("replace file exception");
         }
         //update vm config data
+        JsonNode jsonNodeTree = new ObjectMapper().readTree(config.getTemplateJson());
+        // save it as YAML
+        String jsonAsYaml = new YAMLMapper().configure(YAMLGenerator.Feature.MINIMIZE_QUOTES, true)
+            .configure(YAMLGenerator.Feature.INDENT_ARRAYS, true).writeValueAsString(jsonNodeTree);
+        File configYaml = new File(csar.getCanonicalPath() + TEMPLATE_CSAR_BASE_PATH);
+        FileUtils.writeStringToFile(configYaml,jsonAsYaml,"UTF-8");
 
-//        File configYaml = new File(WORKSPACE_CSAR_PATH + TEMPLATE_CSAR_BASE_PATH);
-//        String yamlContent = FileUtils.readFileToString(configYaml, StandardCharsets.UTF_8);
-//        yamlContent = yamlContent.replaceAll("\t", "");
-//        Yaml yaml = new Yaml();
-//        Map<String, Object> loaded = yaml.load(yamlContent);
-//        // get config node from template
-//        LinkedHashMap<String, Object> nodeMap = (LinkedHashMap<String, Object>) loaded.get("topology_template");
-//        AppConfigurationModel configModel = vmResiurceConfig(project, config);
-//        // write yaml
-//        nodeMap.put("topology_template", configModel);
-//        // write content to yaml
-//        ObjectMapper om = new ObjectMapper(new YAMLFactory());
-//        om.writeValue(configYaml, loaded);
-//
-//        File templateFileModify = new File(WORKSPACE_CSAR_PATH + TEMPLATE_CSAR_BASE_PATH);
-//        String yamlContents = FileUtils.readFileToString(templateFileModify, StandardCharsets.UTF_8);
-//        yamlContents = yamlContents.replaceAll("\"", "");
-//        writeFile(templateFileModify,yamlContents);
-
-        //update SwImageDesc.json
-
-//        File imageJson = new File(WORKSPACE_CSAR_PATH + IMAGE_BASE_PATH);
-//        //query saved pod data
-//        String projectId = project.getId();
-//        List<ProjectImageConfig> list = new ArrayList<>();
-//        if (StringUtils.isNotEmpty(projectId)) {
-//            list = ImageUtils.getAllImage(projectId);
-//        }
-//        if (!CollectionUtils.isEmpty(list)) {
-//            ProjectImageConfig imageConfig = list.get(0);
-//            String containers = imageConfig.getPodContainers();
-//            String[] cons = containers.split(",");
-//            //fill  imageJson data
-//            String imageData = getSwImageData(cons, project);
-//            // write data into imageJson file
-//            writeFile(imageJson, imageData);
-//        }
         return csar;
     }
 

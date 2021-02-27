@@ -7,7 +7,7 @@ import lombok.Setter;
 @Setter
 public class VmSystem {
 
-    private String systemId;
+    private String type;
 
     private String operateSystem;
 

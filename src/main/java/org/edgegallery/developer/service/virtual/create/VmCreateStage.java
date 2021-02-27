@@ -15,13 +15,13 @@
  */
 package org.edgegallery.developer.service.virtual.create;
 
-import org.edgegallery.developer.model.vm.VmConfig;
+import org.edgegallery.developer.model.vm.VmCreateConfig;
 
 public interface VmCreateStage {
-    boolean execute(VmConfig config) throws InterruptedException;
+    boolean execute(VmCreateConfig config) throws InterruptedException;
 
     boolean destroy();
 
-    boolean immediateExecute(VmConfig config);
+    boolean immediateExecute(VmCreateConfig config);
 
 }

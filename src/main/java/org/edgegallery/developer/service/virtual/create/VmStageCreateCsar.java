@@ -17,7 +17,7 @@ package org.edgegallery.developer.service.virtual.create;
 
 import javax.annotation.Resource;
 import org.edgegallery.developer.mapper.ProjectMapper;
-import org.edgegallery.developer.model.vm.VmConfig;
+import org.edgegallery.developer.model.vm.VmCreateConfig;
 import org.edgegallery.developer.model.workspace.ApplicationProject;
 import org.edgegallery.developer.model.workspace.EnumTestConfigStatus;
 import org.edgegallery.developer.service.virtual.VmService;
@@ -41,14 +41,13 @@ public class VmStageCreateCsar implements VmCreateStage{
     private VmCreateStage vmCreateStage;
 
     @Override
-    public boolean execute(VmConfig config) throws InterruptedException {
+    public boolean execute(VmCreateConfig config) throws InterruptedException {
         boolean processSuccess = false;
         EnumTestConfigStatus vmPackageStatus = EnumTestConfigStatus.Failed;
         ApplicationProject project = projectMapper.getProjectById(config.getProjectId());
-        String userId = project.getUserId();
         try {
             // create csar package
-            vmService.generateVmPackage(userId, project, config);
+            vmService.generateVmPackage(config);
             vmPackageStatus = EnumTestConfigStatus.Success;
             processSuccess = true;
         } catch (Exception e) {
@@ -67,7 +66,7 @@ public class VmStageCreateCsar implements VmCreateStage{
     }
 
     @Override
-    public boolean immediateExecute(VmConfig config) {
+    public boolean immediateExecute(VmCreateConfig config) {
         return true;
     }
 

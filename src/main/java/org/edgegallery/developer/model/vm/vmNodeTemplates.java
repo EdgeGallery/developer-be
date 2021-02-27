@@ -63,6 +63,16 @@
 //        private EMSProperties properties;
 //
 //    }
+//    @NoArgsConstructor
+//    @ToString
+//    @Getter
+//    @Setter
+//    @JsonInclude(JsonInclude.Include.NON_NULL)
+//    public static class EMSCapabilities {
+//        private VirtualCompute virtual_compute;
+//
+//
+//    }
 //
 //
 //}
