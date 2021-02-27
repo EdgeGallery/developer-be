@@ -201,8 +201,7 @@ public class DeployService {
         return Either.right(helmTemplateYamlMapper.queryTemplateYamlById(fileId));
     }
 
-
-    public String addMepAgent(DeployYaml deployYaml){
+    public String addMepAgent(DeployYaml deployYaml) {
         Containers[] containers = deployYaml.getSpec().getContainers();
         Containers[] copyContainers = new Containers[containers.length + 1];
         for (int i = 0; i < containers.length; i++) {
@@ -446,7 +445,8 @@ public class DeployService {
         Containers[] newContainers = new Containers[1];
         Containers containersMepAgent = new Containers();
         containersMepAgent.setName("mep-agent");
-        containersMepAgent.setImage("mep-agent:latest");
+        containersMepAgent
+            .setImage("{{ .Values.imagelocation.domainname }}/{{ .Values.imagelocation.project }}/mep-agent:latest");
         containersMepAgent.setImagePullPolicy("Always");
         Environment envWait = new Environment();
         envWait.setName("ENABLE_WAIT");
