@@ -70,6 +70,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
 import org.yaml.snakeyaml.Yaml;
 
@@ -455,6 +456,13 @@ public class UploadFileService {
                 userId, projectId, String.join(",", requiredItems));
             return Either.right(helmTemplateYamlRespDto);
         } else if (!requiredItems.isEmpty() && requiredItems.size() == 1 && requiredItems.get(0).equals("mep-agent")) {
+            //delete all helm by projectId
+            List<HelmTemplateYamlPo> list = helmTemplateYamlMapper.queryTemplateYamlByProjectId(userId, projectId);
+            if (!CollectionUtils.isEmpty(list)) {
+                for (HelmTemplateYamlPo po : list) {
+                    helmTemplateYamlMapper.deleteYamlByFileId(po.getFileId());
+                }
+            }
             // create HelmTemplateYamlPo
             HelmTemplateYamlPo helmTemplateYamlPo = new HelmTemplateYamlPo();
             helmTemplateYamlPo.setContent(originalContent);
@@ -535,6 +543,12 @@ public class UploadFileService {
             }
         }
 
+        List<ProjectImageConfig> listImage = projectImageMapper.getAllImage(projectId);
+        if (!CollectionUtils.isEmpty(listImage)) {
+            for (ProjectImageConfig po : listImage) {
+                projectImageMapper.deleteImage(po.getProjectId());
+            }
+        }
         ProjectImageConfig config = new ProjectImageConfig();
         config.setId(UUID.randomUUID().toString());
         config.setPodName(podNames.toString());
@@ -554,6 +568,13 @@ public class UploadFileService {
     private Either<FormatRespDto, HelmTemplateYamlRespDto> getSuccessResult(MultipartFile helmTemplateYaml,
         String userId, String projectId, String content, HelmTemplateYamlRespDto helmTemplateYamlRespDto,
         String configType) {
+        //delete all helm by projectId
+        List<HelmTemplateYamlPo> list = helmTemplateYamlMapper.queryTemplateYamlByProjectId(userId, projectId);
+        if (!CollectionUtils.isEmpty(list)) {
+            for (HelmTemplateYamlPo po : list) {
+                helmTemplateYamlMapper.deleteYamlByFileId(po.getFileId());
+            }
+        }
         HelmTemplateYamlPo helmTemplateYamlPo = new HelmTemplateYamlPo();
         helmTemplateYamlPo.setContent(content);
         String fileId = UUID.randomUUID().toString();
