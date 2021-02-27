@@ -100,6 +100,18 @@ public class DeployService {
             return Either.left(new FormatRespDto(Response.Status.BAD_REQUEST, "no param"));
         }
         String reqContentnew = jsonstr.replaceAll("\r", "").replaceAll("\n", "").replaceAll("\t", "").trim();
+        if (reqContentnew.contains(",\"env\": [{\"name\": \"\",\"value\": \"\"}],")) {
+            reqContentnew = reqContentnew.replace(",\"env\": [{\"name\": \"\",\"value\": \"\"}],", "");
+        }
+        if (reqContentnew.contains("\"command\": \"\",")) {
+            reqContentnew = reqContentnew.replace("\"command\": \"\",", "");
+        }
+        if (reqContentnew.contains(
+            "\"resource\": {\"limits\": {\"memory\": \"\",\"cpu\": \"\"},\"requests\": {\"memory\": \"\",\"cpu\": \"\"}}")) {
+            reqContentnew = reqContentnew.replace(
+                "\"resource\": {\"limits\": {\"memory\": \"\",\"cpu\": \"\"},\"requests\": {\"memory\": \"\",\"cpu\": \"\"}}",
+                "");
+        }
         String[] reqs = reqContentnew.split("\\{\"apiVersion\"");
         //save pod
         List<String> sbPod = new ArrayList<>();
@@ -445,8 +457,7 @@ public class DeployService {
         Containers[] newContainers = new Containers[1];
         Containers containersMepAgent = new Containers();
         containersMepAgent.setName("mep-agent");
-        containersMepAgent
-            .setImage("{{ .Values.imagelocation.domainname }}/{{ .Values.imagelocation.project }}/mep-agent:latest");
+        containersMepAgent.setImage("swr.ap-southeast-1.myhuaweicloud.com/edgegallery/mep-agent:latest");
         containersMepAgent.setImagePullPolicy("Always");
         Environment envWait = new Environment();
         envWait.setName("ENABLE_WAIT");
