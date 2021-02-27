@@ -103,15 +103,15 @@ public class DeployService {
         String reqContentnew = jsonstr.replaceAll("\r", "").replaceAll("\n", "").replaceAll("\t", "").trim();
         String env = "\"env\":[{\"name\":\"\",\"value\":\"\"}],";
         String command = "\"command\":\"[\\\\\\\"\\\\\\\"]\",";
-        String resources = "\"resources\":\\{\"limits\":\\{\"memory\":\"\",\"cpu\":\"\"},\"requests\":\\{\"memory\":\"\",\"cpu\":\"\"}}";
+        String resources = ",\"resources\":\\{\"limits\":\\{\"memory\":\"\",\"cpu\":\"\"},\"requests\":\\{\"memory\":\"\",\"cpu\":\"\"}}";
         if (reqContentnew.contains(env)) {
-            reqContentnew = reqContentnew.replaceAll(env, "");
+            reqContentnew = reqContentnew.replace(env, "");
         }
         if (reqContentnew.contains(command)) {
-            reqContentnew = reqContentnew.replaceAll(command, "");
+            reqContentnew = reqContentnew.replace(command, "");
         }
         if (reqContentnew.contains(StringEscapeUtils.unescapeJava(resources))) {
-            reqContentnew = reqContentnew.replaceAll(StringEscapeUtils.unescapeJava(resources),"");
+            reqContentnew = reqContentnew.replace(StringEscapeUtils.unescapeJava(resources),"");
         }
         LOGGER.warn("jsonstr---------->"+reqContentnew.trim());
         String[] reqs = reqContentnew.trim().split("\\{\"apiVersion\"");
