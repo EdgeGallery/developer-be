@@ -101,17 +101,18 @@ public class DeployService {
         }
         String reqContentnew = jsonstr.replaceAll("\r", "").replaceAll("\n", "").replaceAll("\t", "").trim();
         if (reqContentnew.contains(",\"env\": [{\"name\": \"\",\"value\": \"\"}],")) {
-            reqContentnew = reqContentnew.replace(",\"env\": [{\"name\": \"\",\"value\": \"\"}],", "");
+            reqContentnew = reqContentnew.replaceAll(",\"env\": [{\"name\": \"\",\"value\": \"\"}],", "");
         }
         if (reqContentnew.contains("\"command\": \"\",")) {
-            reqContentnew = reqContentnew.replace("\"command\": \"\",", "");
+            reqContentnew = reqContentnew.replaceAll("\"command\": \"\",", "");
         }
         if (reqContentnew.contains(
             "\"resource\": {\"limits\": {\"memory\": \"\",\"cpu\": \"\"},\"requests\": {\"memory\": \"\",\"cpu\": \"\"}}")) {
-            reqContentnew = reqContentnew.replace(
+            reqContentnew = reqContentnew.replaceAll(
                 "\"resource\": {\"limits\": {\"memory\": \"\",\"cpu\": \"\"},\"requests\": {\"memory\": \"\",\"cpu\": \"\"}}",
                 "");
         }
+        LOGGER.warn("jsonstr---------->"+reqContentnew);
         String[] reqs = reqContentnew.split("\\{\"apiVersion\"");
         //save pod
         List<String> sbPod = new ArrayList<>();
