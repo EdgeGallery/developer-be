@@ -1,0 +1,15 @@
+metadata:
+app_product_name: {name}
+app_provider_id: {provider}
+app_package_version: {version}
+app_release_data_time: {time}
+app_type: {type}
+app_package_description: {description}
+
+Source: APPD/Eastcom-SPCLNLWY-EMS_eulerforTR6_iso.zip
+Algorithm: SHA-256
+Hash: 53e40c7e2eca780091e41090f3256ec6954b22457f66d30fdc6200a39b3503c1
+
+Source: Image/SwImageDesc.json
+Algorithm: SHA-256
+Hash: 2949bd976f40a259b14a39c5f785f9a8c5d791540c795601d59c25e5663544b2
