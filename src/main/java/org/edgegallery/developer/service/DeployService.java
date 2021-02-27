@@ -36,6 +36,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import javax.ws.rs.core.Response;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.http.entity.ContentType;
 import org.edgegallery.developer.mapper.HelmTemplateYamlMapper;
 import org.edgegallery.developer.mapper.ProjectImageMapper;
@@ -100,7 +101,20 @@ public class DeployService {
             return Either.left(new FormatRespDto(Response.Status.BAD_REQUEST, "no param"));
         }
         String reqContentnew = jsonstr.replaceAll("\r", "").replaceAll("\n", "").replaceAll("\t", "").trim();
-        String[] reqs = reqContentnew.split("\\{\"apiVersion\"");
+        String env = "\"env\":[{\"name\":\"\",\"value\":\"\"}],";
+        String command = "\"command\":\"[\\\\\\\"\\\\\\\"]\",";
+        String resources = ",\"resources\":\\{\"limits\":\\{\"memory\":\"\",\"cpu\":\"\"},\"requests\":\\{\"memory\":\"\",\"cpu\":\"\"}}";
+        if (reqContentnew.contains(env)) {
+            reqContentnew = reqContentnew.replace(env, "");
+        }
+        if (reqContentnew.contains(command)) {
+            reqContentnew = reqContentnew.replace(command, "");
+        }
+        if (reqContentnew.contains(StringEscapeUtils.unescapeJava(resources))) {
+            reqContentnew = reqContentnew.replace(StringEscapeUtils.unescapeJava(resources),"");
+        }
+        LOGGER.warn("jsonstr---------->"+reqContentnew.trim());
+        String[] reqs = reqContentnew.trim().split("\\{\"apiVersion\"");
         //save pod
         List<String> sbPod = new ArrayList<>();
         List<String> sbService = new ArrayList<>();
@@ -201,8 +215,7 @@ public class DeployService {
         return Either.right(helmTemplateYamlMapper.queryTemplateYamlById(fileId));
     }
 
-
-    public String addMepAgent(DeployYaml deployYaml){
+    public String addMepAgent(DeployYaml deployYaml) {
         Containers[] containers = deployYaml.getSpec().getContainers();
         Containers[] copyContainers = new Containers[containers.length + 1];
         for (int i = 0; i < containers.length; i++) {
@@ -446,7 +459,7 @@ public class DeployService {
         Containers[] newContainers = new Containers[1];
         Containers containersMepAgent = new Containers();
         containersMepAgent.setName("mep-agent");
-        containersMepAgent.setImage("mep-agent:latest");
+        containersMepAgent.setImage("swr.ap-southeast-1.myhuaweicloud.com/edgegallery/mep-agent:latest");
         containersMepAgent.setImagePullPolicy("Always");
         Environment envWait = new Environment();
         envWait.setName("ENABLE_WAIT");
