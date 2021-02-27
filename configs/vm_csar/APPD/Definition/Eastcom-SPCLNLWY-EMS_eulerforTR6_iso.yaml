@@ -15,7 +15,7 @@ metadata:
 
 topology_template:
   inputs:
-    APP_Name: 
+    APP_Name:
       type: string
       description: APP_Name
     DC_ID:
@@ -62,7 +62,7 @@ topology_template:
             virtual_cpu:
               num_virtual_cpu: 4
               cpu_architecture: ARM
-            virtual_local_storage: 
+            virtual_local_storage:
               size_of_storage: 100
       properties:
         name: eulerforTR6_iso_arm_EMS_VDU1
@@ -74,7 +74,7 @@ topology_template:
           initial_number_of_instances: 1
           flavor_extra_specs:
             "Mgmt_egx86": true
-        sw_image_data: 
+        sw_image_data:
           name: HUAWEI_EulerOS_V2.0SP8_aarch64_dvd
         bootdata:
           config_drive: true
@@ -84,7 +84,7 @@ topology_template:
               echo "$certificate_info$" >> /home/mep.ca
 
 
-    EMS_VDU1_CP0: 
+    EMS_VDU1_CP0:
       type: tosca.nodes.nfv.VduCp
       properties:
         description: to mep
@@ -151,20 +151,20 @@ topology_template:
     DEMO_VL1: # 使用虚拟层中已经创建的网络名称或UUID。
       type: tosca.nodes.nfv.VnfVirtualLink
       properties:
-        vl_profile: 
+        vl_profile:
           network_name: {get_input: DEMO_VNF_Network_01}
 
     DEMO_VL2: # 使用虚拟层中已经创建的网络名称或UUID。
       type: tosca.nodes.nfv.VnfVirtualLink
       properties:
-        vl_profile: 
+        vl_profile:
           network_name: {get_input: DEMO_VNF_Network_02}
-     
+
   groups:
     AntiAffinityGroup:
       type: tosca.groups.nfv.PlacementGroup
       properties:
-        description: antiaffinity group 
+        description: antiaffinity group
       members: [EMS_VDU1]
   policies:
     - antiaffinity_policy:

@@ -7,11 +7,11 @@ import lombok.Setter;
 @Setter
 public class VmNetwork {
 
-    private String networkId;
-
     private String networkType;
 
-    private String description;
+    private String descriptionZh;
+
+    private String descriptionEn;
 
 
 }

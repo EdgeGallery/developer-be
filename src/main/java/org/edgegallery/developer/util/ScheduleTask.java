@@ -19,6 +19,7 @@ package org.edgegallery.developer.util;
 import org.edgegallery.developer.service.ProjectService;
 import org.edgegallery.developer.service.TestCaseService;
 import org.edgegallery.developer.service.UploadFileService;
+import org.edgegallery.developer.service.virtual.VmService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -37,6 +38,9 @@ public class ScheduleTask {
     @Autowired
     private ProjectService projectService;
 
+    @Autowired
+    private VmService vmService;
+
     @Scheduled(cron = "0/10 * * * * ?")
     public void reportCurrentTime() {
         testCaseService.scanRunningTask();
@@ -50,5 +54,10 @@ public class ScheduleTask {
     @Scheduled(cron = "0/30 * * * * ?")
     public void processConfigDeploy() {
         projectService.processDeploy();
+    }
+
+    @Scheduled(cron = "0/30 * * * * ?")
+    public void processVmCreateConfig() {
+        vmService.processCreateVm();
     }
 }
