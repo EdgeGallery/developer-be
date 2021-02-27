@@ -36,6 +36,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import javax.ws.rs.core.Response;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.http.entity.ContentType;
 import org.edgegallery.developer.mapper.HelmTemplateYamlMapper;
 import org.edgegallery.developer.mapper.ProjectImageMapper;
@@ -100,20 +101,20 @@ public class DeployService {
             return Either.left(new FormatRespDto(Response.Status.BAD_REQUEST, "no param"));
         }
         String reqContentnew = jsonstr.replaceAll("\r", "").replaceAll("\n", "").replaceAll("\t", "").trim();
-        if (reqContentnew.contains(",\"env\": [{\"name\": \"\",\"value\": \"\"}],")) {
-            reqContentnew = reqContentnew.replaceAll(",\"env\": [{\"name\": \"\",\"value\": \"\"}],", "");
+        String env = "\"env\":[{\"name\":\"\",\"value\":\"\"}],";
+        String command = "\"command\":\"[\\\\\\\"\\\\\\\"]\",";
+        String resources = "\"resources\":\\{\"limits\":\\{\"memory\":\"\",\"cpu\":\"\"},\"requests\":\\{\"memory\":\"\",\"cpu\":\"\"}}";
+        if (reqContentnew.contains(env)) {
+            reqContentnew = reqContentnew.replaceAll(env, "");
         }
-        if (reqContentnew.contains("\"command\": \"\",")) {
-            reqContentnew = reqContentnew.replaceAll("\"command\": \"\",", "");
+        if (reqContentnew.contains(command)) {
+            reqContentnew = reqContentnew.replaceAll(command, "");
         }
-        if (reqContentnew.contains(
-            "\"resource\": {\"limits\": {\"memory\": \"\",\"cpu\": \"\"},\"requests\": {\"memory\": \"\",\"cpu\": \"\"}}")) {
-            reqContentnew = reqContentnew.replaceAll(
-                "\"resource\": {\"limits\": {\"memory\": \"\",\"cpu\": \"\"},\"requests\": {\"memory\": \"\",\"cpu\": \"\"}}",
-                "");
+        if (reqContentnew.contains(resources)) {
+            reqContentnew = reqContentnew.replaceAll(StringEscapeUtils.unescapeJava(resources),"");
         }
-        LOGGER.warn("jsonstr---------->"+reqContentnew);
-        String[] reqs = reqContentnew.split("\\{\"apiVersion\"");
+        LOGGER.warn("jsonstr---------->"+reqContentnew.trim());
+        String[] reqs = reqContentnew.trim().split("\\{\"apiVersion\"");
         //save pod
         List<String> sbPod = new ArrayList<>();
         List<String> sbService = new ArrayList<>();
