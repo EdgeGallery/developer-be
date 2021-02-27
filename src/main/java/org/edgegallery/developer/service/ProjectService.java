@@ -1030,25 +1030,24 @@ public class ProjectService {
             List<ProjectImageConfig> imageConfigs = projectImageMapper.getAllImage(project.getId());
             if (!CollectionUtils.isEmpty(imageConfigs) && stage.equals("workStatus")) {
                 StringBuilder sb = new StringBuilder();
-                String protocol = testConfig.getHosts().get(0).getProtocol();
-                String ip = testConfig.getHosts().get(0).getIp();
-                LOGGER.warn("protocol:"+protocol);
-                LOGGER.warn("ip:"+ip);
+                Type type = new TypeToken<List<MepHost>>() { }.getType();
+                List<MepHost> hosts = gson.fromJson(gson.toJson(testConfig.getHosts()), type);
+                MepHost host = hosts.get(0);
                 ProjectImageConfig imageConfig = imageConfigs.get(0);
-                LOGGER.warn("svcNodePort:"+imageConfig.getSvcNodePort());
+                LOGGER.warn("svcNodePort:" + imageConfig.getSvcNodePort());
                 if (imageConfig.getSvcNodePort().contains(",")) {
                     String svcPort = imageConfig.getSvcNodePort();
                     String[] svcNodePorts = svcPort.substring(1, svcPort.length() - 1).split(",");
                     for (String svc : svcNodePorts) {
-                        String node = protocol + "://" + ip + ":" + svc;
+                        String node = "http://" + host.getIp() + ":" + svc;
                         sb.append(node);
                     }
                 } else {
                     String svcPort = imageConfig.getSvcNodePort();
-                    String node = protocol + "://" + ip + ":" + svcPort.substring(1, svcPort.length() - 1);
+                    String node = "http://" + host.getIp() + ":" + svcPort.substring(1, svcPort.length() - 1);
                     sb.append(node);
                 }
-                LOGGER.warn("sb:"+sb.toString());
+                LOGGER.warn("sb:" + sb.toString());
                 testConfig.setAccessUrl(sb.toString());
             }
 
