@@ -1032,7 +1032,10 @@ public class ProjectService {
                 StringBuilder sb = new StringBuilder();
                 String protocol = testConfig.getHosts().get(0).getProtocol();
                 String ip = testConfig.getHosts().get(0).getIp();
+                LOGGER.warn("protocol:"+protocol);
+                LOGGER.warn("ip:"+ip);
                 ProjectImageConfig imageConfig = imageConfigs.get(0);
+                LOGGER.warn("svcNodePort:"+imageConfig.getSvcNodePort());
                 if (imageConfig.getSvcNodePort().contains(",")) {
                     String svcPort = imageConfig.getSvcNodePort();
                     String[] svcNodePorts = svcPort.substring(1, svcPort.length() - 1).split(",");
@@ -1045,6 +1048,7 @@ public class ProjectService {
                     String node = protocol + "://" + ip + ":" + svcPort.substring(1, svcPort.length() - 1);
                     sb.append(node);
                 }
+                LOGGER.warn("sb:"+sb.toString());
                 testConfig.setAccessUrl(sb.toString());
             }
 
