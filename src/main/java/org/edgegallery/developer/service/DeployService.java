@@ -110,7 +110,7 @@ public class DeployService {
         if (reqContentnew.contains(command)) {
             reqContentnew = reqContentnew.replaceAll(command, "");
         }
-        if (reqContentnew.contains(resources)) {
+        if (reqContentnew.contains(StringEscapeUtils.unescapeJava(resources))) {
             reqContentnew = reqContentnew.replaceAll(StringEscapeUtils.unescapeJava(resources),"");
         }
         LOGGER.warn("jsonstr---------->"+reqContentnew.trim());
