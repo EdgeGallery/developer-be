@@ -1028,7 +1028,7 @@ public class ProjectService {
             testConfig.setDeployStatus(EnumTestConfigDeployStatus.SUCCESS);
             //set access url
             List<ProjectImageConfig> imageConfigs = projectImageMapper.getAllImage(project.getId());
-            if (!CollectionUtils.isEmpty(imageConfigs)) {
+            if (!CollectionUtils.isEmpty(imageConfigs) && stage.equals("workStatus")) {
                 StringBuilder sb = new StringBuilder();
                 String protocol = testConfig.getHosts().get(0).getProtocol();
                 String ip = testConfig.getHosts().get(0).getIp();
@@ -1042,9 +1042,7 @@ public class ProjectService {
                     }
                 } else {
                     String svcPort = imageConfig.getSvcNodePort();
-                    String[] svcNodePorts = svcPort.substring(1, svcPort.length() - 1).split(",");
-                    String svc = svcNodePorts[0];
-                    String node = protocol + "://" + ip + ":" + svc;
+                    String node = protocol + "://" + ip + ":" + svcPort.substring(1, svcPort.length() - 1);
                     sb.append(node);
                 }
                 testConfig.setAccessUrl(sb.toString());
