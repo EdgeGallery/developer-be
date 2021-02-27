@@ -1,0 +1,769 @@
+##################################################################################################################################
+#
+# 版权信息：该文件是中国移动G-VNFM VNFD规范定义文件，版权及最终解释权归中国移动所有。
+#
+##################################################################################################################################
+tosca_definitions_version: tosca_simple_profile_yaml_1_2
+description: CMCC VNFD definitions version 1.0.0
+
+artifact_types:
+  tosca.artifacts.nfv.SwImage:
+    derived_from: tosca.artifacts.Deployment.Image
+
+  tosca.artifacts.nfv.VMInjectionFile:
+    derived_from: tosca.artifacts.Root
+    properties: 
+      injection_mode:
+        type: string
+        description: VM injection file mode
+        required: true
+        constraints:
+          - valid_values:[user_data, personality]
+      path:
+        type: string
+        description: the location of injection file in VM, only needed in personality mode
+        required: false
+      params:
+        type: map
+        description: key-values pairs used to replace the key in the file with the value
+        required: false
+        entry_schema:
+          type: string
+          required: true
+ 
+    
+    
+data_types:
+  tosca.datatypes.nfv.L2AddressData:
+    derived_from: tosca.datatypes.Root
+    properties:  
+      mac_address_assignment: 
+        type: boolean
+        required: false
+      mac:
+        type: string
+        required: false
+
+  tosca.datatypes.nfv.L3AddressData:
+    derived_from: tosca.datatypes.Root
+    properties:  
+      ip_address_assignment: 
+        type: boolean
+        required: false
+      ip_address_type:
+        type: string
+        required: yes
+        constraints:
+          - valid_values: [ ipv4, ipv6 ]      
+      ip_range:
+        type: list
+        required: false
+        entry_schema:
+          type: tosca.datatypes.nfv.IpAllocationPool
+          required: true
+      allowed_ip_address:
+        type: string
+        required: false
+
+  tosca.datatypes.nfv.AddressData:
+    derived_from: tosca.datatypes.Root
+    properties:  
+      address_type: 
+        type: string
+        required: true
+        constraints:
+          - valid_values: [ mac_address, ip_address ]     
+      l2_address_data: 
+        type: tosca.datatypes.nfv.L2AddressData 
+        required: false
+      l3_address_data:
+        type: list 
+        required: false
+        entry_schema:
+          type: tosca.datatypes.nfv.L3AddressData
+          required: true
+    
+  tosca.datatypes.nfv.VirtualMemory:
+    derived_from: tosca.datatypes.Root
+    properties:
+      virtual_mem_size:
+        type: integer
+        required: true
+        constraints:
+          - greater_or_equal: 0
+  tosca.datatypes.nfv.VirtualCpu:
+    derived_from: tosca.datatypes.Root
+    properties:
+      num_virtual_cpu:
+        type: integer
+        required: true
+        constraints:
+          - greater_or_equal: 1
+  tosca.datatypes.nfv.VduProfile:
+    derived_from: tosca.datatypes.Root
+    properties: 
+      min_number_of_instances:
+        type: integer
+        required: true
+        constraints:
+          - greater_or_equal: 0
+      max_number_of_instances:
+        type: integer
+        required: true
+        constraints:
+          - greater_or_equal: 1
+      initial_number_of_instances:
+        type: integer
+        required: true
+        constraints:
+          - greater_or_equal: 0
+      flavor_extra_specs:
+        type: map
+        required: false 
+        entry_schema:
+          type: string
+          required: true
+
+  tosca.datatypes.nfv.VlProfile:
+    derived_from: tosca.datatypes.Root
+    properties:
+      network_name:
+        type: string
+        required: true
+      network_description:
+        type: string
+        required: false
+      network_type:
+        type: string
+        required: false
+        constraints:
+          - valid_values: [ vlan, vxlan ] 
+      physical_network:
+        type: string
+        required: false
+      provider_segmentation_id:
+        type: string
+        required: false
+      router_external:
+        type: boolean
+        required: false
+      vlan_transparent:
+        type: boolean
+        required: false
+      qos:
+        type: tosca.datatypes.nfv.Qos
+        required: false
+      l3_protocol_data:
+        type: list
+        required: false
+        entry_schema:
+          type: tosca.datatypes.nfv.L3ProtocolData
+          required: true
+          
+  tosca.datatypes.nfv.L3ProtocolData:
+    derived_from: tosca.datatypes.Root
+    description: describes L3 protocol data for a given virtual link used in a specific VNF deployment flavour.
+    properties:
+      name:
+        type: string
+        description: Identifies the network name associated with this L3 protocol.
+        required: false
+      ip_version:
+        type: string
+        description: Specifies IP version of this L3 protocol.The value of the ip_version property shall be consistent with the value of the layer_protocol in the connectivity_type property of the virtual link node.
+        required: true
+        constraints:
+          - valid_values: [ ipv4, ipv6 ]
+      cidr:
+        type: string
+        description: Specifies the CIDR (Classless Inter-Domain Routing) of this L3 protocol. The value may be overridden at run-time.
+        required: true
+      ip_allocation_pools:
+        type: list
+        description: Specifies the allocation pools with start and end IP addresses for this L3 protocol. The value may be overridden at run-time.
+        required: false
+        entry_schema:
+          type: tosca.datatypes.nfv.IpAllocationPool
+          required: true
+          
+      gateway_ip:
+        type: string
+        description: Specifies the gateway IP address for this L3 protocol. The value may be overridden at run-time.
+        required: false
+      dhcp_enabled:
+        type: boolean
+        description: Indicates whether DHCP (Dynamic Host Configuration Protocol) is enabled or disabled for this L3 protocol. The value may be overridden at run-time.
+        required: false
+      ipv6_ra_mode:
+        type: string
+        description: The IPv6 router advertisement specifies whether the networking service should transmit ICMPv6 packets, for a subnet. Value is slaac, dhcpv6-stateful, dhcpv6-stateless.
+        required: false
+        constraints:
+          - valid_values: [ slaac, dhcpv6-stateful, dhcpv6-stateless ] 
+      ipv6_address_mode:
+        type: string
+        description: The IPv6 address modes specifies mechanisms for assigning IP addresses. Value is slaac, dhcpv6-stateful, dhcpv6-stateless.
+        required: false
+        constraints:
+          - valid_values: [ slaac, dhcpv6-stateful, dhcpv6-stateless ] 
+      host_routes:
+        type: list
+        required: false
+        entry_schema:
+          type: tosca.datatypes.nfv.HostRoute
+          required: true
+      dns_name_servers:
+        type: list
+        required: false
+        entry_schema:
+          type: string
+          required: true
+  tosca.datatypes.nfv.HostRoute:
+    derived_from: tosca.datatypes.Root   
+    properties:
+      destination:
+        type: string
+        required: true
+      nexthop:
+        type: string
+        required: true
+
+  tosca.datatypes.nfv.IpAllocationPool:
+    derived_from: tosca.datatypes.Root
+    description: Specifies a range of IP addresses
+    properties:
+      start_ip_address:
+        type: string
+        description: The IP address to be used as the first one in a pool of addresses derived from the cidr block full IP range
+        required: true
+      end_ip_address:
+        type: string
+        description: The IP address to be used as the last one in a pool of addresses derived from the cidr block full IP range
+        required: true
+
+  tosca.datatypes.nfv.CpProtocolData:
+    derived_from: tosca.datatypes.Root
+    properties:
+      address_data:
+        type: tosca.datatypes.nfv.AddressData
+        required: false
+        
+  tosca.datatypes.nfv.SwImageData:
+    derived_from: tosca.datatypes.Root
+    properties:
+      name:
+        type: string
+        required: true
+
+
+  tosca.datatypes.nfv.VirtualStorageData:
+    derived_from: tosca.datatypes.Root
+    properties:
+      type_of_storage:
+        type: string
+        required: true
+        constraints:
+          - valid_values: [block_storage, object_storage]
+      size_of_storage:
+        type: integer
+        required: true
+        constraints:
+          - greater_or_equal: 0 
+      qos:
+        type: tosca.datatypes.nfv.VirtualStorageData.StorageQoS
+        required: false
+      volume_type: 
+        type: tosca.datatypes.nfv.VirtualStorageData.VolumeType
+        required: false
+      multi_attach: 
+        type: boolean
+        required: false
+
+  tosca.datatypes.nfv.VirtualStorageData.VolumeType:
+    derived_from: tosca.datatypes.Root
+    properties:
+      volume_type_name:
+        type: string
+        description: 
+        required: true
+      qos_ref:
+        type: string
+        descripition: 
+        required: false
+      back_end:
+        type: string
+        descripition: 
+        required: false
+      extra_specs:
+        type: map
+        required: false
+        entry_schema:
+          type: string
+          required: true
+          
+  tosca.datatypes.nfv.VirtualStorageData.StorageQoS:
+    derived_from: tosca.datatypes.Root
+    properties:
+      qos_name:
+        type: string
+        description: 
+        required: true
+      consumer:
+        type: string
+        description: 
+        required: true
+        constraints:
+          - valid_values: [front-end, back-end, both ]
+      extra_specs:
+        type: map
+        required: false
+        entry_schema:
+          type: string
+          required: true
+        
+  tosca.datatypes.nfv.BootData:
+    derived_from: tosca.datatypes.Root
+    properties:
+      config_drive:
+        type: boolean
+        description: indicates whether a configuration drive enables metadata injection
+        required: true
+      meta_data:
+        type: map
+        description: metadata keys and values injected into virtual machina
+        required: false
+        entry_schema:
+          type: string
+          description: metadata key-value pair
+          required: true
+      user_data:
+        type: tosca.datatypes.nfv.VMInjectionUserData
+        description: userdata injected into virtual machine
+        required: false
+      personality:
+        type: list
+        required: false
+        entry_schema:
+          type: tosca.datatypes.nfv.VMInjectionPersonality
+          required: true
+        description: personality injected into virtual machine
+     
+  tosca.datatypes.nfv.VMInjectionPersonality:
+    derived_from: tosca.datatypes.Root
+    properties:
+      path:
+        type: string
+        required: true
+      contents:
+        type: string
+        required: true
+      params:
+        type: map
+        required: false
+        entry_schema:
+          type: string
+          required: true
+      is_cert:
+        type: boolean
+        required: false
+   
+  tosca.datatypes.nfv.VMInjectionUserData:
+    derived_from: tosca.datatypes.Root
+    properties:
+      contents:
+        type: string
+        required: true
+      params:
+        type: map
+        required: false
+        entry_schema:
+          type: string
+          required: true
+   
+  tosca.datatypes.nfv.Qos:
+    derived_from: tosca.datatypes.Root
+    properties:
+      qos_name:
+        type: string
+        required: true
+      rules:
+        type: list
+        required: false
+        entry_schema:
+          type: tosca.datatypes.nfv.QosRule
+          required: true
+
+  tosca.datatypes.nfv.QosRule:
+    derived_from: tosca.datatypes.Root
+    properties:
+      max_kbps:
+        type: integer
+        required: false
+        constraints:
+          - greater_than: 0
+      max_burst_kbps:
+        type: integer
+        required: false
+        constraints:
+          - greater_than: 0
+      min_kbps:
+        type: integer
+        required: false
+        constraints:
+          - greater_than: 0
+      direction:
+        type: string
+        required: false
+        constraints:
+          - valid_values: [egress, ingress]
+          
+          
+  tosca.datatypes.nfv.VirtualLocalStorageData:
+    derived_from: tosca.datatypes.Root
+    properties:
+      size_of_storage:
+        type: integer
+        required: true
+        constraints:
+          - greater_or_equal: 0
+
+capability_types:
+  tosca.capabilities.nfv.VirtualBindable:
+    derived_from: tosca.capabilities.Root
+    description:
+  tosca.capabilities.nfv.VirtualLinkable:
+    derived_from: tosca.capabilities.Root
+    description:
+  tosca.capabilities.nfv.VirtualCompute:
+    derived_from: tosca.capabilities.Root
+    properties:
+      virtual_memory:
+        type: tosca.datatypes.nfv.VirtualMemory
+        required: true
+      virtual_cpu:
+        type: tosca.datatypes.nfv.VirtualCpu
+        required: true
+      virtual_local_storage: 
+        type: tosca.datatypes.nfv.VirtualLocalStorageData
+        required: false
+
+  tosca.capabilities.nfv.VirtualStorage:
+    derived_from: tosca.capabilities.Root
+    description: Describes the attachment capabilities related to Vdu.Storage
+
+    
+relationship_types:
+  tosca.relationships.nfv.VirtualBindsTo:
+    derived_from: tosca.relationships.DependsOn
+    valid_target_types: [ tosca.capabilities.nfv.VirtualBindable]
+
+  tosca.relationships.nfv.VirtualLinksTo:
+    derived_from: tosca.relationships.DependsOn
+    valid_target_types: [ tosca.capabilities.nfv.VirtualLinkable]
+  
+  tosca.relationships.nfv.AttachesTo:
+    derived_from: tosca.relationships.Root
+    description: Represents an association relationship between the Vdu.Compute and one of the node types, Vdu.VirtualBlockStorage, Vdu.VirtualObjectStorage or Vdu.VirtualFileStorage
+    valid_target_types: [ tosca.capabilities.nfv.VirtualStorage ]
+
+node_types:
+
+  tosca.nodes.nfv.VNF:
+    derived_from: tosca.nodes.Root
+    properties: 
+      provider: 
+        type: string
+        required: true
+      product_name: 
+        type: string
+        required: true
+      software_version: 
+        type: string
+        required: true
+      product_info_name:
+        type: string
+        required: false
+      product_info_description: 
+        type: string
+        required: false
+      flavour_id:
+        type: string
+        required: true
+      flavour_description:
+        type: string
+        required: true
+      ve_vnfm_vnf_enable: 
+        type: boolean
+        required: true
+      ve_vnfm_vnf_user_name: 
+        type: string
+        required: false
+      ve_vnfm_vnf_password: 
+        type: string
+        required: false
+      ve_vnfm_em_enable: 
+        type: boolean
+        required: true
+      vnf_url: 
+        type: string
+        required: false
+      ems_url: 
+        type: string
+        required: false
+    requirements:
+      - virtual_link:
+          capability: tosca.capabilities.nfv.VirtualLinkable
+          relationship: tosca.relationships.nfv.VirtualLinksTo        
+          occurrences: [0, UNBOUNDED]
+
+  tosca.nodes.nfv.Vdu.Compute:
+    derived_from: tosca.nodes.Root
+    properties:
+      name:
+        type: string
+        required: true
+      description:
+        type: string
+        required: true
+      boot_order:
+        type: map
+        required: false
+        entry_schema:
+          type: string
+          required: true
+      nfvi_constraints:
+        type: string
+        required: false 
+      bootdata: 
+        type: tosca.datatypes.nfv.BootData
+        required: false
+      depend_on:
+        type: list
+        required: false
+        entry_schema:
+          type: string
+          required: true
+      vdu_profile:
+        type: tosca.datatypes.nfv.VduProfile
+        required: true
+      sw_image_data:
+        type: tosca.datatypes.nfv.SwImageData
+        required: false
+
+    capabilities:
+      virtual_compute: 
+        type: tosca.capabilities.nfv.VirtualCompute
+      virtual_binding: 
+        type: tosca.capabilities.nfv.VirtualBindable
+        occurrences: [ 1, UNBOUNDED ]
+    requirements:
+      - virtual_storage:
+          capability: tosca.capabilities.nfv.VirtualStorage
+          relationship: tosca.relationships.nfv.AttachesTo
+          node: tosca.nodes.nfv.Vdu.VirtualStorage
+          occurences: [ 1, UNBOUNDED ]
+
+  tosca.nodes.nfv.Vdu.VirtualStorage: 
+    derived_from: tosca.nodes.Root
+    properties:
+      id:
+        type: string
+        required: true
+      virtual_storage_data:
+        type: tosca.datatypes.nfv.VirtualStorageData
+        required: true
+      sw_image_data:
+        type: tosca.datatypes.nfv.SwImageData
+        required: false
+      nfvi_constraints:
+        type: string
+        required: false
+    capabilities:
+      virtual_storage:
+        type: tosca.capabilities.nfv.VirtualStorage
+        
+  tosca.nodes.nfv.Cp:
+    derived_from: tosca.nodes.Root 
+    properties:
+      description:
+        type: string
+        required: false
+      protocol_data:
+        type: tosca.datatypes.nfv.CpProtocolData
+        required: false
+      trunk_mode:
+        type: boolean
+        required: false
+
+  tosca.nodes.nfv.VduCp:
+    derived_from: tosca.nodes.nfv.Cp
+    properties:
+      qos:
+        type: tosca.datatypes.nfv.Qos
+        required: false
+      vnic_name:
+        type: string
+        required: false
+      vnic_type:
+        type: string
+        required: true
+        constraints:
+          - valid_values: [normal, direct]
+      order:
+        type: integer
+        required: true
+        constraints:
+          - greater_or_equal: 0
+      port_security_enabled:
+        type: boolean
+        required: true
+    attributes:
+      ipv4_address:
+        type: string
+        required: true
+        default: 0.0.0.0
+      ipv6_address:
+        type: string
+        required: true
+        default: 00::00
+      mac:
+        type: string
+        required: true
+        default: 00:00:00:00:00:00
+      ipv4_vip_address:
+        type: string
+        required: true
+        default: 0.0.0.0
+      ipv6_vip_address:
+        type: string
+        required: true
+        default: 00::00
+    requirements:
+      - virtual_link:
+          capability: tosca.capabilities.nfv.VirtualLinkable
+          relationship: tosca.relationships.nfv.VirtualLinksTo
+      - virtual_binding:
+          capability: tosca.capabilities.nfv.VirtualBindable
+          relationship: tosca.relationships.nfv.VirtualBindsTo
+          node: tosca.nodes.nfv.Vdu.Compute
+
+  tosca.nodes.nfv.VnfVirtualLink:
+    derived_from: tosca.nodes.Root
+    properties:
+      description:
+        type: string
+        required: false
+      vl_profile:
+        type: tosca.datatypes.nfv.VlProfile
+        required: true
+    capabilities:
+      virtual_linkable:
+        type: tosca.capabilities.nfv.VirtualLinkable
+        
+          
+group_types:
+  tosca.groups.nfv.PlacementGroup:
+    derived_from: tosca.groups.Root
+    properties:
+      description:
+        type: string
+    members: [tosca.nodes.nfv.Vdu.Compute]
+
+  tosca.groups.nfv.PortSecurityGroup:
+    derived_from: tosca.groups.Root
+    properties:
+      name:
+        type: string
+        required: true
+      description:
+        type: string
+        required: true
+    members: [ tosca.nodes.nfv.VduCp]
+
+policy_types:
+  tosca.policies.nfv.AffinityRule:
+    derived_from: tosca.policies.Placement
+    properties: 
+      scope:
+        type: string 
+        description: # scope of the rule is an NFVI_node.
+        required: true
+        constraints:
+          - valid_values: [ nfvi_node ]
+      enforced: 
+        type: boolean 
+        description: 
+        required: true
+    targets: [tosca.nodes.nfv.Vdu.Compute, tosca.groups.nfv.PlacementGroup]
+
+  tosca.policies.nfv.AntiAffinityRule:
+    derived_from: tosca.policies.Placement
+    properties: 
+      scope:
+        type: string 
+        description: #scope of the rule is an NFVI_node.
+        required: true
+        constraints:
+          - valid_values: [ nfvi_node ]
+      enforced: 
+        type: boolean 
+        description: 
+        required: true
+    targets: [tosca.nodes.nfv.Vdu.Compute, tosca.groups.nfv.PlacementGroup]
+  tosca.policies.nfv.SecurityGroupRule:
+    derived_from: tosca.policies.Root
+    description: The SecurityGroupRule type is a policy type specified the matching criteria for the ingress and/or egress traffic to/from visited connection points as defined in ETSI GS NFV-IFA 011 [1].
+    properties:
+      description:
+        type: string
+        description: Human readable description of the security group rule.
+        required: false
+      direction:
+        type: string
+        description: The direction in which the security group rule is applied. The direction of 'ingress' or 'egress' is specified against the associated CP. I.e., 'ingress' means the packets entering a CP, while 'egress' means the packets sent out of a CP.
+        required: false
+        constraints:
+          - valid_values: [ ingress, egress ]
+        default: ingress
+      ether_type:
+        type: string
+        description: Indicates the protocol carried over the Ethernet layer.
+        required: false
+        constraints:
+          - valid_values: [ ipv4, ipv6 ]
+        default: ipv4
+      protocol:
+        type: string
+        description: Indicates the protocol carried over the IP layer. Permitted values include any protocol defined in the IANA protocol registry, e.g. TCP, UDP, ICMP, etc.
+        required: false
+        constraints:
+          - valid_values: [ hopopt, icmp, igmp, ggp, ipv4, st, tcp, cbt, egp, igp, bbn_rcc_mon, nvp_ii, pup, argus, emcon, xnet, chaos, udp, mux, dcn_meas, hmp, prm, xns_idp, trunk_1, trunk_2, leaf_1, leaf_2, rdp, irtp, iso_tp4, netblt, mfe_nsp, merit_inp, dccp, 3pc, idpr, xtp, ddp, idpr_cmtp, tp++, il, ipv6, sdrp, ipv6_route, ipv6_frag, idrp, rsvp, gre, dsr, bna, esp, ah, i_nlsp, swipe, narp, mobile, tlsp, skip, ipv6_icmp, ipv6_no_nxt, ipv6_opts, cftp, sat_expak, kryptolan, rvd, ippc, sat_mon, visa, ipcv, cpnx, cphb, wsn, pvp, br_sat_mon, sun_nd, wb_mon, wb_expak, iso_ip, vmtp, secure_vmtp, vines, ttp, iptm, nsfnet_igp, dgp, tcf, eigrp, ospfigp, sprite_rpc, larp, mtp, ax.25, ipip, micp, scc_sp, etherip, encap, gmtp, ifmp, pnni, pim, aris, scps, qnx, a/n, ip_comp, snp, compaq_peer, ipx_in_ip, vrrp, pgm, l2tp, ddx, iatp, stp, srp, uti, smp, sm, ptp, isis, fire, crtp, crudp, sscopmce, iplt, sps, pipe, sctp, fc, rsvp_e2e_ignore, mobility, udp_lite, mpls_in_ip, manet, hip, shim6, wesp, rohc ]
+        default: tcp
+      port_range_min:
+        type: integer
+        description: Indicates minimum port number in the range that is matched by the security group rule. If a value is provided at design-time, this value may be overridden at run-time based on other deployment requirements or constraints.
+        required: false
+        constraints:
+          - greater_or_equal: 0
+          - less_or_equal: 65535
+        default: 0
+      port_range_max:
+        type: integer
+        description: Indicates maximum port number in the range that is matched by the security group rule. If a value is provided at design-time, this value may be overridden at run-time based on other deployment requirements or constraints.
+        required: false
+        constraints:
+          - greater_or_equal: 0
+          - less_or_equal: 65535
+        default: 65535
+    targets: [tosca.groups.nfv.PortSecurityGroup]
+
+
+##################################################################################################################################
+#
+# 修订历史：
+# 2019.07.27 完成初稿
+# 2019.08.06 修订语法错误
+#
+##################################################################################################################################
+
+

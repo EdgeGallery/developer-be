@@ -1,0 +1,175 @@
+tosca_definitions_version: tosca_simple_profile_yaml_1_2
+description: Eastcom SPCLNLWY EMS
+imports:
+  - cmcc_nfv_vnfd_types_v1_0_20190924.yaml
+
+metadata:
+  template_name: Eastcom-SPCLNLWY-EMS_eulerforTR6_iso
+  template_author: eastcom
+  template_version: 1.0.0
+  vnfm_type: MEPM
+  vnfd_id: eulerforTR6_iso_arm
+  vnfd_version: v3.25
+  vnfd_name: eastcom_spclnlwyems_eulerforTR6_iso_vnfd
+  vnfd_description: spclnlwyems vnfd for gvnfm
+
+topology_template:
+  inputs:
+    APP_Name: 
+      type: string
+      description: APP_Name
+    DC_ID:
+      type: string
+      default: fs:Manager_VPC
+      description: DC_ID
+    INTERNAL_IP_VERSION:
+      type: string
+      default: IPV4
+      description: INTERNAL_IP_VERSION
+    DEMO_VNF_Network_01:
+      type: string
+      default: app_arm
+      description: DEMO_VNF_Network_01
+    DEMO_VNF_Network_02:
+      type: string
+      default: app_arm
+      description: DEMO_VNF_Network_02
+
+
+  node_templates:
+    Simple_VNF:
+      type: tosca.nodes.nfv.VNF
+      properties:
+        vnfd_id: eulerforTR6_iso_arm_zhi_new1
+        vnfd_version: v1.0
+        provider: eastcom
+        product_name: vSPCLNLWYEMS
+        software_version: v1.0.0
+        product_info_name: vSPCLNLWYEMS
+        product_info_description: EASTCOM vSPCLNLWY EMS
+        flavour_id: default
+        flavour_description: default flavor
+        ve_vnfm_vnf_enable: false
+        ve_vnfm_em_enable: false
+
+    EMS_VDU1:
+      type: tosca.nodes.nfv.Vdu.Compute
+      capabilities:
+        virtual_compute:
+          properties:
+            virtual_memory:
+              virtual_mem_size: 4096
+            virtual_cpu:
+              num_virtual_cpu: 4
+              cpu_architecture: ARM
+            virtual_local_storage: 
+              size_of_storage: 100
+      properties:
+        name: eulerforTR6_iso_arm_EMS_VDU1
+        description: EMS_VDU1 node
+        nfvi_constraints: 'az1.dc8'
+        vdu_profile:
+          min_number_of_instances: 1
+          max_number_of_instances: 1
+          initial_number_of_instances: 1
+          flavor_extra_specs:
+            "Mgmt_egx86": true
+        sw_image_data: 
+          name: HUAWEI_EulerOS_V2.0SP8_aarch64_dvd
+        bootdata:
+          config_drive: true
+          user_data:
+            contents: |
+              #!/bin/bash
+              echo "$certificate_info$" >> /home/mep.ca
+
+
+    EMS_VDU1_CP0: 
+      type: tosca.nodes.nfv.VduCp
+      properties:
+        description: to mep
+        vnic_name: eth0
+        order: 0
+        vnic_type: normal
+        port_security_enabled: true
+      requirements:
+        - virtual_binding: VM01
+        - virtual_link: MEC_APP_MP1
+
+    EMS_VDU1_CP1:
+      type: tosca.nodes.nfv.VduCp
+      properties:
+        description: to UFP&OM
+        vnic_name: eth1
+        order: 1
+        vnic_type: normal
+        port_security_enabled: true
+      requirements:
+        - virtual_binding: VM01
+        - virtual_link: MEC_APP_N6
+
+    EMS_VDU1_CP2:
+      type: tosca.nodes.nfv.VduCp
+      properties:
+        description: internal
+        vnic_name: eth2
+        order: 2
+        vnic_type: normal
+        port_security_enabled: true
+      requirements:
+        - virtual_binding: VM01
+        - virtual_link: MEC_APP_INTERNET
+
+    MEC_APP_MP1:
+      type: tosca.nodes.nfv.VnfVirtualLink
+      properties:
+        vl_profile:
+          network_name: {get_input: network_name_1}
+          network_type: vlan
+          physical_network: {get_input: network1_physnet}
+          provider_segmentation_id: {get_input: network1_vlanid}
+
+    MEC_APP_N6:
+      type: tosca.nodes.nfv.VnfVirtualLink
+      properties:
+        vl_profile:
+          network_name: {get_input: network_name_1}
+          network_type: vlan
+          physical_network: {get_input: network1_physnet}
+          provider_segmentation_id: {get_input: network1_vlanid}
+
+    MEC_APP_INTERNET:
+      type: tosca.nodes.nfv.VnfVirtualLink
+      properties:
+        vl_profile:
+          network_name: {get_input: network_name_1}
+          network_type: vlan
+          physical_network: {get_input: network1_physnet}
+          provider_segmentation_id: {get_input: network1_vlanid}
+
+
+    DEMO_VL1: # 使用虚拟层中已经创建的网络名称或UUID。
+      type: tosca.nodes.nfv.VnfVirtualLink
+      properties:
+        vl_profile: 
+          network_name: {get_input: DEMO_VNF_Network_01}
+
+    DEMO_VL2: # 使用虚拟层中已经创建的网络名称或UUID。
+      type: tosca.nodes.nfv.VnfVirtualLink
+      properties:
+        vl_profile: 
+          network_name: {get_input: DEMO_VNF_Network_02}
+     
+  groups:
+    AntiAffinityGroup:
+      type: tosca.groups.nfv.PlacementGroup
+      properties:
+        description: antiaffinity group 
+      members: [EMS_VDU1]
+  policies:
+    - antiaffinity_policy:
+        type: tosca.policies.nfv.AntiAffinityRule
+        targets: [AntiAffinityGroup]
+        properties:
+          scope: nfvi_node
+          enforced: true
