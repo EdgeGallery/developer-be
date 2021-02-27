@@ -1034,7 +1034,7 @@ public class ProjectService {
                 List<MepHost> hosts = gson.fromJson(gson.toJson(testConfig.getHosts()), type);
                 MepHost host = hosts.get(0);
                 ProjectImageConfig imageConfig = imageConfigs.get(0);
-                LOGGER.warn("svcNodePort:"+imageConfig.getSvcNodePort());
+                LOGGER.warn("svcNodePort:" + imageConfig.getSvcNodePort());
                 if (imageConfig.getSvcNodePort().contains(",")) {
                     String svcPort = imageConfig.getSvcNodePort();
                     String[] svcNodePorts = svcPort.substring(1, svcPort.length() - 1).split(",");
@@ -1047,7 +1047,7 @@ public class ProjectService {
                     String node = "http://" + host.getIp() + ":" + svcPort.substring(1, svcPort.length() - 1);
                     sb.append(node);
                 }
-                LOGGER.warn("sb:"+sb.toString());
+                LOGGER.warn("sb:" + sb.toString());
                 testConfig.setAccessUrl(sb.toString());
             }
 
