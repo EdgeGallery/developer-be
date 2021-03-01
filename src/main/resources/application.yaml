@@ -63,6 +63,6 @@ security:
         key-uri: ${AUTH_SERVER_ADDRESS:http://user-mgmt-svc:8067}/oauth/token_key
 
 ### image location config ###
-imagelocation:
-  domainname: ${DOMAIN_NAME:swr.ap-southeast-1.myhuaweicloud.com}
+image:
+  domain: ${DOMAIN:swr.ap-southeast-1.myhuaweicloud.com}
   project: ${PROJECT:edgegallery}
