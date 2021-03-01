@@ -7,6 +7,8 @@ import lombok.Setter;
 @Setter
 public class VmSystem {
 
+    private Integer systemId;
+
     private String type;
 
     private String operateSystem;
@@ -15,6 +17,6 @@ public class VmSystem {
 
     private String systemBit;
 
-    private String systemDisk;
+    private Integer systemDisk;
 
 }

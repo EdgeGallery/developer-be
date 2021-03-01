@@ -38,9 +38,9 @@ public class VmCreateConfig {
 
     private String lcmToken;
 
-    private String vmInfo;
+    private List<VmInfo> vmInfo;
 
-    private String packageId;
+    private String appInstanceId;
 
     private Date createTime;
 

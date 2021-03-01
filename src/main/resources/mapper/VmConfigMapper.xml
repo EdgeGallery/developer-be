@@ -20,6 +20,7 @@
   namespace="org.edgegallery.developer.mapper.VmConfigMapper">
     <resultMap id="VmRegulation"
       type="org.edgegallery.developer.model.vm.VmRegulation">
+        <id property="regulationId" column="regulation_id"/>
         <result property="architecture" column="architecture"/>
         <result property="nameZh" column="name_zh"/>
         <result property="nameEn" column="name_en"/>
@@ -35,6 +36,7 @@
 
     <resultMap id="VmSystem"
       type="org.edgegallery.developer.model.vm.VmSystem">
+        <id property="systemId" column="system_id"/>
         <result property="type" column="type"/>
         <result property="operateSystem" column="operate_system"/>
         <result property="version" column="version"/>
@@ -68,7 +70,8 @@
         <result property="host" column="host"
           typeHandler="org.edgegallery.developer.model.handler.JsonTypeHandler"/>
         <result property="lcmToken" column="lcm_token"/>
-        <result property="vmInfo" column="vm_info"/>
+        <result property="vmInfo" column="vm_info"
+          typeHandler="org.edgegallery.developer.model.handler.JsonCollectionTypeHandler"/>/>
         <result property="packageId" column="package_id"/>
         <result property="createTime" column="create_time"/>
         <result property="log" column="log"/>
@@ -125,13 +128,18 @@
         vm_id = #{vmId}
     </update>
 
-    <select id="getAllVmCreateConfig"
-      resultMap="VmCreateConfigMap">
+    <select id="getVmCreateConfigs"
+      parameterType="String" resultMap="VmCreateConfigMap">
         SELECT
         *
         FROM
         tbl_project_vm_create_config
+        where project_id = #{projectId}
     </select>
+
+    <delete id="deleteVmCreateConfigs" parameterType="String">
+        DELETE FROM tbl_project_vm_create_config WHERE project_id = #{projectId};
+    </delete>
 
     <select id="getVmCreateConfig"
       parameterType="String" resultMap="VmCreateConfigMap">
@@ -140,7 +148,7 @@
         FROM
         tbl_project_vm_create_config
         WHERE
-        vm_id = #{vmId}
+        vm_id = #{vmId} and project_id = #{projectId}
     </select>
 
     <select id="getVmCreateConfigStatus" parameterType="String" resultMap="VmCreateConfigMap">
