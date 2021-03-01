@@ -58,4 +58,9 @@ public class MepHost {
 
     private String userId;
 
+    private String configId;
+
+    private String userName;
+
+    private String password;
 }

@@ -17,6 +17,8 @@
 package org.edgegallery.developer.mapper;
 
 import java.util.List;
+
+import org.apache.ibatis.annotations.Param;
 import org.edgegallery.developer.model.workspace.OpenMepApi;
 import org.edgegallery.developer.model.workspace.OpenMepCapabilityDetail;
 import org.edgegallery.developer.model.workspace.OpenMepCapabilityGroup;
@@ -56,4 +58,7 @@ public interface OpenMepCapabilityMapper {
     List<OpenMepApi> getOpenMepEcoList();
 
     OpenMepCapabilityDetail getDetailByApiFileId(String apiFileId);
+
+    List<OpenMepCapabilityGroup> getOpenMepListByCondition(@Param("userId") String userId, @Param("twoLevelName") String twoLevelName, @Param("twoLevelNameEn") String twoLevelNameEn);
+
 }

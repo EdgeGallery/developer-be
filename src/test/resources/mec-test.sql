@@ -281,7 +281,9 @@ CREATE TABLE IF NOT EXISTS tbl_service_host (
   port_range_max int DEFAULT '-1',
   port int DEFAULT '-1',
   protocol varchar(20)  DEFAULT NULL,
-  delete int DEFAULT NULL
+  delete int DEFAULT NULL,
+  user_name varchar(100)  DEFAULT NULL,
+  password varchar(255)  DEFAULT NULL
 )
 ;
 
@@ -304,6 +306,21 @@ CREATE TABLE IF NOT EXISTS tbl_release_config (
   test_status varchar(255) DEFAULT NULL,
   create_time TIMESTAMP(0) DEFAULT NULL,
   CONSTRAINT tbl_release_config_pkey PRIMARY KEY (release_id)
+)
+;
+
+CREATE TABLE IF NOT EXISTS tbl_host_log (
+  log_id varchar(50) NOT NULL,
+  host_ip varchar(50) NOT NULL,
+  user_name varchar(50) DEFAULT NULL,
+  user_id varchar(50) DEFAULT NULL,
+  project_id varchar(50)  DEFAULT NULL,
+  project_name varchar(50) DEFAULT NULL,
+  app_instances_id varchar(50) DEFAULT NULL,
+  deploy_time varchar(50) DEFAULT NULL,
+  status varchar(50) NOT NULL,
+  operation varchar(50) NOT NULL,
+  host_id varchar(50) DEFAULT NULL
 )
 ;
 -- workspace table end -----------------

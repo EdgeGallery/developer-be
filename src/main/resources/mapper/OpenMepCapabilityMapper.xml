@@ -255,4 +255,24 @@
         WHERE api_file_id =
         #{apiFileId}
     </select>
+
+    <select id="getOpenMepListByCondition" resultMap="OpenMEPDetail">
+        SELECT
+        a.*,
+        b.*
+        FROM
+        tbl_openmep_capability a
+        LEFT JOIN tbl_openmep_capability_detail b ON A.group_id = b.group_id
+        WHERE
+        1=1
+        <if test="userId != null">
+            and b.user_id=#{userId}
+        </if>
+        <if test="twoLevelName != null">
+            and a.two_level_name like CONCAT('%',#{twoLevelName},'%')
+        </if>
+        <if test="twoLevelNameEn != null">
+            and a.two_level_name_en like CONCAT('%',#{twoLevelNameEn},'%')
+        </if>
+    </select>
 </mapper>

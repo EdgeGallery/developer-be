@@ -32,15 +32,17 @@
         <result property="os" column="os"/>
         <result property="portRangeMin" column="port_range_min"/>
         <result property="portRangeMax" column="port_range_max"/>
+        <result property="userName" column="user_name" />
+        <result property="password" column="password" />
     </resultMap>
 
     <insert id="saveHost"
             parameterType="org.edgegallery.developer.model.workspace.MepHost">
         insert into
-        tbl_service_host (host_id, user_id, name, address, architecture, status, ip, port, os, port_range_min, port_range_max, protocol)
+        tbl_service_host (host_id, user_id, name, address, architecture, status, ip, port, os, port_range_min, port_range_max, protocol,user_name,password)
         values
         ( #{hostId}, #{userId}, #{name}, #{address}, #{architecture}, #{status}, #{ip},
-        #{port}, #{os}, #{portRangeMin}, #{portRangeMax}, #{protocol})
+        #{port}, #{os}, #{portRangeMin}, #{portRangeMax}, #{protocol},#{userName},#{password})
     </insert>
 
     <select id="getAllHosts" resultMap="HostMap">
@@ -94,11 +96,77 @@
         user_id = #{userId}
     </update>
 
+    <update id="updateHostSelected" parameterType="org.edgegallery.developer.model.workspace.MepHost">
+        UPDATE
+        tbl_service_host
+        <set>
+            <if test="ip != null">
+                ip=#{ip},
+            </if>
+            <if test="port != null">
+                port=#{port},
+            </if>
+            <if test="userId != null">
+                user_id=#{userId},
+            </if>
+            <if test="name != null">
+                name=#{name},
+            </if>
+            <if test="address != null">
+                address=#{address},
+            </if>
+            <if test="architecture != null">
+                architecture=#{architecture},
+            </if>
+            <if test="status != null">
+                status=#{status},
+            </if>
+            <if test="os != null">
+                os=#{os},
+            </if>
+            <if test="portRangeMin != null">
+                port_range_min=#{portRangeMin},
+            </if>
+            <if test="portRangeMax != null">
+                port_range_max=#{portRangeMax},
+            </if>
+            <if test="protocol != null">
+                protocol=#{protocol},
+            </if>
+            <if test="userName != null">
+                user_name=#{userName},
+            </if>
+            <if test="password != null">
+                password=#{password}
+            </if>
+        </set>
+        WHERE
+        host_id = #{hostId}
+    </update>
+
     <delete id="deleteHost" parameterType="java.lang.String">
         DELETE FROM
         tbl_service_host
         WHERE
         host_id = #{hostId}
     </delete>
+
+    <select id="getHostsByCondition" resultMap="HostMap">
+        SELECT
+        *
+        FROM
+        tbl_service_host
+        WHERE
+        1=1
+        <if test="userId != null">
+            and user_id = #{userId}
+        </if>
+        <if test="ip != null">
+            and ip = #{ip}
+        </if>
+        <if test="name != null">
+            and name like CONCAT('%',#{name},'%')
+        </if>
+    </select>
 
 </mapper>

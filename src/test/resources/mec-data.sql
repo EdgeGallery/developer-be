@@ -104,3 +104,9 @@ MERGE INTO tbl_release_config  KEY(release_id) VALUES ('00003', '200dfab1-3c30-4
 -- Records of tbl_helm_template_yaml
 -- ----------------------------
 MERGE INTO tbl_helm_template_yaml  KEY(file_id) VALUES ('ad66d1b6-5d29-487b-9769-be48b62aec2e', 'demo.yaml', 'f24ea0a2-d8e6-467c-8039-94f0d29bac43', '200dfab1-3c30-4fc7-a6ca-ed6f0620a85e','aa',null);
+
+
+-- ----------------------------
+-- Records of tbl_host_log
+-- ----------------------------
+MERGE INTO tbl_host_log(log_id, host_ip, user_name, user_id, project_id, project_name, app_instances_id, deploy_time, status, operation, host_id) KEY(log_id) VALUES ('2223', '192.168.10.100', 'dong', '333211', '33333', 'sa', 'w222', '30204', 'NORMAL', '使用/释放', 'd6bcf665-ba9c-4474-b7fb-25ff859563d3');
