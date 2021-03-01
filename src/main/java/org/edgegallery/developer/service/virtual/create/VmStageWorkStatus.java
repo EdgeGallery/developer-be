@@ -12,6 +12,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.google.gson.reflect.TypeToken;
 
 @Service("vm_workStatus_service")
@@ -54,14 +56,16 @@ public class VmStageWorkStatus implements VmCreateStage {
             if (config.getCreateTime() == null || time > MAX_SECONDS * 1000) {
                 config.setLog("Failed to get create vm result ");
                 String message = "Failed to get create vm result after wait {} seconds which appInstanceId is : {}";
-                LOGGER.error(message, MAX_SECONDS, config.getPackageId());
+                LOGGER.error(message, MAX_SECONDS, config.getAppInstanceId());
             } else {
                 return true;
             }
         } else {
             processStatus = true;
             status = EnumTestConfigStatus.Success;
-            config.setVmInfo(workStatus);
+            JsonObject jsonObject = new JsonParser().parse(workStatus).getAsJsonObject();
+            // set vmInfo todo
+//            config.setVmInfo();
             LOGGER.info("Query create vm info response: {}", workStatus);
         }
         // update test-config

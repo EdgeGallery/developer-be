@@ -9,8 +9,6 @@ import org.edgegallery.developer.model.vm.VmSystem;
 
 public interface VmConfigMapper {
 
-    VmResource getVmResource();
-
     List<VmRegulation> getVmRegulation();
 
     List<VmSystem> getVmSystem();
@@ -21,5 +19,13 @@ public interface VmConfigMapper {
 
     int updateVmCreateConfig(VmCreateConfig testConfig);
 
+    VmCreateConfig getVmCreateConfig(String projectId, String vmId);
+
+    List<VmCreateConfig> getVmCreateConfigs(String projectId);
+
     List<VmCreateConfig> getVmCreateConfigStatus(String toString);
+
+    int deleteVmCreateConfig(String projectId, String vmId);
+
+    int deleteVmCreateConfigs(String projectId);
 }

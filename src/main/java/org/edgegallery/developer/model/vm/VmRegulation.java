@@ -7,6 +7,8 @@ import lombok.Setter;
 @Setter
 public class VmRegulation {
 
+    private Integer regulationId;
+
     private String architecture;
 
     private String nameZh;

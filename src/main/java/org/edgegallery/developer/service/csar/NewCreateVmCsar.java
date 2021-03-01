@@ -54,7 +54,7 @@ public class NewCreateVmCsar {
 
         // copy template files to the new project path
         File csar = DeveloperFileUtils
-            .copyDirAndReName(new File(WORKSPACE_CSAR_PATH), projectDir, config.getPackageId());
+            .copyDirAndReName(new File(WORKSPACE_CSAR_PATH), projectDir, config.getAppInstanceId());
 
         // get data to Map<String, String>
         SimpleDateFormat time = new SimpleDateFormat("yyyy-MM-dd HH:mm");
