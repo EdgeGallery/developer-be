@@ -13,6 +13,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.edgegallery.developer.common.Consts;
 import org.edgegallery.developer.model.deployyaml.ImageDesc;
@@ -23,6 +24,7 @@ import org.edgegallery.developer.model.workspace.ProjectImageConfig;
 import org.edgegallery.developer.model.workspace.ProjectTestConfig;
 import org.edgegallery.developer.util.CompressFileUtils;
 import org.edgegallery.developer.util.DeveloperFileUtils;
+import org.edgegallery.developer.util.ImageConfig;
 import org.edgegallery.developer.util.ImageUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -126,7 +128,7 @@ public class NewCreateCsar {
         Gson gson = new Gson();
         List<ImageDesc> imageDescs = new ArrayList<>();
         for (PodImage obj : images) {
-            String[] podImages  = obj.getPodImage();
+            String[] podImages = obj.getPodImage();
             for (String pod : podImages) {
                 ImageDesc imageDesc = new ImageDesc();
                 imageDesc.setId(UUID.randomUUID().toString());
@@ -140,6 +142,11 @@ public class NewCreateCsar {
                 imageDesc.setMinRam(6);
                 imageDesc.setArchitecture(project.getPlatform().get(0));
                 imageDesc.setSize(688390);
+                String env = "\\{\\{.Values.imagelocation.domainname}}/\\{\\{.Values.imagelocation.project}}";
+                String envs = StringEscapeUtils.unescapeJava(env);
+                if (pod.contains(envs)) {
+                    pod = pod.replace(envs, ImageConfig.getDomains() + "/" + ImageConfig.getProjects());
+                }
                 imageDesc.setSwImage(pod);
                 imageDesc.setHw_scsi_model("virtio-scsi");
                 imageDesc.setHw_disk_bus("scsi");
