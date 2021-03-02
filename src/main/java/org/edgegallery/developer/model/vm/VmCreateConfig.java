@@ -18,17 +18,13 @@ public class VmCreateConfig {
 
     private String projectId;
 
-    private String templateJson;
-
     private VmRegulation vmRegulationDesc;
 
     private VmSystem vmSystemDesc;
 
-    private List<VmNetwork> vmNetworkDesc;
+    private List<String> vmNetworkDesc;
 
     private String vmName;
-
-    private String vmUsername;
 
     private EnumVmCreateStatus status;
 

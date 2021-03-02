@@ -59,7 +59,7 @@ public class HostController {
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
     @RequestMapping(value = "", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    @PreAuthorize("hasRole('DEVELOPER_TENANT')")
+    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<List<MepHost>> getAllHosts(
         @ApiParam(value = "userId", required = false) @RequestParam(value = "userId", required = false) String userId) {
         Either<FormatRespDto, List<MepHost>> either = hostService.getAllHosts(userId);
@@ -72,7 +72,7 @@ public class HostController {
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
     @RequestMapping(value = "/{hostId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    @PreAuthorize("hasRole('DEVELOPER_TENANT')")
+    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<MepHost> getHost(@ApiParam(value = "hostId", required = true) @PathVariable("hostId")
         @Pattern(regexp = REG_UUID, message = "hostId must be in UUID format") String hostId) {
         Either<FormatRespDto, MepHost> either = hostService.getHost(hostId);
@@ -86,7 +86,7 @@ public class HostController {
     })
     @RequestMapping(value = "/", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_UTF8_VALUE,
         produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    @PreAuthorize("hasRole('DEVELOPER_TENANT')")
+    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<MepHost> createHost(
         @ApiParam(value = "MepHost", required = true) @Validated @RequestBody MepHost host) {
         Either<FormatRespDto, MepHost> either = hostService.createHost(host);
@@ -100,7 +100,7 @@ public class HostController {
     })
     @RequestMapping(value = "/{hostId}", method = RequestMethod.DELETE,
         produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    @PreAuthorize("hasRole('DEVELOPER_TENANT')")
+    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<Boolean> deleteHost(@ApiParam(value = "hostId", required = true) @PathVariable("hostId")
         @Pattern(regexp = REG_UUID, message = "hostId must be in UUID format") String hostId) {
         Either<FormatRespDto, Boolean> either = hostService.deleteHost(hostId);
@@ -114,7 +114,7 @@ public class HostController {
     })
     @RequestMapping(value = "/{hostId}", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_UTF8_VALUE,
         produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    @PreAuthorize("hasRole('DEVELOPER_TENANT')")
+    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<MepHost> modifyHost(@PathVariable("hostId") @Pattern(regexp = REG_UUID) String hostId,
         @Validated @RequestBody MepHost host) {
         Either<FormatRespDto, MepHost> either = hostService.updateHost(hostId, host);

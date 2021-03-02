@@ -53,6 +53,9 @@ import com.spencerwi.either.Either;
 public class VmService {
     private static final Logger LOGGER = LoggerFactory.getLogger(VmService.class);
 
+    private static final String VMPATH = "/home/developer";
+
+
     private static Gson gson = new Gson();
 
     @Autowired
@@ -304,8 +307,8 @@ public class VmService {
 
         FTPClient ftpClient = new FTPClient();//import org.apache.commons.net.ftp.FTPClient;
         ftpClient.connect(vmInfo.get(0).getVncUrl(), 21);//连接ftp
-        ftpClient.login(vmCreateConfig.getVmUsername(), "root");//登陆ftp
-        ftpClient.changeWorkingDirectory("/var/ftp/home/tyzf_ftp/batchUpload");//需要把文件上传到FTP哪个目录
+        ftpClient.login("root", "root");//登陆ftp
+        ftpClient.changeWorkingDirectory(VMPATH);//需要把文件上传到FTP哪个目录
         boolean result = ftpClient.storeFile(file.getName(), new FileInputStream(file));//存储文件,成功返回true,失败false
         if(!result) {
             LOGGER.warn("upload fail, ip:{}", vmInfo.get(0).getVncUrl());

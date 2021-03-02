@@ -73,15 +73,16 @@ topology_template:
           max_number_of_instances: 1
           initial_number_of_instances: 1
           flavor_extra_specs:
-            "Mgmt_egx86": true
+            "mgmt_egx86": "true"
+            "mgmt_egarm": "true"
         sw_image_data:
-          name: HUAWEI_EulerOS_V2.0SP8_aarch64_dvd
+          name: ubuntu_16.04_64bit_40GB
         bootdata:
           config_drive: true
           user_data:
             contents: |
               #!/bin/bash
-              echo "$certificate_info$" >> /home/mep.ca
+
 
 
     EMS_VDU1_CP0:

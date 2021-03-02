@@ -68,7 +68,7 @@ public class UploadedFilesController {
     })
     @RequestMapping(value = "/{fileId}", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
-    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_GUEST')")
+    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN') || hasRole('DEVELOPER_GUEST')")
     public ResponseEntity<byte[]> getFile(@Pattern(regexp = REGEX_UUID, message = "fileId must be in UUID format")
     @ApiParam(value = "fileId", required = true) @PathVariable("fileId") String fileId,
         @Pattern(regexp = REGEX_UUID, message = "userId must be in UUID format") @ApiParam(value = "userId")
@@ -91,7 +91,7 @@ public class UploadedFilesController {
     })
     @RequestMapping(value = "/api-info/{fileId}", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_GUEST')")
+    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN') || hasRole('DEVELOPER_GUEST')")
     public ResponseEntity<UploadedFile> getApiFile(
         @Pattern(regexp = REGEX_UUID, message = "fileId must be in UUID format")
         @ApiParam(value = "fileId", required = true) @PathVariable("fileId") String fileId,
@@ -111,7 +111,7 @@ public class UploadedFilesController {
     })
     @RequestMapping(value = "", method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
         produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    @PreAuthorize("hasRole('DEVELOPER_TENANT')")
+    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<UploadedFile> uploadFile(
         @ApiParam(value = "file", required = true) @RequestPart("file") MultipartFile uploadFile,
         @Pattern(regexp = REGEX_UUID, message = "userId must be in UUID format")
@@ -131,7 +131,7 @@ public class UploadedFilesController {
     })
     @RequestMapping(value = "/helm-template-yaml", method = RequestMethod.POST,
         consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    @PreAuthorize("hasRole('DEVELOPER_TENANT')")
+    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<HelmTemplateYamlRespDto> uploadHelmTemplateYaml(
         @ApiParam(value = "file", required = true) @RequestPart("file") MultipartFile helmTemplateYaml,
         @Pattern(regexp = REGEX_UUID, message = "userId must be in UUID format")
@@ -155,7 +155,7 @@ public class UploadedFilesController {
     })
     @RequestMapping(value = "/helm-template-yaml", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    @PreAuthorize("hasRole('DEVELOPER_TENANT')")
+    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<List<HelmTemplateYamlRespDto>> getHelmTemplateYamlList(
         @Pattern(regexp = REGEX_UUID, message = "userId must be in UUID format")
         @ApiParam(value = "userId", required = true) @RequestParam("userId") String userId,
@@ -176,7 +176,7 @@ public class UploadedFilesController {
     })
     @RequestMapping(value = "/helm-template-yaml", method = RequestMethod.DELETE,
         produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    @PreAuthorize("hasRole('DEVELOPER_TENANT')")
+    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<String> deleteHelmTemplateYamlByFileId(
         @Pattern(regexp = REGEX_UUID, message = "fileId must be in UUID format")
         @ApiParam(value = "fileId", required = true) @RequestParam("fileId") String fileId) {
@@ -194,7 +194,7 @@ public class UploadedFilesController {
     })
     @RequestMapping(value = "/samplecode", method = RequestMethod.POST,
         consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
-    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_GUEST')")
+    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN') || hasRole('DEVELOPER_GUEST')")
     public ResponseEntity<byte[]> getSampleCode(
         @ApiParam(value = "apiFileIds", required = true) @RequestBody List<String> apiFileIds) {
         Either<FormatRespDto, ResponseEntity<byte[]>> either = uploadFileService.downloadSampleCode(apiFileIds);
@@ -215,7 +215,7 @@ public class UploadedFilesController {
     })
     @RequestMapping(value = "/samplecode/get-pkg-structure", method = RequestMethod.POST,
         produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_GUEST')")
+    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN') || hasRole('DEVELOPER_GUEST')")
     public ResponseEntity<AppPkgStructure> getSampleCodeStru(
         @ApiParam(value = "apiFileIds", required = true) @RequestBody List<String> apiFileIds) {
         Either<FormatRespDto, AppPkgStructure> either = uploadFileService.getSampleCodeStru(apiFileIds);
@@ -232,7 +232,7 @@ public class UploadedFilesController {
     })
     @RequestMapping(value = "/samplecode/get-file-content", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_GUEST')")
+    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN') || hasRole('DEVELOPER_GUEST')")
     public ResponseEntity<String> getSampleCodeContent(
         @ApiParam(value = "fileName", required = true) @RequestParam String fileName) {
         Either<FormatRespDto, String> either = uploadFileService.getSampleCodeContent(fileName);
@@ -249,7 +249,7 @@ public class UploadedFilesController {
     })
     @RequestMapping(value = "/sdk/{fileId}/download/{lan}", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
-    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_GUEST')")
+    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN') || hasRole('DEVELOPER_GUEST')")
     public ResponseEntity<byte[]> getSdkProject(@Pattern(regexp = REGEX_UUID, message = "fileId must be in UUID format")
     @ApiParam(value = "fileId", required = true) @PathVariable("fileId") String fileId,
         @Pattern(regexp = REGEX_UUID, message = "lan must be in UUID format") @ApiParam(value = "lan", required = true)

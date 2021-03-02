@@ -56,7 +56,7 @@ public class VmController {
         @ApiResponse(code = 200, message = "OK", response = VmResource.class)
     })
     @RequestMapping(value = "/vmconfig", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    @PreAuthorize("hasRole('DEVELOPER_TENANT')")
+    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<VmResource> getVirtualResource( ){
         Either<FormatRespDto, VmResource> either = vmService
             .getVirtualResource();
@@ -73,7 +73,7 @@ public class VmController {
     })
     @RequestMapping(value = "/project/{projectId}/vm-create", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_UTF8_VALUE,
         produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    @PreAuthorize("hasRole('DEVELOPER_TENANT')")
+    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<VmCreateConfig> createVm(
         @NotNull @ApiParam(value = "VmConfig", required = true) @RequestBody VmCreateConfig vmCreateConfig,
         @Pattern(regexp = REGEX_UUID, message = "projectId must be in UUID format")
@@ -96,7 +96,7 @@ public class VmController {
     })
     @RequestMapping(value = "/project/{projectId}/vm-create", method = RequestMethod.GET, consumes = MediaType.APPLICATION_JSON_UTF8_VALUE,
         produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    @PreAuthorize("hasRole('DEVELOPER_TENANT')")
+    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<List<VmCreateConfig>> getCreateVmConfig(
         @Pattern(regexp = REGEX_UUID, message = "projectId must be in UUID format")
         @ApiParam(value = "projectId", required = true) @PathVariable("projectId") String projectId,
@@ -116,14 +116,14 @@ public class VmController {
     })
     @RequestMapping(value = "/project/{projectId}/vm-delete/{vmId}", method = RequestMethod.DELETE,
         produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    @PreAuthorize("hasRole('DEVELOPER_TENANT')")
+    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<Boolean> deleteCreateVmConfig(
         @Pattern(regexp = REGEX_UUID, message = "projectId must be in UUID format")
         @ApiParam(value = "projectId", required = true) @PathVariable("projectId") String projectId,
+        @Pattern(regexp = REGEX_UUID, message = "vmId must be in UUID format")
+        @ApiParam(value = "vmId", required = true) @PathVariable("vmId") String vmId,
         @Pattern(regexp = REGEX_UUID, message = "userId must be in UUID format")
         @ApiParam(value = "userId", required = true) @RequestParam("userId") String userId,
-        @Pattern(regexp = REGEX_UUID, message = "vmId must be in UUID format")
-        @ApiParam(value = "vmId", required = true) @RequestParam("vmId") String vmId,
         HttpServletRequest request) {
         String token = request.getHeader(Consts.ACCESS_TOKEN_STR);
         Either<FormatRespDto, Boolean> either = vmService.deleteCreateVm(userId, projectId, vmId, token);
@@ -140,7 +140,7 @@ public class VmController {
     })
     @RequestMapping(value = "", method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
         produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    @PreAuthorize("hasRole('DEVELOPER_TENANT')")
+    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<Boolean> uploadFile(
         @ApiParam(value = "file", required = true) @RequestPart("file") MultipartFile uploadFile,
         @Pattern(regexp = REGEX_UUID, message = "projectId must be in UUID format")

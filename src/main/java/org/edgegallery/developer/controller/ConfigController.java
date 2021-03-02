@@ -58,7 +58,7 @@ public class ConfigController {
     })
     @RequestMapping(value = "/deploy-platform", method = RequestMethod.PUT,
         consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    @PreAuthorize("hasRole('DEVELOPER_TENANT')")
+    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<DeployPlatformConfig> deployPlatformConfig(
         @ApiParam(value = "DeployPlatformConfig", required = true) @RequestBody
             DeployPlatformConfig deployPlatform) {
@@ -76,7 +76,7 @@ public class ConfigController {
     })
     @RequestMapping(value = "/deploy-platform", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    @PreAuthorize("hasRole('DEVELOPER_TENANT')|| hasRole('DEVELOPER_GUEST')")
+    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')|| hasRole('DEVELOPER_GUEST')")
     public ResponseEntity<DeployPlatformConfig> getDeployPlatformConfig() {
         Either<FormatRespDto, DeployPlatformConfig> either = configService.getConfigDeployPlatform();
         return ResponseDataUtil.buildResponse(either);

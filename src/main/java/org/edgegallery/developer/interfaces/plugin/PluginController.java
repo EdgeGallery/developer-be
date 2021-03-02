@@ -93,7 +93,7 @@ public class PluginController {
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class),
         @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorRespDto.class)
     })
-    @PreAuthorize("hasRole('DEVELOPER_TENANT')")
+    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<PluginDto> upload(
         @ApiParam(value = "plugin", required = true) @RequestPart(name = "pluginFile") MultipartFile pluginFile,
         @ApiParam(value = "logo File", required = true) @RequestPart(name = "logoFile") MultipartFile logoFile,
@@ -133,7 +133,7 @@ public class PluginController {
         @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorRespDto.class)
     })
     @RequestMapping(value = "/", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_GUEST')")
+    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN') || hasRole('DEVELOPER_GUEST')")
     public ResponseEntity<Page<PluginDto>> getAll(
         @ApiParam(value = "plugin type:plugin or sdk", required = true) @RequestParam("pluginType") String pluginType,
         @ApiParam(value = "codeLanguage") @RequestParam("codeLanguage") String codeLanguage,
@@ -165,7 +165,7 @@ public class PluginController {
         @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorRespDto.class)
     })
     @RequestMapping(value = "/{pluginId}", method = RequestMethod.DELETE)
-    @PreAuthorize("hasRole('DEVELOPER_TENANT')")
+    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<Boolean> deletePlugin(
         @Pattern(regexp = REGEX_UUID, message = "pluginId must be in UUID format") @PathVariable("pluginId")
             String pluginId) {
@@ -192,7 +192,7 @@ public class PluginController {
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
     @RequestMapping(value = "/{pluginId}/action/download", method = RequestMethod.GET)
-    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_GUEST')")
+    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN') || hasRole('DEVELOPER_GUEST')")
     public ResponseEntity<InputStreamResource> downloadFile(
         @Pattern(regexp = REGEX_UUID, message = "pluginId must be in UUID format")
         @ApiParam(value = "pluginId", required = true) @PathVariable("pluginId") String pluginId) throws IOException {
@@ -215,7 +215,7 @@ public class PluginController {
         @ApiResponse(code = 404, message = "Not Found", response = ErrorRespDto.class)
     })
     @RequestMapping(value = "/{pluginId}/action/get-logofile", method = RequestMethod.GET)
-    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_GUEST')")
+    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN') || hasRole('DEVELOPER_GUEST')")
     public ResponseEntity<InputStreamResource> getLogoFile(
         @Pattern(regexp = REGEX_UUID, message = "pluginId must be" + " in UUID format")
         @ApiParam(value = "pluginId", required = true) @PathVariable("pluginId") String pluginId) throws IOException {
@@ -240,7 +240,7 @@ public class PluginController {
         @ApiResponse(code = 404, message = "Unauthorized", response = ErrorRespDto.class)
     })
     @RequestMapping(value = "/{pluginId}/action/get-apifile", method = RequestMethod.GET)
-    @PreAuthorize("hasRole('DEVELOPER_TENANT')")
+    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<InputStreamResource> getApiFile(
         @Pattern(regexp = REGEX_UUID, message = "pluginId must be" + " in UUID format")
         @ApiParam(value = "pluginId", required = true) @PathVariable("pluginId") String pluginId) throws IOException {
@@ -269,7 +269,7 @@ public class PluginController {
         @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorRespDto.class)
     })
     @RequestMapping(value = "/{pluginId}", method = RequestMethod.PUT)
-    @PreAuthorize("hasRole('DEVELOPER_TENANT')")
+    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<PluginDto> updatePlugin(
         @ApiParam(value = "plugin", required = false) @RequestPart("pluginFile") MultipartFile pluginFile,
         @ApiParam(value = "logo File", required = false) @RequestPart("logoFile") MultipartFile logoFile,
@@ -316,7 +316,7 @@ public class PluginController {
         @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorRespDto.class)
     })
     @RequestMapping(value = "/{pluginId}/action/score", method = RequestMethod.PUT)
-    @PreAuthorize("hasRole('DEVELOPER_TENANT')")
+    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<PluginDto> updateScore(
         @Pattern(regexp = REGEX_UUID, message = "pluginId must be in UUID format") @PathVariable("pluginId")
             String pluginId,

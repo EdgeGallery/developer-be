@@ -67,7 +67,7 @@ public class MepCapabilityController {
     })
     @RequestMapping(value = "/", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_UTF8_VALUE,
         produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    @PreAuthorize("hasRole('DEVELOPER_TENANT')")
+    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<OpenMepCapabilityGroup> createGroup(
         @ApiParam(value = "EdgeGalleryCapabilityGroup", required = true) @RequestBody OpenMepCapabilityGroup group) {
         Either<FormatRespDto, OpenMepCapabilityGroup> either = openService.createGroup(group);
@@ -87,7 +87,7 @@ public class MepCapabilityController {
     })
     @RequestMapping(value = "/{groupId}", method = RequestMethod.DELETE,
         produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    @PreAuthorize("hasRole('DEVELOPER_TENANT')")
+    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<Boolean> deleteGroup(@ApiParam(value = "groupId", required = true) @PathVariable("groupId")
         @Pattern(regexp = REG_UUID) String groupId) {
         Either<FormatRespDto, Boolean> either = openService.deleteGroup(groupId);
@@ -107,7 +107,7 @@ public class MepCapabilityController {
     })
     @RequestMapping(value = "/{groupId}", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_UTF8_VALUE,
         produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    @PreAuthorize("hasRole('DEVELOPER_TENANT')")
+    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<OpenMepCapabilityDetail> createCapability(
         @ApiParam(value = "groupId", required = true) @PathVariable("groupId")
         @Pattern(regexp = REG_UUID) String groupId,
@@ -129,7 +129,7 @@ public class MepCapabilityController {
     })
     @RequestMapping(value = "/capabilities/{capabilityId}", method = RequestMethod.DELETE,
         produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    @PreAuthorize("hasRole('DEVELOPER_TENANT')")
+    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<Boolean> deleteCapabilityByUserId(
         @ApiParam(value = "capabilityId", required = true) @PathVariable("capabilityId")
         @Pattern(regexp = REG_UUID) String capabilityId,
@@ -151,7 +151,7 @@ public class MepCapabilityController {
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
     @RequestMapping(value = "", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_GUEST')")
+    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN') || hasRole('DEVELOPER_GUEST')")
     public ResponseEntity<List<OpenMepCapabilityGroup>> getAllCapalities() {
         Either<FormatRespDto, List<OpenMepCapabilityGroup>> either = openService.getAllCapabilityGroups();
         return ResponseDataUtil.buildResponse(either);
@@ -168,7 +168,7 @@ public class MepCapabilityController {
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
     @RequestMapping(value = "/{groupId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_GUEST')")
+    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN') || hasRole('DEVELOPER_GUEST')")
     public ResponseEntity<OpenMepCapabilityGroup> getCapalitiesByGroupId(
         @ApiParam(value = "groupId", required = true) @PathVariable("groupId")
         @Pattern(regexp = REG_UUID) String groupId) {
@@ -185,7 +185,7 @@ public class MepCapabilityController {
     @ApiResponses(value = {@ApiResponse(code = 200, message = "OK", response = OpenMepApiResponse.class)})
     @RequestMapping(value = "/open-api/{type}", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_GUEST')")
+    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN') || hasRole('DEVELOPER_GUEST')")
     public ResponseEntity<OpenMepApiResponse> getOpenMepApi(
         @ApiParam(value = "type", required = true) @PathVariable("type") @Pattern(regexp = REG_UUID) String type) {
         Either<FormatRespDto, OpenMepApiResponse> either = openService.getOpenMepList(type);
@@ -201,7 +201,7 @@ public class MepCapabilityController {
     @ApiResponses(value = {@ApiResponse(code = 200, message = "OK", response = OpenMepEcoApiResponse.class)})
     @RequestMapping(value = "/openmepeco-api", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_GUEST')")
+    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN') || hasRole('DEVELOPER_GUEST')")
     public ResponseEntity<OpenMepEcoApiResponse> getOpenMepEcoApi() {
         Either<FormatRespDto, OpenMepEcoApiResponse> either = openService.getOpenMepEcoList();
         return ResponseDataUtil.buildResponse(either);
@@ -216,7 +216,7 @@ public class MepCapabilityController {
     @ApiResponses(value = {@ApiResponse(code = 200, message = "OK", response = OpenMepApiResponse.class)})
     @RequestMapping(value = "/openmep-api/{fileId}", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    @PreAuthorize("hasRole('DEVELOPER_TENANT')")
+    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<OpenMepCapabilityDetail> getOpenMepApiByFileId(
         @Pattern(regexp = REG_UUID, message = "fileId must be in UUID format")
         @ApiParam(value = "fileId", required = true) @PathVariable("fileId") String fileId) {
