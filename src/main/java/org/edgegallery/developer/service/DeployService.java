@@ -473,7 +473,7 @@ public class DeployService {
         Containers containersMepAgent = new Containers();
         containersMepAgent.setName("mep-agent");
         containersMepAgent
-            .setImage("{{ .Values.imagelocation.domainname }}/{{ .Values.imagelocation.project}}/mep-agent:latest");
+            .setImage("{{.Values.imagelocation.domainname}}/{{.Values.imagelocation.project}}/mep-agent:latest");
         containersMepAgent.setImagePullPolicy("Always");
         Environment envWait = new Environment();
         envWait.setName("ENABLE_WAIT");
