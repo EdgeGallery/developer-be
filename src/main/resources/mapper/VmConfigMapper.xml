@@ -123,7 +123,9 @@
         #{stageStatus, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonTypeHandler},
         host =
         #{host, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonTypeHandler},
-        lcm_token = #{lcmToken}, vm_info = #{vmInfo}, create_time = #{createTime}, log = #{log}
+        lcm_token = #{lcmToken},
+        vm_info = #{vmInfo, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonTypeHandler},
+        create_time = #{createTime}, log = #{log}
         WHERE
         vm_id = #{vmId}
     </update>
