@@ -38,7 +38,7 @@ public class NewCreateCsar {
 
     private static final String TEMPLATE_CSAR_BASE_PATH = "/Artifacts/Deployment/Charts/";
 
-    private static final String IMAGE_BASE_PATH = "/Image/SwImageDesc.json";
+    private static final String IMAGE_BASE_PATH = "Image/SwImageDesc.json";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(NewCreateCsar.class);
 
@@ -102,7 +102,7 @@ public class NewCreateCsar {
             }
         }
         //update SwImageDesc.json
-        File imageJson = new File(WORKSPACE_CSAR_PATH + IMAGE_BASE_PATH);
+        File imageJson = new File(csar.getCanonicalPath() + File.separator + IMAGE_BASE_PATH);
         //query saved pod data
         String projectId = project.getId();
         List<ProjectImageConfig> list = new ArrayList<>();
@@ -110,13 +110,9 @@ public class NewCreateCsar {
             list = ImageUtils.getAllImage(projectId);
         }
         if (!CollectionUtils.isEmpty(list)) {
-            //[{"podName":"positioning-service","podImage":["positioning_service:1.0","positioning_service:2.0"]},
-            // {"podName":"positioning-service-new","podImage":["positioning_service:1.0"]}]
             ProjectImageConfig imageConfig = list.get(0);
             String containers = imageConfig.getPodContainers();
             List<PodImage> images = new Gson().fromJson(containers, new TypeToken<List<PodImage>>() { }.getType());
-            //  String[] cons = containers.split(",");
-            //fill  imageJson data
             String imageData = getSwImageData(images, project);
             // write data into imageJson file
             writeFile(imageJson, imageData);
