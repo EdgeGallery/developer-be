@@ -55,7 +55,6 @@
       type="org.edgegallery.developer.model.vm.VmCreateConfig">
         <id property="vmId" column="vm_id"/>
         <result property="projectId" column="project_id"/>
-        <result property="templateJson" column="template_json"/>
         <result property="vmRegulationDesc" column="vm_regulation_desc"
           typeHandler="org.edgegallery.developer.model.handler.JsonTypeHandler"/>
         <result property="vmSystemDesc" column="vm_system_desc"
@@ -63,7 +62,6 @@
         <result property="vmNetworkDesc" column="vm_network_desc"
           typeHandler="org.edgegallery.developer.model.handler.JsonCollectionTypeHandler"/>
         <result property="vmName" column="vm_name"/>
-        <result property="vmUsername" column="vm_username"/>
         <result property="status" column="status"/>
         <result property="stageStatus" column="stage_status"
           typeHandler="org.edgegallery.developer.model.handler.JsonTypeHandler"/>
@@ -72,7 +70,7 @@
         <result property="lcmToken" column="lcm_token"/>
         <result property="vmInfo" column="vm_info"
           typeHandler="org.edgegallery.developer.model.handler.JsonCollectionTypeHandler"/>
-        <result property="packageId" column="package_id"/>
+        <result property="appInstanceId" column="app_instance_id"/>
         <result property="createTime" column="create_time"/>
         <result property="log" column="log"/>
     </resultMap>
@@ -104,14 +102,14 @@
     <insert id="saveVmCreateConfig"
       parameterType="org.edgegallery.developer.model.vm.VmCreateConfig">
         insert into
-        tbl_project_vm_create_config (vm_id, project_id, template_json, vm_regulation_desc,
-        vm_system_desc, vm_network_desc, vm_name, vm_username, package_id, lcm_token, status, stage_status)
+        tbl_project_vm_create_config (vm_id, project_id, vm_regulation_desc,
+        vm_system_desc, vm_network_desc, vm_name, app_instance_id, lcm_token, status, stage_status)
         values
-        ( #{vmId}, #{projectId}, #{templateJson},
+        ( #{vmId}, #{projectId},
         #{vmRegulationDesc, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonTypeHandler},
         #{vmSystemDesc, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonTypeHandler},
         #{vmNetworkDesc, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonCollectionTypeHandler},
-        #{vmName}, #{vmUsername}, #{packageId}, #{lcmToken}, #{status},
+        #{vmName}, #{appInstanceId}, #{lcmToken}, #{status},
         #{stageStatus, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonTypeHandler})
     </insert>
 

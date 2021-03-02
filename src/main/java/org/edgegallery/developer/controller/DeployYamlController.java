@@ -65,7 +65,7 @@ public class DeployYamlController {
     })
     @RequestMapping(value = "/{projectId}", method = RequestMethod.POST,
         consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    @PreAuthorize("hasRole('DEVELOPER_TENANT')")
+    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<HelmTemplateYamlRespDto> postDeploy(
         @ApiParam(value = "DeployYamls", required = true) @RequestBody DeployYamls deployYamls,
         @ApiParam(value = "userId", required = true) @RequestParam String userId,
@@ -86,7 +86,7 @@ public class DeployYamlController {
     })
     @RequestMapping(value = "/{projectId}/action/save-yaml", method = RequestMethod.POST,
         consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    @PreAuthorize("hasRole('DEVELOPER_TENANT')")
+    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<HelmTemplateYamlPo> saveDeploy( @RequestBody String jsonStr,
         @ApiParam(value = "userId", required = true) @RequestParam String userId,
         @ApiParam(value = "projectId", required = true) @PathVariable String projectId,
@@ -105,7 +105,7 @@ public class DeployYamlController {
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
     @RequestMapping(value = "/{fileId}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    @PreAuthorize("hasRole('DEVELOPER_TENANT')")
+    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<HelmTemplateYamlPo> updateDeployYaml(
         @ApiParam(value = "fileId", required = true) @PathVariable String fileId,
         @ApiParam(value = "fileContent", required = true) @RequestBody String fileContent)  {
@@ -124,7 +124,7 @@ public class DeployYamlController {
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
     @RequestMapping(value = "/{fileId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    @PreAuthorize("hasRole('DEVELOPER_TENANT')")
+    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<HelmTemplateYamlPo> getDeployYaml(
         @ApiParam(value = "fileId", required = true) @PathVariable String fileId) {
         Either<FormatRespDto, HelmTemplateYamlPo> either = deployService
@@ -142,7 +142,7 @@ public class DeployYamlController {
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
     @RequestMapping(value = "/{fileId}/action/get-json", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    @PreAuthorize("hasRole('DEVELOPER_TENANT')")
+    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<List<String>> queryDeployYaml(
         @ApiParam(value = "fileId", required = true) @PathVariable String fileId) throws JsonProcessingException {
         Either<FormatRespDto, List<String>> either = deployService

@@ -38,7 +38,7 @@ public class ReleaseConfigController {
     })
     @RequestMapping(value = "/{projectId}/action/release-config", method = RequestMethod.POST,
         produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    @PreAuthorize("hasRole('DEVELOPER_TENANT')")
+    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<ReleaseConfig> saveReleaseConfig(
         @Pattern(regexp = REGEX_UUID, message = "projectId must be in UUID format")
         @ApiParam(value = "projectId", required = true) @PathVariable(value = "projectId", required = true)
@@ -54,7 +54,7 @@ public class ReleaseConfigController {
     })
     @RequestMapping(value = "/{projectId}/action/release-config", method = RequestMethod.PUT,
         produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    @PreAuthorize("hasRole('DEVELOPER_TENANT')")
+    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<ReleaseConfig> updateReleaseConfig(
         @Pattern(regexp = REGEX_UUID, message = "projectId must be in UUID format")
         @ApiParam(value = "projectId", required = true) @PathVariable(value = "projectId", required = true)
@@ -70,7 +70,7 @@ public class ReleaseConfigController {
     })
     @RequestMapping(value = "/{projectId}/action/release-config", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    @PreAuthorize("hasRole('DEVELOPER_TENANT')")
+    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<ReleaseConfig> getReleaseConfig(
         @Pattern(regexp = REGEX_UUID, message = "projectId must be in UUID format")
         @ApiParam(value = "projectId", required = true) @PathVariable(value = "projectId", required = true)

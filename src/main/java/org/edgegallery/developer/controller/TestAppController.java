@@ -89,7 +89,7 @@ public class TestAppController {
     })
     @RequestMapping(value = "/", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE,
         consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @PreAuthorize("hasRole('DEVELOPER_TENANT')")
+    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<TestApp> upload(
         @ApiParam(value = "appfile", required = true) @RequestPart("appFile") MultipartFile appFile,
         @ApiParam(value = "logoFile", required = true) @RequestPart("logoFile") MultipartFile logoFile,
@@ -130,7 +130,7 @@ public class TestAppController {
         @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorRespDto.class)
     })
     @RequestMapping(value = "/", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_GUEST')")
+    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN') || hasRole('DEVELOPER_GUEST')")
     public ResponseEntity<TestTaskListResponse> getTaskByParam(
         @Length(max = MAX_COMMON_STRING_LENGTH, message = "Length of app name cannot exceed 255")
         @ApiParam(value = "app name", required = false) @RequestParam(value = "appName", required = false)
@@ -162,7 +162,7 @@ public class TestAppController {
         @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorRespDto.class)
     })
     @RequestMapping(value = "/tags", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_GUEST')")
+    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN') || hasRole('DEVELOPER_GUEST')")
     public ResponseEntity<AppTagsResponse> getTagList() {
         // get all app tags
         Either<FormatRespDto, AppTagsResponse> either = testAppService.getTagList();
@@ -183,7 +183,7 @@ public class TestAppController {
     })
     @RequestMapping(value = "/{appId}/action/upload", method = RequestMethod.POST,
         produces = MediaType.TEXT_PLAIN_VALUE)
-    @PreAuthorize("hasRole('DEVELOPER_TENANT')")
+    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<String> uploadToAppStore(
         @Pattern(regexp = REGEX_UUID, message = "appId must be in UUID format") @PathVariable("appId") String appId,
         @Pattern(regexp = REGEX_UUID, message = "userId must be in UUID format")
@@ -212,7 +212,7 @@ public class TestAppController {
         @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorRespDto.class)
     })
     @RequestMapping(value = "/{appId}/action/start-test", method = RequestMethod.GET)
-    @PreAuthorize("hasRole('DEVELOPER_TENANT')")
+    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<Boolean> startTest(
         @Pattern(regexp = REGEX_UUID, message = "appId must be in UUID format") @PathVariable("appId") String appId,
         @Pattern(regexp = REGEX_UUID, message = "userId must be in UUID format")
@@ -235,7 +235,7 @@ public class TestAppController {
         @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorRespDto.class)
     })
     @RequestMapping(value = "/{appId}/task/{taskId}/subtasks", method = RequestMethod.GET)
-    @PreAuthorize("hasRole('DEVELOPER_TENANT')")
+    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<SubTaskListResponse> subtasks(
         @Pattern(regexp = REGEX_UUID, message = "appId must be in UUID format") @PathVariable("appId") String appId,
         @Pattern(regexp = REGEX_UUID, message = "taskId must be in UUID format") @PathVariable("taskId")

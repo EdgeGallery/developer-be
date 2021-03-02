@@ -48,7 +48,7 @@ public class SystemController {
             @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
     @RequestMapping(value = "/hosts", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    @PreAuthorize("hasRole('DEVELOPER_TENANT')")
+    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<Page<MepHost>> getAllHosts(
             @ApiParam(value = "userId", required = false) @RequestParam(value = "userId", required = false) String userId,
             @ApiParam(value = "name", required = false) @RequestParam(value = "name", required = false) String name,
@@ -65,7 +65,7 @@ public class SystemController {
             @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
     @RequestMapping(value = "/hosts/{hostId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    @PreAuthorize("hasRole('DEVELOPER_TENANT')")
+    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<MepHost> getHost(@ApiParam(value = "hostId", required = true) @PathVariable("hostId")
                                            @Pattern(regexp = REG_UUID, message = "hostId must be in UUID format") String hostId) {
         Either<FormatRespDto, MepHost> either = systemService.getHost(hostId);
@@ -79,7 +79,7 @@ public class SystemController {
     })
     @RequestMapping(value = "/hosts", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_UTF8_VALUE,
             produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    @PreAuthorize("hasRole('DEVELOPER_TENANT')")
+    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<MepHost> createHost(
             @ApiParam(value = "MepHost", required = true) @Validated @RequestBody MepHost host) {
         Either<FormatRespDto, MepHost> either = systemService.createHost(host);
@@ -93,7 +93,7 @@ public class SystemController {
     })
     @RequestMapping(value = "/hosts/{hostId}", method = RequestMethod.DELETE,
             produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    @PreAuthorize("hasRole('DEVELOPER_TENANT')")
+    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<Boolean> deleteHost(@ApiParam(value = "hostId", required = true) @PathVariable("hostId")
                                               @Pattern(regexp = REG_UUID, message = "hostId must be in UUID format") String hostId) {
         Either<FormatRespDto, Boolean> either = systemService.deleteHost(hostId);
@@ -107,7 +107,7 @@ public class SystemController {
     })
     @RequestMapping(value = "/hosts/{hostId}", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_UTF8_VALUE,
             produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    @PreAuthorize("hasRole('DEVELOPER_TENANT')")
+    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<MepHost> modifyHost(@PathVariable("hostId") @Pattern(regexp = REG_UUID, message = "hostId must be in UUID format") String hostId,
                                               @Validated @RequestBody MepHost host) {
         Either<FormatRespDto, MepHost> either = systemService.updateHost(hostId, host);
@@ -121,7 +121,7 @@ public class SystemController {
             @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
     @RequestMapping(value = "/hosts/{hostId}/log", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    @PreAuthorize("hasRole('DEVELOPER_TENANT')")
+    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<List<MepHostLog>> getHostLogByHostId(
             @ApiParam(value = "hostId", required = true) @PathVariable String hostId) {
         Either<FormatRespDto, List<MepHostLog>> either = systemService.getHostLogByHostId(hostId);
@@ -140,7 +140,7 @@ public class SystemController {
     })
     @RequestMapping(value = "/capability", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_UTF8_VALUE,
             produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    @PreAuthorize("hasRole('DEVELOPER_TENANT')")
+    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<OpenMepCapabilityGroup> createGroup(
             @ApiParam(value = "EdgeGalleryCapabilityGroup", required = true) @RequestBody OpenMepCapabilityGroup group) {
         Either<FormatRespDto, OpenMepCapabilityGroup> either = systemService.createCapabilityGroup(group);
@@ -160,7 +160,7 @@ public class SystemController {
     })
     @RequestMapping(value = "/capability", method = RequestMethod.DELETE,
             produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    @PreAuthorize("hasRole('DEVELOPER_TENANT')")
+    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<Boolean> deleteCapabilityByUserIdAndGroupId(
             @ApiParam(value = "groupId", required = true) @RequestParam("groupId")
             @Pattern(regexp = REG_UUID, message = "groupId must be in UUID format") String groupId,
@@ -182,7 +182,7 @@ public class SystemController {
             @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
     @RequestMapping(value = "/capability", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_GUEST')")
+    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN') || hasRole('DEVELOPER_GUEST')")
     public ResponseEntity<Page<OpenMepCapabilityGroup>> getAllCapability(
             @ApiParam(value = "userId", required = false) @RequestParam(value = "userId", required = false) String userId,
             @ApiParam(value = "twoLevelName", required = false) @RequestParam(value = "twoLevelName", required = false) String twoLevelName,
@@ -203,7 +203,7 @@ public class SystemController {
             @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
     @RequestMapping(value = "/capability/{groupId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_GUEST')")
+    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN') || hasRole('DEVELOPER_GUEST')")
     public ResponseEntity<OpenMepCapabilityGroup> getCapalitiesByGroupId(
             @ApiParam(value = "groupId", required = true) @PathVariable("groupId")
             @Pattern(regexp = REG_UUID) String groupId) {
