@@ -1040,15 +1040,15 @@ public class ProjectService {
                     String[] svcNodePorts = svcPort.substring(1, svcPort.length() - 1).split(",");
                     for (String svc : svcNodePorts) {
                         String node = "http://" + host.getIp() + ":" + svc;
-                        sb.append(node);
+                        sb.append(node+",");
                     }
                 } else {
                     String svcPort = imageConfig.getSvcNodePort();
                     String node = "http://" + host.getIp() + ":" + svcPort.substring(1, svcPort.length() - 1);
-                    sb.append(node);
+                    sb.append(node+",");
                 }
                 LOGGER.warn("sb:" + sb.toString());
-                testConfig.setAccessUrl(sb.toString());
+                testConfig.setAccessUrl(sb.toString().substring(0,sb.toString().length()-1));
             }
 
         } else if (EnumTestConfigStatus.Failed.equals(stageStatus)) {
