@@ -71,7 +71,7 @@
           typeHandler="org.edgegallery.developer.model.handler.JsonTypeHandler"/>
         <result property="lcmToken" column="lcm_token"/>
         <result property="vmInfo" column="vm_info"
-          typeHandler="org.edgegallery.developer.model.handler.JsonCollectionTypeHandler"/>/>
+          typeHandler="org.edgegallery.developer.model.handler.JsonCollectionTypeHandler"/>
         <result property="packageId" column="package_id"/>
         <result property="createTime" column="create_time"/>
         <result property="log" column="log"/>
