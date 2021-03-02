@@ -120,13 +120,13 @@ public class AtpUtil {
 
                 LOGGER.info("status: {}", status);
 
-                if (!WAITING.equalsIgnoreCase(status) && !RUNNING.equals(status)) {
+                if (!WAITING.equalsIgnoreCase(status) && !RUNNING.equals(status) && !"created"
+                    .equalsIgnoreCase(status)) {
                     return status;
                 }
                 sleep5Mins();
-            } catch ( Exception e) {
-                LOGGER.error("Failed to get task status from atp which taskId is {} exception {}", taskId,
-                    e);
+            } catch (RestClientException e) {
+                LOGGER.error("Failed to get task status from atp which taskId is {} exception {}", taskId, e);
                 sleep5Mins();
             }
         }
