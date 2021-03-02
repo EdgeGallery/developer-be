@@ -1111,6 +1111,7 @@ public class ProjectService {
             atpResultInfo.setStatus(null != status ? status.getAsString() : null);
             atpResultInfo.setCreateTime(null != createTime ? createTime.getAsString() : null);
         }
+        LOGGER.info("atp status:{}", atpResultInfo.getStatus());
 
         // save to db
         ReleaseConfig config = new ReleaseConfig();
@@ -1148,7 +1149,7 @@ public class ProjectService {
             AtpResultInfo atpResultInfo = config.getAtpTest();
             String taskId = atpResultInfo.getId();
             atpResultInfo.setStatus(AtpUtil.getTaskStatusFromAtp(taskId, token));
-            LOGGER.info("after status update: ", config.getAtpTest().getStatus());
+            LOGGER.info("after status update: {}", config.getAtpTest().getStatus());
             configMapper.updateAtpStatus(config);
             ApplicationProject project = projectMapper.getProjectById(config.getProjectId());
             //update project status

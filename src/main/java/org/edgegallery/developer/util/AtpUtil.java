@@ -124,9 +124,9 @@ public class AtpUtil {
                     return status;
                 }
                 sleep5Mins();
-            } catch (RestClientException e) {
+            } catch ( Exception e) {
                 LOGGER.error("Failed to get task status from atp which taskId is {} exception {}", taskId,
-                    e.getMessage());
+                    e);
                 sleep5Mins();
             }
         }
