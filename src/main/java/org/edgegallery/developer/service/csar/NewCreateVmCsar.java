@@ -1,5 +1,8 @@
 package org.edgegallery.developer.service.csar;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import com.google.gson.Gson;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -13,29 +16,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.edgegallery.developer.common.Consts;
-import org.edgegallery.developer.model.AppConfigurationModel;
 import org.edgegallery.developer.model.deployyaml.ImageDesc;
-import org.edgegallery.developer.model.deployyaml.PodImage;
 import org.edgegallery.developer.model.vm.VmCreateConfig;
 import org.edgegallery.developer.model.workspace.ApplicationProject;
 import org.edgegallery.developer.model.workspace.EnumDeployPlatform;
-import org.edgegallery.developer.model.workspace.ProjectImageConfig;
-import org.edgegallery.developer.service.deploy.test;
 import org.edgegallery.developer.util.DeveloperFileUtils;
-import org.edgegallery.developer.util.ImageUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.util.CollectionUtils;
 import org.yaml.snakeyaml.Yaml;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator;
-import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 
 public class NewCreateVmCsar {
     private static final String simpleFiles = "/app-name.mf";
