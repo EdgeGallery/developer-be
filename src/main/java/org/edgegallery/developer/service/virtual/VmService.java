@@ -15,12 +15,14 @@ import javax.ws.rs.core.Response.Status;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.net.ftp.FTPClient;
 import org.edgegallery.developer.common.Consts;
+import org.edgegallery.developer.config.security.AccessUserUtil;
 import org.edgegallery.developer.domain.shared.FileChecker;
 import org.edgegallery.developer.mapper.ProjectMapper;
 import org.edgegallery.developer.mapper.VmConfigMapper;
 import org.edgegallery.developer.model.vm.EnumVmCreateStatus;
 import org.edgegallery.developer.model.vm.VmCreateConfig;
 import org.edgegallery.developer.model.vm.VmCreateStageStatus;
+import org.edgegallery.developer.model.vm.VmFlavor;
 import org.edgegallery.developer.model.vm.VmInfo;
 import org.edgegallery.developer.model.vm.VmNetwork;
 import org.edgegallery.developer.model.vm.VmRegulation;
@@ -36,6 +38,7 @@ import org.edgegallery.developer.service.csar.NewCreateVmCsar;
 import org.edgegallery.developer.service.virtual.create.VmCreateStage;
 import org.edgegallery.developer.util.BusinessConfigUtil;
 import org.edgegallery.developer.util.CompressFileUtilsJava;
+import org.edgegallery.developer.util.DeveloperFileUtils;
 import org.edgegallery.developer.util.HttpClientUtil;
 import org.edgegallery.developer.util.InitConfigUtil;
 import org.slf4j.Logger;
@@ -45,6 +48,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
+import org.stringtemplate.v4.ST;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.spencerwi.either.Either;
@@ -118,8 +122,9 @@ public class VmService {
     public File generateVmPackage(VmCreateConfig config) throws IOException {
         ApplicationProject project = projectMapper.getProjectById(config.getProjectId());
         String projectPath = getProjectPath(config.getProjectId());
+        VmFlavor flavor = vmConfigMapper.getVmFlavor(config.getVmRegulation().getArchitecture());
         File csarPkgDir;
-        csarPkgDir = new NewCreateVmCsar().create(projectPath, config, project);
+        csarPkgDir = new NewCreateVmCsar().create(projectPath, config, project, flavor.getFlavor());
         return CompressFileUtilsJava
             .compressToCsarAndDeleteSrc(csarPkgDir.getCanonicalPath(), projectPath, csarPkgDir.getName());
     }
@@ -175,11 +180,6 @@ public class VmService {
         int tes = vmConfigMapper.updateVmCreateConfig(testConfig);
         if (tes < 1) {
             LOGGER.error("Update test-config {} error.", testConfig.getVmId());
-        }
-        // delete resource after deploying failed
-        if (EnumTestConfigStatus.Failed.equals(stageStatus) && testConfig.getAppInstanceId() != null) {
-            deleteVmCreate(testConfig, project.getUserId(), testConfig.getLcmToken());
-            LOGGER.warn("create vm failed, delete create vm  info.");
         }
     }
 
@@ -246,9 +246,10 @@ public class VmService {
     }
 
     public Either<FormatRespDto, Boolean> deleteCreateVm(String userId, String projectId, String vmId, String token) {
-        ApplicationProject project = projectMapper.getProject(userId, projectId);
+
+        ApplicationProject project = projectMapper.getProjectById(projectId);
         if (project == null) {
-            LOGGER.error("Can not find the project by userId {} and projectId {}", userId, projectId);
+            LOGGER.error("Can not find the project projectId {}", projectId);
             FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "Can not find the project.");
             return Either.left(error);
         }
@@ -259,27 +260,32 @@ public class VmService {
             LOGGER.info("Can not find the vm create config by vmId {} and projectId {}", vmId, projectId);
             return Either.right(true);
         }
-        if (!EnumTestConfigStatus.Success.equals(vmCreateConfig.getStageStatus().getInstantiateInfo())) {
-            LOGGER.error("Failed to terminate vm when instantiateInfo not success.");
-            FormatRespDto error = new FormatRespDto(Status.INTERNAL_SERVER_ERROR,
-                "Failed to terminate vm when instantiateInfo not success.");
-            return Either.left(error);
+//        if (!EnumTestConfigStatus.Success.equals(vmCreateConfig.getStageStatus().getInstantiateInfo())) {
+//            LOGGER.error("Failed to terminate vm when instantiateInfo not success.");
+//            FormatRespDto error = new FormatRespDto(Status.INTERNAL_SERVER_ERROR,
+//                "Failed to terminate vm when instantiateInfo not success.");
+//            return Either.left(error);
+//        }
+        if(EnumTestConfigStatus.Success.equals(vmCreateConfig.getStageStatus().getInstantiateInfo())) {
+            Type type = new TypeToken<MepHost>() { }.getType();
+            MepHost host = gson.fromJson(gson.toJson(vmCreateConfig.getHost()), type);
+            boolean terminateResult = HttpClientUtil
+                .terminateAppInstance(host.getProtocol(), host.getIp(), host.getPort(), vmCreateConfig.getAppInstanceId(),
+                    userId, token);
+            if (!terminateResult) {
+                LOGGER.error("Failed to terminate vm which userId is: {}, instanceId is {}", userId,
+                    vmCreateConfig.getAppInstanceId());
+            }
         }
 
-        Type type = new TypeToken<MepHost>() { }.getType();
-        MepHost host = gson.fromJson(gson.toJson(vmCreateConfig.getHost()), type);
-        boolean terminateResult = HttpClientUtil
-            .terminateAppInstance(host.getProtocol(), host.getIp(), host.getPort(), vmCreateConfig.getAppInstanceId(),
-                userId, token);
-        if (!terminateResult) {
-            LOGGER.error("Failed to terminate vm which userId is: {}, instanceId is {}", userId,
-                vmCreateConfig.getAppInstanceId());
-        }
         int res = vmConfigMapper.deleteVmCreateConfig(projectId, vmId);
         if (res<1) {
             LOGGER.error("Delete vm create config {} failed.", vmId);
             return Either.left(new FormatRespDto(Response.Status.BAD_REQUEST, "Delete vm create config failed."));
         }
+        String projectPath = getProjectPath(projectId);
+        DeveloperFileUtils.deleteDir(projectPath + File.separator + vmCreateConfig.getAppInstanceId());
+
         LOGGER.info("delete vm create config success");
         return Either.right(true);
 

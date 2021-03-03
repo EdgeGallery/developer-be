@@ -34,6 +34,13 @@
         <result property="otherAbility" column="other_ability"/>
     </resultMap>
 
+    <resultMap id="VmFlavor"
+      type="org.edgegallery.developer.model.vm.VmFlavor">
+        <result property="architecture" column="architecture"/>
+        <result property="flavor" column="flavor"/>
+        <result property="constraints" column="constraints"/>
+    </resultMap>
+
     <resultMap id="VmSystem"
       type="org.edgegallery.developer.model.vm.VmSystem">
         <id property="systemId" column="system_id"/>
@@ -55,11 +62,11 @@
       type="org.edgegallery.developer.model.vm.VmCreateConfig">
         <id property="vmId" column="vm_id"/>
         <result property="projectId" column="project_id"/>
-        <result property="vmRegulationDesc" column="vm_regulation_desc"
+        <result property="vmRegulation" column="vm_regulation_desc"
           typeHandler="org.edgegallery.developer.model.handler.JsonTypeHandler"/>
-        <result property="vmSystemDesc" column="vm_system_desc"
+        <result property="vmSystem" column="vm_system_desc"
           typeHandler="org.edgegallery.developer.model.handler.JsonTypeHandler"/>
-        <result property="vmNetworkDesc" column="vm_network_desc"
+        <result property="vmNetwork" column="vm_network_desc"
           typeHandler="org.edgegallery.developer.model.handler.JsonCollectionTypeHandler"/>
         <result property="vmName" column="vm_name"/>
         <result property="status" column="status"/>
@@ -99,6 +106,15 @@
         tbl_vm_network
     </select>
 
+    <select id="getVmFlavor"
+      resultMap="VmFlavor">
+        SELECT
+        *
+        FROM
+        tbl_vm_flavor
+        where architecture = #{architecture}
+    </select>
+
     <insert id="saveVmCreateConfig"
       parameterType="org.edgegallery.developer.model.vm.VmCreateConfig">
         insert into
@@ -106,9 +122,9 @@
         vm_system_desc, vm_network_desc, vm_name, app_instance_id, lcm_token, status, stage_status)
         values
         ( #{vmId}, #{projectId},
-        #{vmRegulationDesc, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonTypeHandler},
-        #{vmSystemDesc, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonTypeHandler},
-        #{vmNetworkDesc, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonCollectionTypeHandler},
+        #{vmRegulation, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonTypeHandler},
+        #{vmSystem, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonTypeHandler},
+        #{vmNetwork, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonCollectionTypeHandler},
         #{vmName}, #{appInstanceId}, #{lcmToken}, #{status},
         #{stageStatus, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonTypeHandler})
     </insert>
@@ -141,6 +157,10 @@
         DELETE FROM tbl_project_vm_create_config WHERE project_id = #{projectId};
     </delete>
 
+    <delete id="deleteVmCreateConfig" parameterType="String">
+        DELETE FROM tbl_project_vm_create_config WHERE project_id = #{arg0} and vm_id = #{arg1};
+    </delete>
+
     <select id="getVmCreateConfig"
       parameterType="String" resultMap="VmCreateConfigMap">
         SELECT
@@ -148,7 +168,7 @@
         FROM
         tbl_project_vm_create_config
         WHERE
-        vm_id = #{vmId} and project_id = #{projectId}
+        project_id = #{arg0} and vm_id = #{arg1}
     </select>
 
     <select id="getVmCreateConfigStatus" parameterType="String" resultMap="VmCreateConfigMap">

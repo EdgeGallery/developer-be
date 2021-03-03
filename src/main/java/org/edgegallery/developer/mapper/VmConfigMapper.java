@@ -2,6 +2,7 @@ package org.edgegallery.developer.mapper;
 
 import java.util.List;
 import org.edgegallery.developer.model.vm.VmCreateConfig;
+import org.edgegallery.developer.model.vm.VmFlavor;
 import org.edgegallery.developer.model.vm.VmNetwork;
 import org.edgegallery.developer.model.vm.VmRegulation;
 import org.edgegallery.developer.model.vm.VmResource;
@@ -28,4 +29,7 @@ public interface VmConfigMapper {
     int deleteVmCreateConfig(String projectId, String vmId);
 
     int deleteVmCreateConfigs(String projectId);
+
+
+    VmFlavor getVmFlavor(String architecture);
 }

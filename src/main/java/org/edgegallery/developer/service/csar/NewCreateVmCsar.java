@@ -1,8 +1,5 @@
 package org.edgegallery.developer.service.csar;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import com.google.gson.Gson;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -25,6 +22,9 @@ import org.edgegallery.developer.util.DeveloperFileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.Yaml;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import com.google.gson.Gson;
 
 public class NewCreateVmCsar {
     private static final String simpleFiles = "/app-name.mf";
@@ -45,7 +45,7 @@ public class NewCreateVmCsar {
      * @param project project self
      * @return package gz
      */
-    public File create(String projectPath, VmCreateConfig config, ApplicationProject project)
+    public File create(String projectPath, VmCreateConfig config, ApplicationProject project, String flavor)
         throws IOException {
         File projectDir = new File(projectPath);
 
@@ -91,20 +91,20 @@ public class NewCreateVmCsar {
         // config vm memory
         LinkedHashMap<String, Object> virtualMemory = getObjectFromMap(loaded, "topology_template",
             "node_templates", "EMS_VDU1","capabilities","virtual_compute", "properties", "virtual_memory");
-        virtualMemory.put("virtual_mem_size", config.getVmRegulationDesc().getMemory()*1024);
+        virtualMemory.put("virtual_mem_size", config.getVmRegulation().getMemory()*1024);
         // config vm cpu
         LinkedHashMap<String, Object> virtualCpu = getObjectFromMap(loaded, "topology_template",
             "node_templates", "EMS_VDU1","capabilities","virtual_compute", "properties", "virtual_cpu");
-        virtualCpu.put("num_virtual_cpu", config.getVmRegulationDesc().getCpu());
+        virtualCpu.put("num_virtual_cpu", config.getVmRegulation().getCpu());
         // config vm cpu_architecture
-        virtualCpu.put("cpu_architecture", config.getVmRegulationDesc().getArchitecture());
+        virtualCpu.put("cpu_architecture", config.getVmRegulation().getArchitecture());
         // config vm data storage
         LinkedHashMap<String, Object> virtualStorage = getObjectFromMap(loaded, "topology_template",
             "node_templates", "EMS_VDU1","capabilities","virtual_compute", "properties", "virtual_local_storage");
-        virtualStorage.put("size_of_storage", config.getVmRegulationDesc().getDataDisk());
+        virtualStorage.put("size_of_storage", config.getVmRegulation().getDataDisk());
         // config vm image data
-        String imageData = config.getVmSystemDesc().getOperateSystem() + "_" + config.getVmSystemDesc().getVersion() +
-            "_" + config.getVmSystemDesc().getSystemBit() + "_" + config.getVmSystemDesc().getSystemDisk() + "GB";
+        String imageData = config.getVmSystem().getOperateSystem() + "_" + config.getVmSystem().getVersion() +
+            "_" + config.getVmSystem().getSystemBit() + "_" + config.getVmSystem().getSystemDisk() + "GB";
         LinkedHashMap<String, Object> virtualImage = getObjectFromMap(loaded, "topology_template",
             "node_templates", "EMS_VDU1","properties","sw_image_data");
         virtualImage.put("name", imageData);
@@ -112,28 +112,24 @@ public class NewCreateVmCsar {
         // config flavor
         LinkedHashMap<String, Object> virtualFlavor = getObjectFromMap(loaded, "topology_template",
             "node_templates", "EMS_VDU1","properties","vdu_profile", "flavor_extra_specs");
-        if(config.getVmRegulationDesc().getArchitecture().equals("X86")) {
-
-            virtualFlavor.remove("mgmt_egarm", "true");
-        }else {
-            virtualFlavor.remove("mgmt_egx86", "true");
-        }
+        virtualFlavor.remove("mgmt_egarm", "true");
+        virtualFlavor.put(flavor, "true");
 
         // config vm network type Network_Internet
 
-        if (!config.getVmNetworkDesc().contains("Network_MEP")) {
+        if (!config.getVmNetwork().contains("Network_MEP")) {
             LinkedHashMap<String, Object> virtualNetwork = getObjectFromMap(loaded, "topology_template",
                 "node_templates");
             virtualNetwork.remove("EMS_VDU1_CP0");
             virtualNetwork.remove("MEC_APP_MP1");
         }
-        if (!config.getVmNetworkDesc().contains("Network_N6")) {
+        if (!config.getVmNetwork().contains("Network_N6")) {
             LinkedHashMap<String, Object> virtualNetwork = getObjectFromMap(loaded, "topology_template",
                 "node_templates");
             virtualNetwork.remove("EMS_VDU1_CP1");
             virtualNetwork.remove("MEC_APP_N6");
         }
-        if (!config.getVmNetworkDesc().contains("Network_Internet")) {
+        if (!config.getVmNetwork().contains("Network_Internet")) {
             LinkedHashMap<String, Object> virtualNetwork = getObjectFromMap(loaded, "topology_template",
                 "node_templates");
             virtualNetwork.remove("EMS_VDU1_CP2");
