@@ -241,14 +241,10 @@ public class SystemService {
 
     }
 
-    public Either<FormatRespDto, Boolean> deleteCapabilityByUserIdAndGroupId(String groupId, String userId) {
+    public Either<FormatRespDto, Boolean> deleteCapabilityByUserIdAndGroupId(String groupId) {
         List<OpenMepCapabilityDetail> capabilityDetailList = openMepCapabilityMapper.getDetailByGroupId(groupId);
         if (!CollectionUtils.isEmpty(capabilityDetailList)) {
             for (OpenMepCapabilityDetail capabilityDetail : capabilityDetailList) {
-                if (!capabilityDetail.getUserId().equals(userId)) {
-                    LOGGER.info("The user is not the owner of the capability");
-                    return Either.right(true);
-                }
                 int res = openMepCapabilityMapper.deleteCapability(capabilityDetail.getDetailId());
                 if (res < 1) {
                     LOGGER.info("{} can not find", capabilityDetail.getDetailId());
