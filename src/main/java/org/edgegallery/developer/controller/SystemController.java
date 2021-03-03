@@ -36,7 +36,6 @@ public class SystemController {
      */
 
 
-
     private static final String REG_UUID = "[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}";
 
     @Autowired
@@ -163,10 +162,8 @@ public class SystemController {
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<Boolean> deleteCapabilityByUserIdAndGroupId(
             @ApiParam(value = "groupId", required = true) @RequestParam("groupId")
-            @Pattern(regexp = REG_UUID, message = "groupId must be in UUID format") String groupId,
-            @Pattern(regexp = REG_UUID, message = "userId must be in UUID format") @ApiParam(value = "userId", required = true)
-            @RequestParam("userId") String userId) {
-        Either<FormatRespDto, Boolean> either = systemService.deleteCapabilityByUserIdAndGroupId(groupId, userId);
+            @Pattern(regexp = REG_UUID, message = "groupId must be in UUID format") String groupId) {
+        Either<FormatRespDto, Boolean> either = systemService.deleteCapabilityByUserIdAndGroupId(groupId);
         return ResponseDataUtil.buildResponse(either);
     }
 
@@ -189,7 +186,7 @@ public class SystemController {
             @ApiParam(value = "twoLevelNameEn", required = false) @RequestParam(value = "twoLevelNameEn", required = false) String twoLevelNameEn,
             @ApiParam(value = "the max count of one page", required = true) @Min(1) @RequestParam("limit") int limit,
             @ApiParam(value = "start index of the page", required = true) @Min(0) @RequestParam("offset") int offset) {
-        return ResponseEntity.ok(systemService.getAllCapabilityGroups(userId,twoLevelName,twoLevelNameEn, limit, offset));
+        return ResponseEntity.ok(systemService.getAllCapabilityGroups(userId, twoLevelName, twoLevelNameEn, limit, offset));
     }
 
     /**
