@@ -126,10 +126,16 @@ public class NewCreateCsar {
         for (PodImage obj : images) {
             String[] podImages = obj.getPodImage();
             for (String pod : podImages) {
+                String env = "\\{\\{.Values.imagelocation.domainname}}/\\{\\{.Values.imagelocation.project}}";
+                String envs = StringEscapeUtils.unescapeJava(env);
+                if (pod.contains(envs)) {
+                    pod = pod.replace(envs, ImageConfig.getDomains() + "/" + ImageConfig.getProjects());
+                }
                 ImageDesc imageDesc = new ImageDesc();
                 imageDesc.setId(UUID.randomUUID().toString());
-                String[] vers = pod.split(":");
-                imageDesc.setName(vers[0]);
+                String[] names = pod.split("/");
+                imageDesc.setName(names[names.length-1]);
+                String[] vers = names[names.length-1].split(":");
                 imageDesc.setVersion(vers[1]);
                 imageDesc.setChecksum("2");
                 imageDesc.setContainerFormat("bare");
@@ -138,11 +144,6 @@ public class NewCreateCsar {
                 imageDesc.setMinRam(6);
                 imageDesc.setArchitecture(project.getPlatform().get(0));
                 imageDesc.setSize(688390);
-                String env = "\\{\\{.Values.imagelocation.domainname}}/\\{\\{.Values.imagelocation.project}}";
-                String envs = StringEscapeUtils.unescapeJava(env);
-                if (pod.contains(envs)) {
-                    pod = pod.replace(envs, ImageConfig.getDomains() + "/" + ImageConfig.getProjects());
-                }
                 imageDesc.setSwImage(pod);
                 imageDesc.setHw_scsi_model("virtio-scsi");
                 imageDesc.setHw_disk_bus("scsi");
