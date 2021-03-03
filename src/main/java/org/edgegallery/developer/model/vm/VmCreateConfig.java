@@ -18,11 +18,11 @@ public class VmCreateConfig {
 
     private String projectId;
 
-    private VmRegulation vmRegulationDesc;
+    private VmRegulation vmRegulation;
 
-    private VmSystem vmSystemDesc;
+    private VmSystem vmSystem;
 
-    private List<String> vmNetworkDesc;
+    private List<String> vmNetwork;
 
     private String vmName;
 

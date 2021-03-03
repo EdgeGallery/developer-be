@@ -74,7 +74,6 @@ topology_template:
           initial_number_of_instances: 1
           flavor_extra_specs:
             "mgmt_egx86": "true"
-            "mgmt_egarm": "true"
         sw_image_data:
           name: ubuntu_16.04_64bit_40GB
         bootdata:
