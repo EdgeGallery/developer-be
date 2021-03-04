@@ -16,8 +16,6 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.net.ftp.FTPClient;
 import org.edgegallery.developer.common.Consts;
-import org.edgegallery.developer.config.security.AccessUserUtil;
-import org.edgegallery.developer.domain.shared.FileChecker;
 import org.edgegallery.developer.mapper.ProjectMapper;
 import org.edgegallery.developer.mapper.VmConfigMapper;
 import org.edgegallery.developer.model.vm.EnumVmCreateStatus;
@@ -33,16 +31,13 @@ import org.edgegallery.developer.model.workspace.ApplicationProject;
 import org.edgegallery.developer.model.workspace.EnumProjectStatus;
 import org.edgegallery.developer.model.workspace.EnumTestConfigStatus;
 import org.edgegallery.developer.model.workspace.MepHost;
-import org.edgegallery.developer.model.workspace.UploadedFile;
 import org.edgegallery.developer.response.FormatRespDto;
 import org.edgegallery.developer.service.ProjectService;
 import org.edgegallery.developer.service.csar.NewCreateVmCsar;
 import org.edgegallery.developer.service.virtual.create.VmCreateStage;
-import org.edgegallery.developer.util.BusinessConfigUtil;
 import org.edgegallery.developer.util.CompressFileUtilsJava;
 import org.edgegallery.developer.util.DeveloperFileUtils;
 import org.edgegallery.developer.util.HttpClientUtil;
-import org.edgegallery.developer.util.InitConfigUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,11 +48,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
-import org.stringtemplate.v4.ST;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.spencerwi.either.Either;
-import com.sun.xml.internal.stream.buffer.sax.Properties;
 
 @Service("vmService")
 public class VmService {
