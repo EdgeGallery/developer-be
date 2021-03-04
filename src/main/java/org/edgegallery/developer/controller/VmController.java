@@ -6,6 +6,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
@@ -157,6 +158,30 @@ public class VmController {
     /**
      * download vm csar package.
      */
+    @ApiOperation(value = "download vm csar package.", response = File.class)
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = "OK", response = File.class),
+        @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
+    })
+    @RequestMapping(value = "/projects/{projectId}/vm/{vmId}/package", method = RequestMethod.POST,
+        consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
+    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
+    public ResponseEntity<byte[]> getSampleCode(
+        @Pattern(regexp = REGEX_UUID, message = "projectId must be in UUID format")
+        @ApiParam(value = "projectId") @PathVariable("projectId") String projectId,
+        @Pattern(regexp = REGEX_UUID, message = "vmId must be in UUID format")
+        @ApiParam(value = "vmId") @PathVariable("vmId") String vmId,
+        @Pattern(regexp = REGEX_UUID, message = "userId must be in UUID format")
+        @ApiParam(value = "userId") @RequestParam("userId") String userId) {
+        Either<FormatRespDto, ResponseEntity<byte[]>> either = vmService.downloadVmCsar(userId, projectId,vmId);
+        if (either.isRight()) {
+            return either.getRight();
+        } else {
+            return null;
+        }
+    }
+    
+
 
 
 
