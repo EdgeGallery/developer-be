@@ -25,6 +25,7 @@ import org.apache.commons.io.FileUtils;
 import org.edgegallery.developer.common.Consts;
 import org.edgegallery.developer.util.BusinessConfigUtil;
 import org.edgegallery.developer.util.CompressFileUtils;
+import org.edgegallery.developer.util.CompressFileUtilsJava;
 import org.edgegallery.developer.util.InitConfigUtil;
 
 public class ChartFileCreator implements BaseFileCreator {
@@ -71,7 +72,7 @@ public class ChartFileCreator implements BaseFileCreator {
 
     @Override
     public String compressFile() throws IOException {
-        return CompressFileUtils
+        return CompressFileUtilsJava
             .compressToTgzAndDeleteSrc(temporaryPath, TEMPORARY_BASE_PATH + CHART_COMPRESS_DEST_RELATIVE_PATH, dirName)
             .getCanonicalPath();
     }
