@@ -385,7 +385,7 @@ public class ReleaseConfigService {
             ObjectMapper om = new ObjectMapper(new YAMLFactory());
             om.writeValue(valFile, loaded);
             // compress tgz
-            CompressFileUtils
+            CompressFileUtilsJava
                 .compressToTgzAndDeleteSrc(tgzFile.getAbsolutePath().replace(".tgz", ""), tgzFile.getParent(),
                     fileName);
         } catch (JsonGenerationException e) {
