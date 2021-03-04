@@ -1,0 +1,1019 @@
+{
+  "info": {
+    "title": "ETSI GS MEC 010-2 - Part 2: Application lifecycle, rules and requirements management",
+    "version": "2.1.1",
+    "description": "ETSI GS MEC 010-2 - Part 2: Application lifecycle, rules and requirements management described using OpenAPI.",
+    "license": {
+      "name": "BSD-3-Clause",
+      "url": "https://forge.etsi.org/legal-matters"
+    },
+    "contact": {
+      "name": "ETSI Forge",
+      "email": "cti_support@etsi.org",
+      "url": "https://forge.etsi.org/rep/mec/gs010-2-app-pkg-lcm-api"
+    }
+  },
+  "externalDocs": {
+    "description": "ETSI GS MEC 010-2 - Part 2: Application lifecycle, rules and requirements management, v2.1.1",
+    "url": "https://www.etsi.org/deliver/etsi_gs/MEC/001_099/01002/02.01.01_60/gs_MEC01002v020101p.pdf"
+  },
+  "servers": [
+    {
+      "url": "https://localhost/granting/v1"
+    }
+  ],
+  "openapi": "3.0.0",
+  "tags": [
+    {
+      "name": "granting",
+      "description": "Grant operations"
+    }
+  ],
+  "paths": {
+    "/grants": {
+      "post": {
+        "tags": [
+          "granting"
+        ],
+        "summary": "requests a grant for a particular application lifecycle operation",
+        "description": "requests a grant for a particular application lifecycle operation",
+        "operationId": "grantPOST",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GrantRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "grant was created successfully (synchronous mode)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Grant"
+                }
+              }
+            }
+          },
+          "202": {
+            "description": "the request was accepted for processing"
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "406": {
+            "$ref": "#/components/responses/406"
+          },
+          "429": {
+            "$ref": "#/components/responses/429"
+          }
+        }
+      }
+    },
+    "/grants/{grantId}": {
+      "parameters": [
+        {
+          "in": "path",
+          "name": "grantId",
+          "description": "Identifier of the individual grant.",
+          "schema": {
+            "type": "string"
+          },
+          "required": true
+        }
+      ],
+      "get": {
+        "tags": [
+          "granting"
+        ],
+        "summary": "read the grant",
+        "description": "read the grant",
+        "operationId": "GrantGET",
+        "responses": {
+          "200": {
+            "description": "IA representation of the \"individual grant\" resource ",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Grant"
+                }
+              }
+            }
+          },
+          "202": {
+            "description": "returned when the process of creating the grant is ongoing, no grant is available yet"
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "406": {
+            "$ref": "#/components/responses/406"
+          },
+          "429": {
+            "$ref": "#/components/responses/429"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AppExtCpConfig": {
+        "properties": {
+          "cpInstanceId": {
+            "description": "Identifier of the external CP instance to which this set of configuration parameters is requested to be applied. \n\nShall be present if this instance has already been created. ",
+            "type": "string",
+            "x-etsi-mec-cardinality": "0..1",
+            "x-etsi-mec-origin-type": "String"
+          },
+          "cpProtocolData": {
+            "description": "Parameters for configuring the network protocols on the link port that connects the CP to a VL. See note.",
+            "items": {
+              "$ref": "#/components/schemas/CpProtocolData"
+            },
+            "minItems": 0,
+            "type": "array",
+            "x-etsi-mec-cardinality": "0..N",
+            "x-etsi-mec-origin-type": "CpProtocolData"
+          },
+          "linkPortId": {
+            "description": "Identifier of a pre-configured link port to which the external CP will be associated. See note.",
+            "type": "string",
+            "x-etsi-mec-cardinality": "0..1",
+            "x-etsi-mec-origin-type": "String"
+          }
+        },
+        "type": "object",
+        "x-etsi-notes": "NOTE:\tThe following conditions apply to the attributes \"linkPortId\" and \" cpProtocolData\": \nThe \"linkPortId\" and \"cpProtocolData\" attributes shall both be absent for the deletion of an existing external CP instance addressed by cpInstanceId. \nAt least one of these attributes shall be present for a to-be-created external CP instance or an existing external CP instance.\nIf the \"linkPortId\" attribute is absent, the MEPM shall create a link port.\nIf the \"cpProtocolData\" attribute is absent, the \"linkPortId\" attribute shall be provided referencing a pre-created link port, and the MEPM can use means outside the scope of the present document to obtain the pre-configured address information for the connection point from the resource representing the link port.\nIf both \"cpProtocolData\" and \"linkportId\" are provided, the API consumer shall ensure that the cpProtocolData can be used with the pre-created link port referenced by \"linkPortId\".",
+        "x-etsi-ref": "6.2.4.13"
+      },
+      "AppExtCpData": {
+        "properties": {
+          "cpConfig": {
+            "description": "List of instance data that need to be configured on the CP instances created from the respective CPD.",
+            "items": {
+              "$ref": "#/components/schemas/AppExtCpConfig"
+            },
+            "minItems": 1,
+            "type": "array",
+            "x-etsi-mec-cardinality": "1..N",
+            "x-etsi-mec-origin-type": "AppExtCpConfig"
+          },
+          "cpdId": {
+            "description": "The identifier of the CPD in the AppD.",
+            "type": "string",
+            "x-etsi-mec-cardinality": "1",
+            "x-etsi-mec-origin-type": "String"
+          }
+        },
+        "required": [
+          "cpdId",
+          "cpConfig"
+        ],
+        "type": "object",
+        "x-etsi-ref": "6.2.4.12"
+      },
+      "AppInstanceId": {
+        "description": "Identifier of application instance.",
+        "type": "string"
+      },
+      "AppDId": {
+        "description": "Identifier of this MEC application descriptor. This attribute shall be globally unique.",
+        "type": "string"
+      },
+      "AppLcmOpOccId": {
+        "description": "Identifier of application lifecycle management operation occurrence.",
+        "type": "string"
+      },
+      "KeyValuePairs": {
+        "description": "'This data type represents a list of key-value pairs. The order of the pairs in the list is not significant. In JSON, a set of key-value pairs is represented as an object. It shall comply with the provisions defined in clause 4 of IETF RFC 8259'",
+        "type": "object",
+        "additionalProperties": true
+      },
+      "ResourceDefinition.Type": {
+        "description": "Type of the resource definition referenced.",
+        "type": "string",
+        "format": "enum",
+        "enum": [
+          "COMPUTE",
+          "VL",
+          "STORAGE",
+          "LINKPORT"
+        ]
+      },
+      "CpProtocolData": {
+        "properties": {
+          "ipOverEthernet": {
+            "$ref": "#/components/schemas/IpOverEthernetAddressData"
+          },
+          "layerProtocol": {
+            "$ref": "#/components/schemas/IpOverEthernetAddressData"
+          }
+        },
+        "required": [
+          "layerProtocol"
+        ],
+        "type": "object",
+        "x-etsi-notes": "NOTE:\tThis attribute allows to signal the addition of further types of layer and protocol in future versions of the present document in a backwards-compatible way. In the current version of the present document, only IP over Ethernet is supported.",
+        "x-etsi-ref": "6.2.4.14"
+      },
+      "ExtLinkPortData": {
+        "properties": {
+          "id": {
+            "description": "Identifier of this link port as provided by the entity that has created the link port.",
+            "type": "string",
+            "x-etsi-mec-cardinality": "1",
+            "x-etsi-mec-origin-type": "String"
+          },
+          "resourceHandle": {
+            "$ref": "#/components/schemas/ResourceHandle"
+          }
+        },
+        "required": [
+          "id",
+          "resourceHandle"
+        ],
+        "type": "object",
+        "x-etsi-ref": "6.2.4.9"
+      },
+      "ExtVirtualLinkData": {
+        "properties": {
+          "extCps": {
+            "description": "External CPs of the application instance to be connected to this external VL.",
+            "items": {
+              "$ref": "#/components/schemas/AppExtCpData"
+            },
+            "minItems": 1,
+            "type": "array",
+            "x-etsi-mec-cardinality": "1..N",
+            "x-etsi-mec-origin-type": "AppExtCpData"
+          },
+          "extLinkPorts": {
+            "description": "Externally provided link ports to be used to connect external connection points to this external VL. If this attribute is not present, the MEPM shall create the link ports on the external VL.",
+            "items": {
+              "$ref": "#/components/schemas/ExtLinkPortData"
+            },
+            "minItems": 0,
+            "type": "array",
+            "x-etsi-mec-cardinality": "0..N",
+            "x-etsi-mec-origin-type": "ExtLinkPortData"
+          },
+          "id": {
+            "description": "The identifier of the external VL instance. The identifier is assigned by the MEC entity that manages this VL instance.",
+            "type": "string",
+            "x-etsi-mec-cardinality": "1",
+            "x-etsi-mec-origin-type": "String"
+          },
+          "resourceId": {
+            "description": "The identifier of the resource in the scope of the VIM.",
+            "type": "string",
+            "x-etsi-mec-cardinality": "1",
+            "x-etsi-mec-origin-type": "String"
+          },
+          "vimConnectionId": {
+            "description": "Identifier of the VIM connection to manage this resource. ",
+            "type": "string",
+            "x-etsi-mec-cardinality": "0..1",
+            "x-etsi-mec-origin-type": "String"
+          }
+        },
+        "required": [
+          "id",
+          "resourceId",
+          "extCps"
+        ],
+        "type": "object",
+        "x-etsi-ref": "6.2.4.8"
+      },
+      "Grant": {
+        "description": "'This type represents a grant. Refer to clause 9.5.2.3 of ETSI GS NFV-SOL 003 '",
+        "type": "object",
+        "required": [
+          "id",
+          "appInstanceId",
+          "appLcmOpOccId",
+          "_links"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/Grant.Id"
+          },
+          "appInstanceId": {
+            "$ref": "#/components/schemas/AppInstanceId"
+          },
+          "appLcmOpOccId": {
+            "$ref": "#/components/schemas/AppLcmOpOccId"
+          },
+          "vimConnections": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/VimConnectionInfo"
+            }
+          },
+          "zones": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ZoneInfo"
+            }
+          },
+          "zoneGroups": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ZoneGroupInfo"
+            }
+          },
+          "addResources": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GrantInfo"
+            }
+          },
+          "tempResources": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GrantInfo"
+            }
+          },
+          "removeResources": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GrantInfo"
+            }
+          },
+          "updateResources": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GrantInfo"
+            }
+          },
+          "vimAssets": {
+            "$ref": "#/components/schemas/VimAssets"
+          },
+          "extVirtualLinks": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ExtVirtualLinkData"
+            }
+          },
+          "additionalParams": {
+            "$ref": "#/components/schemas/KeyValuePairs"
+          },
+          "_links": {
+            "$ref": "#/components/schemas/Grant.links"
+          }
+        }
+      },
+      "Grant.Id": {
+        "type": "string"
+      },
+      "VimAssets": {
+        "description": "Information about assets for the application that are managed by the MEO in the VIM, such as software images.",
+        "type": "object",
+        "properties": {
+          "softwareImages": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SoftwareImages"
+            }
+          }
+        }
+      },
+      "SoftwareImages": {
+        "$ref": "#/components/schemas/VimSoftwareImage"
+      },
+      "Grant.links": {
+        "description": "Links to resources related to this resource.",
+        "type": "object",
+        "required": [
+          "appLcmOpOcc",
+          "appInstance"
+        ],
+        "properties": {
+          "appLcmOpOcc": {
+            "$ref": "#/components/schemas/LinkType"
+          },
+          "appInstance": {
+            "$ref": "#/components/schemas/LinkType"
+          }
+        }
+      },
+      "GrantInfo": {
+        "properties": {
+          "resourceDefinitionId": {
+            "description": "Identifier of the related \"ResourceDefinition\" structure from the related \"GrantRequest\" structure.",
+            "type": "string",
+            "x-etsi-mec-cardinality": "1",
+            "x-etsi-mec-origin-type": "String"
+          },
+          "resourceGroupId": {
+            "description": "Identifier of the \"infrastructure resource group\", logical grouping of virtual resources assigned to a tenant within an Infrastructure Domain, to be provided when allocating the resource.If the VIM connection referenced by \"vimConnectionId\" applies to multiple infrastructure resource groups, this attribute shall be present for new resources.If the VIM connection referenced by \"vimConnectionId\" applies to a single infrastructure resource group, this attribute may be present for new resources. This attribute shall be absent for resources that have already been allocated.",
+            "type": "string",
+            "x-etsi-mec-cardinality": "0..1",
+            "x-etsi-mec-origin-type": "String"
+          },
+          "vimConnectionId": {
+            "description": "Identifier of the VIM connection to be used to manage this resource. Shall be present for new resources, and shall be absent for resources that have already been allocated.",
+            "type": "string",
+            "x-etsi-mec-cardinality": "0..1",
+            "x-etsi-mec-origin-type": "String"
+          },
+          "zoneId": {
+            "description": "Reference to the identifier of the \"ZoneInfo\" structure in the \"Grant\" structure defining the resource zone into which this resource is to be placed. Shall be present for new resources if the zones concept is applicable to them (typically, Compute resources), and shall be absent for resources that have already been allocated.",
+            "type": "string",
+            "x-etsi-mec-cardinality": "0..1",
+            "x-etsi-mec-origin-type": "String"
+          }
+        },
+        "required": [
+          "resourceDefinitionId"
+        ],
+        "type": "object",
+        "x-etsi-ref": "6.2.4.5"
+      },
+      "GrantRequest": {
+        "description": "'This type represents a grant request. Refer to clause 9.5.2.2 of ETSI GS NFV-SOL 003'",
+        "type": "object",
+        "required": [
+          "appInstanceId",
+          "appLcmOpOccId",
+          "appDId",
+          "operation",
+          "_links"
+        ],
+        "properties": {
+          "appInstanceId": {
+            "$ref": "#/components/schemas/AppInstanceId"
+          },
+          "appLcmOpOccId": {
+            "$ref": "#/components/schemas/AppLcmOpOccId"
+          },
+          "appDId": {
+            "$ref": "#/components/schemas/AppDId"
+          },
+          "operation": {
+            "$ref": "#/components/schemas/GrantRequest.Operation"
+          },
+          "addResources": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ResourceDefinition"
+            }
+          },
+          "tempResources": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ResourceDefinition"
+            }
+          },
+          "removeResources": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ResourceDefinition"
+            }
+          },
+          "updateResources": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ResourceDefinition"
+            }
+          },
+          "additionalParams": {
+            "$ref": "#/components/schemas/KeyValuePairs"
+          },
+          "_links": {
+            "$ref": "#/components/schemas/GrantRequest.links"
+          }
+        }
+      },
+      "GrantRequest.Operation": {
+        "description": "'The lifecycle management operation for which granting is requested'",
+        "type": "string",
+        "enum": [
+          "INSTANTIATE",
+          "OPERATE",
+          "TERMINATE"
+        ]
+      },
+      "GrantRequest.links": {
+        "description": "Links to resources related to this resource.",
+        "type": "object",
+        "required": [
+          "appLcmOpOcc",
+          "appInstance"
+        ],
+        "properties": {
+          "appLcmOpOcc": {
+            "$ref": "#/components/schemas/LinkType"
+          },
+          "appInstance": {
+            "$ref": "#/components/schemas/LinkType"
+          }
+        }
+      },
+      "IpOverEthernetAddressData": {
+        "description": "'This type represents network address data for IP over Ethernet. Refer to clause 4.4.1.10c of ETSI GS NFV SOL 003'",
+        "type": "object",
+        "properties": {
+          "macAddress": {
+            "$ref": "#/components/schemas/MacAddress"
+          },
+          "ipAddresses": {
+            "$ref": "#/components/schemas/IpAddresses"
+          }
+        }
+      },
+      "MacAddress": {
+        "description": "'MAC address. If this attribute is not present, it shall be chosen by the VIM'",
+        "type": "string"
+      },
+      "IpAddresses": {
+        "description": "List of IP addresses to assign to the CP instance. Each entry represents IP address data for fixed or dynamic IP address assignment per subnet.",
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/IpAddress"
+        }
+      },
+      "IpAddress": {
+        "description": "'IP addresses to assign to the CP instance. Each entry represents IP address data for fixed or dynamic IP address assignment per subnet.'",
+        "type": "object",
+        "required": [
+          "type"
+        ],
+        "properties": {
+          "type": {
+            "$ref": "#/components/schemas/IpAddress.Type"
+          },
+          "fixedAddresses": {
+            "$ref": "#/components/schemas/FixedAddresses"
+          },
+          "numDynamicAddresses": {
+            "$ref": "#/components/schemas/NumDynamicAddresses"
+          },
+          "addressRange": {
+            "$ref": "#/components/schemas/AddressRange"
+          },
+          "subnetId": {
+            "$ref": "#/components/schemas/SubnetId"
+          }
+        }
+      },
+      "IpAddress.Type": {
+        "description": "The type of the IP addresses.",
+        "type": "string",
+        "enum": [
+          "IPV4",
+          "IPV6"
+        ]
+      },
+      "FixedAddresses": {
+        "description": "Fixed addresses to assign (from the subnet defined by subnetId if provided).",
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/FixedAddress"
+        }
+      },
+      "NumDynamicAddresses": {
+        "description": "Number of dynamic addresses to assign (from the subnet defined by subnetId if provided)",
+        "type": "integer"
+      },
+      "AddressRange": {
+        "description": "An IP address range to be used, e.g. in case of egress connections.",
+        "type": "object",
+        "required": [
+          "minAddress",
+          "maxAddress"
+        ],
+        "properties": {
+          "minAddress": {
+            "$ref": "#/components/schemas/MinAddress"
+          },
+          "maxAddress": {
+            "$ref": "#/components/schemas/MaxAddress"
+          }
+        }
+      },
+      "MinAddress": {
+        "description": "Lowest IP address belonging to the range.",
+        "type": "string"
+      },
+      "MaxAddress": {
+        "description": "Highest IP address belonging to the range.",
+        "type": "string"
+      },
+      "FixedAddress": {
+        "description": "Fixed addresses to assign (from the subnet defined by subnetId if provided)",
+        "type": "string"
+      },
+      "SubnetId": {
+        "description": "Subnet defined by the identifier of the subnet resource in the VIM.",
+        "type": "string"
+      },
+      "LinkType": {
+        "properties": {
+          "href": {
+            "description": "URI referring to a resource",
+            "format": "uri",
+            "type": "string",
+            "x-etsi-mec-cardinality": "1",
+            "x-etsi-mec-origin-type": "URI"
+          }
+        },
+        "required": [
+          "href"
+        ],
+        "type": "object",
+        "x-etsi-ref": "6.5.2"
+      },
+      "ProblemDetails": {
+        "properties": {
+          "detail": {
+            "description": "A human-readable explanation specific to this occurrence of the problem",
+            "type": "string",
+            "x-etsi-mec-cardinality": "0..1",
+            "x-etsi-mec-origin-type": "String"
+          },
+          "instance": {
+            "description": "A URI reference that identifies the specific occurrence of the problem",
+            "format": "uri",
+            "type": "string",
+            "x-etsi-mec-cardinality": "0..1",
+            "x-etsi-mec-origin-type": "URI"
+          },
+          "status": {
+            "description": "The HTTP status code for this occurrence of the problem",
+            "format": "uint32",
+            "type": "integer",
+            "x-etsi-mec-cardinality": "0..1",
+            "x-etsi-mec-origin-type": "Uint32"
+          },
+          "title": {
+            "description": "A short, human-readable summary of the problem type",
+            "type": "string",
+            "x-etsi-mec-cardinality": "0..1",
+            "x-etsi-mec-origin-type": "String"
+          },
+          "type": {
+            "description": "A URI reference according to IETF RFC 3986 that identifies the problem type",
+            "format": "uri",
+            "type": "string",
+            "x-etsi-mec-cardinality": "0..1",
+            "x-etsi-mec-origin-type": "URI"
+          }
+        },
+        "type": "object"
+      },
+      "ResourceDefinition": {
+        "description": "'This type provides information of an existing or proposed resource used by the application. Refer to clause 9.5.3.2 of ETSI GS NFV-SOL 003 '",
+        "type": "object",
+        "required": [
+          "id",
+          "type",
+          "resourceTemplateId",
+          "resource"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/ResourceDefinitionId"
+          },
+          "type": {
+            "$ref": "#/components/schemas/ResourceDefinition.Type"
+          },
+          "vduId": {
+            "$ref": "#/components/schemas/VduId"
+          },
+          "resourceTemplateId": {
+            "$ref": "#/components/schemas/ResourceTemplateId"
+          },
+          "resource": {
+            "$ref": "#/components/schemas/Resource"
+          }
+        }
+      },
+      "ResourceDefinitionId": {
+        "description": "Identifier of the related ResourceDefinition structure from the related GrantRequest structure.",
+        "type": "string"
+      },
+      "VduId": {
+        "description": "Reference to the related VDU in the AppD applicable to this resource.",
+        "type": "string"
+      },
+      "ResourceTemplateId": {
+        "description": "Reference to a resource template, i.e. VirtualLinkDesc, VirtualComputeDesc, AppExtCpd, VirtualStorageDesc in the AppD.",
+        "type": "string"
+      },
+      "Resource": {
+        "description": "Resource information for an existing resource",
+        "type": "object",
+        "required": [
+          "vimConnectionInfo",
+          "resourceId"
+        ],
+        "properties": {
+          "vimConnectionInfo": {
+            "$ref": "#/components/schemas/VimConnectionInfo"
+          },
+          "resourceId": {
+            "$ref": "#/components/schemas/ResourceId"
+          }
+        }
+      },
+      "ResourceId": {
+        "description": "Identifier of the resource in the scope of the VIM.",
+        "type": "string"
+      },
+      "ResourceHandle": {
+        "properties": {
+          "resourceId": {
+            "description": "Identifier of the resource in the scope of the VIM.",
+            "type": "string",
+            "x-etsi-mec-cardinality": "1",
+            "x-etsi-mec-origin-type": "String"
+          },
+          "vimConnectionId": {
+            "description": "Identifier of the VIM connection to manage the resource.The applicable \"VimConnectionInfo\" structure, which is referenced by vimConnectionId, can be obtained from the \"vimConnectionInfo\" attribute of the \"AppInstance\" structure.",
+            "type": "string",
+            "x-etsi-mec-cardinality": "0..1",
+            "x-etsi-mec-origin-type": "String"
+          },
+          "vimLevelResourceType": {
+            "description": "Type of the resource in the scope of the VIM. See note.",
+            "type": "string",
+            "x-etsi-mec-cardinality": "0..1",
+            "x-etsi-mec-origin-type": "String"
+          }
+        },
+        "required": [
+          "resourceId"
+        ],
+        "type": "object",
+        "x-etsi-notes": "NOTE:\tThe value set of the \"vimLevelResourceType\" attribute is within the scope of the VIM and can be used as information that complements the ResourceHandle. This value set is different from the value set of the \"type\" attribute in the ResourceDefinition.",
+        "x-etsi-ref": "6.2.4.10"
+      },
+      "VimConnectionInfo": {
+        "properties": {
+          "accessInfo": {
+            "$ref": "#/components/schemas/KeyValuePairs"
+          },
+          "extra": {
+            "$ref": "#/components/schemas/KeyValuePairs"
+          },
+          "id": {
+            "description": "The identifier of the VIM Connection. This identifier is managed by the MEO.",
+            "type": "string",
+            "x-etsi-mec-cardinality": "1",
+            "x-etsi-mec-origin-type": "String"
+          },
+          "interfaceInfo": {
+            "$ref": "#/components/schemas/KeyValuePairs"
+          },
+          "vimId": {
+            "description": "The identifier of the VIM instance. This identifier is managed by the MEO.Shall be present to address additional information about the VIM if such information has been configured into the MEPM by means outside the scope of the present document, and should be absent otherwise.",
+            "type": "string",
+            "x-etsi-mec-cardinality": "0..1",
+            "x-etsi-mec-origin-type": "String"
+          },
+          "vimType": {
+            "description": "Discriminator for the different types of the VIM information. The value of this attribute determines the structure of the \"interfaceInfo\" and \"accessInfo\" attributes, based on the type of the VIM.The set of permitted values is expected to change over time as new types or versions of VIMs become available. ",
+            "type": "string",
+            "x-etsi-mec-cardinality": "1",
+            "x-etsi-mec-origin-type": "String"
+          }
+        },
+        "required": [
+          "id",
+          "vimType"
+        ],
+        "type": "object",
+        "x-etsi-ref": "6.2.2.18"
+      },
+      "VimSoftwareImage": {
+        "properties": {
+          "appDSoftwareImageId": {
+            "description": "Identifier which references the software image descriptor in the AppD.",
+            "type": "string",
+            "x-etsi-mec-cardinality": "1",
+            "x-etsi-mec-origin-type": "String"
+          },
+          "vimConnectionId": {
+            "description": "Identifier of the VIM connection to access the software image referenced in this structure. ",
+            "type": "string",
+            "x-etsi-mec-cardinality": "0..1",
+            "x-etsi-mec-origin-type": "String"
+          },
+          "vimSoftwareImageId": {
+            "description": "Identifier of the software image in the resource management layer (i.e. VIM).",
+            "type": "string",
+            "x-etsi-mec-cardinality": "1",
+            "x-etsi-mec-origin-type": "String"
+          }
+        },
+        "required": [
+          "appDSoftwareImageId",
+          "vimSoftwareImageId"
+        ],
+        "type": "object",
+        "x-etsi-ref": "6.2.4.11"
+      },
+      "ZoneGroupInfo": {
+        "properties": {
+          "zoneId": {
+            "description": "References of identifiers of \"ZoneInfo\" structures, each of which provides information about a resource zone that belongs to this group.",
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1,
+            "type": "array",
+            "x-etsi-mec-cardinality": "1..N",
+            "x-etsi-mec-origin-type": "String"
+          }
+        },
+        "required": [
+          "zoneId"
+        ],
+        "type": "object",
+        "x-etsi-ref": "6.2.4.7"
+      },
+      "ZoneInfo": {
+        "properties": {
+          "id": {
+            "description": "The identifier of this ZoneInfo instance, for the purpose of referencing it from other structures in the \"Grant\" structure.",
+            "type": "string",
+            "x-etsi-mec-cardinality": "1",
+            "x-etsi-mec-origin-type": "String"
+          },
+          "vimConnectionId": {
+            "type": "string",
+            "x-etsi-mec-cardinality": "0..1",
+            "x-etsi-mec-origin-type": "String"
+          },
+          "zoneId": {
+            "description": "The identifier of the resource zone, as managed by the resource management layer (typically, the VIM).",
+            "type": "string",
+            "x-etsi-mec-cardinality": "1",
+            "x-etsi-mec-origin-type": "String"
+          }
+        },
+        "required": [
+          "id",
+          "zoneId"
+        ],
+        "type": "object",
+        "x-etsi-ref": "6.2.4.6f"
+      }
+    },
+    "responses": {
+      "204": {
+        "description": "No Content"
+      },
+      "206": {
+        "description": "Partial content"
+      },
+      "400": {
+        "description": "Bad Request : used to indicate that incorrect parameters were passed to the request.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ProblemDetails"
+            }
+          }
+        }
+      },
+      "401": {
+        "description": "Unauthorized :  used when the client did not submit credentials.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ProblemDetails"
+            }
+          }
+        }
+      },
+      "403": {
+        "description": "Forbidden :  operation is not allowed given the current status of the resource.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ProblemDetails"
+            }
+          }
+        }
+      },
+      "404": {
+        "description": "Not Found :  used when a client provided a URI that cannot be mapped to a valid resource URI.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ProblemDetails"
+            }
+          }
+        }
+      },
+      "406": {
+        "description": "Not Acceptable : used to indicate that the server cannot provide the any of the content formats supported by the client.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ProblemDetails"
+            }
+          }
+        }
+      },
+      "409": {
+        "description": "Conflict : The operation cannot be executed currently, due to a conflict with the state of the resource",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ProblemDetails"
+            }
+          }
+        }
+      },
+      "412": {
+        "description": "Precondition failed :  used when a condition has failed during conditional requests, e.g. when using ETags to avoid write conflicts when using PUT",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ProblemDetails"
+            }
+          }
+        }
+      },
+      "414": {
+        "description": "URI Too Long : used to indicate that the server is refusing to process the request because the request URI is  longer than the server is willing or able to process.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ProblemDetails"
+            }
+          }
+        }
+      },
+      "415": {
+        "description": "Unsupported Media Type :  used to indicate that the server or the client does not support the content type of the entity body.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ProblemDetails"
+            }
+          }
+        }
+      },
+      "416": {
+        "description": "Range Not Satisfiable ."
+      },
+      "422": {
+        "description": "Unprocessable Entity : used to indicate that the server understands the content type of the request entity and that the syntax of the request entity is correct but that the server is unable to process the contained instructions. This error condition can occur if an JSON request body is syntactically correct but semantically incorrect, for example if the target area for the request is considered too large. This error condition can also occur if the capabilities required by the request are not supported.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ProblemDetails"
+            },
+            "example": {
+              "application/problem+json": {
+                "problemDetails": {
+                  "type": "https://meAppServer.example.com/rni/v2/probs/too-many targets",
+                  "title": "Too many targets",
+                  "status": "422",
+                  "detail": "The target area for the request is considered too large",
+                  "instance": "/meAppClient.example.com/77777/msgs/abc"
+                }
+              }
+            }
+          }
+        }
+      },
+      "429": {
+        "description": "Too Many Requests : used when a rate limiter has triggered.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ProblemDetails"
+            }
+          }
+        }
+      }
+    }
+  }
+}
