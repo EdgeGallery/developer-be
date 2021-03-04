@@ -2,16 +2,23 @@
   "openapi": "3.0.2",
   "servers": [
     {
-      "url": "http://{apigw_ip}:{apigw_port}/{apigw_route}/mec_app_support/v1"
+      "url": "http://127.0.0.1:8081/mec_app_support/v1"
     },
     {
-      "url": "https://{apigw_ip}:{apigw_port}/{apigw_route}/mec_app_support/v1"
+      "url": "https://127.0.0.1:8081/mec_app_support/v1"
     }
   ],
   "info": {
-    "title": "EdgeGallery MEC Application Support API",
+    "title": "MEC Application Support API",
     "version": "2.1.1",
-    "description": "The ETSI MEC ISG MEC011 MEC Application Support API described using OpenAPI"
+    "description": "The ETSI MEC ISG MEC011 MEC Application Support API described using OpenAPI",
+    "license": {
+      "name": "BSD-3-Clause",
+      "url": "https://forge.etsi.org/legal-matters"
+    },
+    "contact": {
+      "email": "cti_support@etsi.org"
+    }
   },
   "externalDocs": {
     "description": "ETSI GS MEC011 Application Enablement API, V2.1.1",
@@ -19,18 +26,116 @@
   },
   "tags": [
     {
+      "name": "appTrafficRules"
+    },
+    {
       "name": "appDnsRules"
     },
     {
       "name": "appSubscriptions"
+    },
+    {
+      "name": "appConfirmTermination"
+    },
+    {
+      "name": "appConfirmReady"
+    },
+    {
+      "name": "timing"
+    },
+    {
+      "name": "callbacks"
     }
   ],
   "paths": {
-    "/applications/{appInstanceId}/dns_rules": {
+    "/applications/{appInstanceId}/traffic_rules": {
       "parameters": [
         {
-          "$ref": "#/components/parameters/Header.Authorization"
+          "$ref": "#/components/parameters/Path.AppInstanceId"
+        }
+      ],
+      "get": {
+        "description": "This method retrieves information about all the traffic rules associated with a MEC application instance.",
+        "operationId": "ApplicationsTrafficRules_GET",
+        "tags": [
+          "appTrafficRules"
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/ApplicationsTrafficRules.200"
+          },
+          "400": {
+            "$ref": "#/components/responses/Error.400"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error.403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error.404"
+          }
+        }
+      }
+    },
+    "/applications/{appInstanceId}/traffic_rules/{trafficRuleId}": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/Path.AppInstanceId"
         },
+        {
+          "$ref": "#/components/parameters/Path.TrafficRuleId"
+        }
+      ],
+      "get": {
+        "description": "This method retrieves information about all the traffic rules associated with a MEC application instance.",
+        "operationId": "ApplicationsTrafficRule_GET",
+        "tags": [
+          "appTrafficRules"
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/ApplicationsTrafficRule.200"
+          },
+          "400": {
+            "$ref": "#/components/responses/Error.400"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error.403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error.404"
+          }
+        }
+      },
+      "put": {
+        "description": "This method retrieves information about all the traffic rules associated with a MEC application instance.",
+        "operationId": "ApplicationsTrafficRule_PUT",
+        "tags": [
+          "appTrafficRules"
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/ApplicationsTrafficRule.200"
+          },
+          "400": {
+            "$ref": "#/components/responses/Error.400"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error.403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error.404"
+          },
+          "412": {
+            "$ref": "#/components/responses/Error.412"
+          }
+        },
+        "requestBody": {
+          "$ref": "#/components/requestBodies/ApplicationsTrafficRule"
+        }
+      }
+    },
+    "/applications/{appInstanceId}/dns_rules": {
+      "parameters": [
         {
           "$ref": "#/components/parameters/Path.AppInstanceId"
         }
@@ -59,9 +164,6 @@
     },
     "/applications/{appInstanceId}/dns_rules/{dnsRuleId}": {
       "parameters": [
-        {
-          "$ref": "#/components/parameters/Header.Authorization"
-        },
         {
           "$ref": "#/components/parameters/Path.AppInstanceId"
         },
@@ -121,9 +223,6 @@
     "/applications/{appInstanceId}/subscriptions": {
       "parameters": [
         {
-          "$ref": "#/components/parameters/Header.Authorization"
-        },
-        {
           "$ref": "#/components/parameters/Path.AppInstanceId"
         }
       ],
@@ -181,9 +280,6 @@
     "/applications/{appInstanceId}/subscriptions/{subscriptionId}": {
       "parameters": [
         {
-          "$ref": "#/components/parameters/Header.Authorization"
-        },
-        {
           "$ref": "#/components/parameters/Path.AppInstanceId"
         },
         {
@@ -220,6 +316,126 @@
         "responses": {
           "204": {
             "description": "No Content"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error.403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error.404"
+          }
+        }
+      }
+    },
+    "/applications/{appInstanceId}/confirm_termination": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/Path.AppInstanceId"
+        }
+      ],
+      "post": {
+        "description": "This method is used to confirm the application level termination  of an application instance.",
+        "operationId": "ApplicationsConfirmTermination_POST",
+        "tags": [
+          "appConfirmTermination"
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error.401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error.403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error.404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error.409"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error.429"
+          }
+        },
+        "requestBody": {
+          "$ref": "#/components/requestBodies/ApplicationsConfirmTermination"
+        }
+      }
+    },
+    "/applications/{appInstanceId}/confirm_ready": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/Path.AppInstanceId"
+        }
+      ],
+      "post": {
+        "description": "This method may be used by the MEC application instance to notify the MEC platform that it is up and running. ",
+        "operationId": "ApplicationsConfirmReady_POST",
+        "tags": [
+          "appConfirmReady"
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error.401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error.403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error.404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error.409"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error.429"
+          }
+        },
+        "requestBody": {
+          "$ref": "#/components/requestBodies/ApplicationsConfirmReady"
+        }
+      }
+    },
+    "/timing/timing_caps": {
+      "get": {
+        "description": "This method retrieves the information of the platform's timing capabilities which corresponds to the timing capabilities query",
+        "operationId": "TimingCaps_GET",
+        "tags": [
+          "timing"
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/TimingCaps.200"
+          },
+          "400": {
+            "$ref": "#/components/responses/Error.400"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error.403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error.404"
+          }
+        }
+      }
+    },
+    "/timing/current_time": {
+      "get": {
+        "description": "This method retrieves the information of the platform's current time which corresponds to the get platform time procedure",
+        "operationId": "TimingCurrentTime_GET",
+        "tags": [
+          "timing"
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/TimingCurrentTime.200"
+          },
+          "400": {
+            "$ref": "#/components/responses/Error.400"
           },
           "403": {
             "$ref": "#/components/responses/Error.403"
@@ -1089,15 +1305,6 @@
         "name": "trafficRuleId",
         "description": "Represents a traffic rule.",
         "in": "path",
-        "required": true,
-        "schema": {
-          "type": "string"
-        }
-      },
-      "Header.Authorization": {
-        "name": "Authorization",
-        "description": "Token is required.",
-        "in": "header",
         "required": true,
         "schema": {
           "type": "string"

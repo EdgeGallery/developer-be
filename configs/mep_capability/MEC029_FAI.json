@@ -1,0 +1,2566 @@
+{
+  "info": {
+    "title": "ETSI GS MEC 029 Fixed Access Information API",
+    "version": "2.1.1",
+    "description": "ETSI GS MEC 029 Fixed Access Information API described using OpenAPI.",
+    "license": {
+      "name": "BSD-3-Clause",
+      "url": "https://forge.etsi.org/legal-matters"
+    },
+    "contact": {
+      "name": "ETSI Forge",
+      "email": "cti_support@etsi.org",
+      "url": "https://forge.etsi.org/rep/mec/gs029-fai-api"
+    }
+  },
+  "externalDocs": {
+    "description": "ETSI GS MEC 029 Fixed Access Information API, v2.1.1",
+    "url": "https://www.etsi.org/deliver/etsi_gs/MEC/001_099/029/02.01.01_60/gs_mec029v020101p.pdf"
+  },
+  "openapi": "3.0.0",
+  "servers": [
+    {
+      "url": "https://localhost/fai/v1"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Queries"
+    },
+    {
+      "name": "Subscription"
+    }
+  ],
+  "paths": {
+    "/queries/fa_info": {
+      "get": {
+        "tags": [
+          "Queries"
+        ],
+        "summary": "Retrieve information on the available fixed access networks.",
+        "description": "Retrieve information on the available fixed access networks.",
+        "operationId": "fa_infoGET",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "customerPremisesInfo",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/CpInfo"
+              }
+            },
+            "required": false,
+            "description": "Comma separated list of customer premises information"
+          },
+          {
+            "in": "query",
+            "name": "lastMileTech",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "integer"
+              }
+            },
+            "required": false,
+            "description": "Comma separated list of last mile technologies."
+          },
+          {
+            "in": "query",
+            "name": "interfaceType",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "integer"
+              }
+            },
+            "description": "Comma separated list of interface types."
+          },
+          {
+            "in": "query",
+            "name": "dsbw",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "integer"
+              }
+            },
+            "required": false,
+            "description": "Comma separated list of the bandwidth (in Mbps) from the network towards the customer site."
+          },
+          {
+            "in": "query",
+            "name": "usbw",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "integer"
+              }
+            },
+            "required": false,
+            "description": "Comma separated list of the bandwidth (in Mbps) from the customer site towards the network."
+          },
+          {
+            "in": "query",
+            "name": "latency",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "integer"
+              }
+            },
+            "required": false,
+            "description": "Comma separated list of the maximum baseline latency (in ms) between customer site and service edge node."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A response body containing the FAI is returned. ",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FaInfo"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "406": {
+            "$ref": "#/components/responses/406"
+          },
+          "429": {
+            "$ref": "#/components/responses/429"
+          }
+        }
+      }
+    },
+    "/queries/device_info": {
+      "get": {
+        "tags": [
+          "Queries"
+        ],
+        "summary": "retrieve information on the devices that are connected to a fixed access network.",
+        "description": "retrieve information on the devices that are connected to a fixed access network.",
+        "operationId": "device_infoGET",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "gwId",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "required": false,
+            "description": "Comma separated list of gateway identifier"
+          },
+          {
+            "in": "query",
+            "name": "deviceId",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "required": false,
+            "description": "Comma separated list of device identifier."
+          },
+          {
+            "in": "query",
+            "name": "deviceStatus",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "integer"
+              }
+            },
+            "description": "Comma separated list of device status."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A response body containing the device information is returned",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeviceInfo"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "406": {
+            "$ref": "#/components/responses/406"
+          },
+          "429": {
+            "$ref": "#/components/responses/429"
+          }
+        }
+      }
+    },
+    "/queries/cable_line_info": {
+      "get": {
+        "tags": [
+          "Cable line info"
+        ],
+        "summary": "It Queries information about the cable line of a fixed access network.",
+        "description": "It Queries information about the cable line of a fixed access network.",
+        "operationId": "cable_line_infoGET",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "customerPremisesInfo",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/CpInfo"
+              }
+            },
+            "required": false,
+            "description": "Comma separated list of customer premises information"
+          },
+          {
+            "in": "query",
+            "name": "cmId",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "required": false,
+            "description": "Comma separated list of Cable Modem identifiers."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A response body containing the cable line information is returned.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CableLineInfo"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "406": {
+            "$ref": "#/components/responses/406"
+          },
+          "429": {
+            "$ref": "#/components/responses/429"
+          }
+        }
+      }
+    },
+    "/queries/optical_network_info": {
+      "get": {
+        "tags": [
+          "Optical network info"
+        ],
+        "summary": "used to query information about the optical network.",
+        "description": "used to query information about the optical network.",
+        "operationId": "optical_network_infoGET",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "customerPremisesInfo",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/CpInfo"
+              }
+            },
+            "required": false,
+            "description": "Comma separated list of customer premises information"
+          },
+          {
+            "in": "query",
+            "name": "ponYS_ID",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "required": false,
+            "description": "Comma separated list of optical system identifiers."
+          },
+          {
+            "in": "query",
+            "name": "onuId",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "required": false,
+            "description": "Comma separated list of optical network unit identifiers."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A response body containing the optical network information is returned.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PonInfo"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "406": {
+            "$ref": "#/components/responses/406"
+          },
+          "429": {
+            "$ref": "#/components/responses/429"
+          }
+        }
+      }
+    },
+    "/subscriptions": {
+      "get": {
+        "tags": [
+          "Subscription"
+        ],
+        "summary": "request information about the subscriptions for this requestor.",
+        "description": "request information about the subscriptions for this requestor.",
+        "operationId": "subGET",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "subscription_type",
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "description": "Query parameter to filter on a specific subscription type. Permitted values: ONU_ALARM. DEVICE_ABNORMAL_ALERT. CM_CONNECTIVITY_STATE.  ANI_ALARM."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A response body containing the list of links to requestor subscriptions is returned.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubscriptionLinkList"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "406": {
+            "$ref": "#/components/responses/406"
+          },
+          "429": {
+            "$ref": "#/components/responses/429"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Subscription"
+        ],
+        "summary": " create a new subscription to FAI notifications.",
+        "description": " create a new subscription to FAI notifications.",
+        "operationId": "subPOST",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "$ref": "#/components/schemas/OnuAlarmSubscription"
+                  },
+                  {
+                    "$ref": "#/components/schemas/DevInfoSubscription"
+                  },
+                  {
+                    "$ref": "#/components/schemas/CmConnSubscription"
+                  },
+                  {
+                    "$ref": "#/components/schemas/AniAlarmSubscription"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "In the returned NotificationSubscription structure, the created subscription is described using the appropriate data type.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/OnuAlarmSubscription"
+                    },
+                    {
+                      "$ref": "#/components/schemas/DevInfoSubscription"
+                    },
+                    {
+                      "$ref": "#/components/schemas/CmConnSubscription"
+                    },
+                    {
+                      "$ref": "#/components/schemas/AniAlarmSubscription"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "406": {
+            "$ref": "#/components/responses/406"
+          },
+          "415": {
+            "$ref": "#/components/responses/415"
+          },
+          "422": {
+            "$ref": "#/components/responses/422"
+          },
+          "429": {
+            "$ref": "#/components/responses/429"
+          }
+        },
+        "callbacks": {
+          "notification": {
+            "{$request.body#/callbackReference}": {
+              "post": {
+                "summary": "Callback POST used to send a notification",
+                "description": "A notification from FAIS.",
+                "operationId": "notificationPOST",
+                "requestBody": {
+                  "description": "Subscription notification",
+                  "required": true,
+                  "content": {
+                    "application/json": {
+                      "schema": {
+                        "oneOf": [
+                          {
+                            "$ref": "#/components/schemas/OnuAlarmNotification"
+                          },
+                          {
+                            "$ref": "#/components/schemas/DevInfoNotification"
+                          },
+                          {
+                            "$ref": "#/components/schemas/CmConnNotification"
+                          },
+                          {
+                            "$ref": "#/components/schemas/AniAlarmNotification"
+                          }
+                        ]
+                      }
+                    }
+                  }
+                },
+                "responses": {
+                  "204": {
+                    "$ref": "#/components/responses/204"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/subscriptions/{subscriptionId}": {
+      "parameters": [
+        {
+          "in": "path",
+          "name": "subscriptionId",
+          "description": "Refers to created subscription, where the FAI API allocates a unique resource name for this subscription",
+          "schema": {
+            "type": "string"
+          },
+          "required": true
+        }
+      ],
+      "get": {
+        "tags": [
+          "Subscription"
+        ],
+        "summary": "Retrieve information about this subscription.",
+        "description": "Retrieve information about this subscription.",
+        "operationId": "individualSubscriptionGET",
+        "responses": {
+          "200": {
+            "description": "A response body containing data type describing the specific FAI event subscription is returned",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/OnuAlarmSubscription"
+                    },
+                    {
+                      "$ref": "#/components/schemas/DevInfoSubscription"
+                    },
+                    {
+                      "$ref": "#/components/schemas/CmConnSubscription"
+                    },
+                    {
+                      "$ref": "#/components/schemas/AniAlarmSubscription"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "406": {
+            "$ref": "#/components/responses/406"
+          },
+          "429": {
+            "$ref": "#/components/responses/429"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Subscription"
+        ],
+        "summary": "Used to update the existing subscription.",
+        "description": "Used to update the existing subscription.",
+        "operationId": "individualSubscriptionPUT",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "$ref": "#/components/schemas/OnuAlarmSubscription"
+                  },
+                  {
+                    "$ref": "#/components/schemas/DevInfoSubscription"
+                  },
+                  {
+                    "$ref": "#/components/schemas/CmConnSubscription"
+                  },
+                  {
+                    "$ref": "#/components/schemas/AniAlarmSubscription"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "A response body containing data type describing the updated subscription is returned",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/OnuAlarmSubscription"
+                    },
+                    {
+                      "$ref": "#/components/schemas/DevInfoSubscription"
+                    },
+                    {
+                      "$ref": "#/components/schemas/CmConnSubscription"
+                    },
+                    {
+                      "$ref": "#/components/schemas/AniAlarmSubscription"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "406": {
+            "$ref": "#/components/responses/406"
+          },
+          "412": {
+            "$ref": "#/components/responses/412"
+          },
+          "422": {
+            "$ref": "#/components/responses/422"
+          },
+          "429": {
+            "$ref": "#/components/responses/429"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Subscription"
+        ],
+        "summary": "Used to cancel the existing subscription.",
+        "description": "Used to cancel the existing subscription.",
+        "operationId": "individualSubscriptionDELETE",
+        "responses": {
+          "204": {
+            "$ref": "#/components/responses/204"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "429": {
+            "$ref": "#/components/responses/429"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AniAlarmNotification.alarm": {
+        "description": "Indicates the alarm of the ANI: 0 = LowReceivedOpticalPower. 1 = HighReceivedOpticalPower. 2 = SignalFailure. 3 = SignalDegrade. 4 = LowTransmitOpticalPower.5 = HighTransmitOpticalPower.6 = LaserBiasCurrent.",
+        "enum": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "type": "integer",
+        "x-etsi-mec-cardinality": "1",
+        "x-etsi-mec-origin-type": "Enum"
+      },
+      "AniAlarmNotification.aniId": {
+        "properties": {
+          "onuId": {
+            "description": "The unique identifiers for the optical network unit.",
+            "type": "string",
+            "x-etsi-mec-cardinality": "1",
+            "x-etsi-mec-origin-type": "String"
+          },
+          "aniIndex": {
+            "description": "The index of an access network interface supported by the optical network unit.",
+            "type": "string",
+            "x-etsi-mec-cardinality": "1",
+            "x-etsi-mec-origin-type": "String"
+          }
+        },
+        "required": [
+          "onuId",
+          "aniIndex"
+        ]
+      },
+      "AniAlarmNotification": {
+        "properties": {
+          "alarm": {
+            "$ref": "#/components/schemas/AniAlarmNotification.alarm"
+          },
+          "aniId": {
+            "$ref": "#/components/schemas/AniAlarmNotification.aniId"
+          },
+          "customerPremisesInfo": {
+            "description": "The physical location of the related customer sites.",
+            "items": {
+              "$ref": "#/components/schemas/CpInfo"
+            },
+            "minItems": 0,
+            "type": "array",
+            "x-etsi-mec-cardinality": "0..N",
+            "x-etsi-mec-origin-type": "CpInfo"
+          },
+          "notificationType": {
+            "description": "Shall be set to \"AniAlarmNotification\".",
+            "type": "string",
+            "x-etsi-mec-cardinality": "1",
+            "x-etsi-mec-origin-type": "String"
+          },
+          "onuId": {
+            "type": "string"
+          },
+          "timeStamp": {
+            "$ref": "#/components/schemas/TimeStamp"
+          }
+        },
+        "required": [
+          "notificationType",
+          "aniIndex",
+          "alarm"
+        ],
+        "type": "object",
+        "x-etsi-ref": "6.4.6"
+      },
+      "AniAlarmSubscription.filterCriteriaAniAlarm.alarms": {
+        "description": "In case alarms is not included in the subscription request, the default value -1 = All shall be used and included in the response:\n0  =\tLowReceivedOpticalPower.\n(Received downstream optical power below threshold.)\n1  =\tHighReceivedOpticalPower.\n\t(Received downstream optical power above threshold.)\n2  =\tSignalFalure.\n(Bit error-based signal fail.)\n3  =\tSignalDegrade.\n(Bit error-based signal degrade.)\n4  =\tLowTransmitOpticalPower.\n(Transmit optical power below lower threshold.)\n5  =\tHighTransmitOpticalPower.\n(Transmit optical power above upper threshold.)\n6  =\tLaserBiasCurrent.\n(Laser bias current above threshold determined by vendor.)\n-1 =\tAll.",
+        "enum": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          -1
+        ],
+        "type": "integer"
+      },
+      "AniAlarmSubscription.links": {
+        "properties": {
+          "self": {
+            "$ref": "#/components/schemas/LinkType"
+          }
+        },
+        "required": [
+          "self"
+        ]
+      },
+      "AniAlarmSubscription.filterCriteriaAniAlarm": {
+        "description": "List of filtering criteria for the subscription. Any filtering criteria from below, which is included in the request, shall also be included in the response.",
+        "required": [
+          "onuId",
+          "aniId"
+        ],
+        "properties": {
+          "customerPremisesInfo": {
+            "required": [
+              "onuId",
+              "aniId"
+            ],
+            "description": "0 to N physical locations of the customer sites.",
+            "minItems": 0,
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CpInfo"
+            },
+            "x-etsi-mec-cardinality": "0..N",
+            "x-etsi-mec-origin-type": "CpInfo"
+          },
+          "onuId": {
+            "description": "1 to N unique identifiers for the optical network units.  Typical it is the unique serial number for each ONU, which contains the vendor ID and version number. The first four bytes are an ASCII-encoded four-letter vendor ID. The second four bytes are a binary encoded serial number, under the control of the ONU vendor.",
+            "type": "array",
+            "items": {
+              "type": "string",
+              "x-etsi-mec-cardinality": "1..N",
+              "x-etsi-mec-origin-type": "String"
+            }
+          },
+          "aniId": {
+            "description": "",
+            "type": "object",
+            "required": [
+              "onuId",
+              "aniIndex"
+            ],
+            "properties": {
+              "onuId": {
+                "description": "The unique identifiers for the optical network unit",
+                "type": "string"
+              },
+              "aniIndex": {
+                "description": "The index of an access network interface supported by the optical network unit",
+                "type": "string"
+              }
+            }
+          },
+          "alarms": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AniAlarmSubscription.filterCriteriaAniAlarm.alarms"
+            }
+          }
+        }
+      },
+      "AniAlarmSubscription": {
+        "properties": {
+          "subscriptionType": {
+            "description": "Shall be set to \\\"AniAlarmSubscription\\\"",
+            "type": "string"
+          },
+          "_links": {
+            "$ref": "#/components/schemas/AniAlarmSubscription.links"
+          },
+          "aniIndex": {
+            "description": "The index of an access network interface supported by the optical network unit.",
+            "type": "string",
+            "x-etsi-mec-cardinality": "1",
+            "x-etsi-mec-origin-type": "String"
+          },
+          "callbackReference": {
+            "description": "URI selected by the service consumer to receive notifications on the subscribed FAIS information. This shall be included both in the request and in response.",
+            "format": "uri",
+            "type": "string",
+            "x-etsi-mec-cardinality": "1",
+            "x-etsi-mec-origin-type": "URI"
+          },
+          "expiryDeadline": {
+            "$ref": "#/components/schemas/TimeStamp"
+          },
+          "filterCriteriaAniAlarm": {
+            "$ref": "#/components/schemas/AniAlarmSubscription.filterCriteriaAniAlarm"
+          }
+        },
+        "required": [
+          "subscriptionType",
+          "callbackReference",
+          "filterCriteriaAniAlarm",
+          "onuId",
+          "aniIndex"
+        ],
+        "type": "object",
+        "x-etsi-ref": "6.3.6"
+      },
+      "CableLineInfo.cmInfo.serviceFlowStats": {
+        "description": "It describes statistics associated with the Service Flows in a managed device.",
+        "properties": {
+          "ifIndex": {
+            "description": "It represents the interface index of the MAC Domain of the Service Flow",
+            "type": "string",
+            "x-etsi-mec-cardinality": "1",
+            "x-etsi-mec-origin-type": "String"
+          },
+          "serviceFlowInfo": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CableLineInfo.cmInfo.serviceFlowStats.serviceFlowInfo"
+            }
+          }
+        },
+        "type": "object",
+        "required": [
+          "ifIndex",
+          "serviceFlowInfo"
+        ]
+      },
+      "CableLineInfo.cmInfo.serviceFlowStats.serviceFlowInfo": {
+        "description": "It represents the information of a Service Flow.",
+        "properties": {
+          "aqmDroppedPkts": {
+            "description": "For upstream service flows on which AQM is enabled, this attribute counts the number of Packet Data PDUs classified to this service flow dropped due to Active Queue Management drop decisions.",
+            "type": "integer",
+            "x-etsi-mec-cardinality": "1",
+            "x-etsi-mec-origin-type": "Integer"
+          },
+          "pkts": {
+            "description": "For outgoing Service Flows, this attribute counts the number of Packet Data PDUs forwarded to this Service Flow. For incoming upstream CMTS service flows, this attribute counts the number of Packet Data PDUs actually received on the Service Flow identified by the SID for which the packet was scheduled.",
+            "type": "integer",
+            "x-etsi-mec-cardinality": "1",
+            "x-etsi-mec-origin-type": "Integer"
+          },
+          "policedDelayPkts": {
+            "description": "It counts only outgoing packets delayed in order to maintain the Maximum Sustained Traffic Rate.",
+            "type": "integer",
+            "x-etsi-mec-cardinality": "1",
+            "x-etsi-mec-origin-type": "Integer"
+          },
+          "policedDropPkts": {
+            "description": "For upstream service flows, this attribute counts the number of Packet Data PDUs classified to this service flow dropped due to:\n1)\texceeding the selected Buffer Size for the service flow; or\n2)\tUGS packets dropped due to exceeding the Unsolicited Grant Size with a Request/Transmission policy that requires such packets to be dropped.",
+            "type": "integer",
+            "x-etsi-mec-cardinality": "1",
+            "x-etsi-mec-origin-type": "Integer"
+          },
+          "serviceFlowId": {
+            "description": "It represents an identifier assigned to a Service Flow by CMTS within a MAC Domain.",
+            "type": "integer",
+            "x-etsi-mec-cardinality": "1",
+            "x-etsi-mec-origin-type": "Integer"
+          },
+          "timeActive": {
+            "description": "It indicates the number of seconds that the service flow has been active.",
+            "type": "integer",
+            "x-etsi-mec-cardinality": "1",
+            "x-etsi-mec-origin-type": "Integer"
+          },
+          "timeCreated": {
+            "$ref": "#/components/schemas/TimeStamp"
+          }
+        },
+        "required": [
+          "serviceFlowId",
+          "pkts",
+          "timeCreated",
+          "timeActive",
+          "policedDropPkts",
+          "policedDelayPkts",
+          "aqmDroppedPkts"
+        ]
+      },
+      "CableLineInfo.cmInfo.cmStatus.cmRegState": {
+        "description": "It defines the CM connectivity state. Enumeration of: 1 = other.  2 = notReady. 3 = notSynchronized. 4 = phySynchronized. 5 = usParametersAcquired. 6 = rangingComplete. 7 = dhcpV4Complete. 8 = todEstablished. 9 = securityEstablished. 10 = configFileDownloadComplete. 11 = registrationComplete. 12 = operational. 13 = accessDenied. 14 = eaeInProgress. 15 = dhcpv4InProgress. 16 = dhcpv6InProgress. 17 = dhcpV6Complete. 18 = registrationInProgress. 19 = bpiInit. 20 = forwardingDisabled. 21 = dsTopologyResolutionInProgress. 22 = rangingInProgress. 23 = rfMuteAll.",
+        "enum": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19,
+          20,
+          21,
+          22,
+          23
+        ],
+        "type": "integer",
+        "x-etsi-mec-cardinality": "1",
+        "x-etsi-mec-origin-type": "Enum"
+      },
+      "CableLineInfo.cmInfo.cmStatus": {
+        "description": "It provides CM connectivity status information of the CM.",
+        "properties": {
+          "cmRegState": {
+            "$ref": "#/components/schemas/CableLineInfo.cmInfo.cmStatus.cmRegState"
+          },
+          "emDlsOperStatus": {
+            "description": "It indicates whether the CM is currently operating in Energy Management DLS Mode.",
+            "type": "boolean",
+            "x-etsi-mec-cardinality": "1",
+            "x-etsi-mec-origin-type": "Boolean"
+          },
+          "energyMgt1x1OperStatus": {
+            "description": "It indicates whether the CM is currently operating in Energy Management 1x1 Mode.",
+            "type": "boolean",
+            "x-etsi-mec-cardinality": "1",
+            "x-etsi-mec-origin-type": "Boolean"
+          },
+          "ifIndex": {
+            "description": "It denotes the MAC Domain interface index of the CM.",
+            "type": "string",
+            "x-etsi-mec-cardinality": "1",
+            "x-etsi-mec-origin-type": "String"
+          },
+          "invalidRegRsps": {
+            "description": "It denotes the number of times the CM received invalid registration response messages.",
+            "type": "integer",
+            "x-etsi-mec-cardinality": "1",
+            "x-etsi-mec-origin-type": "Integer"
+          },
+          "lostSyncs": {
+            "description": "It denotes the number of times the CM lost synchronization with the downstream channel.",
+            "type": "integer",
+            "x-etsi-mec-cardinality": "1",
+            "x-etsi-mec-origin-type": "Integer"
+          },
+          "resets": {
+            "description": "It denotes the number of times the CM reset or initialized this interface.",
+            "type": "integer",
+            "x-etsi-mec-cardinality": "1",
+            "x-etsi-mec-origin-type": "Integer"
+          }
+        },
+        "required": [
+          "ifIndex",
+          "cmRegState",
+          "resets",
+          "lostSyncs",
+          "invalidRegRsps",
+          "energyMgt1x1OperStatus",
+          "emDlsOperStatus"
+        ]
+      },
+      "CableLineInfo.cmInfo.cmDpvStats": {
+        "description": "It represents the DOCSIS Path Verify Statistics collected in the cable modem device.",
+        "properties": {
+          "avgLatency": {
+            "description": "The average latency measurement.",
+            "type": "integer",
+            "x-etsi-mec-cardinality": "1",
+            "x-etsi-mec-origin-type": "Integer"
+          },
+          "ifIndex": {
+            "description": "It represents the interface Index of the Downstream Interface where the measurements are taken.",
+            "type": "string",
+            "x-etsi-mec-cardinality": "1",
+            "x-etsi-mec-origin-type": "String"
+          },
+          "lastMeasLatency": {
+            "description": "The last latency measurement.",
+            "type": "integer",
+            "x-etsi-mec-cardinality": "1",
+            "x-etsi-mec-origin-type": "Integer"
+          },
+          "lastMeasTime": {
+            "$ref": "#/components/schemas/TimeStamp"
+          },
+          "maxLatency": {
+            "description": "The maximum latency measurement.",
+            "type": "integer",
+            "x-etsi-mec-cardinality": "1",
+            "x-etsi-mec-origin-type": "Integer"
+          },
+          "minLatency": {
+            "description": "The minimum latency measurement.",
+            "type": "integer",
+            "x-etsi-mec-cardinality": "1",
+            "x-etsi-mec-origin-type": "Integer"
+          },
+          "numMeas": {
+            "description": "The number of latency measurements made.",
+            "type": "integer",
+            "x-etsi-mec-cardinality": "1",
+            "x-etsi-mec-origin-type": "Integer"
+          }
+        },
+        "required": [
+          "ifIndex",
+          "lastMeasLatency",
+          "lastMeasTime",
+          "minLatency",
+          "maxLatency",
+          "avgLatency",
+          "numMeas"
+        ]
+      },
+      "CableLineInfo.cmInfo": {
+        "description": "",
+        "properties": {
+          "cmDpvStats": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CableLineInfo.cmInfo.cmDpvStats"
+            }
+          },
+          "cmId": {
+            "description": "Information (typically the serial number) to identify a Cable Modem at subscriber locations intended for use in conveying data communications on a cable data system.This value SHALL remain fixed over the lifetime of thedevice, including across firmware updates.",
+            "type": "string",
+            "x-etsi-mec-cardinality": "1",
+            "x-etsi-mec-origin-type": "String"
+          },
+          "cmStatus": {
+            "$ref": "#/components/schemas/CableLineInfo.cmInfo.cmStatus"
+          },
+          "serviceFlowStats": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CableLineInfo.cmInfo.serviceFlowStats"
+            }
+          }
+        },
+        "required": [
+          "cmId"
+        ]
+      },
+      "CableLineInfo": {
+        "properties": {
+          "cmInfo": {
+            "$ref": "#/components/schemas/CableLineInfo.cmInfo"
+          },
+          "customerPremisesInfo": {
+            "$ref": "#/components/schemas/CpInfo"
+          },
+          "timeStamp": {
+            "$ref": "#/components/schemas/TimeStamp"
+          }
+        },
+        "type": "object",
+        "required": [
+          "customerPremisesInfo",
+          "cmInfo"
+        ],
+        "x-etsi-ref": "6.2.4"
+      },
+      "CmConnNotification.cmIf.cmRegState": {
+        "description": "It indicates the CM connectivity state. Enumeration of:  1 = notReady. 2 = notSynchronized. 3 = phySynchronized. 4 = dsTopologyResolutionInProgress.5 = usParametersAcquired. 6 = rangingInProgress.7 = rangingComplete. 8 = eaeInProgress.9 = dhcpv4InProgress. 10 = dhcpv6InProgress.11 = dhcpV4Complete.12 = dhcpV6Complete.13 = todEstablished.14 = securityEstablished.15 = configFileDownloadComplete.16 = registrationInProgress.17 = registrationComplete. 18 = accessDenied. 19 =operational. 20 = bpiInit.21 =forwardingDisabled.",
+        "enum": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19,
+          20,
+          21
+        ],
+        "type": "integer"
+      },
+      "CmConnNotification.cmIf": {
+        "description": "",
+        "items": {
+          "type": "object"
+        },
+        "properties": {
+          "cmId": {
+            "description": "The Cable Modem identifier.",
+            "type": "string",
+            "x-etsi-mec-cardinality": "1",
+            "x-etsi-mec-origin-type": "String"
+          },
+          "cmRegState": {
+            "items": {
+              "$ref": "#/components/schemas/CmConnNotification.cmIf.cmRegState"
+            },
+            "minItems": 1,
+            "type": "array",
+            "x-etsi-mec-cardinality": "1..N",
+            "x-etsi-mec-origin-type": "Enum"
+          },
+          "ifIndex": {
+            "description": "The MAC Domain interface index of the CM.",
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1,
+            "type": "array",
+            "x-etsi-mec-cardinality": "1..N",
+            "x-etsi-mec-origin-type": "String"
+          }
+        },
+        "required": [
+          "cmId",
+          "ifIndex",
+          "cmRegState"
+        ]
+      },
+      "CmConnNotification": {
+        "required": [
+          "notificationType",
+          "cmIf"
+        ],
+        "properties": {
+          "cmIf": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CmConnNotification.cmIf"
+            }
+          },
+          "customerPremisesInfo": {
+            "$ref": "#/components/schemas/CpInfo"
+          },
+          "notificationType": {
+            "description": "Shall be set to \\\"CmconnNotification\\\".",
+            "type": "string",
+            "x-etsi-mec-cardinality": "1",
+            "x-etsi-mec-origin-type": "String"
+          },
+          "timeStamp": {
+            "$ref": "#/components/schemas/TimeStamp"
+          }
+        },
+        "type": "object",
+        "x-etsi-ref": "6.4.4"
+      },
+      "CmConnSubscription.links": {
+        "description": "Hyperlink related to the resource. This shall be only included in the HTTP responses and in HTTP PUT requests.",
+        "properties": {
+          "self": {
+            "$ref": "#/components/schemas/LinkType"
+          }
+        },
+        "required": [
+          "self"
+        ],
+        "type": "object",
+        "x-etsi-mec-cardinality": "0..1"
+      },
+      "CmConnSubscription.filterCriteriaCmConn.cmIf.cmRegState": {
+        "description": "It indicates the CM connectivity state. Enumeration of:  1 = notReady. 2 = notSynchronized. 3 = phySynchronized. 4 = dsTopologyResolutionInProgress.5 = usParametersAcquired. 6 = rangingInProgress.7 = rangingComplete. 8 = eaeInProgress.9 = dhcpv4InProgress. 10 = dhcpv6InProgress.11 = dhcpV4Complete.12 = dhcpV6Complete.13 = todEstablished.14 = securityEstablished.15 = configFileDownloadComplete.16 = registrationInProgress.17 = registrationComplete. 18 = accessDenied. 19 =operational. 20 = bpiInit.21 =forwardingDisabled.",
+        "enum": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19,
+          20,
+          21
+        ],
+        "type": "integer"
+      },
+      "CmConnSubscription.filterCriteriaCmConn.cmIf": {
+        "description": "",
+        "properties": {
+          "cmId": {
+            "description": "The identifier of a Cable Modem at subscriber locations intended for use in conveying data communications on a cable data system.",
+            "type": "string",
+            "x-etsi-mec-cardinality": "1",
+            "x-etsi-mec-origin-type": "String"
+          },
+          "cmRegState": {
+            "items": {
+              "$ref": "#/components/schemas/CmConnSubscription.filterCriteriaCmConn.cmIf.cmRegState"
+            },
+            "minItems": 1,
+            "type": "array",
+            "x-etsi-mec-cardinality": "1..N",
+            "x-etsi-mec-origin-type": "Enum"
+          },
+          "ifIndex": {
+            "description": "The MAC Domain interface index of the CM.",
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1,
+            "type": "array",
+            "x-etsi-mec-cardinality": "1..N",
+            "x-etsi-mec-origin-type": "String"
+          }
+        },
+        "required": [
+          "cmId",
+          "ifIndex",
+          "cmRegState"
+        ]
+      },
+      "CmConnSubscription.filterCriteriaCmConn": {
+        "description": "List of filtering criteria for the subscription. Any filtering criteria from below, which is included in the request, shall also be included in the response.",
+        "properties": {
+          "cmIf": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CmConnSubscription.filterCriteriaCmConn.cmIf"
+            }
+          },
+          "customerPremisesInfo": {
+            "$ref": "#/components/schemas/CpInfo"
+          }
+        },
+        "type": "object",
+        "x-etsi-mec-cardinality": "1"
+      },
+      "CmConnSubscription": {
+        "properties": {
+          "_links": {
+            "$ref": "#/components/schemas/CmConnSubscription.links"
+          },
+          "callbackReference": {
+            "description": "URI selected by the service consumer to receive notifications on the subscribed FAIS information. This shall be included both in the request and in response.",
+            "format": "uri",
+            "type": "string",
+            "x-etsi-mec-cardinality": "1",
+            "x-etsi-mec-origin-type": "URI"
+          },
+          "expiryDeadline": {
+            "$ref": "#/components/schemas/TimeStamp"
+          },
+          "filterCriteriaCmConn": {
+            "$ref": "#/components/schemas/CmConnSubscription.filterCriteriaCmConn"
+          },
+          "subscriptionType": {
+            "description": "Shall be set to \"CmConnSubscription\".",
+            "type": "string",
+            "x-etsi-mec-cardinality": "1",
+            "x-etsi-mec-origin-type": "String"
+          }
+        },
+        "required": [
+          "subscriptionType",
+          "callbackReference",
+          "filterCriteriaCmConn"
+        ],
+        "type": "object",
+        "x-etsi-notes": "NOTE:\t'notReady' indicates that the CM has not started the registration process yet.\n\t'notSynchronized' indicates that the CM has not initiated or completed the synchronization of the downstream physical layer.\n\t'phySynchronized' indicates that the CM has completed the synchronization of the downstream physical layer.\n\t'dsTopologyResolutionInProgress' indicates that the CM is attempting to determine its MD-DS-SG.\n\t'usParametersAcquired' indicates that the CM has completed the upstream parameters acquisition or have completed the downstream and upstream service groups resolution.\n\t'rangingInProgress' indicates that the CM has initiated the initial ranging process.\n\t'rangingComplete' indicates that the CM has completed initial ranging and received a Ranging Status of success from the CMTS in the RNG-RSP message.\n\t'eaeInProgress' indicates that the CM has sent an Auth Info message for EAE.\n\t'dhcpv4InProgress' indicates that the CM has sent a DHCPv4 DISCOVER to gain IP connectivity.\n\t'dhcpv6InProgress' indicates that the CM has sent a DHCPv6 Solicit message.\n\t'dhcpv4Complete' indicates that the CM has received a DHCPv4 ACK message from the CMTS.\n\t'dhcpv6Complete' indicates that the CM has received a DHCPv6 Reply message from the CMTS.\n\t'todEstablished' indicates that the CM has successfully acquired time of day.\n\t'securityEstablished' indicates that the CM has successfully completed the BPI initialization process.\n\t'configFileDownloadComplete' indicates that the CM has completed the config file download process.\n\t'registrationInProgress' indicates that the CM has sent a Registration Request.\n\t'registrationComplete' indicates that the CM has successfully completed the Registration process with the CMTS.\n\t'accessDenied' indicates that the CM has received a registration aborted notification from the CMTS.\n\t'operational' indicates that the CM has completed all necessary initialization steps and is operational.\n\t'bpiInit' indicates that the CM has started the BPI initialization process as indicated in the CM config file.\n\t'forwardingDisabled' indicates that the registration process was completed, but the network access option in the received configuration file prohibits forwarding.",
+        "x-etsi-ref": "6.3.4"
+      },
+      "CpInfo": {
+        "properties": {
+          "latitude": {
+            "description": "Latitude (DATUM=WGS84)\n-90 to 90 in decimal degree format DDD.ddd",
+            "format": "Float",
+            "type": "number",
+            "x-etsi-mec-cardinality": "0..1",
+            "x-etsi-mec-origin-type": "Float"
+          },
+          "longitude": {
+            "description": "Longitude (DATUM=WGS84)\n-180 to 180 in decimal degree format DDD.ddd",
+            "format": "Float",
+            "type": "number",
+            "x-etsi-mec-cardinality": "0..1",
+            "x-etsi-mec-origin-type": "Float"
+          },
+          "postalCode": {
+            "description": "Postal code for the location",
+            "type": "string",
+            "x-etsi-mec-cardinality": "0..1",
+            "x-etsi-mec-origin-type": "String"
+          }
+        },
+        "type": "object",
+        "x-etsi-ref": "6.5.3"
+      },
+      "DevInfoNotification": {
+        "properties": {
+          "deviceErrStatus": {
+            "$ref": "#/components/schemas/deviceErrStatus"
+          },
+          "deviceId": {
+            "description": "The identifier for a device.",
+            "type": "string",
+            "x-etsi-mec-cardinality": "1",
+            "x-etsi-mec-origin-type": "String"
+          },
+          "notificationType": {
+            "description": "Shall be set to \"DevInfoNotification\".",
+            "type": "string",
+            "x-etsi-mec-cardinality": "1",
+            "x-etsi-mec-origin-type": "String"
+          },
+          "timeStamp": {
+            "$ref": "#/components/schemas/TimeStamp"
+          }
+        },
+        "required": [
+          "notificationType",
+          "deviceId",
+          "deviceErrStatus"
+        ],
+        "type": "object",
+        "x-etsi-ref": "6.4.3"
+      },
+      "deviceErrStatus": {
+        "description": "The abnormal operational status of the device. Enumeration of:  1 = Error. 2 = Disabled.",
+        "enum": [
+          1,
+          2
+        ],
+        "type": "integer"
+      },
+      "DevInfoSubscription.links": {
+        "description": "Hyperlink related to the resource. This shall be only included in the HTTP responses and in HTTP PUT requests.",
+        "properties": {
+          "self": {
+            "$ref": "#/components/schemas/LinkType"
+          }
+        },
+        "required": [
+          "self"
+        ],
+        "type": "object",
+        "x-etsi-mec-cardinality": "0..1"
+      },
+      "DevInfoSubscription.filterCriteriaDevInfo": {
+        "description": "List of filtering criteria for the subscription. Any filtering criteria from below, which is included in the request, shall also be included in the response.",
+        "properties": {
+          "deviceErrStatus": {
+            "items": {
+              "$ref": "#/components/schemas/deviceErrStatus"
+            },
+            "minItems": 0,
+            "type": "array",
+            "x-etsi-mec-cardinality": "0..N",
+            "x-etsi-mec-origin-type": "Enum"
+          },
+          "deviceId": {
+            "description": "The device identifier.",
+            "items": {
+              "type": "string"
+            },
+            "minItems": 0,
+            "type": "array",
+            "x-etsi-mec-cardinality": "0..N",
+            "x-etsi-mec-origin-type": "String"
+          },
+          "gwId": {
+            "description": "The identifier of an Internet Gateway Device through which the customer premises device is connected.",
+            "items": {
+              "type": "string"
+            },
+            "minItems": 0,
+            "type": "array",
+            "x-etsi-mec-cardinality": "0..N",
+            "x-etsi-mec-origin-type": "String"
+          }
+        },
+        "type": "object",
+        "x-etsi-mec-cardinality": "1"
+      },
+      "DevInfoSubscription": {
+        "properties": {
+          "_links": {
+            "$ref": "#/components/schemas/DevInfoSubscription.links"
+          },
+          "callbackReference": {
+            "description": "URI selected by the service consumer to receive notifications on the subscribed FAIS information. This shall be included both in the request and in response.",
+            "format": "uri",
+            "type": "string",
+            "x-etsi-mec-cardinality": "1",
+            "x-etsi-mec-origin-type": "URI"
+          },
+          "expiryDeadline": {
+            "$ref": "#/components/schemas/TimeStamp"
+          },
+          "filterCriteriaDevInfo": {
+            "$ref": "#/components/schemas/DevInfoSubscription.filterCriteriaDevInfo"
+          },
+          "subscriptionType": {
+            "description": "Shall be set to \"DevInfoSubscription\".",
+            "type": "string",
+            "x-etsi-mec-cardinality": "1",
+            "x-etsi-mec-origin-type": "String"
+          }
+        },
+        "required": [
+          "subscriptionType",
+          "callbackReference",
+          "filterCriteriaDevInfo"
+        ],
+        "type": "object",
+        "x-etsi-ref": "6.3.3"
+      },
+      "DeviceInfo.deviceStatus": {
+        "description": "Current operational status of the device. Enumeration of: 1 = Up. 2 = Initializing. 3 = Error. 4 = Disabled.",
+        "enum": [
+          1,
+          2,
+          3,
+          4
+        ],
+        "type": "integer",
+        "x-etsi-mec-cardinality": "1",
+        "x-etsi-mec-origin-type": "Enum"
+      },
+      "DeviceInfo": {
+        "properties": {
+          "deviceId": {
+            "description": "Typically, the serial number of the device.This value shall remain fixed over the lifetime of the device, including across firmware updates.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "x-etsi-mec-cardinality": "0..1",
+            "x-etsi-mec-origin-type": "String"
+          },
+          "deviceStatus": {
+            "$ref": "#/components/schemas/DeviceInfo.deviceStatus"
+          },
+          "downloadDiagnostics": {
+            "$ref": "#/components/schemas/DownloadDiagnostics"
+          },
+          "gwId": {
+            "description": "Information (typically the serial number) to identify an Internet Gateway Device through which\nthe customer premises device is connected.\n\nThis value shall remain fixed over the lifetime of the device, including across firmware updates.",
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1,
+            "type": "array",
+            "x-etsi-mec-cardinality": "1..N",
+            "x-etsi-mec-origin-type": "String"
+          },
+          "iPConnectionUpTime": {
+            "description": "The time in seconds that the IP interface has been connected.",
+            "type": "integer",
+            "x-etsi-mec-cardinality": "1",
+            "x-etsi-mec-origin-type": "Integer"
+          },
+          "iPPingDiagnostics": {
+            "$ref": "#/components/schemas/IPPingDiagnostics"
+          },
+          "timeStamp": {
+            "$ref": "#/components/schemas/TimeStamp"
+          },
+          "totalBytesReceived": {
+            "description": "Total number of IP payload bytes received since the device was last restarted.",
+            "type": "integer",
+            "x-etsi-mec-cardinality": "1",
+            "x-etsi-mec-origin-type": "Integer"
+          },
+          "totalBytesSent": {
+            "description": "Total number of IP payload bytes sent since the device was last restarted.",
+            "type": "integer",
+            "x-etsi-mec-cardinality": "1",
+            "x-etsi-mec-origin-type": "Integer"
+          },
+          "totalPacketsReceived": {
+            "description": "Total number of packets received since the device was last restarted.",
+            "type": "integer",
+            "x-etsi-mec-cardinality": "1",
+            "x-etsi-mec-origin-type": "Integer"
+          },
+          "totalPacketsSent": {
+            "description": "Total number of packets sent since the device was last restarted.",
+            "type": "integer",
+            "x-etsi-mec-cardinality": "1",
+            "x-etsi-mec-origin-type": "Integer"
+          },
+          "traceRouteDiagnostics": {
+            "$ref": "#/components/schemas/TraceRouteDiagnostics"
+          },
+          "upTime": {
+            "description": "Time in seconds since the device was last restarted.",
+            "type": "integer",
+            "x-etsi-mec-cardinality": "1",
+            "x-etsi-mec-origin-type": "Integer"
+          },
+          "uploadDiagnostics": {
+            "$ref": "#/components/schemas/UploadDiagnostics"
+          }
+        },
+        "required": [
+          "gwId",
+          "deviceStatus",
+          "upTime",
+          "iPConnectionUpTime",
+          "totalBytesSent",
+          "totalBytesReceived",
+          "totalPacketsSent",
+          "totalPacketsReceived"
+        ],
+        "type": "object",
+        "x-etsi-ref": "6.2.3"
+      },
+      "DownloadDiagnostics.diagnosticsState": {
+        "description": "The state of the HTTP and FTP download test. Enumeration of:1 = None.2 = Requested.3 = Completed.4 = Error_InitConnectionFailed.5 = Error_NoResponse.6 = Error_TransferFailed. 7 = Error_PasswordRequestFailed.8 = Error_LoginFailed.9 = Error_NoTransferMode.10 = Error_NoPASV.11 = Error_IncorrectSize.12 = Error_Timeout.",
+        "enum": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12
+        ],
+        "type": "integer",
+        "x-etsi-mec-cardinality": "1",
+        "x-etsi-mec-origin-type": "Enum"
+      },
+      "DownloadDiagnostics": {
+        "properties": {
+          "bOMTime": {
+            "$ref": "#/components/schemas/TimeStamp"
+          },
+          "diagnosticsState": {
+            "$ref": "#/components/schemas/DownloadDiagnostics.diagnosticsState"
+          },
+          "downloadURI": {
+            "description": "The URI for the device to perform the download on.",
+            "format": "uri",
+            "type": "string",
+            "x-etsi-mec-cardinality": "0..1",
+            "x-etsi-mec-origin-type": "URI"
+          },
+          "eOMTime": {
+            "$ref": "#/components/schemas/TimeStamp"
+          },
+          "rOMTime": {
+            "$ref": "#/components/schemas/TimeStamp"
+          },
+          "tCPOpenReponseTime": {
+            "$ref": "#/components/schemas/TimeStamp"
+          },
+          "tCPOpenRequestTime": {
+            "$ref": "#/components/schemas/TimeStamp"
+          },
+          "testBytesReceived": {
+            "description": "The test traffic received in bytes during the FTP/HTTP transaction including FTP/HTTP headers, between bOMTime and eOMTime.",
+            "type": "integer",
+            "x-etsi-mec-cardinality": "0..1",
+            "x-etsi-mec-origin-type": "Integer"
+          },
+          "totalBytesReceived": {
+            "description": "The total number of bytes received on the Interface between bOMTime and eOMTime.",
+            "type": "integer",
+            "x-etsi-mec-cardinality": "0..1",
+            "x-etsi-mec-origin-type": "Integer"
+          }
+        },
+        "required": [
+          "diagnosticsState"
+        ],
+        "type": "object",
+        "x-etsi-ref": "6.5.6"
+      },
+      "ExpiryNotification.links": {
+        "description": "List of hyperlinks related to the resource.",
+        "properties": {
+          "self": {
+            "description": "Self referring URI. This shall be included in the response from the FAIS. The URI shall be unique within the FAI API as it acts as an ID for the subscription.",
+            "format": "uri",
+            "type": "string",
+            "x-etsi-mec-cardinality": "1",
+            "x-etsi-mec-origin-type": "URI"
+          }
+        },
+        "required": [
+          "self"
+        ],
+        "type": "object",
+        "x-etsi-mec-cardinality": "1"
+      },
+      "ExpiryNotification": {
+        "properties": {
+          "_links": {
+            "$ref": "#/components/schemas/ExpiryNotification.links"
+          },
+          "expiryDeadline": {
+            "$ref": "#/components/schemas/TimeStamp"
+          },
+          "timeStamp": {
+            "$ref": "#/components/schemas/TimeStamp"
+          }
+        },
+        "required": [
+          "_links",
+          "expiryDeadline"
+        ],
+        "type": "object",
+        "x-etsi-ref": "6.4.5"
+      },
+      "FaInfo.connectivityInfo.interfaceType": {
+        "description": "The physical interface used for the end customer site:1   =   100BASE-TX.2   =   1000BASE-TX.3   =   1000BASE-LX.4   =   1000BASELX10.5   =   1000BASEBX10. 6   =   1000BASE-LH.7   =   1000Base-ZX. 8   =   ADSL-RJ11.9   =   VDSL-RJ11.10 =   GPON.",
+        "enum": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10
+        ],
+        "type": "integer",
+        "x-etsi-mec-cardinality": "1",
+        "x-etsi-mec-origin-type": "Enum"
+      },
+      "FaInfo.connectivityInfo.lastMileTech": {
+        "description": "An informative field identifying the last mile access technology used.The valid values are:1 = ADSL.2 = VDSL.3 = GPON. 4 = XGPON.5 = NGPON2. 6 = XGSPON. 7 = GFAST.8 = P2PEthernet.",
+        "enum": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8
+        ],
+        "type": "integer",
+        "x-etsi-mec-cardinality": "1",
+        "x-etsi-mec-origin-type": "Enum"
+      },
+      "FaInfo.connectivityInfo": {
+        "description": "The per connectivity domain FAI as defined below.",
+        "properties": {
+          "dsbw": {
+            "description": "The bandwidth (in Mbps) from the network towards the customer site.",
+            "type": "integer",
+            "x-etsi-mec-cardinality": "0..1",
+            "x-etsi-mec-origin-type": "Integer"
+          },
+          "interfaceType": {
+            "$ref": "#/components/schemas/FaInfo.connectivityInfo.interfaceType"
+          },
+          "lastMileTech": {
+            "$ref": "#/components/schemas/FaInfo.connectivityInfo.lastMileTech"
+          },
+          "latency": {
+            "description": "Maximum baseline latency (in ms) between customer site and service edge node.",
+            "type": "integer",
+            "x-etsi-mec-cardinality": "0..1",
+            "x-etsi-mec-origin-type": "Integer"
+          },
+          "usbw": {
+            "description": "The bandwidth (in Mbps) from the customer site towards the network.",
+            "type": "integer",
+            "x-etsi-mec-cardinality": "0..1",
+            "x-etsi-mec-origin-type": "Integer"
+          }
+        },
+        "required": [
+          "lastMileTech",
+          "interfaceType"
+        ]
+      },
+      "FaInfo": {
+        "properties": {
+          "connectivityInfo": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FaInfo.connectivityInfo"
+            }
+          },
+          "customerPremisesInfo": {
+            "description": "The physical location of a customer site.",
+            "items": {
+              "$ref": "#/components/schemas/CpInfo"
+            },
+            "minItems": 1,
+            "type": "array",
+            "x-etsi-mec-cardinality": "1..N",
+            "x-etsi-mec-origin-type": "CpInfo"
+          },
+          "timeStamp": {
+            "$ref": "#/components/schemas/TimeStamp"
+          }
+        },
+        "type": "object",
+        "required": [
+          "customerPremisesInfo"
+        ],
+        "x-etsi-ref": "6.2.2"
+      },
+      "IPPingDiagnostics.diagnosticsState": {
+        "description": "The state of the IP ping test. Enumeration of: 1 = None. 2 = Requested. 3 = Complete. 4 = Error_CannotResolveHostName. 5 = Error_Internal.6 = Error_Other.",
+        "enum": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "type": "integer",
+        "x-etsi-mec-cardinality": "1",
+        "x-etsi-mec-origin-type": "Enum"
+      },
+      "IPPingDiagnostics": {
+        "properties": {
+          "averageResponseTime": {
+            "description": "Result parameter indicating the average response time in milliseconds over all repetitions with successful responses of the most recent ping test.\n\nIf there were no successful responses, this value shall be zero.",
+            "type": "integer",
+            "x-etsi-mec-cardinality": "0..1",
+            "x-etsi-mec-origin-type": "Integer"
+          },
+          "dataBlockSize": {
+            "description": "Size of the data block in bytes to be sent for each ping.",
+            "type": "integer",
+            "x-etsi-mec-cardinality": "0..1",
+            "x-etsi-mec-origin-type": "Integer"
+          },
+          "diagnosticsState": {
+            "$ref": "#/components/schemas/IPPingDiagnostics.diagnosticsState"
+          },
+          "failureCount": {
+            "description": "Result parameter indicating the number of failed pings in the most recent ping test.",
+            "type": "integer",
+            "x-etsi-mec-cardinality": "0..1",
+            "x-etsi-mec-origin-type": "Integer"
+          },
+          "host": {
+            "description": "Host name or address of the host to ping.",
+            "type": "string",
+            "x-etsi-mec-cardinality": "0..1",
+            "x-etsi-mec-origin-type": "String"
+          },
+          "maximumResponseTime": {
+            "description": "Result parameter indicating the maximum response time in milliseconds over all repetitions with successful responses of the most recent ping test.\n\nIf there were no successful responses, this value shall be zero.",
+            "type": "integer",
+            "x-etsi-mec-cardinality": "0..1",
+            "x-etsi-mec-origin-type": "Integer"
+          },
+          "minimumResponseTime": {
+            "description": "Result parameter indicating the minimum response time in milliseconds over all repetitions with successful responses of the most recent ping test.\n\nIf there were no successful responses, this value shall be zero.",
+            "type": "integer",
+            "x-etsi-mec-cardinality": "0..1",
+            "x-etsi-mec-origin-type": "Integer"
+          },
+          "numberOfRepetitions": {
+            "description": "Number of repetitions of the ping test to perform before reporting the results.",
+            "type": "integer",
+            "x-etsi-mec-cardinality": "0..1",
+            "x-etsi-mec-origin-type": "Integer"
+          },
+          "successCount": {
+            "description": "Result parameter indicating the number of successful\npings (those in which a successful response was received prior to the timeout) in the most recent ping test.",
+            "type": "integer",
+            "x-etsi-mec-cardinality": "0..1",
+            "x-etsi-mec-origin-type": "Integer"
+          },
+          "timeout": {
+            "description": "Timeout in milliseconds for the ping test.",
+            "type": "integer",
+            "x-etsi-mec-cardinality": "0..1",
+            "x-etsi-mec-origin-type": "Integer"
+          }
+        },
+        "required": [
+          "diagnosticsState"
+        ],
+        "type": "object",
+        "x-etsi-ref": "6.5.4"
+      },
+      "OnuAlarmNotification.alarm": {
+        "description": "Indicates the alarm of the ONU:0  = EquipmentAlarm.1  = PoweringAlarm.2  = BatteryMissing.3  = BatteryFailure.4  = BatteryLow.5  = PhysicalIntrusion. 6  = OnuSelfTestFailure. 7  = DyingGasp. 8  = TemperatureYellow.9  = TemperatureRed.10 = VoltageYellow.11 = VoltageRed.12 = OnuManualPowerOff. 13 = InvImage.14 = PseOverloadYellow.15 = PseOverloadRed.",
+        "enum": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15
+        ],
+        "type": "integer",
+        "x-etsi-mec-cardinality": "1",
+        "x-etsi-mec-origin-type": "Enum"
+      },
+      "OnuAlarmNotification": {
+        "properties": {
+          "alarm": {
+            "$ref": "#/components/schemas/OnuAlarmNotification.alarm"
+          },
+          "customerPremisesInfo": {
+            "description": "The physical location of the related customer sites.",
+            "items": {
+              "$ref": "#/components/schemas/CpInfo"
+            },
+            "minItems": 0,
+            "type": "array",
+            "x-etsi-mec-cardinality": "0..N",
+            "x-etsi-mec-origin-type": "CpInfo"
+          },
+          "notificationType": {
+            "description": "Shall be set to \"OnuAlarmNotification\".",
+            "type": "string",
+            "x-etsi-mec-cardinality": "1",
+            "x-etsi-mec-origin-type": "String"
+          },
+          "onuId": {
+            "description": "The unique identifier for an optical network unit.",
+            "type": "string",
+            "x-etsi-mec-cardinality": "1",
+            "x-etsi-mec-origin-type": "String"
+          },
+          "timeStamp": {
+            "$ref": "#/components/schemas/TimeStamp"
+          }
+        },
+        "required": [
+          "notificationType",
+          "onuId",
+          "alarm"
+        ],
+        "type": "object",
+        "x-etsi-ref": "6.4.2"
+      },
+      "OnuAlarmSubscription.alarms": {
+        "description": "In case alarms is not included in the subscription request, the default value -1 = All shall be used and included in the response:\n0  =\tEquipmentAlarm.\n\t(Functional failure on an internal interface.)\n1  =\tPoweringAlarm.\n\t(Loss of external power to battery backup unit. This alarm is typically derived through an external interface to a battery backup unit, and indicates that AC is no longer available to maintain battery charge.)\n2  =\tBatteryMissing.\n\t(Battery is provisioned but missing.)\n3  =\tBatteryFailure.\n\t(Battery is provisioned and present but cannot recharge.)\n4  =\tBatteryLow.\n\t(Battery is provisioned and present but its voltage is too low.)\n5  =\tPhysicalIntrusion.\n\t(Applies if the ONU supports detection such as door or box open.)\n6  =\tOnuSelfTestFailure.\n\t(ONU has failed autonomous self-test.)\n7  =\tDyingGasp.\n\t(ONU is powering off imminently due to loss of power to the ONU itself.)\n8  =\tTemperatureYellow.\n\t(No service shutdown at present, but the circuit pack is operating beyond its recommended range.)\n9  =\tTemperatureRed.\n\t(Some services have been shut down to avoid equipment damage.)\n10 =\tVoltageYellow.\n\t(No service shutdown at present, but the line power voltage is below its recommended minimum.)\n11 =\tVoltageRed.\n\t(Some services have been shut down to avoid power collapse.)\n12 =\tOnuManualPowerOff.\n\t(The ONU is shutting down because the subscriber has turned off its power switch.)\n13 =\tInvImage.\n\t(Software image is invalid.)\n14 =\tPseOverloadYellow.\n\t(Indicates that the ONU is nearing its maximum ability to supply the known PoE demand of the attached PDs. The thresholds for declaring and clearing this alarm are vendor-specific.)\n15 =\tPseOverloadRed.\n\t(Indicates that the ONU is unable to supply all of the PoE demand of the attached PDs and has removed or reduced power to at least one PD.)\n-1 =\tAll.",
+        "enum": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          -1
+        ],
+        "type": "integer"
+      },
+      "OnuAlarmSubscription.links": {
+        "description": "Hyperlink related to the resource. This shall be only included in the HTTP responses and in HTTP PUT requests.",
+        "properties": {
+          "self": {
+            "$ref": "#/components/schemas/LinkType"
+          }
+        },
+        "required": [
+          "self"
+        ],
+        "type": "object",
+        "x-etsi-mec-cardinality": "0..1"
+      },
+      "OnuAlarmSubscription.filterCriteriaOnuAlarm": {
+        "description": "List of filtering criteria for the subscription. Any filtering criteria from below, which is included in the request, shall also be included in the response.",
+        "properties": {
+          "alarms": {
+            "items": {
+              "$ref": "#/components/schemas/OnuAlarmSubscription.alarms"
+            },
+            "minItems": 0,
+            "type": "array",
+            "x-etsi-mec-cardinality": "0..N",
+            "x-etsi-mec-origin-type": "Enum"
+          },
+          "customerPremisesInfo": {
+            "description": "0 to N physical locations of the customer sites.",
+            "items": {
+              "$ref": "#/components/schemas/CpInfo"
+            },
+            "minItems": 0,
+            "type": "array",
+            "x-etsi-mec-cardinality": "0..N",
+            "x-etsi-mec-origin-type": "CpInfo"
+          },
+          "onuId": {
+            "description": "1 to N unique identifiers for the optical network units.\nTypical it is the unique serial number for each ONU, which contains the vendor ID and version number. The first four bytes are an ASCII-encoded four-letter vendor ID. The second four bytes are a binary encoded serial number, under the control of the ONU vendor.",
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1,
+            "type": "array",
+            "x-etsi-mec-cardinality": "1..N",
+            "x-etsi-mec-origin-type": "String"
+          }
+        },
+        "required": [
+          "onuId"
+        ],
+        "type": "object",
+        "x-etsi-mec-cardinality": "1"
+      },
+      "OnuAlarmSubscription": {
+        "properties": {
+          "_links": {
+            "$ref": "#/components/schemas/OnuAlarmSubscription.links"
+          },
+          "callbackReference": {
+            "description": "URI selected by the service consumer to receive notifications on the subscribed FAIS information. This shall be included both in the request and in response.",
+            "format": "uri",
+            "type": "string",
+            "x-etsi-mec-cardinality": "1",
+            "x-etsi-mec-origin-type": "URI"
+          },
+          "expiryDeadline": {
+            "$ref": "#/components/schemas/TimeStamp"
+          },
+          "filterCriteriaOnuAlarm": {
+            "$ref": "#/components/schemas/OnuAlarmSubscription.filterCriteriaOnuAlarm"
+          },
+          "subscriptionType": {
+            "description": "Shall be set to \\\"OnuAlarmSubscription\\\".",
+            "type": "string",
+            "x-etsi-mec-cardinality": "1",
+            "x-etsi-mec-origin-type": "String"
+          }
+        },
+        "required": [
+          "subscriptionType",
+          "callbackReference",
+          "filterCriteriaOnuAlarm"
+        ],
+        "type": "object",
+        "x-etsi-ref": "6.3.2"
+      },
+      "PonInfo.opticalNetworkInfo.dsRate": {
+        "description": "Downstream line rate, valid values are:\n1 =\t2,48832 Gbit/s: G-PON [i.9]; or\nNG-PON2 option 2 [i.8].\n2 =\t9,95328 Gbit/s:  XG-PON [i.10]; or\n XGS-PON [i.11]; or\nNG-PON2 option 1 [i.8].",
+        "enum": [
+          1,
+          2
+        ],
+        "type": "integer",
+        "x-etsi-mec-cardinality": "1",
+        "x-etsi-mec-origin-type": "Enum"
+      },
+      "PonInfo.opticalNetworkInfo.operationalState": {
+        "description": "It reports whether the ONU is currently capable of performing its function. Valid values are: 0 = enabled 1 = disabled",
+        "enum": [
+          0,
+          1
+        ],
+        "type": "integer",
+        "x-etsi-mec-cardinality": "1",
+        "x-etsi-mec-origin-type": "Enum"
+      },
+      "PonInfo.opticalNetworkInfo.ponTech": {
+        "description": "An informative field identifying the optical technology used. The valid values are: 1 = GPON. 2 = XGPON.3 = NGPON2. 4 = XGSPON.",
+        "enum": [
+          1,
+          2,
+          3,
+          4
+        ],
+        "type": "integer",
+        "x-etsi-mec-cardinality": "1",
+        "x-etsi-mec-origin-type": "Enum"
+      },
+      "PonInfo.opticalNetworkInfo.usRate": {
+        "description": "Upstream line rate, valid values are:\n1 =\t1,24416 Gbit/s: G-PON option 1 [i.9].\n2 =\t2,48832 Gbit/s: G-PON option 2 [i.9]; or\nXG-PON [i.10]; or\nNG-PON2 option 2 [i.8].\n3 =\t9,95328 Gbit/s: XGS-PON [i.11]; or\nNG-PON2 option 1 [i.8].",
+        "enum": [
+          1,
+          2,
+          3
+        ],
+        "type": "integer",
+        "x-etsi-mec-cardinality": "1",
+        "x-etsi-mec-origin-type": "Enum"
+      },
+      "PonInfo.opticalNetworkInfo": {
+        "description": "",
+        "items": {
+          "type": "object"
+        },
+        "minItems": 1,
+        "properties": {
+          "dsRate": {
+            "$ref": "#/components/schemas/PonInfo.opticalNetworkInfo.dsRate"
+          },
+          "onuId": {
+            "description": "Information to identify an Optical Network Unit.",
+            "type": "string",
+            "x-etsi-mec-cardinality": "1",
+            "x-etsi-mec-origin-type": "String"
+          },
+          "operationalState": {
+            "$ref": "#/components/schemas/PonInfo.opticalNetworkInfo.operationalState"
+          },
+          "ponTech": {
+            "$ref": "#/components/schemas/PonInfo.opticalNetworkInfo.ponTech"
+          },
+          "usRate": {
+            "$ref": "#/components/schemas/PonInfo.opticalNetworkInfo.usRate"
+          }
+        },
+        "required": [
+          "onuId",
+          "ponTech",
+          "operationalState",
+          "dsRate",
+          "usRate"
+        ]
+      },
+      "PonInfo": {
+        "properties": {
+          "customerPremisesInfo": {
+            "description": "The physical location of a customer site.",
+            "items": {
+              "$ref": "#/components/schemas/CpInfo"
+            },
+            "minItems": 1,
+            "type": "array",
+            "x-etsi-mec-cardinality": "1..N",
+            "x-etsi-mec-origin-type": "CpInfo"
+          },
+          "opticalNetworkInfo": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PonInfo.opticalNetworkInfo"
+            }
+          },
+          "ponSYS_ID": {
+            "description": "The 20-bit identity of the optical system within a certain domain.This is a reference value set by the OSS.",
+            "type": "string",
+            "x-etsi-mec-cardinality": "1",
+            "x-etsi-mec-origin-type": "String"
+          },
+          "timeStamp": {
+            "$ref": "#/components/schemas/TimeStamp"
+          }
+        },
+        "required": [
+          "customerPremisesInfo",
+          "ponSYS_ID",
+          "opticalNetworkInfo"
+        ],
+        "type": "object",
+        "x-etsi-ref": "6.2.5"
+      },
+      "SubscriptionLinkList.links.subscription.subscriptionType": {
+        "description": "Numeric value (0 - 255) corresponding to specified type of subscription as following: 0 = RESERVED. 1 = ONU_ALARM. 2 = DEVICE_ABNORMAL_ALERT. 3 = CM_CONNECTIVITY_STATE.4 = ANI_ALARM.",
+        "enum": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ],
+        "type": "integer",
+        "x-etsi-mec-cardinality": "1",
+        "x-etsi-mec-origin-type": "Enum"
+      },
+      "SubscriptionLinkList.links.subscription": {
+        "description": "A link to a subscription.",
+        "properties": {
+          "href": {
+            "description": "The URI referring to the subscription.",
+            "format": "uri",
+            "type": "string",
+            "x-etsi-mec-cardinality": "1",
+            "x-etsi-mec-origin-type": "URI"
+          },
+          "subscriptionType": {
+            "$ref": "#/components/schemas/SubscriptionLinkList.links.subscription.subscriptionType"
+          }
+        },
+        "required": [
+          "href",
+          "subscriptionType"
+        ]
+      },
+      "SubscriptionLinkList.links": {
+        "description": "List of hyperlinks related to the resource.",
+        "properties": {
+          "subscription": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SubscriptionLinkList.links.subscription"
+            }
+          }
+        }
+      },
+      "SubscriptionLinkList": {
+        "properties": {
+          "_links": {
+            "$ref": "#/components/schemas/SubscriptionLinkList.links"
+          }
+        },
+        "required": [
+          "_links"
+        ],
+        "type": "object",
+        "x-etsi-ref": "6.3.5"
+      },
+      "TimeStamp": {
+        "properties": {
+          "nanoSeconds": {
+            "description": "The nanoseconds part of the time. Time is defined as Unix-time since January 1, 1970, 00:00:00 UTC.",
+            "format": "Uint32",
+            "type": "integer",
+            "x-etsi-mec-cardinality": "1",
+            "x-etsi-mec-origin-type": "Uint32"
+          },
+          "seconds": {
+            "description": "The seconds part of the time. Time is defined as Unixtime since January 1, 1970, 00:00:00 UTC.",
+            "format": "Uint32",
+            "type": "integer",
+            "x-etsi-mec-cardinality": "1",
+            "x-etsi-mec-origin-type": "Uint32"
+          }
+        },
+        "required": [
+          "seconds",
+          "nanoSeconds"
+        ],
+        "type": "object",
+        "x-etsi-ref": "6.5.2"
+      },
+      "TraceRouteDiagnostics.diagnosticsState": {
+        "description": "The state of the IP trace-route test. Enumeration of: 1 = None. 2 = Requested. 3 = Complete.  4 = Error_CannotResolveHostName. 5 = Error_MaxHopCountExceeded. 6 = Error_Internal. 7 = Error_Other.",
+        "enum": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "type": "integer",
+        "x-etsi-mec-cardinality": "1",
+        "x-etsi-mec-origin-type": "Enum"
+      },
+      "TraceRouteDiagnostics": {
+        "properties": {
+          "dataBlockSize": {
+            "description": "Size of the data block in bytes to be sent for each trace route.",
+            "type": "integer",
+            "x-etsi-mec-cardinality": "0..1",
+            "x-etsi-mec-origin-type": "Integer"
+          },
+          "diagnosticsState": {
+            "$ref": "#/components/schemas/TraceRouteDiagnostics.diagnosticsState"
+          },
+          "host": {
+            "description": "Host name or address of the host to find a route to.",
+            "type": "string",
+            "x-etsi-mec-cardinality": "0..1",
+            "x-etsi-mec-origin-type": "String"
+          },
+          "maxHopCount": {
+            "description": "The maximum number of hop used in outgoing probe packets. The default is 30 hops.",
+            "type": "integer",
+            "x-etsi-mec-cardinality": "0..1",
+            "x-etsi-mec-origin-type": "Integer"
+          },
+          "numberOfRouteHops": {
+            "description": "Result parameter indicating the number of hops within the discovered route.\n\nIf a route could not be determined, this value shall be zero.",
+            "type": "integer",
+            "x-etsi-mec-cardinality": "0..1",
+            "x-etsi-mec-origin-type": "Integer"
+          },
+          "responseTime": {
+            "description": "Result parameter indicating the response time in milliseconds the most recent trace route test.\n\nIf a route could not be determined, this value shall be zero.",
+            "type": "integer",
+            "x-etsi-mec-cardinality": "0..1",
+            "x-etsi-mec-origin-type": "Integer"
+          },
+          "timeout": {
+            "description": "Timeout in milliseconds for the trace route test.",
+            "type": "integer",
+            "x-etsi-mec-cardinality": "0..1",
+            "x-etsi-mec-origin-type": "Integer"
+          }
+        },
+        "required": [
+          "diagnosticsState"
+        ],
+        "type": "object",
+        "x-etsi-ref": "6.5.5"
+      },
+      "UploadDiagnostics.diagnosticsState": {
+        "description": "The state of the HTTP and FTP download test. Enumeration of: 1 = None. 2 = Requested. 3 = Completed. 4 = Error_InitConnectionFailed. 5 = Error_NoResponse.  6 = Error_PasswordRequestFailed. 7 = Error_LoginFailed. 8 = Error_NoTransferMode. 9 = Error_NoPASV.  10 = Error_NoCWD. 11 = Error_NoSTOR.12 = Error_NoTransferComplete.",
+        "enum": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12
+        ],
+        "type": "integer",
+        "x-etsi-mec-cardinality": "1",
+        "x-etsi-mec-origin-type": "Enum"
+      },
+      "UploadDiagnostics": {
+        "properties": {
+          "bOMTime": {
+            "$ref": "#/components/schemas/TimeStamp"
+          },
+          "diagnosticsState": {
+            "$ref": "#/components/schemas/UploadDiagnostics.diagnosticsState"
+          },
+          "eOMTime": {
+            "$ref": "#/components/schemas/TimeStamp"
+          },
+          "rOMTime": {
+            "$ref": "#/components/schemas/TimeStamp"
+          },
+          "tCPOpenReponseTime": {
+            "$ref": "#/components/schemas/TimeStamp"
+          },
+          "tCPOpenRequestTime": {
+            "$ref": "#/components/schemas/TimeStamp"
+          },
+          "testBytesSent": {
+            "description": "The test traffic sent in bytes during the FTP/HTTP transaction including FTP/HTTP headers, between bOMTime and eOMTime.",
+            "type": "integer",
+            "x-etsi-mec-cardinality": "0..1",
+            "x-etsi-mec-origin-type": "Integer"
+          },
+          "testFileLength": {
+            "description": "The size of the file (in bytes) to be uploaded to the\nserver.",
+            "type": "integer",
+            "x-etsi-mec-cardinality": "0..1",
+            "x-etsi-mec-origin-type": "Integer"
+          },
+          "uploadURI": {
+            "description": "The URI for the device to perform the upload to.",
+            "format": "uri",
+            "type": "string",
+            "x-etsi-mec-cardinality": "0..1",
+            "x-etsi-mec-origin-type": "URI"
+          }
+        },
+        "required": [
+          "diagnosticsState"
+        ],
+        "type": "object",
+        "x-etsi-ref": "6.5.7"
+      },
+      "LinkType": {
+        "description": "'This data type represents a type of link'",
+        "type": "object",
+        "required": [
+          "href"
+        ],
+        "properties": {
+          "href": {
+            "$ref": "#/components/schemas/Href"
+          }
+        }
+      },
+      "Href": {
+        "description": "The URI referring to the subscription.",
+        "type": "string",
+        "format": "uri"
+      },
+      "ProblemDetails": {
+        "properties": {
+          "detail": {
+            "description": "A human-readable explanation specific to this occurrence of the problem",
+            "type": "string",
+            "x-etsi-mec-cardinality": "0..1",
+            "x-etsi-mec-origin-type": "String"
+          },
+          "instance": {
+            "description": "A URI reference that identifies the specific occurrence of the problem",
+            "format": "uri",
+            "type": "string",
+            "x-etsi-mec-cardinality": "0..1",
+            "x-etsi-mec-origin-type": "URI"
+          },
+          "status": {
+            "description": "The HTTP status code for this occurrence of the problem",
+            "format": "uint32",
+            "type": "integer",
+            "x-etsi-mec-cardinality": "0..1",
+            "x-etsi-mec-origin-type": "Uint32"
+          },
+          "title": {
+            "description": "A short, human-readable summary of the problem type",
+            "type": "string",
+            "x-etsi-mec-cardinality": "0..1",
+            "x-etsi-mec-origin-type": "String"
+          },
+          "type": {
+            "description": "A URI reference according to IETF RFC 3986 that identifies the problem type",
+            "format": "uri",
+            "type": "string",
+            "x-etsi-mec-cardinality": "0..1",
+            "x-etsi-mec-origin-type": "URI"
+          }
+        },
+        "type": "object"
+      }
+    },
+    "responses": {
+      "204": {
+        "description": "No Content"
+      },
+      "206": {
+        "description": "Partial content"
+      },
+      "400": {
+        "description": "Bad Request : used to indicate that incorrect parameters were passed to the request.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ProblemDetails"
+            }
+          }
+        }
+      },
+      "401": {
+        "description": "Unauthorized :  used when the client did not submit credentials.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ProblemDetails"
+            }
+          }
+        }
+      },
+      "403": {
+        "description": "Forbidden :  operation is not allowed given the current status of the resource.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ProblemDetails"
+            }
+          }
+        }
+      },
+      "404": {
+        "description": "Not Found :  used when a client provided a URI that cannot be mapped to a valid resource URI.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ProblemDetails"
+            }
+          }
+        }
+      },
+      "406": {
+        "description": "Not Acceptable : used to indicate that the server cannot provide the any of the content formats supported by the client.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ProblemDetails"
+            }
+          }
+        }
+      },
+      "409": {
+        "description": "Conflict : The operation cannot be executed currently, due to a conflict with the state of the resource",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ProblemDetails"
+            }
+          }
+        }
+      },
+      "412": {
+        "description": "Precondition failed :  used when a condition has failed during conditional requests, e.g. when using ETags to avoid write conflicts when using PUT",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ProblemDetails"
+            }
+          }
+        }
+      },
+      "415": {
+        "description": "Unsupported Media Type :  used to indicate that the server or the client does not support the content type of the entity body.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ProblemDetails"
+            }
+          }
+        }
+      },
+      "422": {
+        "description": "Unprocessable Entity : used to indicate that the server understands the content type of the request entity and that the syntax of the request entity is correct but that the server is unable to process the contained instructions. This error condition can occur if an JSON request body is syntactically correct but semantically incorrect, for example if the target area for the request is considered too large. This error condition can also occur if the capabilities required by the request are not supported.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ProblemDetails"
+            }
+          }
+        }
+      },
+      "429": {
+        "description": "Too Many Requests : used when a rate limiter has triggered.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ProblemDetails"
+            }
+          }
+        }
+      }
+    }
+  }
+}

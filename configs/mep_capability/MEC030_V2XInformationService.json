@@ -1,0 +1,1945 @@
+{
+  "info": {
+    "title": "ETSI GS MEC 030 V2X Information Service API",
+    "version": "2.1.1",
+    "description": "ETSI GS MEC 030 V2X Information Service API described using OpenAPI.",
+    "contact": {
+      "name": "ETSI Forge",
+      "email": "cti_support@etsi.org",
+      "url": "https://forge.etsi.org/rep/mec/gs030-vis-api"
+    },
+    "license": {
+      "name": "BSD-3-Clause",
+      "url": "https://forge.etsi.org/legal-matters"
+    }
+  },
+  "externalDocs": {
+    "description": "ETSI GS MEC 030 V2X Information Service API, v2.1.1",
+    "url": "https://www.etsi.org/deliver/etsi_gs/MEC/001_099/030/02.01.01_60/gs_mec030v020101p.pdf"
+  },
+  "openapi": "3.0.0",
+  "servers": [
+    {
+      "url": "https://localhost/vis/v1"
+    }
+  ],
+  "tags": [
+    {
+      "name": "queries",
+      "description": "Queries"
+    },
+    {
+      "name": "subscription",
+      "description": "Subscription"
+    }
+  ],
+  "paths": {
+    "/queries/uu_unicast_provisioning_info": {
+      "get": {
+        "tags": [
+          "queries"
+        ],
+        "summary": "Used to query provisioning information for V2X communication over Uu unicast.",
+        "description": "Used to query provisioning information for V2X communication over Uu unicast.",
+        "operationId": "prov_info_uu_unicastGET",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "location_info",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "Comma separated list of locations to identify a cell of a base station or a particular geographical area"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A response body containing the Uu unicast provisioning information. ",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UuUnicastProvisioningInfo"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "406": {
+            "$ref": "#/components/responses/406"
+          },
+          "429": {
+            "$ref": "#/components/responses/429"
+          }
+        }
+      }
+    },
+    "/queries/uu_mbms_provisioning_info": {
+      "get": {
+        "tags": [
+          "queries"
+        ],
+        "summary": "retrieve information required for V2X communication over Uu MBMS.",
+        "description": "retrieve information required for V2X communication over Uu MBMS.",
+        "operationId": "prov_info_uu_mbmsGET",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "location_info",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "omma separated list of locations to identify a cell of a base station or a particular geographical area"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A response body containing the Uu unicast provisioning information. ",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UuMbmsProvisioningInfo"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "406": {
+            "$ref": "#/components/responses/406"
+          },
+          "429": {
+            "$ref": "#/components/responses/429"
+          }
+        }
+      }
+    },
+    "/queries/pc5_provisioning_info": {
+      "get": {
+        "tags": [
+          "queries"
+        ],
+        "summary": "Query provisioning information for V2X communication over PC5.",
+        "description": "Query provisioning information for V2X communication over PC5.",
+        "operationId": "prov_infoGET",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "location_info",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "Comma separated list of locations to identify a cell of a base station or a particular geographical area"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A response body containing the PC5 provisioning information is returned.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pc5ProvisioningInfo"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "406": {
+            "$ref": "#/components/responses/406"
+          },
+          "429": {
+            "$ref": "#/components/responses/429"
+          }
+        }
+      }
+    },
+    "/provide_predicted_qos": {
+      "post": {
+        "tags": [
+          "QoS"
+        ],
+        "summary": "Request the predicted QoS correspondent to potential routes of a vehicular UE.",
+        "description": "Request the predicted QoS correspondent to potential routes of a vehicular UE.",
+        "operationId": "predicted_qosPOST",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PredictedQos"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The response body shall contain the predicted QoS corresponding to potential routes of a vehicular UE",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PredictedQos"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          }
+        }
+      }
+    },
+    "/publish_v2x_message": {
+      "post": {
+        "tags": [
+          "V2X_msg"
+        ],
+        "summary": "Used to publish a V2X message.",
+        "description": "Used to publish a V2X message.",
+        "operationId": "v2x_messagePOST",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/V2xMsgPublication"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "$ref": "#/components/responses/204"
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "406": {
+            "$ref": "#/components/responses/406"
+          },
+          "429": {
+            "$ref": "#/components/responses/429"
+          }
+        }
+      }
+    },
+    "/subscriptions": {
+      "get": {
+        "tags": [
+          "subscription"
+        ],
+        "summary": "Request information about the subscriptions for this requestor.",
+        "description": "Request information about the subscriptions for this requestor.",
+        "operationId": "subGET",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "subscription_type",
+            "description": "Query parameter to filter on a specific subscription type. Permitted values:  prov_chg_uu_uni: provisioning information change for V2X communication over Uuunicast prov_chg_uu_mbms: provisioning information change for V2X communication over Uu MBMS prov_chg_uu_pc5: provisioning information change for V2X communication over PC5. v2x_msg: V2X interoperability message",
+            "schema": {
+              "type": "string"
+            },
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A response body containing the list of links to requestor subscriptions is returned.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubscriptionLinkList"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "406": {
+            "$ref": "#/components/responses/406"
+          },
+          "429": {
+            "$ref": "#/components/responses/429"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "subscription"
+        ],
+        "summary": " create a new subscription to VIS notifications.",
+        "description": " create a new subscription to VIS notifications.",
+        "operationId": "subPOST",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "$ref": "#/components/schemas/ProvChgUuUniSubscription"
+                  },
+                  {
+                    "$ref": "#/components/schemas/ProvChgUuMbmsSubscription"
+                  },
+                  {
+                    "$ref": "#/components/schemas/ProvChgPc5Subscription"
+                  },
+                  {
+                    "$ref": "#/components/schemas/V2xMsgSubscription"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "In the returned NotificationSubscription structure, the created subscription is described using the appropriate data type.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/ProvChgUuUniSubscription"
+                    },
+                    {
+                      "$ref": "#/components/schemas/ProvChgUuMbmsSubscription"
+                    },
+                    {
+                      "$ref": "#/components/schemas/ProvChgPc5Subscription"
+                    },
+                    {
+                      "$ref": "#/components/schemas/V2xMsgSubscription"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "406": {
+            "$ref": "#/components/responses/406"
+          },
+          "415": {
+            "$ref": "#/components/responses/415"
+          },
+          "422": {
+            "$ref": "#/components/responses/422"
+          },
+          "429": {
+            "$ref": "#/components/responses/429"
+          }
+        },
+        "callbacks": {
+          "notification": {
+            "{$request.body#/callbackReference}": {
+              "post": {
+                "summary": "Callback POST used to send a notification",
+                "description": "A notification from VIS.",
+                "operationId": "notificationPOST",
+                "requestBody": {
+                  "description": "Subscription notification",
+                  "required": true,
+                  "content": {
+                    "application/json": {
+                      "schema": {
+                        "oneOf": [
+                          {
+                            "$ref": "#/components/schemas/ProvChgUuUniNotification"
+                          },
+                          {
+                            "$ref": "#/components/schemas/ProvChgUuMbmsNotification"
+                          },
+                          {
+                            "$ref": "#/components/schemas/ProvChgPc5Notification"
+                          },
+                          {
+                            "$ref": "#/components/schemas/V2xMsgNotification"
+                          }
+                        ]
+                      }
+                    }
+                  }
+                },
+                "responses": {
+                  "204": {
+                    "$ref": "#/components/responses/204"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/subscriptions/{subscriptionId}": {
+      "parameters": [
+        {
+          "in": "path",
+          "name": "subscriptionId",
+          "description": "Refers to created subscription, where the VIS API allocates a unique resource name for this subscription",
+          "schema": {
+            "type": "string"
+          },
+          "required": true
+        }
+      ],
+      "get": {
+        "tags": [
+          "subscription"
+        ],
+        "summary": "Retrieve information about this subscription.",
+        "description": "Retrieve information about this subscription.",
+        "operationId": "individualSubscriptionGET",
+        "responses": {
+          "200": {
+            "description": "A response body containing the data type describing the specific RNI event subscription is returned",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/ProvChgUuUniSubscription"
+                    },
+                    {
+                      "$ref": "#/components/schemas/ProvChgUuMbmsSubscription"
+                    },
+                    {
+                      "$ref": "#/components/schemas/ProvChgPc5Subscription"
+                    },
+                    {
+                      "$ref": "#/components/schemas/V2xMsgSubscription"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "406": {
+            "$ref": "#/components/responses/406"
+          },
+          "429": {
+            "$ref": "#/components/responses/429"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "subscription"
+        ],
+        "summary": "Used to update the existing subscription.",
+        "description": "Used to update the existing subscription.",
+        "operationId": "individualSubscriptionPUT",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "$ref": "#/components/schemas/ProvChgUuUniSubscription"
+                  },
+                  {
+                    "$ref": "#/components/schemas/ProvChgUuMbmsSubscription"
+                  },
+                  {
+                    "$ref": "#/components/schemas/ProvChgPc5Subscription"
+                  },
+                  {
+                    "$ref": "#/components/schemas/V2xMsgSubscription"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "A response body containing data type describing the updated subscription is returned",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/ProvChgUuUniSubscription"
+                    },
+                    {
+                      "$ref": "#/components/schemas/ProvChgUuMbmsSubscription"
+                    },
+                    {
+                      "$ref": "#/components/schemas/ProvChgPc5Subscription"
+                    },
+                    {
+                      "$ref": "#/components/schemas/V2xMsgSubscription"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "406": {
+            "$ref": "#/components/responses/406"
+          },
+          "412": {
+            "$ref": "#/components/responses/412"
+          },
+          "422": {
+            "$ref": "#/components/responses/422"
+          },
+          "429": {
+            "$ref": "#/components/responses/429"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "subscription"
+        ],
+        "summary": "Used to cancel the existing subscription.",
+        "description": "Used to cancel the existing subscription.",
+        "operationId": "individualSubscriptionDELETE",
+        "responses": {
+          "204": {
+            "$ref": "#/components/responses/204"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "429": {
+            "$ref": "#/components/responses/429"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "CellId": {
+        "properties": {
+          "cellId": {
+            "description": "E-UTRAN Cell Identity as a bit string (size (28)).",
+            "type": "string",
+            "x-etsi-mec-cardinality": "1",
+            "x-etsi-mec-origin-type": "String"
+          }
+        },
+        "required": [
+          "cellId"
+        ],
+        "type": "object",
+        "x-etsi-ref": "6.6.2"
+      },
+      "Earfcn": {
+        "properties": {
+          "earfcn": {
+            "description": "E-UTRA Absolute Radio Frequency Channel Number, range (0... 65535)",
+            "type": "integer",
+            "x-etsi-mec-cardinality": "1",
+            "x-etsi-mec-origin-type": "Integer"
+          }
+        },
+        "required": [
+          "earfcn"
+        ],
+        "type": "object",
+        "x-etsi-ref": "6.6.3"
+      },
+      "Ecgi": {
+        "properties": {
+          "cellId": {
+            "$ref": "#/components/schemas/CellId"
+          },
+          "plmn": {
+            "$ref": "#/components/schemas/Plmn"
+          }
+        },
+        "required": [
+          "plmn",
+          "cellId"
+        ],
+        "type": "object",
+        "x-etsi-ref": "6.5.5"
+      },
+      "FddInfo": {
+        "properties": {
+          "dlEarfcn": {
+            "$ref": "#/components/schemas/Earfcn"
+          },
+          "dlTransmissionBandwidth": {
+            "$ref": "#/components/schemas/TransmissionBandwidth"
+          },
+          "ulEarfcn": {
+            "$ref": "#/components/schemas/Earfcn"
+          },
+          "ulTransmissionBandwidth": {
+            "$ref": "#/components/schemas/TransmissionBandwidth"
+          }
+        },
+        "required": [
+          "ulEarfcn",
+          "dlEarfcn",
+          "ulTransmissionBandwidth",
+          "dlTransmissionBandwidth"
+        ],
+        "type": "object",
+        "x-etsi-ref": "6.5.6"
+      },
+      "LocationInfo.geoArea": {
+        "description": "Information of a geographical area.",
+        "properties": {
+          "latitude": {
+            "description": "Latitude (DATUM = WGS84) -90 to 90 in decimal degree format DDD.ddd",
+            "format": "Float",
+            "type": "number",
+            "x-etsi-mec-cardinality": "1",
+            "x-etsi-mec-origin-type": "Float"
+          },
+          "longitude": {
+            "description": "Longitude (DATUM = WGS84)-180 to 180 in decimal degree format DDD.ddd",
+            "format": "Float",
+            "type": "number",
+            "x-etsi-mec-cardinality": "1",
+            "x-etsi-mec-origin-type": "Float"
+          }
+        },
+        "required": [
+          "latitude",
+          "longitude"
+        ],
+        "type": "object",
+        "x-etsi-mec-cardinality": "0..1"
+      },
+      "LocationInfo": {
+        "properties": {
+          "ecgi": {
+            "$ref": "#/components/schemas/Ecgi"
+          },
+          "geoArea": {
+            "$ref": "#/components/schemas/LocationInfo.geoArea"
+          }
+        },
+        "type": "object",
+        "x-etsi-notes": "NOTE:\tEither ecgi or geoArea shall be present, but not both.",
+        "x-etsi-ref": "6.5.3"
+      },
+      "Pc5NeighbourCellInfo": {
+        "properties": {
+          "ecgi": {
+            "$ref": "#/components/schemas/Ecgi"
+          },
+          "plmn": {
+            "$ref": "#/components/schemas/Plmn"
+          },
+          "siV2xConfig": {
+            "description": "V2X sidelink communication configuration, as defined in ETSI TS 136 331 [i.11].",
+            "type": "string"
+          }
+        },
+        "required": [
+          "plmn",
+          "ecgi",
+          "siV2xConfig"
+        ],
+        "type": "object",
+        "x-etsi-ref": "6.5.12"
+      },
+      "Pc5ProvisioningInfo.proInfoPc5": {
+        "description": "The provisioning information per location as defined below.",
+        "properties": {
+          "dstLayer2Id": {
+            "description": "For sidelink communication, the Destination Layer-2 ID is set to the ProSe Layer-2 Group ID or Prose UE ID, see ETSI TS 136 321 [i.12].\nPLMN operators coordinate to make sure Destination Layer-2 ID(s) for different V2X services are configured in a consistent manner.",
+            "type": "string",
+            "x-etsi-mec-cardinality": "1",
+            "x-etsi-mec-origin-type": "String"
+          },
+          "locationInfo": {
+            "$ref": "#/components/schemas/LocationInfo"
+          },
+          "neighbourCellInfo": {
+            "description": "The information of the neighbour cells in a visiting PLMN that support V2X communication over PC5.",
+            "items": {
+              "$ref": "#/components/schemas/Pc5NeighbourCellInfo"
+            },
+            "minItems": 0,
+            "type": "array",
+            "x-etsi-mec-cardinality": "0..N",
+            "x-etsi-mec-origin-type": "Pc5NeighbourCellInfo"
+          }
+        },
+        "required": [
+          "locationInfo",
+          "dstLayer2Id"
+        ]
+      },
+      "Pc5ProvisioningInfo": {
+        "properties": {
+          "proInfoPc5": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Pc5ProvisioningInfo.proInfoPc5"
+            }
+          },
+          "timeStamp": {
+            "$ref": "#/components/schemas/TimeStamp"
+          }
+        },
+        "required": [
+          "proInfoPc5"
+        ],
+        "type": "object",
+        "x-etsi-ref": "6.2.4"
+      },
+      "Plmn": {
+        "properties": {
+          "mcc": {
+            "description": "The Mobile Country Code part of PLMN Identity.",
+            "type": "string",
+            "x-etsi-mec-cardinality": "1",
+            "x-etsi-mec-origin-type": "String"
+          },
+          "mnc": {
+            "description": "The Mobile Network Code part of PLMN Identity.",
+            "type": "string",
+            "x-etsi-mec-cardinality": "1",
+            "x-etsi-mec-origin-type": "String"
+          }
+        },
+        "required": [
+          "mcc",
+          "mnc"
+        ],
+        "type": "object",
+        "x-etsi-ref": "6.5.4"
+      },
+      "PredictedQos.routes.routeInfo": {
+        "required": [
+          "location"
+        ],
+        "properties": {
+          "location": {
+            "$ref": "#/components/schemas/LocationInfo"
+          },
+          "time": {
+            "$ref": "#/components/schemas/TimeStamp"
+          },
+          "rsrp": {
+            "description": "Reference Signal Received Quality as defined in ETSI TS 136 214 [i.13]. Shall only be included in the response",
+            "type": "integer",
+            "format": "Uint8"
+          },
+          "rsrq": {
+            "description": "Reference Signal Received Quality as defined in ETSI TS 136 214 [i.13]. Shall only be included in the response",
+            "type": "integer",
+            "format": "Uint8"
+          }
+        }
+      },
+      "PredictedQos.routes": {
+        "properties": {
+          "routeinfo": {
+            "description": "Information relating to a specific route. The first structure shall relate to the route origin and the last to the route destination. Intermediate waypoint locations may also be provided. ",
+            "type": "array",
+            "minItems": 2,
+            "items": {
+              "$ref": "#/components/schemas/PredictedQos.routes.routeInfo"
+            }
+          }
+        },
+        "required": [
+          "routeinfo"
+        ]
+      },
+      "PredictedQos": {
+        "description": "predicted QoS of a vehicular UE",
+        "properties": {
+          "timeGranularity": {
+            "$ref": "#/components/schemas/TimeStamp"
+          },
+          "locationGranularity": {
+            "description": "Granularity of visited location. Measured in meters",
+            "type": "string"
+          },
+          "routes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PredictedQos.routes"
+            }
+          }
+        },
+        "required": [
+          "locationGranularity",
+          "routes"
+        ],
+        "type": "object",
+        "x-etsi-mec-cardinality": "0..1"
+      },
+      "ProvChgPc5Notification": {
+        "properties": {
+          "dstLayer2Id": {
+            "description": "For sidelink communication, the Destination Layer-2 ID is set to the ProSe Layer-2 Group ID or Prose UE ID, see ETSI TS 136 321 [i.12].",
+            "type": "string",
+            "x-etsi-mec-cardinality": "0..1",
+            "x-etsi-mec-origin-type": "String"
+          },
+          "locationInfo": {
+            "$ref": "#/components/schemas/LocationInfo"
+          },
+          "neighbourCellInfo": {
+            "description": "The information of the neighbour cells in a visiting PLMN that support V2X communication over PC5.",
+            "items": {
+              "$ref": "#/components/schemas/Pc5NeighbourCellInfo"
+            },
+            "minItems": 0,
+            "type": "array",
+            "x-etsi-mec-cardinality": "0..N",
+            "x-etsi-mec-origin-type": "Pc5NeighbourCellInfo"
+          },
+          "notificationType": {
+            "description": "Shall be set to \"ProvChgPc5Notification\".",
+            "type": "string",
+            "x-etsi-mec-cardinality": "1",
+            "x-etsi-mec-origin-type": "String"
+          },
+          "timeStamp": {
+            "$ref": "#/components/schemas/TimeStamp"
+          }
+        },
+        "required": [
+          "notificationType",
+          "locationInfo"
+        ],
+        "type": "object",
+        "x-etsi-ref": "6.4.4"
+      },
+      "ProvChgPc5Subscription.links": {
+        "description": "Hyperlink related to the resource. This shall be only included in the HTTP responses and in HTTP PUT requests.",
+        "properties": {
+          "self": {
+            "$ref": "#/components/schemas/LinkType"
+          }
+        },
+        "required": [
+          "self"
+        ],
+        "type": "object",
+        "x-etsi-mec-cardinality": "0..1"
+      },
+      "ProvChgPc5Subscription.filterCriteria": {
+        "description": "List of filtering criteria for the subscription. Any filtering criteria from below, which is included in the request, shall also be included in the response.",
+        "properties": {
+          "dstLayer2Id": {
+            "description": "For sidelink communication, the Destination Layer-2 ID is set to the ProSe Layer-2 Group ID or Prose UE ID, see ETSI TS 136 321 [i.12].",
+            "type": "string",
+            "x-etsi-mec-cardinality": "1",
+            "x-etsi-mec-origin-type": "String"
+          },
+          "locationInfo": {
+            "$ref": "#/components/schemas/LocationInfo"
+          },
+          "neighbourCellInfo": {
+            "description": "The information of the neighbour cells in a visiting PLMN that support V2X communication over PC5.",
+            "items": {
+              "$ref": "#/components/schemas/Pc5NeighbourCellInfo"
+            },
+            "minItems": 0,
+            "type": "array",
+            "x-etsi-mec-cardinality": "0..N",
+            "x-etsi-mec-origin-type": "Pc5NeighbourCellInfo"
+          }
+        },
+        "required": [
+          "locationInfo",
+          "dstLayer2Id"
+        ],
+        "type": "object",
+        "x-etsi-mec-cardinality": "1"
+      },
+      "ProvChgPc5Subscription": {
+        "properties": {
+          "_links": {
+            "$ref": "#/components/schemas/ProvChgPc5Subscription.links"
+          },
+          "callbackReference": {
+            "description": "URI selected by the service consumer to receive notifications on the subscribed VIS information. This shall be included both in the request and in response.",
+            "format": "uri",
+            "type": "string",
+            "x-etsi-mec-cardinality": "1",
+            "x-etsi-mec-origin-type": "URI"
+          },
+          "expiryDeadline": {
+            "$ref": "#/components/schemas/TimeStamp"
+          },
+          "filterCriteria": {
+            "$ref": "#/components/schemas/ProvChgPc5Subscription.filterCriteria"
+          },
+          "subscriptionType": {
+            "description": "Shall be set to \"ProvChgPc5Subscription\".",
+            "type": "string",
+            "x-etsi-mec-cardinality": "1",
+            "x-etsi-mec-origin-type": "String"
+          }
+        },
+        "required": [
+          "subscriptionType",
+          "callbackReference",
+          "filterCriteria"
+        ],
+        "type": "object",
+        "x-etsi-ref": "6.3.4"
+      },
+      "ProvChgUuMbmsNotification": {
+        "properties": {
+          "locationInfo": {
+            "$ref": "#/components/schemas/LocationInfo"
+          },
+          "neighbourCellInfo": {
+            "description": "The information of the neighbour cells in a visiting PLMN that support V2X communication over Uu MBMS.",
+            "items": {
+              "$ref": "#/components/schemas/UuMbmsNeighbourCellInfo"
+            },
+            "minItems": 0,
+            "type": "array",
+            "x-etsi-mec-cardinality": "0..N",
+            "x-etsi-mec-origin-type": "UuMbmsNeighbourCellInfo"
+          },
+          "notificationType": {
+            "description": "Shall be set to \"ProvChgUuMbmsNotification\".",
+            "type": "string",
+            "x-etsi-mec-cardinality": "1",
+            "x-etsi-mec-origin-type": "String"
+          },
+          "timeStamp": {
+            "$ref": "#/components/schemas/TimeStamp"
+          },
+          "v2xServerUsd": {
+            "$ref": "#/components/schemas/V2xServerUsd"
+          }
+        },
+        "required": [
+          "notificationType",
+          "locationInfo"
+        ],
+        "type": "object",
+        "x-etsi-ref": "6.4.3"
+      },
+      "ProvChgUuMbmsSubscription.links": {
+        "description": "Hyperlink related to the resource. This shall be only included in the HTTP responses and in HTTP PUT requests.",
+        "properties": {
+          "self": {
+            "$ref": "#/components/schemas/LinkType"
+          }
+        },
+        "required": [
+          "self"
+        ],
+        "type": "object",
+        "x-etsi-mec-cardinality": "0..1"
+      },
+      "ProvChgUuMbmsSubscription.filterCriteria": {
+        "description": "List of filtering criteria for the subscription. Any filtering criteria from below, which is included in the request, shall also be included in the response.",
+        "properties": {
+          "locationInfo": {
+            "$ref": "#/components/schemas/LocationInfo"
+          },
+          "neighbourCellInfo": {
+            "description": "The information of the neighbour cells in a visiting PLMN that support V2X communication over Uu MBMS.",
+            "items": {
+              "$ref": "#/components/schemas/UuMbmsNeighbourCellInfo"
+            },
+            "minItems": 0,
+            "type": "array",
+            "x-etsi-mec-cardinality": "0..N",
+            "x-etsi-mec-origin-type": "UuMbmsNeighbourCellInfo"
+          },
+          "v2xServerUsd": {
+            "$ref": "#/components/schemas/V2xServerUsd"
+          }
+        },
+        "required": [
+          "locationInfo",
+          "v2xServerUsd"
+        ],
+        "type": "object",
+        "x-etsi-mec-cardinality": "1"
+      },
+      "ProvChgUuMbmsSubscription": {
+        "properties": {
+          "_links": {
+            "$ref": "#/components/schemas/ProvChgUuMbmsSubscription.links"
+          },
+          "callbackReference": {
+            "description": "URI selected by the service consumer to receive notifications on the subscribed VIS information. This shall be included both in the request and in response.",
+            "format": "uri",
+            "type": "string",
+            "x-etsi-mec-cardinality": "1",
+            "x-etsi-mec-origin-type": "URI"
+          },
+          "expiryDeadline": {
+            "$ref": "#/components/schemas/TimeStamp"
+          },
+          "filterCriteria": {
+            "$ref": "#/components/schemas/ProvChgUuMbmsSubscription.filterCriteria"
+          },
+          "subscriptionType": {
+            "description": "Shall be set to \"ProvChgUuMbmsSubscription\".",
+            "type": "string",
+            "x-etsi-mec-cardinality": "1",
+            "x-etsi-mec-origin-type": "String"
+          }
+        },
+        "required": [
+          "subscriptionType",
+          "callbackReference",
+          "filterCriteria"
+        ],
+        "type": "object",
+        "x-etsi-ref": "6.3.3"
+      },
+      "ProvChgUuUniNotification": {
+        "properties": {
+          "locationInfo": {
+            "$ref": "#/components/schemas/LocationInfo"
+          },
+          "neighbourCellInfo": {
+            "description": "The information of the neighbour cells in a visiting PLMN that support V2X communication over Uu unicast.",
+            "items": {
+              "$ref": "#/components/schemas/UuUniNeighbourCellInfo"
+            },
+            "minItems": 0,
+            "type": "array",
+            "x-etsi-mec-cardinality": "0..N",
+            "x-etsi-mec-origin-type": "UuUniNeighbourCellInfo"
+          },
+          "notificationType": {
+            "description": "Shall be set to \"ProvChgUuUniNotification\".",
+            "type": "string",
+            "x-etsi-mec-cardinality": "1",
+            "x-etsi-mec-origin-type": "String"
+          },
+          "timeStamp": {
+            "$ref": "#/components/schemas/TimeStamp"
+          },
+          "v2xApplicationServer": {
+            "$ref": "#/components/schemas/V2xApplicationServer"
+          }
+        },
+        "required": [
+          "notificationType",
+          "locationInfo"
+        ],
+        "type": "object",
+        "x-etsi-ref": "6.4.2"
+      },
+      "ProvChgUuUniSubscription.links": {
+        "description": "Hyperlink related to the resource. This shall be only included in the HTTP responses and in HTTP PUT requests.",
+        "properties": {
+          "self": {
+            "$ref": "#/components/schemas/LinkType"
+          }
+        },
+        "required": [
+          "self"
+        ],
+        "type": "object",
+        "x-etsi-mec-cardinality": "0..1"
+      },
+      "ProvChgUuUniSubscription.filterCriteria": {
+        "description": "List of filtering criteria for the subscription. Any filtering criteria from below, which is included in the request, shall also be included in the response.",
+        "properties": {
+          "locationInfo": {
+            "$ref": "#/components/schemas/LocationInfo"
+          },
+          "neighbourCellInfo": {
+            "description": "The information of the neighbour cells in a visiting PLMN that support V2X communication over Uu unicast.",
+            "items": {
+              "$ref": "#/components/schemas/UuUniNeighbourCellInfo"
+            },
+            "minItems": 0,
+            "type": "array",
+            "x-etsi-mec-cardinality": "0..N",
+            "x-etsi-mec-origin-type": "UuUniNeighbourCellInfo"
+          },
+          "v2xApplicationServer": {
+            "$ref": "#/components/schemas/V2xApplicationServer"
+          }
+        },
+        "required": [
+          "locationInfo",
+          "v2xApplicationServer"
+        ],
+        "type": "object",
+        "x-etsi-mec-cardinality": "1"
+      },
+      "ProvChgUuUniSubscription": {
+        "properties": {
+          "_links": {
+            "$ref": "#/components/schemas/ProvChgUuUniSubscription.links"
+          },
+          "callbackReference": {
+            "description": "URI selected by the service consumer to receive notifications on the subscribed VIS information. This shall be included both in the request and in response.",
+            "format": "uri",
+            "type": "string",
+            "x-etsi-mec-cardinality": "1",
+            "x-etsi-mec-origin-type": "URI"
+          },
+          "expiryDeadline": {
+            "$ref": "#/components/schemas/TimeStamp"
+          },
+          "filterCriteria": {
+            "$ref": "#/components/schemas/ProvChgUuUniSubscription.filterCriteria"
+          },
+          "subscriptionType": {
+            "description": "Shall be set to \"ProvChgUuUniSubscription\".",
+            "type": "string",
+            "x-etsi-mec-cardinality": "1",
+            "x-etsi-mec-origin-type": "String"
+          }
+        },
+        "required": [
+          "subscriptionType",
+          "callbackReference",
+          "filterCriteria"
+        ],
+        "type": "object",
+        "x-etsi-ref": "6.3.2"
+      },
+      "SubscriptionLinkList.links.subscriptions": {
+        "description": "The service consumer’s subscriptions.",
+        "properties": {
+          "href": {
+            "description": "The URI referring to the subscription.",
+            "format": "uri",
+            "type": "string",
+            "x-etsi-mec-cardinality": "1",
+            "x-etsi-mec-origin-type": "URI"
+          },
+          "subscriptionType": {
+            "description": "Type of the subscription. The values are as defined in the \\\"subscriptionType\\\" attribute for each different V2X information event subscription data type.",
+            "type": "string",
+            "x-etsi-mec-cardinality": "1",
+            "x-etsi-mec-origin-type": "String"
+          }
+        },
+        "required": [
+          "href",
+          "subscriptionType"
+        ],
+        "x-etsi-mec-cardinality": "0..N"
+      },
+      "SubscriptionLinkList.links": {
+        "description": "List of hyperlinks related to the resource.",
+        "properties": {
+          "self": {
+            "$ref": "#/components/schemas/LinkType"
+          },
+          "subscriptions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SubscriptionLinkList.links.subscriptions"
+            }
+          }
+        },
+        "type": "object",
+        "required": [
+          "self"
+        ],
+        "x-etsi-mec-cardinality": "1"
+      },
+      "SubscriptionLinkList": {
+        "properties": {
+          "_links": {
+            "$ref": "#/components/schemas/SubscriptionLinkList.links"
+          }
+        },
+        "required": [
+          "_links"
+        ],
+        "type": "object",
+        "x-etsi-ref": "6.3.6"
+      },
+      "TddInfo": {
+        "properties": {
+          "earfcn": {
+            "$ref": "#/components/schemas/Earfcn"
+          },
+          "subframeAssignment": {
+            "description": "Uplink-downlink subframe configuration information.",
+            "type": "string",
+            "x-etsi-mec-cardinality": "1",
+            "x-etsi-mec-origin-type": "String"
+          },
+          "transmissionBandwidth": {
+            "$ref": "#/components/schemas/TransmissionBandwidth"
+          }
+        },
+        "required": [
+          "earfcn",
+          "transmissionBandwidth",
+          "subframeAssignment"
+        ],
+        "type": "object",
+        "x-etsi-ref": "6.5.7"
+      },
+      "TimeStamp": {
+        "properties": {
+          "nanoSeconds": {
+            "description": "The nanoseconds part of the time. Time is defined as Unix-time since January 1, 1970, 00:00:00 UTC.",
+            "format": "Uint32",
+            "type": "integer",
+            "x-etsi-mec-cardinality": "1",
+            "x-etsi-mec-origin-type": "Uint32"
+          },
+          "seconds": {
+            "description": "The seconds part of the time. Time is defined as Unixtime since January 1, 1970, 00:00:00 UTC.",
+            "format": "Uint32",
+            "type": "integer",
+            "x-etsi-mec-cardinality": "1",
+            "x-etsi-mec-origin-type": "Uint32"
+          }
+        },
+        "required": [
+          "seconds",
+          "nanoSeconds"
+        ],
+        "type": "object",
+        "x-etsi-ref": "6.5.2"
+      },
+      "TransmissionBandwidth.transmissionBandwidth": {
+        "description": "Numeric value corresponding to the transmission bandwidth expressed in units of resource blocks as follows:1 = bw6 (6 resource blocks)2 = bw15 (15 resource blocks) 3 = bw25 (25 resource blocks) 4 = bw50 (50 resource blocks) 5 = bw75 (75 resource blocks) 6 = bw100 (100 resource blocks)",
+        "enum": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "type": "integer",
+        "x-etsi-mec-cardinality": "1",
+        "x-etsi-mec-origin-type": "Enum"
+      },
+      "TransmissionBandwidth": {
+        "properties": {
+          "transmissionBandwidth": {
+            "$ref": "#/components/schemas/TransmissionBandwidth.transmissionBandwidth"
+          }
+        },
+        "required": [
+          "transmissionBandwidth"
+        ],
+        "type": "object",
+        "x-etsi-ref": "6.6.4"
+      },
+      "UuMbmsNeighbourCellInfo": {
+        "properties": {
+          "ecgi": {
+            "$ref": "#/components/schemas/Ecgi"
+          },
+          "fddInfo": {
+            "$ref": "#/components/schemas/FddInfo"
+          },
+          "mbmsServiceAreaIdentity": {
+            "description": "Supported MBMS Service Area Identities in the cell.",
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1,
+            "type": "array",
+            "x-etsi-mec-cardinality": "1..N",
+            "x-etsi-mec-origin-type": "String"
+          },
+          "pci": {
+            "description": "Physical Cell Identifier.",
+            "type": "integer",
+            "x-etsi-mec-cardinality": "1",
+            "x-etsi-mec-origin-type": "Integer"
+          },
+          "plmn": {
+            "$ref": "#/components/schemas/Plmn"
+          },
+          "tddInfo": {
+            "$ref": "#/components/schemas/TddInfo"
+          }
+        },
+        "required": [
+          "plmn",
+          "ecgi",
+          "pci",
+          "fddInfo",
+          "tddInfo",
+          "mbmsServiceAreaIdentity"
+        ],
+        "type": "object",
+        "x-etsi-ref": "6.5.11"
+      },
+      "UuMbmsProvisioningInfo.proInfoUuMbms": {
+        "description": "The provisioning information per location as defined below.",
+        "properties": {
+          "locationInfo": {
+            "$ref": "#/components/schemas/LocationInfo"
+          },
+          "neighbourCellInfo": {
+            "description": "The information of the neighbour cells in a visiting PLMN that support V2X communication over Uu MBMS.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UuMbmsNeighbourCellInfo"
+            },
+            "minItems": 0,
+            "x-etsi-mec-cardinality": "0..N",
+            "x-etsi-mec-origin-type": "UuMbmsNeighbourCellInfo"
+          },
+          "v2xServerUsd": {
+            "$ref": "#/components/schemas/V2xServerUsd"
+          }
+        },
+        "required": [
+          "locationInfo",
+          "v2xServerUsd"
+        ]
+      },
+      "UuMbmsProvisioningInfo": {
+        "properties": {
+          "proInfoUuMbms": {
+            "$ref": "#/components/schemas/UuMbmsProvisioningInfo.proInfoUuMbms"
+          },
+          "timeStamp": {
+            "$ref": "#/components/schemas/TimeStamp"
+          }
+        },
+        "required": [
+          "proInfoUuMbms"
+        ],
+        "type": "object",
+        "x-etsi-ref": "6.2.3"
+      },
+      "UuUniNeighbourCellInfo": {
+        "properties": {
+          "ecgi": {
+            "$ref": "#/components/schemas/Ecgi"
+          },
+          "fddInfo": {
+            "$ref": "#/components/schemas/FddInfo"
+          },
+          "pci": {
+            "description": "Physical Cell Identifier.",
+            "type": "integer",
+            "x-etsi-mec-cardinality": "1",
+            "x-etsi-mec-origin-type": "Integer"
+          },
+          "plmn": {
+            "$ref": "#/components/schemas/Plmn"
+          },
+          "tddInfo": {
+            "$ref": "#/components/schemas/TddInfo"
+          }
+        },
+        "required": [
+          "plmn",
+          "ecgi",
+          "pci",
+          "fddInfo",
+          "tddInfo"
+        ],
+        "type": "object",
+        "x-etsi-ref": "6.5.9"
+      },
+      "UuUnicastProvisioningInfo.proInfoUuUnicast": {
+        "description": "The provisioning information per location as defined below.",
+        "properties": {
+          "locationInfo": {
+            "$ref": "#/components/schemas/LocationInfo"
+          },
+          "neighbourCellInfo": {
+            "description": "The information of the neighbour cells in a visiting PLMN that support V2X communication over Uu unicast.",
+            "items": {
+              "$ref": "#/components/schemas/UuUniNeighbourCellInfo"
+            },
+            "minItems": 0,
+            "type": "array",
+            "x-etsi-mec-cardinality": "0..N",
+            "x-etsi-mec-origin-type": "UuUniNeighbourCellInfo"
+          },
+          "v2xApplicationServer": {
+            "$ref": "#/components/schemas/V2xApplicationServer"
+          }
+        },
+        "required": [
+          "locationInfo",
+          "v2xApplicationServer"
+        ],
+        "x-etsi-mec-cardinality": "1..N"
+      },
+      "UuUnicastProvisioningInfo": {
+        "properties": {
+          "proInfoUuUnicast": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UuUnicastProvisioningInfo.proInfoUuUnicast"
+            }
+          },
+          "timeStamp": {
+            "$ref": "#/components/schemas/TimeStamp"
+          }
+        },
+        "required": [
+          "proInfoUuUnicast"
+        ],
+        "type": "object",
+        "x-etsi-ref": "6.2.2"
+      },
+      "V2xApplicationServer": {
+        "properties": {
+          "ipAddress": {
+            "description": "",
+            "type": "string",
+            "x-etsi-mec-cardinality": "1",
+            "x-etsi-mec-origin-type": "String"
+          },
+          "udpPort": {
+            "description": "",
+            "type": "string",
+            "x-etsi-mec-cardinality": "1",
+            "x-etsi-mec-origin-type": "String"
+          }
+        },
+        "required": [
+          "ipAddress",
+          "udpPort"
+        ],
+        "type": "object",
+        "x-etsi-ref": "6.5.8"
+      },
+      "msgType": {
+        "description": "− denm(1): Decentralized Environmental Notification Message (DENM) as specified in ETSI EN 302 637-3 [i.3], − cam(2): Cooperative Awareness Message (CAM) as specified in ETSI EN 302 637-2 [i.2], − poi(3): Point of Interest message as specified in ETSI TS 101 556-1 [i.11], − spat(4): Signal Phase And Timing (SPAT) message as specified in SAE J2735 [i.12], − map(5): MAP message as specified in SAE J2735 [i.12], − ivi(6): In Vehicle Information (IVI) message as defined in ISO TS 19321 [i.13], − ev-rsr(7): Electric vehicle recharging spot reservation message, as defined in ETSI TS 101 556-3 [i.14], ",
+        "enum": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "type": "integer",
+        "x-etsi-mec-cardinality": "1",
+        "x-etsi-mec-origin-type": "Enum"
+      },
+      "V2xMsgPublication": {
+        "properties": {
+          "msgContent": {
+            "description": "Published V2X message content. Its format is defined by the standardization organization indicated by the attribute stdOrganization.",
+            "type": "string",
+            "x-etsi-mec-cardinality": "1",
+            "x-etsi-mec-origin-type": "String"
+          },
+          "msgEncodeFormat": {
+            "description": "The encode format of the V2X message, for example base64.",
+            "type": "string",
+            "x-etsi-mec-cardinality": "1",
+            "x-etsi-mec-origin-type": "String"
+          },
+          "msgType": {
+            "$ref": "#/components/schemas/msgType"
+          },
+          "stdOrganization": {
+            "description": "Standardization organization which defines the published V2X message type: \nETSI: European Telecommunications Standards Institute. \nSee note 1.",
+            "enum": [
+              "ETSI"
+            ],
+            "type": "string",
+            "x-etsi-mec-cardinality": "1"
+          }
+        },
+        "required": [
+          "stdOrganization",
+          "msgType",
+          "msgEncodeFormat",
+          "msgContent"
+        ],
+        "type": "object",
+        "x-etsi-notes": "NOTE 1: Other standardization organizations could be added as needed.NOTE 2:The V2X message types of ETSI shall be used as specified in ETSI TS 102 894-2 [6], clause A.114.",
+        "x-etsi-ref": "6.2.6"
+      },
+      "V2xMsgSubscription.links": {
+        "description": "Hyperlink related to the resource. This shall be only included in the HTTP responses and in HTTP PUT requests.",
+        "properties": {
+          "self": {
+            "$ref": "#/components/schemas/LinkType"
+          }
+        },
+        "required": [
+          "self"
+        ],
+        "type": "object",
+        "x-etsi-mec-cardinality": "0..1"
+      },
+      "V2xMsgSubscription.filterCriteria": {
+        "description": "List of filtering criteria for the subscription. Any filtering criteria from below, which is included in the request, shall also be included in the response.",
+        "properties": {
+          "msgType": {
+            "description": "Subscribed V2X message type. Its value is defined by the standardization organization indicated by the attribute stdOrganization. See note 2.",
+            "items": {
+              "type": "string"
+            },
+            "minItems": 0,
+            "type": "array",
+            "x-etsi-mec-cardinality": "0..N",
+            "x-etsi-mec-origin-type": "Enum"
+          },
+          "stdOrganization": {
+            "description": "Standardization organization which defines the subscribed V2X message type: \nETSI: European Telecommunications Standards Institute. \nSee note 1.",
+            "enum": [
+              "ETSI"
+            ],
+            "type": "string",
+            "x-etsi-mec-cardinality": "1",
+            "x-etsi-mec-origin-type": "Enum"
+          }
+        },
+        "required": [
+          "stdOrganization"
+        ],
+        "type": "object",
+        "x-etsi-mec-cardinality": "1"
+      },
+      "V2xMsgSubscription": {
+        "properties": {
+          "_links": {
+            "$ref": "#/components/schemas/V2xMsgSubscription.links"
+          },
+          "callbackReference": {
+            "description": "URI selected by the service consumer to receive notifications on the subscribed V2X message. This shall be included both in the request and in response.",
+            "format": "uri",
+            "type": "string",
+            "x-etsi-mec-cardinality": "1",
+            "x-etsi-mec-origin-type": "URI"
+          },
+          "expiryDeadline": {
+            "$ref": "#/components/schemas/TimeStamp"
+          },
+          "filterCriteria": {
+            "$ref": "#/components/schemas/V2xMsgSubscription.filterCriteria"
+          },
+          "subscriptionType": {
+            "description": "Shall be set to \"V2xMsgSubscription\".",
+            "type": "string",
+            "x-etsi-mec-cardinality": "1",
+            "x-etsi-mec-origin-type": "String"
+          }
+        },
+        "required": [
+          "subscriptionType",
+          "callbackReference",
+          "filterCriteria"
+        ],
+        "type": "object",
+        "x-etsi-notes": "NOTE 1:\tOther standardization organizations could be added as needed.\nNOTE 2:\tThe V2X message types of ETSI shall be used as specified in ETSI TS 102 894-2 [6], clause A.114.",
+        "x-etsi-ref": "6.3.5"
+      },
+      "V2xMsgNotification.links": {
+        "description": "Links to resources related to this notification.",
+        "properties": {
+          "subscription": {
+            "$ref": "#/components/schemas/LinkType"
+          }
+        },
+        "required": [
+          "subscription"
+        ],
+        "type": "object",
+        "x-etsi-mec-cardinality": "0..1"
+      },
+      "V2xMsgNotification": {
+        "properties": {
+          "notificationType": {
+            "description": "Shall be set to \"V2xMsgNotification\".",
+            "type": "string",
+            "x-etsi-mec-cardinality": "1",
+            "x-etsi-mec-origin-type": "String"
+          },
+          "timeStamp": {
+            "$ref": "#/components/schemas/TimeStamp"
+          },
+          "stdOrganization": {
+            "description": "Standardization organization which defines the published V2X message type ETSI: European Telecommunications Standards Institute. See note 1.",
+            "enum": [
+              "ETSI"
+            ],
+            "type": "string"
+          },
+          "msgType": {
+            "$ref": "#/components/schemas/msgType"
+          },
+          "msgEncodeFormat": {
+            "description": "The encode format of the V2X message, for example base64 ",
+            "type": "string"
+          },
+          "msgContent": {
+            "description": "Published V2X message content. The format of the string is defined by the standardization organization indicated by the attribute stdOrganization.",
+            "type": "string"
+          },
+          "_links": {
+            "$ref": "#/components/schemas/V2xMsgNotification.links"
+          }
+        },
+        "required": [
+          "notificationType",
+          "timeStamp",
+          "stdOrganization",
+          "msgType",
+          "msgEncodeFormat",
+          "msgContent",
+          "_links"
+        ],
+        "type": "object",
+        "x-etsi-notes": "NOTE 1: Other standardization organizations could be added as needed. NOTE 2: The V2X message types of ETSI shall be used as specified in ETSI TS 102 894-2 [6], clause A.114"
+      },
+      "V2xServerUsd.sdpInfo": {
+        "description": "SDP with IP multicast address and port number used for V2X communication via MBMS.",
+        "properties": {
+          "ipMulticastAddress": {
+            "description": "",
+            "type": "string",
+            "x-etsi-mec-cardinality": "1",
+            "x-etsi-mec-origin-type": "String"
+          },
+          "portNumber": {
+            "description": "",
+            "type": "string",
+            "x-etsi-mec-cardinality": "1",
+            "x-etsi-mec-origin-type": "String"
+          }
+        },
+        "required": [
+          "ipMulticastAddress",
+          "portNumber"
+        ],
+        "type": "object",
+        "x-etsi-mec-cardinality": "1"
+      },
+      "V2xServerUsd.tmgi": {
+        "description": "Temporary Mobile Group Identity (TMGI), which is used within MBMS to uniquely identify Multicast and Broadcast bearer services.",
+        "properties": {
+          "mbmsServiceId": {
+            "description": "MBMS Service ID consisting of three octets.",
+            "type": "string",
+            "x-etsi-mec-cardinality": "1",
+            "x-etsi-mec-origin-type": "String"
+          },
+          "mcc": {
+            "description": "The Mobile Country Code part of PLMN Identity.",
+            "type": "string",
+            "x-etsi-mec-cardinality": "1",
+            "x-etsi-mec-origin-type": "String"
+          },
+          "mnc": {
+            "description": "The Mobile Network Code part of PLMN Identity.",
+            "type": "string",
+            "x-etsi-mec-cardinality": "1",
+            "x-etsi-mec-origin-type": "String"
+          }
+        },
+        "required": [
+          "mbmsServiceId",
+          "mcc",
+          "mnc"
+        ],
+        "type": "object",
+        "x-etsi-mec-cardinality": ""
+      },
+      "V2xServerUsd": {
+        "properties": {
+          "sdpInfo": {
+            "$ref": "#/components/schemas/V2xServerUsd.sdpInfo"
+          },
+          "serviceAreaIdentifier": {
+            "description": "A list of service area identifier for the applicable MBMS broadcast area.",
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1,
+            "type": "array",
+            "x-etsi-mec-cardinality": "1..N",
+            "x-etsi-mec-origin-type": "String"
+          },
+          "tmgi": {
+            "$ref": "#/components/schemas/V2xServerUsd.tmgi"
+          }
+        },
+        "required": [
+          "tmgi",
+          "serviceAreaIdentifier",
+          "sdpInfo"
+        ],
+        "type": "object",
+        "x-etsi-ref": "6.5.10"
+      },
+      "LinkType": {
+        "description": "'This data type represents a type of link'",
+        "type": "object",
+        "required": [
+          "href"
+        ],
+        "properties": {
+          "href": {
+            "$ref": "#/components/schemas/Href"
+          }
+        }
+      },
+      "Href": {
+        "description": "The URI referring to the subscription.",
+        "type": "string",
+        "format": "uri"
+      },
+      "ProblemDetails": {
+        "properties": {
+          "detail": {
+            "description": "A human-readable explanation specific to this occurrence of the problem",
+            "type": "string",
+            "x-etsi-mec-cardinality": "0..1",
+            "x-etsi-mec-origin-type": "String"
+          },
+          "instance": {
+            "description": "A URI reference that identifies the specific occurrence of the problem",
+            "format": "uri",
+            "type": "string",
+            "x-etsi-mec-cardinality": "0..1",
+            "x-etsi-mec-origin-type": "URI"
+          },
+          "status": {
+            "description": "The HTTP status code for this occurrence of the problem",
+            "format": "uint32",
+            "type": "integer",
+            "x-etsi-mec-cardinality": "0..1",
+            "x-etsi-mec-origin-type": "Uint32"
+          },
+          "title": {
+            "description": "A short, human-readable summary of the problem type",
+            "type": "string",
+            "x-etsi-mec-cardinality": "0..1",
+            "x-etsi-mec-origin-type": "String"
+          },
+          "type": {
+            "description": "A URI reference according to IETF RFC 3986 that identifies the problem type",
+            "format": "uri",
+            "type": "string",
+            "x-etsi-mec-cardinality": "0..1",
+            "x-etsi-mec-origin-type": "URI"
+          }
+        },
+        "type": "object"
+      }
+    },
+    "responses": {
+      "204": {
+        "description": "No Content"
+      },
+      "206": {
+        "description": "Partial content"
+      },
+      "400": {
+        "description": "Bad Request : used to indicate that incorrect parameters were passed to the request.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ProblemDetails"
+            }
+          }
+        }
+      },
+      "401": {
+        "description": "Unauthorized :  used when the client did not submit credentials.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ProblemDetails"
+            }
+          }
+        }
+      },
+      "403": {
+        "description": "Forbidden :  operation is not allowed given the current status of the resource.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ProblemDetails"
+            }
+          }
+        }
+      },
+      "404": {
+        "description": "Not Found :  used when a client provided a URI that cannot be mapped to a valid resource URI.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ProblemDetails"
+            }
+          }
+        }
+      },
+      "406": {
+        "description": "Not Acceptable : used to indicate that the server cannot provide the any of the content formats supported by the client.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ProblemDetails"
+            }
+          }
+        }
+      },
+      "409": {
+        "description": "Conflict : The operation cannot be executed currently, due to a conflict with the state of the resource",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ProblemDetails"
+            }
+          }
+        }
+      },
+      "412": {
+        "description": "Precondition failed :  used when a condition has failed during conditional requests, e.g. when using ETags to avoid write conflicts when using PUT",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ProblemDetails"
+            }
+          }
+        }
+      },
+      "415": {
+        "description": "Unsupported Media Type :  used to indicate that the server or the client does not support the content type of the entity body.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ProblemDetails"
+            }
+          }
+        }
+      },
+      "422": {
+        "description": "Unprocessable Entity : used to indicate that the server understands the content type of the request entity and that the syntax of the request entity is correct but that the server is unable to process the contained instructions. This error condition can occur if an JSON request body is syntactically correct but semantically incorrect, for example if the target area for the request is considered too large. This error condition can also occur if the capabilities required by the request are not supported.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ProblemDetails"
+            }
+          }
+        }
+      },
+      "429": {
+        "description": "Too Many Requests : used when a rate limiter has triggered.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ProblemDetails"
+            }
+          }
+        }
+      }
+    }
+  }
+}

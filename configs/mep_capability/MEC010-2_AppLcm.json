@@ -1,0 +1,2034 @@
+{
+  "info": {
+    "title": "ETSI GS MEC 010-2 - Part 2: Application lifecycle, rules and requirements management",
+    "version": "2.1.1",
+    "description": "ETSI GS MEC 010-2 - Part 2: Application lifecycle, rules and requirements management described using OpenAPI.",
+    "license": {
+      "name": "BSD-3-Clause",
+      "url": "https://forge.etsi.org/legal-matters"
+    },
+    "contact": {
+      "name": "ETSI Forge",
+      "email": "cti_support@etsi.org",
+      "url": "https://forge.etsi.org/rep/mec/gs010-2-app-pkg-lcm-api"
+    }
+  },
+  "externalDocs": {
+    "description": "ETSI GS MEC 010-2 - Part 2: Application lifecycle, rules and requirements management, v2.1.1",
+    "url": "https://www.etsi.org/deliver/etsi_gs/MEC/001_099/01002/02.01.01_60/gs_MEC01002v020101p.pdf"
+  },
+  "servers": [
+    {
+      "url": "https://localhost/app_lcm/v1"
+    }
+  ],
+  "openapi": "3.0.0",
+  "tags": [
+    {
+      "name": "app-lcm",
+      "description": "App lifecycle management"
+    },
+    {
+      "name": "app-lcm-notifications",
+      "description": "App lifecycle management notifications"
+    }
+  ],
+  "paths": {
+    "/app_instances": {
+      "post": {
+        "tags": [
+          ""
+        ],
+        "summary": "Create an application instance resource",
+        "description": "Create an application instance resource",
+        "operationId": "appInstancePOST",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateAppInstanceRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "An application instance identifier and the related resource has been created successfully.",
+            "content": {
+              "application/zip": {
+                "schema": {
+                  "$ref": "#/components/schemas/AppInstanceInfo"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "406": {
+            "$ref": "#/components/responses/406"
+          },
+          "429": {
+            "$ref": "#/components/responses/429"
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          ""
+        ],
+        "summary": "Queries information relating to on-boarded application packages in the MEO",
+        "description": "queries information relating to on-boarded application packages in the MEO",
+        "operationId": "appInstanceGET",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "filter",
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "description": "Attribute-based filtering parameters according to ETSI GS MEC 009"
+          },
+          {
+            "in": "query",
+            "name": "all_fields",
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "description": "Include all complex attributes in the response."
+          },
+          {
+            "in": "query",
+            "name": "fields",
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "description": "Complex attributes of AppPkgInfo to be included into the response"
+          },
+          {
+            "in": "query",
+            "name": "exclude_fields",
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "description": "Complex attributes of AppPkgInfo to be excluded from the response."
+          },
+          {
+            "in": "query",
+            "name": "exclude_default",
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "description": "Indicates to exclude the following complex attributes of AppPkgInfo from the response."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Array the representations of zero or more application instances",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AppInstanceInfo"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "406": {
+            "$ref": "#/components/responses/406"
+          },
+          "429": {
+            "$ref": "#/components/responses/429"
+          }
+        }
+      }
+    },
+    "/app_instances/{appInstanceId}": {
+      "parameters": [
+        {
+          "in": "path",
+          "name": "appInstanceId",
+          "description": "Identifier of an individual application instance",
+          "schema": {
+            "type": "string"
+          },
+          "required": true
+        }
+      ],
+      "get": {
+        "tags": [
+          ""
+        ],
+        "summary": "Retrieves the information of an individual application instance via reading an individual application instance.",
+        "description": "Retrieves the information of an individual application instance via reading an individual application instance.",
+        "operationId": "appInstanceIdGET",
+        "responses": {
+          "200": {
+            "description": "Contains a representation of the read resource.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AppInstanceInfo"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "406": {
+            "$ref": "#/components/responses/406"
+          },
+          "429": {
+            "$ref": "#/components/responses/429"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          ""
+        ],
+        "summary": "Deletes an  individual application instance resource.",
+        "description": "Deletes an  individual application instance resource.",
+        "operationId": "appInstanceIdDELETE",
+        "responses": {
+          "204": {
+            "$ref": "#/components/responses/204"
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "406": {
+            "$ref": "#/components/responses/406"
+          },
+          "409": {
+            "$ref": "#/components/responses/409"
+          },
+          "429": {
+            "$ref": "#/components/responses/429"
+          }
+        }
+      }
+    },
+    "/subscriptions": {
+      "post": {
+        "tags": [
+          ""
+        ],
+        "summary": "subscribe to the notification of application instance operational state change",
+        "description": "subscribe to the notification of application instance operational state change",
+        "operationId": "appLcmSubscriptionsPOST",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "subscriptionType",
+            "description": "\"Query parameter to filter on a specific subscription type. Permitted values:\n  • \"AppInstanceStateChange\"\n  • \"AppLcmOpOccStateChange\"\n\"",
+            "schema": {
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/AppInst.SubscriptionType"
+                },
+                {
+                  "$ref": "#/components/schemas/AppLcmOpOcc.SubscriptionType"
+                }
+              ]
+            },
+            "required": true
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "$ref": "#/components/schemas/AppInstSubscriptionRequest"
+                  },
+                  {
+                    "$ref": "#/components/schemas/AppLcmOpOccSubscriptionRequest"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "a representation of the created SubscriptionInfo.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/AppInstSubscriptionInfo"
+                    },
+                    {
+                      "$ref": "#/components/schemas/AppLcmOpOccSubscriptionInfo"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "406": {
+            "$ref": "#/components/responses/406"
+          },
+          "429": {
+            "$ref": "#/components/responses/429"
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          ""
+        ],
+        "summary": "Retrieves the information of multiple subscriptions to notifications related to an application instance.",
+        "description": "Retrieves the information of multiple subscriptions to notifications related to an application instance.",
+        "operationId": "appLcmSubscriptionsGET",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "subscriptionType",
+            "description": "Permitted values: AppInstanceStateChange or  AppLcmOpOccStateChange",
+            "schema": {
+              "type": "string"
+            },
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " List of all subscriptions is returned.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubscriptionLinkList"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "406": {
+            "$ref": "#/components/responses/406"
+          },
+          "429": {
+            "$ref": "#/components/responses/429"
+          }
+        }
+      }
+    },
+    "/subscriptions/{subscriptionId}": {
+      "parameters": [
+        {
+          "in": "path",
+          "name": "subscriptionId",
+          "description": "Represents an individual subscription to notification related to an application instance",
+          "schema": {
+            "type": "string"
+          },
+          "required": true
+        }
+      ],
+      "get": {
+        "tags": [
+          ""
+        ],
+        "summary": "Used to represent an individual subscription to notifications about application package changes.",
+        "description": "Used to represent an individual subscription to notifications about application package changes.",
+        "operationId": "individualSubscriptionGET",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "subscriptionType",
+            "description": "Permitted values: AppInstanceStateChange or  AppLcmOpOccStateChange",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Representation of the resource.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/AppInstSubscriptionInfo"
+                    },
+                    {
+                      "$ref": "#/components/schemas/AppLcmOpOccSubscriptionInfo"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "406": {
+            "$ref": "#/components/responses/406"
+          },
+          "429": {
+            "$ref": "#/components/responses/429"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          ""
+        ],
+        "summary": "Deletes the individual subscription to notifications about application package changes in MEO.",
+        "description": "Deletes the individual subscription to notifications about application package changes in MEO.",
+        "operationId": "individualSubscriptionDELETE",
+        "responses": {
+          "204": {
+            "$ref": "#/components/responses/204"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "429": {
+            "$ref": "#/components/responses/429"
+          }
+        }
+      }
+    },
+    "/user_defined_notification": {
+      "post": {
+        "tags": [
+          ""
+        ],
+        "summary": "Delivers a notification from the application lifecycle management resource to the subscriber.",
+        "description": "Delivers a notification from the application lifecycle management resource to the subscriber.",
+        "operationId": "appInstNotificationPOST",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "$ref": "#/components/schemas/AppInstNotification"
+                  },
+                  {
+                    "$ref": "#/components/schemas/AppLcmOpOccNotification"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "$ref": "#/components/responses/204"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "406": {
+            "$ref": "#/components/responses/406"
+          },
+          "429": {
+            "$ref": "#/components/responses/429"
+          }
+        }
+      }
+    },
+    "/app_instances/{appInstanceId}/instantiate": {
+      "parameters": [
+        {
+          "in": "path",
+          "name": "appInstanceId",
+          "description": "Identifier of an individual application instance",
+          "schema": {
+            "type": "string"
+          },
+          "required": true
+        }
+      ],
+      "post": {
+        "tags": [
+          ""
+        ],
+        "summary": "task of instantiating an application instance.",
+        "description": "task of instantiating an application instance.",
+        "operationId": "appLcmInstanciatePOST",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InstantiateAppRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "accepted for processing, but the processing has not yet been completed."
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "406": {
+            "$ref": "#/components/responses/406"
+          },
+          "409": {
+            "$ref": "#/components/responses/409"
+          },
+          "429": {
+            "$ref": "#/components/responses/429"
+          }
+        }
+      }
+    },
+    "/app_instances/{appInstanceId}/terminate": {
+      "parameters": [
+        {
+          "in": "path",
+          "name": "appInstanceId",
+          "description": "Identifier of an individual application instance",
+          "schema": {
+            "type": "string"
+          },
+          "required": true
+        }
+      ],
+      "post": {
+        "tags": [
+          ""
+        ],
+        "summary": "terminate an application instance.",
+        "description": "terminate an application instance.",
+        "operationId": "appLcmTerminatePOST",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TerminateAppRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "accepted for processing, but the processing has not yet been completed."
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "406": {
+            "$ref": "#/components/responses/406"
+          },
+          "409": {
+            "$ref": "#/components/responses/409"
+          },
+          "429": {
+            "$ref": "#/components/responses/429"
+          }
+        }
+      }
+    },
+    "/app_instances/{appInstanceId}/operate": {
+      "parameters": [
+        {
+          "in": "path",
+          "name": "appInstanceId",
+          "description": "Identifier of an individual application instance",
+          "schema": {
+            "type": "string"
+          },
+          "required": true
+        }
+      ],
+      "post": {
+        "tags": [
+          ""
+        ],
+        "summary": "change the operational state, i.e. start or stop, of the application instance",
+        "description": "change the operational state, i.e. start or stop, of the application instance",
+        "operationId": "appLcmOperatePOST",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OperateAppRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "accepted for processing, but the processing has not yet been completed."
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "406": {
+            "$ref": "#/components/responses/406"
+          },
+          "409": {
+            "$ref": "#/components/responses/409"
+          },
+          "429": {
+            "$ref": "#/components/responses/429"
+          }
+        }
+      }
+    },
+    "/app_lcm_op_occs": {
+      "get": {
+        "tags": [
+          ""
+        ],
+        "summary": "retrieves information of operation status about multiple application instance lifecycle management operation occurrences",
+        "description": "retrieves information of operation status about multiple application instance lifecycle management operation occurrences",
+        "operationId": "appLcmOpOccsGET",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "filter",
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "description": "Attribute-based filtering parameters according to ETSI GS MEC 009"
+          },
+          {
+            "in": "query",
+            "name": "all_fields",
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "description": "Include all complex attributes in the response."
+          },
+          {
+            "in": "query",
+            "name": "fields",
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "description": "Complex attributes of AppPkgInfo to be included into the response"
+          },
+          {
+            "in": "query",
+            "name": "exclude_fields",
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "description": "Complex attributes of AppPkgInfo to be excluded from the response."
+          },
+          {
+            "in": "query",
+            "name": "exclude_default",
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "description": "Indicates to exclude the following complex attributes of AppPkgInfo from the response."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Status information for zero or more application instance lifecycle management operation occurrences was queried successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AppInstanceLcmOpOcc"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "406": {
+            "$ref": "#/components/responses/406"
+          },
+          "429": {
+            "$ref": "#/components/responses/429"
+          }
+        }
+      }
+    },
+    "/app_lcm_op_occs/{appLcmOpOccId}": {
+      "parameters": [
+        {
+          "in": "path",
+          "name": "appLcmOpOccId",
+          "description": "Identifies an individual application LCM operation occurrence",
+          "schema": {
+            "type": "string"
+          },
+          "required": true
+        }
+      ],
+      "get": {
+        "tags": [
+          ""
+        ],
+        "summary": "reads the status information of an individual application LCM operation occurrence",
+        "description": "reads the status information of an individual application LCM operation occurrence",
+        "operationId": "appLcmOpOccsbyIdGET",
+        "responses": {
+          "200": {
+            "description": "Information about an application LCM operation occurrence was read successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AppInstanceLcmOpOcc"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "406": {
+            "$ref": "#/components/responses/406"
+          },
+          "429": {
+            "$ref": "#/components/responses/429"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AppInstanceLcmOpOcc": {
+        "description": "'This data type represents an application lifecycle management operation occurrence'",
+        "type": "object",
+        "required": [
+          "id",
+          "operationState",
+          "stateEnteredTime",
+          "startTime",
+          "lcmOperation",
+          "_links"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/AppInstanceLcmOpOcc.Id"
+          },
+          "operationState": {
+            "$ref": "#/components/schemas/OperationState"
+          },
+          "stateEnteredTime": {
+            "$ref": "#/components/schemas/TimeStamp"
+          },
+          "startTime": {
+            "$ref": "#/components/schemas/TimeStamp"
+          },
+          "lcmOperation": {
+            "$ref": "#/components/schemas/LcmOperation"
+          },
+          "operationParams": {
+            "$ref": "#/components/schemas/OperationParams"
+          },
+          "_links": {
+            "$ref": "#/components/schemas/AppInstanceLcmOpOcc.links"
+          }
+        }
+      },
+      "AppInstanceLcmOpOcc.Id": {
+        "description": "'Identifier of the subscription to application LCM operation occurrence notification'",
+        "type": "string"
+      },
+      "OperationParams": {
+        "description": "'Input parameters of the LCM operation. This attribute shall be formatted according to the request data type of the related LCM operation.'",
+        "type": "string",
+        "enum": [
+          "INSTANTIATE",
+          "OPERATE",
+          "TERMINATE"
+        ]
+      },
+      "AppInstanceLcmOpOcc.links": {
+        "description": "Links to resources related to this resource.",
+        "type": "object",
+        "required": [
+          "self",
+          "appInstance"
+        ],
+        "properties": {
+          "self": {
+            "$ref": "#/components/schemas/LinkType"
+          },
+          "appInstance": {
+            "$ref": "#/components/schemas/LinkType"
+          }
+        }
+      },
+      "SubscriptionLinkList": {
+        "description": "'The data type represents a subscription link list of notification on application lifecycle management. '",
+        "type": "object",
+        "required": [
+          "_links"
+        ],
+        "properties": {
+          "_links": {
+            "$ref": "#/components/schemas/SubscriptionLinkList.links"
+          }
+        }
+      },
+      "SubscriptionLinkList.links": {
+        "description": "Links to resources related to this resource.",
+        "type": "object",
+        "required": [
+          "self"
+        ],
+        "properties": {
+          "self": {
+            "$ref": "#/components/schemas/LinkType"
+          },
+          "subscriptions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SubscriptionLinkList.links.subscriptions"
+            }
+          }
+        }
+      },
+      "SubscriptionLinkList.links.subscriptions": {
+        "description": "A link list to the subscriptions",
+        "type": "object",
+        "required": [
+          "href",
+          "subscriptionType"
+        ],
+        "properties": {
+          "href": {
+            "type": "string",
+            "format": "uri"
+          },
+          "subscriptionType": {
+            "type": "string",
+            "format": "enum",
+            "enum": [
+              "AppInstanceStateChange",
+              "AppLcmOpOccStateChange"
+            ]
+          }
+        }
+      },
+      "AppLcmOpOccSubscriptionInfo": {
+        "description": "'This data type represents a subscription to notifications of application life cycle management operation occurrence'",
+        "type": "object",
+        "required": [
+          "id",
+          "subscriptionType",
+          "callbackUri",
+          "_links"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/AppLcmOpOccSubscriptionInfo.Id"
+          },
+          "subscriptionType": {
+            "$ref": "#/components/schemas/AppLcmOpOcc.SubscriptionType"
+          },
+          "callbackUri": {
+            "$ref": "#/components/schemas/CallbackUri"
+          },
+          "_links": {
+            "$ref": "#/components/schemas/AppLcmOpOccSubscriptionInfo.links"
+          }
+        }
+      },
+      "AppLcmOpOccSubscriptionInfo.Id": {
+        "description": "''",
+        "type": "string"
+      },
+      "AppLcmOpOcc.SubscriptionType": {
+        "description": "Shall be set to AppLcmOpOccStateChange.",
+        "type": "string",
+        "enum": [
+          "AppLcmOpOccStateChange"
+        ]
+      },
+      "AppLcmOpOccSubscriptionInfo.links": {
+        "description": "Links to resources related to this resource.",
+        "type": "object",
+        "required": [
+          "self"
+        ],
+        "properties": {
+          "self": {
+            "$ref": "#/components/schemas/LinkType"
+          }
+        }
+      },
+      "AppInstSubscriptionInfo": {
+        "description": "'The data type represents a subscription to notification of application instance operational state change.'",
+        "type": "object",
+        "required": [
+          "id",
+          "subscriptionType",
+          "notificationType",
+          "callbackUri",
+          "_links"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/AppInstSubscriptionInfo.Id"
+          },
+          "subscriptionType": {
+            "$ref": "#/components/schemas/AppInst.SubscriptionType"
+          },
+          "notificationType": {
+            "$ref": "#/components/schemas/AppInst.NotificationType"
+          },
+          "callbackUri": {
+            "$ref": "#/components/schemas/CallbackUri"
+          },
+          "_links": {
+            "$ref": "#/components/schemas/AppInstSubscriptionInfo.links"
+          }
+        }
+      },
+      "AppInstSubscriptionInfo.Id": {
+        "description": "'Identifier of the subscription to application instance operational state change notification.'",
+        "type": "string"
+      },
+      "AppInst.SubscriptionType": {
+        "description": "Shall be set to AppInstanceStateChange.",
+        "type": "string",
+        "enum": [
+          "AppInstanceStateChange"
+        ]
+      },
+      "AppInst.NotificationType": {
+        "description": "Subscribed notification",
+        "type": "string",
+        "enum": [
+          "NOT_INSTANTIATED",
+          "STARTED",
+          "STOPPED"
+        ]
+      },
+      "CallbackUri": {
+        "description": "The URI of the endpoint for the notification to be sent to.",
+        "type": "string",
+        "format": "uri"
+      },
+      "AppInstSubscriptionInfo.links": {
+        "description": "Links to resources related to this resource.",
+        "properties": {
+          "self": {
+            "$ref": "#/components/schemas/LinkType"
+          }
+        },
+        "required": [
+          "self"
+        ],
+        "type": "object"
+      },
+      "AppLcmOpOccSubscriptionRequest": {
+        "properties": {
+          "appLcmOpOccSubscriptionFilter": {
+            "$ref": "#/components/schemas/AppLcmOpOccSubscriptionFilter"
+          },
+          "callbackUri": {
+            "$ref": "#/components/schemas/URI"
+          },
+          "subscriptionType": {
+            "description": "Shall be set to \"AppLcmOpOccStateChange\".",
+            "type": "string",
+            "x-etsi-mec-cardinality": "1",
+            "x-etsi-mec-origin-type": "String"
+          }
+        },
+        "required": [
+          "subscriptionType",
+          "callbackUri"
+        ],
+        "type": "object",
+        "x-etsi-ref": "6.2.2.14"
+      },
+      "URI": {
+        "type": "string"
+      },
+      "AppLcmOpOccSubscriptionFilter": {
+        "properties": {
+          "appInstanceSubscriptionFilter": {
+            "$ref": "#/components/schemas/AppInstanceSubscriptionFilter"
+          },
+          "notificationTypes": {
+            "$ref": "#/components/schemas/NotificationTypes"
+          },
+          "operationStates": {
+            "$ref": "#/components/schemas/OperationStates"
+          },
+          "operationTypes": {
+            "$ref": "#/components/schemas/OperationTypes"
+          }
+        }
+      },
+      "NotificationTypes": {
+        "description": "Match particular notification types.",
+        "type": "string",
+        "enum": [
+          "AppLcmOperationOccurrenceNotification"
+        ]
+      },
+      "OperationStates": {
+        "description": "'Type of the LCM operation state represented by this application instance LCM operation occurrence.'",
+        "type": "string",
+        "enum": [
+          "STARTING",
+          "PROCESSING",
+          "COMPLETED",
+          "FAILED"
+        ]
+      },
+      "OperationTypes": {
+        "description": "'Type of the LCM operation represented by this application instance LCM operation occurrence.'",
+        "type": "string",
+        "enum": [
+          "INSTANTIATE",
+          "OPERATE",
+          "TERMINATE"
+        ]
+      },
+      "CreateAppInstanceRequest": {
+        "properties": {
+          "appDId": {
+            "description": "The application descriptor identifier. It is managed by the application provider to identify the application descriptor in a globally unique way.",
+            "type": "string",
+            "x-etsi-mec-cardinality": "1",
+            "x-etsi-mec-origin-type": "String"
+          },
+          "appInstanceDescription": {
+            "description": "Human-readable description of the application instance to be created.",
+            "type": "string",
+            "x-etsi-mec-cardinality": "0..1",
+            "x-etsi-mec-origin-type": "String"
+          },
+          "appInstanceName": {
+            "description": "Human-readable name of the application instance to be created.",
+            "type": "string",
+            "x-etsi-mec-cardinality": "0..1",
+            "x-etsi-mec-origin-type": "String"
+          }
+        },
+        "required": [
+          "appDId"
+        ],
+        "type": "object",
+        "x-etsi-ref": "6.2.2.3"
+      },
+      "AppInstSubscriptionRequest": {
+        "type": "object",
+        "required": [
+          "subscriptionType",
+          "callbackUri"
+        ],
+        "properties": {
+          "subscriptionType": {
+            "$ref": "#/components/schemas/AppInst.SubscriptionType"
+          },
+          "callbackUri": {
+            "$ref": "#/components/schemas/CallbackUri"
+          },
+          "appInstanceState": {
+            "$ref": "#/components/schemas/AppInstanceState"
+          },
+          "appInstanceSubscriptionFilter": {
+            "$ref": "#/components/schemas/AppInstanceSubscriptionFilter"
+          }
+        }
+      },
+      "AppInstanceSubscriptionFilter": {
+        "description": "'This data type represents subscription filter criteria to match application instances. '",
+        "type": "object",
+        "required": [
+          "appInstSelectorType"
+        ],
+        "properties": {
+          "appInstSelectorType": {
+            "$ref": "#/components/schemas/AppInstSelectorType"
+          },
+          "appInstances": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AppInstances"
+            }
+          },
+          "appsFromProviders": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AppsFromProviders"
+            }
+          }
+        }
+      },
+      "AppsFromProviders": {
+        "description": "'Present only if appInstIdSelector = APP_FROM_PROVIDER. Match existing application instances, or those created in the future whilst the subscription is active, that belong to applications from certain providers.'",
+        "type": "object",
+        "required": [
+          "appProvider"
+        ],
+        "properties": {
+          "appProvider": {
+            "$ref": "#/components/schemas/AppProvider"
+          },
+          "appProducts": {
+            "$ref": "#/components/schemas/AppProducts"
+          }
+        }
+      },
+      "AppProducts": {
+        "description": "'If present, match application instances that belong to application products with certain product names, from one particular provider.'",
+        "type": "object",
+        "required": [
+          "appName"
+        ],
+        "properties": {
+          "appName": {
+            "$ref": "#/components/schemas/AppName"
+          },
+          "versions": {
+            "$ref": "#/components/schemas/AppProducts.Versions"
+          }
+        }
+      },
+      "AppProducts.Versions": {
+        "description": "'If present, match application instances that belong to application products with certain versions and a certain product name, from one particular provider.'",
+        "type": "object",
+        "required": [
+          "appSoftVersion"
+        ],
+        "properties": {
+          "appSoftVersion": {
+            "$ref": "#/components/schemas/AppSoftVersion"
+          },
+          "appDVersion": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AppDVersion"
+            }
+          }
+        }
+      },
+      "AppInstances": {
+        "description": "If appInstIdSelector = APP_IDENTITY match existing application instances with an application instance identifier listed in this attribute.",
+        "type": "string"
+      },
+      "AppInstSelectorType": {
+        "description": "0 = void",
+        "type": "string",
+        "enum": [
+          "VOID",
+          "APP_IDENTITY",
+          "APP_NAME",
+          "APP_D_ID",
+          "APP_FROM_PROVIDER"
+        ]
+      },
+      "AppInstanceState": {
+        "description": "Only send notifications for application instances that are in one of the states listed in this attribute. If this attribute is absent, match all states.",
+        "type": "string",
+        "format": "enum",
+        "enum": [
+          "NOT_INSTANTIATED",
+          "STARTED",
+          "STOPPED"
+        ]
+      },
+      "AppInstNotification": {
+        "properties": {
+          "_links": {
+            "description": "Links to resources related to this notification.",
+            "properties": {
+              "subscription": {
+                "$ref": "#/components/schemas/LinkType"
+              }
+            },
+            "required": [
+              "subscription"
+            ],
+            "type": "object",
+            "x-etsi-mec-cardinality": "1"
+          },
+          "appDId": {
+            "description": "The application descriptor identifier identifies the application package and the application descriptor in a globally unique way.",
+            "type": "string",
+            "x-etsi-mec-cardinality": "1",
+            "x-etsi-mec-origin-type": "String"
+          },
+          "appInstanceId": {
+            "description": "Identifier of application instance.",
+            "type": "string",
+            "x-etsi-mec-cardinality": "1",
+            "x-etsi-mec-origin-type": "String"
+          },
+          "appPkgId": {
+            "description": "Identifier of the onboarded application package. ",
+            "type": "string",
+            "x-etsi-mec-cardinality": "1",
+            "x-etsi-mec-origin-type": "String"
+          },
+          "id": {
+            "description": "Identifier of this notification. If a notification is sent multiple times due to multiple subscriptions, the \"notificationId\" attribute of all these notifications shall have the same value.",
+            "type": "string",
+            "x-etsi-mec-cardinality": "1",
+            "x-etsi-mec-origin-type": "String"
+          },
+          "notificationType": {
+            "$ref": "#/components/schemas/AppInst.NotificationType"
+          },
+          "subscriptionId": {
+            "description": "Identifier of the subscription related to this notification.",
+            "type": "string",
+            "x-etsi-mec-cardinality": "1",
+            "x-etsi-mec-origin-type": "String"
+          },
+          "timeStamp": {
+            "$ref": "#/components/schemas/TimeStamp"
+          }
+        },
+        "required": [
+          "id",
+          "notificationType",
+          "subscriptionId",
+          "timeStamp",
+          "appInstanceId",
+          "appPkgId",
+          "appDId",
+          "_links"
+        ],
+        "type": "object",
+        "x-etsi-ref": "6.2.2.11"
+      },
+      "AppInstanceInfo": {
+        "description": "'The data type of AppInstanceInfo represents the parameters of instantiated application instance resources.'",
+        "type": "object",
+        "required": [
+          "id",
+          "appDId",
+          "appProvider",
+          "appName",
+          "appSoftVersion",
+          "appDVersion",
+          "appPkgId",
+          "instantiationState",
+          "_links"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/AppInstanceId"
+          },
+          "appInstanceName": {
+            "$ref": "#/components/schemas/AppInstanceName"
+          },
+          "appInstanceDescription": {
+            "$ref": "#/components/schemas/AppInstanceDescription"
+          },
+          "appDId": {
+            "$ref": "#/components/schemas/AppDId"
+          },
+          "appProvider": {
+            "$ref": "#/components/schemas/AppProvider"
+          },
+          "appName": {
+            "$ref": "#/components/schemas/AppName"
+          },
+          "appSoftVersion": {
+            "$ref": "#/components/schemas/AppSoftVersion"
+          },
+          "appDVersion": {
+            "$ref": "#/components/schemas/AppDVersion"
+          },
+          "appPkgId": {
+            "$ref": "#/components/schemas/AppPkgId"
+          },
+          "vimConnectionInfo": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/VimConnectionInfo"
+            }
+          },
+          "instantiationState": {
+            "$ref": "#/components/schemas/InstantiationState"
+          },
+          "instantiatedAppState": {
+            "$ref": "#/components/schemas/InstantiatedAppState"
+          },
+          "_links": {
+            "$ref": "#/components/schemas/AppInstanceInfo.links"
+          }
+        }
+      },
+      "AppInstanceId": {
+        "description": "Identifier of application instance.",
+        "type": "string"
+      },
+      "OperationState": {
+        "description": "Operation state",
+        "type": "string",
+        "format": "enum",
+        "enum": [
+          "STARTING",
+          "PROCESSING",
+          "COMPLETED",
+          "FAILED"
+        ]
+      },
+      "AppInstanceName": {
+        "description": "Name of the application instance.",
+        "type": "string"
+      },
+      "AppInstanceDescription": {
+        "description": "Human-readable description of the application instance to be created.",
+        "type": "string"
+      },
+      "AppDId": {
+        "description": "Identifier of this MEC application descriptor. This attribute shall be globally unique.",
+        "type": "string"
+      },
+      "AppProvider": {
+        "description": "Provider of the application and of the AppD.",
+        "type": "string"
+      },
+      "AppName": {
+        "description": "Name to identify the MEC application.",
+        "type": "string"
+      },
+      "AppSoftVersion": {
+        "description": "Identifies the version of software of the MEC application.",
+        "type": "string"
+      },
+      "AppDVersion": {
+        "description": "Identifies the version of the application descriptor.",
+        "type": "string"
+      },
+      "AppPkgId": {
+        "description": "Identifier of the onboarded application package.",
+        "type": "string"
+      },
+      "InstantiationState": {
+        "description": "Instantiation state of the application instance",
+        "type": "string",
+        "enum": [
+          "NOT_INSTANTIATED",
+          "INSTANTIATED"
+        ]
+      },
+      "InstantiatedAppState": {
+        "description": "'Information specific to an instantiated application. This attribute shall be present if the instantiationState attribute value is INSTANTIATED.'",
+        "type": "object",
+        "required": [
+          "operationalState"
+        ],
+        "properties": {
+          "operationalState": {
+            "$ref": "#/components/schemas/OperationalState"
+          }
+        }
+      },
+      "OperationalState": {
+        "description": "Operational state is applicable in the instantiation state INSTANTIATED",
+        "type": "string",
+        "enum": [
+          "STARTED",
+          "STOPPED"
+        ]
+      },
+      "AppInstanceInfo.links": {
+        "description": "Links to resources related to this resource.",
+        "type": "object",
+        "required": [
+          "self"
+        ],
+        "properties": {
+          "self": {
+            "$ref": "#/components/schemas/LinkType"
+          },
+          "instantiate": {
+            "$ref": "#/components/schemas/LinkType"
+          },
+          "terminate": {
+            "$ref": "#/components/schemas/LinkType"
+          },
+          "operate": {
+            "$ref": "#/components/schemas/LinkType"
+          }
+        }
+      },
+      "LcmOperation": {
+        "description": "Type of the actual LCM operation represented by this application instance LCM operation occurrence",
+        "type": "string",
+        "format": "enum",
+        "enum": [
+          "INSTATIATE",
+          "OPERATE",
+          "TERMINATE"
+        ]
+      },
+      "AppLcmOpOccNotification": {
+        "description": "'This data type represents a notification related to state changes of an application LCM operation occurrence which informs the subscribers'",
+        "type": "object",
+        "required": [
+          "id",
+          "notificationType",
+          "subscriptionId",
+          "timeStamp",
+          "appLcmOpOccId",
+          "appInstanceId",
+          "_links"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/AppLcmOpOccNotification.Id"
+          },
+          "notificationType": {
+            "$ref": "#/components/schemas/AppLcmOpOcc.NotificationType"
+          },
+          "subscriptionId": {
+            "$ref": "#/components/schemas/SubscriptionId"
+          },
+          "timeStamp": {
+            "$ref": "#/components/schemas/TimeStamp"
+          },
+          "appLcmOpOccId": {
+            "$ref": "#/components/schemas/AppLcmOpOccId"
+          },
+          "appInstanceId": {
+            "$ref": "#/components/schemas/AppInstanceId"
+          },
+          "_links": {
+            "$ref": "#/components/schemas/AppLcmOpOccNotification.links"
+          }
+        }
+      },
+      "AppLcmOpOccNotification.Id": {
+        "description": "''",
+        "type": "string"
+      },
+      "AppLcmOpOcc.NotificationType": {
+        "description": "Discriminator for the different notification types",
+        "type": "string",
+        "enum": [
+          "STARTING",
+          "PROCESSING",
+          "COMPLETED",
+          "FAILED"
+        ]
+      },
+      "SubscriptionId": {
+        "description": "Identifier of the subscription related to this notification.",
+        "type": "string"
+      },
+      "AppLcmOpOccId": {
+        "description": "Identifier of application lifecycle management operation occurrence.",
+        "type": "string"
+      },
+      "AppLcmOpOccNotification.links": {
+        "description": "Links to resources related to this resource.",
+        "type": "object",
+        "required": [
+          "appInstance",
+          "subscription",
+          "appLcmOpOcc"
+        ],
+        "properties": {
+          "appInstance": {
+            "$ref": "#/components/schemas/LinkType"
+          },
+          "subscription": {
+            "$ref": "#/components/schemas/LinkType"
+          },
+          "appLcmOpOcc": {
+            "$ref": "#/components/schemas/LinkType"
+          }
+        }
+      },
+      "InstantiateAppRequest": {
+        "properties": {
+          "locationConstraints": {
+            "$ref": "#/components/schemas/LocationConstraints"
+          },
+          "selectedMECHostInfo": {
+            "description": "Describes the information of selected host for the application instance. See note 2.",
+            "items": {
+              "$ref": "#/components/schemas/MECHostInformation"
+            },
+            "minItems": 1,
+            "type": "array",
+            "x-etsi-mec-cardinality": "1..N",
+            "x-etsi-mec-origin-type": "MECHostInformation"
+          },
+          "vimConnectionInfo": {
+            "description": "Information about VIM connections to be used for managing the resources for the application instance, or refer to external / externally-managed virtual links.\nThis attribute shall only be supported and may be present if application-related resource management in direct mode is applicable. See note 2.",
+            "items": {
+              "$ref": "#/components/schemas/VimConnectionInfo"
+            },
+            "minItems": 0,
+            "type": "array",
+            "x-etsi-mec-cardinality": "0..N",
+            "x-etsi-mec-origin-type": "VimConnectionInfo"
+          },
+          "virtualComputeDescriptor": {
+            "$ref": "#/components/schemas/VirtualComputeDescription"
+          },
+          "virtualStorageDescriptor": {
+            "description": "Defines descriptors of virtual storage resources to be used by the application instance to be created. See note 1.",
+            "items": {
+              "$ref": "#/components/schemas/VirtualStorageDescriptor"
+            },
+            "minItems": 0,
+            "type": "array",
+            "x-etsi-mec-cardinality": "0..N",
+            "x-etsi-mec-origin-type": "VirtualStorageDescriptor"
+          }
+        },
+        "required": [
+          "selectedMECHostInfo"
+        ],
+        "type": "object",
+        "x-etsi-notes": "NOTE 1:\tThis attribute may be provided in the InstantiateAppRequest structure to override the same attribute in the AppD. \nNOTE 2:\tThis field applies to Mm3 reference point only.\nNOTE 3:\tThis field applies to Mm1 reference point only.",
+        "x-etsi-ref": "6.2.2.7"
+      },
+      "LinkType": {
+        "properties": {
+          "href": {
+            "description": "URI referring to a resource",
+            "format": "uri",
+            "type": "string",
+            "x-etsi-mec-cardinality": "1",
+            "x-etsi-mec-origin-type": "URI"
+          }
+        },
+        "required": [
+          "href"
+        ],
+        "type": "object",
+        "x-etsi-ref": "6.5.2"
+      },
+      "LocationConstraints": {
+        "description": "'The LocationConstraints data type supports the specification of MEC application requirements related to MEC application deployment location constraints. The location constraints shall be presented as a country code, optionally followed by a civic address based on the format defined by IETF RFC 4776'",
+        "type": "object",
+        "required": [
+          "countryCode"
+        ],
+        "properties": {
+          "countryCode": {
+            "$ref": "#/components/schemas/CountryCode"
+          },
+          "civicAddressElement": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CivicAddressElement"
+            }
+          }
+        }
+      },
+      "CountryCode": {
+        "description": "The two-letter ISO 3166 country code in capital letters.",
+        "type": "string"
+      },
+      "CivicAddressElement": {
+        "description": "'The civic address.'",
+        "type": "object",
+        "required": [
+          "caType",
+          "caValue"
+        ],
+        "properties": {
+          "caType": {
+            "$ref": "#/components/schemas/CaType"
+          },
+          "caValue": {
+            "$ref": "#/components/schemas/CaValue"
+          }
+        }
+      },
+      "CaType": {
+        "description": "'Describe the content type of caValue. The value of caType shall comply with section 3.4 of IETF RFC 4776.'",
+        "type": "integer"
+      },
+      "CaValue": {
+        "description": "'Content of civic address element corresponding to the caType. The format caValue shall comply with section 3.4 of IETF RFC 4776.'",
+        "type": "string"
+      },
+      "MECHostInformation": {
+        "properties": {
+          "hostId": {
+            "$ref": "#/components/schemas/KeyValuePairs"
+          },
+          "hostName": {
+            "description": "Human-readable name of MEC host.",
+            "type": "string",
+            "x-etsi-mec-cardinality": "0..1",
+            "x-etsi-mec-origin-type": "String"
+          }
+        },
+        "required": [
+          "hostId"
+        ],
+        "type": "object",
+        "x-etsi-ref": "6.2.2.17"
+      },
+      "OperateAppRequest": {
+        "properties": {
+          "changeStateTo": {
+            "$ref": "#/components/schemas/ChangeStateTo"
+          },
+          "gracefulStopTimeout": {
+            "description": "The time interval (in seconds) to wait for the application instance to be taken out of service during graceful stop, before stopping the application. See note 1 and note 2.",
+            "type": "integer",
+            "x-etsi-mec-cardinality": "0..1",
+            "x-etsi-mec-origin-type": "Integer"
+          },
+          "stopType": {
+            "$ref": "#/components/schemas/StopType"
+          }
+        },
+        "required": [
+          "changeStateTo"
+        ],
+        "type": "object",
+        "x-etsi-notes": "NOTE 1:\tThe \"stopType\" and \"gracefulStopTimeout\" attributes shall be absent, when the \"changeStateTo\" attribute is equal to \"STARTED\". \nNOTE 2:\tThe \"gracefulStopTimeout\" attribute shall be present, when the \"changeStateTo\" is equal to \"STOPPED\" and the \"stopType\" attribute is equal to \"GRACEFUL\". The \"gracefulStopTimeout\" attribute shall be absent, when the \"changeStateTo\" attribute is equal to \"STOPPED\" and the \"stopType\" attribute is equal to \"FORCEFUL\". \nNOTE 3:\tThe request shall be treated as if the \"stopType\" attribute was set to \"FORCEFUL\", when the \"changeStateTo\" attribute is equal to \"STOPPED\" and the \"stopType\" attribute is absent.",
+        "x-etsi-ref": "6.2.2.8"
+      },
+      "StopType": {
+        "description": "Signals forceful or graceful stop",
+        "type": "string",
+        "enum": [
+          "FORCEFUL",
+          "GRACEFUL"
+        ]
+      },
+      "ChangeStateTo": {
+        "description": "The desired operational state",
+        "type": "string",
+        "format": "enum",
+        "enum": [
+          "STARTED",
+          "STOPPED"
+        ]
+      },
+      "ProblemDetails": {
+        "properties": {
+          "detail": {
+            "description": "A human-readable explanation specific to this occurrence of the problem",
+            "type": "string",
+            "x-etsi-mec-cardinality": "0..1",
+            "x-etsi-mec-origin-type": "String"
+          },
+          "instance": {
+            "description": "A URI reference that identifies the specific occurrence of the problem",
+            "format": "uri",
+            "type": "string",
+            "x-etsi-mec-cardinality": "0..1",
+            "x-etsi-mec-origin-type": "URI"
+          },
+          "status": {
+            "description": "The HTTP status code for this occurrence of the problem",
+            "format": "uint32",
+            "type": "integer",
+            "x-etsi-mec-cardinality": "0..1",
+            "x-etsi-mec-origin-type": "Uint32"
+          },
+          "title": {
+            "description": "A short, human-readable summary of the problem type",
+            "type": "string",
+            "x-etsi-mec-cardinality": "0..1",
+            "x-etsi-mec-origin-type": "String"
+          },
+          "type": {
+            "description": "A URI reference according to IETF RFC 3986 that identifies the problem type",
+            "format": "uri",
+            "type": "string",
+            "x-etsi-mec-cardinality": "0..1",
+            "x-etsi-mec-origin-type": "URI"
+          }
+        },
+        "type": "object"
+      },
+      "TerminateAppRequest": {
+        "properties": {
+          "gracefulTerminationTimeout": {
+            "description": "This attribute is only applicable in case of graceful termination. It defines the time to wait for the application instance to be taken out of service before shutting down the application and releasing the resources. \nThe unit is seconds.\nIf not given and the \"terminationType\" attribute is set to \"GRACEFUL\", it is expected to wait for the successful taking out of service of the application, no matter how long it takes, before shutting down the application and releasing the resources.",
+            "type": "integer",
+            "x-etsi-mec-cardinality": "0..1",
+            "x-etsi-mec-origin-type": "Integer"
+          },
+          "terminationType": {
+            "$ref": "#/components/schemas/TerminationType"
+          }
+        },
+        "required": [
+          "terminationType"
+        ],
+        "type": "object",
+        "x-etsi-notes": "NOTE:\tIf the application instance is still in service, requesting forceful termination can adversely impact service.",
+        "x-etsi-ref": "6.2.2.9"
+      },
+      "TimeStamp": {
+        "properties": {
+          "nanoSeconds": {
+            "description": "The nanoseconds part of the Time. Time is defined as Unix-time since January 1, 1970, 00:00:00 UTC.",
+            "format": "Uint32",
+            "type": "integer",
+            "x-etsi-mec-cardinality": "1",
+            "x-etsi-mec-origin-type": "Uint32"
+          },
+          "seconds": {
+            "description": "The seconds part of the Time. Time is defined as Unix-time since January 1, 1970, 00:00:00 UTC.",
+            "format": "Uint32",
+            "type": "integer",
+            "x-etsi-mec-cardinality": "1",
+            "x-etsi-mec-origin-type": "Uint32"
+          }
+        },
+        "required": [
+          "seconds",
+          "nanoSeconds"
+        ],
+        "type": "object",
+        "x-etsi-ref": "6.2.5.4"
+      },
+      "TerminationType": {
+        "description": "'Indicates whether forceful or graceful termination is requested.'",
+        "type": "string",
+        "format": "enum",
+        "enum": [
+          "FORCEFUL",
+          "GRACEFUL"
+        ]
+      },
+      "VimConnectionInfo": {
+        "properties": {
+          "accessInfo": {
+            "$ref": "#/components/schemas/KeyValuePairs"
+          },
+          "extra": {
+            "$ref": "#/components/schemas/KeyValuePairs"
+          },
+          "id": {
+            "description": "The identifier of the VIM Connection. This identifier is managed by the MEO.",
+            "type": "string",
+            "x-etsi-mec-cardinality": "1",
+            "x-etsi-mec-origin-type": "String"
+          },
+          "interfaceInfo": {
+            "$ref": "#/components/schemas/KeyValuePairs"
+          },
+          "vimId": {
+            "description": "The identifier of the VIM instance. This identifier is managed by the MEO.Shall be present to address additional information about the VIM if such information has been configured into the MEPM by means outside the scope of the present document, and should be absent otherwise.",
+            "type": "string",
+            "x-etsi-mec-cardinality": "0..1",
+            "x-etsi-mec-origin-type": "String"
+          },
+          "vimType": {
+            "description": "Discriminator for the different types of the VIM information.The value of this attribute determines the structure of the \"interfaceInfo\" and \"accessInfo\" attributes, based on the type of the VIM.The set of permitted values is expected to change over time as new types or versions of VIMs become available. ",
+            "type": "string",
+            "x-etsi-mec-cardinality": "1",
+            "x-etsi-mec-origin-type": "String"
+          }
+        },
+        "required": [
+          "id",
+          "vimType"
+        ],
+        "type": "object",
+        "x-etsi-ref": "6.2.2.18"
+      },
+      "VirtualComputeDescription": {
+        "description": "Ref NFV",
+        "type": "string"
+      },
+      "VirtualStorageDescriptor": {
+        "description": "Ref NFV",
+        "type": "string"
+      },
+      "KeyValuePairs": {
+        "description": "'This data type represents a list of key-value pairs. The order of the pairs in the list is not significant. In JSON, a set of key-value pairs is represented as an object. It shall comply with the provisions defined in clause 4 of IETF RFC 8259'",
+        "type": "object",
+        "additionalProperties": true
+      }
+    },
+    "responses": {
+      "204": {
+        "description": "No Content"
+      },
+      "206": {
+        "description": "Partial content"
+      },
+      "400": {
+        "description": "Bad Request : used to indicate that incorrect parameters were passed to the request.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ProblemDetails"
+            }
+          }
+        }
+      },
+      "401": {
+        "description": "Unauthorized :  used when the client did not submit credentials.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ProblemDetails"
+            }
+          }
+        }
+      },
+      "403": {
+        "description": "Forbidden :  operation is not allowed given the current status of the resource.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ProblemDetails"
+            }
+          }
+        }
+      },
+      "404": {
+        "description": "Not Found :  used when a client provided a URI that cannot be mapped to a valid resource URI.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ProblemDetails"
+            }
+          }
+        }
+      },
+      "406": {
+        "description": "Not Acceptable : used to indicate that the server cannot provide the any of the content formats supported by the client.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ProblemDetails"
+            }
+          }
+        }
+      },
+      "409": {
+        "description": "Conflict : The operation cannot be executed currently, due to a conflict with the state of the resource",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ProblemDetails"
+            }
+          }
+        }
+      },
+      "412": {
+        "description": "Precondition failed :  used when a condition has failed during conditional requests, e.g. when using ETags to avoid write conflicts when using PUT",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ProblemDetails"
+            }
+          }
+        }
+      },
+      "414": {
+        "description": "URI Too Long : used to indicate that the server is refusing to process the request because the request URI is longer than the server is willing or able to process.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ProblemDetails"
+            }
+          }
+        }
+      },
+      "415": {
+        "description": "Unsupported Media Type :  used to indicate that the server or the client does not support the content type of the entity body.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ProblemDetails"
+            }
+          }
+        }
+      },
+      "416": {
+        "description": "Range Not Satisfiable ."
+      },
+      "422": {
+        "description": "Unprocessable Entity : used to indicate that the server understands the content type of the request entity and that the syntax of the request entity is correct but that the server is unable to process the contained instructions. This error condition can occur if an JSON request body is syntactically correct but semantically incorrect, for example if the target area for the request is considered too large. This error condition can also occur if the capabilities required by the request are not supported.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ProblemDetails"
+            },
+            "example": {
+              "application/problem+json": {
+                "problemDetails": {
+                  "type": "https://meAppServer.example.com/rni/v2/probs/too-many targets",
+                  "title": "Too many targets",
+                  "status": "422",
+                  "detail": "The target area for the request is considered too large",
+                  "instance": "/meAppClient.example.com/77777/msgs/abc"
+                }
+              }
+            }
+          }
+        }
+      },
+      "429": {
+        "description": "Too Many Requests : used when a rate limiter has triggered.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ProblemDetails"
+            }
+          }
+        }
+      }
+    }
+  }
+}
