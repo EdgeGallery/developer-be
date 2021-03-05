@@ -36,7 +36,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -46,7 +45,6 @@ import org.springframework.web.multipart.MultipartFile;
 @RestSchema(schemaId = "image")
 @RequestMapping("/mec/developer/v1/image")
 @Api(tags = "image")
-@CrossOrigin
 public class ImageController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ImageController.class);
