@@ -12,11 +12,10 @@ import java.util.Map;
 import java.util.UUID;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.net.ftp.FTPClient;
 import org.edgegallery.developer.common.Consts;
-import org.edgegallery.developer.config.security.AccessUserUtil;
-import org.edgegallery.developer.domain.shared.FileChecker;
 import org.edgegallery.developer.mapper.ProjectMapper;
 import org.edgegallery.developer.mapper.VmConfigMapper;
 import org.edgegallery.developer.model.vm.EnumVmCreateStatus;
@@ -32,23 +31,23 @@ import org.edgegallery.developer.model.workspace.ApplicationProject;
 import org.edgegallery.developer.model.workspace.EnumProjectStatus;
 import org.edgegallery.developer.model.workspace.EnumTestConfigStatus;
 import org.edgegallery.developer.model.workspace.MepHost;
-import org.edgegallery.developer.model.workspace.UploadedFile;
 import org.edgegallery.developer.response.FormatRespDto;
+import org.edgegallery.developer.service.ProjectService;
 import org.edgegallery.developer.service.csar.NewCreateVmCsar;
 import org.edgegallery.developer.service.virtual.create.VmCreateStage;
-import org.edgegallery.developer.util.BusinessConfigUtil;
 import org.edgegallery.developer.util.CompressFileUtilsJava;
 import org.edgegallery.developer.util.DeveloperFileUtils;
 import org.edgegallery.developer.util.HttpClientUtil;
-import org.edgegallery.developer.util.InitConfigUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
-import org.stringtemplate.v4.ST;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.spencerwi.either.Either;
@@ -68,6 +67,8 @@ public class VmService {
     private ProjectMapper projectMapper;
     @Autowired
     private VmService vmService;
+    @Autowired
+    private ProjectService projectService;
 
     @Autowired
     private Map<String, VmCreateStage> createServiceMap;
@@ -285,6 +286,7 @@ public class VmService {
         }
         String projectPath = getProjectPath(projectId);
         DeveloperFileUtils.deleteDir(projectPath + File.separator + vmCreateConfig.getAppInstanceId());
+        DeveloperFileUtils.deleteDir(projectPath + File.separator + vmCreateConfig.getAppInstanceId() + ".csar");
 
         LOGGER.info("delete vm create config success");
         return Either.right(true);
@@ -337,6 +339,35 @@ public class VmService {
             e.printStackTrace();
         }
         return file;
+    }
+
+
+    public Either<FormatRespDto, ResponseEntity<byte[]>> downloadVmCsar(String userId, String projectId, String vmId) {
+        ApplicationProject project = projectMapper.getProject(userId, projectId);
+        if (project == null) {
+            LOGGER.error("Can not find the project by userId {} and projectId {}", userId, projectId);
+            FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "Can not find the project.");
+            return Either.left(error);
+        }
+        VmCreateConfig vmCreateConfig = vmConfigMapper.getVmCreateConfig(projectId, vmId);
+        if (vmCreateConfig==null) {
+            LOGGER.error("Can not find the vm config by vmId {} and projectId {}", vmId, projectId);
+            FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "Can not find the vm config.");
+            return Either.left(error);
+        }
+        String csarFilePath = projectService.getProjectPath(projectId) + vmCreateConfig.getAppInstanceId() + ".csar";
+        File csarFile = new File(csarFilePath);
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.add("Content-Type", MediaType.APPLICATION_OCTET_STREAM_VALUE);
+            headers.add("Content-Disposition", "attachment; filename=" + project.getName() + ".csar");
+            byte[] fileData = FileUtils.readFileToByteArray(csarFile);
+            LOGGER.info("get vm csar package success");
+            return Either.right(ResponseEntity.ok().headers(headers).body(fileData));
+        } catch (IOException e) {
+            LOGGER.error("get vm csar package failed : {}", e.getMessage());
+            return Either.left(new FormatRespDto(Status.BAD_REQUEST, "get vm csar package failed "));
+        }
     }
 }
 

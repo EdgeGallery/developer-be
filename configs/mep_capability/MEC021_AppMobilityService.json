@@ -1,0 +1,1302 @@
+{
+  "info": {
+    "title": "ETSI GS MEC 021 Application Mobility Service API",
+    "version": "2.1.1",
+    "description": "ETSI GS MEC 021 Application Mobility Service API described using OpenAPI.",
+    "license": {
+      "name": "BSD-3-Clause",
+      "url": "https://forge.etsi.org/legal-matters"
+    },
+    "contact": {
+      "name": "ETSI Forge",
+      "email": "cti_support@etsi.org",
+      "url": "https://forge.etsi.org/rep/mec/gs021-amsi-api"
+    }
+  },
+  "externalDocs": {
+    "description": "ETSI GS MEC 021 Application Mobility Service API, v2.1.1",
+    "url": "https://www.etsi.org/deliver/etsi_gs/MEC/001_099/021/02.01.01_60/gs_mec021v020101p.pdf"
+  },
+  "servers": [
+    {
+      "url": "https://localhost/amsi/v1"
+    }
+  ],
+  "openapi": "3.0.0",
+  "tags": [
+    {
+      "name": "adj-app-inst",
+      "description": "Adjacent App instances"
+    },
+    {
+      "name": "app-mob-ser",
+      "description": "Application Mobility Services"
+    },
+    {
+      "name": "app-mob-ser-der",
+      "description": "Application Mobility Services Deregister task"
+    },
+    {
+      "name": "subscriptions",
+      "description": "Subscription for Application Mobility Service"
+    }
+  ],
+  "paths": {
+    "/app_mobility_services": {
+      "get": {
+        "tags": [
+          "app-mob-ser"
+        ],
+        "summary": " Retrieve information about the registered application mobility service.",
+        "description": " Retrieve information about the registered application mobility service.",
+        "operationId": "app_mobility_serviceGET",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "filter",
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "description": "Attribute-based filtering parameters according to ETSI GS MEC 011"
+          },
+          {
+            "in": "query",
+            "name": "all_fields",
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "description": "Include all complex attributes in the response."
+          },
+          {
+            "in": "query",
+            "name": "fields",
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "description": "Complex attributes to be included into the response. See clause 6.18 in ETSI GS MEC 011"
+          },
+          {
+            "in": "query",
+            "name": "exclude_fields",
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "description": "Complex attributes to be excluded from the response.See clause 6.18 in ETSI GS MEC 011"
+          },
+          {
+            "in": "query",
+            "name": "exclude_default",
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "description": "Indicates to exclude the following complex attributes from the response  See clause 6.18 in ETSI GS MEC 011 for details."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Contains in an array the representations of zero or more application mobility services.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/RegistrationInfo"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "406": {
+            "$ref": "#/components/responses/406"
+          },
+          "429": {
+            "$ref": "#/components/responses/429"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "app-mob-ser"
+        ],
+        "summary": "Create a new application mobility service for the service requester.",
+        "description": "Create a new application mobility service for the service requester.",
+        "operationId": "app_mobility_servicePOST",
+        "requestBody": {
+          "description": "Application mobility service to be created",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegistrationInfo"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful response for application mobility service creation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RegistrationInfo"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "406": {
+            "$ref": "#/components/responses/406"
+          },
+          "429": {
+            "$ref": "#/components/responses/429"
+          }
+        }
+      }
+    },
+    "/app_mobility_services/{appMobilityServiceId}": {
+      "parameters": [
+        {
+          "in": "path",
+          "name": "appMobilityServiceId",
+          "schema": {
+            "type": "string"
+          },
+          "required": true,
+          "description": "It uniquely identifies the created individual application mobility service"
+        }
+      ],
+      "get": {
+        "tags": [
+          "app-mob-ser"
+        ],
+        "summary": "Retrieve information about this individual application mobility service",
+        "description": "Retrieve information about this individual application mobility service",
+        "operationId": "app_mobility_service_by_idGET",
+        "responses": {
+          "200": {
+            "description": "Contains a representation of the application mobility service.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RegistrationInfo"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "406": {
+            "$ref": "#/components/responses/406"
+          },
+          "429": {
+            "$ref": "#/components/responses/429"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "app-mob-ser"
+        ],
+        "summary": " update the existing individual application mobility service",
+        "description": " update the existing individual application mobility service",
+        "operationId": "app_mobility_service_by_idPUT",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegistrationInfo"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Contains a data type describing the updated application mobility service.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RegistrationInfo"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "406": {
+            "$ref": "#/components/responses/406"
+          },
+          "412": {
+            "$ref": "#/components/responses/412"
+          },
+          "422": {
+            "$ref": "#/components/responses/422"
+          },
+          "429": {
+            "$ref": "#/components/responses/429"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "app-mob-ser"
+        ],
+        "summary": " deregister the individual application mobility service",
+        "description": " deregister the individual application mobility service",
+        "operationId": "app_mobility_service_by_idDELETE",
+        "responses": {
+          "204": {
+            "$ref": "#/components/responses/204"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "429": {
+            "$ref": "#/components/responses/429"
+          }
+        }
+      }
+    },
+    "/app_mobility_services/{appMobilityServiceId}/deregister_task": {
+      "parameters": [
+        {
+          "in": "path",
+          "name": "appMobilityServiceId",
+          "schema": {
+            "type": "string"
+          },
+          "description": "It uniquely identifies the created individual application mobility service",
+          "required": true
+        }
+      ],
+      "post": {
+        "tags": [
+          "app-mob-ser-der"
+        ],
+        "summary": " deregister the individual application mobility service",
+        "description": " deregister the individual application mobility service",
+        "operationId": "app_mobility_service_derPOST",
+        "responses": {
+          "204": {
+            "$ref": "#/components/responses/204"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "406": {
+            "$ref": "#/components/responses/406"
+          },
+          "429": {
+            "$ref": "#/components/responses/429"
+          }
+        }
+      }
+    },
+    "/subscriptions/": {
+      "get": {
+        "tags": [
+          "subscriptions"
+        ],
+        "summary": "Retrieve information about the subscriptions for this requestor.",
+        "description": "Retrieve information about the subscriptions for this requestor.",
+        "operationId": "subGET",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "subscriptionType",
+            "description": "Query parameter to filter on a specific subscription type. Permitted values: mobility_proc or adj_app_info",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Contains  the list of links to requestor subscriptions.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubscriptionLinkList"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "406": {
+            "$ref": "#/components/responses/406"
+          },
+          "429": {
+            "$ref": "#/components/responses/429"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "subscriptions"
+        ],
+        "summary": "Create a new subscription to Application Mobility Service notifications.",
+        "description": "Create a new subscription to Application Mobility Service notifications.",
+        "operationId": "subPOST",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "$ref": "#/components/schemas/MobilityProcedureSubscription"
+                  },
+                  {
+                    "$ref": "#/components/schemas/AdjacentAppInfoSubscription"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created subscription is described using the appropriate data type",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/MobilityProcedureSubscription"
+                    },
+                    {
+                      "$ref": "#/components/schemas/AdjacentAppInfoSubscription"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "406": {
+            "$ref": "#/components/responses/406"
+          },
+          "415": {
+            "$ref": "#/components/responses/415"
+          },
+          "422": {
+            "$ref": "#/components/responses/422"
+          },
+          "429": {
+            "$ref": "#/components/responses/429"
+          }
+        }
+      }
+    },
+    "/subscriptions/{subscriptionId}": {
+      "parameters": [
+        {
+          "in": "path",
+          "name": "subscriptionId",
+          "description": "Refers to created subscription, where the AMS API allocates a unique resource name for this subscription",
+          "schema": {
+            "type": "string"
+          },
+          "required": true
+        }
+      ],
+      "get": {
+        "tags": [
+          "subscriptions"
+        ],
+        "summary": "Retrieve information about this subscription.",
+        "description": "Retrieve information about this subscription.",
+        "operationId": "sub_byIdGET",
+        "responses": {
+          "200": {
+            "description": "A response body containing data type describing the specific RNI event subscription",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/MobilityProcedureSubscription"
+                    },
+                    {
+                      "$ref": "#/components/schemas/AdjacentAppInfoSubscription"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "406": {
+            "$ref": "#/components/responses/406"
+          },
+          "429": {
+            "$ref": "#/components/responses/429"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "subscriptions"
+        ],
+        "summary": "update the existing individual subscription.",
+        "description": "update the existing individual subscription.",
+        "operationId": "sub_byIdPUT",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "$ref": "#/components/schemas/MobilityProcedureSubscription"
+                  },
+                  {
+                    "$ref": "#/components/schemas/AdjacentAppInfoSubscription"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": " a response body containing data type describing the updated subscription",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/MobilityProcedureSubscription"
+                    },
+                    {
+                      "$ref": "#/components/schemas/AdjacentAppInfoSubscription"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "406": {
+            "$ref": "#/components/responses/406"
+          },
+          "412": {
+            "$ref": "#/components/responses/412"
+          },
+          "422": {
+            "$ref": "#/components/responses/422"
+          },
+          "429": {
+            "$ref": "#/components/responses/429"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "subscriptions"
+        ],
+        "summary": "cancel the existing individual subscription",
+        "description": "cancel the existing individual subscription",
+        "operationId": "sub_byIdDELETE",
+        "responses": {
+          "204": {
+            "$ref": "#/components/responses/204"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "429": {
+            "$ref": "#/components/responses/429"
+          }
+        }
+      }
+    },
+    "/queries/adjacent_app_instances": {
+      "get": {
+        "tags": [
+          "adj-app-inst"
+        ],
+        "summary": "Retrieve information about this subscription.",
+        "description": "Retrieve information about this subscription.",
+        "operationId": "adj_app_instGET",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "filter",
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "description": "Attribute-based filtering parameters according to ETSI GS MEC 011"
+          },
+          {
+            "in": "query",
+            "name": "all_fields",
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "description": "Include all complex attributes in the response."
+          },
+          {
+            "in": "query",
+            "name": "fields",
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "description": "Complex attributes to be included into the response. See clause 6.18 in ETSI GS MEC 011"
+          },
+          {
+            "in": "query",
+            "name": "exclude_fields",
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "description": "Complex attributes to be excluded from the response.See clause 6.18 in ETSI GS MEC 011"
+          },
+          {
+            "in": "query",
+            "name": "exclude_default",
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "description": "Indicates to exclude the following complex attributes from the response  See clause 6.18 in ETSI GS MEC 011 for details."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A response body containing  zero or more adjacent application instances ",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "minItems": 0,
+                  "items": {
+                    "$ref": "#/components/schemas/AdjacentAppInstanceInfo"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "406": {
+            "$ref": "#/components/responses/406"
+          },
+          "429": {
+            "$ref": "#/components/responses/429"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AdjacentAppInfoSubscription.links": {
+        "description": "Hyperlink related to the resource. This shall be only included in the HTTP responses and in HTTP PUT requests.",
+        "x-etsi-mec-cardinality": "0..1",
+        "required": [
+          "self"
+        ],
+        "properties": {
+          "self": {
+            "$ref": "#/components/schemas/LinkType"
+          }
+        }
+      },
+      "AdjacentAppInfoSubscription.filterCriteria": {
+        "description": "List of filtering criteria for the subscription. Any filtering criteria from below, which is included in the request, shall also be included in the response.",
+        "x-etsi-mec-cardinality": "0..1",
+        "properties": {
+          "appInstanceId": {
+            "type": "string"
+          }
+        }
+      },
+      "AdjacentAppInfoSubscription": {
+        "properties": {
+          "_links": {
+            "$ref": "#/components/schemas/AdjacentAppInfoSubscription.links"
+          },
+          "callbackReference": {
+            "description": "URI selected by the service consumer to receive notifications on the subscribed Application Mobility Service. This shall be included both in the request and in response.",
+            "format": "uri",
+            "type": "string",
+            "x-etsi-mec-cardinality": "1",
+            "x-etsi-mec-origin-type": "URI"
+          },
+          "expiryDeadline": {
+            "$ref": "#/components/schemas/TimeStamp"
+          },
+          "filterCriteria": {
+            "$ref": "#/components/schemas/AdjacentAppInfoSubscription.filterCriteria"
+          },
+          "subscriptionType": {
+            "description": "Shall be set to \"AdjacentAppInfoSubscription\".",
+            "type": "string",
+            "enum": [
+              "AdjacentAppInfoSubscription"
+            ],
+            "x-etsi-mec-cardinality": "1",
+            "x-etsi-mec-origin-type": "String"
+          }
+        },
+        "required": [
+          "subscriptionType",
+          "callbackReference",
+          "filterCriteria"
+        ],
+        "type": "object",
+        "x-etsi-ref": "7.3.3"
+      },
+      "AdjacentAppInstanceInfo": {
+        "properties": {
+          "appDId": {
+            "description": "Identifier of the application descriptor.",
+            "type": "string",
+            "x-etsi-mec-cardinality": "1",
+            "x-etsi-mec-origin-type": "String"
+          },
+          "appInstanceCommLink": {
+            "description": "It specifies the communication interface of application instance.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CommunicationInterface"
+            },
+            "minItems": 1
+          },
+          "appInstanceId": {
+            "description": "Identifier of the application instance.",
+            "type": "string",
+            "x-etsi-mec-cardinality": "1",
+            "x-etsi-mec-origin-type": "String"
+          },
+          "mecHostInformation": {
+            "$ref": "#/components/schemas/MECHostInformation"
+          }
+        },
+        "required": [
+          "appInstanceId",
+          "appDId",
+          "appInstanceCommLink"
+        ],
+        "type": "object",
+        "x-etsi-ref": "7.2.3"
+      },
+      "AppMobilityServiceLevel": {
+        "description": "This attribute provides an option for the application instance (server) to communicate with the application client before relocating this application instance to another MEC host.",
+        "enum": [
+          "APP_MOBILITY_NOT_ALLOWED",
+          "APP_MOBILITY_WITH_CONFIRMATION",
+          "APP_MOBILITY_WITHOUT_CONFIRMATION"
+        ],
+        "type": "string",
+        "x-etsi-notes": "APP_MOBILITY_NOT_ALLOWED: the current serving application instance continues to deliver the service to the device. The AMS will inform the MEP to perform the traffic steering to the device when the UE moves cross MEC hosts. − APP_MOBILITY_WITH_CONFIRMATION: the serving application instance is allowed to change with the confirmation by the application once the device mobility happens. The AMS then will inform the MEP to update the traffic routing to the target application instance and clean up the previous resource allocated to the application instance serving to the device after the serving application instance has been changed. − APP_MOBILITY_WITHOUT_CONFIRMATION: the serving application instance is allowed to change without confirmation from the application instance when the device mobility happens. The AMS will notify to the MEP to update the traffic routing to the target application instance and clean up the previous resource allocated to the application instance serving to the device after the serving application instance has been changed."
+      },
+      "CommunicationInterface.IpAddresses": {
+        "required": [
+          "host",
+          "port"
+        ],
+        "properties": {
+          "host": {
+            "type": "string"
+          },
+          "port": {
+            "type": "integer"
+          }
+        }
+      },
+      "CommunicationInterface": {
+        "properties": {
+          "ipAddresses": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CommunicationInterface.IpAddresses"
+            }
+          }
+        }
+      },
+      "MobilityProcedureSubscription.links": {
+        "properties": {
+          "self": {
+            "$ref": "#/components/schemas/LinkType"
+          }
+        },
+        "required": [
+          "self"
+        ]
+      },
+      "MobilityProcedureSubscription.filterCriteria": {
+        "x-etsi-mec-cardinality": "1",
+        "description": "List of filtering criteria for the subscription. Any filtering criteria from below, which is included in the request, shall also be included in the response.",
+        "properties": {
+          "appInstanceId": {
+            "description": "Identifier of the application instance that registers the application mobility service.",
+            "type": "string",
+            "x-etsi-mec-cardinality": "0..1"
+          },
+          "associateId": {
+            "description": "0 to N identifiers to associate the information for specific UE(s) and flow(s).",
+            "items": {
+              "$ref": "#/components/schemas/AssociateId"
+            },
+            "minItems": 0,
+            "type": "array",
+            "x-etsi-mec-cardinality": "0..N"
+          },
+          "mobilityStatus": {
+            "description": "In case mobilityStatus is not included in the subscription request, the default value 1 = INTER_HOST_MOBILITY_TRIGGERED shall be used and included in the response.",
+            "items": {
+              "$ref": "#/components/schemas/MobilityStatus"
+            },
+            "minItems": 0,
+            "type": "array",
+            "x-etsi-mec-cardinality": "0..N"
+          }
+        }
+      },
+      "MobilityProcedureSubscription": {
+        "type": "object",
+        "x-etsi-ref": "7.3.2",
+        "properties": {
+          "_links": {
+            "$ref": "#/components/schemas/MobilityProcedureSubscription.links"
+          },
+          "callbackReference": {
+            "description": "URI selected by the service consumer to receive notifications on the subscribed Application Mobility Service. This shall be included both in the request and in response.",
+            "format": "uri",
+            "type": "string",
+            "x-etsi-mec-cardinality": "1",
+            "x-etsi-mec-origin-type": "URI"
+          },
+          "expiryDeadline": {
+            "$ref": "#/components/schemas/TimeStamp"
+          },
+          "filterCriteria": {
+            "$ref": "#/components/schemas/MobilityProcedureSubscription.filterCriteria"
+          },
+          "subscriptionType": {
+            "description": "Shall be set to \"MobilityProcedureSubscription\".",
+            "type": "string",
+            "enum": [
+              "MobilityProcedureSubscription"
+            ],
+            "x-etsi-mec-cardinality": "1",
+            "x-etsi-mec-origin-type": "String"
+          }
+        },
+        "required": [
+          "subscriptionType",
+          "callbackReference",
+          "filterCriteria"
+        ]
+      },
+      "MobilityStatus": {
+        "description": "Indicate the status of the UE mobility",
+        "enum": [
+          "INTERHOST_MOVEOUT_TRIGGERED",
+          "INTERHOST_MOVEOUT_COMPLETED",
+          "INTERHOST_MOVEOUT_FAILED"
+        ],
+        "type": "string"
+      },
+      "RegistrationInfo.deviceInformation": {
+        "required": [
+          "serviceConsumerId",
+          "associateId"
+        ],
+        "properties": {
+          "associateId": {
+            "$ref": "#/components/schemas/AssociateId"
+          },
+          "appMobilityServiceLevel": {
+            "$ref": "#/components/schemas/AppMobilityServiceLevel"
+          },
+          "contextTransferState": {
+            "$ref": "#/components/schemas/contextTransferState"
+          }
+        }
+      },
+      "RegistrationInfo.serviceConsumerId": {
+        "description": "The identifier of service consumer requesting the application mobility service, i.e. either the application instance ID or the MEC platform ID.",
+        "properties": {
+          "appInstanceId": {
+            "description": "If present, it represents the identifier of the application instance registering the application mobility service.",
+            "type": "string",
+            "x-etsi-mec-cardinality": "0..1"
+          },
+          "mepId": {
+            "description": "If present, it represents the identifier of the MEC platform registering the application mobility service.",
+            "type": "string",
+            "x-etsi-mec-cardinality": "0..1"
+          }
+        }
+      },
+      "RegistrationInfo": {
+        "type": "object",
+        "properties": {
+          "appMobilityServiceId": {
+            "description": "The identifier of registered application mobility service. Shall be absent in POST requests, and present otherwise.",
+            "type": "string",
+            "x-etsi-mec-cardinality": "0..1",
+            "x-etsi-mec-origin-type": "String"
+          },
+          "deviceInformation": {
+            "description": "If present, it specifies the device served by the application instance which is registering the application mobility service.",
+            "type": "array",
+            "minItems": 0,
+            "items": {
+              "$ref": "#/components/schemas/RegistrationInfo.deviceInformation"
+            }
+          },
+          "expiryTime": {
+            "description": "If present, it indicates the time of application mobility service expiration from the time of registration accepted.The value \"0\" means infinite time, i.e. no expiration.The unit of expiry time is one second.",
+            "format": "Uint32",
+            "type": "integer",
+            "x-etsi-mec-cardinality": "0..1",
+            "x-etsi-mec-origin-type": "Uint32"
+          },
+          "serviceConsumerId": {
+            "$ref": "#/components/schemas/RegistrationInfo.serviceConsumerId"
+          }
+        },
+        "required": [
+          "serviceConsumerId"
+        ],
+        "x-etsi-notes": "NOTE:\tThe data type of AssociateId is defined in ETSI GS MEC 012 [6].",
+        "x-etsi-ref": "7.2.2"
+      },
+      "SubscriptionLinkList.links": {
+        "description": "List of hyperlinks related to the resource.",
+        "properties": {
+          "self": {
+            "$ref": "#/components/schemas/LinkType"
+          }
+        },
+        "required": [
+          "self"
+        ]
+      },
+      "SubscriptionLinkList.subscription": {
+        "properties": {
+          "href": {
+            "description": "The URI referring to the subscription.",
+            "format": "uri",
+            "type": "string",
+            "x-etsi-mec-cardinality": "1"
+          },
+          "subscriptionType": {
+            "$ref": "#/components/schemas/subscriptionType"
+          }
+        },
+        "required": [
+          "href",
+          "subscriptionType"
+        ]
+      },
+      "SubscriptionLinkList": {
+        "properties": {
+          "_links": {
+            "$ref": "#/components/schemas/SubscriptionLinkList.links"
+          },
+          "subscription": {
+            "description": "A link to a subscription.",
+            "type": "array",
+            "minItems": 0,
+            "items": {
+              "$ref": "#/components/schemas/SubscriptionLinkList.subscription"
+            },
+            "x-etsi-mec-cardinality": "0..N"
+          }
+        },
+        "required": [
+          "_links"
+        ],
+        "x-etsi-ref": "7.3.4"
+      },
+      "contextTransferState": {
+        "description": "If present, it represents the state of transferring the user context to another application instance.",
+        "enum": [
+          "NOT_TRANSFERRED",
+          "USER_CONTEXT_TRANSFER_COMPLETED"
+        ],
+        "type": "string"
+      },
+      "subscriptionType": {
+        "description": "Numeric value (0 - 255) corresponding to specified type of subscription as following: 0 = RESERVED. 1 = MOBILITY_PROCEDURE. 2 = ADJACENT_APPINFO. ",
+        "enum": [
+          0,
+          1,
+          2
+        ],
+        "type": "integer"
+      },
+      "Seconds": {
+        "description": "'The seconds part of the Time. Time is defined as Unix-time since January 1, 1970, 00:00:00 UTC.'",
+        "type": "integer",
+        "format": "uint32"
+      },
+      "NanoSeconds": {
+        "description": "'The nanoseconds part of the Time. Time is defined as Unix-time since January 1, 1970, 00:00:00 UTC.'",
+        "type": "integer",
+        "format": "uint32"
+      },
+      "HostName": {
+        "description": "Human-readable name of MEC host.",
+        "type": "string"
+      },
+      "KeyValuePairs": {
+        "description": "'This data type represents a list of key-value pairs. The order of the pairs in the list is not significant. In JSON, a set of key-value pairs is represented as an object. It shall comply with the provisions defined in clause 4 of IETF RFC 8259'",
+        "type": "object",
+        "additionalProperties": true
+      },
+      "AssociateId": {
+        "properties": {
+          "type": {
+            "description": "Numeric value (0-255) corresponding to specified type of identifier",
+            "enum": [
+              "UE_IPv4_ADDRESS",
+              "UE_IPV6_ADDRESS",
+              "NATED_IP_ADDRESS",
+              "GTP_TEID"
+            ],
+            "type": "string",
+            "x-etsi-mec-cardinality": "1",
+            "x-etsi-mec-origin-type": "Enum"
+          },
+          "value": {
+            "description": "Value for the identifier.",
+            "type": "string",
+            "x-etsi-mec-cardinality": "1",
+            "x-etsi-mec-origin-type": "String"
+          }
+        },
+        "required": [
+          "type",
+          "value"
+        ],
+        "type": "object",
+        "x-etsi-ref": "6.5.4"
+      },
+      "LinkType": {
+        "description": "'This data type represents a type of link'",
+        "type": "object",
+        "required": [
+          "href"
+        ],
+        "properties": {
+          "href": {
+            "$ref": "#/components/schemas/Href"
+          }
+        }
+      },
+      "Href": {
+        "description": "The URI referring to the subscription.",
+        "type": "string",
+        "format": "uri"
+      },
+      "TimeStamp": {
+        "description": "'This data type represents the time stamp as Unix-time since January 1, 1970, 00:00:00 UTC'",
+        "type": "object",
+        "required": [
+          "seconds",
+          "nanoSeconds"
+        ],
+        "properties": {
+          "seconds": {
+            "$ref": "#/components/schemas/Seconds"
+          },
+          "nanoSeconds": {
+            "$ref": "#/components/schemas/NanoSeconds"
+          }
+        }
+      },
+      "MECHostInformation": {
+        "description": "'The data type represents the parameters of MEC host information.'",
+        "type": "object",
+        "required": [
+          "hostId"
+        ],
+        "properties": {
+          "hostName": {
+            "$ref": "#/components/schemas/HostName"
+          },
+          "hostId": {
+            "$ref": "#/components/schemas/KeyValuePairs"
+          }
+        }
+      },
+      "ProblemDetails": {
+        "properties": {
+          "detail": {
+            "description": "A human-readable explanation specific to this occurrence of the problem",
+            "type": "string",
+            "x-etsi-mec-cardinality": "0..1",
+            "x-etsi-mec-origin-type": "String"
+          },
+          "instance": {
+            "description": "A URI reference that identifies the specific occurrence of the problem",
+            "format": "uri",
+            "type": "string",
+            "x-etsi-mec-cardinality": "0..1",
+            "x-etsi-mec-origin-type": "URI"
+          },
+          "status": {
+            "description": "The HTTP status code for this occurrence of the problem",
+            "format": "uint32",
+            "type": "integer",
+            "x-etsi-mec-cardinality": "0..1",
+            "x-etsi-mec-origin-type": "Uint32"
+          },
+          "title": {
+            "description": "A short, human-readable summary of the problem type",
+            "type": "string",
+            "x-etsi-mec-cardinality": "0..1",
+            "x-etsi-mec-origin-type": "String"
+          },
+          "type": {
+            "description": "A URI reference according to IETF RFC 3986 that identifies the problem type",
+            "format": "uri",
+            "type": "string",
+            "x-etsi-mec-cardinality": "0..1",
+            "x-etsi-mec-origin-type": "URI"
+          }
+        },
+        "type": "object"
+      }
+    },
+    "responses": {
+      "204": {
+        "description": "No Content"
+      },
+      "206": {
+        "description": "Partial content"
+      },
+      "400": {
+        "description": "Bad Request : used to indicate that incorrect parameters were passed to the request.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ProblemDetails"
+            }
+          }
+        }
+      },
+      "401": {
+        "description": "Unauthorized :  used when the client did not submit credentials.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ProblemDetails"
+            }
+          }
+        }
+      },
+      "403": {
+        "description": "Forbidden :  operation is not allowed given the current status of the resource.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ProblemDetails"
+            }
+          }
+        }
+      },
+      "404": {
+        "description": "Not Found :  used when a client provided a URI that cannot be mapped to a valid resource URI.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ProblemDetails"
+            }
+          }
+        }
+      },
+      "406": {
+        "description": "Not Acceptable : used to indicate that the server cannot provide the any of the content formats supported by the client.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ProblemDetails"
+            }
+          }
+        }
+      },
+      "409": {
+        "description": "Conflict : The operation cannot be executed currently, due to a conflict with the state of the resource",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ProblemDetails"
+            }
+          }
+        }
+      },
+      "412": {
+        "description": "Precondition failed :  used when a condition has failed during conditional requests, e.g. when using ETags to avoid write conflicts when using PUT",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ProblemDetails"
+            }
+          }
+        }
+      },
+      "415": {
+        "description": "Unsupported Media Type :  used to indicate that the server or the client does not support the content type of the entity body.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ProblemDetails"
+            }
+          }
+        }
+      },
+      "422": {
+        "description": "Unprocessable Entity : used to indicate that the server understands the content type of the request entity and that the syntax of the request entity is correct but that the server is unable to process the contained instructions. This error condition can occur if an JSON request body is syntactically correct but semantically incorrect, for example if the target area for the request is considered too large. This error condition can also occur if the capabilities required by the request are not supported.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ProblemDetails"
+            }
+          }
+        }
+      },
+      "429": {
+        "description": "Too Many Requests : used when a rate limiter has triggered.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ProblemDetails"
+            }
+          }
+        }
+      }
+    }
+  }
+}

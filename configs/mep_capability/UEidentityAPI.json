@@ -1,0 +1,310 @@
+{
+  "openapi": "3.0.2",
+  "info": {
+    "title": "UE Identity API",
+    "version": "1.1.1",
+    "description": "The ETSI MEC ISG MEC014 UE Identity API described using OpenAPI",
+    "license": {
+      "name": "BSD-3-Clause",
+      "url": "https://forge.etsi.org/legal-matters"
+    },
+    "contact": {
+      "email": "cti_support@etsi.org"
+    }
+  },
+  "externalDocs": {
+    "description": "ETSI GS MEC014 UE Identity API, V1.1.1",
+    "url": "http://www.etsi.org/deliver/etsi_gs/MEC/001_099/014/01.01.01_60/gs_mec014v010101p.pdf"
+  },
+  "security": [
+    {
+      "OauthSecurity": [
+        "all"
+      ]
+    }
+  ],
+  "servers": [
+    {
+      "url": "http://127.0.0.1:8081/ui/v1"
+    },
+    {
+      "url": "https://127.0.0.1:8081/ui/v1"
+    }
+  ],
+  "tags": [
+    {
+      "name": "ueIdentityTagInfo"
+    }
+  ],
+  "paths": {
+    "/{appInstanceId}/ue_identity_tag_info": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/Path.AppInstanceId"
+        }
+      ],
+      "get": {
+        "description": "Retrieves information about a specific UeIdentityTagInfo resource",
+        "operationId": "UeIdentityTagInfo_GET",
+        "tags": [
+          "ueIdentityTagInfo"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Query.UeIdentityTag"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "It is used to indicate nonspecific success. The response body contains a representation of the UeIdentityTagInfo resource.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UeIdentityTagInfo"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error.400"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error.403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error.404"
+          }
+        }
+      },
+      "put": {
+        "description": "Register/De-register the information about specific a UeIdentityTagInfo resource",
+        "operationId": "UeIdentityTagInfo_PUT",
+        "tags": [
+          "ueIdentityTagInfo"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UeIdentityTagInfo"
+              }
+            }
+          },
+          "description": "'The updated \"state\" for each included UE Identity tag is included in the entity body of the request'",
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "It is used to indicate success. The response body contains a representation of the UeIdentityTagInfo resource",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UeIdentityTagInfo"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error.400"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error.403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error.404"
+          },
+          "412": {
+            "$ref": "#/components/responses/Error.412"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "parameters": {
+      "Path.AppInstanceId": {
+        "name": "appInstanceId",
+        "in": "path",
+        "description": "Represents a mobile edge application instance",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      },
+      "Query.UeIdentityTag": {
+        "name": "ueIdentityTag",
+        "in": "query",
+        "description": "Represents a UE",
+        "required": true,
+        "schema": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "responses": {
+      "Error.400": {
+        "description": "Bad Request. Incorrect parameters were passed in the request.In the returned ProblemDetails structure, the \"detail\" attribute should convey more information about the error.",
+        "content": {
+          "application/problem+json": {
+            "schema": {
+              "$ref": "#/components/schemas/ProblemDetails"
+            }
+          },
+          "text/plain": {
+            "schema": {
+              "$ref": "#/components/schemas/Empty"
+            }
+          }
+        }
+      },
+      "Error.403": {
+        "description": "Forbidden. The operation is not allowed given the current status of the resource. More information should be provided in the \"detail\" attribute of the \"ProblemDetails\" structure.",
+        "content": {
+          "application/problem+json": {
+            "schema": {
+              "$ref": "#/components/schemas/ProblemDetails"
+            }
+          }
+        }
+      },
+      "Error.404": {
+        "description": "Not Found. The client provided a URI that cannot be mapped to a valid resource URL. In the returned ProblemDetails structure, the \"detail\" attribute should convey more information about the error.",
+        "content": {
+          "application/problem+json": {
+            "schema": {
+              "$ref": "#/components/schemas/ProblemDetails"
+            }
+          },
+          "text/plain": {
+            "schema": {
+              "$ref": "#/components/schemas/Empty"
+            }
+          }
+        }
+      },
+      "Error.412": {
+        "description": "Precondition Failed. It is used when a condition has failed during conditional requests, e.g. when using ETags to avoid write conflicts.In the returned ProblemDetails structure, the \"detail\" attribute should convey more information about the error.",
+        "content": {
+          "application/problem+json": {
+            "schema": {
+              "$ref": "#/components/schemas/ProblemDetails"
+            }
+          },
+          "text/plain": {
+            "schema": {
+              "$ref": "#/components/schemas/Empty"
+            }
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "OauthSecurity": {
+        "type": "oauth2",
+        "flows": {
+          "clientCredentials": {
+            "tokenUrl": "https://oauth.exampleAPI/token",
+            "scopes": {
+              "all": "Single oauth2 scope for API"
+            }
+          }
+        }
+      }
+    },
+    "schemas": {
+      "Empty": {
+        "description": "Empty schema"
+      },
+      "ProblemDetails": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "$ref": "#/components/schemas/Problem.type"
+          },
+          "title": {
+            "$ref": "#/components/schemas/Problem.title"
+          },
+          "status": {
+            "$ref": "#/components/schemas/Problem.status"
+          },
+          "detail": {
+            "$ref": "#/components/schemas/Problem.detail"
+          },
+          "instance": {
+            "$ref": "#/components/schemas/Problem.instance"
+          }
+        }
+      },
+      "Problem.type": {
+        "type": "string",
+        "format": "uri",
+        "description": "A URI reference according to IETF RFC 3986 that identifies the problem type"
+      },
+      "Problem.title": {
+        "type": "string",
+        "description": "A short, human-readable summary of the problem type"
+      },
+      "Problem.status": {
+        "type": "integer",
+        "format": "uint32",
+        "description": "The HTTP status code for this occurrence of the problem"
+      },
+      "Problem.detail": {
+        "type": "string",
+        "description": "A human-readable explanation specific to this occurrence of the problem"
+      },
+      "Problem.instance": {
+        "type": "string",
+        "format": "uri",
+        "description": "A URI reference that identifies the specific occurrence of the problem"
+      },
+      "UeIdentityTagInfo": {
+        "description": "information of UE identity tag used in UE Identity feature",
+        "type": "object",
+        "required": [
+          "ueIdentityTags"
+        ],
+        "properties": {
+          "ueIdentityTags": {
+            "$ref": "#/components/schemas/UeIdentityTags"
+          }
+        }
+      },
+      "UeIdentityTags": {
+        "description": "1 to N tags presented by a ME Application instance to a ME Platform",
+        "type": "array",
+        "items": {
+          "required": [
+            "ueIdentityTag",
+            "state"
+          ],
+          "properties": {
+            "ueIdentityTag": {
+              "$ref": "#/components/schemas/UeIdentityTag"
+            },
+            "state": {
+              "$ref": "#/components/schemas/State"
+            }
+          }
+        }
+      },
+      "UeIdentityTag": {
+        "description": "Specific tag presented by a ME Application instance to a ME Platform",
+        "type": "string",
+        "example": "UeTagA"
+      },
+      "State": {
+        "description": "Status of the resource ueIdentityTagInfo",
+        "type": "string",
+        "enum": [
+          "UNREGISTERED",
+          "REGISTERED"
+        ],
+        "example": "REGISTERED"
+      }
+    }
+  }
+}
