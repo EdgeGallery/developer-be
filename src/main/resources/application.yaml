@@ -66,3 +66,7 @@ security:
 imagelocation:
   domainname: ${DOMAIN_NAME:swr.ap-southeast-1.myhuaweicloud.com}
   project: ${PROJECT:edgegallery}
+
+upload:
+  path: /usr/app/images
+  tempPath: /usr/app/tmp
