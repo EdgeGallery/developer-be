@@ -25,7 +25,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.io.FileUtils;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.apache.tomcat.util.http.fileupload.servlet.ServletFileUpload;
@@ -66,7 +65,7 @@ public class ImageController {
     })
     @RequestMapping(value = "/upload", method = RequestMethod.POST)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
-    public ResponseEntity uploadImage(HttpServletRequest request, HttpServletResponse response, Chunk chunk)
+    public ResponseEntity uploadImage(HttpServletRequest request, Chunk chunk)
         throws IOException {
         boolean isMultipart = ServletFileUpload.isMultipartContent(request);
         if (isMultipart) {
@@ -87,14 +86,6 @@ public class ImageController {
             File outFile = new File(filePathTemp + File.separator + chunk.getIdentifier(), chunkNumber + ".part");
             InputStream inputStream = file.getInputStream();
             FileUtils.copyInputStreamToFile(inputStream, outFile);
-        }
-        if (request.getMethod().equals("OPTIONS") || request.getMethod().equals("POST")) {
-            response.setHeader("Access-Control-Allow-Origin", "*");
-            response.setHeader("Access-Control-Allow-Methods", "GET,HEAD,POST,PUT, PATCH,DELETE,OPTIONS,TRACE");
-            response.setHeader("Access-Control-Allow-Headers", "*");
-            response.setHeader("Access-Control-Max-Age", "86400");
-            response.setStatus(HttpServletResponse.SC_OK);
-            return ResponseEntity.ok().build();
         }
         return ResponseEntity.ok().build();
     }
