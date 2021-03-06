@@ -65,7 +65,8 @@ public class ImageController {
     })
     @RequestMapping(value = "/upload", method = RequestMethod.POST)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
-    public ResponseEntity uploadImage(HttpServletRequest request, Chunk chunk) throws IOException {
+    public ResponseEntity uploadImage(HttpServletRequest request, Chunk chunk)
+        throws IOException {
         boolean isMultipart = ServletFileUpload.isMultipartContent(request);
         if (isMultipart) {
             MultipartFile file = chunk.getFile();
