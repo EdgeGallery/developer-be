@@ -2,29 +2,48 @@ package org.edgegallery.developer.service.websshimpl;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.jcraft.jsch.Channel;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
+import com.spencerwi.either.Either;
+import org.edgegallery.developer.mapper.ProjectMapper;
+import org.edgegallery.developer.mapper.VmConfigMapper;
+import org.edgegallery.developer.model.vm.EnumVmCreateStatus;
+import org.edgegallery.developer.model.vm.VmCreateConfig;
+import org.edgegallery.developer.model.vm.VmInfo;
+import org.edgegallery.developer.model.workspace.ApplicationProject;
+import org.edgegallery.developer.model.workspace.EnumDeployPlatform;
+import org.edgegallery.developer.model.workspace.MepHost;
+import org.edgegallery.developer.model.workspace.ProjectTestConfig;
+import org.edgegallery.developer.response.FormatRespDto;
+import org.edgegallery.developer.service.virtual.VmService;
 import org.edgegallery.developer.util.webssh.constant.ConstantPool;
 import org.edgegallery.developer.model.SSHConnectInfo;
 import org.edgegallery.developer.model.WebSSHData;
 import org.edgegallery.developer.service.WebSSHService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.reflect.Type;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import javax.ws.rs.core.Response.Status;
 
 
 @Service
@@ -32,14 +51,22 @@ public class WebSSHServiceImpl implements WebSSHService {
     //存放ssh连接信息的map
     private static Map<String, Object> sshMap = new ConcurrentHashMap<>();
 
-    private static String HOST = "119.8.63.144";
     private static int PORT = 22;
-    private static String USERNAME = "root";
-    private static String PASSWORD = "CLpn1b81";
+    private String  ip;
+    private String username;
+    private String password;
 
     private Logger logger = LoggerFactory.getLogger(WebSSHServiceImpl.class);
     //线程池
     private ExecutorService executorService = Executors.newCachedThreadPool();
+
+    private static Gson gson = new Gson();
+
+    @Autowired
+    private ProjectMapper projectMapper;
+
+    @Autowired
+    private VmConfigMapper vmConfigMapper;
 
 
     @Override
@@ -129,12 +156,48 @@ public class WebSSHServiceImpl implements WebSSHService {
         String userId = webSSHData.getUserId();
         String projectId = webSSHData.getProjectId();
         System.out.println(userId + "--"+ projectId);
+//        String username ="";
+//        String host = "";
+//        String password = "";
+
+        ApplicationProject project = projectMapper.getProject(userId, projectId);
+        if (project.getDeployPlatform()== EnumDeployPlatform.KUBERNETES) {
+            List<ProjectTestConfig> testConfigList = projectMapper.getTestConfigByProjectId(projectId);
+            if (CollectionUtils.isEmpty(testConfigList)) {
+                logger.info("This project has not test config.");
+                return;
+            }
+            ProjectTestConfig testConfig = testConfigList.get(0);
+            Type type = new TypeToken<List<MepHost>>() { }.getType();
+            List<MepHost> hosts = gson.fromJson(gson.toJson(testConfig.getHosts()), type);
+            MepHost host = hosts.get(0);
+            this.ip = host.getIp();
+            this.username = host.getUserName();
+            this.password = host.getPassword();
+        }else {
+            List<VmCreateConfig> vmCreateConfigs = vmConfigMapper.getVmCreateConfigs(projectId);
+            if (CollectionUtils.isEmpty(vmCreateConfigs)) {
+                logger.info("This project has not vm create config.");
+                return;
+            }
+            VmCreateConfig vmCreateConfig = vmCreateConfigs.get(0);
+            if(vmCreateConfig.getStatus()!= EnumVmCreateStatus.SUCCESS) {
+                logger.info("the vm is creating or create fail.");
+                return;
+            }
+            Type type = new TypeToken<List<VmInfo>>() { }.getType();
+            List<VmInfo> vmInfos = gson.fromJson(gson.toJson(vmCreateConfig.getVmInfo()), type);
+            VmInfo vmInfo = vmInfos.get(0);
+            this.ip = vmInfo.getVncUrl();
+            this.username = "root";
+            this.password = "root";
+        }
 
 
-        session = sshConnectInfo.getjSch().getSession(USERNAME, HOST, PORT);
+        session = sshConnectInfo.getjSch().getSession(this.username, this.ip, PORT);
         session.setConfig(config);
         //设置密码
-        session.setPassword(PASSWORD);
+        session.setPassword(this.password);
         //连接  超时时间30s
         session.connect(30000);
 
