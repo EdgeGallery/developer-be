@@ -202,10 +202,10 @@
     <insert id="saveVmImageConfig"
       parameterType="org.edgegallery.developer.model.vm.VmImageConfig">
         insert into
-        tbl_project_vm_image_config (vm_id, project_id, vm_name, image_name, app_instance_id, lcm_token, status, stage_status)
+        tbl_project_vm_image_config (vm_id, project_id, vm_name, app_instance_id, lcm_token, status, stage_status)
         values
         ( #{vmId}, #{projectId},
-        #{vmName}, #{imageName}, #{appInstanceId}, #{lcmToken}, #{status},
+        #{vmName}, #{appInstanceId}, #{lcmToken}, #{status},
         #{stageStatus, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonTypeHandler})
     </insert>
 
@@ -229,8 +229,8 @@
         SET
         status = #{status}, stage_status =
         #{stageStatus, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonTypeHandler},
-        host_ip = #{hostIp}, image_id = #{imageId}, sumChunkNum = #{sum_chunk_num}, chunk_size = #{chunk_size},
-        create_time = #{createTime}, log = #{log}
+        host_ip = #{hostIp}, image_id = #{imageId}, sum_chunk_num = #{sumChunkNum}, chunk_size = #{chunkSize},
+        create_time = #{createTime}, log = #{log}, image_name = #{imageName}
         WHERE
         vm_id = #{vmId}
     </update>

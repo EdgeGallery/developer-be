@@ -19,7 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-@Service
+@Service("vm_createImageInfo_service")
 public class VmImageCreate implements VmImageStage{
     private static final Logger LOGGER = LoggerFactory.getLogger(VmImageCreate.class);
 
@@ -65,6 +65,8 @@ public class VmImageCreate implements VmImageStage{
 //            }
             // update status when instantiate success
             imageConfig.setCreateTime(new Date());
+            // set imageId
+            imageConfig.setImageId("123456");
             processSuccess = true;
             instantiateStatus = EnumTestConfigStatus.Success;
         } catch (Exception e) {

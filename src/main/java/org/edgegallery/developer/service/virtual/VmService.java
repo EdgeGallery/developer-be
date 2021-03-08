@@ -487,13 +487,14 @@ public class VmService {
 
         VmImageConfig vmImageConfig = new VmImageConfig();
         vmImageConfig.setVmId(vmCreateConfig.getVmId());
+        vmImageConfig.setVmName(vmCreateConfig.getVmName());
         vmImageConfig.setAppInstanceId(vmCreateConfig.getAppInstanceId());
         vmImageConfig.setLcmToken(token);
         vmImageConfig.setProjectId(projectId);
         vmImageConfig.setStatus(EnumVmImportStatus.CREATING);
         VmImportStageStatus stageStatus = new VmImportStageStatus();
         vmImageConfig.setStageStatus(stageStatus);
-        int tes = vmConfigMapper.saveVmImageConfig(vmCreateConfig);
+        int tes = vmConfigMapper.saveVmImageConfig(vmImageConfig);
         if (tes < 1) {
             LOGGER.error("create vm config {} failed.", vmCreateConfig.getVmId());
         }
