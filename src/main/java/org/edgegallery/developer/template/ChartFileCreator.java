@@ -51,6 +51,10 @@ public class ChartFileCreator implements BaseFileCreator {
 
     private String configMapName;
 
+    private String imageDomainName;
+
+    private String imageProject;
+
     private Map<String, String> yamlNameToContentMap = new HashMap<>();
 
     public ChartFileCreator(String chartName) {
@@ -92,7 +96,9 @@ public class ChartFileCreator implements BaseFileCreator {
             FileUtils.readFileToString(chartValues, Consts.FILE_ENCODING).replace("<IS_MEP_AGENT>", isMepAgent)
                 .replace("<IS_NAMESPACE>", isNamespace)
                 .replace("<NAMESPACE>", namespace)
-                .replace("<CONFIGMAP_NAME>", configMapName), Consts.FILE_ENCODING);
+                .replace("<CONFIGMAP_NAME>", configMapName)
+                .replace("<IMAGE_DOMAIN_NAME>", imageDomainName)
+                .replace("<IMAGE_PROJECT>", imageProject), Consts.FILE_ENCODING);
     }
 
     private void replaceChartYaml() throws IOException {
@@ -110,11 +116,14 @@ public class ChartFileCreator implements BaseFileCreator {
     /**
      * setChartValues.
      */
-    public void setChartValues(String isMepAgent, String isNamespace, String namespace, String configMapName) {
+    public void setChartValues(String isMepAgent, String isNamespace, String namespace, String configMapName,
+        String imageDomainName, String imageProject) {
         this.isMepAgent = isMepAgent;
         this.isNamespace = isNamespace;
         this.namespace = namespace;
         this.configMapName = configMapName;
+        this.imageDomainName = imageDomainName;
+        this.imageProject = imageProject;
     }
 
     public void addTemplateYaml(String name, String content) {

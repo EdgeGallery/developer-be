@@ -19,9 +19,12 @@ import org.edgegallery.developer.common.Consts;
 import org.edgegallery.developer.mapper.ProjectMapper;
 import org.edgegallery.developer.mapper.VmConfigMapper;
 import org.edgegallery.developer.model.vm.EnumVmCreateStatus;
+import org.edgegallery.developer.model.vm.EnumVmImportStatus;
 import org.edgegallery.developer.model.vm.VmCreateConfig;
 import org.edgegallery.developer.model.vm.VmCreateStageStatus;
 import org.edgegallery.developer.model.vm.VmFlavor;
+import org.edgegallery.developer.model.vm.VmImageConfig;
+import org.edgegallery.developer.model.vm.VmImportStageStatus;
 import org.edgegallery.developer.model.vm.VmInfo;
 import org.edgegallery.developer.model.vm.VmNetwork;
 import org.edgegallery.developer.model.vm.VmRegulation;
@@ -35,6 +38,7 @@ import org.edgegallery.developer.response.FormatRespDto;
 import org.edgegallery.developer.service.ProjectService;
 import org.edgegallery.developer.service.csar.NewCreateVmCsar;
 import org.edgegallery.developer.service.virtual.create.VmCreateStage;
+import org.edgegallery.developer.service.virtual.image.VmImageStage;
 import org.edgegallery.developer.util.CompressFileUtilsJava;
 import org.edgegallery.developer.util.DeveloperFileUtils;
 import org.edgegallery.developer.util.HttpClientUtil;
@@ -72,6 +76,9 @@ public class VmService {
 
     @Autowired
     private Map<String, VmCreateStage> createServiceMap;
+
+    @Autowired
+    private Map<String, VmImageStage> imageServiceMap;
 
     public Either<FormatRespDto, VmResource> getVirtualResource() {
         List<VmRegulation> vmRegulation = vmConfigMapper.getVmRegulation();
@@ -261,12 +268,7 @@ public class VmService {
             LOGGER.info("Can not find the vm create config by vmId {} and projectId {}", vmId, projectId);
             return Either.right(true);
         }
-//        if (!EnumTestConfigStatus.Success.equals(vmCreateConfig.getStageStatus().getInstantiateInfo())) {
-//            LOGGER.error("Failed to terminate vm when instantiateInfo not success.");
-//            FormatRespDto error = new FormatRespDto(Status.INTERNAL_SERVER_ERROR,
-//                "Failed to terminate vm when instantiateInfo not success.");
-//            return Either.left(error);
-//        }
+
         if(EnumTestConfigStatus.Success.equals(vmCreateConfig.getStageStatus().getInstantiateInfo())) {
             Type type = new TypeToken<MepHost>() { }.getType();
             MepHost host = gson.fromJson(gson.toJson(vmCreateConfig.getHost()), type);
@@ -368,6 +370,182 @@ public class VmService {
             LOGGER.error("get vm csar package failed : {}", e.getMessage());
             return Either.left(new FormatRespDto(Status.BAD_REQUEST, "get vm csar package failed "));
         }
+    }
+
+    /**
+     * update create vm image result.
+     *
+     * @return
+     */
+    @Transactional
+    public void updateVmImageResult(VmImageConfig config, ApplicationProject project, String stage,
+        EnumTestConfigStatus stageStatus) {
+        LOGGER.info("Update vm image on stage:{} status: {}", stage, stageStatus);
+        // update test config always && update product if necessary
+        switch (stage) {
+            case "createImageInfo":
+                config.getStageStatus().setCreateImageInfo(stageStatus);
+                break;
+            case "imageStatus":
+                config.getStageStatus().setImageStatus(stageStatus);
+                break;
+            case "downloadImageInfo":
+                config.getStageStatus().setDownloadImageInfo(stageStatus);
+                break;
+            default:
+                config.setStageStatus(new VmImportStageStatus());
+                break;
+        }
+        boolean productUpdate = false;
+        LOGGER.info("get downloadImageInfo status:{}, stage:{}", stageStatus, stage);
+        if (EnumTestConfigStatus.Success.equals(stageStatus) && "setDownloadImageInfo".equalsIgnoreCase(stage)) {
+            productUpdate = true;
+            project.setStatus(EnumProjectStatus.DEPLOYED);
+            config.setLog("vm image import success");
+            config.setStatus(EnumVmImportStatus.SUCCESS);
+        } else if (EnumTestConfigStatus.Failed.equals(stageStatus)) {
+            productUpdate = true;
+            project.setStatus(EnumProjectStatus.DEPLOYED_FAILED);
+            config.setStatus(EnumVmImportStatus.FAILED);
+        }
+        // update status if necessary
+        if (productUpdate) {
+            int res = projectMapper.updateProject(project);
+            if (res < 1) {
+                LOGGER.error("Update project {} error.", project.getId());
+            }
+        }
+
+        int tes = vmConfigMapper.updateVmImageConfig(config);
+        if (tes < 1) {
+            LOGGER.error("Update vm image config {} error.", config.getVmId());
+        }
+    }
+
+    /**
+     * import vm image process.
+     * task job for scheduler
+     *
+     * @return
+     */
+    public void processVmImage() {
+        // get deploying config list from db
+        List<VmImageConfig> VmImageList = vmConfigMapper
+            .getVmImageConfigStatus(EnumVmImportStatus.CREATING.toString());
+        if (CollectionUtils.isEmpty(VmImageList)) {
+            return;
+        }
+        VmImageList.forEach(this::processVmImageConfig);
+    }
+
+    /**
+     * processConfig.
+     */
+    public void processVmImageConfig(VmImageConfig config) {
+        String nextStage = config.getNextStage();
+        if (StringUtils.isBlank(nextStage)) {
+            return;
+        }
+        try {
+            VmImageStage stageService = imageServiceMap.get("vm_" + nextStage + "_service");
+            stageService.execute(config);
+        } catch (Exception e) {
+            LOGGER.error(" vm image config:{} failed on stage :{}, res:{}", config.getVmId(), nextStage,
+                e.getMessage());
+        }
+    }
+
+
+    // import image
+    public Either<FormatRespDto, Boolean> importVmImage(String userId, String projectId, String token) {
+        ApplicationProject project = projectMapper.getProject(userId, projectId);
+        if (project == null) {
+            LOGGER.error("Can not find the project by userId {} and projectId {}", userId, projectId);
+            FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "Can not find the project.");
+            return Either.left(error);
+        }
+        List<VmCreateConfig> vmCreateConfigs = vmConfigMapper.getVmCreateConfigs(projectId);
+
+        if (CollectionUtils.isEmpty(vmCreateConfigs)) {
+            LOGGER.error("Can not find the vm create config by projectId {}", projectId);
+            FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "Can not find the vm config.");
+            return Either.left(error);
+        }
+        // vmId 存在 返回失敗 todo
+
+        VmCreateConfig vmCreateConfig = vmCreateConfigs.get(0);
+        if (vmCreateConfig.getStatus()!=EnumVmCreateStatus.SUCCESS) {
+            LOGGER.error("vm create fail, can not import image,projectId:{}", projectId);
+            FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "vm create fail, can not import image");
+            return Either.left(error);
+        }
+        if ( vmConfigMapper.getVmImage(projectId, vmCreateConfig.getVmId())!=null) {
+            LOGGER.error("vm create fail,vm create config have exited ,vmId:{}", vmCreateConfig.getVmId());
+            FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "vm create fail,vm create config have exited");
+            return Either.left(error);
+        }
+
+        VmImageConfig vmImageConfig = new VmImageConfig();
+        vmImageConfig.setVmId(vmCreateConfig.getVmId());
+        vmImageConfig.setAppInstanceId(vmCreateConfig.getAppInstanceId());
+        vmImageConfig.setLcmToken(token);
+        vmImageConfig.setProjectId(projectId);
+        vmImageConfig.setStatus(EnumVmImportStatus.CREATING);
+        VmImportStageStatus stageStatus = new VmImportStageStatus();
+        vmImageConfig.setStageStatus(stageStatus);
+        int tes = vmConfigMapper.saveVmImageConfig(vmCreateConfig);
+        if (tes < 1) {
+            LOGGER.error("create vm config {} failed.", vmCreateConfig.getVmId());
+        }
+        return Either.right(true);
+
+    }
+
+    public Either<FormatRespDto, VmImageConfig> getVmImage(String userId, String projectId, String vmId) {
+        ApplicationProject project = projectMapper.getProject(userId, projectId);
+        if (project == null) {
+            LOGGER.error("Can not find the project by userId {} and projectId {}", userId, projectId);
+            FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "Can not find the project.");
+            return Either.left(error);
+        }
+
+        VmImageConfig vmImageConfig = vmConfigMapper.getVmImage(projectId, vmId);
+        return Either.right(vmImageConfig);
+    }
+
+    public Either<FormatRespDto, Boolean> deleteVmImage(String userId, String projectId, String vmId, String token) {
+        ApplicationProject project = projectMapper.getProjectById(projectId);
+        if (project == null) {
+            LOGGER.error("Can not find the project projectId {}", projectId);
+            FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "Can not find the project.");
+            return Either.left(error);
+        }
+
+        LOGGER.info("Get project information success");
+        VmImageConfig vmImageConfig = vmConfigMapper.getVmImage(projectId, vmId);
+        if (vmImageConfig==null) {
+            LOGGER.info("Can not find the vm image config by vmId {} and projectId {}", vmId, projectId);
+            return Either.right(true);
+        }
+        int res = vmConfigMapper.deleteVmImage(projectId, vmId);
+        if (res<1) {
+            LOGGER.error("Delete vm image config {} failed.", vmId);
+            return Either.left(new FormatRespDto(Response.Status.BAD_REQUEST, "Delete vm image config failed."));
+        }
+        String projectPath = getProjectPath(projectId);
+        String imagePath = "/Image" + vmImageConfig.getImageName() + ".zip";
+        DeveloperFileUtils.deleteDir(projectPath + File.separator + vmImageConfig.getAppInstanceId() + imagePath);
+
+        LOGGER.info("delete vm create config success");
+        return Either.right(true);
+
+    }
+
+    public boolean createVmImageToAppLcm(MepHost host, VmImageConfig imageConfig, String userId) {
+
+        return HttpClientUtil
+            .vmInstantiateImage(host.getProtocol(), host.getIp(), host.getPort(),
+                userId, imageConfig);
     }
 }
 

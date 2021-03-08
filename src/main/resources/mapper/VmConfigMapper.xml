@@ -82,6 +82,25 @@
         <result property="log" column="log"/>
     </resultMap>
 
+    <resultMap id="VmImageMap"
+      type="org.edgegallery.developer.model.vm.VmImageConfig">
+        <id property="vmId" column="vm_id"/>
+        <result property="imageId" column="image_id"/>
+        <result property="projectId" column="project_id"/>
+        <result property="vmName" column="vm_name"/>
+        <result property="imageName" column="image_name"/>
+        <result property="appInstanceId" column="app_instance_id"/>
+        <result property="hostIp" column="host_ip"/>
+        <result property="sumChunkNum" column="sum_chunk_num"/>
+        <result property="chunkSize" column="chunk_size"/>
+        <result property="stageStatus" column="stage_status"
+          typeHandler="org.edgegallery.developer.model.handler.JsonTypeHandler"/>
+        <result property="status" column="status"/>
+        <result property="lcmToken" column="lcm_token"/>
+        <result property="createTime" column="create_time"/>
+        <result property="log" column="log"/>
+    </resultMap>
+
     <select id="getVmRegulation"
       resultMap="VmRegulation">
         SELECT
@@ -176,6 +195,51 @@
         *
         FROM
         tbl_project_vm_create_config
+        WHERE
+        status = #{status}
+    </select>
+
+    <insert id="saveVmImageConfig"
+      parameterType="org.edgegallery.developer.model.vm.VmImageConfig">
+        insert into
+        tbl_project_vm_image_config (vm_id, project_id, vm_name, image_name, app_instance_id, lcm_token, status, stage_status)
+        values
+        ( #{vmId}, #{projectId},
+        #{vmName}, #{imageName}, #{appInstanceId}, #{lcmToken}, #{status},
+        #{stageStatus, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonTypeHandler})
+    </insert>
+
+    <select id="getVmImage"
+      parameterType="String" resultMap="VmImageMap">
+        SELECT
+        *
+        FROM
+        tbl_project_vm_image_config
+        WHERE
+        project_id = #{arg0} and vm_id = #{arg1}
+    </select>
+
+    <delete id="deleteVmImage" parameterType="String">
+        DELETE FROM tbl_project_vm_image_config WHERE project_id = #{arg0} and vm_id = #{arg1};
+    </delete>
+
+    <update id="updateVmImageConfig" parameterType="org.edgegallery.developer.model.vm.VmImageConfig">
+        UPDATE
+        tbl_project_vm_image_config
+        SET
+        status = #{status}, stage_status =
+        #{stageStatus, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonTypeHandler},
+        host_ip = #{hostIp}, image_id = #{imageId}, sumChunkNum = #{sum_chunk_num}, chunk_size = #{chunk_size},
+        create_time = #{createTime}, log = #{log}
+        WHERE
+        vm_id = #{vmId}
+    </update>
+
+    <select id="getVmImageConfigStatus" parameterType="String" resultMap="VmImageMap">
+        SELECT
+        *
+        FROM
+        tbl_project_vm_image_config
         WHERE
         status = #{status}
     </select>

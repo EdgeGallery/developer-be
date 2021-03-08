@@ -3,6 +3,7 @@ package org.edgegallery.developer.mapper;
 import java.util.List;
 import org.edgegallery.developer.model.vm.VmCreateConfig;
 import org.edgegallery.developer.model.vm.VmFlavor;
+import org.edgegallery.developer.model.vm.VmImageConfig;
 import org.edgegallery.developer.model.vm.VmNetwork;
 import org.edgegallery.developer.model.vm.VmRegulation;
 import org.edgegallery.developer.model.vm.VmResource;
@@ -30,6 +31,15 @@ public interface VmConfigMapper {
 
     int deleteVmCreateConfigs(String projectId);
 
-
     VmFlavor getVmFlavor(String architecture);
+
+    int saveVmImageConfig(VmCreateConfig vmCreateConfig);
+
+    VmImageConfig getVmImage(String projectId, String vmId);
+
+    int deleteVmImage(String projectId, String vmId);
+
+    int updateVmImageConfig(VmImageConfig config);
+
+    List<VmImageConfig> getVmImageConfigStatus(String toString);
 }
