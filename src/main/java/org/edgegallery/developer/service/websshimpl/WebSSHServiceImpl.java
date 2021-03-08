@@ -124,6 +124,13 @@ public class WebSSHServiceImpl implements WebSSHService {
         Properties config = new Properties();
         config.put("StrictHostKeyChecking", "no");
         //获取jsch的会话
+
+        //获取userID和projectId
+        String userId = webSSHData.getUserId();
+        String projectId = webSSHData.getProjectId();
+        System.out.println(userId + "--"+ projectId);
+
+
         session = sshConnectInfo.getjSch().getSession(USERNAME, HOST, PORT);
         session.setConfig(config);
         //设置密码
