@@ -40,6 +40,8 @@ RUN apk update &&\
     groupadd -r -g $GID $GROUP_NAME &&\
     useradd -r -u $UID -g $GID -d $APP_HOME -s /sbin/nologin -c "Docker image user" $USER_NAME
 
+RUN apk add docker
+
 WORKDIR $APP_HOME
 
 RUN chmod -R 750 $APP_HOME &&\
