@@ -60,4 +60,9 @@ public class ScheduleTask {
     public void processVmCreateConfig() {
         vmService.processCreateVm();
     }
+
+    @Scheduled(cron = "0/30 * * * * ?")
+    public void processVmImageConfig() {
+        vmService.processVmImage();
+    }
 }

@@ -19,6 +19,7 @@ package org.edgegallery.developer.util;
 import org.edgegallery.developer.common.Consts;
 import org.edgegallery.developer.exception.CustomException;
 import org.edgegallery.developer.model.vm.VmCreateConfig;
+import org.edgegallery.developer.model.vm.VmImageConfig;
 import org.edgegallery.developer.model.workspace.ProjectTestConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,6 +34,9 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 public final class HttpClientUtil {
 
@@ -205,5 +209,92 @@ public final class HttpClientUtil {
         }
         LOGGER.error("Failed to instantiate application which appInstanceId is {}", appInstanceId);
         return false;
+    }
+
+    public static boolean vmInstantiateImage(String protocol, String ip, int port, String userId, VmImageConfig imageConfig) {
+        String appInstanceId = imageConfig.getAppInstanceId();
+        MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
+        body.add("vmId", imageConfig.getVmId());
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+        headers.set(Consts.ACCESS_TOKEN_STR, imageConfig.getLcmToken());
+        HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
+        String url = getUrlPrefix(protocol, ip, port) + Consts.APP_LCM_INSTANTIATE_IMAGE_URL
+            .replaceAll("appInstanceId", appInstanceId).replaceAll("tenantId", userId);
+        ResponseEntity<String> response;
+        try {
+            REST_TEMPLATE.setErrorHandler(new CustomResponseErrorHandler());
+            response = REST_TEMPLATE.exchange(url, HttpMethod.POST, requestEntity, String.class);
+            JsonObject jsonObject = new JsonParser().parse(response.getBody()).getAsJsonObject();
+            JsonElement imageId = jsonObject.get("imageId");
+            imageConfig.setImageId(imageId.getAsString());
+            LOGGER.info("APPlCM log:{}", response);
+        } catch (CustomException e) {
+            e.printStackTrace();
+            String errorLog = e.getBody();
+            LOGGER.error("Failed to create vm image  which appInstanceId is {} exception {}", appInstanceId,
+                errorLog);
+            imageConfig.setLog(errorLog);
+            return false;
+        } catch (RestClientException e) {
+            LOGGER.error("Failed to create vm image  which appInstanceId is {} exception {}", appInstanceId,
+                e.getMessage());
+            return false;
+        }
+        if (response.getStatusCode() == HttpStatus.OK) {
+            return true;
+        }
+        LOGGER.error("Failed to create vm image  which appInstanceId is {}", appInstanceId);
+        return false;
+
+    }
+
+    public static String getImageStatus(String protocol, String ip, int port, String appInstanceId, String userId,
+        String imageId, String lcmToken) {
+        String url = getUrlPrefix(protocol, ip, port) + Consts.APP_LCM_GET_IMAGE_STATUS_URL
+            .replaceAll("appInstanceId", appInstanceId).replaceAll("tenantId", userId)
+            .replaceAll("imageId", imageId);
+        LOGGER.info("url is {}", url);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.set(Consts.ACCESS_TOKEN_STR, lcmToken);
+        ResponseEntity<String> response;
+        try {
+            response = REST_TEMPLATE.exchange(url, HttpMethod.GET, new HttpEntity<>(headers), String.class);
+        } catch (RestClientException e) {
+            LOGGER.error("Failed to get image status which imageId is {} exception {}", imageId,
+                e.getMessage());
+            return null;
+        }
+        if (response.getStatusCode() == HttpStatus.OK) {
+            return response.getBody();
+        }
+        LOGGER.error("Failed to get image status which imageId is {}", imageId);
+        return null;
+
+    }
+
+    public static boolean downloadVmImage(String protocol, String ip, int port, String userId, String packagePath, VmImageConfig config) {
+
+        String url = getUrlPrefix(protocol, ip, port) + Consts.APP_LCM_GET_IMAGE_DOWNLOAD_URL
+            .replaceAll("appInstanceId", config.getAppInstanceId()).replaceAll("tenantId", userId)
+            .replaceAll("imageId", config.getImageId());
+        LOGGER.info("url is {}", url);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.set(Consts.ACCESS_TOKEN_STR, config.getLcmToken());
+//        headers.set(Consts.CHUNK_NUM, config.getSumChunkNum());
+        // download images
+        ResponseEntity<String> response;
+        try {
+            response = REST_TEMPLATE.exchange(url, HttpMethod.GET, new HttpEntity<>(headers), String.class);
+        } catch (RestClientException e) {
+            LOGGER.error("Failed to get image status which imageId is {} exception {}", config.getImageId(),
+                e.getMessage());
+            return false;
+        }
+        return true;
+
+
     }
 }

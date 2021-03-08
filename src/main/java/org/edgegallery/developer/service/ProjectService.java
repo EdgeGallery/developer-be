@@ -79,6 +79,7 @@ import org.edgegallery.developer.util.InitConfigUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -93,6 +94,12 @@ public class ProjectService {
     private static Gson gson = new Gson();
 
     ExecutorService threadPool = Executors.newSingleThreadExecutor();
+
+    @Value("${imagelocation.domainname:}")
+    private String imageDomainName;
+
+    @Value("${imagelocation.project:}")
+    private String imageProject;
 
     @Autowired
     private ProjectMapper projectMapper;
@@ -454,9 +461,11 @@ public class ProjectService {
             ChartFileCreator chartFileCreator = new ChartFileCreator(projectName);
             chartFileCreator.setChartName(projectName);
             if (mepCapability == null || mepCapability.isEmpty()) {
-                chartFileCreator.setChartValues("false", "false", "default", configMapName);
+                chartFileCreator.setChartValues("false", "false", "default",
+                    configMapName, imageDomainName, imageProject);
             } else {
-                chartFileCreator.setChartValues("true", "false", "default", configMapName);
+                chartFileCreator.setChartValues("true", "false", "default",
+                    configMapName, imageDomainName, imageProject);
             }
             //stop
             yamlPoList.forEach(helmTemplateYamlPo -> chartFileCreator

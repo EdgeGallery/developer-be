@@ -21,11 +21,20 @@ public final class Consts {
     public static final String APP_LCM_INSTANTIATE_APP_URL
         = "/lcmcontroller/v1/tenants/tenantId/app_instances/appInstanceId/instantiate";
 
+    public static final String APP_LCM_INSTANTIATE_IMAGE_URL
+        = "/lcmcontroller/v1/tenants/tenantId/app_instances/appInstanceId/images";
+
     public static final String APP_LCM_TERMINATE_APP_URL
         = "/lcmcontroller/v1/tenants/tenantId/app_instances/appInstanceId/terminate";
 
     public static final String APP_LCM_GET_WORKLOAD_STATUS_URL
         = "/lcmcontroller/v1/tenants/tenantId/app_instances/appInstanceId";
+
+    public static final String APP_LCM_GET_IMAGE_STATUS_URL
+        = "/lcmcontroller/v1/tenants/tenantId/app_instances/appInstanceId/images/imageId";
+
+    public static final String APP_LCM_GET_IMAGE_DOWNLOAD_URL
+        = "/lcmcontroller/v1/tenants/tenantId/app_instances/appInstanceId/images/imageId/file";
 
     public static final String APP_LCM_GET_HEALTH = "/lcmcontroller/v1/health";
 
@@ -38,6 +47,8 @@ public final class Consts {
     public static final String FILE_ENCODING = "utf-8";
 
     public static final String ACCESS_TOKEN_STR = "access_token";
+
+    public static final String CHUNK_NUM = "chunk_num";
 
     public static final String RESPONSE_MESSAGE_INTERNAL_SERVER_ERROR = "Internal exception.";
 

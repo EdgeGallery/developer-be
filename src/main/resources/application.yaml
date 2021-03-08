@@ -64,8 +64,10 @@ security:
 
 ### image location config ###
 imagelocation:
-  domainname: ${DOMAIN_NAME:swr.ap-southeast-1.myhuaweicloud.com}
-  project: ${PROJECT:edgegallery}
+  domainname: ${IMAGE_REPO_NAME:swr.ap-southeast-1.myhuaweicloud.com}
+  project: ${IMAGE_REPO_PROJECT:developer}
+  password: ${IMAGE_REPO_PASSWORD:Harbor12345}
+  username: ${IMAGE_REPO_USERNAME:admin}
 
 upload:
   path: /usr/app/images

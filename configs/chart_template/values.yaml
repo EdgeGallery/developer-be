@@ -20,5 +20,5 @@ serviceconfig:
 #    protocol: HTTP
 #    appnamespace: default
 imagelocation:
-  domainname: swr.ap-southeast-1.myhuaweicloud.com
-  project: edgegallery
+  domainname: <IMAGE_DOMAIN_NAME>
+  project: <IMAGE_PROJECT>
