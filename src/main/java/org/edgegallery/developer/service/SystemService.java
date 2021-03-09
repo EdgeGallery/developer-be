@@ -19,6 +19,7 @@ package org.edgegallery.developer.service;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.spencerwi.either.Either;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.servicecomb.provider.springmvc.reference.RestTemplateBuilder;
 import org.edgegallery.developer.common.Consts;
@@ -29,7 +30,10 @@ import org.edgegallery.developer.mapper.OpenMepCapabilityMapper;
 import org.edgegallery.developer.mapper.UploadedFileMapper;
 import org.edgegallery.developer.model.workspace.*;
 import org.edgegallery.developer.response.FormatRespDto;
+import org.edgegallery.developer.util.BusinessConfigUtil;
+import org.edgegallery.developer.util.DeveloperFileUtils;
 import org.edgegallery.developer.util.HttpClientUtil;
+import org.edgegallery.developer.util.InitConfigUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,6 +48,8 @@ import org.springframework.web.client.RestTemplate;
 
 import javax.validation.constraints.Min;
 import javax.ws.rs.core.Response.Status;
+import java.io.File;
+import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -109,7 +115,7 @@ public class SystemService {
             UploadedFile uploadedFile = uploadedFileMapper.getFileById(host.getConfigId());
             boolean uploadRes = uploadFileToLcm(host.getIp(), host.getPort(), uploadedFile.getFilePath(), token);
             if (!uploadRes) {
-                String msg = "Create host failed,upload file error";
+                String msg = "Create host failed,upload config file error";
                 LOGGER.error(msg);
                 FormatRespDto dto = new FormatRespDto(Status.BAD_REQUEST, msg);
                 return Either.left(dto);
@@ -310,9 +316,12 @@ public class SystemService {
      * upload file to lcm
      */
     private boolean uploadFileToLcm(String hostIp, int port, String filePath, String token) {
+        File file = new File(filePath);
+        String configFile = InitConfigUtil.getWorkSpaceBaseDir() + BusinessConfigUtil.getUploadfilesPath() + "config";
+        file.renameTo(new File(configFile));
         RestTemplate restTemplate = RestTemplateBuilder.create();
         MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
-        body.add("configFile", new FileSystemResource(filePath));
+        body.add("configFile", new FileSystemResource(configFile));
         body.add("hostIp", hostIp);
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);
@@ -327,6 +336,8 @@ public class SystemService {
         } catch (Exception e) {
             LOGGER.error("Failed to upload file lcm, exception {}", e.getMessage());
             return false;
+        } finally {
+            DeveloperFileUtils.deleteTempFile(new File(configFile));
         }
         if (response.getStatusCode() == HttpStatus.OK) {
             return true;
