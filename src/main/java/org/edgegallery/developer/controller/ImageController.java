@@ -70,7 +70,7 @@ public class ImageController {
     @Value("${upload.tempPath}")
     private String filePathTemp;
 
-    @Value("${imagelocation.endpoint}")
+    @Value("${imagelocation.domainname}")
     private String devRepoEndpoint;
 
     @Value("${imagelocation.username}")
@@ -160,6 +160,7 @@ public class ImageController {
 
     private boolean pushImageToRepo(File imageFile) throws IOException {
         DockerClient dockerClient = getDockerClient(devRepoEndpoint, devRepoUsername, devRepoPassword);
+        LOGGER.warn("connect to docker success!");
         InputStream inputStream = null;
         try {
             inputStream = new FileInputStream(imageFile);
@@ -175,6 +176,7 @@ public class ImageController {
         //解压镜像包，找出manifest.json中的RepoTags
         File file = new File(filePath);
         boolean res = deCompress(imageFile.getCanonicalPath(), file);
+        LOGGER.warn("decompress tar file success");
         String repoTags = "";
         if (res) {
             //读取manifest.json的内容
@@ -188,6 +190,7 @@ public class ImageController {
                 }
             }
         }
+        LOGGER.warn("repoTags: {} ", repoTags);
         //判断压缩包manifest.json中RepoTags的值和load进来的镜像是否相等
         List<Image> list = dockerClient.listImagesCmd().exec();
         String imageId = "";
@@ -198,6 +201,7 @@ public class ImageController {
                 }
             }
         }
+        LOGGER.warn("imageID: {} ", imageId);
         //镜像打标签，重新push
         if (!imageId.equals("")) {
             //tag image
@@ -234,6 +238,7 @@ public class ImageController {
     private DockerClient getDockerClient(String repo, String userName, String password) {
         DockerClientConfig config = DefaultDockerClientConfig.createDefaultConfigBuilder()
             .withRegistryUrl("https://" + repo).withRegistryUsername(userName).withRegistryPassword(password).build();
+        LOGGER.warn("docker register url: {}", config.getRegistryUrl());
         return DockerClientBuilder.getInstance(config).build();
     }
 
