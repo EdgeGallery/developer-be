@@ -159,6 +159,7 @@ public class ImageController {
     }
 
     private boolean pushImageToRepo(File imageFile) throws IOException {
+        LOGGER.warn(imageFile.getCanonicalPath()+",size:"+imageFile.length());
         DockerClient dockerClient = getDockerClient(devRepoEndpoint, devRepoUsername, devRepoPassword);
         LOGGER.warn("connect to docker success!");
         InputStream inputStream = null;
@@ -168,8 +169,8 @@ public class ImageController {
             LOGGER.error("can not find image file,{}", e.getMessage());
             return false;
         }
-        String uploadImgName = new StringBuilder(devRepoEndpoint).append("/").append(devRepoProject).append("/")
-            .append(imageFile.getName()).toString();
+        LOGGER.warn("inputStream! {}", inputStream);
+
         //import image pkg
         dockerClient.loadImageCmd(inputStream).exec();
         LOGGER.warn("Load Image success");
@@ -202,6 +203,9 @@ public class ImageController {
             }
         }
         LOGGER.warn("imageID: {} ", imageId);
+        String[] names = imageFile.getName().split("\\.");
+        String uploadImgName = new StringBuilder(devRepoEndpoint).append("/").append(devRepoProject).append("/")
+            .append(names[1]).toString();
         //镜像打标签，重新push
         if (!imageId.equals("")) {
             //tag image
