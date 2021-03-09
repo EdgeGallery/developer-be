@@ -3,6 +3,7 @@ package org.edgegallery.developer.controller;
 import com.spencerwi.either.Either;
 import io.swagger.annotations.*;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
+import org.edgegallery.developer.common.Consts;
 import org.edgegallery.developer.domain.shared.Page;
 import org.edgegallery.developer.model.workspace.MepHost;
 import org.edgegallery.developer.model.workspace.MepHostLog;
@@ -19,6 +20,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.Pattern;
 import java.util.List;
@@ -80,8 +82,9 @@ public class SystemController {
             produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<MepHost> createHost(
-            @ApiParam(value = "MepHost", required = true) @Validated @RequestBody MepHost host) {
-        Either<FormatRespDto, MepHost> either = systemService.createHost(host);
+            @ApiParam(value = "MepHost", required = true) @Validated @RequestBody MepHost host, HttpServletRequest request) {
+        String token = request.getHeader(Consts.ACCESS_TOKEN_STR);
+        Either<FormatRespDto, MepHost> either = systemService.createHost(host, token);
         return ResponseDataUtil.buildResponse(either);
     }
 
