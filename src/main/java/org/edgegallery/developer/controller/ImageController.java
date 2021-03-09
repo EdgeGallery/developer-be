@@ -159,6 +159,7 @@ public class ImageController {
     }
 
     private boolean pushImageToRepo(File imageFile) throws IOException {
+        LOGGER.warn(imageFile.getCanonicalPath()+",size:"+imageFile.length());
         DockerClient dockerClient = getDockerClient(devRepoEndpoint, devRepoUsername, devRepoPassword);
         LOGGER.warn("connect to docker success!");
         InputStream inputStream = null;
