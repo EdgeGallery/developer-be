@@ -242,8 +242,9 @@ public class ImageController {
     }
 
     private DockerClient getDockerClient(String repo, String userName, String password) {
-        DockerClientConfig config = DefaultDockerClientConfig.createDefaultConfigBuilder()
-            .withRegistryUrl("https://" + repo).withRegistryUsername(userName).withRegistryPassword(password).build();
+        DockerClientConfig config = DefaultDockerClientConfig.createDefaultConfigBuilder().withDockerTlsVerify(true)
+            .withDockerCertPath("/usr/app/ssl").withRegistryUrl("https://" + repo).withRegistryUsername(userName)
+            .withRegistryPassword(password).build();
         LOGGER.warn("docker register url: {}", config.getRegistryUrl());
         return DockerClientBuilder.getInstance(config).build();
     }
