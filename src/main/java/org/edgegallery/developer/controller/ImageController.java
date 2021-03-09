@@ -161,7 +161,6 @@ public class ImageController {
     private boolean pushImageToRepo(File imageFile) throws IOException {
         LOGGER.warn(imageFile.getCanonicalPath() + ",size:" + imageFile.length());
         DockerClient dockerClient = getDockerClient(devRepoEndpoint, devRepoUsername, devRepoPassword);
-        LOGGER.warn("connect to docker success!");
         InputStream inputStream = null;
         try {
             inputStream = new FileInputStream(imageFile);
@@ -169,15 +168,11 @@ public class ImageController {
             LOGGER.error("can not find image file,{}", e.getMessage());
             return false;
         }
-        LOGGER.warn("inputStream! {}", inputStream);
-
         //import image pkg
         dockerClient.loadImageCmd(inputStream).exec();
-        LOGGER.warn("Load Image success");
         //解压镜像包，找出manifest.json中的RepoTags
         File file = new File(filePath);
         boolean res = deCompress(imageFile.getCanonicalPath(), file);
-        LOGGER.warn("decompress tar file success : {}", res);
         String repoTags = "";
         if (res) {
             //读取manifest.json的内容
@@ -192,23 +187,29 @@ public class ImageController {
             }
         }
         LOGGER.warn("repoTags: {} ", repoTags);
+        String[] names = repoTags.split(":");
         //判断压缩包manifest.json中RepoTags的值和load进来的镜像是否相等
         List<Image> list = dockerClient.listImagesCmd().exec();
-        LOGGER.warn("list is empty ?{}",CollectionUtils.isEmpty(list));
+        LOGGER.warn(names[0]);
+        List<Image> lists = dockerClient.listImagesCmd().withImageNameFilter(names[0]).exec();
+        LOGGER.warn("lists is empty ?{},lists size {},number 0 {}", CollectionUtils.isEmpty(lists), lists.size(),
+            lists.get(0));
+        LOGGER.warn("list is empty ?{},list size {}", CollectionUtils.isEmpty(list), list.size());
         String imageId = "";
         if (!CollectionUtils.isEmpty(list) && !repoTags.equals("")) {
             for (Image image : list) {
                 LOGGER.warn(image.getRepoTags()[0]);
-                if (image.getRepoTags()[0].equals(repoTags)) {
+                String[] images = image.getRepoTags();
+                if ((images[0]).equals(repoTags)) {
                     imageId = image.getId();
                     LOGGER.warn(imageId);
                 }
             }
         }
         LOGGER.warn("imageID: {} ", imageId);
-        String[] names = repoTags.split(":");
+        // String[] names = repoTags.split(":");
         String uploadImgName = new StringBuilder(devRepoEndpoint).append("/").append(devRepoProject).append("/")
-            .append(names[1]).toString();
+            .append(names[0]).toString();
         //镜像打标签，重新push
         if (!imageId.equals("")) {
             //tag image
