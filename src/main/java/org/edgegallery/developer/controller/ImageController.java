@@ -51,6 +51,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -159,7 +160,6 @@ public class ImageController {
     }
 
     private boolean pushImageToRepo(File imageFile) throws IOException {
-        LOGGER.warn(imageFile.getCanonicalPath() + ",size:" + imageFile.length());
         DockerClient dockerClient = getDockerClient(devRepoEndpoint, devRepoUsername, devRepoPassword);
         InputStream inputStream = null;
         try {
@@ -189,15 +189,13 @@ public class ImageController {
         LOGGER.warn("repoTags: {} ", repoTags);
         String[] names = repoTags.split(":");
         //判断压缩包manifest.json中RepoTags的值和load进来的镜像是否相等
-        List<Image> list = dockerClient.listImagesCmd().exec();
         LOGGER.warn(names[0]);
         List<Image> lists = dockerClient.listImagesCmd().withImageNameFilter(names[0]).exec();
         LOGGER.warn("lists is empty ?{},lists size {},number 0 {}", CollectionUtils.isEmpty(lists), lists.size(),
             lists.get(0));
-        LOGGER.warn("list is empty ?{},list size {}", CollectionUtils.isEmpty(list), list.size());
         String imageId = "";
-        if (!CollectionUtils.isEmpty(list) && !repoTags.equals("")) {
-            for (Image image : list) {
+        if (!CollectionUtils.isEmpty(lists) && !StringUtils.isEmpty(repoTags)) {
+            for (Image image : lists) {
                 LOGGER.warn(image.getRepoTags()[0]);
                 String[] images = image.getRepoTags();
                 if ((images[0]).equals(repoTags)) {
