@@ -19,27 +19,37 @@ package org.edgegallery.developer.service;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.spencerwi.either.Either;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.servicecomb.provider.springmvc.reference.RestTemplateBuilder;
+import org.edgegallery.developer.common.Consts;
 import org.edgegallery.developer.domain.shared.Page;
 import org.edgegallery.developer.mapper.HostLogMapper;
 import org.edgegallery.developer.mapper.HostMapper;
 import org.edgegallery.developer.mapper.OpenMepCapabilityMapper;
 import org.edgegallery.developer.mapper.UploadedFileMapper;
-import org.edgegallery.developer.model.workspace.MepHost;
-import org.edgegallery.developer.model.workspace.MepHostLog;
-import org.edgegallery.developer.model.workspace.OpenMepCapabilityDetail;
-import org.edgegallery.developer.model.workspace.OpenMepCapabilityGroup;
+import org.edgegallery.developer.model.workspace.*;
 import org.edgegallery.developer.response.FormatRespDto;
+import org.edgegallery.developer.util.BusinessConfigUtil;
+import org.edgegallery.developer.util.DeveloperFileUtils;
 import org.edgegallery.developer.util.HttpClientUtil;
+import org.edgegallery.developer.util.InitConfigUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.RestTemplate;
 
 import javax.validation.constraints.Min;
 import javax.ws.rs.core.Response.Status;
+import java.io.File;
+import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -79,7 +89,7 @@ public class SystemService {
      * @return
      */
     @Transactional
-    public Either<FormatRespDto, MepHost> createHost(MepHost host) {
+    public Either<FormatRespDto, MepHost> createHost(MepHost host,String token) {
         if (StringUtils.isBlank(host.getUserName())) {
             LOGGER.error("Create host failed, username is empty");
             return Either.left(new FormatRespDto(Status.BAD_REQUEST, "username is empty"));
@@ -99,6 +109,17 @@ public class SystemService {
             LOGGER.error(msg);
             FormatRespDto dto = new FormatRespDto(Status.BAD_REQUEST, msg);
             return Either.left(dto);
+        }
+        if (StringUtils.isNotBlank(host.getConfigId())) {
+            // upload file
+            UploadedFile uploadedFile = uploadedFileMapper.getFileById(host.getConfigId());
+            boolean uploadRes = uploadFileToLcm(host.getIp(), host.getPort(), uploadedFile.getFilePath(), token);
+            if (!uploadRes) {
+                String msg = "Create host failed,upload config file error";
+                LOGGER.error(msg);
+                FormatRespDto dto = new FormatRespDto(Status.BAD_REQUEST, msg);
+                return Either.left(dto);
+            }
         }
         host.setHostId(UUID.randomUUID().toString()); // no need to set hostId by user
         int ret = hostMapper.saveHost(host);
@@ -289,5 +310,43 @@ public class SystemService {
         }
         LOGGER.error("Can not get capability by {}", groupId);
         return Either.left(new FormatRespDto(Status.BAD_REQUEST, "get capabilities by group failed"));
+    }
+
+    /**
+     * upload file to lcm
+     */
+    private boolean uploadFileToLcm(String hostIp, int port, String filePath, String token) {
+        File file = new File(filePath);
+        String configFile = InitConfigUtil.getWorkSpaceBaseDir() + BusinessConfigUtil.getUploadfilesPath() + "config";
+        file.renameTo(new File(configFile));
+        RestTemplate restTemplate = RestTemplateBuilder.create();
+        MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
+        body.add("configFile", new FileSystemResource(configFile));
+        body.add("hostIp", hostIp);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+        headers.set(Consts.ACCESS_TOKEN_STR, token);
+        HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
+        ResponseEntity<String> response;
+        try {
+            String url = getUrlPrefix("https", hostIp, port) + Consts.APP_LCM_UPLOAD_FILE;
+            LOGGER.info(" upload file url is {}", url);
+            response = restTemplate.exchange(url, HttpMethod.POST, requestEntity, String.class);
+            LOGGER.info("upload file lcm log:{}", response);
+        } catch (Exception e) {
+            LOGGER.error("Failed to upload file lcm, exception {}", e.getMessage());
+            return false;
+        } finally {
+            DeveloperFileUtils.deleteTempFile(new File(configFile));
+        }
+        if (response.getStatusCode() == HttpStatus.OK) {
+            return true;
+        }
+        LOGGER.error("Failed to upload file lcm, filePath is {}", filePath);
+        return false;
+    }
+
+    private static String getUrlPrefix(String protocol, String ip, int port) {
+        return protocol + "://" + ip + ":" + port;
     }
 }

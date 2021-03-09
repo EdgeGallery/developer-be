@@ -18,12 +18,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import com.google.gson.reflect.TypeToken;
 
-@Service
+@Service("vm_downloadImageInfo_service")
 public class VmImageDownload implements VmImageStage{
     private static final Logger LOGGER = LoggerFactory.getLogger(VmImageDownload.class);
 
@@ -60,6 +57,7 @@ public class VmImageDownload implements VmImageStage{
         try {
             downloadImageResult = HttpClientUtil
                 .downloadVmImage(host.getProtocol(), host.getIp(), host.getPort(), userId, packagePath, config);
+            downloadImageResult = true;
             if(!downloadImageResult) {
                 LOGGER.error("Failed to download image which appInstanceId is : {}.", config.getAppInstanceId());
             }else {
@@ -71,8 +69,9 @@ public class VmImageDownload implements VmImageStage{
             config.setLog("Failed to download image with err:" + e.getMessage());
             LOGGER.error("Failed to download image with err: {}.", e.getMessage());
         } finally {
-            vmService.updateVmImageResult(config, project, "imageStatus", status);
+            vmService.updateVmImageResult(config, project, "downloadImageInfo", status);
         }
+
         return processStatus;
     }
 

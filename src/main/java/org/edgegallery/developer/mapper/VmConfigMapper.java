@@ -33,7 +33,7 @@ public interface VmConfigMapper {
 
     VmFlavor getVmFlavor(String architecture);
 
-    int saveVmImageConfig(VmCreateConfig vmCreateConfig);
+    int saveVmImageConfig(VmImageConfig vmImageConfig);
 
     VmImageConfig getVmImage(String projectId, String vmId);
 

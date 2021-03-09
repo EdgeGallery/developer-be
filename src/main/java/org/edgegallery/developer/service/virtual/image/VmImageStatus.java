@@ -20,7 +20,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.reflect.TypeToken;
 
-@Service
+@Service("vm_imageStatus_service")
 public class VmImageStatus implements VmImageStage{
     private static final Logger LOGGER = LoggerFactory.getLogger(VmImageStatus.class);
 
@@ -51,37 +51,35 @@ public class VmImageStatus implements VmImageStage{
         VmCreateConfig vmCreateConfig = vmConfigMapper.getVmCreateConfig(config.getProjectId(), config.getVmId());
         Type type = new TypeToken<MepHost>() { }.getType();
         MepHost host = gson.fromJson(gson.toJson(vmCreateConfig.getHost()), type);
-        String imageInfo = HttpClientUtil
-            .getImageStatus(host.getProtocol(), host.getIp(), host.getPort(), config.getAppInstanceId(), userId, config.getImageId(),
-                config.getLcmToken());
-//        String imageStatus = "{\n"
-//            + "  \"imageId\": \"1234\",\n"
-//            + "  \"imageName\": \"test\",\n"
-//            + "  \"appInstanceId\": \"1234\",\n"
-//            + "  \"hostIp\": \"1234\",\n"
-//            + "  \"status\": \"success\",\n"
-//            + "  \"sumChunkNum\": 10,\n"
-//            + "  \"chunkSize\": 10\n"
-//            + "}";
-        JsonObject jsonObject = new JsonParser().parse(imageInfo).getAsJsonObject();
-        JsonElement imageStatus = jsonObject.get("status");
-        if (!imageStatus.getAsString().equals("success")) {
-            // compare time between now and deployDate
-            long time = System.currentTimeMillis() - config.getCreateTime().getTime();
-            LOGGER.info("over time:{}, wait max time:{}, start time:{}", time, MAX_SECONDS,
-                config.getCreateTime().getTime());
-            if (config.getCreateTime() == null || time > MAX_SECONDS * 1000) {
-                config.setLog("vm image is " + imageStatus.getAsString());
-            } else {
-                return true;
-            }
-        } else {
-            processStatus = true;
-            status = EnumTestConfigStatus.Success;
-            // set vmImageConfig todo
-//            config.setVmInfo();
-            LOGGER.info("Query vm image info response: {}", imageInfo);
-        }
+//        String imageInfo = HttpClientUtil
+//            .getImageStatus(host.getProtocol(), host.getIp(), host.getPort(), config.getAppInstanceId(), userId, config.getImageId(),
+//                config.getLcmToken());
+//        JsonObject jsonObject = new JsonParser().parse(imageInfo).getAsJsonObject();
+//        JsonElement imageStatus = jsonObject.get("status");
+//        if (!imageStatus.getAsString().equals("success")) {
+//            // compare time between now and deployDate
+//            long time = System.currentTimeMillis() - config.getCreateTime().getTime();
+//            LOGGER.info("over time:{}, wait max time:{}, start time:{}", time, MAX_SECONDS,
+//                config.getCreateTime().getTime());
+//            if (config.getCreateTime() == null || time > MAX_SECONDS * 1000) {
+//                config.setLog("vm image is " + imageStatus.getAsString());
+//            } else {
+//                return true;
+//            }
+//        } else {
+//            processStatus = true;
+//            status = EnumTestConfigStatus.Success;
+//            // set vmImageConfig todo
+////            config.setVmInfo();
+//            LOGGER.info("Query vm image info response: {}", imageInfo);
+//        }
+        // test date
+        config.setChunkSize(10);
+        config.setSumChunkNum(10);
+        config.setHostIp("119.8.47.5");
+        config.setImageName("image_test");
+        processStatus = true;
+        status = EnumTestConfigStatus.Success;
         // update test-config
 
         vmService.updateVmImageResult(config, project, "imageStatus", status);

@@ -190,8 +190,8 @@ public class VmController {
         @ApiResponse(code = 200, message = "OK", response = Boolean.class),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
-    @RequestMapping(value = "/project/{projectId}/vm/image", method = RequestMethod.POST,
-        consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @RequestMapping(value = "/projects/{projectId}/vm/image", method = RequestMethod.POST,
+        produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<Boolean> importVmImage(
         @Pattern(regexp = REGEX_UUID, message = "projectId must be in UUID format")
@@ -212,17 +212,15 @@ public class VmController {
         @ApiResponse(code = 200, message = "OK", response = VmImageConfig.class),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
-    @RequestMapping(value = "/projects/{projectId}/vm/{vmId}/image", method = RequestMethod.GET, consumes = MediaType.APPLICATION_JSON_UTF8_VALUE,
+    @RequestMapping(value = "/projects/{projectId}/vm/image", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<VmImageConfig> getVmImage(
         @Pattern(regexp = REGEX_UUID, message = "projectId must be in UUID format")
         @ApiParam(value = "projectId", required = true) @PathVariable("projectId") String projectId,
-        @Pattern(regexp = REGEX_UUID, message = "vmId must be in UUID format")
-        @ApiParam(value = "vmId", required = true) @PathVariable("vmId") String vmId,
         @Pattern(regexp = REGEX_UUID, message = "userId must be in UUID format")
         @ApiParam(value = "userId", required = true) @RequestParam("userId") String userId) {
-        Either<FormatRespDto, VmImageConfig> either = vmService.getVmImage(userId, projectId, vmId);
+        Either<FormatRespDto, VmImageConfig> either = vmService.getVmImage(userId, projectId);
         return ResponseDataUtil.buildResponse(either);
     }
 
@@ -234,19 +232,17 @@ public class VmController {
         @ApiResponse(code = 200, message = "OK", response = Boolean.class),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
-    @RequestMapping(value = "/projects/{projectId}/vm/{vmId}/image", method = RequestMethod.DELETE,
+    @RequestMapping(value = "/projects/{projectId}/vm/image", method = RequestMethod.DELETE,
         produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<Boolean> deleteVmImage(
         @Pattern(regexp = REGEX_UUID, message = "projectId must be in UUID format")
         @ApiParam(value = "projectId") @PathVariable("projectId") String projectId,
-        @Pattern(regexp = REGEX_UUID, message = "vmId must be in UUID format")
-        @ApiParam(value = "vmId") @PathVariable("vmId") String vmId,
         @Pattern(regexp = REGEX_UUID, message = "userId must be in UUID format")
         @ApiParam(value = "userId") @RequestParam("userId") String userId,
         HttpServletRequest request) {
         String token = request.getHeader(Consts.ACCESS_TOKEN_STR);
-        Either<FormatRespDto, Boolean> either = vmService.deleteVmImage(userId, projectId, vmId, token);
+        Either<FormatRespDto, Boolean> either = vmService.deleteVmImage(userId, projectId, token);
         return ResponseDataUtil.buildResponse(either);
     }
 

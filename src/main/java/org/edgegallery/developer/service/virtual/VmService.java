@@ -287,8 +287,8 @@ public class VmService {
             return Either.left(new FormatRespDto(Response.Status.BAD_REQUEST, "Delete vm create config failed."));
         }
         String projectPath = getProjectPath(projectId);
-        DeveloperFileUtils.deleteDir(projectPath + File.separator + vmCreateConfig.getAppInstanceId());
-        DeveloperFileUtils.deleteDir(projectPath + File.separator + vmCreateConfig.getAppInstanceId() + ".csar");
+        DeveloperFileUtils.deleteDir(projectPath + vmCreateConfig.getAppInstanceId());
+        DeveloperFileUtils.deleteDir(projectPath + vmCreateConfig.getAppInstanceId() + ".csar");
 
         LOGGER.info("delete vm create config success");
         return Either.right(true);
@@ -398,7 +398,7 @@ public class VmService {
         }
         boolean productUpdate = false;
         LOGGER.info("get downloadImageInfo status:{}, stage:{}", stageStatus, stage);
-        if (EnumTestConfigStatus.Success.equals(stageStatus) && "setDownloadImageInfo".equalsIgnoreCase(stage)) {
+        if (EnumTestConfigStatus.Success.equals(stageStatus) && "DownloadImageInfo".equalsIgnoreCase(stage)) {
             productUpdate = true;
             project.setStatus(EnumProjectStatus.DEPLOYED);
             config.setLog("vm image import success");
@@ -487,13 +487,14 @@ public class VmService {
 
         VmImageConfig vmImageConfig = new VmImageConfig();
         vmImageConfig.setVmId(vmCreateConfig.getVmId());
+        vmImageConfig.setVmName(vmCreateConfig.getVmName());
         vmImageConfig.setAppInstanceId(vmCreateConfig.getAppInstanceId());
         vmImageConfig.setLcmToken(token);
         vmImageConfig.setProjectId(projectId);
         vmImageConfig.setStatus(EnumVmImportStatus.CREATING);
         VmImportStageStatus stageStatus = new VmImportStageStatus();
         vmImageConfig.setStageStatus(stageStatus);
-        int tes = vmConfigMapper.saveVmImageConfig(vmCreateConfig);
+        int tes = vmConfigMapper.saveVmImageConfig(vmImageConfig);
         if (tes < 1) {
             LOGGER.error("create vm config {} failed.", vmCreateConfig.getVmId());
         }
@@ -501,7 +502,7 @@ public class VmService {
 
     }
 
-    public Either<FormatRespDto, VmImageConfig> getVmImage(String userId, String projectId, String vmId) {
+    public Either<FormatRespDto, VmImageConfig> getVmImage(String userId, String projectId) {
         ApplicationProject project = projectMapper.getProject(userId, projectId);
         if (project == null) {
             LOGGER.error("Can not find the project by userId {} and projectId {}", userId, projectId);
@@ -509,27 +510,44 @@ public class VmService {
             return Either.left(error);
         }
 
-        VmImageConfig vmImageConfig = vmConfigMapper.getVmImage(projectId, vmId);
+        List<VmCreateConfig> vmCreateConfigs = vmConfigMapper.getVmCreateConfigs(projectId);
+        if (CollectionUtils.isEmpty(vmCreateConfigs)) {
+            LOGGER.error("Can not find the vm create config by projectId {}", projectId);
+            FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "Can not find the vm config.");
+            return Either.left(error);
+        }
+        VmCreateConfig vmCreateConfig = vmCreateConfigs.get(0);
+
+        VmImageConfig vmImageConfig = vmConfigMapper.getVmImage(projectId, vmCreateConfig.getVmId());
         return Either.right(vmImageConfig);
     }
 
-    public Either<FormatRespDto, Boolean> deleteVmImage(String userId, String projectId, String vmId, String token) {
+    public Either<FormatRespDto, Boolean> deleteVmImage(String userId, String projectId, String token) {
         ApplicationProject project = projectMapper.getProjectById(projectId);
         if (project == null) {
             LOGGER.error("Can not find the project projectId {}", projectId);
             FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "Can not find the project.");
             return Either.left(error);
         }
+        List<VmCreateConfig> vmCreateConfigs = vmConfigMapper.getVmCreateConfigs(projectId);
+        if (CollectionUtils.isEmpty(vmCreateConfigs)) {
+            LOGGER.error("Can not find the vm create config by projectId {}", projectId);
+            FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "Can not find the vm config.");
+            return Either.left(error);
+        }
+        VmCreateConfig vmCreateConfig = vmCreateConfigs.get(0);
 
-        LOGGER.info("Get project information success");
-        VmImageConfig vmImageConfig = vmConfigMapper.getVmImage(projectId, vmId);
+        LOGGER.info("Get vm create information success");
+        VmImageConfig vmImageConfig = vmConfigMapper.getVmImage(projectId, vmCreateConfig.getVmId());
         if (vmImageConfig==null) {
-            LOGGER.info("Can not find the vm image config by vmId {} and projectId {}", vmId, projectId);
+            LOGGER.info("Can not find the vm image config by vmId {} and projectId {}", vmCreateConfig.getVmId(), projectId);
             return Either.right(true);
         }
-        int res = vmConfigMapper.deleteVmImage(projectId, vmId);
+        // delete lcm image todo
+
+        int res = vmConfigMapper.deleteVmImage(projectId, vmCreateConfig.getVmId());
         if (res<1) {
-            LOGGER.error("Delete vm image config {} failed.", vmId);
+            LOGGER.error("Delete vm image config {} failed.", vmCreateConfig.getVmId());
             return Either.left(new FormatRespDto(Response.Status.BAD_REQUEST, "Delete vm image config failed."));
         }
         String projectPath = getProjectPath(projectId);
