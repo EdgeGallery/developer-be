@@ -333,7 +333,7 @@ public class VmService {
         File file = null;
         try {
             String originalFilename = multipartFile.getOriginalFilename();
-            String[] filename = originalFilename.split(".");
+            String[] filename = originalFilename.split("\\.");
             file=File.createTempFile(filename[0], filename[1]);
             multipartFile.transferTo(file);
             file.deleteOnExit();

@@ -150,7 +150,7 @@ public class VmController {
         @Pattern(regexp = REGEX_UUID, message = "userId must be in UUID format")
         @ApiParam(value = "userId", required = true) @RequestParam("userId") String userId,
         @Pattern(regexp = REGEX_UUID, message = "vmId must be in UUID format")
-        @ApiParam(value = "vmId", required = true) @RequestParam("vmId") String vmId) throws IOException {
+        @ApiParam(value = "vmId", required = true) @PathVariable("vmId") String vmId) throws IOException {
         Either<FormatRespDto, Boolean> either = vmService.uploadFileToVm(userId, projectId, vmId, uploadFile);
         return ResponseDataUtil.buildResponse(either);
 
@@ -165,7 +165,7 @@ public class VmController {
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
     @RequestMapping(value = "/projects/{projectId}/vm/{vmId}/package", method = RequestMethod.POST,
-        consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
+        produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<byte[]> getSampleCode(
         @Pattern(regexp = REGEX_UUID, message = "projectId must be in UUID format")
