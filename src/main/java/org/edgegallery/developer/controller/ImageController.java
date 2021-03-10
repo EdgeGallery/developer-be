@@ -71,16 +71,16 @@ public class ImageController {
     @Value("${upload.tempPath}")
     private String filePathTemp;
 
-    @Value("${imagelocation.domainname}")
+    @Value("${imagelocation.domainname:}")
     private String devRepoEndpoint;
 
-    @Value("${imagelocation.username}")
+    @Value("${imagelocation.username:}")
     private String devRepoUsername;
 
-    @Value("${imagelocation.password}")
+    @Value("${imagelocation.password:}")
     private String devRepoPassword;
 
-    @Value("${imagelocation.project}")
+    @Value("${imagelocation.project:}")
     private String devRepoProject;
 
     /**
