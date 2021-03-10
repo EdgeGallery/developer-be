@@ -37,10 +37,12 @@ RUN mkdir -p /usr/app/lib
 # Create an app user so our program doesn't run as root.
 RUN apk update &&\
     apk add shadow &&\
-    groupadd -r -g $GID $GROUP_NAME &&\
-    useradd -r -u $UID -g $GID -d $APP_HOME -s /sbin/nologin -c "Docker image user" $USER_NAME
-
+    groupadd -r -g $GID $GROUP_NAME
+   # useradd -r -u $UID -g $GID -d $APP_HOME -s /sbin/nologin -c "Docker image user" $USER_NAME
+   # useradd -r -u $UID -G $GROUP_NAME,docker -d $APP_HOME -s /sbin/nologin -c "Docker image user" $USER_NAME
 RUN apk add docker
+
+RUN useradd -r -u $UID -G $GROUP_NAME,docker -d $APP_HOME -s /sbin/nologin -c "Docker image user" $USER_NAME
 
 WORKDIR $APP_HOME
 
