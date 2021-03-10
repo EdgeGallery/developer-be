@@ -217,10 +217,11 @@ public class ImageController {
 
             //push image
             try {
-                AuthConfig authConfig = new AuthConfig().withUsername(devRepoUsername).withPassword(devRepoUsername)
-                    .withRegistryAddress("https://" + devRepoEndpoint + "/developer");
-                dockerClient.pushImageCmd(uploadImgName).withTag("latest").withAuthConfig(authConfig)
-                    .exec(new PushImageResultCallback()).awaitCompletion();
+                LOGGER.warn("endpoint: {}",devRepoEndpoint);
+                LOGGER.warn("username: {}",devRepoUsername);
+                LOGGER.warn("password: {}",devRepoPassword);
+                LOGGER.warn("project: {}",devRepoProject);
+                dockerClient.pushImageCmd(uploadImgName).exec(new PushImageResultCallback()).awaitCompletion();
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 LOGGER.error("failed to push image {}", e.getMessage());
