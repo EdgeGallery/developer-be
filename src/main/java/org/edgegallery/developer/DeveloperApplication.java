@@ -58,7 +58,7 @@ public class DeveloperApplication {
                 }
             }
         };
-        SSLContext sc = SSLContext.getInstance("TLSv1.2");
+        SSLContext sc = SSLContext.getInstance("SSL");
         sc.init(null, trustAllCerts, new java.security.SecureRandom());
         HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
         HttpsURLConnection.setDefaultHostnameVerifier(NoopHostnameVerifier.INSTANCE);
