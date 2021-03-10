@@ -17,6 +17,7 @@
 package org.edgegallery.developer.controller;
 
 import com.github.dockerjava.api.DockerClient;
+import com.github.dockerjava.api.model.AuthConfig;
 import com.github.dockerjava.api.model.Image;
 import com.github.dockerjava.core.DefaultDockerClientConfig;
 import com.github.dockerjava.core.DockerClientBuilder;
@@ -216,11 +217,10 @@ public class ImageController {
 
             //push image
             try {
-                // AuthConfig authConfig = new AuthConfig().withUsername(devRepoUsername).withPassword(devRepoUsername)
-                //     .withRegistryAddress("https://" + devRepoEndpoint + "/developer/");
-                // config.set
-                dockerClient.pushImageCmd(uploadImgName).exec(new PushImageResultCallback())
-                    .awaitCompletion();
+                AuthConfig authConfig = new AuthConfig().withUsername(devRepoUsername).withPassword(devRepoUsername)
+                    .withRegistryAddress("https://" + devRepoEndpoint + "/developer");
+                dockerClient.pushImageCmd(uploadImgName).withTag("latest").withAuthConfig(authConfig)
+                    .exec(new PushImageResultCallback()).awaitCompletion();
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 LOGGER.error("failed to push image {}", e.getMessage());
