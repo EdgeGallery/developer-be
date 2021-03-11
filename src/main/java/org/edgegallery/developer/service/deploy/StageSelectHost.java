@@ -78,13 +78,8 @@ public class StageSelectHost implements IConfigDeployStage {
                 config.setErrorLog("Cannot find enabledHosts");
             } else {
                 processSuccess = true;
+                enabledHosts.get(0).setPassword("");
                 config.setHosts(enabledHosts.subList(0, 1));
-                MepHost host = enabledHosts.get(0);
-                host.setStatus(EnumHostStatus.BUSY);
-                int res = hostMapper.updateHostSelected(host);
-                if (res < 1) {
-                    LOGGER.error("modify host status fail");
-                }
                 hostStatus = EnumTestConfigStatus.Success;
             }
         }

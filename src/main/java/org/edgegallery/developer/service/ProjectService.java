@@ -40,6 +40,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.edgegallery.developer.common.Consts;
 import org.edgegallery.developer.config.security.AccessUserUtil;
 import org.edgegallery.developer.mapper.HelmTemplateYamlMapper;
+import org.edgegallery.developer.mapper.HostLogMapper;
 import org.edgegallery.developer.mapper.HostMapper;
 import org.edgegallery.developer.mapper.OpenMepCapabilityMapper;
 import org.edgegallery.developer.mapper.ProjectImageMapper;
@@ -59,6 +60,7 @@ import org.edgegallery.developer.model.workspace.EnumTestConfigDeployStatus;
 import org.edgegallery.developer.model.workspace.EnumTestConfigStatus;
 import org.edgegallery.developer.model.workspace.HelmTemplateYamlPo;
 import org.edgegallery.developer.model.workspace.MepHost;
+import org.edgegallery.developer.model.workspace.MepHostLog;
 import org.edgegallery.developer.model.workspace.OpenMepCapabilityDetail;
 import org.edgegallery.developer.model.workspace.OpenMepCapabilityGroup;
 import org.edgegallery.developer.model.workspace.ProjectImageConfig;
@@ -128,6 +130,9 @@ public class ProjectService {
 
     @Autowired
     private ProjectImageMapper projectImageMapper;
+
+    @Autowired
+    private HostLogMapper hostLogMapper;
 
     /**
      * getAllProjects.
@@ -984,13 +989,9 @@ public class ProjectService {
             deleteDeployApp(testConfig, project.getUserId(), token);
 
         }
-        // modify host status
-        Type type = new TypeToken<List<MepHost>>() { }.getType();
-        List<MepHost> hosts = gson.fromJson(gson.toJson(testConfig.getHosts()), type);
-        if (!CollectionUtils.isEmpty(hosts)) {
-            hosts.get(0).setStatus(EnumHostStatus.NORMAL);
-            hostMapper.updateHostSelected(hosts.get(0));
-        }
+
+        // modify host status save host logs
+        modifyHostStatus(testConfig,project, "terminate");
 
         // init project and config
         testConfig.initialConfig();
@@ -1009,6 +1010,37 @@ public class ProjectService {
         }
         LOGGER.info("Update test config {} status to Deleted success", testConfig.getTestId());
         return Either.right(true);
+    }
+
+    private Boolean modifyHostStatus(ProjectTestConfig testConfig, ApplicationProject project, String operation) {
+        Type type = new TypeToken<List<MepHost>>() { }.getType();
+        List<MepHost> hosts = gson.fromJson(gson.toJson(testConfig.getHosts()), type);
+        if (!CollectionUtils.isEmpty(hosts)) {
+            MepHost host = hostMapper.getHost(hosts.get(0).getHostId());
+            host.setStatus(EnumHostStatus.NORMAL);
+            hostMapper.updateHostSelected(hosts.get(0));
+        }
+        MepHost host = hosts.get(0);
+        // save host logs
+        MepHostLog mepHostLog = new MepHostLog();
+        mepHostLog.setAppInstancesId(testConfig.getAppInstanceId());
+        SimpleDateFormat time = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+        mepHostLog.setDeployTime(time.format(new Date()));
+        mepHostLog.setHostId(host.getHostId());
+        mepHostLog.setHostIp(host.getIp());
+        mepHostLog.setLogId(UUID.randomUUID().toString());
+        mepHostLog.setUserId(project.getUserId());
+        mepHostLog.setProjectId(project.getId());
+        mepHostLog.setProjectName(project.getName());
+        mepHostLog.setAppInstancesId(testConfig.getAppInstanceId());
+        mepHostLog.setStatus(host.getStatus());
+        mepHostLog.setOperation(operation);
+        int res = hostLogMapper.insert(mepHostLog);
+        if(res < 1) {
+            LOGGER.error("save host logs error");
+            return false;
+        }
+        return true;
     }
 
     /**
@@ -1040,6 +1072,10 @@ public class ProjectService {
         }
         boolean productUpdate = false;
         LOGGER.info("get workStatus status:{}, stage:{}", stageStatus, stage);
+        if (EnumTestConfigStatus.Success.equals(stageStatus) && "hostInfo".equalsIgnoreCase(stage)) {
+            // modify host status save host logs
+            modifyHostStatus(testConfig,project, "instantiate");
+        }
         if (EnumTestConfigStatus.Success.equals(stageStatus) && "workStatus".equalsIgnoreCase(stage)) {
             productUpdate = true;
             project.setStatus(EnumProjectStatus.DEPLOYED);
