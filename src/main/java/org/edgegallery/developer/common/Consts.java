@@ -30,6 +30,9 @@ public final class Consts {
     public static final String APP_LCM_GET_WORKLOAD_STATUS_URL
         = "/lcmcontroller/v1/tenants/tenantId/app_instances/appInstanceId";
 
+    public static final String APP_LCM_GET_WORKLOAD_EVENTS_URL
+        = "/lcmcontroller/v1/tenants/tenantId/app_instances/appInstanceId/workload/event";
+
     public static final String APP_LCM_GET_IMAGE_STATUS_URL
         = "/lcmcontroller/v1/tenants/tenantId/app_instances/appInstanceId/images/imageId";
 

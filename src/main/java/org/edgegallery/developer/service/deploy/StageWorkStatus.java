@@ -21,6 +21,10 @@ import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
 import java.util.List;
 import org.edgegallery.developer.mapper.ProjectMapper;
+import org.edgegallery.developer.model.deployyaml.PodEvents;
+import org.edgegallery.developer.model.deployyaml.PodEventsRes;
+import org.edgegallery.developer.model.deployyaml.PodStatusInfo;
+import org.edgegallery.developer.model.deployyaml.PodStatusInfos;
 import org.edgegallery.developer.model.workspace.ApplicationProject;
 import org.edgegallery.developer.model.workspace.EnumTestConfigStatus;
 import org.edgegallery.developer.model.workspace.MepHost;
@@ -31,6 +35,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 /**
  * StageWorkStatus.
@@ -68,7 +73,10 @@ public class StageWorkStatus implements IConfigDeployStage {
         String workStatus = HttpClientUtil
             .getWorkloadStatus(host.getProtocol(), host.getIp(), host.getPort(), config.getAppInstanceId(), userId,
                 config.getLcmToken());
-        if (workStatus == null) {
+        String workEvents = HttpClientUtil
+            .getWorkloadEvents(host.getProtocol(), host.getIp(), host.getPort(), config.getAppInstanceId(), userId,
+                config.getLcmToken());
+        if (workStatus == null || workEvents == null) {
             // compare time between now and deployDate
             long time = System.currentTimeMillis() - config.getDeployDate().getTime();
             LOGGER.info("over time:{}, wait max time:{}, start time:{}", time, MAX_SECONDS,
@@ -83,12 +91,37 @@ public class StageWorkStatus implements IConfigDeployStage {
         } else {
             processStatus = true;
             status = EnumTestConfigStatus.Success;
-            config.setPods(workStatus);
+            //merge workStatus and workEvents
+            String pods = mergeStatusAndEvents(workStatus, workEvents);
+            config.setPods(pods);
             LOGGER.info("Query workload status response: {}", workStatus);
         }
         // update test-config
         projectService.updateDeployResult(config, project, "workStatus", status);
         return processStatus;
+    }
+
+    private String mergeStatusAndEvents(String workStatus, String workEvents) {
+        Gson gson = new Gson();
+        Type type = new TypeToken<PodStatusInfos>() { }.getType();
+        PodStatusInfos status = gson.fromJson(workStatus, type);
+
+        Type typeEvents = new TypeToken<PodEventsRes>() { }.getType();
+        PodEventsRes events = gson.fromJson(workEvents, typeEvents);
+        String pods = "";
+        if(!CollectionUtils.isEmpty(status.getPods())&&!CollectionUtils.isEmpty(events.getPods())){
+            List<PodStatusInfo> statusInfos = status.getPods();
+            List<PodEvents> eventsInfos = events.getPods();
+            for(int i=0;i<statusInfos.size();i++){
+                 for(int j=0;j<eventsInfos.size();j++){
+                     if(statusInfos.get(i).getPodname().equals(eventsInfos.get(i).getPodName())){
+                         statusInfos.get(i).setPodEventsInfo(eventsInfos.get(i).getPodEventsInfo());
+                     }
+                 }
+            }
+            pods = gson.toJson(status);
+        }
+        return pods;
     }
 
     @Override

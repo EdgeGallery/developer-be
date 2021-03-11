@@ -146,6 +146,35 @@ public final class HttpClientUtil {
     }
 
     /**
+     * getWorkloadStatus.
+     *
+     * @return String
+     */
+    public static String getWorkloadEvents(String protocol, String ip, int port, String appInstanceId, String userId,
+        String token) {
+        String url = getUrlPrefix(protocol, ip, port) + Consts.APP_LCM_GET_WORKLOAD_EVENTS_URL
+            .replaceAll("appInstanceId", appInstanceId).replaceAll("tenantId", userId);
+        LOGGER.info("work event url is {}", url);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.set(Consts.ACCESS_TOKEN_STR, token);
+        ResponseEntity<String> response;
+        try {
+            response = REST_TEMPLATE.exchange(url, HttpMethod.GET, new HttpEntity<>(headers), String.class);
+        } catch (RestClientException e) {
+            LOGGER.error("Failed to get workload events which appInstanceId is {} exception {}", appInstanceId,
+                e.getMessage());
+            return null;
+        }
+        if (response.getStatusCode() == HttpStatus.OK) {
+            return response.getBody();
+        }
+        LOGGER.error("Failed to get workload events which appInstanceId is {}", appInstanceId);
+        return null;
+    }
+
+
+    /**
      * getHealth.
      */
     public static String getHealth(String ip, int port) {
