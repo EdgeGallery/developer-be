@@ -70,6 +70,11 @@ public class StageWorkStatus implements IConfigDeployStage {
         Type type = new TypeToken<List<MepHost>>() { }.getType();
         List<MepHost> hosts = gson.fromJson(gson.toJson(config.getHosts()), type);
         MepHost host = hosts.get(0);
+        try {
+            Thread.sleep(20000);
+        } catch (InterruptedException e) {
+            LOGGER.error("sleep fail! {}", e.getMessage());
+        }
         String workStatus = HttpClientUtil
             .getWorkloadStatus(host.getProtocol(), host.getIp(), host.getPort(), config.getAppInstanceId(), userId,
                 config.getLcmToken());
@@ -109,15 +114,15 @@ public class StageWorkStatus implements IConfigDeployStage {
         Type typeEvents = new TypeToken<PodEventsRes>() { }.getType();
         PodEventsRes events = gson.fromJson(workEvents, typeEvents);
         String pods = "";
-        if(!CollectionUtils.isEmpty(status.getPods())&&!CollectionUtils.isEmpty(events.getPods())){
+        if (!CollectionUtils.isEmpty(status.getPods()) && !CollectionUtils.isEmpty(events.getPods())) {
             List<PodStatusInfo> statusInfos = status.getPods();
             List<PodEvents> eventsInfos = events.getPods();
-            for(int i=0;i<statusInfos.size();i++){
-                 for(int j=0;j<eventsInfos.size();j++){
-                     if(statusInfos.get(i).getPodname().equals(eventsInfos.get(i).getPodName())){
-                         statusInfos.get(i).setPodEventsInfo(eventsInfos.get(i).getPodEventsInfo());
-                     }
-                 }
+            for (int i = 0; i < statusInfos.size(); i++) {
+                for (int j = 0; j < eventsInfos.size(); j++) {
+                    if (statusInfos.get(i).getPodname().equals(eventsInfos.get(i).getPodName())) {
+                        statusInfos.get(i).setPodEventsInfo(eventsInfos.get(i).getPodEventsInfo());
+                    }
+                }
             }
             pods = gson.toJson(status);
         }
