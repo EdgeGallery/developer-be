@@ -39,5 +39,8 @@ public interface HostLogMapper {
     @ResultType(MepHostLog.class)
     List<MepHostLog> getHostLogByHostId(@Param("hostId") String hostId);
 
+    @Insert("insert into tbl_host_log(log_id,host_ip,user_name,user_id,project_id,project_name,app_instances_id,deploy_time,host_id,status,operation)" +
+            "values (#{logId} ,#{hostIp} ,#{userName} ,#{userId} ,#{projectId} ,#{projectName} ,#{appInstancesId} ,#{deployTime} ,#{hostId} ,#{status} ,#{operation} )")
+    int insert(MepHostLog hostLog);
 }
 
