@@ -48,6 +48,7 @@ import org.edgegallery.developer.mapper.ProjectMapper;
 import org.edgegallery.developer.mapper.ReleaseConfigMapper;
 import org.edgegallery.developer.mapper.UploadedFileMapper;
 import org.edgegallery.developer.model.CapabilitiesDetail;
+import org.edgegallery.developer.model.LcmLog;
 import org.edgegallery.developer.model.ReleaseConfig;
 import org.edgegallery.developer.model.ServiceDetail;
 import org.edgegallery.developer.model.atp.AtpResultInfo;
@@ -502,30 +503,30 @@ public class ProjectService {
         // Note(ch) only ip?
         testConfig.setAccessUrl(host.getIp());
         // upload pkg
+        LcmLog lcmLog = new LcmLog();
         boolean uploadRes = HttpClientUtil
-            .uploadPkg(host.getProtocol(), host.getIp(), host.getPort(), csar.getPath(), userId, token, testConfig);
-
-        // distribute pkg
-        boolean distributeRes = HttpClientUtil
-            .distributePkg(host.getProtocol(), host.getIp(), host.getPort(), userId, token, testConfig);
-
-        // instantiate application
-        boolean instantRes = HttpClientUtil
-            .instantiateApplication(host.getProtocol(), host.getIp(), host.getPort(), appInstanceId, userId, token,
-                projectName, testConfig);
-
-        // delete hosts
-        boolean deleteHostRes = HttpClientUtil
-            .deleteHost(host.getProtocol(), host.getIp(), host.getPort(), userId, token, testConfig, host.getIp());
-
-        // delete pkg
-        boolean deletePkgRes = HttpClientUtil
-            .deletePkg(host.getProtocol(), host.getIp(), host.getPort(), userId, token, testConfig);
-
-        if (!uploadRes || !distributeRes || !instantRes || !deleteHostRes || !deletePkgRes) {
+            .uploadPkg(host.getProtocol(), host.getIp(), host.getPort(), csar.getPath(), userId, token, appInstanceId, lcmLog);
+        if (!uploadRes) {
+            testConfig.setErrorLog(lcmLog.getLog());
             return false;
         }
 
+        // distribute pkg
+        boolean distributeRes = HttpClientUtil
+            .distributePkg(host.getProtocol(), host.getIp(), host.getPort(), userId, token, appInstanceId, lcmLog);
+
+        if (!distributeRes) {
+            testConfig.setErrorLog(lcmLog.getLog());
+            return false;
+        }
+        // instantiate application
+        boolean instantRes = HttpClientUtil
+            .instantiateApplication(host.getProtocol(), host.getIp(), host.getPort(), appInstanceId, userId, token,
+                projectName, lcmLog);
+        if (!instantRes) {
+            testConfig.setErrorLog(lcmLog.getLog());
+            return false;
+        }
         return true;
     }
 
@@ -1008,6 +1009,7 @@ public class ProjectService {
             return Either.right(true);
         }
 
+
         if (testConfig.getDeployStatus().equals(EnumTestConfigDeployStatus.SUCCESS)) {
             deleteDeployApp(testConfig, project.getUserId(), token);
 
@@ -1248,10 +1250,23 @@ public class ProjectService {
      */
     private boolean deleteDeployApp(ProjectTestConfig testConfig, String userId, String token) {
         String workloadId = testConfig.getWorkLoadId();
+        String appInstanceId = testConfig.getAppInstanceId();
         Type type = new TypeToken<List<MepHost>>() { }.getType();
         List<MepHost> hosts = gson.fromJson(gson.toJson(testConfig.getHosts()), type);
         MepHost host = hosts.get(0);
-        return HttpClientUtil
+        // delete hosts
+        boolean deleteHostRes = HttpClientUtil
+            .deleteHost(host.getProtocol(), host.getIp(), host.getPort(), userId, token, appInstanceId, host.getIp());
+
+        // delete pkg
+        boolean deletePkgRes = HttpClientUtil
+            .deletePkg(host.getProtocol(), host.getIp(), host.getPort(), userId, token, appInstanceId);
+
+        boolean terminateApp = HttpClientUtil
             .terminateAppInstance(host.getProtocol(), host.getIp(), host.getPort(), workloadId, userId, token);
+        if (!terminateApp || !deleteHostRes || !deletePkgRes) {
+            return false;
+        }
+        return true;
     }
 }
