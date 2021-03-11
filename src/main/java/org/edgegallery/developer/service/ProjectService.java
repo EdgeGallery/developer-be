@@ -467,11 +467,11 @@ public class ProjectService {
             ChartFileCreator chartFileCreator = new ChartFileCreator(projectName);
             chartFileCreator.setChartName(projectName);
             if (mepCapability == null || mepCapability.isEmpty()) {
-                chartFileCreator.setChartValues("false", "false", "default",
-                    configMapName, imageDomainName, imageProject);
+                chartFileCreator
+                    .setChartValues("false", "false", "default", configMapName, imageDomainName, imageProject);
             } else {
-                chartFileCreator.setChartValues("true", "false", "default",
-                    configMapName, imageDomainName, imageProject);
+                chartFileCreator
+                    .setChartValues("true", "false", "default", configMapName, imageDomainName, imageProject);
             }
             //stop
             yamlPoList.forEach(helmTemplateYamlPo -> chartFileCreator
@@ -501,9 +501,32 @@ public class ProjectService {
         MepHost host = hosts.get(0);
         // Note(ch) only ip?
         testConfig.setAccessUrl(host.getIp());
-        return HttpClientUtil
-            .instantiateApplication(host.getProtocol(), host.getIp(), host.getPort(), csar.getPath(), appInstanceId,
-                userId, token, projectName, testConfig);
+        // upload pkg
+        boolean uploadRes = HttpClientUtil
+            .uploadPkg(host.getProtocol(), host.getIp(), host.getPort(), csar.getPath(), userId, token, testConfig);
+
+        // distribute pkg
+        boolean distributeRes = HttpClientUtil
+            .distributePkg(host.getProtocol(), host.getIp(), host.getPort(), userId, token, testConfig);
+
+        // instantiate application
+        boolean instantRes = HttpClientUtil
+            .instantiateApplication(host.getProtocol(), host.getIp(), host.getPort(), appInstanceId, userId, token,
+                projectName, testConfig);
+
+        // delete hosts
+        boolean deleteHostRes = HttpClientUtil
+            .deleteHost(host.getProtocol(), host.getIp(), host.getPort(), userId, token, testConfig, host.getIp());
+
+        // delete pkg
+        boolean deletePkgRes = HttpClientUtil
+            .deletePkg(host.getProtocol(), host.getIp(), host.getPort(), userId, token, testConfig);
+
+        if (!uploadRes || !distributeRes || !instantRes || !deleteHostRes || !deletePkgRes) {
+            return false;
+        }
+
+        return true;
     }
 
     /**
@@ -991,7 +1014,7 @@ public class ProjectService {
         }
 
         // modify host status save host logs
-        modifyHostStatus(testConfig,project, "terminate");
+        modifyHostStatus(testConfig, project, "terminate");
 
         // init project and config
         testConfig.initialConfig();
@@ -1036,7 +1059,7 @@ public class ProjectService {
         mepHostLog.setStatus(host.getStatus());
         mepHostLog.setOperation(operation);
         int res = hostLogMapper.insert(mepHostLog);
-        if(res < 1) {
+        if (res < 1) {
             LOGGER.error("save host logs error");
             return false;
         }
@@ -1074,7 +1097,7 @@ public class ProjectService {
         LOGGER.info("get workStatus status:{}, stage:{}", stageStatus, stage);
         if (EnumTestConfigStatus.Success.equals(stageStatus) && "hostInfo".equalsIgnoreCase(stage)) {
             // modify host status save host logs
-            modifyHostStatus(testConfig,project, "instantiate");
+            modifyHostStatus(testConfig, project, "instantiate");
         }
         if (EnumTestConfigStatus.Success.equals(stageStatus) && "workStatus".equalsIgnoreCase(stage)) {
             productUpdate = true;
@@ -1095,15 +1118,15 @@ public class ProjectService {
                     String[] svcNodePorts = svcPort.substring(1, svcPort.length() - 1).split(",");
                     for (String svc : svcNodePorts) {
                         String node = "http://" + host.getIp() + ":" + svc;
-                        sb.append(node+",");
+                        sb.append(node + ",");
                     }
                 } else {
                     String svcPort = imageConfig.getSvcNodePort();
                     String node = "http://" + host.getIp() + ":" + svcPort.substring(1, svcPort.length() - 1);
-                    sb.append(node+",");
+                    sb.append(node + ",");
                 }
                 LOGGER.warn("sb:" + sb.toString());
-                testConfig.setAccessUrl(sb.toString().substring(0,sb.toString().length()-1));
+                testConfig.setAccessUrl(sb.toString().substring(0, sb.toString().length() - 1));
             }
 
         } else if (EnumTestConfigStatus.Failed.equals(stageStatus)) {
