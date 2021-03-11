@@ -52,6 +52,7 @@ import org.edgegallery.developer.model.ServiceDetail;
 import org.edgegallery.developer.model.atp.AtpResultInfo;
 import org.edgegallery.developer.model.workspace.ApplicationProject;
 import org.edgegallery.developer.model.workspace.EnumDeployPlatform;
+import org.edgegallery.developer.model.workspace.EnumHostStatus;
 import org.edgegallery.developer.model.workspace.EnumOpenMepType;
 import org.edgegallery.developer.model.workspace.EnumProjectStatus;
 import org.edgegallery.developer.model.workspace.EnumTestConfigDeployStatus;
@@ -981,7 +982,16 @@ public class ProjectService {
 
         if (testConfig.getDeployStatus().equals(EnumTestConfigDeployStatus.SUCCESS)) {
             deleteDeployApp(testConfig, project.getUserId(), token);
+
         }
+        // modify host status
+        Type type = new TypeToken<List<MepHost>>() { }.getType();
+        List<MepHost> hosts = gson.fromJson(gson.toJson(testConfig.getHosts()), type);
+        if (!CollectionUtils.isEmpty(hosts)) {
+            hosts.get(0).setStatus(EnumHostStatus.NORMAL);
+            hostMapper.updateHostSelected(hosts.get(0));
+        }
+
         // init project and config
         testConfig.initialConfig();
         project.initialProject();

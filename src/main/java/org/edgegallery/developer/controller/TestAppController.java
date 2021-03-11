@@ -187,8 +187,7 @@ public class TestAppController {
     public ResponseEntity<String> uploadToAppStore(
         @Pattern(regexp = REGEX_UUID, message = "appId must be in UUID format") @PathVariable("appId") String appId,
         @Pattern(regexp = REGEX_UUID, message = "userId must be in UUID format")
-        @RequestParam(value = "userId", required = true) String userId, @Pattern(regexp = REGEX_USERNAME,
-        message = "username can only be a combination of letters and numbers, the length is 6 to 30")
+        @RequestParam(value = "userId", required = true) String userId,
         @RequestParam(value = "userName", required = true) String userName,
         HttpServletRequest request) {
         String token = request.getHeader(Consts.ACCESS_TOKEN_STR);
