@@ -39,7 +39,7 @@ public class MepHostLog {
 
     private String deployTime;
 
-    private String status;
+    private EnumHostStatus status;
 
     private String operation;
 
