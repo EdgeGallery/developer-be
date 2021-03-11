@@ -16,6 +16,9 @@
 
 package org.edgegallery.developer.util;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import org.edgegallery.developer.common.Consts;
 import org.edgegallery.developer.exception.CustomException;
 import org.edgegallery.developer.model.vm.VmCreateConfig;
@@ -34,9 +37,6 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 
 public final class HttpClientUtil {
 
@@ -53,10 +53,10 @@ public final class HttpClientUtil {
      *
      * @return InstantiateAppResult
      */
-    public static boolean instantiateApplication(String protocol, String ip, int port, String filePath,
-                                                 String appInstanceId, String userId, String token, String projectName, ProjectTestConfig testConfig) {
+    public static boolean instantiateApplication(String protocol, String ip, int port, String appInstanceId,
+        String userId, String token, String projectName, ProjectTestConfig testConfig) {
         MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
-        body.add("file", new FileSystemResource(filePath));
+        // body.add("file", new FileSystemResource(filePath));
         body.add("hostIp", ip);
         body.add("appName", projectName);
         body.add("packageId", "");
@@ -75,7 +75,7 @@ public final class HttpClientUtil {
             e.printStackTrace();
             String errorLog = e.getBody();
             LOGGER.error("Failed to instantiate application which appInstanceId is {} exception {}", appInstanceId,
-                    errorLog);
+                errorLog);
             testConfig.setErrorLog(errorLog);
             return false;
         } catch (RestClientException e) {
@@ -87,6 +87,132 @@ public final class HttpClientUtil {
             return true;
         }
         LOGGER.error("Failed to instantiate application which appInstanceId is {}", appInstanceId);
+        return false;
+    }
+
+    /**
+     * upload pkg.
+     */
+    public static boolean uploadPkg(String protocol, String ip, int port, String filePath, String userId, String token,
+        ProjectTestConfig testConfig) {
+        MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
+        body.add("package", new FileSystemResource(filePath));
+        body.add("packageId", testConfig.getAppInstanceId());
+        body.add("appId", testConfig.getAppInstanceId());
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+        headers.set(Consts.ACCESS_TOKEN_STR, token);
+        HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
+        String url = getUrlPrefix(protocol, ip, port) + Consts.APP_LCM_UPLOAD_APPPKG_URL.replaceAll("tenantId", userId);
+        ResponseEntity<String> response;
+        try {
+            REST_TEMPLATE.setErrorHandler(new CustomResponseErrorHandler());
+            response = REST_TEMPLATE.exchange(url, HttpMethod.POST, requestEntity, String.class);
+            LOGGER.info("APPlCM upload pkg log:{}", response);
+        } catch (CustomException e) {
+            e.printStackTrace();
+            String errorLog = e.getBody();
+            LOGGER.error("Failed upload pkg appInstanceId  {} exception {}", testConfig.getAppInstanceId(), errorLog);
+            testConfig.setErrorLog(errorLog);
+            return false;
+        } catch (RestClientException e) {
+            LOGGER.error("Failed upload pkg appInstanceId is {} exception {}", testConfig.getAppInstanceId(),
+                e.getMessage());
+            return false;
+        }
+        if (response.getStatusCode() == HttpStatus.OK) {
+            return true;
+        }
+        LOGGER.error("Failed to upload pkg which appInstanceId is {}", testConfig.getAppInstanceId());
+        return false;
+    }
+
+    /**
+     * distribute pkg.
+     */
+    public static boolean distributePkg(String protocol, String ip, int port, String userId, String token,
+        ProjectTestConfig testConfig) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.set(Consts.ACCESS_TOKEN_STR, token);
+        HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(null, headers);
+        String url = getUrlPrefix(protocol, ip, port) + Consts.APP_LCM_DISTRIBUTE_APPPKG_URL
+            .replaceAll("tenantId", userId).replaceAll("packageId", testConfig.getAppInstanceId());
+        ResponseEntity<String> response;
+        try {
+            REST_TEMPLATE.setErrorHandler(new CustomResponseErrorHandler());
+            response = REST_TEMPLATE.exchange(url, HttpMethod.POST, requestEntity, String.class);
+            LOGGER.info("APPlCM distribute pkg log:{}", response);
+        } catch (CustomException e) {
+            e.printStackTrace();
+            String errorLog = e.getBody();
+            LOGGER
+                .error("Failed distribute pkg appInstanceId  {} exception {}", testConfig.getAppInstanceId(), errorLog);
+            testConfig.setErrorLog(errorLog);
+            return false;
+        } catch (RestClientException e) {
+            LOGGER.error("Failed distribute pkg appInstanceId is {} exception {}", testConfig.getAppInstanceId(),
+                e.getMessage());
+            return false;
+        }
+        if (response.getStatusCode() == HttpStatus.OK) {
+            return true;
+        }
+        LOGGER.error("Failed to distribute pkg which appInstanceId is {}", testConfig.getAppInstanceId());
+        return false;
+    }
+
+    /**
+     * delete host.
+     */
+    public static boolean deleteHost(String protocol, String ip, int port, String userId, String token,
+        ProjectTestConfig testConfig, String hostIp) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.set(Consts.ACCESS_TOKEN_STR, token);
+        HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(null, headers);
+        String url = getUrlPrefix(protocol, ip, port) + Consts.APP_LCM_DELETE_HOST_URL.replaceAll("tenantId", userId)
+            .replaceAll("packageId", testConfig.getAppInstanceId()).replaceAll("hostIp", hostIp);
+        ResponseEntity<String> response;
+        try {
+            response = REST_TEMPLATE.exchange(url, HttpMethod.DELETE, requestEntity, String.class);
+            LOGGER.info("APPlCM delete host log:{}", response);
+        } catch (RestClientException e) {
+            LOGGER.error("Failed delete host appInstanceId is {} exception {}", testConfig.getAppInstanceId(),
+                e.getMessage());
+            return false;
+        }
+        if (response.getStatusCode() == HttpStatus.OK) {
+            return true;
+        }
+        LOGGER.error("Failed to delete host which appInstanceId is {}", testConfig.getAppInstanceId());
+        return false;
+    }
+
+    /**
+     * delete pkg.
+     */
+    public static boolean deletePkg(String protocol, String ip, int port, String userId, String token,
+        ProjectTestConfig testConfig) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.set(Consts.ACCESS_TOKEN_STR, token);
+        HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(null, headers);
+        String url = getUrlPrefix(protocol, ip, port) + Consts.APP_LCM_DELETE_APPPKG_URL.replaceAll("tenantId", userId)
+            .replaceAll("packageId", testConfig.getAppInstanceId());
+        ResponseEntity<String> response;
+        try {
+            response = REST_TEMPLATE.exchange(url, HttpMethod.DELETE, requestEntity, String.class);
+            LOGGER.info("APPlCM delete pkg log:{}", response);
+        } catch (RestClientException e) {
+            LOGGER.error("Failed delete pkg appInstanceId is {} exception {}", testConfig.getAppInstanceId(),
+                e.getMessage());
+            return false;
+        }
+        if (response.getStatusCode() == HttpStatus.OK) {
+            return true;
+        }
+        LOGGER.error("Failed to delete pkg which appInstanceId is {}", testConfig.getAppInstanceId());
         return false;
     }
 
@@ -173,7 +299,6 @@ public final class HttpClientUtil {
         return null;
     }
 
-
     /**
      * getHealth.
      */
@@ -240,7 +365,8 @@ public final class HttpClientUtil {
         return false;
     }
 
-    public static boolean vmInstantiateImage(String protocol, String ip, int port, String userId, VmImageConfig imageConfig) {
+    public static boolean vmInstantiateImage(String protocol, String ip, int port, String userId,
+        VmImageConfig imageConfig) {
         String appInstanceId = imageConfig.getAppInstanceId();
         MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
         body.add("vmId", imageConfig.getVmId());
@@ -261,8 +387,7 @@ public final class HttpClientUtil {
         } catch (CustomException e) {
             e.printStackTrace();
             String errorLog = e.getBody();
-            LOGGER.error("Failed to create vm image  which appInstanceId is {} exception {}", appInstanceId,
-                errorLog);
+            LOGGER.error("Failed to create vm image  which appInstanceId is {} exception {}", appInstanceId, errorLog);
             imageConfig.setLog(errorLog);
             return false;
         } catch (RestClientException e) {
@@ -281,8 +406,7 @@ public final class HttpClientUtil {
     public static String getImageStatus(String protocol, String ip, int port, String appInstanceId, String userId,
         String imageId, String lcmToken) {
         String url = getUrlPrefix(protocol, ip, port) + Consts.APP_LCM_GET_IMAGE_STATUS_URL
-            .replaceAll("appInstanceId", appInstanceId).replaceAll("tenantId", userId)
-            .replaceAll("imageId", imageId);
+            .replaceAll("appInstanceId", appInstanceId).replaceAll("tenantId", userId).replaceAll("imageId", imageId);
         LOGGER.info("url is {}", url);
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -291,8 +415,7 @@ public final class HttpClientUtil {
         try {
             response = REST_TEMPLATE.exchange(url, HttpMethod.GET, new HttpEntity<>(headers), String.class);
         } catch (RestClientException e) {
-            LOGGER.error("Failed to get image status which imageId is {} exception {}", imageId,
-                e.getMessage());
+            LOGGER.error("Failed to get image status which imageId is {} exception {}", imageId, e.getMessage());
             return null;
         }
         if (response.getStatusCode() == HttpStatus.OK) {
@@ -303,7 +426,8 @@ public final class HttpClientUtil {
 
     }
 
-    public static boolean downloadVmImage(String protocol, String ip, int port, String userId, String packagePath, VmImageConfig config) {
+    public static boolean downloadVmImage(String protocol, String ip, int port, String userId, String packagePath,
+        VmImageConfig config) {
 
         String url = getUrlPrefix(protocol, ip, port) + Consts.APP_LCM_GET_IMAGE_DOWNLOAD_URL
             .replaceAll("appInstanceId", config.getAppInstanceId()).replaceAll("tenantId", userId)
@@ -312,7 +436,7 @@ public final class HttpClientUtil {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.set(Consts.ACCESS_TOKEN_STR, config.getLcmToken());
-//        headers.set(Consts.CHUNK_NUM, config.getSumChunkNum());
+        //        headers.set(Consts.CHUNK_NUM, config.getSumChunkNum());
         // download images
         ResponseEntity<String> response;
         try {
@@ -323,7 +447,6 @@ public final class HttpClientUtil {
             return false;
         }
         return true;
-
 
     }
 }
