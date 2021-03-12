@@ -336,9 +336,7 @@ public class SystemService {
         } catch (Exception e) {
             LOGGER.error("Failed to upload file lcm, exception {}", e.getMessage());
             return false;
-        } finally {
-            DeveloperFileUtils.deleteTempFile(new File(configFile));
-        }
+        } 
         if (response.getStatusCode() == HttpStatus.OK) {
             return true;
         }
