@@ -16,15 +16,21 @@
 
 package org.edgegallery.developer.util;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.google.gson.reflect.TypeToken;
+import java.lang.reflect.Type;
+import java.util.List;
 import org.edgegallery.developer.common.Consts;
 import org.edgegallery.developer.exception.CustomException;
 import org.edgegallery.developer.model.LcmLog;
+import org.edgegallery.developer.model.lcm.DistributeBody;
+import org.edgegallery.developer.model.lcm.DistributeResponse;
+import org.edgegallery.developer.model.lcm.InstantRequest;
 import org.edgegallery.developer.model.vm.VmCreateConfig;
 import org.edgegallery.developer.model.vm.VmImageConfig;
-import org.edgegallery.developer.model.workspace.ProjectTestConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.FileSystemResource;
@@ -36,6 +42,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
@@ -55,23 +62,35 @@ public final class HttpClientUtil {
      * @return InstantiateAppResult
      */
     public static boolean instantiateApplication(String protocol, String ip, int port, String appInstanceId,
-        String userId, String token, String projectName, LcmLog lcmLog) {
-        MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
-        // body.add("file", new FileSystemResource(filePath));
-        body.add("hostIp", ip);
-        body.add("appName", projectName);
-        body.add("packageId", "");
+        String userId, String token, LcmLog lcmLog,String pkgId) {
+        //before instantiate ,call distribute result interface
+        String disRes = getDistributeRes(protocol,ip,port,userId,token,pkgId);
+        if(StringUtils.isEmpty(disRes)){
+            LOGGER.error("instantiateApplication get pkg distribute res failed!");
+            return false;
+        }
+        //parse dis res
+        Gson gson = new Gson();
+        Type typeEvents = new TypeToken<List<DistributeResponse>>() { }.getType();
+        List<DistributeResponse> list = gson.fromJson(disRes, typeEvents);
+        String appName = list.get(0).getAppPkgName();
+        //set instantiate headers
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);
         headers.set(Consts.ACCESS_TOKEN_STR, token);
-        HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
+        //set instantiate bodys
+        InstantRequest ins = new InstantRequest();
+        ins.setAppName(appName);
+        ins.setHostIp(ip);
+        ins.setPackageId(pkgId);
+        HttpEntity<String> requestEntity = new HttpEntity<>(gson.toJson(ins), headers);
         String url = getUrlPrefix(protocol, ip, port) + Consts.APP_LCM_INSTANTIATE_APP_URL
             .replaceAll("appInstanceId", appInstanceId).replaceAll("tenantId", userId);
         ResponseEntity<String> response;
         try {
             REST_TEMPLATE.setErrorHandler(new CustomResponseErrorHandler());
             response = REST_TEMPLATE.exchange(url, HttpMethod.POST, requestEntity, String.class);
-            LOGGER.info("APPlCM log:{}", response);
+            LOGGER.info("APPlCM instantiate log:{}", response);
         } catch (CustomException e) {
             e.printStackTrace();
             String errorLog = e.getBody();
@@ -94,72 +113,75 @@ public final class HttpClientUtil {
     /**
      * upload pkg.
      */
-    public static boolean uploadPkg(String protocol, String ip, int port, String filePath, String userId, String token,
-        String appInstanceId, LcmLog lcmLog) {
+    public static String uploadPkg(String protocol, String ip, int port, String filePath, String userId, String token,
+        LcmLog lcmLog) {
         MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
         body.add("package", new FileSystemResource(filePath));
-        body.add("packageId", appInstanceId);
-        body.add("appId",appInstanceId);
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);
         headers.set(Consts.ACCESS_TOKEN_STR, token);
+        headers.set("Origin", "mepm");
         HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
         String url = getUrlPrefix(protocol, ip, port) + Consts.APP_LCM_UPLOAD_APPPKG_URL.replaceAll("tenantId", userId);
         ResponseEntity<String> response;
         try {
             REST_TEMPLATE.setErrorHandler(new CustomResponseErrorHandler());
             response = REST_TEMPLATE.exchange(url, HttpMethod.POST, requestEntity, String.class);
-            LOGGER.info("APPlCM upload pkg log:{}", response);
+            LOGGER.info("APPLCM upload pkg log:{}", response);
         } catch (CustomException e) {
             e.printStackTrace();
             String errorLog = e.getBody();
-            LOGGER.error("Failed upload pkg appInstanceId  {} exception {}", appInstanceId, errorLog);
+            LOGGER.error("Failed upload pkg exception {}", errorLog);
             lcmLog.setLog(errorLog);
-            return false;
+            return null;
         } catch (RestClientException e) {
-            LOGGER.error("Failed upload pkg appInstanceId is {} exception {}", appInstanceId,
-                e.getMessage());
-            return false;
+            LOGGER.error("Failed upload pkg exception {}", e.getMessage());
+            return null;
         }
         if (response.getStatusCode() == HttpStatus.OK) {
-            return true;
+            return response.getBody();
         }
-        LOGGER.error("Failed to upload pkg which appInstanceId is {}", appInstanceId);
-        return false;
+        LOGGER.error("Failed to upload pkg!");
+        return null;
     }
 
     /**
      * distribute pkg.
      */
     public static boolean distributePkg(String protocol, String ip, int port, String userId, String token,
-        String appInstanceId, LcmLog lcmLog) {
+        String packageId, LcmLog lcmLog) {
+        //add body
+        Gson gson = new Gson();
+        DistributeBody body = new DistributeBody();
+        String[] bodys = new String[1];
+        bodys[0] = ip;
+        body.setHostIp(bodys);
+        //add headers
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.set(Consts.ACCESS_TOKEN_STR, token);
-        HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(null, headers);
+        HttpEntity<String> requestEntity = new HttpEntity<>(gson.toJson(body), headers);
         String url = getUrlPrefix(protocol, ip, port) + Consts.APP_LCM_DISTRIBUTE_APPPKG_URL
-            .replaceAll("tenantId", userId).replaceAll("packageId", appInstanceId);
+            .replaceAll("tenantId", userId).replaceAll("packageId", packageId);
         ResponseEntity<String> response;
         try {
             REST_TEMPLATE.setErrorHandler(new CustomResponseErrorHandler());
             response = REST_TEMPLATE.exchange(url, HttpMethod.POST, requestEntity, String.class);
-            LOGGER.info("APPlCM distribute pkg log:{}", response);
+            LOGGER.info("APPLCM distribute pkg log:{}", response);
         } catch (CustomException e) {
             e.printStackTrace();
             String errorLog = e.getBody();
-            LOGGER
-                .error("Failed distribute pkg appInstanceId  {} exception {}", appInstanceId, errorLog);
+            LOGGER.error("Failed distribute pkg packageId  {} exception {}", packageId, errorLog);
             lcmLog.setLog(errorLog);
             return false;
         } catch (RestClientException e) {
-            LOGGER.error("Failed distribute pkg appInstanceId is {} exception {}", appInstanceId,
-                e.getMessage());
+            LOGGER.error("Failed distribute pkg packageId is {} exception {}", packageId, e.getMessage());
             return false;
         }
         if (response.getStatusCode() == HttpStatus.OK) {
             return true;
         }
-        LOGGER.error("Failed to distribute pkg which appInstanceId is {}", appInstanceId);
+        LOGGER.error("Failed to distribute pkg which packageId is {}", packageId);
         return false;
     }
 
@@ -167,26 +189,25 @@ public final class HttpClientUtil {
      * delete host.
      */
     public static boolean deleteHost(String protocol, String ip, int port, String userId, String token,
-        String appInstanceId, String hostIp) {
+        String pkgId, String hostIp) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.set(Consts.ACCESS_TOKEN_STR, token);
         HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(null, headers);
         String url = getUrlPrefix(protocol, ip, port) + Consts.APP_LCM_DELETE_HOST_URL.replaceAll("tenantId", userId)
-            .replaceAll("packageId", appInstanceId).replaceAll("hostIp", hostIp);
+            .replaceAll("packageId", pkgId).replaceAll("hostIp", hostIp);
         ResponseEntity<String> response;
         try {
             response = REST_TEMPLATE.exchange(url, HttpMethod.DELETE, requestEntity, String.class);
             LOGGER.info("APPlCM delete host log:{}", response);
         } catch (RestClientException e) {
-            LOGGER.error("Failed delete host appInstanceId is {} exception {}", appInstanceId,
-                e.getMessage());
+            LOGGER.error("Failed delete host packageId is {} exception {}", pkgId, e.getMessage());
             return false;
         }
         if (response.getStatusCode() == HttpStatus.OK) {
             return true;
         }
-        LOGGER.error("Failed to delete host which appInstanceId is {}", appInstanceId);
+        LOGGER.error("Failed to delete host which packageId is {}", pkgId);
         return false;
     }
 
@@ -194,27 +215,52 @@ public final class HttpClientUtil {
      * delete pkg.
      */
     public static boolean deletePkg(String protocol, String ip, int port, String userId, String token,
-        String appInstanceId) {
+        String pkgId) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.set(Consts.ACCESS_TOKEN_STR, token);
         HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(null, headers);
         String url = getUrlPrefix(protocol, ip, port) + Consts.APP_LCM_DELETE_APPPKG_URL.replaceAll("tenantId", userId)
-            .replaceAll("packageId", appInstanceId);
+            .replaceAll("packageId", pkgId);
         ResponseEntity<String> response;
         try {
             response = REST_TEMPLATE.exchange(url, HttpMethod.DELETE, requestEntity, String.class);
             LOGGER.info("APPlCM delete pkg log:{}", response);
         } catch (RestClientException e) {
-            LOGGER.error("Failed delete pkg appInstanceId is {} exception {}", appInstanceId,
-                e.getMessage());
+            LOGGER.error("Failed delete pkg pkgId is {} exception {}", pkgId, e.getMessage());
             return false;
         }
         if (response.getStatusCode() == HttpStatus.OK) {
             return true;
         }
-        LOGGER.error("Failed to delete pkg which appInstanceId is {}", appInstanceId);
+        LOGGER.error("Failed to delete pkg which pkgId is {}", pkgId);
         return false;
+    }
+
+    /**
+     * get distribute result.
+     */
+    public static String getDistributeRes(String protocol, String ip, int port, String userId, String token,
+        String pkgId) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.set(Consts.ACCESS_TOKEN_STR, token);
+        HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(null, headers);
+        String url = getUrlPrefix(protocol, ip, port) + Consts.APP_LCM_DISTRIBUTE_APPPKG_URL
+            .replaceAll("tenantId", userId).replaceAll("packageId", pkgId);
+        ResponseEntity<String> response;
+        try {
+            response = REST_TEMPLATE.exchange(url, HttpMethod.GET, requestEntity, String.class);
+            LOGGER.info("APPlCM get distribute res log:{}", response);
+        } catch (RestClientException e) {
+            LOGGER.error("Failed get distribute res pkgId is {} exception {}", pkgId, e.getMessage());
+            return null;
+        }
+        if (response.getStatusCode() == HttpStatus.OK) {
+            return response.getBody();
+        }
+        LOGGER.error("Failed to get distribute result!");
+        return null;
     }
 
     /**
