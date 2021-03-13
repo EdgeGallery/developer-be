@@ -111,6 +111,7 @@ public class SystemService {
             return Either.left(dto);
         }
         if (StringUtils.isNotBlank(host.getConfigId())) {
+            uploadedFileMapper.updateFileStatus(host.getConfigId(), false);
             // upload file
             UploadedFile uploadedFile = uploadedFileMapper.getFileById(host.getConfigId());
             boolean uploadRes = uploadFileToLcm(host.getIp(), host.getPort(), uploadedFile.getFilePath(), token);
@@ -317,11 +318,11 @@ public class SystemService {
      */
     private boolean uploadFileToLcm(String hostIp, int port, String filePath, String token) {
         File file = new File(filePath);
-        String configFile = InitConfigUtil.getWorkSpaceBaseDir() + BusinessConfigUtil.getUploadfilesPath() + "config";
-        file.renameTo(new File(configFile));
+//        String configFile = InitConfigUtil.getWorkSpaceBaseDir() + BusinessConfigUtil.getUploadfilesPath() + "config";
+//        file.renameTo(new File(configFile));
         RestTemplate restTemplate = RestTemplateBuilder.create();
         MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
-        body.add("configFile", new FileSystemResource(configFile));
+        body.add("configFile", new FileSystemResource(file));
         body.add("hostIp", hostIp);
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);
@@ -336,7 +337,7 @@ public class SystemService {
         } catch (Exception e) {
             LOGGER.error("Failed to upload file lcm, exception {}", e.getMessage());
             return false;
-        } 
+        }
         if (response.getStatusCode() == HttpStatus.OK) {
             return true;
         }
