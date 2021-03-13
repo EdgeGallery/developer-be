@@ -52,6 +52,7 @@ import org.edgegallery.developer.model.LcmLog;
 import org.edgegallery.developer.model.ReleaseConfig;
 import org.edgegallery.developer.model.ServiceDetail;
 import org.edgegallery.developer.model.atp.AtpResultInfo;
+import org.edgegallery.developer.model.lcm.UploadResponse;
 import org.edgegallery.developer.model.workspace.ApplicationProject;
 import org.edgegallery.developer.model.workspace.EnumDeployPlatform;
 import org.edgegallery.developer.model.workspace.EnumHostStatus;
@@ -504,16 +505,21 @@ public class ProjectService {
         testConfig.setAccessUrl(host.getIp());
         // upload pkg
         LcmLog lcmLog = new LcmLog();
-        boolean uploadRes = HttpClientUtil
-            .uploadPkg(host.getProtocol(), host.getIp(), host.getPort(), csar.getPath(), userId, token, appInstanceId, lcmLog);
-        if (!uploadRes) {
+        String uploadRes = HttpClientUtil
+            .uploadPkg(host.getProtocol(), host.getIp(), host.getPort(), csar.getPath(), userId, token, lcmLog);
+        if (org.springframework.util.StringUtils.isEmpty(uploadRes)) {
             testConfig.setErrorLog(lcmLog.getLog());
             return false;
         }
-
+        Gson gson = new Gson();
+        Type typeEvents = new TypeToken<UploadResponse>() { }.getType();
+        UploadResponse uploadResponse = gson.fromJson(uploadRes, typeEvents);
+        String pkgId = uploadResponse.getPackageId();
+        testConfig.setPackageId(pkgId);
+        projectMapper.updateTestConfig(testConfig);
         // distribute pkg
         boolean distributeRes = HttpClientUtil
-            .distributePkg(host.getProtocol(), host.getIp(), host.getPort(), userId, token, appInstanceId, lcmLog);
+            .distributePkg(host.getProtocol(), host.getIp(), host.getPort(), userId, token, pkgId, lcmLog);
 
         if (!distributeRes) {
             testConfig.setErrorLog(lcmLog.getLog());
@@ -522,7 +528,7 @@ public class ProjectService {
         // instantiate application
         boolean instantRes = HttpClientUtil
             .instantiateApplication(host.getProtocol(), host.getIp(), host.getPort(), appInstanceId, userId, token,
-                projectName, lcmLog);
+                lcmLog, pkgId);
         if (!instantRes) {
             testConfig.setErrorLog(lcmLog.getLog());
             return false;
@@ -1009,7 +1015,6 @@ public class ProjectService {
             return Either.right(true);
         }
 
-
         if (testConfig.getDeployStatus().equals(EnumTestConfigDeployStatus.SUCCESS)) {
             deleteDeployApp(testConfig, project.getUserId(), token);
 
@@ -1250,17 +1255,16 @@ public class ProjectService {
      */
     private boolean deleteDeployApp(ProjectTestConfig testConfig, String userId, String token) {
         String workloadId = testConfig.getWorkLoadId();
-        String appInstanceId = testConfig.getAppInstanceId();
         Type type = new TypeToken<List<MepHost>>() { }.getType();
         List<MepHost> hosts = gson.fromJson(gson.toJson(testConfig.getHosts()), type);
         MepHost host = hosts.get(0);
         // delete hosts
         boolean deleteHostRes = HttpClientUtil
-            .deleteHost(host.getProtocol(), host.getIp(), host.getPort(), userId, token, appInstanceId, host.getIp());
+            .deleteHost(host.getProtocol(), host.getIp(), host.getPort(), userId, token, testConfig.getPackageId(), host.getIp());
 
         // delete pkg
         boolean deletePkgRes = HttpClientUtil
-            .deletePkg(host.getProtocol(), host.getIp(), host.getPort(), userId, token, appInstanceId);
+            .deletePkg(host.getProtocol(), host.getIp(), host.getPort(), userId, token, testConfig.getPackageId());
 
         boolean terminateApp = HttpClientUtil
             .terminateAppInstance(host.getProtocol(), host.getIp(), host.getPort(), workloadId, userId, token);

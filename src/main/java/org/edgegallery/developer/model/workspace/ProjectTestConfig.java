@@ -115,6 +115,8 @@ public class ProjectTestConfig {
 
     private String accessUrl;
 
+    private String packageId;
+
     /**
      * get next stage for deploy.
      */

@@ -58,6 +58,7 @@
         <result property="workLoadId" column="work_load_id"/>
         <result property="appInstanceId" column="app_instance_id"/>
         <result property="lcmToken" column="lcm_token"/>
+        <result property="packageId" column="package_id"/>
     </resultMap>
 
     <insert id="save" parameterType="org.edgegallery.developer.model.workspace.ApplicationProject">
@@ -86,7 +87,8 @@
         #{userId},
         last_test_id = #{lastTestId}, capabilities =
         #{capabilityList, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonCollectionTypeHandler},
-        industries = #{industry, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonCollectionTypeHandler},
+        industries =
+        #{industry, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonCollectionTypeHandler},
         open_capability_id = #{openCapabilityId}, deploy_platform = #{deployPlatform}
         WHERE
         id = #{id}
@@ -133,7 +135,8 @@
 
     <insert id="saveTestConfig" parameterType="org.edgegallery.developer.model.workspace.ProjectTestConfig">
         insert into
-        tbl_project_test_config (test_id, project_id, app_api_file_id, deploy_file_id, private_host, platform, agent_config, image_file_id, hosts)
+        tbl_project_test_config (test_id, project_id, app_api_file_id, deploy_file_id, private_host, platform,
+        agent_config, image_file_id, hosts)
         values
         ( #{testId}, #{projectId}, #{appApiFileId}, #{deployFileId}, #{privateHost}, #{platform},
         #{agentConfig, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonTypeHandler},
@@ -176,11 +179,16 @@
         #{agentConfig, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonTypeHandler},
         image_file_id =
         #{imageFileIds, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonCollectionTypeHandler},
-        app_api_file_id = #{appApiFileId}, deploy_file_id = #{deployFileId}, private_host = #{privateHost}, platform = #{platform},
+        app_api_file_id = #{appApiFileId}, deploy_file_id = #{deployFileId}, private_host = #{privateHost}, platform =
+        #{platform},
         hosts = #{hosts, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonCollectionTypeHandler},
-        stage_status = #{stageStatus, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonTypeHandler}, access_url = #{accessUrl}, error_log = #{errorLog}, deploy_date = #{deployDate},
+        stage_status =
+        #{stageStatus, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonTypeHandler}, access_url
+        = #{accessUrl}, error_log = #{errorLog}, deploy_date = #{deployDate},
         pods = #{pods},
-        app_instance_id = #{appInstanceId}, work_load_id = #{workLoadId}, deploy_status = #{deployStatus}, lcm_token = #{lcmToken}
+        app_instance_id = #{appInstanceId}, work_load_id = #{workLoadId}, deploy_status = #{deployStatus}, lcm_token =
+        #{lcmToken},
+        package_id = #{packageId}
         WHERE
         test_id = #{testId}
     </update>
