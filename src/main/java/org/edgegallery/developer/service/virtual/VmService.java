@@ -18,6 +18,8 @@ import org.apache.commons.net.ftp.FTPClient;
 import org.edgegallery.developer.common.Consts;
 import org.edgegallery.developer.mapper.ProjectMapper;
 import org.edgegallery.developer.mapper.VmConfigMapper;
+import org.edgegallery.developer.model.LcmLog;
+import org.edgegallery.developer.model.lcm.UploadResponse;
 import org.edgegallery.developer.model.vm.EnumVmCreateStatus;
 import org.edgegallery.developer.model.vm.EnumVmImportStatus;
 import org.edgegallery.developer.model.vm.VmCreateConfig;
@@ -32,6 +34,7 @@ import org.edgegallery.developer.model.vm.VmResource;
 import org.edgegallery.developer.model.vm.VmSystem;
 import org.edgegallery.developer.model.workspace.ApplicationProject;
 import org.edgegallery.developer.model.workspace.EnumProjectStatus;
+import org.edgegallery.developer.model.workspace.EnumTestConfigDeployStatus;
 import org.edgegallery.developer.model.workspace.EnumTestConfigStatus;
 import org.edgegallery.developer.model.workspace.MepHost;
 import org.edgegallery.developer.response.FormatRespDto;
@@ -53,6 +56,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
 import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.google.gson.reflect.TypeToken;
 import com.spencerwi.either.Either;
 
@@ -226,16 +232,62 @@ public class VmService {
 
 
     public boolean createVmToAppLcm(File csar, ApplicationProject project, VmCreateConfig vmConfig, String userId, String lcmToken) {
-        String projectName = project.getName().replaceAll(Consts.PATTERN, "").toLowerCase();
         String appInstanceId = vmConfig.getAppInstanceId();
         Type type = new TypeToken<MepHost>() { }.getType();
         MepHost host = gson.fromJson(gson.toJson(vmConfig.getHost()), type);
-        return HttpClientUtil
-            .vmInstantiateApplication(host.getProtocol(), host.getIp(), host.getPort(), csar.getPath(), appInstanceId,
-                userId, projectName, vmConfig);
+
+        // upload pkg
+        LcmLog lcmLog = new LcmLog();
+        String uploadRes = HttpClientUtil
+            .uploadPkg(host.getProtocol(), host.getIp(), host.getPort(), csar.getPath(), userId, lcmToken, lcmLog);
+        if (org.springframework.util.StringUtils.isEmpty(uploadRes)) {
+            vmConfig.setLog(lcmLog.getLog());
+            return false;
+        }
+        Gson gson = new Gson();
+        Type typeEvents = new TypeToken<UploadResponse>() { }.getType();
+        UploadResponse uploadResponse = gson.fromJson(uploadRes, typeEvents);
+        String pkgId = uploadResponse.getPackageId();
+        vmConfig.setPackageId(pkgId);
+        vmConfigMapper.updateVmCreateConfig(vmConfig);
+
+        // distribute pkg
+        boolean distributeRes = HttpClientUtil
+            .distributePkg(host.getProtocol(), host.getIp(), host.getPort(), userId, lcmToken, pkgId, lcmLog);
+        if (!distributeRes) {
+            vmConfig.setLog(lcmLog.getLog());
+            return false;
+        }
+        // instantiate application
+        boolean instantRes = HttpClientUtil
+            .instantiateApplication(host.getProtocol(), host.getIp(), host.getPort(), appInstanceId, userId, lcmToken,
+                lcmLog, pkgId);
+        if (!instantRes) {
+            vmConfig.setLog(lcmLog.getLog());
+            return false;
+        }
+
+        return true;
     }
 
-    private void deleteVmCreate(VmCreateConfig testConfig, String userId, String lcmToken) {
+    private boolean deleteVmCreate(VmCreateConfig vmConfig, String userId, String lcmToken) {
+        String appInstanceId = vmConfig.getAppInstanceId();
+        Type type = new TypeToken<List<MepHost>>() { }.getType();
+        MepHost host = gson.fromJson(gson.toJson(vmConfig.getHost()), type);
+        // delete hosts
+        boolean deleteHostRes = HttpClientUtil
+            .deleteHost(host.getProtocol(), host.getIp(), host.getPort(), userId, lcmToken, vmConfig.getPackageId(), host.getIp());
+
+        // delete pkg
+        boolean deletePkgRes = HttpClientUtil
+            .deletePkg(host.getProtocol(), host.getIp(), host.getPort(), userId, lcmToken, vmConfig.getPackageId());
+
+        boolean terminateApp = HttpClientUtil
+            .terminateAppInstance(host.getProtocol(), host.getIp(), host.getPort(), appInstanceId, userId, lcmToken);
+        if (!terminateApp || !deleteHostRes || !deletePkgRes) {
+            return false;
+        }
+        return true;
     }
 
     public Either<FormatRespDto, List<VmCreateConfig>> getCreateVm(String userId, String projectId) {
@@ -269,16 +321,8 @@ public class VmService {
             return Either.right(true);
         }
 
-        if(EnumTestConfigStatus.Success.equals(vmCreateConfig.getStageStatus().getInstantiateInfo())) {
-            Type type = new TypeToken<MepHost>() { }.getType();
-            MepHost host = gson.fromJson(gson.toJson(vmCreateConfig.getHost()), type);
-            boolean terminateResult = HttpClientUtil
-                .terminateAppInstance(host.getProtocol(), host.getIp(), host.getPort(), vmCreateConfig.getAppInstanceId(),
-                    userId, token);
-            if (!terminateResult) {
-                LOGGER.error("Failed to terminate vm which userId is: {}, instanceId is {}", userId,
-                    vmCreateConfig.getAppInstanceId());
-            }
+        if (vmCreateConfig.getStageStatus().getHostInfo().equals(EnumTestConfigStatus.Success)) {
+            deleteVmCreate(vmCreateConfig, project.getUserId(), token);
         }
 
         int res = vmConfigMapper.deleteVmCreateConfig(projectId, vmId);
@@ -560,10 +604,22 @@ public class VmService {
     }
 
     public boolean createVmImageToAppLcm(MepHost host, VmImageConfig imageConfig, String userId) {
+        String vmId = imageConfig.getVmId();
+        String appInstanceId = imageConfig.getAppInstanceId();
+        String lcmToken = imageConfig.getLcmToken();
+        LcmLog lcmLog = new LcmLog();
 
-        return HttpClientUtil
-            .vmInstantiateImage(host.getProtocol(), host.getIp(), host.getPort(),
-                userId, imageConfig);
+        String imageResult = HttpClientUtil.vmInstantiateImage(host.getProtocol(), host.getIp(), host.getPort(),
+            userId, lcmToken, vmId, appInstanceId, lcmLog);
+        if (StringUtils.isEmpty(imageResult)) {
+            imageConfig.setLog(lcmLog.getLog());
+            return false;
+        }
+        JsonObject jsonObject = new JsonParser().parse(imageResult).getAsJsonObject();
+        JsonElement imageId = jsonObject.get("imageId");
+        imageConfig.setImageId(imageId.getAsString());
+        imageConfig.setLog("Create vm image success");
+        return true;
     }
 }
 

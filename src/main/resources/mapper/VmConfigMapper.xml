@@ -78,6 +78,7 @@
         <result property="vmInfo" column="vm_info"
           typeHandler="org.edgegallery.developer.model.handler.JsonCollectionTypeHandler"/>
         <result property="appInstanceId" column="app_instance_id"/>
+        <result property="packageId" column="package_id"/>
         <result property="createTime" column="create_time"/>
         <result property="log" column="log"/>
     </resultMap>
@@ -158,7 +159,7 @@
         #{host, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonTypeHandler},
         lcm_token = #{lcmToken},
         vm_info = #{vmInfo, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonTypeHandler},
-        create_time = #{createTime}, log = #{log}
+        create_time = #{createTime}, package_id = #{packageId}, log = #{log}
         WHERE
         vm_id = #{vmId}
     </update>

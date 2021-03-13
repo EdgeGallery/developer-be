@@ -1015,7 +1015,7 @@ public class ProjectService {
             return Either.right(true);
         }
 
-        if (testConfig.getDeployStatus().equals(EnumTestConfigDeployStatus.SUCCESS)) {
+        if (testConfig.getStageStatus().getHostInfo().equals(EnumTestConfigStatus.Success)) {
             deleteDeployApp(testConfig, project.getUserId(), token);
 
         }

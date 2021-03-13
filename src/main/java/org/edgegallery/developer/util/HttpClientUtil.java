@@ -412,14 +412,13 @@ public final class HttpClientUtil {
         return false;
     }
 
-    public static boolean vmInstantiateImage(String protocol, String ip, int port, String userId,
-        VmImageConfig imageConfig) {
-        String appInstanceId = imageConfig.getAppInstanceId();
+    public static String vmInstantiateImage(String protocol, String ip, int port, String userId, String lcmToken,
+        String vmId, String appInstanceId, LcmLog lcmLog) {
         MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
-        body.add("vmId", imageConfig.getVmId());
+        body.add("vmId", vmId);
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);
-        headers.set(Consts.ACCESS_TOKEN_STR, imageConfig.getLcmToken());
+        headers.set(Consts.ACCESS_TOKEN_STR, lcmToken);
         HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
         String url = getUrlPrefix(protocol, ip, port) + Consts.APP_LCM_INSTANTIATE_IMAGE_URL
             .replaceAll("appInstanceId", appInstanceId).replaceAll("tenantId", userId);
@@ -427,26 +426,26 @@ public final class HttpClientUtil {
         try {
             REST_TEMPLATE.setErrorHandler(new CustomResponseErrorHandler());
             response = REST_TEMPLATE.exchange(url, HttpMethod.POST, requestEntity, String.class);
-            JsonObject jsonObject = new JsonParser().parse(response.getBody()).getAsJsonObject();
-            JsonElement imageId = jsonObject.get("imageId");
-            imageConfig.setImageId(imageId.getAsString());
+//            JsonObject jsonObject = new JsonParser().parse(response.getBody()).getAsJsonObject();
+//            JsonElement imageId = jsonObject.get("imageId");
+//            imageConfig.setImageId(imageId.getAsString());
             LOGGER.info("APPlCM log:{}", response);
         } catch (CustomException e) {
             e.printStackTrace();
             String errorLog = e.getBody();
             LOGGER.error("Failed to create vm image  which appInstanceId is {} exception {}", appInstanceId, errorLog);
-            imageConfig.setLog(errorLog);
-            return false;
+            lcmLog.setLog(errorLog);
+            return null;
         } catch (RestClientException e) {
             LOGGER.error("Failed to create vm image  which appInstanceId is {} exception {}", appInstanceId,
                 e.getMessage());
-            return false;
+            return null;
         }
         if (response.getStatusCode() == HttpStatus.OK) {
-            return true;
+            return response.getBody();
         }
         LOGGER.error("Failed to create vm image  which appInstanceId is {}", appInstanceId);
-        return false;
+        return null;
 
     }
 

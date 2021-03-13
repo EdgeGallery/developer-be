@@ -38,6 +38,8 @@ public class VmCreateConfig {
 
     private String appInstanceId;
 
+    private String packageId;
+
     private Date createTime;
 
     private String log;
