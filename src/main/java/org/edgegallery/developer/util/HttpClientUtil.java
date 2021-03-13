@@ -280,6 +280,7 @@ public final class HttpClientUtil {
         ResponseEntity<String> response;
         try {
             response = REST_TEMPLATE.exchange(url, HttpMethod.POST, new HttpEntity<>(headers), String.class);
+            LOGGER.info("APPlCM terminateAppInstance log:{}", response);
         } catch (RestClientException e) {
             LOGGER.error("Failed to terminate application which appInstanceId is {} exception {}", appInstanceId,
                 e.getMessage());
