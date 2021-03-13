@@ -1,0 +1,75 @@
+swagger: "2.0"
+info:
+  description: "Use the colorization model to perform coloring inference on the input black and white pictures."
+  version: "2.1-alpine"
+  title: "Apache APISIX"
+
+basePath: "/ascend/v1/colorization"
+tags:
+- name: "AI Colorization"
+  description: "Use the colorization model to perform coloring inference on the input black and white pictures."
+
+schemes:
+- "http"
+paths:
+  /input:
+    post:
+      tags:
+      - "Colorization"
+      summary: "Upload imag to be colorized"
+      description: "Upload imag to be colorized"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "To be colorized image"
+        required: true
+        schema:
+          $ref: "#/definitions/Request"
+      responses:
+        "400":
+          description: "Bad Request"
+        "200":
+          description: "result id"  
+          schema:
+            $ref: "#/definitions/Response"
+  /output/{id}:
+    get:
+      tags:
+      - "Colorization"
+      summary: "Get the output image"
+      description: "Get the output image"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "Output image ID"
+        required: true
+        type: "string"
+
+      responses:
+        "400":
+          description: "Bad Request"
+        "200":
+          description: "Output image"  
+
+definitions:
+  Request:
+    type: "object"
+    properties: 
+      image:
+        type: "string"
+        description: "image to be colorized"
+
+  Response:
+    type: "object"
+    properties: 
+      outputId:
+        type: "string"
+        description: "Output Id to get the file later"

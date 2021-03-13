@@ -1,0 +1,75 @@
+swagger: "2.0"
+info:
+  description: "Use the YOLOv3 model to perform inference on the input images and print the results on the output images."
+  version: "2.1-alpine"
+  title: "Apache APISIX"
+
+basePath: "/ascend/v1/objectDetection"
+tags:
+- name: "Object Detection"
+  description: "Use the YOLOv3 model to perform inference on the input images and print the results on the output images."
+
+schemes:
+- "http"
+paths:
+  /input:
+    post:
+      tags:
+      - "objectDetection"
+      summary: "Upload imag to be detected"
+      description: "Upload imag to be detected"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "To be detected image"
+        required: true
+        schema:
+          $ref: "#/definitions/Request"
+      responses:
+        "400":
+          description: "Bad Request"
+        "200":
+          description: "result id"  
+          schema:
+            $ref: "#/definitions/Response"
+  /output/{id}:
+    get:
+      tags:
+      - "objectDetection"
+      summary: "Get the output image"
+      description: "Get the output image"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "Output image ID"
+        required: true
+        type: "string"
+
+      responses:
+        "400":
+          description: "Bad Request"
+        "200":
+          description: "Output image"  
+
+definitions:
+  Request:
+    type: "object"
+    properties: 
+      image:
+        type: "string"
+        description: "image to be detected"
+
+  Response:
+    type: "object"
+    properties: 
+      outputId:
+        type: "string"
+        description: "Output Id to get the file later"
