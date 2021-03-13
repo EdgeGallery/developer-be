@@ -76,7 +76,7 @@ public final class HttpClientUtil {
         String appName = list.get(0).getAppPkgName();
         //set instantiate headers
         HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+        headers.setContentType(MediaType.APPLICATION_JSON);
         headers.set(Consts.ACCESS_TOKEN_STR, token);
         //set instantiate bodys
         InstantRequest ins = new InstantRequest();
