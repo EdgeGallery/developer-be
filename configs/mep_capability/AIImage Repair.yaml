@@ -1,0 +1,87 @@
+swagger: "2.0"
+info:
+  description: "Repairs ultra-HD images."
+  version: "2.1-alpine"
+  title: "Apache APISIX"
+
+basePath: "/ascend/v1/hifill"
+tags:
+- name: "AI Repair"
+  description: "Repairs ultra-HD images."
+
+schemes:
+- "http"
+paths:
+  /input:
+    post:
+      tags:
+      - "AI Repair"
+      summary: "Upload imag to be repaired"
+      description: "Upload imag to be repaired"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "To be repaired image and area"
+        required: true
+        schema:
+          $ref: "#/definitions/Request"
+      responses:
+        "400":
+          description: "Bad Request"
+        "200":
+          description: "result id"  
+          schema:
+            $ref: "#/definitions/Response"
+  /output/{id}:
+    get:
+      tags:
+      - "AI Repair"
+      summary: "Get the output image"
+      description: "Get the output file"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "Output file ID"
+        required: true
+        type: "string"
+
+      responses:
+        "400":
+          description: "Bad Request"
+        "200":
+          description: "Output file"  
+
+definitions:
+  Request:
+    type: "object"
+    properties: 
+      image:
+        type: "string"
+        description: "image to be repaired"
+      left:
+        type: "integer"
+        description: "Left margin"
+      top:
+        type: "integer"
+        description: "Top margin"
+      width:
+        type: "integer"
+        description: "Width"
+      height:
+        type: "integer"
+        description: "Height"
+
+  Response:
+    type: "object"
+    properties: 
+      outputId:
+        type: "string"
+        description: "Output Id to get the file later"

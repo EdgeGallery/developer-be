@@ -1,0 +1,75 @@
+swagger: "2.0"
+info:
+  description: "Decoding the input jpeg picture, using the Resnet-50 model for classification reasoning after scaling."
+  version: "2.1-alpine"
+  title: "Apache APISIX"
+
+basePath: "/ascend/v1/inferClassification"
+tags:
+- name: "Object Classification"
+  description: "Decoding the input jpeg picture, using the Resnet-50 model for classification reasoning after scaling."
+
+schemes:
+- "http"
+paths:
+  /input:
+    post:
+      tags:
+      - "Classification"
+      summary: "Upload imag to be classified"
+      description: "Upload imag to be classified"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "To be classified image"
+        required: true
+        schema:
+          $ref: "#/definitions/Request"
+      responses:
+        "400":
+          description: "Bad Request"
+        "200":
+          description: "result id"  
+          schema:
+            $ref: "#/definitions/Response"
+  /output/{id}:
+    get:
+      tags:
+      - "Classification"
+      summary: "Get the output image"
+      description: "Get the output image"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "Output image ID"
+        required: true
+        type: "string"
+
+      responses:
+        "400":
+          description: "Bad Request"
+        "200":
+          description: "Output image"  
+
+definitions:
+  Request:
+    type: "object"
+    properties: 
+      image:
+        type: "string"
+        description: "image to be classified"
+
+  Response:
+    type: "object"
+    properties: 
+      outputId:
+        type: "string"
+        description: "Output Id to get the file later"
