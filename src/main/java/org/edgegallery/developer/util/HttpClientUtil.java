@@ -83,9 +83,11 @@ public final class HttpClientUtil {
         ins.setAppName(appName);
         ins.setHostIp(ip);
         ins.setPackageId(pkgId);
+        LOGGER.warn(gson.toJson(ins));
         HttpEntity<String> requestEntity = new HttpEntity<>(gson.toJson(ins), headers);
         String url = getUrlPrefix(protocol, ip, port) + Consts.APP_LCM_INSTANTIATE_APP_URL
             .replaceAll("appInstanceId", appInstanceId).replaceAll("tenantId", userId);
+        LOGGER.warn(url);
         ResponseEntity<String> response;
         try {
             REST_TEMPLATE.setErrorHandler(new CustomResponseErrorHandler());
