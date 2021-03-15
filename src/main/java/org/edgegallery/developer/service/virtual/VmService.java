@@ -68,7 +68,11 @@ public class VmService {
 
     private static final String VMPATH = "/home/developer";
 
-
+    private static final String IMAGE_PATH = "/Image/vmImage";
+    /**
+     * the max time for wait workStatus.
+     */
+    private static final Long MAX_SECONDS = 360L;
     private static Gson gson = new Gson();
 
     @Autowired
@@ -155,11 +159,11 @@ public class VmService {
         LOGGER.info("Update deploy test on stage:{} status: {}", stage, stageStatus);
         // update test config always && update product if necessary
         switch (stage) {
-            case "csar":
-                testConfig.getStageStatus().setCsar(stageStatus);
-                break;
             case "hostInfo":
                 testConfig.getStageStatus().setHostInfo(stageStatus);
+                break;
+            case "csar":
+                testConfig.getStageStatus().setCsar(stageStatus);
                 break;
             case "instantiateInfo":
                 testConfig.getStageStatus().setInstantiateInfo(stageStatus);
@@ -239,7 +243,7 @@ public class VmService {
         // upload pkg
         LcmLog lcmLog = new LcmLog();
         String uploadRes = HttpClientUtil
-            .uploadPkg(host.getProtocol(), host.getIp(), host.getPort(), csar.getPath(), userId, lcmToken, lcmLog);
+            .uploadPkg(host.getProtocol(), host.getLcmIp(), host.getPort(), csar.getPath(), userId, lcmToken, lcmLog);
         if (org.springframework.util.StringUtils.isEmpty(uploadRes)) {
             vmConfig.setLog(lcmLog.getLog());
             return false;
@@ -253,14 +257,14 @@ public class VmService {
 
         // distribute pkg
         boolean distributeRes = HttpClientUtil
-            .distributePkg(host.getProtocol(), host.getIp(), host.getPort(), userId, lcmToken, pkgId, lcmLog);
+            .distributePkg(host.getProtocol(), host.getLcmIp(), host.getPort(), userId, lcmToken, pkgId, lcmLog);
         if (!distributeRes) {
             vmConfig.setLog(lcmLog.getLog());
             return false;
         }
         // instantiate application
         boolean instantRes = HttpClientUtil
-            .instantiateApplication(host.getProtocol(), host.getIp(), host.getPort(), appInstanceId, userId, lcmToken,
+            .instantiateApplication(host.getProtocol(), host.getLcmIp(), host.getPort(), appInstanceId, userId, lcmToken,
                 lcmLog, pkgId);
         if (!instantRes) {
             vmConfig.setLog(lcmLog.getLog());
@@ -276,14 +280,14 @@ public class VmService {
         MepHost host = gson.fromJson(gson.toJson(vmConfig.getHost()), type);
         // delete hosts
         boolean deleteHostRes = HttpClientUtil
-            .deleteHost(host.getProtocol(), host.getIp(), host.getPort(), userId, lcmToken, vmConfig.getPackageId(), host.getIp());
+            .deleteHost(host.getProtocol(), host.getLcmIp(), host.getPort(), userId, lcmToken, vmConfig.getPackageId(), host.getLcmIp());
 
         // delete pkg
         boolean deletePkgRes = HttpClientUtil
-            .deletePkg(host.getProtocol(), host.getIp(), host.getPort(), userId, lcmToken, vmConfig.getPackageId());
+            .deletePkg(host.getProtocol(), host.getLcmIp(), host.getPort(), userId, lcmToken, vmConfig.getPackageId());
 
         boolean terminateApp = HttpClientUtil
-            .terminateAppInstance(host.getProtocol(), host.getIp(), host.getPort(), appInstanceId, userId, lcmToken);
+            .terminateAppInstance(host.getProtocol(), host.getLcmIp(), host.getPort(), appInstanceId, userId, lcmToken);
         if (!terminateApp || !deleteHostRes || !deletePkgRes) {
             return false;
         }
@@ -609,7 +613,7 @@ public class VmService {
         String lcmToken = imageConfig.getLcmToken();
         LcmLog lcmLog = new LcmLog();
 
-        String imageResult = HttpClientUtil.vmInstantiateImage(host.getProtocol(), host.getIp(), host.getPort(),
+        String imageResult = HttpClientUtil.vmInstantiateImage(host.getProtocol(), host.getLcmIp(), host.getPort(),
             userId, lcmToken, vmId, appInstanceId, lcmLog);
         if (StringUtils.isEmpty(imageResult)) {
             imageConfig.setLog(lcmLog.getLog());
@@ -621,5 +625,39 @@ public class VmService {
         imageConfig.setLog("Create vm image success");
         return true;
     }
+
+    public boolean downloadImageResult(MepHost host, VmImageConfig config, String userId) {
+
+        String appInstanceId = config.getAppInstanceId();
+        String imageId = config.getImageId();
+        Integer SumChunkNum = config.getSumChunkNum();
+
+        String packagePath = getProjectPath(config.getProjectId()) + config.getAppInstanceId();
+
+        // download image by lcm url
+//        for(int chunkNum=0; chunkNum < SumChunkNum; chunkNum++) {
+//            boolean downloadImageResult = HttpClientUtil
+//                .downloadVmImage(host.getProtocol(), host.getLcmIp(), host.getPort(), userId, packagePath,
+//                    appInstanceId, imageId, Integer.toString(chunkNum), config.getLcmToken());
+//            if(!downloadImageResult) {
+//                LOGGER.error("download vm image failed.iamgeId:{}", imageId);
+//                return false;
+//            }
+//        }
+
+        //composite image slice
+
+        // generate scar package
+        try {
+            CompressFileUtilsJava.compressToCsarAndDeleteSrc(packagePath,
+                projectService.getProjectPath(config.getProjectId()), config.getAppInstanceId());
+        } catch (IOException e) {
+            LOGGER.error("generate csar failed: occur IOException {}.", e.getMessage());
+            return false;
+        }
+        LOGGER.info("download image success");
+        return true;
+    }
+
 }
 

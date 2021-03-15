@@ -45,7 +45,7 @@ public class VmStageWorkStatus implements VmCreateStage {
         Type type = new TypeToken<MepHost>() { }.getType();
         MepHost host = gson.fromJson(gson.toJson(config.getHost()), type);
 //        String workStatus = HttpClientUtil
-//            .getWorkloadStatus(host.getProtocol(), host.getIp(), host.getPort(), config.getAppInstanceId(), userId,
+//            .getWorkloadStatus(host.getProtocol(), host.getLcmIp(), host.getPort(), config.getAppInstanceId(), userId,
 //                config.getLcmToken());
         String workStatus = "{\"pods\":[{\"podstatus\":\"Running\",\"podname\":\"positioning\",\"containers\":[{\"containername\":\"positioning\",\"metricsusage\":{\"cpuusage\":\"90/4000\",\"memusage\":\"81469440/16714080256\",\"diskusage\":\"0/94877588119\"}},{\"containername\":\"mep-agent\",\"metricsusage\":{\"cpuusage\":\"0/4000\",\"memusage\":\"8871936/16714080256\",\"diskusage\":\"0/94877588119\"}}]}]}";
         if (workStatus == null) {

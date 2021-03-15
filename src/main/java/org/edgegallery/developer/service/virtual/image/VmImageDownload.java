@@ -49,15 +49,13 @@ public class VmImageDownload implements VmImageStage{
 
         ApplicationProject project = projectMapper.getProjectById(config.getProjectId());
         String userId = project.getUserId();
-        String packagePath = getProjectPath(config.getProjectId()) + config.getAppInstanceId() ;
+        String packagePath = getProjectPath(config.getProjectId()) + config.getAppInstanceId();
         VmCreateConfig vmCreateConfig = vmConfigMapper.getVmCreateConfig(config.getProjectId(), config.getVmId());
         Type type = new TypeToken<MepHost>() { }.getType();
         MepHost host = gson.fromJson(gson.toJson(vmCreateConfig.getHost()), type);
         // download image
         try {
-            downloadImageResult = HttpClientUtil
-                .downloadVmImage(host.getProtocol(), host.getIp(), host.getPort(), userId, packagePath, config);
-            downloadImageResult = true;
+            downloadImageResult = vmService.downloadImageResult(host,config, userId);
             if(!downloadImageResult) {
                 LOGGER.error("Failed to download image which appInstanceId is : {}.", config.getAppInstanceId());
             }else {

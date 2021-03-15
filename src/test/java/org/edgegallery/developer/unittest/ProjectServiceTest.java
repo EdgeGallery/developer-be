@@ -298,7 +298,7 @@ public class ProjectServiceTest {
         host.setAddress("XIAN");
         host.setArchitecture("ARM");
         host.setStatus(EnumHostStatus.NORMAL);
-        host.setIp("192.168.0.5");
+        host.setLcmIp("192.168.0.5");
         host.setPort(30101);
         host.setOs("Ubuntu");
         host.setPortRangeMin(30000);
@@ -340,7 +340,7 @@ public class ProjectServiceTest {
         host.setAddress("XIAN");
         host.setArchitecture("ARM");
         host.setStatus(EnumHostStatus.NORMAL);
-        host.setIp("192.168.0.5");
+        host.setLcmIp("192.168.0.5");
         host.setPort(30101);
         host.setOs("Ubuntu");
         host.setPortRangeMin(30000);

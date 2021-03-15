@@ -52,7 +52,7 @@ public class VmImageStatus implements VmImageStage{
         Type type = new TypeToken<MepHost>() { }.getType();
         MepHost host = gson.fromJson(gson.toJson(vmCreateConfig.getHost()), type);
 //        String imageInfo = HttpClientUtil
-//            .getImageStatus(host.getProtocol(), host.getIp(), host.getPort(), config.getAppInstanceId(), userId, config.getImageId(),
+//            .getImageStatus(host.getProtocol(), host.getLcmIp(), host.getPort(), config.getAppInstanceId(), userId, config.getImageId(),
 //                config.getLcmToken());
 //        JsonObject jsonObject = new JsonParser().parse(imageInfo).getAsJsonObject();
 //        JsonElement imageStatus = jsonObject.get("status");

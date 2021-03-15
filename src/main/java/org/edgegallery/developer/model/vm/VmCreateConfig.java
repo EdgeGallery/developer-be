@@ -50,9 +50,9 @@ public class VmCreateConfig {
      */
     public String getNextStage() {
         if (this.getStageStatus() == null || this.getStageStatus().getCsar() == null) {
-            return "csar";
-        } else if (this.getStageStatus().getHostInfo() == null) {
             return "hostInfo";
+        } else if (this.getStageStatus().getHostInfo() == null) {
+            return "csar";
         } else if (this.getStageStatus().getInstantiateInfo() == null) {
             return "instantiateInfo";
         } else if (this.getStageStatus().getWorkStatus() == null) {
