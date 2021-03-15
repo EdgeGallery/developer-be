@@ -147,7 +147,7 @@ public class UploadFileTest {
         HelmTemplateYamlRespDto helmTemplateYamlRespDto = new HelmTemplateYamlRespDto();
         mvc.perform(MockMvcRequestBuilders.multipart("/mec/developer/v1/files/helm-template-yaml")
             .file("file", logoMultiFile.getBytes()).param("userId", "e111f3e7-90d8-4a39-9874-ea6ea6752ef4")
-            .param("projectId", "e111f3e7-90d8-4a39-9874-ea6ea6752ef5"))
+            .param("projectId", "e111f3e7-90d8-4a39-9874-ea6ea6752ef5").param("configType","upload"))
             .andExpect(MockMvcResultMatchers.status().isOk());
     }
 

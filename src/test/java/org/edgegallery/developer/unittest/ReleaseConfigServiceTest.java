@@ -119,7 +119,7 @@ public class ReleaseConfigServiceTest {
     public void should_failed_when_use_userid_A_to_get_project_of_userB() {
         AccessUserUtil.setUser("otheruid-d8e6-467c-8039-94f0d29bac43", "test-user");
         Either<FormatRespDto, ReleaseConfig> stru = releaseConfigService.getConfigById("200dfab1-3c30-4fc7-a6ca-ed6f0620a85e");
-        Assert.assertTrue(stru.isLeft());
+        Assert.assertTrue(stru.isRight());
     }
 
 

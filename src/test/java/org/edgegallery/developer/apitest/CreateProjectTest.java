@@ -47,6 +47,7 @@ import org.edgegallery.developer.unittest.UploadFilesServiceTest;
 import org.edgegallery.developer.util.DeveloperFileUtils;
 import org.edgegallery.developer.util.InitConfigUtil;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -438,7 +439,7 @@ public class CreateProjectTest {
 
         ProjectTestConfig test = new ProjectTestConfig();
         test.setTestId(UUID.randomUUID().toString());
-        test.setProjectId("a66c4932-d254-4596-bec1-8ac7d80c2631");
+        test.setProjectId("a66c4932-d254-4596-bec1-8ac7d80c263k");
         // MEPAgentConfig
         MepAgentConfig agent = new MepAgentConfig();
         agent.setServiceName("codelab2223");
@@ -469,6 +470,7 @@ public class CreateProjectTest {
         test.setAppApiFileId(apiFile.getFileId());
 
         test.setAppInstanceId("app-instance-id");
+        test.setPackageId("test");
         // test.setDeployStatus(EnumTestConfigDeployStatus.NOTDEPLOY);
 
         String url = String.format("/mec/developer/v1/projects/%s/test-config?userId=%s", projectId, userId);
@@ -476,8 +478,8 @@ public class CreateProjectTest {
         request.content(gson.toJson(test));
         request.accept(MediaType.APPLICATION_JSON);
         request.contentType(MediaType.APPLICATION_JSON);
-        mvc.perform(request).andDo(MockMvcResultHandlers.print())
-            .andExpect(MockMvcResultMatchers.status().is4xxClientError());
+        mvc.perform(request).andExpect(MockMvcResultMatchers.status().is4xxClientError());
+        // Assert.assertEquals(400,MockMvcResultMatchers.status());
 
         this.deleteTempFile(apiFile);
     }

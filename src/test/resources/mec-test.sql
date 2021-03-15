@@ -31,6 +31,13 @@ DROP TABLE  IF  EXISTS tbl_helm_template_yaml;
 DROP TABLE  IF  EXISTS tbl_service_host;
 DROP TABLE  IF  EXISTS tbl_api_emulator;
 DROP TABLE  IF  EXISTS tbl_release_config;
+DROP TABLE  IF  EXISTS tbl_host_log;
+DROP TABLE  IF  EXISTS tbl_vm_regulation;
+DROP TABLE  IF  EXISTS tbl_vm_network;
+DROP TABLE  IF  EXISTS tbl_vm_system;
+DROP TABLE  IF  EXISTS tbl_vm_flavor;
+DROP TABLE  IF  EXISTS tbl_project_vm_create_config;
+DROP TABLE  IF  EXISTS tbl_project_vm_image_config;
 
 -- ----------------------------
 -- Table structure for tbl_appfunction
@@ -211,12 +218,12 @@ CREATE TABLE IF NOT EXISTS tbl_openmep_capability_detail (
 
 CREATE TABLE IF NOT EXISTS tbl_project_image (
   id varchar(50)  NOT NULL DEFAULT NULL,
-  name varchar(100)  NOT NULL DEFAULT NULL,
-  version varchar(50)  NOT NULL DEFAULT NULL,
+  pod_name varchar(100)  NOT NULL DEFAULT NULL,
+  pod_containers text  NOT NULL DEFAULT NULL,
   project_id varchar(50)  NOT NULL DEFAULT NULL,
-  type varchar(50)  NOT NULL DEFAULT NULL,
-  port int DEFAULT '-1',
-  node_port int DEFAULT '-1',
+  svc_type varchar(255)  NOT NULL DEFAULT NULL,
+  svc_port varchar(255)  NOT NULL DEFAULT NULL,
+  svc_node_port varchar(255)  NOT NULL DEFAULT NULL,
   CONSTRAINT tbl_project_image_pkey PRIMARY KEY (id)
 )
 ;
@@ -242,6 +249,7 @@ CREATE TABLE IF NOT EXISTS tbl_project_test_config (
   deploy_status varchar(255)  DEFAULT NULL,
   stage_status  varchar(255)  DEFAULT NULL,
   lcm_token  varchar(1000) DEFAULT NULL,
+  package_id varchar(255)  DEFAULT NULL,
   CONSTRAINT tbl_project_test_config_pkey PRIMARY KEY (test_id)
 )
 ;
@@ -264,6 +272,7 @@ CREATE TABLE IF NOT EXISTS tbl_helm_template_yaml (
   project_id varchar(50) DEFAULT NULL,
   content text DEFAULT NULL,
   upload_time_stamp bigint DEFAULT NULL,
+  config_type varchar(50)  DEFAULT NULL,
   CONSTRAINT tbl_helm_template_yaml_pkey PRIMARY KEY (file_id)
 )
 ;
@@ -323,6 +332,93 @@ CREATE TABLE IF NOT EXISTS tbl_host_log (
   host_id varchar(50) DEFAULT NULL
 )
 ;
+CREATE TABLE IF NOT EXISTS  tbl_host_log  (
+       log_id  varchar(50) NOT NULL,
+       host_ip  varchar(50) NOT NULL,
+       user_name  varchar(50) DEFAULT NULL,
+       user_id  varchar(50) DEFAULT NULL,
+       project_id  varchar(50) DEFAULT NULL,
+       project_name  varchar(50) DEFAULT NULL,
+       app_instances_id  varchar(50) DEFAULT NULL,
+       deploy_time  varchar(50) DEFAULT NULL,
+       status  varchar(50) DEFAULT NULL,
+       operation  varchar(50) DEFAULT NULL,
+       host_id  varchar(50) DEFAULT NULL
+    )
+    ;
+
+CREATE TABLE IF NOT EXISTS  tbl_vm_regulation  (
+       regulation_id  SERIAL,
+       architecture  varchar(50) DEFAULT NULL,
+       name_zh  varchar(50) NOT NULL DEFAULT NULL,
+       name_en  varchar(50) NOT NULL DEFAULT NULL,
+       scene_zh  varchar(255) DEFAULT NULL,
+       scene_en  varchar(255) DEFAULT NULL,
+       memory  int4  DEFAULT NULL,
+       cpu  int4  DEFAULT NULL,
+       system_disk  int4  DEFAULT NULL,
+       data_disk  int4  DEFAULT NULL,
+       gpu  varchar(50)  DEFAULT NULL,
+       other_ability  varchar(255)  DEFAULT NULL
+    )
+    ;
+    CREATE TABLE IF NOT EXISTS  tbl_vm_network  (
+       network_type  varchar(50) DEFAULT NULL,
+       description_zh  varchar(255) DEFAULT NULL,
+       description_en  varchar(255) DEFAULT NULL
+    )
+    ;
+    CREATE TABLE IF NOT EXISTS  tbl_vm_system  (
+       system_id  SERIAL,
+       type  varchar(50) DEFAULT NULL,
+       operate_system  varchar(50) DEFAULT NULL,
+       version  varchar(50) NOT NULL DEFAULT NULL,
+       system_bit  varchar(50) DEFAULT NULL,
+       system_disk  int4  DEFAULT NULL
+    )
+    ;
+    CREATE TABLE IF NOT EXISTS  tbl_vm_flavor  (
+       architecture  varchar(50) DEFAULT NULL,
+       flavor  varchar(50) DEFAULT NULL,
+       constraints  varchar(50) DEFAULT NULL
+    )
+    ;
+    CREATE TABLE IF NOT EXISTS  tbl_project_vm_create_config  (
+       vm_id   varchar(255) NOT NULL DEFAULT NULL,
+       project_id  varchar(50) DEFAULT NULL,
+       vm_regulation_desc  varchar(512) DEFAULT NULL,
+       vm_system_desc  varchar(512) NOT NULL DEFAULT NULL,
+       vm_network_desc  varchar(512) DEFAULT NULL,
+       vm_name  varchar(50)  DEFAULT NULL,
+       host  varchar(512)  DEFAULT NULL,
+       status  varchar(50)  DEFAULT NULL,
+       stage_status  varchar(500)  DEFAULT NULL,
+       lcm_token  varchar(1024)  DEFAULT NULL,
+       vm_info  varchar(512)  DEFAULT NULL,
+       app_instance_id  varchar(50)  DEFAULT NULL,
+       create_time   timestamp(6)  DEFAULT NULL,
+       log  text  DEFAULT NULL,
+      CONSTRAINT  tbl_vm_create_config_pkey  PRIMARY KEY (vm_id)
+    )
+    ;
+    CREATE TABLE IF NOT EXISTS  tbl_project_vm_image_config  (
+       vm_id   varchar(255) NOT NULL DEFAULT NULL,
+       image_id  varchar(50) DEFAULT NULL,
+       project_id  varchar(50) DEFAULT NULL,
+       vm_name  varchar(50) NOT NULL DEFAULT NULL,
+       image_name  varchar(50) DEFAULT NULL,
+       app_instance_id  varchar(50)  DEFAULT NULL,
+       host_ip  varchar(50)  DEFAULT NULL,
+       sum_chunk_num  varchar(50)  DEFAULT NULL,
+       chunk_size  varchar(50)  DEFAULT NULL,
+       stage_status  varchar(500)  DEFAULT NULL,
+       status  varchar(512)  DEFAULT NULL,
+       lcm_token  varchar(1024)  DEFAULT NULL,
+       create_time   timestamp(6)  DEFAULT NULL,
+       log  text  DEFAULT NULL,
+      CONSTRAINT  tbl_vm_image_config_pkey  PRIMARY KEY (vm_id)
+    )
+    ;
 -- workspace table end -----------------
 
 
