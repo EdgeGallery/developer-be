@@ -76,10 +76,10 @@ public class StageWorkStatus implements IConfigDeployStage {
             LOGGER.error("sleep fail! {}", e.getMessage());
         }
         String workStatus = HttpClientUtil
-            .getWorkloadStatus(host.getProtocol(), host.getIp(), host.getPort(), config.getAppInstanceId(), userId,
+            .getWorkloadStatus(host.getProtocol(), host.getLcmIp(), host.getPort(), config.getAppInstanceId(), userId,
                 config.getLcmToken());
         String workEvents = HttpClientUtil
-            .getWorkloadEvents(host.getProtocol(), host.getIp(), host.getPort(), config.getAppInstanceId(), userId,
+            .getWorkloadEvents(host.getProtocol(), host.getLcmIp(), host.getPort(), config.getAppInstanceId(), userId,
                 config.getLcmToken());
         if (workStatus == null || workEvents == null) {
             // compare time between now and deployDate

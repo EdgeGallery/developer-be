@@ -27,7 +27,8 @@
         <result property="architecture" column="architecture"/>
         <result property="status" column="status"/>
         <result property="protocol" column="protocol"/>
-        <result property="ip" column="ip"/>
+        <result property="lcmIp" column="lcm_ip"/>
+        <result property="mecHost" column="mec_host"/>
         <result property="port" column="port"/>
         <result property="os" column="os"/>
         <result property="portRangeMin" column="port_range_min"/>
@@ -39,9 +40,9 @@
     <insert id="saveHost"
             parameterType="org.edgegallery.developer.model.workspace.MepHost">
         insert into
-        tbl_service_host (host_id, user_id, name, address, architecture, status, ip, port, os, port_range_min, port_range_max, protocol,user_name,password)
+        tbl_service_host (host_id, user_id, name, address, architecture, status, lcm_ip, mec_host, port, os, port_range_min, port_range_max, protocol,user_name,password)
         values
-        ( #{hostId}, #{userId}, #{name}, #{address}, #{architecture}, #{status}, #{ip},
+        ( #{hostId}, #{userId}, #{name}, #{address}, #{architecture}, #{status}, #{lcmIp}, #{mecHost},
         #{port}, #{os}, #{portRangeMin}, #{portRangeMax}, #{protocol},#{userName},#{password})
     </insert>
 
@@ -67,7 +68,7 @@
         FROM
         tbl_service_host
         WHERE
-        status = #{param1} and user_id = #{param2} and architecture = #{param3}
+        status = #{param1} and user_id = #{param2} and architecture = #{param3} and os = #{param4}
    </select>
 
     <select id="getNormalHosts" resultMap="HostMap">
@@ -100,8 +101,11 @@
         UPDATE
         tbl_service_host
         <set>
-            <if test="ip != null">
-                ip=#{ip},
+            <if test="lcmIp != null">
+              lcm_ip=#{lcmIp},
+            </if>
+            <if test="mecHost != null">
+              mec_host=#{mecHost},
             </if>
             <if test="port != null">
                 port=#{port},

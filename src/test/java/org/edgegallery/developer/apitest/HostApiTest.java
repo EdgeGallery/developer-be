@@ -74,7 +74,7 @@ public class HostApiTest {
         host.setAddress("xi'an");
         host.setArchitecture("x86");
         host.setStatus(EnumHostStatus.NORMAL);
-        host.setIp("127.0.0.1");
+        host.setLcmIp("127.0.0.1");
         host.setPort(30101);
         host.setOs("Ubuntu");
         host.setPortRangeMin(30000);
@@ -101,7 +101,7 @@ public class HostApiTest {
         host.setAddress("xi'an");
         host.setArchitecture("x86");
         host.setStatus(EnumHostStatus.NORMAL);
-        host.setIp("127.0.0.1");
+        host.setLcmIp("127.0.0.1");
         host.setPort(30101);
         host.setOs("Ubuntu");
         host.setPortRangeMin(30000);
@@ -123,7 +123,7 @@ public class HostApiTest {
         host.setAddress("xi'an");
         host.setArchitecture("x86");
         host.setStatus(EnumHostStatus.NORMAL);
-        host.setIp("is not ip format");
+        host.setLcmIp("is not ip format");
         host.setPort(30101);
         host.setOs("Ubuntu");
         host.setPortRangeMin(30000);
@@ -147,7 +147,7 @@ public class HostApiTest {
         host.setAddress("xi'an");
         host.setArchitecture("x86");
         host.setStatus(EnumHostStatus.NORMAL);
-        host.setIp("is not ip format");
+        host.setLcmIp("is not ip format");
         host.setPort(30101);
         host.setOs("Ubuntu");
         host.setPortRangeMin(30000);
@@ -208,7 +208,7 @@ public class HostApiTest {
         host.setAddress("xi'an");
         host.setArchitecture("x86");
         host.setStatus(EnumHostStatus.NORMAL);
-        host.setIp("is not ip format");
+        host.setLcmIp("is not ip format");
         host.setPort(30101);
         host.setOs("Ubuntu");
         host.setPortRangeMin(30000);
@@ -230,7 +230,7 @@ public class HostApiTest {
         host.setAddress("xi'an");
         host.setArchitecture("x86");
         host.setStatus(EnumHostStatus.NORMAL);
-        host.setIp("is not ip format");
+        host.setLcmIp("is not ip format");
         host.setPort(30101);
         host.setOs("Ubuntu");
         host.setPortRangeMin(30000);

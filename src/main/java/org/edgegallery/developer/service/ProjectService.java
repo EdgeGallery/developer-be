@@ -390,7 +390,7 @@ public class ProjectService {
         List<MepHost> hosts = gson.fromJson(gson.toJson(testConfig.getHosts()), type);
         MepHost host = hosts.get(0);
         boolean terminateResult = HttpClientUtil
-            .terminateAppInstance(host.getProtocol(), host.getIp(), host.getPort(), testConfig.getAppInstanceId(),
+            .terminateAppInstance(host.getProtocol(), host.getLcmIp(), host.getPort(), testConfig.getAppInstanceId(),
                 userId, token);
         if (!terminateResult) {
             LOGGER.error("Failed to terminate application which userId is: {}, instanceId is {}", userId,
@@ -502,11 +502,11 @@ public class ProjectService {
         List<MepHost> hosts = gson.fromJson(gson.toJson(testConfig.getHosts()), type);
         MepHost host = hosts.get(0);
         // Note(ch) only ip?
-        testConfig.setAccessUrl(host.getIp());
+        testConfig.setAccessUrl(host.getLcmIp());
         // upload pkg
         LcmLog lcmLog = new LcmLog();
         String uploadRes = HttpClientUtil
-            .uploadPkg(host.getProtocol(), host.getIp(), host.getPort(), csar.getPath(), userId, token, lcmLog);
+            .uploadPkg(host.getProtocol(), host.getLcmIp(), host.getPort(), csar.getPath(), userId, token, lcmLog);
         if (org.springframework.util.StringUtils.isEmpty(uploadRes)) {
             testConfig.setErrorLog(lcmLog.getLog());
             return false;
@@ -519,7 +519,7 @@ public class ProjectService {
         projectMapper.updateTestConfig(testConfig);
         // distribute pkg
         boolean distributeRes = HttpClientUtil
-            .distributePkg(host.getProtocol(), host.getIp(), host.getPort(), userId, token, pkgId, lcmLog);
+            .distributePkg(host.getProtocol(), host.getLcmIp(), host.getPort(), userId, token, pkgId, lcmLog);
 
         if (!distributeRes) {
             testConfig.setErrorLog(lcmLog.getLog());
@@ -527,7 +527,7 @@ public class ProjectService {
         }
         // instantiate application
         boolean instantRes = HttpClientUtil
-            .instantiateApplication(host.getProtocol(), host.getIp(), host.getPort(), appInstanceId, userId, token,
+            .instantiateApplication(host.getProtocol(), host.getLcmIp(), host.getPort(), appInstanceId, userId, token,
                 lcmLog, pkgId);
         if (!instantRes) {
             testConfig.setErrorLog(lcmLog.getLog());
@@ -1057,7 +1057,7 @@ public class ProjectService {
         SimpleDateFormat time = new SimpleDateFormat("yyyy-MM-dd HH:mm");
         mepHostLog.setDeployTime(time.format(new Date()));
         mepHostLog.setHostId(host.getHostId());
-        mepHostLog.setHostIp(host.getIp());
+        mepHostLog.setHostIp(host.getLcmIp());
         mepHostLog.setLogId(UUID.randomUUID().toString());
         mepHostLog.setUserId(project.getUserId());
         mepHostLog.setProjectId(project.getId());
@@ -1124,12 +1124,12 @@ public class ProjectService {
                     String svcPort = imageConfig.getSvcNodePort();
                     String[] svcNodePorts = svcPort.substring(1, svcPort.length() - 1).split(",");
                     for (String svc : svcNodePorts) {
-                        String node = "http://" + host.getIp() + ":" + svc;
+                        String node = "http://" + host.getLcmIp() + ":" + svc;
                         sb.append(node + ",");
                     }
                 } else {
                     String svcPort = imageConfig.getSvcNodePort();
-                    String node = "http://" + host.getIp() + ":" + svcPort.substring(1, svcPort.length() - 1);
+                    String node = "http://" + host.getLcmIp() + ":" + svcPort.substring(1, svcPort.length() - 1);
                     sb.append(node + ",");
                 }
                 LOGGER.warn("sb:" + sb.toString());
@@ -1260,14 +1260,14 @@ public class ProjectService {
         MepHost host = hosts.get(0);
         // delete hosts
         boolean deleteHostRes = HttpClientUtil
-            .deleteHost(host.getProtocol(), host.getIp(), host.getPort(), userId, token, testConfig.getPackageId(), host.getIp());
+            .deleteHost(host.getProtocol(), host.getLcmIp(), host.getPort(), userId, token, testConfig.getPackageId(), host.getLcmIp());
 
         // delete pkg
         boolean deletePkgRes = HttpClientUtil
-            .deletePkg(host.getProtocol(), host.getIp(), host.getPort(), userId, token, testConfig.getPackageId());
+            .deletePkg(host.getProtocol(), host.getLcmIp(), host.getPort(), userId, token, testConfig.getPackageId());
 
         boolean terminateApp = HttpClientUtil
-            .terminateAppInstance(host.getProtocol(), host.getIp(), host.getPort(), workloadId, userId, token);
+            .terminateAppInstance(host.getProtocol(), host.getLcmIp(), host.getPort(), workloadId, userId, token);
         if (!terminateApp || !deleteHostRes || !deletePkgRes) {
             return false;
         }

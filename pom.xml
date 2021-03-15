@@ -817,7 +817,7 @@
                     <failOnViolation>false</failOnViolation>
                     <violationSeverity>warning</violationSeverity>
                     <configLocation>
-                        https://raw.githubusercontent.com/EdgeGallery/infra/master/configs/edgegallery_checks.xml
+                        https://raw.githubusercontent.com/EdgeGallery/docs/master/code-check-configs/edgegallery_checks.xml
                     </configLocation>
                 </configuration>
                 <executions>
