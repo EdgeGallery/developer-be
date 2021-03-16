@@ -547,7 +547,7 @@ public class ProjectService {
         projectMapper.updateTestConfig(testConfig);
         // distribute pkg
         boolean distributeRes = HttpClientUtil
-            .distributePkg(host.getProtocol(), host.getLcmIp(), host.getPort(), userId, token, pkgId, lcmLog);
+            .distributePkg(host.getProtocol(), host.getLcmIp(), host.getPort(), userId, token, pkgId, host.getMecHost(), lcmLog);
 
         if (!distributeRes) {
             testConfig.setErrorLog(lcmLog.getLog());
@@ -556,7 +556,7 @@ public class ProjectService {
         // instantiate application
         boolean instantRes = HttpClientUtil
             .instantiateApplication(host.getProtocol(), host.getLcmIp(), host.getPort(), appInstanceId, userId, token,
-                lcmLog, pkgId);
+                lcmLog, pkgId, host.getMecHost());
         if (!instantRes) {
             testConfig.setErrorLog(lcmLog.getLog());
             return false;

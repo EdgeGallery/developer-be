@@ -62,7 +62,7 @@ public final class HttpClientUtil {
      * @return InstantiateAppResult
      */
     public static boolean instantiateApplication(String protocol, String ip, int port, String appInstanceId,
-        String userId, String token, LcmLog lcmLog,String pkgId) {
+        String userId, String token, LcmLog lcmLog,String pkgId, String mecHost) {
         //before instantiate ,call distribute result interface
         String disRes = getDistributeRes(protocol,ip,port,userId,token,pkgId);
         if(StringUtils.isEmpty(disRes)){
@@ -81,7 +81,7 @@ public final class HttpClientUtil {
         //set instantiate bodys
         InstantRequest ins = new InstantRequest();
         ins.setAppName(appName);
-        ins.setHostIp(ip);
+        ins.setHostIp(mecHost);
         ins.setPackageId(pkgId);
         LOGGER.warn(gson.toJson(ins));
         HttpEntity<String> requestEntity = new HttpEntity<>(gson.toJson(ins), headers);
@@ -151,12 +151,12 @@ public final class HttpClientUtil {
      * distribute pkg.
      */
     public static boolean distributePkg(String protocol, String ip, int port, String userId, String token,
-        String packageId, LcmLog lcmLog) {
+        String packageId, String mecHost, LcmLog lcmLog) {
         //add body
         Gson gson = new Gson();
         DistributeBody body = new DistributeBody();
         String[] bodys = new String[1];
-        bodys[0] = ip;
+        bodys[0] = mecHost;
         body.setHostIp(bodys);
         //add headers
         HttpHeaders headers = new HttpHeaders();

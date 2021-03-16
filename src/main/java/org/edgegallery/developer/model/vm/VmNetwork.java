@@ -13,5 +13,7 @@ public class VmNetwork {
 
     private String descriptionEn;
 
+    private String networkName;
+
 
 }

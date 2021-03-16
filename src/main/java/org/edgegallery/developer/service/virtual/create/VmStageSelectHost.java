@@ -55,7 +55,7 @@ public class VmStageSelectHost implements VmCreateStage {
         ApplicationProject project = projectMapper.getProjectById(config.getProjectId());
         EnumTestConfigStatus hostStatus = EnumTestConfigStatus.Failed;
         List<MepHost> enabledHosts = hostMapper
-            .getHostsByStatus(EnumHostStatus.NORMAL, "admin", project.getPlatform().get(0), "vm");
+            .getHostsByStatus(EnumHostStatus.NORMAL, "admin", project.getPlatform().get(0), "OpenStack");
         if (CollectionUtils.isEmpty(enabledHosts)) {
             processSuccess = false;
             LOGGER.error("Cannot find available hosts information");

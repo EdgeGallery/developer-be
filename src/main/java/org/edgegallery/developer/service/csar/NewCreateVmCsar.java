@@ -4,6 +4,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -16,8 +17,10 @@ import org.apache.commons.io.FileUtils;
 import org.edgegallery.developer.common.Consts;
 import org.edgegallery.developer.model.deployyaml.ImageDesc;
 import org.edgegallery.developer.model.vm.VmCreateConfig;
+import org.edgegallery.developer.model.vm.VmNetwork;
 import org.edgegallery.developer.model.workspace.ApplicationProject;
 import org.edgegallery.developer.model.workspace.EnumDeployPlatform;
+import org.edgegallery.developer.model.workspace.MepHost;
 import org.edgegallery.developer.util.DeveloperFileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,17 +28,20 @@ import org.yaml.snakeyaml.Yaml;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 public class NewCreateVmCsar {
     private static final String simpleFiles = "/app-name.mf";
 
     private static final String WORKSPACE_CSAR_PATH = "./configs/vm_csar";
 
-    private static final String TEMPLATE_CSAR_BASE_PATH = "/APPD/Definition/Eastcom-SPCLNLWY-EMS_eulerforTR6_iso.yaml";
+    private static final String TEMPLATE_CSAR_BASE_PATH = "/APPD/Definition/app-name.yaml";
 
     private static final String IMAGE_BASE_PATH = "/Image/SwImageDesc.json";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(NewCreateVmCsar.class);
+
+    private static Gson gson = new Gson();
 
     /**
      * create vm csar.
@@ -45,7 +51,7 @@ public class NewCreateVmCsar {
      * @param project project self
      * @return package gz
      */
-    public File create(String projectPath, VmCreateConfig config, ApplicationProject project, String flavor)
+    public File create(String projectPath, VmCreateConfig config, ApplicationProject project, String flavor, List<VmNetwork> vmNetworks)
         throws IOException {
         File projectDir = new File(projectPath);
 
@@ -84,6 +90,9 @@ public class NewCreateVmCsar {
         Yaml yaml = new Yaml();
         Map<String, Object> loaded = yaml.load(yamlContent);
 
+        LinkedHashMap<String, Object> vmName = getObjectFromMap(loaded, "metadata");
+        vmName.put("template_name", projectName);
+        vmName.put("vnfd_name", projectName);
         // config vm name
         LinkedHashMap<String, Object> virtualName = getObjectFromMap(loaded, "topology_template",
             "node_templates", "EMS_VDU1","properties");
@@ -115,8 +124,32 @@ public class NewCreateVmCsar {
         virtualFlavor.remove("mgmt_egarm", "true");
         virtualFlavor.put(flavor, "true");
 
-        // config vm network type Network_Internet
+        // get network name
+        String mepName = "";
+        String n6Name = "";
+        String networkName = "";
+        for(VmNetwork vmNetwork:vmNetworks) {
+            if(vmNetwork.getNetworkType().equals("MEC_APP_MP1")) {
+                mepName = vmNetwork.getNetworkName();
+            }
+            if(vmNetwork.getNetworkType().equals("MEC_APP_N6")) {
+                n6Name = vmNetwork.getNetworkName();
+            }
+            if(vmNetwork.getNetworkType().equals("MEC_APP_INTERNET")) {
+                networkName = vmNetwork.getNetworkName();
+            }
+        }
+        LinkedHashMap<String, Object> mepNetworkName = getObjectFromMap(loaded, "topology_template",
+            "node_templates", "MEC_APP_MP1", "properties", "vl_profile");
+        mepNetworkName.put("network_name", mepName);
+        LinkedHashMap<String, Object> n6NetworkName = getObjectFromMap(loaded, "topology_template",
+            "node_templates", "MEC_APP_N6", "properties", "vl_profile");
+        n6NetworkName.put("network_name", n6Name);
+        LinkedHashMap<String, Object> internetNetworkName = getObjectFromMap(loaded, "topology_template",
+            "node_templates", "MEC_APP_INTERNET", "properties", "vl_profile");
+        internetNetworkName.put("network_name", networkName);
 
+        // config vm network type Network_Internet
         if (!config.getVmNetwork().contains("Network_MEP")) {
             LinkedHashMap<String, Object> virtualNetwork = getObjectFromMap(loaded, "topology_template",
                 "node_templates");
@@ -143,6 +176,7 @@ public class NewCreateVmCsar {
         String yamlContents = FileUtils.readFileToString(templateFileModify, StandardCharsets.UTF_8);
         yamlContents = yamlContents.replaceAll("\"", "");
         writeFile(templateFileModify,yamlContents);
+        templateFileModify.renameTo(new File(csar.getCanonicalPath() + "/APPD/Definition/" + projectName + ".yaml"));
 
         //update SwImageDesc.json
         File imageJson = new File(csar.getCanonicalPath() + IMAGE_BASE_PATH);
