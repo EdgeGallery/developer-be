@@ -37,7 +37,7 @@ public class VmStageCreateCsar implements VmCreateStage{
     @Autowired
     private ProjectMapper projectMapper;
 
-    @Resource(name = "vm_hostInfo_service")
+    @Resource(name = "vm_instantiateInfo_service")
     private VmCreateStage vmCreateStage;
 
     @Override

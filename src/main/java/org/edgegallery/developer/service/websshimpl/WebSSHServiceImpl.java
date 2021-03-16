@@ -171,7 +171,7 @@ public class WebSSHServiceImpl implements WebSSHService {
             Type type = new TypeToken<List<MepHost>>() { }.getType();
             List<MepHost> hosts = gson.fromJson(gson.toJson(testConfig.getHosts()), type);
             MepHost host = hosts.get(0);
-            this.ip = host.getIp();
+            this.ip = host.getLcmIp();
             this.username = host.getUserName();
             this.password = host.getPassword();
         }else {

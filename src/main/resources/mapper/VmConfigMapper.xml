@@ -56,6 +56,7 @@
         <result property="networkType" column="network_type"/>
         <result property="descriptionZh" column="description_zh"/>
         <result property="descriptionEn" column="description_en"/>
+        <result property="networkName" column="network_name"/>
     </resultMap>
 
     <resultMap id="VmCreateConfigMap"

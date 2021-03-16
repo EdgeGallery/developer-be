@@ -57,7 +57,7 @@ public class HostServiceTest {
         host.setArchitecture("ARM");
         host.setUserId("9f1f13a0-8554-4dfa-90a7-d2765238fc56");
         host.setStatus(EnumHostStatus.NORMAL);
-        host.setIp("159.138.25.55");
+        host.setLcmIp("159.138.25.55");
         host.setPort(5588);
         host.setOs("liunx");
         host.setPortRangeMin(30000);
@@ -88,7 +88,7 @@ public class HostServiceTest {
         modifiedHost.setArchitecture("x86");
         modifiedHost.setUserId("9f1f13a0-8554-4dfa-90a7-d2765238fc56");
         modifiedHost.setStatus(EnumHostStatus.BUSY);
-        modifiedHost.setIp("127.0.0.5");
+        modifiedHost.setLcmIp("127.0.0.5");
         modifiedHost.setPort(6633);
         modifiedHost.setOs("center os");
         modifiedHost.setPortRangeMin(30100);
@@ -120,7 +120,7 @@ public class HostServiceTest {
         MepHost modifiedHost = new MepHost();
         modifiedHost.setName("hostname-modify");
         modifiedHost.setAddress("beijing");
-        modifiedHost.setIp("127.0.0.1");
+        modifiedHost.setLcmIp("127.0.0.1");
         modifiedHost.setArchitecture("");
         HostMapper hostMapper = Mockito.mock(HostMapper.class);
         Mockito.when(hostMapper.updateHost(modifiedHost)).thenReturn(0);

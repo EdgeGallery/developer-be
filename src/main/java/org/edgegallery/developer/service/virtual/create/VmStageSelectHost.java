@@ -46,8 +46,8 @@ public class VmStageSelectHost implements VmCreateStage {
     @Autowired
     private VmService vmService;
 
-    @Resource(name = "vm_instantiateInfo_service")
-    private VmCreateStage instantiateService;
+    @Resource(name = "vm_csar_service")
+    private VmCreateStage vmCreateStage;
 
     @Override
     public boolean execute(VmCreateConfig config) throws InterruptedException {
@@ -55,7 +55,7 @@ public class VmStageSelectHost implements VmCreateStage {
         ApplicationProject project = projectMapper.getProjectById(config.getProjectId());
         EnumTestConfigStatus hostStatus = EnumTestConfigStatus.Failed;
         List<MepHost> enabledHosts = hostMapper
-            .getHostsByStatus(EnumHostStatus.NORMAL, "admin", project.getPlatform().get(0));
+            .getHostsByStatus(EnumHostStatus.NORMAL, "admin", project.getPlatform().get(0), "vm");
         if (CollectionUtils.isEmpty(enabledHosts)) {
             processSuccess = false;
             LOGGER.error("Cannot find available hosts information");
@@ -68,7 +68,7 @@ public class VmStageSelectHost implements VmCreateStage {
         }
         vmService.updateCreateVmResult(config, project, "hostInfo", hostStatus);
         if (processSuccess) {
-            return instantiateService.execute(config);
+            return vmCreateStage.execute(config);
         } else {
             return false;
         }

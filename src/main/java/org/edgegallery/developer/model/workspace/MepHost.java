@@ -43,7 +43,9 @@ public class MepHost {
     private EnumHostStatus status;
 
     @NotBlank
-    private String ip;
+    private String lcmIp;
+
+    private String mecHost;
 
     private String protocol;
 

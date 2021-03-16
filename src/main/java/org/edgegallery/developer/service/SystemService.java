@@ -103,7 +103,7 @@ public class SystemService {
             return Either.left(new FormatRespDto(Status.BAD_REQUEST, "userId is empty"));
         }
         //health check
-        String healRes = HttpClientUtil.getHealth(host.getIp(), host.getPort());
+        String healRes = HttpClientUtil.getHealth(host.getLcmIp(), host.getPort());
         if (healRes == null) {
             String msg = "health check faild,current ip or port cann't be used!";
             LOGGER.error(msg);
@@ -113,7 +113,7 @@ public class SystemService {
         if (StringUtils.isNotBlank(host.getConfigId())) {
             // upload file
             UploadedFile uploadedFile = uploadedFileMapper.getFileById(host.getConfigId());
-            boolean uploadRes = uploadFileToLcm(host.getIp(), host.getPort(), uploadedFile.getFilePath(), token);
+            boolean uploadRes = uploadFileToLcm(host.getLcmIp(), host.getPort(), uploadedFile.getFilePath(), token);
             if (!uploadRes) {
                 String msg = "Create host failed,upload config file error";
                 LOGGER.error(msg);
@@ -156,7 +156,7 @@ public class SystemService {
     @Transactional
     public Either<FormatRespDto, MepHost> updateHost(String hostId, MepHost host) {
         //health check
-        String healRes = HttpClientUtil.getHealth(host.getIp(), host.getPort());
+        String healRes = HttpClientUtil.getHealth(host.getLcmIp(), host.getPort());
         if (healRes == null) {
             String msg = "health check faild,current ip or port cann't be used!";
             LOGGER.error(msg);

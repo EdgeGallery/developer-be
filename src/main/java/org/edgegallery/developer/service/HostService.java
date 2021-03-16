@@ -61,7 +61,7 @@ public class HostService {
      */
     public Either<FormatRespDto, MepHost> createHost(MepHost host) {
         //health check
-        String healRes = HttpClientUtil.getHealth(host.getIp(), host.getPort());
+        String healRes = HttpClientUtil.getHealth(host.getLcmIp(), host.getPort());
         if (healRes == null) {
             String msg = "health check faild,current ip or port cann't be used!";
             LOGGER.error(msg);
@@ -82,7 +82,7 @@ public class HostService {
         } else {
             int ret = hostMapper.updateHost(host);
             if (ret > 0) {
-                LOGGER.info("Update host {} success", host.getIp());
+                LOGGER.info("Update host {} success", host.getLcmIp());
                 return Either.right(hostMapper.getHostsByUserId(host.getUserId()).get(0));
             }
         }
@@ -113,7 +113,7 @@ public class HostService {
      */
     public Either<FormatRespDto, MepHost> updateHost(String hostId, MepHost host) {
         //health check
-        String healRes = HttpClientUtil.getHealth(host.getIp(), host.getPort());
+        String healRes = HttpClientUtil.getHealth(host.getLcmIp(), host.getPort());
         if (healRes == null) {
             String msg = "health check faild,current ip or port cann't be used!";
             LOGGER.error(msg);

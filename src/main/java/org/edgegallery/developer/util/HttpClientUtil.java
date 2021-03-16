@@ -476,25 +476,27 @@ public final class HttpClientUtil {
     }
 
     public static boolean downloadVmImage(String protocol, String ip, int port, String userId, String packagePath,
-        VmImageConfig config) {
+        String appInstanceId, String imageId, String chunkNum, String token) {
 
         String url = getUrlPrefix(protocol, ip, port) + Consts.APP_LCM_GET_IMAGE_DOWNLOAD_URL
-            .replaceAll("appInstanceId", config.getAppInstanceId()).replaceAll("tenantId", userId)
-            .replaceAll("imageId", config.getImageId());
+            .replaceAll("appInstanceId", appInstanceId).replaceAll("tenantId", userId)
+            .replaceAll("imageId", imageId);
         LOGGER.info("url is {}", url);
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.set(Consts.ACCESS_TOKEN_STR, config.getLcmToken());
-        //        headers.set(Consts.CHUNK_NUM, config.getSumChunkNum());
+        headers.set(Consts.ACCESS_TOKEN_STR, token);
+        headers.set("chunk_num ", chunkNum);
         // download images
         ResponseEntity<String> response;
         try {
             response = REST_TEMPLATE.exchange(url, HttpMethod.GET, new HttpEntity<>(headers), String.class);
         } catch (RestClientException e) {
-            LOGGER.error("Failed to get image status which imageId is {} exception {}", config.getImageId(),
+            LOGGER.error("Failed to get image status which imageId is {} exception {}", imageId,
                 e.getMessage());
             return false;
         }
+        // save file to packagePath todo
+
         return true;
 
     }

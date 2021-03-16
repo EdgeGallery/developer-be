@@ -12,16 +12,16 @@ import com.google.common.collect.ImmutableList;
 @NoArgsConstructor
 public class VmCreateStageStatus {
 
-    private EnumTestConfigStatus csar;
-
     private EnumTestConfigStatus hostInfo;
+
+    private EnumTestConfigStatus csar;
 
     private EnumTestConfigStatus instantiateInfo;
 
     private EnumTestConfigStatus workStatus;
 
     public static List<String> getOrderedStage() {
-        return ImmutableList.of("csar", "hostInfo", "instantiateInfo", "workStatus");
+        return ImmutableList.of("hostInfo", "csar", "instantiateInfo", "workStatus");
     }
 
     /**
