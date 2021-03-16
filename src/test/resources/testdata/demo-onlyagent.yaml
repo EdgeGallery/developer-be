@@ -1,19 +1,18 @@
 ---
-apiVersion: v1
+apiVersion: v1              # pod信息
 kind: Pod
 metadata:
-  name: positioning-service
-  namespace: {{ .Values.appconfig.appnamespace }}
+  name: positioning-service    # pod名
+  namespace: '{{ .Values.appconfig.appnamespace }}'
   labels:
     app: positioning-service
 spec:
   containers:
-    - name: positioning
-      image: swr.ap-southeast-1.myhuaweicloud.com/edgegallery/positioning_service:1.0
-      imagePullPolicy: IfNotPresent
+    - name: positioning    # 容器名
+      image: swr.ap-southeast-1.myhuaweicloud.com/edgegallery/positioning_service:1.0  # 镜像信息
+      imagePullPolicy: IfNotPresent   # 镜像拉取策略
       ports:
-        - containerPort: 9997
-    {{- if .Values.global.mepagent.enabled }}
+        - containerPort: 9997         # 内部端口
     - name: mep-agent
       image: swr.ap-southeast-1.myhuaweicloud.com/edgegallery/mep-agent:latest
       imagePullPolicy: Always
@@ -31,26 +30,24 @@ spec:
         - name: AK
           valueFrom:
             secretKeyRef:
-              name: {{ .Values.appconfig.aksk.secretname }}
+              name: '{{ .Values.appconfig.aksk.secretname }}'
               key: accesskey
         - name: SK
           valueFrom:
             secretKeyRef:
-              name: {{ .Values.appconfig.aksk.secretname }}
+              name: '{{ .Values.appconfig.aksk.secretname }}'
               key: secretkey
         - name: APPINSTID
           valueFrom:
             secretKeyRef:
-              name: {{ .Values.appconfig.aksk.secretname }}
+              name: '{{ .Values.appconfig.aksk.secretname }}'
               key: appInsId
       volumeMounts:
         - name: mep-agent-service-config-volume
           mountPath: /usr/mep/conf/app_instance_info.yaml
           subPath: app_instance_info.yaml
-              
+
   volumes:
     - name: mep-agent-service-config-volume
       configMap:
-        name: {{ .Values.global.mepagent.configmapname }}   
-  {{- end }}
-
+        name: '{{ .Values.global.mepagent.configmapname }}'

@@ -30,12 +30,15 @@ import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import javax.ws.rs.core.Response;
+import org.apache.commons.fileupload.disk.DiskFileItem;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.http.entity.ContentType;
 import org.edgegallery.developer.mapper.HelmTemplateYamlMapper;
@@ -63,11 +66,12 @@ import org.edgegallery.developer.util.InitConfigUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.commons.CommonsMultipartFile;
 
 @Service("deployService")
 public class DeployService {
@@ -309,9 +313,10 @@ public class DeployService {
         }
         savePodAndService(deploys, projectId);
         //save deploy yaml
-        InputStream inputStream = new FileInputStream(yamlFile);
-        MultipartFile multipartFile = new MockMultipartFile(yamlFile.getName(), yamlFile.getName(),
-            ContentType.APPLICATION_OCTET_STREAM.toString(), inputStream);
+        // InputStream inputStream = new FileInputStream(yamlFile);
+        // MultipartFile multipartFile = new MockMultipartFile(yamlFile.getName(), yamlFile.getName(),
+        //     ContentType.APPLICATION_OCTET_STREAM.toString(), inputStream) { };
+        MultipartFile multipartFile = getMultipartFile(yamlFile);
         Either<FormatRespDto, HelmTemplateYamlRespDto> res = uploadFileService
             .uploadHelmTemplateYaml(multipartFile, userId, projectId, configType);
         if (res.isLeft()) {
@@ -319,6 +324,24 @@ public class DeployService {
         }
         return Either.right(res.getRight());
     }
+
+    // 第二种方式
+    public static MultipartFile getMultipartFile(File file) {
+        DiskFileItem item = new DiskFileItem(file.getName()
+            , MediaType.MULTIPART_FORM_DATA_VALUE
+            , true
+            , file.getName()
+            , (int)file.length()
+            , file.getParentFile());
+        try {
+            OutputStream os = item.getOutputStream();
+            os.write(FileUtils.readFileToByteArray(file));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return new CommonsMultipartFile(item);
+    }
+
 
     /**
      * update yaml.
