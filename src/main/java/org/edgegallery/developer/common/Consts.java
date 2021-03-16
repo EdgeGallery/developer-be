@@ -81,6 +81,8 @@ public final class Consts {
 
     public static final String GET_TASK_FROM_ATP = "/edgegallery/atp/v1/tasks/%s";
 
+    public static final String DEV_CLEAN_ENV_URL = "%s/mec/developer/v1/projects/%s/action/clean?userId=%s";
+
     private Consts() {
     }
 }

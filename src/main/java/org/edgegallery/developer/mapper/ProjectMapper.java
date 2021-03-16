@@ -34,6 +34,8 @@ public interface ProjectMapper {
 
     List<ApplicationProject> getAllProject(String userId);
 
+    List<ApplicationProject> getAllProjectNoCondtion();
+
     int countProjects(String userId);
 
     int updateProject(ApplicationProject project);

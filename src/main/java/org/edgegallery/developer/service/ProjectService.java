@@ -25,7 +25,13 @@ import com.spencerwi.either.Either;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
+import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -35,8 +41,21 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import javax.net.ssl.SSLContext;
 import javax.ws.rs.core.Response.Status;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.client.CookieStore;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.conn.ssl.NoopHostnameVerifier;
+import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
+import org.apache.http.conn.ssl.TrustStrategy;
+import org.apache.http.cookie.Cookie;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
+import org.apache.http.impl.client.BasicCookieStore;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.DefaultRedirectStrategy;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.ssl.SSLContextBuilder;
 import org.edgegallery.developer.common.Consts;
 import org.edgegallery.developer.config.security.AccessUserUtil;
 import org.edgegallery.developer.mapper.HelmTemplateYamlMapper;
@@ -96,6 +115,12 @@ public class ProjectService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ProjectService.class);
 
+    private static CookieStore cookieStore = new BasicCookieStore();
+
+    private static final String USERNAME = "admin";
+
+    private static final String PASSWORD = "admin";
+
     private static Gson gson = new Gson();
 
     ExecutorService threadPool = Executors.newSingleThreadExecutor();
@@ -105,6 +130,9 @@ public class ProjectService {
 
     @Value("${imagelocation.project:}")
     private String imageProject;
+
+    @Value("${security.oauth2.resource.jwt.key-uri:}")
+    private String loginUrl;
 
     @Autowired
     private ProjectMapper projectMapper;
@@ -1258,19 +1286,103 @@ public class ProjectService {
         Type type = new TypeToken<List<MepHost>>() { }.getType();
         List<MepHost> hosts = gson.fromJson(gson.toJson(testConfig.getHosts()), type);
         MepHost host = hosts.get(0);
-        // delete hosts
-        boolean deleteHostRes = HttpClientUtil
-            .deleteHost(host.getProtocol(), host.getLcmIp(), host.getPort(), userId, token, testConfig.getPackageId(), host.getLcmIp());
+        if (StringUtils.isNotEmpty(testConfig.getPackageId())) {
+            // delete hosts
+            boolean deleteHostRes = HttpClientUtil
+                .deleteHost(host.getProtocol(), host.getLcmIp(), host.getPort(), userId, token,
+                    testConfig.getPackageId(), host.getLcmIp());
 
-        // delete pkg
-        boolean deletePkgRes = HttpClientUtil
-            .deletePkg(host.getProtocol(), host.getLcmIp(), host.getPort(), userId, token, testConfig.getPackageId());
-
+            // delete pkg
+            boolean deletePkgRes = HttpClientUtil
+                .deletePkg(host.getProtocol(), host.getLcmIp(), host.getPort(), userId, token,
+                    testConfig.getPackageId());
+            if (!deleteHostRes || !deletePkgRes) {
+                return false;
+            }
+        }
         boolean terminateApp = HttpClientUtil
             .terminateAppInstance(host.getProtocol(), host.getLcmIp(), host.getPort(), workloadId, userId, token);
-        if (!terminateApp || !deleteHostRes || !deletePkgRes) {
+        if (!terminateApp) {
             return false;
         }
         return true;
+    }
+
+    /**
+     * cleanUnreleasedEnv.
+     */
+    public void cleanUnreleasedEnv() {
+        //获取所有的项目
+        List<ApplicationProject> projects = projectMapper.getAllProjectNoCondtion();
+        if (CollectionUtils.isEmpty(projects)) {
+            LOGGER.warn("DB have no record of app project!");
+            return;
+        }
+        //登录user-mgmt
+        //通过服务名调用user-mgmt的登录接口
+        String userLoginUrl = loginUrl + "/login";
+        LOGGER.warn("user login url: {}", userLoginUrl);
+        HttpPost httpPost = new HttpPost(userLoginUrl);
+        MultipartEntityBuilder builder = MultipartEntityBuilder.create();
+        builder.addTextBody("username", USERNAME);
+        builder.addTextBody("password", PASSWORD);
+        httpPost.setEntity(builder.build());
+        try (CloseableHttpClient client = createIgnoreSslHttpClient()) {
+            client.execute(httpPost);
+            String xsrf = getXsrf();
+            httpPost.setHeader("X-XSRF-TOKEN", xsrf);
+            client.execute(httpPost);
+            //判断已有项目状态为部署成功或者部署失败，且项目创建时间距今已超24小时，调用cleanenv接口
+            for (ApplicationProject project : projects) {
+                String createDate = project.getCreateDate();
+                DateFormat fmt = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+                Instant dateOfProject = fmt.parse(createDate).toInstant();
+                Instant now = Instant.now();
+                Long timeDiff = Duration.between(dateOfProject, now).toHours();
+                EnumProjectStatus status = project.getStatus();
+                if ((status.equals(EnumProjectStatus.DEPLOYED) || status.equals(EnumProjectStatus.DEPLOYED_FAILED))
+                    && timeDiff.intValue() >= 24) {
+                    // cleanTestEnv();
+                    String devSvc = "http://developer-be-svc:9082";
+                    String cleanUrl = String
+                        .format(Consts.DEV_CLEAN_ENV_URL, devSvc, project.getId(), project.getUserId());
+                    LOGGER.warn("clean env url {}", cleanUrl);
+                    HttpPost httpClean = new HttpPost(cleanUrl);
+                    httpClean.setHeader("X-XSRF-TOKEN", xsrf);
+                    client.execute(httpClean);
+                }
+            }
+        } catch (IOException | ParseException e) {
+            LOGGER.error("call login or clean env interface occur error {}", e.getMessage());
+            return;
+        }
+
+    }
+
+    private static String getXsrf() {
+        for (Cookie cookie : cookieStore.getCookies()) {
+            if (cookie.getName().equals("XSRF-TOKEN")) {
+                return cookie.getValue();
+            }
+        }
+        return "";
+    }
+
+    private static CloseableHttpClient createIgnoreSslHttpClient() {
+        try {
+            SSLContext sslContext = new SSLContextBuilder().loadTrustMaterial(null, new TrustStrategy() {
+                public boolean isTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+                    return true;
+                }
+            }).build();
+            SSLConnectionSocketFactory sslConnectionSocketFactory = new SSLConnectionSocketFactory(sslContext,
+                NoopHostnameVerifier.INSTANCE);
+
+            return HttpClients.custom().setSSLSocketFactory(sslConnectionSocketFactory)
+                .setDefaultCookieStore(cookieStore).setRedirectStrategy(new DefaultRedirectStrategy()).build();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }
