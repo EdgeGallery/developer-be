@@ -22,6 +22,8 @@ import org.edgegallery.developer.model.LcmLog;
 import org.edgegallery.developer.model.lcm.UploadResponse;
 import org.edgegallery.developer.model.vm.EnumVmCreateStatus;
 import org.edgegallery.developer.model.vm.EnumVmImportStatus;
+import org.edgegallery.developer.model.vm.FileUploadEntity;
+import org.edgegallery.developer.model.vm.ScpConnectEntity;
 import org.edgegallery.developer.model.vm.VmCreateConfig;
 import org.edgegallery.developer.model.vm.VmCreateStageStatus;
 import org.edgegallery.developer.model.vm.VmFlavor;
@@ -45,6 +47,7 @@ import org.edgegallery.developer.service.virtual.image.VmImageStage;
 import org.edgegallery.developer.util.CompressFileUtilsJava;
 import org.edgegallery.developer.util.DeveloperFileUtils;
 import org.edgegallery.developer.util.HttpClientUtil;
+import org.edgegallery.developer.util.SHHFileUploadUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -141,8 +144,9 @@ public class VmService {
         ApplicationProject project = projectMapper.getProjectById(config.getProjectId());
         String projectPath = getProjectPath(config.getProjectId());
         VmFlavor flavor = vmConfigMapper.getVmFlavor(config.getVmRegulation().getArchitecture());
+        List<VmNetwork> vmNetworks = vmConfigMapper.getVmNetwork();
         File csarPkgDir;
-        csarPkgDir = new NewCreateVmCsar().create(projectPath, config, project, flavor.getFlavor());
+        csarPkgDir = new NewCreateVmCsar().create(projectPath, config, project, flavor.getFlavor(), vmNetworks);
         return CompressFileUtilsJava
             .compressToCsarAndDeleteSrc(csarPkgDir.getCanonicalPath(), projectPath, csarPkgDir.getName());
     }
@@ -257,7 +261,7 @@ public class VmService {
 
         // distribute pkg
         boolean distributeRes = HttpClientUtil
-            .distributePkg(host.getProtocol(), host.getLcmIp(), host.getPort(), userId, lcmToken, pkgId, lcmLog);
+            .distributePkg(host.getProtocol(), host.getLcmIp(), host.getPort(), userId, lcmToken, pkgId, host.getMecHost(),lcmLog);
         if (!distributeRes) {
             vmConfig.setLog(lcmLog.getLog());
             return false;
@@ -265,7 +269,7 @@ public class VmService {
         // instantiate application
         boolean instantRes = HttpClientUtil
             .instantiateApplication(host.getProtocol(), host.getLcmIp(), host.getPort(), appInstanceId, userId, lcmToken,
-                lcmLog, pkgId);
+                lcmLog, pkgId, host.getMecHost());
         if (!instantRes) {
             vmConfig.setLog(lcmLog.getLog());
             return false;
@@ -276,7 +280,7 @@ public class VmService {
 
     private boolean deleteVmCreate(VmCreateConfig vmConfig, String userId, String lcmToken) {
         String appInstanceId = vmConfig.getAppInstanceId();
-        Type type = new TypeToken<List<MepHost>>() { }.getType();
+        Type type = new TypeToken<MepHost>() { }.getType();
         MepHost host = gson.fromJson(gson.toJson(vmConfig.getHost()), type);
         // delete hosts
         boolean deleteHostRes = HttpClientUtil
@@ -325,7 +329,7 @@ public class VmService {
             return Either.right(true);
         }
 
-        if (vmCreateConfig.getStageStatus().getHostInfo().equals(EnumTestConfigStatus.Success)) {
+        if (vmCreateConfig.getStageStatus().getInstantiateInfo()!=null && vmCreateConfig.getStageStatus().getInstantiateInfo().equals(EnumTestConfigStatus.Success)) {
             deleteVmCreate(vmCreateConfig, project.getUserId(), token);
         }
 
@@ -344,7 +348,7 @@ public class VmService {
     }
 
     public Either<FormatRespDto, Boolean> uploadFileToVm(String userId, String projectId, String vmId, MultipartFile uploadFile)
-        throws IOException {
+        throws Exception {
         LOGGER.info("Begin upload file");
 
         ApplicationProject project = projectMapper.getProject(userId, projectId);
@@ -363,17 +367,36 @@ public class VmService {
         Type type = new TypeToken<List<VmInfo>>() { }.getType();
         List<VmInfo> vmInfo = gson.fromJson(gson.toJson(vmCreateConfig.getVmInfo()), type);
 
-        FTPClient ftpClient = new FTPClient();//import org.apache.commons.net.ftp.FTPClient;
-        ftpClient.connect(vmInfo.get(0).getVncUrl(), 21);//连接ftp
-        ftpClient.login("root", "root");//登陆ftp
-        ftpClient.changeWorkingDirectory(VMPATH);//需要把文件上传到FTP哪个目录
-        boolean result = ftpClient.storeFile(file.getName(), new FileInputStream(file));//存储文件,成功返回true,失败false
-        if(!result) {
+        // ssh upload file
+        String targetPath = "/home/zhl";
+        ScpConnectEntity scpConnectEntity=new ScpConnectEntity();
+        scpConnectEntity.setTargetPath(targetPath);
+        scpConnectEntity.setUrl("192.168.233.34");
+        scpConnectEntity.setPassWord("123456");
+        scpConnectEntity.setUserName("root");
+        String remoteFileName = file.getName();
+
+        SHHFileUploadUtil sshFileUploadUtil = new SHHFileUploadUtil();
+        FileUploadEntity fileUploadEntity = sshFileUploadUtil.uploadFile(file, remoteFileName, scpConnectEntity);
+        if(fileUploadEntity.getCode().equals("ok")) {
+            return Either.right(true);
+        } else {
             LOGGER.warn("upload fail, ip:{}", vmInfo.get(0).getVncUrl());
-            FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "upload file fail to vm");
+            FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, fileUploadEntity.getMessage());
             return Either.left(error);
         }
-        return Either.right(true);
+
+//        FTPClient ftpClient = new FTPClient();//import org.apache.commons.net.ftp.FTPClient;
+//        ftpClient.connect(vmInfo.get(0).getVncUrl(), 21);//连接ftp
+//        ftpClient.login("root", "root");//登陆ftp
+//        ftpClient.changeWorkingDirectory(VMPATH);//需要把文件上传到FTP哪个目录
+//        boolean result = ftpClient.storeFile(file.getName(), new FileInputStream(file));//存储文件,成功返回true,失败false
+//        if(!result) {
+//            LOGGER.warn("upload fail, ip:{}", vmInfo.get(0).getVncUrl());
+//            FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "upload file fail to vm");
+//            return Either.left(error);
+//        }
+//        return Either.right(true);
     }
 
     private File transferToFile(MultipartFile multipartFile) {

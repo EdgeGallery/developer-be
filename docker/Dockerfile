@@ -42,6 +42,8 @@ RUN apk update &&\
    # useradd -r -u $UID -G $GROUP_NAME,docker -d $APP_HOME -s /sbin/nologin -c "Docker image user" $USER_NAME
 RUN apk add docker
 
+RUN apk add openssh
+
 RUN useradd -r -u $UID -G $GROUP_NAME,docker -d $APP_HOME -s /sbin/nologin -c "Docker image user" $USER_NAME
 
 WORKDIR $APP_HOME

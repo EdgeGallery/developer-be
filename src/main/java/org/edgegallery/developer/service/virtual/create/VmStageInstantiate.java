@@ -63,19 +63,14 @@ public class VmStageInstantiate implements VmCreateStage {
             instantiateAppResult = vmService
                     .createVmToAppLcm(csar, project, config, userId, config.getLcmToken());
             instantiateAppResult=true;
-//            if (!instantiateAppResult) {
-//                LOGGER.error("Failed to create vm which packageId is : {}.", config.getPackageId());
-//            } else {
-//                // update status when instantiate success
-//                SimpleDateFormat time=new SimpleDateFormat("yyyy-MM-dd HH:mm");
-//                config.setCreate_time(time.format(new Date()));
-//                processSuccess = true;
-//                instantiateStatus = EnumTestConfigStatus.Success;
-//            }
-            // update status when instantiate success
-            config.setCreateTime(new Date());
-            processSuccess = true;
-            instantiateStatus = EnumTestConfigStatus.Success;
+            if (!instantiateAppResult) {
+                LOGGER.error("Failed to create vm which packageId is : {}.", config.getPackageId());
+            } else {
+                // update status when instantiate success
+                config.setCreateTime(new Date());
+                processSuccess = true;
+                instantiateStatus = EnumTestConfigStatus.Success;
+            }
         } catch (Exception e) {
             config.setLog("Failed to create vm  with err:" + e.getMessage());
             LOGGER.error("Failed to create vm with err: {}.", e.getMessage());

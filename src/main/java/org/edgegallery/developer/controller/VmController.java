@@ -150,7 +150,7 @@ public class VmController {
         @Pattern(regexp = REGEX_UUID, message = "userId must be in UUID format")
         @ApiParam(value = "userId", required = true) @RequestParam("userId") String userId,
         @Pattern(regexp = REGEX_UUID, message = "vmId must be in UUID format")
-        @ApiParam(value = "vmId", required = true) @PathVariable("vmId") String vmId) throws IOException {
+        @ApiParam(value = "vmId", required = true) @PathVariable("vmId") String vmId) throws Exception {
         Either<FormatRespDto, Boolean> either = vmService.uploadFileToVm(userId, projectId, vmId, uploadFile);
         return ResponseDataUtil.buildResponse(either);
 

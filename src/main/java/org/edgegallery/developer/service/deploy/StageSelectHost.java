@@ -71,7 +71,7 @@ public class StageSelectHost implements IConfigDeployStage {
             processSuccess = true;
         } else {
             List<MepHost> enabledHosts = hostMapper
-                .getHostsByStatus(EnumHostStatus.NORMAL, "admin", project.getPlatform().get(0), "K8s");
+                .getHostsByStatus(EnumHostStatus.NORMAL, "admin", project.getPlatform().get(0), "K8S");
             if (CollectionUtils.isEmpty(enabledHosts)) {
                 processSuccess = false;
                 LOGGER.error("Cannot find available hosts information");
