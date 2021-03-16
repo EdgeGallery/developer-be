@@ -125,6 +125,14 @@
         order by create_date desc
     </select>
 
+    <select id="getAllProjectNoCondtion"  resultMap="AppProjectMap">
+        SELECT
+        *
+        FROM
+        tbl_app_project
+        order by create_date desc
+    </select>
+
     <select id="countProjects" parameterType="String" resultType="integer">
         SELECT
         COUNT(*)
