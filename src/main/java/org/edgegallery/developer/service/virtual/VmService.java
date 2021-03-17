@@ -350,7 +350,12 @@ public class VmService {
         }
         String projectPath = getProjectPath(projectId);
         DeveloperFileUtils.deleteDir(projectPath + vmCreateConfig.getAppInstanceId());
-        DeveloperFileUtils.deleteDir(projectPath + vmCreateConfig.getAppInstanceId() + ".csar");
+        try {
+            FileUtils.deleteDirectory(new File(projectPath + vmCreateConfig.getAppInstanceId() + ".csar"));
+        } catch (IOException e) {
+            LOGGER.error("Delete vm create scar failed.");
+        }
+
 
         LOGGER.info("delete vm create config success");
         return Either.right(true);

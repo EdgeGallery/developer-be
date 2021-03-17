@@ -7,11 +7,15 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.zip.GZIPOutputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,8 +34,54 @@ public class CompressFileUtilsJava {
     public static File compressToTgzAndDeleteSrc(String sourcePath, String outPutPath, String fileName)
         throws IOException {
         File res = compressToTgz(sourcePath, outPutPath, fileName);
-        org.apache.commons.io.FileUtils.deleteDirectory(new File(sourcePath));
+        FileUtils.deleteDirectory(new File(sourcePath));
         return res;
+    }
+
+    public static void zipFiles(List<File> srcfile, File zipfile) {
+        List<String> entryPaths = new ArrayList<>();
+        try (ZipOutputStream out = new ZipOutputStream(new FileOutputStream(zipfile));) {
+            for (File file : srcfile) {
+                if (file.isFile()) {
+                    addFileToZip(out, file, entryPaths);
+                } else if (file.isDirectory()) {
+                    entryPaths.add(file.getName());
+                    addFolderToZip(out, file, entryPaths);
+                    entryPaths.remove(entryPaths.size() - 1);
+                }
+            }
+        } catch (IOException e) {
+            LOGGER.error("Failed to generate zip file.", e);
+        }
+    }
+    private static void addFolderToZip(ZipOutputStream out, File file, List<String> entryPaths) throws IOException {
+        out.putNextEntry(new ZipEntry(StringUtils.join(entryPaths, "/") + "/"));
+        out.closeEntry();
+        for (File subFile : file.listFiles()) {
+            if (subFile.isFile()) {
+                addFileToZip(out, subFile, entryPaths);
+            } else if (subFile.isDirectory()) {
+                entryPaths.add(subFile.getName());
+                addFolderToZip(out, subFile, entryPaths);
+                entryPaths.remove(entryPaths.size() - 1);
+            }
+        }
+    }
+
+    private static void addFileToZip(ZipOutputStream out, File file, List<String> entryPaths) throws IOException {
+        byte[] buf = new byte[1024];
+        try (FileInputStream in = new FileInputStream(file)) {
+            if (entryPaths.size() > 0) {
+                out.putNextEntry(new ZipEntry(StringUtils.join(entryPaths, "/") + "/" + file.getName()));
+            } else {
+                out.putNextEntry(new ZipEntry(file.getName()));
+            }
+            int len;
+            while ((len = in.read(buf)) > 0) {
+                out.write(buf, 0, len);
+            }
+            out.closeEntry();
+        }
     }
 
     /**
@@ -73,6 +123,33 @@ public class CompressFileUtilsJava {
             }
         }
         return outPutFile;
+    }
+
+    /**
+     * compressToTgz.
+     */
+    public static File compressToZip(String sourcePath, String outPutPath, String fileName) throws IOException {
+        File resourcesFile = new File(sourcePath);
+        File targetFile = new File(outPutPath);
+        if (!targetFile.exists()) {
+            boolean isMaked = targetFile.mkdirs();
+            if (!isMaked) {
+                LOGGER.error("compressToZip: make dir failed");
+                return null;
+            }
+        }
+
+        FileOutputStream outputStream = new FileOutputStream(outPutPath + File.separator + fileName + ".zip");
+        ZipOutputStream out = new ZipOutputStream(new BufferedOutputStream(outputStream));
+
+        createCompressedFile(out, resourcesFile, "");
+
+        out.close();
+        File csar = new File(outPutPath + File.separator + fileName + ".zip");
+        if (csar.exists()) {
+            return csar;
+        }
+        throw new IOException("zip not find");
     }
 
     private static File pack(String sourcePath) throws IOException {
