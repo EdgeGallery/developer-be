@@ -1,9 +1,9 @@
 package org.edgegallery.developer.service.virtual.image;
 
-import java.io.File;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
 import java.util.Date;
-import javax.annotation.Resource;
 import org.edgegallery.developer.mapper.ProjectMapper;
 import org.edgegallery.developer.mapper.VmConfigMapper;
 import org.edgegallery.developer.model.vm.VmCreateConfig;
@@ -17,10 +17,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
+
 @Service("vm_createImageInfo_service")
-public class VmImageCreate implements VmImageStage{
+public class VmImageCreate implements VmImageStage {
     private static final Logger LOGGER = LoggerFactory.getLogger(VmImageCreate.class);
 
     private static Gson gson = new Gson();
@@ -46,23 +45,23 @@ public class VmImageCreate implements VmImageStage{
         ApplicationProject project = projectMapper.getProjectById(imageConfig.getProjectId());
         String userId = project.getUserId();
         EnumTestConfigStatus instantiateStatus = EnumTestConfigStatus.Failed;
-        VmCreateConfig vmCreateConfig = vmConfigMapper.getVmCreateConfig(imageConfig.getProjectId(), imageConfig.getVmId());
+        VmCreateConfig vmCreateConfig = vmConfigMapper
+            .getVmCreateConfig(imageConfig.getProjectId(), imageConfig.getVmId());
         Type type = new TypeToken<MepHost>() { }.getType();
         MepHost host = gson.fromJson(gson.toJson(vmCreateConfig.getHost()), type);
         // deploy app
         try {
-            instantiateImageResult = vmService
-                .createVmImageToAppLcm(host,imageConfig, userId);
-            instantiateImageResult=true;
-//            if (!instantiateAppResult) {
-//                LOGGER.error("Failed to create vm which packageId is : {}.", config.getPackageId());
-//            } else {
-//                // update status when instantiate success
-//                SimpleDateFormat time=new SimpleDateFormat("yyyy-MM-dd HH:mm");
-//                config.setCreate_time(time.format(new Date()));
-//                processSuccess = true;
-//                instantiateStatus = EnumTestConfigStatus.Success;
-//            }
+            instantiateImageResult = vmService.createVmImageToAppLcm(host, imageConfig, userId);
+            instantiateImageResult = true;
+            //            if (!instantiateAppResult) {
+            //                LOGGER.error("Failed to create vm which packageId is : {}.", config.getPackageId());
+            //            } else {
+            //                // update status when instantiate success
+            //                SimpleDateFormat time=new SimpleDateFormat("yyyy-MM-dd HH:mm");
+            //                config.setCreate_time(time.format(new Date()));
+            //                processSuccess = true;
+            //                instantiateStatus = EnumTestConfigStatus.Success;
+            //            }
             // update status when instantiate success
             imageConfig.setCreateTime(new Date());
             // set imageId

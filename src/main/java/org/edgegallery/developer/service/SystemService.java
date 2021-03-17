@@ -19,7 +19,13 @@ package org.edgegallery.developer.service;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.spencerwi.either.Either;
-import org.apache.commons.io.FileUtils;
+import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.UUID;
+import javax.ws.rs.core.Response.Status;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.servicecomb.provider.springmvc.reference.RestTemplateBuilder;
 import org.edgegallery.developer.common.Consts;
@@ -28,30 +34,30 @@ import org.edgegallery.developer.mapper.HostLogMapper;
 import org.edgegallery.developer.mapper.HostMapper;
 import org.edgegallery.developer.mapper.OpenMepCapabilityMapper;
 import org.edgegallery.developer.mapper.UploadedFileMapper;
-import org.edgegallery.developer.model.workspace.*;
+import org.edgegallery.developer.model.workspace.MepHost;
+import org.edgegallery.developer.model.workspace.MepHostLog;
+import org.edgegallery.developer.model.workspace.OpenMepCapabilityDetail;
+import org.edgegallery.developer.model.workspace.OpenMepCapabilityGroup;
+import org.edgegallery.developer.model.workspace.UploadedFile;
 import org.edgegallery.developer.response.FormatRespDto;
-import org.edgegallery.developer.util.BusinessConfigUtil;
-import org.edgegallery.developer.util.DeveloperFileUtils;
 import org.edgegallery.developer.util.HttpClientUtil;
 import org.edgegallery.developer.util.InitConfigUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
-import org.springframework.http.*;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
-
-import javax.validation.constraints.Min;
-import javax.ws.rs.core.Response.Status;
-import java.io.File;
-import java.nio.charset.StandardCharsets;
-import java.text.SimpleDateFormat;
-import java.util.*;
 
 @Service("systemService")
 public class SystemService {
@@ -69,7 +75,6 @@ public class SystemService {
 
     @Autowired
     private UploadedFileMapper uploadedFileMapper;
-
 
     /**
      * getALlHosts.
@@ -89,7 +94,7 @@ public class SystemService {
      * @return
      */
     @Transactional
-    public Either<FormatRespDto, MepHost> createHost(MepHost host,String token) {
+    public Either<FormatRespDto, MepHost> createHost(MepHost host, String token) {
         if (StringUtils.isBlank(host.getUserName())) {
             LOGGER.error("Create host failed, username is empty");
             return Either.left(new FormatRespDto(Status.BAD_REQUEST, "username is empty"));
@@ -199,9 +204,9 @@ public class SystemService {
     }
 
     /**
-     * getHostLogByHostId
+     * getHostLogByHostId.
      *
-     * @param hostId
+     * @param hostId hostId
      * @return
      */
     public Either<FormatRespDto, List<MepHostLog>> getHostLogByHostId(String hostId) {
@@ -211,9 +216,9 @@ public class SystemService {
     }
 
     /**
-     * createCapabilityGroup
+     * createCapabilityGroup.
      *
-     * @param capabilityGroup
+     * @param capabilityGroup capabilityGroup
      * @return
      */
     @Transactional
@@ -262,6 +267,9 @@ public class SystemService {
 
     }
 
+    /**
+     * deleteCapabilityByUserIdAndGroupId.
+     */
     public Either<FormatRespDto, Boolean> deleteCapabilityByUserIdAndGroupId(String groupId) {
         List<OpenMepCapabilityDetail> capabilityDetailList = openMepCapabilityMapper.getDetailByGroupId(groupId);
         if (!CollectionUtils.isEmpty(capabilityDetailList)) {
@@ -286,13 +294,21 @@ public class SystemService {
         return Either.right(true);
     }
 
-    public Page<OpenMepCapabilityGroup> getAllCapabilityGroups(String userId, String twoLevelName, String twoLevelNameEn, int limit, int offset) {
+    /**
+     * getAllCapabilityGroups.
+     */
+    public Page<OpenMepCapabilityGroup> getAllCapabilityGroups(String userId, String twoLevelName,
+        String twoLevelNameEn, int limit, int offset) {
         PageHelper.offsetPage(offset, limit);
-        PageInfo pageInfo = new PageInfo<OpenMepCapabilityGroup>(openMepCapabilityMapper.getOpenMepListByCondition(userId,twoLevelName,twoLevelNameEn));
+        PageInfo pageInfo = new PageInfo<OpenMepCapabilityGroup>(
+            openMepCapabilityMapper.getOpenMepListByCondition(userId, twoLevelName, twoLevelNameEn));
         LOGGER.info("Get all capability groups success.");
         return new Page<OpenMepCapabilityGroup>(pageInfo.getList(), limit, offset, pageInfo.getTotal());
     }
 
+    /**
+     * getCapabilityByGroupId.
+     */
     public Either<FormatRespDto, OpenMepCapabilityGroup> getCapabilityByGroupId(String groupId) {
         OpenMepCapabilityGroup group = openMepCapabilityMapper.getOpenMepCapabilitiesByGroupId(groupId);
         if (group != null) {
@@ -312,9 +328,6 @@ public class SystemService {
         return Either.left(new FormatRespDto(Status.BAD_REQUEST, "get capabilities by group failed"));
     }
 
-    /**
-     * upload file to lcm
-     */
     private boolean uploadFileToLcm(String hostIp, int port, String filePath, String token) {
         File file = new File(InitConfigUtil.getWorkSpaceBaseDir() + filePath);
         RestTemplate restTemplate = RestTemplateBuilder.create();

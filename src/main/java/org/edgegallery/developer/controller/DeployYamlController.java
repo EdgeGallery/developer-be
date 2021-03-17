@@ -72,7 +72,7 @@ public class DeployYamlController {
         @ApiParam(value = "projectId", required = true) @PathVariable String projectId,
         @ApiParam(value = "configType", required = true) @RequestParam String configType) throws IOException {
         Either<FormatRespDto, HelmTemplateYamlRespDto> either = deployService
-            .genarateDeployYaml(deployYamls, projectId, userId,configType);
+            .genarateDeployYaml(deployYamls, projectId, userId, configType);
         return ResponseDataUtil.buildResponse(either);
     }
 
@@ -87,12 +87,12 @@ public class DeployYamlController {
     @RequestMapping(value = "/{projectId}/action/save-yaml", method = RequestMethod.POST,
         consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
-    public ResponseEntity<HelmTemplateYamlPo> saveDeploy( @RequestBody String jsonStr,
+    public ResponseEntity<HelmTemplateYamlPo> saveDeploy(@RequestBody String jsonStr,
         @ApiParam(value = "userId", required = true) @RequestParam String userId,
         @ApiParam(value = "projectId", required = true) @PathVariable String projectId,
         @ApiParam(value = "configType", required = true) @RequestParam String configType) throws IOException {
         Either<FormatRespDto, HelmTemplateYamlPo> either = deployService
-            .saveDeployYaml(jsonStr, projectId, userId,configType);
+            .saveDeployYaml(jsonStr, projectId, userId, configType);
         return ResponseDataUtil.buildResponse(either);
     }
 
@@ -108,12 +108,10 @@ public class DeployYamlController {
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<HelmTemplateYamlPo> updateDeployYaml(
         @ApiParam(value = "fileId", required = true) @PathVariable String fileId,
-        @ApiParam(value = "fileContent", required = true) @RequestBody String fileContent)  {
-        Either<FormatRespDto, HelmTemplateYamlPo> either = deployService
-            .updateDeployYaml(fileId, fileContent);
+        @ApiParam(value = "fileContent", required = true) @RequestBody String fileContent) {
+        Either<FormatRespDto, HelmTemplateYamlPo> either = deployService.updateDeployYaml(fileId, fileContent);
         return ResponseDataUtil.buildResponse(either);
     }
-
 
     /**
      * get deploy yaml.
@@ -127,11 +125,9 @@ public class DeployYamlController {
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<HelmTemplateYamlPo> getDeployYaml(
         @ApiParam(value = "fileId", required = true) @PathVariable String fileId) {
-        Either<FormatRespDto, HelmTemplateYamlPo> either = deployService
-            .getDeployYamlContent(fileId);
+        Either<FormatRespDto, HelmTemplateYamlPo> either = deployService.getDeployYamlContent(fileId);
         return ResponseDataUtil.buildResponse(either);
     }
-
 
     /**
      * get deploy yaml.
@@ -141,14 +137,13 @@ public class DeployYamlController {
         @ApiResponse(code = 200, message = "OK", response = List.class),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
-    @RequestMapping(value = "/{fileId}/action/get-json", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @RequestMapping(value = "/{fileId}/action/get-json", method = RequestMethod.GET,
+        produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<List<String>> queryDeployYaml(
         @ApiParam(value = "fileId", required = true) @PathVariable String fileId) throws JsonProcessingException {
-        Either<FormatRespDto, List<String>> either = deployService
-            .getDeployYamJson(fileId);
+        Either<FormatRespDto, List<String>> either = deployService.getDeployYamJson(fileId);
         return ResponseDataUtil.buildResponse(either);
     }
-
 
 }

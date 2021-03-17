@@ -1,13 +1,12 @@
 package org.edgegallery.developer.controller;
 
-
+import com.spencerwi.either.Either;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import java.io.File;
-import java.io.IOException;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.NotNull;
@@ -17,8 +16,6 @@ import org.edgegallery.developer.common.Consts;
 import org.edgegallery.developer.model.vm.VmCreateConfig;
 import org.edgegallery.developer.model.vm.VmImageConfig;
 import org.edgegallery.developer.model.vm.VmResource;
-import org.edgegallery.developer.model.workspace.ApplicationProject;
-import org.edgegallery.developer.model.workspace.UploadedFile;
 import org.edgegallery.developer.response.ErrorRespDto;
 import org.edgegallery.developer.response.FormatRespDto;
 import org.edgegallery.developer.service.virtual.VmService;
@@ -36,7 +33,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.multipart.MultipartFile;
-import com.spencerwi.either.Either;
 
 @Controller
 @RestSchema(schemaId = "vm")
@@ -60,9 +56,8 @@ public class VmController {
     })
     @RequestMapping(value = "/vmconfig", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
-    public ResponseEntity<VmResource> getVirtualResource( ){
-        Either<FormatRespDto, VmResource> either = vmService
-            .getVirtualResource();
+    public ResponseEntity<VmResource> getVirtualResource() {
+        Either<FormatRespDto, VmResource> either = vmService.getVirtualResource();
         return ResponseDataUtil.buildResponse(either);
     }
 
@@ -74,8 +69,8 @@ public class VmController {
         @ApiResponse(code = 200, message = "OK", response = VmCreateConfig.class),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
-    @RequestMapping(value = "/projects/{projectId}/vm-create", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_UTF8_VALUE,
-        produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @RequestMapping(value = "/projects/{projectId}/vm-create", method = RequestMethod.POST,
+        consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<VmCreateConfig> createVm(
         @NotNull @ApiParam(value = "VmConfig", required = true) @RequestBody VmCreateConfig vmCreateConfig,
@@ -85,19 +80,21 @@ public class VmController {
         @ApiParam(value = "userId", required = true) @RequestParam("userId") String userId,
         HttpServletRequest request) {
         String token = request.getHeader(Consts.ACCESS_TOKEN_STR);
-        Either<FormatRespDto, VmCreateConfig> either = vmService.createVm(userId, projectId, vmCreateConfig,token);
+        Either<FormatRespDto, VmCreateConfig> either = vmService.createVm(userId, projectId, vmCreateConfig, token);
         return ResponseDataUtil.buildResponse(either);
     }
 
     /**
      * get vm create config by projectId.
      */
-    @ApiOperation(value = "get vm create config by projectId", response = VmCreateConfig.class, responseContainer = "List")
+    @ApiOperation(value = "get vm create config by projectId", response = VmCreateConfig.class,
+        responseContainer = "List")
     @ApiResponses(value = {
         @ApiResponse(code = 200, message = "OK", response = VmCreateConfig.class, responseContainer = "List"),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
-    @RequestMapping(value = "/projects/{projectId}/vm", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @RequestMapping(value = "/projects/{projectId}/vm", method = RequestMethod.GET,
+        produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<List<VmCreateConfig>> getCreateVmConfig(
         @Pattern(regexp = REGEX_UUID, message = "projectId must be in UUID format")
@@ -120,13 +117,12 @@ public class VmController {
         produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<Boolean> deleteCreateVmConfig(
-        @Pattern(regexp = REGEX_UUID, message = "projectId must be in UUID format")
-        @ApiParam(value = "projectId") @PathVariable("projectId") String projectId,
-        @Pattern(regexp = REGEX_UUID, message = "vmId must be in UUID format")
-        @ApiParam(value = "vmId") @PathVariable("vmId") String vmId,
-        @Pattern(regexp = REGEX_UUID, message = "userId must be in UUID format")
-        @ApiParam(value = "userId") @RequestParam("userId") String userId,
-        HttpServletRequest request) {
+        @Pattern(regexp = REGEX_UUID, message = "projectId must be in UUID format") @ApiParam(value = "projectId")
+        @PathVariable("projectId") String projectId,
+        @Pattern(regexp = REGEX_UUID, message = "vmId must be in UUID format") @ApiParam(value = "vmId")
+        @PathVariable("vmId") String vmId,
+        @Pattern(regexp = REGEX_UUID, message = "userId must be in UUID format") @ApiParam(value = "userId")
+        @RequestParam("userId") String userId, HttpServletRequest request) {
         String token = request.getHeader(Consts.ACCESS_TOKEN_STR);
         Either<FormatRespDto, Boolean> either = vmService.deleteCreateVm(userId, projectId, vmId, token);
         return ResponseDataUtil.buildResponse(either);
@@ -140,8 +136,8 @@ public class VmController {
         @ApiResponse(code = 200, message = "OK", response = Boolean.class),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
-    @RequestMapping(value = "/projects/{projectId}/vm/{vmId}/files", method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
-        produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @RequestMapping(value = "/projects/{projectId}/vm/{vmId}/files", method = RequestMethod.POST,
+        consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<Boolean> uploadFile(
         @ApiParam(value = "file", required = true) @RequestPart("file") MultipartFile uploadFile,
@@ -168,13 +164,13 @@ public class VmController {
         produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<byte[]> getSampleCode(
-        @Pattern(regexp = REGEX_UUID, message = "projectId must be in UUID format")
-        @ApiParam(value = "projectId") @PathVariable("projectId") String projectId,
-        @Pattern(regexp = REGEX_UUID, message = "vmId must be in UUID format")
-        @ApiParam(value = "vmId") @PathVariable("vmId") String vmId,
-        @Pattern(regexp = REGEX_UUID, message = "userId must be in UUID format")
-        @ApiParam(value = "userId") @RequestParam("userId") String userId) {
-        Either<FormatRespDto, ResponseEntity<byte[]>> either = vmService.downloadVmCsar(userId, projectId,vmId);
+        @Pattern(regexp = REGEX_UUID, message = "projectId must be in UUID format") @ApiParam(value = "projectId")
+        @PathVariable("projectId") String projectId,
+        @Pattern(regexp = REGEX_UUID, message = "vmId must be in UUID format") @ApiParam(value = "vmId")
+        @PathVariable("vmId") String vmId,
+        @Pattern(regexp = REGEX_UUID, message = "userId must be in UUID format") @ApiParam(value = "userId")
+        @RequestParam("userId") String userId) {
+        Either<FormatRespDto, ResponseEntity<byte[]>> either = vmService.downloadVmCsar(userId, projectId, vmId);
         if (either.isRight()) {
             return either.getRight();
         } else {
@@ -183,7 +179,7 @@ public class VmController {
     }
 
     /**
-     * import vm image
+     * import vm image.
      */
     @ApiOperation(value = "import vm image", response = Boolean.class)
     @ApiResponses(value = {
@@ -205,7 +201,7 @@ public class VmController {
     }
 
     /**
-     * get  vm image  config
+     * get  vm image  config.
      */
     @ApiOperation(value = "get  vm image  config by vmId, projectId", response = VmImageConfig.class)
     @ApiResponses(value = {
@@ -236,19 +232,14 @@ public class VmController {
         produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<Boolean> deleteVmImage(
-        @Pattern(regexp = REGEX_UUID, message = "projectId must be in UUID format")
-        @ApiParam(value = "projectId") @PathVariable("projectId") String projectId,
-        @Pattern(regexp = REGEX_UUID, message = "userId must be in UUID format")
-        @ApiParam(value = "userId") @RequestParam("userId") String userId,
-        HttpServletRequest request) {
+        @Pattern(regexp = REGEX_UUID, message = "projectId must be in UUID format") @ApiParam(value = "projectId")
+        @PathVariable("projectId") String projectId,
+        @Pattern(regexp = REGEX_UUID, message = "userId must be in UUID format") @ApiParam(value = "userId")
+        @RequestParam("userId") String userId, HttpServletRequest request) {
         String token = request.getHeader(Consts.ACCESS_TOKEN_STR);
         Either<FormatRespDto, Boolean> either = vmService.deleteVmImage(userId, projectId, token);
         return ResponseDataUtil.buildResponse(either);
     }
-
-
-
-
 
 }
 

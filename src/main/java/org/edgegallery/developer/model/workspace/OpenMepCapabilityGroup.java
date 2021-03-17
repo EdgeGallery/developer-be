@@ -60,6 +60,9 @@ public class OpenMepCapabilityGroup {
         this.descriptionEn = descriptionEn;
     }
 
+    /**
+     * setOneLevelNameEn.
+     */
     public void setOneLevelNameEn(String oneLevelNameEn) {
         if (oneLevelNameEn == null || oneLevelNameEn.equals("")) {
             this.oneLevelNameEn = this.oneLevelName;
@@ -68,6 +71,9 @@ public class OpenMepCapabilityGroup {
         }
     }
 
+    /**
+     * setTwoLevelNameEn.
+     */
     public void setTwoLevelNameEn(String twoLevelNameEn) {
         if (twoLevelNameEn == null || twoLevelNameEn.equals("")) {
             this.twoLevelNameEn = this.twoLevelName;
@@ -76,6 +82,9 @@ public class OpenMepCapabilityGroup {
         }
     }
 
+    /**
+     * setDescriptionEn.
+     */
     public void setDescriptionEn(String descriptionEn) {
         if (descriptionEn == null || descriptionEn.equals("")) {
             this.descriptionEn = this.description;

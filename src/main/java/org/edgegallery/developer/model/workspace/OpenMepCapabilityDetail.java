@@ -16,11 +16,8 @@
 
 package org.edgegallery.developer.model.workspace;
 
-import java.util.Date;
 import lombok.Getter;
 import lombok.Setter;
-import org.edgegallery.developer.common.Consts;
-import org.stringtemplate.v4.ST;
 
 @Getter
 @Setter
@@ -69,7 +66,8 @@ public class OpenMepCapabilityDetail {
     /**
      * OpenMepCapabilityDetail.
      */
-    public OpenMepCapabilityDetail(String id, String groupId, String service, String serviceEn, String version, String description) {
+    public OpenMepCapabilityDetail(String id, String groupId, String service, String serviceEn, String version,
+        String description) {
         this.detailId = id;
         this.groupId = groupId;
         this.service = service;
@@ -78,6 +76,9 @@ public class OpenMepCapabilityDetail {
         this.description = description;
     }
 
+    /**
+     * setGuideFileIdEn.
+     */
     public void setGuideFileIdEn(String guideFileIdEn) {
         if (guideFileIdEn == null || guideFileIdEn.equals("")) {
             this.guideFileIdEn = this.guideFileId;
@@ -86,6 +87,9 @@ public class OpenMepCapabilityDetail {
         }
     }
 
+    /**
+     * setServiceEn.
+     */
     public void setServiceEn(String serviceEn) {
         if (serviceEn == null || serviceEn.equals("")) {
             this.serviceEn = this.service;
@@ -94,6 +98,9 @@ public class OpenMepCapabilityDetail {
         }
     }
 
+    /**
+     * setDescriptionEn.
+     */
     public void setDescriptionEn(String descriptionEn) {
         if (descriptionEn == null || descriptionEn.equals("")) {
             this.descriptionEn = this.description;

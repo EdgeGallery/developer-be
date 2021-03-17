@@ -6,8 +6,6 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import org.edgegallery.developer.model.workspace.MepHost;
-import org.edgegallery.developer.model.workspace.ProjectTestConfigStageStatus;
-import org.stringtemplate.v4.ST;
 
 @Getter
 @Setter
@@ -44,7 +42,9 @@ public class VmCreateConfig {
 
     private String log;
 
-    public VmCreateConfig() {}
+    public VmCreateConfig() {
+    }
+
     /**
      * get next stage for deploy.
      */

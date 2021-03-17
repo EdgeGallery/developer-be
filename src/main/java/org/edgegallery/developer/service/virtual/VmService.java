@@ -2,11 +2,15 @@ package org.edgegallery.developer.service.virtual;
 
 import static org.edgegallery.developer.util.AtpUtil.getProjectPath;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.google.gson.reflect.TypeToken;
+import com.spencerwi.either.Either;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.lang.reflect.Type;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -14,8 +18,6 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.net.ftp.FTPClient;
-import org.edgegallery.developer.common.Consts;
 import org.edgegallery.developer.mapper.ProjectMapper;
 import org.edgegallery.developer.mapper.VmConfigMapper;
 import org.edgegallery.developer.model.LcmLog;
@@ -36,7 +38,6 @@ import org.edgegallery.developer.model.vm.VmResource;
 import org.edgegallery.developer.model.vm.VmSystem;
 import org.edgegallery.developer.model.workspace.ApplicationProject;
 import org.edgegallery.developer.model.workspace.EnumProjectStatus;
-import org.edgegallery.developer.model.workspace.EnumTestConfigDeployStatus;
 import org.edgegallery.developer.model.workspace.EnumTestConfigStatus;
 import org.edgegallery.developer.model.workspace.MepHost;
 import org.edgegallery.developer.response.FormatRespDto;
@@ -47,7 +48,7 @@ import org.edgegallery.developer.service.virtual.image.VmImageStage;
 import org.edgegallery.developer.util.CompressFileUtilsJava;
 import org.edgegallery.developer.util.DeveloperFileUtils;
 import org.edgegallery.developer.util.HttpClientUtil;
-import org.edgegallery.developer.util.SHHFileUploadUtil;
+import org.edgegallery.developer.util.ShhFileUploadUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,12 +59,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
-import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import com.google.gson.reflect.TypeToken;
-import com.spencerwi.either.Either;
 
 @Service("vmService")
 public class VmService {
@@ -72,18 +67,23 @@ public class VmService {
     private static final String VMPATH = "/home/developer";
 
     private static final String IMAGE_PATH = "/Image/vmImage";
+
     /**
      * the max time for wait workStatus.
      */
     private static final Long MAX_SECONDS = 360L;
+
     private static Gson gson = new Gson();
 
     @Autowired
     private VmConfigMapper vmConfigMapper;
+
     @Autowired
     private ProjectMapper projectMapper;
+
     @Autowired
     private VmService vmService;
+
     @Autowired
     private ProjectService projectService;
 
@@ -93,6 +93,11 @@ public class VmService {
     @Autowired
     private Map<String, VmImageStage> imageServiceMap;
 
+    /**
+     * getVirtualResource.
+     *
+     * @return
+     */
     public Either<FormatRespDto, VmResource> getVirtualResource() {
         List<VmRegulation> vmRegulation = vmConfigMapper.getVmRegulation();
         List<VmSystem> vmSystem = vmConfigMapper.getVmSystem();
@@ -106,9 +111,13 @@ public class VmService {
 
     }
 
+    /**
+     * createVm.
+     *
+     * @return
+     */
     public Either<FormatRespDto, VmCreateConfig> createVm(String userId, String projectId,
         VmCreateConfig vmCreateConfig, String token) {
-
 
         String vmId = UUID.randomUUID().toString();
         String appInstanceId = UUID.randomUUID().toString();
@@ -150,7 +159,6 @@ public class VmService {
         return CompressFileUtilsJava
             .compressToCsarAndDeleteSrc(csarPkgDir.getCanonicalPath(), projectPath, csarPkgDir.getName());
     }
-
 
     /**
      * update create vm result.
@@ -213,12 +221,12 @@ public class VmService {
      */
     public void processCreateVm() {
         // get deploying config list from db
-        List<VmCreateConfig> VmConfigList = vmConfigMapper
+        List<VmCreateConfig> vmConfigList = vmConfigMapper
             .getVmCreateConfigStatus(EnumVmCreateStatus.CREATING.toString());
-        if (CollectionUtils.isEmpty(VmConfigList)) {
+        if (CollectionUtils.isEmpty(vmConfigList)) {
             return;
         }
-        VmConfigList.forEach(this::processVmCreateConfig);
+        vmConfigList.forEach(this::processVmCreateConfig);
     }
 
     /**
@@ -233,14 +241,18 @@ public class VmService {
             VmCreateStage stageService = createServiceMap.get("vm_" + nextStage + "_service");
             stageService.execute(config);
         } catch (Exception e) {
-            LOGGER.error("create vm config:{} failed on stage :{}, res:{}", config.getVmId(), nextStage,
-                e.getMessage());
+            LOGGER
+                .error("create vm config:{} failed on stage :{}, res:{}", config.getVmId(), nextStage, e.getMessage());
         }
     }
 
-
-    public boolean createVmToAppLcm(File csar, ApplicationProject project, VmCreateConfig vmConfig, String userId, String lcmToken) {
-        String appInstanceId = vmConfig.getAppInstanceId();
+    /**
+     * createVmToAppLcm.
+     *
+     * @return
+     */
+    public boolean createVmToAppLcm(File csar, ApplicationProject project, VmCreateConfig vmConfig, String userId,
+        String lcmToken) {
         Type type = new TypeToken<MepHost>() { }.getType();
         MepHost host = gson.fromJson(gson.toJson(vmConfig.getHost()), type);
 
@@ -261,15 +273,17 @@ public class VmService {
 
         // distribute pkg
         boolean distributeRes = HttpClientUtil
-            .distributePkg(host.getProtocol(), host.getLcmIp(), host.getPort(), userId, lcmToken, pkgId, host.getMecHost(),lcmLog);
+            .distributePkg(host.getProtocol(), host.getLcmIp(), host.getPort(), userId, lcmToken, pkgId,
+                host.getMecHost(), lcmLog);
         if (!distributeRes) {
             vmConfig.setLog(lcmLog.getLog());
             return false;
         }
         // instantiate application
+        String appInstanceId = vmConfig.getAppInstanceId();
         boolean instantRes = HttpClientUtil
-            .instantiateApplication(host.getProtocol(), host.getLcmIp(), host.getPort(), appInstanceId, userId, lcmToken,
-                lcmLog, pkgId, host.getMecHost());
+            .instantiateApplication(host.getProtocol(), host.getLcmIp(), host.getPort(), appInstanceId, userId,
+                lcmToken, lcmLog, pkgId, host.getMecHost());
         if (!instantRes) {
             vmConfig.setLog(lcmLog.getLog());
             return false;
@@ -284,7 +298,8 @@ public class VmService {
         MepHost host = gson.fromJson(gson.toJson(vmConfig.getHost()), type);
         // delete hosts
         boolean deleteHostRes = HttpClientUtil
-            .deleteHost(host.getProtocol(), host.getLcmIp(), host.getPort(), userId, lcmToken, vmConfig.getPackageId(), host.getLcmIp());
+            .deleteHost(host.getProtocol(), host.getLcmIp(), host.getPort(), userId, lcmToken, vmConfig.getPackageId(),
+                host.getLcmIp());
 
         // delete pkg
         boolean deletePkgRes = HttpClientUtil
@@ -298,6 +313,9 @@ public class VmService {
         return true;
     }
 
+    /**
+     * getCreateVm.
+     */
     public Either<FormatRespDto, List<VmCreateConfig>> getCreateVm(String userId, String projectId) {
 
         ApplicationProject project = projectMapper.getProject(userId, projectId);
@@ -313,6 +331,9 @@ public class VmService {
         return Either.right(vmCreateConfigs);
     }
 
+    /**
+     * deleteCreateVm.
+     */
     public Either<FormatRespDto, Boolean> deleteCreateVm(String userId, String projectId, String vmId, String token) {
 
         ApplicationProject project = projectMapper.getProjectById(projectId);
@@ -324,17 +345,18 @@ public class VmService {
 
         LOGGER.info("Get project information success");
         VmCreateConfig vmCreateConfig = vmConfigMapper.getVmCreateConfig(projectId, vmId);
-        if (vmCreateConfig==null) {
+        if (vmCreateConfig == null) {
             LOGGER.info("Can not find the vm create config by vmId {} and projectId {}", vmId, projectId);
             return Either.right(true);
         }
 
-        if (vmCreateConfig.getStageStatus().getInstantiateInfo()!=null && vmCreateConfig.getStageStatus().getInstantiateInfo().equals(EnumTestConfigStatus.Success)) {
+        if (vmCreateConfig.getStageStatus().getInstantiateInfo() != null && vmCreateConfig.getStageStatus()
+            .getInstantiateInfo().equals(EnumTestConfigStatus.Success)) {
             deleteVmCreate(vmCreateConfig, project.getUserId(), token);
         }
 
         int res = vmConfigMapper.deleteVmCreateConfig(projectId, vmId);
-        if (res<1) {
+        if (res < 1) {
             LOGGER.error("Delete vm create config {} failed.", vmId);
             return Either.left(new FormatRespDto(Response.Status.BAD_REQUEST, "Delete vm create config failed."));
         }
@@ -347,8 +369,11 @@ public class VmService {
 
     }
 
-    public Either<FormatRespDto, Boolean> uploadFileToVm(String userId, String projectId, String vmId, MultipartFile uploadFile)
-        throws Exception {
+    /**
+     * uploadFileToVm.
+     */
+    public Either<FormatRespDto, Boolean> uploadFileToVm(String userId, String projectId, String vmId,
+        MultipartFile uploadFile) throws Exception {
         LOGGER.info("Begin upload file");
 
         ApplicationProject project = projectMapper.getProject(userId, projectId);
@@ -358,7 +383,7 @@ public class VmService {
             return Either.left(error);
         }
         VmCreateConfig vmCreateConfig = vmConfigMapper.getVmCreateConfig(projectId, vmId);
-        if (vmCreateConfig==null) {
+        if (vmCreateConfig == null) {
             LOGGER.info("Can not find the vm create config by vmId {} and projectId {}", vmId, projectId);
             return Either.right(true);
         }
@@ -369,16 +394,16 @@ public class VmService {
 
         // ssh upload file
         String targetPath = "/home/zhl";
-        ScpConnectEntity scpConnectEntity=new ScpConnectEntity();
+        ScpConnectEntity scpConnectEntity = new ScpConnectEntity();
         scpConnectEntity.setTargetPath(targetPath);
         scpConnectEntity.setUrl("192.168.233.34");
         scpConnectEntity.setPassWord("123456");
         scpConnectEntity.setUserName("root");
         String remoteFileName = file.getName();
 
-        SHHFileUploadUtil sshFileUploadUtil = new SHHFileUploadUtil();
+        ShhFileUploadUtil sshFileUploadUtil = new ShhFileUploadUtil();
         FileUploadEntity fileUploadEntity = sshFileUploadUtil.uploadFile(file, remoteFileName, scpConnectEntity);
-        if(fileUploadEntity.getCode().equals("ok")) {
+        if (fileUploadEntity.getCode().equals("ok")) {
             return Either.right(true);
         } else {
             LOGGER.warn("upload fail, ip:{}", vmInfo.get(0).getVncUrl());
@@ -386,26 +411,27 @@ public class VmService {
             return Either.left(error);
         }
 
-//        FTPClient ftpClient = new FTPClient();//import org.apache.commons.net.ftp.FTPClient;
-//        ftpClient.connect(vmInfo.get(0).getVncUrl(), 21);//连接ftp
-//        ftpClient.login("root", "root");//登陆ftp
-//        ftpClient.changeWorkingDirectory(VMPATH);//需要把文件上传到FTP哪个目录
-//        boolean result = ftpClient.storeFile(file.getName(), new FileInputStream(file));//存储文件,成功返回true,失败false
-//        if(!result) {
-//            LOGGER.warn("upload fail, ip:{}", vmInfo.get(0).getVncUrl());
-//            FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "upload file fail to vm");
-//            return Either.left(error);
-//        }
-//        return Either.right(true);
+        //        FTPClient ftpClient = new FTPClient();//import org.apache.commons.net.ftp.FTPClient;
+        //        ftpClient.connect(vmInfo.get(0).getVncUrl(), 21);//连接ftp
+        //        ftpClient.login("root", "root");//登陆ftp
+        //        ftpClient.changeWorkingDirectory(VMPATH);//需要把文件上传到FTP哪个目录
+        //        boolean result = ftpClient.storeFile(file.getName(), new FileInputStream(file));
+        // 存储文件,成功返回true,失败false
+        //        if(!result) {
+        //            LOGGER.warn("upload fail, ip:{}", vmInfo.get(0).getVncUrl());
+        //            FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "upload file fail to vm");
+        //            return Either.left(error);
+        //        }
+        //        return Either.right(true);
     }
 
     private File transferToFile(MultipartFile multipartFile) {
-//        选择用缓冲区来实现这个转换即使用java 创建的临时文件 使用 MultipartFile.transferto()方法 。
+        //        选择用缓冲区来实现这个转换即使用java 创建的临时文件 使用 MultipartFile.transferto()方法 。
         File file = null;
         try {
             String originalFilename = multipartFile.getOriginalFilename();
             String[] filename = originalFilename.split("\\.");
-            file=File.createTempFile(filename[0], filename[1]);
+            file = File.createTempFile(filename[0], filename[1]);
             multipartFile.transferTo(file);
             file.deleteOnExit();
         } catch (IOException e) {
@@ -414,7 +440,9 @@ public class VmService {
         return file;
     }
 
-
+    /**
+     * downloadVmCsar.
+     */
     public Either<FormatRespDto, ResponseEntity<byte[]>> downloadVmCsar(String userId, String projectId, String vmId) {
         ApplicationProject project = projectMapper.getProject(userId, projectId);
         if (project == null) {
@@ -423,7 +451,7 @@ public class VmService {
             return Either.left(error);
         }
         VmCreateConfig vmCreateConfig = vmConfigMapper.getVmCreateConfig(projectId, vmId);
-        if (vmCreateConfig==null) {
+        if (vmCreateConfig == null) {
             LOGGER.error("Can not find the vm config by vmId {} and projectId {}", vmId, projectId);
             FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "Can not find the vm config.");
             return Either.left(error);
@@ -501,12 +529,11 @@ public class VmService {
      */
     public void processVmImage() {
         // get deploying config list from db
-        List<VmImageConfig> VmImageList = vmConfigMapper
-            .getVmImageConfigStatus(EnumVmImportStatus.CREATING.toString());
-        if (CollectionUtils.isEmpty(VmImageList)) {
+        List<VmImageConfig> vmImageList = vmConfigMapper.getVmImageConfigStatus(EnumVmImportStatus.CREATING.toString());
+        if (CollectionUtils.isEmpty(vmImageList)) {
             return;
         }
-        VmImageList.forEach(this::processVmImageConfig);
+        vmImageList.forEach(this::processVmImageConfig);
     }
 
     /**
@@ -521,13 +548,14 @@ public class VmService {
             VmImageStage stageService = imageServiceMap.get("vm_" + nextStage + "_service");
             stageService.execute(config);
         } catch (Exception e) {
-            LOGGER.error(" vm image config:{} failed on stage :{}, res:{}", config.getVmId(), nextStage,
-                e.getMessage());
+            LOGGER
+                .error(" vm image config:{} failed on stage :{}, res:{}", config.getVmId(), nextStage, e.getMessage());
         }
     }
 
-
-    // import image
+    /**
+     * importVmImage.
+     */
     public Either<FormatRespDto, Boolean> importVmImage(String userId, String projectId, String token) {
         ApplicationProject project = projectMapper.getProject(userId, projectId);
         if (project == null) {
@@ -545,12 +573,12 @@ public class VmService {
         // vmId 存在 返回失敗 todo
 
         VmCreateConfig vmCreateConfig = vmCreateConfigs.get(0);
-        if (vmCreateConfig.getStatus()!=EnumVmCreateStatus.SUCCESS) {
+        if (vmCreateConfig.getStatus() != EnumVmCreateStatus.SUCCESS) {
             LOGGER.error("vm create fail, can not import image,projectId:{}", projectId);
             FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "vm create fail, can not import image");
             return Either.left(error);
         }
-        if ( vmConfigMapper.getVmImage(projectId, vmCreateConfig.getVmId())!=null) {
+        if (vmConfigMapper.getVmImage(projectId, vmCreateConfig.getVmId()) != null) {
             LOGGER.error("vm create fail,vm create config have exited ,vmId:{}", vmCreateConfig.getVmId());
             FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "vm create fail,vm create config have exited");
             return Either.left(error);
@@ -573,6 +601,9 @@ public class VmService {
 
     }
 
+    /**
+     * getVmImage.
+     */
     public Either<FormatRespDto, VmImageConfig> getVmImage(String userId, String projectId) {
         ApplicationProject project = projectMapper.getProject(userId, projectId);
         if (project == null) {
@@ -593,6 +624,9 @@ public class VmService {
         return Either.right(vmImageConfig);
     }
 
+    /**
+     * deleteVmImage.
+     */
     public Either<FormatRespDto, Boolean> deleteVmImage(String userId, String projectId, String token) {
         ApplicationProject project = projectMapper.getProjectById(projectId);
         if (project == null) {
@@ -610,14 +644,15 @@ public class VmService {
 
         LOGGER.info("Get vm create information success");
         VmImageConfig vmImageConfig = vmConfigMapper.getVmImage(projectId, vmCreateConfig.getVmId());
-        if (vmImageConfig==null) {
-            LOGGER.info("Can not find the vm image config by vmId {} and projectId {}", vmCreateConfig.getVmId(), projectId);
+        if (vmImageConfig == null) {
+            LOGGER.info("Can not find the vm image config by vmId {} and projectId {}", vmCreateConfig.getVmId(),
+                projectId);
             return Either.right(true);
         }
         // delete lcm image todo
 
         int res = vmConfigMapper.deleteVmImage(projectId, vmCreateConfig.getVmId());
-        if (res<1) {
+        if (res < 1) {
             LOGGER.error("Delete vm image config {} failed.", vmCreateConfig.getVmId());
             return Either.left(new FormatRespDto(Response.Status.BAD_REQUEST, "Delete vm image config failed."));
         }
@@ -630,14 +665,18 @@ public class VmService {
 
     }
 
+    /**
+     * createVmImageToAppLcm.
+     */
     public boolean createVmImageToAppLcm(MepHost host, VmImageConfig imageConfig, String userId) {
         String vmId = imageConfig.getVmId();
         String appInstanceId = imageConfig.getAppInstanceId();
         String lcmToken = imageConfig.getLcmToken();
         LcmLog lcmLog = new LcmLog();
 
-        String imageResult = HttpClientUtil.vmInstantiateImage(host.getProtocol(), host.getLcmIp(), host.getPort(),
-            userId, lcmToken, vmId, appInstanceId, lcmLog);
+        String imageResult = HttpClientUtil
+            .vmInstantiateImage(host.getProtocol(), host.getLcmIp(), host.getPort(), userId, lcmToken, vmId,
+                appInstanceId, lcmLog);
         if (StringUtils.isEmpty(imageResult)) {
             imageConfig.setLog(lcmLog.getLog());
             return false;
@@ -649,31 +688,35 @@ public class VmService {
         return true;
     }
 
+    /**
+     * downloadImageResult.
+     */
     public boolean downloadImageResult(MepHost host, VmImageConfig config, String userId) {
 
         String appInstanceId = config.getAppInstanceId();
         String imageId = config.getImageId();
-        Integer SumChunkNum = config.getSumChunkNum();
+        Integer sumChunkNum = config.getSumChunkNum();
 
         String packagePath = getProjectPath(config.getProjectId()) + config.getAppInstanceId();
 
         // download image by lcm url
-//        for(int chunkNum=0; chunkNum < SumChunkNum; chunkNum++) {
-//            boolean downloadImageResult = HttpClientUtil
-//                .downloadVmImage(host.getProtocol(), host.getLcmIp(), host.getPort(), userId, packagePath,
-//                    appInstanceId, imageId, Integer.toString(chunkNum), config.getLcmToken());
-//            if(!downloadImageResult) {
-//                LOGGER.error("download vm image failed.iamgeId:{}", imageId);
-//                return false;
-//            }
-//        }
+        //        for(int chunkNum=0; chunkNum < SumChunkNum; chunkNum++) {
+        //            boolean downloadImageResult = HttpClientUtil
+        //                .downloadVmImage(host.getProtocol(), host.getLcmIp(), host.getPort(), userId, packagePath,
+        //                    appInstanceId, imageId, Integer.toString(chunkNum), config.getLcmToken());
+        //            if(!downloadImageResult) {
+        //                LOGGER.error("download vm image failed.iamgeId:{}", imageId);
+        //                return false;
+        //            }
+        //        }
 
         //composite image slice
 
         // generate scar package
         try {
-            CompressFileUtilsJava.compressToCsarAndDeleteSrc(packagePath,
-                projectService.getProjectPath(config.getProjectId()), config.getAppInstanceId());
+            CompressFileUtilsJava
+                .compressToCsarAndDeleteSrc(packagePath, projectService.getProjectPath(config.getProjectId()),
+                    config.getAppInstanceId());
         } catch (IOException e) {
             LOGGER.error("generate csar failed: occur IOException {}.", e.getMessage());
             return false;

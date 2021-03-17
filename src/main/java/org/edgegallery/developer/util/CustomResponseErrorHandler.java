@@ -1,19 +1,24 @@
 package org.edgegallery.developer.util;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import org.edgegallery.developer.exception.CustomException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.web.client.DefaultResponseErrorHandler;
 import org.springframework.web.client.ResponseErrorHandler;
 import org.springframework.web.client.RestClientException;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-
 public class CustomResponseErrorHandler implements ResponseErrorHandler {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(CustomResponseErrorHandler.class);
+
     private ResponseErrorHandler errorHandler = new DefaultResponseErrorHandler();
+
     @Override
     public void handleError(ClientHttpResponse response) throws IOException {
 
@@ -25,6 +30,7 @@ public class CustomResponseErrorHandler implements ResponseErrorHandler {
             throw new CustomException(scx.getMessage(), scx, body);
         }
     }
+
     @Override
     public boolean hasError(ClientHttpResponse response) throws IOException {
         return errorHandler.hasError(response);
@@ -32,7 +38,12 @@ public class CustomResponseErrorHandler implements ResponseErrorHandler {
 
     // inputStream 装换为 string
     private String convertStreamToString(InputStream is) {
-        BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+        BufferedReader reader = null;
+        try {
+            reader = new BufferedReader(new InputStreamReader(is, "UTF-8"));
+        } catch (UnsupportedEncodingException e) {
+            LOGGER.error("inputStream to reader {}", e.getMessage());
+        }
         StringBuilder sb = new StringBuilder();
 
         String line = null;

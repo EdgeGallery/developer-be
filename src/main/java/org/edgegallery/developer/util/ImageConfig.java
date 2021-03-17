@@ -18,6 +18,9 @@ public class ImageConfig {
     @Value("${user.name}")
     private String name;
 
+    /**
+     * getApiToken.
+     */
     @PostConstruct
     public void getApiToken() {
         domain = this.domainname;

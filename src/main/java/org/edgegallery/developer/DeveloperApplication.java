@@ -35,7 +35,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 
 @SpringBootApplication(exclude = {SecurityAutoConfiguration.class}, scanBasePackages = "org.edgegallery.developer")
-@MapperScan(basePackages = {"org.edgegallery.developer.mapper","org.edgegallery.developer.infrastructure.persistence"})
+@MapperScan(basePackages = {"org.edgegallery.developer.mapper", "org.edgegallery.developer.infrastructure.persistence"})
 @EnableScheduling
 @EnableServiceComb
 public class DeveloperApplication {
@@ -64,8 +64,14 @@ public class DeveloperApplication {
         HttpsURLConnection.setDefaultHostnameVerifier(NoopHostnameVerifier.INSTANCE);
         SpringApplication.run(DeveloperApplication.class, args);
     }
+
+    /**
+     * taskScheduler.
+     *
+     * @return
+     */
     @Bean
-    public TaskScheduler taskScheduler(){
+    public TaskScheduler taskScheduler() {
 
         ThreadPoolTaskScheduler taskScheduler = new ThreadPoolTaskScheduler();
         taskScheduler.setPoolSize(10);

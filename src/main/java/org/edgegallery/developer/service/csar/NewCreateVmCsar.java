@@ -1,10 +1,12 @@
 package org.edgegallery.developer.service.csar;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import com.google.gson.Gson;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -20,15 +22,10 @@ import org.edgegallery.developer.model.vm.VmCreateConfig;
 import org.edgegallery.developer.model.vm.VmNetwork;
 import org.edgegallery.developer.model.workspace.ApplicationProject;
 import org.edgegallery.developer.model.workspace.EnumDeployPlatform;
-import org.edgegallery.developer.model.workspace.MepHost;
 import org.edgegallery.developer.util.DeveloperFileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.Yaml;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 
 public class NewCreateVmCsar {
     private static final String simpleFiles = "/app-name.mf";
@@ -51,8 +48,8 @@ public class NewCreateVmCsar {
      * @param project project self
      * @return package gz
      */
-    public File create(String projectPath, VmCreateConfig config, ApplicationProject project, String flavor, List<VmNetwork> vmNetworks)
-        throws IOException {
+    public File create(String projectPath, VmCreateConfig config, ApplicationProject project, String flavor,
+        List<VmNetwork> vmNetworks) throws IOException {
         File projectDir = new File(projectPath);
 
         String deployType = (project.getDeployPlatform() == EnumDeployPlatform.KUBERNETES) ? "container" : "vm";
@@ -94,33 +91,33 @@ public class NewCreateVmCsar {
         vmName.put("template_name", projectName);
         vmName.put("vnfd_name", projectName);
         // config vm name
-        LinkedHashMap<String, Object> virtualName = getObjectFromMap(loaded, "topology_template",
-            "node_templates", "EMS_VDU1","properties");
+        LinkedHashMap<String, Object> virtualName = getObjectFromMap(loaded, "topology_template", "node_templates",
+            "EMS_VDU1", "properties");
         virtualName.put("name", config.getVmName());
         // config vm memory
-        LinkedHashMap<String, Object> virtualMemory = getObjectFromMap(loaded, "topology_template",
-            "node_templates", "EMS_VDU1","capabilities","virtual_compute", "properties", "virtual_memory");
-        virtualMemory.put("virtual_mem_size", config.getVmRegulation().getMemory()*1024);
+        LinkedHashMap<String, Object> virtualMemory = getObjectFromMap(loaded, "topology_template", "node_templates",
+            "EMS_VDU1", "capabilities", "virtual_compute", "properties", "virtual_memory");
+        virtualMemory.put("virtual_mem_size", config.getVmRegulation().getMemory() * 1024);
         // config vm cpu
-        LinkedHashMap<String, Object> virtualCpu = getObjectFromMap(loaded, "topology_template",
-            "node_templates", "EMS_VDU1","capabilities","virtual_compute", "properties", "virtual_cpu");
+        LinkedHashMap<String, Object> virtualCpu = getObjectFromMap(loaded, "topology_template", "node_templates",
+            "EMS_VDU1", "capabilities", "virtual_compute", "properties", "virtual_cpu");
         virtualCpu.put("num_virtual_cpu", config.getVmRegulation().getCpu());
         // config vm cpu_architecture
         virtualCpu.put("cpu_architecture", config.getVmRegulation().getArchitecture());
         // config vm data storage
-        LinkedHashMap<String, Object> virtualStorage = getObjectFromMap(loaded, "topology_template",
-            "node_templates", "EMS_VDU1","capabilities","virtual_compute", "properties", "virtual_local_storage");
+        LinkedHashMap<String, Object> virtualStorage = getObjectFromMap(loaded, "topology_template", "node_templates",
+            "EMS_VDU1", "capabilities", "virtual_compute", "properties", "virtual_local_storage");
         virtualStorage.put("size_of_storage", config.getVmRegulation().getDataDisk());
         // config vm image data
-        String imageData = config.getVmSystem().getOperateSystem() + "_" + config.getVmSystem().getVersion() +
-            "_" + config.getVmSystem().getSystemBit() + "_" + config.getVmSystem().getSystemDisk() + "GB";
-        LinkedHashMap<String, Object> virtualImage = getObjectFromMap(loaded, "topology_template",
-            "node_templates", "EMS_VDU1","properties","sw_image_data");
+        String imageData = config.getVmSystem().getOperateSystem() + "_" + config.getVmSystem().getVersion() + "_"
+            + config.getVmSystem().getSystemBit() + "_" + config.getVmSystem().getSystemDisk() + "GB";
+        LinkedHashMap<String, Object> virtualImage = getObjectFromMap(loaded, "topology_template", "node_templates",
+            "EMS_VDU1", "properties", "sw_image_data");
         virtualImage.put("name", imageData);
 
         // config flavor
-        LinkedHashMap<String, Object> virtualFlavor = getObjectFromMap(loaded, "topology_template",
-            "node_templates", "EMS_VDU1","properties","vdu_profile", "flavor_extra_specs");
+        LinkedHashMap<String, Object> virtualFlavor = getObjectFromMap(loaded, "topology_template", "node_templates",
+            "EMS_VDU1", "properties", "vdu_profile", "flavor_extra_specs");
         virtualFlavor.remove("mgmt_egarm", "true");
         virtualFlavor.put(flavor, "true");
 
@@ -128,22 +125,22 @@ public class NewCreateVmCsar {
         String mepName = "";
         String n6Name = "";
         String networkName = "";
-        for(VmNetwork vmNetwork:vmNetworks) {
-            if(vmNetwork.getNetworkType().equals("MEC_APP_MP1")) {
+        for (VmNetwork vmNetwork : vmNetworks) {
+            if (vmNetwork.getNetworkType().equals("MEC_APP_MP1")) {
                 mepName = vmNetwork.getNetworkName();
             }
-            if(vmNetwork.getNetworkType().equals("MEC_APP_N6")) {
+            if (vmNetwork.getNetworkType().equals("MEC_APP_N6")) {
                 n6Name = vmNetwork.getNetworkName();
             }
-            if(vmNetwork.getNetworkType().equals("MEC_APP_INTERNET")) {
+            if (vmNetwork.getNetworkType().equals("MEC_APP_INTERNET")) {
                 networkName = vmNetwork.getNetworkName();
             }
         }
-        LinkedHashMap<String, Object> mepNetworkName = getObjectFromMap(loaded, "topology_template",
-            "node_templates", "MEC_APP_MP1", "properties", "vl_profile");
+        LinkedHashMap<String, Object> mepNetworkName = getObjectFromMap(loaded, "topology_template", "node_templates",
+            "MEC_APP_MP1", "properties", "vl_profile");
         mepNetworkName.put("network_name", mepName);
-        LinkedHashMap<String, Object> n6NetworkName = getObjectFromMap(loaded, "topology_template",
-            "node_templates", "MEC_APP_N6", "properties", "vl_profile");
+        LinkedHashMap<String, Object> n6NetworkName = getObjectFromMap(loaded, "topology_template", "node_templates",
+            "MEC_APP_N6", "properties", "vl_profile");
         n6NetworkName.put("network_name", n6Name);
         LinkedHashMap<String, Object> internetNetworkName = getObjectFromMap(loaded, "topology_template",
             "node_templates", "MEC_APP_INTERNET", "properties", "vl_profile");
@@ -175,14 +172,11 @@ public class NewCreateVmCsar {
         File templateFileModify = new File(mainServiceTemplatePath);
         String yamlContents = FileUtils.readFileToString(templateFileModify, StandardCharsets.UTF_8);
         yamlContents = yamlContents.replaceAll("\"", "");
-        writeFile(templateFileModify,yamlContents);
+        writeFile(templateFileModify, yamlContents);
         templateFileModify.renameTo(new File(csar.getCanonicalPath() + "/APPD/Definition/" + projectName + ".yaml"));
 
         //update SwImageDesc.json
-        File imageJson = new File(csar.getCanonicalPath() + IMAGE_BASE_PATH);
         //fill  imageJson data
-        Gson gson = new Gson();
-        List<ImageDesc> imageDescs = new ArrayList<>();
         ImageDesc imageDesc = new ImageDesc();
         imageDesc.setId(UUID.randomUUID().toString());
         imageDesc.setName(imageData);
@@ -199,8 +193,11 @@ public class NewCreateVmCsar {
         imageDesc.setHw_disk_bus("scsi");
         imageDesc.setOperatingSystem("linux");
         imageDesc.setSupportedVirtualisationEnvironment("linux");
+        List<ImageDesc> imageDescs = new ArrayList<>();
         imageDescs.add(imageDesc);
         // write data into imageJson file
+        Gson gson = new Gson();
+        File imageJson = new File(csar.getCanonicalPath() + IMAGE_BASE_PATH);
         writeFile(imageJson, gson.toJson(imageDescs));
 
         return csar;
@@ -217,17 +214,18 @@ public class NewCreateVmCsar {
         }
     }
 
+    /**
+     * getObjectFromMap.
+     */
     public static LinkedHashMap<String, Object> getObjectFromMap(Map<String, Object> loaded, String... keys) {
         LinkedHashMap<String, Object> result = null;
         for (String key : keys) {
-            result = (LinkedHashMap<String, Object>)loaded.get(key);
+            result = (LinkedHashMap<String, Object>) loaded.get(key);
             if (result != null) {
                 loaded = result;
             }
         }
         return result;
     }
-
-
 
 }

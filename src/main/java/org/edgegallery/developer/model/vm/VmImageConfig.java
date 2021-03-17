@@ -10,7 +10,7 @@ import lombok.ToString;
 @ToString
 public class VmImageConfig {
 
-    private String VmId;
+    private String vmId;
 
     private String imageId;
 

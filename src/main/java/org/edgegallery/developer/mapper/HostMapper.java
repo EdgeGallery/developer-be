@@ -17,7 +17,6 @@
 package org.edgegallery.developer.mapper;
 
 import java.util.List;
-
 import org.apache.ibatis.annotations.Param;
 import org.edgegallery.developer.model.workspace.EnumHostStatus;
 import org.edgegallery.developer.model.workspace.MepHost;
@@ -42,7 +41,8 @@ public interface HostMapper {
 
     List<MepHost> getHostsByStatus(EnumHostStatus status, String userId, String architecture, String os);
 
-    List<MepHost> getHostsByCondition(@Param("userId") String userId, @Param("name") String name, @Param("ip") String ip);
+    List<MepHost> getHostsByCondition(@Param("userId") String userId, @Param("name") String name,
+        @Param("ip") String ip);
 
 }
 

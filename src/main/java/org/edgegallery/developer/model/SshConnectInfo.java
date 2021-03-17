@@ -4,14 +4,12 @@ import com.jcraft.jsch.Channel;
 import com.jcraft.jsch.JSch;
 import org.springframework.web.socket.WebSocketSession;
 
-/**
-* @Description: ssh连接信息
-*/
-public class SSHConnectInfo {
+public class SshConnectInfo {
     private WebSocketSession webSocketSession;
-    private JSch jSch;
-    private Channel channel;
 
+    private JSch jSch;
+
+    private Channel channel;
 
     public WebSocketSession getWebSocketSession() {
         return webSocketSession;

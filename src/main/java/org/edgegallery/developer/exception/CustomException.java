@@ -5,6 +5,7 @@ import org.springframework.web.client.RestClientException;
 public class CustomException extends RestClientException {
 
     private RestClientException restClientException;
+
     private String body;
 
     public RestClientException getRestClientException() {
@@ -23,7 +24,13 @@ public class CustomException extends RestClientException {
         this.body = body;
     }
 
-
+    /**
+     * cus.
+     *
+     * @param msg msg
+     * @param restClientException rest
+     * @param body body
+     */
     public CustomException(String msg, RestClientException restClientException, String body) {
         super(msg);
         this.restClientException = restClientException;

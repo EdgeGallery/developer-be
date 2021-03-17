@@ -108,14 +108,14 @@ public class OpenMepCapabilityService {
      */
     public Either<FormatRespDto, OpenMepCapabilityGroup> createGroup(OpenMepCapabilityGroup group) {
         group.setGroupId(UUID.randomUUID().toString());
-        if(StringUtils.isEmpty(group.getDescriptionEn())) {
+        if (StringUtils.isEmpty(group.getDescriptionEn())) {
             group.setDescriptionEn(group.getDescription());
         }
 
-        if(StringUtils.isEmpty(group.getOneLevelNameEn())) {
+        if (StringUtils.isEmpty(group.getOneLevelNameEn())) {
             group.setOneLevelNameEn(group.getOneLevelName());
         }
-        if(StringUtils.isEmpty(group.getTwoLevelNameEn())) {
+        if (StringUtils.isEmpty(group.getTwoLevelNameEn())) {
             group.setTwoLevelNameEn(group.getTwoLevelName());
         }
 
@@ -149,7 +149,7 @@ public class OpenMepCapabilityService {
             return Either.left(new FormatRespDto(Status.BAD_REQUEST, "guide file id is wrong"));
         }
         capability.setGroupId(groupId);
-        SimpleDateFormat time=new SimpleDateFormat("yyyy-MM-dd HH:mm");
+        SimpleDateFormat time = new SimpleDateFormat("yyyy-MM-dd HH:mm");
         capability.setUploadTime(time.format(new Date()));
         capability.setDetailId(UUID.randomUUID().toString());
         int ret = openMepCapabilityMapper.saveCapability(capability);

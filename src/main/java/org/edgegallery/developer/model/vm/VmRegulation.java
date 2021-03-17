@@ -31,6 +31,7 @@ public class VmRegulation {
 
     private String otherAbility;
 
-    public VmRegulation (){}
+    public VmRegulation() {
+    }
 
 }
