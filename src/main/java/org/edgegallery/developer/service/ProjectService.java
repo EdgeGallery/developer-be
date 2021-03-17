@@ -1043,10 +1043,7 @@ public class ProjectService {
             return Either.right(true);
         }
 
-        if (testConfig.getStageStatus().getHostInfo().equals(EnumTestConfigStatus.Success)) {
-            deleteDeployApp(testConfig, project.getUserId(), token);
-
-        }
+        deleteDeployApp(testConfig, project.getUserId(), token);
 
         // modify host status save host logs
         modifyHostStatus(testConfig, project, "terminate");
@@ -1071,32 +1068,34 @@ public class ProjectService {
     }
 
     private Boolean modifyHostStatus(ProjectTestConfig testConfig, ApplicationProject project, String operation) {
-        Type type = new TypeToken<List<MepHost>>() { }.getType();
-        List<MepHost> hosts = gson.fromJson(gson.toJson(testConfig.getHosts()), type);
-        if (!CollectionUtils.isEmpty(hosts)) {
-            MepHost host = hostMapper.getHost(hosts.get(0).getHostId());
-            host.setStatus(EnumHostStatus.NORMAL);
-            hostMapper.updateHostSelected(hosts.get(0));
-        }
-        MepHost host = hosts.get(0);
-        // save host logs
-        MepHostLog mepHostLog = new MepHostLog();
-        mepHostLog.setAppInstancesId(testConfig.getAppInstanceId());
-        SimpleDateFormat time = new SimpleDateFormat("yyyy-MM-dd HH:mm");
-        mepHostLog.setDeployTime(time.format(new Date()));
-        mepHostLog.setHostId(host.getHostId());
-        mepHostLog.setHostIp(host.getLcmIp());
-        mepHostLog.setLogId(UUID.randomUUID().toString());
-        mepHostLog.setUserId(project.getUserId());
-        mepHostLog.setProjectId(project.getId());
-        mepHostLog.setProjectName(project.getName());
-        mepHostLog.setAppInstancesId(testConfig.getAppInstanceId());
-        mepHostLog.setStatus(host.getStatus());
-        mepHostLog.setOperation(operation);
-        int res = hostLogMapper.insert(mepHostLog);
-        if (res < 1) {
-            LOGGER.error("save host logs error");
-            return false;
+        if (!CollectionUtils.isEmpty(testConfig.getHosts())) {
+            Type type = new TypeToken<List<MepHost>>() { }.getType();
+            List<MepHost> hosts = gson.fromJson(gson.toJson(testConfig.getHosts()), type);
+            if (!CollectionUtils.isEmpty(hosts)) {
+                MepHost host = hostMapper.getHost(hosts.get(0).getHostId());
+                host.setStatus(EnumHostStatus.NORMAL);
+                hostMapper.updateHostSelected(hosts.get(0));
+            }
+            MepHost host = hosts.get(0);
+            // save host logs
+            MepHostLog mepHostLog = new MepHostLog();
+            mepHostLog.setAppInstancesId(testConfig.getAppInstanceId());
+            SimpleDateFormat time = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+            mepHostLog.setDeployTime(time.format(new Date()));
+            mepHostLog.setHostId(host.getHostId());
+            mepHostLog.setHostIp(host.getLcmIp());
+            mepHostLog.setLogId(UUID.randomUUID().toString());
+            mepHostLog.setUserId(project.getUserId());
+            mepHostLog.setProjectId(project.getId());
+            mepHostLog.setProjectName(project.getName());
+            mepHostLog.setAppInstancesId(testConfig.getAppInstanceId());
+            mepHostLog.setStatus(host.getStatus());
+            mepHostLog.setOperation(operation);
+            int res = hostLogMapper.insert(mepHostLog);
+            if (res < 1) {
+                LOGGER.error("save host logs error");
+                return false;
+            }
         }
         return true;
     }
@@ -1283,10 +1282,11 @@ public class ProjectService {
      */
     private boolean deleteDeployApp(ProjectTestConfig testConfig, String userId, String token) {
         String workloadId = testConfig.getWorkLoadId();
-        Type type = new TypeToken<List<MepHost>>() { }.getType();
-        List<MepHost> hosts = gson.fromJson(gson.toJson(testConfig.getHosts()), type);
-        MepHost host = hosts.get(0);
-        if (StringUtils.isNotEmpty(testConfig.getPackageId())) {
+
+        if (StringUtils.isNotEmpty(testConfig.getPackageId()) && !CollectionUtils.isEmpty(testConfig.getHosts())) {
+            Type type = new TypeToken<List<MepHost>>() { }.getType();
+            List<MepHost> hosts = gson.fromJson(gson.toJson(testConfig.getHosts()), type);
+            MepHost host = hosts.get(0);
             // delete hosts
             boolean deleteHostRes = HttpClientUtil
                 .deleteHost(host.getProtocol(), host.getLcmIp(), host.getPort(), userId, token,
@@ -1299,12 +1299,14 @@ public class ProjectService {
             if (!deleteHostRes || !deletePkgRes) {
                 return false;
             }
+
+            boolean terminateApp = HttpClientUtil
+                .terminateAppInstance(host.getProtocol(), host.getLcmIp(), host.getPort(), workloadId, userId, token);
+            if (!terminateApp) {
+                return false;
+            }
         }
-        boolean terminateApp = HttpClientUtil
-            .terminateAppInstance(host.getProtocol(), host.getLcmIp(), host.getPort(), workloadId, userId, token);
-        if (!terminateApp) {
-            return false;
-        }
+
         return true;
     }
 
