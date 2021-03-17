@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -22,12 +23,14 @@ import org.edgegallery.developer.model.vm.VmCreateConfig;
 import org.edgegallery.developer.model.vm.VmNetwork;
 import org.edgegallery.developer.model.workspace.ApplicationProject;
 import org.edgegallery.developer.model.workspace.EnumDeployPlatform;
+import org.edgegallery.developer.util.CompressFileUtilsJava;
 import org.edgegallery.developer.util.DeveloperFileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.Yaml;
 
 public class NewCreateVmCsar {
+
     private static final String simpleFiles = "/app-name.mf";
 
     private static final String WORKSPACE_CSAR_PATH = "./configs/vm_csar";
@@ -42,8 +45,8 @@ public class NewCreateVmCsar {
      * create vm csar.
      *
      * @param projectPath path of project
-     * @param config vm create config of project
-     * @param project project self
+     * @param config      vm create config of project
+     * @param project     project self
      * @return package gz
      */
     public File create(String projectPath, VmCreateConfig config, ApplicationProject project, String flavor,
@@ -52,6 +55,7 @@ public class NewCreateVmCsar {
 
         String deployType = (project.getDeployPlatform() == EnumDeployPlatform.KUBERNETES) ? "container" : "vm";
         String projectName = project.getName();
+        String type = projectName + "_iso_" + project.getPlatform().get(0);
         String chartName = project.getName().replaceAll(Consts.PATTERN, "").toLowerCase();
 
         // copy template files to the new project path
@@ -70,7 +74,8 @@ public class NewCreateVmCsar {
                 FileUtils.readFileToString(csarValue, StandardCharsets.UTF_8).replace("{name}", projectName)
                     .replace("{provider}", project.getProvider()).replace("{version}", project.getVersion())
                     .replace("{time}", timeStamp).replace("{description}", project.getDescription())
-                    .replace("{ChartName}", chartName).replace("{type}", deployType), StandardCharsets.UTF_8, false);
+                    .replace("{ChartName}", chartName).replace("{type}", type)
+                    .replace("{class}", deployType), StandardCharsets.UTF_8, false);
             csarValue.renameTo(new File(csar.getCanonicalPath() + "/" + projectName + ".mf"));
 
         } catch (IOException e) {
@@ -84,10 +89,12 @@ public class NewCreateVmCsar {
         yamlContent = yamlContent.replaceAll("\t", "");
         Yaml yaml = new Yaml();
         Map<String, Object> loaded = yaml.load(yamlContent);
-
+        // modify vnf info
         LinkedHashMap<String, Object> vmName = getObjectFromMap(loaded, "metadata");
         vmName.put("template_name", projectName);
         vmName.put("vnfd_name", projectName);
+        vmName.put("vnfd_id", projectName);
+        vmName.put("vnfd_version", project.getVersion());
         // config vm name
         LinkedHashMap<String, Object> virtualName = getObjectFromMap(loaded, "topology_template", "node_templates",
             "EMS_VDU1", "properties");
@@ -107,8 +114,7 @@ public class NewCreateVmCsar {
             "EMS_VDU1", "capabilities", "virtual_compute", "properties", "virtual_local_storage");
         virtualStorage.put("size_of_storage", config.getVmRegulation().getDataDisk());
         // config vm image data
-        String imageData = config.getVmSystem().getOperateSystem() + "_" + config.getVmSystem().getVersion() + "_"
-            + config.getVmSystem().getSystemBit() + "_" + config.getVmSystem().getSystemDisk() + "GB";
+        String imageData = config.getVmSystem().getOperateSystem();
         LinkedHashMap<String, Object> virtualImage = getObjectFromMap(loaded, "topology_template", "node_templates",
             "EMS_VDU1", "properties", "sw_image_data");
         virtualImage.put("name", imageData);
@@ -124,13 +130,13 @@ public class NewCreateVmCsar {
         String n6Name = "";
         String networkName = "";
         for (VmNetwork vmNetwork : vmNetworks) {
-            if (vmNetwork.getNetworkType().equals("MEC_APP_MP1")) {
+            if (vmNetwork.getNetworkType().equals("Network_MEP")) {
                 mepName = vmNetwork.getNetworkName();
             }
-            if (vmNetwork.getNetworkType().equals("MEC_APP_N6")) {
+            if (vmNetwork.getNetworkType().equals("Network_N6")) {
                 n6Name = vmNetwork.getNetworkName();
             }
-            if (vmNetwork.getNetworkType().equals("MEC_APP_INTERNET")) {
+            if (vmNetwork.getNetworkType().equals("Network_Internet")) {
                 networkName = vmNetwork.getNetworkName();
             }
         }
@@ -173,8 +179,17 @@ public class NewCreateVmCsar {
         writeFile(templateFileModify, yamlContents);
         templateFileModify.renameTo(new File(csar.getCanonicalPath() + "/APPD/Definition/" + projectName + ".yaml"));
 
+        // compress to zip
+        String chartsDir = csar.getParent() + File.separator + config.getAppInstanceId() + File.separator
+            + "APPD";
+        List<File> subFiles = Arrays.asList(new File(chartsDir).listFiles());
+        CompressFileUtilsJava
+            .zipFiles(Arrays.asList(new File(chartsDir).listFiles()), new File(chartsDir + File.separator + projectName+ ".zip"));
+
+        for(File subFile: subFiles) {
+            FileUtils.deleteQuietly(subFile);
+        }
         //update SwImageDesc.json
-        //fill  imageJson data
         ImageDesc imageDesc = new ImageDesc();
         imageDesc.setId(UUID.randomUUID().toString());
         imageDesc.setName(imageData);
