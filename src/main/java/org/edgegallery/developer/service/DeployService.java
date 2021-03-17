@@ -41,7 +41,6 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.edgegallery.developer.mapper.HelmTemplateYamlMapper;
 import org.edgegallery.developer.mapper.ProjectImageMapper;
 import org.edgegallery.developer.mapper.ProjectMapper;
-import org.edgegallery.developer.mapper.UploadedFileMapper;
 import org.edgegallery.developer.model.deployyaml.ConfigMap;
 import org.edgegallery.developer.model.deployyaml.Containers;
 import org.edgegallery.developer.model.deployyaml.DeployYaml;
@@ -78,9 +77,6 @@ public class DeployService {
     private Gson gson = new Gson();
 
     @Autowired
-    private UploadedFileMapper uploadedFileMapper;
-
-    @Autowired
     private HelmTemplateYamlMapper helmTemplateYamlMapper;
 
     @Autowired
@@ -91,9 +87,6 @@ public class DeployService {
 
     @Autowired
     private ProjectMapper projectMapper;
-
-    @Autowired
-    private AppReleaseService appReleaseService;
 
     /**
      * saveDeployYaml.

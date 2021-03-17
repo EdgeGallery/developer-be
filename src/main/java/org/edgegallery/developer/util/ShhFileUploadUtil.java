@@ -20,12 +20,6 @@ import org.springframework.scheduling.annotation.Async;
 @Configuration
 public class ShhFileUploadUtil {
 
-    private String url = "192.168.233.34";
-
-    private String passWord = "123456";
-
-    private String userName = "root";
-
     /**
      * uploadFile.
      */

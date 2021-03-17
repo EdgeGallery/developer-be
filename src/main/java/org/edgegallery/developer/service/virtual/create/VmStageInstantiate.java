@@ -44,14 +44,10 @@ public class VmStageInstantiate implements VmCreateStage {
     @Autowired
     private VmService vmService;
 
-    @Autowired
-    private VmConfigMapper vmConfigMapper;
-
     @Override
     public boolean execute(VmCreateConfig config) throws InterruptedException {
         boolean processSuccess = false;
         boolean instantiateAppResult;
-        boolean dependencyResult;
 
         ApplicationProject project = projectMapper.getProjectById(config.getProjectId());
         String userId = project.getUserId();

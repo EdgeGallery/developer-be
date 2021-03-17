@@ -6,7 +6,6 @@ import org.edgegallery.developer.model.vm.VmFlavor;
 import org.edgegallery.developer.model.vm.VmImageConfig;
 import org.edgegallery.developer.model.vm.VmNetwork;
 import org.edgegallery.developer.model.vm.VmRegulation;
-import org.edgegallery.developer.model.vm.VmResource;
 import org.edgegallery.developer.model.vm.VmSystem;
 
 public interface VmConfigMapper {

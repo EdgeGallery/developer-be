@@ -42,8 +42,6 @@ import org.springframework.web.multipart.MultipartFile;
 public class VmController {
     private static final String REGEX_UUID = "[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}";
 
-    private static final String REGEX_USERNAME = "^[a-zA-Z][a-zA-Z0-9_]{5,29}$";
-
     @Autowired
     private VmService vmService;
 
