@@ -13,6 +13,7 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
+
 package org.edgegallery.developer.service.virtual.create;
 
 import javax.annotation.Resource;
@@ -27,9 +28,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service("vm_csar_service")
-public class VmStageCreateCsar implements VmCreateStage{
-    private static final Logger LOGGER = LoggerFactory
-        .getLogger(VmStageCreateCsar.class);
+public class VmStageCreateCsar implements VmCreateStage {
+    private static final Logger LOGGER = LoggerFactory.getLogger(VmStageCreateCsar.class);
 
     @Autowired
     private VmService vmService;

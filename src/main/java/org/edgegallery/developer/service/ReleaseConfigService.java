@@ -17,9 +17,6 @@
 package org.edgegallery.developer.service;
 
 import com.fasterxml.jackson.core.JsonGenerationException;
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonParser.Feature;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
@@ -32,8 +29,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedHashMap;
@@ -242,7 +237,7 @@ public class ReleaseConfigService {
             File templateFileModify = new File(mainServiceTemplatePath);
             String yamlContents = FileUtils.readFileToString(templateFileModify, StandardCharsets.UTF_8);
             yamlContents = yamlContents.replaceAll("\"", "");
-            writeFile(templateFileModify,yamlContents);
+            writeFile(templateFileModify, yamlContents);
 
             // update tgz in ~/Charts
             String chartsDir = csar.getParent() + File.separator + config.getAppInstanceId() + File.separator
@@ -260,8 +255,9 @@ public class ReleaseConfigService {
                 }
             }
             // compress csar
-            CompressFileUtilsJava.compressToCsarAndDeleteSrc(csar.getParent() + File.separator + config.getAppInstanceId(),
-                projectService.getProjectPath(projectId), config.getAppInstanceId());
+            CompressFileUtilsJava
+                .compressToCsarAndDeleteSrc(csar.getParent() + File.separator + config.getAppInstanceId(),
+                    projectService.getProjectPath(projectId), config.getAppInstanceId());
         } catch (JsonGenerationException e) {
             String msg = "Update csar failed: occur JsonGenerationException";
             LOGGER.error("Update csar failed: occur JsonGenerationException {}.", e.getMessage());
@@ -282,7 +278,7 @@ public class ReleaseConfigService {
         return Either.right(true);
     }
 
-    private void writeFile(File file,String content){
+    private void writeFile(File file, String content) {
         try {
             FileWriter fw = new FileWriter(file.getCanonicalPath());
             BufferedWriter bw = new BufferedWriter(fw);
@@ -356,7 +352,6 @@ public class ReleaseConfigService {
 
     /**
      * fill value template with detailList.
-     *
      */
     private void fillTemplateInTgzFile(File tgzFile, List<ServiceDetail> detailList) {
         String fileName = tgzFile.getName().replace(".tgz", "");

@@ -219,7 +219,7 @@ public class ProjectController {
         consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<Boolean> clean(@Pattern(regexp = REGEX_UUID, message = "projectId must be in UUID format")
-    @ApiParam(value = "projectId", required = true) @PathVariable("projectId") String projectId,
+        @ApiParam(value = "projectId", required = true) @PathVariable("projectId") String projectId,
         @Pattern(regexp = REGEX_UUID, message = "userId must be in UUID format")
         @ApiParam(value = "userId", required = true) @RequestParam("userId") String userId,
         HttpServletRequest request) {

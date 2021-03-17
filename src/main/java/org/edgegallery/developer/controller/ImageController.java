@@ -17,7 +17,6 @@
 package org.edgegallery.developer.controller;
 
 import com.github.dockerjava.api.DockerClient;
-import com.github.dockerjava.api.model.AuthConfig;
 import com.github.dockerjava.api.model.Image;
 import com.github.dockerjava.core.DefaultDockerClientConfig;
 import com.github.dockerjava.core.DockerClientBuilder;

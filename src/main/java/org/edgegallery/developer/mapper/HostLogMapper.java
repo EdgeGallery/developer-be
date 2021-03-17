@@ -16,31 +16,34 @@
 
 package org.edgegallery.developer.mapper;
 
-
-import org.apache.ibatis.annotations.*;
-import org.edgegallery.developer.model.workspace.MepHostLog;
-
 import java.util.List;
+import org.apache.ibatis.annotations.Insert;
+import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Result;
+import org.apache.ibatis.annotations.ResultType;
+import org.apache.ibatis.annotations.Results;
+import org.apache.ibatis.annotations.Select;
+import org.edgegallery.developer.model.workspace.MepHostLog;
 
 public interface HostLogMapper {
 
     @Select("select * from tbl_host_log where host_id = #{hostId}")
     @Results(id = "hostLog", value = {
-            @Result(property = "logId", column = "log_id"),
-            @Result(property = "hostIp", column = "host_ip"),
-            @Result(property = "userName", column = "user_name"),
-            @Result(property = "userId", column = "user_id"),
-            @Result(property = "projectId", column = "project_id"),
-            @Result(property = "projectName", column = "project_name"),
-            @Result(property = "appInstancesId", column = "app_instances_id"),
-            @Result(property = "deployTime", column = "deploy_time"),
-            @Result(property = "hostId", column = "host_id"),
+        @Result(property = "logId", column = "log_id"), @Result(property = "hostIp", column = "host_ip"),
+        @Result(property = "userName", column = "user_name"), @Result(property = "userId", column = "user_id"),
+        @Result(property = "projectId", column = "project_id"),
+        @Result(property = "projectName", column = "project_name"),
+        @Result(property = "appInstancesId", column = "app_instances_id"),
+        @Result(property = "deployTime", column = "deploy_time"), @Result(property = "hostId", column = "host_id"),
     })
     @ResultType(MepHostLog.class)
     List<MepHostLog> getHostLogByHostId(@Param("hostId") String hostId);
 
-    @Insert("insert into tbl_host_log(log_id,host_ip,user_name,user_id,project_id,project_name,app_instances_id,deploy_time,host_id,status,operation)" +
-            "values (#{logId} ,#{hostIp} ,#{userName} ,#{userId} ,#{projectId} ,#{projectName} ,#{appInstancesId} ,#{deployTime} ,#{hostId} ,#{status} ,#{operation} )")
+    @Insert(
+        "insert into tbl_host_log(log_id,host_ip,user_name,user_id,project_id,project_name,app_instances_id,"
+            + "deploy_time,host_id,status,operation)"
+            + "values (#{logId} ,#{hostIp} ,#{userName} ,#{userId} ,#{projectId} ,#{projectName} ,"
+            + "#{appInstancesId} ,#{deployTime} ,#{hostId} ,#{status} ,#{operation} )")
     int insert(MepHostLog hostLog);
 }
 

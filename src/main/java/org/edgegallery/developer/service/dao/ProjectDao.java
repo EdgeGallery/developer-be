@@ -22,11 +22,9 @@ import org.edgegallery.developer.mapper.OpenMepCapabilityMapper;
 import org.edgegallery.developer.mapper.ProjectMapper;
 import org.edgegallery.developer.mapper.UploadedFileMapper;
 import org.edgegallery.developer.mapper.VmConfigMapper;
-import org.edgegallery.developer.model.vm.VmCreateConfig;
 import org.edgegallery.developer.model.workspace.ApplicationProject;
 import org.edgegallery.developer.model.workspace.ProjectTestConfig;
 import org.edgegallery.developer.response.FormatRespDto;
-import org.edgegallery.developer.service.virtual.VmService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,7 +46,7 @@ public class ProjectDao {
     private OpenMepCapabilityMapper openMepCapabilityMapper;
 
     @Autowired
-        private VmConfigMapper vmConfigMapper;
+    private VmConfigMapper vmConfigMapper;
 
     /**
      * delete project from db.
@@ -90,7 +88,7 @@ public class ProjectDao {
 
         // delete vm config
         int vmRes = vmConfigMapper.deleteVmCreateConfigs(projectId);
-        if(vmRes>=1) {
+        if (vmRes >= 1) {
             LOGGER.info("delete vm config success {}", projectId);
         }
 
@@ -112,7 +110,5 @@ public class ProjectDao {
 
         return Either.right(true);
     }
-
-
 
 }

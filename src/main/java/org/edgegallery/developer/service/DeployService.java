@@ -26,10 +26,8 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 import com.google.gson.Gson;
 import com.spencerwi.either.Either;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
@@ -40,7 +38,6 @@ import javax.ws.rs.core.Response;
 import org.apache.commons.fileupload.disk.DiskFileItem;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.http.entity.ContentType;
 import org.edgegallery.developer.mapper.HelmTemplateYamlMapper;
 import org.edgegallery.developer.mapper.ProjectImageMapper;
 import org.edgegallery.developer.mapper.ProjectMapper;
@@ -98,6 +95,9 @@ public class DeployService {
     @Autowired
     private AppReleaseService appReleaseService;
 
+    /**
+     * saveDeployYaml.
+     */
     public Either<FormatRespDto, HelmTemplateYamlPo> saveDeployYaml(String jsonstr, String projectId, String userId,
         String configType) throws IOException {
         if (StringUtils.isEmpty(jsonstr)) {
@@ -108,7 +108,8 @@ public class DeployService {
         String env = "\"env\":[{\"name\":\"\",\"value\":\"\"}],";
         String command = "\"command\":\"[\\\\\\\"\\\\\\\"]\",";
         String resources
-            = ",\"resources\":\\{\"limits\":\\{\"memory\":\"\",\"cpu\":\"\"},\"requests\":\\{\"memory\":\"\",\"cpu\":\"\"}}";
+            = ",\"resources\":\\{\"limits\":\\{\"memory\":\"\",\"cpu\":\"\"},\"requests\":\\{\"memory\":\"\","
+            + "\"cpu\":\"\"}}";
         if (reqContentnew.contains(env)) {
             reqContentnew = reqContentnew.replace(env, "");
         }
@@ -232,7 +233,10 @@ public class DeployService {
         return Either.right(helmTemplateYamlMapper.queryTemplateYamlById(fileId));
     }
 
-    public String addMepAgent(DeployYaml deployYaml) {
+    /**
+     * addMepAgent.
+     */
+    private String addMepAgent(DeployYaml deployYaml) {
         Containers[] containers = deployYaml.getSpec().getContainers();
         Containers[] copyContainers = new Containers[containers.length + 1];
         for (int i = 0; i < containers.length; i++) {
@@ -242,17 +246,20 @@ public class DeployService {
         Containers[] newContainers = insertMepAgent();
         System.arraycopy(newContainers, 0, copyContainers, copyContainers.length - 1, newContainers.length);
         deployYaml.getSpec().setContainers(copyContainers);
-        Volumes[] volumees = new Volumes[1];
         Volumes volumes = new Volumes();
         volumes.setName("mep-agent-service-config-volume");
         ConfigMap configMap = new ConfigMap();
         configMap.setName("{{ .Values.global.mepagent.configmapname }}");
         volumes.setConfigMap(configMap);
+        Volumes[] volumees = new Volumes[1];
         volumees[0] = volumes;
         deployYaml.getSpec().setVolumes(volumees);
         return new Gson().toJson(deployYaml);
     }
 
+    /**
+     * genarateDeployYaml.
+     */
     public Either<FormatRespDto, HelmTemplateYamlRespDto> genarateDeployYaml(DeployYamls deployYamls, String projectId,
         String userId, String configType) throws IOException {
         if (deployYamls == null) {
@@ -290,12 +297,12 @@ public class DeployService {
                     Containers[] newContainers = insertMepAgent();
                     System.arraycopy(newContainers, 0, copyContainers, copyContainers.length - 1, newContainers.length);
                     deploys[j].getSpec().setContainers(copyContainers);
-                    Volumes[] volumees = new Volumes[1];
                     Volumes volumes = new Volumes();
                     volumes.setName("mep-agent-service-config-volume");
                     ConfigMap configMap = new ConfigMap();
                     configMap.setName("{{ .Values.global.mepagent.configmapname }}");
                     volumes.setConfigMap(configMap);
+                    Volumes[] volumees = new Volumes[1];
                     volumees[0] = volumes;
                     deploys[j].getSpec().setVolumes(volumees);
                 }
@@ -326,13 +333,9 @@ public class DeployService {
     }
 
     // 第二种方式
-    public static MultipartFile getMultipartFile(File file) {
-        DiskFileItem item = new DiskFileItem(file.getName()
-            , MediaType.MULTIPART_FORM_DATA_VALUE
-            , true
-            , file.getName()
-            , (int)file.length()
-            , file.getParentFile());
+    private static MultipartFile getMultipartFile(File file) {
+        DiskFileItem item = new DiskFileItem(file.getName(), MediaType.MULTIPART_FORM_DATA_VALUE, true, file.getName(),
+            (int) file.length(), file.getParentFile());
         try {
             OutputStream os = item.getOutputStream();
             os.write(FileUtils.readFileToByteArray(file));
@@ -341,7 +344,6 @@ public class DeployService {
         }
         return new CommonsMultipartFile(item);
     }
-
 
     /**
      * update yaml.
@@ -492,7 +494,6 @@ public class DeployService {
     }
 
     private Containers[] insertMepAgent() {
-        Containers[] newContainers = new Containers[1];
         Containers containersMepAgent = new Containers();
         containersMepAgent.setName("mep-agent");
         containersMepAgent
@@ -551,13 +552,14 @@ public class DeployService {
         envs[7] = envApp;
         containersMepAgent.setEnv(envs);
         //volumeMounts
-        VolumeMounts[] volumeMounts = new VolumeMounts[1];
         VolumeMounts volumeMount = new VolumeMounts();
         volumeMount.setMountPath("/usr/mep/conf/app_instance_info.yaml");
         volumeMount.setName("mep-agent-service-config-volume");
         volumeMount.setSubPath("app_instance_info.yaml");
+        VolumeMounts[] volumeMounts = new VolumeMounts[1];
         volumeMounts[0] = volumeMount;
         containersMepAgent.setVolumeMounts(volumeMounts);
+        Containers[] newContainers = new Containers[1];
         newContainers[0] = containersMepAgent;
         return newContainers;
     }

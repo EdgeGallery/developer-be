@@ -15,8 +15,12 @@ public class FileUploadEntity {
 
     private File file;
 
-    public FileUploadEntity(){}
+    public FileUploadEntity() {
+    }
 
+    /**
+     * FileUploadEntity.
+     */
     public FileUploadEntity(String code, String message, File file) {
         super();
         this.code = code;

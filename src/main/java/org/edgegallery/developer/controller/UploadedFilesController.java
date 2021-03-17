@@ -70,7 +70,7 @@ public class UploadedFilesController {
         produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN') || hasRole('DEVELOPER_GUEST')")
     public ResponseEntity<byte[]> getFile(@Pattern(regexp = REGEX_UUID, message = "fileId must be in UUID format")
-    @ApiParam(value = "fileId", required = true) @PathVariable("fileId") String fileId,
+        @ApiParam(value = "fileId", required = true) @PathVariable("fileId") String fileId,
         @Pattern(regexp = REGEX_UUID, message = "userId must be in UUID format") @ApiParam(value = "userId")
         @RequestParam("userId") String userId, @ApiParam(value = "type") @RequestParam("type") String type) {
         Either<FormatRespDto, ResponseEntity<byte[]>> either = uploadFileService.getFile(fileId, userId, type);
@@ -251,7 +251,7 @@ public class UploadedFilesController {
         produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN') || hasRole('DEVELOPER_GUEST')")
     public ResponseEntity<byte[]> getSdkProject(@Pattern(regexp = REGEX_UUID, message = "fileId must be in UUID format")
-    @ApiParam(value = "fileId", required = true) @PathVariable("fileId") String fileId,
+        @ApiParam(value = "fileId", required = true) @PathVariable("fileId") String fileId,
         @Pattern(regexp = REGEX_UUID, message = "lan must be in UUID format") @ApiParam(value = "lan", required = true)
         @PathVariable("lan") String lan) throws IOException {
         Either<FormatRespDto, ResponseEntity<byte[]>> either = uploadFileService.getSdkProject(fileId, lan);

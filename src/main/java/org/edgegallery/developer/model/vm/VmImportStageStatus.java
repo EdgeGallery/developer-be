@@ -1,11 +1,12 @@
 package org.edgegallery.developer.model.vm;
 
+import com.google.common.collect.ImmutableList;
 import java.util.List;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.edgegallery.developer.model.workspace.EnumTestConfigStatus;
-import com.google.common.collect.ImmutableList;
+
 @Getter
 @Setter
 @NoArgsConstructor

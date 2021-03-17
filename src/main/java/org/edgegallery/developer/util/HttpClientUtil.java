@@ -17,9 +17,6 @@
 package org.edgegallery.developer.util;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
 import java.util.List;
@@ -30,7 +27,6 @@ import org.edgegallery.developer.model.lcm.DistributeBody;
 import org.edgegallery.developer.model.lcm.DistributeResponse;
 import org.edgegallery.developer.model.lcm.InstantRequest;
 import org.edgegallery.developer.model.vm.VmCreateConfig;
-import org.edgegallery.developer.model.vm.VmImageConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.FileSystemResource;
@@ -62,10 +58,10 @@ public final class HttpClientUtil {
      * @return InstantiateAppResult
      */
     public static boolean instantiateApplication(String protocol, String ip, int port, String appInstanceId,
-        String userId, String token, LcmLog lcmLog,String pkgId, String mecHost) {
+        String userId, String token, LcmLog lcmLog, String pkgId, String mecHost) {
         //before instantiate ,call distribute result interface
-        String disRes = getDistributeRes(protocol,ip,port,userId,token,pkgId);
-        if(StringUtils.isEmpty(disRes)){
+        String disRes = getDistributeRes(protocol, ip, port, userId, token, pkgId);
+        if (StringUtils.isEmpty(disRes)) {
             LOGGER.error("instantiateApplication get pkg distribute res failed!");
             return false;
         }
@@ -153,7 +149,6 @@ public final class HttpClientUtil {
     public static boolean distributePkg(String protocol, String ip, int port, String userId, String token,
         String packageId, String mecHost, LcmLog lcmLog) {
         //add body
-        Gson gson = new Gson();
         DistributeBody body = new DistributeBody();
         String[] bodys = new String[1];
         bodys[0] = mecHost;
@@ -162,6 +157,7 @@ public final class HttpClientUtil {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.set(Consts.ACCESS_TOKEN_STR, token);
+        Gson gson = new Gson();
         HttpEntity<String> requestEntity = new HttpEntity<>(gson.toJson(body), headers);
         String url = getUrlPrefix(protocol, ip, port) + Consts.APP_LCM_DISTRIBUTE_APPPKG_URL
             .replaceAll("tenantId", userId).replaceAll("packageId", packageId);
@@ -190,8 +186,8 @@ public final class HttpClientUtil {
     /**
      * delete host.
      */
-    public static boolean deleteHost(String protocol, String ip, int port, String userId, String token,
-        String pkgId, String hostIp) {
+    public static boolean deleteHost(String protocol, String ip, int port, String userId, String token, String pkgId,
+        String hostIp) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.set(Consts.ACCESS_TOKEN_STR, token);
@@ -216,8 +212,7 @@ public final class HttpClientUtil {
     /**
      * delete pkg.
      */
-    public static boolean deletePkg(String protocol, String ip, int port, String userId, String token,
-        String pkgId) {
+    public static boolean deletePkg(String protocol, String ip, int port, String userId, String token, String pkgId) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.set(Consts.ACCESS_TOKEN_STR, token);
@@ -415,6 +410,9 @@ public final class HttpClientUtil {
         return false;
     }
 
+    /**
+     * vmInstantiateImage.
+     */
     public static String vmInstantiateImage(String protocol, String ip, int port, String userId, String lcmToken,
         String vmId, String appInstanceId, LcmLog lcmLog) {
         MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
@@ -429,9 +427,9 @@ public final class HttpClientUtil {
         try {
             REST_TEMPLATE.setErrorHandler(new CustomResponseErrorHandler());
             response = REST_TEMPLATE.exchange(url, HttpMethod.POST, requestEntity, String.class);
-//            JsonObject jsonObject = new JsonParser().parse(response.getBody()).getAsJsonObject();
-//            JsonElement imageId = jsonObject.get("imageId");
-//            imageConfig.setImageId(imageId.getAsString());
+            //            JsonObject jsonObject = new JsonParser().parse(response.getBody()).getAsJsonObject();
+            //            JsonElement imageId = jsonObject.get("imageId");
+            //            imageConfig.setImageId(imageId.getAsString());
             LOGGER.info("APPlCM log:{}", response);
         } catch (CustomException e) {
             e.printStackTrace();
@@ -452,6 +450,9 @@ public final class HttpClientUtil {
 
     }
 
+    /**
+     * getImageStatus.
+     */
     public static String getImageStatus(String protocol, String ip, int port, String appInstanceId, String userId,
         String imageId, String lcmToken) {
         String url = getUrlPrefix(protocol, ip, port) + Consts.APP_LCM_GET_IMAGE_STATUS_URL
@@ -475,12 +476,14 @@ public final class HttpClientUtil {
 
     }
 
+    /**
+     * downloadVmImage.
+     */
     public static boolean downloadVmImage(String protocol, String ip, int port, String userId, String packagePath,
         String appInstanceId, String imageId, String chunkNum, String token) {
 
         String url = getUrlPrefix(protocol, ip, port) + Consts.APP_LCM_GET_IMAGE_DOWNLOAD_URL
-            .replaceAll("appInstanceId", appInstanceId).replaceAll("tenantId", userId)
-            .replaceAll("imageId", imageId);
+            .replaceAll("appInstanceId", appInstanceId).replaceAll("tenantId", userId).replaceAll("imageId", imageId);
         LOGGER.info("url is {}", url);
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -491,12 +494,9 @@ public final class HttpClientUtil {
         try {
             response = REST_TEMPLATE.exchange(url, HttpMethod.GET, new HttpEntity<>(headers), String.class);
         } catch (RestClientException e) {
-            LOGGER.error("Failed to get image status which imageId is {} exception {}", imageId,
-                e.getMessage());
+            LOGGER.error("Failed to get image status which imageId is {} exception {}", imageId, e.getMessage());
             return false;
         }
-        // save file to packagePath todo
-
         return true;
 
     }

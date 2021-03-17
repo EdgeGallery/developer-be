@@ -1,17 +1,13 @@
 package org.edgegallery.developer.util.webssh.constant;
 
-
 public class ConstantPool {
-    /**
-     * 随机生成uuid的key名
-     */
+
+    //随机生成uuid的key名
     public static final String USER_UUID_KEY = "userId";
-    /**
-     * 发送指令：连接
-     */
+
+    //发送指令：连接
     public static final String WEBSSH_OPERATE_CONNECT = "connect";
-    /**
-     * 发送指令：命令
-     */
+
+    //发送指令：命令
     public static final String WEBSSH_OPERATE_COMMAND = "command";
 }

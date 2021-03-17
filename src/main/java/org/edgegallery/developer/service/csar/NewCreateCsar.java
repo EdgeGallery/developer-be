@@ -134,8 +134,9 @@ public class NewCreateCsar {
                 ImageDesc imageDesc = new ImageDesc();
                 imageDesc.setId(UUID.randomUUID().toString());
                 String[] names = pod.split("/");
-                imageDesc.setName(names[names.length-1]);
-                String[] vers = names[names.length-1].split(":");
+                int len = names.length - 1;
+                imageDesc.setName(names[len]);
+                String[] vers = names[len].split(":");
                 imageDesc.setVersion(vers[1]);
                 imageDesc.setChecksum("2");
                 imageDesc.setContainerFormat("bare");

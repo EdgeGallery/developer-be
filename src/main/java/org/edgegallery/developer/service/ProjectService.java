@@ -524,8 +524,6 @@ public class ProjectService {
      */
     public boolean deployTestConfigToAppLcm(File csar, ApplicationProject project, ProjectTestConfig testConfig,
         String userId, String token) {
-        String projectName = project.getName().replaceAll(Consts.PATTERN, "").toLowerCase();
-        String appInstanceId = testConfig.getAppInstanceId();
         Type type = new TypeToken<List<MepHost>>() { }.getType();
         List<MepHost> hosts = gson.fromJson(gson.toJson(testConfig.getHosts()), type);
         MepHost host = hosts.get(0);
@@ -554,6 +552,7 @@ public class ProjectService {
             testConfig.setErrorLog(lcmLog.getLog());
             return false;
         }
+        String appInstanceId = testConfig.getAppInstanceId();
         // instantiate application
         boolean instantRes = HttpClientUtil
             .instantiateApplication(host.getProtocol(), host.getLcmIp(), host.getPort(), appInstanceId, userId, token,

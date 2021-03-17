@@ -6,5 +6,5 @@ import lombok.Setter;
 @Getter
 @Setter
 public class ValueFrom {
- private SecretKeyRef secretKeyRef;
+    private SecretKeyRef secretKeyRef;
 }

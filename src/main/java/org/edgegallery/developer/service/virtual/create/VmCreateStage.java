@@ -13,6 +13,7 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
+
 package org.edgegallery.developer.service.virtual.create;
 
 import org.edgegallery.developer.model.vm.VmCreateConfig;
