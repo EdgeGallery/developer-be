@@ -547,7 +547,8 @@ public class ProjectService {
         projectMapper.updateTestConfig(testConfig);
         // distribute pkg
         boolean distributeRes = HttpClientUtil
-            .distributePkg(host.getProtocol(), host.getLcmIp(), host.getPort(), userId, token, pkgId, host.getMecHost(), lcmLog);
+            .distributePkg(host.getProtocol(), host.getLcmIp(), host.getPort(), userId, token, pkgId, host.getMecHost(),
+                lcmLog);
 
         if (!distributeRes) {
             testConfig.setErrorLog(lcmLog.getLog());
@@ -1340,8 +1341,8 @@ public class ProjectService {
                 Instant now = Instant.now();
                 Long timeDiff = Duration.between(dateOfProject, now).toHours();
                 EnumProjectStatus status = project.getStatus();
-                if ((status.equals(EnumProjectStatus.DEPLOYED) || status.equals(EnumProjectStatus.DEPLOYED_FAILED))
-                    && timeDiff.intValue() >= 24) {
+                if ((status.equals(EnumProjectStatus.DEPLOYED) || status.equals(EnumProjectStatus.DEPLOYED_FAILED))) {
+                    // && timeDiff.intValue() >= 24
                     // cleanTestEnv();
                     String devSvc = "http://developer-be-svc:9082";
                     String cleanUrl = String
