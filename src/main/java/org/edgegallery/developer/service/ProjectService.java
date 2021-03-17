@@ -1283,29 +1283,33 @@ public class ProjectService {
     private boolean deleteDeployApp(ProjectTestConfig testConfig, String userId, String token) {
         String workloadId = testConfig.getWorkLoadId();
 
-        if (StringUtils.isNotEmpty(testConfig.getPackageId()) && !CollectionUtils.isEmpty(testConfig.getHosts())) {
+        if(!CollectionUtils.isEmpty(testConfig.getHosts())){
             Type type = new TypeToken<List<MepHost>>() { }.getType();
             List<MepHost> hosts = gson.fromJson(gson.toJson(testConfig.getHosts()), type);
             MepHost host = hosts.get(0);
-            // delete hosts
-            boolean deleteHostRes = HttpClientUtil
-                .deleteHost(host.getProtocol(), host.getLcmIp(), host.getPort(), userId, token,
-                    testConfig.getPackageId(), host.getLcmIp());
+            if (StringUtils.isNotEmpty(testConfig.getPackageId())) {
+                // delete hosts
+                boolean deleteHostRes = HttpClientUtil
+                    .deleteHost(host.getProtocol(), host.getLcmIp(), host.getPort(), userId, token,
+                        testConfig.getPackageId(), host.getLcmIp());
 
-            // delete pkg
-            boolean deletePkgRes = HttpClientUtil
-                .deletePkg(host.getProtocol(), host.getLcmIp(), host.getPort(), userId, token,
-                    testConfig.getPackageId());
-            if (!deleteHostRes || !deletePkgRes) {
-                return false;
+                // delete pkg
+                boolean deletePkgRes = HttpClientUtil
+                    .deletePkg(host.getProtocol(), host.getLcmIp(), host.getPort(), userId, token,
+                        testConfig.getPackageId());
+                if (!deleteHostRes || !deletePkgRes) {
+                    return false;
+                }
             }
-
-            boolean terminateApp = HttpClientUtil
-                .terminateAppInstance(host.getProtocol(), host.getLcmIp(), host.getPort(), workloadId, userId, token);
-            if (!terminateApp) {
-                return false;
+            if (StringUtils.isNotEmpty(workloadId)) {
+                boolean terminateApp = HttpClientUtil
+                    .terminateAppInstance(host.getProtocol(), host.getLcmIp(), host.getPort(), workloadId, userId, token);
+                if (!terminateApp) {
+                    return false;
+                }
             }
         }
+
 
         return true;
     }
