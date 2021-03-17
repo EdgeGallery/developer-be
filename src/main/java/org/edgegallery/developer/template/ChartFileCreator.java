@@ -24,7 +24,6 @@ import java.util.UUID;
 import org.apache.commons.io.FileUtils;
 import org.edgegallery.developer.common.Consts;
 import org.edgegallery.developer.util.BusinessConfigUtil;
-import org.edgegallery.developer.util.CompressFileUtils;
 import org.edgegallery.developer.util.CompressFileUtilsJava;
 import org.edgegallery.developer.util.InitConfigUtil;
 

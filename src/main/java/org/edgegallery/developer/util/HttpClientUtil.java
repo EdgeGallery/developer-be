@@ -493,6 +493,7 @@ public final class HttpClientUtil {
         ResponseEntity<String> response;
         try {
             response = REST_TEMPLATE.exchange(url, HttpMethod.GET, new HttpEntity<>(headers), String.class);
+            LOGGER.warn(response.getBody());
         } catch (RestClientException e) {
             LOGGER.error("Failed to get image status which imageId is {} exception {}", imageId, e.getMessage());
             return false;

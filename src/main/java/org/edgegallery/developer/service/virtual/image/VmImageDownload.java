@@ -24,11 +24,6 @@ public class VmImageDownload implements VmImageStage {
 
     private static Gson gson = new Gson();
 
-    /**
-     * the max time for wait workStatus.
-     */
-    private static final Long MAX_SECONDS = 360L;
-
     @Autowired
     private VmService vmService;
 
@@ -46,7 +41,6 @@ public class VmImageDownload implements VmImageStage {
 
         ApplicationProject project = projectMapper.getProjectById(config.getProjectId());
         String userId = project.getUserId();
-        String packagePath = getProjectPath(config.getProjectId()) + config.getAppInstanceId();
         VmCreateConfig vmCreateConfig = vmConfigMapper.getVmCreateConfig(config.getProjectId(), config.getVmId());
         Type type = new TypeToken<MepHost>() { }.getType();
         MepHost host = gson.fromJson(gson.toJson(vmCreateConfig.getHost()), type);

@@ -15,9 +15,6 @@ public class ImageConfig {
     private static String domain;
     private static String pro;
 
-    @Value("${user.name}")
-    private String name;
-
     /**
      * getApiToken.
      */

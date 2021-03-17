@@ -198,7 +198,7 @@ public class ImageController {
             for (Image image : lists) {
                 LOGGER.warn(image.getRepoTags()[0]);
                 String[] images = image.getRepoTags();
-                if ((images[0]).equals(repoTags)) {
+                if (images[0].equals(repoTags)) {
                     imageId = image.getId();
                     LOGGER.warn(imageId);
                 }
@@ -216,10 +216,10 @@ public class ImageController {
 
             //push image
             try {
-                LOGGER.warn("endpoint: {}",devRepoEndpoint);
-                LOGGER.warn("username: {}",devRepoUsername);
-                LOGGER.warn("password: {}",devRepoPassword);
-                LOGGER.warn("project: {}",devRepoProject);
+                LOGGER.warn("endpoint: {}", devRepoEndpoint);
+                LOGGER.warn("username: {}", devRepoUsername);
+                LOGGER.warn("password: {}", devRepoPassword);
+                LOGGER.warn("project: {}", devRepoProject);
                 dockerClient.pushImageCmd(uploadImgName).exec(new PushImageResultCallback()).awaitCompletion();
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();

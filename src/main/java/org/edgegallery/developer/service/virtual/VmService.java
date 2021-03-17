@@ -64,15 +64,6 @@ import org.springframework.web.multipart.MultipartFile;
 public class VmService {
     private static final Logger LOGGER = LoggerFactory.getLogger(VmService.class);
 
-    private static final String VMPATH = "/home/developer";
-
-    private static final String IMAGE_PATH = "/Image/vmImage";
-
-    /**
-     * the max time for wait workStatus.
-     */
-    private static final Long MAX_SECONDS = 360L;
-
     private static Gson gson = new Gson();
 
     @Autowired
@@ -80,9 +71,6 @@ public class VmService {
 
     @Autowired
     private ProjectMapper projectMapper;
-
-    @Autowired
-    private VmService vmService;
 
     @Autowired
     private ProjectService projectService;
@@ -410,19 +398,6 @@ public class VmService {
             FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, fileUploadEntity.getMessage());
             return Either.left(error);
         }
-
-        //        FTPClient ftpClient = new FTPClient();//import org.apache.commons.net.ftp.FTPClient;
-        //        ftpClient.connect(vmInfo.get(0).getVncUrl(), 21);//连接ftp
-        //        ftpClient.login("root", "root");//登陆ftp
-        //        ftpClient.changeWorkingDirectory(VMPATH);//需要把文件上传到FTP哪个目录
-        //        boolean result = ftpClient.storeFile(file.getName(), new FileInputStream(file));
-        // 存储文件,成功返回true,失败false
-        //        if(!result) {
-        //            LOGGER.warn("upload fail, ip:{}", vmInfo.get(0).getVncUrl());
-        //            FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "upload file fail to vm");
-        //            return Either.left(error);
-        //        }
-        //        return Either.right(true);
     }
 
     private File transferToFile(MultipartFile multipartFile) {
@@ -693,26 +668,8 @@ public class VmService {
      */
     public boolean downloadImageResult(MepHost host, VmImageConfig config, String userId) {
 
-        String appInstanceId = config.getAppInstanceId();
-        String imageId = config.getImageId();
-        Integer sumChunkNum = config.getSumChunkNum();
-
         String packagePath = getProjectPath(config.getProjectId()) + config.getAppInstanceId();
 
-        // download image by lcm url
-        //        for(int chunkNum=0; chunkNum < SumChunkNum; chunkNum++) {
-        //            boolean downloadImageResult = HttpClientUtil
-        //                .downloadVmImage(host.getProtocol(), host.getLcmIp(), host.getPort(), userId, packagePath,
-        //                    appInstanceId, imageId, Integer.toString(chunkNum), config.getLcmToken());
-        //            if(!downloadImageResult) {
-        //                LOGGER.error("download vm image failed.iamgeId:{}", imageId);
-        //                return false;
-        //            }
-        //        }
-
-        //composite image slice
-
-        // generate scar package
         try {
             CompressFileUtilsJava
                 .compressToCsarAndDeleteSrc(packagePath, projectService.getProjectPath(config.getProjectId()),

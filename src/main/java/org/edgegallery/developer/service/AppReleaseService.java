@@ -116,62 +116,6 @@ public class AppReleaseService {
         return Either.right(fileContent);
     }
 
-    private boolean unZipFiles(File zipFile, String descDir) {
-        File pathFile = new File(descDir);
-        if (!pathFile.exists()) {
-            boolean isMk = pathFile.mkdirs();
-            isSuccess(isMk);
-        }
-        try (ZipFile zip = new ZipFile(zipFile);) {
-            for (Enumeration<? extends ZipEntry> entries = zip.entries(); entries.hasMoreElements(); ) {
-                ZipEntry entry = entries.nextElement();
-                String zipEntryName = entry.getName();
-                try (InputStream in = zip.getInputStream(entry)) {
-                    String outPath = (descDir + zipEntryName).replaceAll("\\*", "/");
-                    //判断路径是否存在,不存在则创建文件路径
-                    File file = new File(outPath.substring(0, outPath.lastIndexOf('/')));
-                    if (!file.exists()) {
-                        boolean isMk = file.mkdirs();
-                        isSuccess(isMk);
-                    }
-                    //判断文件全路径是否为文件夹,如果是上面已经上传,不需要解压
-                    if (new File(outPath).isDirectory()) {
-                        continue;
-                    }
-                    //输出文件路径信息
-                    try (OutputStream out = new FileOutputStream(outPath)) {
-                        byte[] buf1 = new byte[1024];
-                        int len;
-                        try {
-                            while ((len = in.read(buf1)) > 0) {
-                                out.write(buf1, 0, len);
-                            }
-                        } catch (IOException e) {
-                            LOGGER.error("unzip pkg occur io exception {}", e.getMessage());
-                            return false;
-                        }
-                    } catch (FileNotFoundException e) {
-                        LOGGER.error("unzip pkg occur file not found exception {}", e.getMessage());
-                        return false;
-                    }
-                } catch (IOException e) {
-                    LOGGER.error("unzip pkg occur io exception {}", e.getMessage());
-                    return false;
-                }
-            }
-        } catch (IOException e) {
-            LOGGER.error("unzip pkg occur zip exception {}", e.getMessage());
-            return false;
-        }
-        return true;
-    }
-
-    private void isSuccess(boolean bool) {
-        if (!bool) {
-            LOGGER.error("create folder fail");
-        }
-    }
-
     private String getProjectPath(String projectId) {
         return InitConfigUtil.getWorkSpaceBaseDir() + BusinessConfigUtil.getWorkspacePath() + projectId
             + File.separator;

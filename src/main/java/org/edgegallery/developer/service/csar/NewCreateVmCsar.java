@@ -38,8 +38,6 @@ public class NewCreateVmCsar {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(NewCreateVmCsar.class);
 
-    private static Gson gson = new Gson();
-
     /**
      * create vm csar.
      *

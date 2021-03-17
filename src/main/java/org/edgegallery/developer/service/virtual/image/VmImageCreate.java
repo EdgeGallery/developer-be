@@ -31,16 +31,12 @@ public class VmImageCreate implements VmImageStage {
     private ProjectMapper projectMapper;
 
     @Autowired
-    private ProjectService projectService;
-
-    @Autowired
     private VmConfigMapper vmConfigMapper;
 
     @Override
-    public boolean execute(VmImageConfig imageConfig) throws InterruptedException {
+    public boolean execute(VmImageConfig imageConfig) {
         boolean processSuccess = false;
         boolean instantiateImageResult;
-        boolean dependencyResult;
 
         ApplicationProject project = projectMapper.getProjectById(imageConfig.getProjectId());
         String userId = project.getUserId();
@@ -53,15 +49,6 @@ public class VmImageCreate implements VmImageStage {
         try {
             instantiateImageResult = vmService.createVmImageToAppLcm(host, imageConfig, userId);
             instantiateImageResult = true;
-            //            if (!instantiateAppResult) {
-            //                LOGGER.error("Failed to create vm which packageId is : {}.", config.getPackageId());
-            //            } else {
-            //                // update status when instantiate success
-            //                SimpleDateFormat time=new SimpleDateFormat("yyyy-MM-dd HH:mm");
-            //                config.setCreate_time(time.format(new Date()));
-            //                processSuccess = true;
-            //                instantiateStatus = EnumTestConfigStatus.Success;
-            //            }
             // update status when instantiate success
             imageConfig.setCreateTime(new Date());
             // set imageId
