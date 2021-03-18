@@ -7,10 +7,10 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString
-public class VmNetworks {
-
-    private String name;
+public class NetworkInfo {
 
     private String ip;
+
+    private String name;
 
 }

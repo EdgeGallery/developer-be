@@ -8,12 +8,12 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString
-public class VmInfo {
+public class VmInstantiateInfo {
 
-    private String vmId;
+    private  String code;
 
-    private String vncUrl;
+    private String msg;
 
-    private List<NetworkInfo> networks;
+    private List<VmInfo> data;
 
 }
