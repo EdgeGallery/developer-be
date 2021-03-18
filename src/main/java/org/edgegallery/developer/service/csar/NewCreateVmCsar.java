@@ -5,8 +5,10 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.google.gson.Gson;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -49,8 +51,8 @@ public class NewCreateVmCsar {
      * create vm csar.
      *
      * @param projectPath path of project
-     * @param config      vm create config of project
-     * @param project     project self
+     * @param config vm create config of project
+     * @param project project self
      * @return package gz
      */
     public File create(String projectPath, VmCreateConfig config, ApplicationProject project, String flavor,
@@ -78,8 +80,8 @@ public class NewCreateVmCsar {
                 FileUtils.readFileToString(csarValue, StandardCharsets.UTF_8).replace("{name}", projectName)
                     .replace("{provider}", project.getProvider()).replace("{version}", project.getVersion())
                     .replace("{time}", timeStamp).replace("{description}", project.getDescription())
-                    .replace("{ChartName}", chartName).replace("{type}", type)
-                    .replace("{class}", deployType), StandardCharsets.UTF_8, false);
+                    .replace("{ChartName}", chartName).replace("{type}", type).replace("{class}", deployType),
+                StandardCharsets.UTF_8, false);
             csarValue.renameTo(new File(csar.getCanonicalPath() + "/" + projectName + ".mf"));
 
         } catch (IOException e) {
@@ -91,8 +93,8 @@ public class NewCreateVmCsar {
             File vnfValue = new File(csar.getCanonicalPath() + TEMPLATE_TOSCA_VNFD__PATH);
 
             FileUtils.writeStringToFile(vnfValue,
-                FileUtils.readFileToString(vnfValue, StandardCharsets.UTF_8)
-                    .replace("{VNFD}", projectName + ".yaml"), StandardCharsets.UTF_8, false);
+                FileUtils.readFileToString(vnfValue, StandardCharsets.UTF_8).replace("{VNFD}", projectName + ".yaml"),
+                StandardCharsets.UTF_8, false);
 
         } catch (IOException e) {
             throw new IOException("replace file exception");
@@ -102,9 +104,8 @@ public class NewCreateVmCsar {
         try {
             File toscaValue = new File(csar.getCanonicalPath() + TEMPLATE_TOSCA_METADATA_PATH);
 
-            FileUtils.writeStringToFile(toscaValue,
-                FileUtils.readFileToString(toscaValue, StandardCharsets.UTF_8)
-                    .replace("{appdFile}", projectName + ".zip"), StandardCharsets.UTF_8, false);
+            FileUtils.writeStringToFile(toscaValue, FileUtils.readFileToString(toscaValue, StandardCharsets.UTF_8)
+                .replace("{appdFile}", projectName + ".zip"), StandardCharsets.UTF_8, false);
         } catch (IOException e) {
             throw new IOException("replace file exception");
         }
@@ -207,13 +208,12 @@ public class NewCreateVmCsar {
         templateFileModify.renameTo(new File(csar.getCanonicalPath() + "/APPD/Definition/" + projectName + ".yaml"));
 
         // compress to zip
-        String chartsDir = csar.getParent() + File.separator + config.getAppInstanceId() + File.separator
-            + "APPD";
+        String chartsDir = csar.getParent() + File.separator + config.getAppInstanceId() + File.separator + "APPD";
         List<File> subFiles = Arrays.asList(new File(chartsDir).listFiles());
-        CompressFileUtilsJava
-            .zipFiles(Arrays.asList(new File(chartsDir).listFiles()), new File(chartsDir + File.separator + projectName+ ".zip"));
+        CompressFileUtilsJava.zipFiles(Arrays.asList(new File(chartsDir).listFiles()),
+            new File(chartsDir + File.separator + projectName + ".zip"));
 
-        for(File subFile: subFiles) {
+        for (File subFile : subFiles) {
             FileUtils.deleteQuietly(subFile);
         }
         //update SwImageDesc.json
@@ -245,7 +245,7 @@ public class NewCreateVmCsar {
 
     private void writeFile(File file, String content) {
         try {
-            FileWriter fw = new FileWriter(file.getCanonicalPath());
+            Writer fw = new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8);
             BufferedWriter bw = new BufferedWriter(fw);
             bw.write(content);
             bw.close();

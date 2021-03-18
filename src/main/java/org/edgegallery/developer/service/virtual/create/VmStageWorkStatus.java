@@ -1,6 +1,5 @@
 package org.edgegallery.developer.service.virtual.create;
 
-import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.edgegallery.developer.mapper.ProjectMapper;
@@ -17,8 +16,6 @@ import org.springframework.stereotype.Service;
 public class VmStageWorkStatus implements VmCreateStage {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(VmStageWorkStatus.class);
-
-    private static Gson gson = new Gson();
 
     /**
      * the max time for wait workStatus.

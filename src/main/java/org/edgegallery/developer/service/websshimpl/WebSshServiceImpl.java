@@ -24,7 +24,6 @@ import org.edgegallery.developer.model.SshConnectInfo;
 import org.edgegallery.developer.model.WebSshData;
 import org.edgegallery.developer.model.vm.EnumVmCreateStatus;
 import org.edgegallery.developer.model.vm.VmCreateConfig;
-import org.edgegallery.developer.model.vm.VmInfo;
 import org.edgegallery.developer.model.workspace.ApplicationProject;
 import org.edgegallery.developer.model.workspace.EnumDeployPlatform;
 import org.edgegallery.developer.model.workspace.MepHost;
@@ -182,10 +181,10 @@ public class WebSshServiceImpl implements WebSshService {
                 logger.info("the vm is creating or create fail.");
                 return;
             }
-            Type type = new TypeToken<List<VmInfo>>() { }.getType();
-            List<VmInfo> vmInfos = gson.fromJson(gson.toJson(vmCreateConfig.getVmInfo()), type);
-            VmInfo vmInfo = vmInfos.get(0);
-//            this.ip = vmInfo.getVncUrl();
+            // Type type = new TypeToken<List<VmInfo>>() { }.getType();
+            // List<VmInfo> vmInfos = gson.fromJson(gson.toJson(vmCreateConfig.getVmInfo()), type);
+            //VmInfo vmInfo = vmInfos.get(0);
+            //this.ip = vmInfo.getVncUrl();
             logger.info("the vm ip: 192.168.233.34.");
             this.ip = "192.168.233.34";
             this.username = "root";
