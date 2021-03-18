@@ -15,13 +15,43 @@ metadata:
 
 topology_template:
   inputs:
-    APP_Name:
+    network_name_mep:
       type: string
-      description: APP_Name
-    DC_ID:
+        default: mec_newwork_mep
+        description: network_name_mep
+    network_name_n6:
       type: string
-      default: fs:Manager_VPC
-      description: DC_ID
+        default: mec_newwork_n6
+        description: network_name_n6
+    network_name_internet:
+      type: string
+        default: mec_newwork_internet
+        description: network_name_internet
+    network_internet_physnet:
+      type: string
+        default: network_internet_physnet
+        description: network_internet_physnet
+    network_internet_vlanid:
+      type: string
+        default: network_internet_vlanid
+        description: network_internet_vlanid
+    network_n6_physnet:
+      type: string
+        default: network_n6_physnet
+        description: network_n6_physnet
+    network_n6_vlanid:
+      type: string
+        default: network_n6_vlanid
+        description: network_n6_vlanid
+    network_mep_physnet:
+      type: string
+        default: network_mep_physnet
+        description: network_mep_physnet
+    network_mep_vlanid:
+      type: string
+        default: network_mep_vlanid
+        description: network_mep_vlanid
+
     INTERNAL_IP_VERSION:
       type: string
       default: IPV4
@@ -67,7 +97,7 @@ topology_template:
       properties:
         name: eulerforTR6_iso_arm_EMS_VDU1
         description: EMS_VDU1 node
-        nfvi_constraints: 'az1.dc8'
+        nfvi_constraints: 'nova'
         vdu_profile:
           min_number_of_instances: 1
           max_number_of_instances: 1
@@ -121,28 +151,28 @@ topology_template:
       type: tosca.nodes.nfv.VnfVirtualLink
       properties:
         vl_profile:
-          network_name: {get_input: network_name_1}
+          network_name: {get_input: network_name_mep}
           network_type: vlan
-          physical_network: {get_input: network1_physnet}
-          provider_segmentation_id: {get_input: network1_vlanid}
+          physical_network: {get_input: network_mep_physnet}
+          provider_segmentation_id: {get_input: network_mep_vlanid}
 
     MEC_APP_N6:
       type: tosca.nodes.nfv.VnfVirtualLink
       properties:
         vl_profile:
-          network_name: {get_input: network_name_1}
+          network_name: {get_input: network_name_n6}
           network_type: vlan
-          physical_network: {get_input: network1_physnet}
-          provider_segmentation_id: {get_input: network1_vlanid}
+          physical_network: {get_input: network_n6_physnet}
+          provider_segmentation_id: {get_input: network_n6_vlanid}
 
     MEC_APP_INTERNET:
       type: tosca.nodes.nfv.VnfVirtualLink
       properties:
         vl_profile:
-          network_name: {get_input: network_name_1}
+          network_name: {get_input: network_name_internet}
           network_type: vlan
-          physical_network: {get_input: network1_physnet}
-          provider_segmentation_id: {get_input: network1_vlanid}
+          physical_network: {get_input: network_internet_physnet}
+          provider_segmentation_id: {get_input: network_internet_vlanid}
 
 
     DEMO_VL1: # 使用虚拟层中已经创建的网络名称或UUID。
