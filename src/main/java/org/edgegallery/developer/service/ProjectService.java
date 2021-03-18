@@ -1326,7 +1326,7 @@ public class ProjectService {
         }
         //登录user-mgmt
         //通过服务名调用user-mgmt的登录接口
-        String userLoginUrl = loginUrl + "/login";
+        String userLoginUrl = loginUrl.substring(0,loginUrl.lastIndexOf(":")) + ":8067/login";
         LOGGER.warn("user login url: {}", userLoginUrl);
         HttpPost httpPost = new HttpPost(userLoginUrl);
         MultipartEntityBuilder builder = MultipartEntityBuilder.create();
