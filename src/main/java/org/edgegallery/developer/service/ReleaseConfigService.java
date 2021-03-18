@@ -25,8 +25,10 @@ import com.google.gson.reflect.TypeToken;
 import com.spencerwi.either.Either;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -280,7 +282,8 @@ public class ReleaseConfigService {
 
     private void writeFile(File file, String content) {
         try {
-            FileWriter fw = new FileWriter(file.getCanonicalPath());
+            //     FileWriter fw = new FileWriter(file.getCanonicalPath());
+            Writer fw = new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8);
             BufferedWriter bw = new BufferedWriter(fw);
             bw.write(content);
             bw.close();

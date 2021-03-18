@@ -24,6 +24,69 @@ public class Containers {
     private Resource resources;
 
     /**
+     * get env.
+     *
+     * @return
+     */
+    public Environment[] getEnv() {
+        if (env != null) {
+            return env.clone();
+        }
+        return new Environment[0];
+    }
+
+    /**
+     * getPorts.
+     *
+     * @return
+     */
+    public Ports[] getPorts() {
+        if (ports != null) {
+            return ports.clone();
+        }
+        return new Ports[0];
+    }
+
+    /**
+     * getVolumeMounts.
+     *
+     * @return
+     */
+    public VolumeMounts[] getVolumeMounts() {
+        if (volumeMounts != null) {
+            return volumeMounts.clone();
+        }
+        return new VolumeMounts[0];
+    }
+
+    /**
+     * setPorts.
+     *
+     * @param ports ports
+     */
+    public void setPorts(Ports[] ports) {
+        if (ports != null) {
+            this.ports = ports.clone();
+        } else {
+            this.ports = null;
+        }
+
+    }
+
+    /**
+     * setVolumeMounts.
+     *
+     * @param volumeMounts vols
+     */
+    public void setVolumeMounts(VolumeMounts[] volumeMounts) {
+        if (volumeMounts != null) {
+            this.volumeMounts = volumeMounts.clone();
+        } else {
+            this.volumeMounts = null;
+        }
+    }
+
+    /**
      * set command.
      *
      * @param command command
@@ -40,15 +103,19 @@ public class Containers {
      * @param env env
      */
     public void setEnv(Environment[] env) {
-        if (env.length >= 1) {
-            StringBuilder sb = new StringBuilder();
-            for (Environment en : env) {
-                sb.append(en.getName());
-                sb.append(en.getValue());
+        if (env != null) {
+            if (env.length >= 1) {
+                StringBuilder sb = new StringBuilder();
+                for (Environment en : env) {
+                    sb.append(en.getName());
+                    sb.append(en.getValue());
+                }
+                if (StringUtils.isNotEmpty(sb.toString())) {
+                    this.env = env.clone();
+                }
             }
-            if (StringUtils.isNotEmpty(sb.toString())) {
-                this.env = env;
-            }
+        } else {
+            this.env = null;
         }
     }
 

@@ -38,6 +38,9 @@ public class CompressFileUtilsJava {
         return res;
     }
 
+    /**
+     * zipFiles.
+     */
     public static void zipFiles(List<File> srcfile, File zipfile) {
         List<String> entryPaths = new ArrayList<>();
         try (ZipOutputStream out = new ZipOutputStream(new FileOutputStream(zipfile));) {
@@ -54,10 +57,15 @@ public class CompressFileUtilsJava {
             LOGGER.error("Failed to generate zip file.", e);
         }
     }
+
     private static void addFolderToZip(ZipOutputStream out, File file, List<String> entryPaths) throws IOException {
         out.putNextEntry(new ZipEntry(StringUtils.join(entryPaths, "/") + "/"));
         out.closeEntry();
-        for (File subFile : file.listFiles()) {
+        File[] files = file.listFiles();
+        if (files == null || files.length == 0) {
+            return;
+        }
+        for (File subFile : files) {
             if (subFile.isFile()) {
                 addFileToZip(out, subFile, entryPaths);
             } else if (subFile.isDirectory()) {

@@ -1,5 +1,4 @@
 package org.edgegallery.developer.service.virtual.create;
-
 import java.lang.reflect.Type;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;

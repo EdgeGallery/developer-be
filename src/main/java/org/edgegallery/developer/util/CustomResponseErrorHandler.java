@@ -9,6 +9,7 @@ import org.edgegallery.developer.exception.CustomException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.client.ClientHttpResponse;
+import org.springframework.util.StringUtils;
 import org.springframework.web.client.DefaultResponseErrorHandler;
 import org.springframework.web.client.ResponseErrorHandler;
 import org.springframework.web.client.RestClientException;
@@ -39,28 +40,35 @@ public class CustomResponseErrorHandler implements ResponseErrorHandler {
     // inputStream 装换为 string
     private String convertStreamToString(InputStream is) {
         BufferedReader reader = null;
-        try {
-            reader = new BufferedReader(new InputStreamReader(is, "UTF-8"));
-        } catch (UnsupportedEncodingException e) {
-            LOGGER.error("inputStream to reader {}", e.getMessage());
+        if (is != null) {
+            try {
+                reader = new BufferedReader(new InputStreamReader(is, "UTF-8"));
+            } catch (UnsupportedEncodingException e) {
+                LOGGER.error("inputStream to reader {}", e.getMessage());
+            }
         }
         StringBuilder sb = new StringBuilder();
-
-        String line = null;
-        try {
-            while ((line = reader.readLine()) != null) {
-                sb.append(line);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
+        if (reader != null) {
+            String line = null;
             try {
-                is.close();
+                while ((line = reader.readLine()) != null) {
+                    sb.append(line);
+                }
             } catch (IOException e) {
                 e.printStackTrace();
+            } finally {
+                try {
+                    is.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         }
 
-        return sb.toString();
+        if (!StringUtils.isEmpty(sb)) {
+            return sb.toString();
+        }
+
+        return "";
     }
 }

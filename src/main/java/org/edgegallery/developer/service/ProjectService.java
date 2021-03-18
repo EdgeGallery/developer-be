@@ -1283,7 +1283,7 @@ public class ProjectService {
     private boolean deleteDeployApp(ProjectTestConfig testConfig, String userId, String token) {
         String workloadId = testConfig.getWorkLoadId();
 
-        if(!CollectionUtils.isEmpty(testConfig.getHosts())){
+        if (!CollectionUtils.isEmpty(testConfig.getHosts())) {
             Type type = new TypeToken<List<MepHost>>() { }.getType();
             List<MepHost> hosts = gson.fromJson(gson.toJson(testConfig.getHosts()), type);
             MepHost host = hosts.get(0);
@@ -1303,13 +1303,13 @@ public class ProjectService {
             }
             if (StringUtils.isNotEmpty(workloadId)) {
                 boolean terminateApp = HttpClientUtil
-                    .terminateAppInstance(host.getProtocol(), host.getLcmIp(), host.getPort(), workloadId, userId, token);
+                    .terminateAppInstance(host.getProtocol(), host.getLcmIp(), host.getPort(), workloadId, userId,
+                        token);
                 if (!terminateApp) {
                     return false;
                 }
             }
         }
-
 
         return true;
     }
@@ -1326,7 +1326,7 @@ public class ProjectService {
         }
         //登录user-mgmt
         //通过服务名调用user-mgmt的登录接口
-        String userLoginUrl = loginUrl + "/login";
+        String userLoginUrl = loginUrl.substring(0, loginUrl.lastIndexOf(":")) + ":30067/index.html";
         LOGGER.warn("user login url: {}", userLoginUrl);
         HttpPost httpPost = new HttpPost(userLoginUrl);
         MultipartEntityBuilder builder = MultipartEntityBuilder.create();
