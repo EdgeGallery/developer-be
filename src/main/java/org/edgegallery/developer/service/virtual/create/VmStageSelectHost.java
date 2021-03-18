@@ -64,6 +64,7 @@ public class VmStageSelectHost implements VmCreateStage {
             processSuccess = true;
             config.setHost(enabledHosts.get(0));
             hostStatus = EnumTestConfigStatus.Success;
+            config.setLog("get mecHost success");
 
         }
         vmService.updateCreateVmResult(config, project, "hostInfo", hostStatus);

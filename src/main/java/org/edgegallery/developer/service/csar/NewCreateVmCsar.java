@@ -37,6 +37,10 @@ public class NewCreateVmCsar {
 
     private static final String TEMPLATE_CSAR_BASE_PATH = "/APPD/Definition/app-name.yaml";
 
+    private static final String TEMPLATE_TOSCA_VNFD__PATH = "/APPD/TOSCA_VNFD.meta";
+
+    private static final String TEMPLATE_TOSCA_METADATA_PATH = "/TOSCA-Metadata/TOSCA.meta";
+
     private static final String IMAGE_BASE_PATH = "/Image/SwImageDesc.json";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(NewCreateVmCsar.class);
@@ -78,6 +82,29 @@ public class NewCreateVmCsar {
                     .replace("{class}", deployType), StandardCharsets.UTF_8, false);
             csarValue.renameTo(new File(csar.getCanonicalPath() + "/" + projectName + ".mf"));
 
+        } catch (IOException e) {
+            throw new IOException("replace file exception");
+        }
+
+        // modify the csar  APPD/TOSCA_VNFD.meta file
+        try {
+            File vnfValue = new File(csar.getCanonicalPath() + TEMPLATE_TOSCA_VNFD__PATH);
+
+            FileUtils.writeStringToFile(vnfValue,
+                FileUtils.readFileToString(vnfValue, StandardCharsets.UTF_8)
+                    .replace("{VNFD}", projectName + ".yaml"), StandardCharsets.UTF_8, false);
+
+        } catch (IOException e) {
+            throw new IOException("replace file exception");
+        }
+
+        // modify the csar  APPD/TOSCA_VNFD.meta file
+        try {
+            File toscaValue = new File(csar.getCanonicalPath() + TEMPLATE_TOSCA_METADATA_PATH);
+
+            FileUtils.writeStringToFile(toscaValue,
+                FileUtils.readFileToString(toscaValue, StandardCharsets.UTF_8)
+                    .replace("{appdFile}", projectName + ".zip"), StandardCharsets.UTF_8, false);
         } catch (IOException e) {
             throw new IOException("replace file exception");
         }

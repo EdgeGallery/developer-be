@@ -79,10 +79,7 @@ topology_template:
         bootdata:
           config_drive: true
           user_data:
-            contents: |
-              #!/bin/bash
-
-
+            contents:
 
     EMS_VDU1_CP0:
       type: tosca.nodes.nfv.VduCp
@@ -93,7 +90,7 @@ topology_template:
         vnic_type: normal
         port_security_enabled: true
       requirements:
-        - virtual_binding: VM01
+        - virtual_binding: EMS_VDU1
         - virtual_link: MEC_APP_MP1
 
     EMS_VDU1_CP1:
@@ -105,7 +102,7 @@ topology_template:
         vnic_type: normal
         port_security_enabled: true
       requirements:
-        - virtual_binding: VM01
+        - virtual_binding: EMS_VDU1
         - virtual_link: MEC_APP_N6
 
     EMS_VDU1_CP2:
@@ -117,7 +114,7 @@ topology_template:
         vnic_type: normal
         port_security_enabled: true
       requirements:
-        - virtual_binding: VM01
+        - virtual_binding: EMS_VDU1
         - virtual_link: MEC_APP_INTERNET
 
     MEC_APP_MP1:

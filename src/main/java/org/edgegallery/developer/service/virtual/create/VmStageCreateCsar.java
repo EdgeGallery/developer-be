@@ -50,6 +50,7 @@ public class VmStageCreateCsar implements VmCreateStage {
             vmService.generateVmPackage(config);
             vmPackageStatus = EnumTestConfigStatus.Success;
             processSuccess = true;
+            config.setLog("generate csar package success");
         } catch (Exception e) {
             processSuccess = false;
             config.setLog("generate  vm csar failed:" + e.getMessage());
