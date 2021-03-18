@@ -356,7 +356,6 @@ public class VmService {
             LOGGER.error("Delete vm create scar failed.");
         }
 
-
         LOGGER.info("delete vm create config success");
         return Either.right(true);
 
@@ -406,16 +405,19 @@ public class VmService {
     }
 
     private File transferToFile(MultipartFile multipartFile) {
-        //        选择用缓冲区来实现这个转换即使用java 创建的临时文件 使用 MultipartFile.transferto()方法 。
         File file = null;
-        try {
-            String originalFilename = multipartFile.getOriginalFilename();
-            String[] filename = originalFilename.split("\\.");
-            file = File.createTempFile(filename[0], filename[1]);
-            multipartFile.transferTo(file);
-            file.deleteOnExit();
-        } catch (IOException e) {
-            e.printStackTrace();
+        if (multipartFile != null) {
+            try {
+                String originalFilename = multipartFile.getOriginalFilename();
+                if (!org.springframework.util.StringUtils.isEmpty(originalFilename)) {
+                    String[] filename = originalFilename.split("\\.");
+                    file = File.createTempFile(filename[0], filename[1]);
+                    multipartFile.transferTo(file);
+                    file.deleteOnExit();
+                }
+            } catch (IOException e) {
+                LOGGER.error("transfer multiFile to file failed! {}", e.getMessage());
+            }
         }
         return file;
     }
@@ -673,18 +675,16 @@ public class VmService {
     public boolean downloadImageResult(MepHost host, VmImageConfig config, String userId) {
 
         String packagePath = getProjectPath(config.getProjectId()) + config.getAppInstanceId();
-        for ( int chunkNum = 0; chunkNum<config.getSumChunkNum();chunkNum++) {
-            boolean res = HttpClientUtil.downloadVmImage(host.getProtocol(), host.getLcmIp(), host.getPort(),
-                userId, packagePath, config.getAppInstanceId(), config.getImageId(), Integer.toString(chunkNum),
-                config.getLcmToken());
-            if(!res) {
+        for (int chunkNum = 0; chunkNum < config.getSumChunkNum(); chunkNum++) {
+            boolean res = HttpClientUtil
+                .downloadVmImage(host.getProtocol(), host.getLcmIp(), host.getPort(), userId, packagePath,
+                    config.getAppInstanceId(), config.getImageId(), Integer.toString(chunkNum), config.getLcmToken());
+            if (!res) {
                 LOGGER.info("download image fail");
                 break;
-//                return false;
+                //                return false;
             }
         }
-
-
 
         try {
             CompressFileUtilsJava

@@ -60,4 +60,30 @@ public class VmCreateConfig {
         }
         return null;
     }
+
+    /**
+     * getCreateTime.
+     *
+     * @return
+     */
+    public Date getCreateTime() {
+        if (createTime != null) {
+            return (Date) createTime.clone();
+        }
+        return null;
+    }
+
+    /**
+     * setCreateTime.
+     *
+     * @param createTime createTime
+     */
+    public void setCreateTime(Date createTime) {
+        if (createTime != null) {
+            this.createTime = (Date) createTime.clone();
+        } else {
+            this.createTime = null;
+        }
+
+    }
 }

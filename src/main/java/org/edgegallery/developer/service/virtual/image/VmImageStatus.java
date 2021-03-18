@@ -1,8 +1,6 @@
 package org.edgegallery.developer.service.virtual.image;
 
-import com.google.gson.Gson;
 import org.edgegallery.developer.mapper.ProjectMapper;
-import org.edgegallery.developer.mapper.VmConfigMapper;
 import org.edgegallery.developer.model.vm.VmImageConfig;
 import org.edgegallery.developer.model.workspace.ApplicationProject;
 import org.edgegallery.developer.model.workspace.EnumTestConfigStatus;
@@ -13,16 +11,11 @@ import org.springframework.stereotype.Service;
 @Service("vm_imageStatus_service")
 public class VmImageStatus implements VmImageStage {
 
-    private static Gson gson = new Gson();
-
     @Autowired
     private VmService vmService;
 
     @Autowired
     private ProjectMapper projectMapper;
-
-    @Autowired
-    private VmConfigMapper vmConfigMapper;
 
     @Override
     public boolean execute(VmImageConfig config) throws InterruptedException {

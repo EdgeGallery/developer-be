@@ -26,11 +26,9 @@ import io.swagger.annotations.ApiResponses;
 import java.io.IOException;
 import java.util.List;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
-import org.edgegallery.developer.model.deployyaml.DeployYamls;
 import org.edgegallery.developer.model.workspace.HelmTemplateYamlPo;
 import org.edgegallery.developer.response.ErrorRespDto;
 import org.edgegallery.developer.response.FormatRespDto;
-import org.edgegallery.developer.response.HelmTemplateYamlRespDto;
 import org.edgegallery.developer.service.DeployService;
 import org.edgegallery.developer.util.ResponseDataUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,27 +52,6 @@ public class DeployYamlController {
 
     @Autowired
     private DeployService deployService;
-
-    /**
-     * genarate deploy yaml.
-     */
-    @ApiOperation(value = "genarate deploy yaml", response = HelmTemplateYamlRespDto.class)
-    @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "OK", response = HelmTemplateYamlRespDto.class),
-        @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
-    })
-    @RequestMapping(value = "/{projectId}", method = RequestMethod.POST,
-        consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
-    public ResponseEntity<HelmTemplateYamlRespDto> postDeploy(
-        @ApiParam(value = "DeployYamls", required = true) @RequestBody DeployYamls deployYamls,
-        @ApiParam(value = "userId", required = true) @RequestParam String userId,
-        @ApiParam(value = "projectId", required = true) @PathVariable String projectId,
-        @ApiParam(value = "configType", required = true) @RequestParam String configType) throws IOException {
-        Either<FormatRespDto, HelmTemplateYamlRespDto> either = deployService
-            .genarateDeployYaml(deployYamls, projectId, userId, configType);
-        return ResponseDataUtil.buildResponse(either);
-    }
 
     /**
      * genarate deploy yaml.

@@ -4,8 +4,10 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -75,8 +77,10 @@ public class NewCreateCsar {
                     .replace("{provider}", project.getProvider()).replace("{version}", project.getVersion())
                     .replace("{time}", timeStamp).replace("{description}", project.getDescription())
                     .replace("{ChartName}", chartName).replace("{type}", deployType), StandardCharsets.UTF_8, false);
-            csarValue.renameTo(new File(csar.getCanonicalPath() + "/" + projectName + ".mf"));
-
+            boolean isSuccess = csarValue.renameTo(new File(csar.getCanonicalPath() + "/" + projectName + ".mf"));
+            if (!isSuccess) {
+                LOGGER.warn("positioning-service.mf rename to project-name.mf failed!");
+            }
         } catch (IOException e) {
             throw new IOException("replace file exception");
         }
@@ -159,7 +163,7 @@ public class NewCreateCsar {
 
     private void writeFile(File file, String content) {
         try {
-            FileWriter fw = new FileWriter(file.getCanonicalPath());
+            Writer fw = new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8);
             BufferedWriter bw = new BufferedWriter(fw);
             bw.write(content);
             bw.close();

@@ -16,7 +16,6 @@
 
 package org.edgegallery.developer.service;
 
-import com.esotericsoftware.yamlbeans.YamlWriter;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -25,18 +24,11 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator;
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 import com.google.gson.Gson;
 import com.spencerwi.either.Either;
-import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 import javax.ws.rs.core.Response;
-import org.apache.commons.fileupload.disk.DiskFileItem;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.edgegallery.developer.mapper.HelmTemplateYamlMapper;
 import org.edgegallery.developer.mapper.ProjectImageMapper;
@@ -44,7 +36,6 @@ import org.edgegallery.developer.mapper.ProjectMapper;
 import org.edgegallery.developer.model.deployyaml.ConfigMap;
 import org.edgegallery.developer.model.deployyaml.Containers;
 import org.edgegallery.developer.model.deployyaml.DeployYaml;
-import org.edgegallery.developer.model.deployyaml.DeployYamls;
 import org.edgegallery.developer.model.deployyaml.Environment;
 import org.edgegallery.developer.model.deployyaml.PodImage;
 import org.edgegallery.developer.model.deployyaml.SecretKeyRef;
@@ -56,31 +47,20 @@ import org.edgegallery.developer.model.workspace.HelmTemplateYamlPo;
 import org.edgegallery.developer.model.workspace.OpenMepCapabilityGroup;
 import org.edgegallery.developer.model.workspace.ProjectImageConfig;
 import org.edgegallery.developer.response.FormatRespDto;
-import org.edgegallery.developer.response.HelmTemplateYamlRespDto;
-import org.edgegallery.developer.util.BusinessConfigUtil;
-import org.edgegallery.developer.util.InitConfigUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
-import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.multipart.commons.CommonsMultipartFile;
 
 @Service("deployService")
 public class DeployService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DeployService.class);
 
-    private Gson gson = new Gson();
-
     @Autowired
     private HelmTemplateYamlMapper helmTemplateYamlMapper;
-
-    @Autowired
-    private UploadFileService uploadFileService;
 
     @Autowired
     private ProjectImageMapper projectImageMapper;
@@ -112,7 +92,6 @@ public class DeployService {
         if (reqContentnew.contains(StringEscapeUtils.unescapeJava(resources))) {
             reqContentnew = reqContentnew.replace(StringEscapeUtils.unescapeJava(resources), "");
         }
-        LOGGER.warn("jsonstr---------->" + reqContentnew.trim());
         String[] reqs = reqContentnew.trim().split("\\{\"apiVersion\"");
         //save pod
         List<String> sbPod = new ArrayList<>();
@@ -251,94 +230,6 @@ public class DeployService {
     }
 
     /**
-     * genarateDeployYaml.
-     */
-    public Either<FormatRespDto, HelmTemplateYamlRespDto> genarateDeployYaml(DeployYamls deployYamls, String projectId,
-        String userId, String configType) throws IOException {
-        if (deployYamls == null) {
-            LOGGER.error("no request body param");
-            return Either.left(new FormatRespDto(Response.Status.BAD_REQUEST, "no param"));
-        }
-        // String fileId = UUID.randomUUID().toString();
-        File filePath = new File(
-            InitConfigUtil.getWorkSpaceBaseDir() + BusinessConfigUtil.getWorkspacePath() + projectId + File.separator);
-        if (!filePath.exists()) {
-            filePath.mkdirs();
-        }
-        File yamlFile = new File(filePath + File.separator + "deploy.yaml");
-        if (!yamlFile.exists()) {
-            yamlFile.createNewFile();
-        }
-        FileWriter fileWriter = new FileWriter(filePath + File.separator + "deploy.yaml", false);
-        YamlWriter yamlWriter = new YamlWriter(fileWriter);
-        yamlWriter.getConfig().writeConfig.setWriteRootTags(false); // 取消添加全限定类名
-        yamlWriter.getConfig().writeConfig.setWriteRootElementTags(false);
-        yamlWriter.getConfig().setAllowDuplicates(true);
-        fileWriter.write("---\n"); // 分隔符
-
-        List<OpenMepCapabilityGroup> capabilities = projectMapper.getProjectById(projectId).getCapabilityList();
-        DeployYaml[] deploys = deployYamls.getDeployYamls();
-        for (int j = 0; j < deploys.length; j++) {
-            if (deploys[j].getKind().equals("Pod")) {
-                if (!CollectionUtils.isEmpty(capabilities) && j == 0) {
-                    Containers[] containers = deploys[j].getSpec().getContainers();
-                    Containers[] copyContainers = new Containers[containers.length + 1];
-                    for (int i = 0; i < containers.length; i++) {
-                        copyContainers[i] = containers[i];
-                    }
-                    //add mep-agent container
-                    Containers[] newContainers = insertMepAgent();
-                    System.arraycopy(newContainers, 0, copyContainers, copyContainers.length - 1, newContainers.length);
-                    deploys[j].getSpec().setContainers(copyContainers);
-                    Volumes volumes = new Volumes();
-                    volumes.setName("mep-agent-service-config-volume");
-                    ConfigMap configMap = new ConfigMap();
-                    configMap.setName("{{ .Values.global.mepagent.configmapname }}");
-                    volumes.setConfigMap(configMap);
-                    Volumes[] volumees = new Volumes[1];
-                    volumees[0] = volumes;
-                    deploys[j].getSpec().setVolumes(volumees);
-                }
-                yamlWriter.write(deploys[j]);
-            }
-            if (deploys[j].getKind().equals("Service")) {
-                yamlWriter.write(deploys[j]);
-            }
-        }
-        yamlWriter.close();
-        //save pod and service info
-        List<ProjectImageConfig> list = projectImageMapper.getAllImage(projectId);
-        if (list != null) {
-            projectImageMapper.deleteImage(projectId);
-        }
-        savePodAndService(deploys, projectId);
-        //save deploy yaml
-        // InputStream inputStream = new FileInputStream(yamlFile);
-        // MultipartFile multipartFile = new MockMultipartFile(yamlFile.getName(), yamlFile.getName(),
-        //     ContentType.APPLICATION_OCTET_STREAM.toString(), inputStream) { };
-        MultipartFile multipartFile = getMultipartFile(yamlFile);
-        Either<FormatRespDto, HelmTemplateYamlRespDto> res = uploadFileService
-            .uploadHelmTemplateYaml(multipartFile, userId, projectId, configType);
-        if (res.isLeft()) {
-            return Either.left(res.getLeft());
-        }
-        return Either.right(res.getRight());
-    }
-
-    // 第二种方式
-    private static MultipartFile getMultipartFile(File file) {
-        DiskFileItem item = new DiskFileItem(file.getName(), MediaType.MULTIPART_FORM_DATA_VALUE, true, file.getName(),
-            (int) file.length(), file.getParentFile());
-        try {
-            OutputStream os = item.getOutputStream();
-            os.write(FileUtils.readFileToByteArray(file));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return new CommonsMultipartFile(item);
-    }
-
-    /**
      * update yaml.
      *
      * @param fileId file id
@@ -391,99 +282,6 @@ public class DeployService {
             return Either.right(list);
         }
         return Either.left(new FormatRespDto(Response.Status.BAD_REQUEST, "can not find any content!"));
-    }
-
-    private void savePodAndService(DeployYaml[] deploys, String projectId) {
-        List<DeployYaml> svcList = new ArrayList<>();
-        List<DeployYaml> podList = new ArrayList<>();
-        List<String> podNames = new ArrayList<>();
-        List<String> svcNames = new ArrayList<>();
-        for (DeployYaml deployYaml : deploys) {
-            if (deployYaml.getKind().equals("Service")) {
-                svcNames.add(deployYaml.getMetadata().getName());
-                svcList.add(deployYaml);
-            }
-            if (deployYaml.getKind().equals("Pod")) {
-                podNames.add(deployYaml.getMetadata().getName());
-                podList.add(deployYaml);
-            }
-        }
-        //no service
-        if (svcList == null || svcList.size() == 0) {
-            //只保存所有pod信息
-            for (DeployYaml deployYaml : deploys) {
-                ProjectImageConfig projectImageConfig = new ProjectImageConfig();
-                projectImageConfig.setId(UUID.randomUUID().toString());
-                projectImageConfig.setPodName(deployYaml.getMetadata().getName());
-                Containers[] containersArr = deployYaml.getSpec().getContainers();
-                projectImageConfig.setPodContainers(gson.toJson(containersArr));
-                projectImageConfig.setProjectId(projectId);
-                projectImageMapper.saveImage(projectImageConfig);
-            }
-        }
-
-        //双重循环判断podname是否等于svcname
-        for (int i = 0; i < podList.size(); i++) {
-            for (int j = 0; j < svcList.size(); j++) {
-                String podName = podList.get(i).getMetadata().getName();
-                String svcName = svcList.get(j).getMetadata().getName();
-                if (podName.equals(svcName)) {
-                    ProjectImageConfig projectImageConfig = new ProjectImageConfig();
-                    projectImageConfig.setId(UUID.randomUUID().toString());
-                    projectImageConfig.setPodName(podName);
-                    Containers[] containersArr = podList.get(i).getSpec().getContainers();
-                    projectImageConfig.setPodContainers(gson.toJson(containersArr));
-                    projectImageConfig.setProjectId(projectId);
-                    projectImageConfig.setSvcType(svcList.get(j).getSpec().getType());
-                    ServicePorts[] ports = svcList.get(j).getSpec().getPorts();
-                    List<String> portList = new ArrayList<>();
-                    List<String> nodePortList = new ArrayList<>();
-                    for (ServicePorts servicePorts : ports) {
-                        portList.add(Integer.toString(servicePorts.getPort()));
-                        nodePortList.add(Integer.toString(servicePorts.getNodePort()));
-                    }
-                    projectImageConfig.setSvcPort(String.join(",", portList));
-                    projectImageConfig.setSvcNodePort(String.join(",", nodePortList));
-                    projectImageConfig.setSvcType(svcList.get(j).getSpec().getType());
-                    projectImageMapper.saveImage(projectImageConfig);
-                }
-            }
-        }
-        //保存未匹配的pod
-        saveUnmatchPod(podNames, svcNames, deploys, projectId);
-
-    }
-
-    private void saveUnmatchPod(List<String> podNames, List<String> svcNames, DeployYaml[] deployYamls,
-        String projectId) {
-        if (podNames.removeAll(svcNames)) {
-            //获得差集
-            podNames.removeAll(svcNames);
-            //去除重复
-            List<String> newNameList = removeStringListDupli(podNames);
-            //只保存所有pod信息
-            for (DeployYaml deployYaml : deployYamls) {
-                for (String podName : newNameList) {
-                    if (deployYaml.getMetadata().getName().equals(podName)) {
-                        ProjectImageConfig projectImageConfig = new ProjectImageConfig();
-                        projectImageConfig.setId(UUID.randomUUID().toString());
-                        projectImageConfig.setPodName(deployYaml.getMetadata().getName());
-                        Containers[] containersArr = deployYaml.getSpec().getContainers();
-                        projectImageConfig.setPodContainers(gson.toJson(containersArr));
-                        projectImageConfig.setProjectId(projectId);
-                        projectImageMapper.saveImage(projectImageConfig);
-                    }
-                }
-            }
-        }
-    }
-
-    private List<String> removeStringListDupli(List<String> stringList) {
-        Set<String> set = new LinkedHashSet<>();
-        set.addAll(stringList);
-        stringList.clear();
-        stringList.addAll(set);
-        return stringList;
     }
 
     private Containers[] insertMepAgent() {
