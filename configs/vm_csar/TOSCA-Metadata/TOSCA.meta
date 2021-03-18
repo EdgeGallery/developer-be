@@ -1,9 +1,9 @@
 TOSCA-Meta-File-Version: 1.0
 CSAR-Version: 3.25
 Created-by: EdgeGallery
-Entry-Definitions: APPD/Eastcom-SPCLNLWY-EMS_eulerforTR6_iso.zip
+Entry-Definitions: APPD/{appdFile}
 
-Name: APPD/Eastcom-SPCLNLWY-EMS_eulerforTR6_iso.zip
+Name: APPD/{appdFile}
 Content-Type: appd
 
 Name: Image/cLabEuleraarch.zip

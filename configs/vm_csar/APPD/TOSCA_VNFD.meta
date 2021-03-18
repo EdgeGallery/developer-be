@@ -1,10 +1,10 @@
 VNFD-Meta-File-Version: 1.0
 CSAR-Version: 3.25
 Created-by: Onboarding portal
-Entry-Definitions: Definition/Eastcom-SPCLNLWY-EMS_eulerforTR6_iso.yaml
+Entry-Definitions: Definition/{VNFD}
 
-Name: Definition/Eastcom-SPCLNLWY-EMS_eulerforTR6_iso.yaml
+Name: Definition/{VNFD}
 Content-Type: VNFD
 
-Name: Definition/cmcc_nfv_vnfd_types_v1_0.yaml
+Name: Definition/nfv_vnfd_types_v1_0.yaml
 Content-Type: VNFD

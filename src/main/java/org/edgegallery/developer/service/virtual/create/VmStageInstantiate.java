@@ -65,6 +65,7 @@ public class VmStageInstantiate implements VmCreateStage {
                 config.setCreateTime(new Date());
                 processSuccess = true;
                 instantiateStatus = EnumTestConfigStatus.Success;
+                config.setLog("vm instantiate success");
             }
         } catch (Exception e) {
             config.setLog("Failed to create vm  with err:" + e.getMessage());

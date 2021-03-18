@@ -57,6 +57,7 @@ public class VmStageWorkStatus implements VmCreateStage {
         } else {
             processStatus = true;
             status = EnumTestConfigStatus.Success;
+            config.setLog("get vm status success");
             JsonObject jsonObject = new JsonParser().parse(workStatus).getAsJsonObject();
             LOGGER.info("Query create vm info response: {}, json {}", workStatus, jsonObject);
         }

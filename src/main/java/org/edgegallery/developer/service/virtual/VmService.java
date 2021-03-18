@@ -595,8 +595,7 @@ public class VmService {
         List<VmCreateConfig> vmCreateConfigs = vmConfigMapper.getVmCreateConfigs(projectId);
         if (CollectionUtils.isEmpty(vmCreateConfigs)) {
             LOGGER.error("Can not find the vm create config by projectId {}", projectId);
-            FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "Can not find the vm config.");
-            return Either.left(error);
+            return Either.right(null);
         }
         VmCreateConfig vmCreateConfig = vmCreateConfigs.get(0);
 
@@ -674,6 +673,18 @@ public class VmService {
     public boolean downloadImageResult(MepHost host, VmImageConfig config, String userId) {
 
         String packagePath = getProjectPath(config.getProjectId()) + config.getAppInstanceId();
+        for ( int chunkNum = 0; chunkNum<config.getSumChunkNum();chunkNum++) {
+            boolean res = HttpClientUtil.downloadVmImage(host.getProtocol(), host.getLcmIp(), host.getPort(),
+                userId, packagePath, config.getAppInstanceId(), config.getImageId(), Integer.toString(chunkNum),
+                config.getLcmToken());
+            if(!res) {
+                LOGGER.info("download image fail");
+                break;
+//                return false;
+            }
+        }
+
+
 
         try {
             CompressFileUtilsJava
