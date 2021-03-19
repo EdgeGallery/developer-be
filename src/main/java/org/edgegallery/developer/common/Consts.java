@@ -48,6 +48,9 @@ public final class Consts {
     public static final String APP_LCM_GET_IMAGE_STATUS_URL
         = "/lcmcontroller/v1/tenants/tenantId/app_instances/appInstanceId/images/imageId";
 
+    public static final String APP_LCM_GET_IMAGE_DELETE_URL
+        = "/lcmcontroller/v1/tenants/tenantId/app_instances/appInstanceId/images/imageId";
+
     public static final String APP_LCM_GET_IMAGE_DOWNLOAD_URL
         = "/lcmcontroller/v1/tenants/tenantId/app_instances/appInstanceId/images/imageId/file";
 
