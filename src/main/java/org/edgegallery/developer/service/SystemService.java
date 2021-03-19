@@ -236,8 +236,9 @@ public class SystemService {
         }
 
         int ret = openMepCapabilityMapper.saveGroup(capabilityGroup);
-        if (ret > 0) {
-            LOGGER.info("Create group {} success", capabilityGroup.getGroupId());
+        if (ret <= 0) {
+            LOGGER.error("save group {} failed!", capabilityGroup.getGroupId());
+            return Either.left(new FormatRespDto(Status.INTERNAL_SERVER_ERROR, "save capability-group failed"));
         }
 
         for (OpenMepCapabilityDetail capability : capabilityGroup.getCapabilityDetailList()) {
@@ -257,9 +258,17 @@ public class SystemService {
             if (result > 0) {
                 LOGGER.info("Create {} detail success", capabilityGroup.getGroupId());
                 // update api file to un temp
-                uploadedFileMapper.updateFileStatus(capability.getApiFileId(), false);
-                uploadedFileMapper.updateFileStatus(capability.getGuideFileId(), false);
-                uploadedFileMapper.updateFileStatus(capability.getGuideFileIdEn(), false);
+                int api = uploadedFileMapper.updateFileStatus(capability.getApiFileId(), false);
+                int guide = uploadedFileMapper.updateFileStatus(capability.getGuideFileId(), false);
+                int guideEn = uploadedFileMapper.updateFileStatus(capability.getGuideFileIdEn(), false);
+                if (api <= 0 || guide <= 0 || guideEn <= 0) {
+                    String msg = "update api or guide or guide-en file status occur db error";
+                    LOGGER.error(msg);
+                    return Either.left(new FormatRespDto(Status.INTERNAL_SERVER_ERROR, msg));
+                }
+            } else {
+                LOGGER.error("save capability {} failed!", capability.getDetailId());
+                return Either.left(new FormatRespDto(Status.INTERNAL_SERVER_ERROR, "save capability-detail failed"));
             }
         }
         LOGGER.info("Create capability group {} success", capabilityGroup.getGroupId());
