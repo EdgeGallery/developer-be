@@ -248,6 +248,7 @@ public class VmService {
         LcmLog lcmLog = new LcmLog();
         String uploadRes = HttpClientUtil
             .uploadPkg(host.getProtocol(), host.getLcmIp(), host.getPort(), csar.getPath(), userId, lcmToken, lcmLog);
+        LOGGER.info("upload package result: {}", uploadRes);
         if (org.springframework.util.StringUtils.isEmpty(uploadRes)) {
             vmConfig.setLog(lcmLog.getLog());
             return false;
@@ -263,6 +264,7 @@ public class VmService {
         boolean distributeRes = HttpClientUtil
             .distributePkg(host.getProtocol(), host.getLcmIp(), host.getPort(), userId, lcmToken, pkgId,
                 host.getMecHost(), lcmLog);
+        LOGGER.info("distribute package result: {}", distributeRes);
         if (!distributeRes) {
             vmConfig.setLog(lcmLog.getLog());
             return false;
@@ -272,6 +274,7 @@ public class VmService {
         boolean instantRes = HttpClientUtil
             .instantiateApplication(host.getProtocol(), host.getLcmIp(), host.getPort(), appInstanceId, userId,
                 lcmToken, lcmLog, pkgId, host.getMecHost());
+        LOGGER.info("distribute package result: {}", instantRes);
         if (!instantRes) {
             vmConfig.setLog(lcmLog.getLog());
             return false;
@@ -287,7 +290,7 @@ public class VmService {
         // delete hosts
         boolean deleteHostRes = HttpClientUtil
             .deleteHost(host.getProtocol(), host.getLcmIp(), host.getPort(), userId, lcmToken, vmConfig.getPackageId(),
-                host.getLcmIp());
+                host.getMecHost());
 
         // delete pkg
         boolean deletePkgRes = HttpClientUtil
@@ -337,9 +340,15 @@ public class VmService {
             LOGGER.info("Can not find the vm create config by vmId {} and projectId {}", vmId, projectId);
             return Either.right(true);
         }
+        VmImageConfig vmImageConfig = vmConfigMapper.getVmImage(projectId, vmId);
+        if (vmImageConfig == null) {
+            LOGGER.error("Can not delete vm config, first delete vm image by  vmId {}", vmId);
+            FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "Can not delete vm config, first delete vm image");
+            return Either.left(error);
+        }
 
-        if (vmCreateConfig.getStageStatus().getInstantiateInfo() != null && vmCreateConfig.getStageStatus()
-            .getInstantiateInfo().equals(EnumTestConfigStatus.Success)) {
+        if (vmCreateConfig.getStageStatus().getInstantiateInfo() == EnumTestConfigStatus.Success
+            && !StringUtils.isEmpty(vmCreateConfig.getPackageId())) {
             deleteVmCreate(vmCreateConfig, project.getUserId(), token);
         }
 
@@ -383,13 +392,14 @@ public class VmService {
 
         Type type = new TypeToken<List<VmInfo>>() { }.getType();
         List<VmInfo> vmInfo = gson.fromJson(gson.toJson(vmCreateConfig.getVmInfo()), type);
-
+        String networkIp = vmInfo.get(0).getNetworks().get(0).getIp();
+        LOGGER.info("network ip is {}", networkIp);
         // ssh upload file
-        String targetPath = "/home/zhl";
+        String targetPath = "/home";
         ScpConnectEntity scpConnectEntity = new ScpConnectEntity();
         scpConnectEntity.setTargetPath(targetPath);
-        scpConnectEntity.setUrl("192.168.233.34");
-        scpConnectEntity.setPassWord("123456");
+        scpConnectEntity.setUrl(networkIp);
+        scpConnectEntity.setPassWord("root");
         scpConnectEntity.setUserName("root");
         String remoteFileName = file.getName();
 
@@ -398,7 +408,7 @@ public class VmService {
         if (fileUploadEntity.getCode().equals("ok")) {
             return Either.right(true);
         } else {
-            LOGGER.warn("upload fail, ip:{}", vmInfo.get(0).getVncUrl());
+            LOGGER.warn("upload fail, ip:{}", vmInfo.get(0).getNetworks().get(0).getIp());
             FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, fileUploadEntity.getMessage());
             return Either.left(error);
         }
@@ -628,6 +638,13 @@ public class VmService {
                 projectId);
             return Either.right(true);
         }
+        Type type = new TypeToken<MepHost>() { }.getType();
+        MepHost host = gson.fromJson(gson.toJson(vmCreateConfig.getHost()), type);
+        if(!StringUtils.isEmpty(vmImageConfig.getImageId())){
+            HttpClientUtil.deleteVmImage(host.getProtocol(), host.getLcmIp(), host.getPort(), vmImageConfig.getAppInstanceId(), userId,
+                vmImageConfig.getImageId(), token);
+        }
+
         int res = vmConfigMapper.deleteVmImage(projectId, vmCreateConfig.getVmId());
         if (res < 1) {
             LOGGER.error("Delete vm image config {} failed.", vmCreateConfig.getVmId());
@@ -646,14 +663,19 @@ public class VmService {
      * createVmImageToAppLcm.
      */
     public boolean createVmImageToAppLcm(MepHost host, VmImageConfig imageConfig, String userId) {
-        String vmId = imageConfig.getVmId();
+        String Id = imageConfig.getVmId();
         String appInstanceId = imageConfig.getAppInstanceId();
         String lcmToken = imageConfig.getLcmToken();
         LcmLog lcmLog = new LcmLog();
 
+        VmCreateConfig vmCreateConfig = vmConfigMapper.getVmCreateConfig(imageConfig.getProjectId(),Id);
+
+        String vmId = vmCreateConfig.getVmInfo().get(0).getVmId();
+
         String imageResult = HttpClientUtil
             .vmInstantiateImage(host.getProtocol(), host.getLcmIp(), host.getPort(), userId, lcmToken, vmId,
                 appInstanceId, lcmLog);
+        LOGGER.info("import image result: {}", imageResult);
         if (StringUtils.isEmpty(imageResult)) {
             imageConfig.setLog(lcmLog.getLog());
             return false;

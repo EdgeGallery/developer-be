@@ -47,13 +47,17 @@ public class VmImageCreate implements VmImageStage {
         // deploy app
         try {
             instantiateImageResult = vmService.createVmImageToAppLcm(host, imageConfig, userId);
-            instantiateImageResult = true;
-            // update status when instantiate success
-            imageConfig.setCreateTime(new Date());
-            // set imageId
-            imageConfig.setImageId("123456");
-            processSuccess = true;
-            instantiateStatus = EnumTestConfigStatus.Success;
+            if(!instantiateImageResult) {
+                LOGGER.error("Failed to  vm image which appInstanceId is : {}.", imageConfig.getAppInstanceId());
+            }else {
+                // update status when instantiate success
+                LOGGER.error("Create vm image success which imageId is : {}.", imageConfig.getImageId());
+                imageConfig.setCreateTime(new Date());
+                processSuccess = true;
+                instantiateStatus = EnumTestConfigStatus.Success;
+
+            }
+
         } catch (Exception e) {
             imageConfig.setLog("Failed to create vm image with err:" + e.getMessage());
             LOGGER.error("Failed to create vm  image with err: {}.", e.getMessage());

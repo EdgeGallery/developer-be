@@ -105,7 +105,7 @@ topology_template:
           flavor_extra_specs:
             "mgmt_egx86": "true"
         sw_image_data:
-          name: ubuntu_16.04_64bit_40GB
+          name: ubuntu
         bootdata:
           config_drive: true
           user_data:
@@ -126,26 +126,26 @@ topology_template:
     EMS_VDU1_CP1:
       type: tosca.nodes.nfv.VduCp
       properties:
-        description: to UFP&OM
+        description: internal
         vnic_name: eth1
         order: 1
         vnic_type: normal
         port_security_enabled: true
       requirements:
         - virtual_binding: EMS_VDU1
-        - virtual_link: MEC_APP_N6
+        - virtual_link: MEC_APP_INTERNET
 
     EMS_VDU1_CP2:
       type: tosca.nodes.nfv.VduCp
       properties:
-        description: internal
+        description: to UFP&OM
         vnic_name: eth2
         order: 2
         vnic_type: normal
         port_security_enabled: true
       requirements:
         - virtual_binding: EMS_VDU1
-        - virtual_link: MEC_APP_INTERNET
+        - virtual_link: MEC_APP_N6
 
     MEC_APP_MP1:
       type: tosca.nodes.nfv.VnfVirtualLink
@@ -156,15 +156,6 @@ topology_template:
           physical_network: {get_input: network_mep_physnet}
           provider_segmentation_id: {get_input: network_mep_vlanid}
 
-    MEC_APP_N6:
-      type: tosca.nodes.nfv.VnfVirtualLink
-      properties:
-        vl_profile:
-          network_name: {get_input: network_name_n6}
-          network_type: vlan
-          physical_network: {get_input: network_n6_physnet}
-          provider_segmentation_id: {get_input: network_n6_vlanid}
-
     MEC_APP_INTERNET:
       type: tosca.nodes.nfv.VnfVirtualLink
       properties:
@@ -173,6 +164,15 @@ topology_template:
           network_type: vlan
           physical_network: {get_input: network_internet_physnet}
           provider_segmentation_id: {get_input: network_internet_vlanid}
+
+    MEC_APP_N6:
+      type: tosca.nodes.nfv.VnfVirtualLink
+      properties:
+        vl_profile:
+          network_name: {get_input: network_name_n6}
+          network_type: vlan
+          physical_network: {get_input: network_n6_physnet}
+          provider_segmentation_id: {get_input: network_n6_vlanid}
 
 
     DEMO_VL1: # 使用虚拟层中已经创建的网络名称或UUID。

@@ -42,10 +42,15 @@ public class VmStageWorkStatus implements VmCreateStage {
         EnumTestConfigStatus status = EnumTestConfigStatus.Failed;
         Type type = new TypeToken<MepHost>() { }.getType();
         MepHost host = gson.fromJson(gson.toJson(config.getHost()), type);
-
         ApplicationProject project = projectMapper.getProjectById(config.getProjectId());
+        try {
+            Thread.sleep(10000);
+        } catch (InterruptedException e) {
+            LOGGER.error("sleep fail! {}", e.getMessage());
+        }
         String workStatus =HttpClientUtil.getWorkloadStatus(host.getProtocol(), host.getLcmIp(), host.getPort(),
             config.getAppInstanceId(), project.getUserId(), config.getLcmToken());
+        LOGGER.info("get instantiate status: {}", workStatus);
         if (workStatus == null) {
             // compare time between now and deployDate
             long time = System.currentTimeMillis() - config.getCreateTime().getTime();
@@ -66,10 +71,10 @@ public class VmStageWorkStatus implements VmCreateStage {
             VmInstantiateInfo vmInstantiateInfo = gson.fromJson(workStatus, vmInfoType);
             config.setVmInfo(vmInstantiateInfo.getData());
 
-            LOGGER.info("Query create vm info response: {}", workStatus);
         }
         // update test-config
         vmService.updateCreateVmResult(config, project, "workStatus", status);
+        LOGGER.info("update config result:{}", config);
         return processStatus;
     }
 

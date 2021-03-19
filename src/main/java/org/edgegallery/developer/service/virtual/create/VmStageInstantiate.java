@@ -70,6 +70,7 @@ public class VmStageInstantiate implements VmCreateStage {
             LOGGER.error("Failed to create vm with err: {}.", e.getMessage());
         } finally {
             vmService.updateCreateVmResult(config, project, "instantiateInfo", instantiateStatus);
+            LOGGER.info("update config result:{}", config);
         }
         return processSuccess;
     }

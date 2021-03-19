@@ -27,6 +27,7 @@ import org.edgegallery.developer.model.lcm.DistributeBody;
 import org.edgegallery.developer.model.lcm.DistributeResponse;
 import org.edgegallery.developer.model.lcm.InstantRequest;
 import org.edgegallery.developer.model.vm.VmCreateConfig;
+import org.edgegallery.developer.model.vm.VmImageRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.FileSystemResource;
@@ -415,14 +416,17 @@ public final class HttpClientUtil {
      */
     public static String vmInstantiateImage(String protocol, String ip, int port, String userId, String lcmToken,
         String vmId, String appInstanceId, LcmLog lcmLog) {
-        MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
-        body.add("vmId", vmId);
+        Gson gson = new Gson();
         HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+        headers.setContentType(MediaType.APPLICATION_JSON);
         headers.set(Consts.ACCESS_TOKEN_STR, lcmToken);
-        HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
+        VmImageRequest ins = new VmImageRequest();
+        ins.setVmId(vmId);
+        LOGGER.warn(gson.toJson(ins));
+        HttpEntity<String> requestEntity = new HttpEntity<>(gson.toJson(ins), headers);
         String url = getUrlPrefix(protocol, ip, port) + Consts.APP_LCM_INSTANTIATE_IMAGE_URL
             .replaceAll("appInstanceId", appInstanceId).replaceAll("tenantId", userId);
+        LOGGER.warn(url);
         ResponseEntity<String> response;
         try {
             REST_TEMPLATE.setErrorHandler(new CustomResponseErrorHandler());
@@ -493,6 +497,31 @@ public final class HttpClientUtil {
             LOGGER.warn(response.getBody());
         } catch (RestClientException e) {
             LOGGER.error("Failed to get image status which imageId is {} exception {}", imageId, e.getMessage());
+            return false;
+        }
+        return true;
+
+    }
+
+    /**
+     * deleteVmImage.
+     */
+    public static boolean deleteVmImage(String protocol, String ip, int port, String userId,
+        String appInstanceId, String imageId, String token) {
+
+        String url = getUrlPrefix(protocol, ip, port) + Consts.APP_LCM_GET_IMAGE_DELETE_URL
+            .replaceAll("appInstanceId", appInstanceId).replaceAll("tenantId", userId).replaceAll("imageId", imageId);
+        LOGGER.info("url is {}", url);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.set(Consts.ACCESS_TOKEN_STR, token);
+        // delete images
+        ResponseEntity<String> response;
+        try {
+            response = REST_TEMPLATE.exchange(url, HttpMethod.GET, new HttpEntity<>(headers), String.class);
+            LOGGER.warn(response.getBody());
+        } catch (RestClientException e) {
+            LOGGER.error("Failed to delete image which imageId is {} exception {}", imageId, e.getMessage());
             return false;
         }
         return true;
