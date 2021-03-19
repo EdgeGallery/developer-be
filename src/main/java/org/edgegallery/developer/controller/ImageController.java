@@ -205,7 +205,6 @@ public class ImageController {
             }
         }
         LOGGER.warn("imageID: {} ", imageId);
-        // String[] names = repoTags.split(":");
         String uploadImgName = new StringBuilder(devRepoEndpoint).append("/").append(devRepoProject).append("/")
             .append(names[0]).toString();
         //镜像打标签，重新push

@@ -147,15 +147,9 @@ public class WebSshServiceImpl implements WebSshService {
         Properties config = new Properties();
         config.put("StrictHostKeyChecking", "no");
         //获取jsch的会话
-
         //获取userID和projectId
         String userId = webSshData.getUserId();
         String projectId = webSshData.getProjectId();
-        System.out.println(userId + "--" + projectId);
-        //        String username ="";
-        //        String host = "";
-        //        String password = "";
-
         ApplicationProject project = projectMapper.getProject(userId, projectId);
         if (project.getDeployPlatform() == EnumDeployPlatform.KUBERNETES) {
             List<ProjectTestConfig> testConfigList = projectMapper.getTestConfigByProjectId(projectId);
@@ -181,10 +175,6 @@ public class WebSshServiceImpl implements WebSshService {
                 logger.info("the vm is creating or create fail.");
                 return;
             }
-            // Type type = new TypeToken<List<VmInfo>>() { }.getType();
-            // List<VmInfo> vmInfos = gson.fromJson(gson.toJson(vmCreateConfig.getVmInfo()), type);
-            //VmInfo vmInfo = vmInfos.get(0);
-            //this.ip = vmInfo.getVncUrl();
             logger.info("the vm ip: 192.168.233.34.");
             this.ip = "192.168.233.34";
             this.username = "root";

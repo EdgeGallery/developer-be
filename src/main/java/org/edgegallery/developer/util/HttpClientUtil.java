@@ -427,9 +427,6 @@ public final class HttpClientUtil {
         try {
             REST_TEMPLATE.setErrorHandler(new CustomResponseErrorHandler());
             response = REST_TEMPLATE.exchange(url, HttpMethod.POST, requestEntity, String.class);
-            //            JsonObject jsonObject = new JsonParser().parse(response.getBody()).getAsJsonObject();
-            //            JsonElement imageId = jsonObject.get("imageId");
-            //            imageConfig.setImageId(imageId.getAsString());
             LOGGER.info("APPlCM log:{}", response);
         } catch (CustomException e) {
             e.printStackTrace();
