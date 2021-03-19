@@ -103,7 +103,6 @@ public class ShhFileUploadUtil {
             if (null != scpo) {
                 try {
                     scpo.flush();
-                    //                    scpo.close();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }

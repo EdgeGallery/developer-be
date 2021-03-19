@@ -1,6 +1,9 @@
 package org.edgegallery.developer.util.webssh.constant;
 
 public class ConstantPool {
+    private ConstantPool() {
+        throw new IllegalStateException("ConstantPool class");
+    }
 
     //随机生成uuid的key名
     public static final String USER_UUID_KEY = "userId";

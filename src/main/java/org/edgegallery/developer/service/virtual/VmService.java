@@ -552,8 +552,6 @@ public class VmService {
             FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "Can not find the vm config.");
             return Either.left(error);
         }
-        // vmId 存在 返回失敗 todo
-
         VmCreateConfig vmCreateConfig = vmCreateConfigs.get(0);
         if (vmCreateConfig.getStatus() != EnumVmCreateStatus.SUCCESS) {
             LOGGER.error("vm create fail, can not import image,projectId:{}", projectId);
@@ -630,8 +628,6 @@ public class VmService {
                 projectId);
             return Either.right(true);
         }
-        // delete lcm image todo
-
         int res = vmConfigMapper.deleteVmImage(projectId, vmCreateConfig.getVmId());
         if (res < 1) {
             LOGGER.error("Delete vm image config {} failed.", vmCreateConfig.getVmId());

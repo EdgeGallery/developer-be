@@ -421,10 +421,8 @@ public class UploadFileService {
         if (!StringUtils.isEmpty(oriName) && !oriName.endsWith(".yaml")) {
             return Either.right(helmTemplateYamlRespDto);
         }
-        // replace {{(.*?)}}
         String originalContent = content;
         content = content.replaceAll(REPLACE_PATTERN.toString(), "");
-
         // verify yaml scheme
         String[] multiContent = content.split("---");
         List<Map<String, Object>> mapList = new ArrayList<>();
@@ -635,10 +633,8 @@ public class UploadFileService {
         templateYamlPoList.forEach(helmTemplateYamlPo -> {
             HelmTemplateYamlRespDto helmTemplateYamlRespDto = new HelmTemplateYamlRespDto();
             helmTemplateYamlRespDto.setResponse(helmTemplateYamlPo);
-            // replace {{(.*?)}}
             String content = helmTemplateYamlPo.getContent().replaceAll("\r", "");
             content = content.replaceAll(REPLACE_PATTERN.toString(), "");
-
             // verify yaml scheme
             String[] multiContent = content.split("---");
             List<Map<String, Object>> mapList = new ArrayList<>();
