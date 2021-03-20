@@ -42,6 +42,14 @@
         WHERE user_id = #{param1} AND project_id = #{param2}
     </select>
 
+    <select id="queryProjectId" parameterType="java.lang.String" resultType="java.lang.String">
+        SELECT
+        project_id
+        FROM tbl_helm_template_yaml
+        WHERE file_id = #{fileId}
+    </select>
+
+
     <select id="queryTemplateYamlByType" resultMap="TemplateYamlMap">
         SELECT
         *
