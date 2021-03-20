@@ -34,4 +34,6 @@ public interface HelmTemplateYamlMapper {
     HelmTemplateYamlPo queryTemplateYamlByType(@Param("fileId") String fileId,@Param("configType") String configType);
 
     int updateHelm(HelmTemplateYamlPo helmTemplateYamlPo);
+
+    String queryProjectId(String fileId);
 }

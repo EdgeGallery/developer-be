@@ -1,7 +1,6 @@
 package org.edgegallery.developer.service.csar;
 
 import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -15,11 +14,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.edgegallery.developer.common.Consts;
 import org.edgegallery.developer.model.deployyaml.ImageDesc;
-import org.edgegallery.developer.model.deployyaml.PodImage;
 import org.edgegallery.developer.model.workspace.ApplicationProject;
 import org.edgegallery.developer.model.workspace.EnumDeployPlatform;
 import org.edgegallery.developer.model.workspace.ProjectImageConfig;
@@ -116,46 +113,50 @@ public class NewCreateCsar {
         if (!CollectionUtils.isEmpty(list)) {
             ProjectImageConfig imageConfig = list.get(0);
             String containers = imageConfig.getPodContainers();
-            List<PodImage> images = new Gson().fromJson(containers, new TypeToken<List<PodImage>>() { }.getType());
-            String imageData = getSwImageData(images, project);
+            List<String> podImages = new ArrayList<>();
+            if (!containers.contains(",")) {
+                podImages.add(containers.substring(1, containers.length() - 1));
+            } else {
+                String[] sa = containers.substring(1, containers.length() - 1).split(",");
+                for (String image : sa) {
+                    podImages.add(image);
+                }
+            }
+            String imageData = getSwImageData(podImages, project);
             // write data into imageJson file
             writeFile(imageJson, imageData);
         }
         return csar;
     }
 
-    private String getSwImageData(List<PodImage> images, ApplicationProject project) {
+    private String getSwImageData(List<String> images, ApplicationProject project) {
         Gson gson = new Gson();
         List<ImageDesc> imageDescs = new ArrayList<>();
-        for (PodImage obj : images) {
-            String[] podImages = obj.getPodImage();
-            for (String pod : podImages) {
-                String env = "\\{\\{.Values.imagelocation.domainname}}/\\{\\{.Values.imagelocation.project}}";
-                String envs = StringEscapeUtils.unescapeJava(env);
-                if (pod.contains(envs)) {
-                    pod = pod.replace(envs, ImageConfig.getDomains() + "/" + ImageConfig.getProjects());
-                }
-                ImageDesc imageDesc = new ImageDesc();
-                imageDesc.setId(UUID.randomUUID().toString());
-                String[] names = pod.split("/");
-                int len = names.length - 1;
-                imageDesc.setName(names[len]);
-                String[] vers = names[len].split(":");
-                imageDesc.setVersion(vers[1]);
-                imageDesc.setChecksum("2");
-                imageDesc.setContainerFormat("bare");
-                imageDesc.setDiskFormat("raw");
-                imageDesc.setMinDisk(3);
-                imageDesc.setMinRam(6);
-                imageDesc.setArchitecture(project.getPlatform().get(0));
-                imageDesc.setSize(688390);
-                imageDesc.setSwImage(pod);
-                imageDesc.setHw_scsi_model("virtio-scsi");
-                imageDesc.setHw_disk_bus("scsi");
-                imageDesc.setOperatingSystem("linux");
-                imageDesc.setSupportedVirtualisationEnvironment("linux");
-                imageDescs.add(imageDesc);
+        for (String image : images) {
+            if (image.contains(".Values.imagelocation.domainname")) {
+                String[] imager = image.split("/");
+                image = ImageConfig.getDomains() + "/" + ImageConfig.getProjects() + "/" + imager[2];
             }
+            ImageDesc imageDesc = new ImageDesc();
+            imageDesc.setId(UUID.randomUUID().toString());
+            String[] names = image.split("/");
+            int len = names.length - 1;
+            imageDesc.setName(names[len]);
+            String[] vers = names[len].split(":");
+            imageDesc.setVersion(vers[1]);
+            imageDesc.setChecksum("2");
+            imageDesc.setContainerFormat("bare");
+            imageDesc.setDiskFormat("raw");
+            imageDesc.setMinDisk(3);
+            imageDesc.setMinRam(6);
+            imageDesc.setArchitecture(project.getPlatform().get(0));
+            imageDesc.setSize(688390);
+            imageDesc.setSwImage(image);
+            imageDesc.setHw_scsi_model("virtio-scsi");
+            imageDesc.setHw_disk_bus("scsi");
+            imageDesc.setOperatingSystem("linux");
+            imageDesc.setSupportedVirtualisationEnvironment("linux");
+            imageDescs.add(imageDesc);
         }
 
         return gson.toJson(imageDescs);
