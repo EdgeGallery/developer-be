@@ -20,13 +20,17 @@
 MERGE INTO tbl_service_host(host_id,name,address,architecture,status,ip,port,os,port_range_min,port_range_max, user_id) KEY(host_id) VALUES ('c8aac2b2-4162-40fe-9d99-0630e3245cf7', 'host-1', 'xian', 'ARM','NORMAL','10.1.12.1',8999,'liunx',30000,300001,'e111f3e7-90d8-4a39-9874-ea6ea6752ef6');
 MERGE INTO tbl_service_host(host_id,name,address,architecture,status,ip,port,os,port_range_min,port_range_max, user_id) KEY(host_id) VALUES ('c8aac2b2-4162-40fe-9d99-0630e3245cf8', 'host-2', 'xian', 'ARM','NORMAL','10.1.12.1',8999,'liunx',30000,300001,'e111f3e7-90d8-4a39-9874-ea6ea6752ef6');
 MERGE INTO tbl_service_host(host_id,name,address,architecture,status,ip,port,os,port_range_min,port_range_max, user_id) KEY(host_id) VALUES ('c8aac2b2-4162-40fe-9d99-0630e3245cf9', 'host-2', 'xian', 'ARM','NORMAL','10.1.12.1',8999,'liunx',30000,300001,'f24ea0a2-d8e6-467c-8039-94f0d29bac43');
-
+MERGE INTO tbl_service_host(host_id,name,address,architecture,status,ip,port,os,port_range_min,port_range_max, user_id) KEY(host_id) VALUES ('c8aac2b2-4162-40fe-9d99-0630e3245cdd', 'host-1', 'xian', 'ARM','NORMAL','10.1.12.1',8999,'liunx',30000,300001,'e111f3e7-90d8-4a39-9874-ea6ea6752eaa');
 -- ----------------------------
 -- Records of tbl_openmep_capability   tbl_openmep_capability_detail
 -- ----------------------------
-MERGE INTO tbl_openmep_capability (group_id, one_level_name, one_level_name_en, two_level_name, two_level_name_en, type,description, description_en)  KEY(group_id) values ('e111f3e7-90d8-4a39-9874-ea6ea6752ef3','group-1', 'group-1', '', '','OPENMEP','group1', 'group1');
+MERGE INTO tbl_openmep_capability (group_id, one_level_name, one_level_name_en, two_level_name, two_level_name_en, type,description, description_en)  KEY(group_id) values ('e111f3e7-90d8-4a39-9874-ea6ea6752ef3','group-1', 'group-1', 'group-2', 'group-2-en','OPENMEP','group1', 'group1');
 MERGE INTO tbl_openmep_capability_detail (detail_id,group_id, service, service_en, version, description, description_en, api_file_id, provider, guide_file_id, guide_file_id_en, port, host, upload_time, user_id)  KEY(detail_id) values
 ( 'e111f3e7-90d8-4a39-9874-ea6ea6752ef4', 'e111f3e7-90d8-4a39-9874-ea6ea6752ef3', 'Face Reg', 'Face Reg', '1.0.0', 'face-recognition-plus', 'Face Reg','e111f3e7-90d8-4a39-9874-ea6ea6752ef5', 'huawei',
+'b8b5d055-1024-4ea8-8439-64de19875834', 'b8b5d055-1024-4ea8-8439-64de19875834', 9999, 'face-recognition-plus', '2020-11-20 00:00:00.000000', 'admin');
+MERGE INTO tbl_openmep_capability (group_id, one_level_name, one_level_name_en, two_level_name, two_level_name_en, type,description, description_en)  KEY(group_id) values ('e111f3e7-90d8-4a39-9874-ea6ea6752ed6','group-1', 'group-1', 'group-2', 'group-2-en','OPENMEP','group1', 'group1');
+MERGE INTO tbl_openmep_capability_detail (detail_id,group_id, service, service_en, version, description, description_en, api_file_id, provider, guide_file_id, guide_file_id_en, port, host, upload_time, user_id)  KEY(detail_id) values
+( 'e111f3e7-90d8-4a39-9874-ea6ea6752ef0', 'e111f3e7-90d8-4a39-9874-ea6ea6752ed6', 'Face Reg', 'Face Reg', '1.0.0', 'face-recognition-plus', 'Face Reg','e111f3e7-90d8-4a39-9874-ea6ea6752ef5', 'huawei',
 'b8b5d055-1024-4ea8-8439-64de19875834', 'b8b5d055-1024-4ea8-8439-64de19875834', 9999, 'face-recognition-plus', '2020-11-20 00:00:00.000000', 'admin');
 
 -- ----------------------------
@@ -104,6 +108,7 @@ MERGE INTO tbl_release_config  KEY(release_id) VALUES ('00003', '200dfab1-3c30-4
 -- Records of tbl_helm_template_yaml
 -- ----------------------------
 MERGE INTO tbl_helm_template_yaml  KEY(file_id) VALUES ('ad66d1b6-5d29-487b-9769-be48b62aec2e', 'demo.yaml', 'f24ea0a2-d8e6-467c-8039-94f0d29bac43', '200dfab1-3c30-4fc7-a6ca-ed6f0620a85e','aa',null,'upload');
+MERGE INTO tbl_helm_template_yaml  KEY(file_id) VALUES ('ad66d1b6-5d29-487b-9769-be48b62aec2h', 'demo.yaml', 'f24ea0a2-d8e6-467c-8039-94f0d29bac43', '200dfab1-3c30-4fc7-a6ca-ed6f0620a85e','---aa---bb',null,'upload');
 
 
 -- ----------------------------
