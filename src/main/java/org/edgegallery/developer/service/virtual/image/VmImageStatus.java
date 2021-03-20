@@ -70,16 +70,21 @@ public class VmImageStatus implements VmImageStage {
                 return true;
             }
         } else {
-            processStatus = true;
-            status = EnumTestConfigStatus.Success;
-            config.setLog("get vm status success");
             Type vmInfoType = new TypeToken<VmImageInfo>() { }.getType();
             VmImageInfo vmImageInfo = gson.fromJson(workStatus, vmInfoType);
-            config.setImageName(vmImageInfo.getImageName());
-            config.setSumChunkNum(vmImageInfo.getSumChunkNum());
-            config.setChunkSize(vmImageInfo.getChunkSize());
-            // get config
-            LOGGER.info("update config result:{}", config);
+            if (vmImageInfo.getStatus().equals("active")) {
+                processStatus = true;
+                status = EnumTestConfigStatus.Success;
+                config.setLog("get vm status success");
+                config.setImageName(vmImageInfo.getImageName());
+                config.setSumChunkNum(vmImageInfo.getSumChunkNum());
+                config.setChunkSize(vmImageInfo.getChunkSize());
+                // get config
+                LOGGER.info("update config result:{}", config);
+            }else {
+                return true;
+            }
+
         }
         vmService.updateVmImageResult(config, project, "imageStatus", status);
         return processStatus;
