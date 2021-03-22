@@ -6,7 +6,6 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.reflect.TypeToken;
 import org.edgegallery.developer.mapper.ProjectMapper;
-import org.edgegallery.developer.model.deployyaml.PodStatusInfos;
 import org.edgegallery.developer.model.vm.VmCreateConfig;
 import org.edgegallery.developer.model.vm.VmInstantiateInfo;
 import org.edgegallery.developer.model.workspace.ApplicationProject;
