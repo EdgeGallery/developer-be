@@ -1,13 +1,12 @@
 package org.edgegallery.developer.model;
 
-import java.io.Serializable;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.web.multipart.MultipartFile;
 
 @Setter
 @Getter
-public class Chunk implements Serializable {
+public class Chunk {
     private Long id;
 
     //当前文件块，从1开始
