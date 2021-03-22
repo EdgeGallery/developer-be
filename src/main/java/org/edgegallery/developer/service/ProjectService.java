@@ -1346,9 +1346,8 @@ public class ProjectService {
                 Instant now = Instant.now();
                 Long timeDiff = Duration.between(dateOfProject, now).toHours();
                 EnumProjectStatus status = project.getStatus();
-                if ((status.equals(EnumProjectStatus.DEPLOYED) || status.equals(EnumProjectStatus.DEPLOYED_FAILED))) {
-                    // && timeDiff.intValue() >= 24
-                    // cleanTestEnv();
+                if ((status.equals(EnumProjectStatus.DEPLOYED) || status.equals(EnumProjectStatus.DEPLOYED_FAILED))
+                    && timeDiff.intValue() >= 24) {
                     String devSvc = "http://developer-be-svc:9082";
                     String cleanUrl = String
                         .format(Consts.DEV_CLEAN_ENV_URL, devSvc, project.getId(), project.getUserId());
