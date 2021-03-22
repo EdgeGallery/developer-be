@@ -43,7 +43,7 @@ public class WebSshServiceImpl implements WebSshService {
     //存放ssh连接信息的map
     private static Map<String, Object> sshMap = new ConcurrentHashMap<>();
 
-    private static int PORT = 22;
+    private static int PORT = 33;
 
     private String ip;
 
