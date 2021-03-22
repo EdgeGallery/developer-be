@@ -103,7 +103,11 @@ public class ImageController {
             }
             File uploadDirTmp = new File(filePathTemp);
             if (!uploadDirTmp.exists()) {
-                uploadDirTmp.mkdirs();
+                boolean isMk = uploadDirTmp.mkdirs();
+                if (!isMk) {
+                    LOGGER.error("create upload tmp path failed");
+                    return ResponseEntity.badRequest().build();
+                }
             }
 
             Integer chunkNumber = chunk.getChunkNumber();
@@ -131,7 +135,11 @@ public class ImageController {
         @RequestParam(value = "guid", required = false) String guid) throws IOException {
         File uploadDir = new File(filePath);
         if (!uploadDir.exists()) {
-            uploadDir.mkdirs();
+            boolean isMk = uploadDir.mkdirs();
+            if (!isMk) {
+                LOGGER.error("create upload path failed");
+                return ResponseEntity.badRequest().build();
+            }
         }
         File file = new File(filePathTemp + File.separator + guid);
         if (file.isDirectory()) {
@@ -161,15 +169,14 @@ public class ImageController {
 
     private boolean pushImageToRepo(File imageFile) throws IOException {
         DockerClient dockerClient = getDockerClient(devRepoEndpoint, devRepoUsername, devRepoPassword);
-        InputStream inputStream = null;
-        try {
-            inputStream = new FileInputStream(imageFile);
+        try (InputStream inputStream = new FileInputStream(imageFile)) {
+            //import image pkg
+            dockerClient.loadImageCmd(inputStream).exec();
         } catch (FileNotFoundException e) {
             LOGGER.error("can not find image file,{}", e.getMessage());
             return false;
         }
-        //import image pkg
-        dockerClient.loadImageCmd(inputStream).exec();
+
         //解压镜像包，找出manifest.json中的RepoTags
         File file = new File(filePath);
         boolean res = deCompress(imageFile.getCanonicalPath(), file);

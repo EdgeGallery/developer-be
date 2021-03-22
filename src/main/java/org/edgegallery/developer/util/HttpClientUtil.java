@@ -416,12 +416,12 @@ public final class HttpClientUtil {
      */
     public static String vmInstantiateImage(String protocol, String ip, int port, String userId, String lcmToken,
         String vmId, String appInstanceId, LcmLog lcmLog) {
-        Gson gson = new Gson();
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.set(Consts.ACCESS_TOKEN_STR, lcmToken);
         VmImageRequest ins = new VmImageRequest();
         ins.setVmId(vmId);
+        Gson gson = new Gson();
         LOGGER.warn(gson.toJson(ins));
         HttpEntity<String> requestEntity = new HttpEntity<>(gson.toJson(ins), headers);
         String url = getUrlPrefix(protocol, ip, port) + Consts.APP_LCM_INSTANTIATE_IMAGE_URL
@@ -506,8 +506,8 @@ public final class HttpClientUtil {
     /**
      * deleteVmImage.
      */
-    public static boolean deleteVmImage(String protocol, String ip, int port, String userId,
-        String appInstanceId, String imageId, String token) {
+    public static boolean deleteVmImage(String protocol, String ip, int port, String userId, String appInstanceId,
+        String imageId, String token) {
 
         String url = getUrlPrefix(protocol, ip, port) + Consts.APP_LCM_GET_IMAGE_DELETE_URL
             .replaceAll("appInstanceId", appInstanceId).replaceAll("tenantId", userId).replaceAll("imageId", imageId);
@@ -527,6 +527,5 @@ public final class HttpClientUtil {
         return true;
 
     }
-
 
 }
