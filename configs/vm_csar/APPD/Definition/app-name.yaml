@@ -17,41 +17,40 @@ topology_template:
   inputs:
     network_name_mep:
       type: string
-        default: mec_newwork_mep
-        description: network_name_mep
+      default: mec_network_mep
+      description: network_name_mep
     network_name_n6:
       type: string
-        default: mec_newwork_n6
-        description: network_name_n6
+      default: mec_newwork_n6
+      description: network_name_n6
     network_name_internet:
       type: string
-        default: mec_newwork_internet
-        description: network_name_internet
+      default: mec_newwork_internet
+      description: network_name_internet
     network_internet_physnet:
       type: string
-        default: network_internet_physnet
-        description: network_internet_physnet
+      default: network_internet_physnet
+      description: network_internet_physnet
     network_internet_vlanid:
       type: string
-        default: network_internet_vlanid
-        description: network_internet_vlanid
+      default: network_internet_vlanid
+      description: network_internet_vlanid
     network_n6_physnet:
       type: string
-        default: network_n6_physnet
-        description: network_n6_physnet
+      default: network_n6_physnet
+      description: network_n6_physnet
     network_n6_vlanid:
       type: string
-        default: network_n6_vlanid
-        description: network_n6_vlanid
+      default: network_n6_vlanid
+      description: network_n6_vlanid
     network_mep_physnet:
       type: string
-        default: network_mep_physnet
-        description: network_mep_physnet
+      default: network_mep_physnet
+      description: network_mep_physnet
     network_mep_vlanid:
       type: string
-        default: network_mep_vlanid
-        description: network_mep_vlanid
-
+      default: network_mep_vlanid
+      description: network_mep_vlanid
     INTERNAL_IP_VERSION:
       type: string
       default: IPV4
@@ -64,8 +63,6 @@ topology_template:
       type: string
       default: app_arm
       description: DEMO_VNF_Network_02
-
-
   node_templates:
     Simple_VNF:
       type: tosca.nodes.nfv.VNF

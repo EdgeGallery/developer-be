@@ -258,6 +258,7 @@ public class VmService {
         UploadResponse uploadResponse = gson.fromJson(uploadRes, typeEvents);
         String pkgId = uploadResponse.getPackageId();
         vmConfig.setPackageId(pkgId);
+        vmConfig.setLog("upload csar package success" + pkgId);
         vmConfigMapper.updateVmCreateConfig(vmConfig);
 
         // distribute pkg
@@ -341,7 +342,7 @@ public class VmService {
             return Either.right(true);
         }
         VmImageConfig vmImageConfig = vmConfigMapper.getVmImage(projectId, vmId);
-        if (vmImageConfig == null) {
+        if (vmImageConfig != null) {
             LOGGER.error("Can not delete vm config, first delete vm image by  vmId {}", vmId);
             FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "Can not delete vm config, first delete vm image");
             return Either.left(error);
@@ -359,11 +360,7 @@ public class VmService {
         }
         String projectPath = getProjectPath(projectId);
         DeveloperFileUtils.deleteDir(projectPath + vmCreateConfig.getAppInstanceId());
-        try {
-            FileUtils.deleteDirectory(new File(projectPath + vmCreateConfig.getAppInstanceId() + ".csar"));
-        } catch (IOException e) {
-            LOGGER.error("Delete vm create scar failed.");
-        }
+        FileUtils.deleteQuietly(new File(projectPath + vmCreateConfig.getAppInstanceId() + ".csar"));
 
         LOGGER.info("delete vm create config success");
         return Either.right(true);
@@ -694,6 +691,7 @@ public class VmService {
 
         String packagePath = getProjectPath(config.getProjectId()) + config.getAppInstanceId();
         for (int chunkNum = 0; chunkNum < config.getSumChunkNum(); chunkNum++) {
+            LOGGER.info("download image chunkNum:{}", chunkNum);
             boolean res = HttpClientUtil
                 .downloadVmImage(host.getProtocol(), host.getLcmIp(), host.getPort(), userId, packagePath,
                     config.getAppInstanceId(), config.getImageId(), Integer.toString(chunkNum), config.getLcmToken());

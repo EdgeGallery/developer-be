@@ -1,6 +1,7 @@
 package org.edgegallery.developer.service.virtual.create;
 import java.lang.reflect.Type;
 import com.google.gson.Gson;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.reflect.TypeToken;
@@ -64,12 +65,20 @@ public class VmStageWorkStatus implements VmCreateStage {
                 return true;
             }
         } else {
-            processStatus = true;
-            status = EnumTestConfigStatus.Success;
-            config.setLog("get vm status success");
-            Type vmInfoType = new TypeToken<VmInstantiateInfo>() { }.getType();
-            VmInstantiateInfo vmInstantiateInfo = gson.fromJson(workStatus, vmInfoType);
-            config.setVmInfo(vmInstantiateInfo.getData());
+            JsonObject jsonObject = new JsonParser().parse(workStatus).getAsJsonObject();
+            JsonElement code = jsonObject.get("code");
+            JsonElement msg = jsonObject.get("msg");
+            if (!code.getAsString().equals("200")) {
+                config.setLog(msg.getAsString());
+            }else {
+                processStatus = true;
+                status = EnumTestConfigStatus.Success;
+                config.setLog("get vm status success");
+                Type vmInfoType = new TypeToken<VmInstantiateInfo>() { }.getType();
+                VmInstantiateInfo vmInstantiateInfo = gson.fromJson(workStatus, vmInfoType);
+                config.setVmInfo(vmInstantiateInfo.getData());
+
+            }
 
         }
         // update test-config
