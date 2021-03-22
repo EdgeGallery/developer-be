@@ -892,12 +892,14 @@
                     <destFile>target/coverage-reports/jacoco-unit.exec</destFile>
                     <dataFile>target/coverage-reports/jacoco-unit.exec</dataFile>
                     <excludes>
-                        <exclude>**/model/**</exclude>
-                        <exclude>**/config/**</exclude>
-                        <exclude>**/exceoption/**</exclude>
-                        <exclude>**/log/**</exclude>
-                        <exclude>**/request/**</exclude>
-                        <exclude>**/response/**</exclude>
+                        <exclude>**/developer/model/**</exclude>
+                        <exclude>**/developer/config/**</exclude>
+                        <exclude>**/developer/exception/**</exclude>
+                        <exclude>**/developer/log/**</exclude>
+                        <exclude>**/developer/request/**</exclude>
+                        <exclude>**/developer/response/**</exclude>
+                        <exclude>**/developer/common/**</exclude>
+                        <exclude>**/developer/template/**</exclude>
                 </excludes>
                 </configuration>
                 <executions>
