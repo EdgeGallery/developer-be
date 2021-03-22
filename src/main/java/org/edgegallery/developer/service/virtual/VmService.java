@@ -396,8 +396,8 @@ public class VmService {
         ScpConnectEntity scpConnectEntity = new ScpConnectEntity();
         scpConnectEntity.setTargetPath(targetPath);
         scpConnectEntity.setUrl(networkIp);
-        scpConnectEntity.setPassWord("root");
-        scpConnectEntity.setUserName("root");
+        scpConnectEntity.setPassWord("ubuntu");
+        scpConnectEntity.setUserName("123456");
         String remoteFileName = file.getName();
 
         ShhFileUploadUtil sshFileUploadUtil = new ShhFileUploadUtil();
@@ -667,7 +667,9 @@ public class VmService {
 
         VmCreateConfig vmCreateConfig = vmConfigMapper.getVmCreateConfig(imageConfig.getProjectId(),Id);
 
-        String vmId = vmCreateConfig.getVmInfo().get(0).getVmId();
+        Type vmInfoType = new TypeToken<List<VmInfo>>() { }.getType();
+        List<VmInfo> vmInfo = gson.fromJson(gson.toJson(vmCreateConfig.getVmInfo()), vmInfoType);
+        String vmId = vmInfo.get(0).getVmId();
 
         String imageResult = HttpClientUtil
             .vmInstantiateImage(host.getProtocol(), host.getLcmIp(), host.getPort(), userId, lcmToken, vmId,
@@ -689,7 +691,7 @@ public class VmService {
      */
     public boolean downloadImageResult(MepHost host, VmImageConfig config, String userId) {
 
-        String packagePath = getProjectPath(config.getProjectId()) + config.getAppInstanceId();
+        String packagePath = getProjectPath(config.getProjectId()) + config.getAppInstanceId() + File.separator + "Image" + File.separator + "";
         for (int chunkNum = 0; chunkNum < config.getSumChunkNum(); chunkNum++) {
             LOGGER.info("download image chunkNum:{}", chunkNum);
             boolean res = HttpClientUtil
@@ -697,8 +699,11 @@ public class VmService {
                     config.getAppInstanceId(), config.getImageId(), Integer.toString(chunkNum), config.getLcmToken());
             if (!res) {
                 LOGGER.info("download image fail");
-                break;
-                //                return false;
+                return false;
+            }
+            if (chunkNum%10==0) {
+                config.setLog("download image file:" + chunkNum + "/" + config.getSumChunkNum());
+                vmConfigMapper.updateVmImageConfig(config);
             }
         }
 

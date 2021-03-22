@@ -18,14 +18,19 @@ package org.edgegallery.developer.util;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.lang.reflect.Type;
 import java.util.List;
+import java.util.Optional;
 import org.apache.commons.io.FileUtils;
 import org.edgegallery.developer.common.Consts;
 import org.edgegallery.developer.exception.CustomException;
+import org.edgegallery.developer.exception.DomainException;
 import org.edgegallery.developer.model.LcmLog;
 import org.edgegallery.developer.model.lcm.DistributeBody;
 import org.edgegallery.developer.model.lcm.DistributeResponse;
@@ -46,12 +51,15 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.multipart.MultipartFile;
 
 public final class HttpClientUtil {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(HttpClientUtil.class);
 
     private static final RestTemplate REST_TEMPLATE = new RestTemplate();
+
+    public static final String IMAGE_PATH = "/Image/image-name/";
 
     private HttpClientUtil() {
 
@@ -493,24 +501,42 @@ public final class HttpClientUtil {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.set(Consts.ACCESS_TOKEN_STR, token);
-        headers.set("chunk_num ", chunkNum);
+        headers.set("chunk_num", chunkNum);
         // download images
-        ResponseEntity<InputStream> response;
+        ResponseEntity<byte[]> response;
         try {
-            response = REST_TEMPLATE.exchange(url, HttpMethod.GET, new HttpEntity<>(headers), InputStream.class);
+            response = REST_TEMPLATE.exchange(url, HttpMethod.GET, new HttpEntity<>(headers), byte[].class);
 //            LOGGER.warn(response.getBody());
-        } catch (RestClientException e) {
+            if (response.getStatusCode() != HttpStatus.OK) {
+                LOGGER.error("download file error, response is {}", response.getBody());
+                throw new DomainException("download file exception");
+            }
+            byte[] result = response.getBody();
+            if (result == null) {
+                throw new DomainException("download response is null");
+            }
+            String fileName = Optional.ofNullable(response.getHeaders().get("Content-Disposition"))
+                .orElseThrow(() -> new DomainException("response header Content-Disposition is null")).get(0)
+                .replace("attachment; filename=", "");
+            File file = new File(packagePath + IMAGE_PATH + fileName + "_" + chunkNum);
+            if (!file.exists() && !file.createNewFile()) {
+                LOGGER.error("create download file error");
+                throw new DomainException("create download file error");
+            }
+            try (InputStream inputStream = new ByteArrayInputStream(result);
+                OutputStream outputStream = new FileOutputStream(file)) {
+                int len = 0;
+                byte[] buf = new byte[1024];
+                while ((len = inputStream.read(buf, 0, 1024)) != -1) {
+                    outputStream.write(buf, 0, len);
+                }
+                outputStream.flush();
+            }
+        } catch (RestClientException |IOException e) {
             LOGGER.error("Failed to get image status which imageId is {} exception {}", imageId, e.getMessage());
             return false;
         }
-        File outFile = new File(packagePath + File.separator + "Image");
-        InputStream inputStream = response.getBody();
-        try {
-            FileUtils.copyInputStreamToFile(inputStream, outFile);
-        } catch (IOException e) {
-            LOGGER.error("Failed to get image status which imageId is {} exception {}", imageId, e.getMessage());
-            return false;
-        }
+
         return true;
 
     }
