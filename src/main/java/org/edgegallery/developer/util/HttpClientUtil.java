@@ -18,8 +18,12 @@ package org.edgegallery.developer.util;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Type;
 import java.util.List;
+import org.apache.commons.io.FileUtils;
 import org.edgegallery.developer.common.Consts;
 import org.edgegallery.developer.exception.CustomException;
 import org.edgegallery.developer.model.LcmLog;
@@ -491,11 +495,19 @@ public final class HttpClientUtil {
         headers.set(Consts.ACCESS_TOKEN_STR, token);
         headers.set("chunk_num ", chunkNum);
         // download images
-        ResponseEntity<String> response;
+        ResponseEntity<InputStream> response;
         try {
-            response = REST_TEMPLATE.exchange(url, HttpMethod.GET, new HttpEntity<>(headers), String.class);
-            LOGGER.warn(response.getBody());
+            response = REST_TEMPLATE.exchange(url, HttpMethod.GET, new HttpEntity<>(headers), InputStream.class);
+//            LOGGER.warn(response.getBody());
         } catch (RestClientException e) {
+            LOGGER.error("Failed to get image status which imageId is {} exception {}", imageId, e.getMessage());
+            return false;
+        }
+        File outFile = new File(packagePath + File.separator + "Image");
+        InputStream inputStream = response.getBody();
+        try {
+            FileUtils.copyInputStreamToFile(inputStream, outFile);
+        } catch (IOException e) {
             LOGGER.error("Failed to get image status which imageId is {} exception {}", imageId, e.getMessage());
             return false;
         }

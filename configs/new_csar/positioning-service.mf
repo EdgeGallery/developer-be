@@ -4,6 +4,7 @@ app_provider_id: {provider}
 app_package_version: {version}
 app_release_data_time: {time}
 app_type: {type}
+app_class: {type}
 app_package_description: {description}
 
 Source: Artifacts/Deployment/Charts/{ChartName}.tgz

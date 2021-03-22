@@ -142,7 +142,7 @@ public class NewCreateVmCsar {
             "EMS_VDU1", "capabilities", "virtual_compute", "properties", "virtual_local_storage");
         virtualStorage.put("size_of_storage", config.getVmRegulation().getDataDisk());
         // config vm image data
-        String imageData = config.getVmSystem().getOperateSystem();
+        String imageData = config.getVmSystem().getOperateSystem()+ "-"+config.getVmSystem().getVersion();
         LinkedHashMap<String, Object> virtualImage = getObjectFromMap(loaded, "topology_template", "node_templates",
             "EMS_VDU1", "properties", "sw_image_data");
         virtualImage.put("name", imageData);
@@ -188,13 +188,13 @@ public class NewCreateVmCsar {
         if (!config.getVmNetwork().contains("Network_N6")) {
             LinkedHashMap<String, Object> virtualNetwork = getObjectFromMap(loaded, "topology_template",
                 "node_templates");
-            virtualNetwork.remove("EMS_VDU1_CP1");
+            virtualNetwork.remove("EMS_VDU1_CP2");
             virtualNetwork.remove("MEC_APP_N6");
         }
         if (!config.getVmNetwork().contains("Network_Internet")) {
             LinkedHashMap<String, Object> virtualNetwork = getObjectFromMap(loaded, "topology_template",
                 "node_templates");
-            virtualNetwork.remove("EMS_VDU1_CP2");
+            virtualNetwork.remove("EMS_VDU1_CP1");
             virtualNetwork.remove("MEC_APP_INTERNET");
         }
 
