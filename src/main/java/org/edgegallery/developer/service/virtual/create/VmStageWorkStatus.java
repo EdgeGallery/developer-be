@@ -47,6 +47,7 @@ public class VmStageWorkStatus implements VmCreateStage {
         try {
             Thread.sleep(10000);
         } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
             LOGGER.error("sleep fail! {}", e.getMessage());
         }
         String workStatus = HttpClientUtil

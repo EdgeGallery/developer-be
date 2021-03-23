@@ -62,6 +62,7 @@ public class StageSelectHost implements IConfigDeployStage {
         try {
             Thread.sleep(3000);
         } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
             LOGGER.error("sleep fail! {}", e.getMessage());
         }
         if (config.isPrivateHost()) {

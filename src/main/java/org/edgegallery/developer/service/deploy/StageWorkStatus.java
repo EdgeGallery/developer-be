@@ -73,6 +73,7 @@ public class StageWorkStatus implements IConfigDeployStage {
         try {
             Thread.sleep(30000);
         } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
             LOGGER.error("sleep fail! {}", e.getMessage());
         }
         String workStatus = HttpClientUtil

@@ -50,6 +50,7 @@ public class VmImageStatus implements VmImageStage {
         try {
             Thread.sleep(20000);
         } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
             LOGGER.error("sleep fail! {}", e.getMessage());
         }
         String workStatus = HttpClientUtil
