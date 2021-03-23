@@ -215,22 +215,25 @@ public class ImageController {
         String uploadImgName = new StringBuilder(devRepoEndpoint).append("/").append(devRepoProject).append("/")
             .append(names[0]).toString();
         //镜像打标签，重新push
-        if (!imageId.equals("")) {
-            //tag image
-            dockerClient.tagImageCmd(imageId, uploadImgName, "latest").withForce().exec();
-            LOGGER.warn("Upload tagged docker image: {}", uploadImgName);
+        String[] repos = repoTags.split(":");
+        if (repos.length > 1) {
+            if (!imageId.equals("")) {
+                //tag image
+                dockerClient.tagImageCmd(imageId, uploadImgName, repos[1]).withForce().exec();
+                LOGGER.warn("Upload tagged docker image: {}", uploadImgName);
 
-            //push image
-            try {
-                LOGGER.warn("endpoint: {}", devRepoEndpoint);
-                LOGGER.warn("username: {}", devRepoUsername);
-                LOGGER.warn("password: {}", devRepoPassword);
-                LOGGER.warn("project: {}", devRepoProject);
-                dockerClient.pushImageCmd(uploadImgName).exec(new PushImageResultCallback()).awaitCompletion();
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                LOGGER.error("failed to push image {}", e.getMessage());
-                return false;
+                //push image
+                try {
+                    LOGGER.warn("endpoint: {}", devRepoEndpoint);
+                    LOGGER.warn("username: {}", devRepoUsername);
+                    LOGGER.warn("password: {}", devRepoPassword);
+                    LOGGER.warn("project: {}", devRepoProject);
+                    dockerClient.pushImageCmd(uploadImgName).exec(new PushImageResultCallback()).awaitCompletion();
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    LOGGER.error("failed to push image {}", e.getMessage());
+                    return false;
+                }
             }
         }
 
