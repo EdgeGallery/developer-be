@@ -567,7 +567,9 @@ public class UploadFileService {
                         = (ArrayList<LinkedHashMap<String, Object>>) linkedHashMapSer.get("ports");
                     for (LinkedHashMap<String, Object> a : arrayList) {
                         svcPorts.add(a.get("port").toString());
-                        svcNodePorts.add(a.get("nodePort").toString());
+                        if (a.get("nodePort") != null) {
+                            svcNodePorts.add(a.get("nodePort").toString());
+                        }
                     }
                 }
             }

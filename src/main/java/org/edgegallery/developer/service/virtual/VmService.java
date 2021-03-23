@@ -9,6 +9,7 @@ import com.google.gson.JsonParser;
 import com.google.gson.reflect.TypeToken;
 import com.spencerwi.either.Either;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.List;
@@ -692,8 +693,7 @@ public class VmService {
      */
     public boolean downloadImageResult(MepHost host, VmImageConfig config, String userId) {
 
-        String packagePath = getProjectPath(config.getProjectId()) + config.getAppInstanceId() + File.separator
-            + "Image" + File.separator + "";
+        String packagePath = getProjectPath(config.getProjectId()) + config.getAppInstanceId();
         for (int chunkNum = 0; chunkNum < config.getSumChunkNum(); chunkNum++) {
             LOGGER.info("download image chunkNum:{}", chunkNum);
             boolean res = HttpClientUtil
@@ -701,12 +701,36 @@ public class VmService {
                     config.getAppInstanceId(), config.getImageId(), Integer.toString(chunkNum), config.getLcmToken());
             if (!res) {
                 LOGGER.info("download image fail");
+                config.setLog("download image fail");
                 return false;
             }
             if (chunkNum % 10 == 0) {
                 config.setLog("download image file:" + chunkNum + "/" + config.getSumChunkNum());
                 vmConfigMapper.updateVmImageConfig(config);
             }
+        }
+
+
+        String imagePath = packagePath + File.separator + "Image/image-name/";
+        try {
+            File file = new File(packagePath + File.separator + "Image/image-name/");
+            if (file.isDirectory()) {
+                File[] files = file.listFiles();
+                if (files != null && files.length > 0) {
+                    File partFile = new File(imagePath + config.getImageName() + ".qcow2");
+                    for (int i = 0; i <= files.length; i++) {
+                        File s = new File(imagePath , "temp_" +i);
+                        FileOutputStream destTempfos = new FileOutputStream(partFile, true);
+                        FileUtils.copyFile(s, destTempfos);
+                        destTempfos.close();
+                        FileUtils.deleteQuietly(s);
+                    }
+                }
+            }
+
+        } catch (IOException e) {
+            LOGGER.error("image generate failed: occur IOException {}.", e.getMessage());
+            return false;
         }
 
         try {

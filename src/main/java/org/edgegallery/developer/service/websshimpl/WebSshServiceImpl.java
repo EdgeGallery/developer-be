@@ -18,12 +18,14 @@ import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import org.edgegallery.developer.mapper.HostMapper;
 import org.edgegallery.developer.mapper.ProjectMapper;
 import org.edgegallery.developer.mapper.VmConfigMapper;
 import org.edgegallery.developer.model.SshConnectInfo;
 import org.edgegallery.developer.model.WebSshData;
 import org.edgegallery.developer.model.vm.EnumVmCreateStatus;
 import org.edgegallery.developer.model.vm.VmCreateConfig;
+import org.edgegallery.developer.model.vm.VmInfo;
 import org.edgegallery.developer.model.workspace.ApplicationProject;
 import org.edgegallery.developer.model.workspace.EnumDeployPlatform;
 import org.edgegallery.developer.model.workspace.MepHost;
@@ -63,6 +65,9 @@ public class WebSshServiceImpl implements WebSshService {
 
     @Autowired
     private VmConfigMapper vmConfigMapper;
+
+    @Autowired
+    private HostMapper hostMapper;
 
     @Override
     public void initConnection(WebSocketSession session) {
@@ -160,7 +165,7 @@ public class WebSshServiceImpl implements WebSshService {
             ProjectTestConfig testConfig = testConfigList.get(0);
             Type type = new TypeToken<List<MepHost>>() { }.getType();
             List<MepHost> hosts = gson.fromJson(gson.toJson(testConfig.getHosts()), type);
-            MepHost host = hosts.get(0);
+            MepHost host = hostMapper.getHost(hosts.get(0).getHostId());
             this.ip = host.getLcmIp();
             this.username = host.getUserName();
             this.password = host.getPassword();
@@ -175,9 +180,11 @@ public class WebSshServiceImpl implements WebSshService {
                 logger.info("the vm is creating or create fail.");
                 return;
             }
-            logger.info("the vm ip: 192.168.233.34.");
-            this.ip = "192.168.233.34";
-            this.username = "root";
+            Type type = new TypeToken<List<VmInfo>>() { }.getType();
+            List<VmInfo> vmInfo = gson.fromJson(gson.toJson(vmCreateConfig.getVmInfo()), type);
+            String networkIp = vmInfo.get(0).getNetworks().get(0).getIp();
+            this.ip = networkIp;
+            this.username = "ubuntu";
             this.password = "123456";
         }
         Session session = sshConnectInfo.getjSch().getSession(this.username, this.ip, PORT);
