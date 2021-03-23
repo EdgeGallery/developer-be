@@ -35,6 +35,7 @@ import org.edgegallery.developer.util.webssh.constant.ConstantPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.socket.TextMessage;
@@ -45,7 +46,16 @@ public class WebSshServiceImpl implements WebSshService {
     //存放ssh连接信息的map
     private static Map<String, Object> sshMap = new ConcurrentHashMap<>();
 
-    private static int PORT = 33;
+    @Value("${vm.username:}")
+    private String vmUsername;
+
+    @Value("${vm.password:}")
+    private String vmPassword;
+
+    @Value("${vm.port:}")
+    private int vmPort;
+
+    private int port;
 
     private String ip;
 
@@ -166,6 +176,7 @@ public class WebSshServiceImpl implements WebSshService {
             Type type = new TypeToken<List<MepHost>>() { }.getType();
             List<MepHost> hosts = gson.fromJson(gson.toJson(testConfig.getHosts()), type);
             MepHost host = hostMapper.getHost(hosts.get(0).getHostId());
+            this.port = 33;
             this.ip = host.getLcmIp();
             this.username = host.getUserName();
             this.password = host.getPassword();
@@ -183,11 +194,13 @@ public class WebSshServiceImpl implements WebSshService {
             Type type = new TypeToken<List<VmInfo>>() { }.getType();
             List<VmInfo> vmInfo = gson.fromJson(gson.toJson(vmCreateConfig.getVmInfo()), type);
             String networkIp = vmInfo.get(0).getNetworks().get(0).getIp();
+            logger.info("network ip: {}", networkIp);
+            this.port = vmPort;
             this.ip = networkIp;
-            this.username = "ubuntu";
-            this.password = "123456";
+            this.username = vmUsername;
+            this.password = vmPassword;
         }
-        Session session = sshConnectInfo.getjSch().getSession(this.username, this.ip, PORT);
+        Session session = sshConnectInfo.getjSch().getSession(this.username, this.ip, this.port);
         session.setConfig(config);
         //设置密码
         session.setPassword(this.password);

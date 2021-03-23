@@ -53,6 +53,7 @@ import org.edgegallery.developer.util.ShhFileUploadUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -63,6 +64,11 @@ import org.springframework.web.multipart.MultipartFile;
 
 @Service("vmService")
 public class VmService {
+    @Value("${vm.username:}")
+    private String vmUsername;
+
+    @Value("${vm.password:}")
+    private String vmPassword;
     private static final Logger LOGGER = LoggerFactory.getLogger(VmService.class);
 
     private static Gson gson = new Gson();
@@ -397,8 +403,8 @@ public class VmService {
         ScpConnectEntity scpConnectEntity = new ScpConnectEntity();
         scpConnectEntity.setTargetPath(targetPath);
         scpConnectEntity.setUrl(networkIp);
-        scpConnectEntity.setPassWord("ubuntu");
-        scpConnectEntity.setUserName("123456");
+        scpConnectEntity.setPassWord(vmPassword);
+        scpConnectEntity.setUserName(vmUsername);
         File file = transferToFile(uploadFile);
         String remoteFileName = file.getName();
 
