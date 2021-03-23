@@ -1074,7 +1074,7 @@ public class ProjectService {
             if (!CollectionUtils.isEmpty(hosts)) {
                 MepHost host = hostMapper.getHost(hosts.get(0).getHostId());
                 host.setStatus(EnumHostStatus.NORMAL);
-                hostMapper.updateHostSelected(hosts.get(0));
+                hostMapper.updateHostSelected(host);
             }
             MepHost host = hosts.get(0);
             // save host logs
