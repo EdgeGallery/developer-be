@@ -700,6 +700,7 @@ public class VmService {
     public boolean downloadImageResult(MepHost host, VmImageConfig config, String userId) {
 
         String packagePath = getProjectPath(config.getProjectId()) + config.getAppInstanceId();
+        LOGGER.info(packagePath);
         for (int chunkNum = 0; chunkNum < config.getSumChunkNum(); chunkNum++) {
             LOGGER.info("download image chunkNum:{}", chunkNum);
             boolean res = HttpClientUtil

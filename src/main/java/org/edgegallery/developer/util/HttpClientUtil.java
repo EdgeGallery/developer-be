@@ -516,6 +516,15 @@ public final class HttpClientUtil {
             String fileName = Optional.ofNullable(response.getHeaders().get("Content-Disposition"))
                 .orElseThrow(() -> new DomainException("response header Content-Disposition is null")).get(0)
                 .replace("attachment; filename=", "");
+
+            File imageDir = new File(packagePath + IMAGE_PATH);
+            if (!imageDir.exists()) {
+                boolean isMk = imageDir.mkdirs();
+                if (!isMk) {
+                    LOGGER.error("create upload path failed");
+                    return false;
+                }
+            }
             File file = new File(packagePath + IMAGE_PATH + fileName + "_" + chunkNum);
             if (!file.exists() && !file.createNewFile()) {
                 LOGGER.error("create download file error");
