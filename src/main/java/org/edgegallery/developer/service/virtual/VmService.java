@@ -699,10 +699,16 @@ public class VmService {
             boolean res = HttpClientUtil
                 .downloadVmImage(host.getProtocol(), host.getLcmIp(), host.getPort(), userId, packagePath,
                     config.getAppInstanceId(), config.getImageId(), Integer.toString(chunkNum), config.getLcmToken());
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                LOGGER.error("sleep fail! {}", e.getMessage());
+            }
             if (!res) {
                 LOGGER.info("download image fail");
                 config.setLog("download image fail");
-                return false;
+                break;
             }
             if (chunkNum % 10 == 0) {
                 config.setLog("download image file:" + chunkNum + "/" + config.getSumChunkNum());
