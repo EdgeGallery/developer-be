@@ -344,12 +344,13 @@ public class VmService {
         VmImageConfig vmImageConfig = vmConfigMapper.getVmImage(projectId, vmId);
         if (vmImageConfig != null) {
             LOGGER.error("Can not delete vm config, first delete vm image by  vmId {}", vmId);
-            FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "Can not delete vm config, first delete vm image");
+            FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST,
+                "Can not delete vm config, first delete vm image");
             return Either.left(error);
         }
 
-        if (vmCreateConfig.getStageStatus().getInstantiateInfo() == EnumTestConfigStatus.Success
-            && !StringUtils.isEmpty(vmCreateConfig.getPackageId())) {
+        if (vmCreateConfig.getStageStatus().getInstantiateInfo() == EnumTestConfigStatus.Success && !StringUtils
+            .isEmpty(vmCreateConfig.getPackageId())) {
             deleteVmCreate(vmCreateConfig, project.getUserId(), token);
         }
 
@@ -385,7 +386,6 @@ public class VmService {
             LOGGER.info("Can not find the vm create config by vmId {} and projectId {}", vmId, projectId);
             return Either.right(true);
         }
-        File file = transferToFile(uploadFile);
 
         Type type = new TypeToken<List<VmInfo>>() { }.getType();
         List<VmInfo> vmInfo = gson.fromJson(gson.toJson(vmCreateConfig.getVmInfo()), type);
@@ -398,6 +398,7 @@ public class VmService {
         scpConnectEntity.setUrl(networkIp);
         scpConnectEntity.setPassWord("ubuntu");
         scpConnectEntity.setUserName("123456");
+        File file = transferToFile(uploadFile);
         String remoteFileName = file.getName();
 
         ShhFileUploadUtil sshFileUploadUtil = new ShhFileUploadUtil();
@@ -637,9 +638,10 @@ public class VmService {
         }
         Type type = new TypeToken<MepHost>() { }.getType();
         MepHost host = gson.fromJson(gson.toJson(vmCreateConfig.getHost()), type);
-        if(!StringUtils.isEmpty(vmImageConfig.getImageId())){
-            HttpClientUtil.deleteVmImage(host.getProtocol(), host.getLcmIp(), host.getPort(), vmImageConfig.getAppInstanceId(), userId,
-                vmImageConfig.getImageId(), token);
+        if (!StringUtils.isEmpty(vmImageConfig.getImageId())) {
+            HttpClientUtil
+                .deleteVmImage(host.getProtocol(), host.getLcmIp(), host.getPort(), vmImageConfig.getAppInstanceId(),
+                    userId, vmImageConfig.getImageId(), token);
         }
 
         int res = vmConfigMapper.deleteVmImage(projectId, vmCreateConfig.getVmId());
@@ -660,12 +662,11 @@ public class VmService {
      * createVmImageToAppLcm.
      */
     public boolean createVmImageToAppLcm(MepHost host, VmImageConfig imageConfig, String userId) {
-        String Id = imageConfig.getVmId();
         String appInstanceId = imageConfig.getAppInstanceId();
         String lcmToken = imageConfig.getLcmToken();
         LcmLog lcmLog = new LcmLog();
-
-        VmCreateConfig vmCreateConfig = vmConfigMapper.getVmCreateConfig(imageConfig.getProjectId(),Id);
+        String id = imageConfig.getVmId();
+        VmCreateConfig vmCreateConfig = vmConfigMapper.getVmCreateConfig(imageConfig.getProjectId(), id);
 
         Type vmInfoType = new TypeToken<List<VmInfo>>() { }.getType();
         List<VmInfo> vmInfo = gson.fromJson(gson.toJson(vmCreateConfig.getVmInfo()), vmInfoType);
@@ -691,7 +692,8 @@ public class VmService {
      */
     public boolean downloadImageResult(MepHost host, VmImageConfig config, String userId) {
 
-        String packagePath = getProjectPath(config.getProjectId()) + config.getAppInstanceId() + File.separator + "Image" + File.separator + "";
+        String packagePath = getProjectPath(config.getProjectId()) + config.getAppInstanceId() + File.separator
+            + "Image" + File.separator + "";
         for (int chunkNum = 0; chunkNum < config.getSumChunkNum(); chunkNum++) {
             LOGGER.info("download image chunkNum:{}", chunkNum);
             boolean res = HttpClientUtil
@@ -701,7 +703,7 @@ public class VmService {
                 LOGGER.info("download image fail");
                 return false;
             }
-            if (chunkNum%10==0) {
+            if (chunkNum % 10 == 0) {
                 config.setLog("download image file:" + chunkNum + "/" + config.getSumChunkNum());
                 vmConfigMapper.updateVmImageConfig(config);
             }

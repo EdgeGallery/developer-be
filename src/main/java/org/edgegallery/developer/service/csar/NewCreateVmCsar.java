@@ -29,6 +29,8 @@ import org.edgegallery.developer.util.CompressFileUtilsJava;
 import org.edgegallery.developer.util.DeveloperFileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 import org.yaml.snakeyaml.Yaml;
 
 public class NewCreateVmCsar {
@@ -82,7 +84,11 @@ public class NewCreateVmCsar {
                     .replace("{time}", timeStamp).replace("{description}", project.getDescription())
                     .replace("{ChartName}", chartName).replace("{type}", type).replace("{class}", deployType),
                 StandardCharsets.UTF_8, false);
-            csarValue.renameTo(new File(csar.getCanonicalPath() + "/" + projectName + ".mf"));
+            boolean isSuccess = csarValue.renameTo(new File(csar.getCanonicalPath() + "/" + projectName + ".mf"));
+            if (!isSuccess) {
+                LOGGER.error("rename mf file failed!");
+                return null;
+            }
 
         } catch (IOException e) {
             throw new IOException("replace file exception");
@@ -142,7 +148,7 @@ public class NewCreateVmCsar {
             "EMS_VDU1", "capabilities", "virtual_compute", "properties", "virtual_local_storage");
         virtualStorage.put("size_of_storage", config.getVmRegulation().getDataDisk());
         // config vm image data
-        String imageData = config.getVmSystem().getOperateSystem()+ "-"+config.getVmSystem().getVersion();
+        String imageData = config.getVmSystem().getOperateSystem() + "-" + config.getVmSystem().getVersion();
         LinkedHashMap<String, Object> virtualImage = getObjectFromMap(loaded, "topology_template", "node_templates",
             "EMS_VDU1", "properties", "sw_image_data");
         virtualImage.put("name", imageData);
@@ -205,17 +211,32 @@ public class NewCreateVmCsar {
         String yamlContents = FileUtils.readFileToString(templateFileModify, StandardCharsets.UTF_8);
         yamlContents = yamlContents.replaceAll("\"", "");
         writeFile(templateFileModify, yamlContents);
-        templateFileModify.renameTo(new File(csar.getCanonicalPath() + "/APPD/Definition/" + projectName + ".yaml"));
-
+        boolean isRename = templateFileModify
+            .renameTo(new File(csar.getCanonicalPath() + "/APPD/Definition/" + projectName + ".yaml"));
+        if (!isRename) {
+            LOGGER.error("rename {}.yaml failed!", projectName);
+            return null;
+        }
         // compress to zip
         String chartsDir = csar.getParent() + File.separator + config.getAppInstanceId() + File.separator + "APPD";
-        List<File> subFiles = Arrays.asList(new File(chartsDir).listFiles());
-        CompressFileUtilsJava.zipFiles(Arrays.asList(new File(chartsDir).listFiles()),
-            new File(chartsDir + File.separator + projectName + ".zip"));
+        if (!StringUtils.isEmpty(chartsDir)) {
+            File dir = new File(chartsDir);
+            if (dir.isDirectory()) {
+                File[] files = dir.listFiles();
+                if (files != null && files.length > 0) {
+                    List<File> subFiles = Arrays.asList(files);
+                    if (!CollectionUtils.isEmpty(subFiles)) {
+                        CompressFileUtilsJava
+                            .zipFiles(subFiles, new File(chartsDir + File.separator + projectName + ".zip"));
+                        for (File subFile : subFiles) {
+                            FileUtils.deleteQuietly(subFile);
+                        }
+                    }
+                }
+            }
 
-        for (File subFile : subFiles) {
-            FileUtils.deleteQuietly(subFile);
         }
+
         //update SwImageDesc.json
         ImageDesc imageDesc = new ImageDesc();
         imageDesc.setId(UUID.randomUUID().toString());

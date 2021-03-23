@@ -37,7 +37,6 @@ import org.edgegallery.developer.response.ErrorRespDto;
 import org.edgegallery.developer.response.FormatRespDto;
 import org.edgegallery.developer.service.ProjectService;
 import org.edgegallery.developer.util.ResponseDataUtil;
-import org.hibernate.validator.constraints.Length;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -58,8 +57,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 public class ProjectController {
 
     private static final String REGEX_UUID = "[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}";
-
-    private static final String REGEX_USERNAME = "^[a-zA-Z][a-zA-Z0-9_]{5,29}$";
 
     @Autowired
     private ProjectService projectService;

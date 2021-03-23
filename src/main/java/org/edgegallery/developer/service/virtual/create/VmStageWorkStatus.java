@@ -1,10 +1,11 @@
 package org.edgegallery.developer.service.virtual.create;
-import java.lang.reflect.Type;
+
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.reflect.TypeToken;
+import java.lang.reflect.Type;
 import org.edgegallery.developer.mapper.ProjectMapper;
 import org.edgegallery.developer.model.vm.VmCreateConfig;
 import org.edgegallery.developer.model.vm.VmInstantiateInfo;
@@ -46,10 +47,12 @@ public class VmStageWorkStatus implements VmCreateStage {
         try {
             Thread.sleep(10000);
         } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
             LOGGER.error("sleep fail! {}", e.getMessage());
         }
-        String workStatus =HttpClientUtil.getWorkloadStatus(host.getProtocol(), host.getLcmIp(), host.getPort(),
-            config.getAppInstanceId(), project.getUserId(), config.getLcmToken());
+        String workStatus = HttpClientUtil
+            .getWorkloadStatus(host.getProtocol(), host.getLcmIp(), host.getPort(), config.getAppInstanceId(),
+                project.getUserId(), config.getLcmToken());
         LOGGER.info("get instantiate status: {}", workStatus);
         if (workStatus == null) {
             // compare time between now and deployDate
@@ -69,7 +72,7 @@ public class VmStageWorkStatus implements VmCreateStage {
             JsonElement msg = jsonObject.get("msg");
             if (!code.getAsString().equals("200")) {
                 config.setLog(msg.getAsString());
-            }else {
+            } else {
                 processStatus = true;
                 status = EnumTestConfigStatus.Success;
                 config.setLog("get vm status success");
