@@ -27,7 +27,6 @@ import java.io.OutputStream;
 import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Optional;
-import org.apache.commons.io.FileUtils;
 import org.edgegallery.developer.common.Consts;
 import org.edgegallery.developer.exception.CustomException;
 import org.edgegallery.developer.exception.DomainException;
@@ -51,7 +50,6 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.multipart.MultipartFile;
 
 public final class HttpClientUtil {
 
@@ -506,7 +504,7 @@ public final class HttpClientUtil {
         ResponseEntity<byte[]> response;
         try {
             response = REST_TEMPLATE.exchange(url, HttpMethod.GET, new HttpEntity<>(headers), byte[].class);
-//            LOGGER.warn(response.getBody());
+            //            LOGGER.warn(response.getBody());
             if (response.getStatusCode() != HttpStatus.OK) {
                 LOGGER.error("download file error, response is {}", response.getBody());
                 throw new DomainException("download file exception");
@@ -524,7 +522,7 @@ public final class HttpClientUtil {
                 throw new DomainException("create download file error");
             }
             try (InputStream inputStream = new ByteArrayInputStream(result);
-                OutputStream outputStream = new FileOutputStream(file)) {
+                 OutputStream outputStream = new FileOutputStream(file)) {
                 int len = 0;
                 byte[] buf = new byte[1024];
                 while ((len = inputStream.read(buf, 0, 1024)) != -1) {
@@ -532,7 +530,7 @@ public final class HttpClientUtil {
                 }
                 outputStream.flush();
             }
-        } catch (RestClientException |IOException e) {
+        } catch (RestClientException | IOException e) {
             LOGGER.error("Failed to get image status which imageId is {} exception {}", imageId, e.getMessage());
             return false;
         }

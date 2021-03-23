@@ -47,9 +47,9 @@ public class VmImageCreate implements VmImageStage {
         // deploy app
         try {
             instantiateImageResult = vmService.createVmImageToAppLcm(host, imageConfig, userId);
-            if(!instantiateImageResult) {
+            if (!instantiateImageResult) {
                 LOGGER.error("Failed to  vm image which appInstanceId is : {}.", imageConfig.getAppInstanceId());
-            }else {
+            } else {
                 // update status when instantiate success
                 LOGGER.error("Create vm image success which imageId is : {}.", imageConfig.getImageId());
                 imageConfig.setCreateTime(new Date());

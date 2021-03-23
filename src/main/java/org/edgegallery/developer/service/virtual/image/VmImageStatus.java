@@ -1,5 +1,7 @@
 package org.edgegallery.developer.service.virtual.image;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
 import org.edgegallery.developer.mapper.ProjectMapper;
 import org.edgegallery.developer.mapper.VmConfigMapper;
@@ -15,8 +17,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 
 @Service("vm_imageStatus_service")
 public class VmImageStatus implements VmImageStage {
@@ -43,7 +43,7 @@ public class VmImageStatus implements VmImageStage {
     public boolean execute(VmImageConfig config) throws InterruptedException {
         boolean processStatus = false;
         EnumTestConfigStatus status = EnumTestConfigStatus.Failed;
-        VmCreateConfig vmCreateConfig=vmConfigMapper.getVmCreateConfig(config.getProjectId(),config.getVmId());
+        VmCreateConfig vmCreateConfig = vmConfigMapper.getVmCreateConfig(config.getProjectId(), config.getVmId());
         Type type = new TypeToken<MepHost>() { }.getType();
         MepHost host = gson.fromJson(gson.toJson(vmCreateConfig.getHost()), type);
         ApplicationProject project = projectMapper.getProjectById(config.getProjectId());
@@ -52,8 +52,9 @@ public class VmImageStatus implements VmImageStage {
         } catch (InterruptedException e) {
             LOGGER.error("sleep fail! {}", e.getMessage());
         }
-        String workStatus = HttpClientUtil.getImageStatus(host.getProtocol(), host.getLcmIp(), host.getPort(), config.getAppInstanceId(), project.getUserId(),
-            config.getImageId(), config.getLcmToken());
+        String workStatus = HttpClientUtil
+            .getImageStatus(host.getProtocol(), host.getLcmIp(), host.getPort(), config.getAppInstanceId(),
+                project.getUserId(), config.getImageId(), config.getLcmToken());
         LOGGER.info("import image result: {}", workStatus);
         if (workStatus == null) {
             // compare time between now and deployDate
@@ -79,7 +80,7 @@ public class VmImageStatus implements VmImageStage {
                 config.setChunkSize(vmImageInfo.getChunkSize());
                 // get config
                 LOGGER.info("update config result:{}", config);
-            }else {
+            } else {
                 return true;
             }
 
