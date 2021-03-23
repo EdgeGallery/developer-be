@@ -397,7 +397,7 @@ public class VmService {
         Type type = new TypeToken<List<VmInfo>>() { }.getType();
         List<VmInfo> vmInfo = gson.fromJson(gson.toJson(vmCreateConfig.getVmInfo()), type);
         String networkIp = vmInfo.get(0).getNetworks().get(0).getIp();
-        LOGGER.info("network ip is {}", networkIp);
+        LOGGER.info("network Ip, username, password is {},{},{}", networkIp, vmUsername, vmPassword);
         // ssh upload file
         String targetPath = "/home";
         ScpConnectEntity scpConnectEntity = new ScpConnectEntity();
