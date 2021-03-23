@@ -53,7 +53,7 @@ public class WebSshServiceImpl implements WebSshService {
     private String vmPassword;
 
     @Value("${vm.port:}")
-    private int vmPort;
+    private String vmPort;
 
     private int port;
 
@@ -195,7 +195,7 @@ public class WebSshServiceImpl implements WebSshService {
             List<VmInfo> vmInfo = gson.fromJson(gson.toJson(vmCreateConfig.getVmInfo()), type);
             String networkIp = vmInfo.get(0).getNetworks().get(0).getIp();
             logger.info("shh info: {},{},{},{}", networkIp, vmPort, vmUsername, vmPassword);
-            this.port = vmPort;
+            this.port = Integer.parseInt(vmPort);
             this.ip = networkIp;
             this.username = vmUsername;
             this.password = vmPassword;
