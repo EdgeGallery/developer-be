@@ -722,7 +722,6 @@ public class VmService {
             }
         }
 
-
         String imagePath = packagePath + File.separator + "Image/image-name/";
         try {
             File file = new File(packagePath + File.separator + "Image/image-name/");
@@ -731,7 +730,7 @@ public class VmService {
                 if (files != null && files.length > 0) {
                     File partFile = new File(imagePath + config.getImageName() + ".qcow2");
                     for (int i = 0; i <= files.length; i++) {
-                        File s = new File(imagePath , "temp_" +i);
+                        File s = new File(imagePath, "temp_" + i);
                         FileOutputStream destTempfos = new FileOutputStream(partFile, true);
                         FileUtils.copyFile(s, destTempfos);
                         destTempfos.close();
