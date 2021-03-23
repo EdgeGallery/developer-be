@@ -210,8 +210,8 @@ public class WebSshServiceImpl implements WebSshService {
         //开启shell通道
         Channel channel = session.openChannel("shell");
 
-        //通道连接 超时时间3s
-        channel.connect(3000);
+        //通道连接 超时时间60s
+        channel.connect(60000);
 
         //设置channel
         sshConnectInfo.setChannel(channel);

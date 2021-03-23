@@ -399,7 +399,7 @@ public class VmService {
         String networkIp = vmInfo.get(0).getNetworks().get(0).getIp();
         LOGGER.info("network Ip, username, password is {},{},{}", networkIp, vmUsername, vmPassword);
         // ssh upload file
-        String targetPath = "/home";
+        String targetPath = "~/home";
         ScpConnectEntity scpConnectEntity = new ScpConnectEntity();
         scpConnectEntity.setTargetPath(targetPath);
         scpConnectEntity.setUrl(networkIp);
