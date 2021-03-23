@@ -68,6 +68,10 @@ imagelocation:
   project: ${IMAGE_REPO_PROJECT:developer}
   password: ${IMAGE_REPO_PASSWORD:Harbor12345}
   username: ${IMAGE_REPO_USERNAME:admin}
+vm:
+  username: ${VNC_USERNAME:ubuntu}
+  password: ${VNC_PASSWORD:123456}
+  port: ${VNC_PORT:22}
 
 upload:
   path: /usr/app/images
