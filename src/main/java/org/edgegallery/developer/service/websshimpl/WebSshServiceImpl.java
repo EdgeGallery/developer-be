@@ -194,7 +194,7 @@ public class WebSshServiceImpl implements WebSshService {
             Type type = new TypeToken<List<VmInfo>>() { }.getType();
             List<VmInfo> vmInfo = gson.fromJson(gson.toJson(vmCreateConfig.getVmInfo()), type);
             String networkIp = vmInfo.get(0).getNetworks().get(0).getIp();
-            logger.info("network ip: {}", networkIp);
+            logger.info("shh info: {},{},{},{}", networkIp, vmPort, vmUsername, vmPassword);
             this.port = vmPort;
             this.ip = networkIp;
             this.username = vmUsername;
