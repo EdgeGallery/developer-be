@@ -515,8 +515,8 @@ public final class HttpClientUtil {
                 .orElseThrow(() -> new DomainException("response header Content-Disposition is null")).get(0)
                 .replace("attachment; filename=", "");
 
-            String outPath = packagePath + File.separator +imageName;
-            LOGGER.info("output image path:{}",outPath);
+            String outPath = packagePath + File.separator + imageName;
+            LOGGER.info("output image path:{}", outPath);
             File imageDir = new File(outPath);
             if (!imageDir.exists()) {
                 boolean isMk = imageDir.mkdirs();
