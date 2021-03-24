@@ -28,6 +28,7 @@ import org.apache.ibatis.io.Resources;
 import org.apache.servicecomb.swagger.invocation.exception.InvocationException;
 import org.edgegallery.developer.DeveloperApplicationTests;
 import org.edgegallery.developer.config.security.AccessUserUtil;
+import org.edgegallery.developer.mapper.ProjectImageMapper;
 import org.edgegallery.developer.model.workspace.ApplicationProject;
 import org.edgegallery.developer.model.workspace.EnumDeployPlatform;
 import org.edgegallery.developer.model.workspace.EnumHostStatus;
@@ -51,8 +52,11 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -64,6 +68,9 @@ import org.springframework.web.multipart.commons.CommonsMultipartFile;
 public class ProjectServiceTest {
     @Autowired
     private ProjectService projectService;
+
+    @Autowired
+    private ProjectImageMapper projectImageMapper;
 
     @Autowired
     private UploadFileService uploadFileService;
@@ -489,9 +496,9 @@ public class ProjectServiceTest {
         res.getRight().setDescription("hello");
         Either<FormatRespDto, ProjectTestConfig> resConfig = projectService.getTestConfig(projectId);
         Assert.assertTrue(resConfig.isRight());
-        File file = projectService
-            .createCsarPkg(userId, res.getRight(), resConfig.getRight());
-        Assert.assertNotNull(file);
+        // File file = projectService
+        //     .createCsarPkg(userId, res.getRight(), resConfig.getRight());
+        //Assert.assertNotNull(file);
     }
 
     @Test
@@ -504,9 +511,10 @@ public class ProjectServiceTest {
       //  Assert.assertTrue(res.isRight());
         Either<FormatRespDto, ProjectTestConfig> resConfig = projectService.getTestConfig(projectId);
        // Assert.assertTrue(resConfig.isRight());
-        File file = projectService
-            .createCsarPkg(userId, res.getRight(), resConfig.getRight());
-        Assert.assertNotNull(file);
+       //  File file = projectService
+       //      .createCsarPkg(userId, res.getRight(), resConfig.getRight());
+       // Assert.assertNotNull(file);
+        File file = Resources.getResourceAsFile("testdata/face_recognition1.4.csar");
         boolean isSuccess = projectService
             .deployTestConfigToAppLcm(file, res.getRight(), resConfig.getRight(),userId,"token");
         Assert.assertEquals(false,isSuccess);
@@ -614,16 +622,6 @@ public class ProjectServiceTest {
         Assert.assertTrue(res.isRight());
     }
 
-    // @Test
-    // @WithMockUser(roles = "DEVELOPER_TENANT")
-    // public void testCleanEnvSuccess() {
-    //     String userId = "f24ea0a2-d8e6-467c-8039-94f0d29bac43";
-    //     String projectId = "200dfab1-3c30-4fc7-a6ca-ed6f0620a85h";
-    //     // 200dfab1-3c30-4fc7-a6ca-ed6f0620a85h
-    //     Either<FormatRespDto, Boolean> res= projectService
-    //         .cleanTestEnv(userId,projectId,"aa");
-    //    Assert.assertTrue(res.isLeft());
-    // }
 
     @Test
     @WithMockUser(roles = "DEVELOPER_TENANT")
@@ -643,25 +641,5 @@ public class ProjectServiceTest {
         String token = "";
         Either<FormatRespDto, Boolean> res = projectService.createAtpTestTask(projectId, token,"EnumTestConfigStatus.Success");
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 }
