@@ -215,8 +215,8 @@ public class WebSshServiceImpl implements WebSshService {
             List<VmInfo> vmInfo = gson.fromJson(gson.toJson(vmCreateConfig.getVmInfo()), type);
             List<NetworkInfo> networkInfos = vmInfo.get(0).getNetworks();
             String networkIp = "";
-            for (NetworkInfo networkInfo:networkInfos) {
-                if(networkInfo.getName().equals(vmNetwork.getNetworkName())) {
+            for (NetworkInfo networkInfo : networkInfos) {
+                if (networkInfo.getName().equals(vmNetwork.getNetworkName())) {
                     networkIp = networkInfo.getIp();
                 }
             }
