@@ -682,9 +682,9 @@ public class VmService {
             LOGGER.error("Delete vm image config {} failed.", vmCreateConfig.getVmId());
             return Either.left(new FormatRespDto(Response.Status.BAD_REQUEST, "Delete vm image config failed."));
         }
-        String projectPath = getProjectPath(projectId);
-        String imagePath = "/Image" + File.separator + vmImageConfig.getImageName();
-        DeveloperFileUtils.deleteDir(projectPath + File.separator + vmImageConfig.getAppInstanceId() + imagePath);
+        String packagePath = projectService.getProjectPath(vmImageConfig.getProjectId()) +
+            vmImageConfig.getAppInstanceId() + File.separator + "Image";
+        DeveloperFileUtils.deleteDir(packagePath + File.separator + vmImageConfig.getImageName());
 
         LOGGER.info("delete vm create config success");
         return Either.right(true);
