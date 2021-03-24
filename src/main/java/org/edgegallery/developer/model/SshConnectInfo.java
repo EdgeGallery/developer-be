@@ -7,7 +7,7 @@ import org.springframework.web.socket.WebSocketSession;
 public class SshConnectInfo {
     private WebSocketSession webSocketSession;
 
-    private JSch jSch;
+    private JSch jsch;
 
     private Channel channel;
 
@@ -20,11 +20,11 @@ public class SshConnectInfo {
     }
 
     public JSch getjSch() {
-        return jSch;
+        return jsch;
     }
 
-    public void setjSch(JSch jSch) {
-        this.jSch = jSch;
+    public void setjSch(JSch jsch) {
+        this.jsch = jsch;
     }
 
     public Channel getChannel() {

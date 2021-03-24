@@ -250,8 +250,8 @@ public class NewCreateVmCsar {
         imageDesc.setArchitecture(project.getPlatform().get(0));
         imageDesc.setSize(688390);
         imageDesc.setSwImage("Image/" + imageData);
-        imageDesc.setHw_scsi_model("virtio-scsi");
-        imageDesc.setHw_disk_bus("scsi");
+        imageDesc.setHwScsiModel("virtio-scsi");
+        imageDesc.setHwDiskBus("scsi");
         imageDesc.setOperatingSystem("linux");
         imageDesc.setSupportedVirtualisationEnvironment("linux");
         List<ImageDesc> imageDescs = new ArrayList<>();

@@ -25,10 +25,12 @@ import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.servicecomb.springboot2.starter.EnableServiceComb;
+import org.edgegallery.developer.util.SpringContextUtil;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -62,7 +64,8 @@ public class DeveloperApplication {
         sc.init(null, trustAllCerts, new java.security.SecureRandom());
         HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
         HttpsURLConnection.setDefaultHostnameVerifier(NoopHostnameVerifier.INSTANCE);
-        SpringApplication.run(DeveloperApplication.class, args);
+        ApplicationContext applicationContext = SpringApplication.run(DeveloperApplication.class, args);
+        SpringContextUtil.setApplicationContext(applicationContext);
     }
 
     /**

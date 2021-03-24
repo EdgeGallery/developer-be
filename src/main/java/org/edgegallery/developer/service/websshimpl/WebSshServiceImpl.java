@@ -97,9 +97,9 @@ public class WebSshServiceImpl implements WebSshService {
 
     @Override
     public void initConnection(WebSocketSession session) {
-        JSch jSch = new JSch();
+        JSch jsch = new JSch();
         SshConnectInfo sshConnectInfo = new SshConnectInfo();
-        sshConnectInfo.setjSch(jSch);
+        sshConnectInfo.setjSch(jsch);
         sshConnectInfo.setWebSocketSession(session);
         String uuid = String.valueOf(session.getAttributes().get(ConstantPool.USER_UUID_KEY));
         //将这个ssh连接信息放入map中
