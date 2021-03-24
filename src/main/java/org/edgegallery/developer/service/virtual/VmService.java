@@ -85,6 +85,7 @@ public class VmService {
 
     @Value("${vm.password:}")
     private String vmPassword;
+
     private static final Logger LOGGER = LoggerFactory.getLogger(VmService.class);
 
     private static Gson gson = new Gson();
@@ -716,7 +717,8 @@ public class VmService {
      */
     public boolean downloadImageResult(MepHost host, VmImageConfig config, String userId) {
 
-        String packagePath = getProjectPath(config.getProjectId()) + config.getAppInstanceId() + File.separator + "Image";
+        String packagePath = getProjectPath(config.getProjectId()) + config.getAppInstanceId() + File.separator
+            + "Image";
         LOGGER.info(packagePath);
         for (int chunkNum = 0; chunkNum < config.getSumChunkNum(); chunkNum++) {
             LOGGER.info("download image chunkNum:{}", chunkNum);
