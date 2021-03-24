@@ -127,6 +127,15 @@
         tbl_vm_network
     </select>
 
+    <select id="getVmNetworkByType"
+      resultMap="VmNetwork">
+        SELECT
+        *
+        FROM
+        tbl_vm_network
+        WHERE network_type = # {networkType}
+    </select>
+
     <select id="getVmFlavor"
       resultMap="VmFlavor">
         SELECT

@@ -40,8 +40,10 @@ import org.edgegallery.developer.mapper.VmConfigMapper;
 import org.edgegallery.developer.model.SshConnectInfo;
 import org.edgegallery.developer.model.WebSshData;
 import org.edgegallery.developer.model.vm.EnumVmCreateStatus;
+import org.edgegallery.developer.model.vm.NetworkInfo;
 import org.edgegallery.developer.model.vm.VmCreateConfig;
 import org.edgegallery.developer.model.vm.VmInfo;
+import org.edgegallery.developer.model.vm.VmNetwork;
 import org.edgegallery.developer.model.workspace.ApplicationProject;
 import org.edgegallery.developer.model.workspace.EnumDeployPlatform;
 import org.edgegallery.developer.model.workspace.MepHost;
@@ -207,9 +209,17 @@ public class WebSshServiceImpl implements WebSshService {
                 logger.info("the vm is creating or create fail.");
                 return;
             }
+            String networkType = "Network_N6";
+            VmNetwork vmNetwork = vmConfigMapper.getVmNetworkByType(networkType);
             Type type = new TypeToken<List<VmInfo>>() { }.getType();
             List<VmInfo> vmInfo = gson.fromJson(gson.toJson(vmCreateConfig.getVmInfo()), type);
-            String networkIp = vmInfo.get(0).getNetworks().get(0).getIp();
+            List<NetworkInfo> networkInfos = vmInfo.get(0).getNetworks();
+            String networkIp = "";
+            for (NetworkInfo networkInfo:networkInfos) {
+                if(networkInfo.getName().equals(vmNetwork.getNetworkName())) {
+                    networkIp = networkInfo.getIp();
+                }
+            }
             logger.info("shh info: {},{},{},{}", networkIp, vmPort, vmUsername, vmPassword);
             this.port = Integer.parseInt(vmPort);
             this.ip = networkIp;
