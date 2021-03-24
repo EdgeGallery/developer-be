@@ -42,6 +42,7 @@ import org.edgegallery.developer.model.lcm.UploadResponse;
 import org.edgegallery.developer.model.vm.EnumVmCreateStatus;
 import org.edgegallery.developer.model.vm.EnumVmImportStatus;
 import org.edgegallery.developer.model.vm.FileUploadEntity;
+import org.edgegallery.developer.model.vm.NetworkInfo;
 import org.edgegallery.developer.model.vm.ScpConnectEntity;
 import org.edgegallery.developer.model.vm.VmCreateConfig;
 import org.edgegallery.developer.model.vm.VmCreateStageStatus;
@@ -411,9 +412,17 @@ public class VmService {
             return Either.right(true);
         }
 
+        String networkType = "Network_N6";
+        VmNetwork vmNetwork = vmConfigMapper.getVmNetworkByType(networkType);
         Type type = new TypeToken<List<VmInfo>>() { }.getType();
         List<VmInfo> vmInfo = gson.fromJson(gson.toJson(vmCreateConfig.getVmInfo()), type);
-        String networkIp = vmInfo.get(0).getNetworks().get(0).getIp();
+        List<NetworkInfo> networkInfos = vmInfo.get(0).getNetworks();
+        String networkIp = "";
+        for (NetworkInfo networkInfo:networkInfos) {
+            if(networkInfo.getName().equals(vmNetwork.getNetworkName())) {
+                networkIp = networkInfo.getIp();
+            }
+        }
         LOGGER.info("network Ip, username, password is {},{},{}", networkIp, vmUsername, vmPassword);
         // ssh upload file
         String targetPath = "";

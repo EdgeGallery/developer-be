@@ -32,6 +32,8 @@ public interface VmConfigMapper {
 
     List<VmNetwork> getVmNetwork();
 
+    VmNetwork getVmNetworkByType(String networkType);
+
     int saveVmCreateConfig(VmCreateConfig vmCreateConfig);
 
     int updateVmCreateConfig(VmCreateConfig testConfig);
