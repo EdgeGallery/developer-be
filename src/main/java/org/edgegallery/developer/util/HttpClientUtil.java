@@ -57,8 +57,6 @@ public final class HttpClientUtil {
 
     private static final RestTemplate REST_TEMPLATE = new RestTemplate();
 
-    public static final String IMAGE_PATH = "/Image/image-name/";
-
     private HttpClientUtil() {
 
     }
@@ -491,7 +489,7 @@ public final class HttpClientUtil {
      * downloadVmImage.
      */
     public static boolean downloadVmImage(String protocol, String ip, int port, String userId, String packagePath,
-        String appInstanceId, String imageId, String chunkNum, String token) {
+        String appInstanceId, String imageId, String imageName, String chunkNum, String token) {
 
         String url = getUrlPrefix(protocol, ip, port) + Consts.APP_LCM_GET_IMAGE_DOWNLOAD_URL
             .replaceAll("appInstanceId", appInstanceId).replaceAll("tenantId", userId).replaceAll("imageId", imageId);
@@ -517,7 +515,9 @@ public final class HttpClientUtil {
                 .orElseThrow(() -> new DomainException("response header Content-Disposition is null")).get(0)
                 .replace("attachment; filename=", "");
 
-            File imageDir = new File(packagePath + IMAGE_PATH);
+            String outPath = packagePath + File.separator +imageName;
+            LOGGER.info("output image path:{}",outPath);
+            File imageDir = new File(outPath);
             if (!imageDir.exists()) {
                 boolean isMk = imageDir.mkdirs();
                 if (!isMk) {
@@ -525,7 +525,7 @@ public final class HttpClientUtil {
                     return false;
                 }
             }
-            File file = new File(packagePath + IMAGE_PATH + fileName + "_" + chunkNum);
+            File file = new File(outPath + File.separator + fileName + "_" + chunkNum);
             if (!file.exists() && !file.createNewFile()) {
                 LOGGER.error("create download file error");
                 throw new DomainException("create download file error");
