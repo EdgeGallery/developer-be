@@ -24,11 +24,13 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.edgegallery.developer.common.Consts;
+import org.edgegallery.developer.model.SshConnectInfo;
 import org.edgegallery.developer.model.workspace.ApplicationProject;
 import org.edgegallery.developer.model.workspace.OpenMepCapabilityDetail;
 import org.edgegallery.developer.model.workspace.OpenMepCapabilityGroup;
@@ -36,6 +38,7 @@ import org.edgegallery.developer.model.workspace.ProjectTestConfig;
 import org.edgegallery.developer.response.ErrorRespDto;
 import org.edgegallery.developer.response.FormatRespDto;
 import org.edgegallery.developer.service.ProjectService;
+import org.edgegallery.developer.service.WebSshService;
 import org.edgegallery.developer.util.ResponseDataUtil;
 import org.hibernate.validator.constraints.Length;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,6 +66,9 @@ public class ProjectController {
 
     @Autowired
     private ProjectService projectService;
+
+    @Autowired
+    private WebSshService webSshService;
 
     /**
      * get all project.
@@ -225,6 +231,16 @@ public class ProjectController {
         HttpServletRequest request) {
         String token = request.getHeader(Consts.ACCESS_TOKEN_STR);
         Either<FormatRespDto, Boolean> either = projectService.cleanTestEnv(userId, projectId, token);
+        Map<String, Object> sshMap = webSshService.getSshMap();
+        SshConnectInfo sshConnectInfo = (SshConnectInfo) sshMap.get(userId);
+        if (sshConnectInfo != null) {
+            //断开连接
+            if (sshConnectInfo.getChannel() != null) {
+                sshConnectInfo.getChannel().disconnect();
+            }
+            //map中移除
+            sshMap.remove(userId);
+        }
         return ResponseDataUtil.buildResponse(either);
     }
 

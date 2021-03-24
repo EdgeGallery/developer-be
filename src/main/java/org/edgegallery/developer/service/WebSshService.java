@@ -1,6 +1,7 @@
 package org.edgegallery.developer.service;
 
 import java.io.IOException;
+import java.util.Map;
 import org.springframework.web.socket.WebSocketSession;
 
 public interface WebSshService {
@@ -12,4 +13,6 @@ public interface WebSshService {
     void sendMessage(WebSocketSession session, byte[] buffer) throws IOException;
 
     void close(WebSocketSession session);
+
+     Map<String, Object> getSshMap();
 }
