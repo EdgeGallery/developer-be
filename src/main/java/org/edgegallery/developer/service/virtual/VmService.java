@@ -716,7 +716,7 @@ public class VmService {
      */
     public boolean downloadImageResult(MepHost host, VmImageConfig config, String userId) {
 
-        String packagePath = getProjectPath(config.getProjectId()) + config.getAppInstanceId() + File.separator + "Image";
+        String packagePath = projectService.getProjectPath(config.getProjectId()) + config.getAppInstanceId() + File.separator + "Image";
         LOGGER.info(packagePath);
         for (int chunkNum = 0; chunkNum < config.getSumChunkNum(); chunkNum++) {
             LOGGER.info("download image chunkNum:{}", chunkNum);
@@ -724,12 +724,6 @@ public class VmService {
                 .downloadVmImage(host.getProtocol(), host.getLcmIp(), host.getPort(), userId, packagePath,
                     config.getAppInstanceId(), config.getImageId(), config.getImageName(), Integer.toString(chunkNum),
                     config.getLcmToken());
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                LOGGER.error("sleep fail! {}", e.getMessage());
-            }
             if (!res) {
                 LOGGER.info("download image fail");
                 config.setLog("download image fail");
@@ -749,7 +743,7 @@ public class VmService {
                 File[] files = file.listFiles();
                 if (files != null && files.length > 0) {
                     File partFile = new File(imagePath + File.separator + config.getImageName() + ".qcow2");
-                    for (int i = 0; i <= files.length; i++) {
+                    for (int i = 0; i < files.length; i++) {
                         File s = new File(imagePath, "temp_" + i);
                         FileOutputStream destTempfos = new FileOutputStream(partFile, true);
                         FileUtils.copyFile(s, destTempfos);

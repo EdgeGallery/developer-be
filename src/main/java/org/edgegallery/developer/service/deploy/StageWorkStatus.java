@@ -71,7 +71,7 @@ public class StageWorkStatus implements IConfigDeployStage {
         List<MepHost> hosts = gson.fromJson(gson.toJson(config.getHosts()), type);
         MepHost host = hosts.get(0);
         try {
-            Thread.sleep(30000);
+            Thread.sleep(60000);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             LOGGER.error("sleep fail! {}", e.getMessage());
