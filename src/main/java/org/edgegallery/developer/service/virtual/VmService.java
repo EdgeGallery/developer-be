@@ -700,13 +700,14 @@ public class VmService {
      */
     public boolean downloadImageResult(MepHost host, VmImageConfig config, String userId) {
 
-        String packagePath = getProjectPath(config.getProjectId()) + config.getAppInstanceId();
+        String packagePath = getProjectPath(config.getProjectId()) + config.getAppInstanceId() + File.separator + "Image";
         LOGGER.info(packagePath);
         for (int chunkNum = 0; chunkNum < config.getSumChunkNum(); chunkNum++) {
             LOGGER.info("download image chunkNum:{}", chunkNum);
             boolean res = HttpClientUtil
                 .downloadVmImage(host.getProtocol(), host.getLcmIp(), host.getPort(), userId, packagePath,
-                    config.getAppInstanceId(), config.getImageId(), Integer.toString(chunkNum), config.getLcmToken());
+                    config.getAppInstanceId(), config.getImageId(), config.getImageName(), Integer.toString(chunkNum),
+                    config.getLcmToken());
             try {
                 Thread.sleep(1000);
             } catch (InterruptedException e) {
@@ -724,13 +725,14 @@ public class VmService {
             }
         }
 
-        String imagePath = packagePath + File.separator + "Image/image-name/";
+        String imagePath = packagePath + File.separator + config.getImageName();
+        LOGGER.info("image file path:{}", imagePath);
         try {
-            File file = new File(packagePath + File.separator + "Image/image-name/");
+            File file = new File(imagePath);
             if (file.isDirectory()) {
                 File[] files = file.listFiles();
                 if (files != null && files.length > 0) {
-                    File partFile = new File(imagePath + config.getImageName() + ".qcow2");
+                    File partFile = new File(imagePath + File.separator + config.getImageName() + ".qcow2");
                     for (int i = 0; i <= files.length; i++) {
                         File s = new File(imagePath, "temp_" + i);
                         FileOutputStream destTempfos = new FileOutputStream(partFile, true);
