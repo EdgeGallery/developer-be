@@ -418,8 +418,8 @@ public class VmService {
         List<VmInfo> vmInfo = gson.fromJson(gson.toJson(vmCreateConfig.getVmInfo()), type);
         List<NetworkInfo> networkInfos = vmInfo.get(0).getNetworks();
         String networkIp = "";
-        for (NetworkInfo networkInfo:networkInfos) {
-            if(networkInfo.getName().equals(vmNetwork.getNetworkName())) {
+        for (NetworkInfo networkInfo : networkInfos) {
+            if (networkInfo.getName().equals(vmNetwork.getNetworkName())) {
                 networkIp = networkInfo.getIp();
             }
         }
@@ -673,8 +673,8 @@ public class VmService {
         Type type = new TypeToken<MepHost>() { }.getType();
         MepHost host = gson.fromJson(gson.toJson(vmCreateConfig.getHost()), type);
         if (!StringUtils.isEmpty(vmImageConfig.getImageId())) {
-            HttpClientUtil
-                .deleteVmImage(host.getProtocol(), host.getLcmIp(), host.getPort(), userId, vmImageConfig.getAppInstanceId(), vmImageConfig.getImageId(), token);
+            HttpClientUtil.deleteVmImage(host.getProtocol(), host.getLcmIp(), host.getPort(), userId,
+                vmImageConfig.getAppInstanceId(), vmImageConfig.getImageId(), token);
         }
 
         int res = vmConfigMapper.deleteVmImage(projectId, vmCreateConfig.getVmId());
