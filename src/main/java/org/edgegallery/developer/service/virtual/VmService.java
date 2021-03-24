@@ -674,7 +674,7 @@ public class VmService {
             return Either.left(new FormatRespDto(Response.Status.BAD_REQUEST, "Delete vm image config failed."));
         }
         String projectPath = getProjectPath(projectId);
-        String imagePath = "/Image" + vmImageConfig.getImageName() + ".zip";
+        String imagePath = "/Image" + File.separator + vmImageConfig.getImageName();
         DeveloperFileUtils.deleteDir(projectPath + File.separator + vmImageConfig.getAppInstanceId() + imagePath);
 
         LOGGER.info("delete vm create config success");
