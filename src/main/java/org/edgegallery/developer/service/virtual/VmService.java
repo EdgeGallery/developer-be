@@ -665,8 +665,7 @@ public class VmService {
         MepHost host = gson.fromJson(gson.toJson(vmCreateConfig.getHost()), type);
         if (!StringUtils.isEmpty(vmImageConfig.getImageId())) {
             HttpClientUtil
-                .deleteVmImage(host.getProtocol(), host.getLcmIp(), host.getPort(), vmImageConfig.getAppInstanceId(),
-                    userId, vmImageConfig.getImageId(), token);
+                .deleteVmImage(host.getProtocol(), host.getLcmIp(), host.getPort(), userId, vmImageConfig.getAppInstanceId(), vmImageConfig.getImageId(), token);
         }
 
         int res = vmConfigMapper.deleteVmImage(projectId, vmCreateConfig.getVmId());
