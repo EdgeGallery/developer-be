@@ -21,7 +21,7 @@ public class PodStatusInfo {
      * @return
      */
     public String[] getPodEventsInfo() {
-        if (podEventsInfo != null) {
+        if (podEventsInfo != null && podEventsInfo.length > 0) {
             return podEventsInfo.clone();
         }
         return new String[0];
@@ -33,7 +33,7 @@ public class PodStatusInfo {
      * @param podEventsInfo podEventsInfo
      */
     public void setPodEventsInfo(String[] podEventsInfo) {
-        if (podEventsInfo != null) {
+        if (podEventsInfo != null && podEventsInfo.length > 0) {
             this.podEventsInfo = podEventsInfo.clone();
         } else {
             this.podEventsInfo = new String[0];
@@ -46,7 +46,7 @@ public class PodStatusInfo {
      * @return
      */
     public PodContainers[] getContainers() {
-        if (containers != null) {
+        if (containers != null && containers.length > 0) {
             return containers.clone();
         }
         return new PodContainers[0];
@@ -58,7 +58,7 @@ public class PodStatusInfo {
      * @param containers containers
      */
     public void setContainers(PodContainers[] containers) {
-        if (containers != null) {
+        if (containers != null && containers.length > 0) {
             this.containers = containers.clone();
         } else {
             this.containers = new PodContainers[0];

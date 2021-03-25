@@ -17,7 +17,7 @@ public class PodEvents {
      * @return
      */
     public String[] getPodEventsInfo() {
-        if (podEventsInfo != null) {
+        if (podEventsInfo != null && podEventsInfo.length > 0) {
             return podEventsInfo.clone();
         }
         return new String[0];
@@ -29,7 +29,7 @@ public class PodEvents {
      * @param podEventsInfo podEventsInfo
      */
     public void setPodEventsInfo(String[] podEventsInfo) {
-        if (podEventsInfo != null) {
+        if (podEventsInfo != null && podEventsInfo.length > 0) {
             this.podEventsInfo = podEventsInfo.clone();
         } else {
             this.podEventsInfo = new String[0];
