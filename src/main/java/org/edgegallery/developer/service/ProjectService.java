@@ -66,10 +66,7 @@ import org.edgegallery.developer.mapper.ProjectImageMapper;
 import org.edgegallery.developer.mapper.ProjectMapper;
 import org.edgegallery.developer.mapper.ReleaseConfigMapper;
 import org.edgegallery.developer.mapper.UploadedFileMapper;
-import org.edgegallery.developer.model.CapabilitiesDetail;
-import org.edgegallery.developer.model.LcmLog;
-import org.edgegallery.developer.model.ReleaseConfig;
-import org.edgegallery.developer.model.ServiceDetail;
+import org.edgegallery.developer.model.*;
 import org.edgegallery.developer.model.atp.AtpResultInfo;
 import org.edgegallery.developer.model.lcm.UploadResponse;
 import org.edgegallery.developer.model.workspace.ApplicationProject;
@@ -163,6 +160,9 @@ public class ProjectService {
 
     @Autowired
     private HostLogMapper hostLogMapper;
+
+    @Autowired
+    private WebSshService webSshService;
 
     /**
      * getAllProjects.
@@ -1032,6 +1032,17 @@ public class ProjectService {
      */
     public Either<FormatRespDto, Boolean> cleanTestEnv(String userId, String projectId, String token) {
         ApplicationProject project = projectMapper.getProject(userId, projectId);
+        Map<String, Object> sshMap = webSshService.getSshMap();
+        SshConnectInfo sshConnectInfo = (SshConnectInfo) sshMap.get(userId);
+        if (sshConnectInfo != null) {
+            //断开连接
+            if (sshConnectInfo.getChannel() != null) {
+                sshConnectInfo.getChannel().disconnect();
+            }
+            //map中移除
+            System.out.println("kankandaozhemei");
+            sshMap.remove(userId);
+        }
         if (project == null) {
             LOGGER.error("Can not find project by userId and projectId");
             FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "can not find project");

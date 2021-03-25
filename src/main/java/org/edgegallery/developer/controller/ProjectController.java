@@ -67,9 +67,6 @@ public class ProjectController {
     @Autowired
     private ProjectService projectService;
 
-    @Autowired
-    private WebSshService webSshService;
-
     /**
      * get all project.
      */
@@ -231,16 +228,7 @@ public class ProjectController {
         HttpServletRequest request) {
         String token = request.getHeader(Consts.ACCESS_TOKEN_STR);
         Either<FormatRespDto, Boolean> either = projectService.cleanTestEnv(userId, projectId, token);
-        Map<String, Object> sshMap = webSshService.getSshMap();
-        SshConnectInfo sshConnectInfo = (SshConnectInfo) sshMap.get(userId);
-        if (sshConnectInfo != null) {
-            //断开连接
-            if (sshConnectInfo.getChannel() != null) {
-                sshConnectInfo.getChannel().disconnect();
-            }
-            //map中移除
-            sshMap.remove(userId);
-        }
+
         return ResponseDataUtil.buildResponse(either);
     }
 
