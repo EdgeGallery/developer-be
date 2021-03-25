@@ -80,9 +80,9 @@ public class DeployService {
         String reqContentnew = jsonstr.replaceAll("\r", "").replaceAll("\n", "").replaceAll("\t", "").trim();
         String env = "\"env\":[{\"name\":\"\",\"value\":\"\"}],";
         String command = "\"command\":\"[\\\\\\\"\\\\\\\"]\",";
-        String resources
-            = ",\"resources\":\\{\"limits\":\\{\"memory\":\"\",\"cpu\":\"\"},\"requests\":\\{\"memory\":\"\","
-            + "\"cpu\":\"\"}}";
+        String resources =
+            ",\"resources\":\\{\"limits\":\\{\"memory\":\"\",\"cpu\":\"\"},\"requests\":\\{\"memory\":\"\","
+                + "\"cpu\":\"\"}}";
         if (reqContentnew.contains(env)) {
             reqContentnew = reqContentnew.replace(env, "");
         }
@@ -101,11 +101,7 @@ public class DeployService {
                 sbPod.add("\\{\"apiVersion\"" + reqs[i].substring(0, reqs[i].length() - 1));
             }
             if (reqs[i].contains("\"Service\"")) {
-                if (reqs[i].endsWith("}}]")) {
-                    sbService.add("\\{\"apiVersion\"" + reqs[i].substring(0, reqs[i].length() - 1));
-                } else {
-                    sbService.add("\\{\"apiVersion\"" + reqs[i].substring(0, reqs[i].length() - 1));
-                }
+                sbService.add("\\{\"apiVersion\"" + reqs[i].substring(0, reqs[i].length() - 1));
             }
         }
 

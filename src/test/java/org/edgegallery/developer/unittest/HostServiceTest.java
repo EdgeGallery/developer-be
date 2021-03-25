@@ -16,7 +16,6 @@
 
 package org.edgegallery.developer.unittest;
 
-import com.google.gson.Gson;
 import com.spencerwi.either.Either;
 import java.util.List;
 import java.util.UUID;

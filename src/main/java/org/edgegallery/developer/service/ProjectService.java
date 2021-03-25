@@ -25,6 +25,7 @@ import com.spencerwi.either.Either;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.net.URL;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.text.DateFormat;
@@ -66,7 +67,11 @@ import org.edgegallery.developer.mapper.ProjectImageMapper;
 import org.edgegallery.developer.mapper.ProjectMapper;
 import org.edgegallery.developer.mapper.ReleaseConfigMapper;
 import org.edgegallery.developer.mapper.UploadedFileMapper;
-import org.edgegallery.developer.model.*;
+import org.edgegallery.developer.model.CapabilitiesDetail;
+import org.edgegallery.developer.model.LcmLog;
+import org.edgegallery.developer.model.ReleaseConfig;
+import org.edgegallery.developer.model.ServiceDetail;
+import org.edgegallery.developer.model.SshConnectInfo;
 import org.edgegallery.developer.model.atp.AtpResultInfo;
 import org.edgegallery.developer.model.lcm.UploadResponse;
 import org.edgegallery.developer.model.workspace.ApplicationProject;
@@ -114,10 +119,6 @@ public class ProjectService {
 
     private static CookieStore cookieStore = new BasicCookieStore();
 
-    private static final String USERNAME = "admin";
-
-    private static final String PASSWORD = "admin";
-
     private static Gson gson = new Gson();
 
     ExecutorService threadPool = Executors.newSingleThreadExecutor();
@@ -130,6 +131,12 @@ public class ProjectService {
 
     @Value("${security.oauth2.resource.jwt.key-uri:}")
     private String loginUrl;
+
+    @Value("${client.client-id:}")
+    private String clientId;
+
+    @Value("${client.client-secret:}")
+    private String clientPW;
 
     @Autowired
     private ProjectMapper projectMapper;
@@ -1094,7 +1101,7 @@ public class ProjectService {
             if (!CollectionUtils.isEmpty(hosts)) {
                 MepHost host = hostMapper.getHost(hosts.get(0).getHostId());
                 host.setStatus(EnumHostStatus.NORMAL);
-                hostMapper.updateHostSelected(hosts.get(0));
+                hostMapper.updateHostSelected(host);
             }
             MepHost host = hosts.get(0);
             // save host logs
@@ -1346,14 +1353,15 @@ public class ProjectService {
         }
         //登录user-mgmt
         //通过服务名调用user-mgmt的登录接口
-        String userLoginUrl = loginUrl.substring(0, loginUrl.lastIndexOf(":")) + ":30067/index.html";
-        LOGGER.warn("user login url: {}", userLoginUrl);
-        HttpPost httpPost = new HttpPost(userLoginUrl);
-        MultipartEntityBuilder builder = MultipartEntityBuilder.create();
-        builder.addTextBody("username", USERNAME);
-        builder.addTextBody("password", PASSWORD);
-        httpPost.setEntity(builder.build());
         try (CloseableHttpClient client = createIgnoreSslHttpClient()) {
+            URL url = new URL(loginUrl);
+            String userLoginUrl = url.getProtocol() + "://" + url.getAuthority() + "/index.html";
+            LOGGER.warn("user login url: {}", userLoginUrl);
+            HttpPost httpPost = new HttpPost(userLoginUrl);
+            MultipartEntityBuilder builder = MultipartEntityBuilder.create();
+            builder.addTextBody("username", clientId + ":" + new Date().getTime());
+            builder.addTextBody("password", clientPW);
+            httpPost.setEntity(builder.build());
             client.execute(httpPost);
             String xsrf = getXsrf();
             httpPost.setHeader("X-XSRF-TOKEN", xsrf);
@@ -1367,8 +1375,6 @@ public class ProjectService {
                 Long timeDiff = Duration.between(dateOfProject, now).toHours();
                 EnumProjectStatus status = project.getStatus();
                 if ((status.equals(EnumProjectStatus.DEPLOYED) || status.equals(EnumProjectStatus.DEPLOYED_FAILED))) {
-                    // && timeDiff.intValue() >= 24
-                    // cleanTestEnv();
                     String devSvc = "http://developer-be-svc:9082";
                     String cleanUrl = String
                         .format(Consts.DEV_CLEAN_ENV_URL, devSvc, project.getId(), project.getUserId());

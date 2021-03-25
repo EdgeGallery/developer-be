@@ -16,23 +16,20 @@
 
 package org.edgegallery.developer.model.vm;
 
+import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 @Getter
 @Setter
-public class VmSystem {
+@ToString
+public class VmInstantiateInfo {
 
-    private Integer systemId;
+    private  String code;
 
-    private String type;
+    private String msg;
 
-    private String operateSystem;
-
-    private String version;
-
-    private String systemBit;
-
-    private Integer systemDisk;
+    private List<VmInfo> data;
 
 }

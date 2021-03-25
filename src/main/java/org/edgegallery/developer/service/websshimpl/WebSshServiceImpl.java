@@ -1,3 +1,19 @@
+/*
+ *    Copyright 2020 Huawei Technologies Co., Ltd.
+ *
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
+ */
+
 package org.edgegallery.developer.service.websshimpl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -18,12 +34,16 @@ import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import org.edgegallery.developer.mapper.HostMapper;
 import org.edgegallery.developer.mapper.ProjectMapper;
 import org.edgegallery.developer.mapper.VmConfigMapper;
 import org.edgegallery.developer.model.SshConnectInfo;
 import org.edgegallery.developer.model.WebSshData;
 import org.edgegallery.developer.model.vm.EnumVmCreateStatus;
+import org.edgegallery.developer.model.vm.NetworkInfo;
 import org.edgegallery.developer.model.vm.VmCreateConfig;
+import org.edgegallery.developer.model.vm.VmInfo;
+import org.edgegallery.developer.model.vm.VmNetwork;
 import org.edgegallery.developer.model.workspace.ApplicationProject;
 import org.edgegallery.developer.model.workspace.EnumDeployPlatform;
 import org.edgegallery.developer.model.workspace.MepHost;
@@ -33,6 +53,7 @@ import org.edgegallery.developer.util.webssh.constant.ConstantPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.socket.TextMessage;
@@ -44,6 +65,17 @@ public class WebSshServiceImpl implements WebSshService {
     private  Map<String, Object> sshMap = new ConcurrentHashMap<>();
     private Map<String, String> userIdMap = new ConcurrentHashMap<>();
     private static int PORT = 33;
+
+    @Value("${vm.username:}")
+    private String vmUsername;
+
+    @Value("${vm.password:}")
+    private String vmPassword;
+
+    @Value("${vm.port:}")
+    private String vmPort;
+
+    private int port;
 
     private String ip;
 
@@ -64,11 +96,14 @@ public class WebSshServiceImpl implements WebSshService {
     @Autowired
     private VmConfigMapper vmConfigMapper;
 
+    @Autowired
+    private HostMapper hostMapper;
+
     @Override
     public void initConnection(WebSocketSession session) {
-        JSch jSch = new JSch();
+        JSch jsch = new JSch();
         SshConnectInfo sshConnectInfo = new SshConnectInfo();
-        sshConnectInfo.setjSch(jSch);
+        sshConnectInfo.setjSch(jsch);
         sshConnectInfo.setWebSocketSession(session);
         String uuid = String.valueOf(session.getAttributes().get(ConstantPool.USER_UUID_KEY));
         //将这个ssh连接信息放入map中
@@ -147,7 +182,6 @@ public class WebSshServiceImpl implements WebSshService {
         Properties config = new Properties();
         config.put("StrictHostKeyChecking", "no");
         //获取jsch的会话
-
         //获取userID和projectId
         String userId = webSshData.getUserId();
         String projectId = webSshData.getProjectId();
@@ -167,7 +201,8 @@ public class WebSshServiceImpl implements WebSshService {
             ProjectTestConfig testConfig = testConfigList.get(0);
             Type type = new TypeToken<List<MepHost>>() { }.getType();
             List<MepHost> hosts = gson.fromJson(gson.toJson(testConfig.getHosts()), type);
-            MepHost host = hosts.get(0);
+            MepHost host = hostMapper.getHost(hosts.get(0).getHostId());
+            this.port = 33;
             this.ip = host.getLcmIp();
             this.username = host.getUserName();
             this.password = host.getPassword();
@@ -182,16 +217,24 @@ public class WebSshServiceImpl implements WebSshService {
                 logger.info("the vm is creating or create fail.");
                 return;
             }
-            // Type type = new TypeToken<List<VmInfo>>() { }.getType();
-            // List<VmInfo> vmInfos = gson.fromJson(gson.toJson(vmCreateConfig.getVmInfo()), type);
-            //VmInfo vmInfo = vmInfos.get(0);
-            //this.ip = vmInfo.getVncUrl();
-            logger.info("the vm ip: 192.168.233.34.");
-            this.ip = "192.168.233.34";
-            this.username = "root";
-            this.password = "123456";
+            String networkType = "Network_N6";
+            VmNetwork vmNetwork = vmConfigMapper.getVmNetworkByType(networkType);
+            Type type = new TypeToken<List<VmInfo>>() { }.getType();
+            List<VmInfo> vmInfo = gson.fromJson(gson.toJson(vmCreateConfig.getVmInfo()), type);
+            List<NetworkInfo> networkInfos = vmInfo.get(0).getNetworks();
+            String networkIp = "";
+            for (NetworkInfo networkInfo : networkInfos) {
+                if (networkInfo.getName().equals(vmNetwork.getNetworkName())) {
+                    networkIp = networkInfo.getIp();
+                }
+            }
+            logger.info("shh info: {},{},{},{}", networkIp, vmPort, vmUsername, vmPassword);
+            this.port = Integer.parseInt(vmPort);
+            this.ip = networkIp;
+            this.username = vmUsername;
+            this.password = vmPassword;
         }
-        Session session = sshConnectInfo.getjSch().getSession(this.username, this.ip, PORT);
+        Session session = sshConnectInfo.getjSch().getSession(this.username, this.ip, this.port);
         session.setConfig(config);
         //设置密码
         session.setPassword(this.password);
@@ -201,8 +244,8 @@ public class WebSshServiceImpl implements WebSshService {
         //开启shell通道
         Channel channel = session.openChannel("shell");
 
-        //通道连接 超时时间3s
-        channel.connect(3000);
+        //通道连接 超时时间60s
+        channel.connect(60000);
 
         //设置channel
         sshConnectInfo.setChannel(channel);

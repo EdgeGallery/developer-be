@@ -282,7 +282,6 @@ public class ReleaseConfigService {
 
     private void writeFile(File file, String content) {
         try {
-            //     FileWriter fw = new FileWriter(file.getCanonicalPath());
             Writer fw = new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8);
             BufferedWriter bw = new BufferedWriter(fw);
             bw.write(content);

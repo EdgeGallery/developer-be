@@ -24,13 +24,11 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import java.io.IOException;
 import java.util.List;
-import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.edgegallery.developer.common.Consts;
-import org.edgegallery.developer.model.SshConnectInfo;
 import org.edgegallery.developer.model.workspace.ApplicationProject;
 import org.edgegallery.developer.model.workspace.OpenMepCapabilityDetail;
 import org.edgegallery.developer.model.workspace.OpenMepCapabilityGroup;
@@ -38,9 +36,7 @@ import org.edgegallery.developer.model.workspace.ProjectTestConfig;
 import org.edgegallery.developer.response.ErrorRespDto;
 import org.edgegallery.developer.response.FormatRespDto;
 import org.edgegallery.developer.service.ProjectService;
-import org.edgegallery.developer.service.WebSshService;
 import org.edgegallery.developer.util.ResponseDataUtil;
-import org.hibernate.validator.constraints.Length;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -61,8 +57,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 public class ProjectController {
 
     private static final String REGEX_UUID = "[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}";
-
-    private static final String REGEX_USERNAME = "^[a-zA-Z][a-zA-Z0-9_]{5,29}$";
 
     @Autowired
     private ProjectService projectService;
@@ -307,8 +301,6 @@ public class ProjectController {
         @ApiParam(value = "projectId", required = true) @PathVariable("projectId") String projectId,
         @Pattern(regexp = REGEX_UUID, message = "userId must be in UUID format")
         @ApiParam(value = "userId", required = true) @RequestParam("userId") String userId,
-        @NotNull @Length(min = 6, max = 30) @Pattern(regexp = REGEX_USERNAME,
-            message = "username can only be a combination of letters and numbers, the length is 6 to 30")
         @ApiParam(value = "userName", required = true) @RequestParam(value = "userName", required = true)
             String userName, HttpServletRequest request) {
         String token = request.getHeader(Consts.ACCESS_TOKEN_STR);

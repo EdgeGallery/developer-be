@@ -1,3 +1,19 @@
+/*
+ *    Copyright 2020 Huawei Technologies Co., Ltd.
+ *
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
+ */
+
 package org.edgegallery.developer.service.virtual;
 
 import static org.edgegallery.developer.util.AtpUtil.getProjectPath;
@@ -9,6 +25,7 @@ import com.google.gson.JsonParser;
 import com.google.gson.reflect.TypeToken;
 import com.spencerwi.either.Either;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.List;
@@ -25,6 +42,7 @@ import org.edgegallery.developer.model.lcm.UploadResponse;
 import org.edgegallery.developer.model.vm.EnumVmCreateStatus;
 import org.edgegallery.developer.model.vm.EnumVmImportStatus;
 import org.edgegallery.developer.model.vm.FileUploadEntity;
+import org.edgegallery.developer.model.vm.NetworkInfo;
 import org.edgegallery.developer.model.vm.ScpConnectEntity;
 import org.edgegallery.developer.model.vm.VmCreateConfig;
 import org.edgegallery.developer.model.vm.VmCreateStageStatus;
@@ -52,6 +70,7 @@ import org.edgegallery.developer.util.ShhFileUploadUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -62,6 +81,12 @@ import org.springframework.web.multipart.MultipartFile;
 
 @Service("vmService")
 public class VmService {
+    @Value("${vm.username:}")
+    private String vmUsername;
+
+    @Value("${vm.password:}")
+    private String vmPassword;
+
     private static final Logger LOGGER = LoggerFactory.getLogger(VmService.class);
 
     private static Gson gson = new Gson();
@@ -248,6 +273,7 @@ public class VmService {
         LcmLog lcmLog = new LcmLog();
         String uploadRes = HttpClientUtil
             .uploadPkg(host.getProtocol(), host.getLcmIp(), host.getPort(), csar.getPath(), userId, lcmToken, lcmLog);
+        LOGGER.info("upload package result: {}", uploadRes);
         if (org.springframework.util.StringUtils.isEmpty(uploadRes)) {
             vmConfig.setLog(lcmLog.getLog());
             return false;
@@ -257,12 +283,14 @@ public class VmService {
         UploadResponse uploadResponse = gson.fromJson(uploadRes, typeEvents);
         String pkgId = uploadResponse.getPackageId();
         vmConfig.setPackageId(pkgId);
+        vmConfig.setLog("upload csar package success" + pkgId);
         vmConfigMapper.updateVmCreateConfig(vmConfig);
 
         // distribute pkg
         boolean distributeRes = HttpClientUtil
             .distributePkg(host.getProtocol(), host.getLcmIp(), host.getPort(), userId, lcmToken, pkgId,
                 host.getMecHost(), lcmLog);
+        LOGGER.info("distribute package result: {}", distributeRes);
         if (!distributeRes) {
             vmConfig.setLog(lcmLog.getLog());
             return false;
@@ -272,6 +300,7 @@ public class VmService {
         boolean instantRes = HttpClientUtil
             .instantiateApplication(host.getProtocol(), host.getLcmIp(), host.getPort(), appInstanceId, userId,
                 lcmToken, lcmLog, pkgId, host.getMecHost());
+        LOGGER.info("distribute package result: {}", instantRes);
         if (!instantRes) {
             vmConfig.setLog(lcmLog.getLog());
             return false;
@@ -287,7 +316,7 @@ public class VmService {
         // delete hosts
         boolean deleteHostRes = HttpClientUtil
             .deleteHost(host.getProtocol(), host.getLcmIp(), host.getPort(), userId, lcmToken, vmConfig.getPackageId(),
-                host.getLcmIp());
+                host.getMecHost());
 
         // delete pkg
         boolean deletePkgRes = HttpClientUtil
@@ -337,9 +366,16 @@ public class VmService {
             LOGGER.info("Can not find the vm create config by vmId {} and projectId {}", vmId, projectId);
             return Either.right(true);
         }
+        VmImageConfig vmImageConfig = vmConfigMapper.getVmImage(projectId, vmId);
+        if (vmImageConfig != null) {
+            LOGGER.error("Can not delete vm config, first delete vm image by  vmId {}", vmId);
+            FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST,
+                "Can not delete vm config, first delete vm image");
+            return Either.left(error);
+        }
 
-        if (vmCreateConfig.getStageStatus().getInstantiateInfo() != null && vmCreateConfig.getStageStatus()
-            .getInstantiateInfo().equals(EnumTestConfigStatus.Success)) {
+        if (vmCreateConfig.getStageStatus().getInstantiateInfo() == EnumTestConfigStatus.Success && !StringUtils
+            .isEmpty(vmCreateConfig.getPackageId())) {
             deleteVmCreate(vmCreateConfig, project.getUserId(), token);
         }
 
@@ -350,11 +386,7 @@ public class VmService {
         }
         String projectPath = getProjectPath(projectId);
         DeveloperFileUtils.deleteDir(projectPath + vmCreateConfig.getAppInstanceId());
-        try {
-            FileUtils.deleteDirectory(new File(projectPath + vmCreateConfig.getAppInstanceId() + ".csar"));
-        } catch (IOException e) {
-            LOGGER.error("Delete vm create scar failed.");
-        }
+        FileUtils.deleteQuietly(new File(projectPath + vmCreateConfig.getAppInstanceId() + ".csar"));
 
         LOGGER.info("delete vm create config success");
         return Either.right(true);
@@ -379,26 +411,36 @@ public class VmService {
             LOGGER.info("Can not find the vm create config by vmId {} and projectId {}", vmId, projectId);
             return Either.right(true);
         }
-        File file = transferToFile(uploadFile);
 
+        String networkType = "Network_N6";
+        VmNetwork vmNetwork = vmConfigMapper.getVmNetworkByType(networkType);
         Type type = new TypeToken<List<VmInfo>>() { }.getType();
         List<VmInfo> vmInfo = gson.fromJson(gson.toJson(vmCreateConfig.getVmInfo()), type);
-
+        List<NetworkInfo> networkInfos = vmInfo.get(0).getNetworks();
+        String networkIp = "";
+        for (NetworkInfo networkInfo : networkInfos) {
+            if (networkInfo.getName().equals(vmNetwork.getNetworkName())) {
+                networkIp = networkInfo.getIp();
+            }
+        }
+        LOGGER.info("network Ip, username, password is {},{},{}", networkIp, vmUsername, vmPassword);
         // ssh upload file
-        String targetPath = "/home/zhl";
+        String targetPath = "";
         ScpConnectEntity scpConnectEntity = new ScpConnectEntity();
         scpConnectEntity.setTargetPath(targetPath);
-        scpConnectEntity.setUrl("192.168.233.34");
-        scpConnectEntity.setPassWord("123456");
-        scpConnectEntity.setUserName("root");
+        scpConnectEntity.setUrl(networkIp);
+        scpConnectEntity.setPassWord(vmPassword);
+        scpConnectEntity.setUserName(vmUsername);
+        File file = transferToFile(uploadFile);
         String remoteFileName = file.getName();
+        LOGGER.info("path:{}", targetPath);
 
         ShhFileUploadUtil sshFileUploadUtil = new ShhFileUploadUtil();
         FileUploadEntity fileUploadEntity = sshFileUploadUtil.uploadFile(file, remoteFileName, scpConnectEntity);
         if (fileUploadEntity.getCode().equals("ok")) {
             return Either.right(true);
         } else {
-            LOGGER.warn("upload fail, ip:{}", vmInfo.get(0).getVncUrl());
+            LOGGER.warn("upload fail, ip:{}", vmInfo.get(0).getNetworks().get(0).getIp());
             FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, fileUploadEntity.getMessage());
             return Either.left(error);
         }
@@ -552,8 +594,6 @@ public class VmService {
             FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "Can not find the vm config.");
             return Either.left(error);
         }
-        // vmId 存在 返回失敗 todo
-
         VmCreateConfig vmCreateConfig = vmCreateConfigs.get(0);
         if (vmCreateConfig.getStatus() != EnumVmCreateStatus.SUCCESS) {
             LOGGER.error("vm create fail, can not import image,projectId:{}", projectId);
@@ -630,16 +670,21 @@ public class VmService {
                 projectId);
             return Either.right(true);
         }
-        // delete lcm image todo
+        Type type = new TypeToken<MepHost>() { }.getType();
+        MepHost host = gson.fromJson(gson.toJson(vmCreateConfig.getHost()), type);
+        if (!StringUtils.isEmpty(vmImageConfig.getImageId())) {
+            HttpClientUtil.deleteVmImage(host.getProtocol(), host.getLcmIp(), host.getPort(), userId,
+                vmImageConfig.getAppInstanceId(), vmImageConfig.getImageId(), token);
+        }
 
         int res = vmConfigMapper.deleteVmImage(projectId, vmCreateConfig.getVmId());
         if (res < 1) {
             LOGGER.error("Delete vm image config {} failed.", vmCreateConfig.getVmId());
             return Either.left(new FormatRespDto(Response.Status.BAD_REQUEST, "Delete vm image config failed."));
         }
-        String projectPath = getProjectPath(projectId);
-        String imagePath = "/Image" + vmImageConfig.getImageName() + ".zip";
-        DeveloperFileUtils.deleteDir(projectPath + File.separator + vmImageConfig.getAppInstanceId() + imagePath);
+        String packagePath = projectService.getProjectPath(vmImageConfig.getProjectId()) + vmImageConfig
+            .getAppInstanceId() + File.separator + "Image";
+        DeveloperFileUtils.deleteDir(packagePath + File.separator + vmImageConfig.getImageName());
 
         LOGGER.info("delete vm create config success");
         return Either.right(true);
@@ -650,14 +695,20 @@ public class VmService {
      * createVmImageToAppLcm.
      */
     public boolean createVmImageToAppLcm(MepHost host, VmImageConfig imageConfig, String userId) {
-        String vmId = imageConfig.getVmId();
         String appInstanceId = imageConfig.getAppInstanceId();
         String lcmToken = imageConfig.getLcmToken();
         LcmLog lcmLog = new LcmLog();
+        String id = imageConfig.getVmId();
+        VmCreateConfig vmCreateConfig = vmConfigMapper.getVmCreateConfig(imageConfig.getProjectId(), id);
+
+        Type vmInfoType = new TypeToken<List<VmInfo>>() { }.getType();
+        List<VmInfo> vmInfo = gson.fromJson(gson.toJson(vmCreateConfig.getVmInfo()), vmInfoType);
+        String vmId = vmInfo.get(0).getVmId();
 
         String imageResult = HttpClientUtil
             .vmInstantiateImage(host.getProtocol(), host.getLcmIp(), host.getPort(), userId, lcmToken, vmId,
                 appInstanceId, lcmLog);
+        LOGGER.info("import image result: {}", imageResult);
         if (StringUtils.isEmpty(imageResult)) {
             imageConfig.setLog(lcmLog.getLog());
             return false;
@@ -674,16 +725,47 @@ public class VmService {
      */
     public boolean downloadImageResult(MepHost host, VmImageConfig config, String userId) {
 
-        String packagePath = getProjectPath(config.getProjectId()) + config.getAppInstanceId();
+        String packagePath = projectService.getProjectPath(config.getProjectId()) + config.getAppInstanceId()
+            + File.separator + "Image";
+        LOGGER.info(packagePath);
         for (int chunkNum = 0; chunkNum < config.getSumChunkNum(); chunkNum++) {
+            LOGGER.info("download image chunkNum:{}", chunkNum);
             boolean res = HttpClientUtil
                 .downloadVmImage(host.getProtocol(), host.getLcmIp(), host.getPort(), userId, packagePath,
-                    config.getAppInstanceId(), config.getImageId(), Integer.toString(chunkNum), config.getLcmToken());
+                    config.getAppInstanceId(), config.getImageId(), config.getImageName(), Integer.toString(chunkNum),
+                    config.getLcmToken());
             if (!res) {
                 LOGGER.info("download image fail");
+                config.setLog("download image fail");
                 break;
-                //                return false;
             }
+            if (chunkNum % 10 == 0) {
+                config.setLog("download image file:" + chunkNum + "/" + config.getSumChunkNum());
+                vmConfigMapper.updateVmImageConfig(config);
+            }
+        }
+
+        String imagePath = packagePath + File.separator + config.getImageName();
+        LOGGER.info("image file path:{}", imagePath);
+        try {
+            File file = new File(imagePath);
+            if (file.isDirectory()) {
+                File[] files = file.listFiles();
+                if (files != null && files.length > 0) {
+                    File partFile = new File(imagePath + File.separator + config.getImageName() + ".qcow2");
+                    for (int i = 0; i < files.length; i++) {
+                        File s = new File(imagePath, "temp_" + i);
+                        FileOutputStream destTempfos = new FileOutputStream(partFile, true);
+                        FileUtils.copyFile(s, destTempfos);
+                        destTempfos.close();
+                        FileUtils.deleteQuietly(s);
+                    }
+                }
+            }
+
+        } catch (IOException e) {
+            LOGGER.error("image generate failed: occur IOException {}.", e.getMessage());
+            return false;
         }
 
         try {

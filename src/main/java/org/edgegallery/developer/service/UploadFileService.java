@@ -16,9 +16,6 @@
 
 package org.edgegallery.developer.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.google.common.collect.Lists;
 import com.google.gson.Gson;
 import com.spencerwi.either.Either;
@@ -27,11 +24,11 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.regex.Pattern;
-import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
@@ -41,13 +38,11 @@ import org.edgegallery.developer.mapper.HelmTemplateYamlMapper;
 import org.edgegallery.developer.mapper.HostMapper;
 import org.edgegallery.developer.mapper.OpenMepCapabilityMapper;
 import org.edgegallery.developer.mapper.ProjectImageMapper;
+import org.edgegallery.developer.mapper.ProjectMapper;
 import org.edgegallery.developer.mapper.UploadedFileMapper;
 import org.edgegallery.developer.model.AppPkgStructure;
 import org.edgegallery.developer.model.GeneralConfig;
-import org.edgegallery.developer.model.deployyaml.Containers;
-import org.edgegallery.developer.model.deployyaml.DeployYaml;
-import org.edgegallery.developer.model.deployyaml.PodImage;
-import org.edgegallery.developer.model.deployyaml.ServicePorts;
+import org.edgegallery.developer.model.workspace.ApplicationProject;
 import org.edgegallery.developer.model.workspace.EnumHostStatus;
 import org.edgegallery.developer.model.workspace.EnumOpenMepType;
 import org.edgegallery.developer.model.workspace.HelmTemplateYamlPo;
@@ -106,6 +101,9 @@ public class UploadFileService {
 
     @Autowired
     private ProjectImageMapper projectImageMapper;
+
+    @Autowired
+    private ProjectMapper projectMapper;
 
     /**
      * getFile.
@@ -280,7 +278,7 @@ public class UploadFileService {
         } catch (IOException ex) {
             LOGGER.error("get sample code pkg occur io exception: {}", ex.getMessage());
             String message = "get sample code pkg occur io exception!";
-            FormatRespDto error = new FormatRespDto(Response.Status.BAD_REQUEST, message);
+            FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, message);
             return Either.left(error);
         }
         return Either.right(structure);
@@ -300,7 +298,7 @@ public class UploadFileService {
         List<String> paths = appReleaseService.getFilesPath(dir);
         if (paths == null || paths.isEmpty()) {
             LOGGER.error("can not find any file!");
-            FormatRespDto error = new FormatRespDto(Response.Status.BAD_REQUEST, "can not find any file!");
+            FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "can not find any file!");
             return Either.left(error);
         }
         String fileContent = "";
@@ -311,13 +309,13 @@ public class UploadFileService {
         }
         if (fileContent.equals("")) {
             LOGGER.warn("file has not any content!");
-            FormatRespDto error = new FormatRespDto(Response.Status.BAD_REQUEST, "file is null!");
+            FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "file is null!");
             return Either.left(error);
         }
 
         if (fileContent.equals("error")) {
             LOGGER.warn("file is not readable!");
-            FormatRespDto error = new FormatRespDto(Response.Status.BAD_REQUEST, "file is not readable!");
+            FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "file is not readable!");
             return Either.left(error);
         }
         return Either.right(fileContent);
@@ -421,10 +419,8 @@ public class UploadFileService {
         if (!StringUtils.isEmpty(oriName) && !oriName.endsWith(".yaml")) {
             return Either.right(helmTemplateYamlRespDto);
         }
-        // replace {{(.*?)}}
         String originalContent = content;
         content = content.replaceAll(REPLACE_PATTERN.toString(), "");
-
         // verify yaml scheme
         String[] multiContent = content.split("---");
         List<Map<String, Object>> mapList = new ArrayList<>();
@@ -457,6 +453,11 @@ public class UploadFileService {
             return Either.right(helmTemplateYamlRespDto);
         } else if (!requiredItems.isEmpty() && requiredItems.size() == 1 && requiredItems.get(0).equals("mep-agent")) {
             //delete all helm by projectId
+            boolean isSaved = saveImage(tempFile, projectId);
+            if (!isSaved) {
+                LOGGER.error("Failed to save Image");
+                return Either.left(new FormatRespDto(Status.INTERNAL_SERVER_ERROR, "Failed to save image"));
+            }
             List<HelmTemplateYamlPo> list = helmTemplateYamlMapper.queryTemplateYamlByProjectId(userId, projectId);
             if (!CollectionUtils.isEmpty(list)) {
                 for (HelmTemplateYamlPo po : list) {
@@ -488,59 +489,47 @@ public class UploadFileService {
             LOGGER.info("Succeed to save helm template yaml with file id : {}", fileId);
             return Either.right(helmTemplateYamlRespDto);
         }
-        boolean res = saveImage(FileUtils.readFileToString(tempFile, Consts.FILE_ENCODING), projectId);
-        if (!res) {
-            return Either.left(new FormatRespDto(Status.INTERNAL_SERVER_ERROR, "save image failed!"));
-        }
         return getSuccessResult(helmTemplateYaml, userId, projectId, originalContent, helmTemplateYamlRespDto,
-            configType);
+            configType, tempFile);
 
     }
 
-    private boolean saveImage(String content, String projectId) throws JsonProcessingException {
-        List<String> podNames = new ArrayList<>();
-        List<String> podImages = new ArrayList<>();
-        List<String> svcTypes = new ArrayList<>();
-        List<String> svcNodePorts = new ArrayList<>();
-        List<String> svcPorts = new ArrayList<>();
+    private boolean saveImage(File helmYaml, String projectId) {
+        String content = null;
+        try {
+            content = FileUtils.readFileToString(helmYaml, Consts.FILE_ENCODING);
+        } catch (IOException e) {
+            LOGGER.error("read file content occur {}", e.getMessage());
+            return false;
+        }
         if (content.contains("{{- if .Values.global.mepagent.enabled }}")) {
             content = content.replaceAll("\\{\\{- if .Values.global.mepagent.enabled \\}\\}", "");
         }
         if (content.contains("{{- end }}")) {
             content = content.replaceAll("\\{\\{- end \\}\\}", "");
         }
-        String[] ys = content.split("---");
-        List<String> list = new ArrayList<>();
-        for (int m = 0; m < ys.length; m++) {
-            if (org.apache.commons.lang3.StringUtils.isNotEmpty(ys[m])) {
-                ObjectMapper yaml = new ObjectMapper(new YAMLFactory());
-                Object obj = yaml.readValue(ys[m], Object.class);
-                ObjectMapper yamlw = new ObjectMapper();
-                list.add(yamlw.writeValueAsString(obj));
+        String[] multiContent = content.split("---");
+        List<Map<String, Object>> mapList = new ArrayList<>();
+        for (String str : multiContent) {
+            if (StringUtils.isBlank(str)) {
+                continue;
             }
+            Yaml yaml = new Yaml();
+            Map<String, Object> loaded = yaml.load(str);
+            mapList.add(loaded);
         }
-        for (String str : list) {
-            DeployYaml deployYaml = new Gson().fromJson(str, DeployYaml.class);
-            if (deployYaml.getKind().equals("Pod")) {
-                podNames.add(deployYaml.getMetadata().getName());
-                PodImage podImage = new PodImage();
-                Containers[] containers = deployYaml.getSpec().getContainers();
-                String[] images = new String[containers.length];
-                for (int i = 0; i < containers.length; i++) {
-                    images[i] = containers[i].getImage();
-                }
-                podImage.setPodImage(images);
-                podImage.setPodName(deployYaml.getMetadata().getName());
-                podImages.add(new Gson().toJson(podImage));
-            }
-            if (deployYaml.getKind().equals("Service")) {
-                svcTypes.add(deployYaml.getSpec().getType());
-                ServicePorts[] ports = deployYaml.getSpec().getPorts();
-                for (ServicePorts port : ports) {
-                    svcNodePorts.add(String.valueOf(port.getNodePort()));
-                    svcPorts.add(String.valueOf(port.getNodePort()));
-                }
-            }
+        List<String> podImages = new ArrayList<>();
+        List<String> svcTypes = new ArrayList<>();
+        List<String> svcNodePorts = new ArrayList<>();
+        List<String> svcPorts = new ArrayList<>();
+        if (content.contains("kind: Deployment")) {
+            addService(mapList, svcTypes, svcNodePorts, svcPorts);
+            addDeployImage(mapList, podImages);
+        }
+
+        if (content.contains("kind: Pod")) {
+            addService(mapList, svcTypes, svcNodePorts, svcPorts);
+            addPodImage(mapList, podImages);
         }
 
         List<ProjectImageConfig> listImage = projectImageMapper.getAllImage(projectId);
@@ -549,9 +538,10 @@ public class UploadFileService {
                 projectImageMapper.deleteImage(po.getProjectId());
             }
         }
+        ApplicationProject project = projectMapper.getProjectById(projectId);
         ProjectImageConfig config = new ProjectImageConfig();
         config.setId(UUID.randomUUID().toString());
-        config.setPodName(podNames.toString());
+        config.setPodName(project.getName());
         config.setPodContainers(podImages.toString());
         config.setSvcType(svcTypes.toString());
         config.setSvcNodePort(svcNodePorts.toString());
@@ -562,12 +552,77 @@ public class UploadFileService {
             return false;
         }
         return true;
+    }
 
+    private void addService(List<Map<String, Object>> mapList, List<String> svcTypes, List<String> svcNodePorts,
+        List<String> svcPorts) {
+        for (Map<String, Object> stringMap : mapList) {
+            LinkedHashMap<String, Object> linkedHashMapSer = getObjectFromMap(stringMap, "spec");
+            if (linkedHashMapSer != null) {
+                if (linkedHashMapSer.get("type") != null) {
+                    svcTypes.add(linkedHashMapSer.get("type").toString());
+                }
+                if (linkedHashMapSer.get("ports") != null) {
+                    ArrayList<LinkedHashMap<String, Object>> arrayList
+                        = (ArrayList<LinkedHashMap<String, Object>>) linkedHashMapSer.get("ports");
+                    for (LinkedHashMap<String, Object> a : arrayList) {
+                        svcPorts.add(a.get("port").toString());
+                        if (a.get("nodePort") != null) {
+                            svcNodePorts.add(a.get("nodePort").toString());
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private void addDeployImage(List<Map<String, Object>> mapList, List<String> podImages) {
+        for (Map<String, Object> stringMap : mapList) {
+            LinkedHashMap<String, Object> linkedHashMap = getObjectFromMap(stringMap, "spec", "template", "spec");
+            if (linkedHashMap != null) {
+                ArrayList<LinkedHashMap<String, Object>> arrayList
+                    = (ArrayList<LinkedHashMap<String, Object>>) linkedHashMap.get("containers");
+                for (LinkedHashMap<String, Object> a : arrayList) {
+                    podImages.add(a.get("image").toString());
+                }
+            }
+        }
+
+    }
+
+    private LinkedHashMap<String, Object> getObjectFromMap(Map<String, Object> loaded, String... keys) {
+        LinkedHashMap<String, Object> result = null;
+        for (String key : keys) {
+            result = (LinkedHashMap<String, Object>) loaded.get(key);
+            if (result != null) {
+                loaded = result;
+            }
+        }
+        return result;
+    }
+
+    private void addPodImage(List<Map<String, Object>> mapList, List<String> podImages) {
+        for (Map<String, Object> stringMap : mapList) {
+            LinkedHashMap<String, Object> linkedHashMap = getObjectFromMap(stringMap, "spec");
+            if (linkedHashMap.get("containers") != null) {
+                ArrayList<LinkedHashMap<String, Object>> arrayList
+                    = (ArrayList<LinkedHashMap<String, Object>>) linkedHashMap.get("containers");
+                for (LinkedHashMap<String, Object> a : arrayList) {
+                    podImages.add(a.get("image").toString());
+                }
+            }
+        }
     }
 
     private Either<FormatRespDto, HelmTemplateYamlRespDto> getSuccessResult(MultipartFile helmTemplateYaml,
         String userId, String projectId, String content, HelmTemplateYamlRespDto helmTemplateYamlRespDto,
-        String configType) {
+        String configType, File tempFile) {
+        //save image
+        boolean isSaved = saveImage(tempFile, projectId);
+        if (!isSaved) {
+            LOGGER.error("Failed to save image!");
+            return Either.left(new FormatRespDto(Status.INTERNAL_SERVER_ERROR, "Failed to save image!"));
+        }
         //delete all helm by projectId
         List<HelmTemplateYamlPo> list = helmTemplateYamlMapper.queryTemplateYamlByProjectId(userId, projectId);
         if (!CollectionUtils.isEmpty(list)) {
@@ -635,10 +690,8 @@ public class UploadFileService {
         templateYamlPoList.forEach(helmTemplateYamlPo -> {
             HelmTemplateYamlRespDto helmTemplateYamlRespDto = new HelmTemplateYamlRespDto();
             helmTemplateYamlRespDto.setResponse(helmTemplateYamlPo);
-            // replace {{(.*?)}}
             String content = helmTemplateYamlPo.getContent().replaceAll("\r", "");
             content = content.replaceAll(REPLACE_PATTERN.toString(), "");
-
             // verify yaml scheme
             String[] multiContent = content.split("---");
             List<Map<String, Object>> mapList = new ArrayList<>();
@@ -687,6 +740,19 @@ public class UploadFileService {
      * @return
      */
     public Either<FormatRespDto, String> deleteHelmTemplateYamlByFileId(String fileId) {
+        //delete  pod image
+        String projectId = helmTemplateYamlMapper.queryProjectId(fileId);
+        if (!org.springframework.util.StringUtils.isEmpty(projectId)) {
+            int res = projectImageMapper.deleteImage(projectId);
+            if (res <= 0) {
+                LOGGER.error("delete image by projectId failed!");
+                return Either
+                    .left(new FormatRespDto(Status.INTERNAL_SERVER_ERROR, "delete image by projectId failed!"));
+            }
+        } else {
+            LOGGER.error("query image by fileId failed!");
+            return Either.left(new FormatRespDto(Status.INTERNAL_SERVER_ERROR, "query image by fileId failed!"));
+        }
         int deleteResult = helmTemplateYamlMapper.deleteYamlByFileId(fileId);
         if (deleteResult <= 0) {
             LOGGER.error("Failed to delete helm template yaml with file id : {}", fileId);

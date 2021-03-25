@@ -56,7 +56,6 @@ public class VmStageInstantiate implements VmCreateStage {
         try {
             csar = new File(projectService.getProjectPath(config.getProjectId()) + config.getAppInstanceId() + ".csar");
             instantiateAppResult = vmService.createVmToAppLcm(csar, project, config, userId, config.getLcmToken());
-            instantiateAppResult = true;
             if (!instantiateAppResult) {
                 LOGGER.error("Failed to create vm which packageId is : {}.", config.getPackageId());
             } else {
@@ -71,6 +70,7 @@ public class VmStageInstantiate implements VmCreateStage {
             LOGGER.error("Failed to create vm with err: {}.", e.getMessage());
         } finally {
             vmService.updateCreateVmResult(config, project, "instantiateInfo", instantiateStatus);
+            LOGGER.info("update config result:{}", config);
         }
         return processSuccess;
     }

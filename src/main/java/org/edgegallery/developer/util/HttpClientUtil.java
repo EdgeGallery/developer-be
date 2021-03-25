@@ -18,15 +18,24 @@ package org.edgegallery.developer.util;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.lang.reflect.Type;
 import java.util.List;
+import java.util.Optional;
 import org.edgegallery.developer.common.Consts;
 import org.edgegallery.developer.exception.CustomException;
+import org.edgegallery.developer.exception.DomainException;
 import org.edgegallery.developer.model.LcmLog;
 import org.edgegallery.developer.model.lcm.DistributeBody;
 import org.edgegallery.developer.model.lcm.DistributeResponse;
 import org.edgegallery.developer.model.lcm.InstantRequest;
 import org.edgegallery.developer.model.vm.VmCreateConfig;
+import org.edgegallery.developer.model.vm.VmImageRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.FileSystemResource;
@@ -415,21 +424,21 @@ public final class HttpClientUtil {
      */
     public static String vmInstantiateImage(String protocol, String ip, int port, String userId, String lcmToken,
         String vmId, String appInstanceId, LcmLog lcmLog) {
-        MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
-        body.add("vmId", vmId);
         HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+        headers.setContentType(MediaType.APPLICATION_JSON);
         headers.set(Consts.ACCESS_TOKEN_STR, lcmToken);
-        HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
+        VmImageRequest ins = new VmImageRequest();
+        ins.setVmId(vmId);
+        Gson gson = new Gson();
+        LOGGER.warn(gson.toJson(ins));
+        HttpEntity<String> requestEntity = new HttpEntity<>(gson.toJson(ins), headers);
         String url = getUrlPrefix(protocol, ip, port) + Consts.APP_LCM_INSTANTIATE_IMAGE_URL
             .replaceAll("appInstanceId", appInstanceId).replaceAll("tenantId", userId);
+        LOGGER.warn(url);
         ResponseEntity<String> response;
         try {
             REST_TEMPLATE.setErrorHandler(new CustomResponseErrorHandler());
             response = REST_TEMPLATE.exchange(url, HttpMethod.POST, requestEntity, String.class);
-            //            JsonObject jsonObject = new JsonParser().parse(response.getBody()).getAsJsonObject();
-            //            JsonElement imageId = jsonObject.get("imageId");
-            //            imageConfig.setImageId(imageId.getAsString());
             LOGGER.info("APPlCM log:{}", response);
         } catch (CustomException e) {
             e.printStackTrace();
@@ -480,7 +489,7 @@ public final class HttpClientUtil {
      * downloadVmImage.
      */
     public static boolean downloadVmImage(String protocol, String ip, int port, String userId, String packagePath,
-        String appInstanceId, String imageId, String chunkNum, String token) {
+        String appInstanceId, String imageId, String imageName, String chunkNum, String token) {
 
         String url = getUrlPrefix(protocol, ip, port) + Consts.APP_LCM_GET_IMAGE_DOWNLOAD_URL
             .replaceAll("appInstanceId", appInstanceId).replaceAll("tenantId", userId).replaceAll("imageId", imageId);
@@ -488,19 +497,80 @@ public final class HttpClientUtil {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.set(Consts.ACCESS_TOKEN_STR, token);
-        headers.set("chunk_num ", chunkNum);
+        headers.set("chunk_num", chunkNum);
         // download images
+        ResponseEntity<byte[]> response;
+        try {
+            response = REST_TEMPLATE.exchange(url, HttpMethod.GET, new HttpEntity<>(headers), byte[].class);
+            //            LOGGER.warn(response.getBody());
+            if (response.getStatusCode() != HttpStatus.OK) {
+                LOGGER.error("download file error, response is {}", response.getBody());
+                throw new DomainException("download file exception");
+            }
+            byte[] result = response.getBody();
+            if (result == null) {
+                throw new DomainException("download response is null");
+            }
+            String fileName = Optional.ofNullable(response.getHeaders().get("Content-Disposition"))
+                .orElseThrow(() -> new DomainException("response header Content-Disposition is null")).get(0)
+                .replace("attachment; filename=", "");
+
+            String outPath = packagePath + File.separator + imageName;
+            LOGGER.info("output image path:{}", outPath);
+            File imageDir = new File(outPath);
+            if (!imageDir.exists()) {
+                boolean isMk = imageDir.mkdirs();
+                if (!isMk) {
+                    LOGGER.error("create upload path failed");
+                    return false;
+                }
+            }
+            File file = new File(outPath + File.separator + fileName + "_" + chunkNum);
+            if (!file.exists() && !file.createNewFile()) {
+                LOGGER.error("create download file error");
+                throw new DomainException("create download file error");
+            }
+            try (InputStream inputStream = new ByteArrayInputStream(result);
+                 OutputStream outputStream = new FileOutputStream(file)) {
+                int len = 0;
+                byte[] buf = new byte[1024];
+                while ((len = inputStream.read(buf, 0, 1024)) != -1) {
+                    outputStream.write(buf, 0, len);
+                }
+                outputStream.flush();
+            }
+        } catch (RestClientException | IOException e) {
+            LOGGER.error("Failed to get image status which imageId is {} exception {}", imageId, e.getMessage());
+            return false;
+        }
+
+        return true;
+
+    }
+
+    /**
+     * deleteVmImage.
+     */
+    public static boolean deleteVmImage(String protocol, String ip, int port, String userId, String appInstanceId,
+        String imageId, String token) {
+
+        String url = getUrlPrefix(protocol, ip, port) + Consts.APP_LCM_GET_IMAGE_DELETE_URL
+            .replaceAll("appInstanceId", appInstanceId).replaceAll("tenantId", userId).replaceAll("imageId", imageId);
+        LOGGER.info("url is {}", url);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.set(Consts.ACCESS_TOKEN_STR, token);
+        // delete images
         ResponseEntity<String> response;
         try {
             response = REST_TEMPLATE.exchange(url, HttpMethod.GET, new HttpEntity<>(headers), String.class);
             LOGGER.warn(response.getBody());
         } catch (RestClientException e) {
-            LOGGER.error("Failed to get image status which imageId is {} exception {}", imageId, e.getMessage());
+            LOGGER.error("Failed to delete image which imageId is {} exception {}", imageId, e.getMessage());
             return false;
         }
         return true;
 
     }
-
 
 }

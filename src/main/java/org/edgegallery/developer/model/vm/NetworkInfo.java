@@ -18,21 +18,15 @@ package org.edgegallery.developer.model.vm;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 @Getter
 @Setter
-public class VmSystem {
+@ToString
+public class NetworkInfo {
 
-    private Integer systemId;
+    private String ip;
 
-    private String type;
-
-    private String operateSystem;
-
-    private String version;
-
-    private String systemBit;
-
-    private Integer systemDisk;
+    private String name;
 
 }

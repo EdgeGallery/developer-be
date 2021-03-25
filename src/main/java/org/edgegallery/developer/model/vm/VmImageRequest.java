@@ -18,21 +18,13 @@ package org.edgegallery.developer.model.vm;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 @Getter
 @Setter
-public class VmSystem {
+@ToString
+public class VmImageRequest {
 
-    private Integer systemId;
-
-    private String type;
-
-    private String operateSystem;
-
-    private String version;
-
-    private String systemBit;
-
-    private Integer systemDisk;
+    private String vmId;
 
 }
