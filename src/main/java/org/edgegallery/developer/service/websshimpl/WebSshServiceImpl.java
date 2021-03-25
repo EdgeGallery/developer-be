@@ -63,6 +63,8 @@ import org.springframework.web.socket.WebSocketSession;
 public class WebSshServiceImpl implements WebSshService {
     //存放ssh连接信息的map
     private  Map<String, Object> sshMap = new ConcurrentHashMap<>();
+    private Map<String, String> userIdMap = new ConcurrentHashMap<>();
+    private static int PORT = 33;
 
     @Value("${vm.username:}")
     private String vmUsername;
@@ -183,6 +185,12 @@ public class WebSshServiceImpl implements WebSshService {
         //获取userID和projectId
         String userId = webSshData.getUserId();
         String projectId = webSshData.getProjectId();
+        System.out.println(userId + "--" + projectId);
+        //        String username ="";
+        //        String host = "";
+        //        String password = "";
+        String uuid = String.valueOf(webSocketSession.getAttributes().get(ConstantPool.USER_UUID_KEY));
+        userIdMap.put(userId, uuid);
         ApplicationProject project = projectMapper.getProject(userId, projectId);
         if (project.getDeployPlatform() == EnumDeployPlatform.KUBERNETES) {
             List<ProjectTestConfig> testConfigList = projectMapper.getTestConfigByProjectId(projectId);
@@ -278,5 +286,10 @@ public class WebSshServiceImpl implements WebSshService {
     @Override
     public Map<String, Object> getSshMap() {
         return sshMap;
+    }
+
+    @Override
+    public Map<String, String> getUserIdMap() {
+        return userIdMap;
     }
 }
