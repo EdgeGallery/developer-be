@@ -186,9 +186,6 @@ public class WebSshServiceImpl implements WebSshService {
         String userId = webSshData.getUserId();
         String projectId = webSshData.getProjectId();
         System.out.println(userId + "--" + projectId);
-        //        String username ="";
-        //        String host = "";
-        //        String password = "";
         String uuid = String.valueOf(webSocketSession.getAttributes().get(ConstantPool.USER_UUID_KEY));
         userIdMap.put(userId, uuid);
         ApplicationProject project = projectMapper.getProject(userId, projectId);
@@ -199,6 +196,9 @@ public class WebSshServiceImpl implements WebSshService {
                 return;
             }
             ProjectTestConfig testConfig = testConfigList.get(0);
+            if (testConfig.getHosts() == null) {
+                return;
+            }
             Type type = new TypeToken<List<MepHost>>() { }.getType();
             List<MepHost> hosts = gson.fromJson(gson.toJson(testConfig.getHosts()), type);
             MepHost host = hostMapper.getHost(hosts.get(0).getHostId());

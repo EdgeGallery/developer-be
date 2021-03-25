@@ -45,13 +45,17 @@ import org.edgegallery.developer.config.security.AccessUserUtil;
 import org.edgegallery.developer.mapper.ProjectMapper;
 import org.edgegallery.developer.mapper.ReleaseConfigMapper;
 import org.edgegallery.developer.mapper.UploadedFileMapper;
+import org.edgegallery.developer.mapper.VmConfigMapper;
 import org.edgegallery.developer.model.AppConfigurationModel;
 import org.edgegallery.developer.model.DnsRule;
 import org.edgegallery.developer.model.ReleaseConfig;
 import org.edgegallery.developer.model.ServiceConfig;
 import org.edgegallery.developer.model.ServiceDetail;
 import org.edgegallery.developer.model.TrafficRule;
+import org.edgegallery.developer.model.vm.VmCreateConfig;
+import org.edgegallery.developer.model.vm.VmImageConfig;
 import org.edgegallery.developer.model.workspace.ApplicationProject;
+import org.edgegallery.developer.model.workspace.EnumDeployPlatform;
 import org.edgegallery.developer.model.workspace.OpenMepCapabilityDetail;
 import org.edgegallery.developer.model.workspace.OpenMepCapabilityGroup;
 import org.edgegallery.developer.model.workspace.ProjectTestConfig;
@@ -84,6 +88,9 @@ public class ReleaseConfigService {
     @Autowired
     private UploadedFileMapper uploadedFileMapper;
 
+    @Autowired
+    private VmConfigMapper vmConfigMapper;
+
     /**
      * saveConfig.
      */
@@ -93,13 +100,24 @@ public class ReleaseConfigService {
             FormatRespDto dto = new FormatRespDto(Response.Status.BAD_REQUEST, "projectId is null");
             return Either.left(dto);
         }
-        //update csar
-        if (config.getCapabilitiesDetail() != null) {
-            Either<FormatRespDto, Boolean> rebuildRes = rebuildCsar(projectId, config);
-            if (rebuildRes.isLeft()) {
-                return Either.left(rebuildRes.getLeft());
+        ApplicationProject applicationProject = projectMapper.getProjectById(projectId);
+        if (applicationProject.getDeployPlatform() == EnumDeployPlatform.KUBERNETES) {
+            //update csar
+            if (config.getCapabilitiesDetail() != null) {
+                Either<FormatRespDto, Boolean> rebuildRes = rebuildCsar(projectId, config);
+                if (rebuildRes.isLeft()) {
+                    return Either.left(rebuildRes.getLeft());
+                }
+            }
+        } else {
+            if (config.getCapabilitiesDetail() != null) {
+                Either<FormatRespDto, Boolean> rebuildRes = rebuildVmCsar(projectId, config);
+                if (rebuildRes.isLeft()) {
+                    return Either.left(rebuildRes.getLeft());
+                }
             }
         }
+
         String releaseId = UUID.randomUUID().toString();
         config.setReleaseId(releaseId);
         config.setProjectId(projectId);
@@ -130,11 +148,21 @@ public class ReleaseConfigService {
             return Either.left(dto);
         }
 
-        //update csar
-        if (config.getCapabilitiesDetail() != null) {
-            Either<FormatRespDto, Boolean> rebuildRes = rebuildCsar(projectId, config);
-            if (rebuildRes.isLeft()) {
-                return Either.left(rebuildRes.getLeft());
+        ApplicationProject applicationProject = projectMapper.getProjectById(projectId);
+        if (applicationProject.getDeployPlatform() == EnumDeployPlatform.KUBERNETES) {
+            //update csar
+            if (config.getCapabilitiesDetail() != null) {
+                Either<FormatRespDto, Boolean> rebuildRes = rebuildCsar(projectId, config);
+                if (rebuildRes.isLeft()) {
+                    return Either.left(rebuildRes.getLeft());
+                }
+            }
+        } else {
+            if (config.getCapabilitiesDetail() != null) {
+                Either<FormatRespDto, Boolean> rebuildRes = rebuildVmCsar(projectId, config);
+                if (rebuildRes.isLeft()) {
+                    return Either.left(rebuildRes.getLeft());
+                }
             }
         }
 
@@ -260,6 +288,65 @@ public class ReleaseConfigService {
             CompressFileUtilsJava
                 .compressToCsarAndDeleteSrc(csar.getParent() + File.separator + config.getAppInstanceId(),
                     projectService.getProjectPath(projectId), config.getAppInstanceId());
+        } catch (JsonGenerationException e) {
+            String msg = "Update csar failed: occur JsonGenerationException";
+            LOGGER.error("Update csar failed: occur JsonGenerationException {}.", e.getMessage());
+            FormatRespDto error = new FormatRespDto(Response.Status.BAD_REQUEST, msg + e.getMessage());
+            return Either.left(error);
+        } catch (JsonMappingException e) {
+            String msg = "Update csar failed: occur JsonMappingException";
+            LOGGER.error("Update csar failed: occur JsonMappingException {}.", e.getMessage());
+            FormatRespDto error = new FormatRespDto(Response.Status.BAD_REQUEST, msg + e.getMessage());
+            return Either.left(error);
+        } catch (IOException e) {
+            String msg = "Update csar failed: occur IOException";
+            LOGGER.error("Update csar failed: occur IOException {}.", e.getMessage());
+            FormatRespDto error = new FormatRespDto(Response.Status.BAD_REQUEST, msg + e.getMessage());
+            return Either.left(error);
+        }
+
+        return Either.right(true);
+    }
+
+    /**
+     * rebuildVmCsar.
+     */
+    public Either<FormatRespDto, Boolean> rebuildVmCsar(String projectId, ReleaseConfig releaseConfig) {
+        ApplicationProject project = projectMapper.getProjectById(projectId);
+
+        List<VmCreateConfig> vmCreateConfigs = vmConfigMapper.getVmCreateConfigs(projectId);
+        if (vmCreateConfigs == null || vmCreateConfigs.isEmpty()) {
+            LOGGER.error("Project {} has not vm config!", projectId);
+            FormatRespDto error = new FormatRespDto(Response.Status.BAD_REQUEST, "Project has not vm config!");
+            return Either.left(error);
+        }
+        VmCreateConfig vmCreateConfig = vmCreateConfigs.get(0);
+        List<TrafficRule> trafficRules = releaseConfig.getCapabilitiesDetail().getAppTrafficRule();
+        List<DnsRule> dnsRules = releaseConfig.getCapabilitiesDetail().getAppDNSRule();
+        List<ServiceDetail> details = releaseConfig.getCapabilitiesDetail().getServiceDetails();
+        // verify csar file
+        String csarFilePath = projectService.getProjectPath(vmCreateConfig.getProjectId()) + vmCreateConfig.getAppInstanceId();
+        File csar = new File(csarFilePath);
+        if (!csar.exists()) {
+            LOGGER.error("Cannot find csar file:{}.", csarFilePath);
+            FormatRespDto error = new FormatRespDto(Response.Status.BAD_REQUEST,
+                "Cannot find csar file: " + csarFilePath);
+            return Either.left(error);
+        }
+        try {
+            //verify md docs
+            String readmePath = csar.getParent() + File.separator + vmCreateConfig.getAppInstanceId() + File.separator
+                + "Artifacts/Docs/template.md";
+            String readmeFileId = releaseConfig.getGuideFileId();
+            if (readmeFileId != null && !readmeFileId.equals("")) {
+                UploadedFile path = uploadedFileMapper.getFileById(readmeFileId);
+                FileUtils.copyFile(new File(InitConfigUtil.getWorkSpaceBaseDir() + path.getFilePath()),
+                    new File(readmePath));
+            }
+            // compress csar
+            CompressFileUtilsJava
+                .compressToCsarAndDeleteSrc(csar.getParent() + File.separator + vmCreateConfig.getAppInstanceId(),
+                    projectService.getProjectPath(projectId), vmCreateConfig.getAppInstanceId());
         } catch (JsonGenerationException e) {
             String msg = "Update csar failed: occur JsonGenerationException";
             LOGGER.error("Update csar failed: occur JsonGenerationException {}.", e.getMessage());

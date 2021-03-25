@@ -501,6 +501,7 @@ public final class HttpClientUtil {
         // download images
         ResponseEntity<byte[]> response;
         try {
+
             response = REST_TEMPLATE.exchange(url, HttpMethod.GET, new HttpEntity<>(headers), byte[].class);
             //            LOGGER.warn(response.getBody());
             if (response.getStatusCode() != HttpStatus.OK) {
@@ -511,10 +512,7 @@ public final class HttpClientUtil {
             if (result == null) {
                 throw new DomainException("download response is null");
             }
-            String fileName = Optional.ofNullable(response.getHeaders().get("Content-Disposition"))
-                .orElseThrow(() -> new DomainException("response header Content-Disposition is null")).get(0)
-                .replace("attachment; filename=", "");
-
+            String fileName = imageName + ".qcow2";
             String outPath = packagePath + File.separator + imageName;
             LOGGER.info("output image path:{}", outPath);
             File imageDir = new File(outPath);
@@ -525,7 +523,7 @@ public final class HttpClientUtil {
                     return false;
                 }
             }
-            File file = new File(outPath + File.separator + fileName + "_" + chunkNum);
+            File file = new File(outPath + File.separator + fileName);
             if (!file.exists() && !file.createNewFile()) {
                 LOGGER.error("create download file error");
                 throw new DomainException("create download file error");
@@ -563,7 +561,7 @@ public final class HttpClientUtil {
         // delete images
         ResponseEntity<String> response;
         try {
-            response = REST_TEMPLATE.exchange(url, HttpMethod.GET, new HttpEntity<>(headers), String.class);
+            response = REST_TEMPLATE.exchange(url, HttpMethod.DELETE, new HttpEntity<>(headers), String.class);
             LOGGER.warn(response.getBody());
         } catch (RestClientException e) {
             LOGGER.error("Failed to delete image which imageId is {} exception {}", imageId, e.getMessage());

@@ -19,6 +19,7 @@ package org.edgegallery.developer.service.virtual.image;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
+import javax.annotation.Resource;
 import org.edgegallery.developer.mapper.ProjectMapper;
 import org.edgegallery.developer.mapper.VmConfigMapper;
 import org.edgegallery.developer.model.vm.VmCreateConfig;
@@ -54,6 +55,9 @@ public class VmImageStatus implements VmImageStage {
 
     @Autowired
     private VmConfigMapper vmConfigMapper;
+
+    @Resource(name = "vm_downloadImageInfo_service")
+    private VmImageStage vmImageStage;
 
     @Override
     public boolean execute(VmImageConfig config) throws InterruptedException {
@@ -103,7 +107,7 @@ public class VmImageStatus implements VmImageStage {
 
         }
         vmService.updateVmImageResult(config, project, "imageStatus", status);
-        return processStatus;
+        return processStatus == true ? vmImageStage.execute(config) : processStatus;
     }
 
     @Override
