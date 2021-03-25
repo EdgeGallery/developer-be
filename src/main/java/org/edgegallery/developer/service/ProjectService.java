@@ -25,6 +25,7 @@ import com.spencerwi.either.Either;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.net.URL;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.text.DateFormat;
@@ -117,10 +118,6 @@ public class ProjectService {
 
     private static CookieStore cookieStore = new BasicCookieStore();
 
-    private static final String USERNAME = "admin";
-
-    private static final String PASSWORD = "admin";
-
     private static Gson gson = new Gson();
 
     ExecutorService threadPool = Executors.newSingleThreadExecutor();
@@ -133,6 +130,12 @@ public class ProjectService {
 
     @Value("${security.oauth2.resource.jwt.key-uri:}")
     private String loginUrl;
+
+    @Value("${client.client-id:}")
+    private String clientId;
+
+    @Value("${client.client-secret:}")
+    private String clientPW;
 
     @Autowired
     private ProjectMapper projectMapper;
@@ -1326,14 +1329,15 @@ public class ProjectService {
         }
         //登录user-mgmt
         //通过服务名调用user-mgmt的登录接口
-        String userLoginUrl = loginUrl.substring(0, loginUrl.lastIndexOf(":")) + ":30067/index.html";
-        LOGGER.warn("user login url: {}", userLoginUrl);
-        HttpPost httpPost = new HttpPost(userLoginUrl);
-        MultipartEntityBuilder builder = MultipartEntityBuilder.create();
-        builder.addTextBody("username", USERNAME);
-        builder.addTextBody("password", PASSWORD);
-        httpPost.setEntity(builder.build());
         try (CloseableHttpClient client = createIgnoreSslHttpClient()) {
+            URL url = new URL(loginUrl);
+            String userLoginUrl = url.getProtocol() + "://" + url.getAuthority();
+            LOGGER.warn("user login url: {}", userLoginUrl);
+            HttpPost httpPost = new HttpPost(userLoginUrl);
+            MultipartEntityBuilder builder = MultipartEntityBuilder.create();
+            builder.addTextBody("username", clientId + ":" + new Date().getTime());
+            builder.addTextBody("password", clientPW);
+            httpPost.setEntity(builder.build());
             client.execute(httpPost);
             String xsrf = getXsrf();
             httpPost.setHeader("X-XSRF-TOKEN", xsrf);
