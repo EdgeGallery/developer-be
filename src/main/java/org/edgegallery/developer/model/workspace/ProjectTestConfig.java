@@ -155,6 +155,7 @@ public class ProjectTestConfig {
         this.accessUrl = null;
         this.deployDate = null;
         this.errorLog = null;
+        this.hosts = null;
     }
 
     /**
