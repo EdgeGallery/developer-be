@@ -133,7 +133,7 @@
         *
         FROM
         tbl_vm_network
-        WHERE network_type = # {networkType}
+        WHERE network_type = #{networkType}
     </select>
 
     <select id="getVmFlavor"
