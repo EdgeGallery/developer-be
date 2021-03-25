@@ -174,7 +174,7 @@ public class VmController {
         @ApiResponse(code = 200, message = "OK", response = File.class),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
-    @RequestMapping(value = "/projects/{projectId}/vm/{vmId}/package", method = RequestMethod.POST,
+    @RequestMapping(value = "/projects/{projectId}/vm/{vmId}/package", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<byte[]> getSampleCode(
