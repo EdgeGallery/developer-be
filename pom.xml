@@ -595,7 +595,7 @@
         <dependency>
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-test</artifactId>
-            <version>5.4.5</version>
+            <version>5.3.4.RELEASE</version>
             <scope>test</scope>
             <exclusions>
                 <exclusion>
