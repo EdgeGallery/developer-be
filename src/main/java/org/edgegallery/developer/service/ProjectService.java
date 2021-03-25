@@ -1331,7 +1331,7 @@ public class ProjectService {
         //通过服务名调用user-mgmt的登录接口
         try (CloseableHttpClient client = createIgnoreSslHttpClient()) {
             URL url = new URL(loginUrl);
-            String userLoginUrl = url.getProtocol() + "://" + url.getAuthority();
+            String userLoginUrl = url.getProtocol() + "://" + url.getAuthority() + "/index.html";
             LOGGER.warn("user login url: {}", userLoginUrl);
             HttpPost httpPost = new HttpPost(userLoginUrl);
             MultipartEntityBuilder builder = MultipartEntityBuilder.create();
