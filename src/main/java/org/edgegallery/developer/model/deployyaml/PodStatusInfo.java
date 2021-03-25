@@ -36,7 +36,7 @@ public class PodStatusInfo {
         if (podEventsInfo != null) {
             this.podEventsInfo = podEventsInfo.clone();
         } else {
-            this.podEventsInfo = null;
+            this.podEventsInfo = new String[0];
         }
     }
 
@@ -61,7 +61,7 @@ public class PodStatusInfo {
         if (containers != null) {
             this.containers = containers.clone();
         } else {
-            this.containers = null;
+            this.containers = new PodContainers[0];
         }
     }
 

@@ -32,7 +32,7 @@ public class PodEvents {
         if (podEventsInfo != null) {
             this.podEventsInfo = podEventsInfo.clone();
         } else {
-            this.podEventsInfo = null;
+            this.podEventsInfo = new String[0];
         }
     }
 }
