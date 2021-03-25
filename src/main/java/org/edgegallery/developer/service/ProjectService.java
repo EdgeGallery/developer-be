@@ -1033,15 +1033,24 @@ public class ProjectService {
     public Either<FormatRespDto, Boolean> cleanTestEnv(String userId, String projectId, String token) {
         ApplicationProject project = projectMapper.getProject(userId, projectId);
         Map<String, Object> sshMap = webSshService.getSshMap();
-        SshConnectInfo sshConnectInfo = (SshConnectInfo) sshMap.get(userId);
+        Map<String, String> userIdMap = webSshService.getUserIdMap();
+        String uuid = "";
+        SshConnectInfo sshConnectInfo = null;
+
+        if (userIdMap != null && !userIdMap.isEmpty()) {
+             uuid = userIdMap.get(userId);
+        }
+        if (sshMap != null && !sshMap.isEmpty()) {
+             sshConnectInfo = (SshConnectInfo) sshMap.get(uuid);
+        }
+
         if (sshConnectInfo != null) {
             //断开连接
             if (sshConnectInfo.getChannel() != null) {
                 sshConnectInfo.getChannel().disconnect();
             }
             //map中移除
-            System.out.println("kankandaozhemei");
-            sshMap.remove(userId);
+            sshMap.remove(uuid);
         }
         if (project == null) {
             LOGGER.error("Can not find project by userId and projectId");
