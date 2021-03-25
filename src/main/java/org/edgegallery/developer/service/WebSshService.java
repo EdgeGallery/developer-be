@@ -30,5 +30,5 @@ public interface WebSshService {
 
     void close(WebSocketSession session);
 
-     Map<String, Object> getSshMap();
+    Map<String, Object> getSshMap();
 }
