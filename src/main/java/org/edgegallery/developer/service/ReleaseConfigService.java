@@ -53,7 +53,6 @@ import org.edgegallery.developer.model.ServiceConfig;
 import org.edgegallery.developer.model.ServiceDetail;
 import org.edgegallery.developer.model.TrafficRule;
 import org.edgegallery.developer.model.vm.VmCreateConfig;
-import org.edgegallery.developer.model.vm.VmImageConfig;
 import org.edgegallery.developer.model.workspace.ApplicationProject;
 import org.edgegallery.developer.model.workspace.EnumDeployPlatform;
 import org.edgegallery.developer.model.workspace.OpenMepCapabilityDetail;
@@ -312,8 +311,6 @@ public class ReleaseConfigService {
      * rebuildVmCsar.
      */
     public Either<FormatRespDto, Boolean> rebuildVmCsar(String projectId, ReleaseConfig releaseConfig) {
-        ApplicationProject project = projectMapper.getProjectById(projectId);
-
         List<VmCreateConfig> vmCreateConfigs = vmConfigMapper.getVmCreateConfigs(projectId);
         if (vmCreateConfigs == null || vmCreateConfigs.isEmpty()) {
             LOGGER.error("Project {} has not vm config!", projectId);
@@ -321,11 +318,9 @@ public class ReleaseConfigService {
             return Either.left(error);
         }
         VmCreateConfig vmCreateConfig = vmCreateConfigs.get(0);
-        List<TrafficRule> trafficRules = releaseConfig.getCapabilitiesDetail().getAppTrafficRule();
-        List<DnsRule> dnsRules = releaseConfig.getCapabilitiesDetail().getAppDNSRule();
-        List<ServiceDetail> details = releaseConfig.getCapabilitiesDetail().getServiceDetails();
         // verify csar file
-        String csarFilePath = projectService.getProjectPath(vmCreateConfig.getProjectId()) + vmCreateConfig.getAppInstanceId();
+        String csarFilePath = projectService.getProjectPath(vmCreateConfig.getProjectId()) + vmCreateConfig
+            .getAppInstanceId();
         File csar = new File(csarFilePath);
         if (!csar.exists()) {
             LOGGER.error("Cannot find csar file:{}.", csarFilePath);

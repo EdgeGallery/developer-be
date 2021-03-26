@@ -1038,17 +1038,16 @@ public class ProjectService {
      * @return
      */
     public Either<FormatRespDto, Boolean> cleanTestEnv(String userId, String projectId, String token) {
-        ApplicationProject project = projectMapper.getProject(userId, projectId);
         Map<String, Object> sshMap = webSshService.getSshMap();
         Map<String, String> userIdMap = webSshService.getUserIdMap();
         String uuid = "";
         SshConnectInfo sshConnectInfo = null;
 
         if (userIdMap != null && !userIdMap.isEmpty()) {
-             uuid = userIdMap.get(userId);
+            uuid = userIdMap.get(userId);
         }
         if (sshMap != null && !sshMap.isEmpty()) {
-             sshConnectInfo = (SshConnectInfo) sshMap.get(uuid);
+            sshConnectInfo = (SshConnectInfo) sshMap.get(uuid);
         }
 
         if (sshConnectInfo != null) {
@@ -1059,6 +1058,7 @@ public class ProjectService {
             //map中移除
             sshMap.remove(uuid);
         }
+        ApplicationProject project = projectMapper.getProject(userId, projectId);
         if (project == null) {
             LOGGER.error("Can not find project by userId and projectId");
             FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "can not find project");
