@@ -185,7 +185,6 @@ public class WebSshServiceImpl implements WebSshService {
         //获取userID和projectId
         String userId = webSshData.getUserId();
         String projectId = webSshData.getProjectId();
-        System.out.println(userId + "--" + projectId);
         String uuid = String.valueOf(webSocketSession.getAttributes().get(ConstantPool.USER_UUID_KEY));
         userIdMap.put(userId, uuid);
         ApplicationProject project = projectMapper.getProject(userId, projectId);
