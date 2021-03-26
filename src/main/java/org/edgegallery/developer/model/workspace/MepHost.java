@@ -16,13 +16,13 @@
 
 package org.edgegallery.developer.model.workspace;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.Range;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Getter
 @Setter
@@ -64,6 +64,7 @@ public class MepHost {
     private String configId;
 
     private String userName;
+
     @JsonIgnore
     private String password;
 }

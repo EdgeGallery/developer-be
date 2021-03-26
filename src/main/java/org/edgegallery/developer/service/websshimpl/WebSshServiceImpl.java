@@ -62,9 +62,9 @@ import org.springframework.web.socket.WebSocketSession;
 @Service
 public class WebSshServiceImpl implements WebSshService {
     //存放ssh连接信息的map
-    private  Map<String, Object> sshMap = new ConcurrentHashMap<>();
+    private Map<String, Object> sshMap = new ConcurrentHashMap<>();
+
     private Map<String, String> userIdMap = new ConcurrentHashMap<>();
-    private static int PORT = 33;
 
     @Value("${vm.username:}")
     private String vmUsername;
