@@ -134,28 +134,24 @@ public class CompressFileUtilsJava {
     }
 
     /**
-     * compressToTgz.
+     * compressToZip.
      */
-    public static File compressToZip(String sourcePath, String outPutPath, String fileName) throws IOException {
-        File resourcesFile = new File(sourcePath);
-        File targetFile = new File(outPutPath);
+    public static File compressToZip(String resourcesPath, String targetPath, String fileName) throws IOException {
+        File resourcesFile = new File(resourcesPath);
+        File targetFile = new File(targetPath);
         if (!targetFile.exists()) {
-            boolean isMaked = targetFile.mkdirs();
-            if (!isMaked) {
-                LOGGER.error("compressToZip: make dir failed");
-                return null;
-            }
+            targetFile.mkdirs();
         }
 
-        FileOutputStream outputStream = new FileOutputStream(outPutPath + File.separator + fileName + ".zip");
+        FileOutputStream outputStream = new FileOutputStream(targetPath + File.separator + fileName + ".csar");
         ZipOutputStream out = new ZipOutputStream(new BufferedOutputStream(outputStream));
 
-        createCompressedFile(out, resourcesFile, "");
+        createCompressedFile(out, resourcesFile, resourcesFile.getName());
 
         out.close();
-        File csar = new File(outPutPath + File.separator + fileName + ".zip");
-        if (csar.exists()) {
-            return csar;
+        File zip = new File(targetPath + File.separator + fileName + ".zip");
+        if (zip.exists()) {
+            return zip;
         }
         throw new IOException("zip not find");
     }

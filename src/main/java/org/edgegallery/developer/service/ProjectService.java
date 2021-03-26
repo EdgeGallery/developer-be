@@ -832,14 +832,10 @@ public class ProjectService {
         int apiRes = uploadedFileMapper.updateFileStatus(serviceDetail.getApiJson(), false);
         if (apiRes < 1) {
             LOGGER.error("after publish,update api file {} status fail!", serviceDetail.getApiJson());
-            FormatRespDto error = new FormatRespDto(Status.INTERNAL_SERVER_ERROR, "update api file status fail!");
-            return Either.left(error);
         }
         int mdRes = uploadedFileMapper.updateFileStatus(serviceDetail.getApiMd(), false);
         if (mdRes < 1) {
             LOGGER.error("after publish,update md file {} status fail!", serviceDetail.getApiMd());
-            FormatRespDto error = new FormatRespDto(Status.INTERNAL_SERVER_ERROR, "update md file status fail!");
-            return Either.left(error);
         }
         LOGGER.warn("save db success! ");
         return Either.right(true);
