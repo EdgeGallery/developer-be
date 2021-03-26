@@ -22,7 +22,9 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
+import java.util.List;
 import org.edgegallery.developer.mapper.ProjectMapper;
+import org.edgegallery.developer.model.vm.NetworkInfo;
 import org.edgegallery.developer.model.vm.VmCreateConfig;
 import org.edgegallery.developer.model.vm.VmInstantiateInfo;
 import org.edgegallery.developer.model.workspace.ApplicationProject;
@@ -89,11 +91,16 @@ public class VmStageWorkStatus implements VmCreateStage {
             if (!code.getAsString().equals("200")) {
                 config.setLog(msg.getAsString());
             } else {
-                processStatus = true;
-                status = EnumTestConfigStatus.Success;
-                config.setLog("get vm status success");
                 Type vmInfoType = new TypeToken<VmInstantiateInfo>() { }.getType();
                 VmInstantiateInfo vmInstantiateInfo = gson.fromJson(workStatus, vmInfoType);
+                List<NetworkInfo> networkInfo = vmInstantiateInfo.getData().get(0).getNetworks();
+                if (networkInfo == null || networkInfo.isEmpty()) {
+                    config.setLog("lack of resources");
+                } else {
+                    processStatus = true;
+                    status = EnumTestConfigStatus.Success;
+                    config.setLog("get vm status success");
+                }
                 config.setVmInfo(vmInstantiateInfo.getData());
 
             }

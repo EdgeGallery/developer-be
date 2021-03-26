@@ -19,15 +19,22 @@ package org.edgegallery.developer.service.virtual;
 import static org.edgegallery.developer.util.AtpUtil.getProjectPath;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.reflect.TypeToken;
 import com.spencerwi.either.Either;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.lang.reflect.Type;
+import java.nio.charset.StandardCharsets;
+import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -38,6 +45,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.edgegallery.developer.mapper.ProjectMapper;
 import org.edgegallery.developer.mapper.VmConfigMapper;
 import org.edgegallery.developer.model.LcmLog;
+import org.edgegallery.developer.model.deployyaml.ImageDesc;
 import org.edgegallery.developer.model.lcm.UploadResponse;
 import org.edgegallery.developer.model.vm.EnumVmCreateStatus;
 import org.edgegallery.developer.model.vm.EnumVmImportStatus;
@@ -769,6 +777,27 @@ public class VmService {
         }
 
         try {
+            CompressFileUtilsJava.compressToZip(imagePath, packagePath,config.getImageName());
+            FileUtils.deleteDirectory(new File(imagePath));
+        } catch (IOException e) {
+            LOGGER.error("image file compressToZip fail: occur IOException {}.", e.getMessage());
+            return false;
+        }
+        // modify image file
+        File swImageDesc = new File(packagePath + File.separator + "SwImageDesc.json");
+        try {
+            List<ImageDesc> swImgDescs = getSwImageDescrInfo(FileUtils.readFileToString
+                (swImageDesc, StandardCharsets.UTF_8));
+
+            swImgDescs.get(0).setName(config.getImageName());
+            swImgDescs.get(0).setSwImage("Image/" + config.getImageName() + "zip/" + config.getImageName() + ".qcow2");
+            writeFile(swImageDesc, gson.toJson(swImgDescs));
+        } catch (IOException e) {
+            LOGGER.error("image file fail: occur IOException {}.", e.getMessage());
+            return false;
+        }
+
+        try {
             CompressFileUtilsJava
                 .compressToCsarAndDeleteSrc(packagePath, projectService.getProjectPath(config.getProjectId()),
                     config.getAppInstanceId());
@@ -778,6 +807,36 @@ public class VmService {
         }
         LOGGER.info("download image success");
         return true;
+    }
+
+    /**
+     * Returns list of image details.
+     *
+     * @param swImageDescr software image descriptor file content
+     * @return list of image details
+     */
+    public static List<ImageDesc> getSwImageDescrInfo(String swImageDescr) {
+
+        List<ImageDesc> swImgDescrs = new LinkedList<>();
+        JsonArray swImgDescrArray = new JsonParser().parse(swImageDescr).getAsJsonArray();
+        ImageDesc swDescr;
+        for (JsonElement descr : swImgDescrArray) {
+            swDescr = new Gson().fromJson(descr.getAsJsonObject().toString(), ImageDesc.class);
+            swImgDescrs.add(swDescr);
+        }
+        LOGGER.info("sw image descriptors: {}", swImgDescrs);
+        return swImgDescrs;
+    }
+
+    private void writeFile(File file, String content) {
+        try {
+            Writer fw = new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8);
+            BufferedWriter bw = new BufferedWriter(fw);
+            bw.write(content);
+            bw.close();
+        } catch (IOException e) {
+            LOGGER.error("write data into SwImageDesc.json failed, {}", e.getMessage());
+        }
     }
 
 }
