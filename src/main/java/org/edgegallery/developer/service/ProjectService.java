@@ -67,6 +67,7 @@ import org.edgegallery.developer.mapper.ProjectImageMapper;
 import org.edgegallery.developer.mapper.ProjectMapper;
 import org.edgegallery.developer.mapper.ReleaseConfigMapper;
 import org.edgegallery.developer.mapper.UploadedFileMapper;
+import org.edgegallery.developer.mapper.VmConfigMapper;
 import org.edgegallery.developer.model.CapabilitiesDetail;
 import org.edgegallery.developer.model.LcmLog;
 import org.edgegallery.developer.model.ReleaseConfig;
@@ -74,6 +75,7 @@ import org.edgegallery.developer.model.ServiceDetail;
 import org.edgegallery.developer.model.SshConnectInfo;
 import org.edgegallery.developer.model.atp.AtpResultInfo;
 import org.edgegallery.developer.model.lcm.UploadResponse;
+import org.edgegallery.developer.model.vm.VmCreateConfig;
 import org.edgegallery.developer.model.workspace.ApplicationProject;
 import org.edgegallery.developer.model.workspace.EnumDeployPlatform;
 import org.edgegallery.developer.model.workspace.EnumHostStatus;
@@ -170,6 +172,9 @@ public class ProjectService {
 
     @Autowired
     private WebSshService webSshService;
+
+    @Autowired
+    private VmConfigMapper vmConfigMapper;
 
     /**
      * getAllProjects.
@@ -1260,13 +1265,25 @@ public class ProjectService {
     }
 
     private String getFileName(String projectId) {
-        List<ProjectTestConfig> testConfigList = projectMapper.getTestConfigByProjectId(projectId);
-        if (CollectionUtils.isEmpty(testConfigList)) {
-            LOGGER.info("This project has not test config, do not terminate.");
-            return null;
+        ApplicationProject applicationProject = projectMapper.getProjectById(projectId);
+        if (applicationProject.getDeployPlatform()==EnumDeployPlatform.KUBERNETES) {
+            List<ProjectTestConfig> testConfigList = projectMapper.getTestConfigByProjectId(projectId);
+            if (CollectionUtils.isEmpty(testConfigList)) {
+                LOGGER.info("This project has not test config, do not terminate.");
+                return null;
+            }
+            ProjectTestConfig testConfig = testConfigList.get(0);
+            return null != testConfig ? testConfig.getAppInstanceId() : null;
+        } else {
+            List<VmCreateConfig> vmCreateConfigs = vmConfigMapper.getVmCreateConfigs(projectId);
+            if (CollectionUtils.isEmpty(vmCreateConfigs)) {
+                LOGGER.info("This project has not vm config, do not terminate.");
+                return null;
+            }
+            VmCreateConfig vmCreateConfig = vmCreateConfigs.get(0);
+            return null != vmCreateConfig ? vmCreateConfig.getAppInstanceId() : null;
         }
-        ProjectTestConfig testConfig = testConfigList.get(0);
-        return null != testConfig ? testConfig.getAppInstanceId() : null;
+
     }
 
     private class GetAtpStatusProcessor implements Runnable {
