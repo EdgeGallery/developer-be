@@ -769,6 +769,8 @@ public class VmService {
                         FileUtils.deleteQuietly(s);
                     }
                 }
+                CompressFileUtilsJava.compressToZip(imagePath, packagePath,config.getImageName());
+                FileUtils.deleteDirectory(new File(imagePath));
             }
 
         } catch (IOException e) {
@@ -776,13 +778,6 @@ public class VmService {
             return false;
         }
 
-        try {
-            CompressFileUtilsJava.compressToZip(imagePath, packagePath,config.getImageName());
-            FileUtils.deleteDirectory(new File(imagePath));
-        } catch (IOException e) {
-            LOGGER.error("image file compressToZip fail: occur IOException {}.", e.getMessage());
-            return false;
-        }
         // modify image file
         File swImageDesc = new File(packagePath + File.separator + "SwImageDesc.json");
         try {
@@ -797,9 +792,11 @@ public class VmService {
             return false;
         }
 
+        String outPath = projectService.getProjectPath(config.getProjectId()) + config.getAppInstanceId();
+
         try {
             CompressFileUtilsJava
-                .compressToCsarAndDeleteSrc(packagePath, projectService.getProjectPath(config.getProjectId()),
+                .compressToCsarAndDeleteSrc(outPath, projectService.getProjectPath(config.getProjectId()),
                     config.getAppInstanceId());
         } catch (IOException e) {
             LOGGER.error("generate csar failed: occur IOException {}.", e.getMessage());
