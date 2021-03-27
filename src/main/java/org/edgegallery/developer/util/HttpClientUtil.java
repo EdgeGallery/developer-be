@@ -537,6 +537,7 @@ public final class HttpClientUtil {
                 outputStream.flush();
             }
         } catch (RestClientException | IOException e) {
+
             LOGGER.error("Failed to get image status which imageId is {} exception {}", imageId, e.getMessage());
             return false;
         }
