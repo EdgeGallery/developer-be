@@ -1266,7 +1266,7 @@ public class ProjectService {
 
     private String getFileName(String projectId) {
         ApplicationProject applicationProject = projectMapper.getProjectById(projectId);
-        if (applicationProject.getDeployPlatform()==EnumDeployPlatform.KUBERNETES) {
+        if (applicationProject.getDeployPlatform() == EnumDeployPlatform.KUBERNETES) {
             List<ProjectTestConfig> testConfigList = projectMapper.getTestConfigByProjectId(projectId);
             if (CollectionUtils.isEmpty(testConfigList)) {
                 LOGGER.info("This project has not test config, do not terminate.");
