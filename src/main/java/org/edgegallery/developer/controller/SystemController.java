@@ -155,8 +155,9 @@ public class SystemController {
     @PreAuthorize("hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<MepHost> modifyHost(
         @PathVariable("hostId") @Pattern(regexp = REG_UUID, message = "hostId must be in UUID format") String hostId,
-        @Validated @RequestBody MepHost host) {
-        Either<FormatRespDto, MepHost> either = systemService.updateHost(hostId, host);
+        @Validated @RequestBody MepHost host, HttpServletRequest request) {
+        String token = request.getHeader(Consts.ACCESS_TOKEN_STR);
+        Either<FormatRespDto, MepHost> either = systemService.updateHost(hostId, host, token);
         return ResponseDataUtil.buildResponse(either);
     }
 
