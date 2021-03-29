@@ -85,7 +85,16 @@
                     <artifactId>spring-messaging</artifactId>
                     <groupId>org.springframework</groupId>
                 </exclusion>
+                <exclusion>
+                    <artifactId>spring-websocket</artifactId>
+                    <groupId>org.springframework</groupId>
+                </exclusion>
             </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-websocket</artifactId>
+            <version>5.1.13.RELEASE</version>
         </dependency>
         <dependency>
             <groupId>commons-net</groupId>
