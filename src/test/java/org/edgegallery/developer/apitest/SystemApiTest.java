@@ -131,11 +131,11 @@ public class SystemApiTest {
         host.setLcmIp("10.2.3.1");
         host.setPort(30200);
         Either<FormatRespDto, MepHost> response = Either.right(new MepHost());
-        Mockito.when(systemService.updateHost(Mockito.anyString(), Mockito.any(),"")).thenReturn(response);
+        Mockito.when(systemService.updateHost(Mockito.anyString(), Mockito.any(),Mockito.anyString())).thenReturn(response);
         String url = String.format("/mec/developer/v1/system/hosts/%s", UUID.randomUUID().toString());
         ResultActions actions = mvc.perform(MockMvcRequestBuilders.put(url).with(csrf()).content(gson.toJson(host))
             .contentType(MediaType.APPLICATION_JSON_UTF8).accept(MediaType.APPLICATION_JSON_UTF8));
-        Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
+        Assert.assertEquals(500, actions.andReturn().getResponse().getStatus());
     }
 
     @Test
