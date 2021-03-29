@@ -159,7 +159,7 @@ public class SystemService {
      * @return
      */
     @Transactional
-    public Either<FormatRespDto, MepHost> updateHost(String hostId, MepHost host) {
+    public Either<FormatRespDto, MepHost> updateHost(String hostId, MepHost host, String token) {
         //health check
         String healRes = HttpClientUtil.getHealth(host.getLcmIp(), host.getPort());
         if (healRes == null) {
@@ -167,6 +167,17 @@ public class SystemService {
             LOGGER.error(msg);
             FormatRespDto dto = new FormatRespDto(Status.BAD_REQUEST, msg);
             return Either.left(dto);
+        }
+        if (StringUtils.isNotBlank(host.getConfigId())) {
+            // upload file
+            UploadedFile uploadedFile = uploadedFileMapper.getFileById(host.getConfigId());
+            boolean uploadRes = uploadFileToLcm(host.getLcmIp(), host.getPort(), uploadedFile.getFilePath(), token);
+            if (!uploadRes) {
+                String msg = "Create host failed,upload config file error";
+                LOGGER.error(msg);
+                FormatRespDto dto = new FormatRespDto(Status.BAD_REQUEST, msg);
+                return Either.left(dto);
+            }
         }
         MepHost currentHost = hostMapper.getHost(hostId);
         if (currentHost == null) {

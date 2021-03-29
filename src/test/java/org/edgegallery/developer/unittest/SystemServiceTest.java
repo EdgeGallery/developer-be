@@ -177,7 +177,7 @@ public class SystemServiceTest {
         host.setPassword("xxxxxxxxxxxx");
         host.setConfigId("errorId");
         host.setUserId(UUID.randomUUID().toString());
-        Either<FormatRespDto, MepHost> res = systemService.updateHost("c8aac2b2-4162-40fe-9d99-0630e3245cf7", host);
+        Either<FormatRespDto, MepHost> res = systemService.updateHost("c8aac2b2-4162-40fe-9d99-0630e3245cf7", host,"");
         Assert.assertTrue(res.isLeft());
     }
 
@@ -196,7 +196,7 @@ public class SystemServiceTest {
         host.setPassword("xxxxxxxxxxxx");
         host.setConfigId("errorId");
         host.setUserId(UUID.randomUUID().toString());
-        Either<FormatRespDto, MepHost> res = systemService.updateHost("c8aac2b2-4162-40fe-9d99-0630e3245cf789", host);
+        Either<FormatRespDto, MepHost> res = systemService.updateHost("c8aac2b2-4162-40fe-9d99-0630e3245cf789", host,"");
         Assert.assertTrue(res.isLeft());
     }
 
