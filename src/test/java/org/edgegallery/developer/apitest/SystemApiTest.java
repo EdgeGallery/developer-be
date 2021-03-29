@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.UUID;
 import org.edgegallery.developer.DeveloperApplicationTests;
 import org.edgegallery.developer.model.workspace.EnumHostStatus;
+import org.edgegallery.developer.model.workspace.MepCreateHost;
 import org.edgegallery.developer.model.workspace.MepHost;
 import org.edgegallery.developer.model.workspace.MepHostLog;
 import org.edgegallery.developer.model.workspace.OpenMepCapabilityGroup;
@@ -91,7 +92,7 @@ public class SystemApiTest {
     @Test
     @WithMockUser(roles = "DEVELOPER_ADMIN")
     public void testCreateHost() throws Exception {
-        MepHost host = new MepHost();
+        MepCreateHost host = new MepCreateHost();
         host.setHostId(UUID.randomUUID().toString());
         host.setName("onlineever");
         host.setAddress("address");
@@ -99,7 +100,7 @@ public class SystemApiTest {
         host.setStatus(EnumHostStatus.NORMAL);
         host.setLcmIp("10.2.3.1");
         host.setPort(30200);
-        Either<FormatRespDto, MepHost> response = Either.right(new MepHost());
+        Either<FormatRespDto, Boolean> response = Either.right(true);
         Mockito.when(systemService.createHost(Mockito.any(), Mockito.anyString())).thenReturn(response);
         String url = String.format("/mec/developer/v1/system/hosts");
         ResultActions actions = mvc.perform(MockMvcRequestBuilders.post(url).with(csrf()).content(gson.toJson(host))

@@ -22,6 +22,7 @@ import java.util.UUID;
 import org.edgegallery.developer.DeveloperApplicationTests;
 import org.edgegallery.developer.domain.shared.Page;
 import org.edgegallery.developer.model.workspace.EnumHostStatus;
+import org.edgegallery.developer.model.workspace.MepCreateHost;
 import org.edgegallery.developer.model.workspace.MepHost;
 import org.edgegallery.developer.model.workspace.MepHostLog;
 import org.edgegallery.developer.model.workspace.OpenMepCapabilityGroup;
@@ -69,7 +70,7 @@ public class SystemServiceTest {
     @Test
     @WithMockUser(roles = "DEVELOPER_TENANT")
     public void testCreateHostWithNullUserName() {
-        Either<FormatRespDto, MepHost> res = systemService.createHost(new MepHost(), "");
+        Either<FormatRespDto, Boolean> res = systemService.createHost(new MepCreateHost(), "");
         // Assert.assertNull(res);
         Assert.assertTrue(res.isLeft());
     }
@@ -77,7 +78,7 @@ public class SystemServiceTest {
     @Test
     @WithMockUser(roles = "DEVELOPER_TENANT")
     public void testCreateHostWithNullPwd() {
-        MepHost host = new MepHost();
+        MepCreateHost host = new MepCreateHost();
         host.setHostId(UUID.randomUUID().toString());
         host.setName("onlineever");
         host.setAddress("address");
@@ -86,7 +87,7 @@ public class SystemServiceTest {
         host.setLcmIp("10.2.3.1");
         host.setPort(30200);
         host.setUserName("hlfonnnn");
-        Either<FormatRespDto, MepHost> res = systemService.createHost(host, "");
+        Either<FormatRespDto, Boolean> res = systemService.createHost(host, "");
         // Assert.assertNull(res);
         Assert.assertTrue(res.isLeft());
     }
@@ -94,7 +95,7 @@ public class SystemServiceTest {
     @Test
     @WithMockUser(roles = "DEVELOPER_TENANT")
     public void testCreateHostWithNullUserId() {
-        MepHost host = new MepHost();
+        MepCreateHost host = new MepCreateHost();
         host.setHostId(UUID.randomUUID().toString());
         host.setName("onlineever");
         host.setAddress("address");
@@ -104,7 +105,7 @@ public class SystemServiceTest {
         host.setPort(30200);
         host.setUserName("hlfonnnn");
         host.setPassword("xxxxxxxxxxxx");
-        Either<FormatRespDto, MepHost> res = systemService.createHost(host, "");
+        Either<FormatRespDto, Boolean> res = systemService.createHost(host, "");
         // Assert.assertNull(res);
         Assert.assertTrue(res.isLeft());
     }
@@ -112,7 +113,7 @@ public class SystemServiceTest {
     @Test
     @WithMockUser(roles = "DEVELOPER_TENANT")
     public void testCreateHostWithErrorLcmIp() {
-        MepHost host = new MepHost();
+        MepCreateHost host = new MepCreateHost();
         host.setHostId(UUID.randomUUID().toString());
         host.setName("onlineever");
         host.setAddress("address");
@@ -123,7 +124,7 @@ public class SystemServiceTest {
         host.setUserName("hlfonnnn");
         host.setPassword("xxxxxxxxxxxx");
         host.setUserId(UUID.randomUUID().toString());
-        Either<FormatRespDto, MepHost> res = systemService.createHost(host, "");
+        Either<FormatRespDto, Boolean> res = systemService.createHost(host, "");
         // Assert.assertNull(res);
         Assert.assertTrue(res.isLeft());
     }
@@ -131,7 +132,7 @@ public class SystemServiceTest {
     @Test
     @WithMockUser(roles = "DEVELOPER_TENANT")
     public void testCreateHostWithErrorConfId() {
-        MepHost host = new MepHost();
+        MepCreateHost host = new MepCreateHost();
         host.setHostId(UUID.randomUUID().toString());
         host.setName("onlineever");
         host.setAddress("address");
@@ -143,7 +144,7 @@ public class SystemServiceTest {
         host.setPassword("xxxxxxxxxxxx");
         host.setConfigId("errorId");
         host.setUserId(UUID.randomUUID().toString());
-        Either<FormatRespDto, MepHost> res = systemService.createHost(host, "");
+        Either<FormatRespDto, Boolean> res = systemService.createHost(host, "");
         // Assert.assertNull(res);
         Assert.assertTrue(res.isLeft());
     }

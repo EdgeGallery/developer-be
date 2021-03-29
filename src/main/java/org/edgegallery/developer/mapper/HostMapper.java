@@ -19,11 +19,14 @@ package org.edgegallery.developer.mapper;
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
 import org.edgegallery.developer.model.workspace.EnumHostStatus;
+import org.edgegallery.developer.model.workspace.MepCreateHost;
 import org.edgegallery.developer.model.workspace.MepHost;
 
 public interface HostMapper {
 
     int saveHost(MepHost host);
+
+    int createHost(MepCreateHost mepCreateHost);
 
     int updateHost(MepHost host);
 

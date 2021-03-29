@@ -29,6 +29,7 @@ import javax.validation.constraints.Pattern;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.edgegallery.developer.common.Consts;
 import org.edgegallery.developer.domain.shared.Page;
+import org.edgegallery.developer.model.workspace.MepCreateHost;
 import org.edgegallery.developer.model.workspace.MepHost;
 import org.edgegallery.developer.model.workspace.MepHostLog;
 import org.edgegallery.developer.model.workspace.OpenMepCapabilityGroup;
@@ -105,19 +106,19 @@ public class SystemController {
      *
      * @return
      */
-    @ApiOperation(value = "create one server", response = MepHost.class)
+    @ApiOperation(value = "create one server", response = Boolean.class)
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "OK", response = MepHost.class),
+        @ApiResponse(code = 200, message = "OK", response = Boolean.class),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
     @RequestMapping(value = "/hosts", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_UTF8_VALUE,
         produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_ADMIN')")
-    public ResponseEntity<MepHost> createHost(
-        @ApiParam(value = "MepHost", required = true) @Validated @RequestBody MepHost host,
+    public ResponseEntity<Boolean> createHost(
+        @ApiParam(value = "MepHost", required = true) @Validated @RequestBody MepCreateHost host,
         HttpServletRequest request) {
         String token = request.getHeader(Consts.ACCESS_TOKEN_STR);
-        Either<FormatRespDto, MepHost> either = systemService.createHost(host, token);
+        Either<FormatRespDto, Boolean> either = systemService.createHost(host, token);
         return ResponseDataUtil.buildResponse(either);
     }
 
