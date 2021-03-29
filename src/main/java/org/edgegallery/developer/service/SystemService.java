@@ -34,6 +34,7 @@ import org.edgegallery.developer.mapper.HostLogMapper;
 import org.edgegallery.developer.mapper.HostMapper;
 import org.edgegallery.developer.mapper.OpenMepCapabilityMapper;
 import org.edgegallery.developer.mapper.UploadedFileMapper;
+import org.edgegallery.developer.model.workspace.MepCreateHost;
 import org.edgegallery.developer.model.workspace.MepHost;
 import org.edgegallery.developer.model.workspace.MepHostLog;
 import org.edgegallery.developer.model.workspace.OpenMepCapabilityDetail;
@@ -94,7 +95,7 @@ public class SystemService {
      * @return
      */
     @Transactional
-    public Either<FormatRespDto, MepHost> createHost(MepHost host, String token) {
+    public Either<FormatRespDto, Boolean> createHost(MepCreateHost host, String token) {
         if (StringUtils.isBlank(host.getUserName())) {
             LOGGER.error("Create host failed, username is empty");
             return Either.left(new FormatRespDto(Status.BAD_REQUEST, "username is empty"));
@@ -127,10 +128,10 @@ public class SystemService {
             }
         }
         host.setHostId(UUID.randomUUID().toString()); // no need to set hostId by user
-        int ret = hostMapper.saveHost(host);
+        int ret = hostMapper.createHost(host);
         if (ret > 0) {
             LOGGER.info("Crete host {} success ", host.getHostId());
-            return Either.right(host);
+            return Either.right(true);
         }
         LOGGER.error("Create host failed ");
         return Either.left(new FormatRespDto(Status.BAD_REQUEST, "Can not create a host."));

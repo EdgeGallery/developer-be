@@ -46,6 +46,15 @@
         #{port}, #{os}, #{portRangeMin}, #{portRangeMax}, #{protocol},#{userName},#{password})
     </insert>
 
+    <insert id="createHost"
+      parameterType="org.edgegallery.developer.model.workspace.MepCreateHost">
+      insert into
+      tbl_service_host (host_id, user_id, name, address, architecture, status, lcm_ip, mec_host, port, os, port_range_min, port_range_max, protocol,user_name,password)
+      values
+      ( #{hostId}, #{userId}, #{name}, #{address}, #{architecture}, #{status}, #{lcmIp}, #{mecHost},
+      #{port}, #{os}, #{portRangeMin}, #{portRangeMax}, #{protocol},#{userName},#{password})
+    </insert>
+
     <select id="getAllHosts" resultMap="HostMap">
         SELECT
         *
