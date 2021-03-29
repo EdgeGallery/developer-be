@@ -140,7 +140,10 @@ public class CompressFileUtilsJava {
         File resourcesFile = new File(resourcesPath);
         File targetFile = new File(targetPath);
         if (!targetFile.exists()) {
-            targetFile.mkdirs();
+            boolean isSuccess = targetFile.mkdirs();
+            if (!isSuccess) {
+                throw new IOException("create dir failed!");
+            }
         }
 
         FileOutputStream outputStream = new FileOutputStream(targetPath + File.separator + fileName + ".csar");

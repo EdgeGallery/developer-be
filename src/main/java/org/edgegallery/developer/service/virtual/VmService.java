@@ -33,7 +33,6 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -769,7 +768,7 @@ public class VmService {
                         FileUtils.deleteQuietly(s);
                     }
                 }
-                CompressFileUtilsJava.compressToZip(imagePath, packagePath,config.getImageName());
+                CompressFileUtilsJava.compressToZip(imagePath, packagePath, config.getImageName());
                 FileUtils.deleteDirectory(new File(imagePath));
             }
 
@@ -781,8 +780,8 @@ public class VmService {
         // modify image file
         File swImageDesc = new File(packagePath + File.separator + "SwImageDesc.json");
         try {
-            List<ImageDesc> swImgDescs = getSwImageDescrInfo(FileUtils.readFileToString
-                (swImageDesc, StandardCharsets.UTF_8));
+            List<ImageDesc> swImgDescs = getSwImageDescrInfo(
+                FileUtils.readFileToString(swImageDesc, StandardCharsets.UTF_8));
 
             swImgDescs.get(0).setName(config.getImageName());
             swImgDescs.get(0).setSwImage("Image/" + config.getImageName() + "zip/" + config.getImageName() + ".qcow2");
