@@ -162,7 +162,7 @@ public class CompressFileUtilsJava {
             }
         }
 
-        FileOutputStream outputStream = new FileOutputStream(targetPath + File.separator + fileName + ".csar");
+        FileOutputStream outputStream = new FileOutputStream(targetPath + File.separator + fileName + ".zip");
         ZipOutputStream out = new ZipOutputStream(new BufferedOutputStream(outputStream));
 
         createCompressedFile(out, resourcesFile, resourcesFile.getName());
