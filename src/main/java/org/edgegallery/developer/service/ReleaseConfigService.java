@@ -99,6 +99,13 @@ public class ReleaseConfigService {
             FormatRespDto dto = new FormatRespDto(Response.Status.BAD_REQUEST, "projectId is null");
             return Either.left(dto);
         }
+
+        ReleaseConfig releaseConfig = configMapper.getConfigByProjectId(projectId);
+        if (releaseConfig != null) {
+            LOGGER.error("releaseConfig have exit!");
+            FormatRespDto dto = new FormatRespDto(Response.Status.BAD_REQUEST, "releaseConfig have exit!");
+            return Either.left(dto);
+        }
         ApplicationProject applicationProject = projectMapper.getProjectById(projectId);
         if (applicationProject.getDeployPlatform() == EnumDeployPlatform.KUBERNETES) {
             //update csar
