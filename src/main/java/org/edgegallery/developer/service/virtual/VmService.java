@@ -691,7 +691,7 @@ public class VmService {
         }
         String packagePath = projectService.getProjectPath(vmImageConfig.getProjectId()) + vmImageConfig
             .getAppInstanceId() + File.separator + "Image";
-        DeveloperFileUtils.deleteDir(packagePath + File.separator + vmImageConfig.getImageName());
+        FileUtils.deleteQuietly(new File(packagePath + File.separator + vmImageConfig.getImageName() + ".zip"));
 
         LOGGER.info("delete vm create config success");
         return Either.right(true);
@@ -742,12 +742,20 @@ public class VmService {
                     config.getAppInstanceId(), config.getImageId(), config.getImageName(), Integer.toString(chunkNum),
                     config.getLcmToken());
             if (!res) {
-                LOGGER.info("download image fail");
-                config.setLog("download image fail");
+                LOGGER.info("no more data");
+                config.setLog("no more data");
                 break;
             }
+            if (chunkNum==0) {
+                try {
+                    Thread.sleep(10000);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    LOGGER.error("sleep fail! {}", e.getMessage());
+                }
+            }
             if (chunkNum % 10 == 0) {
-                config.setLog("download image file:" + chunkNum + "/" + config.getSumChunkNum());
+                config.setLog("download image file:" + chunkNum + "/" + config.getSumChunkNum()/4);
                 vmConfigMapper.updateVmImageConfig(config);
             }
         }
@@ -784,10 +792,11 @@ public class VmService {
                 FileUtils.readFileToString(swImageDesc, StandardCharsets.UTF_8));
 
             swImgDescs.get(0).setName(config.getImageName());
-            swImgDescs.get(0).setSwImage("Image/" + config.getImageName() + "zip/" + config.getImageName() + ".qcow2");
+            swImgDescs.get(0).setSwImage("Image/" + config.getImageName() + "zip/"
+                + config.getImageName() + config.getImageName() + ".qcow2");
             writeFile(swImageDesc, gson.toJson(swImgDescs));
         } catch (IOException e) {
-            LOGGER.error("image file fail: occur IOException {}.", e.getMessage());
+            LOGGER.error("modify image file fail: occur IOException {}.", e.getMessage());
             return false;
         }
 

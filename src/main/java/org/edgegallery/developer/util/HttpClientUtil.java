@@ -44,6 +44,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
@@ -493,15 +494,20 @@ public final class HttpClientUtil {
         String url = getUrlPrefix(protocol, ip, port) + Consts.APP_LCM_GET_IMAGE_DOWNLOAD_URL
             .replaceAll("appInstanceId", appInstanceId).replaceAll("tenantId", userId).replaceAll("imageId", imageId);
         LOGGER.info("url is {}", url);
+        SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
+        requestFactory.setConnectTimeout(60000);// 设置超时
+        requestFactory.setReadTimeout(60000);
+        RestTemplate restTemplate = new RestTemplate(requestFactory);
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setConnection("close");
         headers.set(Consts.ACCESS_TOKEN_STR, token);
         headers.set("chunk_num", chunkNum);
         // download images
         ResponseEntity<byte[]> response;
         try {
 
-            response = REST_TEMPLATE.exchange(url, HttpMethod.GET, new HttpEntity<>(headers), byte[].class);
+            response = restTemplate.exchange(url, HttpMethod.GET, new HttpEntity<>(headers), byte[].class);
             //            LOGGER.warn(response.getBody());
             if (response.getStatusCode() != HttpStatus.OK) {
                 LOGGER.error("download file error, response is {}", response.getBody());
@@ -511,7 +517,7 @@ public final class HttpClientUtil {
             if (result == null) {
                 throw new DomainException("download response is null");
             }
-            String fileName = imageName + ".qcow2";
+            String fileName = "temp_" + chunkNum;
             String outPath = packagePath + File.separator + imageName;
             LOGGER.info("output image path:{}", outPath);
             File imageDir = new File(outPath);

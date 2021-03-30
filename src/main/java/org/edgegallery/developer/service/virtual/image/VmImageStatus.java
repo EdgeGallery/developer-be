@@ -68,7 +68,7 @@ public class VmImageStatus implements VmImageStage {
         MepHost host = gson.fromJson(gson.toJson(vmCreateConfig.getHost()), type);
         ApplicationProject project = projectMapper.getProjectById(config.getProjectId());
         try {
-            Thread.sleep(20000);
+            Thread.sleep(5000);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             LOGGER.error("sleep fail! {}", e.getMessage());
