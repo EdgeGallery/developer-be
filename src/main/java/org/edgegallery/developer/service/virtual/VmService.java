@@ -460,7 +460,7 @@ public class VmService {
                 String originalFilename = multipartFile.getOriginalFilename();
                 if (!org.springframework.util.StringUtils.isEmpty(originalFilename)) {
                     String[] filename = originalFilename.split("\\.");
-                    file = File.createTempFile(filename[0], filename[1]);
+                    file = File.createTempFile(filename[0], "."+filename[1]);
                     multipartFile.transferTo(file);
                     file.deleteOnExit();
                 }
@@ -792,8 +792,8 @@ public class VmService {
                 FileUtils.readFileToString(swImageDesc, StandardCharsets.UTF_8));
 
             swImgDescs.get(0).setName(config.getImageName());
-            swImgDescs.get(0).setSwImage("Image/" + config.getImageName() + "zip/"
-                + config.getImageName() + config.getImageName() + ".qcow2");
+            swImgDescs.get(0).setSwImage("Image/" + config.getImageName() + ".zip/"
+                + config.getImageName() + "/" + config.getImageName() + ".qcow2");
             writeFile(swImageDesc, gson.toJson(swImgDescs));
         } catch (IOException e) {
             LOGGER.error("modify image file fail: occur IOException {}.", e.getMessage());
