@@ -62,8 +62,15 @@ public class ReleaseConfigServiceTest {
     @Test
     @WithMockUser(roles = "DEVELOPER_TENANT")
     public void testCreateRelConfig() {
-        Either<FormatRespDto, ReleaseConfig> stru = releaseConfigService.saveConfig(projectId, new ReleaseConfig());
-        Assert.assertTrue(stru.isRight());
+        ReleaseConfig releaseConfig = new ReleaseConfig();
+        Either<FormatRespDto, ReleaseConfig> stru = releaseConfigService.saveConfig(projectId, releaseConfig);
+        if(stru.isLeft()){
+            Assert.assertEquals(400,stru.getLeft().getErrorRespDto().getCode());
+            Assert.assertEquals("releaseConfig have exit!",stru.getLeft().getErrorRespDto().getDetail());
+        }else {
+            Assert.assertTrue(stru.isRight());
+        }
+
     }
 
     @Test
