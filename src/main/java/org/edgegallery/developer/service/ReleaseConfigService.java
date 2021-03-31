@@ -106,24 +106,6 @@ public class ReleaseConfigService {
             FormatRespDto dto = new FormatRespDto(Response.Status.BAD_REQUEST, "releaseConfig have exit!");
             return Either.left(dto);
         }
-        ApplicationProject applicationProject = projectMapper.getProjectById(projectId);
-        if (applicationProject.getDeployPlatform() == EnumDeployPlatform.KUBERNETES) {
-            //update csar
-            if (config.getCapabilitiesDetail() != null) {
-                Either<FormatRespDto, Boolean> rebuildRes = rebuildCsar(projectId, config);
-                if (rebuildRes.isLeft()) {
-                    return Either.left(rebuildRes.getLeft());
-                }
-            }
-        } else {
-            if (config.getCapabilitiesDetail() != null) {
-                Either<FormatRespDto, Boolean> rebuildRes = rebuildVmCsar(projectId, config);
-                if (rebuildRes.isLeft()) {
-                    return Either.left(rebuildRes.getLeft());
-                }
-            }
-        }
-
         String releaseId = UUID.randomUUID().toString();
         config.setReleaseId(releaseId);
         config.setProjectId(projectId);
@@ -134,6 +116,24 @@ public class ReleaseConfigService {
             FormatRespDto dto = new FormatRespDto(Response.Status.INTERNAL_SERVER_ERROR, "save config data fail");
             return Either.left(dto);
         }
+        ApplicationProject applicationProject = projectMapper.getProjectById(projectId);
+        if (applicationProject.getDeployPlatform() == EnumDeployPlatform.KUBERNETES) {
+            //update csar
+            if (config.getCapabilitiesDetail() != null) {
+                Either<FormatRespDto, Boolean> rebuildRes = rebuildCsar(projectId, config);
+                if (rebuildRes.isLeft()) {
+                    return Either.left(rebuildRes.getLeft());
+                }
+            }
+        } else {
+            if (config.getGuideFileId() != null && !config.getGuideFileId().equals("")) {
+                Either<FormatRespDto, Boolean> rebuildRes = rebuildVmCsar(projectId, config);
+                if (rebuildRes.isLeft()) {
+                    return Either.left(rebuildRes.getLeft());
+                }
+            }
+        }
+
         LOGGER.info("create release config success!");
         return Either.right(configMapper.getConfigByReleaseId(config.getReleaseId()));
     }
@@ -142,15 +142,27 @@ public class ReleaseConfigService {
      * modifyConfig.
      */
     public Either<FormatRespDto, ReleaseConfig> modifyConfig(String projectId, ReleaseConfig config) {
+
         if (StringUtils.isBlank(projectId)) {
             LOGGER.error("req path miss project id!");
             FormatRespDto dto = new FormatRespDto(Response.Status.BAD_REQUEST, "projectId is null");
             return Either.left(dto);
         }
+
         ReleaseConfig oldConfig = configMapper.getConfigByProjectId(projectId);
         if (oldConfig == null) {
             LOGGER.error("projectId error,can not find any project!");
             FormatRespDto dto = new FormatRespDto(Response.Status.BAD_REQUEST, "projectId error!");
+            return Either.left(dto);
+        }
+
+        config.setReleaseId(oldConfig.getReleaseId());
+        config.setProjectId(projectId);
+        config.setCreateTime(new Date());
+        int res = configMapper.modifyReleaseConfig(config);
+        if (res < 1) {
+            LOGGER.error("create project {} release-config data fail!", projectId);
+            FormatRespDto dto = new FormatRespDto(Response.Status.INTERNAL_SERVER_ERROR, "modify config data fail");
             return Either.left(dto);
         }
 
@@ -164,7 +176,7 @@ public class ReleaseConfigService {
                 }
             }
         } else {
-            if (config.getCapabilitiesDetail() != null) {
+            if (config.getGuideFileId() != null && !config.getGuideFileId().equals("")) {
                 Either<FormatRespDto, Boolean> rebuildRes = rebuildVmCsar(projectId, config);
                 if (rebuildRes.isLeft()) {
                     return Either.left(rebuildRes.getLeft());
@@ -172,16 +184,6 @@ public class ReleaseConfigService {
             }
         }
 
-        config.setReleaseId(oldConfig.getReleaseId());
-        config.setProjectId(projectId);
-        config.setCreateTime(new Date());
-
-        int res = configMapper.modifyReleaseConfig(config);
-        if (res < 1) {
-            LOGGER.error("create project {} release-config data fail!", projectId);
-            FormatRespDto dto = new FormatRespDto(Response.Status.INTERNAL_SERVER_ERROR, "modify config data fail");
-            return Either.left(dto);
-        }
         LOGGER.info("modify release config success!");
         return Either.right(configMapper.getConfigByReleaseId(config.getReleaseId()));
 
