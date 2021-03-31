@@ -495,8 +495,8 @@ public final class HttpClientUtil {
             .replaceAll("appInstanceId", appInstanceId).replaceAll("tenantId", userId).replaceAll("imageId", imageId);
         LOGGER.info("url is {}", url);
         SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
-        requestFactory.setConnectTimeout(60000);// 设置超时
-        requestFactory.setReadTimeout(60000);
+        requestFactory.setConnectTimeout(600000);// 设置超时
+        requestFactory.setReadTimeout(600000);
         RestTemplate restTemplate = new RestTemplate(requestFactory);
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
