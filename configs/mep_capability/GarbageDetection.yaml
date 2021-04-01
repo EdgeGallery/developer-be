@@ -1,0 +1,92 @@
+swagger: '2.0'
+info:
+  version: '1.0'
+  title: Protrait Pitcure
+  description: Use the PortraitNet model to segment the portrait in the input image, and then merge it with the background image to achieve background replacement.
+  contact: {}
+host: 127.0.0.1:8080
+basePath: /ascend/v1/garbage
+schemes:
+- http
+consumes:
+- application/json
+produces:
+- application/json
+paths:
+  /input:
+    post:
+      description: Upload the Original image and background image which needs to be merged to generate protrait
+      summary: ProtraitPOST
+      tags:
+      - Protrait
+      operationId: ProtraitPOST
+      deprecated: false
+      produces:
+      - application/json
+      consumes:
+      - multipart/form-data
+      parameters:
+      - name: image
+        in: formData
+        required: true
+        type: file
+        format: file
+        description: Image at front
+      - name: background
+        in: formData
+        required: true
+        type: file
+        format: file
+        description: background
+      responses:
+        200:
+          description: ''
+          schema:
+            $ref: '#/definitions/Response'
+          headers: {}
+        400:
+          description: Bad Request
+          schema:
+            type: object
+          headers: {}
+  /output/{outputId}:
+    get:
+      description: Get the output Image
+      summary: ProtraitGET
+      tags:
+      - Protrait
+      operationId: ProtraitGET
+      deprecated: false
+      produces:
+      - application/json
+      parameters:
+      - name: outputId
+        in: path
+        required: true
+        type: string
+        description: ''
+      responses:
+        200:
+          description: ''
+          schema:
+            type: string
+            format: binary
+          headers: {}
+        404:
+          description: resource not found
+          schema:
+            type: object
+          headers: {}
+definitions:
+  Response:
+    title: Response
+    type: object
+    properties:
+      outputId:
+        description: Output Id to get the output file later
+        type: string
+    required:
+    - outputId
+tags:
+- name: Protrait
+  description: ''

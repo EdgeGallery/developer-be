@@ -1,0 +1,86 @@
+swagger: '2.0'
+info:
+  version: '1.0'
+  title: Super Resolution
+  description: Impove the resolution of an Image
+  contact: {}
+host: 127.0.0.1:8080
+basePath: /ascend/v1/superResolution
+schemes:
+- http
+consumes:
+- application/json
+produces:
+- application/json
+paths:
+  /input:
+    post:
+      description: Upload the Original image in bmp format
+      summary: SuperResolutionPOST
+      tags:
+      - SuperResolution
+      operationId: SuperResolutionPOST
+      deprecated: false
+      produces:
+      - application/json
+      consumes:
+      - multipart/form-data
+      parameters:
+      - name: image
+        in: formData
+        required: true
+        type: file
+        format: file
+        description: Image in bmp format
+      responses:
+        200:
+          description: ''
+          schema:
+            $ref: '#/definitions/Response'
+          headers: {}
+        400:
+          description: Bad Request
+          schema:
+            type: object
+          headers: {}
+  /output/{outputId}:
+    get:
+      description: Get the output Image
+      summary: SuperResolutionGET
+      tags:
+      - SuperResolution
+      operationId: SuperResolutionGET
+      deprecated: false
+      produces:
+      - application/json
+      parameters:
+      - name: outputId
+        in: path
+        required: true
+        type: string
+        description: ''
+      responses:
+        200:
+          description: ''
+          schema:
+            type: string
+            format: binary
+          headers: {}
+        404:
+          description: resource not found
+          schema:
+            type: object
+          headers: {}
+definitions:
+  Response:
+    title: Response
+    type: object
+    properties:
+      outputId:
+        description: Output Id to get the output file later
+        type: string
+    required:
+    - outputId
+tags:
+- name: SuperResolution
+  description: ''
