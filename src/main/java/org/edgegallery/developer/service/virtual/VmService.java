@@ -755,7 +755,7 @@ public class VmService {
                 }
             }
             if (chunkNum % 10 == 0) {
-                config.setLog("download image file:" + chunkNum + "/" + config.getSumChunkNum() / 4);
+                config.setLog("download image file:" + chunkNum + "/" + config.getSumChunkNum());
                 vmConfigMapper.updateVmImageConfig(config);
             }
         }
