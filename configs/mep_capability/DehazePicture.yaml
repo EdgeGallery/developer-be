@@ -1,0 +1,83 @@
+swagger: '2.0'
+info:
+  version: '1.0'
+  title: Dehaze Image
+  description: Use deploy_vel model to hazed the input image.
+  contact: {}
+host: 127.0.0.1:8080
+basePath: /ascend/v1/dehazePicture
+schemes:
+- http
+consumes:
+- application/json
+produces:
+- application/json
+paths:
+  /input:
+    post:
+      description: Upload the image which needs to be hazed
+      summary: Dehaze POST
+      tags:
+      - Dehaze
+      operationId: DehazePOST
+      deprecated: false
+      produces:
+      - application/json
+      consumes:
+      - multipart/form-data
+      parameters:
+      - name: image
+        in: formData
+        required: true
+        type: file
+        format: file
+        description: Image to be hazed
+      responses:
+        200:
+          description: ''
+          schema:
+            $ref: '#/definitions/Response'
+          headers: {}
+        400:
+          description: Bad Request
+          schema: {}
+  /output/{outputId}:
+    get:
+      description: Get the output Image
+      summary: Dehaze GET
+      tags:
+      - Dehaze
+      operationId: DehazeGET
+      deprecated: false
+      produces:
+      - application/json
+      parameters:
+      - name: outputId
+        in: path
+        required: true
+        type: string
+        description: ''
+      responses:
+        200:
+          description: ''
+          schema:
+            type: string
+            format: binary
+          headers: {}
+        404:
+          description: resource not found
+          schema: {}
+definitions:
+  Response:
+    title: Response
+    description: ''
+    type: object
+    properties:
+      outputId:
+        description: Output Id to get the output file later
+        type: string
+    required:
+    - outputId
+tags:
+- name: Dehaze
+  description: ''

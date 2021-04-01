@@ -1,0 +1,83 @@
+swagger: '2.0'
+info:
+  version: '1.0'
+  title: Blur2Sharp Image
+  description: Input a blurred picture and use DeblurGAN to make it clear.
+  contact: {}
+host: 127.0.0.1:8080
+basePath: /ascend/v1/blur2Sharp
+schemes:
+- http
+consumes:
+- application/json
+produces:
+- application/json
+paths:
+  /input:
+    post:
+      description: Upload the blur image which needs to be sharped
+      summary: Blur2Sharp POST
+      tags:
+      - Blur2Sharp
+      operationId: Blur2SharpPOST
+      deprecated: false
+      produces:
+      - application/json
+      consumes:
+      - multipart/form-data
+      parameters:
+      - name: image
+        in: formData
+        required: true
+        type: file
+        format: file
+        description: Image to be sharped
+      responses:
+        200:
+          description: ''
+          schema:
+            $ref: '#/definitions/Response'
+          headers: {}
+        400:
+          description: Bad Request
+          schema: {}
+  /output/{outputId}:
+    get:
+      description: Get the output Image
+      summary: Blur2Sharp GET
+      tags:
+      - Blur2Sharp
+      operationId: Blur2SharpGET
+      deprecated: false
+      produces:
+      - application/json
+      parameters:
+      - name: outputId
+        in: path
+        required: true
+        type: string
+        description: ''
+      responses:
+        200:
+          description: ''
+          schema:
+            type: string
+            format: binary
+          headers: {}
+        404:
+          description: resource not found
+          schema: {}
+definitions:
+  Response:
+    title: Response
+    description: ''
+    type: object
+    properties:
+      outputId:
+        description: Output Id to get the output file later
+        type: string
+    required:
+    - outputId
+tags:
+- name: Blur2Sharp
+  description: ''

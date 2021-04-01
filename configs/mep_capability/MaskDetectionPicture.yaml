@@ -1,0 +1,72 @@
+swagger: "2.0"
+info:
+  description: "Detect persons and masks on their faces."
+  version: "2.1-alpine"
+  title: "Mask Detection"
+
+basePath: "/ascend/v1/maskDetection"
+tags:
+- name: "Mask Detection"
+  description: "Detect persons and masks on their faces."
+
+schemes:
+- "http"
+paths:
+  /input:
+    post:
+      tags:
+      - "Mask"
+      summary: "Upload imag to be detected"
+      description: "Upload imag to be detected"
+      consumes:
+      - multipart/form-data
+      produces:
+      - "application/json"
+      parameters:
+      - name: image
+        in: formData
+        required: true
+        type: file
+        format: file
+        description: "To be detected image"
+      responses:
+        "400":
+          description: "Bad Request"
+        "200":
+          description: "result id"  
+          schema:
+            $ref: "#/definitions/Response"
+  /output/{id}:
+    get:
+      tags:
+      - "Mask"
+      summary: "Get the output image"
+      description: "Get the output image"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "Output image ID"
+        required: true
+        type: "string"
+
+      responses:
+        "400":
+          description: "Bad Request"
+        200:
+          description: ''
+          schema:
+            type: string
+            format: binary
+          headers: {}
+
+definitions:
+  Response:
+    type: "object"
+    properties: 
+      outputId:
+        type: "string"
+        description: "Output Id to get the file later"
