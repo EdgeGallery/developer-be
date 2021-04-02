@@ -77,11 +77,11 @@ public class VmStageSelectHost implements VmCreateStage {
 
     @Override
     public boolean destroy() {
-        return false;
+        return true;
     }
 
     @Override
     public boolean immediateExecute(VmCreateConfig config) {
-        return false;
+        return true;
     }
 }

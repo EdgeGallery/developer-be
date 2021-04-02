@@ -1,134 +1,206 @@
 {
   "swagger": "2.0",
   "info": {
-    "description": "face_recognition",
-    "version": "1.0.0",
+    "version": "1.4",
     "title": "face_recognition",
-    "termsOfService": "http://159.138.5.41:32100"
+    "description": "face recognition api.",
+    "contact": {}
   },
   "host": "{HOST}",
   "basePath": "/v1/face-recognition",
   "schemes": [
-    "http",
-    "https"
+    "http"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
   ],
   "paths": {
     "/": {
       "get": {
-        "summary": "helloworld",
-        "description": "test",
+        "description": "health check",
+        "summary": "health check",
+        "tags": [
+          "face-recognition"
+        ],
+        "operationId": "healthCheckGet",
+        "deprecated": false,
         "responses": {
           "200": {
-            "description": "OK",
-            "schema": {
-              "type": "string"
-            }
+            "description": "",
+            "schema": {},
+            "headers": {}
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {}
           }
         }
       }
     },
     "/upload": {
       "post": {
+        "description": "upload face images, file name is people's name",
+        "summary": "upload face image  POST",
         "tags": [
-          "upload"
+          "face-recognition"
         ],
-        "summary": "upload images",
-        "consumes": [
-          "multipart/form-data"
-        ],
+        "operationId": "uploadImagePost",
+        "deprecated": false,
         "produces": [
           "application/json"
         ],
+        "consumes": [
+          "multipart/form-data"
+        ],
         "parameters": [
           {
-            "name": "file",
+            "name": "image",
             "in": "formData",
-            "description": "file to upload",
-            "required": false,
-            "type": "file"
+            "required": true,
+            "type": "file",
+            "format": "file",
+            "description": "upload face image to face-recognition app"
           }
         ],
         "responses": {
           "200": {
-            "description": "文件上传成功"
+            "description": "",
+            "schema": {},
+            "headers": {}
           },
           "400": {
-            "description": "上传失败"
+            "description": "Bad Request",
+            "schema": {}
           }
         }
       }
     },
     "/recognition": {
       "post": {
+        "description": "upload face images, file name is people's name",
+        "summary": "upload face image  POST",
         "tags": [
-          "recognition"
+          "face-recognition"
         ],
-        "summary": "images face recognition",
-        "consumes": [
-          "multipart/form-data"
-        ],
+        "operationId": "faceRecognitionPost",
+        "deprecated": false,
         "produces": [
           "application/json"
         ],
+        "consumes": [
+          "multipart/form-data"
+        ],
         "parameters": [
           {
-            "name": "file",
+            "name": "image",
             "in": "formData",
-            "description": "file to upload",
-            "required": false,
-            "type": "file"
+            "required": true,
+            "type": "file",
+            "format": "file",
+            "description": "face recognition and return face loaction"
           }
         ],
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "",
+            "schema": {},
+            "headers": {}
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {}
           }
         }
       }
     },
-    "/video": {
-      "post": {
+    "/{name}": {
+      "delete": {
+        "description": "delete face info",
+        "summary": "delete face info  DELETE",
         "tags": [
-          "video"
+          "face-recognition"
         ],
-        "summary": "video face recognition",
-        "description": "",
-        "operationId": "add url",
-        "consumes": [
-          "application/json",
-          "application/xml"
-        ],
+        "operationId": "deleteFace",
+        "deprecated": false,
         "produces": [
-          "application/xml",
           "application/json"
         ],
         "parameters": [
           {
-            "in": "body",
-            "name": "body",
-            "description": "video url",
+            "name": "name",
+            "in": "path",
             "required": true,
-            "schema": {
-              "$ref": "#/definitions/body"
-            }
+            "type": "string",
+            "description": "name"
           }
         ],
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "",
+            "schema": {},
+            "headers": {}
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {}
+          }
+        }
+      }
+    },
+    "/comparison": {
+      "post": {
+        "description": "comparison face and return similarity",
+        "summary": "comparison face image  POST",
+        "tags": [
+          "face-comparison"
+        ],
+        "operationId": "comparisonPost",
+        "deprecated": false,
+        "produces": [
+          "application/json"
+        ],
+        "consumes": [
+          "multipart/form-data"
+        ],
+        "parameters": [
+          {
+            "name": "file1",
+            "in": "formData",
+            "required": true,
+            "type": "file",
+            "format": "file",
+            "description": "comparison face and return similarity"
+          },
+          {
+            "name": "file2",
+            "in": "formData",
+            "required": true,
+            "type": "file",
+            "format": "file",
+            "description": "face recognition and return face loaction"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {},
+            "headers": {}
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {}
           }
         }
       }
     }
   },
-  "definitions": {
-    "body": {
-      "type": "object",
-      "properties": {
-        "url": {
-          "type": "string"
-        }
-      }
+  "tags": [
+    {
+      "name": "face-recognition",
+      "description": ""
     }
-  }
+  ]
 }
