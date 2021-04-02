@@ -212,7 +212,7 @@ public class VmService {
         if (EnumTestConfigStatus.Success.equals(stageStatus) && "workStatus".equalsIgnoreCase(stage)) {
             productUpdate = true;
             project.setStatus(EnumProjectStatus.DEPLOYED);
-            testConfig.setLog("");
+            testConfig.setLog("vm create success");
             testConfig.setStatus(EnumVmCreateStatus.SUCCESS);
         } else if (EnumTestConfigStatus.Failed.equals(stageStatus)) {
             productUpdate = true;
