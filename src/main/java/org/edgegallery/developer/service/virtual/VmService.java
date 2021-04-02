@@ -430,7 +430,7 @@ public class VmService {
                 networkIp = networkInfo.getIp();
             }
         }
-        LOGGER.info("network Ip, username, password is {},{},{}", networkIp, vmUsername, vmPassword);
+        LOGGER.info("network Ip, username is {},{}", networkIp, vmUsername);
         // ssh upload file
         String targetPath = "";
         ScpConnectEntity scpConnectEntity = new ScpConnectEntity();

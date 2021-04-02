@@ -227,7 +227,7 @@ public class WebSshServiceImpl implements WebSshService {
                     networkIp = networkInfo.getIp();
                 }
             }
-            logger.info("shh info: {},{},{},{}", networkIp, vmPort, vmUsername, vmPassword);
+            logger.info("shh info: {},{},{}", networkIp, vmPort, vmUsername);
             this.port = Integer.parseInt(vmPort);
             this.ip = networkIp;
             this.username = vmUsername;
