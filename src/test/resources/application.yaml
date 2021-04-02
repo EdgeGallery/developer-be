@@ -44,8 +44,8 @@ security:
 imagelocation:
   domainname: ${IMAGE_REPO_NAME:swr.ap-southeast-1.myhuaweicloud.com}
   project: ${IMAGE_REPO_PROJECT:developer}
-  password: ${IMAGE_REPO_PASSWORD:Harbor12345}
-  username: ${IMAGE_REPO_USERNAME:admin}
+  password: ${IMAGE_REPO_PASSWORD:}
+  username: ${IMAGE_REPO_USERNAME:}
 
 upload:
   path: /usr/app-test/images
