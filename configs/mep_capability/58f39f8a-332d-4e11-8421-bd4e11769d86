@@ -44,30 +44,40 @@ Upload pictures with one people face
 |-----|-----|
 | 200 | success |
 
-### video
-
+### delete
 #### Request message
 
 ```
-/video
+/{name}
 ```
 
-#### Request parameter
-
+#### rR
 | parameter | format | required | type | description |
 |-----|-----|----|------|-----|
-| url | body |Y | string | video stream address |
-
-#### example
-```json
-{
-  "url": "string"
-}
-```
+| name | String |Y| name | delete face name |
 
 #### Return data
 | responses code | description |
 |-----|-----|
 | 200 | success |
+
+### comparison
+#### Request message
+
+```
+/comparison
+```
+
+#### rR
+| parameter | format | required | type | description |
+|-----|-----|----|------|-----|
+| file1 | formData |Y| file1 | Picture with one people face |
+| file2 | formData |Y| file2 | Picture with one people face |
+
+#### Return data
+| responses code | description |
+|-----|-----|
+| 200 | success |
+
 
 
