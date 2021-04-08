@@ -41,6 +41,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.edgegallery.developer.exception.DomainException;
 import org.edgegallery.developer.mapper.ProjectMapper;
 import org.edgegallery.developer.mapper.VmConfigMapper;
 import org.edgegallery.developer.model.LcmLog;
@@ -169,7 +170,7 @@ public class VmService {
     /**
      * create vm package.
      */
-    public File generateVmPackage(VmCreateConfig config) throws IOException {
+    public File generateVmPackage(VmCreateConfig config) throws IOException, DomainException {
         ApplicationProject project = projectMapper.getProjectById(config.getProjectId());
         String projectPath = getProjectPath(config.getProjectId());
         VmFlavor flavor = vmConfigMapper.getVmFlavor(config.getVmRegulation().getArchitecture());

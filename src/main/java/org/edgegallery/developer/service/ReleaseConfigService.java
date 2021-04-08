@@ -42,6 +42,7 @@ import javax.ws.rs.core.Response;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.edgegallery.developer.config.security.AccessUserUtil;
+import org.edgegallery.developer.exception.DomainException;
 import org.edgegallery.developer.mapper.ProjectMapper;
 import org.edgegallery.developer.mapper.ReleaseConfigMapper;
 import org.edgegallery.developer.mapper.UploadedFileMapper;
@@ -69,6 +70,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.constructor.SafeConstructor;
 
 @Service("releaseConfigService")
 public class ReleaseConfigService {
@@ -260,8 +262,15 @@ public class ReleaseConfigService {
             // update node in template
             String yamlContent = FileUtils.readFileToString(templateFile, StandardCharsets.UTF_8);
             yamlContent = yamlContent.replaceAll("\t", "");
-            Yaml yaml = new Yaml();
-            Map<String, Object> loaded = yaml.load(yamlContent);
+            Yaml yaml = new Yaml(new SafeConstructor());
+            Map<String, Object> loaded;
+            try {
+                loaded = yaml.load(yamlContent);
+            } catch (DomainException e) {
+                LOGGER.error("Yaml deserialization failed {}", e.getMessage());
+                FormatRespDto error = new FormatRespDto(Response.Status.BAD_REQUEST, "Yaml deserialization failed");
+                return Either.left(error);
+            }
             // get config node from template
             LinkedHashMap<String, Object> nodeMap = (LinkedHashMap<String, Object>) loaded.get("topology_template");
             LinkedHashMap<String, Object> templateNode = (LinkedHashMap<String, Object>) nodeMap.get("node_templates");
@@ -461,8 +470,14 @@ public class ReleaseConfigService {
             // load content from yaml
             String valueContent = FileUtils.readFileToString(valFile, StandardCharsets.UTF_8);
             valueContent = valueContent.replaceAll("\t", "");
-            Yaml yaml = new Yaml();
-            Map<String, Object> loaded = yaml.load(valueContent);
+            Yaml yaml = new Yaml(new SafeConstructor());
+            Map<String, Object> loaded;
+            try {
+                loaded = yaml.load(valueContent);
+            } catch (DomainException e) {
+                LOGGER.error("Yaml deserialization failed {}", e.getMessage());
+                return;
+            }
             // build node template
             List<ServiceConfig> configs = detailList.stream().map(
                 t -> new ServiceConfig(t.getServiceName(), t.getInternalPort(), t.getVersion(), t.getProtocol(),
