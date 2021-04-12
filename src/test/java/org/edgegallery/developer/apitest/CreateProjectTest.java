@@ -508,7 +508,7 @@ public class CreateProjectTest {
         host.setAddress("XIAN");
         host.setArchitecture("ARM");
         host.setStatus(EnumHostStatus.NORMAL);
-        host.setLcmIp("159.138.53.90");
+        host.setLcmIp("127.0.0.1");
         host.setPort(30101);
         host.setOs("Ubuntu");
         host.setPortRangeMin(30000);
@@ -517,7 +517,7 @@ public class CreateProjectTest {
         test.setHosts(hosts);
         test.setAppApiFileId("f5a1a689-d606-41ed-a5f3-526b0e56004c");
 //        test.setStatus(EnumTestStatus.RUNNING);
-        test.setAccessUrl("http://159.138.53.90:30116");
+        test.setAccessUrl("http://127.0.0.1:30116");
         test.setErrorLog("ImagePullBackOff");
         test.setWorkLoadId("test11111579664939869");
         test.setAppInstanceId("a250418e-a805-4e18-b3d4-a5cad716cbf0");

@@ -138,7 +138,7 @@ public class SystemServiceTest {
         host.setAddress("address");
         host.setArchitecture("x86");
         host.setStatus(EnumHostStatus.NORMAL);
-        host.setLcmIp("119.8.47.5");
+        host.setLcmIp("127.0.0.1");
         host.setPort(30204);
         host.setUserName("hlfonnnn");
         host.setPassword("xxxxxxxxxxxx");
@@ -172,7 +172,7 @@ public class SystemServiceTest {
         host.setAddress("address");
         host.setArchitecture("x86");
         host.setStatus(EnumHostStatus.NORMAL);
-        host.setLcmIp("119.8.47.11");
+        host.setLcmIp("127.0.0.1");
         host.setPort(30204);
         host.setUserName("hlfonnnn");
         host.setPassword("xxxxxxxxxxxx");
@@ -191,7 +191,7 @@ public class SystemServiceTest {
         host.setAddress("address");
         host.setArchitecture("x86");
         host.setStatus(EnumHostStatus.NORMAL);
-        host.setLcmIp("119.8.47.5");
+        host.setLcmIp("127.0.0.1");
         host.setPort(30204);
         host.setUserName("hlfonnnn");
         host.setPassword("xxxxxxxxxxxx");

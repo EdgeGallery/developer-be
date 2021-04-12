@@ -4,7 +4,7 @@
     "description": "face_recognition",
     "version": "1.0.0",
     "title": "face_recognition",
-    "termsOfService": "http://159.138.5.41:32100"
+    "termsOfService": "http://127.0.0.1:32100"
   },
   "host": "{HOST}",
   "basePath": "/v1/face-recognition",
