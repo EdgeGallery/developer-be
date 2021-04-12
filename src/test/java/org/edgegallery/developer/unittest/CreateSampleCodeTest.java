@@ -26,25 +26,32 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.io.FileUtils;
+import org.edgegallery.developer.exception.DomainException;
+import org.edgegallery.developer.util.samplecode.SampleCodeServer;
 import org.junit.Assert;
 import org.junit.Test;
-import org.edgegallery.developer.util.samplecode.SampleCodeServer;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.constructor.SafeConstructor;
 
 public class CreateSampleCodeTest {
 
     @Test
     @WithMockUser(roles = "DEVELOPER_TENANT")
-    public void testCreateSampleCodeFromYaml() throws IOException {
+    public void testCreateSampleCodeFromYaml() throws IOException, DomainException {
         SampleCodeServer service = new SampleCodeServer();
 
         String[] yamlFiles = {"testdata/yaml/user-mgmt-be-v1.yaml", "testdata/yaml/projects-v1.yaml"};
         List<String> jsons = new ArrayList<>();
         for (String yamlPath : yamlFiles) {
             try (InputStream input = CreateSampleCodeTest.class.getClassLoader().getResourceAsStream(yamlPath)) {
-                Yaml yaml = new Yaml();
-                Map<String, Object> loaded = yaml.load(input);
+                Yaml yaml = new Yaml(new SafeConstructor());
+                Map<String, Object> loaded;
+                try {
+                    loaded = yaml.load(input);
+                } catch (DomainException e) {
+                    throw new DomainException("Yaml deserialization failed");
+                }
                 String apiJson = new Gson().toJson(loaded);
                 jsons.add(apiJson);
             }
@@ -93,16 +100,19 @@ public class CreateSampleCodeTest {
 
     @Test
     @WithMockUser(roles = "DEVELOPER_TENANT")
-    public void should_successful_when_gen_code_from_yaml_file() throws IOException {
+    public void should_successful_when_gen_code_from_yaml_file() throws DomainException {
         SampleCodeServer service = new SampleCodeServer();
         String[] yamlFiles = {"testdata/yaml/9f1f13a0-8554-4dfa-90a7-d2765238fca7"};
         List<String> jsons = new ArrayList<>();
         for (String yamlPath : yamlFiles) {
-            try (InputStream input = CreateSampleCodeTest.class.getClassLoader().getResourceAsStream(yamlPath)) {
-                Yaml yaml = new Yaml();
+            try {
+                InputStream input = CreateSampleCodeTest.class.getClassLoader().getResourceAsStream(yamlPath);
+                Yaml yaml = new Yaml(new SafeConstructor());
                 Map<String, Object> loaded = yaml.load(input);
                 String apiJson = new Gson().toJson(loaded);
                 jsons.add(apiJson);
+            } catch (DomainException e) {
+                throw new DomainException("Yaml deserialization failed");
             }
         }
 

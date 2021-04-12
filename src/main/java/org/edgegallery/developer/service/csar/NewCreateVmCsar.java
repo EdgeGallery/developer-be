@@ -36,6 +36,7 @@ import java.util.Map;
 import java.util.UUID;
 import org.apache.commons.io.FileUtils;
 import org.edgegallery.developer.common.Consts;
+import org.edgegallery.developer.exception.DomainException;
 import org.edgegallery.developer.model.deployyaml.ImageDesc;
 import org.edgegallery.developer.model.vm.VmCreateConfig;
 import org.edgegallery.developer.model.vm.VmNetwork;
@@ -48,6 +49,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.constructor.SafeConstructor;
 
 public class NewCreateVmCsar {
 
@@ -74,7 +76,7 @@ public class NewCreateVmCsar {
      * @return package gz
      */
     public File create(String projectPath, VmCreateConfig config, ApplicationProject project, String flavor,
-        List<VmNetwork> vmNetworks) throws IOException {
+        List<VmNetwork> vmNetworks) throws IOException, DomainException {
         File projectDir = new File(projectPath);
 
         String deployType = (project.getDeployPlatform() == EnumDeployPlatform.KUBERNETES) ? "container" : "vm";
@@ -137,8 +139,15 @@ public class NewCreateVmCsar {
         File templateFile = new File(mainServiceTemplatePath);
         String yamlContent = FileUtils.readFileToString(templateFile, StandardCharsets.UTF_8);
         yamlContent = yamlContent.replaceAll("\t", "");
-        Yaml yaml = new Yaml();
-        Map<String, Object> loaded = yaml.load(yamlContent);
+        Yaml yaml = new Yaml(new SafeConstructor());
+        Map<String, Object> loaded;
+        try {
+            loaded = yaml.load(yamlContent);
+        } catch (DomainException e) {
+            LOGGER.error("Yaml deserialization failed {}", e.getMessage());
+            throw new DomainException("Yaml deserialization failed");
+        }
+
         // modify vnf info
         LinkedHashMap<String, Object> vmName = getObjectFromMap(loaded, "metadata");
         vmName.put("template_name", projectName);

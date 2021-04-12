@@ -29,11 +29,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.regex.Pattern;
+import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.edgegallery.developer.common.Consts;
 import org.edgegallery.developer.domain.shared.FileChecker;
+import org.edgegallery.developer.exception.DomainException;
 import org.edgegallery.developer.mapper.HelmTemplateYamlMapper;
 import org.edgegallery.developer.mapper.HostMapper;
 import org.edgegallery.developer.mapper.OpenMepCapabilityMapper;
@@ -68,6 +70,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
 import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.constructor.SafeConstructor;
 
 @Service("uploadFileService")
 public class UploadFileService {
@@ -356,8 +359,14 @@ public class UploadFileService {
                 return Either.left(new FormatRespDto(Status.BAD_REQUEST, "read api file to string exception"));
             }
             if (apifile.getFileName().endsWith(".yaml") || apifile.getFileName().endsWith(".yml")) {
-                Yaml yaml = new Yaml();
-                apiJson = new Gson().toJson(yaml.load(apiJson));
+                Yaml yaml = new Yaml(new SafeConstructor());
+                try {
+                    apiJson = new Gson().toJson(yaml.load(apiJson));
+                } catch (DomainException e) {
+                    LOGGER.error("Yaml deserialization failed {}", e.getMessage());
+                    FormatRespDto error = new FormatRespDto(Response.Status.BAD_REQUEST, "Yaml deserialization failed");
+                    return Either.left(error);
+                }
             }
             apiJsonList.add(apiJson);
         }
@@ -429,7 +438,7 @@ public class UploadFileService {
                 if (StringUtils.isBlank(str)) {
                     continue;
                 }
-                Yaml yaml = new Yaml();
+                Yaml yaml = new Yaml(new SafeConstructor());
                 Map<String, Object> loaded = yaml.load(str);
                 mapList.add(loaded);
             }
@@ -510,14 +519,20 @@ public class UploadFileService {
         }
         String[] multiContent = content.split("---");
         List<Map<String, Object>> mapList = new ArrayList<>();
-        for (String str : multiContent) {
-            if (StringUtils.isBlank(str)) {
-                continue;
+        try {
+            for (String str : multiContent) {
+                if (StringUtils.isBlank(str)) {
+                    continue;
+                }
+                Yaml yaml = new Yaml(new SafeConstructor());
+                Map<String, Object> loaded = yaml.load(str);
+                mapList.add(loaded);
             }
-            Yaml yaml = new Yaml();
-            Map<String, Object> loaded = yaml.load(str);
-            mapList.add(loaded);
+        } catch (DomainException e) {
+            LOGGER.error("Yaml deserialization failed {}", e.getMessage());
+            return false;
         }
+
         List<String> podImages = new ArrayList<>();
         List<String> svcTypes = new ArrayList<>();
         List<String> svcNodePorts = new ArrayList<>();
@@ -700,7 +715,7 @@ public class UploadFileService {
                     if (StringUtils.isBlank(str)) {
                         continue;
                     }
-                    Yaml yaml = new Yaml();
+                    Yaml yaml = new Yaml(new SafeConstructor());
                     Map<String, Object> loaded = yaml.load(str);
                     mapList.add(loaded);
                 }
