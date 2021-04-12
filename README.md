@@ -48,13 +48,13 @@
 
 - ### 修改配置文件/src/main/resources/application.properties
 
-    - 1 修改postgres配置，本地安装默认IP是127.0.0.1，默认端口是5432，默认用户名和密码postgres/root，如下：
+    - 1 修改postgres配置，本地安装默认IP是127.0.0.1，默认端口是5432，默认用户名和密码，如下：
     ```
     postgres.ip=127.0.0.1
     postgres.database=postgres
     postgres.port=5432
-    postgres.username=postgres
-    postgres.password=root
+    postgres.username=***
+    postgres.password=***
     ```
     - 2 配置Service Center，本地安装IP是127.0.0.1，默认端口30100，servicecomb.name是注册到servicecenter上的服务名，可修改，默认是mec-developer，配置如下：
     ```

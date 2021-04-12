@@ -463,7 +463,7 @@ MERGE INTO tbl_uploaded_file (file_id, file_name, is_temp, user_id, upload_date,
 
 -- workspace mep host init --
 
-MERGE INTO tbl_service_host (host_id, name, address, architecture, status, ip, os, port_range_min, port_range_max, port, protocol, delete) KEY(host_id) VALUES ('3c55ac26-60e9-42c0-958b-1bf7ea4da60a', 'Node1', 'XIAN', 'X86', 'NORMAL', '159.138.63.8', 'Ubuntu', 30000, 32767, 30201, 'http', null);
+MERGE INTO tbl_service_host (host_id, name, address, architecture, status, ip, os, port_range_min, port_range_max, port, protocol, delete) KEY(host_id) VALUES ('3c55ac26-60e9-42c0-958b-1bf7ea4da60a', 'Node1', 'XIAN', 'X86', 'NORMAL', '127.0.0.1', 'Ubuntu', 30000, 32767, 30201, 'http', null);
 
 -- workspace mep host init end--
 -- workspace table end -----------------

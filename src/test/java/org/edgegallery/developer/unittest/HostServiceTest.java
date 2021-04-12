@@ -56,7 +56,7 @@ public class HostServiceTest {
         host.setArchitecture("ARM");
         host.setUserId("9f1f13a0-8554-4dfa-90a7-d2765238fc56");
         host.setStatus(EnumHostStatus.NORMAL);
-        host.setLcmIp("159.138.25.55");
+        host.setLcmIp("127.0.0.1");
         host.setPort(5588);
         host.setOs("liunx");
         host.setPortRangeMin(30000);

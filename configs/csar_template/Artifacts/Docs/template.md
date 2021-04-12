@@ -61,13 +61,13 @@ face collection
 --------
 Get the face image from the camera, url is camera IP<br>
 restful API ：POST http://127.0.0.1:9999/v1/face-recognition/collection<br>
-body: {"url":"192.168.15.120"}<br>
+body: {"url":"127.0.0.1"}<br>
 
 Video face recognition
 --------
 Get the face video from the camera and find the name of the face in the database.url is camera IP<br>
 restful API ：POST http://127.0.0.1:9999/v1/face-recognition/video<br>
-body: {"url":"192.168.15.120"}<br>
+body: {"url":"127.0.0.1"}<br>
 
 Installation
 ===
@@ -82,8 +82,8 @@ Third party library:cmake dlib template flask redis opencv-python requests psyco
 Build
 -----
 Build a docker image:docker build . -t template:v1.4<br>
-docker tag template:v1.4 159.138.11.6:8089/template:v1.4<br>
-docker push 159.138.11.6:8089/face-recognition:v1.4<br>
+docker tag template:v1.4 {ip}:8089/template:v1.4<br>
+docker push {ip}:8089/face-recognition:v1.4<br>
 # Publish the docker image to dockergub<br>
 test :python3 test.py
 

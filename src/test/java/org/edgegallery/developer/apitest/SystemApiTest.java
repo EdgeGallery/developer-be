@@ -72,7 +72,7 @@ public class SystemApiTest {
     @WithMockUser(roles = "DEVELOPER_ADMIN")
     public void testGetAllHosts() throws Exception {
         String url = String.format("/mec/developer/v1/system/hosts?userId=%s&name=%s&ip=%s&limit=1&offset=0",
-            "e111f3e7-90d8-4a39-9874-ea6ea6752ef6", "host", "10.1.12.1");
+            "e111f3e7-90d8-4a39-9874-ea6ea6752ef6", "host", "127.0.0.1");
         ResultActions actions = mvc.perform(MockMvcRequestBuilders.get(url).contentType(MediaType.APPLICATION_JSON_UTF8)
             .accept(MediaType.APPLICATION_JSON_UTF8)).andExpect(MockMvcResultMatchers.status().isOk());
         Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
@@ -98,7 +98,7 @@ public class SystemApiTest {
         host.setAddress("address");
         host.setArchitecture("x86");
         host.setStatus(EnumHostStatus.NORMAL);
-        host.setLcmIp("10.2.3.1");
+        host.setLcmIp("127.0.0.1");
         host.setPort(30200);
         Either<FormatRespDto, Boolean> response = Either.right(true);
         Mockito.when(systemService.createHost(Mockito.any(), Mockito.anyString())).thenReturn(response);
