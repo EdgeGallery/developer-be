@@ -1,159 +1,146 @@
 # 位置服务接口说明
-## 功能介绍
-
-为APP提供定位服务。
 
 # 接口清单
-## zones
-## /users GET
-获取指定地域、接入点的用户列表
+## GET https://{apigwip:port}/mep/location/{version}/users?address=ue_id
+
+### 应用场景
+3rd APP携带定位目标UE ID调用本接口，查询目标终端所在位置，接口中返回定位目标UE所在室内相对位置。
+
+### 接口说明
+查询单个目标UE所在位置
 
 ### 请求参数
-|参数 |位置 | 是否必选 | 类型 | 说明 |
-|-----|-----|----|------|-----|
-|zoneId | queryParam |Y| String | 区域ID |
-|accessPointId | queryParam |Y| String | 访问标识符 |
-### 返回数据
-|返回码 |描述|
-|-----|-----|
-|200 | 成功 |
-
-## /users/{userId} GET
-获取指定用户的详细信息
-
-### 请求参数
-|参数 |位置 | 是否必选 | 类型 | 说明 |
-|-----|-----|----|------|-----|
-|userId | path |Y| String | 区域ID |
-### 返回数据
-|返回码 |描述|
-|-----|-----|
-|200 | 成功 |
-
-## /users/{userId} GET
-获取指定用户的详细信息
-
-### 请求参数
-|参数 |位置 | 是否必选 | 类型 | 说明 |
-|-----|-----|----|------|-----|
-|userId | path |Y| String | 区域ID |
-### 返回数据
-|返回码 |描述|
-|-----|-----|
-|200 | 成功 |
-
-## subscriptions
-## /subscriptions/zonalTraffic GET
-检索所有活动订阅（获取区域跟踪更改通知的订阅）。
+ue_id格式：imsi:xxxxx（目标UE imsi号码，举例：imsi:460000000000001）
 
 ### 返回数据
-|返回码 |描述|
-|-----|-----|
-|200 | 成功 |
 
-## /subscriptions/zonalTraffic POST
-订阅事件，订阅区域跟踪更改的事件
-### 请求参数
-|参数 |位置 | 是否必选 | 类型 | 说明 |
-|-----|-----|----|------|-----|
-|zonalTrafficSubscription | body |Y| String | 区域交通订阅 |
-### 返回数据
-|返回码 |描述|
-|-----|-----|
-|200 | 成功 |
+####  返回码 200
 
+OK
+
+返回数据示例：
 ```json
 {
-  "clientCorrelator": "0123",
-  "callbackReference": {
-    "notifyURL": "http://clientApp.example.com/location_notifications/123456"
+  "ueId": "01234",
+  "locationInfo": {
+    "map_id": 1,
+    "x": 1,
+    "y": 1,
+    "z": 1
   },
-  "zoneId": "zone01",
-  "interestRealm": [
-    "LA"
-  ],
-  "userEventCriteria": [
-    "Entering"
-  ],
-  "duration": "0",
-  "resourceURL": "http://example.com/exampleAPI/location/v1/subscriptions/userTracking/subscription123"
+  "timestamp": "number"
 }
 ```
+返回数据说明：
+* {x,y,z}单位为cm，必须为正数。
+* POC约束：map_id取值范围[0~100]；
 
-## /subscriptions/zonalTraffic/{subscriptionId} GET
-查询指定跟踪订阅的详情
+####  返回码 4xx/5xx
+失败
+
+错误码详情：
+* 请求消息格式错误返回400；
+* GMLC过载，返回429；
+* GMLC系统异常，返回500；
+* GMLC透传UDM/AMF返回的4XX/5XX返回码。
+
+## POST https://{apigwip:port}/mep/location/{version}/subscriptions/periodic
+
+### 应用场景
+3rd APP携带定位目标UE ID、定位周期等参数调用本接口，由5G网络定期对目标UE进行定位，返回定位结果。
+
+### 接口说明
+发起订阅请求
+
 ### 请求参数
-|参数 |位置 | 是否必选 | 类型 | 说明 |
-|-----|-----|----|------|-----|
-|subscriptionId | path |Y| String | 区域交通订阅 |
-### 返回数据
-|返回码 |描述|
-|-----|-----|
-|200 | 成功 |
-
-## /subscriptions/zonalTraffic/{subscriptionId} DELETE
-删除指定的跟踪订阅
-### 请求参数
-|参数 |位置 | 是否必选 | 类型 | 说明 |
-|-----|-----|----|------|-----|
-|subscriptionId | path |Y| String | 区域交通订阅 |
-### 返回数据
-|返回码 |描述|
-|-----|-----|
-|200 | 成功 |
-
-## /subscriptions/zonalStatus GET
-获取所有区域状态订阅
-### 返回数据
-|返回码 |描述|
-|-----|-----|
-|200 | 成功 |
-
-## /subscriptions/zonalStatus POST
-订阅事件，区域状态改变的事件
-### 请求参数
-|参数 |位置 | 是否必选 | 类型 | 说明 |
-|-----|-----|----|------|-----|
-|zoneStatusSubscription | body |Y| object | 区域交通订阅 |
-### 返回数据
-|返回码 |描述|
-|-----|-----|
-|200 | 成功 |
-
-```
+Request参数示例：
+```json
 {
-  "clientCorrelator": "0123",
-  "resourceURL": "http://example.com/exampleAPI/location/v1/subscriptions/userTracking/subscription123",
-  "callbackReference": {
-    "notifyURL": "http://clientApp.example.com/location_notifications/123456"
-  },
-  "zoneId": "zone01",
-  "numberOfUsersZoneThreshold": 40,
-  "numberOfUsersAPThreshold": 20,
-  "operationStatus": [
-    "Serviceable"
-  ]
+  "callbackReference": "http://appIp:port/location_notifications/xxxxxxxxx",
+  "address":["imsi:0000000000000"],
+  "frequency": "number"
 }
 ```
+| 参数  | 说明  |
+| ----  |  ----  |
+| callbackReference  |  必选参数，LCS Client 开放监听接口  |
+| address  |  数组格式，一次请求最大支持1个用户，用户ID：imsi:xxxxx（目标UE imsi号码，举例：imsi:460000000000001）  |
+| frequency  |  上报周期，单位ms，有效值：640, 1024, 2048, 5120, 10240  |
 
-## /subscriptions/zoneStatus/{subscriptionId} GET
-获取指定的区域状态订阅详情
-### 请求参数
-|参数 |位置 | 是否必选 | 类型 | 说明 |
-|-----|-----|----|------|-----|
-|subscriptionId | path | Y | String | 区域交通订阅 |
 ### 返回数据
-|返回码 |描述|
-|-----|-----|
-|200 | 成功 |
 
-## /subscriptions/zoneStatus/{subscriptionId} DELETE
-删除指定的区域状态订阅
+####  返回码 201
+
+OK
+
+返回数据示例：
+```json
+{
+  "subscriptionId": "4297F44B13955235245B2497399D7A93"
+}
+```
+| 参数  | 说明  |
+| ----  |  ----  |
+| subscriptionId  |  订阅关联器ID，用于标记已创建的订阅请求，避免重复创建订阅;  |
+
+####  返回码 4xx/5xx
+失败
+
+错误码详情：
+* 403 Forbidden
+
+## POST http://appIp:port/location_notifications/xxxxxxxxx
+
+### 接口说明
+定位结果通知
+
 ### 请求参数
-|参数 |位置 | 是否必选 | 类型 | 说明 |
-|-----|-----|----|------|-----|
-|subscriptionId | path | Y | String | 区域交通订阅 |
+Request参数示例：
+```json
+{
+  "notifyType": "number",
+  "ueLocation": {
+    "ueId": "string",
+    "locationInfo": {
+      "map_id": "number",
+      "x": "number",
+      "y": "number",
+      "z": "number"
+    },
+    "timestamp": "number"
+  },
+  "address": "imsi:xxxxxx",
+  "subscriptionId": "4297F44B13955235245B2497399D7A93"
+}
+```
+| 参数  | 说明  |
+| ----  |  ----  |
+| notifyType  |  必选，枚举值：0：PERIODIC_EVENT，周期性位置上报；1：ABNORMAL_EVENT，异常通知（UDM/AMF/LMF返回失败或者超时等导致周期性定位失败的事件）  |
+| ueLocation  |  notifyType为PERIODIC_EVENT时必选。格式定义同UE Location Response消息。|
+| address  |  notifyType为ABNORMAL_EVENT时必选；|
+| subscriptionId  |  必选，订阅关联器ID，用于标记已创建的订阅请求。 |
+
 ### 返回数据
-|返回码 |描述|
-|-----|-----|
-|200 | 成功 |
+
+####  返回码 204
+
+No Content，成功应答。
+
+####  返回码 403
+会话不存在。
+
+## DELETE https://{apigwip:port}/mep/location/v2/subscriptions/periodic/{subscriptionId}
+
+### 接口说明
+取消订阅请求
+
+### 请求参数
+| 参数  | 说明  |
+| ----  |  ----  |
+| subscriptionId  |  订阅关联器ID|
+
+### 返回数据
+
+####  返回码 204
+
+No Content，删除成功。
