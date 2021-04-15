@@ -1,122 +1,221 @@
 # 带宽服务接口说明
+
 ## 功能介绍
 
-为APP提供网络宽带业务相关功能。
+为APP提供网络宽带业务相关功能。具体功能接口见下面的接口描述。
 
-# 接口清单
-## bwm
-## /bw_allocations GET
-查看服务，用于查看一个可用的宽带分配服务资源列表。
+## 接口约束
+1. 	不支持ETSI定义的APP通过POST请求获得响应中MEP给APP分配allocationID的方式，该流程修改为APP自己生成allocationID通过POST请求发起给MEP。
+2. 	接口参数更新仅支持PUT方式更新全量参数，不支持PATCH方式更新部分参数。
+3. 	不支持 412错误码响应。
+4. 	Session filter中的源IP和目的IP均只支持精确的IP地址，不支持IP号段和掩码。
+5. 	同一个APP不能同时出现uplink 和both，或，downlink 和both，session粒度的靠优先级来保证。
+6. 	带宽管理增加\更新接口，一次请求只携带一个APP ID以及对应的带宽管理规则。不支持一个请求中同时增加\更新多个APP ID的带宽管理规则。
+7. 	Session filter中的源端口和目的端口，均只支持一个端口号或者一个端口段。不支持多个端口号或多个端口号段。
 
-### 返回数据
-|返回码 |描述|
-|-----|-----|
-|200 | 成功 |
-|400 | 错误的请求 |
-|403 | 禁止访问 |
-|404 | 未找到资源 |
+## 接口规格
+1. 	MEP整机的总带宽管理规格为1000个，每个APP name、APP Instance最大支持100个带宽管理规则。
+2. 	SessionFilter 在1个带宽管理接口请求消息中只能带1个。但是针对同一个APP，可以通过不同的rule，即发起不同的请求，来携带不同的sessionfilter。
+3. 	每1个session filter里只能带1个五元组。
 
+## 接口描述
 
-## /bw_allocations POST
-注册服务，用于创建一个可用的宽带分配服务资源。
-### 请求参数
+### POST https://{ip}:{port}/bwm/v1/applications/{appInstId}/bw_allocations
+增加带宽管理规则
 
-|参数 |位置 | 是否必选 | 类型 | 说明 |
-|-----|-----|----|------|-----|
-|bwInfo | body |Y| bwInfo | bwInfo结构体 |
+#### 请求参数
+|  参数   | 位置  | 是否必选（M必选；C条件必选；O可选） |  类型 | 说明  |
+|  ----  | ----  |  ----  | ----  | ----  |
+|allocationId | body | M | String | 带宽管理规则唯一标识。取值说明：1~63字节。 |
+|requestType | body | M | Enum | 带宽管理类型。取值为0时，表示Application粒度的带宽管理；取值为1时，表示session粒度的带宽管理。|
+|sessionFilter | body | C | Array | 业务流量过滤器。条件可选，当requestType取值为1时为必选。R2版本一个带宽管理规则中仅支持携带一个sessionFilter |
+|&gt;sourceIp | body | C | String | 业务流量的源IP地址，为精确IPaddress不包含掩码。约束：不支持IP号段和掩码。 |
+|&gt;sourcePort | body | 0 | Array Of Strings | 业务流量的源端口号。一个端口号，或者一个端口号段。R2版本不支持多个端口号或多个端口号段。|
+|&gt;destinationIp | body | 0 | String | 业务流量的目的IP地址，为精确IPaddress不包含掩码。 |
+|&gt;destinationPort | body | 0 | Array Of Strings | 业务流量的目的端口号。一个端口号，或者一个端口号段。R2版本不支持多个端口号或多个端口号段。 |
+|&gt;protocol | body | 0 | String | 业务流量数据包协议类型。携带方式：1、使用协议标准数字方式编号：N，N的取值范围0-255。2、字符串枚举：ANY、ICMP、TCP、UDP、GRE |
+|fixedBWPriority | body | C | Integer | 当requestType取值是session时必选，当sessionfilter匹配有重叠时用于优先级的区分。取值范围1~255，数值越小优先级越高。 |
+|fixedAllocation | body | M | Integer | 带宽参数，单位为Kbps。4字节整数，0为非法值。 |
+|allocationDirection | body | M | String | 被管理的带宽的链路方向。取值为00时，表示对匹配规则的下行数据包生效。取值为01时，表示对匹配规则的上行数据包生效。取值为10时，表示对上下行数据包总和的数据量做带宽管理。 |
 
-```json
-{
-  "timeStamp": {
-    "seconds": 0,
-    "nanoSeconds": 0
-  },
-  "appInsId": "string",
-  "requestType": "APPLICATION_SPECIFIC_BW_ALLOCATION",
-  "sessionFilter": [
-    {
-      "sourceIp": "string",
-      "sourcePort": [
-        "string"
-      ],
-      "dstAddress": "string",
-      "dstPort": [
-        "string"
-      ],
-      "protocol": "string"
-    }
-  ],
-  "fixedBWPriority": "not defined in the present document",
-  "fixedAllocation": "string",
-  "allocationDirection": "00 = Downlink (towards the UE)"
-}
+#### 返回数据
+##### 响应码 200 OK
 
-```
+ | 参数  | 说明  |
+| ----  |  ----  |
+|  |  响应数据体同创建请求数据体  |
+#### 响应码 400 Bad Request
 
-### 返回数据
-|返回码 |描述|
-|-----|-----|
-|200 | 成功 |
-|400 | 错误的请求 |
-|403 | 禁止访问 |
-|404 | 未找到资源 |
+ | 参数  | 说明  |
+| ----  |  ----  |
+| status |  取值：400，响应错误的状态码，表示请求无效。|
+| detail |  取值：自定义，表示错误的原因描述 |
 
-## /bw_allocations/{allocationId} GET
-查看服务，通过分配服务ID查看一个可用的宽带分配服务资源列表。
-### 请求参数
-|参数 |位置 | 是否必选 | 类型 | 说明 |
-|-----|-----|----|------|-----|
-|allocationId | path |Y| String | 服务资源的实例ID，类型为UUID |
-### 返回数据
-|返回码 |描述|
-|-----|-----|
-|200 | 成功 |
-|400 | 错误的请求 |
-|403 | 禁止访问 |
-|404 | 未找到资源 |
+#### 响应码 404 Not Found
 
-## /bw_allocations/{allocationId} PUT
-修改服务，通过分配服务ID查看一个可用的宽带分配服务资源列表。
-### 请求参数
-|参数 |位置 | 是否必选 | 类型 | 说明 |
-|-----|-----|----|------|-----|
-|allocationId | path |Y| String | 服务资源的实例ID，类型为UUID |
-|bwInfo | body |Y| bwInfo | bwInfo结构体 |
+ | 参数  | 说明  |
+| ----  |  ----  |
+| status |  取值：404，响应错误的状态码，表示无法找到URL对应资源。|
+| detail |  取值：自定义，表示错误的原因描述 |
 
-### 返回数据
-|返回码 |描述|
-|-----|-----|
-|200 | 成功 |
-|400 | 错误的请求 |
-|403 | 禁止访问 |
-|404 | 未找到资源 |
+#### 响应码 403 Forbidden
 
-## /bw_allocations/{allocationId} PATCH
-此方法更新有关特定的带宽分配资源的信息。
-### 请求参数
-|参数 |位置 | 是否必选 | 类型 | 说明 |
-|-----|-----|----|------|-----|
-|allocationId | path |Y| String | 服务资源的实例ID，类型为UUID |
-|bwInfo | body |Y| bwInfo | bwInfo结构体 |
-### 返回数据
-|返回码 |描述|
-|-----|-----|
-|200 | 成功 |
-|400 | 错误的请求 |
-|403 | 禁止访问 |
-|404 | 未找到资源 |
+| 参数  | 说明  |
+| ----  |  ----  |
+|  status  | 取值：403，响应错误的状态码，表示禁止访问，即接口当前状态不允许该操作。|
+|  detail  | 自定义，表示错误的原因描述 |
 
-## /bw_allocations/{allocationId} DELETE
-删除服务，通过分配服务ID删除服务资源。
-### 请求参数
-|参数 |位置 | 是否必选 | 类型 | 说明 |
-|-----|-----|----|------|-----|
-|appInstanceId | path |Y| String | app的实例ID，类型为UUID |
-|serviceId | path |Y| String | 服务实例ID，类型为UUID |
-### 返回数据
-|返回码 |描述|
-|-----|-----|
-|200 | 成功 |
-|400 | 错误的请求 |
-|403 | 禁止访问 |
-|404 | 未找到资源 |
+### GET https://{ip}:{port}/bwm/v1/applications/{appInstId}/bw_allocations
+查询所有的带宽管理规则
+
+#### 请求参数
+NA
+#### 返回数据
+##### 响应码 200 OK
+
+ | 参数  | 类型 | 说明  |
+| ----  |  ----  |  ----  |
+| bwAllocations  | Array | 带宽管理规则集合。注：查询不到符合条件的记录时返回[]空列表。  |
+| allocationId  | String | 带宽管理规则唯一标识。取值范围：1~63字节。|
+| requestType  | Enum | 带宽管理类型。 取值为0时，表示Application粒度的带宽管理；取值为1时，表示session粒度的带宽管理。  |
+| sessionFilter  | Array | 业务流量过滤器。条件可选，当requestType取值为1时为必选。R2版本一个带宽管理规则中仅支持携带一个sessionFilter。  |
+| &gt;sourceIp  | String | 业务流量的源IP地址，为精确IPaddress不包含掩码。约束：不支持IP号段和掩码。  |
+| &gt;sourcePort  | Array Of Strings | 业务流量的源端口号。数组元素支持单个端口号或端口号段。e.g.[“80”, “2000-3000”]R2版本不支持多个端口号或多个端口号段。  |
+| &gt;destinationIp  | String | 业务流量的目的IP地址，为精确IPaddress不包含掩码。  |
+| &gt;destinationPort  | Array Of Strings | 业务流量的目的端口号。数组元素支持单个端口号或端口号段。e.g.[“80”, “2000-3000”]R2版本不支持多个端口号或多个端口号段。  |
+| &gt;protocol  | String | 业务流量数据包协议类型。携带方式：1、使用协议标准数字方式编号：N，N的取值范围0-255 2、字符串枚举：ANY、ICMP、TCP、UDP、GRE  |
+| fixedBWPriority  | Integer | 当requestType取值是session时必选，当sessionfilter匹配有重叠时用于优先级的区分。取值范围1~255，数值越小优先级越高。  |
+| fixedAllocation  | Integer | 带宽参数，单位为Kbps。4字节整数，0为非法值。  |
+| allocationDirection  | String | 被管理的带宽的链路方向。取值为00时，表示对匹配规则的下行数据包生效。取值为01时，表示对匹配规则的上行数据包生效。取值为10时，表示对上下行数据包总和的数据量做带宽管理。  |
+#### 响应码 400 Bad Request
+
+ | 参数  | 说明  |
+| ----  |  ----  |
+| status |  取值：400，响应错误的状态码，表示请求无效。|
+| detail |  取值：自定义，表示错误的原因描述 |
+
+#### 响应码 404 Not Found
+
+ | 参数  | 说明  |
+| ----  |  ----  |
+| status |  取值：404，响应错误的状态码，表示无法找到URL对应资源。|
+| detail |  取值：自定义，表示错误的原因描述 |
+
+#### 响应码 403 Forbidden
+
+| 参数  | 说明  |
+| ----  |  ----  |
+|  status  | 取值：403，响应错误的状态码，表示禁止访问，即接口当前状态不允许该操作。|
+|  detail  | 自定义，表示错误的原因描述 |
+
+### GET https://{ip}:{port}/bwm/v1/applications/{appInstId}/bw_allocations/{allocationId}
+查询指定的带宽管理规则
+
+#### 请求参数
+NA
+#### 返回数据
+##### 响应码 200 OK
+
+ | 参数  | 类型 | 说明  |
+| ----  |  ----  |  ----  |
+| allocationId  | String | 带宽管理规则唯一标识。取值范围：1~63字节。|
+| requestType  | Enum | 带宽管理类型。 取值为0时，表示Application粒度的带宽管理；取值为1时，表示session粒度的带宽管理。  |
+| sessionFilter  | Array | 业务流量过滤器。条件可选，当requestType取值为1时为必选。R2版本一个带宽管理规则中仅支持携带一个sessionFilter。  |
+| &gt;sourceIp  | String | 业务流量的源IP地址，为精确IPaddress不包含掩码。约束：不支持IP号段和掩码。  |
+| &gt;sourcePort  | Array Of Strings | 业务流量的源端口号。数组元素支持单个端口号或端口号段。e.g.[“80”, “2000-3000”]R2版本不支持多个端口号或多个端口号段。  |
+| &gt;destinationIp  | String | 业务流量的目的IP地址，为精确IPaddress不包含掩码。  |
+| &gt;destinationPort  | Array Of Strings | 业务流量的目的端口号。数组元素支持单个端口号或端口号段。e.g.[“80”, “2000-3000”]R2版本不支持多个端口号或多个端口号段。  |
+| &gt;protocol  | String | 业务流量数据包协议类型。携带方式：1、使用协议标准数字方式编号：N，N的取值范围0-255 2、字符串枚举：ANY、ICMP、TCP、UDP、GRE  |
+| fixedBWPriority  | Integer | 当requestType取值是session时必选，当sessionfilter匹配有重叠时用于优先级的区分。取值范围1~255，数值越小优先级越高。  |
+| fixedAllocation  | Integer | 带宽参数，单位为Kbps。4字节整数，0为非法值。  |
+| allocationDirection  | String | 被管理的带宽的链路方向。取值为00时，表示对匹配规则的下行数据包生效。取值为01时，表示对匹配规则的上行数据包生效。取值为10时，表示对上下行数据包总和的数据量做带宽管理。  |
+#### 响应码 400 Bad Request
+
+ | 参数  | 说明  |
+| ----  |  ----  |
+| status |  取值：400，响应错误的状态码，表示请求无效。|
+| detail |  取值：自定义，表示错误的原因描述 |
+
+#### 响应码 404 Not Found
+
+ | 参数  | 说明  |
+| ----  |  ----  |
+| status |  取值：404，响应错误的状态码，表示无法找到URL对应资源。|
+| detail |  取值：自定义，表示错误的原因描述 |
+
+#### 响应码 403 Forbidden
+
+| 参数  | 说明  |
+| ----  |  ----  |
+|  status  | 取值：403，响应错误的状态码，表示禁止访问，即接口当前状态不允许该操作。|
+|  detail  | 自定义，表示错误的原因描述 |
+
+### PUT https://{ip}:{port}/bwm/v1/applications/{appInstId}/bw_allocations/{allocationId}
+更新指定的带宽管理规则
+
+#### 请求参数
+|  参数   | 位置  | 是否必选（M必选；C条件必选；O可选） |  类型 | 说明  |
+|  ----  | ----  |  ----  | ----  | ----  |
+|allocationId | body | M | String | 带宽管理规则唯一标识。取值说明：1~63字节。 |
+|requestType | body | M | Enum | 带宽管理类型。取值为0时，表示Application粒度的带宽管理；取值为1时，表示session粒度的带宽管理。|
+|sessionFilter | body | C | Array | 业务流量过滤器。条件可选，当requestType取值为1时为必选。R2版本一个带宽管理规则中仅支持携带一个sessionFilter |
+|&gt;sourceIp | body | C | String | 业务流量的源IP地址，为精确IPaddress不包含掩码。约束：不支持IP号段和掩码。 |
+|&gt;sourcePort | body | 0 | Array Of Strings | 业务流量的源端口号。一个端口号，或者一个端口号段。R2版本不支持多个端口号或多个端口号段。|
+|&gt;destinationIp | body | 0 | String | 业务流量的目的IP地址，为精确IPaddress不包含掩码。 |
+|&gt;destinationPort | body | 0 | Array Of Strings | 业务流量的目的端口号。一个端口号，或者一个端口号段。R2版本不支持多个端口号或多个端口号段。 |
+|&gt;protocol | body | 0 | String | 业务流量数据包协议类型。携带方式：1、使用协议标准数字方式编号：N，N的取值范围0-255。2、字符串枚举：ANY、ICMP、TCP、UDP、GRE |
+|fixedBWPriority | body | C | Integer | 当requestType取值是session时必选，当sessionfilter匹配有重叠时用于优先级的区分。取值范围1~255，数值越小优先级越高。 |
+|fixedAllocation | body | M | Integer | 带宽参数，单位为Kbps。4字节整数，0为非法值。 |
+|allocationDirection | body | M | String | 被管理的带宽的链路方向。取值为00时，表示对匹配规则的下行数据包生效。取值为01时，表示对匹配规则的上行数据包生效。取值为10时，表示对上下行数据包总和的数据量做带宽管理。 |
+
+#### 返回数据
+
+##### 响应码 200 OK
+
+响应数据体同创建请求数据体
+#### 响应码 400 Bad Request
+
+ | 参数  | 说明  |
+| ----  |  ----  |
+| status |  取值：400，响应错误的状态码，表示请求无效。|
+| detail |  取值：自定义，表示错误的原因描述 |
+
+#### 响应码 404 Not Found
+
+ | 参数  | 说明  |
+| ----  |  ----  |
+| status |  取值：404，响应错误的状态码，表示无法找到URL对应资源。|
+| detail |  取值：自定义，表示错误的原因描述 |
+
+#### 响应码 403 Forbidden
+
+| 参数  | 说明  |
+| ----  |  ----  |
+|  status  | 取值：403，响应错误的状态码，表示禁止访问，即接口当前状态不允许该操作。|
+|  detail  | 自定义，表示错误的原因描述 |
+
+### DELETE https://{ip}:{port}/bwm/v1/applications/{appInstId}/bw_allocations/{allocationId}
+更新指定的带宽管理规则
+
+#### 请求参数
+NA
+
+#### 返回数据
+##### 响应码 200 OK
+
+NA
+
+#### 响应码 404 Not Found
+
+ | 参数  | 说明  |
+| ----  |  ----  |
+| status |  取值：404，响应错误的状态码，表示无法找到URL对应资源。|
+| detail |  取值：自定义，表示错误的原因描述 |
+
+#### 响应码 403 Forbidden
+
+| 参数  | 说明  |
+| ----  |  ----  |
+|  status  | 取值：403，响应错误的状态码，表示禁止访问，即接口当前状态不允许该操作。|
+|  detail  | 自定义，表示错误的原因描述 |
+
