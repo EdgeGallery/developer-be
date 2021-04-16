@@ -28,11 +28,8 @@ import java.lang.reflect.Type;
 import java.net.URL;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
-import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.Duration;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -1381,14 +1378,8 @@ public class ProjectService {
             client.execute(httpPost);
             //判断已有项目状态为部署成功或者部署失败，且项目创建时间距今已超24小时，调用cleanenv接口
             for (ApplicationProject project : projects) {
-                String createDate = project.getCreateDate();
-                DateFormat fmt = new SimpleDateFormat("yyyy-MM-dd HH:mm");
-                Instant dateOfProject = fmt.parse(createDate).toInstant();
-                Instant now = Instant.now();
-                Long timeDiff = Duration.between(dateOfProject, now).toHours();
                 EnumProjectStatus status = project.getStatus();
-                if ((status.equals(EnumProjectStatus.DEPLOYED) || status.equals(EnumProjectStatus.DEPLOYED_FAILED))
-                    && timeDiff.intValue() >= 24) {
+                if (status.equals(EnumProjectStatus.DEPLOYED) || status.equals(EnumProjectStatus.DEPLOYED_FAILED)) {
                     String devSvc = "http://developer-be-svc:9082";
                     String cleanUrl = String
                         .format(Consts.DEV_CLEAN_ENV_URL, devSvc, project.getId(), project.getUserId());
@@ -1398,7 +1389,7 @@ public class ProjectService {
                     client.execute(httpClean);
                 }
             }
-        } catch (IOException | ParseException e) {
+        } catch (IOException e) {
             LOGGER.error("call login or clean env interface occur error {}", e.getMessage());
             return;
         }
