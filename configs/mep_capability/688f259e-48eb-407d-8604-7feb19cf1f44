@@ -23,10 +23,10 @@
   ],
   "tags": [
     {
-      "name": "zones"
+      "name": "users"
     },
     {
-      "name": "users"
+      "name": "zones"
     },
     {
       "name": "subscriptions"
@@ -106,6 +106,13 @@
       "name": "zoneId",
       "in": "query",
       "description": "Zone ID",
+      "required": true,
+      "type": "string"
+    },
+    "Query.ue_id": {
+      "name": "ue_id",
+      "in": "query",
+      "description": "目标UE imsi号码，ue_id格式：imsi:xxxxx，举例：imsi:460000000000001",
       "required": true,
       "type": "string"
     }
@@ -340,67 +347,56 @@
           "users"
         ],
         "operationId": "usersGet",
-        "description": "获取指定地域、接入点的用户列表",
+        "description": "查询单个目标UE所在位置",
         "produces": [
           "application/json"
         ],
         "parameters": [
           {
-            "$ref": "#/parameters/Query.ZoneId"
-          },
-          {
-            "$ref": "#/parameters/Query.AccessPointId"
+            "$ref": "#/parameters/Query.ue_id"
           }
         ],
         "responses": {
           "200": {
-            "description": "Successful response to a query users within a zone request",
+            "description": "查询成功",
             "schema": {
               "properties": {
-                "userList": {
-                  "$ref": "#/definitions/UserList"
+                "ueId": {
+                  "description": "目标UE imsi号码，ue_id格式：imsi:xxxxx，举例：imsi:460000000000001",
+                  "type": "string"
+                },
+                "locationInfo": {
+                  "description": "目标UE位置信息",
+                  "$ref": "#/definitions/UELocationInfo"
+                },
+                "timestamp": {
+                  "description": "timestamp",
+                  "type": "string",
+                  "example": "1618629715"
                 }
               }
             },
             "examples": {
               "application/json": {
-                "userList": {
-                  "user": [
-                    {
-                      "address": "acr:192.0.2.1",
-                      "accessPointId": "001010000000000000000000000000001",
-                      "zoneId": "zone01",
-                      "resourceURL": "http://example.com/exampleAPI/location/v1/users/acr%3A192.0.2.1"
-                    },
-                    {
-                      "address": "acr:192.0.2.2",
-                      "accessPointId": "001010000000000000000000000000001",
-                      "zoneId": "zone01",
-                      "resourceURL": "http://example.com/exampleAPI/location/v1/users/acr%3A192.0.2.2"
-                    },
-                    {
-                      "address": "acr:192.0.2.3",
-                      "accessPointId": "001010000000000000000000000000010",
-                      "zoneId": "zone01",
-                      "resourceURL": "http://example.com/exampleAPI/location/v1/users/acr%3A192.0.2.3"
-                    },
-                    {
-                      "address": "acr:192.0.2.4",
-                      "accessPointId": "001010000000000000000000000000001",
-                      "zoneId": "zone02",
-                      "resourceURL": "http://example.com/exampleAPI/location/v1/users/acr%3A192.0.2.4"
-                    },
-                    {
-                      "address": "acr:192.0.2.5",
-                      "accessPointId": "001010000000000000000000000000010",
-                      "zoneId": "zone02",
-                      "resourceURL": "http://example.com/exampleAPI/location/v1/users/acr%3A192.0.2.5"
-                    }
-                  ],
-                  "resourceURL": "http://example.com/exampleAPI/location/v1/users"
-                }
+                "ueId": "460000000000001",
+                "locationInfo": {
+                  "map_id": 1,
+                  "x": 1,
+                  "y": 1,
+                  "z": 1
+                },
+                "timestamp": "1618629715"
               }
             }
+          },
+          "400": {
+            "description": "请求消息格式错误"
+          },
+          "429": {
+            "description": "GMLC过载"
+          },
+          "500": {
+            "description": "GMLC系统异常"
           }
         }
       }
@@ -781,6 +777,36 @@
     }
   },
   "definitions": {
+    "UELocationInfo": {
+      "description": "目标UE位置信息",
+      "type": "object",
+      "properties": {
+        "map_id": {
+          "description": "map_id, POC约束：map_id取值范围[0~100]",
+          "type": "integer",
+          "format": "int32",
+          "example": 10
+        },
+        "x": {
+          "description": "单位为cm，取值必须为正数",
+          "type": "integer",
+          "format": "int32",
+          "example": 10
+        },
+        "y": {
+          "description": "单位为cm，取值必须为正数",
+          "type": "integer",
+          "format": "int32",
+          "example": 10
+        },
+        "z": {
+          "description": "单位为cm，取值必须为正数",
+          "type": "integer",
+          "format": "int32",
+          "example": 10
+        }
+      }
+    },
     "AccessPointId": {
       "description": "Identifier of access point, <E-CGI><Cell Portion ID> (reference ETSI TS 129 171). Where the E-CGI is made up of the PLMN and Cell Identity (28 bit string). Then the PLMN is made up of the 3 digit MCC & 2 or 3 digit MNC. The Cell Portion is an optional element",
       "type": "string",
@@ -957,7 +983,7 @@
         "altitude": {
           "type": "number",
           "format": "float",
-          "example": 10.0
+          "example": 10
         },
         "accuracy": {
           "type": "integer",
