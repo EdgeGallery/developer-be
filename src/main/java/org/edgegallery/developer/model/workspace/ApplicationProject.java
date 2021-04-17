@@ -30,7 +30,7 @@ public class ApplicationProject {
 
     private static final String NAME_MSG = "请输入不含空格的4-32个字符的项目名，只能包含数字、字母、_、-，开头、结尾不能为_、-";
 
-    private static final String VERSION_MSG = "请输入1-30个字符的版本号，只能包含数字、字母、_、-、空格，开头不能为空";
+    private static final String VERSION_MSG = "请输入1-10个字符的版本号，只能包含数字、字母、_、-、空格，开头不能为空";
 
     private static final String PROVIDER_MSG = "请输入1-30个字符的提供者名称，开头不能为空";
 
