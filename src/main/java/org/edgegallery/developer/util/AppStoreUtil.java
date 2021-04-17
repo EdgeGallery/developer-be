@@ -26,6 +26,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestClientException;
@@ -37,7 +38,7 @@ public class AppStoreUtil {
     // @Value("${appstore.address}")
     private static final String APPSTORE_ADDRESS = "appstore.address";
 
-    private static final RestTemplate restTemplate = new RestTemplate();
+//    private static final RestTemplate restTemplate = new RestTemplate();
 
     private AppStoreUtil() {
         throw new IllegalStateException("AppStoreUtil class");
@@ -48,9 +49,12 @@ public class AppStoreUtil {
      */
     public static ResponseEntity<String> storeToAppStore(Map<String, Object> params, String userId, String userName,
         String token) {
+        SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
+        requestFactory.setConnectTimeout(600000);// 设置超时
+        requestFactory.setReadTimeout(600000);
+        RestTemplate restTemplate = new RestTemplate(requestFactory);
         MultiValueMap<String, Object> map = new LinkedMultiValueMap<>();
         params.forEach(map::add);
-
         HttpHeaders headers = new HttpHeaders();
         headers.set("access_token", token);
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);
@@ -78,6 +82,10 @@ public class AppStoreUtil {
      * publish app to appstore.
      */
     public static ResponseEntity<String> publishToAppStore(String appId, String pkgId, String token) {
+        SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
+        requestFactory.setConnectTimeout(600000);// 设置超时
+        requestFactory.setReadTimeout(600000);
+        RestTemplate restTemplate = new RestTemplate(requestFactory);
         HttpHeaders headers = new HttpHeaders();
         headers.set("access_token", token);
         headers.setContentType(MediaType.APPLICATION_JSON);
