@@ -1,20 +1,37 @@
-# 位置服务接口说明
+# 位置服务
+## 功能介绍
+EdgeGallery定位服务使用户可以在任何时间、任何地点获得基于定位信息的地理信息服务。
+![alt 应用场景图](images/定位服务效果图.jpg)
 
-# 接口清单
-## GET https://{apigwip:port}/mep/location/{version}/users?address=ue_id
+## 应用场景
+5G定位主要应用场景如下：
 
-### 应用场景
+![alt 应用场景图](images/定位服务应用场景图.png)
+
+以化工场景为例，通过使用含5G精准定位功能的防护用品、品牌和标签等，5G定位可实现对厂区内人员、物料和车辆的全覆盖。结合EdgeGallery定位服务，为保障化工企业安全生产提供各类应用，如人员滞留报警、应急响应人员清点、安全指数热力图、化工车辆规定路线和指定目的地等。
+
+## 5G定位优势
+1. 统一标准，共享全球5G生态
+  5G定位是3GPP全球统一的定位标准，统一的标准是规模经济的基础。3GPP的R16 5G定位标准首次定义面向商业场景并细化到室内室外，并逐步引入垂直行业场景，是5G赋能千行百页的关键能力。
+2. 一网两用，节省总体投资
+  通信网和定位网可以合二为一，提高网络利用率，有效分摊网络建设及维护成本。
+3. 持续演进，提升定位综合能力
+
+## 接口清单
+### GET https://{apigwip:port}/mep/location/{version}/users?address=ue_id
+
+#### 应用场景
 3rd APP携带定位目标UE ID调用本接口，查询目标终端所在位置，接口中返回定位目标UE所在室内相对位置。
 
-### 接口说明
+#### 接口说明
 查询单个目标UE所在位置
 
-### 请求参数
+#### 请求参数
 ue_id格式：imsi:xxxxx（目标UE imsi号码，举例：imsi:460000000000001）
 
-### 返回数据
+#### 返回数据
 
-####  返回码 200
+#####  返回码 200
 
 OK
 
@@ -35,7 +52,7 @@ OK
 * {x,y,z}单位为cm，必须为正数。
 * POC约束：map_id取值范围[0~100]；
 
-####  返回码 4xx/5xx
+#####  返回码 4xx/5xx
 失败
 
 错误码详情：
@@ -44,15 +61,15 @@ OK
 * GMLC系统异常，返回500；
 * GMLC透传UDM/AMF返回的4XX/5XX返回码。
 
-## POST https://{apigwip:port}/mep/location/{version}/subscriptions/periodic
+### POST https://{apigwip:port}/mep/location/{version}/subscriptions/periodic
 
-### 应用场景
+#### 应用场景
 3rd APP携带定位目标UE ID、定位周期等参数调用本接口，由5G网络定期对目标UE进行定位，返回定位结果。
 
-### 接口说明
+#### 接口说明
 发起订阅请求
 
-### 请求参数
+#### 请求参数
 Request参数示例：
 ```json
 {
@@ -67,9 +84,9 @@ Request参数示例：
 | address  |  数组格式，一次请求最大支持1个用户，用户ID：imsi:xxxxx（目标UE imsi号码，举例：imsi:460000000000001）  |
 | frequency  |  上报周期，单位ms，有效值：640, 1024, 2048, 5120, 10240  |
 
-### 返回数据
+#### 返回数据
 
-####  返回码 201
+#####  返回码 201
 
 OK
 
@@ -83,18 +100,18 @@ OK
 | ----  |  ----  |
 | subscriptionId  |  订阅关联器ID，用于标记已创建的订阅请求，避免重复创建订阅;  |
 
-####  返回码 4xx/5xx
+#####  返回码 4xx/5xx
 失败
 
 错误码详情：
 * 403 Forbidden
 
-## POST http://appIp:port/location_notifications/xxxxxxxxx
+### POST http://appIp:port/location_notifications/xxxxxxxxx
 
-### 接口说明
+#### 接口说明
 定位结果通知
 
-### 请求参数
+#### 请求参数
 Request参数示例：
 ```json
 {
@@ -120,27 +137,27 @@ Request参数示例：
 | address  |  notifyType为ABNORMAL_EVENT时必选；|
 | subscriptionId  |  必选，订阅关联器ID，用于标记已创建的订阅请求。 |
 
-### 返回数据
+#### 返回数据
 
-####  返回码 204
+#####  返回码 204
 
 No Content，成功应答。
 
-####  返回码 403
+#####  返回码 403
 会话不存在。
 
-## DELETE https://{apigwip:port}/mep/location/v2/subscriptions/periodic/{subscriptionId}
+### DELETE https://{apigwip:port}/mep/location/v2/subscriptions/periodic/{subscriptionId}
 
-### 接口说明
+#### 接口说明
 取消订阅请求
 
-### 请求参数
+#### 请求参数
 | 参数  | 说明  |
 | ----  |  ----  |
 | subscriptionId  |  订阅关联器ID|
 
-### 返回数据
+#### 返回数据
 
-####  返回码 204
+#####  返回码 204
 
 No Content，删除成功。

@@ -1,4 +1,4 @@
-# 带宽服务接口说明
+# 带宽服务
 
 ## 功能介绍
 
@@ -195,7 +195,7 @@ NA
 |  detail  | 自定义，表示错误的原因描述 |
 
 ### DELETE https://{ip}:{port}/bwm/v1/applications/{appInstId}/bw_allocations/{allocationId}
-更新指定的带宽管理规则
+删除指定的带宽管理规则
 
 #### 请求参数
 NA
