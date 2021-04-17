@@ -18,6 +18,7 @@ package org.edgegallery.developer.model.workspace;
 
 import java.util.List;
 import java.util.UUID;
+import javax.validation.constraints.Pattern;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -27,15 +28,26 @@ import lombok.ToString;
 @ToString
 public class ApplicationProject {
 
+    private static final String NAME_MSG = "请输入不含空格的4-32个字符的项目名，只能包含数字、字母、_、-，开头、结尾不能为_、-";
+
+    private static final String VERSION_MSG = "请输入1-10个字符的版本号，只能包含数字、字母、_、-、空格，开头不能为空";
+
+    private static final String PROVIDER_MSG = "请输入1-30个字符的提供者名称，开头不能为空";
+
+    private static final String DESCRIPTION_MSG = "请输入1-128个字符的描述，开头不能为空";
+
     // normal data start
     private String id;
 
     private EnumProjectType projectType;
 
+    @Pattern(regexp = "^(?!_)(?!-)(?!\\s)(?!.*?_$)(?!.*?-$)(?!.*?\\s$)[a-zA-Z0-9_-]{4,32}$", message = NAME_MSG)
     private String name;
 
+    @Pattern(regexp = "^[\\w\\-][\\w\\-\\s.]{0,9}$", message = VERSION_MSG)
     private String version;
 
+    @Pattern(regexp = "^\\S.{0,29}$", message = PROVIDER_MSG)
     private String provider;
 
     private List<String> platform;
@@ -50,6 +62,7 @@ public class ApplicationProject {
 
     private List<String> industry;
 
+    @Pattern(regexp = "^(?!\\s)[\\S.\\s\\n\\r]{1,128}$", message = DESCRIPTION_MSG)
     private String description;
 
     private String iconFileId;
@@ -87,6 +100,5 @@ public class ApplicationProject {
     public void initialProject() {
         this.lastTestId = null;
     }
-
 
 }
