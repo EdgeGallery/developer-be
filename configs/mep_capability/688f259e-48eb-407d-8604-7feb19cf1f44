@@ -109,10 +109,10 @@
       "required": true,
       "type": "string"
     },
-    "Query.ue_id": {
-      "name": "ue_id",
+    "Query.address": {
+      "name": "address",
       "in": "query",
-      "description": "目标UE imsi号码，ue_id格式：imsi:xxxxx，举例：imsi:460000000000001",
+      "description": "目标UE imsi号码，格式：imsi:xxxxx，举例：imsi:460000000000001",
       "required": true,
       "type": "string"
     }
@@ -245,7 +245,7 @@
                       "locationInfo": {
                         "latitude": 90.123,
                         "longitude": 80.123,
-                        "altitude": 10.0,
+                        "altitude": 10,
                         "accuracy": 0
                       },
                       "connectionType": "Macro",
@@ -259,7 +259,7 @@
                       "locationInfo": {
                         "latitude": 91.123,
                         "longitude": 81.123,
-                        "altitude": 12.0,
+                        "altitude": 12,
                         "accuracy": 1
                       },
                       "connectionType": "Macro",
@@ -273,7 +273,7 @@
                       "locationInfo": {
                         "latitude": 93.123,
                         "longitude": 83.123,
-                        "altitude": 16.0,
+                        "altitude": 16,
                         "accuracy": 3
                       },
                       "connectionType": "Macro",
@@ -326,7 +326,7 @@
                   "locationInfo": {
                     "latitude": 90.123,
                     "longitude": 80.123,
-                    "altitude": 10.0,
+                    "altitude": 10,
                     "accuracy": 0
                   },
                   "connectionType": "Macro",
@@ -353,7 +353,7 @@
         ],
         "parameters": [
           {
-            "$ref": "#/parameters/Query.ue_id"
+            "$ref": "#/parameters/Query.address"
           }
         ],
         "responses": {
@@ -362,7 +362,7 @@
             "schema": {
               "properties": {
                 "ueId": {
-                  "description": "目标UE imsi号码，ue_id格式：imsi:xxxxx，举例：imsi:460000000000001",
+                  "description": "目标UE imsi号码，格式：imsi:xxxxx，举例：imsi:460000000000001",
                   "type": "string"
                 },
                 "locationInfo": {
@@ -436,7 +436,7 @@
                   "locationInfo": {
                     "latitude": 90.123,
                     "longitude": 80.123,
-                    "altitude": 10.0,
+                    "altitude": 10,
                     "accuracy": 0
                   },
                   "contextLocationInfo": "GroundFloor"
