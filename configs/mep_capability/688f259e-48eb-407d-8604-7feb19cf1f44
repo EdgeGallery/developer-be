@@ -33,79 +33,10 @@
     }
   ],
   "parameters": {
-    "Body.UserTrackingSubscription": {
-      "name": "userTrackingSubscription",
-      "in": "body",
-      "description": "User Tracking Subscription",
-      "required": true,
-      "schema": {
-        "$ref": "#/definitions/UserTrackingSubscription"
-      }
-    },
-    "Body.ZonalTrafficSubscription": {
-      "name": "zonalTrafficSubscription",
-      "in": "body",
-      "description": "Zonal Traffic Subscription",
-      "required": true,
-      "schema": {
-        "$ref": "#/definitions/ZonalTrafficSubscription"
-      }
-    },
-    "Body.ZoneStatusSubscription": {
-      "name": "zoneStatusSubscription",
-      "in": "body",
-      "description": "Zone Status Subscription",
-      "required": true,
-      "schema": {
-        "$ref": "#/definitions/ZoneStatusSubscription"
-      }
-    },
-    "Path.AccessPointId": {
-      "name": "accessPointId",
-      "in": "path",
-      "description": "Access Point ID",
-      "required": true,
-      "type": "string"
-    },
     "Path.SubscriptionId": {
       "name": "subscriptionId",
       "in": "path",
       "description": "Subscription ID",
-      "required": true,
-      "type": "string"
-    },
-    "Path.UserId": {
-      "name": "userId",
-      "in": "path",
-      "description": "User ID",
-      "required": true,
-      "type": "string"
-    },
-    "Path.ZoneId": {
-      "name": "zoneId",
-      "in": "path",
-      "description": "Zone ID",
-      "required": true,
-      "type": "string"
-    },
-    "Query.AccessPointId": {
-      "name": "accessPointId",
-      "in": "query",
-      "description": "Identifier of access point, reference \"definitions\" for string format",
-      "required": false,
-      "type": "string"
-    },
-    "Query.InterestRealm": {
-      "name": "interestRealm",
-      "in": "query",
-      "description": "Interest realm of access point (e.g. geographical area, a type of industry etc.).",
-      "required": false,
-      "type": "string"
-    },
-    "Query.ZoneId": {
-      "name": "zoneId",
-      "in": "query",
-      "description": "Zone ID",
       "required": true,
       "type": "string"
     },
@@ -115,232 +46,18 @@
       "description": "目标UE imsi号码，格式：imsi:xxxxx，举例：imsi:460000000000001",
       "required": true,
       "type": "string"
+    },
+    "Body.UserLocationSubscribe": {
+      "name": "userLocationSubscribe",
+      "in": "body",
+      "description": "User Location Subscription",
+      "required": true,
+      "schema": {
+        "$ref": "#/definitions/UserLocationSubscribe"
+      }
     }
   },
   "paths": {
-    "/zones": {
-      "get": {
-        "tags": [
-          "zones"
-        ],
-        "operationId": "zonesGet",
-        "description": "获取地域信息列表",
-        "produces": [
-          "application/json"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response to a query regarding the status of a zone",
-            "schema": {
-              "properties": {
-                "zoneList": {
-                  "$ref": "#/definitions/ZoneList"
-                }
-              }
-            },
-            "examples": {
-              "application/json": {
-                "zoneList": {
-                  "zone": [
-                    {
-                      "zoneId": "zone01",
-                      "numberOfAccessPoints": 3,
-                      "numberOfUnserviceableAccessPoints": 1,
-                      "numberOfUsers": 10,
-                      "resourceURL": "http://example.com/exampleAPI/location/v1/zones/zone01"
-                    },
-                    {
-                      "zoneId": "zone02",
-                      "numberOfAccessPoints": 12,
-                      "numberOfUnserviceableAccessPoints": 0,
-                      "numberOfUsers": 36,
-                      "resourceURL": "http://example.com/exampleAPI/location/v1/zones/zone02"
-                    }
-                  ],
-                  "resourceURL": "http://example.com/exampleAPI/location/v1/zones"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/zones/{zoneId}": {
-      "parameters": [
-        {
-          "$ref": "#/parameters/Path.ZoneId"
-        }
-      ],
-      "get": {
-        "tags": [
-          "zones"
-        ],
-        "operationId": "zonesGetById",
-        "description": "获取指定地域的信息",
-        "produces": [
-          "application/json"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response to a query regarding the status of a zone",
-            "schema": {
-              "properties": {
-                "zoneInfo": {
-                  "$ref": "#/definitions/ZoneInfo"
-                }
-              }
-            },
-            "examples": {
-              "application/json": {
-                "zoneInfo": {
-                  "zoneId": "zone01",
-                  "numberOfAccessPoints": 3,
-                  "numberOfUnserviceableAccessPoints": 1,
-                  "numberOfUsers": 10,
-                  "resourceURL": "http://example.com/exampleAPI/location/v1/zones/zone01"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/zones/{zoneId}/accessPoints": {
-      "parameters": [
-        {
-          "$ref": "#/parameters/Path.ZoneId"
-        }
-      ],
-      "get": {
-        "tags": [
-          "zones"
-        ],
-        "operationId": "zonesByIdGetAps",
-        "description": "获取与请求中的属性匹配的接入点集合。",
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "$ref": "#/parameters/Query.InterestRealm"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response to a query a named set of access point status request",
-            "schema": {
-              "properties": {
-                "accessPointList": {
-                  "$ref": "#/definitions/AccessPointList"
-                }
-              }
-            },
-            "examples": {
-              "application/json": {
-                "accessPointList": {
-                  "zoneId": "zone01",
-                  "accessPoint": [
-                    {
-                      "accessPointId": "001010000000000000000000000000001",
-                      "locationInfo": {
-                        "latitude": 90.123,
-                        "longitude": 80.123,
-                        "altitude": 10,
-                        "accuracy": 0
-                      },
-                      "connectionType": "Macro",
-                      "operationStatus": "Serviceable",
-                      "numberOfUsers": 5,
-                      "interestRealm": "LA",
-                      "resourceURL": "http://example.com/exampleAPI/location/v1/zones/zone01/accessPoints/ap001"
-                    },
-                    {
-                      "accessPointId": "001010000000000000000000000000010",
-                      "locationInfo": {
-                        "latitude": 91.123,
-                        "longitude": 81.123,
-                        "altitude": 12,
-                        "accuracy": 1
-                      },
-                      "connectionType": "Macro",
-                      "operationStatus": "Unserviceable",
-                      "numberOfUsers": 0,
-                      "interestRealm": "DC",
-                      "resourceURL": "http://example.com/exampleAPI/location/v1/zones/zone01/accessPoints/ap002"
-                    },
-                    {
-                      "accessPointId": "001010000000000000000000000000011",
-                      "locationInfo": {
-                        "latitude": 93.123,
-                        "longitude": 83.123,
-                        "altitude": 16,
-                        "accuracy": 3
-                      },
-                      "connectionType": "Macro",
-                      "operationStatus": "Serviceable",
-                      "numberOfUsers": 5,
-                      "interestRealm": "NJ",
-                      "resourceURL": "http://example.com/exampleAPI/location/v1/zones/zone01/accessPoints/ap003"
-                    }
-                  ],
-                  "resourceURL": "http://example.com/exampleAPI/location/v1/zones/zone01/accessPoints"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/zones/{zoneId}/accessPoints/{accessPointId}": {
-      "parameters": [
-        {
-          "$ref": "#/parameters/Path.ZoneId"
-        },
-        {
-          "$ref": "#/parameters/Path.AccessPointId"
-        }
-      ],
-      "get": {
-        "tags": [
-          "zones"
-        ],
-        "operationId": "zonesByIdGetApsById",
-        "description": "获取指定接入点的详细信息",
-        "produces": [
-          "application/json"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response to a query a named set of access point status request",
-            "schema": {
-              "properties": {
-                "accessPointInfo": {
-                  "$ref": "#/definitions/AccessPointInfo"
-                }
-              }
-            },
-            "examples": {
-              "application/json": {
-                "accessPointInfo": {
-                  "accessPointId": "001010000000000000000000000000001",
-                  "locationInfo": {
-                    "latitude": 90.123,
-                    "longitude": 80.123,
-                    "altitude": 10,
-                    "accuracy": 0
-                  },
-                  "connectionType": "Macro",
-                  "operationStatus": "Serviceable",
-                  "numberOfUsers": 5,
-                  "interestRealm": "LA",
-                  "resourceURL": "http://example.com/exampleAPI/location/v1/zones/zone001/accessPoints/ap001"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/users": {
       "get": {
         "tags": [
@@ -401,382 +118,105 @@
         }
       }
     },
-    "/users/{userId}": {
-      "parameters": [
-        {
-          "$ref": "#/parameters/Path.UserId"
-        }
-      ],
-      "get": {
-        "tags": [
-          "users"
-        ],
-        "operationId": "usersGetById",
-        "description": "获取指定用户的详细信息",
-        "produces": [
-          "application/json"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response to a query users within a zone request",
-            "schema": {
-              "properties": {
-                "userInfo": {
-                  "$ref": "#/definitions/UserInfo"
-                }
-              }
-            },
-            "examples": {
-              "application/json": {
-                "userInfo": {
-                  "address": "acr:192.0.2.1",
-                  "accessPointId": "001010000000000000000000000000001",
-                  "zoneId": "zone01",
-                  "resourceURL": "http://example.com/exampleAPI/location/v1/users/acr%3A192.0.2.1",
-                  "locationInfo": {
-                    "latitude": 90.123,
-                    "longitude": 80.123,
-                    "altitude": 10,
-                    "accuracy": 0
-                  },
-                  "contextLocationInfo": "GroundFloor"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/subscriptions/zonalTraffic": {
-      "get": {
-        "tags": [
-          "subscriptions"
-        ],
-        "operationId": "zonalTrafficSubGet",
-        "description": "检索所有活动订阅（获取区域跟踪更改通知的订阅）。",
-        "produces": [
-          "application/json"
-        ],
-        "responses": {
-          "200": {
-            "description": "Response to retrieve zonal traffic subscriptions",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "notificationSubscriptionList": {
-                  "type": "object",
-                  "properties": {
-                    "zonalTrafficSubscription": {
-                      "type": "array",
-                      "items": {
-                        "$ref": "#/definitions/ZonalTrafficSubscription"
-                      }
-                    },
-                    "resourceURL": {
-                      "$ref": "#/definitions/ResourceURL"
-                    }
-                  }
-                }
-              }
-            },
-            "examples": {
-              "application/json": {
-                "notificationSubscriptionList": {
-                  "zonalTrafficSubscription": [
-                    {
-                      "clientCorrelator": "0123",
-                      "resourceURL": "http://example.com/exampleAPI/location/v1/subscriptions/zonalTraffic/subscription123",
-                      "callbackReference": {
-                        "notifyURL": "http://clientApp.example.com/location_notifications/123456"
-                      },
-                      "zoneId": "zone01",
-                      "interestRealm": "LA",
-                      "userEventCriteria": "Transferring"
-                    },
-                    {
-                      "clientCorrelator": "0124",
-                      "resourceURL": "http://example.com/exampleAPI/location/v1/subscriptions/zonalTraffic/subscription124",
-                      "callbackReference": {
-                        "notifyURL": "http://clientApp.example.com/location_notifications/123457"
-                      },
-                      "zoneId": "zone02",
-                      "interestRealm": "LA",
-                      "userEventCriteria": "Transferring"
-                    }
-                  ],
-                  "resourceURL": "http://example.com/exampleAPI/location/v1/zonalTraffic"
-                }
-              }
-            }
-          }
-        }
-      },
+    "/subscriptions/periodic": {
       "post": {
         "tags": [
           "subscriptions"
         ],
-        "operationId": "zonalTrafficSubPost",
-        "description": "订阅事件，订阅区域跟踪更改的事件",
+        "operationId": "subscribeLocation",
+        "description": "发起订阅",
         "produces": [
+          "application/json"
+        ],
+        "consumes": [
           "application/json"
         ],
         "parameters": [
           {
-            "$ref": "#/parameters/Body.ZonalTrafficSubscription"
+            "$ref": "#/parameters/Body.UserLocationSubscribe"
           }
         ],
         "responses": {
           "201": {
-            "description": "Response to create new zonal traffic subscription",
+            "description": "Responses of new subscription",
             "schema": {
               "properties": {
-                "zonalTrafficSubscription": {
-                  "$ref": "#/definitions/ZonalTrafficSubscription"
+                "subscriptionId": {
+                  "type": "string",
+                  "description": "订阅关联器ID，用于标记已创建的订阅请求，避免重复创建订阅。"
                 }
               }
             },
             "examples": {
               "application/json": {
-                "zonalTrafficSubscription": {
-                  "clientCorrelator": "0123",
-                  "resourceURL": "http://example.com/exampleAPI/location/v1/subscriptions/zonalTraffic/subscription123",
-                  "callbackReference": {
-                    "notifyURL": "http://clientApp.example.com/location_notifications/123456"
-                  },
-                  "zoneId": "zone01",
-                  "interestRealm": "LA",
-                  "userEventCriteria": "Transferring"
-                }
+                "subscriptionId": "4297F44B13955235245B2497399D7A93"
               }
             }
+          },
+          "403": {
+            "description": "Forbidden"
           }
         }
       }
     },
-    "/subscriptions/zonalTraffic/{subscriptionId}": {
+    "/subscriptions/periodic/{subscriptionId}": {
       "parameters": [
         {
           "$ref": "#/parameters/Path.SubscriptionId"
         }
       ],
-      "get": {
-        "tags": [
-          "subscriptions"
-        ],
-        "operationId": "zonalTrafficSubGetById",
-        "description": "查询指定跟踪订阅的详情",
-        "produces": [
-          "application/json"
-        ],
-        "responses": {
-          "200": {
-            "description": "Response to retrieve individual zonal traffic subscription",
-            "schema": {
-              "properties": {
-                "zonalTrafficSubscription": {
-                  "$ref": "#/definitions/ZonalTrafficSubscription"
-                }
-              }
-            },
-            "examples": {
-              "application/json": {
-                "zonalTrafficSubscription": {
-                  "clientCorrelator": "0123",
-                  "resourceURL": "http://example.com/exampleAPI/location/v1/subscriptions/zonalTraffic/subscription123",
-                  "callbackReference": {
-                    "notifyURL": "http://clientApp.example.com/location_notifications/123456"
-                  },
-                  "zoneId": "zone01",
-                  "interestRealm": "LA",
-                  "userEventCriteria": "Transferring"
-                }
-              }
-            }
-          }
-        }
-      },
       "delete": {
         "tags": [
           "subscriptions"
         ],
-        "operationId": "zonalTrafficSubDelById",
-        "description": "删除指定的跟踪订阅",
+        "operationId": "unsubscribeLocation",
+        "description": "取消订阅",
         "produces": [
+          "application/json"
+        ],
+        "consumes": [
           "application/json"
         ],
         "responses": {
           "204": {
-            "description": "No content"
-          }
-        }
-      }
-    },
-    "/subscriptions/zonalStatus": {
-      "get": {
-        "tags": [
-          "subscriptions"
-        ],
-        "operationId": "zoneStatusGet",
-        "description": "获取所有区域状态订阅",
-        "produces": [
-          "application/json"
-        ],
-        "responses": {
-          "200": {
-            "description": "Response to retrieve zone status subscriptions",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "notificationSubscriptionList": {
-                  "type": "object",
-                  "properties": {
-                    "zoneStatusSubscription": {
-                      "type": "array",
-                      "items": {
-                        "$ref": "#/definitions/ZoneStatusSubscription"
-                      }
-                    },
-                    "resourceURL": {
-                      "$ref": "#/definitions/ResourceURL"
-                    }
-                  }
-                }
-              }
-            },
-            "examples": {
-              "application/json": {
-                "notificationSubscriptionList": {
-                  "zoneStatusSubscription": [
-                    {
-                      "clientCorrelator": "0123",
-                      "resourceURL": "http://example.com/exampleAPI/location/v1/subscriptions/zoneStatus/subscription123",
-                      "callbackReference": {
-                        "notifyURL": "http://clientApp.example.com/location_notifications/123456"
-                      },
-                      "zoneId": "zone01",
-                      "numberOfUsersZoneThreshold": 500,
-                      "operationStatus": "Serviceable"
-                    },
-                    {
-                      "clientCorrelator": "0124",
-                      "resourceURL": "http://example.com/exampleAPI/location/v1/subscriptions/zoneStatus/subscription124",
-                      "callbackReference": {
-                        "notifyURL": "http://clientApp.example.com/location_notifications/123457"
-                      },
-                      "zoneId": "zone02",
-                      "numberOfUsersAPThreshold": 50,
-                      "operationStatus": "Serviceable"
-                    }
-                  ],
-                  "resourceURL": "http://example.com/exampleAPI/location/v1/subscriptions/zoneStatus"
-                }
-              }
-            }
-          }
-        }
-      },
-      "post": {
-        "tags": [
-          "subscriptions"
-        ],
-        "operationId": "zoneStatusPost",
-        "description": "订阅事件，区域状态改变的事件",
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "$ref": "#/parameters/Body.ZoneStatusSubscription"
-          }
-        ],
-        "responses": {
-          "201": {
-            "description": "Response to create new zone status subscription",
-            "schema": {
-              "properties": {
-                "zoneStatusSubscription": {
-                  "$ref": "#/definitions/ZoneStatusSubscription"
-                }
-              }
-            },
-            "examples": {
-              "application/json": {
-                "zoneStatusSubscription": {
-                  "clientCorrelator": "0123",
-                  "resourceURL": "http://example.com/exampleAPI/location/v1/subscriptions/zoneStatus/subscription123",
-                  "callbackReference": {
-                    "notifyURL": "http://clientApp.example.com/location_notifications/123456"
-                  },
-                  "zoneId": "zone01",
-                  "numberOfUsersZoneThreshold": 500,
-                  "operationStatus": "Serviceable"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/subscriptions/zoneStatus/{subscriptionId}": {
-      "parameters": [
-        {
-          "$ref": "#/parameters/Path.SubscriptionId"
-        }
-      ],
-      "get": {
-        "tags": [
-          "subscriptions"
-        ],
-        "operationId": "zoneStatusGetById",
-        "description": "获取指定的区域状态订阅详情",
-        "produces": [
-          "application/json"
-        ],
-        "responses": {
-          "200": {
-            "description": "Response to retrieve individual zone status subscription",
-            "schema": {
-              "properties": {
-                "zoneStatusSubscription": {
-                  "$ref": "#/definitions/ZoneStatusSubscription"
-                }
-              }
-            },
-            "examples": {
-              "application/json": {
-                "zoneStatusSubscription": {
-                  "clientCorrelator": "0123",
-                  "resourceURL": "http://example.com/exampleAPI/location/v1/subscriptions/zoneStatus/subscription123",
-                  "callbackReference": {
-                    "notifyURL": "http://clientApp.example.com/location_notifications/123456"
-                  },
-                  "zoneId": "zone01",
-                  "numberOfUsersZoneThreshold": 500,
-                  "operationStatus": "Serviceable"
-                }
-              }
-            }
-          }
-        }
-      },
-      "delete": {
-        "tags": [
-          "subscriptions"
-        ],
-        "operationId": "zoneStatusDelById",
-        "description": "删除指定的区域状态订阅",
-        "produces": [
-          "application/json"
-        ],
-        "responses": {
-          "204": {
-            "description": "No content"
+            "description": "No content，删除成功"
           }
         }
       }
     }
   },
   "definitions": {
+    "AddressItem": {
+      "description": "one address info",
+      "type": "string"
+    },
+    "UserLocationSubscribe": {
+      "description": "目标UE位置订阅信息",
+      "type": "object",
+      "required": [
+        "callbackReference"
+      ],
+      "properties": {
+        "callbackReference": {
+          "description": "callback reference",
+          "type": "string",
+          "example": "http://applp:port/location_notifications/××××××××"
+        },
+        "address": {
+          "description": "address",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/AddressItem"
+          }
+        },
+        "frequency": {
+          "description": "上报周期，单位ms，有效值：640, 1024, 2048, 5120, 10240,",
+          "type": "integer",
+          "format": "int32",
+          "example": 1024
+        }
+      }
+    },
     "UELocationInfo": {
       "description": "目标UE位置信息",
       "type": "object",
@@ -804,576 +244,6 @@
           "type": "integer",
           "format": "int32",
           "example": 10
-        }
-      }
-    },
-    "AccessPointId": {
-      "description": "Identifier of access point, <E-CGI><Cell Portion ID> (reference ETSI TS 129 171). Where the E-CGI is made up of the PLMN and Cell Identity (28 bit string). Then the PLMN is made up of the 3 digit MCC & 2 or 3 digit MNC. The Cell Portion is an optional element",
-      "type": "string",
-      "example": "001010000000000000000000000000001"
-    },
-    "AccessPointInfo": {
-      "description": "接入点信息的类型定义",
-      "type": "object",
-      "required": [
-        "accessPointId",
-        "connectionType",
-        "operationStatus",
-        "numberOfUsers",
-        "resourceURL"
-      ],
-      "properties": {
-        "accessPointId": {
-          "$ref": "#/definitions/AccessPointId"
-        },
-        "locationInfo": {
-          "$ref": "#/definitions/LocationInfo"
-        },
-        "connectionType": {
-          "$ref": "#/definitions/ConnectionType"
-        },
-        "operationStatus": {
-          "$ref": "#/definitions/OperationStatus"
-        },
-        "numberOfUsers": {
-          "$ref": "#/definitions/NumberOfUsers"
-        },
-        "timezone": {
-          "$ref": "#/definitions/Timezone"
-        },
-        "interestRealm": {
-          "$ref": "#/definitions/InterestRealm"
-        },
-        "resourceURL": {
-          "$ref": "#/definitions/ResourceURL"
-        }
-      }
-    },
-    "AccessPointList": {
-      "description": "接入点列表",
-      "type": "object",
-      "required": [
-        "zoneId",
-        "resourceURL"
-      ],
-      "properties": {
-        "zoneId": {
-          "$ref": "#/definitions/ZoneId"
-        },
-        "accessPoint": {
-          "description": "Collection of the access point information list.",
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/AccessPointInfo"
-          }
-        },
-        "resourceURL": {
-          "$ref": "#/definitions/ResourceURL"
-        }
-      }
-    },
-    "Address": {
-      "description": "用户地址(e.g. \"sip\" URI, \"tel\" URI, \"acr\" URI).",
-      "type": "string",
-      "format": "uri",
-      "example": "acr:192.0.2.1"
-    },
-    "AncillaryInfo": {
-      "description": "Reserved for future use.",
-      "type": "string"
-    },
-    "CallbackData": {
-      "description": "CallBackData if passed by the application during the associated ZonalTrafficSubscription and UserTrackingSubscription operation. See [REST_NetAPI_Common].",
-      "type": "string",
-      "example": "1234"
-    },
-    "CallbackReference": {
-      "description": "Notification callback definition.",
-      "type": "object",
-      "required": [
-        "notifyURL"
-      ],
-      "properties": {
-        "notifyURL": {
-          "$ref": "#/definitions/NotifyURL"
-        }
-      }
-    },
-    "ClientCorrelator": {
-      "description": "Uniquely identifies this create subscription request. If there is a communication failure during the request, using the same clientCorrelator when retrying the request allows the operator to avoid creating a duplicate subscription.",
-      "type": "string",
-      "example": "0123"
-    },
-    "ConnectionType": {
-      "description": "The connection type for the access point",
-      "type": "string",
-      "enum": [
-        "Femto",
-        "LTE-femto",
-        "Smallcell",
-        "LTE-smallcell",
-        "Wifi",
-        "Pico",
-        "Micro",
-        "Macro",
-        "Wimax",
-        "Unknown"
-      ],
-      "example": "Macro"
-    },
-    "ContextLocationInfo": {
-      "description": "Contextual information of a user location (e.g., aisle, floor, room number, etc.)",
-      "type": "string",
-      "example": "GroundFloor"
-    },
-    "CurrentAccessPointId": {
-      "description": "Zone ID",
-      "type": "string",
-      "example": "zone01"
-    },
-    "Duration": {
-      "description": "Period (in seconds) of time notifications are provided for. If set to \"0\" (zero), a default duration time, which is specified by the service policy, will be used. If the parameter is omitted, the notifications will continue until the maximum duration time, which is specified by the service policy, unless the notifications are stopped by deletion of subscription for notifications. This element MAY be given by the client during resource creation in order to signal the desired lifetime of the subscription. The server MUST return in this element the period of time for which the subscription will still be valid.",
-      "type": "string",
-      "example": "0"
-    },
-    "InterestRealm": {
-      "description": "Interest realm of access point (e.g. geographical area, a type of industry etc.).",
-      "type": "string",
-      "example": "LA"
-    },
-    "Link": {
-      "description": "Link to other resources",
-      "type": "object",
-      "required": [
-        "rel",
-        "href"
-      ],
-      "properties": {
-        "rel": {
-          "description": "Describes the relationship between the URI and the resource.",
-          "type": "object",
-          "format": "string"
-        },
-        "href": {
-          "description": "URI",
-          "type": "object",
-          "format": "anyURI"
-        }
-      }
-    },
-    "LocationInfo": {
-      "description": "位置的经纬度信息",
-      "type": "object",
-      "required": [
-        "latitude",
-        "longitude",
-        "accuracy"
-      ],
-      "properties": {
-        "latitude": {
-          "type": "number",
-          "format": "float",
-          "example": 80.123
-        },
-        "longitude": {
-          "type": "number",
-          "format": "float",
-          "example": 70.123
-        },
-        "altitude": {
-          "type": "number",
-          "format": "float",
-          "example": 10
-        },
-        "accuracy": {
-          "type": "integer",
-          "format": "int32",
-          "example": 10
-        }
-      }
-    },
-    "NotifyURL": {
-      "description": "app的侦听回调的URL。",
-      "type": "string",
-      "format": "url",
-      "example": "http://clientApp.example.com/location_notifications/123456"
-    },
-    "NumberOfAccessPoints": {
-      "description": "接入点数量",
-      "type": "integer",
-      "format": "uint32",
-      "example": 10
-    },
-    "NumberOfUnserviceableAccessPoints": {
-      "description": "不可用的接入点数量",
-      "type": "integer",
-      "format": "uint32",
-      "example": 9
-    },
-    "NumberOfUsers": {
-      "description": "用户数",
-      "type": "integer",
-      "format": "uint32",
-      "example": 7
-    },
-    "NumberOfUsersAPThreshold": {
-      "description": "通知门限，如果接入点用户数达到该门限，触发通知",
-      "type": "integer",
-      "format": "uint32",
-      "example": 20
-    },
-    "NumberOfUsersInAP": {
-      "description": "接入点中的用户数",
-      "type": "integer",
-      "format": "uint32",
-      "example": 12
-    },
-    "NumberOfUsersInZone": {
-      "description": "地域中的用户数",
-      "type": "integer",
-      "format": "uint32",
-      "example": 20
-    },
-    "NumberOfUsersZoneThreshold": {
-      "description": "通知门限，如果地域中用户数达到该门限，触发通知",
-      "type": "integer",
-      "format": "uint32",
-      "example": 40
-    },
-    "OperationStatus": {
-      "description": "接入点的操作状态",
-      "type": "string",
-      "enum": [
-        "Serviceable",
-        "Unserviceable",
-        "Unknown"
-      ],
-      "example": "Serviceable"
-    },
-    "PreviousAccessPointId": {
-      "description": "Zone ID",
-      "type": "string",
-      "example": "zone02"
-    },
-    "ResourceURL": {
-      "description": "资源的URL",
-      "type": "string",
-      "format": "uri",
-      "example": "http://example.com/exampleAPI/location/v1/subscriptions/userTracking/subscription123"
-    },
-    "Timestamp": {
-      "description": "时间戳",
-      "type": "string",
-      "format": "date-time",
-      "example": "2017-01-01T02:51:43Z"
-    },
-    "Timezone": {
-      "description": "时区",
-      "type": "string",
-      "format": "date-time",
-      "example": "2017-01-01T02:51:43Z"
-    },
-    "UserEventCriteria": {
-      "description": "用于生成通知的用户事件值列表（这些适用于指定的地址）。如果缺少此元素，则会要求为用户事件中的任何更改生成通知。",
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/UserEventType"
-      }
-    },
-    "UserEventType": {
-      "description": "用户事件",
-      "type": "string",
-      "enum": [
-        "Entering",
-        "Leaving",
-        "Transferring"
-      ],
-      "example": "Entering"
-    },
-    "UserInfo": {
-      "description": "用户信息",
-      "type": "object",
-      "required": [
-        "address",
-        "accessPointId",
-        "zoneId",
-        "resourceURL"
-      ],
-      "properties": {
-        "address": {
-          "$ref": "#/definitions/Address"
-        },
-        "accessPointId": {
-          "$ref": "#/definitions/AccessPointId"
-        },
-        "zoneId": {
-          "$ref": "#/definitions/ZoneId"
-        },
-        "resourceURL": {
-          "$ref": "#/definitions/ResourceURL"
-        },
-        "locationInfo": {
-          "$ref": "#/definitions/LocationInfo"
-        },
-        "contextLocationInfo": {
-          "$ref": "#/definitions/ContextLocationInfo"
-        },
-        "ancillaryInfo": {
-          "$ref": "#/definitions/AncillaryInfo"
-        }
-      }
-    },
-    "UserList": {
-      "description": "用户列表",
-      "type": "object",
-      "required": [
-        "resourceURL"
-      ],
-      "properties": {
-        "user": {
-          "description": "区域用户信息列表。",
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/UserInfo"
-          }
-        },
-        "resourceURL": {
-          "$ref": "#/definitions/ResourceURL"
-        }
-      }
-    },
-    "UserTrackingSubscription": {
-      "description": "包含用户跟踪订阅的类型。",
-      "type": "object",
-      "required": [
-        "callbackReference",
-        "address"
-      ],
-      "properties": {
-        "clientCorrelator": {
-          "$ref": "#/definitions/ClientCorrelator"
-        },
-        "callbackReference": {
-          "$ref": "#/definitions/CallbackReference"
-        },
-        "address": {
-          "$ref": "#/definitions/Address"
-        },
-        "userEventCriteria": {
-          "$ref": "#/definitions/UserEventCriteria"
-        },
-        "resourceURL": {
-          "$ref": "#/definitions/ResourceURL"
-        }
-      }
-    },
-    "ZonalPresenceNotification": {
-      "description": "区域订阅的通知",
-      "type": "object",
-      "required": [
-        "zoneId",
-        "address",
-        "userEventType",
-        "currentAccessPointId",
-        "timestamp"
-      ],
-      "properties": {
-        "callbackData": {
-          "$ref": "#/definitions/CallbackData"
-        },
-        "zoneId": {
-          "$ref": "#/definitions/ZoneId"
-        },
-        "address": {
-          "$ref": "#/definitions/Address"
-        },
-        "interestRealm": {
-          "$ref": "#/definitions/InterestRealm"
-        },
-        "userEventType": {
-          "$ref": "#/definitions/UserEventType"
-        },
-        "currentAccessPointId": {
-          "$ref": "#/definitions/CurrentAccessPointId"
-        },
-        "previousAccessPointId": {
-          "$ref": "#/definitions/PreviousAccessPointId"
-        },
-        "timestamp": {
-          "$ref": "#/definitions/Timestamp"
-        },
-        "link": {
-          "description": "Link to other resources that are in relationship with this notification. The server SHOULD include a link to the related subscription. No other links are required or suggested by this specification.",
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/Link"
-          },
-          "example": "rel=\"ZonalTrafficSubscription\" href=\"http://example.com/exampleAPI/location/v1/subscriptions/zonalTraffic/sub123\"/"
-        }
-      }
-    },
-    "ZonalTrafficSubscription": {
-      "description": "区域跟踪订阅",
-      "type": "object",
-      "required": [
-        "callbackReference",
-        "zoneId"
-      ],
-      "properties": {
-        "clientCorrelator": {
-          "$ref": "#/definitions/ClientCorrelator"
-        },
-        "callbackReference": {
-          "$ref": "#/definitions/CallbackReference"
-        },
-        "zoneId": {
-          "$ref": "#/definitions/ZoneId"
-        },
-        "interestRealm": {
-          "description": "Interest realms of access points within a zone (e.g. geographical area, a type of industry etc.).",
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/InterestRealm"
-          }
-        },
-        "userEventCriteria": {
-          "description": "List of user event values to generate notifications for (these apply to zone identifier or all interest realms within zone identifier specified). If this element is missing, a notification is requested to be generated for any change in user event.",
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/UserEventType"
-          }
-        },
-        "duration": {
-          "$ref": "#/definitions/Duration"
-        },
-        "resourceURL": {
-          "$ref": "#/definitions/ResourceURL"
-        }
-      }
-    },
-    "ZoneId": {
-      "description": "区域ID",
-      "type": "string",
-      "example": "zone01"
-    },
-    "ZoneInfo": {
-      "description": "区域信息",
-      "type": "object",
-      "required": [
-        "zoneId",
-        "numberOfAccessPoints",
-        "numberOfUnservicableAccessPoints",
-        "numberOfUsers",
-        "resourceURL"
-      ],
-      "properties": {
-        "zoneId": {
-          "$ref": "#/definitions/ZoneId"
-        },
-        "numberOfAccessPoints": {
-          "$ref": "#/definitions/NumberOfAccessPoints"
-        },
-        "numberOfUnservicableAccessPoints": {
-          "$ref": "#/definitions/NumberOfUnserviceableAccessPoints"
-        },
-        "numberOfUsers": {
-          "$ref": "#/definitions/NumberOfUsers"
-        },
-        "resourceURL": {
-          "$ref": "#/definitions/ResourceURL"
-        }
-      }
-    },
-    "ZoneList": {
-      "description": "区域列表",
-      "type": "object",
-      "required": [
-        "resourceURL"
-      ],
-      "properties": {
-        "zone": {
-          "description": "Collection of the zone information list.",
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/ZoneInfo"
-          }
-        },
-        "resourceURL": {
-          "$ref": "#/definitions/ResourceURL"
-        }
-      }
-    },
-    "ZoneStatusNotification": {
-      "description": "区域状态改变的通知信息",
-      "type": "object",
-      "required": [
-        "zoneId",
-        "timestamp"
-      ],
-      "properties": {
-        "callbackData": {
-          "$ref": "#/definitions/CallbackData"
-        },
-        "zoneId": {
-          "$ref": "#/definitions/ZoneId"
-        },
-        "accessPointId": {
-          "$ref": "#/definitions/AccessPointId"
-        },
-        "numberOfUsersInZone": {
-          "$ref": "#/definitions/NumberOfUsersInZone"
-        },
-        "numberOfUsersInAP": {
-          "$ref": "#/definitions/NumberOfUsersInAP"
-        },
-        "operationStatus": {
-          "$ref": "#/definitions/OperationStatus"
-        },
-        "timestamp": {
-          "$ref": "#/definitions/Timestamp"
-        },
-        "link": {
-          "description": "Link to other resources that are in relationship with this notification. The server SHOULD include a link to the related subscription. No other links are required or suggested by this specification.",
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/Link"
-          },
-          "example": "rel=\"ZonalStatusSubscription\" href=\"http://example.com/exampleAPI/location/v1/subscriptions/zonalStatus/sub123\""
-        }
-      }
-    },
-    "ZoneStatusSubscription": {
-      "description": "区域状态改变的订阅消息",
-      "type": "object",
-      "required": [
-        "callbackReference",
-        "zoneId"
-      ],
-      "properties": {
-        "clientCorrelator": {
-          "$ref": "#/definitions/ClientCorrelator"
-        },
-        "resourceURL": {
-          "$ref": "#/definitions/ResourceURL"
-        },
-        "callbackReference": {
-          "$ref": "#/definitions/CallbackReference"
-        },
-        "zoneId": {
-          "$ref": "#/definitions/ZoneId"
-        },
-        "numberOfUsersZoneThreshold": {
-          "$ref": "#/definitions/NumberOfUsersZoneThreshold"
-        },
-        "numberOfUsersAPThreshold": {
-          "$ref": "#/definitions/NumberOfUsersAPThreshold"
-        },
-        "operationStatus": {
-          "description": "List of operation status values to generate notifications for (these apply to all access points within a zone).",
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/OperationStatus"
-          }
         }
       }
     }
