@@ -12,7 +12,6 @@
   "host": "{HOST}",
   "basePath": "/mep/location/v1",
   "schemes": [
-    "http",
     "https"
   ],
   "consumes": [
