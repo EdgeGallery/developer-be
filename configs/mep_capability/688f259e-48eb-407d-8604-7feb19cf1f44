@@ -54,6 +54,15 @@
       "schema": {
         "$ref": "#/definitions/UserLocationSubscribe"
       }
+    },
+    "Body.VoidJSON": {
+      "name": "voidJson",
+      "in": "body",
+      "description": "Void Json",
+      "required": true,
+      "schema": {
+        "$ref": "#/definitions/VoidJSON"
+      }
     }
   },
   "paths": {
@@ -162,6 +171,9 @@
       "parameters": [
         {
           "$ref": "#/parameters/Path.SubscriptionId"
+        },
+        {
+          "$ref": "#/parameters/Body.VoidJSON"
         }
       ],
       "delete": {
@@ -245,6 +257,10 @@
           "example": 10
         }
       }
+    },
+    "VoidJSON": {
+      "description": "void json",
+      "type": "object"
     }
   }
 }
