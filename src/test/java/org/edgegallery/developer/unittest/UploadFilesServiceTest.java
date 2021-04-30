@@ -183,34 +183,8 @@ public class UploadFilesServiceTest {
 
     @Test
     @WithMockUser(roles = "DEVELOPER_TENANT")
-    public void testUploadHelmYaml() throws Exception {
-        File helmYaml = Resources.getResourceAsFile("testdata/demo.yaml");
-        InputStream helmIs = new FileInputStream(helmYaml);
-        MultipartFile helmMultiFile = new MockMultipartFile(helmYaml.getName(), helmYaml.getName(),
-            ContentType.APPLICATION_OCTET_STREAM.toString(), helmIs);
-        String projectId = "200dfab1-3c30-4fc7-a6ca-ed6f0620a85e";
-        Either<FormatRespDto, HelmTemplateYamlRespDto> either = uploadFileService
-            .uploadHelmTemplateYaml(helmMultiFile, "userId", projectId,"UPLOAD");
-        Assert.assertTrue(either.isLeft());
-    }
-
-    @Test
-    @WithMockUser(roles = "DEVELOPER_TENANT")
     public void testUploadHelmYamlWithBadName() throws Exception {
         File helmYaml = Resources.getResourceAsFile("testdata/face.png");
-        InputStream helmIs = new FileInputStream(helmYaml);
-        MultipartFile helmMultiFile = new MockMultipartFile(helmYaml.getName(), helmYaml.getName(),
-            ContentType.APPLICATION_OCTET_STREAM.toString(), helmIs);
-        String projectId = "200dfab1-3c30-4fc7-a6ca-ed6f0620a85e";
-        Either<FormatRespDto, HelmTemplateYamlRespDto> either = uploadFileService
-            .uploadHelmTemplateYaml(helmMultiFile, "userId", projectId,"UPLOAD");
-        Assert.assertTrue(either.isLeft());
-    }
-
-    @Test
-    @WithMockUser(roles = "DEVELOPER_TENANT")
-    public void testUploadHelmYamlWithBadContent() throws Exception {
-        File helmYaml = Resources.getResourceAsFile("testdata/demo-onlyagent.yaml");
         InputStream helmIs = new FileInputStream(helmYaml);
         MultipartFile helmMultiFile = new MockMultipartFile(helmYaml.getName(), helmYaml.getName(),
             ContentType.APPLICATION_OCTET_STREAM.toString(), helmIs);
