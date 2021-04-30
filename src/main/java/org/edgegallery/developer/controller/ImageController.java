@@ -193,25 +193,25 @@ public class ImageController {
                 }
             }
         }
-        LOGGER.warn("repoTags: {} ", repoTags);
+        LOGGER.debug("repoTags: {} ", repoTags);
         String[] names = repoTags.split(":");
         //判断压缩包manifest.json中RepoTags的值和load进来的镜像是否相等
-        LOGGER.warn(names[0]);
+        LOGGER.debug(names[0]);
         List<Image> lists = dockerClient.listImagesCmd().withImageNameFilter(names[0]).exec();
-        LOGGER.warn("lists is empty ?{},lists size {},number 0 {}", CollectionUtils.isEmpty(lists), lists.size(),
+        LOGGER.debug("lists is empty ?{},lists size {},number 0 {}", CollectionUtils.isEmpty(lists), lists.size(),
             lists.get(0));
         String imageId = "";
         if (!CollectionUtils.isEmpty(lists) && !StringUtils.isEmpty(repoTags)) {
             for (Image image : lists) {
-                LOGGER.warn(image.getRepoTags()[0]);
+                LOGGER.debug(image.getRepoTags()[0]);
                 String[] images = image.getRepoTags();
                 if (images[0].equals(repoTags)) {
                     imageId = image.getId();
-                    LOGGER.warn(imageId);
+                    LOGGER.debug(imageId);
                 }
             }
         }
-        LOGGER.warn("imageID: {} ", imageId);
+        LOGGER.debug("imageID: {} ", imageId);
         String uploadImgName = new StringBuilder(devRepoEndpoint).append("/").append(devRepoProject).append("/")
             .append(names[0]).toString();
         //镜像打标签，重新push
@@ -219,14 +219,10 @@ public class ImageController {
         if (repos.length > 1 && !imageId.equals("")) {
             //tag image
             dockerClient.tagImageCmd(imageId, uploadImgName, repos[1]).withForce().exec();
-            LOGGER.warn("Upload tagged docker image: {}", uploadImgName);
+            LOGGER.debug("Upload tagged docker image: {}", uploadImgName);
 
             //push image
             try {
-                LOGGER.warn("endpoint: {}", devRepoEndpoint);
-                LOGGER.warn("username: {}", devRepoUsername);
-                LOGGER.warn("password: {}", devRepoPassword);
-                LOGGER.warn("project: {}", devRepoProject);
                 dockerClient.pushImageCmd(uploadImgName).exec(new PushImageResultCallback()).awaitCompletion();
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();

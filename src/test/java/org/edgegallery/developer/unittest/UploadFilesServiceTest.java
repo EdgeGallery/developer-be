@@ -191,7 +191,7 @@ public class UploadFilesServiceTest {
         String projectId = "200dfab1-3c30-4fc7-a6ca-ed6f0620a85e";
         Either<FormatRespDto, HelmTemplateYamlRespDto> either = uploadFileService
             .uploadHelmTemplateYaml(helmMultiFile, "userId", projectId,"UPLOAD");
-        Assert.assertTrue(either.isRight());
+        Assert.assertTrue(either.isLeft());
     }
 
     @Test
@@ -204,7 +204,7 @@ public class UploadFilesServiceTest {
         String projectId = "200dfab1-3c30-4fc7-a6ca-ed6f0620a85e";
         Either<FormatRespDto, HelmTemplateYamlRespDto> either = uploadFileService
             .uploadHelmTemplateYaml(helmMultiFile, "userId", projectId,"UPLOAD");
-        Assert.assertTrue(either.isRight());
+        Assert.assertTrue(either.isLeft());
     }
 
     @Test
@@ -217,7 +217,7 @@ public class UploadFilesServiceTest {
         String projectId = "200dfab1-3c30-4fc7-a6ca-ed6f0620a85e";
         Either<FormatRespDto, HelmTemplateYamlRespDto> either = uploadFileService
             .uploadHelmTemplateYaml(helmMultiFile, "userId", projectId,"UPLOAD");
-        Assert.assertTrue(either.isRight());
+        Assert.assertTrue(either.isLeft());
     }
 
     @Test
