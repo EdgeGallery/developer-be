@@ -9,7 +9,8 @@
   "host": "{HOST}",
   "basePath": "/v1/face-recognition",
   "schemes": [
-    "http"
+    "http",
+    "https"
   ],
   "consumes": [
     "application/json"

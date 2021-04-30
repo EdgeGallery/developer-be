@@ -39,6 +39,7 @@ import org.edgegallery.developer.common.Consts;
 import org.edgegallery.developer.exception.DomainException;
 import org.edgegallery.developer.model.deployyaml.ImageDesc;
 import org.edgegallery.developer.model.vm.VmCreateConfig;
+import org.edgegallery.developer.model.vm.VmFlavor;
 import org.edgegallery.developer.model.vm.VmNetwork;
 import org.edgegallery.developer.model.workspace.ApplicationProject;
 import org.edgegallery.developer.model.workspace.EnumDeployPlatform;
@@ -75,7 +76,7 @@ public class NewCreateVmCsar {
      * @param project project self
      * @return package gz
      */
-    public File create(String projectPath, VmCreateConfig config, ApplicationProject project, String flavor,
+    public File create(String projectPath, VmCreateConfig config, ApplicationProject project, VmFlavor flavor,
         List<VmNetwork> vmNetworks) throws IOException, DomainException {
         File projectDir = new File(projectPath);
 
@@ -182,7 +183,12 @@ public class NewCreateVmCsar {
         LinkedHashMap<String, Object> virtualFlavor = getObjectFromMap(loaded, "topology_template", "node_templates",
             "EMS_VDU1", "properties", "vdu_profile", "flavor_extra_specs");
         virtualFlavor.remove("mgmt_egarm", "true");
-        virtualFlavor.put(flavor, "true");
+        virtualFlavor.put(flavor.getFlavor(), "true");
+
+        // config flavor
+        LinkedHashMap<String, Object> virtualConstraints = getObjectFromMap(loaded, "topology_template", "node_templates",
+            "EMS_VDU1", "properties");
+        virtualConstraints.put("nfvi_constraints", flavor.getConstraints());
 
         // get network name
         String mepName = "";
