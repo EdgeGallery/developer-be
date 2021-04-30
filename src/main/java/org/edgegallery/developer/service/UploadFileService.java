@@ -628,8 +628,8 @@ public class UploadFileService {
             String harborStr = devRepoEndpoint + "/" + devRepoProject;
             if (image.contains(envStr) && image.contains(harborStr)) {
                 try {
-                    dockerClient.pullImageCmd(image).exec(new PullImageResultCallback()).awaitCompletion();
-                } catch (InterruptedException e) {
+                    dockerClient.pullImageCmd(image).exec(new PullImageResultCallback()).awaitCompletion().close();
+                } catch (InterruptedException | IOException e) {
                     Thread.currentThread().interrupt();
                     LOGGER.error("pull image {} from harbor repo failed! {}", image, e.getMessage());
                     return false;
@@ -647,8 +647,8 @@ public class UploadFileService {
         DockerClient dockerClient = DockerClientBuilder.getInstance("tcp://" + devRepoEndpoint + ":2375").build();
         LOGGER.warn(dockerClient.infoCmd().exec().toString());
         try {
-            dockerClient.pullImageCmd(image).exec(new PullImageResultCallback()).awaitCompletion();
-        } catch (InterruptedException e) {
+            dockerClient.pullImageCmd(image).exec(new PullImageResultCallback()).awaitCompletion().close();
+        } catch (InterruptedException | IOException e) {
             Thread.currentThread().interrupt();
             LOGGER.error("pull image {} from other public repo  failed! {}", image, e.getMessage());
             return false;
