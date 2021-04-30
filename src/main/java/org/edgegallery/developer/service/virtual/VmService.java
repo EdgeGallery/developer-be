@@ -176,7 +176,7 @@ public class VmService {
         VmFlavor flavor = vmConfigMapper.getVmFlavor(config.getVmRegulation().getArchitecture());
         List<VmNetwork> vmNetworks = vmConfigMapper.getVmNetwork();
         File csarPkgDir;
-        csarPkgDir = new NewCreateVmCsar().create(projectPath, config, project, flavor.getFlavor(), vmNetworks);
+        csarPkgDir = new NewCreateVmCsar().create(projectPath, config, project, flavor, vmNetworks);
         return CompressFileUtilsJava
             .compressToCsarAndDeleteSrc(csarPkgDir.getCanonicalPath(), projectPath, csarPkgDir.getName());
     }
