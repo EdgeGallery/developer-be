@@ -16,13 +16,26 @@
 
 package org.edgegallery.developer.service;
 
+import com.github.dockerjava.api.DockerClient;
+import com.github.dockerjava.api.command.PullImageResultCallback;
+import com.github.dockerjava.api.exception.DockerClientException;
+import com.github.dockerjava.api.model.Image;
+import com.github.dockerjava.core.DefaultDockerClientConfig;
+import com.github.dockerjava.core.DockerClientBuilder;
+import com.github.dockerjava.core.DockerClientConfig;
+import com.github.dockerjava.core.command.PushImageResultCallback;
 import com.google.common.collect.Lists;
 import com.google.gson.Gson;
 import com.spencerwi.either.Either;
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -63,6 +76,7 @@ import org.edgegallery.developer.util.samplecode.SampleCodeServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -107,6 +121,18 @@ public class UploadFileService {
 
     @Autowired
     private ProjectMapper projectMapper;
+
+    @Value("${imagelocation.domainname:}")
+    private String devRepoEndpoint;
+
+    @Value("${imagelocation.username:}")
+    private String devRepoUsername;
+
+    @Value("${imagelocation.password:}")
+    private String devRepoPassword;
+
+    @Value("${imagelocation.project:}")
+    private String devRepoProject;
 
     /**
      * getFile.
@@ -415,14 +441,28 @@ public class UploadFileService {
         try {
             tempFile = File.createTempFile(UUID.randomUUID().toString(), null);
             helmTemplateYaml.transferTo(tempFile);
-            content = FileUtils.readFileToString(tempFile, Consts.FILE_ENCODING);
+            content = readFile(tempFile);
         } catch (IOException e) {
-            LOGGER
-                .error("Failed to read content of helm template yaml, userId: {}, projectId: {},exception: {}", userId,
-                    projectId, e.getMessage());
-            return Either
-                .left(new FormatRespDto(Status.INTERNAL_SERVER_ERROR, "Failed to read content of helm template yaml"));
+            String errorMsg = "Failed to read content of helm template yaml, userId: {}, projectId: {},exception: {}";
+            LOGGER.error(errorMsg, userId, projectId, e.getMessage());
+            String returnMsg = "Failed to read content of helm template yaml";
+            return Either.left(new FormatRespDto(Status.INTERNAL_SERVER_ERROR, returnMsg));
         }
+        //yaml判空
+        if (StringUtils.isEmpty(content)) {
+            return Either.left(new FormatRespDto(Status.BAD_REQUEST, "yaml file is empty!"));
+        }
+        //判断yaml是否有配置namespace
+        if (!content.contains("namespace")) {
+            String errMsg = "deploy yaml has no namespace config!";
+            LOGGER.error(errMsg);
+            return Either.left(new FormatRespDto(Status.BAD_REQUEST, errMsg));
+        }
+        //替换namespace内容
+        content = replaceContent(content);
+
+        //镜像格式为name:tag(name不包含分隔符)
+
         HelmTemplateYamlRespDto helmTemplateYamlRespDto = new HelmTemplateYamlRespDto();
         String oriName = helmTemplateYaml.getOriginalFilename();
         if (!StringUtils.isEmpty(oriName) && !oriName.endsWith(".yaml")) {
@@ -546,7 +586,12 @@ public class UploadFileService {
             addService(mapList, svcTypes, svcNodePorts, svcPorts);
             addPodImage(mapList, podImages);
         }
-
+        //verify image info
+        boolean result = verifyImage(podImages);
+        if (!result) {
+            LOGGER.error("the image configuration in the yaml file is incorrect");
+            return false;
+        }
         List<ProjectImageConfig> listImage = projectImageMapper.getAllImage(projectId);
         if (!CollectionUtils.isEmpty(listImage)) {
             for (ProjectImageConfig po : listImage) {
@@ -567,6 +612,137 @@ public class UploadFileService {
             return false;
         }
         return true;
+    }
+
+    private boolean verifyImage(List<String> imageList) {
+        if (CollectionUtils.isEmpty(imageList)) {
+            LOGGER.error("deploy yaml has no any image info");
+            return false;
+        }
+        DockerClient dockerClient = getDockerClient(devRepoEndpoint, devRepoUsername, devRepoPassword);
+        for (String image : imageList) {
+            LOGGER.info("deploy yaml image: {}", image);
+            //镜像格式为{{.Values.imagelocation.domainname}}/{{.Values.imagelocation.project}}/name:tag
+            // 或者为harbor仓库地址
+            String envStr = "{{.Values.imagelocation.domainname}}/{{.Values.imagelocation.project}}";
+            String harborStr = devRepoEndpoint + "/" + devRepoProject;
+            if (image.contains(envStr) && image.contains(harborStr)) {
+                try {
+                    dockerClient.pullImageCmd(image).exec(new PullImageResultCallback()).awaitCompletion();
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    LOGGER.error("pull image {} from harbor repo failed! {}", image, e.getMessage());
+                    return false;
+                }
+            } else {
+                //其他格式镜像，拉取,tag,push
+                pullAndPushImage(image);
+            }
+        }
+        return true;
+    }
+
+    private boolean pullAndPushImage(String image) {
+        //镜像信息非harbor仓库格式，拉取(失败，返回false)，打Tag，重新push
+        DockerClient dockerClient = DockerClientBuilder.getInstance("tcp://" + devRepoEndpoint + ":2375").build();
+        LOGGER.warn(dockerClient.infoCmd().exec().toString());
+        try {
+            dockerClient.pullImageCmd(image).exec(new PullImageResultCallback()).awaitCompletion();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            LOGGER.error("pull image {} from other public repo  failed! {}", image, e.getMessage());
+            return false;
+        }
+        //根据镜像名，获取镜像id
+        String[] imageNames = image.split(":");
+        List<Image> lists = dockerClient.listImagesCmd().withImageNameFilter(imageNames[0]).exec();
+        String imageId = "";
+        if (!CollectionUtils.isEmpty(lists)) {
+            for (Image imageLocal : lists) {
+                LOGGER.info(imageLocal.getRepoTags()[0]);
+                String[] imagNames = imageLocal.getRepoTags();
+                if (imagNames[0].equals(image)) {
+                    imageId = imageLocal.getId();
+                    LOGGER.info(imageId);
+                }
+            }
+        }
+        LOGGER.warn("imageID: {} ", imageId);
+
+        String targetName = "";
+        if(!image.contains("/")) {
+            targetName = devRepoEndpoint + "/" + devRepoProject + "/" + image;
+            dockerClient.tagImageCmd(imageId, targetName, imageNames[1]).withForce().exec();
+            LOGGER.warn("image {} re-tag success", image);
+        }else{
+            String[] targetImageArray = image.split("/");
+            if(targetImageArray.length==2){
+                targetName = devRepoEndpoint + "/" + devRepoProject + "/" + image;
+            }else if(targetImageArray.length==3){
+                targetName = devRepoEndpoint + "/" + devRepoProject + "/" + targetImageArray[2];
+            }else {
+                targetName = devRepoEndpoint + "/" + devRepoProject + "/" + targetImageArray[3];
+            }
+            dockerClient.tagImageCmd(imageId, targetName, imageNames[1]).withForce().exec();
+            LOGGER.warn("image {} re-tag success", image);
+        }
+        //push image
+        DockerClient pushClient = getDockerClient(devRepoEndpoint, devRepoUsername, devRepoPassword);
+        try {
+            pushClient.pushImageCmd(targetName).exec(new PushImageResultCallback()).awaitCompletion();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            LOGGER.error("failed to push image {} occur {}", targetName, e.getMessage());
+            return false;
+        }
+        return true;
+
+    }
+
+    private DockerClient getDockerClient(String repo, String userName, String password) {
+        try {
+            DockerClientConfig config = DefaultDockerClientConfig.createDefaultConfigBuilder().withDockerTlsVerify(true)
+                .withDockerCertPath("/usr/app/ssl").withRegistryUrl("https://" + repo).withRegistryUsername(userName)
+                .withRegistryPassword(password).build();
+            LOGGER.warn("docker register url: {}", config.getRegistryUrl());
+            return DockerClientBuilder.getInstance(config).build();
+        } catch (DockerClientException e) {
+            LOGGER.error("get docker instance occur {}", e.getMessage());
+            return null;
+        }
+    }
+
+    private String readFile(File fin) {
+        String line;
+        StringBuilder sb = new StringBuilder();
+        try (FileInputStream fis = new FileInputStream(fin);
+             BufferedReader br = new BufferedReader(new InputStreamReader(fis, StandardCharsets.UTF_8))) {
+            while ((line = br.readLine()) != null) {
+                sb.append(line + "\r\n");
+            }
+        } catch (IOException e) {
+            LOGGER.error("read file by line occur {}", e.getMessage());
+            return null;
+        }
+        return sb.toString();
+    }
+
+    private String replaceContent(String content) {
+        String[] multiContent = content.split("\r\n");
+        for (int i = 0; i < multiContent.length; i++) {
+            if (multiContent[i].contains("namespace")) {
+                multiContent[i] = "namespace: '{{ .Values.appconfig.appnamespace }}'";
+            }
+        }
+        StringBuilder sb = new StringBuilder();
+        for (String newStr : multiContent) {
+            if (newStr.contains("namespace")) {
+                sb.append("  " + newStr + "\r\n");
+            } else {
+                sb.append(newStr + "\r\n");
+            }
+        }
+        return sb.toString();
     }
 
     private void addService(List<Map<String, Object>> mapList, List<String> svcTypes, List<String> svcNodePorts,
@@ -591,7 +767,7 @@ public class UploadFileService {
         }
     }
 
-    private void addDeployImage(List<Map<String, Object>> mapList, List<String> podImages) {
+    private List<String> addDeployImage(List<Map<String, Object>> mapList, List<String> podImages) {
         for (Map<String, Object> stringMap : mapList) {
             LinkedHashMap<String, Object> linkedHashMap = getObjectFromMap(stringMap, "spec", "template", "spec");
             if (linkedHashMap != null) {
@@ -600,9 +776,10 @@ public class UploadFileService {
                 for (LinkedHashMap<String, Object> a : arrayList) {
                     podImages.add(a.get("image").toString());
                 }
+                return podImages;
             }
         }
-
+        return Collections.EMPTY_LIST;
     }
 
     private LinkedHashMap<String, Object> getObjectFromMap(Map<String, Object> loaded, String... keys) {
@@ -616,7 +793,7 @@ public class UploadFileService {
         return result;
     }
 
-    private void addPodImage(List<Map<String, Object>> mapList, List<String> podImages) {
+    private List<String> addPodImage(List<Map<String, Object>> mapList, List<String> podImages) {
         for (Map<String, Object> stringMap : mapList) {
             LinkedHashMap<String, Object> linkedHashMap = getObjectFromMap(stringMap, "spec");
             if (linkedHashMap.get("containers") != null) {
@@ -625,8 +802,10 @@ public class UploadFileService {
                 for (LinkedHashMap<String, Object> a : arrayList) {
                     podImages.add(a.get("image").toString());
                 }
+                return podImages;
             }
         }
+        return Collections.EMPTY_LIST;
     }
 
     private Either<FormatRespDto, HelmTemplateYamlRespDto> getSuccessResult(MultipartFile helmTemplateYaml,
