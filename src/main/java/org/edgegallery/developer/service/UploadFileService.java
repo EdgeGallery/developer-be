@@ -626,10 +626,13 @@ public class UploadFileService {
             String envStr = "{{.Values.imagelocation.domainname}}/{{.Values.imagelocation.project}}";
             String harborStr = devRepoEndpoint + "/" + devRepoProject;
             if (image.contains(envStr) || image.contains(harborStr)) {
+                if (image.contains(envStr)) {
+                    image = image.replace(envStr, harborStr);
+                }
                 try {
-                    LOGGER.warn("before pull image {}",image);
+                    LOGGER.warn("before pull image {}", image);
                     dockerClient.pullImageCmd(image).exec(new PullImageResultCallback()).awaitCompletion().close();
-                    LOGGER.warn("after pull image {}",image);
+                    LOGGER.warn("after pull image {}", image);
                 } catch (InterruptedException | IOException e) {
                     Thread.currentThread().interrupt();
                     LOGGER.error("pull image {} from harbor repo failed! {}", image, e.getMessage());
@@ -670,17 +673,17 @@ public class UploadFileService {
         LOGGER.warn("imageID: {} ", imageId);
 
         String targetName = "";
-        if(!image.contains("/")) {
+        if (!image.contains("/")) {
             targetName = devRepoEndpoint + "/" + devRepoProject + "/" + image;
             dockerClient.tagImageCmd(imageId, targetName, imageNames[1]).withForce().exec();
             LOGGER.warn("image {} re-tag success", image);
-        }else{
+        } else {
             String[] targetImageArray = image.split("/");
-            if(targetImageArray.length==2){
+            if (targetImageArray.length == 2) {
                 targetName = devRepoEndpoint + "/" + devRepoProject + "/" + image;
-            }else if(targetImageArray.length==3){
+            } else if (targetImageArray.length == 3) {
                 targetName = devRepoEndpoint + "/" + devRepoProject + "/" + targetImageArray[2];
-            }else {
+            } else {
                 targetName = devRepoEndpoint + "/" + devRepoProject + "/" + targetImageArray[3];
             }
             dockerClient.tagImageCmd(imageId, targetName, imageNames[1]).withForce().exec();
