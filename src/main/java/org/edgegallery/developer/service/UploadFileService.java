@@ -34,7 +34,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedHashMap;
@@ -628,7 +627,9 @@ public class UploadFileService {
             String harborStr = devRepoEndpoint + "/" + devRepoProject;
             if (image.contains(envStr) && image.contains(harborStr)) {
                 try {
+                    LOGGER.warn("before pull image {}",image);
                     dockerClient.pullImageCmd(image).exec(new PullImageResultCallback()).awaitCompletion().close();
+                    LOGGER.warn("after pull image {}",image);
                 } catch (InterruptedException | IOException e) {
                     Thread.currentThread().interrupt();
                     LOGGER.error("pull image {} from harbor repo failed! {}", image, e.getMessage());
@@ -645,7 +646,6 @@ public class UploadFileService {
     private boolean pullAndPushImage(String image) {
         //镜像信息非harbor仓库格式，拉取(失败，返回false)，打Tag，重新push
         DockerClient dockerClient = DockerClientBuilder.getInstance("tcp://" + devRepoEndpoint + ":2375").build();
-        LOGGER.warn(dockerClient.infoCmd().exec().toString());
         try {
             dockerClient.pullImageCmd(image).exec(new PullImageResultCallback()).awaitCompletion().close();
         } catch (InterruptedException | IOException e) {
