@@ -625,7 +625,7 @@ public class UploadFileService {
             // 或者为harbor仓库地址
             String envStr = "{{.Values.imagelocation.domainname}}/{{.Values.imagelocation.project}}";
             String harborStr = devRepoEndpoint + "/" + devRepoProject;
-            if (image.contains(envStr) && image.contains(harborStr)) {
+            if (image.contains(envStr) || image.contains(harborStr)) {
                 try {
                     LOGGER.warn("before pull image {}",image);
                     dockerClient.pullImageCmd(image).exec(new PullImageResultCallback()).awaitCompletion().close();
