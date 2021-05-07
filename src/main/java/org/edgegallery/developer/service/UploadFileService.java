@@ -36,6 +36,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -453,15 +455,13 @@ public class UploadFileService {
         }
         //判断yaml是否有配置namespace
         if (!content.contains("namespace")) {
-            String errMsg = "deploy yaml has no namespace config!";
-            LOGGER.error(errMsg);
-            return Either.left(new FormatRespDto(Status.BAD_REQUEST, errMsg));
+            content = addNameSpace(content);
+        } else {
+            //替换namespace内容
+            content = replaceContent(content);
         }
-        //替换namespace内容
-        content = replaceContent(content);
 
         //镜像格式为name:tag(name不包含分隔符)
-
         HelmTemplateYamlRespDto helmTemplateYamlRespDto = new HelmTemplateYamlRespDto();
         String oriName = helmTemplateYaml.getOriginalFilename();
         if (!StringUtils.isEmpty(oriName) && !oriName.endsWith(".yaml")) {
@@ -746,6 +746,55 @@ public class UploadFileService {
             }
         }
         return sb.toString();
+    }
+
+    private String addNameSpace(String content) {
+        String[] multiContent = content.split("\r\n");
+        List<String> list = new ArrayList<>();
+        List<Integer> nums = new ArrayList<>();
+        for (int i = 0; i < multiContent.length; i++) {
+            list.add(multiContent[i]);
+        }
+        String in = getIndexOfSameObject(list);
+        String[] indexs = in.split(",");
+        for (String index : indexs) {
+            nums.add(Integer.parseInt(index));
+        }
+        for (int i = 0; i < nums.size(); i++) {
+            list.add(nums.get(i) + i, "namespace: '{{ .Values.appconfig.appnamespace }}'");
+        }
+        StringBuilder sb = new StringBuilder();
+        for (String newStr : list) {
+            if (newStr.contains("namespace")) {
+                sb.append("  " + newStr + "\r\n");
+            } else {
+                sb.append(newStr + "\r\n");
+            }
+        }
+        return sb.toString();
+    }
+
+    public String getIndexOfSameObject(List<String> list) {
+        Map<String, String> map = new HashMap<String, String>();
+        for (int i = 0; i < list.size(); i++) {
+            String key = list.get(i);
+            String old = map.get(key);
+            if (old != null) {
+                map.put(key, old + "," + (i + 1));
+            } else {
+                map.put(key, "" + (i + 1));
+            }
+        }
+        Iterator<String> it = map.keySet().iterator();
+        String index = "";
+        while (it.hasNext()) {
+            String key = it.next();
+            String value = map.get(key);
+            if (key.startsWith("metadata")) {
+                index = value;
+            }
+        }
+        return index;
     }
 
     private void addService(List<Map<String, Object>> mapList, List<String> svcTypes, List<String> svcNodePorts,
