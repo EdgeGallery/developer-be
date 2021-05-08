@@ -89,7 +89,10 @@ public class VmStageWorkStatus implements VmCreateStage {
             JsonElement code = jsonObject.get("code");
             JsonElement msg = jsonObject.get("msg");
             if (!code.getAsString().equals("200")) {
-                config.setLog(msg.getAsString());
+                if (msg != null) {
+                    config.setLog(msg.getAsString());
+                }
+                config.setLog("get vm status fail");
             } else {
                 Type vmInfoType = new TypeToken<VmInstantiateInfo>() { }.getType();
                 VmInstantiateInfo vmInstantiateInfo = gson.fromJson(workStatus, vmInfoType);
