@@ -437,6 +437,11 @@ public class UploadFileService {
      */
     public Either<FormatRespDto, HelmTemplateYamlRespDto> uploadHelmTemplateYaml(MultipartFile helmTemplateYaml,
         String userId, String projectId, String configType) throws IOException {
+        String fileName = helmTemplateYaml.getOriginalFilename();
+        if (!fileName.endsWith("yaml") || !fileName.endsWith("yml") || !fileName.endsWith("YAML") || !fileName
+            .endsWith("YML")) {
+            return Either.left(new FormatRespDto(Status.BAD_REQUEST, "file type is not yaml!"));
+        }
         String content;
         File tempFile;
         try {
