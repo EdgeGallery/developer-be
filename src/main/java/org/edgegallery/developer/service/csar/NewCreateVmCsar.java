@@ -186,8 +186,8 @@ public class NewCreateVmCsar {
         virtualFlavor.put(flavor.getFlavor(), "true");
 
         // config flavor
-        LinkedHashMap<String, Object> virtualConstraints = getObjectFromMap(loaded, "topology_template", "node_templates",
-            "EMS_VDU1", "properties");
+        LinkedHashMap<String, Object> virtualConstraints = getObjectFromMap(loaded, "topology_template",
+            "node_templates", "EMS_VDU1", "properties");
         virtualConstraints.put("nfvi_constraints", flavor.getConstraints());
 
         // get network name
