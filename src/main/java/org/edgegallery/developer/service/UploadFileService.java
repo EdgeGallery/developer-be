@@ -837,7 +837,7 @@ public class UploadFileService {
                 return podImages;
             }
         }
-        return Collections.EMPTY_LIST;
+        return Collections.emptyList();
     }
 
     private LinkedHashMap<String, Object> getObjectFromMap(Map<String, Object> loaded, String... keys) {
@@ -863,7 +863,7 @@ public class UploadFileService {
                 return podImages;
             }
         }
-        return Collections.EMPTY_LIST;
+        return Collections.emptyList();
     }
 
     private Either<FormatRespDto, HelmTemplateYamlRespDto> getSuccessResult(MultipartFile helmTemplateYaml,
