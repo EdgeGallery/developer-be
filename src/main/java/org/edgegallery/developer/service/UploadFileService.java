@@ -135,6 +135,12 @@ public class UploadFileService {
     @Value("${imagelocation.project:}")
     private String devRepoProject;
 
+    @Value("${imagelocation.port:}")
+    private String port;
+
+    @Value("${imagelocation.protocol:}")
+    private String protocol;
+
     /**
      * getFile.
      *
@@ -656,7 +662,9 @@ public class UploadFileService {
 
     private boolean pullAndPushImage(String image) {
         //镜像信息非harbor仓库格式，拉取(失败，返回false)，打Tag，重新push
-        DockerClient dockerClient = DockerClientBuilder.getInstance("tcp://" + devRepoEndpoint + ":2375").build();
+        DockerClientConfig config = DefaultDockerClientConfig.createDefaultConfigBuilder()
+            .withDockerHost(protocol + "://" + devRepoEndpoint + ":" + port).build();
+        DockerClient dockerClient = DockerClientBuilder.getInstance(config).build();
         try {
             dockerClient.pullImageCmd(image).exec(new PullImageResultCallback()).awaitCompletion().close();
         } catch (InterruptedException | IOException e) {
