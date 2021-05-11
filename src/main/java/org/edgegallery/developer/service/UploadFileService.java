@@ -37,10 +37,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.regex.Pattern;
 import javax.ws.rs.core.Response;
@@ -438,6 +438,9 @@ public class UploadFileService {
     public Either<FormatRespDto, HelmTemplateYamlRespDto> uploadHelmTemplateYaml(MultipartFile helmTemplateYaml,
         String userId, String projectId, String configType) throws IOException {
         String fileName = helmTemplateYaml.getOriginalFilename();
+        if (StringUtils.isEmpty(fileName)) {
+            return Either.left(new FormatRespDto(Status.BAD_REQUEST, "file name is null!"));
+        }
         if (!fileName.endsWith("yaml") && !fileName.endsWith("yml") && !fileName.endsWith("YAML") && !fileName
             .endsWith("YML")) {
             return Either.left(new FormatRespDto(Status.BAD_REQUEST, "file type is not yaml!"));
@@ -779,8 +782,8 @@ public class UploadFileService {
         return sb.toString();
     }
 
-    public String getIndexOfSameObject(List<String> list) {
-        Map<String, String> map = new HashMap<String, String>();
+    private String getIndexOfSameObject(List<String> list) {
+        Map<String, String> map = new HashMap<>();
         for (int i = 0; i < list.size(); i++) {
             String key = list.get(i);
             String old = map.get(key);
@@ -790,13 +793,11 @@ public class UploadFileService {
                 map.put(key, "" + (i + 1));
             }
         }
-        Iterator<String> it = map.keySet().iterator();
+        Set<Map.Entry<String, String>> sets = map.entrySet();
         String index = "";
-        while (it.hasNext()) {
-            String key = it.next();
-            String value = map.get(key);
-            if (key.startsWith("metadata")) {
-                index = value;
+        for (Map.Entry<String, String> entry : sets) {
+            if (entry.getKey().startsWith("metadata")) {
+                index = entry.getValue();
             }
         }
         return index;
