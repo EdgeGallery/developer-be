@@ -76,6 +76,8 @@ imagelocation:
   project: ${IMAGE_REPO_PROJECT:developer}
   password: ${IMAGE_REPO_PASSWORD:}
   username: ${IMAGE_REPO_USERNAME:}
+  port: ${DOCKER_PORT:2375}
+  protocol: ${DOCKER_PROTOCOL:tcp}
 vm:
   username: ${VNC_USERNAME:}
   password: ${VNC_PASSWORD:}
