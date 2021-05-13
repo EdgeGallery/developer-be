@@ -77,7 +77,7 @@ public class VmStageWorkStatus implements VmCreateStage {
             long time = System.currentTimeMillis() - config.getCreateTime().getTime();
             LOGGER.info("over time:{}, wait max time:{}, start time:{}", time, MAX_SECONDS,
                 config.getCreateTime().getTime());
-            if (config.getCreateTime() == null || time > MAX_SECONDS * 1000) {
+            if (config.getCreateTime() == null || time > MAX_SECONDS * 500) {
                 config.setLog("Failed to get create vm result ");
                 String message = "Failed to get create vm result after wait {} seconds which appInstanceId is : {}";
                 LOGGER.error(message, MAX_SECONDS, config.getAppInstanceId());

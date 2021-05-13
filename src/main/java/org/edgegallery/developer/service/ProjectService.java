@@ -80,6 +80,7 @@ import org.edgegallery.developer.model.workspace.EnumProjectStatus;
 import org.edgegallery.developer.model.workspace.EnumTestConfigDeployStatus;
 import org.edgegallery.developer.model.workspace.EnumTestConfigStatus;
 import org.edgegallery.developer.model.workspace.HelmTemplateYamlPo;
+import org.edgegallery.developer.model.workspace.MepCreateHost;
 import org.edgegallery.developer.model.workspace.MepHost;
 import org.edgegallery.developer.model.workspace.MepHostLog;
 import org.edgegallery.developer.model.workspace.OpenMepCapabilityDetail;
@@ -1096,7 +1097,7 @@ public class ProjectService {
             Type type = new TypeToken<List<MepHost>>() { }.getType();
             List<MepHost> hosts = gson.fromJson(gson.toJson(testConfig.getHosts()), type);
             if (!CollectionUtils.isEmpty(hosts)) {
-                MepHost host = hostMapper.getHost(hosts.get(0).getHostId());
+                MepCreateHost host = hostMapper.getCreateHost(hosts.get(0).getHostId());
                 host.setStatus(EnumHostStatus.NORMAL);
                 hostMapper.updateHostSelected(host);
             }

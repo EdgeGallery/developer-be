@@ -263,6 +263,8 @@
       "port" int4 DEFAULT '-1'::integer,
       "user_name" varchar(50) DEFAULT NULL,
       "password" varchar(50) DEFAULT NULL,
+      "vnc_port" int4 DEFAULT NULL,
+      "parameter" varchar(500) DEFAULT 22,
       "delete" bool DEFAULT NULL
     )
     ;

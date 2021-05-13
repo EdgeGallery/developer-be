@@ -66,4 +66,8 @@ public class MepCreateHost {
 
     private String password;
 
+    private int vncPort;
+
+    private String parameter;
+
 }

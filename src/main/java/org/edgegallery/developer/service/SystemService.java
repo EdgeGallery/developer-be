@@ -18,6 +18,7 @@ package org.edgegallery.developer.service;
 
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.google.gson.Gson;
 import com.spencerwi.either.Either;
 import java.io.File;
 import java.text.SimpleDateFormat;
@@ -30,10 +31,13 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.servicecomb.provider.springmvc.reference.RestTemplateBuilder;
 import org.edgegallery.developer.common.Consts;
 import org.edgegallery.developer.domain.shared.Page;
+import org.edgegallery.developer.exception.CustomException;
 import org.edgegallery.developer.mapper.HostLogMapper;
 import org.edgegallery.developer.mapper.HostMapper;
 import org.edgegallery.developer.mapper.OpenMepCapabilityMapper;
 import org.edgegallery.developer.mapper.UploadedFileMapper;
+import org.edgegallery.developer.model.lcm.DistributeBody;
+import org.edgegallery.developer.model.lcm.MecHostBody;
 import org.edgegallery.developer.model.workspace.MepCreateHost;
 import org.edgegallery.developer.model.workspace.MepHost;
 import org.edgegallery.developer.model.workspace.MepHostLog;
@@ -41,6 +45,7 @@ import org.edgegallery.developer.model.workspace.OpenMepCapabilityDetail;
 import org.edgegallery.developer.model.workspace.OpenMepCapabilityGroup;
 import org.edgegallery.developer.model.workspace.UploadedFile;
 import org.edgegallery.developer.response.FormatRespDto;
+import org.edgegallery.developer.util.CustomResponseErrorHandler;
 import org.edgegallery.developer.util.HttpClientUtil;
 import org.edgegallery.developer.util.InitConfigUtil;
 import org.slf4j.Logger;
@@ -58,12 +63,17 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 @Service("systemService")
 public class SystemService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SystemService.class);
+
+    private static final RestTemplate REST_TEMPLATE = new RestTemplate();
+
+    private static int VNC_PORT = 22;
 
     @Autowired
     private HostMapper hostMapper;
@@ -116,6 +126,15 @@ public class SystemService {
             FormatRespDto dto = new FormatRespDto(Status.BAD_REQUEST, msg);
             return Either.left(dto);
         }
+        // add mechost to lcm
+        boolean addMecHostRes = addMecHostToLcm(host);
+        if (!addMecHostRes) {
+            String msg = "add mec host to lcm fail";
+            LOGGER.error(msg);
+            FormatRespDto dto = new FormatRespDto(Status.BAD_REQUEST, msg);
+            return Either.left(dto);
+        }
+        // upload config file
         if (StringUtils.isNotBlank(host.getConfigId())) {
             // upload file
             UploadedFile uploadedFile = uploadedFileMapper.getFileById(host.getConfigId());
@@ -128,6 +147,7 @@ public class SystemService {
             }
         }
         host.setHostId(UUID.randomUUID().toString()); // no need to set hostId by user
+        host.setVncPort(VNC_PORT);
         int ret = hostMapper.createHost(host);
         if (ret > 0) {
             LOGGER.info("Crete host {} success ", host.getHostId());
@@ -136,6 +156,8 @@ public class SystemService {
         LOGGER.error("Create host failed ");
         return Either.left(new FormatRespDto(Status.BAD_REQUEST, "Can not create a host."));
     }
+
+
 
     /**
      * deleteHost.
@@ -160,11 +182,19 @@ public class SystemService {
      * @return
      */
     @Transactional
-    public Either<FormatRespDto, MepHost> updateHost(String hostId, MepHost host, String token) {
+    public Either<FormatRespDto, Boolean> updateHost(String hostId, MepCreateHost host, String token) {
         //health check
         String healRes = HttpClientUtil.getHealth(host.getLcmIp(), host.getPort());
         if (healRes == null) {
             String msg = "health check faild,current ip or port cann't be used!";
+            LOGGER.error(msg);
+            FormatRespDto dto = new FormatRespDto(Status.BAD_REQUEST, msg);
+            return Either.left(dto);
+        }
+        // add mechost to lcm
+        boolean addMecHostRes = addMecHostToLcm(host);
+        if (!addMecHostRes) {
+            String msg = "add mec host to lcm fail";
             LOGGER.error(msg);
             FormatRespDto dto = new FormatRespDto(Status.BAD_REQUEST, msg);
             return Either.left(dto);
@@ -192,7 +222,7 @@ public class SystemService {
         int ret = hostMapper.updateHostSelected(host);
         if (ret > 0) {
             LOGGER.info("Update host {} success", hostId);
-            return Either.right(hostMapper.getHostsByUserId(host.getUserId()).get(0));
+            return Either.right(true);
         }
         LOGGER.error("Update host {} failed", hostId);
         return Either.left(new FormatRespDto(Status.BAD_REQUEST, "Can not update the host"));
@@ -373,6 +403,40 @@ public class SystemService {
             return true;
         }
         LOGGER.error("Failed to upload file lcm, filePath is {}", filePath);
+        return false;
+    }
+
+    private boolean addMecHostToLcm(MepCreateHost host) {
+        MecHostBody body = new MecHostBody();
+        body.setAffinity(host.getArchitecture());
+        body.setCity(host.getAddress());
+        body.setMechostIp(host.getMecHost());
+        body.setMechostName(host.getName());
+        body.setVim(host.getOs());
+        body.setOrigin("developer");
+        //add headers
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        Gson gson = new Gson();
+        HttpEntity<String> requestEntity = new HttpEntity<>(gson.toJson(body), headers);
+        String url = getUrlPrefix(host.getProtocol(), host.getLcmIp(), host.getPort()) + Consts.APP_LCM_ADD_MECHOST;
+        LOGGER.info("add mec host url:{}", url);
+        ResponseEntity<String> response;
+        try {
+            REST_TEMPLATE.setErrorHandler(new CustomResponseErrorHandler());
+            response = REST_TEMPLATE.exchange(url, HttpMethod.POST, requestEntity, String.class);
+            LOGGER.info("add mec host to lcm log:{}", response);
+        } catch (CustomException e) {
+            LOGGER.error("Failed add mec host to lcm exception {}", e.getBody());
+            return false;
+        } catch (RestClientException e) {
+            LOGGER.error("Failed add mec host to lcm exception {}", e.getMessage());
+            return false;
+        }
+        if (response.getStatusCode() == HttpStatus.OK) {
+            return true;
+        }
+        LOGGER.error("Failed add mec host to lcm");
         return false;
     }
 

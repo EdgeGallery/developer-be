@@ -166,7 +166,7 @@ public class SystemServiceTest {
     @Test
     @WithMockUser(roles = "DEVELOPER_TENANT")
     public void testUpdateHost() {
-        MepHost host = new MepHost();
+        MepCreateHost host = new MepCreateHost();
         // host.setHostId(UUID.randomUUID().toString());
         host.setName("onlineever");
         host.setAddress("address");
@@ -178,14 +178,14 @@ public class SystemServiceTest {
         host.setPassword("xxxxxxxxxxxx");
         host.setConfigId("errorId");
         host.setUserId(UUID.randomUUID().toString());
-        Either<FormatRespDto, MepHost> res = systemService.updateHost("c8aac2b2-4162-40fe-9d99-0630e3245cf7", host,"");
+        Either<FormatRespDto, Boolean> res = systemService.updateHost("c8aac2b2-4162-40fe-9d99-0630e3245cf7", host,"");
         Assert.assertTrue(res.isLeft());
     }
 
     @Test
     @WithMockUser(roles = "DEVELOPER_TENANT")
     public void testUpdateHostError() {
-        MepHost host = new MepHost();
+        MepCreateHost host = new MepCreateHost();
         // host.setHostId(UUID.randomUUID().toString());
         host.setName("onlineever");
         host.setAddress("address");
@@ -197,7 +197,7 @@ public class SystemServiceTest {
         host.setPassword("xxxxxxxxxxxx");
         host.setConfigId("errorId");
         host.setUserId(UUID.randomUUID().toString());
-        Either<FormatRespDto, MepHost> res = systemService.updateHost("c8aac2b2-4162-40fe-9d99-0630e3245cf789", host,"");
+        Either<FormatRespDto, Boolean> res = systemService.updateHost("c8aac2b2-4162-40fe-9d99-0630e3245cf789", host,"");
         Assert.assertTrue(res.isLeft());
     }
 
