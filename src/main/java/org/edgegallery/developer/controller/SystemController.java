@@ -146,19 +146,19 @@ public class SystemController {
      *
      * @return
      */
-    @ApiOperation(value = "update one server by hostId", response = MepHost.class)
+    @ApiOperation(value = "update one server by hostId", response = MepCreateHost.class)
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "OK", response = MepHost.class),
+        @ApiResponse(code = 200, message = "OK", response = MepCreateHost.class),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
     @RequestMapping(value = "/hosts/{hostId}", method = RequestMethod.PUT,
         consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_ADMIN')")
-    public ResponseEntity<MepHost> modifyHost(
+    public ResponseEntity<Boolean> modifyHost(
         @PathVariable("hostId") @Pattern(regexp = REG_UUID, message = "hostId must be in UUID format") String hostId,
-        @Validated @RequestBody MepHost host, HttpServletRequest request) {
+        @Validated @RequestBody MepCreateHost host, HttpServletRequest request) {
         String token = request.getHeader(Consts.ACCESS_TOKEN_STR);
-        Either<FormatRespDto, MepHost> either = systemService.updateHost(hostId, host, token);
+        Either<FormatRespDto, Boolean> either = systemService.updateHost(hostId, host, token);
         return ResponseDataUtil.buildResponse(either);
     }
 

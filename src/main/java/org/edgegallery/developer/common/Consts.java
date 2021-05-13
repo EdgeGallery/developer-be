@@ -56,6 +56,8 @@ public final class Consts {
 
     public static final String APP_LCM_GET_HEALTH = "/lcmcontroller/v1/health";
 
+    public static final String APP_LCM_ADD_MECHOST = "/lcmcontroller/v1/hosts";
+
     public static final String APP_LCM_UPLOAD_FILE = "/lcmcontroller/v1/configuration";
 
     public static final String APP_LCM_GET_DEPLOY_STATUS_URL = "/lcmcontroller/v1/hosts/hostIp/packages/packageId";

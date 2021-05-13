@@ -123,7 +123,7 @@ public class SystemApiTest {
     @Test
     @WithMockUser(roles = "DEVELOPER_ADMIN")
     public void testModifyHost() throws Exception {
-        MepHost host = new MepHost();
+        MepCreateHost host = new MepCreateHost();
         host.setHostId(UUID.randomUUID().toString());
         host.setName("onlineever");
         host.setAddress("address");
@@ -131,7 +131,7 @@ public class SystemApiTest {
         host.setStatus(EnumHostStatus.NORMAL);
         host.setLcmIp("10.2.3.1");
         host.setPort(30200);
-        Either<FormatRespDto, MepHost> response = Either.right(new MepHost());
+        Either<FormatRespDto, Boolean> response = Either.right(true);
         Mockito.when(systemService.updateHost(Mockito.anyString(), Mockito.any(),Mockito.anyString())).thenReturn(response);
         String url = String.format("/mec/developer/v1/system/hosts/%s", UUID.randomUUID().toString());
         ResultActions actions = mvc.perform(MockMvcRequestBuilders.put(url).with(csrf()).content(gson.toJson(host))

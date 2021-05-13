@@ -24,21 +24,15 @@ import org.edgegallery.developer.model.workspace.MepHost;
 
 public interface HostMapper {
 
-    int saveHost(MepHost host);
-
     int createHost(MepCreateHost mepCreateHost);
 
-    int updateHost(MepHost host);
-
-    int updateHostSelected(MepHost host);
+    int updateHostSelected(MepCreateHost host);
 
     int deleteHost(String hostId);
 
     MepHost getHost(String hostId);
 
-    List<MepHost> getAllHosts();
-
-    List<MepHost> getNormalHosts();
+    MepCreateHost getCreateHost(String hostId);
 
     List<MepHost> getHostsByUserId(String userId);
 

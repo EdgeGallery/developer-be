@@ -67,4 +67,8 @@ public class MepHost {
 
     @JsonIgnore
     private String password;
+
+    private int vncPort;
+
+    private String parameter;
 }

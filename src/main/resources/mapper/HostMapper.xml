@@ -35,24 +35,18 @@
         <result property="portRangeMax" column="port_range_max"/>
         <result property="userName" column="user_name" />
         <result property="password" column="password" />
+        <result property="vncPort" column="vnc_port" />
+        <result property="parameter" column="parameter" />
     </resultMap>
 
-    <insert id="saveHost"
-            parameterType="org.edgegallery.developer.model.workspace.MepHost">
-        insert into
-        tbl_service_host (host_id, user_id, name, address, architecture, status, lcm_ip, mec_host, port, os, port_range_min, port_range_max, protocol,user_name,password)
-        values
-        ( #{hostId}, #{userId}, #{name}, #{address}, #{architecture}, #{status}, #{lcmIp}, #{mecHost},
-        #{port}, #{os}, #{portRangeMin}, #{portRangeMax}, #{protocol},#{userName},#{password})
-    </insert>
 
     <insert id="createHost"
       parameterType="org.edgegallery.developer.model.workspace.MepCreateHost">
       insert into
-      tbl_service_host (host_id, user_id, name, address, architecture, status, lcm_ip, mec_host, port, os, port_range_min, port_range_max, protocol,user_name,password)
+      tbl_service_host (host_id, user_id, name, address, architecture, status, lcm_ip, mec_host, port, os, port_range_min, port_range_max, protocol, user_name, password, vnc_port, parameter)
       values
       ( #{hostId}, #{userId}, #{name}, #{address}, #{architecture}, #{status}, #{lcmIp}, #{mecHost},
-      #{port}, #{os}, #{portRangeMin}, #{portRangeMax}, #{protocol},#{userName},#{password})
+      #{port}, #{os}, #{portRangeMin}, #{portRangeMax}, #{protocol}, #{userName}, #{password}, #{vncPort}, #{parameter})
     </insert>
 
     <select id="getAllHosts" resultMap="HostMap">
@@ -97,6 +91,15 @@
         WHERE
         host_id = #{hostId}
     </select>
+
+  <select id="getCreateHost" parameterType="java.lang.String" resultMap="HostMap">
+    SELECT
+    *
+    FROM
+    tbl_service_host
+    WHERE
+    host_id = #{hostId}
+  </select>
 
     <update id="updateHost" parameterType="org.edgegallery.developer.model.workspace.MepHost">
         UPDATE
@@ -150,7 +153,13 @@
                 user_name=#{userName},
             </if>
             <if test="password != null">
-                password=#{password}
+                password=#{password},
+            </if>
+            <if test="vncPort != null">
+                vnc_port=#{vncPort},
+            </if>
+            <if test="parameter != null">
+              parameter=#{parameter}
             </if>
         </set>
         WHERE
