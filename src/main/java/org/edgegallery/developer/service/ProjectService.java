@@ -1100,11 +1100,6 @@ public class ProjectService {
         if (!CollectionUtils.isEmpty(testConfig.getHosts())) {
             Type type = new TypeToken<List<MepHost>>() { }.getType();
             List<MepHost> hosts = gson.fromJson(gson.toJson(testConfig.getHosts()), type);
-            if (!CollectionUtils.isEmpty(hosts)) {
-                MepCreateHost host = hostMapper.getCreateHost(hosts.get(0).getHostId());
-                host.setStatus(EnumHostStatus.NORMAL);
-                hostMapper.updateHostSelected(host);
-            }
             MepHost host = hosts.get(0);
             // save host logs
             MepHostLog mepHostLog = new MepHostLog();
