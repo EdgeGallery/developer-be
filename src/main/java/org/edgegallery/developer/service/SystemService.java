@@ -419,7 +419,7 @@ public class SystemService {
         headers.setContentType(MediaType.APPLICATION_JSON);
         Gson gson = new Gson();
         HttpEntity<String> requestEntity = new HttpEntity<>(gson.toJson(body), headers);
-        String url = getUrlPrefix(host.getProtocol(), host.getLcmIp(), host.getPort()) + Consts.APP_LCM_ADD_MECHOST;
+        String url = getUrlPrefix("https", host.getLcmIp(), host.getPort()) + Consts.APP_LCM_ADD_MECHOST;
         LOGGER.info("add mec host url:{}", url);
         ResponseEntity<String> response;
         try {
