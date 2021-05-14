@@ -70,6 +70,10 @@ import org.edgegallery.developer.model.ReleaseConfig;
 import org.edgegallery.developer.model.ServiceDetail;
 import org.edgegallery.developer.model.SshConnectInfo;
 import org.edgegallery.developer.model.atp.AtpResultInfo;
+import org.edgegallery.developer.model.deployyaml.PodEvents;
+import org.edgegallery.developer.model.deployyaml.PodEventsRes;
+import org.edgegallery.developer.model.deployyaml.PodStatusInfo;
+import org.edgegallery.developer.model.deployyaml.PodStatusInfos;
 import org.edgegallery.developer.model.lcm.UploadResponse;
 import org.edgegallery.developer.model.vm.VmCreateConfig;
 import org.edgegallery.developer.model.workspace.ApplicationProject;
@@ -1281,6 +1285,68 @@ public class ProjectService {
             return null != vmCreateConfig ? vmCreateConfig.getAppInstanceId() : null;
         }
 
+    }
+
+    public Either<FormatRespDto, Boolean> getWorkStatus(String projectId, String token) {
+        ApplicationProject project = projectMapper.getProjectById(projectId);
+
+        if (project == null) {
+            LOGGER.warn("Can not find the project projectId {}.", projectId);
+            return Either.right(false);
+        }
+        List<ProjectTestConfig> configs = projectMapper.getTestConfigByProjectId(projectId);
+        if (CollectionUtils.isEmpty(configs)) {
+            LOGGER.warn("Can not find the test config by projectId {}.", projectId);
+            return Either.right(false);
+        }
+        String userId = project.getUserId();
+        ProjectTestConfig config = configs.get(0);
+        Type type = new TypeToken<List<MepHost>>() { }.getType();
+        List<MepHost> hosts = gson.fromJson(gson.toJson(config.getHosts()), type);
+        MepHost host = hosts.get(0);
+        String workStatus = HttpClientUtil
+            .getWorkloadStatus(host.getProtocol(), host.getLcmIp(), host.getPort(), config.getAppInstanceId(), userId,
+                token);
+        LOGGER.info("pod workStatus: {}", workStatus);
+        String workEvents = HttpClientUtil
+            .getWorkloadEvents(host.getProtocol(), host.getLcmIp(), host.getPort(), config.getAppInstanceId(), userId,
+                token);
+        LOGGER.info("pod workEvents: {}", workEvents);
+        if (workStatus == null || workEvents == null) {
+            LOGGER.error("get pod workStatus {} error.", config.getTestId());
+            return Either.right(false);
+        }
+        String pods = mergeStatusAndEvents(workStatus, workEvents);
+        config.setPods(pods);
+        int tes = projectMapper.updateTestConfig(config);
+        if (tes < 1) {
+            LOGGER.error("Update test-config {} error.", config.getTestId());
+            return Either.right(false);
+        }
+        return Either.right(true);
+    }
+
+    private String mergeStatusAndEvents(String workStatus, String workEvents) {
+        Gson gson = new Gson();
+        Type type = new TypeToken<PodStatusInfos>() { }.getType();
+        PodStatusInfos status = gson.fromJson(workStatus, type);
+
+        Type typeEvents = new TypeToken<PodEventsRes>() { }.getType();
+        PodEventsRes events = gson.fromJson(workEvents, typeEvents);
+        String pods = "";
+        if (!CollectionUtils.isEmpty(status.getPods()) && !CollectionUtils.isEmpty(events.getPods())) {
+            List<PodStatusInfo> statusInfos = status.getPods();
+            List<PodEvents> eventsInfos = events.getPods();
+            for (int i = 0; i < statusInfos.size(); i++) {
+                for (int j = 0; j < eventsInfos.size(); j++) {
+                    if (statusInfos.get(i).getPodname().equals(eventsInfos.get(i).getPodName())) {
+                        statusInfos.get(i).setPodEventsInfo(eventsInfos.get(i).getPodEventsInfo());
+                    }
+                }
+            }
+            pods = gson.toJson(status);
+        }
+        return pods;
     }
 
     private class GetAtpStatusProcessor implements Runnable {
