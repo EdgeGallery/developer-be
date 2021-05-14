@@ -286,6 +286,26 @@ public class ProjectController {
     }
 
     /**
+     * get pod workStatus.
+     */
+    @ApiOperation(value = "get container workStatus", response = Boolean.class)
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = "OK", response = Boolean.class),
+        @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
+    })
+    @RequestMapping(value = "/{projectId}/container/workStatus", method = RequestMethod.GET,
+        produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
+    public ResponseEntity<Boolean> getWorkStatus(
+        @Pattern(regexp = REGEX_UUID, message = "projectId must be in UUID format")
+        @ApiParam(value = "projectId", required = true) @PathVariable("projectId") String projectId,
+        HttpServletRequest request) {
+        String token = request.getHeader(Consts.ACCESS_TOKEN_STR);
+        Either<FormatRespDto, Boolean> either = projectService.getWorkStatus(projectId,token);
+        return ResponseDataUtil.buildResponse(either);
+    }
+
+    /**
      * upload this project to AppStore.
      */
     @ApiOperation(value = "upload this project to AppStore.", response = Boolean.class)

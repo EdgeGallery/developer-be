@@ -71,7 +71,7 @@ public class StageWorkStatus implements IConfigDeployStage {
         List<MepHost> hosts = gson.fromJson(gson.toJson(config.getHosts()), type);
         MepHost host = hosts.get(0);
         try {
-            Thread.sleep(60000);
+            Thread.sleep(10000);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             LOGGER.error("sleep fail! {}", e.getMessage());
@@ -79,9 +79,11 @@ public class StageWorkStatus implements IConfigDeployStage {
         String workStatus = HttpClientUtil
             .getWorkloadStatus(host.getProtocol(), host.getLcmIp(), host.getPort(), config.getAppInstanceId(), userId,
                 config.getLcmToken());
+        LOGGER.info("pod workStatus: {}", workStatus);
         String workEvents = HttpClientUtil
             .getWorkloadEvents(host.getProtocol(), host.getLcmIp(), host.getPort(), config.getAppInstanceId(), userId,
                 config.getLcmToken());
+        LOGGER.info("pod workEvents: {}", workEvents);
         if (workStatus == null || workEvents == null) {
             // compare time between now and deployDate
             long time = System.currentTimeMillis() - config.getDeployDate().getTime();
