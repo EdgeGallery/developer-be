@@ -680,11 +680,13 @@ public class UploadFileService {
         String imageId = "";
         if (!CollectionUtils.isEmpty(lists)) {
             for (Image imageLocal : lists) {
-                LOGGER.info(imageLocal.getRepoTags()[0]);
-                String[] imagNames = imageLocal.getRepoTags();
-                if (imagNames[0].equals(image)) {
-                    imageId = imageLocal.getId();
-                    LOGGER.info(imageId);
+                if (imageLocal.getRepoTags() != null && imageLocal.getRepoTags().length > 0) {
+                    LOGGER.info(imageLocal.getRepoTags()[0]);
+                    String[] imagNames = imageLocal.getRepoTags();
+                    if (imageNames != null && imagNames[0].equals(image)) {
+                        imageId = imageLocal.getId();
+                        LOGGER.info(imageId);
+                    }
                 }
             }
         }
