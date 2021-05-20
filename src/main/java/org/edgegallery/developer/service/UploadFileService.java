@@ -600,6 +600,7 @@ public class UploadFileService {
             addPodImage(mapList, podImages);
         }
         //verify image info
+        LOGGER.warn("podImages {}", podImages);
         boolean result = verifyImage(podImages);
         if (!result) {
             LOGGER.error("the image configuration in the yaml file is incorrect");
@@ -672,6 +673,7 @@ public class UploadFileService {
             LOGGER.error("pull image {} from other public repo  failed! {}", image, e.getMessage());
             return false;
         }
+        LOGGER.warn("pull image : {} success", image);
         //根据镜像名，获取镜像id
         String[] imageNames = image.split(":");
         List<Image> lists = dockerClient.listImagesCmd().withImageNameFilter(imageNames[0]).exec();
@@ -686,7 +688,7 @@ public class UploadFileService {
                 }
             }
         }
-        LOGGER.warn("imageID: {} ", imageId);
+        LOGGER.warn("image {} imageID: {} ", image, imageId);
 
         String targetName = "";
         if (!image.contains("/")) {
@@ -703,7 +705,7 @@ public class UploadFileService {
                 targetName = devRepoEndpoint + "/" + devRepoProject + "/" + targetImageArray[3];
             }
             dockerClient.tagImageCmd(imageId, targetName, imageNames[1]).withForce().exec();
-            LOGGER.warn("image {} re-tag success", image);
+            LOGGER.warn("image {} re-tag {} success", image, targetName);
         }
         //push image
         DockerClient pushClient = getDockerClient(devRepoEndpoint, devRepoUsername, devRepoPassword);
@@ -714,6 +716,7 @@ public class UploadFileService {
             LOGGER.error("failed to push image {} occur {}", targetName, e.getMessage());
             return false;
         }
+        LOGGER.warn("image {} push success", targetName);
         return true;
 
     }
