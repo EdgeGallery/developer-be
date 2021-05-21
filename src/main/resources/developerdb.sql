@@ -163,7 +163,6 @@
     )
     ;
 
-
     CREATE TABLE IF NOT EXISTS "tbl_openmep_capability_detail" (
       "detail_id" varchar(50) NOT NULL,
       "service" varchar(100) DEFAULT NULL,
@@ -186,7 +185,6 @@
       CONSTRAINT "tbl_openmep_capability_detail_pkey" PRIMARY KEY ("detail_id")
     )
     ;
-
 
     CREATE TABLE IF NOT EXISTS "tbl_project_image" (
       "id"  varchar(255) NOT NULL DEFAULT NULL,
@@ -268,6 +266,7 @@
       "delete" bool DEFAULT NULL
     )
     ;
+
     CREATE TABLE IF NOT EXISTS "tbl_host_log" (
       "log_id" varchar(50) NOT NULL,
       "host_ip" varchar(50) NOT NULL,
@@ -283,9 +282,6 @@
     )
     ;
 
-
-
-
     CREATE TABLE IF NOT EXISTS "tbl_api_emulator" (
       "id" varchar(50) NOT NULL,
       "user_id" varchar(50) NOT NULL,
@@ -297,17 +293,18 @@
     ;
 
     CREATE TABLE IF NOT EXISTS "tbl_release_config" (
-         "release_id" varchar(255) NOT NULL,
-         "project_id" varchar(255) NOT NULL,
-         "guide_file_id" varchar(255) DEFAULT NULL,
-         "appinstance_id" varchar(255) DEFAULT NULL,
-         "capabilities_detail" text  DEFAULT NULL,
-         "atp_test" text DEFAULT NULL,
-         "test_status" varchar(255)  DEFAULT NULL,
-         "create_time" timestamptz(0) NOT NULL DEFAULT NULL,
-         CONSTRAINT "tbl_release_config_pkey" PRIMARY KEY ("release_id")
-       )
-       ;
+       "release_id" varchar(255) NOT NULL,
+       "project_id" varchar(255) NOT NULL,
+       "guide_file_id" varchar(255) DEFAULT NULL,
+       "appinstance_id" varchar(255) DEFAULT NULL,
+       "capabilities_detail" text  DEFAULT NULL,
+       "atp_test" text DEFAULT NULL,
+       "test_status" varchar(255)  DEFAULT NULL,
+       "create_time" timestamptz(0) NOT NULL DEFAULT NULL,
+       CONSTRAINT "tbl_release_config_pkey" PRIMARY KEY ("release_id")
+     )
+     ;
+
      CREATE TABLE IF NOT EXISTS "tbl_vm_regulation" (
       "regulation_id" int4 NOT NULL,
       "architecture" varchar(50) DEFAULT NULL,
@@ -324,6 +321,7 @@
       CONSTRAINT "tbl_vm_regulation_pkey" PRIMARY KEY ("regulation_id")
     )
     ;
+
     CREATE TABLE IF NOT EXISTS "tbl_vm_network" (
       "network_type" varchar(50) DEFAULT NULL,
       "description_zh" varchar(255) DEFAULT NULL,
@@ -332,6 +330,7 @@
       CONSTRAINT "tbl_vm_network_pkey" PRIMARY KEY ("network_type")
     )
     ;
+
     CREATE TABLE IF NOT EXISTS "tbl_vm_system" (
       "system_id" SERIAL,
       "type" varchar(50) DEFAULT NULL,
@@ -341,6 +340,7 @@
       "system_disk" int4  DEFAULT NULL
     )
     ;
+
     CREATE TABLE IF NOT EXISTS "tbl_vm_flavor" (
       "architecture" varchar(50) DEFAULT NULL,
       "flavor" varchar(50) DEFAULT NULL,
@@ -349,13 +349,35 @@
     )
     ;
 
+    CREATE TABLE IF NOT EXISTS "tbl_vm_user_data" (
+      "operate_system" varchar(50) DEFAULT NULL,
+      "is_temp" bool DEFAULT NULL,
+      "contents" varchar(50) DEFAULT NULL,
+      "params" varchar(50) DEFAULT NULL,
+      CONSTRAINT "tbl_vm_user_data_pkey" PRIMARY KEY ("operate_system")
+    )
+    ;
+
+    CREATE TABLE IF NOT EXISTS "tbl_project_vm_package_config" (
+      "id" varchar(50) DEFAULT NULL,
+      "project_id" varchar(50) DEFAULT NULL,
+      "vm_regulation_desc" text DEFAULT NULL,
+      "vm_system_desc" text DEFAULT NULL,
+      "vm_network_desc" text DEFAULT NULL,
+      "vm_user_data" text DEFAULT NULL,
+      "vm_name" varchar(50) DEFAULT NULL,
+      "ak" text DEFAULT NULL,
+      "sk" text DEFAULT NULL,
+      "app_instance_id" varchar(50) DEFAULT NULL,
+      "create_time" timestamptz(6) DEFAULT NULL,
+      CONSTRAINT "tbl_project_vm_package_config_pkey" PRIMARY KEY ("id")
+    )
+    ;
+
     CREATE TABLE IF NOT EXISTS "tbl_project_vm_create_config" (
       "vm_id"  varchar(255) NOT NULL DEFAULT NULL,
       "project_id" varchar(50) DEFAULT NULL,
-      "vm_regulation_desc" varchar(512) DEFAULT NULL,
-      "vm_system_desc" varchar(512) NOT NULL DEFAULT NULL,
-      "vm_network_desc" varchar(512) DEFAULT NULL,
-      "vm_name" varchar(50)  DEFAULT NULL,
+      "vm_name" varchar(50) DEFAULT NULL,
       "host" varchar(512)  DEFAULT NULL,
       "status" varchar(50)  DEFAULT NULL,
       "stage_status" varchar(500)  DEFAULT NULL,
@@ -365,10 +387,10 @@
       "package_id" varchar(100)  DEFAULT NULL,
       "create_time"  timestamptz(6)  DEFAULT NULL,
       "log" text  DEFAULT NULL,
-
       CONSTRAINT "tbl_vm_create_config_pkey" PRIMARY KEY ("vm_id")
     )
     ;
+
     CREATE TABLE IF NOT EXISTS "tbl_project_vm_image_config" (
       "vm_id"  varchar(255) NOT NULL DEFAULT NULL,
       "image_id" varchar(50) DEFAULT NULL,
@@ -384,7 +406,6 @@
       "lcm_token" varchar(1024)  DEFAULT NULL,
       "create_time"  timestamptz(6)  DEFAULT NULL,
       "log" text  DEFAULT NULL,
-
       CONSTRAINT "tbl_vm_image_config_pkey" PRIMARY KEY ("vm_id")
     )
     ;

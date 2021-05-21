@@ -30,14 +30,12 @@ public class VmCreateStageStatus {
 
     private EnumTestConfigStatus hostInfo;
 
-    private EnumTestConfigStatus csar;
-
     private EnumTestConfigStatus instantiateInfo;
 
     private EnumTestConfigStatus workStatus;
 
     public static List<String> getOrderedStage() {
-        return ImmutableList.of("hostInfo", "csar", "instantiateInfo", "workStatus");
+        return ImmutableList.of("hostInfo", "instantiateInfo", "workStatus");
     }
 
     /**

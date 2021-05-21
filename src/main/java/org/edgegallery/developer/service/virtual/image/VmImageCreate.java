@@ -67,7 +67,7 @@ public class VmImageCreate implements VmImageStage {
                 LOGGER.error("Failed to  vm image which appInstanceId is : {}.", imageConfig.getAppInstanceId());
             } else {
                 // update status when instantiate success
-                LOGGER.error("Create vm image success which imageId is : {}.", imageConfig.getImageId());
+                LOGGER.info("Create vm image success which imageId is : {}.", imageConfig.getImageId());
                 imageConfig.setCreateTime(new Date());
                 processSuccess = true;
                 instantiateStatus = EnumTestConfigStatus.Success;

@@ -495,8 +495,6 @@ public final class HttpClientUtil {
             .replaceAll("appInstanceId", appInstanceId).replaceAll("tenantId", userId).replaceAll("imageId", imageId);
         LOGGER.info("url is {}", url);
         SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
-        requestFactory.setConnectTimeout(600000);// 设置超时
-        requestFactory.setReadTimeout(600000);
         RestTemplate restTemplate = new RestTemplate(requestFactory);
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -544,7 +542,7 @@ public final class HttpClientUtil {
             }
         } catch (RestClientException | IOException e) {
 
-            LOGGER.error("Failed to get image status which imageId is {} exception {}", imageId, e.getMessage());
+            LOGGER.error("Failed to get image  which chunkNum is {} exception {}", chunkNum, e.getMessage());
             return false;
         }
 

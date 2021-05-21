@@ -32,12 +32,6 @@ public class VmCreateConfig {
 
     private String projectId;
 
-    private VmRegulation vmRegulation;
-
-    private VmSystem vmSystem;
-
-    private List<String> vmNetwork;
-
     private String vmName;
 
     private EnumVmCreateStatus status;
@@ -65,10 +59,8 @@ public class VmCreateConfig {
      * get next stage for deploy.
      */
     public String getNextStage() {
-        if (this.getStageStatus() == null || this.getStageStatus().getCsar() == null) {
+        if (this.getStageStatus() == null || this.getStageStatus().getHostInfo() == null) {
             return "hostInfo";
-        } else if (this.getStageStatus().getHostInfo() == null) {
-            return "csar";
         } else if (this.getStageStatus().getInstantiateInfo() == null) {
             return "instantiateInfo";
         } else if (this.getStageStatus().getWorkStatus() == null) {

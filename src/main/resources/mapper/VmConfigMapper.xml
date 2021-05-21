@@ -59,9 +59,17 @@
         <result property="networkName" column="network_name"/>
     </resultMap>
 
-    <resultMap id="VmCreateConfigMap"
-      type="org.edgegallery.developer.model.vm.VmCreateConfig">
-        <id property="vmId" column="vm_id"/>
+    <resultMap id="VmUserData"
+      type="org.edgegallery.developer.model.vm.VmUserDate">
+        <id property="operateSystem" column="operate_system"/>
+        <result property="isTemp" column="is_temp"/>
+        <result property="contents" column="contents"/>
+        <result property="params" column="params"/>
+    </resultMap>
+
+    <resultMap id="VmPackageConfigMap"
+      type="org.edgegallery.developer.model.vm.VmPackageConfig">
+        <id property="id" column="id"/>
         <result property="projectId" column="project_id"/>
         <result property="vmRegulation" column="vm_regulation_desc"
           typeHandler="org.edgegallery.developer.model.handler.JsonTypeHandler"/>
@@ -69,6 +77,19 @@
           typeHandler="org.edgegallery.developer.model.handler.JsonTypeHandler"/>
         <result property="vmNetwork" column="vm_network_desc"
           typeHandler="org.edgegallery.developer.model.handler.JsonCollectionTypeHandler"/>
+        <result property="vmUserDate" column="vm_user_date"
+          typeHandler="org.edgegallery.developer.model.handler.JsonTypeHandler"/>
+        <result property="vmName" column="vm_name"/>
+        <result property="ak" column="ak"/>
+        <result property="sk" column="sk"/>
+        <result property="appInstanceId" column="app_instance_id"/>
+        <result property="createTime" column="create_time"/>
+    </resultMap>
+
+    <resultMap id="VmCreateConfigMap"
+      type="org.edgegallery.developer.model.vm.VmCreateConfig">
+        <id property="vmId" column="vm_id"/>
+        <result property="projectId" column="project_id"/>
         <result property="vmName" column="vm_name"/>
         <result property="status" column="status"/>
         <result property="stageStatus" column="stage_status"
@@ -145,17 +166,47 @@
         where architecture = #{architecture}
     </select>
 
-    <insert id="saveVmCreateConfig"
-      parameterType="org.edgegallery.developer.model.vm.VmCreateConfig">
+    <select id="getVmUserDate"
+      resultMap="VmUserData">
+        SELECT
+        *
+        FROM
+        tbl_vm_user_data
+    </select>
+
+    <insert id="saveVmPackageConfig"
+      parameterType="org.edgegallery.developer.model.vm.VmPackageConfig">
         insert into
-        tbl_project_vm_create_config (vm_id, project_id, vm_regulation_desc,
-        vm_system_desc, vm_network_desc, vm_name, app_instance_id, lcm_token, status, stage_status)
+        tbl_project_vm_package_config (id, project_id, vm_regulation_desc,
+        vm_system_desc, vm_network_desc, vm_name, app_instance_id, vm_user_data, ak, sk, create_time)
         values
-        ( #{vmId}, #{projectId},
+        ( #{id}, #{projectId},
         #{vmRegulation, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonTypeHandler},
         #{vmSystem, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonTypeHandler},
         #{vmNetwork, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonCollectionTypeHandler},
-        #{vmName}, #{appInstanceId}, #{lcmToken}, #{status},
+        #{vmName}, #{appInstanceId}, #{vmUserData, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonTypeHandler},
+        #{ak}, #{sk}, #{createTime})
+    </insert>
+
+    <select id="getVmPackageConfig"
+      parameterType="String" resultMap="VmPackageConfigMap">
+        SELECT
+        *
+        FROM
+        tbl_project_vm_package_config
+        where project_id = #{projectId}
+    </select>
+
+    <delete id="deleteVmPackageConfig" parameterType="String">
+        DELETE FROM tbl_project_vm_package_config WHERE project_id = #{projectId};
+    </delete>
+
+    <insert id="saveVmCreateConfig"
+      parameterType="org.edgegallery.developer.model.vm.VmCreateConfig">
+        insert into
+        tbl_project_vm_create_config (vm_id, project_id, vm_name, app_instance_id, lcm_token, status, stage_status)
+        values
+        ( #{vmId}, #{projectId}, #{vmName}, #{appInstanceId}, #{lcmToken}, #{status},
         #{stageStatus, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonTypeHandler})
     </insert>
 

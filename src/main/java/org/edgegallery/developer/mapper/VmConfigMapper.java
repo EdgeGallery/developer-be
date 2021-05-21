@@ -21,8 +21,10 @@ import org.edgegallery.developer.model.vm.VmCreateConfig;
 import org.edgegallery.developer.model.vm.VmFlavor;
 import org.edgegallery.developer.model.vm.VmImageConfig;
 import org.edgegallery.developer.model.vm.VmNetwork;
+import org.edgegallery.developer.model.vm.VmPackageConfig;
 import org.edgegallery.developer.model.vm.VmRegulation;
 import org.edgegallery.developer.model.vm.VmSystem;
+import org.edgegallery.developer.model.vm.VmUserDate;
 
 public interface VmConfigMapper {
 
@@ -31,6 +33,8 @@ public interface VmConfigMapper {
     List<VmSystem> getVmSystem();
 
     List<VmNetwork> getVmNetwork();
+
+    List<VmUserDate> getVmUserDate();
 
     VmNetwork getVmNetworkByType(String networkType);
 
@@ -59,4 +63,8 @@ public interface VmConfigMapper {
     int updateVmImageConfig(VmImageConfig config);
 
     List<VmImageConfig> getVmImageConfigStatus(String toString);
+
+    int saveVmPackageConfig(VmPackageConfig vmPackageConfig);
+
+    VmPackageConfig getVmPackageConfig(String projectId);
 }

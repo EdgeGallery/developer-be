@@ -41,6 +41,7 @@ import org.edgegallery.developer.model.deployyaml.ImageDesc;
 import org.edgegallery.developer.model.vm.VmCreateConfig;
 import org.edgegallery.developer.model.vm.VmFlavor;
 import org.edgegallery.developer.model.vm.VmNetwork;
+import org.edgegallery.developer.model.vm.VmPackageConfig;
 import org.edgegallery.developer.model.workspace.ApplicationProject;
 import org.edgegallery.developer.model.workspace.EnumDeployPlatform;
 import org.edgegallery.developer.util.CompressFileUtilsJava;
@@ -76,7 +77,7 @@ public class NewCreateVmCsar {
      * @param project project self
      * @return package gz
      */
-    public File create(String projectPath, VmCreateConfig config, ApplicationProject project, VmFlavor flavor,
+    public File create(String projectPath, VmPackageConfig config, ApplicationProject project, VmFlavor flavor,
         List<VmNetwork> vmNetworks) throws IOException, DomainException {
         File projectDir = new File(projectPath);
 
@@ -190,50 +191,8 @@ public class NewCreateVmCsar {
             "node_templates", "EMS_VDU1", "properties");
         virtualConstraints.put("nfvi_constraints", flavor.getConstraints());
 
-        // get network name
-        String mepName = "";
-        String n6Name = "";
-        String networkName = "";
-        for (VmNetwork vmNetwork : vmNetworks) {
-            if (vmNetwork.getNetworkType().equals("Network_MEP")) {
-                mepName = vmNetwork.getNetworkName();
-            }
-            if (vmNetwork.getNetworkType().equals("Network_N6")) {
-                n6Name = vmNetwork.getNetworkName();
-            }
-            if (vmNetwork.getNetworkType().equals("Network_Internet")) {
-                networkName = vmNetwork.getNetworkName();
-            }
-        }
-        LinkedHashMap<String, Object> mepNetworkName = getObjectFromMap(loaded, "topology_template", "node_templates",
-            "MEC_APP_MP1", "properties", "vl_profile");
-        mepNetworkName.put("network_name", mepName);
-        LinkedHashMap<String, Object> n6NetworkName = getObjectFromMap(loaded, "topology_template", "node_templates",
-            "MEC_APP_N6", "properties", "vl_profile");
-        n6NetworkName.put("network_name", n6Name);
-        LinkedHashMap<String, Object> internetNetworkName = getObjectFromMap(loaded, "topology_template",
-            "node_templates", "MEC_APP_INTERNET", "properties", "vl_profile");
-        internetNetworkName.put("network_name", networkName);
+        // write user data todo
 
-        // config vm network type Network_Internet
-        if (!config.getVmNetwork().contains("Network_MEP")) {
-            LinkedHashMap<String, Object> virtualNetwork = getObjectFromMap(loaded, "topology_template",
-                "node_templates");
-            virtualNetwork.remove("EMS_VDU1_CP0");
-            virtualNetwork.remove("MEC_APP_MP1");
-        }
-        if (!config.getVmNetwork().contains("Network_N6")) {
-            LinkedHashMap<String, Object> virtualNetwork = getObjectFromMap(loaded, "topology_template",
-                "node_templates");
-            virtualNetwork.remove("EMS_VDU1_CP2");
-            virtualNetwork.remove("MEC_APP_N6");
-        }
-        if (!config.getVmNetwork().contains("Network_Internet")) {
-            LinkedHashMap<String, Object> virtualNetwork = getObjectFromMap(loaded, "topology_template",
-                "node_templates");
-            virtualNetwork.remove("EMS_VDU1_CP1");
-            virtualNetwork.remove("MEC_APP_INTERNET");
-        }
 
         ObjectMapper om = new ObjectMapper(new YAMLFactory());
         om.writeValue(templateFile, loaded);
@@ -268,7 +227,7 @@ public class NewCreateVmCsar {
 
         }
 
-        //update SwImageDesc.json
+        //update SwImageDesc.json , get image url.todo
         ImageDesc imageDesc = new ImageDesc();
         imageDesc.setId(UUID.randomUUID().toString());
         imageDesc.setName(imageData);
