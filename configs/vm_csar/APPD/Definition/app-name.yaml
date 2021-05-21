@@ -15,14 +15,71 @@ metadata:
 
 topology_template:
   inputs:
+    DC_ID:
+      type: string
+      description: DC_ID
+    ak:
+      type: string
+      default: abdc
+      description: AK
+    sk:
+      type: string
+      default: 1234
+      description: SK
+    mep_certificate:
+      type: text
+      default: YHXGFTWU!@$%@&%#(DH(122479+_)
+      description: MEP Certificate
+    app_mp1_ip:
+      type: string
+      default:
+      description: app_mp1_ip
+    app_mp1_mask:
+      type: string
+      default:
+      description: app_mp1_mask
+    app_mp1_gw:
+      type: string
+      default:
+      description: app_mp1_gw
+    app_n6_ip:
+      type: string
+      default:
+      description: app_n6_ip
+    app_n6_mask:
+      type: string
+      default:
+      description: app_n6_mask
+    app_internet_ip:
+    app_internet_mask:
+    app_internet_gw:
+    mep_ip:
+    mep_port:
+
     network_name_mep:
       type: string
       default: mec_network_mep
       description: network_name_mep
+    network_mep_physnet:
+      type: string
+      default: network_mep_physnet
+      description: network_mep_physnet
+    network_mep_vlanid:
+      type: string
+      default: network_mep_vlanid
+      description: network_mep_vlanid
     network_name_n6:
       type: string
       default: mec_newwork_n6
       description: network_name_n6
+    network_n6_physnet:
+      type: string
+      default: network_n6_physnet
+      description: network_n6_physnet
+    network_n6_vlanid:
+      type: string
+      default: network_n6_vlanid
+      description: network_n6_vlanid
     network_name_internet:
       type: string
       default: mec_newwork_internet
@@ -35,22 +92,11 @@ topology_template:
       type: string
       default: network_internet_vlanid
       description: network_internet_vlanid
-    network_n6_physnet:
+    ue_ip_segment:
       type: string
-      default: network_n6_physnet
-      description: network_n6_physnet
-    network_n6_vlanid:
-      type: string
-      default: network_n6_vlanid
-      description: network_n6_vlanid
-    network_mep_physnet:
-      type: string
-      default: network_mep_physnet
-      description: network_mep_physnet
-    network_mep_vlanid:
-      type: string
-      default: network_mep_vlanid
-      description: network_mep_vlanid
+      default: 0.0.0.0/0
+      description: ue_ip_segment
+
     INTERNAL_IP_VERSION:
       type: string
       default: IPV4
@@ -106,7 +152,65 @@ topology_template:
         bootdata:
           config_drive: true
           user_data:
-            contents:
+            contents: |
+              #!/bin/bash
+              echo "$certificate_info$"  >> /home/mep.ca
+              echo "app_instance_id_key=($$APP_INSTANCE_ID), mep_ip=$MEP_IP$, mep_port=$MEP_PORT$"  >> /home/init.txt
+              rm -fr /etc/sysconfig/network-scripts/*ifcfg-eth0*
+              echo "BOOTPROTO=static" >> /etc/sysconfig/network-scripts/ifcfg-eth0
+              echo "DEVICE=eth0" >> /etc/sysconfig/network-scripts/ifcfg-eth0
+              echo "ONBOOT=yes" >> /etc/sysconfig/network-scripts/ifcfg-eth0
+              echo "TYPE=Ethernet" >> /etc/sysconfig/network-scripts/ifcfg-eth0
+              echo "USERCTL=no" >> /etc/sysconfig/network-scripts/ifcfg-eth0
+              echo "DEFROUTE=no" >> /etc/sysconfig/network-scripts/ifcfg-eth0
+              echo "IPV4_FAILURE_FATAL=no" >> /etc/sysconfig/network-scripts/ifcfg-eth0
+              echo "MTU=1500" >> /etc/sysconfig/network-scripts/ifcfg-eth0
+              echo "IPADDR=$APP_MP1_IP$" >> /etc/sysconfig/network-scripts/ifcfg-eth0
+              echo "NETMASK=$APP_MP1_MASK$" >> /etc/sysconfig/network-scripts/ifcfg-eth0
+              echo "$MEP_IP$/32 via $APP_MP1_GW$" >> /etc/sysconfig/network-scripts/route-eth0
+              rm -fr /etc/sysconfig/network-scripts/*ifcfg-eth1*
+              echo "BOOTPROTO=static" >> /etc/sysconfig/network-scripts/ifcfg-eth1
+              echo "DEVICE=eth1" >> /etc/sysconfig/network-scripts/ifcfg-eth1
+              echo "ONBOOT=yes" >> /etc/sysconfig/network-scripts/ifcfg-eth1
+              echo "TYPE=Ethernet" >> /etc/sysconfig/network-scripts/ifcfg-eth1
+              echo "USERCTL=no" >> /etc/sysconfig/network-scripts/ifcfg-eth1
+              echo "DEFROUTE=yes" >> /etc/sysconfig/network-scripts/ifcfg-eth1
+              echo "IPV4_FAILURE_FATAL=no" >> /etc/sysconfig/network-scripts/ifcfg-eth1
+              echo "MTU=1500" >> /etc/sysconfig/network-scripts/ifcfg-eth1
+              echo "IPADDR=$APP_N6_IP$" >> /etc/sysconfig/network-scripts/ifcfg-eth1
+              echo "NETMASK=$APP_N6_MASK$" >> /etc/sysconfig/network-scripts/ifcfg-eth1
+
+              echo "$UE_IP_SEGMENT$ via $APP_N6_GW$" >> /etc/sysconfig/network-scripts/route-eth1
+              rm -fr /etc/sysconfig/network-scripts/*ifcfg-eth2*
+              echo "BOOTPROTO=static" >> /etc/sysconfig/network-scripts/ifcfg-eth2
+              echo "DEVICE=eth2" >> /etc/sysconfig/network-scripts/ifcfg-eth2
+              echo "ONBOOT=yes" >> /etc/sysconfig/network-scripts/ifcfg-eth2
+              echo "TYPE=Ethernet" >> /etc/sysconfig/network-scripts/ifcfg-eth2
+              echo "USERCTL=no" >> /etc/sysconfig/network-scripts/ifcfg-eth2
+              echo "DEFROUTE=yes" >> /etc/sysconfig/network-scripts/ifcfg-eth2
+              echo "IPV4_FAILURE_FATAL=no" >> /etc/sysconfig/network-scripts/ifcfg-eth2
+              echo "MTU=1500" >> /etc/sysconfig/network-scripts/ifcfg-eth2
+              echo "IPADDR=$APP_INTERNET_IP$" >> /etc/sysconfig/network-scripts/ifcfg-eth2
+              echo "NETMASK=$APP_INTERNET_MASK$" >> /etc/sysconfig/network-scripts/ifcfg-eth2
+              echo "GATEWAY=$APP_INTERNET_GW$" >> /etc/sysconfig/network-scripts/ifcfg-eth2
+
+              systemctl restart network
+            params:
+              certificate_info:  { get_input: mep_certificate }
+              UE_IP_SEGMENT: {get_input: ue_ip_segment}
+              MEP_IP: {get_input: mep_ip}
+              MEP_PORT: {get_input: mep_port}
+              APP_MP1_IP: {get_input: app_mp1_ip}
+              APP_MP1_MASK: {get_input: app_mp1_mask}
+              APP_MP1_GW: {get_input: app_mp1_gw}
+              APP_N6_IP: {get_input: app_n6_ip}
+              APP_N6_MASK: {get_input: app_n6_mask}
+              APP_N6_GW: {get_input: app_n6_gw}
+              APP_INTERNET_IP: {get_input: app_internet_ip}
+              APP_INTERNET_MASK: {get_input: app_internet_mask}
+              APP_INTERNET_GW: {get_input: app_internet_gw}
+
+
 
     EMS_VDU1_CP0:
       type: tosca.nodes.nfv.VduCp
@@ -170,6 +274,13 @@ topology_template:
           network_type: vlan
           physical_network: {get_input: network_n6_physnet}
           provider_segmentation_id: {get_input: network_n6_vlanid}
+    app_configuration:
+      type: tosca.nodes.nfv.app.configuration
+      properties:
+        certification_info:
+          access_key_id: {get_input: ak}
+          secret_key: {get_input: sk}
+
 
 
     DEMO_VL1: # 使用虚拟层中已经创建的网络名称或UUID。
@@ -189,11 +300,13 @@ topology_template:
       type: tosca.groups.nfv.PlacementGroup
       properties:
         description: antiaffinity group
-      members: [EMS_VDU1]
+      members:
+      - EMS_VDU1
   policies:
     - antiaffinity_policy:
         type: tosca.policies.nfv.AntiAffinityRule
-        targets: [AntiAffinityGroup]
+        targets:
+        - AntiAffinityGroup
         properties:
           scope: nfvi_node
           enforced: true

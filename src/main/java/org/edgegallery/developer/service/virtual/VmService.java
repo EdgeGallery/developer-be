@@ -33,6 +33,7 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -59,9 +60,11 @@ import org.edgegallery.developer.model.vm.VmImageConfig;
 import org.edgegallery.developer.model.vm.VmImportStageStatus;
 import org.edgegallery.developer.model.vm.VmInfo;
 import org.edgegallery.developer.model.vm.VmNetwork;
+import org.edgegallery.developer.model.vm.VmPackageConfig;
 import org.edgegallery.developer.model.vm.VmRegulation;
 import org.edgegallery.developer.model.vm.VmResource;
 import org.edgegallery.developer.model.vm.VmSystem;
+import org.edgegallery.developer.model.vm.VmUserDate;
 import org.edgegallery.developer.model.workspace.ApplicationProject;
 import org.edgegallery.developer.model.workspace.EnumProjectStatus;
 import org.edgegallery.developer.model.workspace.EnumTestConfigStatus;
@@ -123,10 +126,12 @@ public class VmService {
         List<VmRegulation> vmRegulation = vmConfigMapper.getVmRegulation();
         List<VmSystem> vmSystem = vmConfigMapper.getVmSystem();
         List<VmNetwork> vmNetwork = vmConfigMapper.getVmNetwork();
+        List<VmUserDate> vmUserDate = vmConfigMapper.getVmUserDate();
         VmResource vmResource = new VmResource();
         vmResource.setVmRegulationList(vmRegulation);
         vmResource.setVmSystemList(vmSystem);
         vmResource.setVmNetworkList(vmNetwork);
+        vmResource.setVmUserDateList(vmUserDate);
         LOGGER.info("Get all vm resource success");
         return Either.right(vmResource);
 
@@ -137,14 +142,21 @@ public class VmService {
      *
      * @return
      */
-    public Either<FormatRespDto, VmCreateConfig> createVm(String userId, String projectId,
-        VmCreateConfig vmCreateConfig, String token) {
+    public Either<FormatRespDto, VmCreateConfig> createVm(String userId, String projectId, String token) {
 
-        String vmId = UUID.randomUUID().toString();
-        String appInstanceId = UUID.randomUUID().toString();
-        vmCreateConfig.setAppInstanceId(appInstanceId);
+        VmPackageConfig vmPackageConfig = vmConfigMapper.getVmPackageConfig(projectId);
+        if (vmPackageConfig == null) {
+            LOGGER.error("Can not get vm package config by  project {}", projectId);
+            FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST,
+                "Can not get vm package config");
+            return Either.left(error);
+        }
+        VmCreateConfig vmCreateConfig = new VmCreateConfig();
+        vmCreateConfig.setAppInstanceId(vmPackageConfig.getAppInstanceId());
+        vmCreateConfig.setVmName(vmPackageConfig.getVmName());
         vmCreateConfig.setLcmToken(token);
         vmCreateConfig.setProjectId(projectId);
+        String vmId = UUID.randomUUID().toString();
         vmCreateConfig.setVmId(vmId);
         vmCreateConfig.setStatus(EnumVmCreateStatus.CREATING);
         VmCreateStageStatus stageStatus = new VmCreateStageStatus();
@@ -168,20 +180,6 @@ public class VmService {
     }
 
     /**
-     * create vm package.
-     */
-    public File generateVmPackage(VmCreateConfig config) throws IOException, DomainException {
-        ApplicationProject project = projectMapper.getProjectById(config.getProjectId());
-        String projectPath = getProjectPath(config.getProjectId());
-        VmFlavor flavor = vmConfigMapper.getVmFlavor(config.getVmRegulation().getArchitecture());
-        List<VmNetwork> vmNetworks = vmConfigMapper.getVmNetwork();
-        File csarPkgDir;
-        csarPkgDir = new NewCreateVmCsar().create(projectPath, config, project, flavor, vmNetworks);
-        return CompressFileUtilsJava
-            .compressToCsarAndDeleteSrc(csarPkgDir.getCanonicalPath(), projectPath, csarPkgDir.getName());
-    }
-
-    /**
      * update create vm result.
      *
      * @return
@@ -194,9 +192,6 @@ public class VmService {
         switch (stage) {
             case "hostInfo":
                 testConfig.getStageStatus().setHostInfo(stageStatus);
-                break;
-            case "csar":
-                testConfig.getStageStatus().setCsar(stageStatus);
                 break;
             case "instantiateInfo":
                 testConfig.getStageStatus().setInstantiateInfo(stageStatus);
@@ -595,6 +590,13 @@ public class VmService {
             FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "Can not find the project.");
             return Either.left(error);
         }
+        VmPackageConfig vmPackageConfig = vmConfigMapper.getVmPackageConfig(projectId);
+        if (vmPackageConfig == null) {
+            LOGGER.error("Can not get vm package config by  project {}", projectId);
+            FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST,
+                "Can not get vm package config");
+            return Either.left(error);
+        }
         List<VmCreateConfig> vmCreateConfigs = vmConfigMapper.getVmCreateConfigs(projectId);
 
         if (CollectionUtils.isEmpty(vmCreateConfigs)) {
@@ -616,7 +618,7 @@ public class VmService {
 
         VmImageConfig vmImageConfig = new VmImageConfig();
         vmImageConfig.setVmId(vmCreateConfig.getVmId());
-        vmImageConfig.setVmName(vmCreateConfig.getVmName());
+        vmImageConfig.setVmName(vmPackageConfig.getVmName());
         vmImageConfig.setAppInstanceId(vmCreateConfig.getAppInstanceId());
         vmImageConfig.setLcmToken(token);
         vmImageConfig.setProjectId(projectId);
@@ -697,6 +699,53 @@ public class VmService {
         LOGGER.info("delete vm create config success");
         return Either.right(true);
 
+    }
+
+    public Either<FormatRespDto, VmPackageConfig> vmPackage(String userId, String projectId,
+        VmPackageConfig vmPackageConfig) {
+        ApplicationProject project = projectMapper.getProjectById(projectId);
+        if (project == null) {
+            LOGGER.error("Can not find the project projectId {}", projectId);
+            FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "Can not find the project.");
+            return Either.left(error);
+        }
+        String id = UUID.randomUUID().toString();
+        String appInstanceId = UUID.randomUUID().toString();
+        vmPackageConfig.setProjectId(projectId);
+        vmPackageConfig.setId(id);
+        vmPackageConfig.setAppInstanceId(appInstanceId);
+        vmPackageConfig.setCreateTime(new Date());
+        // create vm package config
+        int tes = vmConfigMapper.saveVmPackageConfig(vmPackageConfig);
+        if (tes < 1) {
+            LOGGER.error("create vm package config {} failed.", vmPackageConfig.getId());
+            return Either.left(new FormatRespDto(Response.Status.BAD_REQUEST, "save vm info fail"));
+        }
+        // generation package todo
+        try {
+            generateVmPackageByConfig(vmPackageConfig);
+        } catch (Exception e) {
+            LOGGER.error("generate vm csar with id:{} on csar failed:{}", vmPackageConfig.getId(), e.getMessage());
+            return Either.left(new FormatRespDto(Response.Status.BAD_REQUEST, "generate vm csar fail"));
+        }
+
+        return Either.right(vmPackageConfig);
+
+
+    }
+
+    /**
+     * create vm package.
+     */
+    public File generateVmPackageByConfig(VmPackageConfig config) throws IOException, DomainException {
+        ApplicationProject project = projectMapper.getProjectById(config.getProjectId());
+        String projectPath = getProjectPath(config.getProjectId());
+        VmFlavor flavor = vmConfigMapper.getVmFlavor(config.getVmRegulation().getArchitecture());
+        List<VmNetwork> vmNetworks = vmConfigMapper.getVmNetwork();
+        File csarPkgDir;
+        csarPkgDir = new NewCreateVmCsar().create(projectPath, config, project, flavor, vmNetworks);
+        return CompressFileUtilsJava
+            .compressToCsarAndDeleteSrc(csarPkgDir.getCanonicalPath(), projectPath, csarPkgDir.getName());
     }
 
     /**
@@ -845,6 +894,7 @@ public class VmService {
             LOGGER.error("write data into SwImageDesc.json failed, {}", e.getMessage());
         }
     }
+
 
 }
 

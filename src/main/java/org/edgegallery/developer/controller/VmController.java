@@ -31,6 +31,7 @@ import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.edgegallery.developer.common.Consts;
 import org.edgegallery.developer.model.vm.VmCreateConfig;
 import org.edgegallery.developer.model.vm.VmImageConfig;
+import org.edgegallery.developer.model.vm.VmPackageConfig;
 import org.edgegallery.developer.model.vm.VmResource;
 import org.edgegallery.developer.response.ErrorRespDto;
 import org.edgegallery.developer.response.FormatRespDto;
@@ -76,6 +77,27 @@ public class VmController {
     }
 
     /**
+     * generate vm package.
+     */
+    @ApiOperation(value = "create one vm", response = VmPackageConfig.class)
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = "OK", response = VmPackageConfig.class),
+        @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
+    })
+    @RequestMapping(value = "/projects/{projectId}/vm-package", method = RequestMethod.POST,
+        consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
+    public ResponseEntity<VmPackageConfig> vmPackage(
+        @NotNull @ApiParam(value = "VmPackage", required = true) @RequestBody VmPackageConfig vmPackageConfig,
+        @Pattern(regexp = REGEX_UUID, message = "projectId must be in UUID format")
+        @ApiParam(value = "projectId", required = true) @PathVariable("projectId") String projectId,
+        @Pattern(regexp = REGEX_UUID, message = "userId must be in UUID format")
+        @ApiParam(value = "userId", required = true) @RequestParam("userId") String userId) {
+        Either<FormatRespDto, VmPackageConfig> either = vmService.vmPackage(userId, projectId, vmPackageConfig);
+        return ResponseDataUtil.buildResponse(either);
+    }
+
+    /**
      * create vm.
      */
     @ApiOperation(value = "create one vm", response = VmCreateConfig.class)
@@ -87,14 +109,13 @@ public class VmController {
         consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<VmCreateConfig> createVm(
-        @NotNull @ApiParam(value = "VmConfig", required = true) @RequestBody VmCreateConfig vmCreateConfig,
         @Pattern(regexp = REGEX_UUID, message = "projectId must be in UUID format")
         @ApiParam(value = "projectId", required = true) @PathVariable("projectId") String projectId,
         @Pattern(regexp = REGEX_UUID, message = "userId must be in UUID format")
         @ApiParam(value = "userId", required = true) @RequestParam("userId") String userId,
         HttpServletRequest request) {
         String token = request.getHeader(Consts.ACCESS_TOKEN_STR);
-        Either<FormatRespDto, VmCreateConfig> either = vmService.createVm(userId, projectId, vmCreateConfig, token);
+        Either<FormatRespDto, VmCreateConfig> either = vmService.createVm(userId, projectId, token);
         return ResponseDataUtil.buildResponse(either);
     }
 

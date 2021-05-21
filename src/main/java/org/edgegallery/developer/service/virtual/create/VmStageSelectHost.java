@@ -46,7 +46,7 @@ public class VmStageSelectHost implements VmCreateStage {
     @Autowired
     private VmService vmService;
 
-    @Resource(name = "vm_csar_service")
+    @Resource(name = "vm_instantiateInfo_service")
     private VmCreateStage vmCreateStage;
 
     @Override
