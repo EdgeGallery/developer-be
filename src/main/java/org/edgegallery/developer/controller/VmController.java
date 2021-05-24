@@ -98,6 +98,46 @@ public class VmController {
     }
 
     /**
+     * delete vm package.
+     */
+    @ApiOperation(value = "create one vm", response = Boolean.class)
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = "OK", response = Boolean.class),
+        @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
+    })
+    @RequestMapping(value = "/projects/{projectId}/vm-package", method = RequestMethod.DELETE,
+        produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
+    public ResponseEntity<Boolean> deleteVmPackage(
+        @Pattern(regexp = REGEX_UUID, message = "projectId must be in UUID format")
+        @ApiParam(value = "projectId", required = true) @PathVariable("projectId") String projectId,
+        @Pattern(regexp = REGEX_UUID, message = "userId must be in UUID format")
+        @ApiParam(value = "userId", required = true) @RequestParam("userId") String userId) {
+        Either<FormatRespDto, Boolean> either = vmService.deleteVmPackage(userId, projectId);
+        return ResponseDataUtil.buildResponse(either);
+    }
+
+    /**
+     * get vm package config.
+     */
+    @ApiOperation(value = "get vm package config", response = VmPackageConfig.class)
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = "OK", response = VmPackageConfig.class),
+        @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
+    })
+    @RequestMapping(value = "/projects/{projectId}/vm-package", method = RequestMethod.GET,
+        produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
+    public ResponseEntity<VmPackageConfig> getVmPackage(
+        @Pattern(regexp = REGEX_UUID, message = "projectId must be in UUID format")
+        @ApiParam(value = "projectId", required = true) @PathVariable("projectId") String projectId,
+        @Pattern(regexp = REGEX_UUID, message = "userId must be in UUID format")
+        @ApiParam(value = "userId", required = true) @RequestParam("userId") String userId) {
+        Either<FormatRespDto, VmPackageConfig> either = vmService.getVmPackage(userId, projectId);
+        return ResponseDataUtil.buildResponse(either);
+    }
+
+    /**
      * create vm.
      */
     @ApiOperation(value = "create one vm", response = VmCreateConfig.class)

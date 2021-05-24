@@ -387,9 +387,6 @@ public class VmService {
             LOGGER.error("Delete vm create config {} failed.", vmId);
             return Either.left(new FormatRespDto(Response.Status.BAD_REQUEST, "Delete vm create config failed."));
         }
-        String projectPath = getProjectPath(projectId);
-        DeveloperFileUtils.deleteDir(projectPath + vmCreateConfig.getAppInstanceId());
-        FileUtils.deleteQuietly(new File(projectPath + vmCreateConfig.getAppInstanceId() + ".csar"));
 
         LOGGER.info("delete vm create config success");
         return Either.right(true);
@@ -730,7 +727,52 @@ public class VmService {
         }
 
         return Either.right(vmPackageConfig);
+    }
 
+    /**
+     * get vm package .
+     */
+    public Either<FormatRespDto, VmPackageConfig> getVmPackage(String userId, String projectId) {
+        ApplicationProject project = projectMapper.getProjectById(projectId);
+        if (project == null) {
+            LOGGER.error("Can not find the project projectId {}", projectId);
+            FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "Can not find the project.");
+            return Either.left(error);
+        }
+        VmPackageConfig tes = vmConfigMapper.getVmPackageConfig(projectId);
+        if (tes == null) {
+            LOGGER.error("get vm package config failed.");
+            return Either.left(new FormatRespDto(Response.Status.BAD_REQUEST, "get vm package config failed."));
+        }
+        return Either.right(tes);
+    }
+
+    /**
+     * delete vm package file.
+     */
+    public Either<FormatRespDto, Boolean> deleteVmPackage(String userId, String projectId) {
+        ApplicationProject project = projectMapper.getProjectById(projectId);
+        if (project == null) {
+            LOGGER.error("Can not find the project projectId {}", projectId);
+            FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "Can not find the project.");
+            return Either.left(error);
+        }
+
+        VmPackageConfig config = vmConfigMapper.getVmPackageConfig(projectId);
+        if (config == null) {
+            LOGGER.error("get vm package config failed.");
+            return Either.left(new FormatRespDto(Response.Status.BAD_REQUEST, "get vm package config failed."));
+        }
+        int res = vmConfigMapper.deleteVmPackageConfig(config.getId());
+        if(res < 1) {
+            LOGGER.error("delete vm package config failed.");
+            return Either.left(new FormatRespDto(Response.Status.BAD_REQUEST, "delete vm package config failed."));
+        }
+        String projectPath = getProjectPath(projectId);
+        DeveloperFileUtils.deleteDir(projectPath + config.getAppInstanceId());
+        FileUtils.deleteQuietly(new File(projectPath + config.getAppInstanceId() + ".csar"));
+
+        return Either.right(true);
 
     }
 
@@ -894,6 +936,7 @@ public class VmService {
             LOGGER.error("write data into SwImageDesc.json failed, {}", e.getMessage());
         }
     }
+
 
 
 }

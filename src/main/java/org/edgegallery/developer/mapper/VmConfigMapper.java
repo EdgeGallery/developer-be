@@ -67,4 +67,6 @@ public interface VmConfigMapper {
     int saveVmPackageConfig(VmPackageConfig vmPackageConfig);
 
     VmPackageConfig getVmPackageConfig(String projectId);
+
+    int deleteVmPackageConfig(String id);
 }

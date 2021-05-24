@@ -198,7 +198,7 @@
     </select>
 
     <delete id="deleteVmPackageConfig" parameterType="String">
-        DELETE FROM tbl_project_vm_package_config WHERE project_id = #{projectId};
+        DELETE FROM tbl_project_vm_package_config WHERE id = #{id};
     </delete>
 
     <insert id="saveVmCreateConfig"

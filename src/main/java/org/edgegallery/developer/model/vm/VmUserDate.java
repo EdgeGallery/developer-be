@@ -2,7 +2,6 @@ package org.edgegallery.developer.model.vm;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.stringtemplate.v4.ST;
 
 @Getter
 @Setter

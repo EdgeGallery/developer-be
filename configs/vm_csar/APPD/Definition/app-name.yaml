@@ -51,10 +51,25 @@ topology_template:
       default:
       description: app_n6_mask
     app_internet_ip:
+      type: string
+      default:
+      description: app_internet_ip
     app_internet_mask:
+      type: string
+      default:
+      description: app_internet_mask
     app_internet_gw:
+      type: string
+      default:
+      description: app_internet_gw
     mep_ip:
+      type: string
+      default:
+      description: mep_ip
     mep_port:
+      type: string
+      default:
+      description: mep_port
 
     network_name_mep:
       type: string
@@ -179,7 +194,6 @@ topology_template:
               echo "MTU=1500" >> /etc/sysconfig/network-scripts/ifcfg-eth1
               echo "IPADDR=$APP_N6_IP$" >> /etc/sysconfig/network-scripts/ifcfg-eth1
               echo "NETMASK=$APP_N6_MASK$" >> /etc/sysconfig/network-scripts/ifcfg-eth1
-
               echo "$UE_IP_SEGMENT$ via $APP_N6_GW$" >> /etc/sysconfig/network-scripts/route-eth1
               rm -fr /etc/sysconfig/network-scripts/*ifcfg-eth2*
               echo "BOOTPROTO=static" >> /etc/sysconfig/network-scripts/ifcfg-eth2
