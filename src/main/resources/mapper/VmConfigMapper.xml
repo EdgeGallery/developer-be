@@ -60,7 +60,7 @@
     </resultMap>
 
     <resultMap id="VmUserData"
-      type="org.edgegallery.developer.model.vm.VmUserDate">
+      type="org.edgegallery.developer.model.vm.VmUserData">
         <id property="operateSystem" column="operate_system"/>
         <result property="isTemp" column="is_temp"/>
         <result property="contents" column="contents"/>
