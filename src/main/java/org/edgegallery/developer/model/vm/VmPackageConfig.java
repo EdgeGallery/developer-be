@@ -19,7 +19,7 @@ public class VmPackageConfig {
 
     private List<String> vmNetwork;
 
-    private VmUserDate vmUserData;
+    private VmUserData vmUserData;
 
     private String vmName;
 

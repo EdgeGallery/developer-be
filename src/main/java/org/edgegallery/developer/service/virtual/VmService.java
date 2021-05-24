@@ -64,7 +64,7 @@ import org.edgegallery.developer.model.vm.VmPackageConfig;
 import org.edgegallery.developer.model.vm.VmRegulation;
 import org.edgegallery.developer.model.vm.VmResource;
 import org.edgegallery.developer.model.vm.VmSystem;
-import org.edgegallery.developer.model.vm.VmUserDate;
+import org.edgegallery.developer.model.vm.VmUserData;
 import org.edgegallery.developer.model.workspace.ApplicationProject;
 import org.edgegallery.developer.model.workspace.EnumProjectStatus;
 import org.edgegallery.developer.model.workspace.EnumTestConfigStatus;
@@ -126,7 +126,7 @@ public class VmService {
         List<VmRegulation> vmRegulation = vmConfigMapper.getVmRegulation();
         List<VmSystem> vmSystem = vmConfigMapper.getVmSystem();
         List<VmNetwork> vmNetwork = vmConfigMapper.getVmNetwork();
-        List<VmUserDate> vmUserDate = vmConfigMapper.getVmUserDate();
+        List<VmUserData> vmUserDate = vmConfigMapper.getVmUserDate();
         VmResource vmResource = new VmResource();
         vmResource.setVmRegulationList(vmRegulation);
         vmResource.setVmSystemList(vmSystem);
@@ -718,7 +718,6 @@ public class VmService {
             LOGGER.error("create vm package config {} failed.", vmPackageConfig.getId());
             return Either.left(new FormatRespDto(Response.Status.BAD_REQUEST, "save vm info fail"));
         }
-        // generation package todo
         try {
             generateVmPackageByConfig(vmPackageConfig);
         } catch (Exception e) {

@@ -19,10 +19,15 @@ package org.edgegallery.developer.service.csar;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.google.gson.Gson;
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
@@ -38,10 +43,10 @@ import org.apache.commons.io.FileUtils;
 import org.edgegallery.developer.common.Consts;
 import org.edgegallery.developer.exception.DomainException;
 import org.edgegallery.developer.model.deployyaml.ImageDesc;
-import org.edgegallery.developer.model.vm.VmCreateConfig;
 import org.edgegallery.developer.model.vm.VmFlavor;
 import org.edgegallery.developer.model.vm.VmNetwork;
 import org.edgegallery.developer.model.vm.VmPackageConfig;
+import org.edgegallery.developer.model.vm.VmUserData;
 import org.edgegallery.developer.model.workspace.ApplicationProject;
 import org.edgegallery.developer.model.workspace.EnumDeployPlatform;
 import org.edgegallery.developer.util.CompressFileUtilsJava;
@@ -191,8 +196,8 @@ public class NewCreateVmCsar {
             "node_templates", "EMS_VDU1", "properties");
         virtualConstraints.put("nfvi_constraints", flavor.getConstraints());
 
-        // write user data todo
-
+        // write user data
+        writeUserDataToYaml(templateFile, config);
 
         ObjectMapper om = new ObjectMapper(new YAMLFactory());
         om.writeValue(templateFile, loaded);
@@ -226,8 +231,7 @@ public class NewCreateVmCsar {
             }
 
         }
-
-        //update SwImageDesc.json , get image url.todo
+        //update SwImageDesc.json , get image url
         ImageDesc imageDesc = new ImageDesc();
         imageDesc.setId(UUID.randomUUID().toString());
         imageDesc.setName(imageData);
@@ -252,6 +256,88 @@ public class NewCreateVmCsar {
         writeFile(imageJson, gson.toJson(imageDescs));
 
         return csar;
+    }
+
+    private void writeUserDataToYaml(File templateFile, VmPackageConfig config) {
+        if (config.getVmUserData() == null) {
+            LOGGER.error("no vm user data!");
+            return;
+        }
+        //yaml读取成list
+        List<String> list = readFileByLine(templateFile);
+        //获取contents位置的索引
+        String contents = "";
+        for (String str : list) {
+            if (str.contains("contents:")) {
+                contents = str;
+            }
+        }
+        int contentIndex = list.indexOf(contents);
+        //contents位置之后插入内容
+        VmUserData vmUserData = config.getVmUserData();
+        if (StringUtils.isEmpty(vmUserData.getContents())) {
+            LOGGER.warn("vm user data don't have contents configuration!");
+            return;
+        }
+        List<String> contentsList = readStringToList(vmUserData.getContents());
+        list.addAll(contentIndex + 1, contentsList);
+        //获取params位置的索引
+        String params = "";
+        for (String str : list) {
+            if (str.contains("params:")) {
+                params = str;
+            }
+        }
+        int paramsIndex = list.indexOf(params);
+        //params位置之后插入内容
+        if (StringUtils.isEmpty(vmUserData.getParams())) {
+            LOGGER.warn("vm user data don't have params configuration!");
+            return;
+        }
+        List<String> paramsList = readStringToList(vmUserData.getParams());
+        list.addAll(paramsIndex + 1, paramsList);
+        //重写把list写入yaml
+        writeListToFile(list,templateFile);
+
+    }
+
+    private static void writeListToFile(List<String> strings, File yaml) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(yaml))) {
+            for (String l : strings) {
+                writer.write(l);
+            }
+        } catch (IOException e) {
+            LOGGER.error("write file content list to file failed {}",e.getMessage());
+        }
+    }
+
+    private static List<String> readFileByLine(File fin) {
+        String line;
+        List<String> sb = new ArrayList<>();
+        try (FileInputStream fis = new FileInputStream(fin);
+             BufferedReader br = new BufferedReader(new InputStreamReader(fis, StandardCharsets.UTF_8))) {
+            while ((line = br.readLine()) != null) {
+                sb.add(line + "\r\n");
+            }
+        } catch (IOException e) {
+            return null;
+        }
+        return sb;
+    }
+
+    private static List<String> readStringToList(String contents) {
+        String line;
+        List<String> sb = new ArrayList<>();
+        try (BufferedReader br = new BufferedReader(
+            new InputStreamReader(new ByteArrayInputStream(contents.getBytes(StandardCharsets.UTF_8)),
+                StandardCharsets.UTF_8))) {
+            while ((line = br.readLine()) != null) {
+                sb.add("              " + line + "\r\n");
+            }
+        } catch (IOException e) {
+            return null;
+        }
+        return sb;
     }
 
     private void writeFile(File file, String content) {
