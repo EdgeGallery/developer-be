@@ -107,7 +107,8 @@ public class NewCreateVmCsar {
                 FileUtils.readFileToString(csarValue, StandardCharsets.UTF_8).replace("{name}", projectName)
                     .replace("{provider}", project.getProvider()).replace("{version}", project.getVersion())
                     .replace("{time}", timeStamp).replace("{description}", project.getDescription())
-                    .replace("{ChartName}", chartName).replace("{type}", type).replace("{class}", deployType),
+                    .replace("{ChartName}", chartName).replace("{type}", type)
+                    .replace("{class}", deployType).replace("{appd-name}", projectName),
                 StandardCharsets.UTF_8, false);
             boolean isSuccess = csarValue.renameTo(new File(csar.getCanonicalPath() + "/" + projectName + ".mf"));
             if (!isSuccess) {

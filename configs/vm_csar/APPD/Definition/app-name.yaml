@@ -207,7 +207,6 @@ topology_template:
               echo "IPADDR=$APP_INTERNET_IP$" >> /etc/sysconfig/network-scripts/ifcfg-eth2
               echo "NETMASK=$APP_INTERNET_MASK$" >> /etc/sysconfig/network-scripts/ifcfg-eth2
               echo "GATEWAY=$APP_INTERNET_GW$" >> /etc/sysconfig/network-scripts/ifcfg-eth2
-
               systemctl restart network
             params:
               certificate_info:  { get_input: mep_certificate }

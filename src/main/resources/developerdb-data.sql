@@ -70,8 +70,6 @@
     ('ARM', 'mgmt_egarm', 'nova')
     ON CONFLICT(architecture) do nothing;
 
-
-
     -- workspace mep capability init --
 
 

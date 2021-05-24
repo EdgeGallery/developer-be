@@ -352,8 +352,8 @@
     CREATE TABLE IF NOT EXISTS "tbl_vm_user_data" (
       "operate_system" varchar(50) DEFAULT NULL,
       "is_temp" bool DEFAULT NULL,
-      "contents" varchar(50) DEFAULT NULL,
-      "params" varchar(50) DEFAULT NULL,
+      "contents" text DEFAULT NULL,
+      "params" text DEFAULT NULL,
       CONSTRAINT "tbl_vm_user_data_pkey" PRIMARY KEY ("operate_system")
     )
     ;

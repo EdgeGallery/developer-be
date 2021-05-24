@@ -712,17 +712,17 @@ public class VmService {
         vmPackageConfig.setId(id);
         vmPackageConfig.setAppInstanceId(appInstanceId);
         vmPackageConfig.setCreateTime(new Date());
-        // create vm package config
-        int tes = vmConfigMapper.saveVmPackageConfig(vmPackageConfig);
-        if (tes < 1) {
-            LOGGER.error("create vm package config {} failed.", vmPackageConfig.getId());
-            return Either.left(new FormatRespDto(Response.Status.BAD_REQUEST, "save vm info fail"));
-        }
         try {
             generateVmPackageByConfig(vmPackageConfig);
         } catch (Exception e) {
             LOGGER.error("generate vm csar with id:{} on csar failed:{}", vmPackageConfig.getId(), e.getMessage());
             return Either.left(new FormatRespDto(Response.Status.BAD_REQUEST, "generate vm csar fail"));
+        }
+        // create vm package config
+        int tes = vmConfigMapper.saveVmPackageConfig(vmPackageConfig);
+        if (tes < 1) {
+            LOGGER.error("create vm package config {} failed.", vmPackageConfig.getId());
+            return Either.left(new FormatRespDto(Response.Status.BAD_REQUEST, "save vm info fail"));
         }
 
         return Either.right(vmPackageConfig);
