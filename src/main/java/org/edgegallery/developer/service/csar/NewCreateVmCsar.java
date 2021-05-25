@@ -197,6 +197,12 @@ public class NewCreateVmCsar {
             "node_templates", "EMS_VDU1", "properties");
         virtualConstraints.put("nfvi_constraints", flavor.getConstraints());
 
+        // modify vnfd_id and version in node_templates
+        LinkedHashMap<String, Object> vnfInfo = getObjectFromMap(loaded, "topology_template",
+            "node_templates", "Simple_VNF", "properties");
+        vnfInfo.put("vnfd_id", projectName);
+        vnfInfo.put("vnfd_version", project.getVersion());
+
         ObjectMapper om = new ObjectMapper(new YAMLFactory());
         om.writeValue(templateFile, loaded);
         // write user data

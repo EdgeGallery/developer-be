@@ -1,17 +1,17 @@
 tosca_definitions_version: tosca_simple_profile_yaml_1_2
-description: Eastcom SPCLNLWY EMS
+description: EG MEC VM
 imports:
   - nfv_vnfd_types_v1_0.yaml
 
 metadata:
   template_name: Eastcom-SPCLNLWY-EMS_eulerforTR6_iso
-  template_author: eastcom
+  template_author: EDGEGALLERY
   template_version: 1.0.0
   vnfm_type: MEPM
   vnfd_id: eulerforTR6_iso_arm
   vnfd_version: v3.25
   vnfd_name: eastcom_spclnlwyems_eulerforTR6_iso_vnfd
-  vnfd_description: spclnlwyems vnfd for gvnfm
+  vnfd_description: EG sample for gvnfm
 
 topology_template:
   inputs:
@@ -50,6 +50,10 @@ topology_template:
       type: string
       default:
       description: app_n6_mask
+    app_n6_gw:
+      type: string
+      default:
+      description: app_n6_gw
     app_internet_ip:
       type: string
       default:
@@ -111,19 +115,11 @@ topology_template:
       type: string
       default: 0.0.0.0/0
       description: ue_ip_segment
+    mec_internet_ip:
+      type: string
+      default:
+      description: mec_internet_ip
 
-    INTERNAL_IP_VERSION:
-      type: string
-      default: IPV4
-      description: INTERNAL_IP_VERSION
-    DEMO_VNF_Network_01:
-      type: string
-      default: app_arm
-      description: DEMO_VNF_Network_01
-    DEMO_VNF_Network_02:
-      type: string
-      default: app_arm
-      description: DEMO_VNF_Network_02
   node_templates:
     Simple_VNF:
       type: tosca.nodes.nfv.VNF
@@ -189,6 +185,8 @@ topology_template:
         order: 1
         vnic_type: normal
         port_security_enabled: true
+      attributes:
+        ipv4_addres: {get_input: mec_internet_ip}
       requirements:
         - virtual_binding: EMS_VDU1
         - virtual_link: MEC_APP_INTERNET
@@ -239,31 +237,16 @@ topology_template:
           secret_key: {get_input: sk}
 
 
-
-    DEMO_VL1: # 使用虚拟层中已经创建的网络名称或UUID。
-      type: tosca.nodes.nfv.VnfVirtualLink
-      properties:
-        vl_profile:
-          network_name: {get_input: DEMO_VNF_Network_01}
-
-    DEMO_VL2: # 使用虚拟层中已经创建的网络名称或UUID。
-      type: tosca.nodes.nfv.VnfVirtualLink
-      properties:
-        vl_profile:
-          network_name: {get_input: DEMO_VNF_Network_02}
-
   groups:
     AntiAffinityGroup:
       type: tosca.groups.nfv.PlacementGroup
       properties:
         description: antiaffinity group
-      members:
-      - EMS_VDU1
+      members: [EMS_VDU1]
   policies:
     - antiaffinity_policy:
         type: tosca.policies.nfv.AntiAffinityRule
-        targets:
-        - AntiAffinityGroup
+        targets: [AntiAffinityGroup]
         properties:
           scope: nfvi_node
           enforced: true
