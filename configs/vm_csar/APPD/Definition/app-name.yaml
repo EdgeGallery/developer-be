@@ -168,63 +168,7 @@ topology_template:
           config_drive: true
           user_data:
             contents: |
-              #!/bin/bash
-              echo "$certificate_info$"  >> /home/mep.ca
-              echo "app_instance_id_key=($$APP_INSTANCE_ID), mep_ip=$MEP_IP$, mep_port=$MEP_PORT$"  >> /home/init.txt
-              rm -fr /etc/sysconfig/network-scripts/*ifcfg-eth0*
-              echo "BOOTPROTO=static" >> /etc/sysconfig/network-scripts/ifcfg-eth0
-              echo "DEVICE=eth0" >> /etc/sysconfig/network-scripts/ifcfg-eth0
-              echo "ONBOOT=yes" >> /etc/sysconfig/network-scripts/ifcfg-eth0
-              echo "TYPE=Ethernet" >> /etc/sysconfig/network-scripts/ifcfg-eth0
-              echo "USERCTL=no" >> /etc/sysconfig/network-scripts/ifcfg-eth0
-              echo "DEFROUTE=no" >> /etc/sysconfig/network-scripts/ifcfg-eth0
-              echo "IPV4_FAILURE_FATAL=no" >> /etc/sysconfig/network-scripts/ifcfg-eth0
-              echo "MTU=1500" >> /etc/sysconfig/network-scripts/ifcfg-eth0
-              echo "IPADDR=$APP_MP1_IP$" >> /etc/sysconfig/network-scripts/ifcfg-eth0
-              echo "NETMASK=$APP_MP1_MASK$" >> /etc/sysconfig/network-scripts/ifcfg-eth0
-              echo "$MEP_IP$/32 via $APP_MP1_GW$" >> /etc/sysconfig/network-scripts/route-eth0
-              rm -fr /etc/sysconfig/network-scripts/*ifcfg-eth1*
-              echo "BOOTPROTO=static" >> /etc/sysconfig/network-scripts/ifcfg-eth1
-              echo "DEVICE=eth1" >> /etc/sysconfig/network-scripts/ifcfg-eth1
-              echo "ONBOOT=yes" >> /etc/sysconfig/network-scripts/ifcfg-eth1
-              echo "TYPE=Ethernet" >> /etc/sysconfig/network-scripts/ifcfg-eth1
-              echo "USERCTL=no" >> /etc/sysconfig/network-scripts/ifcfg-eth1
-              echo "DEFROUTE=yes" >> /etc/sysconfig/network-scripts/ifcfg-eth1
-              echo "IPV4_FAILURE_FATAL=no" >> /etc/sysconfig/network-scripts/ifcfg-eth1
-              echo "MTU=1500" >> /etc/sysconfig/network-scripts/ifcfg-eth1
-              echo "IPADDR=$APP_N6_IP$" >> /etc/sysconfig/network-scripts/ifcfg-eth1
-              echo "NETMASK=$APP_N6_MASK$" >> /etc/sysconfig/network-scripts/ifcfg-eth1
-              echo "$UE_IP_SEGMENT$ via $APP_N6_GW$" >> /etc/sysconfig/network-scripts/route-eth1
-              rm -fr /etc/sysconfig/network-scripts/*ifcfg-eth2*
-              echo "BOOTPROTO=static" >> /etc/sysconfig/network-scripts/ifcfg-eth2
-              echo "DEVICE=eth2" >> /etc/sysconfig/network-scripts/ifcfg-eth2
-              echo "ONBOOT=yes" >> /etc/sysconfig/network-scripts/ifcfg-eth2
-              echo "TYPE=Ethernet" >> /etc/sysconfig/network-scripts/ifcfg-eth2
-              echo "USERCTL=no" >> /etc/sysconfig/network-scripts/ifcfg-eth2
-              echo "DEFROUTE=yes" >> /etc/sysconfig/network-scripts/ifcfg-eth2
-              echo "IPV4_FAILURE_FATAL=no" >> /etc/sysconfig/network-scripts/ifcfg-eth2
-              echo "MTU=1500" >> /etc/sysconfig/network-scripts/ifcfg-eth2
-              echo "IPADDR=$APP_INTERNET_IP$" >> /etc/sysconfig/network-scripts/ifcfg-eth2
-              echo "NETMASK=$APP_INTERNET_MASK$" >> /etc/sysconfig/network-scripts/ifcfg-eth2
-              echo "GATEWAY=$APP_INTERNET_GW$" >> /etc/sysconfig/network-scripts/ifcfg-eth2
-              systemctl restart network
             params:
-              certificate_info:  { get_input: mep_certificate }
-              UE_IP_SEGMENT: {get_input: ue_ip_segment}
-              MEP_IP: {get_input: mep_ip}
-              MEP_PORT: {get_input: mep_port}
-              APP_MP1_IP: {get_input: app_mp1_ip}
-              APP_MP1_MASK: {get_input: app_mp1_mask}
-              APP_MP1_GW: {get_input: app_mp1_gw}
-              APP_N6_IP: {get_input: app_n6_ip}
-              APP_N6_MASK: {get_input: app_n6_mask}
-              APP_N6_GW: {get_input: app_n6_gw}
-              APP_INTERNET_IP: {get_input: app_internet_ip}
-              APP_INTERNET_MASK: {get_input: app_internet_mask}
-              APP_INTERNET_GW: {get_input: app_internet_gw}
-
-
-
     EMS_VDU1_CP0:
       type: tosca.nodes.nfv.VduCp
       properties:
