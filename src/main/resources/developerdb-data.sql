@@ -70,6 +70,16 @@
     ('ARM', 'mgmt_egarm', 'nova')
     ON CONFLICT(architecture) do nothing;
 
+    INSERT INTO tbl_vm_user_data (operate_system, is_temp, contents, params) VALUES
+    ('ubuntu', 'true', '','')
+    ON CONFLICT(operate_system) do nothing;
+    INSERT INTO tbl_vm_user_data (operate_system, is_temp, contents, params) VALUES
+    ('centos', 'true', '','')
+    ON CONFLICT(operate_system) do nothing;
+    INSERT INTO tbl_vm_user_data (operate_system, is_temp, contents, params) VALUES
+    ('debian', 'true', '','')
+    ON CONFLICT(operate_system) do nothing;
+
     -- workspace mep capability init --
 
 
