@@ -40,6 +40,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.edgegallery.developer.common.Consts;
 import org.edgegallery.developer.exception.DomainException;
 import org.edgegallery.developer.model.deployyaml.ImageDesc;
@@ -107,9 +108,8 @@ public class NewCreateVmCsar {
                 FileUtils.readFileToString(csarValue, StandardCharsets.UTF_8).replace("{name}", projectName)
                     .replace("{provider}", project.getProvider()).replace("{version}", project.getVersion())
                     .replace("{time}", timeStamp).replace("{description}", project.getDescription())
-                    .replace("{ChartName}", chartName).replace("{type}", type)
-                    .replace("{class}", deployType).replace("{appd-name}", projectName),
-                StandardCharsets.UTF_8, false);
+                    .replace("{ChartName}", chartName).replace("{type}", type).replace("{class}", deployType)
+                    .replace("{appd-name}", projectName), StandardCharsets.UTF_8, false);
             boolean isSuccess = csarValue.renameTo(new File(csar.getCanonicalPath() + "/" + projectName + ".mf"));
             if (!isSuccess) {
                 LOGGER.error("rename mf file failed!");
@@ -197,11 +197,14 @@ public class NewCreateVmCsar {
             "node_templates", "EMS_VDU1", "properties");
         virtualConstraints.put("nfvi_constraints", flavor.getConstraints());
 
-        // write user data
-        writeUserDataToYaml(templateFile, config);
-
         ObjectMapper om = new ObjectMapper(new YAMLFactory());
         om.writeValue(templateFile, loaded);
+        // write user data
+        List<String> list = writeUserDataToYaml(templateFile, config);
+        //replace contents: 为contents: |
+        List<String> contentsList = replaceContents(templateFile, list);
+        //replace params:null params:
+        replaceParams(templateFile, contentsList);
         // delete ""
         File templateFileModify = new File(mainServiceTemplatePath);
         String yamlContents = FileUtils.readFileToString(templateFileModify, StandardCharsets.UTF_8);
@@ -259,10 +262,37 @@ public class NewCreateVmCsar {
         return csar;
     }
 
-    private void writeUserDataToYaml(File templateFile, VmPackageConfig config) {
+    private List<String> replaceContents(File templateFile, List<String> list) {
+        //获取contents位置的索引
+        String contents = "";
+        for (String str : list) {
+            if (str.contains("contents:")) {
+                contents = str;
+            }
+        }
+        int contentIndex = list.indexOf(contents);
+        list.set(contentIndex, "            contents: |\r\n");
+        writeListToFile(list, templateFile);
+        return list;
+    }
+
+    private void replaceParams(File templateFile, List<String> list) {
+        //获取contents位置的索引
+        String params = "";
+        for (String str : list) {
+            if (str.contains("params:")) {
+                params = str;
+            }
+        }
+        int contentIndex = list.indexOf(params);
+        list.set(contentIndex, "            params:\r\n");
+        writeListToFile(list, templateFile);
+    }
+
+    private List<String> writeUserDataToYaml(File templateFile, VmPackageConfig config) {
         if (config.getVmUserData() == null) {
             LOGGER.error("no vm user data!");
-            return;
+            return null;
         }
         //yaml读取成list
         List<String> list = readFileByLine(templateFile);
@@ -278,9 +308,10 @@ public class NewCreateVmCsar {
         VmUserData vmUserData = config.getVmUserData();
         if (StringUtils.isEmpty(vmUserData.getContents())) {
             LOGGER.warn("vm user data don't have contents configuration!");
-            return;
+            return null;
         }
-        List<String> contentsList = readStringToList(vmUserData.getContents());
+        String unescapeContents = StringEscapeUtils.unescapeJava(vmUserData.getContents());
+        List<String> contentsList = readStringToList(unescapeContents);
         list.addAll(contentIndex + 1, contentsList);
         //获取params位置的索引
         String params = "";
@@ -293,12 +324,14 @@ public class NewCreateVmCsar {
         //params位置之后插入内容
         if (StringUtils.isEmpty(vmUserData.getParams())) {
             LOGGER.warn("vm user data don't have params configuration!");
-            return;
+            return null;
         }
-        List<String> paramsList = readStringToList(vmUserData.getParams());
+        String unescapeParams = StringEscapeUtils.unescapeJava(vmUserData.getParams());
+        List<String> paramsList = readStringToList(unescapeParams);
         list.addAll(paramsIndex + 1, paramsList);
         //重写把list写入yaml
-        writeListToFile(list,templateFile);
+        writeListToFile(list, templateFile);
+        return list;
 
     }
 
@@ -308,7 +341,7 @@ public class NewCreateVmCsar {
                 writer.write(l);
             }
         } catch (IOException e) {
-            LOGGER.error("write file content list to file failed {}",e.getMessage());
+            LOGGER.error("write file content list to file failed {}", e.getMessage());
         }
     }
 
