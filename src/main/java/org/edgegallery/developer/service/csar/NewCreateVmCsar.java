@@ -88,7 +88,6 @@ public class NewCreateVmCsar {
 
         String deployType = (project.getDeployPlatform() == EnumDeployPlatform.KUBERNETES) ? "container" : "vm";
         String projectName = project.getName();
-        String type = projectName + "_iso_" + project.getPlatform().get(0);
         String chartName = project.getName().replaceAll(Consts.PATTERN, "").toLowerCase();
 
         // copy template files to the new project path
@@ -107,8 +106,8 @@ public class NewCreateVmCsar {
                 FileUtils.readFileToString(csarValue, StandardCharsets.UTF_8).replace("{name}", projectName)
                     .replace("{provider}", project.getProvider()).replace("{version}", project.getVersion())
                     .replace("{time}", timeStamp).replace("{description}", project.getDescription())
-                    .replace("{ChartName}", chartName).replace("{type}", type)
-                    .replace("{class}", deployType).replace("{appd-name}", projectName),
+                    .replace("{ChartName}", chartName).replace("{class}", deployType)
+                    .replace("{appd-name}", projectName),
                 StandardCharsets.UTF_8, false);
             boolean isSuccess = csarValue.renameTo(new File(csar.getCanonicalPath() + "/" + projectName + ".mf"));
             if (!isSuccess) {
@@ -132,12 +131,12 @@ public class NewCreateVmCsar {
             throw new IOException("replace file exception");
         }
 
-        // modify the csar  APPD/TOSCA_VNFD.meta file
+        // modify the csar  TOSCA-Metadata/TOSCA.meta file
         try {
             File toscaValue = new File(csar.getCanonicalPath() + TEMPLATE_TOSCA_METADATA_PATH);
 
             FileUtils.writeStringToFile(toscaValue, FileUtils.readFileToString(toscaValue, StandardCharsets.UTF_8)
-                .replace("{appdFile}", projectName + ".zip"), StandardCharsets.UTF_8, false);
+                .replace("{appdFile}", projectName), StandardCharsets.UTF_8, false);
         } catch (IOException e) {
             throw new IOException("replace file exception");
         }

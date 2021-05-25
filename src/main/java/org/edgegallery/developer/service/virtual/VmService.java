@@ -102,6 +102,10 @@ public class VmService {
 
     private static Gson gson = new Gson();
 
+    private static final String TEMPLATE_TOSCA_METADATA_PATH = "/TOSCA-Metadata/TOSCA.meta";
+
+    private static final String TEMPLATE_TOSCA_IMAGE_DESC_PATH = "Image/SwImageDesc.json";
+
     @Autowired
     private VmConfigMapper vmConfigMapper;
 
@@ -823,8 +827,7 @@ public class VmService {
      */
     public boolean downloadImageResult(MepHost host, VmImageConfig config, String userId) {
 
-        String packagePath = projectService.getProjectPath(config.getProjectId()) + config.getAppInstanceId()
-            + File.separator + "Image";
+        String packagePath = projectService.getProjectPath(config.getProjectId()) + config.getAppInstanceId();
         LOGGER.info(packagePath);
         for (int chunkNum = 0; chunkNum < config.getSumChunkNum(); chunkNum++) {
             LOGGER.info("download image chunkNum:{}", chunkNum);
@@ -876,8 +879,21 @@ public class VmService {
             return false;
         }
 
+        // modify the csar  TOSCA-Metadata/TOSCA.meta file
+        String toscaPath = packagePath + TEMPLATE_TOSCA_METADATA_PATH;
+        LOGGER.info(toscaPath);
+        try {
+            File toscaValue = new File(toscaPath);
+
+            FileUtils.writeStringToFile(toscaValue, FileUtils.readFileToString(toscaValue, StandardCharsets.UTF_8)
+                .replace("{imageFile}", config.getImageName()), StandardCharsets.UTF_8, false);
+        } catch (IOException e) {
+            LOGGER.error("modify image file fail: occur IOException {}.", e.getMessage());
+            return false;
+        }
+
         // modify image file
-        File swImageDesc = new File(packagePath + File.separator + "SwImageDesc.json");
+        File swImageDesc = new File(packagePath + TEMPLATE_TOSCA_IMAGE_DESC_PATH);
         try {
             List<ImageDesc> swImgDescs = getSwImageDescrInfo(
                 FileUtils.readFileToString(swImageDesc, StandardCharsets.UTF_8));
