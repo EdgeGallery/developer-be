@@ -77,7 +77,7 @@
           typeHandler="org.edgegallery.developer.model.handler.JsonTypeHandler"/>
         <result property="vmNetwork" column="vm_network_desc"
           typeHandler="org.edgegallery.developer.model.handler.JsonCollectionTypeHandler"/>
-        <result property="vmUserDate" column="vm_user_date"
+        <result property="vmUserData" column="vm_user_data"
           typeHandler="org.edgegallery.developer.model.handler.JsonTypeHandler"/>
         <result property="vmName" column="vm_name"/>
         <result property="ak" column="ak"/>
@@ -166,7 +166,7 @@
         where architecture = #{architecture}
     </select>
 
-    <select id="getVmUserDate"
+    <select id="getVmUserData"
       resultMap="VmUserData">
         SELECT
         *
