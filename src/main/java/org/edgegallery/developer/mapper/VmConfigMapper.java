@@ -34,7 +34,7 @@ public interface VmConfigMapper {
 
     List<VmNetwork> getVmNetwork();
 
-    List<VmUserData> getVmUserDate();
+    List<VmUserData> getVmUserData();
 
     VmNetwork getVmNetworkByType(String networkType);
 

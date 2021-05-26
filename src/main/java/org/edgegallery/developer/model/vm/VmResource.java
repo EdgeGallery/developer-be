@@ -32,6 +32,6 @@ public class VmResource {
 
     private List<VmNetwork> vmNetworkList;
 
-    private List<VmUserData> vmUserDateList;
+    private List<VmUserData> vmUserDataList;
 
 }

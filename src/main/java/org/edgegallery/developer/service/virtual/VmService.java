@@ -130,12 +130,12 @@ public class VmService {
         List<VmRegulation> vmRegulation = vmConfigMapper.getVmRegulation();
         List<VmSystem> vmSystem = vmConfigMapper.getVmSystem();
         List<VmNetwork> vmNetwork = vmConfigMapper.getVmNetwork();
-        List<VmUserData> vmUserDate = vmConfigMapper.getVmUserDate();
+        List<VmUserData> vmUserData = vmConfigMapper.getVmUserData();
         VmResource vmResource = new VmResource();
         vmResource.setVmRegulationList(vmRegulation);
         vmResource.setVmSystemList(vmSystem);
         vmResource.setVmNetworkList(vmNetwork);
-        vmResource.setVmUserDateList(vmUserDate);
+        vmResource.setVmUserDataList(vmUserData);
         LOGGER.info("Get all vm resource success");
         return Either.right(vmResource);
 
