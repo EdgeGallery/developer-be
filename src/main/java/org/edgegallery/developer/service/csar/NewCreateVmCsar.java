@@ -34,6 +34,7 @@ import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -108,8 +109,7 @@ public class NewCreateVmCsar {
                     .replace("{provider}", project.getProvider()).replace("{version}", project.getVersion())
                     .replace("{time}", timeStamp).replace("{description}", project.getDescription())
                     .replace("{ChartName}", chartName).replace("{class}", deployType)
-                    .replace("{appd-name}", projectName),
-                StandardCharsets.UTF_8, false);
+                    .replace("{appd-name}", projectName), StandardCharsets.UTF_8, false);
             boolean isSuccess = csarValue.renameTo(new File(csar.getCanonicalPath() + "/" + projectName + ".mf"));
             if (!isSuccess) {
                 LOGGER.error("rename mf file failed!");
@@ -136,8 +136,9 @@ public class NewCreateVmCsar {
         try {
             File toscaValue = new File(csar.getCanonicalPath() + TEMPLATE_TOSCA_METADATA_PATH);
 
-            FileUtils.writeStringToFile(toscaValue, FileUtils.readFileToString(toscaValue, StandardCharsets.UTF_8)
-                .replace("{appdFile}", projectName), StandardCharsets.UTF_8, false);
+            FileUtils.writeStringToFile(toscaValue,
+                FileUtils.readFileToString(toscaValue, StandardCharsets.UTF_8).replace("{appdFile}", projectName),
+                StandardCharsets.UTF_8, false);
         } catch (IOException e) {
             throw new IOException("replace file exception");
         }
@@ -198,19 +199,24 @@ public class NewCreateVmCsar {
         virtualConstraints.put("nfvi_constraints", flavor.getConstraints());
 
         // modify vnfd_id and version in node_templates
-        LinkedHashMap<String, Object> vnfInfo = getObjectFromMap(loaded, "topology_template",
-            "node_templates", "Simple_VNF", "properties");
+        LinkedHashMap<String, Object> vnfInfo = getObjectFromMap(loaded, "topology_template", "node_templates",
+            "Simple_VNF", "properties");
         vnfInfo.put("vnfd_id", projectName);
         vnfInfo.put("vnfd_version", project.getVersion());
 
         ObjectMapper om = new ObjectMapper(new YAMLFactory());
         om.writeValue(templateFile, loaded);
         // write user data
-        List<String> list = writeUserDataToYaml(templateFile, config);
-        //replace contents: 为contents: |
-        List<String> contentsList = replaceContents(templateFile, list);
-        //replace params:null params:
-        replaceParams(templateFile, contentsList);
+        VmUserData vmUserData = config.getVmUserData();
+        if (vmUserData != null && vmUserData.isTemp()) {
+            List<String> list = writeUserDataToYaml(templateFile, config);
+            if (!CollectionUtils.isEmpty(list)) {
+                //replace contents: 为contents: |
+                List<String> contentsList = replaceContents(templateFile, list);
+                //replace params:null params:
+                replaceParams(templateFile, contentsList);
+            }
+        }
         // delete ""
         File templateFileModify = new File(mainServiceTemplatePath);
         String yamlContents = FileUtils.readFileToString(templateFileModify, StandardCharsets.UTF_8);
@@ -296,10 +302,6 @@ public class NewCreateVmCsar {
     }
 
     private List<String> writeUserDataToYaml(File templateFile, VmPackageConfig config) {
-        if (config.getVmUserData() == null) {
-            LOGGER.error("no vm user data!");
-            return null;
-        }
         //yaml读取成list
         List<String> list = readFileByLine(templateFile);
         //获取contents位置的索引
@@ -314,7 +316,7 @@ public class NewCreateVmCsar {
         VmUserData vmUserData = config.getVmUserData();
         if (StringUtils.isEmpty(vmUserData.getContents())) {
             LOGGER.warn("vm user data don't have contents configuration!");
-            return null;
+            return Collections.emptyList();
         }
         String unescapeContents = StringEscapeUtils.unescapeJava(vmUserData.getContents());
         List<String> contentsList = readStringToList(unescapeContents);
@@ -330,7 +332,7 @@ public class NewCreateVmCsar {
         //params位置之后插入内容
         if (StringUtils.isEmpty(vmUserData.getParams())) {
             LOGGER.warn("vm user data don't have params configuration!");
-            return null;
+            return Collections.emptyList();
         }
         String unescapeParams = StringEscapeUtils.unescapeJava(vmUserData.getParams());
         List<String> paramsList = readStringToList(unescapeParams);
@@ -360,7 +362,7 @@ public class NewCreateVmCsar {
                 sb.add(line + "\r\n");
             }
         } catch (IOException e) {
-            return null;
+            return Collections.emptyList();
         }
         return sb;
     }
