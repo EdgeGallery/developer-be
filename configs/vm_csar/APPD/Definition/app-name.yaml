@@ -1,7 +1,7 @@
 tosca_definitions_version: tosca_simple_profile_yaml_1_2
 description: EG MEC VM
 imports:
-  - nfv_vnfd_types_v1_0.yaml
+  - cmcc_nfv_vnfd_types_v1_0_20190924.yaml
 
 metadata:
   template_name: Eastcom-SPCLNLWY-EMS_eulerforTR6_iso

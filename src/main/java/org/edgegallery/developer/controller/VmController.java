@@ -146,7 +146,7 @@ public class VmController {
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
     @RequestMapping(value = "/projects/{projectId}/vm-create", method = RequestMethod.POST,
-        consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+        produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<VmCreateConfig> createVm(
         @Pattern(regexp = REGEX_UUID, message = "projectId must be in UUID format")

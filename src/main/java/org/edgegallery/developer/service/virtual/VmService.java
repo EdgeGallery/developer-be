@@ -743,10 +743,6 @@ public class VmService {
             return Either.left(error);
         }
         VmPackageConfig tes = vmConfigMapper.getVmPackageConfig(projectId);
-        if (tes == null) {
-            LOGGER.error("get vm package config failed.");
-            return Either.left(new FormatRespDto(Response.Status.BAD_REQUEST, "get vm package config failed."));
-        }
         return Either.right(tes);
     }
 
