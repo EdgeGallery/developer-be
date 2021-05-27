@@ -13,50 +13,32 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-
-package org.edgegallery.developer.model.vm;
+package org.edgegallery.developer.model.workspace;
 
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
 
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.Pattern;
-import java.util.Date;
 
 @Getter
 @Setter
-public class VmSystem {
+public class MepSystemQueryCtrl {
 
-    private Integer systemId;
+    @Min(value = -1)
+    private int offset;
 
-    private String type;
+    @Min(value = 0)
+    @Max(value = 100)
+    private int limit;
 
-    private String operateSystem;
+    @ApiModelProperty(example = "userName")
+    @Pattern(regexp = "(?i)userName|(?i)createTime")
+    private String sortBy ;
 
-    private String version;
-
-    private String systemBit;
-
-    private Integer systemDisk;
-
-    private String systemName;
-
-    private Date createTime;
-
-    private Date modifyTime;
-
-    private String systemFormat;
-
-    private Date uploadTime;
-
-    private String systemPath;
-
-    @ApiModelProperty(example = "UPLOAD_WAIT")
-    @Pattern(regexp = "ALL|UPLOAD_WAIT|UPLOADING|UPLOAD_SUCCEED|UPLOAD_FAILED|PUBLISHED")
-    private String status;
-
-    private String userId;
-
-    private String userName;
-
+    @ApiModelProperty(example = "ASC")
+    @Pattern(regexp = "(?i)ASC|(?i)DESC")
+    private String sortOrder;
 }

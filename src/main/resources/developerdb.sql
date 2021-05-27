@@ -332,13 +332,22 @@
     ;
 
     CREATE TABLE IF NOT EXISTS "tbl_vm_system" (
-      "system_id" SERIAL,
-      "type" varchar(50) DEFAULT NULL,
-      "operate_system" varchar(50) DEFAULT NULL,
-      "version" varchar(50) NOT NULL DEFAULT NULL,
-      "system_bit" varchar(50) DEFAULT NULL,
-      "system_disk" int4  DEFAULT NULL
-    )
+        "system_id" SERIAL,
+        "system_name" varchar(128) DEFAULT NULL,
+        "type" varchar(50) DEFAULT NULL,
+        "operate_system" varchar(50) DEFAULT NULL,
+        "version" varchar(50) NOT NULL DEFAULT NULL,
+        "system_bit" varchar(50) DEFAULT NULL,
+        "system_disk" int4  DEFAULT NULL,
+        "user_id" varchar(50) DEFAULT NULL,
+        "user_name" varchar(50) DEFAULT NULL,
+        "create_time" timestamptz(6)  DEFAULT NULL,
+        "modify_time" timestamptz(6)  DEFAULT NULL,
+        "system_format" varchar(50) DEFAULT NULL,
+        "upload_time" timestamptz(6)  DEFAULT NULL,
+        "system_path" varchar(128) DEFAULT NULL,
+        "status" varchar(50) DEFAULT NULL
+        )
     ;
 
     CREATE TABLE IF NOT EXISTS "tbl_vm_flavor" (
