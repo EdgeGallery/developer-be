@@ -360,6 +360,7 @@
 
     CREATE TABLE IF NOT EXISTS "tbl_vm_user_data" (
       "operate_system" varchar(50) DEFAULT NULL,
+      "flavor_extra_specs" text DEFAULT NULL,
       "is_temp" bool DEFAULT NULL,
       "contents" text DEFAULT NULL,
       "params" text DEFAULT NULL,

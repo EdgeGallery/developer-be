@@ -4,13 +4,13 @@ imports:
   - cmcc_nfv_vnfd_types_v1_0_20190924.yaml
 
 metadata:
-  template_name: Eastcom-SPCLNLWY-EMS_eulerforTR6_iso
-  template_author: EDGEGALLERY
+  template_name: EDGEGALLERY-MEC-VM
+  template_author: EdgeGallery
   template_version: 1.0.0
   vnfm_type: MEPM
-  vnfd_id: eulerforTR6_iso_arm
-  vnfd_version: v3.25
-  vnfd_name: eastcom_spclnlwyems_eulerforTR6_iso_vnfd
+  vnfd_id: <vnfd_id>
+  vnfd_version: v1.2
+  vnfd_name: <vnfd_name>
   vnfd_description: EG sample for gvnfm
 
 topology_template:
@@ -18,6 +18,10 @@ topology_template:
     DC_ID:
       type: string
       description: DC_ID
+    az_dc:
+      type: string
+      default: az1.dc1
+      description: AZ.DZ
     ak:
       type: string
       default: abdc
@@ -119,18 +123,50 @@ topology_template:
       type: string
       default:
       description: mec_internet_ip
+    TrafficRuleSrcAddr:
+      type: string
+      default: 0.0.0.0/0
+      description: TrafficRuleSrcAddr
+    TrafficRuleDstAddr:
+      type: string
+      default: 127.0.0.1/28
+      description: TrafficRuleDstAddr
+    TrafficRuleSrcPort:
+      type: string
+      default: 0-65535
+      description: TrafficRuleSrcPort
+    TrafficRuleDstPort:
+      type: string
+      default: 0-65535
+      description: TrafficRuleDstPort
+    TrafficRuleProtocol:
+      type: string
+      default: ANY
+      description: TrafficRuleProtocol
+    DnsRuleDomainName:
+      type: string
+      default: mec.edgegallery.com
+      description: DnsRuleDomainName
+    DnsRuleIpAddressType:
+      type: string
+      default: IP_V4
+      description: DnsRuleIpAddressType
+    DnsRuleIpAddress:
+      type: string
+      default: 127.0.0.1
+      description: DnsRuleIpAddress
 
   node_templates:
     Simple_VNF:
       type: tosca.nodes.nfv.VNF
       properties:
-        vnfd_id: eulerforTR6_iso_arm_zhi_new1
-        vnfd_version: v1.0
-        provider: eastcom
-        product_name: vSPCLNLWYEMS
-        software_version: v1.0.0
-        product_info_name: vSPCLNLWYEMS
-        product_info_description: EASTCOM vSPCLNLWY EMS
+        vnfd_id: <vnfd_id>
+        vnfd_version: v1.2
+        provider: <app_provider>
+        product_name: <app_name>
+        software_version: <product_version>
+        product_info_name: EG_MEC_APP
+        product_info_description: EdgeGallery MEC APP
         flavour_id: default
         flavour_description: default flavor
         ve_vnfm_vnf_enable: false
@@ -142,24 +178,23 @@ topology_template:
         virtual_compute:
           properties:
             virtual_memory:
-              virtual_mem_size: 4096
+              virtual_mem_size: <virtual_mem_size>
             virtual_cpu:
-              num_virtual_cpu: 4
-              cpu_architecture: ARM
+              num_virtual_cpu: <num_virtual_cpu>
+              cpu_architecture: <cpu_architecture>
             virtual_local_storage:
-              size_of_storage: 100
+              size_of_storage: <size_of_storage>
       properties:
         name: eulerforTR6_iso_arm_EMS_VDU1
         description: EMS_VDU1 node
-        nfvi_constraints: 'nova'
+        nfvi_constraints: {get_input: az_dc}
         vdu_profile:
           min_number_of_instances: 1
           max_number_of_instances: 1
           initial_number_of_instances: 1
           flavor_extra_specs:
-            "mgmt_egx86": "true"
         sw_image_data:
-          name: ubuntu
+          name: <sw_image_data>
         bootdata:
           config_drive: true
           user_data:
@@ -235,6 +270,75 @@ topology_template:
         certification_info:
           access_key_id: {get_input: ak}
           secret_key: {get_input: sk}
+        appServiceProduced:
+          - serName: appService3
+            serCategory: video encoding
+            version: 2.0
+            transportsSupported:
+              - transport:
+                  type: REST_HTTP
+                  protocol: HTTP
+                  version: 2.0
+                  security: string
+                serializers:
+                  - JSON
+            dnsRuleIdList:
+              - dnsRule1
+            trafficRuleIdList:
+              - trafficRule1
+        appFeatureRequired:
+          - featureName: UserApps
+            version: 3.0
+        appFeatureOptional:
+          - featureName: UserApps
+            version: 3.0
+        transportDependencies:
+          - transport:
+              type: REST_HTTP
+              protocol: HTTP
+              version: 2.0
+              security:
+            serializers:
+              - JSON
+            labels:
+              - test
+        appSupportMp1: true
+        appName: filter01
+        appTrafficRule:
+          - trafficRuleId: trafficRule1
+            filterType: FLOW
+            priority: 1
+            trafficFilter:
+              - srcAddress:
+                  - {get_input: TrafficRuleSrcAddr}
+                dstAddress:
+                  - {get_input: TrafficRuleDstAddr}
+                srcPort:
+                  - {get_input: TrafficRuleSrcPort}
+                dstPort:
+                  - {get_input: TrafficRuleDstPort}
+                protocol:
+                  - {get_input: TrafficRuleProtocol}
+                tag:
+                  - '1234'
+                srcTunnelAddress:
+                  - 10.10.10.10
+                tgtTunnelAddress:
+                  - 10.10.10.10
+                srcTunnelPort:
+                  - '8080'
+                dstTunnelPort:
+                  - '8080'
+                qCI: 1
+                dSCP: 0
+                tC: 1
+            action: PASSTHROUGH
+        appDNSRule:
+          - dnsRuleId: dnsRule1
+            domainName: {get_input: DnsRuleDomainName}
+            ipAddressType: {get_input: DnsRuleIpAddressType}
+            ipAddress: {get_input: DnsRuleIpAddress}
+            ttl: 100
 
 
   groups:
