@@ -29,6 +29,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.edgegallery.developer.common.Consts;
+import org.edgegallery.developer.config.security.AccessUserUtil;
 import org.edgegallery.developer.model.vm.VmCreateConfig;
 import org.edgegallery.developer.model.vm.VmImageConfig;
 import org.edgegallery.developer.model.vm.VmPackageConfig;
@@ -72,7 +73,8 @@ public class VmController {
     @RequestMapping(value = "/vmconfig", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<VmResource> getVirtualResource() {
-        Either<FormatRespDto, VmResource> either = vmService.getVirtualResource();
+        String currUserId = AccessUserUtil.getUserId();
+        Either<FormatRespDto, VmResource> either = vmService.getVirtualResource(currUserId);
         return ResponseDataUtil.buildResponse(either);
     }
 

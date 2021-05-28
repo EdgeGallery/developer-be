@@ -44,6 +44,7 @@
     <resultMap id="VmSystem"
       type="org.edgegallery.developer.model.vm.VmSystem">
         <id property="systemId" column="system_id"/>
+        <result property="systemName" column="system_name"/>
         <result property="type" column="type"/>
         <result property="operateSystem" column="operate_system"/>
         <result property="version" column="version"/>
@@ -133,11 +134,13 @@
     </select>
 
     <select id="getVmSystem"
+      parameterType="String"
       resultMap="VmSystem">
         SELECT
         *
         FROM
         tbl_vm_system
+        WHERE status = 'PUBLISHED' and (type = 'public' or user_id = #{userId})
     </select>
 
     <select id="getVmNetwork"
