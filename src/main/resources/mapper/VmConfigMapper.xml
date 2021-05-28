@@ -50,6 +50,7 @@
         <result property="version" column="version"/>
         <result property="systemBit" column="system_bit"/>
         <result property="systemDisk" column="system_disk"/>
+        <result property="systemPath" column="system_path"/>
     </resultMap>
 
     <resultMap id="VmNetwork"
@@ -63,6 +64,7 @@
     <resultMap id="VmUserData"
       type="org.edgegallery.developer.model.vm.VmUserData">
         <id property="operateSystem" column="operate_system"/>
+        <id property="flavorExtraSpecs" column="flavor_extra_specs"/>
         <result property="isTemp" column="is_temp"/>
         <result property="contents" column="contents"/>
         <result property="params" column="params"/>

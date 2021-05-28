@@ -144,68 +144,31 @@ public class NewCreateVmCsar {
         }
         //update vm config data
 
-        String mainServiceTemplatePath = csar.getCanonicalPath() + TEMPLATE_CSAR_BASE_PATH;
-        File templateFile = new File(mainServiceTemplatePath);
-        String yamlContent = FileUtils.readFileToString(templateFile, StandardCharsets.UTF_8);
-        yamlContent = yamlContent.replaceAll("\t", "");
-        Yaml yaml = new Yaml(new SafeConstructor());
-        Map<String, Object> loaded;
+        String templateName = projectName + "_" + project.getPlatform().get(0) + "_" + config.getVmSystem().getOperateSystem();
+        String imageName = config.getVmSystem().getSystemName();
+
+
         try {
-            loaded = yaml.load(yamlContent);
-        } catch (DomainException e) {
-            LOGGER.error("Yaml deserialization failed {}", e.getMessage());
-            throw new DomainException("Yaml deserialization failed");
+            File resourceFile = new File(csar.getCanonicalPath() + TEMPLATE_CSAR_BASE_PATH);
+
+            FileUtils.writeStringToFile(resourceFile,
+                FileUtils.readFileToString(resourceFile, StandardCharsets.UTF_8)
+                    .replace("<vnfd_id>", templateName).replace("<vnfd_name>", templateName)
+                    .replace("<app_provider>", project.getProvider()).replace("<app_name>", projectName)
+                    .replace("<product_version>", project.getVersion())
+                    .replace("<virtual_mem_size>", Integer.toString(config.getVmRegulation().getMemory() * 1024))
+                    .replace("<num_virtual_cpu>", Integer.toString(config.getVmRegulation().getCpu()))
+                    .replace("<cpu_architecture>", config.getVmRegulation().getArchitecture())
+                    .replace("<size_of_storage>", Integer.toString(config.getVmRegulation().getDataDisk()))
+                    .replace("<sw_image_data>", imageName), StandardCharsets.UTF_8, false);
+        } catch (IOException e) {
+            throw new IOException("replace file exception");
         }
 
-        // modify vnf info
-        LinkedHashMap<String, Object> vmName = getObjectFromMap(loaded, "metadata");
-        vmName.put("template_name", projectName);
-        vmName.put("vnfd_name", projectName);
-        vmName.put("vnfd_id", projectName);
-        vmName.put("vnfd_version", project.getVersion());
-        // config vm name
-        LinkedHashMap<String, Object> virtualName = getObjectFromMap(loaded, "topology_template", "node_templates",
-            "EMS_VDU1", "properties");
-        virtualName.put("name", config.getVmName());
-        // config vm memory
-        LinkedHashMap<String, Object> virtualMemory = getObjectFromMap(loaded, "topology_template", "node_templates",
-            "EMS_VDU1", "capabilities", "virtual_compute", "properties", "virtual_memory");
-        virtualMemory.put("virtual_mem_size", config.getVmRegulation().getMemory() * 1024);
-        // config vm cpu
-        LinkedHashMap<String, Object> virtualCpu = getObjectFromMap(loaded, "topology_template", "node_templates",
-            "EMS_VDU1", "capabilities", "virtual_compute", "properties", "virtual_cpu");
-        virtualCpu.put("num_virtual_cpu", config.getVmRegulation().getCpu());
-        // config vm cpu_architecture
-        virtualCpu.put("cpu_architecture", config.getVmRegulation().getArchitecture());
-        // config vm data storage
-        LinkedHashMap<String, Object> virtualStorage = getObjectFromMap(loaded, "topology_template", "node_templates",
-            "EMS_VDU1", "capabilities", "virtual_compute", "properties", "virtual_local_storage");
-        virtualStorage.put("size_of_storage", config.getVmRegulation().getDataDisk());
-        // config vm image data
-        String imageData = config.getVmSystem().getOperateSystem() + "-" + config.getVmSystem().getVersion();
-        LinkedHashMap<String, Object> virtualImage = getObjectFromMap(loaded, "topology_template", "node_templates",
-            "EMS_VDU1", "properties", "sw_image_data");
-        virtualImage.put("name", imageData);
+        String mainServiceTemplatePath = csar.getCanonicalPath() + TEMPLATE_CSAR_BASE_PATH;
+        File templateFile = new File(mainServiceTemplatePath);
 
-        // config flavor
-        LinkedHashMap<String, Object> virtualFlavor = getObjectFromMap(loaded, "topology_template", "node_templates",
-            "EMS_VDU1", "properties", "vdu_profile", "flavor_extra_specs");
-        virtualFlavor.remove("mgmt_egarm", "true");
-        virtualFlavor.put(flavor.getFlavor(), "true");
 
-        // config flavor
-        LinkedHashMap<String, Object> virtualConstraints = getObjectFromMap(loaded, "topology_template",
-            "node_templates", "EMS_VDU1", "properties");
-        virtualConstraints.put("nfvi_constraints", flavor.getConstraints());
-
-        // modify vnfd_id and version in node_templates
-        LinkedHashMap<String, Object> vnfInfo = getObjectFromMap(loaded, "topology_template", "node_templates",
-            "Simple_VNF", "properties");
-        vnfInfo.put("vnfd_id", projectName);
-        vnfInfo.put("vnfd_version", project.getVersion());
-
-        ObjectMapper om = new ObjectMapper(new YAMLFactory());
-        om.writeValue(templateFile, loaded);
         // write user data
         VmUserData vmUserData = config.getVmUserData();
         if (vmUserData != null && vmUserData.isTemp()) {
@@ -217,11 +180,7 @@ public class NewCreateVmCsar {
                 replaceParams(templateFile, contentsList);
             }
         }
-        // delete ""
         File templateFileModify = new File(mainServiceTemplatePath);
-        String yamlContents = FileUtils.readFileToString(templateFileModify, StandardCharsets.UTF_8);
-        yamlContents = yamlContents.replaceAll("\"", "");
-        writeFile(templateFileModify, yamlContents);
         boolean isRename = templateFileModify
             .renameTo(new File(csar.getCanonicalPath() + "/APPD/Definition/" + projectName + ".yaml"));
         if (!isRename) {
@@ -248,9 +207,11 @@ public class NewCreateVmCsar {
 
         }
         //update SwImageDesc.json , get image url
+        String url = config.getVmSystem().getSystemPath();
+        String imageId = url.substring(url.length()-32);
         ImageDesc imageDesc = new ImageDesc();
-        imageDesc.setId(UUID.randomUUID().toString());
-        imageDesc.setName(imageData);
+        imageDesc.setId(imageId);
+        imageDesc.setName(config.getVmSystem().getSystemName());
         imageDesc.setVersion(project.getVersion());
         imageDesc.setChecksum("2");
         imageDesc.setContainerFormat("bare");
@@ -259,10 +220,10 @@ public class NewCreateVmCsar {
         imageDesc.setMinRam(6);
         imageDesc.setArchitecture(project.getPlatform().get(0));
         imageDesc.setSize(688390);
-        imageDesc.setSwImage("Image/" + imageData);
+        imageDesc.setSwImage(config.getVmSystem().getSystemPath());
         imageDesc.setHwScsiModel("virtio-scsi");
         imageDesc.setHwDiskBus("scsi");
-        imageDesc.setOperatingSystem("linux");
+        imageDesc.setOperatingSystem(config.getVmSystem().getOperateSystem());
         imageDesc.setSupportedVirtualisationEnvironment("linux");
         List<ImageDesc> imageDescs = new ArrayList<>();
         imageDescs.add(imageDesc);

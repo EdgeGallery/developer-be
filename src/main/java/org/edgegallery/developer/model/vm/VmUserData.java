@@ -9,6 +9,8 @@ public class VmUserData {
 
     private String operateSystem;
 
+    private String flavorExtraSpecs;
+
     private boolean isTemp;
 
     private String contents;
