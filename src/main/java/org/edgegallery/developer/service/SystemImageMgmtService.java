@@ -1,26 +1,48 @@
 package org.edgegallery.developer.service;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 import com.spencerwi.either.Either;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Date;
+import java.util.Map;
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.core.Response;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.tomcat.util.http.fileupload.servlet.ServletFileUpload;
 import org.edgegallery.developer.config.security.AccessUserUtil;
 import org.edgegallery.developer.mapper.SystemImageMapper;
+import org.edgegallery.developer.model.Chunk;
 import org.edgegallery.developer.model.vm.VmSystem;
 import org.edgegallery.developer.model.workspace.MepGetSystemImageReq;
 import org.edgegallery.developer.model.workspace.MepGetSystemImageRes;
 import org.edgegallery.developer.model.workspace.MepSystemQueryCtrl;
 import org.edgegallery.developer.response.FormatRespDto;
+import org.edgegallery.developer.util.HttpClientUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-
-import javax.ws.rs.core.Response;
-import java.util.Date;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service("systemImageMgmtService")
 public class SystemImageMgmtService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SystemService.class);
+
+    private static final String SUBDIR_SYSIMAGE = "SystemImage";
+
+    @Value("${upload.tempPath}")
+    private String tempUploadPath;
+
+    @Value("${fileserver.address}")
+    private String fileServerAddress;
 
     @Autowired
     private SystemImageMapper systemImageMapper;
@@ -143,5 +165,154 @@ public class SystemImageMgmtService {
         }
         LOGGER.info("Delete SystemImage {} success", userId);
         return Either.right(true);
+    }
+
+    /**
+     * update system image status.
+     *
+     * @return
+     */
+    public Either<FormatRespDto, Boolean> updateSystemImageStatus(Integer systemId, String status, String systemPath) {
+        LOGGER.info("update system image status, systemId = {}, status = {}", systemId, status);
+        VmSystem vmImage = new VmSystem();
+        vmImage.setSystemId(systemId);
+        vmImage.setStatus(status);
+        if ("UPLOAD_SUCCEED".equalsIgnoreCase(status)) {
+            vmImage.setSystemPath(systemPath);
+            vmImage.setUploadTime(new Date(System.currentTimeMillis()));
+        }
+
+        int ret = systemImageMapper.updateSystemImageStatus(vmImage);
+        if (ret <= 0) {
+            LOGGER.error("update system image failed, systemId = {}", systemId);
+            return Either.left(new FormatRespDto(Response.Status.INTERNAL_SERVER_ERROR,
+                "update system image failed"));
+        }
+
+        LOGGER.info("update system image success.");
+        return Either.right(true);
+    }
+
+    /**
+     * upload system image.
+     *
+     * @param request HTTP Servlet Request
+     * @param chunk File Chunk
+     * @param systemId System Image ID
+     * @return Resposne
+     * @throws IOException
+     */
+    public ResponseEntity uploadSystemImage(HttpServletRequest request,
+        Chunk chunk, Integer systemId) throws IOException {
+        LOGGER.info("upload system image file, fileName = {}, identifier = {}, chunkNum = {}",
+            chunk.getFilename(), chunk.getIdentifier(), chunk.getChunkNumber());
+        boolean isMultipart = ServletFileUpload.isMultipartContent(request);
+        if (!isMultipart) {
+            LOGGER.error("upload request is invalid.");
+            return ResponseEntity.badRequest().build();
+        }
+
+        LOGGER.info("update status.");
+        updateSystemImageStatus(systemId, "UPLOADING", "");
+
+        MultipartFile file = chunk.getFile();
+        if (file == null) {
+            LOGGER.error("can not find any needed file");
+            updateSystemImageStatus(systemId, "UPLOAD_FAILED", "");
+            return ResponseEntity.badRequest().build();
+        }
+
+        File tmpUploadDir = new File(getUploadSysImageRootDir(systemId));
+        if (!tmpUploadDir.exists()) {
+            boolean isMk = tmpUploadDir.mkdirs();
+            if (!isMk) {
+                LOGGER.error("create temporary upload path failed");
+                updateSystemImageStatus(systemId, "UPLOAD_FAILED", "");
+                return ResponseEntity.status(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode()).build();
+            }
+        }
+
+        Integer chunkNumber = chunk.getChunkNumber();
+        if (chunkNumber == null) {
+            chunkNumber = 0;
+        }
+        File outFile = new File(getUploadSysImageRootDir(systemId)
+            + chunk.getIdentifier(), chunkNumber + ".part");
+        InputStream inputStream = file.getInputStream();
+        FileUtils.copyInputStreamToFile(inputStream, outFile);
+        return ResponseEntity.ok().build();
+    }
+
+    /**
+     * merge system image.
+     *
+     * @param fileName Merged File Name
+     * @param identifier File Identifier
+     * @param systemId System Image ID
+     * @return Resposne
+     * @throws IOException
+     */
+    public ResponseEntity mergeSystemImage(String fileName, String identifier, Integer systemId) throws IOException {
+        LOGGER.info("merge system image file, systemId = {}, fileName = {}, identifier = {}",
+            systemId, fileName, identifier);
+        String partFilePath = getUploadSysImageRootDir(systemId)  + identifier;
+        File partFileDir = new File(partFilePath);
+        if (!partFileDir.exists() || !partFileDir.isDirectory()) {
+            LOGGER.error("uploaded part file path not found!");
+            updateSystemImageStatus(systemId, "UPLOAD_FAILED", "");
+            return ResponseEntity.status(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode()).build();
+        }
+
+        File[] partFiles = partFileDir.listFiles();
+        if (partFiles == null || partFiles.length == 0) {
+            LOGGER.error("uploaded part file not found!");
+            updateSystemImageStatus(systemId, "UPLOAD_FAILED", "");
+            return ResponseEntity.status(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode()).build();
+        }
+
+        File mergedFile = new File(getUploadSysImageRootDir(systemId) + File.separator + fileName);
+        FileOutputStream destTempfos = new FileOutputStream(mergedFile, true);
+        for (File partFile : partFiles) {
+            FileUtils.copyFile(partFile, destTempfos);
+        }
+        destTempfos.close();
+        FileUtils.deleteDirectory(partFileDir);
+
+        String uploadedSystemPath = pushSystemImage(mergedFile);
+        if (StringUtils.isEmpty(uploadedSystemPath)) {
+            LOGGER.error("push system image file failed!");
+            updateSystemImageStatus(systemId, "UPLOAD_FAILED", "");
+            return ResponseEntity.status(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode()).build();
+        }
+
+        updateSystemImageStatus(systemId, "UPLOAD_SUCCEED", uploadedSystemPath);
+        return ResponseEntity.ok().build();
+    }
+
+    private String pushSystemImage(File systemImgFile) {
+        try {
+            String uploadResult = HttpClientUtil
+                .uploadSystemImage(fileServerAddress, systemImgFile.getPath(), AccessUserUtil.getUserId());
+            if (uploadResult == null) {
+                LOGGER.error("upload system image file failed.");
+                return null;
+            }
+
+            try {
+                Gson gson = new Gson();
+                Map<String, String> uploadResultModel = gson.fromJson(uploadResult, Map.class);
+                return fileServerAddress + uploadResultModel.get("url");
+            } catch (JsonSyntaxException e) {
+                LOGGER.error("upload system image file failed.");
+                return null;
+            }
+        } finally {
+            LOGGER.info("delete system image file.");
+            systemImgFile.delete();
+        }
+    }
+
+    private String getUploadSysImageRootDir(int systemId) {
+        return tempUploadPath + File.separator + SUBDIR_SYSIMAGE + File.separator + systemId + File.separator;
     }
 }

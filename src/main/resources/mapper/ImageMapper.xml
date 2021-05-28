@@ -145,4 +145,13 @@
             upload_time = #{uploadTime}
         WHERE system_id = #{systemId}
     </update>
+
+    <update id="updateSystemImageStatus" parameterType="org.edgegallery.developer.model.vm.VmSystem">
+        UPDATE
+        tbl_vm_system
+        SET status      = #{status},
+            system_path = #{systemPath},
+            upload_time = #{uploadTime}
+        WHERE system_id = #{systemId}
+    </update>
 </mapper>
