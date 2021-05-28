@@ -124,11 +124,12 @@ public class VmService {
     /**
      * getVirtualResource.
      *
+     * @param currUserId Current User ID
      * @return
      */
-    public Either<FormatRespDto, VmResource> getVirtualResource() {
+    public Either<FormatRespDto, VmResource> getVirtualResource(String currUserId) {
         List<VmRegulation> vmRegulation = vmConfigMapper.getVmRegulation();
-        List<VmSystem> vmSystem = vmConfigMapper.getVmSystem();
+        List<VmSystem> vmSystem = vmConfigMapper.getVmSystem(currUserId);
         List<VmNetwork> vmNetwork = vmConfigMapper.getVmNetwork();
         List<VmUserData> vmUserData = vmConfigMapper.getVmUserData();
         VmResource vmResource = new VmResource();

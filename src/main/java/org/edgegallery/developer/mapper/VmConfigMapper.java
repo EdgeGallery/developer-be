@@ -30,7 +30,7 @@ public interface VmConfigMapper {
 
     List<VmRegulation> getVmRegulation();
 
-    List<VmSystem> getVmSystem();
+    List<VmSystem> getVmSystem(String userId);
 
     List<VmNetwork> getVmNetwork();
 
