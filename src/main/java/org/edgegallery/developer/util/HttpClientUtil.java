@@ -575,4 +575,39 @@ public final class HttpClientUtil {
 
     }
 
+    /**
+     * upload system image.
+     */
+    public static String uploadSystemImage(String fileServerAddr, String filePath, String userId) {
+        MultiValueMap<String, Object> formData = new LinkedMultiValueMap<>();
+        formData.add("file", new FileSystemResource(filePath));
+        formData.add("userId", userId);
+        formData.add("priority", 0);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+
+        HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(formData, headers);
+        String url = fileServerAddr + Consts.SYSTEM_IMAGE_UPLOAD_URL;
+
+        ResponseEntity<String> response;
+        try {
+            REST_TEMPLATE.setErrorHandler(new CustomResponseErrorHandler());
+            response = REST_TEMPLATE.exchange(url, HttpMethod.POST, requestEntity, String.class);
+            LOGGER.info("upload system image file success, resp = {}", response);
+        } catch (CustomException e) {
+            String errorLog = e.getBody();
+            LOGGER.error("Failed upload system image exception {}", errorLog);
+            return null;
+        } catch (RestClientException e) {
+            LOGGER.error("Failed upload system image exception {}", e.getMessage());
+            return null;
+        }
+        if (response.getStatusCode() == HttpStatus.OK) {
+            return response.getBody();
+        }
+        LOGGER.error("Failed to upload system image!");
+        return null;
+    }
+
 }

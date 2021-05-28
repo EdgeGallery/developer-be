@@ -1,8 +1,15 @@
 package org.edgegallery.developer.controller;
 
 import com.spencerwi.either.Either;
-import io.swagger.annotations.*;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+import java.io.IOException;
+import javax.servlet.http.HttpServletRequest;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
+import org.edgegallery.developer.model.Chunk;
 import org.edgegallery.developer.model.vm.VmSystem;
 import org.edgegallery.developer.model.workspace.MepGetSystemImageReq;
 import org.edgegallery.developer.model.workspace.MepGetSystemImageRes;
@@ -10,21 +17,26 @@ import org.edgegallery.developer.response.ErrorRespDto;
 import org.edgegallery.developer.response.FormatRespDto;
 import org.edgegallery.developer.service.SystemImageMgmtService;
 import org.edgegallery.developer.util.ResponseDataUtil;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
 @RestSchema(schemaId = "systemImageMgmt")
 @RequestMapping("/mec/developer/v1/system")
 @Api(tags = "systemImage")
 public class SystemImageMgmtController {
-
+    private static final Logger LOGGER = LoggerFactory.getLogger(SystemImageMgmtController.class);
 
     @Autowired
     private SystemImageMgmtService systemImageMgmtService;
@@ -88,7 +100,6 @@ public class SystemImageMgmtController {
         return ResponseDataUtil.buildResponse(either);
     }
 
-
     /**
      * deleteSystemImage.
      *
@@ -124,5 +135,40 @@ public class SystemImageMgmtController {
             @PathVariable("systemId") Integer systemId) {
         Either<FormatRespDto, Boolean> either = systemImageMgmtService.publishSystemImage(systemId);
         return ResponseDataUtil.buildResponse(either);
+    }
+
+    /**
+     * upload system image.
+     */
+    @ApiOperation(value = "upload system image", response = ResponseEntity.class)
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = "OK", response = ResponseEntity.class),
+        @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
+    })
+    @RequestMapping(value = "/images/{systemId}/upload", method = RequestMethod.POST)
+    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
+    public ResponseEntity uploadSystemImage(HttpServletRequest request, Chunk chunk,
+        @ApiParam(value = "systemId", required = true) @PathVariable("systemId") Integer systemId) throws IOException {
+        LOGGER.info("upload system image file, fileName = {}, identifier = {}, chunkNum = {}",
+            chunk.getFilename(), chunk.getIdentifier(), chunk.getChunkNumber());
+        return systemImageMgmtService.uploadSystemImage(request, chunk, systemId);
+    }
+
+    /**
+     * merge system image.
+     */
+    @ApiOperation(value = "merge system image", response = ResponseEntity.class)
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = "OK", response = ResponseEntity.class),
+        @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
+    })
+    @RequestMapping(value = "/images/{systemId}/merge", method = RequestMethod.GET)
+    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
+    public ResponseEntity mergeSystemImage(@RequestParam(value = "fileName", required = false) String fileName,
+        @RequestParam(value = "identifier", required = false) String identifier,
+        @ApiParam(value = "systemId", required = true) @PathVariable("systemId") Integer systemId) throws IOException {
+        LOGGER.info("merge system image file, systemId = {}, fileName = {}, identifier = {}",
+            systemId, fileName, identifier);
+        return systemImageMgmtService.mergeSystemImage(fileName, identifier, systemId);
     }
 }

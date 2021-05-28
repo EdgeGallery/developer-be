@@ -88,6 +88,8 @@ public final class Consts {
 
     public static final String DEV_CLEAN_ENV_URL = "%s/mec/developer/v1/projects/%s/action/clean?userId=%s";
 
+    public static final String SYSTEM_IMAGE_UPLOAD_URL = "/imagemanagement/v1/upload";
+
     private Consts() {
     }
 }

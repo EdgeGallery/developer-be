@@ -34,4 +34,6 @@ public interface SystemImageMapper {
     int deleteSystemImage(VmSystem VmSystem);
 
     int publishSystemImage(VmSystem vmSystem);
+
+    int updateSystemImageStatus(VmSystem vmSystem);
 }
