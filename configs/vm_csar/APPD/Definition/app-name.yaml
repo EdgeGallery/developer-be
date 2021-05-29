@@ -155,6 +155,14 @@ topology_template:
       type: string
       default: 127.0.0.1
       description: DnsRuleIpAddress
+    DEMO_VNF_Network_01:
+      type: string
+      default: app_arm
+      description: DEMO_VNF_Network_01
+    DEMO_VNF_Network_02:
+      type: string
+      default: app_arm
+      description: DEMO_VNF_Network_02
 
   node_templates:
     Simple_VNF:
@@ -340,6 +348,19 @@ topology_template:
             ipAddress: {get_input: DnsRuleIpAddress}
             ttl: 100
 
+
+
+    DEMO_VL1:
+      type: tosca.nodes.nfv.VnfVirtualLink
+      properties:
+        vl_profile:
+          network_name: {get_input: DEMO_VNF_Network_01}
+
+    DEMO_VL2:
+      type: tosca.nodes.nfv.VnfVirtualLink
+      properties:
+        vl_profile:
+          network_name: {get_input: DEMO_VNF_Network_02}
 
   groups:
     AntiAffinityGroup:

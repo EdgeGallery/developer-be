@@ -1,9 +1,9 @@
 metadata:
 app_product_name: {name}
-app_provider_id: {provider}
-app_package_version: {version}
+app_provider_id: HUAWEI
+app_package_version: v1.2
 app_release_data_time: {time}
-app_type: edgegallery_vm_package
+app_type: {app_type}
 app_class: {class}
 app_package_description: {description}
 

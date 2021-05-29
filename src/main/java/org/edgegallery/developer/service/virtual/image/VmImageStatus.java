@@ -82,7 +82,7 @@ public class VmImageStatus implements VmImageStage {
             long time = System.currentTimeMillis() - config.getCreateTime().getTime();
             LOGGER.info("over time:{}, wait max time:{}, start time:{}", time, MAX_SECONDS,
                 config.getCreateTime().getTime());
-            if (config.getCreateTime() == null || time > MAX_SECONDS * 1000) {
+            if (config.getCreateTime() == null || time > MAX_SECONDS * 2000) {
                 config.setLog("Failed to get vm image result ");
                 String message = "Failed to get vm image result after wait {} seconds which appInstanceId is : {}";
                 LOGGER.error(message, MAX_SECONDS, config.getAppInstanceId());
