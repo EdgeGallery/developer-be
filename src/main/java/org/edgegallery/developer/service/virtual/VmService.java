@@ -18,6 +18,7 @@ package org.edgegallery.developer.service.virtual;
 
 import static org.edgegallery.developer.util.AtpUtil.getProjectPath;
 
+
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -152,8 +153,7 @@ public class VmService {
         VmPackageConfig vmPackageConfig = vmConfigMapper.getVmPackageConfig(projectId);
         if (vmPackageConfig == null) {
             LOGGER.error("Can not get vm package config by  project {}", projectId);
-            FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST,
-                "Can not get vm package config");
+            FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "Can not get vm package config");
             return Either.left(error);
         }
         VmCreateConfig vmCreateConfig = new VmCreateConfig();
@@ -595,8 +595,7 @@ public class VmService {
         VmPackageConfig vmPackageConfig = vmConfigMapper.getVmPackageConfig(projectId);
         if (vmPackageConfig == null) {
             LOGGER.error("Can not get vm package config by  project {}", projectId);
-            FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST,
-                "Can not get vm package config");
+            FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "Can not get vm package config");
             return Either.left(error);
         }
         List<VmCreateConfig> vmCreateConfigs = vmConfigMapper.getVmCreateConfigs(projectId);
@@ -705,6 +704,16 @@ public class VmService {
 
     public Either<FormatRespDto, VmPackageConfig> vmPackage(String userId, String projectId,
         VmPackageConfig vmPackageConfig) {
+        //A project has only one virtual machine configuration
+        List<VmCreateConfig> vmConfigs = vmConfigMapper.getVmCreateConfigs(projectId);
+        if (!CollectionUtils.isEmpty(vmConfigs)) {
+            int res = vmConfigMapper.deleteVmCreateConfigs(projectId);
+            if (res < 1) {
+                FormatRespDto error = new FormatRespDto(Status.INTERNAL_SERVER_ERROR,
+                    "delete vm create config failed!");
+                return Either.left(error);
+            }
+        }
         ApplicationProject project = projectMapper.getProjectById(projectId);
         if (project == null) {
             LOGGER.error("Can not find the project projectId {}", projectId);
@@ -764,7 +773,7 @@ public class VmService {
             return Either.left(new FormatRespDto(Response.Status.BAD_REQUEST, "get vm package config failed."));
         }
         int res = vmConfigMapper.deleteVmPackageConfig(config.getId());
-        if(res < 1) {
+        if (res < 1) {
             LOGGER.error("delete vm package config failed.");
             return Either.left(new FormatRespDto(Response.Status.BAD_REQUEST, "delete vm package config failed."));
         }
@@ -948,8 +957,6 @@ public class VmService {
             LOGGER.error("write data into SwImageDesc.json failed, {}", e.getMessage());
         }
     }
-
-
 
 }
 
