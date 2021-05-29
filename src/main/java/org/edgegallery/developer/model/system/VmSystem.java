@@ -42,13 +42,13 @@ public class VmSystem {
 
     private String systemName;
 
-    private Date createTime;
+    private String createTime;
 
-    private Date modifyTime;
+    private String modifyTime;
 
     private String systemFormat;
 
-    private Date uploadTime;
+    private String uploadTime;
 
     private String systemPath;
 

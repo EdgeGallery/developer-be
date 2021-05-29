@@ -46,7 +46,7 @@
         system_disk,
         user_name,
         system_format,
-        upload_time,
+        to_char(upload_time, 'YYYY-MM-DD HH24:MI:SS') as upload_time,
         status,
         to_char(create_time, 'YYYY-MM-DD HH24:MI:SS') as create_time
         FROM
@@ -130,9 +130,9 @@
     <insert id="createSystemImage"
             parameterType="org.edgegallery.developer.model.system.VmSystem">
         insert into tbl_vm_system (system_name, type, operate_system, version, system_bit, system_disk, user_id,
-                                   user_name, system_format, create_time, status)
+                                   user_name, system_format, create_time, modify_time, status)
         values (#{systemName}, #{type}, #{operateSystem}, #{version}, #{systemBit}, #{systemDisk}, #{userId},
-                #{userName}, #{systemFormat}, #{createTime}, #{status})
+                #{userName}, #{systemFormat}, now(), now(), #{status})
     </insert>
 
     <update id="updateSystemImage" parameterType="org.edgegallery.developer.model.system.VmSystem">
@@ -144,7 +144,8 @@
         version=#{version},
         system_bit=#{systemBit},
         system_disk=#{systemDisk},
-        system_format=#{systemFormat}
+        system_format=#{systemFormat},
+        modify_time=now()
         WHERE system_id = #{systemId}
         <if test="userId != null">
             and user_id = #{userId}
@@ -163,17 +164,16 @@
     <update id="publishSystemImage" parameterType="org.edgegallery.developer.model.system.VmSystem">
         UPDATE
             tbl_vm_system
-        SET status      = #{status},
-            upload_time = #{uploadTime}
+        SET status = #{status}
         WHERE system_id = #{systemId}
     </update>
 
     <update id="updateSystemImageStatus" parameterType="org.edgegallery.developer.model.system.VmSystem">
         UPDATE
-        tbl_vm_system
+            tbl_vm_system
         SET status      = #{status},
             system_path = #{systemPath},
-            upload_time = #{uploadTime}
+            upload_time = now()
         WHERE system_id = #{systemId}
     </update>
 </mapper>

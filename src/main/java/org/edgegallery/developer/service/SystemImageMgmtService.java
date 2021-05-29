@@ -93,7 +93,6 @@ public class SystemImageMgmtService {
             LOGGER.error("Create SystemImage failed");
             return Either.left(new FormatRespDto(Response.Status.BAD_REQUEST, "Can not create a SystemImage."));
         }
-        vmImage.setCreateTime(new Date(System.currentTimeMillis()));
         vmImage.setUserId(AccessUserUtil.getUser().getUserId());
         vmImage.setUserName(AccessUserUtil.getUser().getUserName());
         vmImage.setStatus(EnumSystemImageStatus.UPLOAD_WAIT);
@@ -122,7 +121,6 @@ public class SystemImageMgmtService {
             LOGGER.error("Update SystemImage failed");
             return Either.left(new FormatRespDto(Response.Status.BAD_REQUEST, "Can not update a SystemImage."));
         }
-        vmImage.setModifyTime(new Date(System.currentTimeMillis()));
         vmImage.setSystemId(systemId);
         vmImage.setUserName(userName);
 
@@ -204,7 +202,6 @@ public class SystemImageMgmtService {
         vmImage.setStatus(status);
         if (EnumSystemImageStatus.UPLOAD_SUCCEED.equals(status)) {
             vmImage.setSystemPath(systemPath);
-            vmImage.setUploadTime(new Date(System.currentTimeMillis()));
         }
 
         int ret = systemImageMapper.updateSystemImageStatus(vmImage);
