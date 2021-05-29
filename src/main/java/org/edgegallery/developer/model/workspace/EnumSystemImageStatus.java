@@ -16,18 +16,10 @@
 
 package org.edgegallery.developer.model.workspace;
 
-import lombok.Getter;
-import lombok.Setter;
-import org.edgegallery.developer.model.vm.VmSystem;
-
-import java.util.List;
-
-@Getter
-@Setter
-public class MepGetSystemImageRes {
-
-    private int totalCount;
-
-    private List<VmSystem> imageList;
-
+public enum EnumSystemImageStatus {
+    UPLOAD_WAIT,
+    UPLOADING,
+    UPLOAD_SUCCEED,
+    UPLOAD_FAILED,
+    PUBLISHED
 }

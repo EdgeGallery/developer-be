@@ -19,7 +19,7 @@
 <mapper namespace="org.edgegallery.developer.mapper.SystemImageMapper">
 
     <resultMap id="ImageMap"
-               type="org.edgegallery.developer.model.vm.VmSystem">
+               type="org.edgegallery.developer.model.system.VmSystem">
         <id property="systemId" column="system_id"/>
         <result property="systemName" column="system_name"/>
         <result property="type" column="type"/>
@@ -34,10 +34,21 @@
         <result property="status" column="status"/>
     </resultMap>
 
-    <select id="getSystemImagesByCondition" parameterType="org.edgegallery.developer.model.workspace.MepGetSystemImageReq"
+    <select id="getSystemImagesByCondition" parameterType="org.edgegallery.developer.model.system.MepGetSystemImageReq"
             resultMap="ImageMap">
         SELECT
-        *
+        system_id,
+        system_name,
+        type,
+        operate_system,
+        version,
+        system_bit,
+        system_disk,
+        user_name,
+        system_format,
+        upload_time,
+        status,
+        to_char(create_time, 'YYYY-MM-DD HH24:MI:SS') as create_time
         FROM
         tbl_vm_system
         <where>
@@ -74,7 +85,7 @@
     </select>
 
     <select id="getSystemImagesCount" resultType="java.lang.Integer"
-            parameterType="org.edgegallery.developer.model.workspace.MepGetSystemImageReq">
+            parameterType="org.edgegallery.developer.model.system.MepGetSystemImageReq">
         SELECT
         COUNT(1)
         FROM
@@ -104,16 +115,27 @@
         </if>
     </select>
 
+    <select id="getSystemImagesPath" resultType="java.lang.String"
+            parameterType="org.edgegallery.developer.model.system.VmSystem">
+        SELECT
+        system_path
+        FROM
+        tbl_vm_system
+        WHERE system_id = #{systemId}
+        <if test="userId != null">
+            and user_id = #{userId}
+        </if>
+    </select>
 
     <insert id="createSystemImage"
-            parameterType="org.edgegallery.developer.model.vm.VmSystem">
+            parameterType="org.edgegallery.developer.model.system.VmSystem">
         insert into tbl_vm_system (system_name, type, operate_system, version, system_bit, system_disk, user_id,
                                    user_name, system_format, create_time, status)
         values (#{systemName}, #{type}, #{operateSystem}, #{version}, #{systemBit}, #{systemDisk}, #{userId},
                 #{userName}, #{systemFormat}, #{createTime}, #{status})
     </insert>
 
-    <update id="updateSystemImage" parameterType="org.edgegallery.developer.model.vm.VmSystem">
+    <update id="updateSystemImage" parameterType="org.edgegallery.developer.model.system.VmSystem">
         UPDATE
         tbl_vm_system
         SET system_name=#{systemName},
@@ -129,7 +151,7 @@
         </if>
     </update>
 
-    <delete id="deleteSystemImage" parameterType="org.edgegallery.developer.model.vm.VmSystem">
+    <delete id="deleteSystemImage" parameterType="org.edgegallery.developer.model.system.VmSystem">
         DELETE FROM
         tbl_vm_system
         WHERE system_id = #{systemId}
@@ -138,7 +160,7 @@
         </if>
     </delete>
 
-    <update id="publishSystemImage" parameterType="org.edgegallery.developer.model.vm.VmSystem">
+    <update id="publishSystemImage" parameterType="org.edgegallery.developer.model.system.VmSystem">
         UPDATE
             tbl_vm_system
         SET status      = #{status},
@@ -146,7 +168,7 @@
         WHERE system_id = #{systemId}
     </update>
 
-    <update id="updateSystemImageStatus" parameterType="org.edgegallery.developer.model.vm.VmSystem">
+    <update id="updateSystemImageStatus" parameterType="org.edgegallery.developer.model.system.VmSystem">
         UPDATE
         tbl_vm_system
         SET status      = #{status},

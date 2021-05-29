@@ -17,10 +17,11 @@ import org.apache.tomcat.util.http.fileupload.servlet.ServletFileUpload;
 import org.edgegallery.developer.config.security.AccessUserUtil;
 import org.edgegallery.developer.mapper.SystemImageMapper;
 import org.edgegallery.developer.model.Chunk;
-import org.edgegallery.developer.model.vm.VmSystem;
-import org.edgegallery.developer.model.workspace.MepGetSystemImageReq;
-import org.edgegallery.developer.model.workspace.MepGetSystemImageRes;
-import org.edgegallery.developer.model.workspace.MepSystemQueryCtrl;
+import org.edgegallery.developer.model.system.VmSystem;
+import org.edgegallery.developer.model.workspace.EnumSystemImageStatus;
+import org.edgegallery.developer.model.system.MepGetSystemImageReq;
+import org.edgegallery.developer.model.system.MepGetSystemImageRes;
+import org.edgegallery.developer.model.system.MepSystemQueryCtrl;
 import org.edgegallery.developer.response.FormatRespDto;
 import org.edgegallery.developer.util.HttpClientUtil;
 import org.slf4j.Logger;
@@ -55,6 +56,7 @@ public class SystemImageMgmtService {
      */
     public Either<FormatRespDto, MepGetSystemImageRes> getSystemImages(MepGetSystemImageReq mepGetSystemImageReq) {
         try {
+            LOGGER.info("Query SystemImage start");
             String userName = AccessUserUtil.getUser().getUserName();
             String userId = AccessUserUtil.getUser().getUserId();
             if (!StringUtils.equalsIgnoreCase(userName, "admin")) {
@@ -85,18 +87,22 @@ public class SystemImageMgmtService {
      *
      * @return
      */
-    public Either<FormatRespDto, Boolean> createSystemImage(VmSystem vmImage) {
+    public Either<FormatRespDto, Boolean> createSystemImage(VmSystem vmImage) throws Exception {
+        LOGGER.info("Create SystemImage start");
+        if (StringUtils.isBlank(vmImage.getSystemName())) {
+            LOGGER.error("Create SystemImage failed");
+            return Either.left(new FormatRespDto(Response.Status.BAD_REQUEST, "Can not create a SystemImage."));
+        }
         vmImage.setCreateTime(new Date(System.currentTimeMillis()));
         vmImage.setUserId(AccessUserUtil.getUser().getUserId());
         vmImage.setUserName(AccessUserUtil.getUser().getUserName());
-        vmImage.setStatus("UPLOAD_WAIT");
-        LOGGER.info("create SystemImage currentTime:{}", vmImage.getCreateTime());
+        vmImage.setStatus(EnumSystemImageStatus.UPLOAD_WAIT);
         int ret = systemImageMapper.createSystemImage(vmImage);
         if (ret > 0) {
             LOGGER.info("Crete SystemImage {} success ", vmImage.getUserId());
             return Either.right(true);
         }
-        LOGGER.error("Create SystemImage failed ");
+        LOGGER.error("Create SystemImage failed.");
         return Either.left(new FormatRespDto(Response.Status.BAD_REQUEST, "Can not create a SystemImage."));
     }
 
@@ -105,11 +111,16 @@ public class SystemImageMgmtService {
      *
      * @return
      */
-    public Either<FormatRespDto, Boolean> updateSystemImage(VmSystem vmImage, Integer systemId) {
+    public Either<FormatRespDto, Boolean> updateSystemImage(VmSystem vmImage, Integer systemId) throws Exception {
+        LOGGER.info("Update SystemImage start");
         String userName = AccessUserUtil.getUser().getUserName();
         String userId = AccessUserUtil.getUser().getUserId();
-        if (!StringUtils.equalsIgnoreCase(userName, "admin")) {
+        if (StringUtils.equalsIgnoreCase(userName, "admin")) {
             vmImage.setUserId(userId);
+        }
+        if (!StringUtils.isBlank(vmImage.getSystemName())) {
+            LOGGER.error("Update SystemImage failed");
+            return Either.left(new FormatRespDto(Response.Status.BAD_REQUEST, "Can not update a SystemImage."));
         }
         vmImage.setModifyTime(new Date(System.currentTimeMillis()));
         vmImage.setSystemId(systemId);
@@ -117,7 +128,7 @@ public class SystemImageMgmtService {
 
         int ret = systemImageMapper.updateSystemImage(vmImage);
         if (ret > 0) {
-            LOGGER.info("Update SystemImage {} success ", userId);
+            LOGGER.info("Update SystemImage success systemId = {}, userId = {}", systemId, userId);
             return Either.right(true);
         }
         LOGGER.error("Update SystemImage failed ");
@@ -129,12 +140,12 @@ public class SystemImageMgmtService {
      *
      * @return
      */
-    public Either<FormatRespDto, Boolean> publishSystemImage(Integer systemId) {
+    public Either<FormatRespDto, Boolean> publishSystemImage(Integer systemId) throws Exception {
+        LOGGER.info("Publish SystemImage start");
         String userId = AccessUserUtil.getUser().getUserId();
         VmSystem vmImage = new VmSystem();
         vmImage.setSystemId(systemId);
-        vmImage.setStatus("PUBLISHED");
-        vmImage.setUploadTime(new Date(System.currentTimeMillis()));
+        vmImage.setStatus(EnumSystemImageStatus.PUBLISHED);
         int ret = systemImageMapper.publishSystemImage(vmImage);
         if (ret > 0) {
             LOGGER.info("Publish SystemImage {} success ", userId);
@@ -149,7 +160,8 @@ public class SystemImageMgmtService {
      *
      * @return
      */
-    public Either<FormatRespDto, Boolean> deleteSystemImage(Integer systemId) {
+    public Either<FormatRespDto, Boolean> deleteSystemImage(Integer systemId) throws Exception {
+        LOGGER.info("Delete SystemImage start");
         VmSystem vmImage = new VmSystem();
         String userName = AccessUserUtil.getUser().getUserName();
         String userId = AccessUserUtil.getUser().getUserId();
@@ -157,6 +169,19 @@ public class SystemImageMgmtService {
             vmImage.setUserId(userId);
         }
         vmImage.setSystemId(systemId);
+        if (systemImageMapper.getSystemImagesPath(vmImage) != null) {
+            try {
+                String systemPath = systemImageMapper.getSystemImagesPath(vmImage);
+                String url = systemPath.replace("download", "image");
+                if (!HttpClientUtil.deleteSystemImage(url)) {
+                    FormatRespDto error = new FormatRespDto(Response.Status.BAD_REQUEST, "delete SystemImage failed.");
+                    return Either.left(error);
+                }
+            } catch (Exception e) {
+                FormatRespDto error = new FormatRespDto(Response.Status.BAD_REQUEST, "delete SystemImage failed.");
+                return Either.left(error);
+            }
+        }
         int res = systemImageMapper.deleteSystemImage(vmImage);
         if (res < 1) {
             LOGGER.error("Delete SystemImage {} failed", userId);
@@ -172,12 +197,12 @@ public class SystemImageMgmtService {
      *
      * @return
      */
-    public Either<FormatRespDto, Boolean> updateSystemImageStatus(Integer systemId, String status, String systemPath) {
+    public Either<FormatRespDto, Boolean> updateSystemImageStatus(Integer systemId, EnumSystemImageStatus status, String systemPath) {
         LOGGER.info("update system image status, systemId = {}, status = {}", systemId, status);
         VmSystem vmImage = new VmSystem();
         vmImage.setSystemId(systemId);
         vmImage.setStatus(status);
-        if ("UPLOAD_SUCCEED".equalsIgnoreCase(status)) {
+        if (EnumSystemImageStatus.UPLOAD_SUCCEED.equals(status)) {
             vmImage.setSystemPath(systemPath);
             vmImage.setUploadTime(new Date(System.currentTimeMillis()));
         }
@@ -213,12 +238,12 @@ public class SystemImageMgmtService {
         }
 
         LOGGER.info("update status.");
-        updateSystemImageStatus(systemId, "UPLOADING", "");
+        updateSystemImageStatus(systemId, EnumSystemImageStatus.UPLOADING, "");
 
         MultipartFile file = chunk.getFile();
         if (file == null) {
             LOGGER.error("can not find any needed file");
-            updateSystemImageStatus(systemId, "UPLOAD_FAILED", "");
+            updateSystemImageStatus(systemId, EnumSystemImageStatus.UPLOAD_FAILED, "");
             return ResponseEntity.badRequest().build();
         }
 
@@ -227,7 +252,7 @@ public class SystemImageMgmtService {
             boolean isMk = tmpUploadDir.mkdirs();
             if (!isMk) {
                 LOGGER.error("create temporary upload path failed");
-                updateSystemImageStatus(systemId, "UPLOAD_FAILED", "");
+                updateSystemImageStatus(systemId, EnumSystemImageStatus.UPLOAD_FAILED, "");
                 return ResponseEntity.status(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode()).build();
             }
         }
@@ -259,14 +284,14 @@ public class SystemImageMgmtService {
         File partFileDir = new File(partFilePath);
         if (!partFileDir.exists() || !partFileDir.isDirectory()) {
             LOGGER.error("uploaded part file path not found!");
-            updateSystemImageStatus(systemId, "UPLOAD_FAILED", "");
+            updateSystemImageStatus(systemId, EnumSystemImageStatus.UPLOAD_FAILED, "");
             return ResponseEntity.status(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode()).build();
         }
 
         File[] partFiles = partFileDir.listFiles();
         if (partFiles == null || partFiles.length == 0) {
             LOGGER.error("uploaded part file not found!");
-            updateSystemImageStatus(systemId, "UPLOAD_FAILED", "");
+            updateSystemImageStatus(systemId, EnumSystemImageStatus.UPLOAD_FAILED, "");
             return ResponseEntity.status(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode()).build();
         }
 
@@ -281,11 +306,11 @@ public class SystemImageMgmtService {
         String uploadedSystemPath = pushSystemImage(mergedFile);
         if (StringUtils.isEmpty(uploadedSystemPath)) {
             LOGGER.error("push system image file failed!");
-            updateSystemImageStatus(systemId, "UPLOAD_FAILED", "");
+            updateSystemImageStatus(systemId, EnumSystemImageStatus.UPLOAD_FAILED, "");
             return ResponseEntity.status(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode()).build();
         }
 
-        updateSystemImageStatus(systemId, "UPLOAD_SUCCEED", uploadedSystemPath);
+        updateSystemImageStatus(systemId, EnumSystemImageStatus.UPLOAD_SUCCEED, uploadedSystemPath);
         return ResponseEntity.ok().build();
     }
 

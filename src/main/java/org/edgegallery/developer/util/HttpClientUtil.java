@@ -26,6 +26,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Type;
 import java.util.List;
+
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpDelete;
 import org.edgegallery.developer.common.Consts;
 import org.edgegallery.developer.exception.CustomException;
 import org.edgegallery.developer.exception.DomainException;
@@ -610,4 +613,30 @@ public final class HttpClientUtil {
         return null;
     }
 
+
+    /**
+     * delete system image.
+     */
+    public static Boolean deleteSystemImage(String url) {
+        HttpHeaders headers = new HttpHeaders();
+        HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(null, headers);
+        ResponseEntity<String> response;
+        try {
+            REST_TEMPLATE.setErrorHandler(new CustomResponseErrorHandler());
+            response = REST_TEMPLATE.exchange(url, HttpMethod.DELETE, requestEntity, String.class);
+            LOGGER.info("delete system image file success, resp = {}", response);
+        } catch (CustomException e) {
+            String errorLog = e.getBody();
+            LOGGER.error("Failed delete system image exception {}", errorLog);
+            return false;
+        } catch (RestClientException e) {
+            LOGGER.error("Failed delete system image exception {}", e.getMessage());
+            return false;
+        }
+        if (response.getStatusCode() == HttpStatus.OK) {
+            return true;
+        }
+        LOGGER.error("Failed to delete system image!");
+        return false;
+    }
 }

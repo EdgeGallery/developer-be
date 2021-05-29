@@ -1,3 +1,19 @@
+/*
+ *    Copyright 2021 Huawei Technologies Co., Ltd.
+ *
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
+ */
+
 package org.edgegallery.developer.controller;
 
 import com.spencerwi.either.Either;
@@ -10,9 +26,9 @@ import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.edgegallery.developer.model.Chunk;
-import org.edgegallery.developer.model.vm.VmSystem;
-import org.edgegallery.developer.model.workspace.MepGetSystemImageReq;
-import org.edgegallery.developer.model.workspace.MepGetSystemImageRes;
+import org.edgegallery.developer.model.system.VmSystem;
+import org.edgegallery.developer.model.system.MepGetSystemImageReq;
+import org.edgegallery.developer.model.system.MepGetSystemImageRes;
 import org.edgegallery.developer.response.ErrorRespDto;
 import org.edgegallery.developer.response.FormatRespDto;
 import org.edgegallery.developer.service.SystemImageMgmtService;
@@ -36,6 +52,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 @RequestMapping("/mec/developer/v1/system")
 @Api(tags = "systemImage")
 public class SystemImageMgmtController {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(SystemImageMgmtController.class);
 
     @Autowired
@@ -46,7 +63,7 @@ public class SystemImageMgmtController {
      *
      * @return
      */
-    @ApiOperation(value = "get systemImage)", response = MepGetSystemImageRes.class )
+    @ApiOperation(value = "get systemImage)", response = MepGetSystemImageRes.class)
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "OK", response = MepGetSystemImageRes.class),
             @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
@@ -57,6 +74,7 @@ public class SystemImageMgmtController {
     public ResponseEntity<MepGetSystemImageRes> getSystemImages(
             @ApiParam(value = "userId", required = true) @RequestParam("userId") String userId,
             @ApiParam(value = "MepGetImages", required = true) @RequestBody MepGetSystemImageReq mepGetSystemImageReq) {
+        LOGGER.info("query system image file, userId = {}", userId);
         Either<FormatRespDto, MepGetSystemImageRes> either = systemImageMgmtService.getSystemImages(mepGetSystemImageReq);
         return ResponseDataUtil.buildResponse(either);
     }
@@ -75,7 +93,8 @@ public class SystemImageMgmtController {
             produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_ADMIN')|| hasRole('DEVELOPER_TENANT')")
     public ResponseEntity<Boolean> createSystemImage(
-            @ApiParam(value = "MepSystemImage", required = true) @Validated @RequestBody VmSystem vmImage) {
+            @ApiParam(value = "MepSystemImage", required = true) @Validated @RequestBody VmSystem vmImage) throws Exception {
+        LOGGER.info("create system image file");
         Either<FormatRespDto, Boolean> either = systemImageMgmtService.createSystemImage(vmImage);
         return ResponseDataUtil.buildResponse(either);
     }
@@ -95,7 +114,8 @@ public class SystemImageMgmtController {
     @PreAuthorize("hasRole('DEVELOPER_ADMIN')|| hasRole('DEVELOPER_TENANT')")
     public ResponseEntity<Boolean> modifySystemImage(
             @PathVariable("systemId") Integer systemId,
-            @Validated @RequestBody VmSystem vmImage) {
+            @Validated @RequestBody VmSystem vmImage) throws Exception {
+        LOGGER.info("update system image file, systemId = {}", systemId);
         Either<FormatRespDto, Boolean> either = systemImageMgmtService.updateSystemImage(vmImage, systemId);
         return ResponseDataUtil.buildResponse(either);
     }
@@ -114,7 +134,8 @@ public class SystemImageMgmtController {
             produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_ADMIN')|| hasRole('DEVELOPER_TENANT')")
     public ResponseEntity<Boolean> deleteSystemImage(@PathVariable("systemId")
-                                                         Integer systemId) {
+                                                             Integer systemId) throws Exception {
+        LOGGER.info("delete system image file, systemId = {}", systemId);
         Either<FormatRespDto, Boolean> either = systemImageMgmtService.deleteSystemImage(systemId);
         return ResponseDataUtil.buildResponse(either);
     }
@@ -132,7 +153,8 @@ public class SystemImageMgmtController {
     @RequestMapping(value = "/images/{systemId}/publish", method = RequestMethod.PUT)
     @PreAuthorize("hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<Boolean> publishSystemImage(
-            @PathVariable("systemId") Integer systemId) {
+            @PathVariable("systemId") Integer systemId) throws Exception {
+        LOGGER.info("publish system image file, systemId = {}", systemId);
         Either<FormatRespDto, Boolean> either = systemImageMgmtService.publishSystemImage(systemId);
         return ResponseDataUtil.buildResponse(either);
     }

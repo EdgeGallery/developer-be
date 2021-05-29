@@ -346,7 +346,8 @@
         "system_format" varchar(50) DEFAULT NULL,
         "upload_time" timestamptz(6)  DEFAULT NULL,
         "system_path" varchar(128) DEFAULT NULL,
-        "status" varchar(50) DEFAULT NULL
+        "status" varchar(50) DEFAULT NULL,
+        CONSTRAINT "tbl_vm_system_uniqueName" UNIQUE ("system_name")
         )
     ;
 
