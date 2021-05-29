@@ -16,8 +16,6 @@
 
 package org.edgegallery.developer.service.csar;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.google.gson.Gson;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -39,7 +37,6 @@ import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.edgegallery.developer.common.Consts;
@@ -57,8 +54,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
-import org.yaml.snakeyaml.Yaml;
-import org.yaml.snakeyaml.constructor.SafeConstructor;
 
 public class NewCreateVmCsar {
 
@@ -99,7 +94,8 @@ public class NewCreateVmCsar {
         // get data to Map<String, String>
         SimpleDateFormat time = new SimpleDateFormat("yyyy-MM-dd HH:mm");
         String timeStamp = time.format(new Date());
-        String templateName = projectName + "_" + project.getPlatform().get(0) + "_" + config.getVmSystem().getOperateSystem();
+        String templateName = projectName + "_" + project.getPlatform().get(0) + "_" + config.getVmSystem()
+            .getOperateSystem();
 
         // modify the csar files and fill in the data
         try {
@@ -109,8 +105,8 @@ public class NewCreateVmCsar {
                 FileUtils.readFileToString(csarValue, StandardCharsets.UTF_8).replace("{name}", projectName)
                     .replace("{time}", timeStamp).replace("{description}", project.getDescription())
                     .replace("{ChartName}", chartName).replace("{class}", deployType)
-                    .replace("{app_type}", templateName)
-                    .replace("{appd-name}", projectName), StandardCharsets.UTF_8, false);
+                    .replace("{app_type}", templateName).replace("{appd-name}", projectName), StandardCharsets.UTF_8,
+                false);
             boolean isSuccess = csarValue.renameTo(new File(csar.getCanonicalPath() + "/" + projectName + ".mf"));
             if (!isSuccess) {
                 LOGGER.error("rename mf file failed!");
@@ -139,8 +135,7 @@ public class NewCreateVmCsar {
 
             FileUtils.writeStringToFile(toscaValue,
                 FileUtils.readFileToString(toscaValue, StandardCharsets.UTF_8).replace("{appdFile}", projectName)
-                    .replace("{imageFile}", config.getVmSystem().getSystemName()),
-                StandardCharsets.UTF_8, false);
+                    .replace("{imageFile}", config.getVmSystem().getSystemName()), StandardCharsets.UTF_8, false);
         } catch (IOException e) {
             throw new IOException("replace file exception");
         }
@@ -148,15 +143,13 @@ public class NewCreateVmCsar {
 
         String imageName = config.getVmSystem().getSystemName();
 
-
         try {
             File resourceFile = new File(csar.getCanonicalPath() + TEMPLATE_CSAR_BASE_PATH);
 
             FileUtils.writeStringToFile(resourceFile,
-                FileUtils.readFileToString(resourceFile, StandardCharsets.UTF_8)
-                    .replace("<vnfd_id>", templateName).replace("<vnfd_name>", templateName)
-                    .replace("<app_provider>", project.getProvider()).replace("<app_name>", projectName)
-                    .replace("<product_version>", project.getVersion())
+                FileUtils.readFileToString(resourceFile, StandardCharsets.UTF_8).replace("<vnfd_id>", templateName)
+                    .replace("<vnfd_name>", templateName).replace("<app_provider>", project.getProvider())
+                    .replace("<app_name>", projectName).replace("<product_version>", project.getVersion())
                     .replace("<virtual_mem_size>", Integer.toString(config.getVmRegulation().getMemory() * 1024))
                     .replace("<num_virtual_cpu>", Integer.toString(config.getVmRegulation().getCpu()))
                     .replace("<cpu_architecture>", config.getVmRegulation().getArchitecture())
@@ -169,9 +162,14 @@ public class NewCreateVmCsar {
         String mainServiceTemplatePath = csar.getCanonicalPath() + TEMPLATE_CSAR_BASE_PATH;
         File templateFile = new File(mainServiceTemplatePath);
 
-
         // write user data
         VmUserData vmUserData = config.getVmUserData();
+        //write flavor_extra_specs
+        if (vmUserData != null && !StringUtils.isEmpty(vmUserData.getFlavorExtraSpecs())) {
+            String flavors = vmUserData.getFlavorExtraSpecs();
+            writeFlavorToYaml(templateFile, flavors);
+        }
+        //write contents/ params
         if (vmUserData != null && vmUserData.isTemp()) {
             List<String> list = writeUserDataToYaml(templateFile, config);
             if (!CollectionUtils.isEmpty(list)) {
@@ -209,7 +207,7 @@ public class NewCreateVmCsar {
         }
         //update SwImageDesc.json , get image url
         String url = config.getVmSystem().getSystemPath();
-        String imageId = url.substring(url.length()-32);
+        String imageId = url.substring(url.length() - 32);
         ImageDesc imageDesc = new ImageDesc();
         imageDesc.setId(imageId);
         imageDesc.setName(config.getVmSystem().getSystemName());
@@ -232,7 +230,6 @@ public class NewCreateVmCsar {
         Gson gson = new Gson();
         File imageJson = new File(csar.getCanonicalPath() + IMAGE_BASE_PATH);
         writeFile(imageJson, gson.toJson(imageDescs));
-
         return csar;
     }
 
@@ -260,6 +257,25 @@ public class NewCreateVmCsar {
         }
         int contentIndex = list.indexOf(params);
         list.set(contentIndex, "            params:\r\n");
+        writeListToFile(list, templateFile);
+    }
+
+    private void writeFlavorToYaml(File templateFile, String flavorContent) {
+        //yaml读取成list
+        List<String> list = readFileByLine(templateFile);
+        //获取flavor位置的索引
+        String flavor = "";
+        for (String str : list) {
+            if (str.contains("flavor_extra_specs:")) {
+                flavor = str;
+            }
+        }
+        int flavorIndex = list.indexOf(flavor);
+        //flavor_extra_specs位置之后插入内容
+        String unescapeContents = StringEscapeUtils.unescapeJava(flavorContent);
+        List<String> contentsList = readStringToList(unescapeContents);
+        list.addAll(flavorIndex + 1, contentsList);
+        //重写把list写入yaml
         writeListToFile(list, templateFile);
     }
 
