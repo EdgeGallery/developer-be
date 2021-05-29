@@ -99,6 +99,7 @@ public class NewCreateVmCsar {
         // get data to Map<String, String>
         SimpleDateFormat time = new SimpleDateFormat("yyyy-MM-dd HH:mm");
         String timeStamp = time.format(new Date());
+        String templateName = projectName + "_" + project.getPlatform().get(0) + "_" + config.getVmSystem().getOperateSystem();
 
         // modify the csar files and fill in the data
         try {
@@ -106,9 +107,9 @@ public class NewCreateVmCsar {
 
             FileUtils.writeStringToFile(csarValue,
                 FileUtils.readFileToString(csarValue, StandardCharsets.UTF_8).replace("{name}", projectName)
-                    .replace("{provider}", project.getProvider()).replace("{version}", project.getVersion())
                     .replace("{time}", timeStamp).replace("{description}", project.getDescription())
                     .replace("{ChartName}", chartName).replace("{class}", deployType)
+                    .replace("{app_type}", templateName)
                     .replace("{appd-name}", projectName), StandardCharsets.UTF_8, false);
             boolean isSuccess = csarValue.renameTo(new File(csar.getCanonicalPath() + "/" + projectName + ".mf"));
             if (!isSuccess) {
@@ -137,14 +138,14 @@ public class NewCreateVmCsar {
             File toscaValue = new File(csar.getCanonicalPath() + TEMPLATE_TOSCA_METADATA_PATH);
 
             FileUtils.writeStringToFile(toscaValue,
-                FileUtils.readFileToString(toscaValue, StandardCharsets.UTF_8).replace("{appdFile}", projectName),
+                FileUtils.readFileToString(toscaValue, StandardCharsets.UTF_8).replace("{appdFile}", projectName)
+                    .replace("{imageFile}", config.getVmSystem().getSystemName()),
                 StandardCharsets.UTF_8, false);
         } catch (IOException e) {
             throw new IOException("replace file exception");
         }
         //update vm config data
 
-        String templateName = projectName + "_" + project.getPlatform().get(0) + "_" + config.getVmSystem().getOperateSystem();
         String imageName = config.getVmSystem().getSystemName();
 
 
