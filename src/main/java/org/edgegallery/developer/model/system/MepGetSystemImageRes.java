@@ -1,5 +1,5 @@
 /*
- *    Copyright 2021 Huawei Technologies Co., Ltd.
+ *    Copyright 2020 Huawei Technologies Co., Ltd.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -13,32 +13,20 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package org.edgegallery.developer.model.workspace;
 
-import io.swagger.annotations.ApiModelProperty;
+package org.edgegallery.developer.model.system;
+
 import lombok.Getter;
 import lombok.Setter;
 
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.Pattern;
+import java.util.List;
 
 @Getter
 @Setter
-public class MepSystemQueryCtrl {
+public class MepGetSystemImageRes {
 
-    @Min(value = -1)
-    private int offset;
+    private int totalCount;
 
-    @Min(value = 0)
-    @Max(value = 100)
-    private int limit;
+    private List<VmSystem> imageList;
 
-    @ApiModelProperty(example = "userName")
-    @Pattern(regexp = "(?i)userName|(?i)createTime")
-    private String sortBy ;
-
-    @ApiModelProperty(example = "ASC")
-    @Pattern(regexp = "(?i)ASC|(?i)DESC")
-    private String sortOrder;
 }

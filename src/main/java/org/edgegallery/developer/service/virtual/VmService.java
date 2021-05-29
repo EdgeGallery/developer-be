@@ -64,7 +64,7 @@ import org.edgegallery.developer.model.vm.VmNetwork;
 import org.edgegallery.developer.model.vm.VmPackageConfig;
 import org.edgegallery.developer.model.vm.VmRegulation;
 import org.edgegallery.developer.model.vm.VmResource;
-import org.edgegallery.developer.model.vm.VmSystem;
+import org.edgegallery.developer.model.system.VmSystem;
 import org.edgegallery.developer.model.vm.VmUserData;
 import org.edgegallery.developer.model.workspace.ApplicationProject;
 import org.edgegallery.developer.model.workspace.EnumProjectStatus;

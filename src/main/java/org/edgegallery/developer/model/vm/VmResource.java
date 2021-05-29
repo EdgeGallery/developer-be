@@ -20,6 +20,7 @@ import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import org.edgegallery.developer.model.system.VmSystem;
 
 @Getter
 @Setter

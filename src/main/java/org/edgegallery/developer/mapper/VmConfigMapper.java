@@ -23,7 +23,7 @@ import org.edgegallery.developer.model.vm.VmImageConfig;
 import org.edgegallery.developer.model.vm.VmNetwork;
 import org.edgegallery.developer.model.vm.VmPackageConfig;
 import org.edgegallery.developer.model.vm.VmRegulation;
-import org.edgegallery.developer.model.vm.VmSystem;
+import org.edgegallery.developer.model.system.VmSystem;
 import org.edgegallery.developer.model.vm.VmUserData;
 
 public interface VmConfigMapper {

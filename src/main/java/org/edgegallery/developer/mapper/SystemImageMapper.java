@@ -16,8 +16,8 @@
 
 package org.edgegallery.developer.mapper;
 
-import org.edgegallery.developer.model.vm.VmSystem;
-import org.edgegallery.developer.model.workspace.MepGetSystemImageReq;
+import org.edgegallery.developer.model.system.VmSystem;
+import org.edgegallery.developer.model.system.MepGetSystemImageReq;
 
 import java.util.List;
 
@@ -26,6 +26,8 @@ public interface SystemImageMapper {
     Integer getSystemImagesCount(MepGetSystemImageReq mepGetSystemImageReq);
 
     List<VmSystem> getSystemImagesByCondition(MepGetSystemImageReq mepGetSystemImageReq);
+
+    String getSystemImagesPath(VmSystem VmSystem);
 
     int createSystemImage(VmSystem VmSystem);
 

@@ -42,7 +42,7 @@
     </resultMap>
 
     <resultMap id="VmSystem"
-      type="org.edgegallery.developer.model.vm.VmSystem">
+      type="org.edgegallery.developer.model.system.VmSystem">
         <id property="systemId" column="system_id"/>
         <result property="systemName" column="system_name"/>
         <result property="type" column="type"/>
