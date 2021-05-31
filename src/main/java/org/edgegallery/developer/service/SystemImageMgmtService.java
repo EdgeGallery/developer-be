@@ -117,7 +117,7 @@ public class SystemImageMgmtService {
         if (StringUtils.equalsIgnoreCase(userName, "admin")) {
             vmImage.setUserId(userId);
         }
-        if (!StringUtils.isBlank(vmImage.getSystemName())) {
+        if (StringUtils.isBlank(vmImage.getSystemName())) {
             LOGGER.error("Update SystemImage failed");
             return Either.left(new FormatRespDto(Response.Status.BAD_REQUEST, "Can not update a SystemImage."));
         }
