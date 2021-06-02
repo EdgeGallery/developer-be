@@ -21,12 +21,12 @@ public class ConstantPool {
         throw new IllegalStateException("ConstantPool class");
     }
 
-    //随机生成uuid的key名
+    //Randomly generateduuidofkeyname
     public static final String USER_UUID_KEY = "userId";
 
-    //发送指令：连接
+    //Send instructions：connection
     public static final String WEBSSH_OPERATE_CONNECT = "connect";
 
-    //发送指令：命令
+    //Send instructions：command
     public static final String WEBSSH_OPERATE_COMMAND = "command";
 }

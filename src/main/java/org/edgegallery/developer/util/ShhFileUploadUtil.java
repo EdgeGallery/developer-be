@@ -166,9 +166,9 @@ public class ShhFileUploadUtil {
                     if (isDirExist(filePath.toString(), channelSftp)) {
                         channelSftp.cd(filePath.toString());
                     } else {
-                        // 建立目录
+                        // Create a catalog
                         channelSftp.mkdir(filePath.toString());
-                        // 进入并设置为当前目录
+                        // Enter and set as the current directory
                         channelSftp.cd(filePath.toString());
                     }
                 } catch (SftpException e) {

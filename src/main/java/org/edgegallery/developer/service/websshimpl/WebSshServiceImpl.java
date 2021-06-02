@@ -61,7 +61,7 @@ import org.springframework.web.socket.WebSocketSession;
 
 @Service
 public class WebSshServiceImpl implements WebSshService {
-    //存放ssh连接信息的map
+    //StoresshConnection informationmap
     private Map<String, Object> sshMap = new ConcurrentHashMap<>();
 
     private Map<String, String> userIdMap = new ConcurrentHashMap<>();
@@ -85,7 +85,7 @@ public class WebSshServiceImpl implements WebSshService {
 
     private Logger logger = LoggerFactory.getLogger(WebSshServiceImpl.class);
 
-    //线程池
+    //Thread Pool
     private ExecutorService executorService = Executors.newCachedThreadPool();
 
     private static Gson gson = new Gson();
@@ -106,7 +106,7 @@ public class WebSshServiceImpl implements WebSshService {
         sshConnectInfo.setjSch(jsch);
         sshConnectInfo.setWebSocketSession(session);
         String uuid = String.valueOf(session.getAttributes().get(ConstantPool.USER_UUID_KEY));
-        //将这个ssh连接信息放入map中
+        //Will thissshPut the connection informationmapin
         sshMap.put(uuid, sshConnectInfo);
     }
 
@@ -123,9 +123,9 @@ public class WebSshServiceImpl implements WebSshService {
         }
         String userId = String.valueOf(session.getAttributes().get(ConstantPool.USER_UUID_KEY));
         if (ConstantPool.WEBSSH_OPERATE_CONNECT.equals(webSshData.getOperate())) {
-            //找到刚才存储的ssh连接对象
+            //Find the one you just savedsshConnection object
             SshConnectInfo sshConnectInfo = (SshConnectInfo) sshMap.get(userId);
-            //启动线程异步处理
+            //Start thread asynchronous processing
             WebSshData finalWebSshData = webSshData;
             executorService.execute(new Runnable() {
                 @Override
@@ -167,11 +167,11 @@ public class WebSshServiceImpl implements WebSshService {
         String userId = String.valueOf(session.getAttributes().get(ConstantPool.USER_UUID_KEY));
         SshConnectInfo sshConnectInfo = (SshConnectInfo) sshMap.get(userId);
         if (sshConnectInfo != null) {
-            //断开连接
+            //Disconnect
             if (sshConnectInfo.getChannel() != null) {
                 sshConnectInfo.getChannel().disconnect();
             }
-            //map中移除
+            //mapRemove
             sshMap.remove(userId);
         }
     }
@@ -181,8 +181,8 @@ public class WebSshServiceImpl implements WebSshService {
 
         Properties config = new Properties();
         config.put("StrictHostKeyChecking", "no");
-        //获取jsch的会话
-        //获取userID和projectId
+        //Obtainjsch'S conversation
+        //ObtainuserIDwithprojectId
         String userId = webSshData.getUserId();
         String projectId = webSshData.getProjectId();
         String uuid = String.valueOf(webSocketSession.getAttributes().get(ConstantPool.USER_UUID_KEY));
@@ -235,36 +235,36 @@ public class WebSshServiceImpl implements WebSshService {
         }
         Session session = sshConnectInfo.getjSch().getSession(this.username, this.ip, this.port);
         session.setConfig(config);
-        //设置密码
+        //set password
         session.setPassword(this.password);
-        //连接  超时时间30s
+        //connection  overtime time30s
         session.connect(30000);
 
-        //开启shell通道
+        //Turn onshellaisle
         Channel channel = session.openChannel("shell");
 
-        //通道连接 超时时间60s
+        //Channel connection overtime time60s
         channel.connect(60000);
 
-        //设置channel
+        //Set upchannel
         sshConnectInfo.setChannel(channel);
 
-        //转发消息
+        //Forward message
         transToSsh(channel, "\r");
 
-        //读取终端返回的信息流
+        //Read the information flow returned by the terminal
         InputStream inputStream = channel.getInputStream();
         try {
-            //循环读取
+            //Loop reading
             byte[] buffer = new byte[1024];
             int i = 0;
-            //如果没有数据来，线程会一直阻塞在这个地方等待数据。
+            //If there is no data to come，The thread will always be blocked in this place waiting for data。
             while ((i = inputStream.read(buffer)) != -1) {
                 sendMessage(webSocketSession, Arrays.copyOfRange(buffer, 0, i));
             }
 
         } finally {
-            //断开连接后关闭会话
+            //Close the session after disconnecting
             session.disconnect();
             channel.disconnect();
             if (inputStream != null) {

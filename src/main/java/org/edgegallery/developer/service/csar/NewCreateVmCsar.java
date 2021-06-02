@@ -171,7 +171,7 @@ public class NewCreateVmCsar {
         if (vmUserData != null && vmUserData.isTemp()) {
             List<String> list = writeUserDataToYaml(templateFile, config);
             if (!CollectionUtils.isEmpty(list)) {
-                //replace contents: 为contents: |
+                //replace contents: forcontents: |
                 List<String> contentsList = replaceContents(templateFile, list);
                 //replace params:null params:
                 replaceParams(templateFile, contentsList);
@@ -232,7 +232,7 @@ public class NewCreateVmCsar {
     }
 
     private List<String> replaceContents(File templateFile, List<String> list) {
-        //获取contents位置的索引
+        //ObtaincontentsLocation index
         String contents = "";
         for (String str : list) {
             if (str.contains("contents:")) {
@@ -246,7 +246,7 @@ public class NewCreateVmCsar {
     }
 
     private void replaceParams(File templateFile, List<String> list) {
-        //获取contents位置的索引
+        //ObtaincontentsLocation index
         String params = "";
         for (String str : list) {
             if (str.contains("params:")) {
@@ -259,9 +259,9 @@ public class NewCreateVmCsar {
     }
 
     private void writeFlavorToYaml(File templateFile, String flavorContent) {
-        //yaml读取成list
+        //yamlRead aslist
         List<String> list = readFileByLine(templateFile);
-        //获取flavor位置的索引
+        //ObtainflavorLocation index
         String flavor = "";
         for (String str : list) {
             if (str.contains("flavor_extra_specs:")) {
@@ -269,18 +269,18 @@ public class NewCreateVmCsar {
             }
         }
         int flavorIndex = list.indexOf(flavor);
-        //flavor_extra_specs位置之后插入内容
+        //flavor_extra_specsInsert content after position
         String unescapeContents = StringEscapeUtils.unescapeJava(flavorContent);
         List<String> contentsList = readStringToList(unescapeContents);
         list.addAll(flavorIndex + 1, contentsList);
-        //重写把list写入yaml
+        //RewritelistWriteyaml
         writeListToFile(list, templateFile);
     }
 
     private List<String> writeUserDataToYaml(File templateFile, VmPackageConfig config) {
-        //yaml读取成list
+        //yamlRead aslist
         List<String> list = readFileByLine(templateFile);
-        //获取contents位置的索引
+        //ObtaincontentsLocation index
         String contents = "";
         for (String str : list) {
             if (str.contains("contents:")) {
@@ -288,7 +288,7 @@ public class NewCreateVmCsar {
             }
         }
         int contentIndex = list.indexOf(contents);
-        //contents位置之后插入内容
+        //contentsInsert content after position
         VmUserData vmUserData = config.getVmUserData();
         if (StringUtils.isEmpty(vmUserData.getContents())) {
             LOGGER.warn("vm user data don't have contents configuration!");
@@ -297,7 +297,7 @@ public class NewCreateVmCsar {
         String unescapeContents = StringEscapeUtils.unescapeJava(vmUserData.getContents());
         List<String> contentsList = readStringToList(unescapeContents);
         list.addAll(contentIndex + 1, contentsList);
-        //获取params位置的索引
+        //ObtainparamsLocation index
         String params = "";
         for (String str : list) {
             if (str.contains("params:")) {
@@ -305,7 +305,7 @@ public class NewCreateVmCsar {
             }
         }
         int paramsIndex = list.indexOf(params);
-        //params位置之后插入内容
+        //paramsInsert content after position
         if (StringUtils.isEmpty(vmUserData.getParams())) {
             LOGGER.warn("vm user data don't have params configuration!");
             return Collections.emptyList();
@@ -313,7 +313,7 @@ public class NewCreateVmCsar {
         String unescapeParams = StringEscapeUtils.unescapeJava(vmUserData.getParams());
         List<String> paramsList = readStringToList(unescapeParams);
         list.addAll(paramsIndex + 1, paramsList);
-        //重写把list写入yaml
+        //RewritelistWriteyaml
         writeListToFile(list, templateFile);
         return list;
 

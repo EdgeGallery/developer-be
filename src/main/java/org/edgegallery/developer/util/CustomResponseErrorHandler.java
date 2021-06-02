@@ -53,7 +53,7 @@ public class CustomResponseErrorHandler implements ResponseErrorHandler {
         return errorHandler.hasError(response);
     }
 
-    // inputStream 装换为 string
+    // inputStream Pretend to be string
     private String convertStreamToString(InputStream is) {
         BufferedReader reader = null;
         if (is != null) {

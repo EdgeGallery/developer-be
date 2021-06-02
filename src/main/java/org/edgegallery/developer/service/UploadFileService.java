@@ -463,19 +463,19 @@ public class UploadFileService {
             String returnMsg = "Failed to read content of helm template yaml";
             return Either.left(new FormatRespDto(Status.INTERNAL_SERVER_ERROR, returnMsg));
         }
-        //yaml判空
+        //yamlEmpty
         if (StringUtils.isEmpty(content)) {
             return Either.left(new FormatRespDto(Status.BAD_REQUEST, "yaml file is empty!"));
         }
-        //判断yaml是否有配置namespace
+        //judgmentyamlIs there a configurationnamespace
         if (!content.contains("namespace")) {
             content = addNameSpace(content);
         } else {
-            //替换namespace内容
+            //replacenamespacecontent
             content = replaceContent(content);
         }
 
-        //镜像格式为name:tag(name不包含分隔符)
+        //The image format isname:tag(nameDoes not contain delimiter)
         HelmTemplateYamlRespDto helmTemplateYamlRespDto = new HelmTemplateYamlRespDto();
         String oriName = helmTemplateYaml.getOriginalFilename();
         if (!StringUtils.isEmpty(oriName) && !oriName.endsWith(".yaml")) {
@@ -636,8 +636,8 @@ public class UploadFileService {
         DockerClient dockerClient = getDockerClient(devRepoEndpoint, devRepoUsername, devRepoPassword);
         for (String image : imageList) {
             LOGGER.info("deploy yaml image: {}", image);
-            //镜像格式为{{.Values.imagelocation.domainname}}/{{.Values.imagelocation.project}}/name:tag
-            // 或者为harbor仓库地址
+            //The image format is{{.Values.imagelocation.domainname}}/{{.Values.imagelocation.project}}/name:tag
+            // Or forharborWarehouse Address
             String envStr = "{{.Values.imagelocation.domainname}}/{{.Values.imagelocation.project}}";
             String harborStr = devRepoEndpoint + "/" + devRepoProject;
             if (image.contains(envStr) || image.contains(harborStr)) {
@@ -654,7 +654,7 @@ public class UploadFileService {
                     return false;
                 }
             } else {
-                //其他格式镜像，拉取,tag,push
+                //Mirror in other formats，Pull,tag,push
                 pullAndPushImage(image);
             }
         }
@@ -662,7 +662,7 @@ public class UploadFileService {
     }
 
     private boolean pullAndPushImage(String image) {
-        //镜像信息非harbor仓库格式，拉取(失败，返回false)，打Tag，重新push
+        //Mirror information is notharborWarehouse format，Pull(failure，returnfalse)，hitTag，Repush
         DockerClientConfig config = DefaultDockerClientConfig.createDefaultConfigBuilder()
             .withDockerHost(protocol + "://" + devRepoEndpoint + ":" + port).build();
         DockerClient dockerClient = DockerClientBuilder.getInstance(config).build();
@@ -674,7 +674,7 @@ public class UploadFileService {
             return false;
         }
         LOGGER.warn("pull image : {} success", image);
-        //根据镜像名，获取镜像id
+        //According to the image name，Get mirrorid
         String[] imageNames = image.split(":");
         List<Image> lists = dockerClient.listImagesCmd().withImageNameFilter(imageNames[0]).exec();
         String imageId = "";

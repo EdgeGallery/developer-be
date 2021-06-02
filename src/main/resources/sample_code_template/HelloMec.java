@@ -25,7 +25,7 @@ import java.net.URL;
 import java.util.Map;
 
 /**
- * 该样例代码模拟 %s API的接口调用，请将代码复制黏贴到您的项目中使用，详细的API说明请参考API Swagger文档。
+ * This sample code simulates %s APIInterface call，Please copy and paste the code into your project to use，detailedAPIPlease refer to the descriptionAPI SwaggerDocumentation。
  */
 public class %s {
 

@@ -40,7 +40,7 @@ public class WebSshWebSocketHandler implements WebSocketHandler {
     @Override
     public void afterConnectionEstablished(WebSocketSession webSocketSession) throws Exception {
         logger.info("用户:{},连接WebSSH", webSocketSession.getAttributes().get(ConstantPool.USER_UUID_KEY));
-        //调用初始化连接
+        //Call initial connection
         webSshService.initConnection(webSocketSession);
     }
 
@@ -50,7 +50,7 @@ public class WebSshWebSocketHandler implements WebSocketHandler {
         if (webSocketMessage instanceof TextMessage) {
             logger.info("用户:{},发送命令:{}", webSocketSession.getAttributes().get(ConstantPool.USER_UUID_KEY),
                 webSocketMessage.toString());
-            //调用service接收消息
+            //transferserviceReceive message
             webSshService.recvHandle(((TextMessage) webSocketMessage).getPayload(), webSocketSession);
         } else if (webSocketMessage instanceof BinaryMessage) {
             logger.warn("Unexpected WebSocket message type: {}", webSocketMessage.getClass());
@@ -70,7 +70,7 @@ public class WebSshWebSocketHandler implements WebSocketHandler {
     public void afterConnectionClosed(WebSocketSession webSocketSession, CloseStatus closeStatus) throws Exception {
         logger
             .info("用户:{}断开webssh连接", String.valueOf(webSocketSession.getAttributes().get(ConstantPool.USER_UUID_KEY)));
-        //调用service关闭连接
+        //transferserviceClose the connection
         webSshService.close(webSocketSession);
     }
 

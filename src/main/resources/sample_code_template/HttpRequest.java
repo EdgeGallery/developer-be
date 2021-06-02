@@ -25,7 +25,7 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 /**
- * 该样例代码用于调用样例代码的http请求，可以直接使用该方法发送http请求。
+ * The sample code is used to call the sample codehttprequest，You can directly use this method to sendhttprequest。
  */
 public class HttpRequest {
 

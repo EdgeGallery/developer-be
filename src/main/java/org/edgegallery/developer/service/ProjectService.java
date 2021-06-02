@@ -1054,11 +1054,11 @@ public class ProjectService {
         }
 
         if (sshConnectInfo != null) {
-            //断开连接
+            //Disconnect
             if (sshConnectInfo.getChannel() != null) {
                 sshConnectInfo.getChannel().disconnect();
             }
-            //map中移除
+            //mapRemove
             sshMap.remove(uuid);
         }
         ApplicationProject project = projectMapper.getProject(userId, projectId);
@@ -1417,14 +1417,14 @@ public class ProjectService {
      * cleanUnreleasedEnv.
      */
     public void cleanUnreleasedEnv() {
-        //获取所有的项目
+        //Get all items
         List<ApplicationProject> projects = projectMapper.getAllProjectNoCondtion();
         if (CollectionUtils.isEmpty(projects)) {
             LOGGER.warn("DB have no record of app project!");
             return;
         }
-        //登录user-mgmt
-        //通过服务名调用user-mgmt的登录接口
+        //log inuser-mgmt
+        //Call by service nameuser-mgmtLogin interface
         try (CloseableHttpClient client = createIgnoreSslHttpClient()) {
             URL url = new URL(loginUrl);
             String userLoginUrl = url.getProtocol() + "://" + url.getAuthority() + "/index.html";
@@ -1438,7 +1438,7 @@ public class ProjectService {
             String xsrf = getXsrf();
             httpPost.setHeader("X-XSRF-TOKEN", xsrf);
             client.execute(httpPost);
-            //判断已有项目状态为部署成功或者部署失败，且项目创建时间距今已超24小时，调用cleanenv接口
+            //Determine the status of the existing project as successful deployment or deployment failure，And the project creation time has exceeded24hour，transfercleanenvinterface
             for (ApplicationProject project : projects) {
                 EnumProjectStatus status = project.getStatus();
                 if (status.equals(EnumProjectStatus.DEPLOYED) || status.equals(EnumProjectStatus.DEPLOYED_FAILED)) {
