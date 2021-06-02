@@ -359,8 +359,8 @@ public final class HttpClientUtil {
     /**
      * getHealth.
      */
-    public static String getHealth(String ip, int port) {
-        String url = getUrlPrefix("https", ip, port) + Consts.APP_LCM_GET_HEALTH;
+    public static String getHealth(String protocol, String ip, int port) {
+        String url = getUrlPrefix(protocol, ip, port) + Consts.APP_LCM_GET_HEALTH;
         LOGGER.info(" health url is {}", url);
         ResponseEntity<String> response;
         try {

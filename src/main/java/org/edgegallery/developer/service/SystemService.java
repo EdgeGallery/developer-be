@@ -119,7 +119,7 @@ public class SystemService {
             return Either.left(new FormatRespDto(Status.BAD_REQUEST, "userId is empty"));
         }
         //health check
-        String healRes = HttpClientUtil.getHealth(host.getLcmIp(), host.getPort());
+        String healRes = HttpClientUtil.getHealth(host.getProtocol(), host.getLcmIp(), host.getPort());
         if (healRes == null) {
             String msg = "health check faild,current ip or port cann't be used!";
             LOGGER.error(msg);
@@ -184,7 +184,7 @@ public class SystemService {
     @Transactional
     public Either<FormatRespDto, Boolean> updateHost(String hostId, MepCreateHost host, String token) {
         //health check
-        String healRes = HttpClientUtil.getHealth(host.getLcmIp(), host.getPort());
+        String healRes = HttpClientUtil.getHealth(host.getProtocol(), host.getLcmIp(), host.getPort());
         if (healRes == null) {
             String msg = "health check faild,current ip or port cann't be used!";
             LOGGER.error(msg);
@@ -419,7 +419,7 @@ public class SystemService {
         headers.setContentType(MediaType.APPLICATION_JSON);
         Gson gson = new Gson();
         HttpEntity<String> requestEntity = new HttpEntity<>(gson.toJson(body), headers);
-        String url = getUrlPrefix("https", host.getLcmIp(), host.getPort()) + Consts.APP_LCM_ADD_MECHOST;
+        String url = getUrlPrefix(host.getProtocol(), host.getLcmIp(), host.getPort()) + Consts.APP_LCM_ADD_MECHOST;
         LOGGER.info("add mec host url:{}", url);
         ResponseEntity<String> response;
         try {

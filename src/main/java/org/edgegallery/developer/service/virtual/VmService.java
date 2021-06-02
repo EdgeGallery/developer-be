@@ -30,6 +30,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.lang.reflect.Type;
@@ -39,13 +40,16 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.tomcat.util.http.fileupload.servlet.ServletFileUpload;
 import org.edgegallery.developer.exception.DomainException;
 import org.edgegallery.developer.mapper.ProjectMapper;
 import org.edgegallery.developer.mapper.VmConfigMapper;
+import org.edgegallery.developer.model.Chunk;
 import org.edgegallery.developer.model.LcmLog;
 import org.edgegallery.developer.model.deployyaml.ImageDesc;
 import org.edgegallery.developer.model.lcm.UploadResponse;
@@ -68,6 +72,7 @@ import org.edgegallery.developer.model.system.VmSystem;
 import org.edgegallery.developer.model.vm.VmUserData;
 import org.edgegallery.developer.model.workspace.ApplicationProject;
 import org.edgegallery.developer.model.workspace.EnumProjectStatus;
+import org.edgegallery.developer.model.workspace.EnumSystemImageStatus;
 import org.edgegallery.developer.model.workspace.EnumTestConfigStatus;
 import org.edgegallery.developer.model.workspace.MepHost;
 import org.edgegallery.developer.response.FormatRespDto;
@@ -99,7 +104,12 @@ public class VmService {
     @Value("${vm.password:}")
     private String vmPassword;
 
+    @Value("${upload.tempPath}")
+    private String tempUploadPath;
+
     private static final Logger LOGGER = LoggerFactory.getLogger(VmService.class);
+
+    private static final String SUBDIR_FILE = "uploadFile";
 
     private static Gson gson = new Gson();
 
@@ -402,9 +412,7 @@ public class VmService {
      * uploadFileToVm.
      */
     public Either<FormatRespDto, Boolean> uploadFileToVm(String userId, String projectId, String vmId,
-        MultipartFile uploadFile) throws Exception {
-        LOGGER.info("Begin upload file");
-
+        HttpServletRequest request, Chunk chunk) throws Exception {
         ApplicationProject project = projectMapper.getProject(userId, projectId);
         if (project == null) {
             LOGGER.error("Can not find the project by userId {} and projectId {}", userId, projectId);
@@ -417,56 +425,69 @@ public class VmService {
             return Either.right(true);
         }
 
-        String networkType = "Network_N6";
-        VmNetwork vmNetwork = vmConfigMapper.getVmNetworkByType(networkType);
-        Type type = new TypeToken<List<VmInfo>>() { }.getType();
-        List<VmInfo> vmInfo = gson.fromJson(gson.toJson(vmCreateConfig.getVmInfo()), type);
-        List<NetworkInfo> networkInfos = vmInfo.get(0).getNetworks();
-        String networkIp = "";
-        for (NetworkInfo networkInfo : networkInfos) {
-            if (networkInfo.getName().equals(vmNetwork.getNetworkName())) {
-                networkIp = networkInfo.getIp();
-            }
-        }
-        LOGGER.info("network Ip, username is {},{}", networkIp, vmUsername);
-        // ssh upload file
-        String targetPath = "";
-        ScpConnectEntity scpConnectEntity = new ScpConnectEntity();
-        scpConnectEntity.setTargetPath(targetPath);
-        scpConnectEntity.setUrl(networkIp);
-        scpConnectEntity.setPassWord(vmPassword);
-        scpConnectEntity.setUserName(vmUsername);
-        File file = transferToFile(uploadFile);
-        String remoteFileName = file.getName();
-        LOGGER.info("path:{}", targetPath);
-
-        ShhFileUploadUtil sshFileUploadUtil = new ShhFileUploadUtil();
-        FileUploadEntity fileUploadEntity = sshFileUploadUtil.uploadFile(file, remoteFileName, scpConnectEntity);
-        if (fileUploadEntity.getCode().equals("ok")) {
-            return Either.right(true);
-        } else {
-            LOGGER.warn("upload fail, ip:{}", vmInfo.get(0).getNetworks().get(0).getIp());
-            FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, fileUploadEntity.getMessage());
+        LOGGER.info("upload system image file, fileName = {}, identifier = {}, chunkNum = {}",
+            chunk.getFilename(), chunk.getIdentifier(), chunk.getChunkNumber());
+        boolean isMultipart = ServletFileUpload.isMultipartContent(request);
+        if (!isMultipart) {
+            LOGGER.error("upload request is invalid.");
+            FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "upload request is invalid.");
             return Either.left(error);
         }
-    }
 
-    private File transferToFile(MultipartFile multipartFile) {
-        File file = null;
-        if (multipartFile != null) {
-            try {
-                String originalFilename = multipartFile.getOriginalFilename();
-                if (!org.springframework.util.StringUtils.isEmpty(originalFilename)) {
-                    String[] filename = originalFilename.split("\\.");
-                    file = File.createTempFile(filename[0], "." + filename[1]);
-                    multipartFile.transferTo(file);
-                    file.deleteOnExit();
-                }
-            } catch (IOException e) {
-                LOGGER.error("transfer multiFile to file failed! {}", e.getMessage());
+        MultipartFile file = chunk.getFile();
+        if (file == null) {
+            LOGGER.error("can not find any needed file");
+            FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "upload request is invalid.");
+            return Either.left(error);
+        }
+
+        File tmpUploadDir = new File(getUploadFileRootDir());
+        if (!tmpUploadDir.exists()) {
+            boolean isMk = tmpUploadDir.mkdirs();
+            if (!isMk) {
+                LOGGER.error("create temporary upload path failed");
+                FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "create temporary upload path failed");
+                return Either.left(error);
             }
         }
-        return file;
+
+        Integer chunkNumber = chunk.getChunkNumber();
+        if (chunkNumber == null) {
+            chunkNumber = 0;
+        }
+        File outFile = new File(getUploadFileRootDir()
+            + chunk.getIdentifier(), chunkNumber + ".part");
+        InputStream inputStream = file.getInputStream();
+        FileUtils.copyInputStreamToFile(inputStream, outFile);
+
+        String partFilePath = getUploadFileRootDir()  + chunk.getIdentifier();
+        File partFileDir = new File(partFilePath);
+
+        File[] partFiles = partFileDir.listFiles();
+        if (partFiles == null || partFiles.length == 0) {
+            LOGGER.error("uploaded part file not found!");
+            FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "uploaded part file not found!");
+            return Either.left(error);
+        }
+
+        File mergedFile = new File(getUploadFileRootDir() + File.separator + chunk.getFilename());
+        FileOutputStream destTempfos = new FileOutputStream(mergedFile, true);
+        for (File partFile : partFiles) {
+            FileUtils.copyFile(partFile, destTempfos);
+        }
+        destTempfos.close();
+        FileUtils.deleteDirectory(partFileDir);
+
+        Boolean pushFileToVmRes = pushFileToVm(mergedFile, vmCreateConfig);
+        if (!pushFileToVmRes) {
+            LOGGER.error("push app file failed!");
+            FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "push app file failed!");
+            return Either.left(error);
+        }
+
+        return Either.right(true);
+
+
     }
 
     /**
@@ -791,10 +812,8 @@ public class VmService {
     public File generateVmPackageByConfig(VmPackageConfig config) throws IOException, DomainException {
         ApplicationProject project = projectMapper.getProjectById(config.getProjectId());
         String projectPath = getProjectPath(config.getProjectId());
-        VmFlavor flavor = vmConfigMapper.getVmFlavor(config.getVmRegulation().getArchitecture());
-        List<VmNetwork> vmNetworks = vmConfigMapper.getVmNetwork();
         File csarPkgDir;
-        csarPkgDir = new NewCreateVmCsar().create(projectPath, config, project, flavor, vmNetworks);
+        csarPkgDir = new NewCreateVmCsar().create(projectPath, config, project);
         return CompressFileUtilsJava
             .compressToCsarAndDeleteSrc(csarPkgDir.getCanonicalPath(), projectPath, csarPkgDir.getName());
     }
@@ -956,6 +975,43 @@ public class VmService {
         } catch (IOException e) {
             LOGGER.error("write data into SwImageDesc.json failed, {}", e.getMessage());
         }
+    }
+
+    private String getUploadFileRootDir() {
+        return tempUploadPath + File.separator + SUBDIR_FILE + File.separator;
+    }
+    private Boolean pushFileToVm(File appFile, VmCreateConfig vmCreateConfig) {
+        String networkType = "Network_N6";
+        VmNetwork vmNetwork = vmConfigMapper.getVmNetworkByType(networkType);
+        Type type = new TypeToken<List<VmInfo>>() { }.getType();
+        List<VmInfo> vmInfo = gson.fromJson(gson.toJson(vmCreateConfig.getVmInfo()), type);
+        List<NetworkInfo> networkInfos = vmInfo.get(0).getNetworks();
+        String networkIp = "";
+        for (NetworkInfo networkInfo : networkInfos) {
+            if (networkInfo.getName().equals(vmNetwork.getNetworkName())) {
+                networkIp = networkInfo.getIp();
+            }
+        }
+        LOGGER.info("network Ip, username is {},{}", networkIp, vmUsername);
+        // ssh upload file
+        String targetPath = "";
+        ScpConnectEntity scpConnectEntity = new ScpConnectEntity();
+        scpConnectEntity.setTargetPath(targetPath);
+        scpConnectEntity.setUrl(networkIp);
+        scpConnectEntity.setPassWord(vmPassword);
+        scpConnectEntity.setUserName(vmUsername);
+        String remoteFileName = appFile.getName();
+        LOGGER.info("path:{}", targetPath);
+        ShhFileUploadUtil sshFileUploadUtil = new ShhFileUploadUtil();
+        FileUploadEntity fileUploadEntity = sshFileUploadUtil.uploadFile(appFile, remoteFileName, scpConnectEntity);
+        if (fileUploadEntity.getCode().equals("ok")) {
+            return true;
+        } else {
+            LOGGER.warn("upload fail, ip:{}", vmInfo.get(0).getNetworks().get(0).getIp());
+            FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, fileUploadEntity.getMessage());
+            return false;
+        }
+
     }
 
 }

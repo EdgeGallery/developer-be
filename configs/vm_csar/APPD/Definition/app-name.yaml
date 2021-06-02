@@ -85,7 +85,7 @@ topology_template:
       description: network_name_mep
     network_mep_physnet:
       type: string
-      default: network_mep_physnet
+      default: physnet2
       description: network_mep_physnet
     network_mep_vlanid:
       type: string
@@ -97,7 +97,7 @@ topology_template:
       description: network_name_n6
     network_n6_physnet:
       type: string
-      default: network_n6_physnet
+      default: physnet2
       description: network_n6_physnet
     network_n6_vlanid:
       type: string
@@ -109,7 +109,7 @@ topology_template:
       description: network_name_internet
     network_internet_physnet:
       type: string
-      default: network_internet_physnet
+      default: physnet2
       description: network_internet_physnet
     network_internet_vlanid:
       type: string
@@ -123,46 +123,6 @@ topology_template:
       type: string
       default:
       description: mec_internet_ip
-    TrafficRuleSrcAddr:
-      type: string
-      default: 0.0.0.0/0
-      description: TrafficRuleSrcAddr
-    TrafficRuleDstAddr:
-      type: string
-      default: 127.0.0.1/28
-      description: TrafficRuleDstAddr
-    TrafficRuleSrcPort:
-      type: string
-      default: 0-65535
-      description: TrafficRuleSrcPort
-    TrafficRuleDstPort:
-      type: string
-      default: 0-65535
-      description: TrafficRuleDstPort
-    TrafficRuleProtocol:
-      type: string
-      default: ANY
-      description: TrafficRuleProtocol
-    DnsRuleDomainName:
-      type: string
-      default: mec.edgegallery.com
-      description: DnsRuleDomainName
-    DnsRuleIpAddressType:
-      type: string
-      default: IP_V4
-      description: DnsRuleIpAddressType
-    DnsRuleIpAddress:
-      type: string
-      default: 127.0.0.1
-      description: DnsRuleIpAddress
-    DEMO_VNF_Network_01:
-      type: string
-      default: app_arm
-      description: DEMO_VNF_Network_01
-    DEMO_VNF_Network_02:
-      type: string
-      default: app_arm
-      description: DEMO_VNF_Network_02
 
   node_templates:
     Simple_VNF:
@@ -229,7 +189,7 @@ topology_template:
         vnic_type: normal
         port_security_enabled: true
       attributes:
-        ipv4_addres: {get_input: mec_internet_ip}
+        ipv4_address: {get_input: mec_internet_ip}
       requirements:
         - virtual_binding: EMS_VDU1
         - virtual_link: MEC_APP_INTERNET
@@ -278,77 +238,6 @@ topology_template:
         certification_info:
           access_key_id: {get_input: ak}
           secret_key: {get_input: sk}
-        appServiceProduced:
-          - serName: appService3
-            serCategory: video encoding
-            version: 2.0
-            transportsSupported:
-              - transport:
-                  type: REST_HTTP
-                  protocol: HTTP
-                  version: 2.0
-                  security: string
-                serializers:
-                  - JSON
-            dnsRuleIdList:
-              - dnsRule1
-            trafficRuleIdList:
-              - trafficRule1
-        appFeatureRequired:
-          - featureName: UserApps
-            version: 3.0
-        appFeatureOptional:
-          - featureName: UserApps
-            version: 3.0
-        transportDependencies:
-          - transport:
-              type: REST_HTTP
-              protocol: HTTP
-              version: 2.0
-              security:
-            serializers:
-              - JSON
-            labels:
-              - test
-        appSupportMp1: true
-        appName: filter01
-        appTrafficRule:
-          - trafficRuleId: trafficRule1
-            filterType: FLOW
-            priority: 1
-            trafficFilter:
-              - srcAddress:
-                  - {get_input: TrafficRuleSrcAddr}
-                dstAddress:
-                  - {get_input: TrafficRuleDstAddr}
-                srcPort:
-                  - {get_input: TrafficRuleSrcPort}
-                dstPort:
-                  - {get_input: TrafficRuleDstPort}
-                protocol:
-                  - {get_input: TrafficRuleProtocol}
-                tag:
-                  - '1234'
-                srcTunnelAddress:
-                  - 10.10.10.10
-                tgtTunnelAddress:
-                  - 10.10.10.10
-                srcTunnelPort:
-                  - '8080'
-                dstTunnelPort:
-                  - '8080'
-                qCI: 1
-                dSCP: 0
-                tC: 1
-            action: PASSTHROUGH
-        appDNSRule:
-          - dnsRuleId: dnsRule1
-            domainName: {get_input: DnsRuleDomainName}
-            ipAddressType: {get_input: DnsRuleIpAddressType}
-            ipAddress: {get_input: DnsRuleIpAddress}
-            ttl: 100
-
-
 
     DEMO_VL1:
       type: tosca.nodes.nfv.VnfVirtualLink

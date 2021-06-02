@@ -23,6 +23,7 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.NotNull;
@@ -30,6 +31,7 @@ import javax.validation.constraints.Pattern;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.edgegallery.developer.common.Consts;
 import org.edgegallery.developer.config.security.AccessUserUtil;
+import org.edgegallery.developer.model.Chunk;
 import org.edgegallery.developer.model.vm.VmCreateConfig;
 import org.edgegallery.developer.model.vm.VmImageConfig;
 import org.edgegallery.developer.model.vm.VmPackageConfig;
@@ -213,20 +215,16 @@ public class VmController {
         @ApiResponse(code = 200, message = "OK", response = Boolean.class),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
-    @RequestMapping(value = "/projects/{projectId}/vm/{vmId}/files", method = RequestMethod.POST,
-        consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @RequestMapping(value = "/projects/{projectId}/vm/{vmId}/files", method = RequestMethod.POST)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
-    public ResponseEntity<Boolean> uploadFile(
-        @ApiParam(value = "file", required = true) @RequestPart("file") MultipartFile uploadFile,
-        @Pattern(regexp = REGEX_UUID, message = "projectId must be in UUID format")
+    public ResponseEntity<Boolean> uploadFile(HttpServletRequest request, Chunk chunk,
         @ApiParam(value = "projectId", required = true) @PathVariable("projectId") String projectId,
         @Pattern(regexp = REGEX_UUID, message = "userId must be in UUID format")
         @ApiParam(value = "userId", required = true) @RequestParam("userId") String userId,
         @Pattern(regexp = REGEX_UUID, message = "vmId must be in UUID format")
         @ApiParam(value = "vmId", required = true) @PathVariable("vmId") String vmId) throws Exception {
-        Either<FormatRespDto, Boolean> either = vmService.uploadFileToVm(userId, projectId, vmId, uploadFile);
+        Either<FormatRespDto, Boolean> either = vmService.uploadFileToVm(userId, projectId, vmId, request, chunk);
         return ResponseDataUtil.buildResponse(either);
-
     }
 
     /**

@@ -79,8 +79,7 @@ public class NewCreateVmCsar {
      * @param project project self
      * @return package gz
      */
-    public File create(String projectPath, VmPackageConfig config, ApplicationProject project, VmFlavor flavor,
-        List<VmNetwork> vmNetworks) throws IOException, DomainException {
+    public File create(String projectPath, VmPackageConfig config, ApplicationProject project) throws IOException, DomainException {
         File projectDir = new File(projectPath);
 
         String deployType = (project.getDeployPlatform() == EnumDeployPlatform.KUBERNETES) ? "container" : "vm";
@@ -134,8 +133,7 @@ public class NewCreateVmCsar {
             File toscaValue = new File(csar.getCanonicalPath() + TEMPLATE_TOSCA_METADATA_PATH);
 
             FileUtils.writeStringToFile(toscaValue,
-                FileUtils.readFileToString(toscaValue, StandardCharsets.UTF_8).replace("{appdFile}", projectName)
-                    .replace("{imageFile}", config.getVmSystem().getSystemName()), StandardCharsets.UTF_8, false);
+                FileUtils.readFileToString(toscaValue, StandardCharsets.UTF_8).replace("{appdFile}", projectName), StandardCharsets.UTF_8, false);
         } catch (IOException e) {
             throw new IOException("replace file exception");
         }
@@ -214,7 +212,7 @@ public class NewCreateVmCsar {
         imageDesc.setVersion(project.getVersion());
         imageDesc.setChecksum("2");
         imageDesc.setContainerFormat("bare");
-        imageDesc.setDiskFormat("raw");
+        imageDesc.setDiskFormat(config.getVmSystem().getSystemFormat());
         imageDesc.setMinDisk(3);
         imageDesc.setMinRam(6);
         imageDesc.setArchitecture(project.getPlatform().get(0));
