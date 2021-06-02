@@ -7,7 +7,7 @@
 	"diskFormat": "raw",
 	"minDisk": 3,
 	"minRam": 6,
-	"architecture": "X86",
+	"architecture": "x86",
 	"size": 688390,
 	"swImage": "Image/cLabEuleraarch.zip/cLabEuleraarch/EulerOS_V2.0SP8_aarch64_dvd.iso",
 	"hw_scsi_model": "virtio-scsi",

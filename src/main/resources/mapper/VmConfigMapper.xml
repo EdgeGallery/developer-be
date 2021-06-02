@@ -51,6 +51,7 @@
         <result property="systemBit" column="system_bit"/>
         <result property="systemDisk" column="system_disk"/>
         <result property="systemPath" column="system_path"/>
+        <result property="systemFormat" column="system_format"/>
     </resultMap>
 
     <resultMap id="VmNetwork"
