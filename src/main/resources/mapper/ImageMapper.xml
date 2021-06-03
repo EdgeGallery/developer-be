@@ -27,6 +27,7 @@
         <result property="version" column="version"/>
         <result property="systemBit" column="system_bit"/>
         <result property="systemDisk" column="system_disk"/>
+        <result property="userId" column="user_id"/>
         <result property="userName" column="user_name"/>
         <result property="createTime" column="create_time"/>
         <result property="systemFormat" column="system_format"/>
@@ -44,6 +45,7 @@
         version,
         system_bit,
         system_disk,
+        user_id,
         user_name,
         system_format,
         to_char(upload_time, 'YYYY-MM-DD HH24:MI:SS') as upload_time,
@@ -52,17 +54,17 @@
         FROM
         tbl_vm_system
         <where>
-            <if test="userId != null and userId!=''">
-                and user_id = #{userId}
-            </if>
-            <if test="operateSystem != null and operateSystem!=''">
+            <if test="operateSystem != null and operateSystem !=''">
                 and operate_system = #{operateSystem}
             </if>
-            <if test="systemName != null and systemName!=''">
+            <if test="systemName != null and systemName !=''">
                 and system_name = #{systemName}
             </if>
             <if test="status != null and status !='All'">
                 and status = #{status}
+            </if>
+            <if test="userId != null and userId !=''">
+                and user_id = #{userId} or type == 'public'
             </if>
             <if test="type != null and type !='All'">
                 and type = #{type}
@@ -115,15 +117,42 @@
         </if>
     </select>
 
-    <select id="getSystemImagesPath" resultType="java.lang.String"
+    <select id="getVMImage" resultMap="ImageMap"
+            parameterType="java.lang.Integer">
+        SELECT
+        *
+        FROM
+        tbl_vm_system
+        WHERE
+        system_id = #{systemId}
+    </select>
+
+    <select id="getSystemImagesPath" resultMap="java.lang.String"
             parameterType="org.edgegallery.developer.model.system.VmSystem">
         SELECT
         system_path
         FROM
         tbl_vm_system
-        WHERE system_id = #{systemId}
+        WHERE
+        system_id = #{systemId}
+        <if test="userId != null and userId!=''">
+            and user_id = #{userId}
+        </if>
+    </select>
+
+    <select id="getSystemNameCount" resultType="java.lang.Integer"
+            parameterType="org.edgegallery.developer.model.system.VmSystem">
+        SELECT
+        COUNT(1)
+        FROM
+        tbl_vm_system
+        WHERE
+        system_name = #{systemName}
         <if test="userId != null">
             and user_id = #{userId}
+        </if>
+        <if test="systemId != null">
+            and system_id != #{systemId}
         </if>
     </select>
 

@@ -19,6 +19,7 @@ package org.edgegallery.developer.model.system;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.validator.constraints.Length;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
@@ -28,12 +29,17 @@ import javax.validation.constraints.Pattern;
 @Setter
 public class MepGetSystemImageReq {
 
+    @Length(max = 128)
     private String systemName;
 
+    @ApiModelProperty(example = "public")
+    @Pattern(regexp = "All|public|private")
     private String type;
 
+    @Length(max = 50)
     private String userId;
 
+    @Length(max = 50)
     private String operateSystem;
 
     @ApiModelProperty(example = "UPLOAD_WAIT")

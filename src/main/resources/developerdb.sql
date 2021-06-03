@@ -347,7 +347,8 @@
         "upload_time" timestamptz(6)  DEFAULT NULL,
         "system_path" varchar(128) DEFAULT NULL,
         "status" varchar(50) DEFAULT NULL,
-        CONSTRAINT "tbl_vm_system_uniqueName" UNIQUE ("system_name")
+        CONSTRAINT "tbl_vm_system_uniqueName" UNIQUE ("system_name","user_id"),
+        CONSTRAINT "tbl_vm_system_uniqueId" UNIQUE ("system_id")
         )
     ;
 

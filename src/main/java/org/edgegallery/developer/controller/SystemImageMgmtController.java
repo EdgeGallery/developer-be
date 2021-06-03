@@ -93,7 +93,7 @@ public class SystemImageMgmtController {
             produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_ADMIN')|| hasRole('DEVELOPER_TENANT')")
     public ResponseEntity<Boolean> createSystemImage(
-            @ApiParam(value = "MepSystemImage", required = true) @Validated @RequestBody VmSystem vmImage) throws Exception {
+            @ApiParam(value = "MepSystemImage", required = true) @Validated @RequestBody VmSystem vmImage) {
         LOGGER.info("create system image file");
         Either<FormatRespDto, Boolean> either = systemImageMgmtService.createSystemImage(vmImage);
         return ResponseDataUtil.buildResponse(either);
@@ -114,7 +114,7 @@ public class SystemImageMgmtController {
     @PreAuthorize("hasRole('DEVELOPER_ADMIN')|| hasRole('DEVELOPER_TENANT')")
     public ResponseEntity<Boolean> modifySystemImage(
             @PathVariable("systemId") Integer systemId,
-            @Validated @RequestBody VmSystem vmImage) throws Exception {
+            @Validated @RequestBody VmSystem vmImage) {
         LOGGER.info("update system image file, systemId = {}", systemId);
         Either<FormatRespDto, Boolean> either = systemImageMgmtService.updateSystemImage(vmImage, systemId);
         return ResponseDataUtil.buildResponse(either);

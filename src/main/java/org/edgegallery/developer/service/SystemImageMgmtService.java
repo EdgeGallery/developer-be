@@ -7,13 +7,13 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Date;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Response;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.tomcat.util.http.fileupload.servlet.ServletFileUpload;
+import org.edgegallery.developer.common.Consts;
 import org.edgegallery.developer.config.security.AccessUserUtil;
 import org.edgegallery.developer.mapper.SystemImageMapper;
 import org.edgegallery.developer.model.Chunk;
@@ -35,7 +35,7 @@ import org.springframework.web.multipart.MultipartFile;
 @Service("systemImageMgmtService")
 public class SystemImageMgmtService {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(SystemService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SystemImageMgmtService.class);
 
     private static final String SUBDIR_SYSIMAGE = "SystemImage";
 
@@ -57,9 +57,8 @@ public class SystemImageMgmtService {
     public Either<FormatRespDto, MepGetSystemImageRes> getSystemImages(MepGetSystemImageReq mepGetSystemImageReq) {
         try {
             LOGGER.info("Query SystemImage start");
-            String userName = AccessUserUtil.getUser().getUserName();
             String userId = AccessUserUtil.getUser().getUserId();
-            if (!StringUtils.equalsIgnoreCase(userName, "admin")) {
+            if (!isAdminUser()) {
                 mepGetSystemImageReq.setUserId(userId);
             }
             MepSystemQueryCtrl queryCtrl = mepGetSystemImageReq.getQueryCtrl();
@@ -87,22 +86,33 @@ public class SystemImageMgmtService {
      *
      * @return
      */
-    public Either<FormatRespDto, Boolean> createSystemImage(VmSystem vmImage) throws Exception {
-        LOGGER.info("Create SystemImage start");
-        if (StringUtils.isBlank(vmImage.getSystemName())) {
-            LOGGER.error("Create SystemImage failed");
+    public Either<FormatRespDto, Boolean> createSystemImage(VmSystem vmImage) {
+        try {
+            LOGGER.info("Create SystemImage start");
+            String userId = AccessUserUtil.getUser().getUserId();
+            if (StringUtils.isBlank(vmImage.getSystemName())) {
+                LOGGER.error("Create SystemImage failed");
+                return Either.left(new FormatRespDto(Response.Status.BAD_REQUEST, "Can not create a SystemImage."));
+            }
+            vmImage.setUserId(userId);
+            if (systemImageMapper.getSystemNameCount(vmImage.getSystemName(), null, userId) > 0) {
+                LOGGER.error("SystemName can not duplicate.");
+                return Either.left(new FormatRespDto(Response.Status.BAD_REQUEST, "SystemName can not duplicate."));
+            }
+            vmImage.setUserId(AccessUserUtil.getUser().getUserId());
+            vmImage.setUserName(AccessUserUtil.getUser().getUserName());
+            vmImage.setStatus(EnumSystemImageStatus.UPLOAD_WAIT);
+            int ret = systemImageMapper.createSystemImage(vmImage);
+            if (ret > 0) {
+                LOGGER.info("Crete SystemImage {} success ", vmImage.getUserId());
+                return Either.right(true);
+            }
+            LOGGER.error("Create SystemImage failed.");
             return Either.left(new FormatRespDto(Response.Status.BAD_REQUEST, "Can not create a SystemImage."));
+        } catch (Exception e) {
+            LOGGER.error("Create SystemImages failed");
+            return Either.left(new FormatRespDto(Response.Status.BAD_REQUEST, "Can not create SystemImages."));
         }
-        vmImage.setUserId(AccessUserUtil.getUser().getUserId());
-        vmImage.setUserName(AccessUserUtil.getUser().getUserName());
-        vmImage.setStatus(EnumSystemImageStatus.UPLOAD_WAIT);
-        int ret = systemImageMapper.createSystemImage(vmImage);
-        if (ret > 0) {
-            LOGGER.info("Crete SystemImage {} success ", vmImage.getUserId());
-            return Either.right(true);
-        }
-        LOGGER.error("Create SystemImage failed.");
-        return Either.left(new FormatRespDto(Response.Status.BAD_REQUEST, "Can not create a SystemImage."));
     }
 
     /**
@@ -110,27 +120,34 @@ public class SystemImageMgmtService {
      *
      * @return
      */
-    public Either<FormatRespDto, Boolean> updateSystemImage(VmSystem vmImage, Integer systemId) throws Exception {
-        LOGGER.info("Update SystemImage start");
-        String userName = AccessUserUtil.getUser().getUserName();
-        String userId = AccessUserUtil.getUser().getUserId();
-        if (StringUtils.equalsIgnoreCase(userName, "admin")) {
-            vmImage.setUserId(userId);
-        }
-        if (StringUtils.isBlank(vmImage.getSystemName())) {
-            LOGGER.error("Update SystemImage failed");
-            return Either.left(new FormatRespDto(Response.Status.BAD_REQUEST, "Can not update a SystemImage."));
-        }
-        vmImage.setSystemId(systemId);
-        vmImage.setUserName(userName);
+    public Either<FormatRespDto, Boolean> updateSystemImage(VmSystem vmImage, Integer systemId) {
+        try {
+            LOGGER.info("Update SystemImage start");
+            String userId = AccessUserUtil.getUser().getUserId();
+            if (!isAdminUser()) {
+                vmImage.setUserId(userId);
+            }
+            if (StringUtils.isAnyBlank(vmImage.getSystemName(), systemImageMapper.getVMImage(systemId).getUserId())) {
+                LOGGER.error("Update SystemImage failed");
+                return Either.left(new FormatRespDto(Response.Status.BAD_REQUEST, "Can not update a SystemImage."));
+            }
+            if (systemImageMapper.getSystemNameCount(vmImage.getSystemName(), systemId, systemImageMapper.getVMImage(systemId).getUserId()) > 0) {
+                LOGGER.error("SystemName can not duplicate.");
+                return Either.left(new FormatRespDto(Response.Status.BAD_REQUEST, "SystemName can not duplicate."));
+            }
+            vmImage.setSystemId(systemId);
 
-        int ret = systemImageMapper.updateSystemImage(vmImage);
-        if (ret > 0) {
-            LOGGER.info("Update SystemImage success systemId = {}, userId = {}", systemId, userId);
-            return Either.right(true);
+            int ret = systemImageMapper.updateSystemImage(vmImage);
+            if (ret > 0) {
+                LOGGER.info("Update SystemImage success systemId = {}, userId = {}", systemId, userId);
+                return Either.right(true);
+            }
+            LOGGER.error("Update SystemImage failed ");
+            return Either.left(new FormatRespDto(Response.Status.BAD_REQUEST, "Can not update a SystemImage."));
+        } catch (Exception e) {
+            LOGGER.error("Update SystemImages failed");
+            return Either.left(new FormatRespDto(Response.Status.BAD_REQUEST, "Can not update SystemImages."));
         }
-        LOGGER.error("Update SystemImage failed ");
-        return Either.left(new FormatRespDto(Response.Status.BAD_REQUEST, "Can not update a SystemImage."));
     }
 
     /**
@@ -163,7 +180,7 @@ public class SystemImageMgmtService {
         VmSystem vmImage = new VmSystem();
         String userName = AccessUserUtil.getUser().getUserName();
         String userId = AccessUserUtil.getUser().getUserId();
-        if (!StringUtils.equalsIgnoreCase(userName, "admin")) {
+        if (!isAdminUser()) {
             vmImage.setUserId(userId);
         }
         vmImage.setSystemId(systemId);
@@ -336,5 +353,10 @@ public class SystemImageMgmtService {
 
     private String getUploadSysImageRootDir(int systemId) {
         return tempUploadPath + File.separator + SUBDIR_SYSIMAGE + File.separator + systemId + File.separator;
+    }
+
+    private boolean isAdminUser() {
+        String currUserAuth = AccessUserUtil.getUser().getUserAuth();
+        return !StringUtils.isEmpty(currUserAuth) && currUserAuth.contains(Consts.ROLE_DEVELOPER_ADMIN);
     }
 }
