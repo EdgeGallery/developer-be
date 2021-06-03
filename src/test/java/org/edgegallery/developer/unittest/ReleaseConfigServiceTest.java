@@ -96,14 +96,6 @@ public class ReleaseConfigServiceTest {
         Assert.assertTrue(stru.isLeft());
     }
 
-
-    @Test
-    @WithMockUser(roles = "DEVELOPER_TENANT")
-    public void testUpdateRelConfig() {
-        Either<FormatRespDto, ReleaseConfig> stru = releaseConfigService.modifyConfig("200dfab1-3c30-4fc7-a6ca-ed6f0620a85d", new ReleaseConfig());
-        Assert.assertTrue(stru.isRight());
-    }
-
     @Test
     @WithMockUser(roles = "DEVELOPER_TENANT")
     public void testUpdateRelConfigWithIdError() {
