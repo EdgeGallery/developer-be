@@ -22,9 +22,18 @@ public class User {
 
     private final String userName;
 
+    private final String userAuth;
+
     public User(String userId, String userName) {
         this.userId = userId;
         this.userName = userName;
+        this.userAuth = "";
+    }
+
+    public User(String userId, String userName, String userAuth) {
+        this.userId = userId;
+        this.userName = userName;
+        this.userAuth = userAuth;
     }
 
     public String getUserId() {
@@ -33,5 +42,9 @@ public class User {
 
     public String getUserName() {
         return userName;
+    }
+
+    public String getUserAuth() {
+        return userAuth;
     }
 }

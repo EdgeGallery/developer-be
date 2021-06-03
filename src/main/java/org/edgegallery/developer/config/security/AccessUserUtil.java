@@ -26,6 +26,10 @@ public final class AccessUserUtil {
         user.set(new User(userId, userName));
     }
 
+    public static void setUser(String userId, String userName, String userAuth) {
+        user.set(new User(userId, userName, userAuth));
+    }
+
     public static User getUser() {
         return user.get();
     }

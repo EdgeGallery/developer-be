@@ -20,7 +20,11 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
 import org.edgegallery.developer.model.workspace.EnumSystemImageStatus;
+import org.hibernate.validator.constraints.Length;
+import org.hibernate.validator.constraints.Range;
 
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.Pattern;
 import java.util.Date;
 
@@ -30,32 +34,43 @@ public class VmSystem {
 
     private Integer systemId;
 
+    @ApiModelProperty(example = "public")
+    @Pattern(regexp = "All|public|private")
     private String type;
 
+    @Length(max = 50)
     private String operateSystem;
 
+    @Length(max = 50)
     private String version;
 
+    @Length(max = 50)
     private String systemBit;
 
+    @Range(min = 10, max = 9999)
     private Integer systemDisk;
 
+    @Length(max = 128)
     private String systemName;
 
     private String createTime;
 
     private String modifyTime;
 
+    @Length(max = 50)
     private String systemFormat;
 
     private String uploadTime;
 
+    @Length(max = 128)
     private String systemPath;
 
     private EnumSystemImageStatus status;
 
+    @Length(max = 50)
     private String userId;
 
+    @Length(max = 50)
     private String userName;
 
 }
