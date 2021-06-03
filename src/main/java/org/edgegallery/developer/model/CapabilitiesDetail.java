@@ -19,6 +19,7 @@ package org.edgegallery.developer.model;
 import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.util.CollectionUtils;
 
 @Getter
 @Setter
@@ -29,4 +30,14 @@ public class CapabilitiesDetail {
 
     private List<ServiceDetail> serviceDetails;
 
+    public static Boolean isEmpty(CapabilitiesDetail capabilitiesDetail) {
+
+        return CollectionUtils.isEmpty(capabilitiesDetail.getAppTrafficRule()) && CollectionUtils
+            .isEmpty(capabilitiesDetail.getAppDNSRule())
+            && CollectionUtils.isEmpty(capabilitiesDetail.getServiceDetails());
+    }
+
+
+
 }
+

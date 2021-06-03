@@ -32,6 +32,7 @@ import java.io.Writer;
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -48,6 +49,7 @@ import org.edgegallery.developer.mapper.ReleaseConfigMapper;
 import org.edgegallery.developer.mapper.UploadedFileMapper;
 import org.edgegallery.developer.mapper.VmConfigMapper;
 import org.edgegallery.developer.model.AppConfigurationModel;
+import org.edgegallery.developer.model.CapabilitiesDetail;
 import org.edgegallery.developer.model.DnsRule;
 import org.edgegallery.developer.model.ReleaseConfig;
 import org.edgegallery.developer.model.ServiceConfig;
@@ -74,6 +76,11 @@ import org.yaml.snakeyaml.constructor.SafeConstructor;
 
 @Service("releaseConfigService")
 public class ReleaseConfigService {
+
+    private static final String TEMPLATE_MD = "/Artifacts/Docs/template.md";
+    private static final String CHARTS_TGZ = "/Artifacts/Deployment/Charts";
+    private static final String APPD_PATH = "/APPD";
+    private static final String MAIN_SERVICE_TEMPLATE = "/Definition/MainServiceTemplate.yaml";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ReleaseConfigService.class);
 
@@ -118,17 +125,15 @@ public class ReleaseConfigService {
             FormatRespDto dto = new FormatRespDto(Response.Status.INTERNAL_SERVER_ERROR, "save config data fail");
             return Either.left(dto);
         }
+        //todo config.getCapabilitiesDetail() != null || config.getGuideFileId() != null
         ApplicationProject applicationProject = projectMapper.getProjectById(projectId);
-        if (applicationProject.getDeployPlatform() == EnumDeployPlatform.KUBERNETES) {
-            //update csar
-            if (config.getCapabilitiesDetail() != null) {
+        if(config.getCapabilitiesDetail() != null || config.getGuideFileId() != null) {
+            if(applicationProject.getDeployPlatform() == EnumDeployPlatform.KUBERNETES) {
                 Either<FormatRespDto, Boolean> rebuildRes = rebuildCsar(projectId, config);
                 if (rebuildRes.isLeft()) {
                     return Either.left(rebuildRes.getLeft());
                 }
-            }
-        } else {
-            if (config.getGuideFileId() != null && !config.getGuideFileId().equals("")) {
+            }else {
                 Either<FormatRespDto, Boolean> rebuildRes = rebuildVmCsar(projectId, config);
                 if (rebuildRes.isLeft()) {
                     return Either.left(rebuildRes.getLeft());
@@ -169,16 +174,15 @@ public class ReleaseConfigService {
         }
 
         ApplicationProject applicationProject = projectMapper.getProjectById(projectId);
-        if (applicationProject.getDeployPlatform() == EnumDeployPlatform.KUBERNETES) {
-            //update csar
-            if (config.getCapabilitiesDetail() != null) {
+        if(!CollectionUtils.isEmpty(applicationProject.getCapabilityList())
+            || !CapabilitiesDetail.isEmpty(config.getCapabilitiesDetail())
+            || !StringUtils.isEmpty(config.getGuideFileId())) {
+            if(applicationProject.getDeployPlatform() == EnumDeployPlatform.KUBERNETES) {
                 Either<FormatRespDto, Boolean> rebuildRes = rebuildCsar(projectId, config);
                 if (rebuildRes.isLeft()) {
                     return Either.left(rebuildRes.getLeft());
                 }
-            }
-        } else {
-            if (config.getGuideFileId() != null && !config.getGuideFileId().equals("")) {
+            }else {
                 Either<FormatRespDto, Boolean> rebuildRes = rebuildVmCsar(projectId, config);
                 if (rebuildRes.isLeft()) {
                     return Either.left(rebuildRes.getLeft());
@@ -225,39 +229,111 @@ public class ReleaseConfigService {
 
         }
         ProjectTestConfig config = testConfigs.get(0);
+        String projectPath = projectService.getProjectPath(config.getProjectId());
+        String csarFilePath = projectPath + config.getAppInstanceId();
+        // modify md file
+        if (!StringUtils.isEmpty(releaseConfig.getGuideFileId())) {
+            try {
+                //verify md docs
+                String readmePath = csarFilePath +TEMPLATE_MD;
+                String readmeFileId = releaseConfig.getGuideFileId();
+                if (readmeFileId != null && !readmeFileId.equals("")) {
+                    UploadedFile path = uploadedFileMapper.getFileById(readmeFileId);
+                    FileUtils.copyFile(new File(InitConfigUtil.getWorkSpaceBaseDir() + path.getFilePath()),
+                        new File(readmePath));
+                }
+            }catch (IOException e) {
+                String msg = "Update csar failed: occur IOException";
+                LOGGER.error("Update csar failed: occur IOException {}.", e.getMessage());
+                FormatRespDto error = new FormatRespDto(Response.Status.BAD_REQUEST, msg + e.getMessage());
+                return Either.left(error);
+            }
+        }
+
+        if (!CapabilitiesDetail.isEmpty(releaseConfig.getCapabilitiesDetail()) || !CollectionUtils.isEmpty(project.getCapabilityList())) {
+            // modify MainServiceTemplate zip
+            Boolean res = rebuildAPPD(project, csarFilePath, releaseConfig);
+            if (!res) {
+                LOGGER.error("Update MainServiceTemplate zip failed");
+                FormatRespDto error = new FormatRespDto(Response.Status.BAD_REQUEST,
+                    "Update MainServiceTemplate zip failed");
+                return Either.left(error);
+            }
+        }
+
+        // update tgz in ~/Charts
+        List<ServiceDetail> details = releaseConfig.getCapabilitiesDetail().getServiceDetails();
+        if (!CollectionUtils.isEmpty(details)) {
+            String chartsDir = csarFilePath + CHARTS_TGZ;
+            File chartDirFile = new File(chartsDir);
+            if (chartDirFile.exists()) {
+                File[] tgzFiles = chartDirFile.listFiles();
+                if (tgzFiles != null) {
+                    for (File tgzFile : tgzFiles) {
+                        if (!tgzFile.isFile() || !tgzFile.getName().endsWith(".tgz")) {
+                            continue;
+                        }
+                        fillTemplateInTgzFile(tgzFile, details);
+                    }
+                }
+            }
+        }
+
+        // compress csar
+        try {
+            CompressFileUtilsJava
+                .compressToCsarAndDeleteSrc(csarFilePath, projectPath, config.getAppInstanceId());
+        }catch (IOException e) {
+            String msg = "Update csar failed: occur IOException";
+            LOGGER.error("Update csar failed: occur IOException {}.", e.getMessage());
+            FormatRespDto error = new FormatRespDto(Response.Status.BAD_REQUEST, msg + e.getMessage());
+            return Either.left(error);
+        }
+
+        return Either.right(true);
+    }
+
+    private Boolean rebuildAPPD(ApplicationProject project, String csarFilePath, ReleaseConfig releaseConfig) {
+        // decompress MainServiceTemplate.zip
+        String aPPDDir = csarFilePath + APPD_PATH;
+        File DirFile = new File(aPPDDir);
+        if (DirFile.exists()) {
+            File[] zipFiles = DirFile.listFiles();
+            if (zipFiles != null) {
+                for (File zipFile : zipFiles) {
+                    if (!zipFile.isFile() || !zipFile.getName().endsWith(".zip")) {
+                        continue;
+                    }
+                    fillTemplateInZipFile(project,aPPDDir, zipFile, releaseConfig);
+                }
+            }
+        }
+        return true;
+
+
+    }
+
+    private Boolean fillTemplateInZipFile(ApplicationProject project, String aPPDDir, File zipFile, ReleaseConfig releaseConfig) {
         List<TrafficRule> trafficRules = releaseConfig.getCapabilitiesDetail().getAppTrafficRule();
         List<DnsRule> dnsRules = releaseConfig.getCapabilitiesDetail().getAppDNSRule();
         List<ServiceDetail> details = releaseConfig.getCapabilitiesDetail().getServiceDetails();
         // verify csar file
-        String csarFilePath = projectService.getProjectPath(config.getProjectId()) + config.getAppInstanceId();
-        File csar = new File(csarFilePath);
-        if (!csar.exists()) {
-            LOGGER.error("Cannot find csar file:{}.", csarFilePath);
-            FormatRespDto error = new FormatRespDto(Response.Status.BAD_REQUEST,
-                "Cannot find csar file: " + csarFilePath);
-            return Either.left(error);
-        }
+        String fileName = zipFile.getName().replace(".zip", "");
+        String APPDFilePath = zipFile.getAbsolutePath().replace(".zip", "");
+
         try {
-            //verify md docs
-
-            String readmePath = csar.getParent() + File.separator + config.getAppInstanceId() + File.separator
-                + "Artifacts/Docs/template.md";
-            String readmeFileId = releaseConfig.getGuideFileId();
-            if (readmeFileId != null && !readmeFileId.equals("")) {
-                UploadedFile path = uploadedFileMapper.getFileById(readmeFileId);
-                FileUtils.copyFile(new File(InitConfigUtil.getWorkSpaceBaseDir() + path.getFilePath()),
-                    new File(readmePath));
-            }
-
+            // decompress tgz
+            CompressFileUtils.decompress(zipFile.getAbsolutePath(), APPDFilePath);
+            // load valueTemplate.yaml
+            String mainServiceTemplatePath = APPDFilePath + MAIN_SERVICE_TEMPLATE;
+            FileUtils.deleteQuietly(new File(zipFile.getAbsolutePath()));
             // verify service template file
-            String mainServiceTemplatePath = csar.getParent() + File.separator + config.getAppInstanceId()
-                + File.separator + "APPD/Definition/MainServiceTemplate.yaml";
             File templateFile = new File(mainServiceTemplatePath);
             if (!templateFile.exists()) {
                 LOGGER.error("Cannot find service template file.");
                 FormatRespDto error = new FormatRespDto(Response.Status.BAD_REQUEST,
                     "Cannot find service template file.");
-                return Either.left(error);
+                return false;
             }
             // update node in template
             String yamlContent = FileUtils.readFileToString(templateFile, StandardCharsets.UTF_8);
@@ -269,7 +345,7 @@ public class ReleaseConfigService {
             } catch (DomainException e) {
                 LOGGER.error("Yaml deserialization failed {}", e.getMessage());
                 FormatRespDto error = new FormatRespDto(Response.Status.BAD_REQUEST, "Yaml deserialization failed");
-                return Either.left(error);
+                return false;
             }
             // get config node from template
             LinkedHashMap<String, Object> nodeMap = (LinkedHashMap<String, Object>) loaded.get("topology_template");
@@ -285,44 +361,33 @@ public class ReleaseConfigService {
             String yamlContents = FileUtils.readFileToString(templateFileModify, StandardCharsets.UTF_8);
             yamlContents = yamlContents.replaceAll("\"", "");
             writeFile(templateFileModify, yamlContents);
-
-            // update tgz in ~/Charts
-            String chartsDir = csar.getParent() + File.separator + config.getAppInstanceId() + File.separator
-                + "Artifacts/Deployment/Charts";
-            File chartDirFile = new File(chartsDir);
-            if (chartDirFile.exists()) {
-                File[] tgzFiles = chartDirFile.listFiles();
-                if (tgzFiles != null) {
-                    for (File tgzFile : tgzFiles) {
-                        if (!tgzFile.isFile() || !tgzFile.getName().endsWith(".tgz")) {
-                            continue;
+            // compress to zip
+            if (!org.springframework.util.StringUtils.isEmpty(APPDFilePath)) {
+                File dir = new File(APPDFilePath);
+                if (dir.isDirectory()) {
+                    File[] files = dir.listFiles();
+                    if (files != null && files.length > 0) {
+                        List<File> subFiles = Arrays.asList(files);
+                        if (!CollectionUtils.isEmpty(subFiles)) {
+                            CompressFileUtilsJava
+                                .zipFiles(subFiles, new File(aPPDDir + File.separator + "MainServiceTemplate.zip"));
+                            for (File subFile : subFiles) {
+                                FileUtils.deleteQuietly(subFile);
+                            }
                         }
-                        fillTemplateInTgzFile(tgzFile, details);
                     }
                 }
+
             }
-            // compress csar
-            CompressFileUtilsJava
-                .compressToCsarAndDeleteSrc(csar.getParent() + File.separator + config.getAppInstanceId(),
-                    projectService.getProjectPath(projectId), config.getAppInstanceId());
-        } catch (JsonGenerationException e) {
-            String msg = "Update csar failed: occur JsonGenerationException";
-            LOGGER.error("Update csar failed: occur JsonGenerationException {}.", e.getMessage());
-            FormatRespDto error = new FormatRespDto(Response.Status.BAD_REQUEST, msg + e.getMessage());
-            return Either.left(error);
-        } catch (JsonMappingException e) {
-            String msg = "Update csar failed: occur JsonMappingException";
-            LOGGER.error("Update csar failed: occur JsonMappingException {}.", e.getMessage());
-            FormatRespDto error = new FormatRespDto(Response.Status.BAD_REQUEST, msg + e.getMessage());
-            return Either.left(error);
-        } catch (IOException e) {
+            //delete fileDir
+            FileUtils.deleteDirectory(new File(APPDFilePath));
+        }catch (IOException e) {
             String msg = "Update csar failed: occur IOException";
             LOGGER.error("Update csar failed: occur IOException {}.", e.getMessage());
             FormatRespDto error = new FormatRespDto(Response.Status.BAD_REQUEST, msg + e.getMessage());
-            return Either.left(error);
+            return false;
         }
-
-        return Either.right(true);
+        return true;
     }
 
     /**
@@ -348,8 +413,7 @@ public class ReleaseConfigService {
         }
         try {
             //verify md docs
-            String readmePath = csar.getParent() + File.separator + vmCreateConfig.getAppInstanceId() + File.separator
-                + "Artifacts/Docs/template.md";
+            String readmePath = csar.getParent() + File.separator + vmCreateConfig.getAppInstanceId() + TEMPLATE_MD;
             String readmeFileId = releaseConfig.getGuideFileId();
             if (readmeFileId != null && !readmeFileId.equals("")) {
                 UploadedFile path = uploadedFileMapper.getFileById(readmeFileId);

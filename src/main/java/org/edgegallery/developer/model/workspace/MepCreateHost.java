@@ -49,7 +49,7 @@ public class MepCreateHost {
 
     private String protocol;
 
-    @Range(min = 30000, max = 30400)
+    @Range(min = 30000, max = 32000)
     private int port;
 
     private String os;

@@ -1,4 +1,10 @@
 TOSCA-Meta-File-Version: 1.0
-CSAR-Version: 1.1
-Created-By: EdgeGallery
-Entry-Definitions: APPD/Definition/MainServiceTemplate.yaml
+CSAR-Version: 3.25
+Created-by: EdgeGallery
+Entry-Definitions: APPD/MainServiceTemplate
+
+Name: APPD/MainServiceTemplate.zip
+Content-Type: appd
+
+Name: Image/SwImageDesc.json
+Content-Type: SwImageDesc
