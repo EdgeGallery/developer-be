@@ -23,6 +23,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.zip.GZIPOutputStream;
@@ -59,7 +60,7 @@ public class CompressFileUtilsJava {
      */
     public static void zipFiles(List<File> srcfile, File zipfile) {
         List<String> entryPaths = new ArrayList<>();
-        try (ZipOutputStream out = new ZipOutputStream(new FileOutputStream(zipfile));) {
+        try (ZipOutputStream out = new ZipOutputStream(new FileOutputStream(zipfile), StandardCharsets.UTF_8)) {
             for (File file : srcfile) {
                 if (file.isFile()) {
                     addFileToZip(out, file, entryPaths);

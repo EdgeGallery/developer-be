@@ -220,7 +220,11 @@ public class NewCreateVmCsar {
         imageDesc.setSwImage(config.getVmSystem().getSystemPath());
         imageDesc.setHwScsiModel("virtio-scsi");
         imageDesc.setHwDiskBus("scsi");
-        imageDesc.setOperatingSystem(config.getVmSystem().getOperateSystem());
+        if (config.getVmSystem().getOperateSystem().equals("X86")) {
+            imageDesc.setOperatingSystem("");
+        }else {
+            imageDesc.setOperatingSystem("aarch64");
+        }
         imageDesc.setSupportedVirtualisationEnvironment("linux");
         List<ImageDesc> imageDescs = new ArrayList<>();
         imageDescs.add(imageDesc);

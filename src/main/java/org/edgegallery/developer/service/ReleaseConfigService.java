@@ -56,6 +56,7 @@ import org.edgegallery.developer.model.ServiceConfig;
 import org.edgegallery.developer.model.ServiceDetail;
 import org.edgegallery.developer.model.TrafficRule;
 import org.edgegallery.developer.model.vm.VmCreateConfig;
+import org.edgegallery.developer.model.vm.VmPackageConfig;
 import org.edgegallery.developer.model.workspace.ApplicationProject;
 import org.edgegallery.developer.model.workspace.EnumDeployPlatform;
 import org.edgegallery.developer.model.workspace.OpenMepCapabilityDetail;
@@ -125,9 +126,11 @@ public class ReleaseConfigService {
             FormatRespDto dto = new FormatRespDto(Response.Status.INTERNAL_SERVER_ERROR, "save config data fail");
             return Either.left(dto);
         }
-        //todo config.getCapabilitiesDetail() != null || config.getGuideFileId() != null
+
         ApplicationProject applicationProject = projectMapper.getProjectById(projectId);
-        if(config.getCapabilitiesDetail() != null || config.getGuideFileId() != null) {
+        if(!CollectionUtils.isEmpty(applicationProject.getCapabilityList())
+            || !CapabilitiesDetail.isEmpty(config.getCapabilitiesDetail())
+            || !StringUtils.isEmpty(config.getGuideFileId())) {
             if(applicationProject.getDeployPlatform() == EnumDeployPlatform.KUBERNETES) {
                 Either<FormatRespDto, Boolean> rebuildRes = rebuildCsar(projectId, config);
                 if (rebuildRes.isLeft()) {
@@ -394,15 +397,14 @@ public class ReleaseConfigService {
      * rebuildVmCsar.
      */
     public Either<FormatRespDto, Boolean> rebuildVmCsar(String projectId, ReleaseConfig releaseConfig) {
-        List<VmCreateConfig> vmCreateConfigs = vmConfigMapper.getVmCreateConfigs(projectId);
-        if (vmCreateConfigs == null || vmCreateConfigs.isEmpty()) {
-            LOGGER.error("Project {} has not vm config!", projectId);
-            FormatRespDto error = new FormatRespDto(Response.Status.BAD_REQUEST, "Project has not vm config!");
+        VmPackageConfig vmPackageConfig = vmConfigMapper.getVmPackageConfig(projectId);
+        if (vmPackageConfig == null) {
+            LOGGER.error("Project {} has not vm package!", projectId);
+            FormatRespDto error = new FormatRespDto(Response.Status.BAD_REQUEST, "Project has not vm package!");
             return Either.left(error);
         }
-        VmCreateConfig vmCreateConfig = vmCreateConfigs.get(0);
         // verify csar file
-        String csarFilePath = projectService.getProjectPath(vmCreateConfig.getProjectId()) + vmCreateConfig
+        String csarFilePath = projectService.getProjectPath(projectId) + vmPackageConfig
             .getAppInstanceId();
         File csar = new File(csarFilePath);
         if (!csar.exists()) {
@@ -413,7 +415,7 @@ public class ReleaseConfigService {
         }
         try {
             //verify md docs
-            String readmePath = csar.getParent() + File.separator + vmCreateConfig.getAppInstanceId() + TEMPLATE_MD;
+            String readmePath = csarFilePath + TEMPLATE_MD;
             String readmeFileId = releaseConfig.getGuideFileId();
             if (readmeFileId != null && !readmeFileId.equals("")) {
                 UploadedFile path = uploadedFileMapper.getFileById(readmeFileId);
@@ -422,8 +424,8 @@ public class ReleaseConfigService {
             }
             // compress csar
             CompressFileUtilsJava
-                .compressToCsarAndDeleteSrc(csar.getParent() + File.separator + vmCreateConfig.getAppInstanceId(),
-                    projectService.getProjectPath(projectId), vmCreateConfig.getAppInstanceId());
+                .compressToCsarAndDeleteSrc(csarFilePath,
+                    projectService.getProjectPath(projectId), vmPackageConfig.getAppInstanceId());
         } catch (JsonGenerationException e) {
             String msg = "Update csar failed: occur JsonGenerationException";
             LOGGER.error("Update csar failed: occur JsonGenerationException {}.", e.getMessage());
