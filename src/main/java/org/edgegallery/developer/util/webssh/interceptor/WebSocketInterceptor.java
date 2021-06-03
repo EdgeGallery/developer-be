@@ -31,9 +31,9 @@ public class WebSocketInterceptor implements HandshakeInterceptor {
     public boolean beforeHandshake(ServerHttpRequest serverHttpRequest, ServerHttpResponse serverHttpResponse,
         WebSocketHandler webSocketHandler, Map<String, Object> map) throws Exception {
         if (serverHttpRequest instanceof ServletServerHttpRequest) {
-            //生成一个UUID
+            //Generate aUUID
             String uuid = UUID.randomUUID().toString().replace("-", "");
-            //将uuid放到websocketsession中
+            //willuuidPut towebsocketsessionin
             map.put(ConstantPool.USER_UUID_KEY, uuid);
             return true;
         } else {

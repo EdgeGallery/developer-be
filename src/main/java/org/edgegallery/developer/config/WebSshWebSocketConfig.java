@@ -32,8 +32,8 @@ public class WebSshWebSocketConfig implements WebSocketConfigurer {
 
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry webSocketHandlerRegistry) {
-        //socket通道
-        //指定处理器和路径
+        //socketaisle
+        //Specify processor and path
         webSocketHandlerRegistry.addHandler(webSshWebSocketHandler, "/webssh")
             .addInterceptors(new WebSocketInterceptor()).setAllowedOrigins("*");
     }

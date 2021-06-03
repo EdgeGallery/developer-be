@@ -177,12 +177,12 @@ public class ImageController {
             return false;
         }
 
-        //解压镜像包，找出manifest.json中的RepoTags
+        //Unzip the image package，Find outmanifest.jsonmiddleRepoTags
         File file = new File(filePath);
         boolean res = deCompress(imageFile.getCanonicalPath(), file);
         String repoTags = "";
         if (res) {
-            //读取manifest.json的内容
+            //Readmanifest.jsonContent
             File manFile = new File(filePath + File.separator + "manifest.json");
             String fileContent = FileUtils.readFileToString(manFile, "UTF-8");
             String[] st = fileContent.split(",");
@@ -195,7 +195,7 @@ public class ImageController {
         }
         LOGGER.debug("repoTags: {} ", repoTags);
         String[] names = repoTags.split(":");
-        //判断压缩包manifest.json中RepoTags的值和load进来的镜像是否相等
+        //Judge the compressed packagemanifest.jsoninRepoTagsAnd the value ofloadAre the incoming mirror images equal
         LOGGER.debug(names[0]);
         List<Image> lists = dockerClient.listImagesCmd().withImageNameFilter(names[0]).exec();
         LOGGER.debug("lists is empty ?{},lists size {},number 0 {}", CollectionUtils.isEmpty(lists), lists.size(),
@@ -214,7 +214,7 @@ public class ImageController {
         LOGGER.debug("imageID: {} ", imageId);
         String uploadImgName = new StringBuilder(devRepoEndpoint).append("/").append(devRepoProject).append("/")
             .append(names[0]).toString();
-        //镜像打标签，重新push
+        //Mirror tagging，Repush
         String[] repos = repoTags.split(":");
         if (repos.length > 1 && !imageId.equals("")) {
             //tag image

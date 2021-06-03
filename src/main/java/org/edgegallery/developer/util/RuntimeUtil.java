@@ -87,7 +87,7 @@ public class RuntimeUtil {
         command.add("-o");
         command.add("/usr/app" + config.getOutput() + config.getProjectName());
 
-        //根据不同语言不同配置
+        //Different configurations according to different languages
         switch (lan) {
             case "java":
                 buildJavaCommand(command, config);
@@ -109,7 +109,7 @@ public class RuntimeUtil {
         command.add(config.getApiPackage());
         command.add("--invoker-package");
         command.add(config.getInvokerPackage());
-        //生成的数据模型java文件包名
+        //Generated data modeljavaFile package name
         command.add("--model-package");
         command.add(config.getModelPackage());
 

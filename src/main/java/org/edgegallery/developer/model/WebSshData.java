@@ -17,12 +17,12 @@
 package org.edgegallery.developer.model;
 
 public class WebSshData {
-    //操作
+    //operating
     private String operate;
 
     private String host;
 
-    //端口号默认为22
+    //The port number defaults to22
     private Integer port = 22;
 
     private String username;

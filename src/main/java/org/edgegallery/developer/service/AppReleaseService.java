@@ -131,7 +131,7 @@ public class AppReleaseService {
                 dto.setId(str);
                 dto.setName(str);
                 fileList.add(dto);
-                //递归调用
+                //Recursive call
                 File[] fileArr = file.listFiles();
                 if (fileArr != null && fileArr.length != 0) {
                     getFiles(file.getCanonicalPath(), dto);

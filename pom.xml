@@ -52,7 +52,7 @@
         </dependencies>
     </dependencyManagement>
     <dependencies>
-        <!-- Web相关 -->
+        <!-- WebRelated -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
@@ -63,19 +63,19 @@
             <artifactId>spring-boot-starter-validation</artifactId>
             <version>2.3.3.RELEASE</version>
         </dependency>
-        <!-- jsch支持 -->
+        <!-- jschstand by -->
         <dependency>
             <groupId>com.jcraft</groupId>
             <artifactId>jsch</artifactId>
             <version>0.1.54</version>
         </dependency>
-        <!-- ssh支持 -->
+        <!-- sshstand by -->
         <dependency>
             <groupId>ch.ethz.ganymed</groupId>
             <artifactId>ganymed-ssh2</artifactId>
             <version>262</version>
         </dependency>
-        <!-- WebSocket 支持 -->
+        <!-- WebSocket stand by -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-websocket</artifactId>

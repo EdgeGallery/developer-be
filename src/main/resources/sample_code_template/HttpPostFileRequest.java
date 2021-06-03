@@ -31,7 +31,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 /**
- * 该样例代码用于上传文件的http请求，可以直接使用该方法上传文件或者图片。
+ * This sample code is used to upload fileshttprequest，You can directly use this method to upload files or pictures。
  */
 public class HttpPostFileRequest {
     private static final String DEFAULT_CHARSET_NAME = "UTF-8";

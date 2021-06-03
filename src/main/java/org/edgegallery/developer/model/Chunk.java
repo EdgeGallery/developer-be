@@ -25,31 +25,31 @@ import org.springframework.web.multipart.MultipartFile;
 public class Chunk {
     private Long id;
 
-    //当前文件块，从1开始
+    //Current file block，From1begin
     private Integer chunkNumber;
 
-    //分块大小
+    //Block size
     private Long chunkSize;
 
-    //当前分块大小
+    //Current block size
     private Long currentChunkSize;
 
-    //总大小
+    //Total size
     private Long totalSize;
 
-    //文件标识
+    //File identification
     private String identifier;
 
-    //文件名
+    //file name
     private String filename;
 
-    //相对路径
+    //relative path
     private String relativePath;
 
-    //总块数
+    //Total number of blocks
     private Integer totalChunks;
 
-    //文件类型
+    //file type
     private String type;
 
     private MultipartFile file;
