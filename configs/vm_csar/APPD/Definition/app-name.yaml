@@ -119,10 +119,6 @@ topology_template:
       type: string
       default: 0.0.0.0/0
       description: ue_ip_segment
-    mec_internet_ip:
-      type: string
-      default:
-      description: mec_internet_ip
 
   node_templates:
     Simple_VNF:
@@ -188,8 +184,6 @@ topology_template:
         order: 1
         vnic_type: normal
         port_security_enabled: true
-      attributes:
-        ipv4_address: {get_input: mec_internet_ip}
       requirements:
         - virtual_binding: EMS_VDU1
         - virtual_link: MEC_APP_INTERNET
