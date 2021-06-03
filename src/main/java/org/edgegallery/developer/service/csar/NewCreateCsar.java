@@ -27,6 +27,7 @@ import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -41,6 +42,7 @@ import org.edgegallery.developer.model.workspace.EnumDeployPlatform;
 import org.edgegallery.developer.model.workspace.ProjectImageConfig;
 import org.edgegallery.developer.model.workspace.ProjectTestConfig;
 import org.edgegallery.developer.util.CompressFileUtils;
+import org.edgegallery.developer.util.CompressFileUtilsJava;
 import org.edgegallery.developer.util.DeveloperFileUtils;
 import org.edgegallery.developer.util.ImageConfig;
 import org.edgegallery.developer.util.SpringContextUtil;
@@ -120,6 +122,26 @@ public class NewCreateCsar {
             if (!tgz.exists()) {
                 throw new IOException("Create tgz exception");
             }
+        }
+
+        // compress to zip
+        String aPPDDir = csar.getParent() + File.separator + config.getAppInstanceId() + File.separator + "APPD";
+        if (!StringUtils.isEmpty(aPPDDir)) {
+            File dir = new File(aPPDDir);
+            if (dir.isDirectory()) {
+                File[] files = dir.listFiles();
+                if (files != null && files.length > 0) {
+                    List<File> subFiles = Arrays.asList(files);
+                    if (!CollectionUtils.isEmpty(subFiles)) {
+                        CompressFileUtilsJava
+                            .zipFiles(subFiles, new File(aPPDDir + File.separator  + "MainServiceTemplate.zip"));
+                        for (File subFile : subFiles) {
+                            FileUtils.deleteQuietly(subFile);
+                        }
+                    }
+                }
+            }
+
         }
         //update SwImageDesc.json
         File imageJson = new File(csar.getCanonicalPath() + File.separator + IMAGE_BASE_PATH);
