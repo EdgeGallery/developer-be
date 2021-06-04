@@ -348,7 +348,7 @@
         "system_path" varchar(128) DEFAULT NULL,
         "status" varchar(50) DEFAULT NULL,
         CONSTRAINT "tbl_vm_system_uniqueName" UNIQUE ("system_name","user_id"),
-        CONSTRAINT "tbl_vm_system_uniqueId" UNIQUE ("system_id")
+        CONSTRAINT "tbl_vm_system_pkey" PRIMARY KEY ("system_id")
         )
     ;
 
