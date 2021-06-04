@@ -1,7 +1,7 @@
 TOSCA-Meta-File-Version: 1.0
 CSAR-Version: 3.25
 Created-by: EdgeGallery
-Entry-Definitions: APPD/MainServiceTemplate
+Entry-Definitions: APPD/MainServiceTemplate.zip
 
 Name: APPD/MainServiceTemplate.zip
 Content-Type: appd

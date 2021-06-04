@@ -1,7 +1,7 @@
 TOSCA-Meta-File-Version: 1.0
 CSAR-Version: 3.25
 Created-by: EdgeGallery
-Entry-Definitions: APPD/{appdFile}
+Entry-Definitions: APPD/{appdFile}.zip
 
 Name: APPD/{appdFile}.zip
 Content-Type: appd
