@@ -127,7 +127,7 @@
         system_id = #{systemId}
     </select>
 
-    <select id="getSystemImagesPath" resultMap="java.lang.String"
+    <select id="getSystemImagesPath" resultType="java.lang.String"
             parameterType="org.edgegallery.developer.model.system.VmSystem">
         SELECT
         system_path
@@ -148,10 +148,10 @@
         tbl_vm_system
         WHERE
         system_name = #{systemName}
-        <if test="userId != null">
+        <if test="userId != null and userId!=''">
             and user_id = #{userId}
         </if>
-        <if test="systemId != null">
+        <if test="systemId != null and systemId!=''">
             and system_id != #{systemId}
         </if>
     </select>
