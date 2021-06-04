@@ -98,6 +98,10 @@
       "type" varchar(20) COLLATE "pg_catalog"."default" DEFAULT NULL,
       "description" text COLLATE "pg_catalog"."default" DEFAULT NULL,
       "description_en" text COLLATE "pg_catalog"."default" DEFAULT NULL,
+      "icon_file_id" varchar(50) COLLATE "pg_catalog"."default" DEFAULT NULL,
+      "author" varchar(50) COLLATE "pg_catalog"."default" DEFAULT NULL,
+      "select_count" int4 NOT NULL DEFAULT 0,
+      "upload_time" timestamptz(6) DEFAULT NULL,
       CONSTRAINT "tbl_openmep_capability_pkey" PRIMARY KEY ("group_id")
     )
     ;
