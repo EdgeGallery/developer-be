@@ -139,7 +139,7 @@
         SELECT
         *
         FROM
-        tbl_openmep_capability
+        tbl_openmep_capability order by upload_time desc
     </select>
 
     <update id="updateSelectCount" parameterType="java.lang.String">

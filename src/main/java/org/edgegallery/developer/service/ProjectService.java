@@ -260,7 +260,8 @@ public class ProjectService {
     }
 
     private int updateSelectCount(ApplicationProject project) {
-        List<OpenMepCapabilityGroup> capabilityList = project.getCapabilityList();
+        Type type = new TypeToken<List<OpenMepCapabilityGroup>>() { }.getType();
+        List<OpenMepCapabilityGroup> capabilityList = gson.fromJson(gson.toJson(project.getCapabilityList()), type);
         if (CollectionUtils.isEmpty(capabilityList)) {
             return 1;
         }
