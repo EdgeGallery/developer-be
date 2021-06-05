@@ -103,6 +103,7 @@ import org.edgegallery.developer.util.CompressFileUtilsJava;
 import org.edgegallery.developer.util.DeveloperFileUtils;
 import org.edgegallery.developer.util.HttpClientUtil;
 import org.edgegallery.developer.util.InitConfigUtil;
+import org.edgegallery.developer.util.InputParameterUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -565,8 +566,9 @@ public class ProjectService {
         testConfig.setAccessUrl(host.getLcmIp());
         // upload pkg
         LcmLog lcmLog = new LcmLog();
+        String basePath = HttpClientUtil.getUrlPrefix(host.getProtocol(), host.getLcmIp(), host.getPort());
         String uploadRes = HttpClientUtil
-            .uploadPkg(host.getProtocol(), host.getLcmIp(), host.getPort(), csar.getPath(), userId, token, lcmLog);
+            .uploadPkg(basePath, csar.getPath(), userId, token, lcmLog);
         if (org.springframework.util.StringUtils.isEmpty(uploadRes)) {
             testConfig.setErrorLog(lcmLog.getLog());
             return false;
@@ -579,7 +581,7 @@ public class ProjectService {
         projectMapper.updateTestConfig(testConfig);
         // distribute pkg
         boolean distributeRes = HttpClientUtil
-            .distributePkg(host.getProtocol(), host.getLcmIp(), host.getPort(), userId, token, pkgId, host.getMecHost(),
+            .distributePkg(basePath, userId, token, pkgId, host.getMecHost(),
                 lcmLog);
 
         if (!distributeRes) {
@@ -588,9 +590,10 @@ public class ProjectService {
         }
         String appInstanceId = testConfig.getAppInstanceId();
         // instantiate application
+        Map<String, String> inputParams = InputParameterUtil.getParams(host.getParameter());
         boolean instantRes = HttpClientUtil
-            .instantiateApplication(host.getProtocol(), host.getLcmIp(), host.getPort(), appInstanceId, userId, token,
-                lcmLog, pkgId, host.getMecHost());
+            .instantiateApplication(basePath, appInstanceId, userId, token,
+                lcmLog, pkgId, host.getMecHost(), inputParams);
         if (!instantRes) {
             testConfig.setErrorLog(lcmLog.getLog());
             return false;
