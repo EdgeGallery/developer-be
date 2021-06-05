@@ -151,7 +151,7 @@ public class CreateProjectTest {
         capabilityGPU.setCapabilityDetailList(capabilitiesDetail);
         capabilities.add(capabilityGPU);
 
-        project.setCapabilityList(capabilities);
+        project.setCapabilityList(null);
         iconFile = uploadOneFile("/testdata/face.png", "face");
         project.setIconFileId(iconFile.getFileId());
         project.setDeployPlatform(EnumDeployPlatform.KUBERNETES);
@@ -192,7 +192,7 @@ public class CreateProjectTest {
         capabilityGPU.setCapabilityDetailList(capabilitiesDetail);
         capabilities.add(capabilityGPU);
 
-        project.setCapabilityList(capabilities);
+        project.setCapabilityList(null);
         iconFile = uploadOneFile("/testdata/face.png", "face");
         project.setIconFileId(iconFile.getFileId());
 

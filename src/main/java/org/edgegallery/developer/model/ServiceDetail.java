@@ -47,4 +47,8 @@ public class ServiceDetail {
     private List<String> dnsRulesList;
 
     private List<String> trafficRulesList;
+
+    private String iconFileId;
+
+    private String author;
 }

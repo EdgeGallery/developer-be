@@ -16,6 +16,7 @@
 
 package org.edgegallery.developer.model.workspace;
 
+import java.util.Date;
 import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
@@ -39,6 +40,14 @@ public class OpenMepCapabilityGroup {
     private String description;
 
     private String descriptionEn;
+
+    private String iconFileId;
+
+    private String author;
+
+    private int selectCount;
+
+    private Date uploadTime;
 
     private List<OpenMepCapabilityDetail> capabilityDetailList;
 
@@ -90,6 +99,30 @@ public class OpenMepCapabilityGroup {
             this.descriptionEn = this.description;
         } else {
             this.descriptionEn = descriptionEn;
+        }
+    }
+
+    /**
+     * getUploadTime.
+     *
+     * @return
+     */
+    public Date getUploadTime() {
+        if (this.uploadTime != null) {
+            return new Date(this.uploadTime.getTime());
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * setUploadTime.
+     */
+    public void setUploadTime(Date uploadTime) {
+        if (uploadTime != null) {
+            this.uploadTime = (Date) uploadTime.clone();
+        } else {
+            this.uploadTime = null;
         }
     }
 }
