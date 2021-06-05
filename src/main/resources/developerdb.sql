@@ -204,8 +204,8 @@
       "port" int4 DEFAULT '-1'::integer,
       "user_name" varchar(50) DEFAULT NULL,
       "password" varchar(50) DEFAULT NULL,
-      "vnc_port" int4 DEFAULT NULL,
-      "parameter" varchar(500) DEFAULT 22,
+      "vnc_port" int4 DEFAULT 22,
+      "parameter" text DEFAULT NULL,
       "delete" bool DEFAULT NULL
     )
     ;
@@ -333,11 +333,11 @@
       "vm_id"  varchar(255) NOT NULL DEFAULT NULL,
       "project_id" varchar(50) DEFAULT NULL,
       "vm_name" varchar(50) DEFAULT NULL,
-      "host" varchar(512)  DEFAULT NULL,
+      "host" text  DEFAULT NULL,
       "status" varchar(50)  DEFAULT NULL,
       "stage_status" varchar(500)  DEFAULT NULL,
       "lcm_token" varchar(1024)  DEFAULT NULL,
-      "vm_info" varchar(512)  DEFAULT NULL,
+      "vm_info" text  DEFAULT NULL,
       "app_instance_id" varchar(50)  DEFAULT NULL,
       "package_id" varchar(100)  DEFAULT NULL,
       "create_time"  timestamptz(6)  DEFAULT NULL,

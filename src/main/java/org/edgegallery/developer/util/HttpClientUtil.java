@@ -26,6 +26,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Type;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpDelete;
@@ -69,10 +70,10 @@ public final class HttpClientUtil {
      *
      * @return InstantiateAppResult
      */
-    public static boolean instantiateApplication(String protocol, String ip, int port, String appInstanceId,
-        String userId, String token, LcmLog lcmLog, String pkgId, String mecHost) {
+    public static boolean instantiateApplication(String basePath, String appInstanceId,
+        String userId, String token, LcmLog lcmLog, String pkgId, String mecHost, Map<String, String> inputParams) {
         //before instantiate ,call distribute result interface
-        String disRes = getDistributeRes(protocol, ip, port, userId, token, pkgId);
+        String disRes = getDistributeRes(basePath, userId, token, pkgId);
         if (StringUtils.isEmpty(disRes)) {
             LOGGER.error("instantiateApplication get pkg distribute res failed!");
             return false;
@@ -91,9 +92,10 @@ public final class HttpClientUtil {
         ins.setAppName(appName);
         ins.setHostIp(mecHost);
         ins.setPackageId(pkgId);
+        ins.setInputParams(inputParams);
         LOGGER.warn(gson.toJson(ins));
         HttpEntity<String> requestEntity = new HttpEntity<>(gson.toJson(ins), headers);
-        String url = getUrlPrefix(protocol, ip, port) + Consts.APP_LCM_INSTANTIATE_APP_URL
+        String url = basePath + Consts.APP_LCM_INSTANTIATE_APP_URL
             .replaceAll("appInstanceId", appInstanceId).replaceAll("tenantId", userId);
         LOGGER.warn(url);
         ResponseEntity<String> response;
@@ -123,7 +125,7 @@ public final class HttpClientUtil {
     /**
      * upload pkg.
      */
-    public static String uploadPkg(String protocol, String ip, int port, String filePath, String userId, String token,
+    public static String uploadPkg(String basePath, String filePath, String userId, String token,
         LcmLog lcmLog) {
         MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
         body.add("package", new FileSystemResource(filePath));
@@ -132,7 +134,7 @@ public final class HttpClientUtil {
         headers.set(Consts.ACCESS_TOKEN_STR, token);
         headers.set("Origin", "mepm");
         HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
-        String url = getUrlPrefix(protocol, ip, port) + Consts.APP_LCM_UPLOAD_APPPKG_URL.replaceAll("tenantId", userId);
+        String url = basePath + Consts.APP_LCM_UPLOAD_APPPKG_URL.replaceAll("tenantId", userId);
         ResponseEntity<String> response;
         try {
             REST_TEMPLATE.setErrorHandler(new CustomResponseErrorHandler());
@@ -158,7 +160,7 @@ public final class HttpClientUtil {
     /**
      * distribute pkg.
      */
-    public static boolean distributePkg(String protocol, String ip, int port, String userId, String token,
+    public static boolean distributePkg(String basePath, String userId, String token,
         String packageId, String mecHost, LcmLog lcmLog) {
         //add body
         DistributeBody body = new DistributeBody();
@@ -171,7 +173,7 @@ public final class HttpClientUtil {
         headers.set(Consts.ACCESS_TOKEN_STR, token);
         Gson gson = new Gson();
         HttpEntity<String> requestEntity = new HttpEntity<>(gson.toJson(body), headers);
-        String url = getUrlPrefix(protocol, ip, port) + Consts.APP_LCM_DISTRIBUTE_APPPKG_URL
+        String url = basePath + Consts.APP_LCM_DISTRIBUTE_APPPKG_URL
             .replaceAll("tenantId", userId).replaceAll("packageId", packageId);
         ResponseEntity<String> response;
         try {
@@ -249,13 +251,13 @@ public final class HttpClientUtil {
     /**
      * get distribute result.
      */
-    public static String getDistributeRes(String protocol, String ip, int port, String userId, String token,
+    public static String getDistributeRes(String basePath, String userId, String token,
         String pkgId) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.set(Consts.ACCESS_TOKEN_STR, token);
         HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(null, headers);
-        String url = getUrlPrefix(protocol, ip, port) + Consts.APP_LCM_DISTRIBUTE_APPPKG_URL
+        String url = basePath + Consts.APP_LCM_DISTRIBUTE_APPPKG_URL
             .replaceAll("tenantId", userId).replaceAll("packageId", pkgId);
         ResponseEntity<String> response;
         try {
@@ -376,7 +378,7 @@ public final class HttpClientUtil {
         return null;
     }
 
-    private static String getUrlPrefix(String protocol, String ip, int port) {
+    public static String getUrlPrefix(String protocol, String ip, int port) {
         return protocol + "://" + ip + ":" + port;
     }
 
@@ -639,4 +641,5 @@ public final class HttpClientUtil {
         LOGGER.error("Failed to delete system image!");
         return false;
     }
+
 }

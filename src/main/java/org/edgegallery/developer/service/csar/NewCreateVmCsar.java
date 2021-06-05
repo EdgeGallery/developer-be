@@ -209,22 +209,22 @@ public class NewCreateVmCsar {
         ImageDesc imageDesc = new ImageDesc();
         imageDesc.setId(imageId);
         imageDesc.setName(config.getVmSystem().getSystemName());
-        imageDesc.setVersion(project.getVersion());
+        imageDesc.setVersion(config.getVmSystem().getVersion());
         imageDesc.setChecksum("2");
         imageDesc.setContainerFormat("bare");
         imageDesc.setDiskFormat(config.getVmSystem().getSystemFormat());
         imageDesc.setMinDisk(3);
         imageDesc.setMinRam(6);
-        imageDesc.setArchitecture(project.getPlatform().get(0));
+        if (project.getPlatform().get(0).equals("X86")) {
+            imageDesc.setArchitecture("");
+        }else {
+            imageDesc.setArchitecture("aarch64");
+        }
         imageDesc.setSize(688390);
         imageDesc.setSwImage(config.getVmSystem().getSystemPath());
         imageDesc.setHwScsiModel("virtio-scsi");
         imageDesc.setHwDiskBus("scsi");
-        if (config.getVmSystem().getOperateSystem().equals("X86")) {
-            imageDesc.setOperatingSystem("");
-        }else {
-            imageDesc.setOperatingSystem("aarch64");
-        }
+        imageDesc.setOperatingSystem(config.getVmSystem().getOperateSystem());
         imageDesc.setSupportedVirtualisationEnvironment("linux");
         List<ImageDesc> imageDescs = new ArrayList<>();
         imageDescs.add(imageDesc);

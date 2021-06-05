@@ -16,6 +16,7 @@
 
 package org.edgegallery.developer.model.lcm;
 
+import java.util.Map;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -28,4 +29,6 @@ public class InstantRequest {
     private String appName;
 
     private String packageId;
+
+    private Map<String, String> inputParams;
 }
