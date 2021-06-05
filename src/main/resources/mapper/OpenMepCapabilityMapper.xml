@@ -29,6 +29,10 @@
         <result property="type" column="type"/>
         <result property="description" column="description"/>
         <result property="descriptionEn" column="description_en"/>
+        <result property="iconFileId" column="icon_file_id"/>
+        <result property="author" column="author"/>
+        <result property="selectCount" column="select_count"/>
+        <result property="uploadTime" column="upload_time"/>
     </resultMap>
 
     <resultMap id="OpenMEPList"
@@ -99,10 +103,10 @@
       parameterType="org.edgegallery.developer.model.workspace.OpenMepCapabilityGroup">
         insert into
         tbl_openmep_capability (group_id, one_level_name, one_level_name_en, two_level_name, two_level_name_en,
-        type, description, description_en)
+        type, description, description_en,icon_file_id,author,upload_time)
         values
         ( #{groupId}, #{oneLevelName}, #{oneLevelNameEn}, #{twoLevelName}, #{twoLevelNameEn},
-        #{type}, #{description}, #{descriptionEn})
+        #{type}, #{description}, #{descriptionEn}, #{iconFileId}, #{author}, #{uploadTime})
     </insert>
 
     <insert id="saveCapability"
@@ -137,6 +141,15 @@
         FROM
         tbl_openmep_capability
     </select>
+
+    <update id="updateSelectCount" parameterType="java.lang.String">
+        UPDATE
+        tbl_openmep_capability
+        SET
+        select_count = select_count+1
+        WHERE
+        group_id=#{groupId}
+    </update>
 
     <select id="getOpenMepCapabilitiesDetail"
       resultMap="OpenMEPDetail">

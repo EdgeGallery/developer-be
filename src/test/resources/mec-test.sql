@@ -187,6 +187,10 @@ CREATE TABLE IF NOT EXISTS tbl_openmep_capability (
   type varchar(20)  DEFAULT NULL,
   description text  DEFAULT NULL,
   description_en text  DEFAULT NULL,
+  icon_file_id varchar(50)  DEFAULT NULL,
+  author varchar(50)  DEFAULT NULL,
+  select_count int DEFAULT NULL,
+  upload_time timestamp DEFAULT NULL,
   CONSTRAINT tbl_openmep_capability_pkey PRIMARY KEY (group_id)
 )
 ;

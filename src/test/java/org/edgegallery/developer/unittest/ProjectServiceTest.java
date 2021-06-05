@@ -119,7 +119,7 @@ public class ProjectServiceTest {
         capabilityGPU.setCapabilityDetailList(capabilitiesDetail);
         capabilities.add(capabilityGPU);
 
-        project.setCapabilityList(capabilities);
+        project.setCapabilityList(null);
 
         File icon = Resources.getResourceAsFile("testdata/test-icon.png");
         FileItem item = DeveloperFileUtils.createFileItem(icon, icon.getName());

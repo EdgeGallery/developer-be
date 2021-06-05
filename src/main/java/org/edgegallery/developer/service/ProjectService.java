@@ -78,13 +78,11 @@ import org.edgegallery.developer.model.lcm.UploadResponse;
 import org.edgegallery.developer.model.vm.VmCreateConfig;
 import org.edgegallery.developer.model.workspace.ApplicationProject;
 import org.edgegallery.developer.model.workspace.EnumDeployPlatform;
-import org.edgegallery.developer.model.workspace.EnumHostStatus;
 import org.edgegallery.developer.model.workspace.EnumOpenMepType;
 import org.edgegallery.developer.model.workspace.EnumProjectStatus;
 import org.edgegallery.developer.model.workspace.EnumTestConfigDeployStatus;
 import org.edgegallery.developer.model.workspace.EnumTestConfigStatus;
 import org.edgegallery.developer.model.workspace.HelmTemplateYamlPo;
-import org.edgegallery.developer.model.workspace.MepCreateHost;
 import org.edgegallery.developer.model.workspace.MepHost;
 import org.edgegallery.developer.model.workspace.MepHostLog;
 import org.edgegallery.developer.model.workspace.OpenMepCapabilityDetail;
@@ -249,7 +247,29 @@ public class ProjectService {
             return Either.left(error);
         }
         LOGGER.info("Create project success.");
+        ApplicationProject newProject = projectMapper.getProject(userId, project.getId());
+        //update tbl_openmep_capability column select_count
+        int resUpdate = updateSelectCount(newProject);
+        if (resUpdate == 0) {
+            FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST,
+                "update tbl capability col select_count failed");
+            return Either.left(error);
+        }
         return Either.right(projectMapper.getProject(userId, project.getId()));
+    }
+
+    private int updateSelectCount(ApplicationProject project) {
+        List<OpenMepCapabilityGroup> capabilityList = project.getCapabilityList();
+        if (CollectionUtils.isEmpty(capabilityList)) {
+            return 1;
+        }
+        for (OpenMepCapabilityGroup group : capabilityList) {
+            int res = openMepCapabilityMapper.updateSelectCount(group.getGroupId());
+            if (res < 1) {
+                return 0;
+            }
+        }
+        return 1;
     }
 
     public String getProjectPath(String projectId) {
@@ -503,7 +523,7 @@ public class ProjectService {
         String projectPath = getProjectPath(projectId);
         String projectName = project.getName().replaceAll(Consts.PATTERN, "").toLowerCase();
         String configMapName = "mepagent" + UUID.randomUUID().toString();
-//        String namespace = projectName + UUID.randomUUID().toString().substring(0, 8);
+        //        String namespace = projectName + UUID.randomUUID().toString().substring(0, 8);
         List<HelmTemplateYamlPo> yamlPoList = helmTemplateYamlMapper.queryTemplateYamlByProjectId(userId, projectId);
         File csarPkgDir;
         if (!CollectionUtils.isEmpty(yamlPoList)) {
@@ -811,6 +831,12 @@ public class ProjectService {
         if (StringUtils.isEmpty(group.getTwoLevelNameEn())) {
             group.setTwoLevelNameEn(group.getTwoLevelName());
         }
+        if (StringUtils.isEmpty(group.getIconFileId())) {
+            group.setIconFileId(group.getIconFileId());
+        }
+        if (StringUtils.isEmpty(group.getAuthor())) {
+            group.setAuthor(group.getAuthor());
+        }
         if (StringUtils.isEmpty(detail.getServiceEn())) {
             detail.setServiceEn(detail.getService());
         }
@@ -820,6 +846,7 @@ public class ProjectService {
         if (StringUtils.isEmpty(detail.getDescriptionEn())) {
             detail.setDescriptionEn(detail.getDescription());
         }
+        group.setUploadTime(new Date());
         int resGroup = openMepCapabilityMapper.saveGroup(group);
         if (resGroup < 1) {
             LOGGER.error("store db to openmepcapability fail!");
@@ -946,6 +973,8 @@ public class ProjectService {
         group.setTwoLevelName(serviceDetail.getTwoLevelName());
         group.setType(EnumOpenMepType.OPENMEP);
         group.setDescription(serviceDetail.getDescription());
+        group.setIconFileId(serviceDetail.getIconFileId());
+        group.setAuthor(serviceDetail.getAuthor());
     }
 
     /**
