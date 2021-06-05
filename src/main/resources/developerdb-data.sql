@@ -580,7 +580,7 @@
 
 
         INSERT INTO tbl_openmep_capability (group_id, one_level_name, one_level_name_en, two_level_name, two_level_name_en, type, description, description_en,icon_file_id, author, select_count, upload_time) VALUES
-        ('662d474c-151b-4791-83bb-17834c7c381e', 'ETSI', 'ETSI', '服务管理API MEC 011', 'Service Management API  API MEC 011', 'OPENMEP', 'ETSI GS MEC 011标准API，用于应用的服务注册、发现、订阅等功能', 'ETSI GS MEC 011 standard API, used for application service registration, discovery, subscription, stc.','2b429877-36b2-4957-ad2a-ed14c7815bd5','admin',0,'2021-06-14 17:31:00.384+08')
+        ('662d474c-151b-4791-83bb-17834c7c381e', 'ETSI', 'ETSI', '服务管理API MEC 011', 'Service Management API  API MEC 011', 'OPENMEP', 'ETSI GS MEC 011标准API，用于应用的服务注册、发现、订阅等功能', 'ETSI GS MEC 011 standard API, used for application service registration, discovery, subscription, stc.','2b429877-36b2-4957-ad2a-ed14c7815bf9','admin',0,'2021-06-14 17:31:00.384+08')
         ON CONFLICT(group_id) do nothing;
         INSERT INTO tbl_openmep_capability_detail (detail_id, service, service_en, version, description, description_en, provider, group_id, api_file_id, guide_file_id, guide_file_id_en, port, host, protocol, upload_time, user_id) VALUES
         ('a435f8fc-6110-46b8-8eae-5d23caa5be9f', '服务管理API MEC 011', 'Service Management API  API MEC 011', 'v2.1.1', 'ETSI GS MEC 011标准API，用于应用的服务注册、发现、订阅等功能', 'ETSI GS MEC 011 standard API, used for application service registration, discovery, subscription, stc.', 'ETSI', '662d474c-151b-4791-83bb-17834c7c381e', 'a5983da8-3b06-4f8b-b3fb-217062a209b5', '', '', 8080, 'service-management ', 'http', '2021-03-04 00:00:00.000000', 'admin')
@@ -589,7 +589,7 @@
         ('a5983da8-3b06-4f8b-b3fb-217062a209b5', 'MecServiceMgmtApi.json', false, 'admin', '2021-4-3 00:00:00.000000', '/mep_capability/MecServiceMgmtApi.json')
         ON CONFLICT(file_id) do nothing;
         INSERT INTO tbl_uploaded_file (file_id, file_name, is_temp, user_id, upload_date, file_path) VALUES
-        ('2b429877-36b2-4957-ad2a-ed14c7815bd5', 'service governance.jpg', false, 'admin', '2020-01-01 00:00:00.000000', '/mep_capability/images/service governance.jpg')
+        ('2b429877-36b2-4957-ad2a-ed14c7815bf9', 'service governance.jpg', false, 'admin', '2020-01-01 00:00:00.000000', '/mep_capability/images/service governance.jpg')
         ON CONFLICT(file_id) do nothing;
 
 
