@@ -54,6 +54,9 @@
         FROM
         tbl_vm_system
         <where>
+            <if test="userId != null and userId !=''">
+                and (user_id = #{userId} or type == 'public')
+            </if>
             <if test="operateSystem != null and operateSystem !=''">
                 and operate_system = #{operateSystem}
             </if>
@@ -62,9 +65,6 @@
             </if>
             <if test="status != null and status !='All'">
                 and status = #{status}
-            </if>
-            <if test="userId != null and userId !=''">
-                and user_id = #{userId} or type == 'public'
             </if>
             <if test="type != null and type !='All'">
                 and type = #{type}
@@ -94,8 +94,8 @@
         tbl_vm_system
         WHERE
         1 = 1
-        <if test="userId != null and userId!=''">
-            and user_id = #{userId}
+        <if test="userId != null and userId !=''">
+            and (user_id = #{userId} or type == 'public')
         </if>
         <if test="operateSystem != null and operateSystem!=''">
             and operate_system = #{operateSystem}
