@@ -17,7 +17,6 @@
 package org.edgegallery.developer.util;
 
 import org.edgegallery.developer.service.ProjectService;
-import org.edgegallery.developer.service.TestCaseService;
 import org.edgegallery.developer.service.UploadFileService;
 import org.edgegallery.developer.service.virtual.VmService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,9 +29,6 @@ import org.springframework.stereotype.Component;
 public class ScheduleTask {
 
     @Autowired
-    private TestCaseService testCaseService;
-
-    @Autowired
     private UploadFileService uploadFileService;
 
     @Autowired
@@ -40,11 +36,6 @@ public class ScheduleTask {
 
     @Autowired
     private VmService vmService;
-
-    @Scheduled(cron = "0/10 * * * * ?")
-    public void reportCurrentTime() {
-        testCaseService.scanRunningTask();
-    }
 
     @Scheduled(cron = "0 0/30 * * * ?")
     public void deleteTempFile() {

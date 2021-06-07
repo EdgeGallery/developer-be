@@ -269,6 +269,12 @@ public class SystemService {
         if (StringUtils.isEmpty(capabilityGroup.getDescriptionEn())) {
             capabilityGroup.setDescriptionEn(capabilityGroup.getDescription());
         }
+        if (StringUtils.isEmpty(capabilityGroup.getIconFileId())) {
+            capabilityGroup.setIconFileId(capabilityGroup.getIconFileId());
+        }
+        if (StringUtils.isEmpty(capabilityGroup.getAuthor())) {
+            capabilityGroup.setAuthor(capabilityGroup.getAuthor());
+        }
 
         if (StringUtils.isEmpty(capabilityGroup.getOneLevelNameEn())) {
             capabilityGroup.setOneLevelNameEn(capabilityGroup.getOneLevelName());
@@ -276,7 +282,8 @@ public class SystemService {
         if (StringUtils.isEmpty(capabilityGroup.getTwoLevelNameEn())) {
             capabilityGroup.setTwoLevelNameEn(capabilityGroup.getTwoLevelName());
         }
-
+        capabilityGroup.setSelectCount(0);
+        capabilityGroup.setUploadTime(new Date());
         int ret = openMepCapabilityMapper.saveGroup(capabilityGroup);
         if (ret <= 0) {
             LOGGER.error("save group {} failed!", capabilityGroup.getGroupId());

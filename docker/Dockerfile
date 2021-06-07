@@ -60,6 +60,7 @@ RUN chmod -R 750 $APP_HOME &&\
     mkdir -p -m 750 $APP_HOME/user/workspace/csar &&\
     mkdir -p -m 750 $APP_HOME/user/uploaded_files &&\
     mkdir -p -m 750 $APP_HOME/mep_capability &&\
+    mkdir -p -m 750 $APP_HOME/mep_capability/images &&\
     chown -R $USER_NAME:$GROUP_NAME $APP_HOME &&\
     chown -R $USER_NAME:$GROUP_NAME $APP_HOME/log &&\
     chown -R $USER_NAME:$GROUP_NAME $APP_HOME/user &&\
@@ -69,6 +70,7 @@ RUN chmod -R 750 $APP_HOME &&\
 COPY --chown=$USER_NAME:$GROUP_NAME target/*.jar $APP_HOME/bin
 COPY --chown=$USER_NAME:$GROUP_NAME target/output $APP_HOME
 COPY --chown=$USER_NAME:$GROUP_NAME configs/mep_capability $APP_HOME/mep_capability
+COPY --chown=$USER_NAME:$GROUP_NAME configs/mep_capability/images $APP_HOME/mep_capability/images
 COPY --chown=$USER_NAME:$GROUP_NAME lib/*.jar  $APP_HOME/lib/
 
 EXPOSE 9080

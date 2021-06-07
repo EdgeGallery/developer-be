@@ -65,67 +65,6 @@
     )
     ;
 
-    -- ----------------------------
-    -- Table structure for tbl_subtaskstatus
-    -- ----------------------------
-    CREATE TABLE IF NOT EXISTS "tbl_subtaskstatus" (
-      "executionid" varchar(255) COLLATE "pg_catalog"."default" DEFAULT NULL::character varying,
-      "taskid" varchar(255) COLLATE "pg_catalog"."default" DEFAULT NULL::character varying,
-      "testcaseid" int4 NOT NULL DEFAULT NULL,
-      "status" varchar(255) COLLATE "pg_catalog"."default" DEFAULT NULL::character varying,
-      "parameters" text COLLATE "pg_catalog"."default" DEFAULT NULL,
-      CONSTRAINT "tbl_subtaskstatus_pkey" PRIMARY KEY ("executionid")
-    )
-    ;
-
-    -- ----------------------------
-    -- Table structure for tbl_testCase
-    -- ----------------------------
-    CREATE TABLE IF NOT EXISTS "tbl_testCase" (
-      "id" int8 NOT NULL DEFAULT NULL,
-      "scenarios" varchar(255) COLLATE "pg_catalog"."default" DEFAULT NULL::character varying,
-      "testsuite" varchar(255) COLLATE "pg_catalog"."default" DEFAULT NULL::character varying,
-      "description" text COLLATE "pg_catalog"."default" DEFAULT NULL,
-      "testCaseName" varchar(255) COLLATE "pg_catalog"."default" DEFAULT NULL::character varying,
-      "author" varchar(255) COLLATE "pg_catalog"."default" DEFAULT NULL::character varying,
-      "inputs" text COLLATE "pg_catalog"."default" DEFAULT NULL,
-      "outputs" text COLLATE "pg_catalog"."default" DEFAULT NULL,
-      "mandatory" varchar(255) COLLATE "pg_catalog"."default" DEFAULT NULL::character varying,
-      "subtestcase" text COLLATE "pg_catalog"."default" DEFAULT NULL,
-      CONSTRAINT "tbl_testCase_pkey" PRIMARY KEY ("id")
-    )
-    ;
-
-    -- ----------------------------
-    -- Table structure for tbl_testapp
-    -- ----------------------------
-    CREATE TABLE IF NOT EXISTS "tbl_testapp" (
-      "appid" varchar(255) COLLATE "pg_catalog"."default" NOT NULL DEFAULT NULL::character varying,
-      "appname" varchar(255) COLLATE "pg_catalog"."default" DEFAULT NULL::character varying,
-      "appfile" varchar(255) COLLATE "pg_catalog"."default" NOT NULL DEFAULT NULL::character varying,
-      "affinity" varchar(255) COLLATE "pg_catalog"."default" NOT NULL DEFAULT NULL::character varying,
-      "industry" varchar(255) COLLATE "pg_catalog"."default" NOT NULL DEFAULT NULL::character varying,
-      "appdesc" varchar(500) COLLATE "pg_catalog"."default" DEFAULT NULL::character varying,
-      "uploadtime" timestamptz(0) NOT NULL DEFAULT NULL,
-      "userid" varchar(255) COLLATE "pg_catalog"."default" NOT NULL DEFAULT NULL::character varying,
-      "logofile" varchar(255) COLLATE "pg_catalog"."default" NOT NULL DEFAULT NULL::character varying,
-      "appversion" varchar(255) COLLATE "pg_catalog"."default" DEFAULT NULL::character varying,
-      "type" varchar(255) COLLATE "pg_catalog"."default" NOT NULL DEFAULT NULL::character varying,
-      CONSTRAINT "tbl_testapp_pkey" PRIMARY KEY ("appid")
-    )
-    ;
-
-
-    CREATE TABLE IF NOT EXISTS "tbl_testtask" (
-      "taskid" varchar(255) COLLATE "pg_catalog"."default" NOT NULL DEFAULT NULL::character varying,
-      "taskno" varchar(255) COLLATE "pg_catalog"."default" NOT NULL DEFAULT NULL::character varying,
-      "status" varchar(255) COLLATE "pg_catalog"."default" NOT NULL DEFAULT NULL::character varying,
-      "begintime" timestamptz(6) NOT NULL DEFAULT NULL,
-      "endtime" timestamptz(6) DEFAULT NULL,
-      "appid" varchar(255) COLLATE "pg_catalog"."default" NOT NULL DEFAULT NULL::character varying,
-      CONSTRAINT "tbl_testtask_pkey" PRIMARY KEY ("taskid")
-    )
-    ;
     -- plugin and app-test table end -----------------
     -- workspace table start -----------------
     CREATE TABLE IF NOT EXISTS "tbl_app_project" (
@@ -159,6 +98,10 @@
       "type" varchar(20) COLLATE "pg_catalog"."default" DEFAULT NULL,
       "description" text COLLATE "pg_catalog"."default" DEFAULT NULL,
       "description_en" text COLLATE "pg_catalog"."default" DEFAULT NULL,
+      "icon_file_id" varchar(50) COLLATE "pg_catalog"."default" DEFAULT NULL,
+      "author" varchar(50) COLLATE "pg_catalog"."default" DEFAULT NULL,
+      "select_count" int4 NOT NULL DEFAULT 0,
+      "upload_time" timestamptz(6) DEFAULT NULL,
       CONSTRAINT "tbl_openmep_capability_pkey" PRIMARY KEY ("group_id")
     )
     ;
@@ -261,8 +204,8 @@
       "port" int4 DEFAULT '-1'::integer,
       "user_name" varchar(50) DEFAULT NULL,
       "password" varchar(50) DEFAULT NULL,
-      "vnc_port" int4 DEFAULT NULL,
-      "parameter" varchar(500) DEFAULT 22,
+      "vnc_port" int4 DEFAULT 22,
+      "parameter" text DEFAULT NULL,
       "delete" bool DEFAULT NULL
     )
     ;
@@ -390,11 +333,11 @@
       "vm_id"  varchar(255) NOT NULL DEFAULT NULL,
       "project_id" varchar(50) DEFAULT NULL,
       "vm_name" varchar(50) DEFAULT NULL,
-      "host" varchar(512)  DEFAULT NULL,
+      "host" text  DEFAULT NULL,
       "status" varchar(50)  DEFAULT NULL,
       "stage_status" varchar(500)  DEFAULT NULL,
       "lcm_token" varchar(1024)  DEFAULT NULL,
-      "vm_info" varchar(512)  DEFAULT NULL,
+      "vm_info" text  DEFAULT NULL,
       "app_instance_id" varchar(50)  DEFAULT NULL,
       "package_id" varchar(100)  DEFAULT NULL,
       "create_time"  timestamptz(6)  DEFAULT NULL,

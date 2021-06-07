@@ -60,7 +60,6 @@ import org.edgegallery.developer.model.vm.NetworkInfo;
 import org.edgegallery.developer.model.vm.ScpConnectEntity;
 import org.edgegallery.developer.model.vm.VmCreateConfig;
 import org.edgegallery.developer.model.vm.VmCreateStageStatus;
-import org.edgegallery.developer.model.vm.VmFlavor;
 import org.edgegallery.developer.model.vm.VmImageConfig;
 import org.edgegallery.developer.model.vm.VmImportStageStatus;
 import org.edgegallery.developer.model.vm.VmInfo;
@@ -72,7 +71,6 @@ import org.edgegallery.developer.model.system.VmSystem;
 import org.edgegallery.developer.model.vm.VmUserData;
 import org.edgegallery.developer.model.workspace.ApplicationProject;
 import org.edgegallery.developer.model.workspace.EnumProjectStatus;
-import org.edgegallery.developer.model.workspace.EnumSystemImageStatus;
 import org.edgegallery.developer.model.workspace.EnumTestConfigStatus;
 import org.edgegallery.developer.model.workspace.MepHost;
 import org.edgegallery.developer.response.FormatRespDto;
@@ -83,6 +81,7 @@ import org.edgegallery.developer.service.virtual.image.VmImageStage;
 import org.edgegallery.developer.util.CompressFileUtilsJava;
 import org.edgegallery.developer.util.DeveloperFileUtils;
 import org.edgegallery.developer.util.HttpClientUtil;
+import org.edgegallery.developer.util.InputParameterUtil;
 import org.edgegallery.developer.util.ShhFileUploadUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -284,15 +283,21 @@ public class VmService {
      */
     public boolean createVmToAppLcm(File csar, ApplicationProject project, VmCreateConfig vmConfig, String userId,
         String lcmToken) {
+        VmPackageConfig config = vmConfigMapper.getVmPackageConfig(project.getId());
+        if (config == null) {
+            LOGGER.error("get vm package config failed.");
+            return false;
+        }
         Type type = new TypeToken<MepHost>() { }.getType();
         MepHost host = gson.fromJson(gson.toJson(vmConfig.getHost()), type);
 
+        String basePath = HttpClientUtil.getUrlPrefix(host.getProtocol(), host.getLcmIp(), host.getPort());
         // upload pkg
         LcmLog lcmLog = new LcmLog();
         String uploadRes = HttpClientUtil
-            .uploadPkg(host.getProtocol(), host.getLcmIp(), host.getPort(), csar.getPath(), userId, lcmToken, lcmLog);
+            .uploadPkg(basePath, csar.getPath(), userId, lcmToken, lcmLog);
         LOGGER.info("upload package result: {}", uploadRes);
-        if (org.springframework.util.StringUtils.isEmpty(uploadRes)) {
+        if (StringUtils.isEmpty(uploadRes)) {
             vmConfig.setLog(lcmLog.getLog());
             return false;
         }
@@ -306,7 +311,7 @@ public class VmService {
 
         // distribute pkg
         boolean distributeRes = HttpClientUtil
-            .distributePkg(host.getProtocol(), host.getLcmIp(), host.getPort(), userId, lcmToken, pkgId,
+            .distributePkg(basePath, userId, lcmToken, pkgId,
                 host.getMecHost(), lcmLog);
         LOGGER.info("distribute package result: {}", distributeRes);
         if (!distributeRes) {
@@ -314,10 +319,18 @@ public class VmService {
             return false;
         }
         // instantiate application
+
+        Map<String, String> vmInputParams = InputParameterUtil.getParams(host.getParameter());
+
+        if (!config.getAk().equals("") && !config.getSk().equals("")) {
+            vmInputParams.put("ak",config.getAk());
+            vmInputParams.put("sk",config.getSk());
+        }
+
         String appInstanceId = vmConfig.getAppInstanceId();
         boolean instantRes = HttpClientUtil
-            .instantiateApplication(host.getProtocol(), host.getLcmIp(), host.getPort(), appInstanceId, userId,
-                lcmToken, lcmLog, pkgId, host.getMecHost());
+            .instantiateApplication(basePath, appInstanceId, userId,
+                lcmToken, lcmLog, pkgId, host.getMecHost(), vmInputParams);
         LOGGER.info("distribute package result: {}", instantRes);
         if (!instantRes) {
             vmConfig.setLog(lcmLog.getLog());
@@ -1013,6 +1026,8 @@ public class VmService {
         }
 
     }
+
+
 
 }
 

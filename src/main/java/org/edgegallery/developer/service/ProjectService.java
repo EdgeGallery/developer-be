@@ -78,13 +78,11 @@ import org.edgegallery.developer.model.lcm.UploadResponse;
 import org.edgegallery.developer.model.vm.VmCreateConfig;
 import org.edgegallery.developer.model.workspace.ApplicationProject;
 import org.edgegallery.developer.model.workspace.EnumDeployPlatform;
-import org.edgegallery.developer.model.workspace.EnumHostStatus;
 import org.edgegallery.developer.model.workspace.EnumOpenMepType;
 import org.edgegallery.developer.model.workspace.EnumProjectStatus;
 import org.edgegallery.developer.model.workspace.EnumTestConfigDeployStatus;
 import org.edgegallery.developer.model.workspace.EnumTestConfigStatus;
 import org.edgegallery.developer.model.workspace.HelmTemplateYamlPo;
-import org.edgegallery.developer.model.workspace.MepCreateHost;
 import org.edgegallery.developer.model.workspace.MepHost;
 import org.edgegallery.developer.model.workspace.MepHostLog;
 import org.edgegallery.developer.model.workspace.OpenMepCapabilityDetail;
@@ -105,6 +103,7 @@ import org.edgegallery.developer.util.CompressFileUtilsJava;
 import org.edgegallery.developer.util.DeveloperFileUtils;
 import org.edgegallery.developer.util.HttpClientUtil;
 import org.edgegallery.developer.util.InitConfigUtil;
+import org.edgegallery.developer.util.InputParameterUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -249,7 +248,30 @@ public class ProjectService {
             return Either.left(error);
         }
         LOGGER.info("Create project success.");
+        ApplicationProject newProject = projectMapper.getProject(userId, project.getId());
+        //update tbl_openmep_capability column select_count
+        int resUpdate = updateSelectCount(newProject);
+        if (resUpdate == 0) {
+            FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST,
+                "update tbl capability col select_count failed");
+            return Either.left(error);
+        }
         return Either.right(projectMapper.getProject(userId, project.getId()));
+    }
+
+    private int updateSelectCount(ApplicationProject project) {
+        Type type = new TypeToken<List<OpenMepCapabilityGroup>>() { }.getType();
+        List<OpenMepCapabilityGroup> capabilityList = gson.fromJson(gson.toJson(project.getCapabilityList()), type);
+        if (CollectionUtils.isEmpty(capabilityList)) {
+            return 1;
+        }
+        for (OpenMepCapabilityGroup group : capabilityList) {
+            int res = openMepCapabilityMapper.updateSelectCount(group.getGroupId());
+            if (res < 1) {
+                return 0;
+            }
+        }
+        return 1;
     }
 
     public String getProjectPath(String projectId) {
@@ -503,7 +525,7 @@ public class ProjectService {
         String projectPath = getProjectPath(projectId);
         String projectName = project.getName().replaceAll(Consts.PATTERN, "").toLowerCase();
         String configMapName = "mepagent" + UUID.randomUUID().toString();
-//        String namespace = projectName + UUID.randomUUID().toString().substring(0, 8);
+        //        String namespace = projectName + UUID.randomUUID().toString().substring(0, 8);
         List<HelmTemplateYamlPo> yamlPoList = helmTemplateYamlMapper.queryTemplateYamlByProjectId(userId, projectId);
         File csarPkgDir;
         if (!CollectionUtils.isEmpty(yamlPoList)) {
@@ -545,8 +567,9 @@ public class ProjectService {
         testConfig.setAccessUrl(host.getLcmIp());
         // upload pkg
         LcmLog lcmLog = new LcmLog();
+        String basePath = HttpClientUtil.getUrlPrefix(host.getProtocol(), host.getLcmIp(), host.getPort());
         String uploadRes = HttpClientUtil
-            .uploadPkg(host.getProtocol(), host.getLcmIp(), host.getPort(), csar.getPath(), userId, token, lcmLog);
+            .uploadPkg(basePath, csar.getPath(), userId, token, lcmLog);
         if (org.springframework.util.StringUtils.isEmpty(uploadRes)) {
             testConfig.setErrorLog(lcmLog.getLog());
             return false;
@@ -559,7 +582,7 @@ public class ProjectService {
         projectMapper.updateTestConfig(testConfig);
         // distribute pkg
         boolean distributeRes = HttpClientUtil
-            .distributePkg(host.getProtocol(), host.getLcmIp(), host.getPort(), userId, token, pkgId, host.getMecHost(),
+            .distributePkg(basePath, userId, token, pkgId, host.getMecHost(),
                 lcmLog);
 
         if (!distributeRes) {
@@ -568,9 +591,10 @@ public class ProjectService {
         }
         String appInstanceId = testConfig.getAppInstanceId();
         // instantiate application
+        Map<String, String> inputParams = InputParameterUtil.getParams(host.getParameter());
         boolean instantRes = HttpClientUtil
-            .instantiateApplication(host.getProtocol(), host.getLcmIp(), host.getPort(), appInstanceId, userId, token,
-                lcmLog, pkgId, host.getMecHost());
+            .instantiateApplication(basePath, appInstanceId, userId, token,
+                lcmLog, pkgId, host.getMecHost(), inputParams);
         if (!instantRes) {
             testConfig.setErrorLog(lcmLog.getLog());
             return false;
@@ -811,6 +835,12 @@ public class ProjectService {
         if (StringUtils.isEmpty(group.getTwoLevelNameEn())) {
             group.setTwoLevelNameEn(group.getTwoLevelName());
         }
+        if (StringUtils.isEmpty(group.getIconFileId())) {
+            group.setIconFileId(group.getIconFileId());
+        }
+        if (StringUtils.isEmpty(group.getAuthor())) {
+            group.setAuthor(group.getAuthor());
+        }
         if (StringUtils.isEmpty(detail.getServiceEn())) {
             detail.setServiceEn(detail.getService());
         }
@@ -820,6 +850,7 @@ public class ProjectService {
         if (StringUtils.isEmpty(detail.getDescriptionEn())) {
             detail.setDescriptionEn(detail.getDescription());
         }
+        group.setUploadTime(new Date());
         int resGroup = openMepCapabilityMapper.saveGroup(group);
         if (resGroup < 1) {
             LOGGER.error("store db to openmepcapability fail!");
@@ -946,6 +977,8 @@ public class ProjectService {
         group.setTwoLevelName(serviceDetail.getTwoLevelName());
         group.setType(EnumOpenMepType.OPENMEP);
         group.setDescription(serviceDetail.getDescription());
+        group.setIconFileId(serviceDetail.getIconFileId());
+        group.setAuthor(serviceDetail.getAuthor());
     }
 
     /**
