@@ -92,6 +92,8 @@ public final class Consts {
 
     public static final String SYSTEM_IMAGE_UPLOAD_URL = "/imagemanagement/v1/upload";
 
+    public static final String SYSTEM_IMAGE_DOWNLOAD_URL = "/imagemanagement/v1/download?imageId=";
+
     private Consts() {
     }
 }

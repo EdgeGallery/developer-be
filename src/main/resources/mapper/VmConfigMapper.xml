@@ -120,6 +120,7 @@
         <result property="hostIp" column="host_ip"/>
         <result property="sumChunkNum" column="sum_chunk_num"/>
         <result property="chunkSize" column="chunk_size"/>
+        <result property="checksum" column="checksum"/>
         <result property="stageStatus" column="stage_status"
           typeHandler="org.edgegallery.developer.model.handler.JsonTypeHandler"/>
         <result property="status" column="status"/>

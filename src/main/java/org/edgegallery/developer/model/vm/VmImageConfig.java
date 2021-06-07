@@ -44,6 +44,8 @@ public class VmImageConfig {
 
     private Integer chunkSize;
 
+    private String checksum;
+
     private VmImportStageStatus stageStatus;
 
     private EnumVmImportStatus status;
