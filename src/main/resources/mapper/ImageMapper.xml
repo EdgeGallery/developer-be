@@ -128,13 +128,16 @@
     </select>
 
     <select id="getSystemImagesPath" resultType="java.lang.String"
-            parameterType="java.lang.Integer">
+            parameterType="org.edgegallery.developer.model.system.VmSystem">
         SELECT
         system_path
         FROM
         tbl_vm_system
         WHERE
         system_id = #{systemId}
+        <if test="userId != null and userId !=''">
+            and user_id = #{userId}
+        </if>
     </select>
 
     <select id="getSystemNameCount" resultType="java.lang.Integer"
