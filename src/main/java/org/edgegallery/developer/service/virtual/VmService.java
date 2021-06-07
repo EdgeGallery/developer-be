@@ -24,6 +24,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 import com.spencerwi.either.Either;
 import java.io.BufferedWriter;
@@ -46,6 +47,8 @@ import javax.ws.rs.core.Response.Status;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.tomcat.util.http.fileupload.servlet.ServletFileUpload;
+import org.edgegallery.developer.common.Consts;
+import org.edgegallery.developer.config.security.AccessUserUtil;
 import org.edgegallery.developer.exception.DomainException;
 import org.edgegallery.developer.mapper.ProjectMapper;
 import org.edgegallery.developer.mapper.VmConfigMapper;
@@ -71,6 +74,7 @@ import org.edgegallery.developer.model.system.VmSystem;
 import org.edgegallery.developer.model.vm.VmUserData;
 import org.edgegallery.developer.model.workspace.ApplicationProject;
 import org.edgegallery.developer.model.workspace.EnumProjectStatus;
+import org.edgegallery.developer.model.workspace.EnumSystemImageStatus;
 import org.edgegallery.developer.model.workspace.EnumTestConfigStatus;
 import org.edgegallery.developer.model.workspace.MepHost;
 import org.edgegallery.developer.response.FormatRespDto;
@@ -105,6 +109,9 @@ public class VmService {
 
     @Value("${upload.tempPath}")
     private String tempUploadPath;
+
+    @Value("${fileserver.address}")
+    private String fileServerAddress;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(VmService.class);
 
@@ -345,16 +352,17 @@ public class VmService {
         Type type = new TypeToken<MepHost>() { }.getType();
         MepHost host = gson.fromJson(gson.toJson(vmConfig.getHost()), type);
         // delete hosts
+        String basePath = HttpClientUtil.getUrlPrefix(host.getProtocol(), host.getLcmIp(), host.getPort());
         boolean deleteHostRes = HttpClientUtil
-            .deleteHost(host.getProtocol(), host.getLcmIp(), host.getPort(), userId, lcmToken, vmConfig.getPackageId(),
+            .deleteHost(basePath, userId, lcmToken, vmConfig.getPackageId(),
                 host.getMecHost());
 
         // delete pkg
         boolean deletePkgRes = HttpClientUtil
-            .deletePkg(host.getProtocol(), host.getLcmIp(), host.getPort(), userId, lcmToken, vmConfig.getPackageId());
+            .deletePkg(basePath, userId, lcmToken, vmConfig.getPackageId());
 
         boolean terminateApp = HttpClientUtil
-            .terminateAppInstance(host.getProtocol(), host.getLcmIp(), host.getPort(), appInstanceId, userId, lcmToken);
+            .terminateAppInstance(basePath, appInstanceId, userId, lcmToken);
         if (!terminateApp || !deleteHostRes || !deletePkgRes) {
             return false;
         }
@@ -840,14 +848,14 @@ public class VmService {
         LcmLog lcmLog = new LcmLog();
         String id = imageConfig.getVmId();
         VmCreateConfig vmCreateConfig = vmConfigMapper.getVmCreateConfig(imageConfig.getProjectId(), id);
+        String basePath = HttpClientUtil.getUrlPrefix(host.getProtocol(), host.getLcmIp(), host.getPort());
 
         Type vmInfoType = new TypeToken<List<VmInfo>>() { }.getType();
         List<VmInfo> vmInfo = gson.fromJson(gson.toJson(vmCreateConfig.getVmInfo()), vmInfoType);
         String vmId = vmInfo.get(0).getVmId();
 
         String imageResult = HttpClientUtil
-            .vmInstantiateImage(host.getProtocol(), host.getLcmIp(), host.getPort(), userId, lcmToken, vmId,
-                appInstanceId, lcmLog);
+            .vmInstantiateImage(basePath, userId, lcmToken, vmId, appInstanceId, lcmLog);
         LOGGER.info("import image result: {}", imageResult);
         if (StringUtils.isEmpty(imageResult)) {
             imageConfig.setLog(lcmLog.getLog());
@@ -867,10 +875,11 @@ public class VmService {
 
         String packagePath = projectService.getProjectPath(config.getProjectId()) + config.getAppInstanceId();
         LOGGER.info(packagePath);
+        String basePath = HttpClientUtil.getUrlPrefix(host.getProtocol(), host.getLcmIp(), host.getPort());
         for (int chunkNum = 0; chunkNum < config.getSumChunkNum(); chunkNum++) {
             LOGGER.info("download image chunkNum:{}", chunkNum);
             boolean res = HttpClientUtil
-                .downloadVmImage(host.getProtocol(), host.getLcmIp(), host.getPort(), userId, packagePath,
+                .downloadVmImage(basePath, userId, packagePath,
                     config.getAppInstanceId(), config.getImageId(), config.getImageName(), Integer.toString(chunkNum),
                     config.getLcmToken());
             if (!res) {
@@ -878,19 +887,21 @@ public class VmService {
                 config.setLog("no more data");
                 break;
             }
-            if (chunkNum == 0) {
-                try {
-                    Thread.sleep(10000);
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                    LOGGER.error("sleep fail! {}", e.getMessage());
-                }
-            }
+//            if (chunkNum == 0) {
+//                try {
+//                    Thread.sleep(10000);
+//                } catch (InterruptedException e) {
+//                    Thread.currentThread().interrupt();
+//                    LOGGER.error("sleep fail! {}", e.getMessage());
+//                }
+//            }
             if (chunkNum % 10 == 0) {
                 config.setLog("download image file:" + chunkNum + "/" + config.getSumChunkNum());
                 vmConfigMapper.updateVmImageConfig(config);
             }
         }
+
+        // merge image file
 
         String imagePath = packagePath + File.separator + config.getImageName();
         LOGGER.info("image file path:{}", imagePath);
@@ -917,18 +928,17 @@ public class VmService {
             return false;
         }
 
-        // modify the csar  TOSCA-Metadata/TOSCA.meta file
-        String toscaPath = packagePath + TEMPLATE_TOSCA_METADATA_PATH;
-        LOGGER.info(toscaPath);
-        try {
-            File toscaValue = new File(toscaPath);
-
-            FileUtils.writeStringToFile(toscaValue, FileUtils.readFileToString(toscaValue, StandardCharsets.UTF_8)
-                .replace("{imageFile}", config.getImageName()), StandardCharsets.UTF_8, false);
-        } catch (IOException e) {
-            LOGGER.error("modify image file fail: occur IOException {}.", e.getMessage());
+        // todo upload image to image management
+        File mergedFile = new File(packagePath + File.separator + config.getImageName() + ".zip");
+        String downloadSystemPath = pushSystemImage(mergedFile);
+        if (StringUtils.isEmpty(downloadSystemPath)) {
+            LOGGER.error("push system image file failed!");
             return false;
         }
+
+        // todo save to systemImage
+
+
 
         // modify image file
         File swImageDesc = new File(packagePath + TEMPLATE_TOSCA_IMAGE_DESC_PATH);
@@ -937,9 +947,8 @@ public class VmService {
                 FileUtils.readFileToString(swImageDesc, StandardCharsets.UTF_8));
 
             swImgDescs.get(0).setName(config.getImageName());
-            swImgDescs.get(0).setSwImage(
-                "Image/" + config.getImageName() + ".zip/" + config.getImageName() + "/" + config.getImageName()
-                    + ".qcow2");
+            swImgDescs.get(0).setSwImage(downloadSystemPath);
+            swImgDescs.get(0).setChecksum(config.getChecksum());
             writeFile(swImageDesc, gson.toJson(swImgDescs));
         } catch (IOException e) {
             LOGGER.error("modify image file fail: occur IOException {}.", e.getMessage());
@@ -1025,6 +1034,29 @@ public class VmService {
             return false;
         }
 
+    }
+    private String pushSystemImage(File systemImgFile) {
+        try {
+            String uploadResult = HttpClientUtil
+                .uploadSystemImage(fileServerAddress, systemImgFile.getPath(), AccessUserUtil.getUserId());
+            if (uploadResult == null) {
+                LOGGER.error("upload system image file failed.");
+                return null;
+            }
+
+            try {
+                Gson gson = new Gson();
+                Map<String, String> uploadResultModel = gson.fromJson(uploadResult, Map.class);
+                String url = fileServerAddress + Consts.SYSTEM_IMAGE_DOWNLOAD_URL + uploadResultModel.get("imageId");
+                return url;
+            } catch (JsonSyntaxException e) {
+                LOGGER.error("upload system image file failed.");
+                return null;
+            }
+        } finally {
+            LOGGER.info("delete system image file.");
+            systemImgFile.delete();
+        }
     }
 
 

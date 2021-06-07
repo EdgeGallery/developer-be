@@ -356,6 +356,7 @@
       "host_ip" varchar(50)  DEFAULT NULL,
       "sum_chunk_num" varchar(50)  DEFAULT NULL,
       "chunk_size" varchar(50)  DEFAULT NULL,
+      "checksum" varchar(500)  DEFAULT NULL,
       "stage_status" varchar(500)  DEFAULT NULL,
       "status" varchar(512)  DEFAULT NULL,
       "lcm_token" varchar(1024)  DEFAULT NULL,

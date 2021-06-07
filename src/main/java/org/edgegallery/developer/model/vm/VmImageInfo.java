@@ -37,5 +37,7 @@ public class VmImageInfo {
 
     private Integer chunkSize;
 
+    private String checksum;
+
 
 }

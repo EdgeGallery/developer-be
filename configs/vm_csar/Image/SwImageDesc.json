@@ -1,8 +1,8 @@
 [{
 	"id": "200507001",
-	"name": "HUAWEI_EulerOS_V2.0SP8_aarch64_dvd",
-	"version": "V500R001C20",
-	"checksum": "1",
+	"name": "ubuntu_18_04",
+	"version": "18.04",
+	"checksum": "36fcf66940532088b6081512557528b3",
 	"containerFormat": "bare",
 	"diskFormat": "raw",
 	"minDisk": 3,

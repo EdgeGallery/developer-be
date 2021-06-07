@@ -73,8 +73,9 @@ public class VmImageStatus implements VmImageStage {
             Thread.currentThread().interrupt();
             LOGGER.error("sleep fail! {}", e.getMessage());
         }
+        String basePath = HttpClientUtil.getUrlPrefix(host.getProtocol(), host.getLcmIp(), host.getPort());
         String workStatus = HttpClientUtil
-            .getImageStatus(host.getProtocol(), host.getLcmIp(), host.getPort(), config.getAppInstanceId(),
+            .getImageStatus(basePath, config.getAppInstanceId(),
                 project.getUserId(), config.getImageId(), config.getLcmToken());
         LOGGER.info("import image result: {}", workStatus);
         if (workStatus == null) {
@@ -99,6 +100,7 @@ public class VmImageStatus implements VmImageStage {
                 config.setImageName(vmImageInfo.getImageName());
                 config.setSumChunkNum(vmImageInfo.getSumChunkNum());
                 config.setChunkSize(vmImageInfo.getChunkSize());
+                config.setChecksum(vmImageInfo.getChecksum());
                 // get config
                 LOGGER.info("update config result:{}", config);
             } else {
