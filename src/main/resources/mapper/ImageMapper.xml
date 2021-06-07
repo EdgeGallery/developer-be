@@ -58,10 +58,10 @@
                 and (user_id = #{userId} or type == 'public')
             </if>
             <if test="operateSystem != null and operateSystem !=''">
-                and operate_system = #{operateSystem}
+                and lower(operate_system) like lower(CONCAT('%', #{operateSystem}, '%'))
             </if>
             <if test="systemName != null and systemName !=''">
-                and system_name = #{systemName}
+                and lower(system_name) like lower(CONCAT('%', #{systemName}, '%'))
             </if>
             <if test="status != null and status !='All'">
                 and status = #{status}
@@ -98,10 +98,10 @@
             and (user_id = #{userId} or type == 'public')
         </if>
         <if test="operateSystem != null and operateSystem!=''">
-            and operate_system = #{operateSystem}
+            and lower(operate_system) like lower(CONCAT('%', #{operateSystem}, '%'))
         </if>
         <if test="systemName != null and systemName!=''">
-            and system_name = #{systemName}
+            and lower(system_name) like lower(CONCAT('%', #{systemName}, '%'))
         </if>
         <if test="status != null and status !='All'">
             and status = #{status}
@@ -128,16 +128,13 @@
     </select>
 
     <select id="getSystemImagesPath" resultType="java.lang.String"
-            parameterType="org.edgegallery.developer.model.system.VmSystem">
+            parameterType="java.lang.Integer">
         SELECT
         system_path
         FROM
         tbl_vm_system
         WHERE
         system_id = #{systemId}
-        <if test="userId != null and userId!=''">
-            and user_id = #{userId}
-        </if>
     </select>
 
     <select id="getSystemNameCount" resultType="java.lang.Integer"
