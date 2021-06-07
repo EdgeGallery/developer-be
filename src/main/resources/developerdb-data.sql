@@ -177,7 +177,7 @@
         ('fd0b4541-422d-4ece-b4e9-5c71da6a4363', 'UpstreamCompressionDoc.json', false, 'admin', '2020-01-01 00:00:00.000000', '/mep_capability/UpstreamCompressionDoc.json')
         ON CONFLICT(file_id) do nothing;
         INSERT INTO tbl_uploaded_file (file_id, file_name, is_temp, user_id, upload_date, file_path) VALUES
-        ('7bc4061f-6e8d-4805-a7bb-88a5b32d332e', 'service governance.jpg', false, 'admin', '2020-01-01 00:00:00.000000', '/mep_capability/images/service governance.jpg')
+        ('7bc4061f-6e8d-4805-a7bb-88a5b32d332e', 'upstream compression.jpg', false, 'admin', '2020-01-01 00:00:00.000000', '/mep_capability/images/upstream compression.jpg')
         ON CONFLICT(file_id) do nothing;
 
         INSERT INTO tbl_openmep_capability (group_id, one_level_name, one_level_name_en, two_level_name, two_level_name_en, type, description, description_en,icon_file_id, author, select_count, upload_time) VALUES
@@ -196,7 +196,7 @@
         ('335c21ce-7768-44ee-8627-bf0af40e1a25', 'CongestionDetectionDoc.json', false, 'admin', '2020-01-01 00:00:00.000000', '/mep_capability/CongestionDetectionDoc.json')
         ON CONFLICT(file_id) do nothing;
         INSERT INTO tbl_uploaded_file (file_id, file_name, is_temp, user_id, upload_date, file_path) VALUES
-        ('64fede38-3b05-4eda-9109-f472d0bedf80','service governance.jpg', false, 'admin', '2020-01-01 00:00:00.000000', '/mep_capability/images/service governance.jpg')
+        ('64fede38-3b05-4eda-9109-f472d0bedf80','congestion detection.jpg', false, 'admin', '2020-01-01 00:00:00.000000', '/mep_capability/images/congestion detection.jpg')
         ON CONFLICT(file_id) do nothing;
         -- workspace shengteng capability init --
 
@@ -213,7 +213,7 @@
         ('9ace2dfc-6548-4511-96f3-1f622736e182', 'AIImage Repair.yaml', false, 'admin', '2020-01-01 00:00:00.000000', '/mep_capability/AIImage Repair.yaml')
         ON CONFLICT(file_id) do nothing;
         INSERT INTO tbl_uploaded_file (file_id, file_name, is_temp, user_id, upload_date, file_path) VALUES
-        ('56302719-8c85-4226-b01e-93535cdb2e42', 'AI image repair.jpg', false, 'admin', '2020-01-01 00:00:00.000000', '/mep_capability/images/AI image repair.jpg')
+        ('56302719-8c85-4226-b01e-93535cdb2e42', 'AI image restoration.jpg', false, 'admin', '2020-01-01 00:00:00.000000', '/mep_capability/images/AI image restoration.jpg')
         ON CONFLICT(file_id) do nothing;
 
         INSERT INTO tbl_openmep_capability (group_id, one_level_name, one_level_name_en, two_level_name, two_level_name_en, type, description, description_en,icon_file_id, author, select_count, upload_time) VALUES
@@ -245,7 +245,7 @@
         ('9ace2dfc-6548-4511-96f3-4f622736e183', 'ImageCartoonization.yaml', false, 'admin', '2020-01-01 00:00:00.000000', '/mep_capability/ImageCartoonization.yaml')
         ON CONFLICT(file_id) do nothing;
         INSERT INTO tbl_uploaded_file (file_id, file_name, is_temp, user_id, upload_date, file_path) VALUES
-        ('0deaf874-f243-4b49-ab5e-6c34299dac79', 'service governance.jpg', false, 'admin', '2020-01-01 00:00:00.000000', '/mep_capability/images/service governance.jpg')
+        ('0deaf874-f243-4b49-ab5e-6c34299dac79', 'cartoon image generation.jpg', false, 'admin', '2020-01-01 00:00:00.000000', '/mep_capability/images/cartoon image generation.jpg')
         ON CONFLICT(file_id) do nothing;
 
         INSERT INTO tbl_openmep_capability (group_id, one_level_name, one_level_name_en, two_level_name, two_level_name_en, type, description, description_en,icon_file_id, author, select_count, upload_time) VALUES
@@ -261,7 +261,7 @@
         ('9ace2dfc-6548-4511-96f3-5f622736e184', 'ImageColoring.yaml', false, 'admin', '2020-01-01 00:00:00.000000', '/mep_capability/ImageColoring.yaml')
         ON CONFLICT(file_id) do nothing;
         INSERT INTO tbl_uploaded_file (file_id, file_name, is_temp, user_id, upload_date, file_path) VALUES
-        ('dbe904ea-63cc-4bae-9d62-e2c65d71fdbf', 'service governance.jpg', false, 'admin', '2020-01-01 00:00:00.000000', '/mep_capability/images/service governance.jpg')
+        ('dbe904ea-63cc-4bae-9d62-e2c65d71fdbf', 'image coloring.jpg', false, 'admin', '2020-01-01 00:00:00.000000', '/mep_capability/images/image coloring.jpg')
         ON CONFLICT(file_id) do nothing;
 
         INSERT INTO tbl_openmep_capability (group_id, one_level_name, one_level_name_en, two_level_name, two_level_name_en, type, description, description_en,icon_file_id, author, select_count, upload_time) VALUES
@@ -277,7 +277,7 @@
         ('9ace2dfc-6548-4511-96f3-6f622736e185', 'ObjectClassification.yaml', false, 'admin', '2020-01-01 00:00:00.000000', '/mep_capability/ObjectClassification.yaml')
         ON CONFLICT(file_id) do nothing;
         INSERT INTO tbl_uploaded_file (file_id, file_name, is_temp, user_id, upload_date, file_path) VALUES
-        ('bf384358-cf86-4046-bffd-264a556b1b4f', 'service governance.jpg', false, 'admin', '2020-01-01 00:00:00.000000', '/mep_capability/images/service governance.jpg')
+        ('bf384358-cf86-4046-bffd-264a556b1b4f', 'object classification.jpg', false, 'admin', '2020-01-01 00:00:00.000000', '/mep_capability/images/object classification.jpg')
         ON CONFLICT(file_id) do nothing;
 
         INSERT INTO tbl_openmep_capability (group_id, one_level_name, one_level_name_en, two_level_name, two_level_name_en, type, description, description_en,icon_file_id, author, select_count, upload_time) VALUES
@@ -293,7 +293,7 @@
         ('9ace2dfc-6548-4511-96f3-7f622736e186', 'ObjectDetection.yaml', false, 'admin', '2020-01-01 00:00:00.000000', '/mep_capability/ObjectDetection.yaml')
         ON CONFLICT(file_id) do nothing;
         INSERT INTO tbl_uploaded_file (file_id, file_name, is_temp, user_id, upload_date, file_path) VALUES
-        ('43728963-4877-4277-b7a9-f50c154db89a', 'service governance.jpg', false, 'admin', '2020-01-01 00:00:00.000000', '/mep_capability/images/service governance.jpg')
+        ('43728963-4877-4277-b7a9-f50c154db89a', 'target detection.jpg', false, 'admin', '2020-01-01 00:00:00.000000', '/mep_capability/images/target detection.jpg')
         ON CONFLICT(file_id) do nothing;
 
         INSERT INTO tbl_openmep_capability (group_id, one_level_name, one_level_name_en, two_level_name, two_level_name_en, type, description, description_en,icon_file_id, author, select_count, upload_time) VALUES
@@ -309,7 +309,7 @@
         ('bd4346ba-e4c3-4c51-82df-beacf6481b59', 'Blur2SharpImage.md', false, 'admin', '2020-01-01 00:00:00.000000', '/mep_capability/Blur2SharpImage.md')
         ON CONFLICT(file_id) do nothing;
         INSERT INTO tbl_uploaded_file (file_id, file_name, is_temp, user_id, upload_date, file_path) VALUES
-        ('99b010d0-77fd-44a7-a667-439dd8ad18b4', 'service governance.jpg', false, 'admin', '2020-01-01 00:00:00.000000', '/mep_capability/images/service governance.jpg')
+        ('99b010d0-77fd-44a7-a667-439dd8ad18b4', 'blurred image becomes clear.jpg', false, 'admin', '2020-01-01 00:00:00.000000', '/mep_capability/images/blurred image becomes clear.jpg')
         ON CONFLICT(file_id) do nothing;
 
         INSERT INTO tbl_openmep_capability (group_id, one_level_name, one_level_name_en, two_level_name, two_level_name_en, type, description, description_en,icon_file_id, author, select_count, upload_time) VALUES
@@ -325,7 +325,7 @@
         ('bd4346ba-e4c3-4c51-82df-beacf6481b51', 'CropAnImage.md', false, 'admin', '2020-01-01 00:00:00.000000', '/mep_capability/CropAnImage.md')
         ON CONFLICT(file_id) do nothing;
         INSERT INTO tbl_uploaded_file (file_id, file_name, is_temp, user_id, upload_date, file_path) VALUES
-        ('cde646d6-4954-4305-b745-408dfeda83ca', 'service governance.jpg', false, 'admin', '2020-01-01 00:00:00.000000', '/mep_capability/images/service governance.jpg')
+        ('cde646d6-4954-4305-b745-408dfeda83ca', 'image crop.jpg', false, 'admin', '2020-01-01 00:00:00.000000', '/mep_capability/images/image crop.jpg')
         ON CONFLICT(file_id) do nothing;
 
         INSERT INTO tbl_openmep_capability (group_id, one_level_name, one_level_name_en, two_level_name, two_level_name_en, type, description, description_en,icon_file_id, author, select_count, upload_time) VALUES
@@ -341,7 +341,7 @@
         ('bd4346ba-e4c3-4c51-82df-beacf6481b53', 'DehazePicture.md', false, 'admin', '2020-01-01 00:00:00.000000', '/mep_capability/DehazePicture.md')
         ON CONFLICT(file_id) do nothing;
         INSERT INTO tbl_uploaded_file (file_id, file_name, is_temp, user_id, upload_date, file_path) VALUES
-        ('e37c0ca9-f048-4520-80e1-7f84fe5bd053', 'service governance.jpg', false, 'admin', '2020-01-01 00:00:00.000000', '/mep_capability/images/service governance.jpg')
+        ('e37c0ca9-f048-4520-80e1-7f84fe5bd053', 'image defogging.jpg', false, 'admin', '2020-01-01 00:00:00.000000', '/mep_capability/images/image defogging.jpg')
         ON CONFLICT(file_id) do nothing;
 
         INSERT INTO tbl_openmep_capability (group_id, one_level_name, one_level_name_en, two_level_name, two_level_name_en, type, description, description_en,icon_file_id, author, select_count, upload_time) VALUES
@@ -357,7 +357,7 @@
         ('bd4346ba-e4c3-4c51-82df-beacf6481b54', 'GarbageDetection.md', false, 'admin', '2020-01-01 00:00:00.000000', '/mep_capability/GarbageDetection.md')
         ON CONFLICT(file_id) do nothing;
         INSERT INTO tbl_uploaded_file (file_id, file_name, is_temp, user_id, upload_date, file_path) VALUES
-        ('5d68bec9-2323-4bb7-b46c-158dc1c40b81', 'service governance.jpg', false, 'admin', '2020-01-01 00:00:00.000000', '/mep_capability/images/service governance.jpg')
+        ('5d68bec9-2323-4bb7-b46c-158dc1c40b81', 'garbage identification.jpg', false, 'admin', '2020-01-01 00:00:00.000000', '/mep_capability/images/garbage identification.jpg')
         ON CONFLICT(file_id) do nothing;
 
         INSERT INTO tbl_openmep_capability (group_id, one_level_name, one_level_name_en, two_level_name, two_level_name_en, type, description, description_en,icon_file_id, author, select_count, upload_time) VALUES
@@ -373,7 +373,7 @@
         ('bd4346ba-e4c3-4c51-82df-beacf6481b55', 'MaskDetectionPicture.md', false, 'admin', '2020-01-01 00:00:00.000000', '/mep_capability/MaskDetectionPicture.md')
         ON CONFLICT(file_id) do nothing;
         INSERT INTO tbl_uploaded_file (file_id, file_name, is_temp, user_id, upload_date, file_path) VALUES
-        ('2d753fd4-d750-4d9c-8a2f-f1d76f5909cc', 'service governance.jpg', false, 'admin', '2020-01-01 00:00:00.000000', '/mep_capability/images/service governance.jpg')
+        ('2d753fd4-d750-4d9c-8a2f-f1d76f5909cc', 'mask detection.jpg', false, 'admin', '2020-01-01 00:00:00.000000', '/mep_capability/images/mask detection.jpg')
         ON CONFLICT(file_id) do nothing;
 
         INSERT INTO tbl_openmep_capability (group_id, one_level_name, one_level_name_en, two_level_name, two_level_name_en, type, description, description_en,icon_file_id, author, select_count, upload_time) VALUES
@@ -389,7 +389,7 @@
         ('bd4346ba-e4c3-4c51-82df-beacf6481b56', 'PortraitPicture.md', false, 'admin', '2020-01-01 00:00:00.000000', '/mep_capability/PortraitPicture.md')
         ON CONFLICT(file_id) do nothing;
         INSERT INTO tbl_uploaded_file (file_id, file_name, is_temp, user_id, upload_date, file_path) VALUES
-        ('ea939ac1-9c38-4690-8f39-ea6fa9fdc643', 'service governance.jpg', false, 'admin', '2020-01-01 00:00:00.000000', '/mep_capability/images/service governance.jpg')
+        ('ea939ac1-9c38-4690-8f39-ea6fa9fdc643', 'background replacement.jpg', false, 'admin', '2020-01-01 00:00:00.000000', '/mep_capability/images/background replacement.jpg')
         ON CONFLICT(file_id) do nothing;
 
         INSERT INTO tbl_openmep_capability (group_id, one_level_name, one_level_name_en, two_level_name, two_level_name_en, type, description, description_en,icon_file_id, author, select_count, upload_time) VALUES
@@ -405,7 +405,7 @@
         ('bd4346ba-e4c3-4c51-82df-beacf6481b57', 'ResizeAnImage.md', false, 'admin', '2020-01-01 00:00:00.000000', '/mep_capability/ResizeAnImage.md')
         ON CONFLICT(file_id) do nothing;
         INSERT INTO tbl_uploaded_file (file_id, file_name, is_temp, user_id, upload_date, file_path) VALUES
-        ('1aa25482-f654-48ec-879e-2c2a1cadd917', 'service governance.jpg', false, 'admin', '2020-01-01 00:00:00.000000', '/mep_capability/images/service governance.jpg')
+        ('1aa25482-f654-48ec-879e-2c2a1cadd917', 'size adjustment.jpg', false, 'admin', '2020-01-01 00:00:00.000000', '/mep_capability/images/size adjustment.jpg')
         ON CONFLICT(file_id) do nothing;
 
         INSERT INTO tbl_openmep_capability (group_id, one_level_name, one_level_name_en, two_level_name, two_level_name_en, type, description, description_en,icon_file_id, author, select_count, upload_time) VALUES
@@ -421,7 +421,7 @@
         ('bd4346ba-e4c3-4c51-82df-beacf6481b58', 'SuperResolution.md', false, 'admin', '2020-01-01 00:00:00.000000', '/mep_capability/SuperResolution.md')
         ON CONFLICT(file_id) do nothing;
         INSERT INTO tbl_uploaded_file (file_id, file_name, is_temp, user_id, upload_date, file_path) VALUES
-        ('6c5e9142-0a05-4ab6-929c-967010315121', 'service governance.jpg', false, 'admin', '2020-01-01 00:00:00.000000', '/mep_capability/images/service governance.jpg')
+        ('6c5e9142-0a05-4ab6-929c-967010315121', 'super resolution image.jpg', false, 'admin', '2020-01-01 00:00:00.000000', '/mep_capability/images/super resolution image.jpg')
         ON CONFLICT(file_id) do nothing;
 
 
@@ -443,7 +443,7 @@
         ('58f39f8a-332d-4e11-8421-bd4e11769d86', 'Face Recognition service_en.md', false, 'admin', '2021-02-05 11:50:28', '/mep_capability/58f39f8a-332d-4e11-8421-bd4e11769d86')
         ON CONFLICT(file_id) do nothing;
         INSERT INTO tbl_uploaded_file (file_id, file_name, is_temp, user_id, upload_date, file_path) VALUES
-        ('193b08b6-b5da-4ee3-ba09-b39530611ba7', 'service governance.jpg', false, 'admin', '2020-01-01 00:00:00.000000', '/mep_capability/images/service governance.jpg')
+        ('193b08b6-b5da-4ee3-ba09-b39530611ba7', 'face recognition.jpg', false, 'admin', '2020-01-01 00:00:00.000000', '/mep_capability/images/face recognition.jpg')
         ON CONFLICT(file_id) do nothing;
 
 
@@ -463,7 +463,7 @@
         ('5275d443-2200-4901-98da-7ec3e66db5e1', 'lossless-decompression_en.yaml', false, 'admin', '2020-01-01 00:00:00.000000', '/mep_capability/5275d443-2200-4901-98da-7ec3e66db5e1')
         ON CONFLICT(file_id) do nothing;
         INSERT INTO tbl_uploaded_file (file_id, file_name, is_temp, user_id, upload_date, file_path) VALUES
-        ('d089b6c6-1d6a-40be-93ea-f3b6f23c116a', 'service governance.jpg', false, 'admin', '2020-01-01 00:00:00.000000', '/mep_capability/images/service governance.jpg')
+        ('d089b6c6-1d6a-40be-93ea-f3b6f23c116a', 'lossless decompression.jpg', false, 'admin', '2020-01-01 00:00:00.000000', '/mep_capability/images/lossless decompression.jpg')
         ON CONFLICT(file_id) do nothing;
 
         INSERT INTO tbl_openmep_capability (group_id, one_level_name, one_level_name_en, two_level_name, two_level_name_en, type, description, description_en,icon_file_id, author, select_count, upload_time) VALUES
@@ -482,7 +482,7 @@
         ('e5f62364-fc24-4ad7-a8c7-ad838d400e08', 'distributed-database_en.yaml', false, 'admin', '2020-01-01 00:00:00.000000', '/mep_capability/e5f62364-fc24-4ad7-a8c7-ad838d400e08')
         ON CONFLICT(file_id) do nothing;
         INSERT INTO tbl_uploaded_file (file_id, file_name, is_temp, user_id, upload_date, file_path) VALUES
-        ('279ea090-e0a4-486e-895a-3c70097c240f', 'service governance.jpg', false, 'admin', '2020-01-01 00:00:00.000000', '/mep_capability/images/service governance.jpg')
+        ('279ea090-e0a4-486e-895a-3c70097c240f', 'data management.jpg', false, 'admin', '2020-01-01 00:00:00.000000', '/mep_capability/images/data management.jpg')
         ON CONFLICT(file_id) do nothing;
 
         INSERT INTO tbl_openmep_capability (group_id, one_level_name, one_level_name_en, two_level_name, two_level_name_en, type, description, description_en,icon_file_id, author, select_count, upload_time) VALUES
@@ -501,7 +501,7 @@
         ('e51fd154-0f0a-4a30-8fa2-fd7f83677aa8', 'jcseg_en.yaml', false, 'admin', '2020-01-01 00:00:00.000000', '/mep_capability/e51fd154-0f0a-4a30-8fa2-fd7f83677aa8')
         ON CONFLICT(file_id) do nothing;
         INSERT INTO tbl_uploaded_file (file_id, file_name, is_temp, user_id, upload_date, file_path) VALUES
-        ('6152aa6d-fe27-44f0-89ac-c0de5ae24349', 'service governance.jpg', false, 'admin', '2020-01-01 00:00:00.000000', '/mep_capability/images/service governance.jpg')
+        ('6152aa6d-fe27-44f0-89ac-c0de5ae24349', 'lightweight chword segmenter.jpg', false, 'admin', '2020-01-01 00:00:00.000000', '/mep_capability/images/lightweight chword segmenter.jpg')
         ON CONFLICT(file_id) do nothing;
 
         INSERT INTO tbl_openmep_capability (group_id, one_level_name, one_level_name_en, two_level_name, two_level_name_en, type, description, description_en,icon_file_id, author, select_count, upload_time) VALUES
@@ -520,7 +520,7 @@
         ('5e951098-44af-4408-bdba-93db5fbc6928', 'apisix_en.yaml', false, 'admin', '2020-01-01 00:00:00.000000', '/mep_capability/5e951098-44af-4408-bdba-93db5fbc6928')
         ON CONFLICT(file_id) do nothing;
         INSERT INTO tbl_uploaded_file (file_id, file_name, is_temp, user_id, upload_date, file_path) VALUES
-        ('537a5768-72e3-4234-ad18-b32ea1100583', 'service governance.jpg', false, 'admin', '2020-01-01 00:00:00.000000', '/mep_capability/images/service governance.jpg')
+        ('537a5768-72e3-4234-ad18-b32ea1100583', 'unified gateway.jpg', false, 'admin', '2020-01-01 00:00:00.000000', '/mep_capability/images/unified gateway.jpg')
         ON CONFLICT(file_id) do nothing;
 
         -- workspace ETSI capability init --
