@@ -22,6 +22,8 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+
+import java.io.File;
 import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
@@ -192,5 +194,22 @@ public class SystemImageMgmtController {
         LOGGER.info("merge system image file, systemId = {}, fileName = {}, identifier = {}",
             systemId, fileName, identifier);
         return systemImageMgmtService.mergeSystemImage(fileName, identifier, systemId);
+    }
+
+    /**
+     * download system image.
+     */
+    @ApiOperation(value = "download system image", response = File.class)
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK", response = File.class),
+            @ApiResponse(code = 400, message = "Bad Request", response = File.class)
+    })
+    @RequestMapping(value = "/images/{systemId}/download", method = RequestMethod.GET,
+            produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
+    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
+    public ResponseEntity<byte[]> downloadSystemImage(@ApiParam(value = "systemId", required = true) @PathVariable("systemId") Integer systemId) {
+        LOGGER.info("download system image file, systemId = {}",
+                systemId);
+        return systemImageMgmtService.downloadSystemImage(systemId);
     }
 }

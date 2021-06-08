@@ -1047,8 +1047,7 @@ public class VmService {
             try {
                 Gson gson = new Gson();
                 Map<String, String> uploadResultModel = gson.fromJson(uploadResult, Map.class);
-                String url = fileServerAddress + Consts.SYSTEM_IMAGE_DOWNLOAD_URL + uploadResultModel.get("imageId");
-                return url;
+                return fileServerAddress + String.format(Consts.SYSTEM_IMAGE_DOWNLOAD_URL, uploadResultModel.get("imageId"));
             } catch (JsonSyntaxException e) {
                 LOGGER.error("upload system image file failed.");
                 return null;

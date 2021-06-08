@@ -28,8 +28,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
 import org.springframework.web.multipart.MultipartFile;
 
 @Service("systemImageMgmtService")
@@ -184,10 +187,10 @@ public class SystemImageMgmtService {
             vmImage.setUserId(userId);
         }
         vmImage.setSystemId(systemId);
-        if (systemImageMapper.getSystemImagesPath(vmImage) != null) {
+        String systemPath = systemImageMapper.getSystemImagesPath(systemId);
+        if (systemPath != null) {
             try {
-                String systemPath = systemImageMapper.getSystemImagesPath(vmImage);
-                String url = systemPath.replace("download", "image");
+                String url = systemPath.substring(0, systemPath.length() - 16);
                 if (!HttpClientUtil.deleteSystemImage(url)) {
                     FormatRespDto error = new FormatRespDto(Response.Status.BAD_REQUEST, "delete SystemImage failed.");
                     return Either.left(error);
@@ -293,8 +296,8 @@ public class SystemImageMgmtService {
      */
     public ResponseEntity mergeSystemImage(String fileName, String identifier, Integer systemId) throws IOException {
         LOGGER.info("merge system image file, systemId = {}, fileName = {}, identifier = {}",
-            systemId, fileName, identifier);
-        String partFilePath = getUploadSysImageRootDir(systemId)  + identifier;
+                systemId, fileName, identifier);
+        String partFilePath = getUploadSysImageRootDir(systemId) + identifier;
         File partFileDir = new File(partFilePath);
         if (!partFileDir.exists() || !partFileDir.isDirectory()) {
             LOGGER.error("uploaded part file path not found!");
@@ -316,7 +319,19 @@ public class SystemImageMgmtService {
         }
         destTempfos.close();
         FileUtils.deleteDirectory(partFileDir);
-
+        String systemPath = systemImageMapper.getSystemImagesPath(systemId);
+        if (systemPath != null) {
+            try {
+                String url = systemPath.substring(0, systemPath.length() - 16);
+                if (!HttpClientUtil.deleteSystemImage(url)) {
+                    LOGGER.error("delete SystemImage failed!");
+                    return ResponseEntity.status(Response.Status.BAD_REQUEST.getStatusCode()).build();
+                }
+            } catch (Exception e) {
+                LOGGER.error("delete SystemImage failed!");
+                return ResponseEntity.status(Response.Status.EXPECTATION_FAILED.getStatusCode()).build();
+            }
+        }
         String uploadedSystemPath = pushSystemImage(mergedFile);
         if (StringUtils.isEmpty(uploadedSystemPath)) {
             LOGGER.error("push system image file failed!");
@@ -340,7 +355,7 @@ public class SystemImageMgmtService {
             try {
                 Gson gson = new Gson();
                 Map<String, String> uploadResultModel = gson.fromJson(uploadResult, Map.class);
-                return fileServerAddress + uploadResultModel.get("url");
+                return fileServerAddress + String.format(Consts.SYSTEM_IMAGE_DOWNLOAD_URL, uploadResultModel.get("imageId"));
             } catch (JsonSyntaxException e) {
                 LOGGER.error("upload system image file failed.");
                 return null;
@@ -358,5 +373,28 @@ public class SystemImageMgmtService {
     private boolean isAdminUser() {
         String currUserAuth = AccessUserUtil.getUser().getUserAuth();
         return !StringUtils.isEmpty(currUserAuth) && currUserAuth.contains(Consts.ROLE_DEVELOPER_ADMIN);
+    }
+
+    public ResponseEntity<byte[]> downloadSystemImage(Integer systemId) {
+        Assert.notNull(systemImageMapper.getSystemImagesPath(systemId), "systemPath is null");
+        try {
+            String systemPath = systemImageMapper.getSystemImagesPath(systemId);
+            String url = systemPath;
+            byte[] dataStream = HttpClientUtil.downloadSystemImage(url);
+            if (dataStream == null) {
+                LOGGER.error("download SystemImage failed!");
+                return null;
+            }
+            LOGGER.info("download SystemImage succeed!");
+            HttpHeaders headers = new HttpHeaders();
+            headers.add("Content-Type", MediaType.APPLICATION_OCTET_STREAM_VALUE);
+            VmSystem vmSystem = systemImageMapper.getVMImage(systemId);
+            String systemName = vmSystem.getSystemName();
+            headers.add("Content-Disposition", "attachment; filename=" + systemName + ".zip");
+            return ResponseEntity.ok().headers(headers).body(dataStream);
+        } catch (Exception e) {
+            LOGGER.error("download SystemImage failed!");
+            return null;
+        }
     }
 }
