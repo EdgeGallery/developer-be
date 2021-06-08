@@ -5,3 +5,6 @@ Entry-Definitions: Definition/MainServiceTemplate.yaml
 
 Name: Definition/MainServiceTemplate.yaml
 Content-Type: VNFD
+
+Name: Definition/nfv_vnfd_types_v1_0.yaml
+Content-Type: VNFD

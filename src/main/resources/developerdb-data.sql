@@ -81,7 +81,7 @@
         ON CONFLICT(operate_system) do nothing;
 
 --    INSERT INTO tbl_vm_system (system_id, system_name, type, operate_system,version,system_bit,system_disk,user_id,user_name,create_time,modify_time,system_format, upload_time,system_path,status) VALUES
---           (1, 'ubuntu-18.04', 'public', 'ubuntu', '18.04', '64', 40, '39937079-99fe-4cd8-881f-04ca8c4fe09d', 'admin', '2020-05-28 00:00:00.000000', '2020-05-28 00:00:00.000000', 'qcow2','2020-05-28 00:00:00.000000','http://192.168.100.33:9527/imagemanagement/v1/download?imageId=722a3d1bb9304b60805712f5bef2740e','PUBLISHED');
+--           (1, 'ubuntu-18.04', 'public', 'ubuntu', '18.04', '64', 40, '39937079-99fe-4cd8-881f-04ca8c4fe09d', 'admin', '2020-05-28 00:00:00.000000', '2020-05-28 00:00:00.000000', 'qcow2','2020-05-28 00:00:00.000000','http://192.168.100.33:9527/image-management/v1/images/41ec94915fb84ba29226c30ea73a0a58/action/download','PUBLISHED');
 
     -- workspace mep capability init --
 
