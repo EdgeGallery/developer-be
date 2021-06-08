@@ -187,9 +187,9 @@ public class SystemImageMgmtService {
             vmImage.setUserId(userId);
         }
         vmImage.setSystemId(systemId);
-        if (systemImageMapper.getSystemImagesPath(systemId) != null) {
+        String systemPath = systemImageMapper.getSystemImagesPath(systemId);
+        if (systemPath != null) {
             try {
-                String systemPath = systemImageMapper.getSystemImagesPath(systemId);
                 String url = systemPath.substring(0, systemPath.length() - 16);
                 if (!HttpClientUtil.deleteSystemImage(url)) {
                     FormatRespDto error = new FormatRespDto(Response.Status.BAD_REQUEST, "delete SystemImage failed.");
@@ -322,7 +322,7 @@ public class SystemImageMgmtService {
         String systemPath = systemImageMapper.getSystemImagesPath(systemId);
         if (systemPath != null) {
             try {
-                String url = systemPath.replace("download", "image");
+                String url = systemPath.substring(0, systemPath.length() - 16);
                 if (!HttpClientUtil.deleteSystemImage(url)) {
                     LOGGER.error("delete SystemImage failed!");
                     return ResponseEntity.status(Response.Status.BAD_REQUEST.getStatusCode()).build();
