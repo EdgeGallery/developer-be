@@ -832,7 +832,7 @@ public class VmService {
      */
     public File generateVmPackageByConfig(VmPackageConfig config) throws IOException, DomainException {
         ApplicationProject project = projectMapper.getProjectById(config.getProjectId());
-        String projectPath = getProjectPath(config.getProjectId());
+        String projectPath = projectService.getProjectPath(config.getProjectId());
         File csarPkgDir;
         csarPkgDir = new NewCreateVmCsar().create(projectPath, config, project);
         return CompressFileUtilsJava

@@ -1,10 +1,5 @@
-##################################################################################################################################
-#
-# Copyright Information：The file is China MobileG-VNFM VNFDSpecification definition file，The copyright and the right of final interpretation belong to China Mobile。
-#
-##################################################################################################################################
 tosca_definitions_version: tosca_simple_profile_yaml_1_2
-description: CMCC VNFD definitions version 1.0.0
+description: VNFD definitions version 1.0.0
 
 artifact_types:
   tosca.artifacts.nfv.SwImage:
