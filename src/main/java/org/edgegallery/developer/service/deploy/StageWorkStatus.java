@@ -25,6 +25,8 @@ import org.edgegallery.developer.model.deployyaml.PodEvents;
 import org.edgegallery.developer.model.deployyaml.PodEventsRes;
 import org.edgegallery.developer.model.deployyaml.PodStatusInfo;
 import org.edgegallery.developer.model.deployyaml.PodStatusInfos;
+import org.edgegallery.developer.model.deployyaml.ServiceInfo;
+import org.edgegallery.developer.model.deployyaml.ServicePort;
 import org.edgegallery.developer.model.workspace.ApplicationProject;
 import org.edgegallery.developer.model.workspace.EnumTestConfigStatus;
 import org.edgegallery.developer.model.workspace.MepHost;
@@ -36,6 +38,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 /**
  * StageWorkStatus.
@@ -102,11 +105,43 @@ public class StageWorkStatus implements IConfigDeployStage {
             //merge workStatus and workEvents
             String pods = mergeStatusAndEvents(workStatus, workEvents);
             config.setPods(pods);
+            //set access url
+            String accsessUrl = getAccessUrl(host, workStatus);
+            if (accsessUrl != null) {
+                config.setAccessUrl(accsessUrl.substring(0, accsessUrl.length() - 1));
+            }
             LOGGER.info("Query workload status response: {}", workStatus);
         }
         // update test-config
         projectService.updateDeployResult(config, project, "workStatus", status);
         return processStatus;
+    }
+
+    private String getAccessUrl(MepHost host, String workStatus) {
+        Type type = new TypeToken<PodStatusInfos>() { }.getType();
+        PodStatusInfos status = new Gson().fromJson(workStatus, type);
+        List<ServiceInfo> services = status.getServices();
+        StringBuilder sb = new StringBuilder();
+        if (!CollectionUtils.isEmpty(services)) {
+            for (ServiceInfo serviceInfo : services) {
+                ServicePort[] ports = serviceInfo.getPorts();
+                if (ports == null || ports.length == 0) {
+                    LOGGER.error("service {} not provide port configuration!", serviceInfo.getServiceName());
+                    return null;
+                }
+                for (ServicePort servicePort : ports) {
+                    String nodePort = servicePort.getNodePort();
+                    if (StringUtils.isEmpty(nodePort)) {
+                        LOGGER.error("service {}not provide nodePort!", serviceInfo.getServiceName());
+                        return null;
+                    }
+                    String node = "http://" + host.getLcmIp() + ":" + servicePort.getNodePort();
+                    sb.append(node + ",");
+                }
+            }
+        }
+        return sb.toString();
+
     }
 
     private String mergeStatusAndEvents(String workStatus, String workEvents) {

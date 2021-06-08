@@ -87,7 +87,6 @@ import org.edgegallery.developer.model.workspace.MepHost;
 import org.edgegallery.developer.model.workspace.MepHostLog;
 import org.edgegallery.developer.model.workspace.OpenMepCapabilityDetail;
 import org.edgegallery.developer.model.workspace.OpenMepCapabilityGroup;
-import org.edgegallery.developer.model.workspace.ProjectImageConfig;
 import org.edgegallery.developer.model.workspace.ProjectTestConfig;
 import org.edgegallery.developer.model.workspace.ProjectTestConfigStageStatus;
 import org.edgegallery.developer.model.workspace.UploadedFile;
@@ -454,8 +453,7 @@ public class ProjectService {
         MepHost host = hosts.get(0);
         String basePath = HttpClientUtil.getUrlPrefix(host.getProtocol(), host.getLcmIp(), host.getPort());
         boolean terminateResult = HttpClientUtil
-            .terminateAppInstance(basePath, testConfig.getAppInstanceId(),
-                userId, token);
+            .terminateAppInstance(basePath, testConfig.getAppInstanceId(), userId, token);
         if (!terminateResult) {
             LOGGER.error("Failed to terminate application which userId is: {}, instanceId is {}", userId,
                 testConfig.getAppInstanceId());
@@ -569,8 +567,7 @@ public class ProjectService {
         // upload pkg
         LcmLog lcmLog = new LcmLog();
         String basePath = HttpClientUtil.getUrlPrefix(host.getProtocol(), host.getLcmIp(), host.getPort());
-        String uploadRes = HttpClientUtil
-            .uploadPkg(basePath, csar.getPath(), userId, token, lcmLog);
+        String uploadRes = HttpClientUtil.uploadPkg(basePath, csar.getPath(), userId, token, lcmLog);
         if (org.springframework.util.StringUtils.isEmpty(uploadRes)) {
             testConfig.setErrorLog(lcmLog.getLog());
             return false;
@@ -582,9 +579,7 @@ public class ProjectService {
         testConfig.setPackageId(pkgId);
         projectMapper.updateTestConfig(testConfig);
         // distribute pkg
-        boolean distributeRes = HttpClientUtil
-            .distributePkg(basePath, userId, token, pkgId, host.getMecHost(),
-                lcmLog);
+        boolean distributeRes = HttpClientUtil.distributePkg(basePath, userId, token, pkgId, host.getMecHost(), lcmLog);
 
         if (!distributeRes) {
             testConfig.setErrorLog(lcmLog.getLog());
@@ -594,8 +589,8 @@ public class ProjectService {
         // instantiate application
         Map<String, String> inputParams = InputParameterUtil.getParams(host.getParameter());
         boolean instantRes = HttpClientUtil
-            .instantiateApplication(basePath, appInstanceId, userId, token,
-                lcmLog, pkgId, host.getMecHost(), inputParams);
+            .instantiateApplication(basePath, appInstanceId, userId, token, lcmLog, pkgId, host.getMecHost(),
+                inputParams);
         if (!instantRes) {
             testConfig.setErrorLog(lcmLog.getLog());
             return false;
@@ -1197,31 +1192,6 @@ public class ProjectService {
             project.setStatus(EnumProjectStatus.DEPLOYED);
             testConfig.setErrorLog("");
             testConfig.setDeployStatus(EnumTestConfigDeployStatus.SUCCESS);
-            //set access url
-            List<ProjectImageConfig> imageConfigs = projectImageMapper.getAllImage(project.getId());
-            if (!CollectionUtils.isEmpty(imageConfigs) && stage.equals("workStatus")) {
-                StringBuilder sb = new StringBuilder();
-                Type type = new TypeToken<List<MepHost>>() { }.getType();
-                List<MepHost> hosts = gson.fromJson(gson.toJson(testConfig.getHosts()), type);
-                MepHost host = hosts.get(0);
-                ProjectImageConfig imageConfig = imageConfigs.get(0);
-                LOGGER.warn("svcNodePort:" + imageConfig.getSvcNodePort());
-                if (imageConfig.getSvcNodePort().contains(",")) {
-                    String svcPort = imageConfig.getSvcNodePort();
-                    String[] svcNodePorts = svcPort.substring(1, svcPort.length() - 1).split(",");
-                    for (String svc : svcNodePorts) {
-                        String node = "http://" + host.getLcmIp() + ":" + svc;
-                        sb.append(node + ",");
-                    }
-                } else {
-                    String svcPort = imageConfig.getSvcNodePort();
-                    String node = "http://" + host.getLcmIp() + ":" + svcPort.substring(1, svcPort.length() - 1);
-                    sb.append(node + ",");
-                }
-                LOGGER.warn("sb:" + sb.toString());
-                testConfig.setAccessUrl(sb.toString().substring(0, sb.toString().length() - 1));
-            }
-
         } else if (EnumTestConfigStatus.Failed.equals(stageStatus)) {
             productUpdate = true;
             project.setStatus(EnumProjectStatus.DEPLOYED_FAILED);

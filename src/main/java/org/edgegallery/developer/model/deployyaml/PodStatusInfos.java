@@ -25,4 +25,6 @@ import lombok.Setter;
 public class PodStatusInfos {
 
     private List<PodStatusInfo> pods;
+
+    private List<ServiceInfo> services;
 }
