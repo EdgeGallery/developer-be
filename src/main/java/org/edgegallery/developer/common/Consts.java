@@ -90,9 +90,9 @@ public final class Consts {
 
     public static final String DEV_CLEAN_ENV_URL = "%s/mec/developer/v1/projects/%s/action/clean?userId=%s";
 
-    public static final String SYSTEM_IMAGE_UPLOAD_URL = "/imagemanagement/v1/upload";
+    public static final String SYSTEM_IMAGE_UPLOAD_URL = "/image-management/v1/images";
 
-    public static final String SYSTEM_IMAGE_DOWNLOAD_URL = "/imagemanagement/v1/download?imageId=";
+    public static final String SYSTEM_IMAGE_DOWNLOAD_URL = "/image-management/v1/images/%s/action/download";
 
     private Consts() {
     }

@@ -30,7 +30,7 @@ public interface SystemImageMapper {
 
     VmSystem getVMImage(Integer systemId);
 
-    String getSystemImagesPath(VmSystem VmSystem);
+    String getSystemImagesPath(Integer systemId);
 
     Integer getSystemNameCount(@Param("systemName") String systemName, @Param("systemId") Integer systemId, @Param("userId") String userId);
 

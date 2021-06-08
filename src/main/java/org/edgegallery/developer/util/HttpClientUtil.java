@@ -621,25 +621,40 @@ public final class HttpClientUtil {
      */
     public static Boolean deleteSystemImage(String url) {
         HttpHeaders headers = new HttpHeaders();
-        HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(null, headers);
+        HttpEntity<String> requestEntity = new HttpEntity<>(headers);
         ResponseEntity<String> response;
         try {
             REST_TEMPLATE.setErrorHandler(new CustomResponseErrorHandler());
             response = REST_TEMPLATE.exchange(url, HttpMethod.DELETE, requestEntity, String.class);
-            LOGGER.info("delete system image file success, resp = {}", response);
-        } catch (CustomException e) {
-            String errorLog = e.getBody();
-            LOGGER.error("Failed delete system image exception {}", errorLog);
-            return false;
         } catch (RestClientException e) {
             LOGGER.error("Failed delete system image exception {}", e.getMessage());
             return false;
         }
         if (response.getStatusCode() == HttpStatus.OK) {
+            LOGGER.info("delete system image file success, resp = {}", response);
             return true;
         }
         LOGGER.error("Failed to delete system image!");
         return false;
+    }
+
+    public static byte[] downloadSystemImage(String url) {
+        HttpHeaders headers = new HttpHeaders();
+        HttpEntity<String> requestEntity = new HttpEntity<>(headers);
+        ResponseEntity<byte[]> response;
+        try {
+            REST_TEMPLATE.setErrorHandler(new CustomResponseErrorHandler());
+            response = REST_TEMPLATE.exchange(url, HttpMethod.GET, requestEntity, byte[].class);
+        } catch (RestClientException e) {
+            LOGGER.error("Failed download system image exception {}", e.getMessage());
+            return null;
+        }
+        if (response.getStatusCode() == HttpStatus.OK) {
+            LOGGER.info("Download system image file success, resp = {}", response);
+            return response.getBody();
+        }
+        LOGGER.error("Failed to download system image!");
+        return null;
     }
 
 }
