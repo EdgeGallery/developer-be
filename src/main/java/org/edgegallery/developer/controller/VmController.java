@@ -228,6 +228,27 @@ public class VmController {
     }
 
     /**
+     * merge file.
+     */
+    @ApiOperation(value = "merge app file", response = ResponseEntity.class)
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = "OK", response = ResponseEntity.class),
+        @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
+    })
+    @RequestMapping(value = "/projects/{projectId}/vm/{vmId}/merge", method = RequestMethod.GET)
+    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
+    public ResponseEntity mergeAppFile(@RequestParam(value = "fileName", required = false) String fileName,
+        @RequestParam(value = "identifier", required = false) String identifier,
+        @ApiParam(value = "projectId", required = true) @PathVariable("projectId") String projectId,
+        @Pattern(regexp = REGEX_UUID, message = "userId must be in UUID format")
+        @ApiParam(value = "userId", required = true) @RequestParam("userId") String userId,
+        @Pattern(regexp = REGEX_UUID, message = "vmId must be in UUID format")
+        @ApiParam(value = "vmId", required = true) @PathVariable("vmId") String vmId) throws IOException {
+
+        return vmService.mergeAppFile(userId, projectId, vmId, fileName, identifier);
+    }
+
+    /**
      * download vm csar package.
      */
     @ApiOperation(value = "download vm csar package.", response = File.class)
