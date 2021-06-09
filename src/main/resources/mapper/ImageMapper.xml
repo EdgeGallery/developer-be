@@ -55,7 +55,7 @@
         tbl_vm_system
         <where>
             <if test="userId != null and userId !=''">
-                and (user_id = #{userId} or type == 'public')
+                and (user_id = #{userId} or type = 'public')
             </if>
             <if test="operateSystem != null and operateSystem !=''">
                 and lower(operate_system) like lower(CONCAT('%', #{operateSystem}, '%'))
@@ -95,7 +95,7 @@
         WHERE
         1 = 1
         <if test="userId != null and userId !=''">
-            and (user_id = #{userId} or type == 'public')
+            and (user_id = #{userId} or type = 'public')
         </if>
         <if test="operateSystem != null and operateSystem!=''">
             and lower(operate_system) like lower(CONCAT('%', #{operateSystem}, '%'))
