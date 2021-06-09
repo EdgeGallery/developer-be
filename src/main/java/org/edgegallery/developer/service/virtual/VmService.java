@@ -29,6 +29,7 @@ import com.google.gson.reflect.TypeToken;
 import com.spencerwi.either.Either;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -481,17 +482,38 @@ public class VmService {
         InputStream inputStream = file.getInputStream();
         FileUtils.copyInputStreamToFile(inputStream, outFile);
 
-        String partFilePath = getUploadFileRootDir()  + chunk.getIdentifier();
+        return Either.right(true);
+
+
+    }
+
+    /**
+     * upload app file to vm.
+     */
+
+    public ResponseEntity mergeAppFile(String userId, String projectId, String vmId, String fileName, String identifier)
+        throws IOException {
+        ApplicationProject project = projectMapper.getProject(userId, projectId);
+        if (project == null) {
+            LOGGER.error("Can not find the project by userId {} and projectId {}", userId, projectId);
+            FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "Can not find the project.");
+            return ResponseEntity.badRequest().build();
+        }
+        VmCreateConfig vmCreateConfig = vmConfigMapper.getVmCreateConfig(projectId, vmId);
+        if (vmCreateConfig == null) {
+            LOGGER.info("Can not find the vm create config by vmId {} and projectId {}", vmId, projectId);
+            return ResponseEntity.badRequest().build();
+        }
+        String partFilePath = getUploadFileRootDir()  + identifier;
         File partFileDir = new File(partFilePath);
 
         File[] partFiles = partFileDir.listFiles();
         if (partFiles == null || partFiles.length == 0) {
             LOGGER.error("uploaded part file not found!");
-            FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "uploaded part file not found!");
-            return Either.left(error);
+            return ResponseEntity.badRequest().build();
         }
 
-        File mergedFile = new File(getUploadFileRootDir() + File.separator + chunk.getFilename());
+        File mergedFile = new File(getUploadFileRootDir() + File.separator + fileName);
         FileOutputStream destTempfos = new FileOutputStream(mergedFile, true);
         for (File partFile : partFiles) {
             FileUtils.copyFile(partFile, destTempfos);
@@ -503,12 +525,9 @@ public class VmService {
         if (!pushFileToVmRes) {
             LOGGER.error("push app file failed!");
             FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "push app file failed!");
-            return Either.left(error);
+            return ResponseEntity.badRequest().build();
         }
-
-        return Either.right(true);
-
-
+        return ResponseEntity.ok().build();
     }
 
     /**
