@@ -181,7 +181,6 @@ public class SystemImageMgmtService {
     public Either<FormatRespDto, Boolean> deleteSystemImage(Integer systemId) throws Exception {
         LOGGER.info("Delete SystemImage start");
         VmSystem vmImage = new VmSystem();
-        String userName = AccessUserUtil.getUser().getUserName();
         String userId = AccessUserUtil.getUser().getUserId();
         if (!isAdminUser()) {
             vmImage.setUserId(userId);
@@ -362,7 +361,9 @@ public class SystemImageMgmtService {
             }
         } finally {
             LOGGER.info("delete system image file.");
-            systemImgFile.delete();
+            if (!systemImgFile.delete()) {
+                LOGGER.error("delete system image finished");
+            }
         }
     }
 
