@@ -362,7 +362,7 @@ public class SystemImageMgmtService {
         } finally {
             LOGGER.info("delete system image file.");
             if (!systemImgFile.delete()) {
-                LOGGER.error("delete system image finished");
+                LOGGER.error("delete system image failed.");
             }
         }
     }
