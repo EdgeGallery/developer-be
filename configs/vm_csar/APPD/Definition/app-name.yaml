@@ -31,7 +31,7 @@ topology_template:
       default: 1234
       description: SK
     mep_certificate:
-      type: text
+      type: string
       default: YHXGFTWU!@$%@&%#(DH(122479+_)
       description: MEP Certificate
     app_mp1_ip:
@@ -93,7 +93,7 @@ topology_template:
       description: network_mep_vlanid
     network_name_n6:
       type: string
-      default: mec_newwork_n6
+      default: mec_network_n6
       description: network_name_n6
     network_n6_physnet:
       type: string
@@ -105,7 +105,7 @@ topology_template:
       description: network_n6_vlanid
     network_name_internet:
       type: string
-      default: mec_newwork_internet
+      default: mec_network_internet
       description: network_name_internet
     network_internet_physnet:
       type: string
