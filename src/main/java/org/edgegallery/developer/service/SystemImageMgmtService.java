@@ -73,6 +73,14 @@ public class SystemImageMgmtService {
             if (queryCtrl.getSortOrder() == null) {
                 queryCtrl.setSortBy("DESC");
             }
+            String createTimeBegin = mepGetSystemImageReq.getCreateTimeBegin();
+            String createTimeEnd = mepGetSystemImageReq.getCreateTimeEnd();
+            if (!StringUtils.isBlank(createTimeBegin)) {
+                mepGetSystemImageReq.setCreateTimeBegin(createTimeBegin + " 00:00:00");
+            }
+            if (!StringUtils.isBlank(createTimeEnd)) {
+                mepGetSystemImageReq.setCreateTimeEnd(createTimeEnd + " 23:59:59");
+            }
             mepGetSystemImageReq.setQueryCtrl(queryCtrl);
             MepGetSystemImageRes mepGetSystemImageRes = new MepGetSystemImageRes();
             mepGetSystemImageRes.setTotalCount(systemImageMapper.getSystemImagesCount(mepGetSystemImageReq));
