@@ -92,7 +92,7 @@ public final class HttpClientUtil {
         ins.setAppName(appName);
         ins.setHostIp(mecHost);
         ins.setPackageId(pkgId);
-        ins.setInputParams(inputParams);
+        ins.setParameters(inputParams);
         LOGGER.warn(gson.toJson(ins));
         HttpEntity<String> requestEntity = new HttpEntity<>(gson.toJson(ins), headers);
         String url = basePath + Consts.APP_LCM_INSTANTIATE_APP_URL

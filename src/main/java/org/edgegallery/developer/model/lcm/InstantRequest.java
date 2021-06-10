@@ -30,5 +30,5 @@ public class InstantRequest {
 
     private String packageId;
 
-    private Map<String, String> inputParams;
+    private Map<String, String> parameters;
 }

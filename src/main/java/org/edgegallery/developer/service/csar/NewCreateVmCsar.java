@@ -216,7 +216,7 @@ public class NewCreateVmCsar {
         imageDesc.setMinDisk(3);
         imageDesc.setMinRam(6);
         if (project.getPlatform().get(0).equals("X86")) {
-            imageDesc.setArchitecture("");
+            imageDesc.setArchitecture("x86_64");
         }else {
             imageDesc.setArchitecture("aarch64");
         }
