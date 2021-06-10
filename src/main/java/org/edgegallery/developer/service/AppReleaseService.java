@@ -95,12 +95,6 @@ public class AppReleaseService {
                 fileContent = readFileIntoString(path);
             }
         }
-        if (fileContent.equals("")) {
-            LOGGER.warn("file has not any content!");
-            FormatRespDto error = new FormatRespDto(Response.Status.BAD_REQUEST, "file is null!");
-            return Either.left(error);
-        }
-
         if (fileContent.equals("error")) {
             LOGGER.warn("file is not readable!");
             FormatRespDto error = new FormatRespDto(Response.Status.BAD_REQUEST, "file is not readable!");
