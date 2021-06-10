@@ -70,10 +70,10 @@
                 and type = #{type}
             </if>
             <if test="createTimeBegin != null and createTimeBegin != ''">
-                <![CDATA[ and create_time >= to_timestamp(#{createTimeBegin}, 'YYYY-MM-DD') ]]>
+                <![CDATA[ and create_time >= to_timestamp(#{createTimeBegin}, 'YYYY-MM-DD HH24:MI:SS') ]]>
             </if>
             <if test="createTimeEnd != null and createTimeEnd != ''">
-                <![CDATA[ and create_time <= to_timestamp(#{createTimeEnd}, 'YYYY-MM-DD') ]]>
+                <![CDATA[ and create_time <= to_timestamp(#{createTimeEnd}, 'YYYY-MM-DD HH24:MI:SS') ]]>
             </if>
         </where>
         <if test="queryCtrl != null">
@@ -110,10 +110,10 @@
             and type = #{type}
         </if>
         <if test="createTimeBegin != null and createTimeBegin != ''">
-            <![CDATA[ and create_time >= to_timestamp(#{createTimeBegin}, 'YYYY-MM-DD') ]]>
+            <![CDATA[ and create_time >= to_timestamp(#{createTimeBegin}, 'YYYY-MM-DD HH24:MI:SS') ]]>
         </if>
         <if test="createTimeEnd != null and createTimeEnd != ''">
-            <![CDATA[ and create_time <= to_timestamp(#{createTimeEnd}, 'YYYY-MM-DD') ]]>
+            <![CDATA[ and create_time <= to_timestamp(#{createTimeEnd}, 'YYYY-MM-DD HH24:MI:SS') ]]>
         </if>
     </select>
 
