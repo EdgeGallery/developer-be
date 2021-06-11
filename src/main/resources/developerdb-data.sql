@@ -773,4 +773,9 @@
         INSERT INTO tbl_uploaded_file (file_id, file_name, is_temp, user_id, upload_date, file_path) VALUES
         ('6dc35a61-9120-48f6-8b46-3e9343fefc14', 'service governance.jpg', false, 'admin', '2020-01-01 00:00:00.000000', '/mep_capability/images/service governance.jpg')
         ON CONFLICT(file_id) do nothing;
+
+        ---add default open service img
+        INSERT INTO tbl_uploaded_file (file_id, file_name, is_temp, user_id, upload_date, file_path) VALUES
+        ('20aeed6a-f05f-4789-94b5-8a50db67d096', 'default service.jpg', false, 'admin', '2020-01-01 00:00:00.000000', '/mep_capability/images/default service.jpg')
+        ON CONFLICT(file_id) do nothing;
         -- workspace mep capability init end--
