@@ -153,7 +153,7 @@ topology_template:
             virtual_local_storage:
               size_of_storage: <size_of_storage>
       properties:
-        name: eulerforTR6_iso_arm_EMS_VDU1
+        name: <properties_name>
         description: EMS_VDU1 node
         nfvi_constraints: {get_input: az_dc}
         vdu_profile:

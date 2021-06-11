@@ -524,7 +524,7 @@ public class ProjectService {
         String projectPath = getProjectPath(projectId);
         String projectName = project.getName().replaceAll(Consts.PATTERN, "").toLowerCase();
         String configMapName = "mepagent" + UUID.randomUUID().toString();
-        //        String namespace = projectName + UUID.randomUUID().toString().substring(0, 8);
+        String namespace = projectName + UUID.randomUUID().toString().substring(0, 8);
         List<HelmTemplateYamlPo> yamlPoList = helmTemplateYamlMapper.queryTemplateYamlByProjectId(userId, projectId);
         File csarPkgDir;
         if (!CollectionUtils.isEmpty(yamlPoList)) {
@@ -533,10 +533,10 @@ public class ProjectService {
             chartFileCreator.setChartName(projectName);
             if (mepCapability == null || mepCapability.isEmpty()) {
                 chartFileCreator
-                    .setChartValues("false", "false", "default", configMapName, imageDomainName, imageProject);
+                    .setChartValues("false", "true", namespace, configMapName, imageDomainName, imageProject);
             } else {
                 chartFileCreator
-                    .setChartValues("true", "false", "default", configMapName, imageDomainName, imageProject);
+                    .setChartValues("true", "true", namespace, configMapName, imageDomainName, imageProject);
             }
             //stop
             yamlPoList.forEach(helmTemplateYamlPo -> chartFileCreator
@@ -1391,6 +1391,9 @@ public class ProjectService {
             List<MepHost> hosts = gson.fromJson(gson.toJson(testConfig.getHosts()), type);
             MepHost host = hosts.get(0);
             String basePath = HttpClientUtil.getUrlPrefix(host.getProtocol(), host.getLcmIp(), host.getPort());
+            if (StringUtils.isNotEmpty(workloadId)) {
+                HttpClientUtil.terminateAppInstance(basePath, workloadId, userId, token);
+            }
             if (StringUtils.isNotEmpty(testConfig.getPackageId())) {
                 // delete hosts
                 boolean deleteHostRes = HttpClientUtil
@@ -1402,12 +1405,8 @@ public class ProjectService {
                     return false;
                 }
             }
-            if (StringUtils.isNotEmpty(workloadId)) {
-                boolean terminateApp = HttpClientUtil.terminateAppInstance(basePath, workloadId, userId, token);
-                if (!terminateApp) {
-                    return false;
-                }
-            }
+
+
         }
 
         return true;
