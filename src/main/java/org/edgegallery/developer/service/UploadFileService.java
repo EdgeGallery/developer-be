@@ -636,6 +636,11 @@ public class UploadFileService {
         DockerClient dockerClient = getDockerClient(devRepoEndpoint, devRepoUsername, devRepoPassword);
         for (String image : imageList) {
             LOGGER.info("deploy yaml image: {}", image);
+            //judge image in format
+            if (!image.contains(":") || image.endsWith(":")) {
+                LOGGER.error("image {} must be in xxx:xxx format!", image);
+                return false;
+            }
             //The image format is{{.Values.imagelocation.domainname}}/{{.Values.imagelocation.project}}/name:tag
             // Or forharborWarehouse Address
             String envStr = "{{.Values.imagelocation.domainname}}/{{.Values.imagelocation.project}}";
