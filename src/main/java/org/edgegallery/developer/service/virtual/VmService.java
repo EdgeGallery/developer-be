@@ -352,8 +352,10 @@ public class VmService {
         String appInstanceId = vmConfig.getAppInstanceId();
         Type type = new TypeToken<MepHost>() { }.getType();
         MepHost host = gson.fromJson(gson.toJson(vmConfig.getHost()), type);
-        // delete hosts
         String basePath = HttpClientUtil.getUrlPrefix(host.getProtocol(), host.getLcmIp(), host.getPort());
+        boolean terminateApp = HttpClientUtil
+            .terminateAppInstance(basePath, appInstanceId, userId, lcmToken);
+        // delete hosts
         boolean deleteHostRes = HttpClientUtil
             .deleteHost(basePath, userId, lcmToken, vmConfig.getPackageId(),
                 host.getMecHost());
@@ -362,8 +364,6 @@ public class VmService {
         boolean deletePkgRes = HttpClientUtil
             .deletePkg(basePath, userId, lcmToken, vmConfig.getPackageId());
 
-        boolean terminateApp = HttpClientUtil
-            .terminateAppInstance(basePath, appInstanceId, userId, lcmToken);
         if (!terminateApp || !deleteHostRes || !deletePkgRes) {
             return false;
         }
