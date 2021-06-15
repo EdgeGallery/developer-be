@@ -594,16 +594,18 @@ public class UploadFileService {
                     addService(mapList, svcTypes, svcNodePorts, svcPorts);
                     addPodImage(mapList, podImages);
                 }
-                //verify image info
-                LOGGER.warn("podImages {}", podImages);
-                boolean result = verifyImage(podImages);
-                if (!result) {
-                    LOGGER.error("the image configuration in the yaml file is incorrect");
-                    return false;
-                }
+
             }
         } catch (DomainException e) {
             LOGGER.error("Yaml deserialization failed {}", e.getMessage());
+            return false;
+        }
+
+        //verify image info
+        LOGGER.warn("podImages {}", podImages);
+        boolean result = verifyImage(podImages);
+        if (!result) {
+            LOGGER.error("the image configuration in the yaml file is incorrect");
             return false;
         }
         List<ProjectImageConfig> listImage = projectImageMapper.getAllImage(projectId);
