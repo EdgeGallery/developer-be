@@ -29,8 +29,6 @@ public class VmImageInfo {
 
     private String imageName;
 
-    private String appInstanceId;
-
     private String status;
 
     private Integer sumChunkNum;

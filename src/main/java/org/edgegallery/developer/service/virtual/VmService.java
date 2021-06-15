@@ -122,7 +122,7 @@ public class VmService {
 
     private static final String TEMPLATE_TOSCA_METADATA_PATH = "/TOSCA-Metadata/TOSCA.meta";
 
-    private static final String TEMPLATE_TOSCA_IMAGE_DESC_PATH = "Image/SwImageDesc.json";
+    private static final String TEMPLATE_TOSCA_IMAGE_DESC_PATH = "/SwImageDesc.json";
 
     @Autowired
     private VmConfigMapper vmConfigMapper;
@@ -754,9 +754,9 @@ public class VmService {
             LOGGER.error("Delete vm image config {} failed.", vmCreateConfig.getVmId());
             return Either.left(new FormatRespDto(Response.Status.BAD_REQUEST, "Delete vm image config failed."));
         }
-        String packagePath = projectService.getProjectPath(vmImageConfig.getProjectId()) + vmImageConfig
-            .getAppInstanceId() + File.separator + "Image";
-        FileUtils.deleteQuietly(new File(packagePath + File.separator + vmImageConfig.getImageName() + ".zip"));
+//        String packagePath = projectService.getProjectPath(vmImageConfig.getProjectId()) + vmImageConfig
+//            .getAppInstanceId() + File.separator + "Image";
+//        FileUtils.deleteQuietly(new File(packagePath + File.separator + vmImageConfig.getImageName() + ".zip"));
 
         LOGGER.info("delete vm create config success");
         return Either.right(true);
@@ -892,54 +892,46 @@ public class VmService {
      */
     public boolean downloadImageResult(MepHost host, VmImageConfig config, String userId) {
 
-        String packagePath = projectService.getProjectPath(config.getProjectId()) + config.getAppInstanceId();
-        LOGGER.info(packagePath);
+        String imagePath = projectService.getProjectPath(config.getProjectId()) + config.getAppInstanceId() + "/Image";
+        LOGGER.info(imagePath);
         String basePath = HttpClientUtil.getUrlPrefix(host.getProtocol(), host.getLcmIp(), host.getPort());
-        for (int chunkNum = 0; chunkNum < config.getSumChunkNum(); chunkNum++) {
+        int chunkNum;
+        for(chunkNum=0; chunkNum < config.getSumChunkNum(); chunkNum++) {
             LOGGER.info("download image chunkNum:{}", chunkNum);
             boolean res = HttpClientUtil
-                .downloadVmImage(basePath, userId, packagePath,
+                .downloadVmImage(basePath, userId, imagePath,
                     config.getAppInstanceId(), config.getImageId(), config.getImageName(), Integer.toString(chunkNum),
                     config.getLcmToken());
-            if (!res) {
-                LOGGER.info("no more data");
+            if ( chunkNum < (config.getSumChunkNum()-2) && !res) {
+                LOGGER.info("download image chunkNum:{} fail",chunkNum);
                 config.setLog("no more data");
-                break;
+                return false;
             }
-//            if (chunkNum == 0) {
-//                try {
-//                    Thread.sleep(10000);
-//                } catch (InterruptedException e) {
-//                    Thread.currentThread().interrupt();
-//                    LOGGER.error("sleep fail! {}", e.getMessage());
-//                }
-//            }
             if (chunkNum % 10 == 0) {
                 config.setLog("download image file:" + chunkNum + "/" + config.getSumChunkNum());
                 vmConfigMapper.updateVmImageConfig(config);
             }
         }
 
+
         // merge image file
 
-        String imagePath = packagePath + File.separator + config.getImageName();
-        LOGGER.info("image file path:{}", imagePath);
+        String mergePath = imagePath + File.separator + config.getImageName();
+        LOGGER.info("image file path:{}", mergePath);
         try {
-            File file = new File(imagePath);
+            File file = new File(mergePath);
             if (file.isDirectory()) {
                 File[] files = file.listFiles();
                 if (files != null && files.length > 0) {
-                    File partFile = new File(imagePath + File.separator + config.getImageName() + ".qcow2");
+                    File partFile = new File(mergePath + File.separator + config.getImageName() + ".qcow2");
                     for (int i = 0; i < files.length; i++) {
-                        File s = new File(imagePath, "temp_" + i);
+                        File s = new File(mergePath, "temp_" + i);
                         FileOutputStream destTempfos = new FileOutputStream(partFile, true);
                         FileUtils.copyFile(s, destTempfos);
                         destTempfos.close();
                         FileUtils.deleteQuietly(s);
                     }
                 }
-                CompressFileUtilsJava.compressToZip(imagePath, packagePath, config.getImageName());
-                FileUtils.deleteDirectory(new File(imagePath));
             }
 
         } catch (IOException e) {
@@ -947,20 +939,23 @@ public class VmService {
             return false;
         }
 
-        // todo upload image to image management
-        File mergedFile = new File(packagePath + File.separator + config.getImageName() + ".zip");
+        // upload image to image management
+        File mergedFile = new File(mergePath + File.separator + config.getImageName() + ".qcow2");
         String downloadSystemPath = pushSystemImage(mergedFile);
         if (StringUtils.isEmpty(downloadSystemPath)) {
             LOGGER.error("push system image file failed!");
             return false;
         }
-
-        // todo save to systemImage
-
-
+        // delete image file
+        try {
+            FileUtils.deleteDirectory(new File(mergePath));
+        }catch (IOException e) {
+            LOGGER.error("delete image file fail:{}.", e.getMessage());
+            return false;
+        }
 
         // modify image file
-        File swImageDesc = new File(packagePath + TEMPLATE_TOSCA_IMAGE_DESC_PATH);
+        File swImageDesc = new File(imagePath + TEMPLATE_TOSCA_IMAGE_DESC_PATH);
         try {
             List<ImageDesc> swImgDescs = getSwImageDescrInfo(
                 FileUtils.readFileToString(swImageDesc, StandardCharsets.UTF_8));
