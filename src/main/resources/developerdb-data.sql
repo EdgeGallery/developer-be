@@ -187,7 +187,7 @@
         ('e0eacedb-e94f-4f13-a616-e8a58335f017', '拥塞检测', 'Congestion Detection', 'v1', 'EdgeGallery平台为APP提供了实时拥塞调度，达到最佳业务体验。', 'The EdgeGallery platform provides real-time congestion scheduling for APP to achieve the best business experience.', 'Huawei', 'eab41d0f-63ee-4200-89c2-d4de463793ff', '67f709a0-e269-465a-a540-c7a8f4c685d8', 'e2d758e5-4454-4645-ba3a-7aeecfe3f827', '335c21ce-7768-44ee-8627-bf0af40e1a25', 0, 'congestion-detection', 'http', '2020-11-20 00:00:00.000000', 'admin')
         ON CONFLICT(detail_id) do nothing;
         INSERT INTO tbl_uploaded_file (file_id, file_name, is_temp, user_id, upload_date, file_path) VALUES
-        ('67f709a0-e269-465a-a540-c7a8f4c685d8', 'CongestionDetectionDoc.md', false, 'admin', '2020-01-01 00:00:00.000000', '/mep_capability/CongestionDetectionDoc.md')
+        ('67f709a0-e269-465a-a540-c7a8f4c685d8', 'CongestionDetectionDoc.yaml', false, 'admin', '2020-01-01 00:00:00.000000', '/mep_capability/CongestionDetectionDoc.yaml')
         ON CONFLICT(file_id) do nothing;
         INSERT INTO tbl_uploaded_file (file_id, file_name, is_temp, user_id, upload_date, file_path) VALUES
         ('e2d758e5-4454-4645-ba3a-7aeecfe3f827', 'CongestionDetectionDoc.md', false, 'admin', '2020-01-01 00:00:00.000000', '/mep_capability/CongestionDetectionDoc.md')

@@ -572,6 +572,10 @@ public class UploadFileService {
         }
         String[] multiContent = content.split("---");
         List<Map<String, Object>> mapList = new ArrayList<>();
+        List<String> podImages = new ArrayList<>();
+        List<String> svcTypes = new ArrayList<>();
+        List<String> svcNodePorts = new ArrayList<>();
+        List<String> svcPorts = new ArrayList<>();
         try {
             for (String str : multiContent) {
                 if (StringUtils.isBlank(str)) {
@@ -580,30 +584,26 @@ public class UploadFileService {
                 Yaml yaml = new Yaml(new SafeConstructor());
                 Map<String, Object> loaded = yaml.load(str);
                 mapList.add(loaded);
+                //verify image
+                if (str.contains("kind: Deployment")) {
+                    addService(mapList, svcTypes, svcNodePorts, svcPorts);
+                    addDeployImage(mapList, podImages);
+                }
+
+                if (str.contains("kind: Pod")) {
+                    addService(mapList, svcTypes, svcNodePorts, svcPorts);
+                    addPodImage(mapList, podImages);
+                }
+                //verify image info
+                LOGGER.warn("podImages {}", podImages);
+                boolean result = verifyImage(podImages);
+                if (!result) {
+                    LOGGER.error("the image configuration in the yaml file is incorrect");
+                    return false;
+                }
             }
         } catch (DomainException e) {
             LOGGER.error("Yaml deserialization failed {}", e.getMessage());
-            return false;
-        }
-
-        List<String> podImages = new ArrayList<>();
-        List<String> svcTypes = new ArrayList<>();
-        List<String> svcNodePorts = new ArrayList<>();
-        List<String> svcPorts = new ArrayList<>();
-        if (content.contains("kind: Deployment")) {
-            addService(mapList, svcTypes, svcNodePorts, svcPorts);
-            addDeployImage(mapList, podImages);
-        }
-
-        if (content.contains("kind: Pod")) {
-            addService(mapList, svcTypes, svcNodePorts, svcPorts);
-            addPodImage(mapList, podImages);
-        }
-        //verify image info
-        LOGGER.warn("podImages {}", podImages);
-        boolean result = verifyImage(podImages);
-        if (!result) {
-            LOGGER.error("the image configuration in the yaml file is incorrect");
             return false;
         }
         List<ProjectImageConfig> listImage = projectImageMapper.getAllImage(projectId);
@@ -636,6 +636,11 @@ public class UploadFileService {
         DockerClient dockerClient = getDockerClient(devRepoEndpoint, devRepoUsername, devRepoPassword);
         for (String image : imageList) {
             LOGGER.info("deploy yaml image: {}", image);
+            //judge image in format
+            if (!image.contains(":") || image.endsWith(":")) {
+                LOGGER.error("image {} must be in xxx:xxx format!", image);
+                return false;
+            }
             //The image format is{{.Values.imagelocation.domainname}}/{{.Values.imagelocation.project}}/name:tag
             // Or forharborWarehouse Address
             String envStr = "{{.Values.imagelocation.domainname}}/{{.Values.imagelocation.project}}";
