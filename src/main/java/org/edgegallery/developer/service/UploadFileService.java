@@ -588,19 +588,29 @@ public class UploadFileService {
                 if (str.contains("kind: Deployment")) {
                     addService(mapList, svcTypes, svcNodePorts, svcPorts);
                     addDeployImage(mapList, podImages);
+                    //verify image info
+                    LOGGER.warn("podImages {}", podImages);
+                    boolean result = verifyImage(podImages);
+                    if (!result) {
+                        LOGGER.error("the image configuration in the yaml file is incorrect");
+                        return false;
+                    }
+                    podImages.clear();
                 }
 
                 if (str.contains("kind: Pod")) {
                     addService(mapList, svcTypes, svcNodePorts, svcPorts);
                     addPodImage(mapList, podImages);
+                    //verify image info
+                    LOGGER.warn("podImages {}", podImages);
+                    boolean result = verifyImage(podImages);
+                    if (!result) {
+                        LOGGER.error("the image configuration in the yaml file is incorrect");
+                        return false;
+                    }
+                    podImages.clear();
                 }
-                //verify image info
-                LOGGER.warn("podImages {}", podImages);
-                boolean result = verifyImage(podImages);
-                if (!result) {
-                    LOGGER.error("the image configuration in the yaml file is incorrect");
-                    return false;
-                }
+
             }
         } catch (DomainException e) {
             LOGGER.error("Yaml deserialization failed {}", e.getMessage());
