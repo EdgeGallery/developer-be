@@ -297,7 +297,7 @@
         ON CONFLICT(file_id) do nothing;
 
         INSERT INTO tbl_openmep_capability (group_id, one_level_name, one_level_name_en, two_level_name, two_level_name_en, type, description, description_en,icon_file_id, author, select_count, upload_time) VALUES
-        ('b8ddc4c4-07ca-4b49-a3dd-c018f120bff9', '昇腾AI能力', 'Ascend AI', '模糊图像变清晰', 'Blur2Sharp', 'OPENMEP', '模糊图像变清晰。', 'Blur2Sharp.','99b010d0-77fd-44a7-a667-439dd8ad18b4','admin',0,'2021-06-14 17:48:00.384+08')
+        ('b8ddc4c4-07ca-4b49-a3dd-c018f120bff9', '昇腾AI能力', 'Ascend AI', '模糊图像变清晰', 'Blur2Sharp', 'OPENMEP', '通过锐化算法生成更清晰的图像。', 'Blur2Sharp.','99b010d0-77fd-44a7-a667-439dd8ad18b4','admin',0,'2021-06-14 17:48:00.384+08')
         ON CONFLICT(group_id) do nothing;
         INSERT INTO tbl_openmep_capability_detail (detail_id, service, service_en, version, description, description_en, provider, group_id, api_file_id, guide_file_id, guide_file_id_en, port, host, protocol, upload_time, user_id) VALUES
         ('0610e038-f956-458b-98fc-ef49bcefd79g', '模糊图像变清晰', 'Blur2Sharp', 'v1', '', '', 'Huawei', 'b8ddc4c4-07ca-4b49-a3dd-c018f120bff9', '84acf7bb-3e78-489a-90dc-95784b2dae0e', 'bd4346ba-e4c3-4c51-82df-beacf6481b59', 'bd4346ba-e4c3-4c51-82df-beacf6481b59', 0, '', 'http', '2021-3-13 00:00:00.000000', 'admin')
@@ -313,7 +313,7 @@
         ON CONFLICT(file_id) do nothing;
 
         INSERT INTO tbl_openmep_capability (group_id, one_level_name, one_level_name_en, two_level_name, two_level_name_en, type, description, description_en,icon_file_id, author, select_count, upload_time) VALUES
-        ('b8ddc4c4-07ca-4b49-a3dd-c018f120bff1', '昇腾AI能力', 'Ascend AI', '图像剪裁', 'Crop An Image', 'OPENMEP', '图像剪裁。', 'Crop An Image.','cde646d6-4954-4305-b745-408dfeda83ca','admin',0,'2021-06-14 17:47:00.384+08')
+        ('b8ddc4c4-07ca-4b49-a3dd-c018f120bff1', '昇腾AI能力', 'Ascend AI', '图像剪裁', 'Crop An Image', 'OPENMEP', '选中图像指定区域，生成新的图像。', 'Crop An Image.','cde646d6-4954-4305-b745-408dfeda83ca','admin',0,'2021-06-14 17:47:00.384+08')
         ON CONFLICT(group_id) do nothing;
         INSERT INTO tbl_openmep_capability_detail (detail_id, service, service_en, version, description, description_en, provider, group_id, api_file_id, guide_file_id, guide_file_id_en, port, host, protocol, upload_time, user_id) VALUES
         ('0610e038-f956-458b-98fc-ef49bcefd791', '图像剪裁', 'Crop An Image', 'v1', '', '', 'Huawei', 'b8ddc4c4-07ca-4b49-a3dd-c018f120bff1', '84acf7bb-3e78-489a-90dc-95784b2dae01', 'bd4346ba-e4c3-4c51-82df-beacf6481b51', 'bd4346ba-e4c3-4c51-82df-beacf6481b51', 0, '', 'http', '2021-3-13 00:00:00.000000', 'admin')
@@ -329,7 +329,7 @@
         ON CONFLICT(file_id) do nothing;
 
         INSERT INTO tbl_openmep_capability (group_id, one_level_name, one_level_name_en, two_level_name, two_level_name_en, type, description, description_en,icon_file_id, author, select_count, upload_time) VALUES
-        ('b8ddc4c4-07ca-4b49-a3dd-c018f120bff3', '昇腾AI能力', 'Ascend AI', '图像除雾', 'Dehaze an Image', 'OPENMEP', '图像除雾。', 'Dehaze an Image.','e37c0ca9-f048-4520-80e1-7f84fe5bd053','admin',0,'2021-06-14 17:46:00.384+08')
+        ('b8ddc4c4-07ca-4b49-a3dd-c018f120bff3', '昇腾AI能力', 'Ascend AI', '图像除雾', 'Dehaze an Image', 'OPENMEP', '智能去除图像中的雾气。', 'Dehaze an Image.','e37c0ca9-f048-4520-80e1-7f84fe5bd053','admin',0,'2021-06-14 17:46:00.384+08')
         ON CONFLICT(group_id) do nothing;
         INSERT INTO tbl_openmep_capability_detail (detail_id, service, service_en, version, description, description_en, provider, group_id, api_file_id, guide_file_id, guide_file_id_en, port, host, protocol, upload_time, user_id) VALUES
         ('0610e038-f956-458b-98fc-ef49bcefd793', '图像除雾', 'Dehaze an Image', 'v1', '', '', 'Huawei', 'b8ddc4c4-07ca-4b49-a3dd-c018f120bff3', '84acf7bb-3e78-489a-90dc-95784b2dae03', 'bd4346ba-e4c3-4c51-82df-beacf6481b53', 'bd4346ba-e4c3-4c51-82df-beacf6481b53', 0, '', 'http', '2021-3-13 00:00:00.000000', 'admin')
@@ -345,7 +345,7 @@
         ON CONFLICT(file_id) do nothing;
 
         INSERT INTO tbl_openmep_capability (group_id, one_level_name, one_level_name_en, two_level_name, two_level_name_en, type, description, description_en,icon_file_id, author, select_count, upload_time) VALUES
-        ('b8ddc4c4-07ca-4b49-a3dd-c018f120bff4', '昇腾AI能力', 'Ascend AI', '垃圾识别', 'Garbage Detection', 'OPENMEP', '垃圾识别。', 'Garbage Detection.','5d68bec9-2323-4bb7-b46c-158dc1c40b81','admin',0,'2021-06-14 17:45:00.384+08')
+        ('b8ddc4c4-07ca-4b49-a3dd-c018f120bff4', '昇腾AI能力', 'Ascend AI', '垃圾识别', 'Garbage Detection', 'OPENMEP', '通过AI算法识别垃圾种类，帮助人们进行垃圾分类。', 'Garbage Detection.','5d68bec9-2323-4bb7-b46c-158dc1c40b81','admin',0,'2021-06-14 17:45:00.384+08')
         ON CONFLICT(group_id) do nothing;
         INSERT INTO tbl_openmep_capability_detail (detail_id, service, service_en, version, description, description_en, provider, group_id, api_file_id, guide_file_id, guide_file_id_en, port, host, protocol, upload_time, user_id) VALUES
         ('0610e038-f956-458b-98fc-ef49bcefd794', '垃圾识别', 'Garbage Detection', 'v1', '', '', 'Huawei', 'b8ddc4c4-07ca-4b49-a3dd-c018f120bff4', '84acf7bb-3e78-489a-90dc-95784b2dae04', 'bd4346ba-e4c3-4c51-82df-beacf6481b54', 'bd4346ba-e4c3-4c51-82df-beacf6481b54', 0, '', 'http', '2021-3-13 00:00:00.000000', 'admin')
@@ -361,7 +361,7 @@
         ON CONFLICT(file_id) do nothing;
 
         INSERT INTO tbl_openmep_capability (group_id, one_level_name, one_level_name_en, two_level_name, two_level_name_en, type, description, description_en,icon_file_id, author, select_count, upload_time) VALUES
-        ('b8ddc4c4-07ca-4b49-a3dd-c018f120bff5', '昇腾AI能力', 'Ascend AI', '口罩检测', 'MaskDetection', 'OPENMEP', '口罩检测。', 'MaskDetection.','2d753fd4-d750-4d9c-8a2f-f1d76f5909cc','admin',0,'2021-06-14 17:44:00.384+08')
+        ('b8ddc4c4-07ca-4b49-a3dd-c018f120bff5', '昇腾AI能力', 'Ascend AI', '口罩检测', 'MaskDetection', 'OPENMEP', '检测图像中的口罩和人脸，可以用来监控公共场所的口罩佩戴情况。', 'MaskDetection.','2d753fd4-d750-4d9c-8a2f-f1d76f5909cc','admin',0,'2021-06-14 17:44:00.384+08')
         ON CONFLICT(group_id) do nothing;
         INSERT INTO tbl_openmep_capability_detail (detail_id, service, service_en, version, description, description_en, provider, group_id, api_file_id, guide_file_id, guide_file_id_en, port, host, protocol, upload_time, user_id) VALUES
         ('0610e038-f956-458b-98fc-ef49bcefd795', '口罩检测', 'MaskDetection', 'v1', '', '', 'Huawei', 'b8ddc4c4-07ca-4b49-a3dd-c018f120bff5', '84acf7bb-3e78-489a-90dc-95784b2dae05', 'bd4346ba-e4c3-4c51-82df-beacf6481b55', 'bd4346ba-e4c3-4c51-82df-beacf6481b55', 0, '', 'http', '2021-3-13 00:00:00.000000', 'admin')
@@ -377,7 +377,7 @@
         ON CONFLICT(file_id) do nothing;
 
         INSERT INTO tbl_openmep_capability (group_id, one_level_name, one_level_name_en, two_level_name, two_level_name_en, type, description, description_en,icon_file_id, author, select_count, upload_time) VALUES
-        ('b8ddc4c4-07ca-4b49-a3dd-c018f120bff6', '昇腾AI能力', 'Ascend AI', '背景替换', 'Portrait Picture', 'OPENMEP', '背景替换。', 'Portrait Picture.','ea939ac1-9c38-4690-8f39-ea6fa9fdc643','admin',0,'2021-06-14 17:43:00.384+08')
+        ('b8ddc4c4-07ca-4b49-a3dd-c018f120bff6', '昇腾AI能力', 'Ascend AI', '背景替换', 'Portrait Picture', 'OPENMEP', '智能替换图像背景。', 'Portrait Picture.','ea939ac1-9c38-4690-8f39-ea6fa9fdc643','admin',0,'2021-06-14 17:43:00.384+08')
         ON CONFLICT(group_id) do nothing;
         INSERT INTO tbl_openmep_capability_detail (detail_id, service, service_en, version, description, description_en, provider, group_id, api_file_id, guide_file_id, guide_file_id_en, port, host, protocol, upload_time, user_id) VALUES
         ('0610e038-f956-458b-98fc-ef49bcefd796', '背景替换', 'Portrait Picture', 'v1', '', '', 'Huawei', 'b8ddc4c4-07ca-4b49-a3dd-c018f120bff6', '84acf7bb-3e78-489a-90dc-95784b2dae06', 'bd4346ba-e4c3-4c51-82df-beacf6481b56', 'bd4346ba-e4c3-4c51-82df-beacf6481b56', 0, '', 'http', '2021-3-13 00:00:00.000000', 'admin')
@@ -393,7 +393,7 @@
         ON CONFLICT(file_id) do nothing;
 
         INSERT INTO tbl_openmep_capability (group_id, one_level_name, one_level_name_en, two_level_name, two_level_name_en, type, description, description_en,icon_file_id, author, select_count, upload_time) VALUES
-        ('b8ddc4c4-07ca-4b49-a3dd-c018f120bff7', '昇腾AI能力', 'Ascend AI', '尺寸调整', 'ResizeAnImage', 'OPENMEP', '尺寸调整。', 'ResizeAnImage.','1aa25482-f654-48ec-879e-2c2a1cadd917','admin',0,'2021-06-14 17:42:00.384+08')
+        ('b8ddc4c4-07ca-4b49-a3dd-c018f120bff7', '昇腾AI能力', 'Ascend AI', '尺寸调整', 'ResizeAnImage', 'OPENMEP', '通过AI算法对图片进行放大，缩小。', 'ResizeAnImage.','1aa25482-f654-48ec-879e-2c2a1cadd917','admin',0,'2021-06-14 17:42:00.384+08')
         ON CONFLICT(group_id) do nothing;
         INSERT INTO tbl_openmep_capability_detail (detail_id, service, service_en, version, description, description_en, provider, group_id, api_file_id, guide_file_id, guide_file_id_en, port, host, protocol, upload_time, user_id) VALUES
         ('0610e038-f956-458b-98fc-ef49bcefd797', '尺寸调整', 'ResizeAnImage', 'v1', '', '', 'Huawei', 'b8ddc4c4-07ca-4b49-a3dd-c018f120bff7', '84acf7bb-3e78-489a-90dc-95784b2dae07', 'bd4346ba-e4c3-4c51-82df-beacf6481b57', 'bd4346ba-e4c3-4c51-82df-beacf6481b57', 0, '', 'http', '2021-3-13 00:00:00.000000', 'admin')
@@ -409,7 +409,7 @@
         ON CONFLICT(file_id) do nothing;
 
         INSERT INTO tbl_openmep_capability (group_id, one_level_name, one_level_name_en, two_level_name, two_level_name_en, type, description, description_en,icon_file_id, author, select_count, upload_time) VALUES
-        ('b8ddc4c4-07ca-4b49-a3dd-c018f120bff8', '昇腾AI能力', 'Ascend AI', '超分辨率图像处理', 'Super Resolution', 'OPENMEP', '超分辨率图像处理。', 'Super Resolution.','6c5e9142-0a05-4ab6-929c-967010315121','admin',0,'2021-06-14 17:41:00.384+08')
+        ('b8ddc4c4-07ca-4b49-a3dd-c018f120bff8', '昇腾AI能力', 'Ascend AI', '超分辨率图像处理', 'Super Resolution', 'OPENMEP', '通过AI算法提升图像的分辨率，提高清晰度。', 'Super Resolution.','6c5e9142-0a05-4ab6-929c-967010315121','admin',0,'2021-06-14 17:41:00.384+08')
         ON CONFLICT(group_id) do nothing;
         INSERT INTO tbl_openmep_capability_detail (detail_id, service, service_en, version, description, description_en, provider, group_id, api_file_id, guide_file_id, guide_file_id_en, port, host, protocol, upload_time, user_id) VALUES
         ('0610e038-f956-458b-98fc-ef49bcefd798', '超分辨率图像处理', 'Super Resolution', 'v1', '', '', 'Huawei', 'b8ddc4c4-07ca-4b49-a3dd-c018f120bff8', '84acf7bb-3e78-489a-90dc-95784b2dae08', 'bd4346ba-e4c3-4c51-82df-beacf6481b58', 'bd4346ba-e4c3-4c51-82df-beacf6481b58', 0, '', 'http', '2021-3-13 00:00:00.000000', 'admin')

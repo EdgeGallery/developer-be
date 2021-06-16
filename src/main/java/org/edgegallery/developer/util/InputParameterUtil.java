@@ -4,6 +4,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class InputParameterUtil {
+    /**
+     * getParams.
+     *
+     * @param str str
+     * @return
+     */
     public static Map<String, String> getParams(String str) {
         String[] arr = str.split(";");
         Map<String, String> params = new HashMap<>();

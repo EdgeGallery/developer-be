@@ -59,7 +59,6 @@ import org.edgegallery.developer.mapper.HelmTemplateYamlMapper;
 import org.edgegallery.developer.mapper.HostLogMapper;
 import org.edgegallery.developer.mapper.HostMapper;
 import org.edgegallery.developer.mapper.OpenMepCapabilityMapper;
-import org.edgegallery.developer.mapper.ProjectImageMapper;
 import org.edgegallery.developer.mapper.ProjectMapper;
 import org.edgegallery.developer.mapper.ReleaseConfigMapper;
 import org.edgegallery.developer.mapper.UploadedFileMapper;
@@ -75,7 +74,6 @@ import org.edgegallery.developer.model.deployyaml.PodEventsRes;
 import org.edgegallery.developer.model.deployyaml.PodStatusInfo;
 import org.edgegallery.developer.model.deployyaml.PodStatusInfos;
 import org.edgegallery.developer.model.lcm.UploadResponse;
-import org.edgegallery.developer.model.vm.VmCreateConfig;
 import org.edgegallery.developer.model.vm.VmPackageConfig;
 import org.edgegallery.developer.model.workspace.ApplicationProject;
 import org.edgegallery.developer.model.workspace.EnumDeployPlatform;
@@ -163,9 +161,6 @@ public class ProjectService {
 
     @Autowired
     private Map<String, IConfigDeployStage> deployServiceMap;
-
-    @Autowired
-    private ProjectImageMapper projectImageMapper;
 
     @Autowired
     private HostLogMapper hostLogMapper;
@@ -1278,7 +1273,7 @@ public class ProjectService {
             return null != testConfig ? testConfig.getAppInstanceId() : null;
         } else {
             VmPackageConfig vmCreateConfig = vmConfigMapper.getVmPackageConfig(projectId);
-            if (vmCreateConfig==null) {
+            if (vmCreateConfig == null) {
                 LOGGER.info("This project has not vm config, do not terminate.");
                 return null;
             }
@@ -1287,6 +1282,13 @@ public class ProjectService {
 
     }
 
+    /**
+     * getWorkStatus.
+     *
+     * @param projectId projectId
+     * @param token token
+     * @return
+     */
     public Either<FormatRespDto, Boolean> getWorkStatus(String projectId, String token) {
         ApplicationProject project = projectMapper.getProjectById(projectId);
 
@@ -1406,7 +1408,6 @@ public class ProjectService {
                 }
             }
 
-
         }
 
         return true;
@@ -1437,7 +1438,8 @@ public class ProjectService {
             String xsrf = getXsrf();
             httpPost.setHeader("X-XSRF-TOKEN", xsrf);
             client.execute(httpPost);
-            //Determine the status of the existing project as successful deployment or deployment failure，And the project creation time has exceeded24hour，transfercleanenvinterface
+            //Determine the status of the existing project as successful deployment or
+            // deployment failure，And the project creation time has exceeded24hour，transfercleanenvinterface
             for (ApplicationProject project : projects) {
                 EnumProjectStatus status = project.getStatus();
                 if (status.equals(EnumProjectStatus.DEPLOYED) || status.equals(EnumProjectStatus.DEPLOYED_FAILED)) {

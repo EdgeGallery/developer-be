@@ -36,7 +36,6 @@ import org.edgegallery.developer.mapper.HostLogMapper;
 import org.edgegallery.developer.mapper.HostMapper;
 import org.edgegallery.developer.mapper.OpenMepCapabilityMapper;
 import org.edgegallery.developer.mapper.UploadedFileMapper;
-import org.edgegallery.developer.model.lcm.DistributeBody;
 import org.edgegallery.developer.model.lcm.MecHostBody;
 import org.edgegallery.developer.model.workspace.MepCreateHost;
 import org.edgegallery.developer.model.workspace.MepHost;
@@ -156,8 +155,6 @@ public class SystemService {
         LOGGER.error("Create host failed ");
         return Either.left(new FormatRespDto(Status.BAD_REQUEST, "Can not create a host."));
     }
-
-
 
     /**
      * deleteHost.

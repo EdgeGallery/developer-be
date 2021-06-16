@@ -30,14 +30,18 @@ public class CapabilitiesDetail {
 
     private List<ServiceDetail> serviceDetails;
 
+    /**
+     * judge null.
+     *
+     * @param capabilitiesDetail capabilitiesDetail
+     * @return
+     */
     public static Boolean isEmpty(CapabilitiesDetail capabilitiesDetail) {
 
         return CollectionUtils.isEmpty(capabilitiesDetail.getAppTrafficRule()) && CollectionUtils
-            .isEmpty(capabilitiesDetail.getAppDNSRule())
-            && CollectionUtils.isEmpty(capabilitiesDetail.getServiceDetails());
+            .isEmpty(capabilitiesDetail.getAppDNSRule()) && CollectionUtils
+            .isEmpty(capabilitiesDetail.getServiceDetails());
     }
-
-
 
 }
 

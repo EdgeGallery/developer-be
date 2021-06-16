@@ -22,15 +22,14 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-
 import java.io.File;
 import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.edgegallery.developer.model.Chunk;
-import org.edgegallery.developer.model.system.VmSystem;
 import org.edgegallery.developer.model.system.MepGetSystemImageReq;
 import org.edgegallery.developer.model.system.MepGetSystemImageRes;
+import org.edgegallery.developer.model.system.VmSystem;
 import org.edgegallery.developer.response.ErrorRespDto;
 import org.edgegallery.developer.response.FormatRespDto;
 import org.edgegallery.developer.service.SystemImageMgmtService;
@@ -67,17 +66,18 @@ public class SystemImageMgmtController {
      */
     @ApiOperation(value = "get systemImage)", response = MepGetSystemImageRes.class)
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "OK", response = MepGetSystemImageRes.class),
-            @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
+        @ApiResponse(code = 200, message = "OK", response = MepGetSystemImageRes.class),
+        @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
-    @RequestMapping(value = "/images/list", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_UTF8_VALUE,
-            produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @RequestMapping(value = "/images/list", method = RequestMethod.POST,
+        consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_ADMIN')|| hasRole('DEVELOPER_TENANT')")
     public ResponseEntity<MepGetSystemImageRes> getSystemImages(
-            @ApiParam(value = "userId", required = true) @RequestParam("userId") String userId,
-            @ApiParam(value = "MepGetImages", required = true) @RequestBody MepGetSystemImageReq mepGetSystemImageReq) {
+        @ApiParam(value = "userId", required = true) @RequestParam("userId") String userId,
+        @ApiParam(value = "MepGetImages", required = true) @RequestBody MepGetSystemImageReq mepGetSystemImageReq) {
         LOGGER.info("query system image file, userId = {}", userId);
-        Either<FormatRespDto, MepGetSystemImageRes> either = systemImageMgmtService.getSystemImages(mepGetSystemImageReq);
+        Either<FormatRespDto, MepGetSystemImageRes> either = systemImageMgmtService
+            .getSystemImages(mepGetSystemImageReq);
         return ResponseDataUtil.buildResponse(either);
     }
 
@@ -88,14 +88,14 @@ public class SystemImageMgmtController {
      */
     @ApiOperation(value = "create systemImage", response = Boolean.class)
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "OK", response = Boolean.class),
-            @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
+        @ApiResponse(code = 200, message = "OK", response = Boolean.class),
+        @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
     @RequestMapping(value = "/images", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_UTF8_VALUE,
-            produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+        produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_ADMIN')|| hasRole('DEVELOPER_TENANT')")
     public ResponseEntity<Boolean> createSystemImage(
-            @ApiParam(value = "MepSystemImage", required = true) @Validated @RequestBody VmSystem vmImage) {
+        @ApiParam(value = "MepSystemImage", required = true) @Validated @RequestBody VmSystem vmImage) {
         LOGGER.info("create system image file");
         Either<FormatRespDto, Boolean> either = systemImageMgmtService.createSystemImage(vmImage);
         return ResponseDataUtil.buildResponse(either);
@@ -108,15 +108,14 @@ public class SystemImageMgmtController {
      */
     @ApiOperation(value = "update systemImage by systemId", response = Boolean.class)
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "OK", response = Boolean.class),
-            @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
+        @ApiResponse(code = 200, message = "OK", response = Boolean.class),
+        @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
     @RequestMapping(value = "/images/{systemId}", method = RequestMethod.PUT,
-            consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+        consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_ADMIN')|| hasRole('DEVELOPER_TENANT')")
-    public ResponseEntity<Boolean> modifySystemImage(
-            @PathVariable("systemId") Integer systemId,
-            @Validated @RequestBody VmSystem vmImage) {
+    public ResponseEntity<Boolean> modifySystemImage(@PathVariable("systemId") Integer systemId,
+        @Validated @RequestBody VmSystem vmImage) {
         LOGGER.info("update system image file, systemId = {}", systemId);
         Either<FormatRespDto, Boolean> either = systemImageMgmtService.updateSystemImage(vmImage, systemId);
         return ResponseDataUtil.buildResponse(either);
@@ -129,14 +128,13 @@ public class SystemImageMgmtController {
      */
     @ApiOperation(value = "delete systemImage by systemId", response = Boolean.class)
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "OK", response = Boolean.class),
-            @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
+        @ApiResponse(code = 200, message = "OK", response = Boolean.class),
+        @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
     @RequestMapping(value = "/images/{systemId}", method = RequestMethod.DELETE,
-            produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+        produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_ADMIN')|| hasRole('DEVELOPER_TENANT')")
-    public ResponseEntity<Boolean> deleteSystemImage(@PathVariable("systemId")
-                                                             Integer systemId) throws Exception {
+    public ResponseEntity<Boolean> deleteSystemImage(@PathVariable("systemId") Integer systemId) throws Exception {
         LOGGER.info("delete system image file, systemId = {}", systemId);
         Either<FormatRespDto, Boolean> either = systemImageMgmtService.deleteSystemImage(systemId);
         return ResponseDataUtil.buildResponse(either);
@@ -149,13 +147,12 @@ public class SystemImageMgmtController {
      */
     @ApiOperation(value = "publish systemImage by systemId", response = Boolean.class)
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "OK", response = Boolean.class),
-            @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
+        @ApiResponse(code = 200, message = "OK", response = Boolean.class),
+        @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
     @RequestMapping(value = "/images/{systemId}/publish", method = RequestMethod.PUT)
     @PreAuthorize("hasRole('DEVELOPER_ADMIN')")
-    public ResponseEntity<Boolean> publishSystemImage(
-            @PathVariable("systemId") Integer systemId) throws Exception {
+    public ResponseEntity<Boolean> publishSystemImage(@PathVariable("systemId") Integer systemId) throws Exception {
         LOGGER.info("publish system image file, systemId = {}", systemId);
         Either<FormatRespDto, Boolean> either = systemImageMgmtService.publishSystemImage(systemId);
         return ResponseDataUtil.buildResponse(either);
@@ -173,8 +170,8 @@ public class SystemImageMgmtController {
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity uploadSystemImage(HttpServletRequest request, Chunk chunk,
         @ApiParam(value = "systemId", required = true) @PathVariable("systemId") Integer systemId) throws IOException {
-        LOGGER.info("upload system image file, fileName = {}, identifier = {}, chunkNum = {}",
-            chunk.getFilename(), chunk.getIdentifier(), chunk.getChunkNumber());
+        LOGGER.info("upload system image file, fileName = {}, identifier = {}, chunkNum = {}", chunk.getFilename(),
+            chunk.getIdentifier(), chunk.getChunkNumber());
         return systemImageMgmtService.uploadSystemImage(request, chunk, systemId);
     }
 
@@ -191,8 +188,8 @@ public class SystemImageMgmtController {
     public ResponseEntity mergeSystemImage(@RequestParam(value = "fileName", required = false) String fileName,
         @RequestParam(value = "identifier", required = false) String identifier,
         @ApiParam(value = "systemId", required = true) @PathVariable("systemId") Integer systemId) throws IOException {
-        LOGGER.info("merge system image file, systemId = {}, fileName = {}, identifier = {}",
-            systemId, fileName, identifier);
+        LOGGER.info("merge system image file, systemId = {}, fileName = {}, identifier = {}", systemId, fileName,
+            identifier);
         return systemImageMgmtService.mergeSystemImage(fileName, identifier, systemId);
     }
 
@@ -201,15 +198,15 @@ public class SystemImageMgmtController {
      */
     @ApiOperation(value = "download system image", response = File.class)
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "OK", response = File.class),
-            @ApiResponse(code = 400, message = "Bad Request", response = File.class)
+        @ApiResponse(code = 200, message = "OK", response = File.class),
+        @ApiResponse(code = 400, message = "Bad Request", response = File.class)
     })
     @RequestMapping(value = "/images/{systemId}/download", method = RequestMethod.GET,
-            produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
+        produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
-    public ResponseEntity<byte[]> downloadSystemImage(@ApiParam(value = "systemId", required = true) @PathVariable("systemId") Integer systemId) {
-        LOGGER.info("download system image file, systemId = {}",
-                systemId);
+    public ResponseEntity<byte[]> downloadSystemImage(
+        @ApiParam(value = "systemId", required = true) @PathVariable("systemId") Integer systemId) {
+        LOGGER.info("download system image file, systemId = {}", systemId);
         return systemImageMgmtService.downloadSystemImage(systemId);
     }
 }
