@@ -588,11 +588,13 @@ public class UploadFileService {
                 if (str.contains("kind: Deployment")) {
                     addService(mapList, svcTypes, svcNodePorts, svcPorts);
                     addDeployImage(mapList, podImages);
+                    mapList.clear();
                 }
 
                 if (str.contains("kind: Pod")) {
                     addService(mapList, svcTypes, svcNodePorts, svcPorts);
                     addPodImage(mapList, podImages);
+                    mapList.clear();
                 }
 
             }
