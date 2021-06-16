@@ -171,14 +171,14 @@ topology_template:
     EMS_VDU1_CP0:
       type: tosca.nodes.nfv.VduCp
       properties:
-        description: to UFP&OM
+        description: to mep
         vnic_name: eth0
         order: 0
         vnic_type: normal
         port_security_enabled: true
       requirements:
         - virtual_binding: EMS_VDU1
-        - virtual_link: MEC_APP_N6
+        - virtual_link: MEC_APP_MP1
 
     EMS_VDU1_CP1:
       type: tosca.nodes.nfv.VduCp
@@ -201,14 +201,14 @@ topology_template:
     EMS_VDU1_CP2:
       type: tosca.nodes.nfv.VduCp
       properties:
-        description: to mep
+        description: to UFP&OM
         vnic_name: eth2
         order: 2
         vnic_type: normal
         port_security_enabled: true
       requirements:
         - virtual_binding: EMS_VDU1
-        - virtual_link: MEC_APP_MP1
+        - virtual_link: MEC_APP_N6
 
     MEC_APP_N6:
       type: tosca.nodes.nfv.VnfVirtualLink
