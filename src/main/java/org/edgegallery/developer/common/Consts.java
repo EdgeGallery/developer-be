@@ -94,6 +94,8 @@ public final class Consts {
 
     public static final String SYSTEM_IMAGE_DOWNLOAD_URL = "/image-management/v1/images/%s/action/download";
 
+    public static final String SYSTEM_IMAGE_GET_URL = "/image-management/v1/images/%s";
+
     private Consts() {
     }
 }

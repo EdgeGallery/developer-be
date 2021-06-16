@@ -106,7 +106,7 @@ public class NewCreateVmCsar {
                 FileUtils.readFileToString(csarValue, StandardCharsets.UTF_8).replace("{name}", projectName)
                     .replace("{time}", timeStamp).replace("{description}", project.getDescription())
                     .replace("{ChartName}", chartName).replace("{class}", deployType)
-                    .replace("{app_type}", templateName).replace("{appd-name}", projectName), StandardCharsets.UTF_8,
+                    .replace("{appd-name}", projectName), StandardCharsets.UTF_8,
                 false);
             boolean isSuccess = csarValue.renameTo(new File(csar.getCanonicalPath() + "/" + projectName + ".mf"));
             if (!isSuccess) {
@@ -208,7 +208,7 @@ public class NewCreateVmCsar {
         }
         //update SwImageDesc.json , get image url
         String url = config.getVmSystem().getSystemPath();
-        String imageId = url.substring(url.length() - 32);
+        String imageId = url.substring(url.length() - 48,url.length() - 16);
         ImageDesc imageDesc = new ImageDesc();
         imageDesc.setId(imageId);
         imageDesc.setName(config.getVmSystem().getSystemName());
