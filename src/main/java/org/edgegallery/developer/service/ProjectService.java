@@ -76,6 +76,7 @@ import org.edgegallery.developer.model.deployyaml.PodStatusInfo;
 import org.edgegallery.developer.model.deployyaml.PodStatusInfos;
 import org.edgegallery.developer.model.lcm.UploadResponse;
 import org.edgegallery.developer.model.vm.VmCreateConfig;
+import org.edgegallery.developer.model.vm.VmPackageConfig;
 import org.edgegallery.developer.model.workspace.ApplicationProject;
 import org.edgegallery.developer.model.workspace.EnumDeployPlatform;
 import org.edgegallery.developer.model.workspace.EnumOpenMepType;
@@ -1276,13 +1277,12 @@ public class ProjectService {
             ProjectTestConfig testConfig = testConfigList.get(0);
             return null != testConfig ? testConfig.getAppInstanceId() : null;
         } else {
-            List<VmCreateConfig> vmCreateConfigs = vmConfigMapper.getVmCreateConfigs(projectId);
-            if (CollectionUtils.isEmpty(vmCreateConfigs)) {
+            VmPackageConfig vmCreateConfig = vmConfigMapper.getVmPackageConfig(projectId);
+            if (vmCreateConfig==null) {
                 LOGGER.info("This project has not vm config, do not terminate.");
                 return null;
             }
-            VmCreateConfig vmCreateConfig = vmCreateConfigs.get(0);
-            return null != vmCreateConfig ? vmCreateConfig.getAppInstanceId() : null;
+            return vmCreateConfig.getAppInstanceId();
         }
 
     }
