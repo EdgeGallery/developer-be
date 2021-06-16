@@ -171,14 +171,14 @@ topology_template:
     EMS_VDU1_CP0:
       type: tosca.nodes.nfv.VduCp
       properties:
-        description: to mep
+        description: to UFP&OM
         vnic_name: eth0
         order: 0
         vnic_type: normal
         port_security_enabled: true
       requirements:
         - virtual_binding: EMS_VDU1
-        - virtual_link: MEC_APP_MP1
+        - virtual_link: MEC_APP_N6
 
     EMS_VDU1_CP1:
       type: tosca.nodes.nfv.VduCp
@@ -201,14 +201,23 @@ topology_template:
     EMS_VDU1_CP2:
       type: tosca.nodes.nfv.VduCp
       properties:
-        description: to UFP&OM
+        description: to mep
         vnic_name: eth2
         order: 2
         vnic_type: normal
         port_security_enabled: true
       requirements:
         - virtual_binding: EMS_VDU1
-        - virtual_link: MEC_APP_N6
+        - virtual_link: MEC_APP_MP1
+
+    MEC_APP_N6:
+      type: tosca.nodes.nfv.VnfVirtualLink
+      properties:
+        vl_profile:
+          network_name: {get_input: network_name_n6}
+          network_type: vlan
+          physical_network: {get_input: network_n6_physnet}
+          provider_segmentation_id: {get_input: network_n6_vlanid}
 
     MEC_APP_MP1:
       type: tosca.nodes.nfv.VnfVirtualLink
@@ -228,14 +237,6 @@ topology_template:
           physical_network: {get_input: network_internet_physnet}
           provider_segmentation_id: {get_input: network_internet_vlanid}
 
-    MEC_APP_N6:
-      type: tosca.nodes.nfv.VnfVirtualLink
-      properties:
-        vl_profile:
-          network_name: {get_input: network_name_n6}
-          network_type: vlan
-          physical_network: {get_input: network_n6_physnet}
-          provider_segmentation_id: {get_input: network_n6_vlanid}
     app_configuration:
       type: tosca.nodes.nfv.app.configuration
       properties:
