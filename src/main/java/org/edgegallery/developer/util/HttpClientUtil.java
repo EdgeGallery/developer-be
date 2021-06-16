@@ -663,4 +663,24 @@ public final class HttpClientUtil {
         return null;
     }
 
+    public static Boolean checkImageInfo(String systemPath) {
+        String url = systemPath.substring(0, systemPath.length() - 16);
+        HttpHeaders headers = new HttpHeaders();
+        HttpEntity<String> requestEntity = new HttpEntity<>(headers);
+        ResponseEntity<String> response;
+        try {
+            REST_TEMPLATE.setErrorHandler(new CustomResponseErrorHandler());
+            response = REST_TEMPLATE.exchange(url, HttpMethod.GET, requestEntity, String.class);
+        } catch (RestClientException e) {
+            LOGGER.error("get system image exception {}", e.getMessage());
+            return false;
+        }
+        if (response.getStatusCode() == HttpStatus.OK) {
+            LOGGER.info("get image file success, resp = {}", response);
+            return true;
+        }
+        LOGGER.error("get system image fail!");
+        return false;
+
+    }
 }

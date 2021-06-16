@@ -414,8 +414,7 @@ public class VmService {
             return Either.left(error);
         }
 
-        if (vmCreateConfig.getStageStatus().getInstantiateInfo() == EnumTestConfigStatus.Success && !StringUtils
-            .isEmpty(vmCreateConfig.getPackageId())) {
+        if (!StringUtils.isEmpty(vmCreateConfig.getPackageId())) {
             deleteVmCreate(vmCreateConfig, project.getUserId(), token);
         }
 
@@ -781,6 +780,14 @@ public class VmService {
             FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "Can not find the project.");
             return Either.left(error);
         }
+
+        VmSystem vmSystem = vmPackageConfig.getVmSystem();
+        Boolean checkImageRes = HttpClientUtil.checkImageInfo(vmSystem.getSystemPath());
+        if (!checkImageRes) {
+            LOGGER.error("image file no exit");
+            return Either.left(new FormatRespDto(Response.Status.BAD_REQUEST, "image file no exit:"));
+        }
+
         String id = UUID.randomUUID().toString();
         String appInstanceId = UUID.randomUUID().toString();
         vmPackageConfig.setProjectId(projectId);
@@ -932,6 +939,8 @@ public class VmService {
                         FileUtils.deleteQuietly(s);
                     }
                 }
+                CompressFileUtilsJava.compressToZip(mergePath, imagePath, config.getImageName());
+                FileUtils.deleteDirectory(new File(mergePath));
             }
 
         } catch (IOException e) {
@@ -939,20 +948,22 @@ public class VmService {
             return false;
         }
 
+
+
         // upload image to image management
-        File mergedFile = new File(mergePath + File.separator + config.getImageName() + ".qcow2");
+        File mergedFile = new File(imagePath + File.separator + config.getImageName() + ".zip");
         String downloadSystemPath = pushSystemImage(mergedFile);
         if (StringUtils.isEmpty(downloadSystemPath)) {
             LOGGER.error("push system image file failed!");
             return false;
         }
-        // delete image file
-        try {
-            FileUtils.deleteDirectory(new File(mergePath));
-        }catch (IOException e) {
-            LOGGER.error("delete image file fail:{}.", e.getMessage());
-            return false;
-        }
+//        // delete image file
+//        try {
+//            FileUtils.deleteDirectory(new File(mergePath));
+//        }catch (IOException e) {
+//            LOGGER.error("delete image file fail:{}.", e.getMessage());
+//            return false;
+//        }
 
         // modify image file
         File swImageDesc = new File(imagePath + TEMPLATE_TOSCA_IMAGE_DESC_PATH);

@@ -122,7 +122,7 @@ topology_template:
     mec_internet_ip:
       type: string
       default: 0.0.0.0
-      description: mep_port
+      description: mec_internet_ip
 
   node_templates:
     Simple_VNF:
