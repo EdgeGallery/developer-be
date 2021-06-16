@@ -24,12 +24,25 @@ public class User {
 
     private final String userAuth;
 
+    /**
+     * User.
+     *
+     * @param userId userId
+     * @param userName userName
+     */
     public User(String userId, String userName) {
         this.userId = userId;
         this.userName = userName;
         this.userAuth = "";
     }
 
+    /**
+     * User.
+     *
+     * @param userId userId
+     * @param userName userName
+     * @param userAuth userAuth
+     */
     public User(String userId, String userName, String userAuth) {
         this.userId = userId;
         this.userName = userName;

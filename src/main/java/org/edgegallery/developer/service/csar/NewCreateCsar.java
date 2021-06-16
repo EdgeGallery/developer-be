@@ -125,16 +125,16 @@ public class NewCreateCsar {
         }
 
         // compress to zip
-        String aPPDDir = csar.getParent() + File.separator + config.getAppInstanceId() + File.separator + "APPD";
-        if (!StringUtils.isEmpty(aPPDDir)) {
-            File dir = new File(aPPDDir);
+        String appdDir = csar.getParent() + File.separator + config.getAppInstanceId() + File.separator + "APPD";
+        if (!StringUtils.isEmpty(appdDir)) {
+            File dir = new File(appdDir);
             if (dir.isDirectory()) {
                 File[] files = dir.listFiles();
                 if (files != null && files.length > 0) {
                     List<File> subFiles = Arrays.asList(files);
                     if (!CollectionUtils.isEmpty(subFiles)) {
                         CompressFileUtilsJava
-                            .zipFiles(subFiles, new File(aPPDDir + File.separator  + "MainServiceTemplate.zip"));
+                            .zipFiles(subFiles, new File(appdDir + File.separator + "MainServiceTemplate.zip"));
                         for (File subFile : subFiles) {
                             FileUtils.deleteQuietly(subFile);
                         }

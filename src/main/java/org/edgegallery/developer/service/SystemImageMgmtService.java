@@ -17,11 +17,11 @@ import org.edgegallery.developer.common.Consts;
 import org.edgegallery.developer.config.security.AccessUserUtil;
 import org.edgegallery.developer.mapper.SystemImageMapper;
 import org.edgegallery.developer.model.Chunk;
-import org.edgegallery.developer.model.system.VmSystem;
-import org.edgegallery.developer.model.workspace.EnumSystemImageStatus;
 import org.edgegallery.developer.model.system.MepGetSystemImageReq;
 import org.edgegallery.developer.model.system.MepGetSystemImageRes;
 import org.edgegallery.developer.model.system.MepSystemQueryCtrl;
+import org.edgegallery.developer.model.system.VmSystem;
+import org.edgegallery.developer.model.workspace.EnumSystemImageStatus;
 import org.edgegallery.developer.response.FormatRespDto;
 import org.edgegallery.developer.util.HttpClientUtil;
 import org.slf4j.Logger;
@@ -54,7 +54,7 @@ public class SystemImageMgmtService {
     /**
      * getSystemImage.
      *
-     * @param mepGetSystemImageReq
+     * @param mepGetSystemImageReq mepGetSystemImageReq
      * @return
      */
     public Either<FormatRespDto, MepGetSystemImageRes> getSystemImages(MepGetSystemImageReq mepGetSystemImageReq) {
@@ -142,7 +142,8 @@ public class SystemImageMgmtService {
                 LOGGER.error("Update SystemImage failed");
                 return Either.left(new FormatRespDto(Response.Status.BAD_REQUEST, "Can not update a SystemImage."));
             }
-            if (systemImageMapper.getSystemNameCount(vmImage.getSystemName(), systemId, systemImageMapper.getVMImage(systemId).getUserId()) > 0) {
+            if (systemImageMapper.getSystemNameCount(vmImage.getSystemName(), systemId,
+                systemImageMapper.getVMImage(systemId).getUserId()) > 0) {
                 LOGGER.error("SystemName can not duplicate.");
                 return Either.left(new FormatRespDto(Response.Status.BAD_REQUEST, "SystemName can not duplicate."));
             }
@@ -222,7 +223,8 @@ public class SystemImageMgmtService {
      *
      * @return
      */
-    public Either<FormatRespDto, Boolean> updateSystemImageStatus(Integer systemId, EnumSystemImageStatus status, String systemPath) {
+    public Either<FormatRespDto, Boolean> updateSystemImageStatus(Integer systemId, EnumSystemImageStatus status,
+        String systemPath) {
         LOGGER.info("update system image status, systemId = {}, status = {}", systemId, status);
         VmSystem vmImage = new VmSystem();
         vmImage.setSystemId(systemId);
@@ -234,8 +236,7 @@ public class SystemImageMgmtService {
         int ret = systemImageMapper.updateSystemImageStatus(vmImage);
         if (ret <= 0) {
             LOGGER.error("update system image failed, systemId = {}", systemId);
-            return Either.left(new FormatRespDto(Response.Status.INTERNAL_SERVER_ERROR,
-                "update system image failed"));
+            return Either.left(new FormatRespDto(Response.Status.INTERNAL_SERVER_ERROR, "update system image failed"));
         }
 
         LOGGER.info("update system image success.");
@@ -249,12 +250,12 @@ public class SystemImageMgmtService {
      * @param chunk File Chunk
      * @param systemId System Image ID
      * @return Resposne
-     * @throws IOException
+     * @throws IOException IOException
      */
-    public ResponseEntity uploadSystemImage(HttpServletRequest request,
-        Chunk chunk, Integer systemId) throws IOException {
-        LOGGER.info("upload system image file, fileName = {}, identifier = {}, chunkNum = {}",
-            chunk.getFilename(), chunk.getIdentifier(), chunk.getChunkNumber());
+    public ResponseEntity uploadSystemImage(HttpServletRequest request, Chunk chunk, Integer systemId)
+        throws IOException {
+        LOGGER.info("upload system image file, fileName = {}, identifier = {}, chunkNum = {}", chunk.getFilename(),
+            chunk.getIdentifier(), chunk.getChunkNumber());
         boolean isMultipart = ServletFileUpload.isMultipartContent(request);
         if (!isMultipart) {
             LOGGER.error("upload request is invalid.");
@@ -285,8 +286,7 @@ public class SystemImageMgmtService {
         if (chunkNumber == null) {
             chunkNumber = 0;
         }
-        File outFile = new File(getUploadSysImageRootDir(systemId)
-            + chunk.getIdentifier(), chunkNumber + ".part");
+        File outFile = new File(getUploadSysImageRootDir(systemId) + chunk.getIdentifier(), chunkNumber + ".part");
         InputStream inputStream = file.getInputStream();
         FileUtils.copyInputStreamToFile(inputStream, outFile);
         return ResponseEntity.ok().build();
@@ -299,11 +299,11 @@ public class SystemImageMgmtService {
      * @param identifier File Identifier
      * @param systemId System Image ID
      * @return Resposne
-     * @throws IOException
+     * @throws IOException IOException
      */
     public ResponseEntity mergeSystemImage(String fileName, String identifier, Integer systemId) throws IOException {
-        LOGGER.info("merge system image file, systemId = {}, fileName = {}, identifier = {}",
-                systemId, fileName, identifier);
+        LOGGER.info("merge system image file, systemId = {}, fileName = {}, identifier = {}", systemId, fileName,
+            identifier);
         String partFilePath = getUploadSysImageRootDir(systemId) + identifier;
         File partFileDir = new File(partFilePath);
         if (!partFileDir.exists() || !partFileDir.isDirectory()) {
@@ -362,7 +362,8 @@ public class SystemImageMgmtService {
             try {
                 Gson gson = new Gson();
                 Map<String, String> uploadResultModel = gson.fromJson(uploadResult, Map.class);
-                return fileServerAddress + String.format(Consts.SYSTEM_IMAGE_DOWNLOAD_URL, uploadResultModel.get("imageId"));
+                return fileServerAddress + String
+                    .format(Consts.SYSTEM_IMAGE_DOWNLOAD_URL, uploadResultModel.get("imageId"));
             } catch (JsonSyntaxException e) {
                 LOGGER.error("upload system image file failed.");
                 return null;
@@ -384,6 +385,12 @@ public class SystemImageMgmtService {
         return !StringUtils.isEmpty(currUserAuth) && currUserAuth.contains(Consts.ROLE_DEVELOPER_ADMIN);
     }
 
+    /**
+     * downloadSystemImage.
+     *
+     * @param systemId systemId
+     * @return
+     */
     public ResponseEntity<byte[]> downloadSystemImage(Integer systemId) {
         Assert.notNull(systemImageMapper.getSystemImagesPath(systemId), "systemPath is null");
         try {

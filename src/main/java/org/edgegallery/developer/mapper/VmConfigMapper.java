@@ -17,13 +17,13 @@
 package org.edgegallery.developer.mapper;
 
 import java.util.List;
+import org.edgegallery.developer.model.system.VmSystem;
 import org.edgegallery.developer.model.vm.VmCreateConfig;
 import org.edgegallery.developer.model.vm.VmFlavor;
 import org.edgegallery.developer.model.vm.VmImageConfig;
 import org.edgegallery.developer.model.vm.VmNetwork;
 import org.edgegallery.developer.model.vm.VmPackageConfig;
 import org.edgegallery.developer.model.vm.VmRegulation;
-import org.edgegallery.developer.model.system.VmSystem;
 import org.edgegallery.developer.model.vm.VmUserData;
 
 public interface VmConfigMapper {

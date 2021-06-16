@@ -16,11 +16,10 @@
 
 package org.edgegallery.developer.mapper;
 
-import org.apache.ibatis.annotations.Param;
-import org.edgegallery.developer.model.system.VmSystem;
-import org.edgegallery.developer.model.system.MepGetSystemImageReq;
-
 import java.util.List;
+import org.apache.ibatis.annotations.Param;
+import org.edgegallery.developer.model.system.MepGetSystemImageReq;
+import org.edgegallery.developer.model.system.VmSystem;
 
 public interface SystemImageMapper {
 
@@ -32,7 +31,8 @@ public interface SystemImageMapper {
 
     String getSystemImagesPath(Integer systemId);
 
-    Integer getSystemNameCount(@Param("systemName") String systemName, @Param("systemId") Integer systemId, @Param("userId") String userId);
+    Integer getSystemNameCount(@Param("systemName") String systemName, @Param("systemId") Integer systemId,
+        @Param("userId") String userId);
 
     int createSystemImage(VmSystem VmSystem);
 

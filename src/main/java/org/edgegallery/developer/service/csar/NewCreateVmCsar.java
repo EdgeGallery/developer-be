@@ -42,8 +42,6 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.edgegallery.developer.common.Consts;
 import org.edgegallery.developer.exception.DomainException;
 import org.edgegallery.developer.model.deployyaml.ImageDesc;
-import org.edgegallery.developer.model.vm.VmFlavor;
-import org.edgegallery.developer.model.vm.VmNetwork;
 import org.edgegallery.developer.model.vm.VmPackageConfig;
 import org.edgegallery.developer.model.vm.VmUserData;
 import org.edgegallery.developer.model.workspace.ApplicationProject;
@@ -79,13 +77,13 @@ public class NewCreateVmCsar {
      * @param project project self
      * @return package gz
      */
-    public File create(String projectPath, VmPackageConfig config, ApplicationProject project) throws IOException, DomainException {
+    public File create(String projectPath, VmPackageConfig config, ApplicationProject project)
+        throws IOException, DomainException {
         File projectDir = new File(projectPath);
 
         String deployType = (project.getDeployPlatform() == EnumDeployPlatform.KUBERNETES) ? "container" : "vm";
         String projectName = project.getName();
         String chartName = project.getName().replaceAll(Consts.PATTERN, "").toLowerCase();
-
 
         // copy template files to the new project path
         File csar = DeveloperFileUtils
@@ -106,8 +104,7 @@ public class NewCreateVmCsar {
                 FileUtils.readFileToString(csarValue, StandardCharsets.UTF_8).replace("{name}", projectName)
                     .replace("{time}", timeStamp).replace("{description}", project.getDescription())
                     .replace("{ChartName}", chartName).replace("{class}", deployType)
-                    .replace("{appd-name}", projectName), StandardCharsets.UTF_8,
-                false);
+                    .replace("{appd-name}", projectName), StandardCharsets.UTF_8, false);
             boolean isSuccess = csarValue.renameTo(new File(csar.getCanonicalPath() + "/" + projectName + ".mf"));
             if (!isSuccess) {
                 LOGGER.error("rename mf file failed!");
@@ -135,7 +132,8 @@ public class NewCreateVmCsar {
             File toscaValue = new File(csar.getCanonicalPath() + TEMPLATE_TOSCA_METADATA_PATH);
 
             FileUtils.writeStringToFile(toscaValue,
-                FileUtils.readFileToString(toscaValue, StandardCharsets.UTF_8).replace("{appdFile}", projectName), StandardCharsets.UTF_8, false);
+                FileUtils.readFileToString(toscaValue, StandardCharsets.UTF_8).replace("{appdFile}", projectName),
+                StandardCharsets.UTF_8, false);
         } catch (IOException e) {
             throw new IOException("replace file exception");
         }
@@ -208,7 +206,7 @@ public class NewCreateVmCsar {
         }
         //update SwImageDesc.json , get image url
         String url = config.getVmSystem().getSystemPath();
-        String imageId = url.substring(url.length() - 48,url.length() - 16);
+        String imageId = url.substring(url.length() - 48, url.length() - 16);
         ImageDesc imageDesc = new ImageDesc();
         imageDesc.setId(imageId);
         imageDesc.setName(config.getVmSystem().getSystemName());
@@ -220,7 +218,7 @@ public class NewCreateVmCsar {
         imageDesc.setMinRam(6);
         if (project.getPlatform().get(0).equals("X86")) {
             imageDesc.setArchitecture("x86_64");
-        }else {
+        } else {
             imageDesc.setArchitecture("aarch64");
         }
         imageDesc.setSize(688390);
