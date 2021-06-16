@@ -971,7 +971,6 @@ public class VmService {
             List<ImageDesc> swImgDescs = getSwImageDescrInfo(
                 FileUtils.readFileToString(swImageDesc, StandardCharsets.UTF_8));
 
-            swImgDescs.get(0).setName(config.getImageName());
             swImgDescs.get(0).setSwImage(downloadSystemPath);
             swImgDescs.get(0).setChecksum(config.getChecksum());
             writeFile(swImageDesc, gson.toJson(swImgDescs));
