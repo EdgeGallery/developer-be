@@ -138,12 +138,12 @@ public class SystemImageMgmtService {
             if (!isAdminUser()) {
                 vmImage.setUserId(userId);
             }
-            if (StringUtils.isAnyBlank(vmImage.getSystemName(), systemImageMapper.getVMImage(systemId).getUserId())) {
+            if (StringUtils.isAnyBlank(vmImage.getSystemName(), systemImageMapper.getVmImage(systemId).getUserId())) {
                 LOGGER.error("Update SystemImage failed");
                 return Either.left(new FormatRespDto(Response.Status.BAD_REQUEST, "Can not update a SystemImage."));
             }
             if (systemImageMapper.getSystemNameCount(vmImage.getSystemName(), systemId,
-                systemImageMapper.getVMImage(systemId).getUserId()) > 0) {
+                systemImageMapper.getVmImage(systemId).getUserId()) > 0) {
                 LOGGER.error("SystemName can not duplicate.");
                 return Either.left(new FormatRespDto(Response.Status.BAD_REQUEST, "SystemName can not duplicate."));
             }
@@ -404,7 +404,7 @@ public class SystemImageMgmtService {
             LOGGER.info("download SystemImage succeed!");
             HttpHeaders headers = new HttpHeaders();
             headers.add("Content-Type", MediaType.APPLICATION_OCTET_STREAM_VALUE);
-            VmSystem vmSystem = systemImageMapper.getVMImage(systemId);
+            VmSystem vmSystem = systemImageMapper.getVmImage(systemId);
             String systemName = vmSystem.getSystemName();
             headers.add("Content-Disposition", "attachment; filename=" + systemName + ".zip");
             return ResponseEntity.ok().headers(headers).body(dataStream);

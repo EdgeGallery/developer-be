@@ -23,7 +23,6 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
@@ -325,7 +324,8 @@ public class NewCreateVmCsar {
     }
 
     private static void writeListToFile(List<String> strings, File yaml) {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(yaml))) {
+        try (BufferedWriter writer = new BufferedWriter(
+            new OutputStreamWriter(new FileOutputStream(yaml), StandardCharsets.UTF_8))) {
             for (String l : strings) {
                 writer.write(l);
             }

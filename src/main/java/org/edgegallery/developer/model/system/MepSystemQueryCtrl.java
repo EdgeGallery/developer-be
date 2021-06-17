@@ -36,7 +36,7 @@ public class MepSystemQueryCtrl {
 
     @ApiModelProperty(example = "userName")
     @Pattern(regexp = "(?i)userName|(?i)createTime")
-    private String sortBy ;
+    private String sortBy;
 
     @ApiModelProperty(example = "ASC")
     @Pattern(regexp = "(?i)ASC|(?i)DESC")
