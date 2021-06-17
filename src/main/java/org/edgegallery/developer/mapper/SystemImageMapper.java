@@ -27,18 +27,18 @@ public interface SystemImageMapper {
 
     List<VmSystem> getSystemImagesByCondition(MepGetSystemImageReq mepGetSystemImageReq);
 
-    VmSystem getVMImage(Integer systemId);
+    VmSystem getVmImage(Integer systemId);
 
     String getSystemImagesPath(Integer systemId);
 
     Integer getSystemNameCount(@Param("systemName") String systemName, @Param("systemId") Integer systemId,
         @Param("userId") String userId);
 
-    int createSystemImage(VmSystem VmSystem);
+    int createSystemImage(VmSystem vmSystem);
 
-    int updateSystemImage(VmSystem VmSystem);
+    int updateSystemImage(VmSystem vmSystem);
 
-    int deleteSystemImage(VmSystem VmSystem);
+    int deleteSystemImage(VmSystem vmSystem);
 
     int publishSystemImage(VmSystem vmSystem);
 

@@ -256,7 +256,7 @@ public class ReleaseConfigService {
         if (!CapabilitiesDetail.isEmpty(releaseConfig.getCapabilitiesDetail()) || !CollectionUtils
             .isEmpty(project.getCapabilityList())) {
             // modify MainServiceTemplate zip
-            Boolean res = rebuildAPPD(project, csarFilePath, releaseConfig);
+            Boolean res = rebuildAppd(project, csarFilePath, releaseConfig);
             if (!res) {
                 LOGGER.error("Update MainServiceTemplate zip failed");
                 FormatRespDto error = new FormatRespDto(Response.Status.BAD_REQUEST,
@@ -296,7 +296,7 @@ public class ReleaseConfigService {
         return Either.right(true);
     }
 
-    private Boolean rebuildAPPD(ApplicationProject project, String csarFilePath, ReleaseConfig releaseConfig) {
+    private Boolean rebuildAppd(ApplicationProject project, String csarFilePath, ReleaseConfig releaseConfig) {
         // decompress MainServiceTemplate.zip
         String appdDir = csarFilePath + APPD_PATH;
         File dirFile = new File(appdDir);

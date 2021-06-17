@@ -17,6 +17,8 @@
 package org.edgegallery.developer.service.virtual;
 
 import static org.edgegallery.developer.util.AtpUtil.getProjectPath;
+
+
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -1061,7 +1063,10 @@ public class VmService {
             }
         } finally {
             LOGGER.info("delete system image file.");
-            systemImgFile.delete();
+            boolean delResult = systemImgFile.delete();
+            if (!delResult) {
+                LOGGER.error("delete system image file failed!.");
+            }
         }
     }
 

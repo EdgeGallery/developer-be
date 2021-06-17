@@ -117,7 +117,7 @@
         </if>
     </select>
 
-    <select id="getVMImage" resultMap="ImageMap"
+    <select id="getVmImage" resultMap="ImageMap"
             parameterType="java.lang.Integer">
         SELECT
         *
