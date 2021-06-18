@@ -177,6 +177,13 @@ public class NewCreateVmCsar {
                 replaceParams(templateFile, contentsList);
             }
         }
+        //if temp false ,delete user_data
+        if (vmUserData != null && !vmUserData.isTemp()) {
+            List<String> list = deleteUserData(templateFile);
+            if (!CollectionUtils.isEmpty(list)) {
+                LOGGER.warn("deleted list {}", list);
+            }
+        }
         File templateFileModify = new File(mainServiceTemplatePath);
         boolean isRename = templateFileModify
             .renameTo(new File(csar.getCanonicalPath() + "/APPD/Definition/" + projectName + ".yaml"));
@@ -279,6 +286,24 @@ public class NewCreateVmCsar {
         list.addAll(flavorIndex + 1, contentsList);
         //RewritelistWriteyaml
         writeListToFile(list, templateFile);
+    }
+
+    private List<String> deleteUserData(File templateFile) {
+        //yamlRead aslist
+        List<String> list = readFileByLine(templateFile);
+        //Obtain user_data Location index
+        String userData = "";
+        for (String str : list) {
+            if (str.contains("user_data:")) {
+                userData = str;
+            }
+        }
+        int dataIndex = list.indexOf(userData);
+        list.remove(dataIndex);
+        list.remove(dataIndex);
+        list.remove(dataIndex);
+        writeListToFile(list, templateFile);
+        return list;
     }
 
     private List<String> writeUserDataToYaml(File templateFile, VmPackageConfig config) {
