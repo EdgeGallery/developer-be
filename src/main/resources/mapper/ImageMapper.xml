@@ -22,6 +22,7 @@
                type="org.edgegallery.developer.model.system.VmSystem">
         <id property="systemId" column="system_id"/>
         <result property="systemName" column="system_name"/>
+        <result property="fileName" column="file_name"/>
         <result property="type" column="type"/>
         <result property="operateSystem" column="operate_system"/>
         <result property="version" column="version"/>
@@ -156,9 +157,9 @@
     <insert id="createSystemImage"
             parameterType="org.edgegallery.developer.model.system.VmSystem">
         insert into tbl_vm_system (system_name, type, operate_system, version, system_bit, system_disk, user_id,
-                                   user_name, system_format, create_time, modify_time, status)
+        user_name, create_time, modify_time, status)
         values (#{systemName}, #{type}, #{operateSystem}, #{version}, #{systemBit}, #{systemDisk}, #{userId},
-                #{userName}, #{systemFormat}, now(), now(), #{status})
+        #{userName}, now(), now(), #{status})
     </insert>
 
     <update id="updateSystemImage" parameterType="org.edgegallery.developer.model.system.VmSystem">
@@ -170,12 +171,21 @@
         version=#{version},
         system_bit=#{systemBit},
         system_disk=#{systemDisk},
-        system_format=#{systemFormat},
         modify_time=now()
         WHERE system_id = #{systemId}
         <if test="userId != null">
             and user_id = #{userId}
         </if>
+    </update>
+
+    <update id="updateFileInfo">
+        UPDATE
+        tbl_vm_system
+        SET
+        file_name=#{fileName},
+        file_md5=#{fileMd5},
+        system_format=#{fileFormat}
+        WHERE system_id=#{systemId}
     </update>
 
     <delete id="deleteSystemImage" parameterType="org.edgegallery.developer.model.system.VmSystem">

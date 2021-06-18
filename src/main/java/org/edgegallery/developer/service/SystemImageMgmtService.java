@@ -7,7 +7,10 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Enumeration;
 import java.util.Map;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Response;
 import org.apache.commons.io.FileUtils;
@@ -23,6 +26,7 @@ import org.edgegallery.developer.model.system.MepSystemQueryCtrl;
 import org.edgegallery.developer.model.system.VmSystem;
 import org.edgegallery.developer.model.workspace.EnumSystemImageStatus;
 import org.edgegallery.developer.response.FormatRespDto;
+import org.edgegallery.developer.util.FileHashCode;
 import org.edgegallery.developer.util.HttpClientUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -332,12 +336,20 @@ public class SystemImageMgmtService {
                 String url = systemPath.substring(0, systemPath.length() - 16);
                 if (!HttpClientUtil.deleteSystemImage(url)) {
                     LOGGER.error("delete SystemImage failed!");
-                    return ResponseEntity.status(Response.Status.BAD_REQUEST.getStatusCode()).build();
+                    updateSystemImageStatus(systemId, EnumSystemImageStatus.UPLOAD_FAILED, "");
+                    return ResponseEntity.status(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode()).build();
                 }
             } catch (Exception e) {
                 LOGGER.error("delete SystemImage failed!");
-                return ResponseEntity.status(Response.Status.EXPECTATION_FAILED.getStatusCode()).build();
+                updateSystemImageStatus(systemId, EnumSystemImageStatus.UPLOAD_FAILED, "");
+                return ResponseEntity.status(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode()).build();
             }
+        }
+        ResponseEntity processResult = processMergedFile(mergedFile, systemId);
+        if (processResult != null) {
+            LOGGER.error("unzip uploadFile failed!");
+            updateSystemImageStatus(systemId, EnumSystemImageStatus.UPLOAD_FAILED, "");
+            return processResult;
         }
         String uploadedSystemPath = pushSystemImage(mergedFile);
         if (StringUtils.isEmpty(uploadedSystemPath)) {
@@ -395,7 +407,7 @@ public class SystemImageMgmtService {
         Assert.notNull(systemImageMapper.getSystemImagesPath(systemId), "systemPath is null");
         try {
             String systemPath = systemImageMapper.getSystemImagesPath(systemId);
-            String url = systemPath;
+            String url = systemPath + "?isZip=true";
             byte[] dataStream = HttpClientUtil.downloadSystemImage(url);
             if (dataStream == null) {
                 LOGGER.error("download SystemImage failed!");
@@ -405,12 +417,41 @@ public class SystemImageMgmtService {
             HttpHeaders headers = new HttpHeaders();
             headers.add("Content-Type", MediaType.APPLICATION_OCTET_STREAM_VALUE);
             VmSystem vmSystem = systemImageMapper.getVmImage(systemId);
-            String systemName = vmSystem.getSystemName();
-            headers.add("Content-Disposition", "attachment; filename=" + systemName + ".zip");
+            String fileName = vmSystem.getFileName();
+            headers.add("Content-Disposition", "attachment; filename=" + fileName);
             return ResponseEntity.ok().headers(headers).body(dataStream);
         } catch (Exception e) {
             LOGGER.error("download SystemImage failed!");
             return null;
         }
     }
+
+    private ResponseEntity processMergedFile(File mergedFile, Integer systemId) {
+        try {
+            ZipFile zipFile = new ZipFile(mergedFile);
+            if (zipFile.size() != 1) {
+                LOGGER.error("unzip file failed!");
+                return ResponseEntity.status(Response.Status.BAD_REQUEST.getStatusCode()).build();
+            }
+            String fileMd5 = null;
+            String fileFormat = null;
+            Enumeration<? extends ZipEntry> entries = zipFile.entries();
+            while (entries.hasMoreElements()) {
+                ZipEntry entry = entries.nextElement();
+                String name = entry.getName();
+                fileFormat = name.substring(name.lastIndexOf(".") + 1, name.length());
+                if (!(fileFormat.equalsIgnoreCase("qcow2") || fileFormat.equalsIgnoreCase("iso"))) {
+                    LOGGER.error("zipFile format is mistake!");
+                    return ResponseEntity.status(Response.Status.BAD_REQUEST.getStatusCode()).build();
+                }
+                fileMd5 = FileHashCode.md5HashCode32(zipFile.getInputStream(entry));
+            }
+            systemImageMapper.updateFileInfo(mergedFile.getName(), fileMd5, fileFormat, systemId);
+            return null;
+        } catch (Exception e) {
+            LOGGER.error("unzip file exception");
+            return ResponseEntity.status(Response.Status.BAD_REQUEST.getStatusCode()).build();
+        }
+    }
+
 }
