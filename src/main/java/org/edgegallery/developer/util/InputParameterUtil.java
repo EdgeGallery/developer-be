@@ -4,6 +4,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class InputParameterUtil {
+
+    private InputParameterUtil() {
+        throw new IllegalStateException("Utility class");
+    }
+
     /**
      * getParams.
      *
@@ -18,7 +23,6 @@ public class InputParameterUtil {
             if (keyValue.length != 2) {
                 continue;
             }
-            // TODO to check the data
             String key = keyValue[0];
             String value = keyValue[1];
             params.put(key, value);
