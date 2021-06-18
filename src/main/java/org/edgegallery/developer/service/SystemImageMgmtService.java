@@ -407,7 +407,7 @@ public class SystemImageMgmtService {
         Assert.notNull(systemImageMapper.getSystemImagesPath(systemId), "systemPath is null");
         try {
             String systemPath = systemImageMapper.getSystemImagesPath(systemId);
-            String url = systemPath;
+            String url = systemPath + "?isZip=true";
             byte[] dataStream = HttpClientUtil.downloadSystemImage(url);
             if (dataStream == null) {
                 LOGGER.error("download SystemImage failed!");
