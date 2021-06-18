@@ -939,14 +939,6 @@ public class VmService {
             LOGGER.error("push system image file failed!");
             return false;
         }
-        //        // delete image file
-        //        try {
-        //            FileUtils.deleteDirectory(new File(mergePath));
-        //        }catch (IOException e) {
-        //            LOGGER.error("delete image file fail:{}.", e.getMessage());
-        //            return false;
-        //        }
-
         // modify image file
         File swImageDesc = new File(imagePath + TEMPLATE_TOSCA_IMAGE_DESC_PATH);
         try {
