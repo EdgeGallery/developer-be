@@ -751,6 +751,12 @@ public class VmService {
      */
     public Either<FormatRespDto, VmPackageConfig> vmPackage(String userId, String projectId,
         VmPackageConfig vmPackageConfig) {
+        ApplicationProject project = projectMapper.getProject(userId, projectId);
+        if (project == null) {
+            LOGGER.error("Can not find the project projectId {}", projectId);
+            FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "Can not find the project.");
+            return Either.left(error);
+        }
         //A project has only one virtual machine configuration
         List<VmCreateConfig> vmConfigs = vmConfigMapper.getVmCreateConfigs(projectId);
         if (!CollectionUtils.isEmpty(vmConfigs)) {
@@ -760,12 +766,6 @@ public class VmService {
                     "delete vm create config failed!");
                 return Either.left(error);
             }
-        }
-        ApplicationProject project = projectMapper.getProjectById(projectId);
-        if (project == null) {
-            LOGGER.error("Can not find the project projectId {}", projectId);
-            FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "Can not find the project.");
-            return Either.left(error);
         }
 
         VmSystem vmSystem = vmPackageConfig.getVmSystem();
@@ -801,7 +801,7 @@ public class VmService {
      * get vm package .
      */
     public Either<FormatRespDto, VmPackageConfig> getVmPackage(String userId, String projectId) {
-        ApplicationProject project = projectMapper.getProjectById(projectId);
+        ApplicationProject project = projectMapper.getProject(userId, projectId);
         if (project == null) {
             LOGGER.error("Can not find the project projectId {}", projectId);
             FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "Can not find the project.");
@@ -815,7 +815,7 @@ public class VmService {
      * delete vm package file.
      */
     public Either<FormatRespDto, Boolean> deleteVmPackage(String userId, String projectId) {
-        ApplicationProject project = projectMapper.getProjectById(projectId);
+        ApplicationProject project = projectMapper.getProject(userId, projectId);
         if (project == null) {
             LOGGER.error("Can not find the project projectId {}", projectId);
             FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "Can not find the project.");
