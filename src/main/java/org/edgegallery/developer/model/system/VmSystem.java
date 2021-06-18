@@ -49,6 +49,8 @@ public class VmSystem {
     @Length(max = 128)
     private String systemName;
 
+    private String fileName;
+
     private String createTime;
 
     private String modifyTime;

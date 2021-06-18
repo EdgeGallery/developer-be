@@ -289,6 +289,8 @@
         "system_format" varchar(50) DEFAULT NULL,
         "upload_time" timestamptz(6)  DEFAULT NULL,
         "system_path" varchar(128) DEFAULT NULL,
+        "file_name" varchar(128) DEFAULT NULL,
+        "file_md5" varchar(128) DEFAULT NULL,
         "status" varchar(50) DEFAULT NULL,
         CONSTRAINT "tbl_vm_system_uniqueName" UNIQUE ("system_name","user_id"),
         CONSTRAINT "tbl_vm_system_pkey" PRIMARY KEY ("system_id")

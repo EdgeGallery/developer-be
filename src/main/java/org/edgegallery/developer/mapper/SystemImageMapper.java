@@ -32,7 +32,7 @@ public interface SystemImageMapper {
     String getSystemImagesPath(Integer systemId);
 
     Integer getSystemNameCount(@Param("systemName") String systemName, @Param("systemId") Integer systemId,
-        @Param("userId") String userId);
+                               @Param("userId") String userId);
 
     int createSystemImage(VmSystem vmSystem);
 
@@ -43,4 +43,7 @@ public interface SystemImageMapper {
     int publishSystemImage(VmSystem vmSystem);
 
     int updateSystemImageStatus(VmSystem vmSystem);
+
+    void updateFileInfo(@Param("fileName") String fileName, @Param("fileMd5") String fileMd5,
+                        @Param("fileFormat") String fileFormat, @Param("systemId") Integer systemId);
 }
