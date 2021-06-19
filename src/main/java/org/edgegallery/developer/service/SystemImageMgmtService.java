@@ -426,7 +426,7 @@ public class SystemImageMgmtService {
 
     private ResponseEntity processMergedFile(File mergedFile, Integer systemId) {
         try (ZipFile zipFile = new ZipFile(mergedFile)) {
-            if (zipFile.size() != 1) {
+            if (zipFile.size() != 2) {
                 LOGGER.error("invalid zip file!");
                 return ResponseEntity.status(Response.Status.BAD_REQUEST.getStatusCode()).build();
             }
@@ -437,14 +437,14 @@ public class SystemImageMgmtService {
                 ZipEntry entry = entries.nextElement();
                 String name = entry.getName();
                 fileFormat = name.substring(name.lastIndexOf(".") + 1, name.length());
-                if (!(fileFormat.equalsIgnoreCase("qcow2") || fileFormat.equalsIgnoreCase("iso"))) {
-                    LOGGER.error("zipFile format is mistake!");
-                    return ResponseEntity.status(Response.Status.BAD_REQUEST.getStatusCode()).build();
+                if (fileFormat.equalsIgnoreCase("qcow2") || fileFormat.equalsIgnoreCase("iso")) {
+                    fileMd5 = FileHashCode.md5HashCode32(zipFile.getInputStream(entry));
+                    systemImageMapper.updateFileInfo(systemId, mergedFile.getName(), fileMd5, fileFormat);
+                    return null;
                 }
-                fileMd5 = FileHashCode.md5HashCode32(zipFile.getInputStream(entry));
             }
-            systemImageMapper.updateFileInfo(systemId, mergedFile.getName(), fileMd5, fileFormat);
-            return null;
+            LOGGER.error("zipFile format is mistake!");
+            return ResponseEntity.status(Response.Status.BAD_REQUEST.getStatusCode()).build();
         } catch (Exception e) {
             LOGGER.error("process merged zip file failed, {}", e.getMessage());
             return ResponseEntity.status(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode()).build();
