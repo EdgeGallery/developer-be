@@ -40,10 +40,11 @@ public interface SystemImageMapper {
 
     int deleteSystemImage(VmSystem vmSystem);
 
-    int publishSystemImage(VmSystem vmSystem);
+    int updateSystemImageStatus(@Param("systemId") Integer systemId, @Param("status") String status);
 
-    int updateSystemImageStatus(VmSystem vmSystem);
+    void updateSystemImageStatusAndPath(@Param("systemId") Integer systemId,
+        @Param("status") String status, @Param("systemPath") String systemPath);
 
-    void updateFileInfo(@Param("fileName") String fileName, @Param("fileMd5") String fileMd5,
-                        @Param("fileFormat") String fileFormat, @Param("systemId") Integer systemId);
+    void updateFileInfo(@Param("systemId") Integer systemId,
+        @Param("fileName") String fileName, @Param("fileMd5") String fileMd5, @Param("fileFormat") String fileFormat);
 }

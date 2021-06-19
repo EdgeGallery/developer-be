@@ -174,10 +174,7 @@ public class SystemImageMgmtService {
     public Either<FormatRespDto, Boolean> publishSystemImage(Integer systemId) throws Exception {
         LOGGER.info("Publish SystemImage start");
         String userId = AccessUserUtil.getUser().getUserId();
-        VmSystem vmImage = new VmSystem();
-        vmImage.setSystemId(systemId);
-        vmImage.setStatus(EnumSystemImageStatus.PUBLISHED);
-        int ret = systemImageMapper.publishSystemImage(vmImage);
+        int ret = systemImageMapper.updateSystemImageStatus(systemId, EnumSystemImageStatus.PUBLISHED.toString());
         if (ret > 0) {
             LOGGER.info("Publish SystemImage {} success ", userId);
             return Either.right(true);
@@ -199,51 +196,23 @@ public class SystemImageMgmtService {
             vmImage.setUserId(userId);
         }
         vmImage.setSystemId(systemId);
-        String systemPath = systemImageMapper.getSystemImagesPath(systemId);
-        if (systemPath != null) {
-            try {
-                String url = systemPath.substring(0, systemPath.length() - 16);
-                if (!HttpClientUtil.deleteSystemImage(url)) {
-                    FormatRespDto error = new FormatRespDto(Response.Status.BAD_REQUEST, "delete SystemImage failed.");
-                    return Either.left(error);
-                }
-            } catch (Exception e) {
-                FormatRespDto error = new FormatRespDto(Response.Status.BAD_REQUEST, "delete SystemImage failed.");
-                return Either.left(error);
-            }
+
+        LOGGER.info("delete system image on remote server.");
+        if (!deleteImageFileOnRemote(systemId)) {
+            LOGGER.error("delete system image on remote server failed.");
+            FormatRespDto error = new FormatRespDto(Response.Status.INTERNAL_SERVER_ERROR,
+                "delete SystemImage failed.");
+            return Either.left(error);
         }
+
+        LOGGER.info("delete system image record in database.");
         int res = systemImageMapper.deleteSystemImage(vmImage);
         if (res < 1) {
             LOGGER.error("Delete SystemImage {} failed", userId);
-            FormatRespDto error = new FormatRespDto(Response.Status.BAD_REQUEST, "delete SystemImage failed.");
+            FormatRespDto error = new FormatRespDto(Response.Status.INTERNAL_SERVER_ERROR, "delete SystemImage failed.");
             return Either.left(error);
         }
         LOGGER.info("Delete SystemImage {} success", userId);
-        return Either.right(true);
-    }
-
-    /**
-     * update system image status.
-     *
-     * @return
-     */
-    public Either<FormatRespDto, Boolean> updateSystemImageStatus(Integer systemId, EnumSystemImageStatus status,
-        String systemPath) {
-        LOGGER.info("update system image status, systemId = {}, status = {}", systemId, status);
-        VmSystem vmImage = new VmSystem();
-        vmImage.setSystemId(systemId);
-        vmImage.setStatus(status);
-        if (EnumSystemImageStatus.UPLOAD_SUCCEED.equals(status)) {
-            vmImage.setSystemPath(systemPath);
-        }
-
-        int ret = systemImageMapper.updateSystemImageStatus(vmImage);
-        if (ret <= 0) {
-            LOGGER.error("update system image failed, systemId = {}", systemId);
-            return Either.left(new FormatRespDto(Response.Status.INTERNAL_SERVER_ERROR, "update system image failed"));
-        }
-
-        LOGGER.info("update system image success.");
         return Either.right(true);
     }
 
@@ -260,28 +229,27 @@ public class SystemImageMgmtService {
         throws IOException {
         LOGGER.info("upload system image file, fileName = {}, identifier = {}, chunkNum = {}", chunk.getFilename(),
             chunk.getIdentifier(), chunk.getChunkNumber());
+
         boolean isMultipart = ServletFileUpload.isMultipartContent(request);
         if (!isMultipart) {
             LOGGER.error("upload request is invalid.");
             return ResponseEntity.badRequest().build();
         }
 
-        LOGGER.info("update status.");
-        updateSystemImageStatus(systemId, EnumSystemImageStatus.UPLOADING, "");
-
         MultipartFile file = chunk.getFile();
         if (file == null) {
-            LOGGER.error("can not find any needed file");
-            updateSystemImageStatus(systemId, EnumSystemImageStatus.UPLOAD_FAILED, "");
+            LOGGER.error("there is no needed file");
             return ResponseEntity.badRequest().build();
         }
 
+        LOGGER.info("update system image status and upload file.");
+        systemImageMapper.updateSystemImageStatus(systemId, EnumSystemImageStatus.UPLOADING.toString());
         File tmpUploadDir = new File(getUploadSysImageRootDir(systemId));
         if (!tmpUploadDir.exists()) {
             boolean isMk = tmpUploadDir.mkdirs();
             if (!isMk) {
                 LOGGER.error("create temporary upload path failed");
-                updateSystemImageStatus(systemId, EnumSystemImageStatus.UPLOAD_FAILED, "");
+                systemImageMapper.updateSystemImageStatus(systemId, EnumSystemImageStatus.UPLOAD_FAILED.toString());
                 return ResponseEntity.status(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode()).build();
             }
         }
@@ -312,54 +280,75 @@ public class SystemImageMgmtService {
         File partFileDir = new File(partFilePath);
         if (!partFileDir.exists() || !partFileDir.isDirectory()) {
             LOGGER.error("uploaded part file path not found!");
-            updateSystemImageStatus(systemId, EnumSystemImageStatus.UPLOAD_FAILED, "");
+            systemImageMapper.updateSystemImageStatus(systemId, EnumSystemImageStatus.UPLOAD_FAILED.toString());
             return ResponseEntity.status(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode()).build();
         }
 
         File[] partFiles = partFileDir.listFiles();
         if (partFiles == null || partFiles.length == 0) {
             LOGGER.error("uploaded part file not found!");
-            updateSystemImageStatus(systemId, EnumSystemImageStatus.UPLOAD_FAILED, "");
+            systemImageMapper.updateSystemImageStatus(systemId, EnumSystemImageStatus.UPLOAD_FAILED.toString());
             return ResponseEntity.status(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode()).build();
         }
 
         File mergedFile = new File(getUploadSysImageRootDir(systemId) + File.separator + fileName);
-        FileOutputStream destTempfos = new FileOutputStream(mergedFile, true);
+        FileOutputStream mergedFileStream = new FileOutputStream(mergedFile, true);
         for (File partFile : partFiles) {
-            FileUtils.copyFile(partFile, destTempfos);
+            FileUtils.copyFile(partFile, mergedFileStream);
         }
-        destTempfos.close();
+        mergedFileStream.close();
         FileUtils.deleteDirectory(partFileDir);
-        String systemPath = systemImageMapper.getSystemImagesPath(systemId);
-        if (systemPath != null) {
-            try {
-                String url = systemPath.substring(0, systemPath.length() - 16);
-                if (!HttpClientUtil.deleteSystemImage(url)) {
-                    LOGGER.error("delete SystemImage failed!");
-                    updateSystemImageStatus(systemId, EnumSystemImageStatus.UPLOAD_FAILED, "");
-                    return ResponseEntity.status(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode()).build();
-                }
-            } catch (Exception e) {
-                LOGGER.error("delete SystemImage failed!");
-                updateSystemImageStatus(systemId, EnumSystemImageStatus.UPLOAD_FAILED, "");
-                return ResponseEntity.status(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode()).build();
-            }
-        }
-        ResponseEntity processResult = processMergedFile(mergedFile, systemId);
-        if (processResult != null) {
-            LOGGER.error("unzip uploadFile failed!");
-            updateSystemImageStatus(systemId, EnumSystemImageStatus.UPLOAD_FAILED, "");
-            return processResult;
-        }
-        String uploadedSystemPath = pushSystemImage(mergedFile);
-        if (StringUtils.isEmpty(uploadedSystemPath)) {
-            LOGGER.error("push system image file failed!");
-            updateSystemImageStatus(systemId, EnumSystemImageStatus.UPLOAD_FAILED, "");
+
+        LOGGER.info("delete old system image on remote server.");
+        if (!deleteImageFileOnRemote(systemId)) {
+            LOGGER.error("delete old system image on remote server failed!");
+            systemImageMapper.updateSystemImageStatus(systemId, EnumSystemImageStatus.UPLOAD_FAILED.toString());
+            deleteMergedFile(mergedFile);
             return ResponseEntity.status(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode()).build();
         }
 
-        updateSystemImageStatus(systemId, EnumSystemImageStatus.UPLOAD_SUCCEED, uploadedSystemPath);
+        LOGGER.info("process merged file.");
+        ResponseEntity processResult = processMergedFile(mergedFile, systemId);
+        if (processResult != null) {
+            LOGGER.error("process merged file failed!");
+            systemImageMapper.updateSystemImageStatus(systemId, EnumSystemImageStatus.UPLOAD_FAILED.toString());
+            deleteMergedFile(mergedFile);
+            return processResult;
+        }
+
+        LOGGER.info("push system image file to remote server.");
+        String uploadedSystemPath = pushSystemImage(mergedFile);
+        if (StringUtils.isEmpty(uploadedSystemPath)) {
+            LOGGER.error("push system image file failed!");
+            systemImageMapper.updateSystemImageStatus(systemId, EnumSystemImageStatus.UPLOAD_FAILED.toString());
+            return ResponseEntity.status(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode()).build();
+        }
+
+        LOGGER.info("system image file upload succeed.");
+        systemImageMapper.updateSystemImageStatusAndPath(systemId,
+            EnumSystemImageStatus.UPLOAD_SUCCEED.toString(), uploadedSystemPath);
         return ResponseEntity.ok().build();
+    }
+
+    private boolean deleteImageFileOnRemote(Integer systemId) {
+        String systemPath = systemImageMapper.getSystemImagesPath(systemId);
+        if (StringUtils.isEmpty(systemPath)) {
+            LOGGER.debug("system path is invalid, no need to delete.");
+            return true;
+        }
+
+        try {
+            String url = systemPath.substring(0, systemPath.length() - 16);
+            if (!HttpClientUtil.deleteSystemImage(url)) {
+                LOGGER.error("delete SystemImage on remote failed!");
+                return false;
+            }
+        } catch (Exception e) {
+            LOGGER.error("delete old SystemImage failed, {}", e.getMessage());
+            return false;
+        }
+
+        return true;
     }
 
     private String pushSystemImage(File systemImgFile) {
@@ -381,10 +370,19 @@ public class SystemImageMgmtService {
                 return null;
             }
         } finally {
-            LOGGER.info("delete system image file.");
-            if (!systemImgFile.delete()) {
-                LOGGER.error("delete system image failed.");
-            }
+            deleteMergedFile(systemImgFile);
+        }
+    }
+
+    private void deleteMergedFile(File mergedFile) {
+        LOGGER.info("delete merged file.");
+        if (!mergedFile.delete()) {
+            LOGGER.error("delete merged file failed.");
+        }
+
+        LOGGER.info("delete directory of merged file.");
+        if (!mergedFile.getParentFile().delete()) {
+            LOGGER.error("delete directory of merged file failed.");
         }
     }
 
@@ -427,10 +425,9 @@ public class SystemImageMgmtService {
     }
 
     private ResponseEntity processMergedFile(File mergedFile, Integer systemId) {
-        try {
-            ZipFile zipFile = new ZipFile(mergedFile);
+        try (ZipFile zipFile = new ZipFile(mergedFile)) {
             if (zipFile.size() != 1) {
-                LOGGER.error("unzip file failed!");
+                LOGGER.error("invalid zip file!");
                 return ResponseEntity.status(Response.Status.BAD_REQUEST.getStatusCode()).build();
             }
             String fileMd5 = null;
@@ -446,11 +443,11 @@ public class SystemImageMgmtService {
                 }
                 fileMd5 = FileHashCode.md5HashCode32(zipFile.getInputStream(entry));
             }
-            systemImageMapper.updateFileInfo(mergedFile.getName(), fileMd5, fileFormat, systemId);
+            systemImageMapper.updateFileInfo(systemId, mergedFile.getName(), fileMd5, fileFormat);
             return null;
         } catch (Exception e) {
-            LOGGER.error("unzip file exception");
-            return ResponseEntity.status(Response.Status.BAD_REQUEST.getStatusCode()).build();
+            LOGGER.error("process merged zip file failed, {}", e.getMessage());
+            return ResponseEntity.status(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode()).build();
         }
     }
 

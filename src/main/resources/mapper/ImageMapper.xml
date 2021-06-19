@@ -184,7 +184,8 @@
         SET
         file_name=#{fileName},
         file_md5=#{fileMd5},
-        system_format=#{fileFormat}
+        system_format=#{fileFormat},
+        upload_time=now()
         WHERE system_id=#{systemId}
     </update>
 
@@ -197,19 +198,18 @@
         </if>
     </delete>
 
-    <update id="publishSystemImage" parameterType="org.edgegallery.developer.model.system.VmSystem">
+    <update id="updateSystemImageStatus">
         UPDATE
-            tbl_vm_system
+        tbl_vm_system
         SET status = #{status}
         WHERE system_id = #{systemId}
     </update>
 
-    <update id="updateSystemImageStatus" parameterType="org.edgegallery.developer.model.system.VmSystem">
+    <update id="updateSystemImageStatusAndPath">
         UPDATE
-            tbl_vm_system
-        SET status      = #{status},
-            system_path = #{systemPath},
-            upload_time = now()
+        tbl_vm_system
+        SET status = #{status},
+        system_path = #{systemPath}
         WHERE system_id = #{systemId}
     </update>
 </mapper>
