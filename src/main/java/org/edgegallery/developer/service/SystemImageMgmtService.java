@@ -293,27 +293,27 @@ public class SystemImageMgmtService {
 
         File mergedFile = new File(getUploadSysImageRootDir(systemId) + File.separator + fileName);
         FileOutputStream mergedFileStream = new FileOutputStream(mergedFile, true);
-        for (File partFile : partFiles) {
+        for (int i = 1; i <= partFiles.length; i++) {
+            File partFile = new File(partFilePath, i + ".part");
             FileUtils.copyFile(partFile, mergedFileStream);
         }
         mergedFileStream.close();
-        FileUtils.deleteDirectory(partFileDir);
-
-        LOGGER.info("delete old system image on remote server.");
-        if (!deleteImageFileOnRemote(systemId)) {
-            LOGGER.error("delete old system image on remote server failed!");
-            systemImageMapper.updateSystemImageStatus(systemId, EnumSystemImageStatus.UPLOAD_FAILED.toString());
-            deleteMergedFile(mergedFile);
-            return ResponseEntity.status(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode()).build();
-        }
 
         LOGGER.info("process merged file.");
         ResponseEntity processResult = processMergedFile(mergedFile, systemId);
         if (processResult != null) {
             LOGGER.error("process merged file failed!");
             systemImageMapper.updateSystemImageStatus(systemId, EnumSystemImageStatus.UPLOAD_FAILED.toString());
-            deleteMergedFile(mergedFile);
+            cleanWorkDir(mergedFile.getParentFile());
             return processResult;
+        }
+
+        LOGGER.info("delete old system image on remote server.");
+        if (!deleteImageFileOnRemote(systemId)) {
+            LOGGER.error("delete old system image on remote server failed!");
+            systemImageMapper.updateSystemImageStatus(systemId, EnumSystemImageStatus.UPLOAD_FAILED.toString());
+            cleanWorkDir(mergedFile.getParentFile());
+            return ResponseEntity.status(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode()).build();
         }
 
         LOGGER.info("push system image file to remote server.");
@@ -370,19 +370,15 @@ public class SystemImageMgmtService {
                 return null;
             }
         } finally {
-            deleteMergedFile(systemImgFile);
+            cleanWorkDir(systemImgFile.getParentFile());
         }
     }
 
-    private void deleteMergedFile(File mergedFile) {
-        LOGGER.info("delete merged file.");
-        if (!mergedFile.delete()) {
-            LOGGER.error("delete merged file failed.");
-        }
-
-        LOGGER.info("delete directory of merged file.");
-        if (!mergedFile.getParentFile().delete()) {
-            LOGGER.error("delete directory of merged file failed.");
+    private void cleanWorkDir(File dir) {
+        try {
+            FileUtils.deleteDirectory(dir);
+        } catch (IOException e) {
+            LOGGER.error("delete work directory failed.");
         }
     }
 
@@ -450,5 +446,4 @@ public class SystemImageMgmtService {
             return ResponseEntity.status(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode()).build();
         }
     }
-
 }
