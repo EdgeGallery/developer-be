@@ -209,7 +209,8 @@ public class SystemImageMgmtService {
         int res = systemImageMapper.deleteSystemImage(vmImage);
         if (res < 1) {
             LOGGER.error("Delete SystemImage {} failed", userId);
-            FormatRespDto error = new FormatRespDto(Response.Status.INTERNAL_SERVER_ERROR, "delete SystemImage failed.");
+            FormatRespDto error = new FormatRespDto(Response.Status.INTERNAL_SERVER_ERROR,
+                "delete SystemImage failed.");
             return Either.left(error);
         }
         LOGGER.info("Delete SystemImage {} success", userId);
@@ -325,8 +326,8 @@ public class SystemImageMgmtService {
         }
 
         LOGGER.info("system image file upload succeed.");
-        systemImageMapper.updateSystemImageStatusAndPath(systemId,
-            EnumSystemImageStatus.UPLOAD_SUCCEED.toString(), uploadedSystemPath);
+        systemImageMapper.updateSystemImageStatusAndPath(systemId, EnumSystemImageStatus.UPLOAD_SUCCEED.toString(),
+            uploadedSystemPath);
         return ResponseEntity.ok().build();
     }
 
