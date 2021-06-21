@@ -501,7 +501,8 @@ public class VmService {
 
         File mergedFile = new File(getUploadFileRootDir() + File.separator + fileName);
         FileOutputStream destTempfos = new FileOutputStream(mergedFile, true);
-        for (File partFile : partFiles) {
+        for (int i = 1; i <= partFiles.length; i++) {
+            File partFile = new File(partFilePath, i + ".part");
             FileUtils.copyFile(partFile, destTempfos);
         }
         destTempfos.close();
@@ -734,6 +735,10 @@ public class VmService {
                 vmImageConfig.getAppInstanceId(), vmImageConfig.getImageId(), token);
         }
 
+        String packagePath = projectService.getProjectPath(vmImageConfig.getProjectId()) + vmImageConfig
+            .getAppInstanceId() + File.separator + "Image";
+        FileUtils.deleteQuietly(new File(packagePath + File.separator + vmImageConfig.getImageName()));
+
         int res = vmConfigMapper.deleteVmImage(projectId, vmCreateConfig.getVmId());
         if (res < 1) {
             LOGGER.error("Delete vm image config {} failed.", vmCreateConfig.getVmId());
@@ -894,7 +899,7 @@ public class VmService {
             boolean res = HttpClientUtil
                 .downloadVmImage(basePath, userId, imagePath, config.getAppInstanceId(), config.getImageId(),
                     config.getImageName(), Integer.toString(chunkNum), config.getLcmToken());
-            if (chunkNum < (config.getSumChunkNum() - 10) && !res) {
+            if (chunkNum < (config.getSumChunkNum() - 1) && !res) {
                 LOGGER.info("download image chunkNum:{} fail", chunkNum);
                 config.setLog("no more data");
                 return false;
@@ -924,7 +929,6 @@ public class VmService {
                     }
                 }
                 CompressFileUtilsJava.compressToZip(mergePath, imagePath, config.getImageName());
-                FileUtils.deleteDirectory(new File(mergePath));
             }
 
         } catch (IOException e) {
