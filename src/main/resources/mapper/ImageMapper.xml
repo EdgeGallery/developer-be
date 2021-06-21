@@ -178,17 +178,6 @@
         </if>
     </update>
 
-    <update id="updateFileInfo">
-        UPDATE
-        tbl_vm_system
-        SET
-        file_name=#{fileName},
-        file_md5=#{fileMd5},
-        system_format=#{fileFormat},
-        upload_time=now()
-        WHERE system_id=#{systemId}
-    </update>
-
     <delete id="deleteSystemImage" parameterType="org.edgegallery.developer.model.system.VmSystem">
         DELETE FROM
         tbl_vm_system
@@ -205,11 +194,15 @@
         WHERE system_id = #{systemId}
     </update>
 
-    <update id="updateSystemImageStatusAndPath">
+    <update id="updateSystemImageUploadInfo" parameterType="org.edgegallery.developer.model.system.UploadFileInfo">
         UPDATE
         tbl_vm_system
         SET status = #{status},
-        system_path = #{systemPath}
+        system_path = #{systemPath},
+        file_name=#{fileName},
+        file_md5=#{fileMd5},
+        system_format=#{fileFormat},
+        upload_time=now()
         WHERE system_id = #{systemId}
     </update>
 </mapper>

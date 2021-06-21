@@ -18,6 +18,7 @@ package org.edgegallery.developer.mapper;
 
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
+import org.edgegallery.developer.model.system.UploadFileInfo;
 import org.edgegallery.developer.model.system.MepGetSystemImageReq;
 import org.edgegallery.developer.model.system.VmSystem;
 
@@ -42,9 +43,5 @@ public interface SystemImageMapper {
 
     int updateSystemImageStatus(@Param("systemId") Integer systemId, @Param("status") String status);
 
-    void updateSystemImageStatusAndPath(@Param("systemId") Integer systemId,
-        @Param("status") String status, @Param("systemPath") String systemPath);
-
-    void updateFileInfo(@Param("systemId") Integer systemId,
-        @Param("fileName") String fileName, @Param("fileMd5") String fileMd5, @Param("fileFormat") String fileFormat);
+    void updateSystemImageUploadInfo(UploadFileInfo uploadFileInfo);
 }
