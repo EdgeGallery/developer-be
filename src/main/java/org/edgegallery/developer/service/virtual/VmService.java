@@ -899,7 +899,7 @@ public class VmService {
             boolean res = HttpClientUtil
                 .downloadVmImage(basePath, userId, imagePath, config.getAppInstanceId(), config.getImageId(),
                     config.getImageName(), Integer.toString(chunkNum), config.getLcmToken());
-            if (chunkNum < (config.getSumChunkNum() - 1) && !res) {
+            if (chunkNum < (config.getSumChunkNum() - 10) && !res) {
                 LOGGER.info("download image chunkNum:{} fail", chunkNum);
                 config.setLog("no more data");
                 return false;
@@ -929,6 +929,7 @@ public class VmService {
                     }
                 }
                 CompressFileUtilsJava.compressToZip(mergePath, imagePath, config.getImageName());
+                FileUtils.deleteDirectory(new File(mergePath));
             }
 
         } catch (IOException e) {

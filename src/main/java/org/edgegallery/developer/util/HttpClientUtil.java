@@ -71,7 +71,7 @@ public final class HttpClientUtil {
         LcmLog lcmLog, String pkgId, String mecHost, Map<String, String> inputParams) {
         //before instantiate ,call distribute result interface
         try {
-            Thread.sleep(60000);
+            Thread.sleep(30000);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             LOGGER.error("sleep fail! {}", e.getMessage());
