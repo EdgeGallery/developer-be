@@ -564,6 +564,7 @@ public class ProjectService {
         LcmLog lcmLog = new LcmLog();
         String basePath = HttpClientUtil.getUrlPrefix(host.getProtocol(), host.getLcmIp(), host.getPort());
         String uploadRes = HttpClientUtil.uploadPkg(basePath, csar.getPath(), userId, token, lcmLog);
+        LOGGER.warn("upload res {}", uploadRes);
         if (org.springframework.util.StringUtils.isEmpty(uploadRes)) {
             testConfig.setErrorLog(lcmLog.getLog());
             return false;
@@ -576,7 +577,7 @@ public class ProjectService {
         projectMapper.updateTestConfig(testConfig);
         // distribute pkg
         boolean distributeRes = HttpClientUtil.distributePkg(basePath, userId, token, pkgId, host.getMecHost(), lcmLog);
-
+        LOGGER.warn("distribute res {}", distributeRes);
         if (!distributeRes) {
             testConfig.setErrorLog(lcmLog.getLog());
             return false;
@@ -584,9 +585,11 @@ public class ProjectService {
         String appInstanceId = testConfig.getAppInstanceId();
         // instantiate application
         Map<String, String> inputParams = InputParameterUtil.getParams(host.getParameter());
+        LOGGER.warn("begin instant {}", inputParams);
         boolean instantRes = HttpClientUtil
             .instantiateApplication(basePath, appInstanceId, userId, token, lcmLog, pkgId, host.getMecHost(),
                 inputParams);
+        LOGGER.warn("after instant {}", instantRes);
         if (!instantRes) {
             testConfig.setErrorLog(lcmLog.getLog());
             return false;
