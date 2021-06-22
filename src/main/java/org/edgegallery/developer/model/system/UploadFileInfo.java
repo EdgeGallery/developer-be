@@ -16,14 +16,9 @@
 
 package org.edgegallery.developer.model.system;
 
-import io.swagger.annotations.ApiModelProperty;
-import javax.validation.constraints.Pattern;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import org.edgegallery.developer.model.workspace.EnumSystemImageStatus;
-import org.hibernate.validator.constraints.Length;
-import org.hibernate.validator.constraints.Range;
 
 @Getter
 @Setter

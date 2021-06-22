@@ -18,8 +18,8 @@ package org.edgegallery.developer.mapper;
 
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
-import org.edgegallery.developer.model.system.UploadFileInfo;
 import org.edgegallery.developer.model.system.MepGetSystemImageReq;
+import org.edgegallery.developer.model.system.UploadFileInfo;
 import org.edgegallery.developer.model.system.VmSystem;
 
 public interface SystemImageMapper {
