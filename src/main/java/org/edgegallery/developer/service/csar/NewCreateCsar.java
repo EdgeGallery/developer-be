@@ -182,10 +182,13 @@ public class NewCreateCsar {
         Gson gson = new Gson();
         List<ImageDesc> imageDescs = new ArrayList<>();
         for (String image : images) {
-            if (image.contains(".Values.imagelocation.domainname")) {
+            if (image.contains(".Values.imagelocation.domainname") || image.contains("swr.")) {
                 String[] imager = image.split("/");
                 ImageConfig imageConfig = (ImageConfig) SpringContextUtil.getBean(ImageConfig.class);
-                image = imageConfig.getDomainname() + "/" + imageConfig.getProject() + "/" + imager[2];
+                image = imageConfig.getDomainname() + "/" + imageConfig.getProject() + "/" + imager[2].trim();
+            } else {
+                ImageConfig imageConfig = (ImageConfig) SpringContextUtil.getBean(ImageConfig.class);
+                image = imageConfig.getDomainname() + "/" + imageConfig.getProject() + "/" + image.trim();
             }
             ImageDesc imageDesc = new ImageDesc();
             imageDesc.setId(UUID.randomUUID().toString());

@@ -37,7 +37,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -557,52 +556,22 @@ public class UploadFileService {
     }
 
     private boolean saveImage(File helmYaml, String projectId) {
-        String content = null;
-        try {
-            content = FileUtils.readFileToString(helmYaml, Consts.FILE_ENCODING);
-        } catch (IOException e) {
-            LOGGER.error("read file content occur {}", e.getMessage());
-            return false;
-        }
-        if (content.contains("{{- if .Values.global.mepagent.enabled }}")) {
-            content = content.replaceAll("\\{\\{- if .Values.global.mepagent.enabled \\}\\}", "");
-        }
-        if (content.contains("{{- end }}")) {
-            content = content.replaceAll("\\{\\{- end \\}\\}", "");
-        }
-        String[] multiContent = content.split("---");
-        List<Map<String, Object>> mapList = new ArrayList<>();
+        //yamlRead aslist
+        List<String> list = readFileByLine(helmYaml);
         List<String> podImages = new ArrayList<>();
-        List<String> svcTypes = new ArrayList<>();
-        List<String> svcNodePorts = new ArrayList<>();
-        List<String> svcPorts = new ArrayList<>();
-        try {
-            for (String str : multiContent) {
-                if (StringUtils.isBlank(str)) {
-                    continue;
+        //query image and save
+        for (String str : list) {
+            if (str.contains("image:")) {
+                if (str.contains(".Values.imagelocation.domainname")) {
+                    String[] images = str.split("\'");
+                    podImages.add(images[1].trim());
+                } else {
+                    String[] images = str.split(":");
+                    podImages.add(images[1].trim() + ":" + images[2].trim());
                 }
-                Yaml yaml = new Yaml(new SafeConstructor());
-                Map<String, Object> loaded = yaml.load(str);
-                mapList.add(loaded);
-                //verify image
-                if (str.contains("kind: Deployment")) {
-                    addService(mapList, svcTypes, svcNodePorts, svcPorts);
-                    addDeployImage(mapList, podImages);
-                    mapList.clear();
-                }
-
-                if (str.contains("kind: Pod")) {
-                    addService(mapList, svcTypes, svcNodePorts, svcPorts);
-                    addPodImage(mapList, podImages);
-                    mapList.clear();
-                }
-
             }
-        } catch (DomainException e) {
-            LOGGER.error("Yaml deserialization failed {}", e.getMessage());
-            return false;
-        }
 
+        }
         //verify image info
         LOGGER.warn("podImages {}", podImages);
         boolean result = verifyImage(podImages);
@@ -621,15 +590,26 @@ public class UploadFileService {
         config.setId(UUID.randomUUID().toString());
         config.setPodName(project.getName());
         config.setPodContainers(podImages.toString());
-        config.setSvcType(svcTypes.toString());
-        config.setSvcNodePort(svcNodePorts.toString());
-        config.setSvcPort(svcPorts.toString());
         config.setProjectId(projectId);
         int res = projectImageMapper.saveImage(config);
         if (res <= 0) {
             return false;
         }
         return true;
+    }
+
+    private static List<String> readFileByLine(File fin) {
+        String line;
+        List<String> sb = new ArrayList<>();
+        try (FileInputStream fis = new FileInputStream(fin);
+             BufferedReader br = new BufferedReader(new InputStreamReader(fis, StandardCharsets.UTF_8))) {
+            while ((line = br.readLine()) != null) {
+                sb.add(line + "\r\n");
+            }
+        } catch (IOException e) {
+            return Collections.emptyList();
+        }
+        return sb;
     }
 
     private boolean verifyImage(List<String> imageList) {
@@ -823,69 +803,6 @@ public class UploadFileService {
             }
         }
         return index;
-    }
-
-    private void addService(List<Map<String, Object>> mapList, List<String> svcTypes, List<String> svcNodePorts,
-        List<String> svcPorts) {
-        for (Map<String, Object> stringMap : mapList) {
-            LinkedHashMap<String, Object> linkedHashMapSer = getObjectFromMap(stringMap, "spec");
-            if (linkedHashMapSer != null) {
-                if (linkedHashMapSer.get("type") != null) {
-                    svcTypes.add(linkedHashMapSer.get("type").toString());
-                }
-                if (linkedHashMapSer.get("ports") != null) {
-                    ArrayList<LinkedHashMap<String, Object>> arrayList
-                        = (ArrayList<LinkedHashMap<String, Object>>) linkedHashMapSer.get("ports");
-                    for (LinkedHashMap<String, Object> a : arrayList) {
-                        svcPorts.add(a.get("port").toString());
-                        if (a.get("nodePort") != null) {
-                            svcNodePorts.add(a.get("nodePort").toString());
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    private List<String> addDeployImage(List<Map<String, Object>> mapList, List<String> podImages) {
-        for (Map<String, Object> stringMap : mapList) {
-            LinkedHashMap<String, Object> linkedHashMap = getObjectFromMap(stringMap, "spec", "template", "spec");
-            if (linkedHashMap != null) {
-                ArrayList<LinkedHashMap<String, Object>> arrayList
-                    = (ArrayList<LinkedHashMap<String, Object>>) linkedHashMap.get("containers");
-                for (LinkedHashMap<String, Object> a : arrayList) {
-                    podImages.add(a.get("image").toString());
-                }
-                return podImages;
-            }
-        }
-        return Collections.emptyList();
-    }
-
-    private LinkedHashMap<String, Object> getObjectFromMap(Map<String, Object> loaded, String... keys) {
-        LinkedHashMap<String, Object> result = null;
-        for (String key : keys) {
-            result = (LinkedHashMap<String, Object>) loaded.get(key);
-            if (result != null) {
-                loaded = result;
-            }
-        }
-        return result;
-    }
-
-    private List<String> addPodImage(List<Map<String, Object>> mapList, List<String> podImages) {
-        for (Map<String, Object> stringMap : mapList) {
-            LinkedHashMap<String, Object> linkedHashMap = getObjectFromMap(stringMap, "spec");
-            if (linkedHashMap.get("containers") != null) {
-                ArrayList<LinkedHashMap<String, Object>> arrayList
-                    = (ArrayList<LinkedHashMap<String, Object>>) linkedHashMap.get("containers");
-                for (LinkedHashMap<String, Object> a : arrayList) {
-                    podImages.add(a.get("image").toString());
-                }
-                return podImages;
-            }
-        }
-        return Collections.emptyList();
     }
 
     private Either<FormatRespDto, HelmTemplateYamlRespDto> getSuccessResult(MultipartFile helmTemplateYaml,
