@@ -37,7 +37,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -575,11 +574,11 @@ public class UploadFileService {
         }
         //verify image info
         LOGGER.warn("podImages {}", podImages);
-        // boolean result = verifyImage(podImages);
-        // if (!result) {
-        //     LOGGER.error("the image configuration in the yaml file is incorrect");
-        //     return false;
-        // }
+        boolean result = verifyImage(podImages);
+        if (!result) {
+            LOGGER.error("the image configuration in the yaml file is incorrect");
+            return false;
+        }
         List<ProjectImageConfig> listImage = projectImageMapper.getAllImage(projectId);
         if (!CollectionUtils.isEmpty(listImage)) {
             for (ProjectImageConfig po : listImage) {
@@ -804,69 +803,6 @@ public class UploadFileService {
             }
         }
         return index;
-    }
-
-    private void addService(List<Map<String, Object>> mapList, List<String> svcTypes, List<String> svcNodePorts,
-        List<String> svcPorts) {
-        for (Map<String, Object> stringMap : mapList) {
-            LinkedHashMap<String, Object> linkedHashMapSer = getObjectFromMap(stringMap, "spec");
-            if (linkedHashMapSer != null) {
-                if (linkedHashMapSer.get("type") != null) {
-                    svcTypes.add(linkedHashMapSer.get("type").toString());
-                }
-                if (linkedHashMapSer.get("ports") != null) {
-                    ArrayList<LinkedHashMap<String, Object>> arrayList
-                        = (ArrayList<LinkedHashMap<String, Object>>) linkedHashMapSer.get("ports");
-                    for (LinkedHashMap<String, Object> a : arrayList) {
-                        svcPorts.add(a.get("port").toString());
-                        if (a.get("nodePort") != null) {
-                            svcNodePorts.add(a.get("nodePort").toString());
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    private List<String> addDeployImage(List<Map<String, Object>> mapList, List<String> podImages) {
-        for (Map<String, Object> stringMap : mapList) {
-            LinkedHashMap<String, Object> linkedHashMap = getObjectFromMap(stringMap, "spec", "template", "spec");
-            if (linkedHashMap != null) {
-                ArrayList<LinkedHashMap<String, Object>> arrayList
-                    = (ArrayList<LinkedHashMap<String, Object>>) linkedHashMap.get("containers");
-                for (LinkedHashMap<String, Object> a : arrayList) {
-                    podImages.add(a.get("image").toString());
-                }
-                return podImages;
-            }
-        }
-        return Collections.emptyList();
-    }
-
-    private LinkedHashMap<String, Object> getObjectFromMap(Map<String, Object> loaded, String... keys) {
-        LinkedHashMap<String, Object> result = null;
-        for (String key : keys) {
-            result = (LinkedHashMap<String, Object>) loaded.get(key);
-            if (result != null) {
-                loaded = result;
-            }
-        }
-        return result;
-    }
-
-    private List<String> addPodImage(List<Map<String, Object>> mapList, List<String> podImages) {
-        for (Map<String, Object> stringMap : mapList) {
-            LinkedHashMap<String, Object> linkedHashMap = getObjectFromMap(stringMap, "spec");
-            if (linkedHashMap.get("containers") != null) {
-                ArrayList<LinkedHashMap<String, Object>> arrayList
-                    = (ArrayList<LinkedHashMap<String, Object>>) linkedHashMap.get("containers");
-                for (LinkedHashMap<String, Object> a : arrayList) {
-                    podImages.add(a.get("image").toString());
-                }
-                return podImages;
-            }
-        }
-        return Collections.emptyList();
     }
 
     private Either<FormatRespDto, HelmTemplateYamlRespDto> getSuccessResult(MultipartFile helmTemplateYaml,
