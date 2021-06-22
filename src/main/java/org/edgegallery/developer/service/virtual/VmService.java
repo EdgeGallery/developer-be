@@ -329,6 +329,12 @@ public class VmService {
         }
 
         String appInstanceId = vmConfig.getAppInstanceId();
+        try {
+            Thread.sleep(60000);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            LOGGER.error("sleep fail! {}", e.getMessage());
+        }
         boolean instantRes = HttpClientUtil
             .instantiateApplication(basePath, appInstanceId, userId, lcmToken, lcmLog, pkgId, host.getMecHost(),
                 vmInputParams);
@@ -509,6 +515,7 @@ public class VmService {
         FileUtils.deleteDirectory(partFileDir);
 
         Boolean pushFileToVmRes = pushFileToVm(mergedFile, vmCreateConfig);
+        FileUtils.deleteDirectory(new File(getUploadFileRootDir()));
         if (!pushFileToVmRes) {
             LOGGER.error("push app file failed!");
             return ResponseEntity.badRequest().build();

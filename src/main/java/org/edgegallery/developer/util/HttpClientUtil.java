@@ -70,15 +70,9 @@ public final class HttpClientUtil {
     public static boolean instantiateApplication(String basePath, String appInstanceId, String userId, String token,
         LcmLog lcmLog, String pkgId, String mecHost, Map<String, String> inputParams) {
         //before instantiate ,call distribute result interface
-        LOGGER.warn("inter instant");
-        try {
-            Thread.sleep(30000);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            LOGGER.error("sleep fail! {}", e.getMessage());
-        }
+        LOGGER.info("inter instant");
         String disRes = getDistributeRes(basePath, userId, token, pkgId);
-        LOGGER.warn("get distribute {}", disRes);
+        LOGGER.info("get distribute {}", disRes);
         if (StringUtils.isEmpty(disRes)) {
             LOGGER.error("instantiateApplication get pkg distribute res failed!");
             return false;
