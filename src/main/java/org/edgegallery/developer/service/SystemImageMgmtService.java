@@ -23,6 +23,7 @@ import org.edgegallery.developer.model.Chunk;
 import org.edgegallery.developer.model.system.MepGetSystemImageReq;
 import org.edgegallery.developer.model.system.MepGetSystemImageRes;
 import org.edgegallery.developer.model.system.MepSystemQueryCtrl;
+import org.edgegallery.developer.model.system.UploadFileInfo;
 import org.edgegallery.developer.model.system.VmSystem;
 import org.edgegallery.developer.model.workspace.EnumSystemImageStatus;
 import org.edgegallery.developer.response.FormatRespDto;
@@ -45,6 +46,10 @@ public class SystemImageMgmtService {
     private static final Logger LOGGER = LoggerFactory.getLogger(SystemImageMgmtService.class);
 
     private static final String SUBDIR_SYSIMAGE = "SystemImage";
+
+    private static final String FILE_FORMAT_QCOW2 = "qcow2";
+
+    private static final String FILE_FORMAT_ISO = "iso";
 
     @Value("${upload.tempPath}")
     private String tempUploadPath;
@@ -301,12 +306,12 @@ public class SystemImageMgmtService {
         mergedFileStream.close();
 
         LOGGER.info("process merged file.");
-        ResponseEntity processResult = processMergedFile(mergedFile, systemId);
-        if (processResult != null) {
+        Either<UploadFileInfo, FormatRespDto> processResult = processMergedFile(mergedFile);
+        if (processResult.isRight()) {
             LOGGER.error("process merged file failed!");
             systemImageMapper.updateSystemImageStatus(systemId, EnumSystemImageStatus.UPLOAD_FAILED.toString());
             cleanWorkDir(mergedFile.getParentFile());
-            return processResult;
+            return ResponseEntity.status(processResult.getRight().getEnumStatus().getStatusCode()).build();
         }
 
         LOGGER.info("delete old system image on remote server.");
@@ -326,8 +331,11 @@ public class SystemImageMgmtService {
         }
 
         LOGGER.info("system image file upload succeed.");
-        systemImageMapper.updateSystemImageStatusAndPath(systemId, EnumSystemImageStatus.UPLOAD_SUCCEED.toString(),
-            uploadedSystemPath);
+        UploadFileInfo uploadFileInfo = processResult.getLeft();
+        uploadFileInfo.assign(systemId, FILE_FORMAT_QCOW2.equalsIgnoreCase(uploadFileInfo.getFileFormat())
+            ? EnumSystemImageStatus.PUBLISHED
+            : EnumSystemImageStatus.UPLOAD_SUCCEED, uploadedSystemPath);
+        systemImageMapper.updateSystemImageUploadInfo(uploadFileInfo);
         return ResponseEntity.ok().build();
     }
 
@@ -421,11 +429,11 @@ public class SystemImageMgmtService {
         }
     }
 
-    private ResponseEntity processMergedFile(File mergedFile, Integer systemId) {
+    private Either<UploadFileInfo, FormatRespDto> processMergedFile(File mergedFile) {
         try (ZipFile zipFile = new ZipFile(mergedFile)) {
             if (zipFile.size() != 2) {
                 LOGGER.error("invalid zip file!");
-                return ResponseEntity.status(Response.Status.BAD_REQUEST.getStatusCode()).build();
+                return Either.right(new FormatRespDto(Response.Status.BAD_REQUEST));
             }
             String fileMd5 = null;
             String fileFormat = null;
@@ -434,17 +442,16 @@ public class SystemImageMgmtService {
                 ZipEntry entry = entries.nextElement();
                 String name = entry.getName();
                 fileFormat = name.substring(name.lastIndexOf(".") + 1, name.length());
-                if (fileFormat.equalsIgnoreCase("qcow2") || fileFormat.equalsIgnoreCase("iso")) {
+                if (fileFormat.equalsIgnoreCase(FILE_FORMAT_QCOW2) || fileFormat.equalsIgnoreCase(FILE_FORMAT_ISO)) {
                     fileMd5 = FileHashCode.md5HashCode32(zipFile.getInputStream(entry));
-                    systemImageMapper.updateFileInfo(systemId, mergedFile.getName(), fileMd5, fileFormat);
-                    return null;
+                    return Either.left(new UploadFileInfo(mergedFile.getName(), fileMd5, fileFormat));
                 }
             }
             LOGGER.error("zipFile format is mistake!");
-            return ResponseEntity.status(Response.Status.BAD_REQUEST.getStatusCode()).build();
+            return Either.right(new FormatRespDto(Response.Status.BAD_REQUEST));
         } catch (Exception e) {
             LOGGER.error("process merged zip file failed, {}", e.getMessage());
-            return ResponseEntity.status(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode()).build();
+            return Either.right(new FormatRespDto(Response.Status.INTERNAL_SERVER_ERROR));
         }
     }
 }
