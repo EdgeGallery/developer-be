@@ -113,9 +113,9 @@ public class SystemService {
             LOGGER.error("Create host failed, password is empty");
             return Either.left(new FormatRespDto(Status.BAD_REQUEST, "password is empty"));
         }
-        if (StringUtils.isBlank(host.getUserId())) {
-            LOGGER.error("Create host failed, userId is empty");
-            return Either.left(new FormatRespDto(Status.BAD_REQUEST, "userId is empty"));
+        if (StringUtils.isBlank(host.getUserId()) && !host.getUserId().equals("admin")) {
+            LOGGER.error("Create host failed, userId is empty or not admin");
+            return Either.left(new FormatRespDto(Status.BAD_REQUEST, "userId is empty or not admin"));
         }
         //health check
         String healRes = HttpClientUtil.getHealth(host.getProtocol(), host.getLcmIp(), host.getPort());
