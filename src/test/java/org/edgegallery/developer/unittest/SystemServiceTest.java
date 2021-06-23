@@ -108,6 +108,7 @@ public class SystemServiceTest {
         host.setPort(30200);
         host.setUserName("hlfonnnn");
         host.setPassword("xxxxxxxxxxxx");
+        host.setUserId("");
         Either<FormatRespDto, Boolean> res = systemService.createHost(host, "");
         // Assert.assertNull(res);
         Assert.assertTrue(res.isLeft());
