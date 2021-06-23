@@ -248,11 +248,18 @@ public class SystemImageMgmtService {
             return ResponseEntity.badRequest().build();
         }
 
+        Integer chunkNumber = chunk.getChunkNumber();
+        if (chunkNumber == null) {
+            LOGGER.error("invalid chunk number.");
+            return ResponseEntity.badRequest().build();
+        }
+
         LOGGER.info("update system image status and upload file.");
         systemImageMapper.updateSystemImageStatus(systemId, EnumSystemImageStatus.UPLOADING.toString());
-        File tmpUploadDir = new File(getUploadSysImageRootDir(systemId));
-        if (!tmpUploadDir.exists()) {
-            boolean isMk = tmpUploadDir.mkdirs();
+        String rootDir = getUploadSysImageRootDir(systemId);
+        File uploadRootDir = new File(rootDir);
+        if (!uploadRootDir.exists()) {
+            boolean isMk = uploadRootDir.mkdirs();
             if (!isMk) {
                 LOGGER.error("create temporary upload path failed");
                 systemImageMapper.updateSystemImageStatus(systemId, EnumSystemImageStatus.UPLOAD_FAILED.toString());
@@ -260,11 +267,7 @@ public class SystemImageMgmtService {
             }
         }
 
-        Integer chunkNumber = chunk.getChunkNumber();
-        if (chunkNumber == null) {
-            chunkNumber = 0;
-        }
-        File outFile = new File(getUploadSysImageRootDir(systemId) + chunk.getIdentifier(), chunkNumber + ".part");
+        File outFile = new File(rootDir + chunk.getIdentifier(), chunkNumber + ".part");
         InputStream inputStream = file.getInputStream();
         FileUtils.copyInputStreamToFile(inputStream, outFile);
         return ResponseEntity.ok().build();
@@ -282,7 +285,8 @@ public class SystemImageMgmtService {
     public ResponseEntity mergeSystemImage(String fileName, String identifier, Integer systemId) throws IOException {
         LOGGER.info("merge system image file, systemId = {}, fileName = {}, identifier = {}", systemId, fileName,
             identifier);
-        String partFilePath = getUploadSysImageRootDir(systemId) + identifier;
+        String rootDir = getUploadSysImageRootDir(systemId);
+        String partFilePath = rootDir + identifier;
         File partFileDir = new File(partFilePath);
         if (!partFileDir.exists() || !partFileDir.isDirectory()) {
             LOGGER.error("uploaded part file path not found!");
@@ -297,7 +301,7 @@ public class SystemImageMgmtService {
             return ResponseEntity.status(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode()).build();
         }
 
-        File mergedFile = new File(getUploadSysImageRootDir(systemId) + File.separator + fileName);
+        File mergedFile = new File(rootDir + File.separator + fileName);
         FileOutputStream mergedFileStream = new FileOutputStream(mergedFile, true);
         for (int i = 1; i <= partFiles.length; i++) {
             File partFile = new File(partFilePath, i + ".part");
@@ -369,15 +373,13 @@ public class SystemImageMgmtService {
                 return null;
             }
 
-            try {
-                Gson gson = new Gson();
-                Map<String, String> uploadResultModel = gson.fromJson(uploadResult, Map.class);
-                return fileServerAddress + String
-                    .format(Consts.SYSTEM_IMAGE_DOWNLOAD_URL, uploadResultModel.get("imageId"));
-            } catch (JsonSyntaxException e) {
-                LOGGER.error("upload system image file failed.");
-                return null;
-            }
+            Gson gson = new Gson();
+            Map<String, String> uploadResultModel = gson.fromJson(uploadResult, Map.class);
+            return fileServerAddress + String
+                .format(Consts.SYSTEM_IMAGE_DOWNLOAD_URL, uploadResultModel.get("imageId"));
+        } catch (Exception e) {
+            LOGGER.error("upload system image file failed. {}", e.getMessage());
+            return null;
         } finally {
             cleanWorkDir(systemImgFile.getParentFile());
         }
