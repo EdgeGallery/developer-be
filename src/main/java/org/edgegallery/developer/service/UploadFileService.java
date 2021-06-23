@@ -18,8 +18,11 @@ package org.edgegallery.developer.service;
 
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.command.DockerCmdExecFactory;
+import com.github.dockerjava.api.command.InspectImageResponse;
 import com.github.dockerjava.api.command.PullImageResultCallback;
+import com.github.dockerjava.api.exception.ConflictException;
 import com.github.dockerjava.api.exception.DockerClientException;
+import com.github.dockerjava.api.exception.NotFoundException;
 import com.github.dockerjava.api.model.Image;
 import com.github.dockerjava.core.DefaultDockerClientConfig;
 import com.github.dockerjava.core.DockerClientBuilder;
@@ -658,6 +661,20 @@ public class UploadFileService {
             .withDockerHost(protocol + "://" + devRepoEndpoint + ":" + port).build();
         DockerCmdExecFactory factory = new NettyDockerCmdExecFactory().withConnectTimeout(100000);
         DockerClient dockerClient = DockerClientBuilder.getInstance(config).withDockerCmdExecFactory(factory).build();
+        try {
+            InspectImageResponse imageInfo = dockerClient.inspectImageCmd(image).exec();
+            if (imageInfo != null) {
+                if (StringUtils.isNotEmpty(imageInfo.getContainer())) {
+                    dockerClient.stopContainerCmd(imageInfo.getContainer()).exec();
+                }
+                if (StringUtils.isNotEmpty(imageInfo.getId())) {
+                    dockerClient.removeImageCmd(imageInfo.getId()).withForce(true).exec();
+                }
+
+            }
+        } catch (NotFoundException | ConflictException e) {
+            LOGGER.warn("not found image or image userd by running container: {} ", image);
+        }
         try {
             dockerClient.pullImageCmd(image).exec(new PullImageResultCallback()).awaitCompletion().close();
         } catch (InterruptedException | IOException e) {
