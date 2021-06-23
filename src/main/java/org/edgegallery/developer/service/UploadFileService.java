@@ -20,7 +20,6 @@ import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.command.DockerCmdExecFactory;
 import com.github.dockerjava.api.command.InspectImageResponse;
 import com.github.dockerjava.api.command.PullImageResultCallback;
-import com.github.dockerjava.api.exception.ConflictException;
 import com.github.dockerjava.api.exception.DockerClientException;
 import com.github.dockerjava.api.exception.NotFoundException;
 import com.github.dockerjava.api.model.ContainerConfig;
@@ -665,6 +664,9 @@ public class UploadFileService {
         try {
             InspectImageResponse imageInfo = dockerClient.inspectImageCmd(image).exec();
             if (imageInfo != null) {
+                if (StringUtils.isNotEmpty(imageInfo.getId())) {
+                    dockerClient.removeImageCmd(imageInfo.getId()).withForce(true).exec();
+                }
                 if (StringUtils.isNotEmpty(imageInfo.getContainer())) {
                     ContainerConfig containerConfig = imageInfo.getContainerConfig();
                     LOGGER.info("containerConfig : {} ", containerConfig);
@@ -673,13 +675,9 @@ public class UploadFileService {
                         dockerClient.stopContainerCmd(containerConfig.getHostName()).exec();
                     }
                 }
-                if (StringUtils.isNotEmpty(imageInfo.getId())) {
-                    dockerClient.removeImageCmd(imageInfo.getId()).withForce(true).exec();
-                }
-
             }
-        } catch (NotFoundException | ConflictException e) {
-            LOGGER.warn("not found image or image userd by running container: {} ", image);
+        } catch (NotFoundException e) {
+            LOGGER.warn("not found image : {} ", image);
         }
         try {
             dockerClient.pullImageCmd(image).exec(new PullImageResultCallback()).awaitCompletion().close();
