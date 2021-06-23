@@ -23,6 +23,7 @@ import com.github.dockerjava.api.command.PullImageResultCallback;
 import com.github.dockerjava.api.exception.ConflictException;
 import com.github.dockerjava.api.exception.DockerClientException;
 import com.github.dockerjava.api.exception.NotFoundException;
+import com.github.dockerjava.api.model.ContainerConfig;
 import com.github.dockerjava.api.model.Image;
 import com.github.dockerjava.core.DefaultDockerClientConfig;
 import com.github.dockerjava.core.DockerClientBuilder;
@@ -665,7 +666,12 @@ public class UploadFileService {
             InspectImageResponse imageInfo = dockerClient.inspectImageCmd(image).exec();
             if (imageInfo != null) {
                 if (StringUtils.isNotEmpty(imageInfo.getContainer())) {
-                    dockerClient.stopContainerCmd(imageInfo.getContainer()).exec();
+                    ContainerConfig containerConfig = imageInfo.getContainerConfig();
+                    LOGGER.info("containerConfig : {} ", containerConfig);
+                    if (containerConfig != null && StringUtils.isNotEmpty(containerConfig.getHostName())) {
+                        LOGGER.info("containerConfig hostName: {} ", containerConfig.getHostName());
+                        dockerClient.stopContainerCmd(containerConfig.getHostName()).exec();
+                    }
                 }
                 if (StringUtils.isNotEmpty(imageInfo.getId())) {
                     dockerClient.removeImageCmd(imageInfo.getId()).withForce(true).exec();
