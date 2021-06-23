@@ -38,6 +38,7 @@ server:
     key-store-password: ${SSL_KEY_STORE_PASSWORD:}
     key-store-type: ${SSL_KEY_STORE_TYPE:}
     key-alias: ${SSL_KEY_ALIAS:}
+  connection-timeout: 60000
 ###pgsql config######
 spring:
   datasource:
@@ -54,6 +55,9 @@ spring:
     multipart:
       max-file-size: 20MB
       max-request-size: 5120MB
+  mvc:
+    async:
+      request-timeout: 60000
 
 ###mybtis####
 mybatis:
