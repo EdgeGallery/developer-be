@@ -664,15 +664,19 @@ public class UploadFileService {
         try {
             InspectImageResponse imageInfo = dockerClient.inspectImageCmd(image).exec();
             if (imageInfo != null) {
-                if (StringUtils.isNotEmpty(imageInfo.getId())) {
-                    dockerClient.removeImageCmd(imageInfo.getId()).withForce(true).exec();
+                String imageId = imageInfo.getId();
+                if (StringUtils.isNotEmpty(imageId)) {
+                    dockerClient.removeImageCmd(imageId).withForce(true).exec();
                 }
                 if (StringUtils.isNotEmpty(imageInfo.getContainer())) {
                     ContainerConfig containerConfig = imageInfo.getContainerConfig();
                     LOGGER.info("containerConfig : {} ", containerConfig);
-                    if (containerConfig != null && StringUtils.isNotEmpty(containerConfig.getHostName())) {
-                        LOGGER.info("containerConfig hostName: {} ", containerConfig.getHostName());
-                        dockerClient.stopContainerCmd(containerConfig.getHostName()).exec();
+                    if (containerConfig != null) {
+                        String hostName = containerConfig.getHostName();
+                        if (StringUtils.isNotEmpty(hostName)) {
+                            LOGGER.info("containerConfig hostName: {} ", hostName);
+                            dockerClient.stopContainerCmd(hostName).exec();
+                        }
                     }
                 }
             }

@@ -1,7 +1,6 @@
 package org.edgegallery.developer.service;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonSyntaxException;
 import com.spencerwi.either.Either;
 import java.io.File;
 import java.io.FileOutputStream;
