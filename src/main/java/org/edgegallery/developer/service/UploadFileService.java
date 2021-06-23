@@ -17,6 +17,7 @@
 package org.edgegallery.developer.service;
 
 import com.github.dockerjava.api.DockerClient;
+import com.github.dockerjava.api.command.DockerCmdExecFactory;
 import com.github.dockerjava.api.command.PullImageResultCallback;
 import com.github.dockerjava.api.exception.DockerClientException;
 import com.github.dockerjava.api.model.Image;
@@ -24,6 +25,7 @@ import com.github.dockerjava.core.DefaultDockerClientConfig;
 import com.github.dockerjava.core.DockerClientBuilder;
 import com.github.dockerjava.core.DockerClientConfig;
 import com.github.dockerjava.core.command.PushImageResultCallback;
+import com.github.dockerjava.netty.NettyDockerCmdExecFactory;
 import com.google.common.collect.Lists;
 import com.google.gson.Gson;
 import com.spencerwi.either.Either;
@@ -654,7 +656,8 @@ public class UploadFileService {
         //Mirror information is notharborWarehouse format，Pull(failure，returnfalse)，hitTag，Repush
         DockerClientConfig config = DefaultDockerClientConfig.createDefaultConfigBuilder()
             .withDockerHost(protocol + "://" + devRepoEndpoint + ":" + port).build();
-        DockerClient dockerClient = DockerClientBuilder.getInstance(config).build();
+        DockerCmdExecFactory factory = new NettyDockerCmdExecFactory().withConnectTimeout(100000);
+        DockerClient dockerClient = DockerClientBuilder.getInstance(config).withDockerCmdExecFactory(factory).build();
         try {
             dockerClient.pullImageCmd(image).exec(new PullImageResultCallback()).awaitCompletion().close();
         } catch (InterruptedException | IOException e) {

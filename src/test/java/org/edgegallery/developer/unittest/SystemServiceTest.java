@@ -17,14 +17,17 @@
 package org.edgegallery.developer.unittest;
 
 import com.spencerwi.either.Either;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import org.edgegallery.developer.DeveloperApplicationTests;
 import org.edgegallery.developer.domain.shared.Page;
 import org.edgegallery.developer.model.workspace.EnumHostStatus;
+import org.edgegallery.developer.model.workspace.EnumOpenMepType;
 import org.edgegallery.developer.model.workspace.MepCreateHost;
 import org.edgegallery.developer.model.workspace.MepHost;
 import org.edgegallery.developer.model.workspace.MepHostLog;
+import org.edgegallery.developer.model.workspace.OpenMepCapabilityDetail;
 import org.edgegallery.developer.model.workspace.OpenMepCapabilityGroup;
 import org.edgegallery.developer.response.FormatRespDto;
 import org.edgegallery.developer.service.OpenMepCapabilityService;
@@ -220,6 +223,75 @@ public class SystemServiceTest {
     public void testGetHostLogSuccess() {
         Either<FormatRespDto, List<MepHostLog>> res = systemService
             .getHostLogByHostId("d6bcf665-ba9c-4474-b7fb-25ff859563d3");
+        Assert.assertTrue(res.isRight());
+    }
+
+    @Test
+    @WithMockUser(roles = "DEVELOPER_TENANT")
+    public void testCreateCapabilityGroupError() {
+        OpenMepCapabilityGroup group = new OpenMepCapabilityGroup();
+        group.setOneLevelName("test-1");
+        group.setTwoLevelName("test-2");
+        group.setType(EnumOpenMepType.OPENMEP);
+        List<OpenMepCapabilityDetail> list = new ArrayList<>();
+        OpenMepCapabilityDetail detail1 = new OpenMepCapabilityDetail();
+        detail1.setApiFileId("");
+        list.add(detail1);
+        group.setCapabilityDetailList(list);
+        Either<FormatRespDto, OpenMepCapabilityGroup> res = systemService.createCapabilityGroup(group);
+        Assert.assertTrue(res.isLeft());
+    }
+
+    @Test
+    @WithMockUser(roles = "DEVELOPER_TENANT")
+    public void testCreateCapabilityGroupError2() {
+        OpenMepCapabilityGroup group = new OpenMepCapabilityGroup();
+        group.setOneLevelName("test-1");
+        group.setTwoLevelName("test-2");
+        group.setType(EnumOpenMepType.OPENMEP);
+        List<OpenMepCapabilityDetail> list = new ArrayList<>();
+        OpenMepCapabilityDetail detail1 = new OpenMepCapabilityDetail();
+        detail1.setApiFileId("apifileId");
+        detail1.setGuideFileId("");
+        list.add(detail1);
+        group.setCapabilityDetailList(list);
+        Either<FormatRespDto, OpenMepCapabilityGroup> res = systemService.createCapabilityGroup(group);
+        Assert.assertTrue(res.isLeft());
+    }
+
+    @Test
+    @WithMockUser(roles = "DEVELOPER_TENANT")
+    public void testCreateCapabilityGroupError3() {
+        OpenMepCapabilityGroup group = new OpenMepCapabilityGroup();
+        group.setOneLevelName("test-1");
+        group.setTwoLevelName("test-2");
+        group.setType(EnumOpenMepType.OPENMEP);
+        List<OpenMepCapabilityDetail> list = new ArrayList<>();
+        OpenMepCapabilityDetail detail1 = new OpenMepCapabilityDetail();
+        detail1.setApiFileId("apifileId");
+        detail1.setGuideFileId("guide");
+        detail1.setGuideFileIdEn("guideFileEN");
+        list.add(detail1);
+        group.setCapabilityDetailList(list);
+        Either<FormatRespDto, OpenMepCapabilityGroup> res = systemService.createCapabilityGroup(group);
+        Assert.assertTrue(res.isLeft());
+    }
+
+    @Test
+    @WithMockUser(roles = "DEVELOPER_TENANT")
+    public void testCreateCapabilityGroup() {
+        OpenMepCapabilityGroup group = new OpenMepCapabilityGroup();
+        group.setOneLevelName("test-1");
+        group.setTwoLevelName("test-2");
+        group.setType(EnumOpenMepType.OPENMEP);
+        List<OpenMepCapabilityDetail> list = new ArrayList<>();
+        OpenMepCapabilityDetail detail1 = new OpenMepCapabilityDetail();
+        detail1.setApiFileId("e111f3e7-90d8-4a39-9874-ea6ea6752ef5");
+        detail1.setGuideFileId("e111f3e7-90d8-4a39-9874-ea6ea6752ef5");
+        detail1.setGuideFileIdEn("e111f3e7-90d8-4a39-9874-ea6ea6752ef5");
+        list.add(detail1);
+        group.setCapabilityDetailList(list);
+        Either<FormatRespDto, OpenMepCapabilityGroup> res = systemService.createCapabilityGroup(group);
         Assert.assertTrue(res.isRight());
     }
 
