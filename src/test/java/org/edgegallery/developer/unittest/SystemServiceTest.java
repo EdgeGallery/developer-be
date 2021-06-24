@@ -182,7 +182,7 @@ public class SystemServiceTest {
         host.setPassword("xxxxxxxxxxxx");
         host.setConfigId("errorId");
         host.setUserId(UUID.randomUUID().toString());
-        Either<FormatRespDto, Boolean> res = systemService.updateHost("c8aac2b2-4162-40fe-9d99-0630e3245cf7", host,"");
+        Either<FormatRespDto, Boolean> res = systemService.updateHost("c8aac2b2-4162-40fe-9d99-0630e3245cf7", host, "");
         Assert.assertTrue(res.isLeft());
     }
 
@@ -201,7 +201,8 @@ public class SystemServiceTest {
         host.setPassword("xxxxxxxxxxxx");
         host.setConfigId("errorId");
         host.setUserId(UUID.randomUUID().toString());
-        Either<FormatRespDto, Boolean> res = systemService.updateHost("c8aac2b2-4162-40fe-9d99-0630e3245cf789", host,"");
+        Either<FormatRespDto, Boolean> res = systemService
+            .updateHost("c8aac2b2-4162-40fe-9d99-0630e3245cf789", host, "");
         Assert.assertTrue(res.isLeft());
     }
 
@@ -224,6 +225,43 @@ public class SystemServiceTest {
     public void testGetHostLogSuccess() {
         Either<FormatRespDto, List<MepHostLog>> res = systemService
             .getHostLogByHostId("d6bcf665-ba9c-4474-b7fb-25ff859563d3");
+        Assert.assertTrue(res.isRight());
+    }
+
+    @Test
+    @WithMockUser(roles = "DEVELOPER_TENANT")
+    public void testCreateHostWithErrorUserId() {
+        MepCreateHost host = new MepCreateHost();
+        host.setUserName("userName");
+        host.setPassword("password");
+        host.setUserId("userId");
+        Either<FormatRespDto, Boolean> res = systemService.createHost(host, "group");
+        Assert.assertTrue(res.isLeft());
+    }
+
+    @Test
+    @WithMockUser(roles = "DEVELOPER_TENANT")
+    public void testCreateHostWithBadHealth() {
+        MepCreateHost host = new MepCreateHost();
+        host.setUserName("userName");
+        host.setPassword("password");
+        host.setUserId("admin");
+        Either<FormatRespDto, Boolean> res = systemService.createHost(host, "group");
+        Assert.assertTrue(res.isLeft());
+    }
+
+    @Test
+    @WithMockUser(roles = "DEVELOPER_TENANT")
+    public void testDleteCapabilityByUserIdAndGroupId() {
+        Either<FormatRespDto, Boolean> res = systemService.deleteCapabilityByUserIdAndGroupId("group");
+        Assert.assertTrue(res.isRight());
+    }
+
+    @Test
+    @WithMockUser(roles = "DEVELOPER_TENANT")
+    public void testDleteCapabilityWithGid() {
+        Either<FormatRespDto, Boolean> res = systemService
+            .deleteCapabilityByUserIdAndGroupId("e111f3e7-90d8-4a39-9874-ea6ea6752eb2");
         Assert.assertTrue(res.isRight());
     }
 
@@ -328,7 +366,6 @@ public class SystemServiceTest {
         Assert.assertNotNull(res);
     }
 
-
     @Test
     @WithMockUser(roles = "DEVELOPER_TENANT")
     public void testGetCapabilityByGroupId() {
@@ -339,9 +376,9 @@ public class SystemServiceTest {
     @Test
     @WithMockUser(roles = "DEVELOPER_TENANT")
     public void testGetCapabilityByGroupIdSuccess() {
-        Either<FormatRespDto, OpenMepCapabilityGroup> res = systemService.getCapabilityByGroupId("e111f3e7-90d8-4a39-9874-ea6ea6752ef3");
+        Either<FormatRespDto, OpenMepCapabilityGroup> res = systemService
+            .getCapabilityByGroupId("e111f3e7-90d8-4a39-9874-ea6ea6752ef3");
         Assert.assertTrue(res.isRight());
     }
-
 
 }
