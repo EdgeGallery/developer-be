@@ -519,7 +519,7 @@ public class ProjectService {
         String projectPath = getProjectPath(projectId);
         String projectName = project.getName().replaceAll(Consts.PATTERN, "").toLowerCase();
         String configMapName = "mepagent" + UUID.randomUUID().toString();
-        String namespace = projectName + UUID.randomUUID().toString().substring(0, 8);
+        String namespace = projectName;
         List<HelmTemplateYamlPo> yamlPoList = helmTemplateYamlMapper.queryTemplateYamlByProjectId(userId, projectId);
         File csarPkgDir;
         if (!CollectionUtils.isEmpty(yamlPoList)) {
