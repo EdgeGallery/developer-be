@@ -77,14 +77,14 @@
                 <![CDATA[ and create_time <= to_timestamp(#{createTimeEnd}, 'YYYY-MM-DD HH24:MI:SS') ]]>
             </if>
         </where>
-        <if test="queryCtrl != null">
-            <if test="queryCtrl.sortBy != null and queryCtrl.sortBy != '' and queryCtrl.sortOrder != null and queryCtrl.sortOrder != ''">
-                order by ${queryCtrl.sortBy} ${queryCtrl.sortOrder}
-            </if>
-            <if test="queryCtrl.offset >=0 and queryCtrl.limit > 0">
-                offset #{queryCtrl.offset} limit #{queryCtrl.limit}
-            </if>
-        </if>
+<!--        <if test="queryCtrl != null">-->
+<!--            <if test="queryCtrl.sortBy != null and queryCtrl.sortBy != '' and queryCtrl.sortOrder != null and queryCtrl.sortOrder != ''">-->
+<!--                order by ${queryCtrl.sortBy} ${queryCtrl.sortOrder}-->
+<!--            </if>-->
+<!--            <if test="queryCtrl.offset >=0 and queryCtrl.limit > 0">-->
+<!--                offset #{queryCtrl.offset} limit #{queryCtrl.limit}-->
+<!--            </if>-->
+<!--        </if>-->
     </select>
 
     <select id="getSystemImagesCount" resultType="java.lang.Integer"

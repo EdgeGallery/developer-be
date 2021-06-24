@@ -22,6 +22,10 @@ MERGE INTO tbl_service_host(host_id,name,address,architecture,status,ip,port,os,
 MERGE INTO tbl_service_host(host_id,name,address,architecture,status,ip,port,os,port_range_min,port_range_max, user_id) KEY(host_id) VALUES ('c8aac2b2-4162-40fe-9d99-0630e3245cf9', 'host-2', 'xian', 'ARM','NORMAL','10.1.12.1',8999,'liunx',30000,300001,'f24ea0a2-d8e6-467c-8039-94f0d29bac43');
 MERGE INTO tbl_service_host(host_id,name,address,architecture,status,ip,port,os,port_range_min,port_range_max, user_id) KEY(host_id) VALUES ('c8aac2b2-4162-40fe-9d99-0630e3245cdd', 'host-1', 'xian', 'ARM','NORMAL','10.1.12.1',8999,'liunx',30000,300001,'e111f3e7-90d8-4a39-9874-ea6ea6752eaa');
 -- ----------------------------
+-- Records of tbl_vm_system
+-- ----------------------------
+MERGE INTO tbl_vm_system(system_id,system_name,type,operate_system,version,system_bit,system_disk, user_id,user_name,create_time,upload_time,system_format,status) KEY(system_id) VALUES (12345, 'testImage', 'private', 'ubuntu','16.04',64,40,'e111f3e7-90d8-4a39-9874-ea6ea6752ee5','tenant','2021-6-24 00:00:00.000000','2021-6-24 00:00:00.000000','iso','UPLOADING');
+-- ----------------------------
 -- Records of tbl_openmep_capability   tbl_openmep_capability_detail
 -- ----------------------------
 MERGE INTO tbl_openmep_capability (group_id, one_level_name, one_level_name_en, two_level_name, two_level_name_en, type,description, description_en)  KEY(group_id) values ('e111f3e7-90d8-4a39-9874-ea6ea6752ef3','group-1', 'group-1', 'group-2', 'group-2-en','OPENMEP','group1', 'group1');

@@ -372,15 +372,6 @@ CREATE TABLE IF NOT EXISTS  tbl_vm_regulation  (
        description_en  varchar(255) DEFAULT NULL
     )
     ;
-    CREATE TABLE IF NOT EXISTS  tbl_vm_system  (
-       system_id  SERIAL,
-       type  varchar(50) DEFAULT NULL,
-       operate_system  varchar(50) DEFAULT NULL,
-       version  varchar(50) NOT NULL DEFAULT NULL,
-       system_bit  varchar(50) DEFAULT NULL,
-       system_disk  int4  DEFAULT NULL
-    )
-    ;
     CREATE TABLE IF NOT EXISTS  tbl_vm_flavor  (
        architecture  varchar(50) DEFAULT NULL,
        flavor  varchar(50) DEFAULT NULL,
@@ -403,6 +394,28 @@ CREATE TABLE IF NOT EXISTS  tbl_vm_regulation  (
        create_time   timestamp(6)  DEFAULT NULL,
        log  text  DEFAULT NULL,
       CONSTRAINT  tbl_vm_create_config_pkey  PRIMARY KEY (vm_id)
+    )
+    ;
+    CREATE TABLE IF NOT EXISTS tbl_vm_system (
+       system_id SERIAL,
+       system_name varchar(128) DEFAULT NULL,
+       type varchar(50) DEFAULT NULL,
+       operate_system varchar(50) DEFAULT NULL,
+       version varchar(50) NOT NULL DEFAULT NULL,
+       system_bit varchar(50) DEFAULT NULL,
+       system_disk int4  DEFAULT NULL,
+       user_id varchar(50) DEFAULT NULL,
+       user_name varchar(50) DEFAULT NULL,
+       create_time varchar(50)  DEFAULT NULL,
+       modify_time varchar(50)  DEFAULT NULL,
+       system_format varchar(50) DEFAULT NULL,
+       upload_time varchar(50)  DEFAULT NULL,
+       system_path varchar(128) DEFAULT NULL,
+       file_name varchar(128) DEFAULT NULL,
+       file_md5 varchar(128) DEFAULT NULL,
+       status varchar(50) DEFAULT NULL,
+       CONSTRAINT tbl_vm_system_uniqueName UNIQUE (system_name,user_id),
+       CONSTRAINT tbl_vm_system_pkey PRIMARY KEY (system_id)
     )
     ;
     CREATE TABLE IF NOT EXISTS  tbl_project_vm_image_config  (
