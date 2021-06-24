@@ -32,7 +32,10 @@ MERGE INTO tbl_openmep_capability (group_id, one_level_name, one_level_name_en, 
 MERGE INTO tbl_openmep_capability_detail (detail_id,group_id, service, service_en, version, description, description_en, api_file_id, provider, guide_file_id, guide_file_id_en, port, host, upload_time, user_id)  KEY(detail_id) values
 ( 'e111f3e7-90d8-4a39-9874-ea6ea6752ef0', 'e111f3e7-90d8-4a39-9874-ea6ea6752ed6', 'Face Reg', 'Face Reg', '1.0.0', 'face-recognition-plus', 'Face Reg','e111f3e7-90d8-4a39-9874-ea6ea6752ef5', 'huawei',
 'b8b5d055-1024-4ea8-8439-64de19875834', 'b8b5d055-1024-4ea8-8439-64de19875834', 9999, 'face-recognition-plus', '2020-11-20 00:00:00.000000', 'admin');
-
+MERGE INTO tbl_openmep_capability (group_id, one_level_name, one_level_name_en, two_level_name, two_level_name_en, type,description, description_en)  KEY(group_id) values ('e111f3e7-90d8-4a39-9874-ea6ea6752eb2','group-3', 'group-3', 'group-3', 'group-3-en','OPENMEP','group3', 'group3');
+MERGE INTO tbl_openmep_capability_detail (detail_id,group_id, service, service_en, version, description, description_en, api_file_id, provider, guide_file_id, guide_file_id_en, port, host, upload_time, user_id)  KEY(detail_id) values
+( 'e111f3e7-90d8-4a39-9874-ea6ea6752efgd', 'e111f3e7-90d8-4a39-9874-ea6ea6752eb2', 'Face Reg', 'Face Reg', '1.0.0', 'face-recognition-plus', 'Face Reg','e111f3e7-90d8-4a39-9874-ea6ea6752ef5', 'huawei',
+'b8b5d055-1024-4ea8-8439-64de19875834', 'b8b5d055-1024-4ea8-8439-64de19875834', 9999, 'face-recognition-plus', '2020-11-20 00:00:00.000000', 'admin');
 -- ----------------------------
 -- Records of tbl_uploaded_file
 -- ----------------------------
@@ -102,7 +105,9 @@ MERGE INTO tbl_project_test_config  KEY(test_id) VALUES ('00005', '200dfab1-3c30
 -- Records of tbl_release_config
 -- ----------------------------
 MERGE INTO tbl_release_config  KEY(release_id) VALUES ('00003', '200dfab1-3c30-4fc7-a6ca-ed6f0620a85e', 'ad66d1b6-5d29-487b-9769-be48b62aec2e', 'e111f3e7-90d8-4a39-9874-ea6ea6752ef5', '','','',{ts '2012-09-17 18:47:52.69'});
-MERGE INTO tbl_release_config  KEY(release_id) VALUES ('00003', '200dfab1-3c30-4fc7-a6ca-ed6f0620a85d', 'ad66d1b6-5d29-487b-9769-be48b62aec2e', 'e111f3e7-90d8-4a39-9874-ea6ea6752ef5', '','{"id":"hello","appName":"zaima","status":"success","createTime":"xxxx"}','',{ts '2012-09-17 18:47:52.69'});
+MERGE INTO tbl_release_config  KEY(release_id) VALUES ('00004', '200dfab1-3c30-4fc7-a6ca-ed6f0620a85d', 'ad66d1b6-5d29-487b-9769-be48b62aec2e', 'e111f3e7-90d8-4a39-9874-ea6ea6752ef5', '','{"id":"hello","appName":"zaima","status":"success","createTime":"xxxx"}','',{ts '2012-09-17 18:47:52.69'});
+MERGE INTO tbl_release_config  KEY(release_id) VALUES ('00005', '200dfab1-3c30-4fc7-a6ca-ed6f0620a85f', 'ad66d1b6-5d29-487b-9769-be48b62aec2e', 'e111f3e7-90d8-4a39-9874-ea6ea6752ef5', '','{"id":"hello","appName":"zaima","status":"success","createTime":"xxxx"}','',{ts '2012-09-17 18:47:52.69'});
+MERGE INTO tbl_release_config  KEY(release_id) VALUES ('00006', '200dfab1-3c30-4fc7-a6ca-ed6f0620a85y', 'ad66d1b6-5d29-487b-9769-be48b62aec2e', 'e111f3e7-90d8-4a39-9874-ea6ea6752ef5', '','{"id":"hello","appName":"zaima","status":"success","createTime":"xxxx"}','',{ts '2012-09-17 18:47:52.69'});
 
 -- ----------------------------
 -- Records of tbl_helm_template_yaml

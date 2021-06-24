@@ -34,7 +34,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 @EnableScheduling
 public class DeveloperApplicationTests {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
         SpringApplication.run(DeveloperApplication.class, args);
     }
 

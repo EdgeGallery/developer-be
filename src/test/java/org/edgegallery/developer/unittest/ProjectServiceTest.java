@@ -249,7 +249,6 @@ public class ProjectServiceTest {
         Either<FormatRespDto, ProjectTestConfig> result = projectService
             .getTestConfig("200dfab1-3c30-4fc7-a6ca-ed6f0620a85e");
         Assert.assertTrue(result.isRight());
-        //Assert.assertEquals(result.getRight().getTestId(), "00001");
     }
 
     @Test
@@ -367,6 +366,25 @@ public class ProjectServiceTest {
         Assert.assertNotNull(result.getLeft());
 
     }
+    @Test
+    @WithMockUser(roles = "DEVELOPER_TENANT")
+    public void testModifyTestConfigRight() throws IOException {
+        Either<FormatRespDto, ProjectTestConfig> res = projectService.getTestConfig("200dfab1-3c30-4fc7-a6ca-ed6f0620a85e");
+        Assert.assertTrue(res.isRight());
+        String userId = "f24ea0a2-d8e6-467c-8039-94f0d29bac43";
+        AccessUserUtil.setUser(userId, "testName");
+        Either<FormatRespDto, ProjectTestConfig> result = projectService
+            .modifyTestConfig(res.getRight().getProjectId(), res.getRight());
+        Assert.assertNotNull(result.getRight());
+    }
+
+    @Test
+    @WithMockUser(roles = "DEVELOPER_TENANT")
+    public void testGetTestConfigWithNullRes() throws IOException {
+        Either<FormatRespDto, ProjectTestConfig> res = projectService.getTestConfig("hello");
+        Assert.assertTrue(res.isRight());
+    }
+
 
     @Test
     @WithMockUser(roles = "DEVELOPER_TENANT")
@@ -387,7 +405,39 @@ public class ProjectServiceTest {
         String token = "";
         Either<FormatRespDto, Boolean> result = projectService.uploadToAppStore(userId, projectId, userName, token);
         Assert.assertTrue(result.isLeft());
+    }
 
+    @Test
+    @WithMockUser(roles = "DEVELOPER_TENANT")
+    public void testUploadProToStore() throws IOException {
+        // Either<FormatRespDto, ProjectTestConfig> res = projectService.getTestConfig("200dfab1-3c30-4fc7-a6ca-ed6f0620a85e");
+        // Assert.assertTrue(res.isRight());
+        String userId = "f24ea0a2-d8e6-467c-8039-94f0d29bac43";
+        AccessUserUtil.setUser(userId, "testName");
+        Either<FormatRespDto, Boolean> result = projectService.uploadToAppStore(userId, "200dfab1-3c30-4fc7-a6ca-ed6f0620a85e", "testName", "token");
+        Assert.assertTrue(result.isLeft());
+    }
+
+    @Test
+    @WithMockUser(roles = "DEVELOPER_TENANT")
+    public void testUploadProToStoreWithError() throws IOException {
+        Either<FormatRespDto, ProjectTestConfig> res = projectService.getTestConfig("200dfab1-3c30-4fc7-a6ca-ed6f0620a85f");
+        Assert.assertTrue(res.isRight());
+        String userId = "f24ea0a2-d8e6-467c-8039-94f0d29bac43";
+        AccessUserUtil.setUser(userId, "testName");
+        Either<FormatRespDto, Boolean> result = projectService.uploadToAppStore(userId, res.getRight().getProjectId(), "testName", "token");
+        Assert.assertTrue(result.isLeft());
+    }
+
+    @Test
+    @WithMockUser(roles = "DEVELOPER_TENANT")
+    public void testUploadProToStoreWithError2() throws IOException {
+        // Either<FormatRespDto, ProjectTestConfig> res = projectService.getTestConfig("200dfab1-3c30-4fc7-a6ca-ed6f0620a85f");
+        // Assert.assertTrue(res.isRight());
+        String userId = "f24ea0a2-d8e6-467c-8039-94f0d29bac43";
+        AccessUserUtil.setUser(userId, "testName");
+        Either<FormatRespDto, Boolean> result = projectService.uploadToAppStore(userId, "200dfab1-3c30-4fc7-a6ca-ed6f0620a85y", "testName", "token");
+        Assert.assertTrue(result.isLeft());
     }
 
     @Test
