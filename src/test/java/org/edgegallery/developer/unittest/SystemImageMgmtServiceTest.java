@@ -47,10 +47,6 @@ public class SystemImageMgmtServiceTest {
         AccessUserUtil.setUser("e111f3e7-90d8-4a39-9874-ea6ea6752ee5", "tenant");
         MepGetSystemImageReq mepGetSystemImageReq = new MepGetSystemImageReq();
         MepSystemQueryCtrl queryCtrl = new MepSystemQueryCtrl();
-        queryCtrl.setLimit(100);
-        queryCtrl.setOffset(0);
-        queryCtrl.setSortBy("createTime");
-        queryCtrl.setSortOrder("ASC");
         mepGetSystemImageReq.setQueryCtrl(queryCtrl);
         Either<FormatRespDto, MepGetSystemImageRes> res = systemImageMgmtService
                 .getSystemImages(mepGetSystemImageReq);
