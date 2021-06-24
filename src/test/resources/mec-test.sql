@@ -171,7 +171,7 @@ CREATE TABLE IF NOT EXISTS tbl_app_project (
   industries text DEFAULT NULL,
   project_type varchar(10)  DEFAULT NULL,
   icon_file_id varchar(50)  DEFAULT NULL,
-  open_capability_id varchar(50)  DEFAULT NULL,
+  open_capability_id varchar(200)  DEFAULT NULL,
   deploy_platform varchar(100) NOT NULL  DEFAULT NULL,
   CONSTRAINT tbl_app_project_pkey PRIMARY KEY (id)
 )
