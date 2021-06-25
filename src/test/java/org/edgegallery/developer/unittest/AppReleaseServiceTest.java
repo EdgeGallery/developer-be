@@ -90,7 +90,7 @@ public class AppReleaseServiceTest {
     @Test
     @WithMockUser(roles = "DEVELOPER_TENANT")
     public void testGetPkgContentById() {
-        Either<FormatRespDto, String> stru = appReleaseService.getPkgContentByFileName(projectId,"fileName");
+        Either<FormatRespDto, String> stru = appReleaseService.getPkgContentByFileName("200dfab1-3c30-4fc7-a6ca-ed6f0620a85f","fileName");
         Assert.assertTrue(stru.isLeft());
     }
 
