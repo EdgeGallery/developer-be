@@ -30,11 +30,14 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import org.edgegallery.developer.model.vm.FileUploadEntity;
 import org.edgegallery.developer.model.vm.ScpConnectEntity;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.Async;
 
 @Configuration
 public class ShhFileUploadUtil {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ShhFileUploadUtil.class);
 
     /**
      * uploadFile.
@@ -73,54 +76,54 @@ public class ShhFileUploadUtil {
 
     private void remoteUploadFile(ScpConnectEntity scpConnectEntity, File file, String remoteFileName)
         throws JSchException, IOException {
-
+        LOGGER.info("start remote upload file.");
         Connection connection = null;
         ch.ethz.ssh2.Session session = null;
         SCPOutputStream scpo = null;
         FileInputStream fis = null;
-
         try {
             createDir(scpConnectEntity);
         } catch (JSchException e) {
+            LOGGER.error("create directory failed, {}", e.getMessage());
             throw e;
         }
 
         try {
             connection = new Connection(scpConnectEntity.getUrl());
             connection.connect();
-
             if (!connection.authenticateWithPassword(scpConnectEntity.getUserName(), scpConnectEntity.getPassWord())) {
-                throw new RuntimeException("SSH连接服务器失败");
+                LOGGER.error("connect failed on authentication.");
+                throw new RuntimeException("connect failed on authentication.");
             }
+
+            LOGGER.info("file length = " + file.length());
             session = connection.openSession();
-
             SCPClient scpClient = connection.createSCPClient();
-
             scpo = scpClient.put(remoteFileName, file.length(), scpConnectEntity.getTargetPath(), "0666");
             fis = new FileInputStream(file);
-
-            byte[] buf = new byte[1024];
-            int hasMore = fis.read(buf);
-
-            while (hasMore != -1) {
+            byte[] buf = new byte[10240];
+            int dataSize = fis.read(buf);
+            while (dataSize != -1) {
                 scpo.write(buf);
-                hasMore = fis.read(buf);
+                scpo.flush();
+                dataSize = fis.read(buf);
             }
         } catch (IOException e) {
-            throw new IOException("SSH上传文件至服务器出错" + e.getMessage());
+            LOGGER.error("upload file failed, {}", e.getMessage());
+            throw e;
         } finally {
             if (null != fis) {
                 try {
                     fis.close();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    LOGGER.error("close fis failed, {}", e.getMessage());
                 }
             }
             if (null != scpo) {
                 try {
-                    scpo.flush();
+                    scpo.close();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    LOGGER.error("close scpo failed, {}", e.getMessage());
                 }
             }
             if (null != session) {
