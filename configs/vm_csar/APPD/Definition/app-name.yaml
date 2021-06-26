@@ -17,7 +17,7 @@ topology_template:
   inputs:
     DC_ID:
       type: string
-      default: FS_M:Manger_VPC
+      default: FS_M:Manager_VPC
       description: DC_ID
     az_dc:
       type: string
