@@ -219,7 +219,7 @@ public class UploadFileService {
      * @return
      */
     public Either<FormatRespDto, UploadedFile> uploadFile(String userId, MultipartFile uploadFile) {
-        LOGGER.info("Begin upload file");
+        LOGGER.info("Start uploading file");
         UploadedFile result = new UploadedFile();
         String fileName = uploadFile.getOriginalFilename();
         if (!FileChecker.isValid(fileName)) {
@@ -228,8 +228,10 @@ public class UploadFileService {
         }
         String fileId = UUID.randomUUID().toString();
         String upLoadDir = InitConfigUtil.getWorkSpaceBaseDir() + BusinessConfigUtil.getUploadfilesPath();
+
         String fileRealPath = upLoadDir + fileId;
         File dir = new File(upLoadDir);
+
         if (!dir.isDirectory()) {
             boolean isSuccess = dir.mkdirs();
             if (!isSuccess) {
@@ -467,15 +469,15 @@ public class UploadFileService {
             String returnMsg = "Failed to read content of helm template yaml";
             return Either.left(new FormatRespDto(Status.INTERNAL_SERVER_ERROR, returnMsg));
         }
-        //yamlEmpty
+        //empty yaml
         if (StringUtils.isEmpty(content)) {
             return Either.left(new FormatRespDto(Status.BAD_REQUEST, "yaml file is empty!"));
         }
-        //judgmentyamlIs there a configurationnamespace
+        //Verify whether there exists a configuration namespace
         if (!content.contains("namespace")) {
             content = addNameSpace(content);
         } else {
-            //replacenamespacecontent
+            //replace namespace content
             content = replaceContent(content);
         }
 
@@ -485,8 +487,7 @@ public class UploadFileService {
         if (!StringUtils.isEmpty(oriName) && !oriName.endsWith(".yaml")) {
             return Either.right(helmTemplateYamlRespDto);
         }
-        String originalContent = content;
-        content = content.replaceAll(REPLACE_PATTERN.toString(), "");
+        String originalContent = content.replaceAll(REPLACE_PATTERN.toString(), "");
         // verify yaml scheme
         String[] multiContent = content.split("---");
         List<Map<String, Object>> mapList = new ArrayList<>();
@@ -709,7 +710,7 @@ public class UploadFileService {
         }
         LOGGER.warn("image {} imageID: {} ", image, imageId);
 
-        String targetName = "";
+        String targetName;
         if (!image.contains("/")) {
             targetName = devRepoEndpoint + "/" + devRepoProject + "/" + image;
             dockerClient.tagImageCmd(imageId, targetName, imageNames[1]).withForce().exec();
@@ -794,8 +795,8 @@ public class UploadFileService {
             list.add(multiContent[i]);
         }
         String in = getIndexOfSameObject(list);
-        String[] indexs = in.split(",");
-        for (String index : indexs) {
+        String[] indexes = in.split(",");
+        for (String index : indexes) {
             nums.add(Integer.parseInt(index));
         }
         for (int i = 0; i < nums.size(); i++) {
