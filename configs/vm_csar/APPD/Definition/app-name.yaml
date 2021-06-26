@@ -245,18 +245,6 @@ topology_template:
           access_key_id: {get_input: ak}
           secret_key: {get_input: sk}
 
-    DEMO_VL1:
-      type: tosca.nodes.nfv.VnfVirtualLink
-      properties:
-        vl_profile:
-          network_name: {get_input: DEMO_VNF_Network_01}
-
-    DEMO_VL2:
-      type: tosca.nodes.nfv.VnfVirtualLink
-      properties:
-        vl_profile:
-          network_name: {get_input: DEMO_VNF_Network_02}
-
   groups:
     AntiAffinityGroup:
       type: tosca.groups.nfv.PlacementGroup
