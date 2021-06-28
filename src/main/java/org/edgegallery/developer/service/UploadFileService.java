@@ -480,14 +480,13 @@ public class UploadFileService {
             //replace namespace content
             content = replaceContent(content);
         }
-
         //The image format isname:tag(nameDoes not contain delimiter)
         HelmTemplateYamlRespDto helmTemplateYamlRespDto = new HelmTemplateYamlRespDto();
         String oriName = helmTemplateYaml.getOriginalFilename();
         if (!StringUtils.isEmpty(oriName) && !oriName.endsWith(".yaml")) {
             return Either.right(helmTemplateYamlRespDto);
         }
-        String originalContent = content.replaceAll(REPLACE_PATTERN.toString(), "");
+        //
         // verify yaml scheme
         String[] multiContent = content.split("---");
         List<Map<String, Object>> mapList = new ArrayList<>();
@@ -533,7 +532,7 @@ public class UploadFileService {
             }
             // create HelmTemplateYamlPo
             HelmTemplateYamlPo helmTemplateYamlPo = new HelmTemplateYamlPo();
-            helmTemplateYamlPo.setContent(originalContent);
+            helmTemplateYamlPo.setContent(content);
             String fileId = UUID.randomUUID().toString();
             String filename = helmTemplateYaml.getOriginalFilename();
             helmTemplateYamlPo.setFileId(fileId);
@@ -556,8 +555,8 @@ public class UploadFileService {
             LOGGER.info("Succeed to save helm template yaml with file id : {}", fileId);
             return Either.right(helmTemplateYamlRespDto);
         }
-        return getSuccessResult(helmTemplateYaml, userId, projectId, originalContent, helmTemplateYamlRespDto,
-            configType, tempFile);
+        return getSuccessResult(helmTemplateYaml, userId, projectId, content, helmTemplateYamlRespDto, configType,
+            tempFile);
 
     }
 
@@ -580,11 +579,11 @@ public class UploadFileService {
         }
         //verify image info
         LOGGER.warn("podImages {}", podImages);
-        boolean result = verifyImage(podImages);
-        if (!result) {
-            LOGGER.error("the image configuration in the yaml file is incorrect");
-            return false;
-        }
+        // boolean result = verifyImage(podImages);
+        // if (!result) {
+        //     LOGGER.error("the image configuration in the yaml file is incorrect");
+        //     return false;
+        // }
         List<ProjectImageConfig> listImage = projectImageMapper.getAllImage(projectId);
         if (!CollectionUtils.isEmpty(listImage)) {
             for (ProjectImageConfig po : listImage) {
@@ -780,6 +779,8 @@ public class UploadFileService {
         for (String newStr : multiContent) {
             if (newStr.contains("namespace")) {
                 sb.append("  " + newStr + "\r\n");
+            } else if (newStr.contains("{{- if .Values.global.mepagent.enabled }}") || newStr.contains("{{- end }}")) {
+                sb.append(newStr.replace(newStr, ""));
             } else {
                 sb.append(newStr + "\r\n");
             }
