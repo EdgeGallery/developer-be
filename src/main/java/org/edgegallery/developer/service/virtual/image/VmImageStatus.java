@@ -102,7 +102,7 @@ public class VmImageStatus implements VmImageStage {
                 config.setChunkSize(vmImageInfo.getChunkSize());
                 config.setChecksum(vmImageInfo.getChecksum());
                 // get config
-                LOGGER.info("update config result:{}", config);
+                LOGGER.info("update config result:{}", config.getStatus());
             } else {
                 return true;
             }

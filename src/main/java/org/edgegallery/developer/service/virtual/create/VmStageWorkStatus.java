@@ -111,7 +111,7 @@ public class VmStageWorkStatus implements VmCreateStage {
         }
         // update test-config
         vmService.updateCreateVmResult(config, project, "workStatus", status);
-        LOGGER.info("update config result:{}", config);
+        LOGGER.info("update config result:{}", config.getStatus());
         return processStatus;
     }
 
