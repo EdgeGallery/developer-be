@@ -1,17 +1,12 @@
 package org.edgegallery.developer.unittest;
 
 import com.spencerwi.either.Either;
-import mockit.Mock;
-import mockit.MockUp;
-import org.checkerframework.checker.units.qual.A;
 import org.edgegallery.developer.DeveloperApplicationTests;
 import org.edgegallery.developer.config.security.AccessUserUtil;
-import org.edgegallery.developer.domain.shared.Page;
 import org.edgegallery.developer.model.system.MepGetSystemImageReq;
 import org.edgegallery.developer.model.system.MepGetSystemImageRes;
 import org.edgegallery.developer.model.system.MepSystemQueryCtrl;
 import org.edgegallery.developer.model.system.VmSystem;
-import org.edgegallery.developer.model.workspace.MepHost;
 import org.edgegallery.developer.response.FormatRespDto;
 import org.edgegallery.developer.service.SystemImageMgmtService;
 import org.junit.After;
@@ -23,10 +18,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit4.SpringRunner;
-import sun.misc.VM;
-
-import javax.validation.constraints.AssertTrue;
-import java.util.List;
 
 @SpringBootTest(classes = DeveloperApplicationTests.class)
 @RunWith(SpringRunner.class)
@@ -136,6 +127,22 @@ public class SystemImageMgmtServiceTest {
     public void testPublishSystemImageRight() throws Exception {
         AccessUserUtil.setUser("e111f3e7-90d8-4a39-9874-ea6ea6752ee5", "tenant");
         Either<FormatRespDto, Boolean> res = systemImageMgmtService.publishSystemImage(12345);
-        Assert.assertTrue(res.getRight());;
+        Assert.assertTrue(res.isRight());
+    }
+
+    @Test
+    @WithMockUser(roles = "DEVELOPER_ADMIN")
+    public void testDeleleSystemImageRight() throws Exception {
+        AccessUserUtil.setUser("e111f3e7-90d8-4a39-9874-ea6ea6752ee6", "admin", "ROLE_DEVELOPER_ADMIN");
+        Either<FormatRespDto, Boolean> res = systemImageMgmtService.deleteSystemImage(12345);
+        Assert.assertTrue(res.isRight());
+    }
+
+    @Test
+    @WithMockUser(roles = "DEVELOPER_TENANT")
+    public void testDeleleSystemImageERROR() throws Exception {
+        AccessUserUtil.setUser("e111f3e7-90d8-4a39-9874-ea6ea6752ee5", "tenant");
+        Either<FormatRespDto, Boolean> res = systemImageMgmtService.deleteSystemImage(32145);
+        Assert.assertTrue(res.isLeft());
     }
 }

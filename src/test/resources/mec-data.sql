@@ -26,6 +26,7 @@ MERGE INTO tbl_service_host(host_id,name,address,architecture,status,ip,port,os,
 -- ----------------------------
 MERGE INTO tbl_vm_system(system_id,system_name,type,operate_system,version,system_bit,system_disk, user_id,user_name,create_time,upload_time,system_format,status) KEY(system_id) VALUES (12345, 'testImage', 'private', 'ubuntu','16.04',64,40,'e111f3e7-90d8-4a39-9874-ea6ea6752ee5','tenant','2021-6-24 00:00:00.000000','2021-6-24 00:00:00.000000','iso','UPLOADING');
 MERGE INTO tbl_vm_system(system_id,system_name,type,operate_system,version,system_bit,system_disk, user_id,user_name,create_time,upload_time,system_format,status) KEY(system_id) VALUES (21345, 'testImage01', 'private', 'ubuntu','16.04',64,40,'e111f3e7-90d8-4a39-9874-ea6ea6752ee5','tenant','2021-6-24 00:00:00.000000','2021-6-24 00:00:00.000000','iso','UPLOADING');
+MERGE INTO tbl_vm_system(system_id,system_name,type,operate_system,version,system_bit,system_disk, user_id,user_name,create_time,upload_time,system_format,status) KEY(system_id) VALUES (32145, 'testImage10', 'private', 'ubuntu','16.04',64,40,'e111f3e7-90d8-4a39-9874-ea6ea6752ee6','admin','2021-6-24 00:00:00.000000','2021-6-24 00:00:00.000000','iso','UPLOADING');
 -- ----------------------------
 -- Records of tbl_openmep_capability   tbl_openmep_capability_detail
 -- ----------------------------
