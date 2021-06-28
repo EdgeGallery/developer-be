@@ -486,7 +486,6 @@ public class UploadFileService {
         if (!StringUtils.isEmpty(oriName) && !oriName.endsWith(".yaml")) {
             return Either.right(helmTemplateYamlRespDto);
         }
-        //
         // verify yaml scheme
         String[] multiContent = content.split("---");
         List<Map<String, Object>> mapList = new ArrayList<>();
@@ -579,11 +578,11 @@ public class UploadFileService {
         }
         //verify image info
         LOGGER.warn("podImages {}", podImages);
-        // boolean result = verifyImage(podImages);
-        // if (!result) {
-        //     LOGGER.error("the image configuration in the yaml file is incorrect");
-        //     return false;
-        // }
+        boolean result = verifyImage(podImages);
+        if (!result) {
+            LOGGER.error("the image configuration in the yaml file is incorrect");
+            return false;
+        }
         List<ProjectImageConfig> listImage = projectImageMapper.getAllImage(projectId);
         if (!CollectionUtils.isEmpty(listImage)) {
             for (ProjectImageConfig po : listImage) {
