@@ -57,7 +57,7 @@ public class ScheduleTask {
         vmService.processVmImage();
     }
 
-    @Scheduled(cron = "0 0 22 * * ? ")
+    @Scheduled(cron = "0 0/1 * * * ? ")
     public void processCleanEnv() {
         projectService.cleanUnreleasedEnv();
     }
