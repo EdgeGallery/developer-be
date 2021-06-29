@@ -1394,7 +1394,7 @@ public class ProjectService {
             List<MepHost> hosts = gson.fromJson(gson.toJson(testConfig.getHosts()), type);
             MepHost host = hosts.get(0);
             String basePath = HttpClientUtil.getUrlPrefix(host.getProtocol(), host.getLcmIp(), host.getPort());
-            if (StringUtils.isNotEmpty(workloadId)) {
+            if (StringUtils.isNotEmpty(testConfig.getAppInstanceId())) {
                 HttpClientUtil.terminateAppInstance(basePath, workloadId, userId, token);
             }
             if (StringUtils.isNotEmpty(testConfig.getPackageId())) {

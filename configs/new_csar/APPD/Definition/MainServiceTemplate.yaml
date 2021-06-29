@@ -13,28 +13,6 @@ metadata:
 
 topology_template:
   inputs:
-    APP_Name:
-      type: string
-      description: APP_Name
-    DC_ID:
-      type: string
-      description: DC_ID
-    INTERNAL_IP_VERSION:
-      type: string
-      default: IPV4
-      description: INTERNAL_IP_VERSION
-    network_name_1:
-      type: string
-      default: fst01_OM_Plane
-      description: APP_NETWORK
-    network1_physnet:
-      type: string
-      default: physnet1
-      description: APP_NETWORK_Physnet
-    network1_vlanid:
-      type: string
-      default: 1001
-      description: network1_vlanid
   node_templates:
     Simple_VNF:
       type: tosca.nodes.nfv.VNF

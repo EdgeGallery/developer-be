@@ -918,7 +918,8 @@ public class VmService {
         }
 
         // merge image file
-
+        config.setLog("start merge image file");
+        vmConfigMapper.updateVmImageConfig(config);
         String mergePath = imagePath + File.separator + config.getImageName();
         LOGGER.info("image file path:{}", mergePath);
         try {
@@ -941,14 +942,20 @@ public class VmService {
 
         } catch (IOException e) {
             LOGGER.error("image generate failed: occur IOException {}.", e.getMessage());
+            config.setLog("merge image file fail");
+            vmConfigMapper.updateVmImageConfig(config);
             return false;
         }
 
         // upload image to image management
+        config.setLog("start upload image to file management");
+        vmConfigMapper.updateVmImageConfig(config);
         File mergedFile = new File(imagePath + File.separator + config.getImageName() + ".zip");
         String downloadSystemPath = pushSystemImage(mergedFile);
         if (StringUtils.isEmpty(downloadSystemPath)) {
             LOGGER.error("push system image file failed!");
+            config.setLog("upload image to file management fail");
+            vmConfigMapper.updateVmImageConfig(config);
             return false;
         }
         // modify image file
@@ -966,7 +973,8 @@ public class VmService {
         }
 
         String outPath = projectService.getProjectPath(config.getProjectId()) + config.getAppInstanceId();
-
+        config.setLog("start to generate csar file");
+        vmConfigMapper.updateVmImageConfig(config);
         try {
             CompressFileUtilsJava
                 .compressToCsarAndDeleteSrc(outPath, projectService.getProjectPath(config.getProjectId()),

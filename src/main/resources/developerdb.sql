@@ -322,7 +322,7 @@
       "vm_system_desc" text DEFAULT NULL,
       "vm_network_desc" text DEFAULT NULL,
       "vm_user_data" text DEFAULT NULL,
-      "vm_name" varchar(50) DEFAULT NULL,
+      "vm_name" varchar(500) DEFAULT NULL,
       "ak" text DEFAULT NULL,
       "sk" text DEFAULT NULL,
       "app_instance_id" varchar(50) DEFAULT NULL,
@@ -334,7 +334,7 @@
     CREATE TABLE IF NOT EXISTS "tbl_project_vm_create_config" (
       "vm_id"  varchar(255) NOT NULL DEFAULT NULL,
       "project_id" varchar(50) DEFAULT NULL,
-      "vm_name" varchar(50) DEFAULT NULL,
+      "vm_name" varchar(500) DEFAULT NULL,
       "host" text  DEFAULT NULL,
       "status" varchar(50)  DEFAULT NULL,
       "stage_status" varchar(500)  DEFAULT NULL,
@@ -350,10 +350,10 @@
 
     CREATE TABLE IF NOT EXISTS "tbl_project_vm_image_config" (
       "vm_id"  varchar(255) NOT NULL DEFAULT NULL,
-      "image_id" varchar(50) DEFAULT NULL,
+      "image_id" varchar(500) DEFAULT NULL,
       "project_id" varchar(50) DEFAULT NULL,
-      "vm_name" varchar(50) NOT NULL DEFAULT NULL,
-      "image_name" varchar(50) DEFAULT NULL,
+      "vm_name" varchar(500) NOT NULL DEFAULT NULL,
+      "image_name" varchar(500) DEFAULT NULL,
       "app_instance_id" varchar(50)  DEFAULT NULL,
       "host_ip" varchar(50)  DEFAULT NULL,
       "sum_chunk_num" varchar(50)  DEFAULT NULL,
