@@ -28,7 +28,11 @@ import java.lang.reflect.Type;
 import java.net.URL;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -1443,8 +1447,14 @@ public class ProjectService {
             // deployment failure，And the project creation time has exceeded24hour，transfercleanenvinterface
             for (ApplicationProject project : projects) {
                 EnumProjectStatus status = project.getStatus();
-                if (status.equals(EnumProjectStatus.DEPLOYED) || status.equals(EnumProjectStatus.DEPLOYED_FAILED)) {
-                    String devSvc = "http://developer-be-svc:9082";
+                String createDate = project.getCreateDate();
+                DateFormat fmt = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+                Instant dateOfProject = fmt.parse(createDate).toInstant();
+                Instant now = Instant.now();
+                Long timeDiff = Duration.between(dateOfProject, now).toHours();
+                if ((status.equals(EnumProjectStatus.DEPLOYED) || status.equals(EnumProjectStatus.DEPLOYED_FAILED))
+                    && timeDiff.intValue() >= 24) {
+                    String devSvc = "https://developer-fe-svc:30092/mec-developer";
                     String cleanUrl = String
                         .format(Consts.DEV_CLEAN_ENV_URL, devSvc, project.getId(), project.getUserId());
                     LOGGER.warn("clean env url {}", cleanUrl);
@@ -1453,7 +1463,7 @@ public class ProjectService {
                     client.execute(httpClean);
                 }
             }
-        } catch (IOException e) {
+        } catch (IOException | ParseException e) {
             LOGGER.error("call login or clean env interface occur error {}", e.getMessage());
             return;
         }
