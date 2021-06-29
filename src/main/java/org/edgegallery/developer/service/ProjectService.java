@@ -825,10 +825,6 @@ public class ProjectService {
         if (StringUtils.isEmpty(group.getDescriptionEn())) {
             group.setDescriptionEn(group.getDescription());
         }
-
-        if (StringUtils.isEmpty(group.getOneLevelNameEn())) {
-            group.setOneLevelNameEn(group.getOneLevelName());
-        }
         if (StringUtils.isEmpty(group.getTwoLevelNameEn())) {
             group.setTwoLevelNameEn(group.getTwoLevelName());
         }
@@ -971,6 +967,7 @@ public class ProjectService {
     private void fillCapabilityGroup(ServiceDetail serviceDetail, String groupId, OpenMepCapabilityGroup group) {
         group.setGroupId(groupId);
         group.setOneLevelName(serviceDetail.getOneLevelName());
+        group.setOneLevelNameEn(serviceDetail.getOneLevelNameEn());
         group.setTwoLevelName(serviceDetail.getTwoLevelName());
         group.setType(EnumOpenMepType.OPENMEP);
         group.setDescription(serviceDetail.getDescription());

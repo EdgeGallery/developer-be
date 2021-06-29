@@ -28,6 +28,8 @@ public class ServiceDetail {
 
     private String oneLevelName;
 
+    private String oneLevelNameEn;
+
     private  String twoLevelName;
 
     private String description;
