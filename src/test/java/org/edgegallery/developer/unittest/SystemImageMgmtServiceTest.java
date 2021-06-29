@@ -104,7 +104,7 @@ public class SystemImageMgmtServiceTest {
         vmSystem.setSystemName("testImage");
         vmSystem.setVersion("14");
         Either<FormatRespDto, Boolean> res = systemImageMgmtService.updateSystemImage(vmSystem,12345);
-        Assert.assertTrue(res.getRight());
+        Assert.assertTrue(res.isLeft());
     }
 
     @Test
