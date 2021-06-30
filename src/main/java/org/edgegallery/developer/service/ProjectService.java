@@ -24,8 +24,10 @@ import com.google.gson.reflect.TypeToken;
 import com.spencerwi.either.Either;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Type;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.text.DateFormat;
@@ -46,6 +48,8 @@ import javax.net.ssl.SSLContext;
 import javax.ws.rs.core.Response.Status;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.CookieStore;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
@@ -1429,17 +1433,45 @@ public class ProjectService {
         //Call by service nameuser-mgmtLogin interface
         try (CloseableHttpClient client = createIgnoreSslHttpClient()) {
             URL url = new URL(loginUrl);
-            String userLoginUrl = url.getProtocol() + "://" + url.getAuthority() + "/index.html";
+            String userLoginUrl = url.getProtocol() + "://" + url.getAuthority() + "/login";
             LOGGER.warn("user login url: {}", userLoginUrl);
             HttpPost httpPost = new HttpPost(userLoginUrl);
             MultipartEntityBuilder builder = MultipartEntityBuilder.create();
             builder.addTextBody("username", clientId + ":" + new Date().getTime());
             builder.addTextBody("password", clientPW);
             httpPost.setEntity(builder.build());
+            // first call login interface
             client.execute(httpPost);
             String xsrf = getXsrf();
             httpPost.setHeader("X-XSRF-TOKEN", xsrf);
+            // secode call login interface
             client.execute(httpPost);
+            String xsrfToken = getXsrf();
+            //third call auth login-info interface
+            String getTokenUrl = url.getProtocol() + "://" + url.getHost() + ":30092/auth/login-info";
+            LOGGER.warn("user login-info url: {}", getTokenUrl);
+            HttpGet httpGet = new HttpGet(getTokenUrl);
+            httpGet.setHeader("X-XSRF-TOKEN", xsrfToken);
+            CloseableHttpResponse res = client.execute(httpGet);
+            InputStream inputStream = res.getEntity().getContent();
+
+            byte[] bytes = new byte[inputStream.available()];
+            inputStream.read(bytes);
+            String authResult = new String(bytes, StandardCharsets.UTF_8);
+            LOGGER.info("response token length: {}", authResult.length());
+            //获取accessToken
+            String accessToken = "";
+            if (StringUtils.isNotEmpty(authResult) && authResult.contains("\"accessToken\":")) {
+                String[] authResults = authResult.split(",");
+                for (String authRes : authResults) {
+                    if (authRes.contains("accessToken")) {
+                        String[] tokenArr = authRes.split(":");
+                        if (tokenArr != null && tokenArr.length > 1) {
+                            accessToken = tokenArr[1].substring(1, tokenArr[1].length() - 1);
+                        }
+                    }
+                }
+            }
             //Determine the status of the existing project as successful deployment or
             // deployment failure，And the project creation time has exceeded24hour，transfercleanenvinterface
             for (ApplicationProject project : projects) {
@@ -1449,15 +1481,10 @@ public class ProjectService {
                 Instant dateOfProject = fmt.parse(createDate).toInstant();
                 Instant now = Instant.now();
                 Long timeDiff = Duration.between(dateOfProject, now).toHours();
-                if ((status.equals(EnumProjectStatus.DEPLOYED) || status.equals(EnumProjectStatus.DEPLOYED_FAILED))
+                if (status.equals(EnumProjectStatus.DEPLOYED)
+                    || status.equals(EnumProjectStatus.DEPLOYED_FAILED) && StringUtils.isNotEmpty(accessToken)
                     && timeDiff.intValue() >= 24) {
-                    String devSvc = "https://developer-fe-svc:30092/mec-developer";
-                    String cleanUrl = String
-                        .format(Consts.DEV_CLEAN_ENV_URL, devSvc, project.getId(), project.getUserId());
-                    LOGGER.warn("clean env url {}", cleanUrl);
-                    HttpPost httpClean = new HttpPost(cleanUrl);
-                    httpClean.setHeader("X-XSRF-TOKEN", xsrf);
-                    client.execute(httpClean);
+                    cleanTestEnv(project.getUserId(), project.getId(), accessToken);
                 }
             }
         } catch (IOException | ParseException e) {
