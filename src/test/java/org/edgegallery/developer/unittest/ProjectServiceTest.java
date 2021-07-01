@@ -355,6 +355,15 @@ public class ProjectServiceTest {
 
     @Test
     @WithMockUser(roles = "DEVELOPER_TENANT")
+    public void testCheckDependency() throws IOException {
+        Either<FormatRespDto, ApplicationProject> project = projectService.getProject("f24ea0a2-d8e6-467c-8039-94f0d29bac43","200dfab1-3c30-4fc7-a6ca-ed6f0620a86s");
+        Assert.assertTrue(project.isRight());
+        boolean hello = projectService.checkDependency(project.getRight());
+        Assert.assertTrue(hello);
+    }
+
+    @Test
+    @WithMockUser(roles = "DEVELOPER_TENANT")
     public void testModifyTestConfig() throws IOException {
         Either<FormatRespDto, ApplicationProject> project = createNewProject();
         ProjectTestConfig test = new ProjectTestConfig();
@@ -693,6 +702,12 @@ public class ProjectServiceTest {
         String userId = "f24ea0a2-d8e6-467c-8039-94f0d29bac43";
         Either<FormatRespDto, Boolean> res = projectService.cleanTestEnv(userId, "aa", "aa");
         Assert.assertTrue(res.isLeft());
+    }
+
+    @Test
+    @WithMockUser(roles = "DEVELOPER_TENANT")
+    public void testCleanUnreleaseEnv() throws Exception {
+        projectService.cleanUnreleasedEnv();
     }
 
     @Test
