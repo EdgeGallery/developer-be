@@ -12,7 +12,6 @@ metadata:
   vnfd_description: EdgeGallery MEC sample for vnf
 
 topology_template:
-  inputs:
   node_templates:
     Simple_VNF:
       type: tosca.nodes.nfv.VNF
@@ -65,25 +64,6 @@ topology_template:
               cpu_architecture: X86
             virtual_local_storage:
               size_of_storage: 20
-    MEC_APP_CP0:
-      type: tosca.nodes.nfv.VduCp
-      properties:
-        description: network definition
-        vnic_name: eth0
-        order: 0
-        vnic_type: normal
-        port_security_enabled: true
-      requirements:
-        - virtual_binding: logic0
-        - virtual_link: MEC_APP_VL0
-    MEC_APP_VL0:
-      type: tosca.nodes.nfv.VnfVirtualLink
-      properties:
-        vl_profile:
-          network_name: {get_input: network_name_1}
-          network_type: vlan
-          physical_network: {get_input: network1_physnet}
-          provider_segmentation_id: {get_input: network1_vlanid}
 
   groups:
     AntiAffinityGroup:
