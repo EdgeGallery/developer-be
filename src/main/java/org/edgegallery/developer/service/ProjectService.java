@@ -1400,15 +1400,15 @@ public class ProjectService {
      * @return
      */
     private boolean deleteDeployApp(ProjectTestConfig testConfig, String userId, String token) {
-        String workloadId = testConfig.getWorkLoadId();
+        String appInsId = testConfig.getAppInstanceId();
 
-        if (!CollectionUtils.isEmpty(testConfig.getHosts()) && StringUtils.isNotEmpty(workloadId)) {
+        if (!CollectionUtils.isEmpty(testConfig.getHosts()) && StringUtils.isNotEmpty(appInsId)) {
             Type type = new TypeToken<List<MepHost>>() { }.getType();
             List<MepHost> hosts = gson.fromJson(gson.toJson(testConfig.getHosts()), type);
             MepHost host = hosts.get(0);
             String basePath = HttpClientUtil.getUrlPrefix(host.getProtocol(), host.getLcmIp(), host.getPort());
             if (StringUtils.isNotEmpty(testConfig.getAppInstanceId())) {
-                HttpClientUtil.terminateAppInstance(basePath, workloadId, userId, token);
+                HttpClientUtil.terminateAppInstance(basePath, appInsId, userId, token);
             }
             if (StringUtils.isNotEmpty(testConfig.getPackageId())) {
                 // delete hosts
