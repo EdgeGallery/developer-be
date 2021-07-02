@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import org.edgegallery.developer.DeveloperApplicationTests;
+import org.edgegallery.developer.config.security.AccessUserUtil;
 import org.edgegallery.developer.domain.shared.Page;
 import org.edgegallery.developer.model.workspace.EnumHostStatus;
 import org.edgegallery.developer.model.workspace.EnumOpenMepType;
@@ -231,6 +232,7 @@ public class SystemServiceTest {
     @Test
     @WithMockUser(roles = "DEVELOPER_TENANT")
     public void testCreateHostWithErrorUserId() {
+        AccessUserUtil.setUser("userID","userName","[\"ROLE_DEVELOPER_ADMIN\"]");
         MepCreateHost host = new MepCreateHost();
         host.setUserName("userName");
         host.setPassword("password");
