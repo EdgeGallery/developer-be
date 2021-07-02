@@ -1074,9 +1074,9 @@ public class ProjectService {
     public Either<FormatRespDto, Boolean> cleanTestEnv(String userId, String projectId, String token) {
         LOGGER.warn("begin clean...");
         Map<String, Object> sshMap = webSshService.getSshMap();
-        LOGGER.warn("sshMap:{}",sshMap);
+        LOGGER.warn("sshMap:{}", sshMap);
         Map<String, String> userIdMap = webSshService.getUserIdMap();
-        LOGGER.warn("userIdMap:{}",userIdMap);
+        LOGGER.warn("userIdMap:{}", userIdMap);
         String uuid = "";
         SshConnectInfo sshConnectInfo = null;
         LOGGER.warn("debug-log if 1..");
@@ -1128,6 +1128,7 @@ public class ProjectService {
         LOGGER.info("Update project status to TESTED success");
 
         int tes = projectMapper.updateTestConfig(testConfig);
+        LOGGER.warn("debug-log if 8..");
         if (tes < 1) {
             LOGGER.error("Update test config {} failed", testConfig.getTestId());
         }
@@ -1401,7 +1402,7 @@ public class ProjectService {
     private boolean deleteDeployApp(ProjectTestConfig testConfig, String userId, String token) {
         String workloadId = testConfig.getWorkLoadId();
 
-        if (!CollectionUtils.isEmpty(testConfig.getHosts())) {
+        if (!CollectionUtils.isEmpty(testConfig.getHosts()) && StringUtils.isNotEmpty(workloadId)) {
             Type type = new TypeToken<List<MepHost>>() { }.getType();
             List<MepHost> hosts = gson.fromJson(gson.toJson(testConfig.getHosts()), type);
             MepHost host = hosts.get(0);
