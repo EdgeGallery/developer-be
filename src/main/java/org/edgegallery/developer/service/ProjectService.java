@@ -1072,18 +1072,22 @@ public class ProjectService {
      * @return
      */
     public Either<FormatRespDto, Boolean> cleanTestEnv(String userId, String projectId, String token) {
+        LOGGER.warn("begin clean...");
         Map<String, Object> sshMap = webSshService.getSshMap();
+        LOGGER.warn("sshMap:{}",sshMap);
         Map<String, String> userIdMap = webSshService.getUserIdMap();
+        LOGGER.warn("userIdMap:{}",userIdMap);
         String uuid = "";
         SshConnectInfo sshConnectInfo = null;
-
+        LOGGER.warn("debug-log if 1..");
         if (userIdMap != null && !userIdMap.isEmpty()) {
             uuid = userIdMap.get(userId);
         }
+        LOGGER.warn("debug-log if 2..");
         if (sshMap != null && !sshMap.isEmpty()) {
             sshConnectInfo = (SshConnectInfo) sshMap.get(uuid);
         }
-
+        LOGGER.warn("debug-log if 3..");
         if (sshConnectInfo != null) {
             //Disconnect
             if (sshConnectInfo.getChannel() != null) {
@@ -1092,12 +1096,14 @@ public class ProjectService {
             //mapRemove
             sshMap.remove(uuid);
         }
+        LOGGER.warn("debug-log if 4..");
         ApplicationProject project = projectMapper.getProject(userId, projectId);
         if (project == null) {
             LOGGER.error("Can not find project by userId and projectId");
             FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "can not find project");
             return Either.left(error);
         }
+        LOGGER.warn("debug-log if 5..");
         ProjectTestConfig testConfig = projectMapper.getTestConfig(project.getLastTestId());
         if (testConfig == null) {
             LOGGER.info("This project has no config, do not need to clean env.");
@@ -1105,7 +1111,7 @@ public class ProjectService {
         }
 
         deleteDeployApp(testConfig, project.getUserId(), token);
-
+        LOGGER.warn("debug-log if 6..");
         // modify host status save host logs
         modifyHostStatus(testConfig, project, "terminate");
 
@@ -1113,6 +1119,7 @@ public class ProjectService {
         testConfig.initialConfig();
         project.initialProject();
         int res = projectMapper.updateProject(project);
+        LOGGER.warn("debug-log if 7..");
         if (res < 1) {
             LOGGER.error("Update project status failed");
             FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "update project failed");
