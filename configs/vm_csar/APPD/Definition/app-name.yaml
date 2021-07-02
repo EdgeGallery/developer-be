@@ -28,11 +28,11 @@ topology_template:
       default: abdc
       description: AK
     sk:
-      type: string
+      type: password
       default: 1234
       description: SK
     mep_certificate:
-      type: string
+      type: text
       default: YHXGFTWU!@$%@&%#(DH(122479+_)
       description: MEP Certificate
     app_mp1_ip:

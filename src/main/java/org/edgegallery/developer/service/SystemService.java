@@ -30,6 +30,7 @@ import javax.ws.rs.core.Response.Status;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.servicecomb.provider.springmvc.reference.RestTemplateBuilder;
 import org.edgegallery.developer.common.Consts;
+import org.edgegallery.developer.config.security.AccessUserUtil;
 import org.edgegallery.developer.domain.shared.Page;
 import org.edgegallery.developer.exception.CustomException;
 import org.edgegallery.developer.mapper.HostLogMapper;
@@ -113,7 +114,7 @@ public class SystemService {
             LOGGER.error("Create host failed, password is empty");
             return Either.left(new FormatRespDto(Status.BAD_REQUEST, "password is empty"));
         }
-        if (StringUtils.isBlank(host.getUserId()) || !host.getUserId().equals("admin")) {
+        if (StringUtils.isBlank(host.getUserId()) || !isAdminUser()) {
             LOGGER.error("Create host failed, userId is empty or not admin");
             return Either.left(new FormatRespDto(Status.BAD_REQUEST, "userId is empty or not admin"));
         }
@@ -252,6 +253,11 @@ public class SystemService {
         List<MepHostLog> hostLogList = hostLogMapper.getHostLogByHostId(hostId);
         LOGGER.info("Get host logs success.");
         return Either.right(hostLogList);
+    }
+
+    private boolean isAdminUser() {
+        String currUserAuth = AccessUserUtil.getUser().getUserAuth();
+        return !StringUtils.isEmpty(currUserAuth) && currUserAuth.contains(Consts.ROLE_DEVELOPER_ADMIN);
     }
 
     /**
