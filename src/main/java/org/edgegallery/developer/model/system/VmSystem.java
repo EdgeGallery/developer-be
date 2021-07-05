@@ -71,4 +71,6 @@ public class VmSystem {
     @Length(max = 50)
     private String userName;
 
+    private String fileMd5;
+
 }

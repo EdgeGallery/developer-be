@@ -52,6 +52,7 @@
         <result property="systemDisk" column="system_disk"/>
         <result property="systemPath" column="system_path"/>
         <result property="systemFormat" column="system_format"/>
+        <result property="fileMd5" column="file_md5"/>
     </resultMap>
 
     <resultMap id="VmNetwork"

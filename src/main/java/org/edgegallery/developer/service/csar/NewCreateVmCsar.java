@@ -217,7 +217,7 @@ public class NewCreateVmCsar {
         imageDesc.setId(imageId);
         imageDesc.setName(config.getVmSystem().getSystemName());
         imageDesc.setVersion(config.getVmSystem().getVersion());
-        imageDesc.setChecksum("36fcf66940532088b6081512557528b3");
+        imageDesc.setChecksum(config.getVmSystem().getFileMd5());
         imageDesc.setContainerFormat("bare");
         imageDesc.setDiskFormat(config.getVmSystem().getSystemFormat());
         imageDesc.setMinDisk(3);
