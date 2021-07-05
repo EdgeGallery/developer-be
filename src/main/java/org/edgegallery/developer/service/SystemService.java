@@ -257,6 +257,7 @@ public class SystemService {
 
     private boolean isAdminUser() {
         String currUserAuth = AccessUserUtil.getUser().getUserAuth();
+        LOGGER.info("user auth:{}",currUserAuth);
         return !StringUtils.isEmpty(currUserAuth) && currUserAuth.contains(Consts.ROLE_DEVELOPER_ADMIN);
     }
 
