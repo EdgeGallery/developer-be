@@ -212,7 +212,7 @@ public class NewCreateVmCsar {
         }
         //update SwImageDesc.json , get image url
         String url = config.getVmSystem().getSystemPath();
-        String imageId = url.substring(url.length() - 48, url.length() - 16);
+        String imageId = url.substring(url.length() - 52, url.length() - 16);
         ImageDesc imageDesc = new ImageDesc();
         imageDesc.setId(imageId);
         imageDesc.setName(config.getVmSystem().getSystemName());

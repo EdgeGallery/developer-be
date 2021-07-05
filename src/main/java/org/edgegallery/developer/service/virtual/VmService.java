@@ -965,6 +965,7 @@ public class VmService {
                 FileUtils.readFileToString(swImageDesc, StandardCharsets.UTF_8));
 
             swImgDescs.get(0).setSwImage(downloadSystemPath);
+            swImgDescs.get(0).setId(config.getImageId());
             swImgDescs.get(0).setChecksum(config.getChecksum());
             writeFile(swImageDesc, gson.toJson(swImgDescs));
         } catch (IOException e) {
