@@ -178,7 +178,8 @@ public class NewCreateVmCsar {
             }
         }
         //if temp false ,delete user_data
-        if (vmUserData != null && !vmUserData.isTemp()) {
+        if (vmUserData != null && (!vmUserData.isTemp() || StringUtils.isEmpty(vmUserData.getContents()) || StringUtils
+            .isEmpty(vmUserData.getParams()))) {
             List<String> list = deleteUserData(templateFile);
             if (!CollectionUtils.isEmpty(list)) {
                 LOGGER.warn("deleted list {}", list);
