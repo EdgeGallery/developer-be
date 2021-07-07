@@ -14,8 +14,8 @@ appconfig:
     appInsId: <idvalue>
 
 serviceconfig:
-#  - servicename: positioning-service
-#    port: 9997
+#  - servicename: face-recognition
+#    port: 9999
 #    version: 1.0
 #    protocol: HTTP
 #    appnamespace: default

@@ -377,47 +377,6 @@ public final class HttpClientUtil {
         return protocol + "://" + ip + ":" + port;
     }
 
-    /**
-     * vm instantiate Application.
-     *
-     * @return InstantiateAppResult
-     */
-    public static boolean vmInstantiateApplication(String protocol, String ip, int port, String filePath,
-        String appInstanceId, String userId, String projectName, VmCreateConfig vmConfig) {
-        MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
-        body.add("file", new FileSystemResource(filePath));
-        body.add("hostIp", ip);
-        body.add("appName", projectName);
-        body.add("packageId", "");
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
-        headers.set(Consts.ACCESS_TOKEN_STR, vmConfig.getLcmToken());
-        HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
-        String url = getUrlPrefix(protocol, ip, port) + Consts.APP_LCM_INSTANTIATE_APP_URL
-            .replaceAll("appInstanceId", appInstanceId).replaceAll("tenantId", userId);
-        ResponseEntity<String> response;
-        try {
-            REST_TEMPLATE.setErrorHandler(new CustomResponseErrorHandler());
-            response = REST_TEMPLATE.exchange(url, HttpMethod.POST, requestEntity, String.class);
-            LOGGER.info("APPlCM log:{}", response);
-        } catch (CustomException e) {
-            e.printStackTrace();
-            String errorLog = e.getBody();
-            LOGGER.error("Failed to vm instantiate application which packageId is {} exception {}", appInstanceId,
-                errorLog);
-            vmConfig.setLog(errorLog);
-            return false;
-        } catch (RestClientException e) {
-            LOGGER.error("Failed to instantiate application which appInstanceId is {} exception {}", appInstanceId,
-                e.getMessage());
-            return false;
-        }
-        if (response.getStatusCode() == HttpStatus.OK) {
-            return true;
-        }
-        LOGGER.error("Failed to instantiate application which appInstanceId is {}", appInstanceId);
-        return false;
-    }
 
     /**
      * vmInstantiateImage.

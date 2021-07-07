@@ -70,13 +70,12 @@ public class NewCreateCsar {
      * @param project project self
      * @return package gz
      */
-    public File create(String projectPath, ProjectTestConfig config, ApplicationProject project, File chart)
+    public File create(String projectPath, ProjectTestConfig config, ApplicationProject project, String chartName, File chart)
         throws IOException {
         File projectDir = new File(projectPath);
 
         String deployType = (project.getDeployPlatform() == EnumDeployPlatform.KUBERNETES) ? "container" : "vm";
         String projectName = project.getName();
-        String chartName = project.getName().replaceAll(Consts.PATTERN, "").toLowerCase();
 
         // copy template files to the new project path
         File csar = DeveloperFileUtils
@@ -95,7 +94,7 @@ public class NewCreateCsar {
                     .replace("{provider}", project.getProvider()).replace("{version}", project.getVersion())
                     .replace("{time}", timeStamp).replace("{description}", project.getDescription())
                     .replace("{ChartName}", chartName).replace("{type}", deployType), StandardCharsets.UTF_8, false);
-            boolean isSuccess = csarValue.renameTo(new File(csar.getCanonicalPath() + "/" + projectName + ".mf"));
+            boolean isSuccess = csarValue.renameTo(new File(csar.getCanonicalPath() + "/" + chartName + ".mf"));
             if (!isSuccess) {
                 LOGGER.warn("positioning-service.mf rename to project-name.mf failed!");
             }
@@ -110,15 +109,14 @@ public class NewCreateCsar {
             FileUtils.moveFileToDirectory(chart, chartDir, true);
         } else {
             //compose apptgz to .tgz and delete apptgz dir
-            String appName = project.getName().replaceAll(Consts.PATTERN, "").toLowerCase();
             File appTgz = new File(csar.getCanonicalPath() + TEMPLATE_CSAR_BASE_PATH + "app-tgz/");
-            File appTgzNew = new File(csar.getCanonicalPath() + TEMPLATE_CSAR_BASE_PATH, appName);
+            File appTgzNew = new File(csar.getCanonicalPath() + TEMPLATE_CSAR_BASE_PATH, chartName);
             if (!appTgz.renameTo(appTgzNew)) {
                 throw new IOException("Rename tgz exception");
             }
             File tgz = CompressFileUtils
-                .compressToTgzAndDeleteSrc(csar.getCanonicalPath() + TEMPLATE_CSAR_BASE_PATH + appName,
-                    csar.getCanonicalPath() + TEMPLATE_CSAR_BASE_PATH, appName);
+                .compressToTgzAndDeleteSrc(csar.getCanonicalPath() + TEMPLATE_CSAR_BASE_PATH + chartName,
+                    csar.getCanonicalPath() + TEMPLATE_CSAR_BASE_PATH, chartName);
             if (!tgz.exists()) {
                 throw new IOException("Create tgz exception");
             }

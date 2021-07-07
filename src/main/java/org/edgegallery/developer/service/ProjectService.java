@@ -525,15 +525,16 @@ public class ProjectService {
         String projectId = project.getId();
         List<OpenMepCapabilityGroup> mepCapability = project.getCapabilityList();
         String projectPath = getProjectPath(projectId);
-        String projectName = project.getName().replaceAll(Consts.PATTERN, "").toLowerCase();
+        String chartName = project.getName().replaceAll(Consts.PATTERN, "")
+            + UUID.randomUUID().toString().substring(0, 8);
         String configMapName = "mepagent" + UUID.randomUUID().toString();
-        String namespace = projectName;
+        String namespace = chartName;
         List<HelmTemplateYamlPo> yamlPoList = helmTemplateYamlMapper.queryTemplateYamlByProjectId(userId, projectId);
         File csarPkgDir;
         if (!CollectionUtils.isEmpty(yamlPoList)) {
             // create chart file
-            ChartFileCreator chartFileCreator = new ChartFileCreator(projectName);
-            chartFileCreator.setChartName(projectName);
+            ChartFileCreator chartFileCreator = new ChartFileCreator(chartName);
+            chartFileCreator.setChartName(chartName);
             if (mepCapability == null || mepCapability.isEmpty()) {
                 chartFileCreator
                     .setChartValues("false", "true", namespace, configMapName, imageDomainName, imageProject);
@@ -547,9 +548,9 @@ public class ProjectService {
             String tgzFilePath = chartFileCreator.build();
 
             // create csar file directory
-            csarPkgDir = new NewCreateCsar().create(projectPath, testConfig, project, new File(tgzFilePath));
+            csarPkgDir = new NewCreateCsar().create(projectPath, testConfig, project, chartName, new File(tgzFilePath));
         } else {
-            csarPkgDir = new NewCreateCsar().create(projectPath, testConfig, project, null);
+            csarPkgDir = new NewCreateCsar().create(projectPath, testConfig, project, chartName, null);
         }
         return CompressFileUtilsJava
             .compressToCsarAndDeleteSrc(csarPkgDir.getCanonicalPath(), projectPath, csarPkgDir.getName());
