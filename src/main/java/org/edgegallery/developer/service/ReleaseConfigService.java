@@ -277,7 +277,7 @@ public class ReleaseConfigService {
                         if (!tgzFile.isFile() || !tgzFile.getName().endsWith(".tgz")) {
                             continue;
                         }
-                        fillTemplateInTgzFile(tgzFile, details, project.getName());
+                        fillTemplateInTgzFile(tgzFile, details);
                     }
                 }
             }
@@ -513,7 +513,7 @@ public class ReleaseConfigService {
     /**
      * fill value template with detailList.
      */
-    private void fillTemplateInTgzFile(File tgzFile, List<ServiceDetail> detailList, String projectName) {
+    private void fillTemplateInTgzFile(File tgzFile, List<ServiceDetail> detailList) {
         String fileName = tgzFile.getName().replace(".tgz", "");
         try {
             // decompress tgz
@@ -539,7 +539,7 @@ public class ReleaseConfigService {
             // build node template
             List<ServiceConfig> configs = detailList.stream().map(
                 t -> new ServiceConfig(t.getServiceName(), t.getInternalPort(), t.getVersion(), t.getProtocol(),
-                    projectName)).collect(Collectors.toList());
+                    fileName)).collect(Collectors.toList());
             // update node in template
             loaded.put("serviceconfig", configs);
             // write content to yaml

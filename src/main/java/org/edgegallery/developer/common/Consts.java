@@ -78,7 +78,7 @@ public final class Consts {
 
     public static final String RESPONSE_MESSAGE_CAN_NOT_FIND_PROJECT = "Can not find project.";
 
-    public static final String PATTERN = "[\n`~!@#$%^&*()+=|{}':;',\\[\\].<>/?~_！@#￥%……&*（）——+|{}【】‘；：”“’。， 、？]";
+    public static final String PATTERN = "[\\u4e00-\\u9fa5 `~!@#$%^&*()+=|{}':;',\\[\\].<>/?~_！@#￥%……&*（）——+|{}【】‘；：”“’。， 、？]";
 
     public static final int QUERY_APPLICATIONS_TIMES = 20;
 
