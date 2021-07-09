@@ -146,12 +146,13 @@ public class SystemImageMgmtService {
             if (!isAdminUser()) {
                 vmImage.setUserId(userId);
             }
-            if (StringUtils.isAnyBlank(vmImage.getSystemName(), systemImageMapper.getVmImage(systemId).getUserId())) {
+            VmSystem vmSystemImage = systemImageMapper.getVmImage(systemId);
+            if (StringUtils.isAnyBlank(vmImage.getSystemName(), vmSystemImage.getUserId())) {
                 LOGGER.error("Update SystemImage failed");
                 return Either.left(new FormatRespDto(Response.Status.BAD_REQUEST, "Can not update a SystemImage."));
             }
             if (systemImageMapper.getSystemNameCount(vmImage.getSystemName(), systemId,
-                systemImageMapper.getVmImage(systemId).getUserId()) > 0) {
+                vmSystemImage.getUserId()) > 0) {
                 LOGGER.error("SystemName can not duplicate.");
                 return Either.left(new FormatRespDto(Response.Status.BAD_REQUEST, "SystemName can not duplicate."));
             }
@@ -273,6 +274,28 @@ public class SystemImageMgmtService {
     }
 
     /**
+     * cancel upload system image.
+     *
+     * @param systemId System Image ID
+     * @return Resposne
+     */
+    public ResponseEntity cancelUploadSystemImage(Integer systemId) {
+        LOGGER.info("cancel upload system image file, systemId = {}, ", systemId);
+
+        VmSystem vmSystemImage = systemImageMapper.getVmImage(systemId);
+        if (EnumSystemImageStatus.UPLOADING_MERGING == vmSystemImage.getStatus()) {
+            LOGGER.error("system image is merging, it cannot be cancelled.");
+            return ResponseEntity.status(Response.Status.BAD_REQUEST.getStatusCode()).build();
+        }
+
+        LOGGER.info("execute cancel action.");
+        systemImageMapper.updateSystemImageStatus(systemId, EnumSystemImageStatus.UPLOAD_CANCELLED.toString());
+        String rootDir = getUploadSysImageRootDir(systemId);
+        cleanWorkDir(new File(rootDir));
+        return ResponseEntity.ok().build();
+    }
+
+    /**
      * merge system image.
      *
      * @param fileName Merged File Name
@@ -284,6 +307,8 @@ public class SystemImageMgmtService {
     public ResponseEntity mergeSystemImage(String fileName, String identifier, Integer systemId) throws IOException {
         LOGGER.info("merge system image file, systemId = {}, fileName = {}, identifier = {}", systemId, fileName,
             identifier);
+        systemImageMapper.updateSystemImageStatus(systemId, EnumSystemImageStatus.UPLOADING_MERGING.toString());
+
         String rootDir = getUploadSysImageRootDir(systemId);
         String partFilePath = rootDir + identifier;
         File partFileDir = new File(partFilePath);
@@ -376,7 +401,7 @@ public class SystemImageMgmtService {
             Map<String, String> uploadResultModel = gson.fromJson(uploadResult, Map.class);
             return fileServerAddress + String
                 .format(Consts.SYSTEM_IMAGE_DOWNLOAD_URL, uploadResultModel.get("imageId"));
-        } catch (Exception e) {
+        } catch (Throwable e) {
             LOGGER.error("upload system image file failed. {}", e.getMessage());
             return null;
         } finally {
@@ -432,10 +457,6 @@ public class SystemImageMgmtService {
 
     private Either<UploadFileInfo, FormatRespDto> processMergedFile(File mergedFile) {
         try (ZipFile zipFile = new ZipFile(mergedFile)) {
-            if (zipFile.size() != 2) {
-                LOGGER.error("invalid zip file!");
-                return Either.right(new FormatRespDto(Response.Status.BAD_REQUEST));
-            }
             String fileMd5 = null;
             String fileFormat = null;
             Enumeration<? extends ZipEntry> entries = zipFile.entries();
