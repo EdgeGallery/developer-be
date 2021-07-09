@@ -457,10 +457,6 @@ public class SystemImageMgmtService {
 
     private Either<UploadFileInfo, FormatRespDto> processMergedFile(File mergedFile) {
         try (ZipFile zipFile = new ZipFile(mergedFile)) {
-            if (zipFile.size() != 2) {
-                LOGGER.error("invalid zip file!");
-                return Either.right(new FormatRespDto(Response.Status.BAD_REQUEST));
-            }
             String fileMd5 = null;
             String fileFormat = null;
             Enumeration<? extends ZipEntry> entries = zipFile.entries();
