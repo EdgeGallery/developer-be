@@ -185,9 +185,10 @@ public class SystemImageMgmtController {
     @RequestMapping(value = "/images/{systemId}/upload", method = RequestMethod.DELETE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity cancelUploadSystemImage(
+        @RequestParam(value = "identifier", required = false) String identifier,
         @ApiParam(value = "systemId", required = true) @PathVariable("systemId") Integer systemId) throws IOException {
         LOGGER.info("cancel upload system image file, systemId = {}", systemId);
-        return systemImageMgmtService.cancelUploadSystemImage(systemId);
+        return systemImageMgmtService.cancelUploadSystemImage(systemId, identifier);
     }
 
     /**

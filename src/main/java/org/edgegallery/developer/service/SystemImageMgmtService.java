@@ -33,6 +33,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -254,8 +255,17 @@ public class SystemImageMgmtService {
             return ResponseEntity.badRequest().build();
         }
 
-        LOGGER.info("update system image status and upload file.");
+        LOGGER.info("update system image status.");
         systemImageMapper.updateSystemImageStatus(systemId, EnumSystemImageStatus.UPLOADING.toString());
+
+        LOGGER.info("upload to remote file server.");
+        if (!HttpClientUtil.sliceUploadFile(fileServerAddress, chunk, AccessUserUtil.getUserId())) {
+            LOGGER.error("upload to remote file server failed.");
+            systemImageMapper.updateSystemImageStatus(systemId, EnumSystemImageStatus.UPLOAD_FAILED.toString());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+
+        LOGGER.info("save file to local directory.");
         String rootDir = getUploadSysImageRootDir(systemId);
         File uploadRootDir = new File(rootDir);
         if (!uploadRootDir.exists()) {
@@ -277,9 +287,10 @@ public class SystemImageMgmtService {
      * cancel upload system image.
      *
      * @param systemId System Image ID
+     * @param identifier File Identifier
      * @return Resposne
      */
-    public ResponseEntity cancelUploadSystemImage(Integer systemId) {
+    public ResponseEntity cancelUploadSystemImage(Integer systemId, String identifier) {
         LOGGER.info("cancel upload system image file, systemId = {}, ", systemId);
 
         VmSystem vmSystemImage = systemImageMapper.getVmImage(systemId);
@@ -288,7 +299,13 @@ public class SystemImageMgmtService {
             return ResponseEntity.status(Response.Status.BAD_REQUEST.getStatusCode()).build();
         }
 
-        LOGGER.info("execute cancel action.");
+        LOGGER.info("cancel request to remote file server.");
+        if (!cancelOnRemoteFileServer(identifier)) {
+            LOGGER.error("remote file server cancel failed.");
+            return ResponseEntity.status(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode()).build();
+        }
+
+        LOGGER.info("update status and remove local directory.");
         systemImageMapper.updateSystemImageStatus(systemId, EnumSystemImageStatus.UPLOAD_CANCELLED.toString());
         String rootDir = getUploadSysImageRootDir(systemId);
         cleanWorkDir(new File(rootDir));
@@ -314,6 +331,7 @@ public class SystemImageMgmtService {
         File partFileDir = new File(partFilePath);
         if (!partFileDir.exists() || !partFileDir.isDirectory()) {
             LOGGER.error("uploaded part file path not found!");
+            cancelOnRemoteFileServer(identifier);
             systemImageMapper.updateSystemImageStatus(systemId, EnumSystemImageStatus.UPLOAD_FAILED.toString());
             return ResponseEntity.status(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode()).build();
         }
@@ -321,6 +339,7 @@ public class SystemImageMgmtService {
         File[] partFiles = partFileDir.listFiles();
         if (partFiles == null || partFiles.length == 0) {
             LOGGER.error("uploaded part file not found!");
+            cancelOnRemoteFileServer(identifier);
             systemImageMapper.updateSystemImageStatus(systemId, EnumSystemImageStatus.UPLOAD_FAILED.toString());
             return ResponseEntity.status(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode()).build();
         }
@@ -337,23 +356,18 @@ public class SystemImageMgmtService {
         Either<UploadFileInfo, FormatRespDto> processResult = processMergedFile(mergedFile);
         if (processResult.isRight()) {
             LOGGER.error("process merged file failed!");
+            cancelOnRemoteFileServer(identifier);
             systemImageMapper.updateSystemImageStatus(systemId, EnumSystemImageStatus.UPLOAD_FAILED.toString());
-            cleanWorkDir(mergedFile.getParentFile());
             return ResponseEntity.status(processResult.getRight().getEnumStatus().getStatusCode()).build();
         }
 
         LOGGER.info("delete old system image on remote server.");
-        if (!deleteImageFileOnRemote(systemId)) {
-            LOGGER.error("delete old system image on remote server failed!");
-            systemImageMapper.updateSystemImageStatus(systemId, EnumSystemImageStatus.UPLOAD_FAILED.toString());
-            cleanWorkDir(mergedFile.getParentFile());
-            return ResponseEntity.status(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode()).build();
-        }
+        deleteImageFileOnRemote(systemId);
 
-        LOGGER.info("push system image file to remote server.");
-        String uploadedSystemPath = pushSystemImage(mergedFile);
+        LOGGER.info("merge on remote file server.");
+        String uploadedSystemPath = mergeOnRemoteFileServer(identifier, fileName);
         if (StringUtils.isEmpty(uploadedSystemPath)) {
-            LOGGER.error("push system image file failed!");
+            LOGGER.error("merge failed on remote file server!");
             systemImageMapper.updateSystemImageStatus(systemId, EnumSystemImageStatus.UPLOAD_FAILED.toString());
             return ResponseEntity.status(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode()).build();
         }
@@ -388,12 +402,16 @@ public class SystemImageMgmtService {
         return true;
     }
 
-    private String pushSystemImage(File systemImgFile) {
+    private boolean cancelOnRemoteFileServer(String identifier) {
+        return HttpClientUtil.cancelSliceUpload(fileServerAddress, identifier);
+    }
+
+    private String mergeOnRemoteFileServer(String identifier, String mergeFileName) {
         try {
             String uploadResult = HttpClientUtil
-                .uploadSystemImage(fileServerAddress, systemImgFile.getPath(), AccessUserUtil.getUserId());
+                .sliceMergeFile(fileServerAddress, identifier, mergeFileName, AccessUserUtil.getUserId());
             if (uploadResult == null) {
-                LOGGER.error("upload system image file failed.");
+                LOGGER.error("merge on remote file server failed.");
                 return null;
             }
 
@@ -401,11 +419,9 @@ public class SystemImageMgmtService {
             Map<String, String> uploadResultModel = gson.fromJson(uploadResult, Map.class);
             return fileServerAddress + String
                 .format(Consts.SYSTEM_IMAGE_DOWNLOAD_URL, uploadResultModel.get("imageId"));
-        } catch (Throwable e) {
-            LOGGER.error("upload system image file failed. {}", e.getMessage());
+        } catch (Exception e) {
+            LOGGER.error("merge on remote file server failed. {}", e.getMessage());
             return null;
-        } finally {
-            cleanWorkDir(systemImgFile.getParentFile());
         }
     }
 
@@ -474,6 +490,8 @@ public class SystemImageMgmtService {
         } catch (Exception e) {
             LOGGER.error("process merged zip file failed, {}", e.getMessage());
             return Either.right(new FormatRespDto(Response.Status.INTERNAL_SERVER_ERROR));
+        } finally {
+            cleanWorkDir(mergedFile.getParentFile());
         }
     }
 }
