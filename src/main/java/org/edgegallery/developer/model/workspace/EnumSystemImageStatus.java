@@ -19,7 +19,9 @@ package org.edgegallery.developer.model.workspace;
 public enum EnumSystemImageStatus {
     UPLOAD_WAIT,
     UPLOADING,
+    UPLOADING_MERGING,
     UPLOAD_SUCCEED,
     UPLOAD_FAILED,
+    UPLOAD_CANCELLED,
     PUBLISHED
 }

@@ -170,9 +170,24 @@ public class SystemImageMgmtController {
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity uploadSystemImage(HttpServletRequest request, Chunk chunk,
         @ApiParam(value = "systemId", required = true) @PathVariable("systemId") Integer systemId) throws IOException {
-        LOGGER.info("upload system image file, fileName = {}, identifier = {}, chunkNum = {}", chunk.getFilename(),
-            chunk.getIdentifier(), chunk.getChunkNumber());
+        LOGGER.info("upload system image file, systemId = {}", systemId);
         return systemImageMgmtService.uploadSystemImage(request, chunk, systemId);
+    }
+
+    /**
+     * cancel upload system image.
+     */
+    @ApiOperation(value = "cancel upload system image", response = ResponseEntity.class)
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = "OK", response = ResponseEntity.class),
+        @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
+    })
+    @RequestMapping(value = "/images/{systemId}/upload", method = RequestMethod.DELETE)
+    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
+    public ResponseEntity cancelUploadSystemImage(
+        @ApiParam(value = "systemId", required = true) @PathVariable("systemId") Integer systemId) throws IOException {
+        LOGGER.info("cancel upload system image file, systemId = {}", systemId);
+        return systemImageMgmtService.cancelUploadSystemImage(systemId);
     }
 
     /**
