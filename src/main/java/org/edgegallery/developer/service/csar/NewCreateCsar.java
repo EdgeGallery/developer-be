@@ -33,7 +33,6 @@ import java.util.List;
 import java.util.UUID;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.edgegallery.developer.common.Consts;
 import org.edgegallery.developer.mapper.ProjectImageMapper;
 import org.edgegallery.developer.model.deployyaml.ImageDesc;
 import org.edgegallery.developer.model.deployyaml.PodImage;
@@ -70,8 +69,8 @@ public class NewCreateCsar {
      * @param project project self
      * @return package gz
      */
-    public File create(String projectPath, ProjectTestConfig config, ApplicationProject project, String chartName, File chart)
-        throws IOException {
+    public File create(String projectPath, ProjectTestConfig config, ApplicationProject project, String chartName,
+        File chart) throws IOException {
         File projectDir = new File(projectPath);
 
         String deployType = (project.getDeployPlatform() == EnumDeployPlatform.KUBERNETES) ? "container" : "vm";

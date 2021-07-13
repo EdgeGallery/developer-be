@@ -17,7 +17,11 @@
 package org.edgegallery.developer.controller;
 
 import com.spencerwi.either.Either;
-import io.swagger.annotations.*;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.edgegallery.developer.model.system.MepGetSystemImageReq;
 import org.edgegallery.developer.model.system.MepGetSystemImageRes;
@@ -55,18 +59,18 @@ public class SystemImageMgmtControllerV2 {
      */
     @ApiOperation(value = "get systemImage)", response = MepGetSystemImageRes.class)
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "OK", response = MepGetSystemImageRes.class),
-            @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
+        @ApiResponse(code = 200, message = "OK", response = MepGetSystemImageRes.class),
+        @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
     @RequestMapping(value = "/images/list", method = RequestMethod.POST,
-            consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+        consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_ADMIN')|| hasRole('DEVELOPER_TENANT')")
     public ResponseEntity<MepGetSystemImageRes> getSystemImages(
-            @ApiParam(value = "userId", required = true) @RequestParam("userId") String userId,
-            @ApiParam(value = "MepGetImages", required = true) @RequestBody MepGetSystemImageReq mepGetSystemImageReq) {
+        @ApiParam(value = "userId", required = true) @RequestParam("userId") String userId,
+        @ApiParam(value = "MepGetImages", required = true) @RequestBody MepGetSystemImageReq mepGetSystemImageReq) {
         LOGGER.info("query system image file, userId = {}", userId);
         Either<FormatRespDto, MepGetSystemImageRes> either = systemImageMgmtServiceV2
-                .getSystemImages(mepGetSystemImageReq);
+            .getSystemImages(mepGetSystemImageReq);
         return ResponseDataUtil.buildResponse(either);
     }
 }

@@ -34,7 +34,6 @@ import org.edgegallery.developer.model.LcmLog;
 import org.edgegallery.developer.model.lcm.DistributeBody;
 import org.edgegallery.developer.model.lcm.DistributeResponse;
 import org.edgegallery.developer.model.lcm.InstantRequest;
-import org.edgegallery.developer.model.vm.VmCreateConfig;
 import org.edgegallery.developer.model.vm.VmImageRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
