@@ -38,7 +38,6 @@ import java.util.List;
 import java.util.Map;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringEscapeUtils;
-import org.edgegallery.developer.common.Consts;
 import org.edgegallery.developer.exception.DomainException;
 import org.edgegallery.developer.model.deployyaml.ImageDesc;
 import org.edgegallery.developer.model.vm.VmPackageConfig;
