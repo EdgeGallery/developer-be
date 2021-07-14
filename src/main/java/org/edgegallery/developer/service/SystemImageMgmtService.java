@@ -353,6 +353,7 @@ public class SystemImageMgmtService {
         for (int i = 1; i <= partFiles.length; i++) {
             File partFile = new File(partFilePath, i + ".part");
             FileUtils.copyFile(partFile, mergedFileStream);
+            partFile.delete();
         }
         mergedFileStream.close();
 
