@@ -94,6 +94,10 @@ public final class Consts {
 
     public static final String SYSTEM_IMAGE_GET_URL = "/image-management/v1/images/%s";
 
+    public static final String SYSTEM_IMAGE_SLICE_UPLOAD_URL = "/image-management/v1/images/upload";
+
+    public static final String SYSTEM_IMAGE_SLICE_MERGE_URL = "/image-management/v1/images/merge";
+
     private Consts() {
     }
 }

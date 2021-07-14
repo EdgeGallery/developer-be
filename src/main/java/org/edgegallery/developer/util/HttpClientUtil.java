@@ -30,6 +30,7 @@ import java.util.Map;
 import org.edgegallery.developer.common.Consts;
 import org.edgegallery.developer.exception.CustomException;
 import org.edgegallery.developer.exception.DomainException;
+import org.edgegallery.developer.model.Chunk;
 import org.edgegallery.developer.model.LcmLog;
 import org.edgegallery.developer.model.lcm.DistributeBody;
 import org.edgegallery.developer.model.lcm.DistributeResponse;
@@ -535,6 +536,11 @@ public final class HttpClientUtil {
 
     /**
      * upload system image.
+     *
+     * @param fileServerAddr File Server Address
+     * @param filePath File Path
+     * @param userId User ID
+     * @return upload result
      */
     public static String uploadSystemImage(String fileServerAddr, String filePath, String userId) {
         MultiValueMap<String, Object> formData = new LinkedMultiValueMap<>();
@@ -552,7 +558,6 @@ public final class HttpClientUtil {
         try {
             REST_TEMPLATE.setErrorHandler(new CustomResponseErrorHandler());
             response = REST_TEMPLATE.exchange(url, HttpMethod.POST, requestEntity, String.class);
-            LOGGER.info("upload system image file success, resp = {}", response);
         } catch (CustomException e) {
             String errorLog = e.getBody();
             LOGGER.error("Failed upload system image exception {}", errorLog);
@@ -561,11 +566,142 @@ public final class HttpClientUtil {
             LOGGER.error("Failed upload system image exception {}", e.getMessage());
             return null;
         }
-        if (response.getStatusCode() == HttpStatus.OK) {
-            return response.getBody();
+
+        if (response == null || response.getStatusCode() != HttpStatus.OK) {
+            LOGGER.error("Failed to upload system image!");
+            return null;
         }
-        LOGGER.error("Failed to upload system image!");
-        return null;
+
+        LOGGER.info("upload system image file success, resp = {}", response);
+        return response.getBody();
+    }
+
+    /**
+     * slice upload file.
+     *
+     * @param fileServerAddr File Server Address
+     * @param chunk File Chunk
+     * @param filePath File Path
+     * @return upload result
+     */
+    public static boolean sliceUploadFile(String fileServerAddr, Chunk chunk, String filePath) {
+        LOGGER.info("slice upload file, identifier = {}, chunkNum = {}", chunk.getIdentifier(), chunk.getChunkNumber());
+        MultiValueMap<String, Object> formData = new LinkedMultiValueMap<>();
+        formData.add("part", new FileSystemResource(filePath));
+        formData.add("priority", 0);
+        formData.add("identifier", chunk.getIdentifier());
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+
+        HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(formData, headers);
+        String url = fileServerAddr + Consts.SYSTEM_IMAGE_SLICE_UPLOAD_URL;
+
+        ResponseEntity<String> response;
+        try {
+            REST_TEMPLATE.setErrorHandler(new CustomResponseErrorHandler());
+            response = REST_TEMPLATE.exchange(url, HttpMethod.POST, requestEntity, String.class);
+        } catch (CustomException e) {
+            String errorLog = e.getBody();
+            LOGGER.error("slice upload file exception {}", errorLog);
+            return false;
+        } catch (RestClientException e) {
+            LOGGER.error("slice upload file exception {}", e.getMessage());
+            return false;
+        }
+
+        if (response == null || response.getStatusCode() != HttpStatus.OK) {
+            LOGGER.error("slice upload file failed!");
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * cancel slice upload file.
+     *
+     * @param fileServerAddr File Server Address
+     * @param identifier File Identifier
+     * @return cancel result
+     */
+    public static boolean cancelSliceUpload(String fileServerAddr, String identifier) {
+        LOGGER.info("cancel slice upload file, identifier = {}", identifier);
+        MultiValueMap<String, Object> formData = new LinkedMultiValueMap<>();
+        formData.add("identifier", identifier);
+        formData.add("priority", 0);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+
+        HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(formData, headers);
+        String url = fileServerAddr + Consts.SYSTEM_IMAGE_SLICE_UPLOAD_URL;
+
+        ResponseEntity<String> response;
+        try {
+            REST_TEMPLATE.setErrorHandler(new CustomResponseErrorHandler());
+            response = REST_TEMPLATE.exchange(url, HttpMethod.DELETE, requestEntity, String.class);
+        } catch (CustomException e) {
+            String errorLog = e.getBody();
+            LOGGER.error("cancel slice upload file exception {}", errorLog);
+            return false;
+        } catch (RestClientException e) {
+            LOGGER.error("cancel slice upload file exception {}", e.getMessage());
+            return false;
+        }
+
+        if (response == null || response.getStatusCode() != HttpStatus.OK) {
+            LOGGER.error("cancel slice upload file failed!");
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * slice merge file.
+     *
+     * @param fileServerAddr File Server Address
+     * @param identifier File Identifier
+     * @param fileName File Name
+     * @param userId User ID
+     * @return merge result
+     */
+    public static String sliceMergeFile(String fileServerAddr, String identifier, String fileName, String userId) {
+        LOGGER.info("slice merge file, identifier = {}, filename = {}", identifier, fileName);
+        MultiValueMap<String, Object> formData = new LinkedMultiValueMap<>();
+        formData.add("userId", userId);
+        formData.add("priority", 0);
+        formData.add("identifier", identifier);
+        formData.add("filename", fileName);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+
+        HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(formData, headers);
+        String url = fileServerAddr + Consts.SYSTEM_IMAGE_SLICE_MERGE_URL;
+
+        ResponseEntity<String> response;
+        try {
+            REST_TEMPLATE.setErrorHandler(new CustomResponseErrorHandler());
+            response = REST_TEMPLATE.exchange(url, HttpMethod.POST, requestEntity, String.class);
+            LOGGER.info("slice merge file success, resp = {}", response);
+        } catch (CustomException e) {
+            String errorLog = e.getBody();
+            LOGGER.error("slice merge file exception {}", errorLog);
+            return null;
+        } catch (RestClientException e) {
+            LOGGER.error("slice merge file exception {}", e.getMessage());
+            return null;
+        }
+
+        if (response == null || response.getStatusCode() != HttpStatus.OK) {
+            LOGGER.error("slice merge file failed!");
+            return null;
+        }
+
+        LOGGER.info("slice merge file success, resp = {}", response);
+        return response.getBody();
     }
 
     /**
