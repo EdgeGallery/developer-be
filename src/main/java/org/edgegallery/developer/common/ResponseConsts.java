@@ -80,4 +80,89 @@ public class ResponseConsts {
      * delete system image on remote server failed.
      */
     public static final int RET_DELETE_SYSTEM_IMAGE_ON_REMOTE_SERVER_FAILED = 20013;
+
+    /**
+     * download system image exception.
+     */
+    public static final int RET_DOWNLOAD_SYSTEM_IMAGE_EXCEPTION = 20014;
+
+    /**
+     * download system image null.
+     */
+    public static final int RET_DOWNLOAD_SYSTEM_IMAGE_NULL = 20015;
+
+    /**
+     * zipFile format is mistake.
+     */
+    public static final int RET_ZIP_FILE_INVALID = 20016;
+
+    /**
+     * process merged zip file failed.
+     */
+    public static final int RET_ZIP_FILE_EXCEPTION = 20017;
+
+    /**
+     * upload request is invalid.
+     */
+    public static final int RET_REQUEST_INVALID = 20018;
+
+    /**
+     *there is no needed file.
+     */
+    public static final int RET_NO_NEEDED_FILE = 20019;
+
+    /**
+     *invalid chunk number.
+     */
+    public static final int RET_CHUNK_NUMBER_INVALID = 20020;
+
+    /**
+     *create temporary upload path failed.
+     */
+    public static final int RET_TEMPORARY_PATH_FAILED = 20021;
+
+    /**
+     *upload system image file exception.
+     */
+    public static final int RET_UPLOAD_SYSTEM_IMAGE_EXCEPTION = 20022;
+
+
+    /**
+     *system image is merging, it cannot be cancelled.
+     */
+    public static final int RET_SYSTEM_IMAGE_CANCELLED_FAILED = 20023;
+
+    /**
+     *uploaded part file path not found.
+     */
+    public static final int RET_FILE_PATH_NOT_FOUND = 20024;
+
+
+    /**
+     *upload system image file exception.
+     */
+    public static final int RET_FILE_NOT_FOUND = 20025;
+
+
+    /**
+     *process merged file failed.
+     */
+    public static final int RET_PROCESS_MERGED_FILE_FAILED = 20026;
+
+
+    /**
+     *upload system image file exception.
+     */
+    public static final int RET_PROCESS_MERGED_FILE_EXCEPTION = 20027;
+
+
+    /**
+     *delete old system image on remote server failed.
+     */
+    public static final int RET_DELETE_IMAGE_OR_SERVER_FAILED = 20028;
+
+    /**
+     *push system image file failed.
+     */
+    public static final int RET_PUSH_IMAGE_FILE_FAILED = 20029;
 }

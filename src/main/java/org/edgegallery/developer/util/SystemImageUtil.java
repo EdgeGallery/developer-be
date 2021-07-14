@@ -1,0 +1,93 @@
+package org.edgegallery.developer.util;
+
+import com.google.gson.Gson;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.edgegallery.developer.common.Consts;
+import org.edgegallery.developer.config.security.AccessUserUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.Map;
+
+@Component
+public class SystemImageUtil {
+
+    public static final Logger LOGGER = LoggerFactory.getLogger(SystemImageUtil.class);
+
+    private static final String SUBDIR_SYSIMAGE = "SystemImage";
+
+
+    private static String tempUploadPath;
+
+    private static String fileServerAddress;
+
+    @Value("${upload.tempPath}")
+    public void setTempUploadPath(String uploadPath){
+        tempUploadPath = uploadPath;
+    }
+
+    @Value("${fileserver.address}")
+    public void setFileServerAddress(String serverAddress){
+        fileServerAddress = serverAddress;
+    }
+
+    /**
+     * isAdminUser.
+     *
+     * @return boolean
+     */
+    public static boolean isAdminUser() {
+        String currUserAuth = AccessUserUtil.getUser().getUserAuth();
+        return !StringUtils.isEmpty(currUserAuth) && currUserAuth.contains(Consts.ROLE_DEVELOPER_ADMIN);
+    }
+
+    /**
+     * pushSystemImage.
+     *
+     * @return boolean
+     */
+    public static String pushSystemImage(File systemImgFile) {
+        try {
+            String uploadResult = HttpClientUtil
+                    .uploadSystemImage(fileServerAddress, systemImgFile.getPath(), AccessUserUtil.getUserId());
+            if (uploadResult == null) {
+                LOGGER.error("upload system image file failed.");
+                return null;
+            }
+            Gson gson = new Gson();
+            Map<String, String> uploadResultModel = gson.fromJson(uploadResult, Map.class);
+            return fileServerAddress + String
+                    .format(Consts.SYSTEM_IMAGE_DOWNLOAD_URL, uploadResultModel.get("imageId"));
+        } catch (Throwable e) {
+            LOGGER.error("upload system image file failed. {}", e.getMessage());
+            return null;
+        } finally {
+            cleanWorkDir(systemImgFile.getParentFile());
+        }
+    }
+
+    /**
+     * cleanWorkDir.
+     *
+     */
+    public static void cleanWorkDir(File dir) {
+        try {
+            FileUtils.deleteDirectory(dir);
+        } catch (IOException e) {
+            LOGGER.error("delete work directory failed.");
+        }
+    }
+
+    /**
+     * getUploadSysImageRootDir.
+     *
+     */
+    public  static String getUploadSysImageRootDir(int systemId) {
+        return tempUploadPath + File.separator + SUBDIR_SYSIMAGE + File.separator + systemId + File.separator;
+    }
+}
