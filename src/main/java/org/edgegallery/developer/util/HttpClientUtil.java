@@ -581,17 +581,15 @@ public final class HttpClientUtil {
      *
      * @param fileServerAddr File Server Address
      * @param chunk File Chunk
-     * @param userId User ID
+     * @param filePath File Path
      * @return upload result
      */
-    public static boolean sliceUploadFile(String fileServerAddr, Chunk chunk, String userId) {
+    public static boolean sliceUploadFile(String fileServerAddr, Chunk chunk, String filePath) {
         LOGGER.info("slice upload file, identifier = {}, chunkNum = {}", chunk.getIdentifier(), chunk.getChunkNumber());
         MultiValueMap<String, Object> formData = new LinkedMultiValueMap<>();
-        formData.add("part", chunk.getFile());
-        formData.add("userId", userId);
+        formData.add("part", new FileSystemResource(filePath));
         formData.add("priority", 0);
         formData.add("identifier", chunk.getIdentifier());
-        formData.add("chunkNumber", chunk.getChunkNumber());
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);
@@ -631,6 +629,7 @@ public final class HttpClientUtil {
         LOGGER.info("cancel slice upload file, identifier = {}", identifier);
         MultiValueMap<String, Object> formData = new LinkedMultiValueMap<>();
         formData.add("identifier", identifier);
+        formData.add("priority", 0);
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);

@@ -258,13 +258,6 @@ public class SystemImageMgmtService {
         LOGGER.info("update system image status.");
         systemImageMapper.updateSystemImageStatus(systemId, EnumSystemImageStatus.UPLOADING.toString());
 
-        LOGGER.info("upload to remote file server.");
-        if (!HttpClientUtil.sliceUploadFile(fileServerAddress, chunk, AccessUserUtil.getUserId())) {
-            LOGGER.error("upload to remote file server failed.");
-            systemImageMapper.updateSystemImageStatus(systemId, EnumSystemImageStatus.UPLOAD_FAILED.toString());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
-
         LOGGER.info("save file to local directory.");
         String rootDir = getUploadSysImageRootDir(systemId);
         File uploadRootDir = new File(rootDir);
@@ -280,6 +273,14 @@ public class SystemImageMgmtService {
         File outFile = new File(rootDir + chunk.getIdentifier(), chunkNumber + ".part");
         InputStream inputStream = file.getInputStream();
         FileUtils.copyInputStreamToFile(inputStream, outFile);
+
+        LOGGER.info("upload to remote file server.");
+        if (!HttpClientUtil.sliceUploadFile(fileServerAddress, chunk, outFile.getAbsolutePath())) {
+            LOGGER.error("upload to remote file server failed.");
+            systemImageMapper.updateSystemImageStatus(systemId, EnumSystemImageStatus.UPLOAD_FAILED.toString());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+
         return ResponseEntity.ok().build();
     }
 
@@ -298,6 +299,9 @@ public class SystemImageMgmtService {
             LOGGER.error("system image is merging, it cannot be cancelled.");
             return ResponseEntity.status(Response.Status.BAD_REQUEST.getStatusCode()).build();
         }
+
+        LOGGER.info("delete old system image on remote server.");
+        deleteImageFileOnRemote(systemId);
 
         LOGGER.info("cancel request to remote file server.");
         if (!cancelOnRemoteFileServer(identifier)) {
