@@ -17,8 +17,67 @@ package org.edgegallery.developer.common;
 public class ResponseConsts {
 
     /**
-     * param is invalid.
+     * get system image failed.
      */
     public static final int RET_GET_SYSTEM_IMAGE_FAILED = 20001;
 
+    /**
+     * create system image failed.
+     */
+    public static final int RET_CREATE_SYSTEM_IMAGE_FAILED = 20002;
+
+    /**
+     * systemName duplicate.
+     */
+    public static final int RET_SYSTEM_NAME_DUPLICATE = 20003;
+
+    /**
+     * create system image exception.
+     */
+    public static final int RET_CREATE_SYSTEM_IMAGE_EXCEPTION = 20004;
+
+    /**
+     * systemName is blank.
+     */
+    public static final int RET_SYSTEM_NAME_BLANK = 20005;
+
+    /**
+     * update system image failed.
+     */
+    public static final int RET_UPDATE_SYSTEM_IMAGE_FAILED = 20006;
+
+    /**
+     * update system image exception.
+     */
+    public static final int RET_UPDATE_SYSTEM_IMAGE_EXCEPTION = 20007;
+
+    /**
+     * systemName or userId is blank.
+     */
+    public static final int RET_SYSTEM_NAME_BLANK_OR_IMAGE_NOT_EXISTS = 20008;
+
+    /**
+     * publish system image failed.
+     */
+    public static final int RET_PUBLISH_SYSTEM_IMAGE_FAILED = 20009;
+
+    /**
+     * publish system image exception.
+     */
+    public static final int RET_PUBLISH_SYSTEM_IMAGE_EXCEPTION = 20010;
+
+    /**
+     * delete system image failed.
+     */
+    public static final int RET_DELETE_SYSTEM_IMAGE_FAILED = 20011;
+
+    /**
+     * delete system image exception.
+     */
+    public static final int RET_DELETE_SYSTEM_IMAGE_EXCEPTION = 20012;
+
+    /**
+     * delete system image on remote server failed.
+     */
+    public static final int RET_DELETE_SYSTEM_IMAGE_ON_REMOTE_SERVER_FAILED = 20013;
 }
