@@ -16,9 +16,11 @@
 
 package org.edgegallery.developer.application.plugin;
 
+import com.spencerwi.either.Either;
 import java.io.IOException;
 import java.io.InputStream;
 import javax.ws.rs.core.Response;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.servicecomb.swagger.invocation.exception.InvocationException;
 import org.edgegallery.developer.domain.model.comment.PluginDownloadRecord;
 import org.edgegallery.developer.domain.model.plugin.ApiChecker;
@@ -32,6 +34,7 @@ import org.edgegallery.developer.domain.shared.IconChecker;
 import org.edgegallery.developer.domain.shared.PluginChecker;
 import org.edgegallery.developer.domain.shared.exceptions.EntityNotFoundException;
 import org.edgegallery.developer.response.FormatRespDto;
+import org.edgegallery.developer.service.AppReleaseService;
 import org.edgegallery.developer.util.FileHashCode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,6 +54,9 @@ public class PluginService {
     @Autowired
     private FileService fileService;
 
+    @Autowired
+    private AppReleaseService appReleaseService;
+
     /**
      * publish plugin over.
      *
@@ -67,8 +73,7 @@ public class PluginService {
         String hashCode = FileHashCode.generateHashCode(plugin.getStorageAddress());
         if (pluginRepository.findPlugInByHashCode(hashCode) > 0) {
             LOGGER.error("this plugin file has been uploaded, hash code {}", hashCode);
-            FormatRespDto error = new FormatRespDto(Response.Status.BAD_REQUEST,
-                "this plugin file has been uploaded.");
+            FormatRespDto error = new FormatRespDto(Response.Status.BAD_REQUEST, "this plugin file has been uploaded.");
             throw new InvocationException(error.getEnumStatus().getStatusCode(),
                 error.getEnumStatus().getReasonPhrase(), error.getErrorRespDto().getDetail());
         }
@@ -110,6 +115,9 @@ public class PluginService {
     public InputStream download(String pluginId) throws IOException {
         Plugin plugin = pluginRepository.find(pluginId)
             .orElseThrow(() -> new EntityNotFoundException(Plugin.class, pluginId));
+        int downloadCount = plugin.getDownloadCount() + 1;
+        plugin.setDownloadCount(downloadCount);
+        pluginRepository.store(plugin);
         return fileService.get(plugin.getPluginFile());
     }
 
@@ -153,5 +161,28 @@ public class PluginService {
         pluginRepository.saveDownloadRecord(record);
         pluginRepository.store(plugin);
         return plugin;
+    }
+
+    /**
+     * get plugin content.
+     *
+     * @param pluginId id of plugin
+     * @return
+     */
+    public Either<FormatRespDto, String> getApiContent(String pluginId) {
+        Plugin plugin = pluginRepository.find(pluginId)
+            .orElseThrow(() -> new EntityNotFoundException(Plugin.class, pluginId));
+        AFile apiFile = plugin.getApiFile();
+        if (apiFile != null) {
+            String path = apiFile.getStorageAddress();
+            if (StringUtils.isNotEmpty(path)) {
+                String content = appReleaseService.readFileIntoString(path);
+                if (StringUtils.isNotEmpty(content)) {
+                    return Either.right(content);
+                }
+            }
+        }
+        FormatRespDto error = new FormatRespDto(Response.Status.BAD_REQUEST, "file is empty!");
+        return Either.left(error);
     }
 }

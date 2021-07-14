@@ -224,7 +224,6 @@ public class Plugin implements Entity {
 
     public void mark(int score) {
         this.satisfaction = (this.scoreCount * this.satisfaction + score) / (1 + this.scoreCount++);
-        this.downloadCount++;
     }
 
 }
