@@ -16,6 +16,7 @@
 
 package org.edgegallery.developer.interfaces.plugin;
 
+import com.spencerwi.either.Either;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -28,6 +29,7 @@ import java.io.IOException;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.Pattern;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
+import org.edgegallery.developer.application.plugin.PluginService;
 import org.edgegallery.developer.config.security.AccessUserUtil;
 import org.edgegallery.developer.domain.model.plugin.Plugin;
 import org.edgegallery.developer.domain.model.user.User;
@@ -35,6 +37,8 @@ import org.edgegallery.developer.domain.shared.Page;
 import org.edgegallery.developer.interfaces.plugin.facade.PluginServiceFacade;
 import org.edgegallery.developer.interfaces.plugin.facade.dto.PluginDto;
 import org.edgegallery.developer.response.ErrorRespDto;
+import org.edgegallery.developer.response.FormatRespDto;
+import org.edgegallery.developer.util.ResponseDataUtil;
 import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.Range;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -77,6 +81,9 @@ public class PluginController {
     @Autowired
     private PluginServiceFacade pluginServiceFacade;
 
+    @Autowired
+    private PluginService pluginService;
+
     /**
      * Upload a plugin by parameters.
      */
@@ -114,7 +121,7 @@ public class PluginController {
         @ApiParam(value = "the author's Id of upload plugin", required = true) @RequestParam(name = "userId")
             String userId, @Pattern(regexp = REGEX_USERNAME,
         message = "username can only be a combination of letters and numbers, the length is 6 to 30")
-        @ApiParam(value = "the author's name of upload plugin", required = true) @RequestParam(name = "userName")
+    @ApiParam(value = "the author's name of upload plugin", required = true) @RequestParam(name = "userName")
         String userName) throws IOException {
         Plugin plugin = new Plugin(pluginName, introduction, codeLanguage, pluginType, version,
             new User(userId, userName));
@@ -324,8 +331,23 @@ public class PluginController {
         @Pattern(regexp = REGEX_UUID, message = "userId must be in UUID format") @RequestParam(value = "userId")
             String userId, @Pattern(regexp = REGEX_USERNAME,
         message = "username can only be a combination of letters and numbers, the length is 6 to 30")
-        @RequestParam(value = "userName") String userName) {
+    @RequestParam(value = "userName") String userName) {
         return ResponseEntity.ok(PluginDto.of(pluginServiceFacade.mark(pluginId, score, new User(userId, userName))));
+    }
 
+    @ApiOperation(value = "get api file content", response = String.class)
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = "OK", response = String.class),
+        @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
+    })
+    @RequestMapping(value = "/{pluginId}/action/content", method = RequestMethod.GET,
+        produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
+    public ResponseEntity<String> getApiContent(
+        @Pattern(regexp = REGEX_UUID, message = "pluginId must be in UUID format")
+        @ApiParam(value = "pluginId", required = true) @PathVariable(value = "pluginId", required = true)
+            String pluginId) {
+        Either<FormatRespDto, String> either = pluginService.getApiContent(pluginId);
+        return ResponseDataUtil.buildResponse(either);
     }
 }
