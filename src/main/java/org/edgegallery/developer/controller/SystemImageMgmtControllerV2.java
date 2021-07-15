@@ -23,9 +23,11 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
+import org.edgegallery.developer.model.Chunk;
 import org.edgegallery.developer.model.system.MepGetSystemImageReq;
 import org.edgegallery.developer.model.system.MepGetSystemImageRes;
 import org.edgegallery.developer.model.system.VmSystem;
+import org.edgegallery.developer.response.ErrorRespDto;
 import org.edgegallery.developer.response.FormatRespDto;
 import org.edgegallery.developer.service.SystemImageMgmtServiceV2;
 import org.edgegallery.developer.util.ResponseDataUtil;
@@ -38,6 +40,10 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.http.HttpServletRequest;
+import java.io.File;
+import java.io.IOException;
 
 @Controller
 @RestSchema(schemaId = "systemImageMgmtV2")
@@ -142,5 +148,69 @@ public class SystemImageMgmtControllerV2 {
         LOGGER.info("publish system image file, systemId = {}", systemId);
         Either<FormatRespDto, Boolean> either = systemImageMgmtServiceV2.publishSystemImage(systemId);
         return ResponseDataUtil.buildResponse(either);
+    }
+
+    /**
+     * upload system image.
+     */
+    @ApiOperation(value = "upload system image", response = ResponseEntity.class)
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK", response = ResponseEntity.class)
+    })
+    @RequestMapping(value = "/images/{systemId}/upload", method = RequestMethod.POST)
+    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
+    public ResponseEntity uploadSystemImage(HttpServletRequest request, Chunk chunk,
+                                            @ApiParam(value = "systemId", required = true) @PathVariable("systemId") Integer systemId) throws IOException {
+        LOGGER.info("upload system image file, systemId = {}", systemId);
+        return systemImageMgmtServiceV2.uploadSystemImage(request, chunk, systemId);
+    }
+
+    /**
+     * cancel upload system image.
+     */
+    @ApiOperation(value = "cancel upload system image", response = ResponseEntity.class)
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK", response = ResponseEntity.class)
+    })
+    @RequestMapping(value = "/images/{systemId}/upload", method = RequestMethod.DELETE)
+    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
+    public ResponseEntity cancelUploadSystemImage(
+            @RequestParam(value = "identifier", required = false) String identifier,
+            @ApiParam(value = "systemId", required = true) @PathVariable("systemId") Integer systemId) throws IOException {
+        LOGGER.info("cancel upload system image file, systemId = {}", systemId);
+        return systemImageMgmtServiceV2.cancelUploadSystemImage(systemId, identifier);
+    }
+
+    /**
+     * merge system image.
+     */
+    @ApiOperation(value = "merge system image", response = ResponseEntity.class)
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK", response = ResponseEntity.class)
+    })
+    @RequestMapping(value = "/images/{systemId}/merge", method = RequestMethod.GET)
+    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
+    public ResponseEntity mergeSystemImage(@RequestParam(value = "fileName", required = false) String fileName,
+                                           @RequestParam(value = "identifier", required = false) String identifier,
+                                           @ApiParam(value = "systemId", required = true) @PathVariable("systemId") Integer systemId) throws IOException {
+        LOGGER.info("merge system image file, systemId = {}, fileName = {}, identifier = {}", systemId, fileName,
+                identifier);
+        return systemImageMgmtServiceV2.mergeSystemImage(fileName, identifier, systemId);
+    }
+
+    /**
+     * download system image.
+     */
+    @ApiOperation(value = "download system image", response = File.class)
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK", response = File.class)
+    })
+    @RequestMapping(value = "/images/{systemId}/download", method = RequestMethod.GET,
+            produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
+    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
+    public ResponseEntity<byte[]> downloadSystemImage(
+            @ApiParam(value = "systemId", required = true) @PathVariable("systemId") Integer systemId) {
+        LOGGER.info("download system image file, systemId = {}", systemId);
+        return systemImageMgmtServiceV2.downloadSystemImage(systemId);
     }
 }
