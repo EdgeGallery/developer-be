@@ -27,12 +27,12 @@ public class SystemImageUtil {
     private static String fileServerAddress;
 
     @Value("${upload.tempPath}")
-    public void setTempUploadPath(String uploadPath){
+    public void setTempUploadPath(String uploadPath) {
         tempUploadPath = uploadPath;
     }
 
     @Value("${fileserver.address}")
-    public void setFileServerAddress(String serverAddress){
+    public void setFileServerAddress(String serverAddress) {
         fileServerAddress = serverAddress;
     }
 
@@ -51,29 +51,30 @@ public class SystemImageUtil {
      *
      * @return boolean
      */
-    public static String pushSystemImage(File systemImgFile) {
+    public static boolean cancelOnRemoteFileServer(String identifier) {
+        return HttpClientUtil.cancelSliceUpload(fileServerAddress, identifier);
+    }
+
+    public static String mergeOnRemoteFileServer(String identifier, String mergeFileName) {
         try {
             String uploadResult = HttpClientUtil
-                    .uploadSystemImage(fileServerAddress, systemImgFile.getPath(), AccessUserUtil.getUserId());
+                    .sliceMergeFile(fileServerAddress, identifier, mergeFileName, AccessUserUtil.getUserId());
             if (uploadResult == null) {
-                LOGGER.error("upload system image file failed.");
+                LOGGER.error("merge on remote file server failed.");
                 return null;
             }
             Gson gson = new Gson();
             Map<String, String> uploadResultModel = gson.fromJson(uploadResult, Map.class);
             return fileServerAddress + String
                     .format(Consts.SYSTEM_IMAGE_DOWNLOAD_URL, uploadResultModel.get("imageId"));
-        } catch (Throwable e) {
-            LOGGER.error("upload system image file failed. {}", e.getMessage());
+        } catch (Exception e) {
+            LOGGER.error("merge on remote file server failed. {}", e.getMessage());
             return null;
-        } finally {
-            cleanWorkDir(systemImgFile.getParentFile());
         }
     }
 
     /**
      * cleanWorkDir.
-     *
      */
     public static void cleanWorkDir(File dir) {
         try {
@@ -85,9 +86,8 @@ public class SystemImageUtil {
 
     /**
      * getUploadSysImageRootDir.
-     *
      */
-    public  static String getUploadSysImageRootDir(int systemId) {
+    public static String getUploadSysImageRootDir(int systemId) {
         return tempUploadPath + File.separator + SUBDIR_SYSIMAGE + File.separator + systemId + File.separator;
     }
 }

@@ -165,4 +165,9 @@ public class ResponseConsts {
      *push system image file failed.
      */
     public static final int RET_PUSH_IMAGE_FILE_FAILED = 20029;
+
+    /**
+     *upload to remote file server failed.
+     */
+    public static final int RET_UPLOAD_FILE_SERVER_FAILED = 20030;
 }
