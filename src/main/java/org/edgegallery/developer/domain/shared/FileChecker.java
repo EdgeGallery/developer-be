@@ -16,11 +16,9 @@
 
 package org.edgegallery.developer.domain.shared;
 
-import com.google.common.io.Files;
 import java.io.File;
 import java.io.IOException;
 import java.text.Normalizer;
-import java.util.List;
 import java.util.regex.Pattern;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -35,8 +33,6 @@ public abstract class FileChecker {
     private static final int MAX_LENGTH_FILE_NAME = 255;
 
     protected abstract long getMaxFileSize();
-
-    protected abstract List<String> getFileExtensions();
 
     /**
      * check file if is invalid.
@@ -60,8 +56,14 @@ public abstract class FileChecker {
     }
 
     private boolean isAllowedFileName(String originalFilename) {
-        return isValid(originalFilename) && getFileExtensions()
-            .contains(Files.getFileExtension(originalFilename.toLowerCase()));
+        if (isValid(originalFilename)) {
+            return true;
+        }
+        if (originalFilename.endsWith("md") || originalFilename.endsWith("MD") || originalFilename.endsWith("mD")
+            || originalFilename.endsWith("Md")) {
+            return true;
+        }
+        return false;
     }
 
     /**
