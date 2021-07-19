@@ -138,7 +138,8 @@ public class SystemService {
         if (StringUtils.isNotBlank(host.getConfigId())) {
             // upload file
             UploadedFile uploadedFile = uploadedFileMapper.getFileById(host.getConfigId());
-            boolean uploadRes = uploadFileToLcm(host.getLcmIp(), host.getPort(), uploadedFile.getFilePath(), token);
+            boolean uploadRes = uploadFileToLcm(host.getLcmIp(), host.getPort(), uploadedFile.getFilePath(),
+                host.getMecHost(), token);
             if (!uploadRes) {
                 String msg = "Create host failed,upload config file error";
                 LOGGER.error(msg);
@@ -200,7 +201,8 @@ public class SystemService {
         if (StringUtils.isNotBlank(host.getConfigId())) {
             // upload file
             UploadedFile uploadedFile = uploadedFileMapper.getFileById(host.getConfigId());
-            boolean uploadRes = uploadFileToLcm(host.getLcmIp(), host.getPort(), uploadedFile.getFilePath(), token);
+            boolean uploadRes = uploadFileToLcm(host.getLcmIp(), host.getPort(), uploadedFile.getFilePath(),
+                host.getMecHost(), token);
             if (!uploadRes) {
                 String msg = "Create host failed,upload config file error";
                 LOGGER.error(msg);
@@ -390,19 +392,19 @@ public class SystemService {
         return Either.left(new FormatRespDto(Status.BAD_REQUEST, "get capabilities by group failed"));
     }
 
-    private boolean uploadFileToLcm(String hostIp, int port, String filePath, String token) {
+    private boolean uploadFileToLcm(String lcmIp, int port, String filePath, String mecHost, String token) {
         File file = new File(InitConfigUtil.getWorkSpaceBaseDir() + filePath);
         RestTemplate restTemplate = RestTemplateBuilder.create();
         MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
         body.add("configFile", new FileSystemResource(file));
-        body.add("hostIp", hostIp);
+        body.add("hostIp", mecHost);
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);
         headers.set(Consts.ACCESS_TOKEN_STR, token);
         HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
         ResponseEntity<String> response;
         try {
-            String url = getUrlPrefix("https", hostIp, port) + Consts.APP_LCM_UPLOAD_FILE;
+            String url = getUrlPrefix("https", lcmIp, port) + Consts.APP_LCM_UPLOAD_FILE;
             LOGGER.info(" upload file url is {}", url);
             response = restTemplate.exchange(url, HttpMethod.POST, requestEntity, String.class);
             LOGGER.info("upload file lcm log:{}", response);
