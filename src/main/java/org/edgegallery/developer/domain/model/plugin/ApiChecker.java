@@ -29,7 +29,7 @@ public class ApiChecker extends FileChecker {
 
     @Override
     protected List<String> getFileExtensions() {
-        return Arrays.asList("json","yaml");
+        return Arrays.asList("md","Md","mD","MD");
     }
 
 }

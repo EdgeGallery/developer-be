@@ -385,7 +385,12 @@ public class ProjectService {
             FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, Consts.RESPONSE_MESSAGE_CAN_NOT_FIND_PROJECT);
             return Either.left(error);
         }
-
+        String status = oldProject.getStatus().name();
+        if (!status.equals("ONLINE")) {
+            LOGGER.error("Can not modify project {}.", projectId);
+            FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "cannot modify projects that are online");
+            return Either.left(error);
+        }
         newProject.setId(projectId);
         newProject.setUserId(userId);
 
@@ -525,8 +530,8 @@ public class ProjectService {
         String projectId = project.getId();
         List<OpenMepCapabilityGroup> mepCapability = project.getCapabilityList();
         String projectPath = getProjectPath(projectId);
-        String chartName = project.getName().replaceAll(Consts.PATTERN, "")
-            + UUID.randomUUID().toString().substring(0, 8);
+        String chartName = project.getName().replaceAll(Consts.PATTERN, "") + UUID.randomUUID().toString()
+            .substring(0, 8);
         String configMapName = "mepagent" + UUID.randomUUID().toString();
         String namespace = chartName;
         List<HelmTemplateYamlPo> yamlPoList = helmTemplateYamlMapper.queryTemplateYamlByProjectId(userId, projectId);
