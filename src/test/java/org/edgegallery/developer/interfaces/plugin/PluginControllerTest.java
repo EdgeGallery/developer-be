@@ -69,7 +69,7 @@ public class PluginControllerTest extends TestCase {
         ResultActions resultActions = mvc.perform(MockMvcRequestBuilders.multipart("/mec/developer/v1/plugins/")
                 .file(new MockMultipartFile("pluginFile", "IDEAPluginDev.zip", "text/plain", Resources.getResourceAsStream("testdata/IDEAPluginDev.zip")))
                 .file(new MockMultipartFile("logoFile", "icon.png", "text/plain", FileUtils.openInputStream(iconFile)))
-                .file(new MockMultipartFile("apiFile", "apiFile.json", "text/plain",Resources.getResourceAsStream("testdata/plugin.json")))
+                .file(new MockMultipartFile("apiFile", "template-zoneminder.md", "text/plain",Resources.getResourceAsStream("testdata/template-zoneminder.md")))
                 .with(csrf())
                 .param("pluginName", "pluginName")
                 .param("codeLanguage", "JAVA")

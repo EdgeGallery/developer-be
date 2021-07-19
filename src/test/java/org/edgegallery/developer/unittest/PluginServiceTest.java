@@ -181,7 +181,7 @@ public class PluginServiceTest {
         param.setPluginId("b7370981-f199-4bf1-9814-30c3ea48b1d9");
         File pluginFile = Resources.getResourceAsFile("testdata/IDEAPluginDev.zip");
         File logoFile = Resources.getResourceAsFile("testdata/idea.png");
-        File apiFile = Resources.getResourceAsFile("testdata/plugin.json");
+        File apiFile = Resources.getResourceAsFile("testdata/template-zoneminder.md");
         InputStream pluginInputStream = new FileInputStream(pluginFile);
         InputStream logoInputStream = new FileInputStream(logoFile);
         InputStream apiInputStream = new FileInputStream(apiFile);
