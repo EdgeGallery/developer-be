@@ -287,7 +287,7 @@ public class ProjectServiceTest {
         Either<FormatRespDto, ApplicationProject> project = createNewProject();
         String userId = "f24ea0a2-d8e6-467c-8039-94f0d29bac43";
         Either<FormatRespDto, ApplicationProject> result = projectService
-            .modifyProject(userId, "200dfab1-3c30-4fc7-a6ca-ed6f0620a85e", project.getRight());
+            .modifyProject(userId, "200dfab1-3c30-4fc7-a6ca-ed6f0620a87e", project.getRight());
         Assert.assertTrue(result.isRight());
         Assert.assertEquals(result.getRight().getUserId(), userId);
     }
