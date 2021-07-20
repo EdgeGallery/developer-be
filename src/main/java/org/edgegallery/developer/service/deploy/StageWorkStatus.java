@@ -106,7 +106,7 @@ public class StageWorkStatus implements IConfigDeployStage {
             String pods = mergeStatusAndEvents(workStatus, workEvents);
             config.setPods(pods);
             //set access url
-            String accsessUrl = getAccessUrl(host, workStatus);
+            String accsessUrl = getAccessUrl(host, workStatus).trim();
             if (accsessUrl != null) {
                 config.setAccessUrl(accsessUrl.substring(0, accsessUrl.length() - 1));
             }

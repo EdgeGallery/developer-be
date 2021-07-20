@@ -23,12 +23,13 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import java.io.IOException;
-import java.util.List;
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.edgegallery.developer.common.Consts;
+import org.edgegallery.developer.domain.shared.Page;
 import org.edgegallery.developer.model.workspace.ApplicationProject;
 import org.edgegallery.developer.model.workspace.OpenMepCapabilityDetail;
 import org.edgegallery.developer.model.workspace.OpenMepCapabilityGroup;
@@ -71,11 +72,14 @@ public class ProjectController {
     })
     @RequestMapping(value = "/", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN') || hasRole('DEVELOPER_GUEST')")
-    public ResponseEntity<List<ApplicationProject>> getAllProjects(
+    public ResponseEntity<Page<ApplicationProject>> getAllProjects(
         @Pattern(regexp = REGEX_UUID, message = "userId must be in UUID format")
-        @ApiParam(value = "userId", required = true) @RequestParam("userId") String userId) {
-        Either<FormatRespDto, List<ApplicationProject>> either = projectService.getAllProjects(userId);
-        return ResponseDataUtil.buildResponse(either);
+        @ApiParam(value = "userId", required = true) @RequestParam("userId") String userId,
+        @ApiParam(value = "projectName", required = false) @RequestParam(value = "projectName", required = false)
+            String projectName,
+        @ApiParam(value = "the max count of one page", required = true) @Min(1) @RequestParam("limit") int limit,
+        @ApiParam(value = "start index of the page", required = true) @Min(0) @RequestParam("offset") int offset) {
+        return ResponseEntity.ok(projectService.getAllProjects(userId, projectName, limit, offset));
     }
 
     /**
@@ -216,7 +220,7 @@ public class ProjectController {
         consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<Boolean> clean(@Pattern(regexp = REGEX_UUID, message = "projectId must be in UUID format")
-        @ApiParam(value = "projectId", required = true) @PathVariable("projectId") String projectId,
+    @ApiParam(value = "projectId", required = true) @PathVariable("projectId") String projectId,
         @Pattern(regexp = REGEX_UUID, message = "userId must be in UUID format")
         @ApiParam(value = "userId", required = true) @RequestParam("userId") String userId,
         HttpServletRequest request) {
@@ -301,7 +305,7 @@ public class ProjectController {
         @ApiParam(value = "projectId", required = true) @PathVariable("projectId") String projectId,
         HttpServletRequest request) {
         String token = request.getHeader(Consts.ACCESS_TOKEN_STR);
-        Either<FormatRespDto, Boolean> either = projectService.getWorkStatus(projectId,token);
+        Either<FormatRespDto, Boolean> either = projectService.getWorkStatus(projectId, token);
         return ResponseDataUtil.buildResponse(either);
     }
 

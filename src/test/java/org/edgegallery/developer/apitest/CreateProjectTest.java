@@ -256,7 +256,7 @@ public class CreateProjectTest {
     @WithMockUser(roles = "DEVELOPER_TENANT")
     public void testGetTestConfig() throws Exception {
 
-        String url = String.format("/mec/developer/v1/projects/?userId=%s", userId);
+        String url = String.format("/mec/developer/v1/projects/?userId=%s&limit=10&offset=0", userId);
         mvc.perform(MockMvcRequestBuilders.get(url).contentType(MediaType.APPLICATION_JSON_UTF8)
             .accept(MediaType.APPLICATION_JSON_UTF8)).andExpect(MockMvcResultMatchers.status().isOk());
     }
@@ -285,7 +285,7 @@ public class CreateProjectTest {
     @WithMockUser(roles = "DEVELOPER_TENANT")
     public void testGetAllProjects() throws Exception {
 
-        String url = String.format("/mec/developer/v1/projects/?userId=%s", userId);
+        String url = String.format("/mec/developer/v1/projects/?userId=%s&limit=10&offset=0", userId);
         mvc.perform(MockMvcRequestBuilders.get(url).contentType(MediaType.APPLICATION_JSON_UTF8)
             .accept(MediaType.APPLICATION_JSON_UTF8)).andExpect(MockMvcResultMatchers.status().isOk());
     }

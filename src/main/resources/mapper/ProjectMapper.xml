@@ -122,6 +122,9 @@
         FROM
         tbl_app_project
         where user_id = #{userId}
+        <if test="projectName != null and projectName != ''">
+            and name like  CONCAT('%',#{projectName},'%')
+        </if>
         order by create_date desc
     </select>
 

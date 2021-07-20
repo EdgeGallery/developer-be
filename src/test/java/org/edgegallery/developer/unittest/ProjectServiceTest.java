@@ -28,6 +28,7 @@ import org.apache.ibatis.io.Resources;
 import org.apache.servicecomb.swagger.invocation.exception.InvocationException;
 import org.edgegallery.developer.DeveloperApplicationTests;
 import org.edgegallery.developer.config.security.AccessUserUtil;
+import org.edgegallery.developer.domain.shared.Page;
 import org.edgegallery.developer.mapper.ProjectImageMapper;
 import org.edgegallery.developer.model.workspace.ApplicationProject;
 import org.edgegallery.developer.model.workspace.EnumDeployPlatform;
@@ -208,8 +209,8 @@ public class ProjectServiceTest {
     @WithMockUser(roles = "DEVELOPER_TENANT")
     public void testGetAllProject() throws IOException {
         String userId = "f24ea0a2-d8e6-467c-8039-94f0d29bac43";
-        Either<FormatRespDto, List<ApplicationProject>> response = projectService.getAllProjects(userId);
-        Assert.assertTrue(response.isRight());
+        Page<ApplicationProject> response = projectService.getAllProjects(userId,null,10,0);
+        Assert.assertNotNull(response.getResults());
     }
 
     @Test
