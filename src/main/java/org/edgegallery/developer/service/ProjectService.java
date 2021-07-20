@@ -16,6 +16,8 @@
 
 package org.edgegallery.developer.service;
 
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -63,6 +65,7 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.ssl.SSLContextBuilder;
 import org.edgegallery.developer.common.Consts;
 import org.edgegallery.developer.config.security.AccessUserUtil;
+import org.edgegallery.developer.domain.shared.Page;
 import org.edgegallery.developer.mapper.HelmTemplateYamlMapper;
 import org.edgegallery.developer.mapper.HostLogMapper;
 import org.edgegallery.developer.mapper.HostMapper;
@@ -180,13 +183,12 @@ public class ProjectService {
 
     /**
      * getAllProjects.
-     *
-     * @return
      */
-    public Either<FormatRespDto, List<ApplicationProject>> getAllProjects(String userId) {
-        List<ApplicationProject> allProjects = projectMapper.getAllProject(userId);
+    public Page<ApplicationProject> getAllProjects(String userId, String projectName, int limit, int offset) {
+        PageHelper.offsetPage(offset, limit);
+        PageInfo pageInfo = new PageInfo<ApplicationProject>(projectMapper.getAllProject(userId, projectName));
         LOGGER.info("get all projects success.");
-        return Either.right(allProjects);
+        return new Page<ApplicationProject>(pageInfo.getList(), limit, offset, pageInfo.getTotal());
     }
 
     /**

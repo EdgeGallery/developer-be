@@ -18,6 +18,7 @@ package org.edgegallery.developer.mapper;
 
 import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 import org.edgegallery.developer.model.workspace.ApplicationProject;
 import org.edgegallery.developer.model.workspace.ProjectTestConfig;
 
@@ -32,7 +33,7 @@ public interface ProjectMapper {
 
     ApplicationProject getProjectById(String projectId);
 
-    List<ApplicationProject> getAllProject(String userId);
+    List<ApplicationProject> getAllProject(@Param("userId") String userId, @Param("projectName") String projectName);
 
     List<ApplicationProject> getAllProjectNoCondtion();
 
