@@ -23,6 +23,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.ibatis.io.Resources;
 import org.apache.servicecomb.swagger.invocation.exception.InvocationException;
@@ -94,9 +95,9 @@ public class ProjectServiceTest {
         String userId = "test-user";
         ApplicationProject project = new ApplicationProject();
         project.setStatus(EnumProjectStatus.ONLINE);
-        project.setName("test_app_1");
-        project.setVersion("1.0.1");
-        project.setProvider("huawei");
+        project.setName("test_app_1" + UUID.randomUUID().toString());
+        project.setVersion("1.0.1" + UUID.randomUUID().toString());
+        project.setProvider("huawei" + UUID.randomUUID().toString());
         List<String> platforms = new ArrayList<>();
         platforms.add("KunPeng");
         project.setPlatform(platforms);
@@ -209,7 +210,7 @@ public class ProjectServiceTest {
     @WithMockUser(roles = "DEVELOPER_TENANT")
     public void testGetAllProject() throws IOException {
         String userId = "f24ea0a2-d8e6-467c-8039-94f0d29bac43";
-        Page<ApplicationProject> response = projectService.getAllProjects(userId,null,10,0);
+        Page<ApplicationProject> response = projectService.getAllProjects(userId, null, 10, 0);
         Assert.assertNotNull(response.getResults());
     }
 
@@ -357,7 +358,8 @@ public class ProjectServiceTest {
     @Test
     @WithMockUser(roles = "DEVELOPER_TENANT")
     public void testCheckDependency() throws IOException {
-        Either<FormatRespDto, ApplicationProject> project = projectService.getProject("f24ea0a2-d8e6-467c-8039-94f0d29bac43","200dfab1-3c30-4fc7-a6ca-ed6f0620a86s");
+        Either<FormatRespDto, ApplicationProject> project = projectService
+            .getProject("f24ea0a2-d8e6-467c-8039-94f0d29bac43", "200dfab1-3c30-4fc7-a6ca-ed6f0620a86s");
         Assert.assertTrue(project.isRight());
         boolean hello = projectService.checkDependency(project.getRight());
         Assert.assertTrue(hello);
