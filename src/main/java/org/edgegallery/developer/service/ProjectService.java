@@ -216,6 +216,22 @@ public class ProjectService {
     @Transactional
     public Either<FormatRespDto, ApplicationProject> createProject(String userId, ApplicationProject project)
         throws IOException {
+        String newName = project.getName();
+        String newVersion = project.getVersion();
+        String newProvider = project.getProvider();
+        //Check if the project with the same name, same version, and same provider exists
+        List<ApplicationProject> appList = projectMapper.getAllProjectNoCondtion();
+        if (!CollectionUtils.isEmpty(appList)) {
+            for (ApplicationProject appProject : appList) {
+                String name = appProject.getName();
+                String version = appProject.getVersion();
+                String provider = appProject.getProvider();
+                if (newName.equals(name) && newVersion.equals(version) && newProvider.equals(provider)) {
+                    FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "the same project exists");
+                    return Either.left(error);
+                }
+            }
+        }
         project.setUserId(userId);
         String projectId = UUID.randomUUID().toString();
         String projectPath = getProjectPath(projectId);
