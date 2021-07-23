@@ -1476,7 +1476,11 @@ public class ProjectService {
             CloseableHttpResponse res = client.execute(httpGet);
             InputStream inputStream = res.getEntity().getContent();
             byte[] bytes = new byte[inputStream.available()];
-            inputStream.read(bytes);
+            int byteNums = inputStream.read(bytes);
+            if (byteNums <= 0) {
+                LOGGER.warn("not get any response from login-info interface");
+                return;
+            }
             String authResult = new String(bytes, StandardCharsets.UTF_8);
             LOGGER.info("response token length: {}", authResult.length());
             //获取accessToken
