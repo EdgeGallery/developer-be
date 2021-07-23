@@ -17,7 +17,6 @@
 package org.edgegallery.developer.apitest;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 
 
 import com.google.gson.Gson;
@@ -166,9 +165,9 @@ public class CreateProjectTest {
     private ApplicationProject createNewProject() throws Exception {
         ApplicationProject project = new ApplicationProject();
         project.setStatus(EnumProjectStatus.ONLINE);
-        project.setName("test_app_1");
-        project.setVersion("1.0.1");
-        project.setProvider("huawei");
+        project.setName("test_app_1" + UUID.randomUUID().toString());
+        project.setVersion("1.0.1" + UUID.randomUUID().toString());
+        project.setProvider("huawei" + UUID.randomUUID().toString());
         project.setDescription("test");
         List<String> platforms = new ArrayList<>();
         platforms.add("KunPeng");
@@ -543,8 +542,7 @@ public class CreateProjectTest {
     @WithMockUser(roles = "DEVELOPER_TENANT")
     public void testGetPodStatus() throws Exception {
         ApplicationProject project = createNewProject();
-        String url = String
-            .format("/mec/developer/v1/projects/" + project.getId() + "/container/workStatus");
+        String url = String.format("/mec/developer/v1/projects/" + project.getId() + "/container/workStatus");
         mvc.perform(MockMvcRequestBuilders.get(url).contentType(MediaType.APPLICATION_JSON_UTF8)
             .accept(MediaType.APPLICATION_JSON_UTF8)).andExpect(MockMvcResultMatchers.status().isOk());
     }
@@ -554,7 +552,8 @@ public class CreateProjectTest {
     public void testUploadProjectToStore() throws Exception {
         ApplicationProject project = createNewProject();
         String url = String
-            .format("/mec/developer/v1/projects/" + project.getId() + "/action/upload?userId=%s&userName=%s", userId,"test");
+            .format("/mec/developer/v1/projects/" + project.getId() + "/action/upload?userId=%s&userName=%s", userId,
+                "test");
         mvc.perform(MockMvcRequestBuilders.post(url).with(csrf()).contentType(MediaType.APPLICATION_JSON_UTF8)
             .accept(MediaType.APPLICATION_JSON_UTF8)).andExpect(MockMvcResultMatchers.status().is4xxClientError());
     }
@@ -568,13 +567,12 @@ public class CreateProjectTest {
             .accept(MediaType.APPLICATION_JSON_UTF8)).andExpect(MockMvcResultMatchers.status().is4xxClientError());
     }
 
-
     @Test
     @WithMockUser(roles = "DEVELOPER_TENANT")
     public void testOpenApi() throws Exception {
         ApplicationProject project = createNewProject();
         String url = String
-            .format("/mec/developer/v1/projects/" + project.getId() + "/action/open-api?userId=%s", userId,"test");
+            .format("/mec/developer/v1/projects/" + project.getId() + "/action/open-api?userId=%s", userId, "test");
         MockHttpServletRequestBuilder request = MockMvcRequestBuilders.post(url).with(csrf());
         request.content(gson.toJson(new OpenMepCapabilityDetail()));
         request.accept(MediaType.APPLICATION_JSON);

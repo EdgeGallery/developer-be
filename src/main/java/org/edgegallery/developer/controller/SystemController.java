@@ -96,7 +96,7 @@ public class SystemController {
         produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<MepHost> getHost(@ApiParam(value = "hostId", required = true) @PathVariable("hostId")
-        @Pattern(regexp = REG_UUID, message = "hostId must be in UUID format") String hostId) {
+    @Pattern(regexp = REG_UUID, message = "hostId must be in UUID format") String hostId) {
         Either<FormatRespDto, MepHost> either = systemService.getHost(hostId);
         return ResponseDataUtil.buildResponse(either);
     }
@@ -136,7 +136,7 @@ public class SystemController {
         produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<Boolean> deleteHost(@ApiParam(value = "hostId", required = true) @PathVariable("hostId")
-        @Pattern(regexp = REG_UUID, message = "hostId must be in UUID format") String hostId) {
+    @Pattern(regexp = REG_UUID, message = "hostId must be in UUID format") String hostId) {
         Either<FormatRespDto, Boolean> either = systemService.deleteHost(hostId);
         return ResponseDataUtil.buildResponse(either);
     }
@@ -264,4 +264,26 @@ public class SystemController {
         Either<FormatRespDto, OpenMepCapabilityGroup> either = systemService.getCapabilityByGroupId(groupId);
         return ResponseDataUtil.buildResponse(either);
     }
+
+    /**
+     * modify capability group.
+     *
+     * @return
+     */
+    @ApiOperation(value = "update one EdgeGalleryCapabilityGroup", response = OpenMepCapabilityGroup.class)
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = "OK", response = OpenMepCapabilityGroup.class),
+        @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
+    })
+    @RequestMapping(value = "/capability/{groupId}", method = RequestMethod.PUT,
+        consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @PreAuthorize("hasRole('DEVELOPER_ADMIN')")
+    public ResponseEntity<OpenMepCapabilityGroup> modifyGroup(
+        @ApiParam(value = "groupId", required = true) @PathVariable
+        @Pattern(regexp = REG_UUID, message = "groupId must be in UUID format") String groupId,
+        @ApiParam(value = "EdgeGalleryCapabilityGroup", required = true) @RequestBody OpenMepCapabilityGroup group) {
+        Either<FormatRespDto, OpenMepCapabilityGroup> either = systemService.updateGroup(groupId, group);
+        return ResponseDataUtil.buildResponse(either);
+    }
+
 }
