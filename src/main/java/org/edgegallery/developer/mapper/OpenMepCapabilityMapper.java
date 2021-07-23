@@ -30,6 +30,10 @@ public interface OpenMepCapabilityMapper {
 
     int deleteGroup(String groupId);
 
+    int updateGroup(OpenMepCapabilityGroup group);
+
+    int updateDetail(OpenMepCapabilityDetail detail);
+
     int updateSelectCount(String groupId);
 
     int saveCapability(OpenMepCapabilityDetail capability);

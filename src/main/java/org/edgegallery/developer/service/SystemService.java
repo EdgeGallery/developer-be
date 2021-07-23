@@ -259,7 +259,7 @@ public class SystemService {
 
     private boolean isAdminUser() {
         String currUserAuth = AccessUserUtil.getUser().getUserAuth();
-        LOGGER.info("user auth:{}",currUserAuth);
+        LOGGER.info("user auth:{}", currUserAuth);
         return !StringUtils.isEmpty(currUserAuth) && currUserAuth.contains(Consts.ROLE_DEVELOPER_ADMIN);
     }
 
@@ -329,6 +329,61 @@ public class SystemService {
         LOGGER.info("Create capability group {} success", capabilityGroup.getGroupId());
         return Either.right(capabilityGroup);
 
+    }
+
+    /**
+     * modify OpenMepCapabilityGroup.
+     *
+     * @param groupId groupId
+     * @param capabilityGroup input param
+     * @return
+     */
+    @Transactional
+    public Either<FormatRespDto, OpenMepCapabilityGroup> updateGroup(String groupId,
+        OpenMepCapabilityGroup capabilityGroup) {
+        if (StringUtils.isEmpty(groupId)) {
+            return Either.left(new FormatRespDto(Status.BAD_REQUEST, "groupId is null"));
+        }
+        if (capabilityGroup == null) {
+            return Either.left(new FormatRespDto(Status.BAD_REQUEST, "new capabilityGroup is null"));
+        }
+        OpenMepCapabilityGroup group = openMepCapabilityMapper.getOpenMepCapabilitiesByGroupId(groupId);
+        if (group == null) {
+            return Either.left(new FormatRespDto(Status.BAD_REQUEST, "groupId is incorrect"));
+        }
+        capabilityGroup.setGroupId(groupId);
+        capabilityGroup.setUploadTime(new Date());
+        int res = openMepCapabilityMapper.updateGroup(capabilityGroup);
+        if (res < 1) {
+            return Either.left(new FormatRespDto(Status.INTERNAL_SERVER_ERROR, "update group failed!"));
+        }
+
+        List<OpenMepCapabilityDetail> newDetails = capabilityGroup.getCapabilityDetailList();
+        List<OpenMepCapabilityDetail> details = group.getCapabilityDetailList();
+        if (!CollectionUtils.isEmpty(details)) {
+            OpenMepCapabilityDetail detail = details.get(0);
+            //get old group's detailId
+            String detailId = detail.getDetailId();
+            if (!CollectionUtils.isEmpty(newDetails)) {
+                OpenMepCapabilityDetail newDetail = newDetails.get(0);
+                newDetail.setDetailId(detailId);
+                SimpleDateFormat time = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+                newDetail.setUploadTime(time.format(new Date()));
+                newDetail.setGroupId(groupId);
+                int resDetail = openMepCapabilityMapper.updateDetail(newDetail);
+                if (resDetail < 1) {
+                    return Either.left(new FormatRespDto(Status.INTERNAL_SERVER_ERROR, "update detail failed!"));
+                }
+                int api = uploadedFileMapper.updateFileStatus(newDetail.getApiFileId(), false);
+                int guide = uploadedFileMapper.updateFileStatus(newDetail.getGuideFileId(), false);
+                int guideEn = uploadedFileMapper.updateFileStatus(newDetail.getGuideFileIdEn(), false);
+                if (api <= 0 || guide <= 0 || guideEn <= 0) {
+                    String msg = "update api or guide or guide-en file status occur db error";
+                    return Either.left(new FormatRespDto(Status.INTERNAL_SERVER_ERROR, msg));
+                }
+            }
+        }
+        return Either.right(openMepCapabilityMapper.getOpenMepCapabilitiesByGroupId(groupId));
     }
 
     /**

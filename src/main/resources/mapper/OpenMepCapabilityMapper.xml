@@ -17,10 +17,10 @@
 
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper
-  namespace="org.edgegallery.developer.mapper.OpenMepCapabilityMapper">
+        namespace="org.edgegallery.developer.mapper.OpenMepCapabilityMapper">
 
     <resultMap id="GroupMap"
-      type="org.edgegallery.developer.model.workspace.OpenMepCapabilityGroup">
+               type="org.edgegallery.developer.model.workspace.OpenMepCapabilityGroup">
         <id property="groupId" column="group_id"/>
         <result property="oneLevelName" column="one_level_name"/>
         <result property="oneLevelNameEn" column="one_level_name_en"/>
@@ -36,7 +36,7 @@
     </resultMap>
 
     <resultMap id="OpenMEPList"
-      type="org.edgegallery.developer.model.workspace.OpenMepApi">
+               type="org.edgegallery.developer.model.workspace.OpenMepApi">
         <result property="name" column="name"/>
         <result property="service" column="service"/>
         <result property="description" column="description"/>
@@ -45,7 +45,7 @@
     </resultMap>
 
     <resultMap id="CapabilityMap"
-      type="org.edgegallery.developer.model.workspace.OpenMepCapabilityDetail">
+               type="org.edgegallery.developer.model.workspace.OpenMepCapabilityDetail">
         <id property="detailId" column="detail_id"/>
         <result property="groupId" column="group_id"/>
         <result property="service" column="service"/>
@@ -67,7 +67,7 @@
     </resultMap>
 
     <resultMap id="OpenMEPDetail"
-      type="org.edgegallery.developer.model.workspace.OpenMepCapabilityGroup">
+               type="org.edgegallery.developer.model.workspace.OpenMepCapabilityGroup">
         <id property="groupId" column="group_id"/>
         <result property="oneLevelName" column="one_level_name"/>
         <result property="oneLevelNameEn" column="one_level_name_en"/>
@@ -77,7 +77,7 @@
         <result property="description" column="description"/>
         <result property="descriptionEn" column="description_en"/>
         <collection property="capabilityDetailList"
-          ofType="org.edgegallery.developer.model.workspace.OpenMepCapabilityDetail">
+                    ofType="org.edgegallery.developer.model.workspace.OpenMepCapabilityDetail">
             <id property="detailId" column="detail_id"/>
             <result property="service" column="service"/>
             <result property="serviceEn" column="service_en"/>
@@ -100,7 +100,7 @@
     </resultMap>
 
     <insert id="saveGroup"
-      parameterType="org.edgegallery.developer.model.workspace.OpenMepCapabilityGroup">
+            parameterType="org.edgegallery.developer.model.workspace.OpenMepCapabilityGroup">
         insert into
         tbl_openmep_capability (group_id, one_level_name, one_level_name_en, two_level_name, two_level_name_en,
         type, description, description_en,icon_file_id,author,upload_time)
@@ -110,10 +110,11 @@
     </insert>
 
     <insert id="saveCapability"
-      parameterType="org.edgegallery.developer.model.workspace.OpenMepCapabilityDetail">
+            parameterType="org.edgegallery.developer.model.workspace.OpenMepCapabilityDetail">
         insert into
         tbl_openmep_capability_detail (detail_id,
-        group_id, service, service_en, version, description, description_en, api_file_id, provider, upload_time, guide_file_id,
+        group_id, service, service_en, version, description, description_en, api_file_id, provider, upload_time,
+        guide_file_id,
         guide_file_id_en, host, port, protocol, app_id, package_id, user_id)
         values
         ( #{detailId}, #{groupId}, #{service}, #{serviceEn}, #{version}, #{description}, #{descriptionEn},
@@ -152,7 +153,7 @@
     </update>
 
     <select id="getOpenMepCapabilitiesDetail"
-      resultMap="OpenMEPDetail">
+            resultMap="OpenMEPDetail">
         SELECT
         a.*, b.*
         FROM
@@ -161,7 +162,7 @@
     </select>
 
     <select id="getGroup" parameterType="String"
-      resultMap="GroupMap">
+            resultMap="GroupMap">
         SELECT
         *
         FROM
@@ -186,7 +187,7 @@
     </select>
 
     <select id="getDetail" parameterType="String"
-      resultMap="CapabilityMap">
+            resultMap="CapabilityMap">
         SELECT
         *
         FROM
@@ -196,7 +197,7 @@
     </select>
 
     <select id="getDetailByGroupId" parameterType="String"
-      resultMap="CapabilityMap">
+            resultMap="CapabilityMap">
         SELECT
         *
         FROM
@@ -206,7 +207,7 @@
     </select>
 
     <select id="getOpenMepByFileId" parameterType="String"
-      resultMap="CapabilityMap">
+            resultMap="CapabilityMap">
         SELECT
         *
         FROM
@@ -216,7 +217,7 @@
     </select>
 
     <select id="updateOpenMepByFileId"
-      parameterType="org.edgegallery.developer.model.workspace.OpenMepCapabilityDetail">
+            parameterType="org.edgegallery.developer.model.workspace.OpenMepCapabilityDetail">
         UPDATE
         tbl_openmep_capability_detail
         SET
@@ -228,7 +229,7 @@
 
 
     <select id="getOpenMepCapabilitiesByGroupId"
-      parameterType="String" resultMap="OpenMEPDetail">
+            parameterType="String" resultMap="OpenMEPDetail">
         SELECT
         a.*, b.*, b.description as detail_description
         FROM
@@ -287,6 +288,21 @@
         <if test="twoLevelNameEn != null">
             and a.two_level_name_en like CONCAT('%',#{twoLevelNameEn},'%')
         </if>
-         order by a.upload_time desc
+        order by a.upload_time desc
     </select>
+    <update id="updateGroup" parameterType="org.edgegallery.developer.model.workspace.OpenMepCapabilityGroup">
+        update tbl_openmep_capability set one_level_name =#{oneLevelName},one_level_name_en=#{oneLevelNameEn},
+        two_level_name =#{twoLevelName},two_level_name_en=#{twoLevelNameEn},type=#{type},description=#{description},
+        description_en=#{descriptionEn},icon_file_id=#{iconFileId},author=#{author},select_count=#{selectCount},
+        upload_time =#{uploadTime}
+        where group_id = #{groupId}
+    </update>
+    <update id="updateDetail" parameterType="org.edgegallery.developer.model.workspace.OpenMepCapabilityDetail">
+        update tbl_openmep_capability_detail set service =#{service},service_en=#{serviceEn},
+        version =#{version},description=#{description},description_en=#{descriptionEn},provider=#{provider},
+        group_id=#{groupId},api_file_id=#{apiFileId},guide_file_id=#{guideFileId},guide_file_id_en=#{guideFileIdEn},
+        host=#{host},port=#{port},protocol=#{protocol},app_id=#{appId},package_id=#{packageId},user_id=#{userId},
+        upload_time =#{uploadTime}
+        where detail_id = #{detailId}
+    </update>
 </mapper>
