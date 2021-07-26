@@ -17,87 +17,57 @@
 
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="org.edgegallery.developer.infrastructure.persistence.plugin.PluginMapper">
-    <resultMap id="BaseResultMap"
-               type="org.edgegallery.developer.infrastructure.persistence.plugin.PluginPO">
+    <resultMap id="BaseResultMap" type="org.edgegallery.developer.infrastructure.persistence.plugin.PluginPO">
         <id column="pluginid" property="pluginId" jdbcType="VARCHAR"/>
-        <result column="pluginname" property="pluginName"
-                jdbcType="VARCHAR"/>
-        <result column="introduction" property="introduction"
-                jdbcType="VARCHAR"/>
-        <result column="satisfaction" property="satisfaction"
-                jdbcType="FLOAT"/>
-        <result column="codelanguage" property="codeLanguage"
-                jdbcType="VARCHAR"/>
-        <result column="plugintype" property="pluginType"
-                jdbcType="INTEGER"/>
+        <result column="pluginname" property="pluginName" jdbcType="VARCHAR"/>
+        <result column="introduction" property="introduction" jdbcType="VARCHAR"/>
+        <result column="satisfaction" property="satisfaction" jdbcType="FLOAT"/>
+        <result column="codelanguage" property="codeLanguage" jdbcType="VARCHAR"/>
+        <result column="plugintype" property="pluginType" jdbcType="INTEGER"/>
         <result column="version" property="version" jdbcType="VARCHAR"/>
-        <result column="downloadcount" property="downloadCount"
-                jdbcType="INTEGER"/>
-        <result column="logofile" property="logoFile"
-                jdbcType="VARCHAR"/>
-        <result column="pluginfile" property="pluginFile"
-                jdbcType="VARCHAR"/>
-        <result column="uploadtime" property="uploadTime"
-                jdbcType="VARCHAR"/>
+        <result column="downloadcount" property="downloadCount" jdbcType="INTEGER"/>
+        <result column="logofile" property="logoFile" jdbcType="VARCHAR"/>
+        <result column="pluginfile" property="pluginFile" jdbcType="VARCHAR"/>
+        <result column="uploadtime" property="uploadTime" jdbcType="VARCHAR"/>
         <result column="userid" property="userId" jdbcType="VARCHAR"/>
-        <result column="username" property="userName"
-                jdbcType="VARCHAR"/>
-        <result column="pluginsize" property="pluginSize"
-                jdbcType="VARCHAR"/>
+        <result column="username" property="userName" jdbcType="VARCHAR"/>
+        <result column="pluginsize" property="pluginSize" jdbcType="VARCHAR"/>
         <result column="apifile" property="apiFile" jdbcType="VARCHAR"/>
-        <result column="scorecount" property="scoreCount"
-                jdbcType="INTEGER"/>
+        <result column="scorecount" property="scoreCount" jdbcType="INTEGER"/>
     </resultMap>
-
+    
+    <sql id="AllColumn">
+      pluginid,pluginname,introduction,satisfaction,codelanguage,plugintype,version,downloadcount,logofile,pluginfile,userid,uploadtime,username,pluginsize,apifile,scorecount, pluginfilehashcode
+    </sql>
 
     <sql id="Base_Column_List">
         pluginid, pluginname, introduction,
         satisfaction,codelanguage,plugintype,version,downloadcount,logofile,pluginfile,uploadtime,userid,username,pluginsize,apifile,scorecount
     </sql>
 
-    <select id="getAllPlugin" parameterType="java.lang.Integer"
-            resultMap="BaseResultMap">
-        SELECT
-        <include refid="Base_Column_List"/>
-        FROM tbl_plugin WHERE plugintype = #{pluginType} ORDER BY uploadtime
-        DESC
+    <select id="getAllPlugin" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM tbl_plugin WHERE plugintype = #{pluginType} ORDER BY uploadtime DESC
     </select>
     <select id="getPluginById" parameterType="java.lang.String"
             resultType="org.edgegallery.developer.infrastructure.persistence.plugin.PluginPO">
-        SELECT * FROM tbl_plugin
-        WHERE pluginid =#{pluginId}
+        SELECT <include refid="AllColumn"/> FROM tbl_plugin WHERE pluginid =#{pluginId}
     </select>
-    <select id="getPluginByUploadTime"
-            parameterType="java.util.Date"
-            resultType="org.edgegallery.developer.infrastructure.persistence.plugin.PluginPO">
-        SELECT * FROM tbl_plugin
-        WHERE uploadtime =#{uploadtime}
+    <select id="getPluginByUploadTime" parameterType="java.util.Date" resultType="org.edgegallery.developer.infrastructure.persistence.plugin.PluginPO">
+        SELECT <include refid="AllColumn"/> FROM tbl_plugin WHERE uploadtime =#{uploadtime}
     </select>
     <update id="updateScore" parameterType="java.util.Map">
-        UPDATE tbl_plugin
-        SET
-        satisfaction = #{satisfaction},scorecount =#{scoreCount}
-        WHERE pluginid
-        =
-        #{pluginId}
+        UPDATE tbl_plugin SET satisfaction = #{satisfaction},scorecount =#{scoreCount} WHERE pluginid = #{pluginId}
     </update>
-    <select id="getScorecount" parameterType="java.lang.String"
-            resultType="java.lang.Integer">
-        SELECT scorecount FROM tbl_plugin
-        WHERE pluginid =
-        #{pluginId}
+    <select id="getScorecount" parameterType="java.lang.String" resultType="java.lang.Integer">
+        SELECT scorecount FROM tbl_plugin WHERE pluginid = #{pluginId}
     </select>
-    <select id="getSatisfaction" parameterType="java.lang.String"
-            resultType="java.lang.Float">
-        SELECT satisfaction FROM tbl_plugin
-        WHERE pluginid =
-        #{pluginId}
+    <select id="getSatisfaction" parameterType="java.lang.String" resultType="java.lang.Float">
+        SELECT satisfaction FROM tbl_plugin WHERE pluginid = #{pluginId}
     </select>
 
-    <insert id="insert"
-            parameterType="org.edgegallery.developer.infrastructure.persistence.plugin.PluginPO">
-        INSERT INTO
-        tbl_plugin
+    <insert id="insert" parameterType="org.edgegallery.developer.infrastructure.persistence.plugin.PluginPO">
+        INSERT INTO tbl_plugin
         (pluginid,pluginname, introduction,
         satisfaction,codelanguage,plugintype,version,downloadcount,logofile,pluginfile,uploadtime,userid,username,
         pluginsize,apifile,scorecount, pluginfilehashcode)
@@ -107,48 +77,25 @@
         #{downloadCount},#{logoFile},#{pluginFile},#{uploadTime},#{userId},#{userName},#{pluginSize},
         #{apiFile},#{scoreCount}, #{pluginFileHashCode})
     </insert>
-    <insert id="saveDownloadRecord"
-            parameterType="org.edgegallery.developer.domain.model.comment.PluginDownloadRecord">
-        INSERT INTO
-        tbl_downloadrecord
-        (recordid,pluginid, downloaduserid,
-        downloadusername,score,scoretype,downloadtime)
-        VALUES
-        (#{recordId},#{pluginId},
-        #{downloadUserId},
-        #{downloadUserName},#{score},#{scoreType},#{downloadTime})
+    <insert id="saveDownloadRecord" parameterType="org.edgegallery.developer.domain.model.comment.PluginDownloadRecord">
+        INSERT INTO tbl_downloadrecord
+        (recordid,pluginid, downloaduserid, downloadusername,score,scoretype,downloadtime)
+        VALUES (#{recordId},#{pluginId}, #{downloadUserId}, #{downloadUserName},#{score},#{scoreType},#{downloadTime})
     </insert>
     <delete id="delPlugin" parameterType="java.lang.String">
-        DELETE FROM
-        tbl_plugin
-        WHERE
-        pluginid = #{pluginId}
+        DELETE FROM tbl_plugin WHERE pluginid = #{pluginId}
     </delete>
-    <select id="getPluginPath" parameterType="java.lang.String"
-            resultType="java.lang.String">
-        SELECT pluginfile
-        FROM tbl_plugin WHERE pluginid =
-        #{pluginId}
+    <select id="getPluginPath" parameterType="java.lang.String" resultType="java.lang.String">
+        SELECT pluginfile FROM tbl_plugin WHERE pluginid = #{pluginId}
     </select>
-    <select id="getLogoPath" parameterType="java.lang.String"
-            resultType="java.lang.String">
-        SELECT logofile
-        FROM tbl_plugin WHERE pluginid =
-        #{pluginId}
+    <select id="getLogoPath" parameterType="java.lang.String" resultType="java.lang.String">
+        SELECT logofile FROM tbl_plugin WHERE pluginid = #{pluginId}
     </select>
-    <select id="getApiPath" parameterType="java.lang.String"
-            resultType="java.lang.String">
-        SELECT apifile
-        FROM tbl_plugin WHERE pluginid =
-        #{pluginId}
+    <select id="getApiPath" parameterType="java.lang.String" resultType="java.lang.String">
+        SELECT apifile FROM tbl_plugin WHERE pluginid = #{pluginId}
     </select>
     <update id="updownloadCount" parameterType="java.lang.String">
-        UPDATE
-        tbl_plugin
-        SET
-        downloadcount = downloadcount+1
-        WHERE
-        pluginid=#{pluginId}
+        UPDATE tbl_plugin SET downloadcount = downloadcount+1 WHERE pluginid=#{pluginId}
     </update>
     <update id="update" parameterType="org.edgegallery.developer.infrastructure.persistence.plugin.PluginPO">
         UPDATE tbl_plugin SET
@@ -167,10 +114,8 @@
         pluginid=#{pluginId}
     </update>
 
-
-    <select id="count" resultType="java.lang.Long"
-            parameterType="java.lang.Integer">
-        select count(*) FROM tbl_plugin
+    <select id="count" resultType="java.lang.Long" parameterType="java.lang.Integer">
+        select count(1) FROM tbl_plugin
         <where>
             <if test="criteria.pluginName != null and criteria.pluginName != ''">
                 pluginname like concat('%', #{criteria.pluginName}, '%')
@@ -184,9 +129,8 @@
         </where>
     </select>
 
-    <select id="findAllWithPagination"
-            resultMap="BaseResultMap">
-        select * from tbl_plugin
+    <select id="findAllWithPagination" resultMap="BaseResultMap">
+        select <include refid="AllColumn"/> from tbl_plugin
         <where>
             <if test="criteria.pluginName != null and criteria.pluginName != ''">
                 pluginname like concat('%', #{criteria.pluginName}, '%')
@@ -203,6 +147,6 @@
     </select>
 
     <select id="findPlugInByHashCode" resultType="java.lang.Long">
-        select count(*) from tbl_plugin where pluginfilehashcode = #{hashcode}
+        select count(1) from tbl_plugin where pluginfilehashcode = #{hashcode}
     </select>
 </mapper>

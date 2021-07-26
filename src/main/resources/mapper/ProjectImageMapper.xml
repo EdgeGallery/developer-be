@@ -41,7 +41,7 @@
     </delete>
 
     <select id="getAllImage" parameterType="java.lang.String" resultMap="ImageMap">
-        select * from
+        select id, pod_name, pod_containers, project_id, svc_type, svc_port, svc_node_port from
         tbl_project_image where project_id = #{projectId}
     </select>
 </mapper>

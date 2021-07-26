@@ -60,7 +60,14 @@
         <result property="lcmToken" column="lcm_token"/>
         <result property="packageId" column="package_id"/>
     </resultMap>
-
+    
+    <sql id="AppProject_AllColumn">
+    id, name, provider, platform, industries, type, description, status,user_id,create_date, last_test_id,version, capabilities,project_type,icon_file_id, open_capability_id,deploy_platform
+    </sql>
+    <sql id="TestConfig_AllColumn"/>
+    test_id, project_id,agent_config,image_file_id, app_api_file_id, deploy_file_id, private_host, platform,access_url,error_log,deploy_date,hosts,app_instance_id,work_load_id,pods,deploy_status,stage_status,lcm_token,package_id
+    </sql>
+    
     <insert id="save" parameterType="org.edgegallery.developer.model.workspace.ApplicationProject">
         insert into
         tbl_app_project (id, project_type, name, version, provider, platform, icon_file_id, type, description, status,
@@ -102,26 +109,20 @@
 
     <select id="getProject" parameterType="String" resultMap="AppProjectMap">
         SELECT
-        *
-        FROM
-        tbl_app_project
-        where user_id = #{param1} and id = #{param2}
+        <include refid="AppProject_AllColumn"/>
+        FROM tbl_app_project where user_id = #{param1} and id = #{param2}
     </select>
 
     <select id="getProjectById" parameterType="String" resultMap="AppProjectMap">
         SELECT
-        *
-        FROM
-        tbl_app_project
-        where id = #{projectId}
+        <include refid="AppProject_AllColumn"/>
+        FROM tbl_app_project where id = #{projectId}
     </select>
 
     <select id="getAllProject" parameterType="String" resultMap="AppProjectMap">
         SELECT
-        *
-        FROM
-        tbl_app_project
-        where user_id = #{userId}
+        <include refid="AppProject_AllColumn"/>
+        FROM tbl_app_project where user_id = #{userId}
         <if test="projectName != null and projectName != ''">
             and name like  CONCAT('%',#{projectName},'%')
         </if>
@@ -130,18 +131,12 @@
 
     <select id="getAllProjectNoCondtion"  resultMap="AppProjectMap">
         SELECT
-        *
-        FROM
-        tbl_app_project
-        order by create_date desc
+        <include refid="AppProject_AllColumn"/>
+        FROM tbl_app_project order by create_date desc
     </select>
 
     <select id="countProjects" parameterType="String" resultType="integer">
-        SELECT
-        COUNT(*)
-        FROM
-        tbl_app_project
-        where user_id = #{userId}
+        SELECT COUNT(1) FROM tbl_app_project where user_id = #{userId}
     </select>
 
     <insert id="saveTestConfig" parameterType="org.edgegallery.developer.model.workspace.ProjectTestConfig">
@@ -157,7 +152,7 @@
 
     <select id="getTestConfig" parameterType="String" resultMap="TestConfigMap">
         SELECT
-        *
+        <include refid="TestConfig_AllColumn"/>
         FROM
         tbl_project_test_config
         WHERE
@@ -166,7 +161,7 @@
 
     <select id="getTestConfigByProjectId" parameterType="String" resultMap="TestConfigMap">
         SELECT
-        *
+        <include refid="TestConfig_AllColumn"/>
         FROM
         tbl_project_test_config
         WHERE
@@ -175,7 +170,7 @@
 
     <select id="getTestConfigByDeployStatus" parameterType="String" resultMap="TestConfigMap">
         SELECT
-        *
+        <include refid="TestConfig_AllColumn"/>
         FROM
         tbl_project_test_config
         WHERE
@@ -200,18 +195,14 @@
         app_instance_id = #{appInstanceId}, work_load_id = #{workLoadId}, deploy_status = #{deployStatus}, lcm_token =
         #{lcmToken},
         package_id = #{packageId}
-        WHERE
-        test_id = #{testId}
+        WHERE test_id = #{testId}
     </update>
 
     <update id="modifyTestConfig" parameterType="org.edgegallery.developer.model.workspace.ProjectTestConfig">
         UPDATE
         tbl_project_test_config
-        SET
-        project_id = #{projectId},
+        SET project_id = #{projectId},
         deploy_file_id = #{deployFileId}, private_host = #{privateHost}, platform = #{platform}
-        WHERE
-        test_id = #{testId}
+        WHERE test_id = #{testId}
     </update>
-
 </mapper>

@@ -31,6 +31,10 @@
         <result property="testStatus" column="test_status"/>
         <result property="createTime" column="create_time"/>
     </resultMap>
+    
+    <sql id="AllColumn">
+      release_id, project_id, guide_file_id, appinstance_id, capabilities_detail, atp_test,test_status, create_time
+    </sql>
 
     <insert id="saveConfig"
             parameterType="org.edgegallery.developer.model.ReleaseConfig">
@@ -46,18 +50,14 @@
 
     <select id="getConfigByReleaseId" parameterType="java.lang.String" resultMap="ConfigMap">
         SELECT
-        *
-        FROM
-        tbl_release_config
-        where release_id = #{releaseId}
+        <include refid="AllColumn"/>
+        FROM tbl_release_config where release_id = #{releaseId}
     </select>
 
     <select id="getConfigByProjectId" parameterType="java.lang.String" resultMap="ConfigMap">
         SELECT
-        *
-        FROM
-        tbl_release_config
-        where project_id = #{projectId}
+        <include refid="AllColumn"/>
+        FROM tbl_release_config where project_id = #{projectId}
     </select>
 
     <update id="modifyReleaseConfig" parameterType="org.edgegallery.developer.model.ReleaseConfig">
@@ -81,5 +81,4 @@
         where
         project_id = #{projectId}
     </update>
-
 </mapper>
