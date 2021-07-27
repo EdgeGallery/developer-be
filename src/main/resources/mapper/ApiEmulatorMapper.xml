@@ -17,7 +17,6 @@
 
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.edgegallery.developer.mapper.ApiEmulatorMapper">
-
     <resultMap id="ApiEmulatorMap"
                type="org.edgegallery.developer.model.workspace.ApiEmulator">
         <id property="id" column="id"/>
@@ -29,33 +28,19 @@
 
     <insert id="saveEmulator"
             parameterType="org.edgegallery.developer.model.workspace.ApiEmulator">
-        insert into
-        tbl_api_emulator (id, user_id, host_id, port, workload_id, create_time)
-        values
-        ( #{id}, #{userId}, #{hostId}, #{port}, #{workloadId}, (select current_timestamp))
+        insert into tbl_api_emulator (id, user_id, host_id, port, workload_id, create_time)
+        values ( #{id}, #{userId}, #{hostId}, #{port}, #{workloadId}, (select current_timestamp))
     </insert>
 
     <delete id="deleteEmulatorById" parameterType="String">
         DELETE FROM tbl_api_emulator WHERE id = #{id};
     </delete>
 
-    <select id="getEmulatorByUserId" parameterType="String"
-            resultType="org.edgegallery.developer.model.workspace.ApiEmulator">
-        SELECT
-        id, user_id, host_id, port, workload_id
-        FROM
-        tbl_api_emulator
-        WHERE
-        user_id = #{userId}
+    <select id="getEmulatorByUserId" parameterType="String" resultType="org.edgegallery.developer.model.workspace.ApiEmulator">
+        SELECT id, user_id, host_id, port, workload_id FROM tbl_api_emulator WHERE user_id = #{userId}
     </select>
 
     <select id="selectMaxPort" parameterType="String" resultType="java.lang.Integer">
-        SELECT
-        COALESCE(max(port),0)
-        FROM
-        tbl_api_emulator
-        WHERE
-        host_id = #{hostId}
+        SELECT COALESCE(max(port),0) FROM tbl_api_emulator WHERE host_id = #{hostId}
     </select>
-
 </mapper>

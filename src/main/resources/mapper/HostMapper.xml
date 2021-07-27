@@ -17,7 +17,6 @@
 
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.edgegallery.developer.mapper.HostMapper">
-
     <resultMap id="HostMap"
                type="org.edgegallery.developer.model.workspace.MepHost">
         <id property="hostId" column="host_id"/>
@@ -39,7 +38,10 @@
         <result property="parameter" column="parameter" />
     </resultMap>
 
-
+    <sql id="AllColumn">
+    host_id, user_id, name, address, architecture, status, protocol,lcm_ip, mec_host, os, port_range_min, port_range_max,port, user_name, password,delete, parameter, vnc_port
+    </sql>
+    
     <insert id="createHost"
       parameterType="org.edgegallery.developer.model.workspace.MepCreateHost">
       insert into
@@ -51,67 +53,53 @@
 
     <select id="getAllHosts" resultMap="HostMap">
         SELECT
-        *
-        FROM
-        tbl_service_host
+         <include refid="AllColumn"/>
+        FROM tbl_service_host
     </select>
 
    <select id="getHostsByUserId" resultMap="HostMap">
         SELECT
-        *
-        FROM
-        tbl_service_host
-        WHERE
-        user_id = #{userId}
+         <include refid="AllColumn"/>
+        FROM tbl_service_host
+        WHERE user_id = #{userId}
    </select>
 
    <select id="getHostsByStatus" resultMap="HostMap">
         SELECT
-        *
-        FROM
-        tbl_service_host
-        WHERE
-        status = #{param1} and user_id = #{param2} and architecture = #{param3} and os = #{param4}
+         <include refid="AllColumn"/>
+        FROM tbl_service_host
+        WHERE status = #{param1} and user_id = #{param2} and architecture = #{param3} and os = #{param4}
    </select>
 
     <select id="getNormalHosts" resultMap="HostMap">
         SELECT
-        *
-        FROM
-        tbl_service_host
-        WHERE
-        status = 'NORMAL'
+         <include refid="AllColumn"/>
+        FROM tbl_service_host
+        WHERE status = 'NORMAL'
     </select>
 
     <select id="getHost" parameterType="java.lang.String" resultMap="HostMap">
         SELECT
-        *
-        FROM
-        tbl_service_host
-        WHERE
-        host_id = #{hostId}
+         <include refid="AllColumn"/>
+        FROM tbl_service_host
+        WHERE host_id = #{hostId}
     </select>
 
   <select id="getCreateHost" parameterType="java.lang.String" resultMap="HostMap">
     SELECT
-    *
-    FROM
-    tbl_service_host
-    WHERE
-    host_id = #{hostId}
+     <include refid="AllColumn"/>
+    FROM tbl_service_host
+    WHERE host_id = #{hostId}
   </select>
 
     <update id="updateHost" parameterType="org.edgegallery.developer.model.workspace.MepHost">
-        UPDATE
-        tbl_service_host
+        UPDATE tbl_service_host
         SET ip=#{ip}, port=#{port}
-        WHERE
-        user_id = #{userId}
+        WHERE user_id = #{userId}
     </update>
 
     <update id="updateHostSelected" parameterType="org.edgegallery.developer.model.workspace.MepHost">
-        UPDATE
-        tbl_service_host
+        UPDATE tbl_service_host
         <set>
             <if test="lcmIp != null">
               lcm_ip=#{lcmIp},
@@ -162,24 +150,17 @@
               parameter=#{parameter}
             </if>
         </set>
-        WHERE
-        host_id = #{hostId}
+        WHERE host_id = #{hostId}
     </update>
 
     <delete id="deleteHost" parameterType="java.lang.String">
-        DELETE FROM
-        tbl_service_host
-        WHERE
-        host_id = #{hostId}
+        DELETE FROM tbl_service_host WHERE host_id = #{hostId}
     </delete>
 
     <select id="getHostsByCondition" resultMap="HostMap">
         SELECT
-        *
-        FROM
-        tbl_service_host
-        WHERE
-        1=1
+         <include refid="AllColumn"/>
+        FROM tbl_service_host WHERE 1=1
         <if test="userId != null">
             and user_id = #{userId}
         </if>
@@ -191,5 +172,4 @@
         </if>
          order by ROW_NUMBER () OVER() desc
     </select>
-
 </mapper>

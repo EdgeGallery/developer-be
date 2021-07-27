@@ -17,7 +17,6 @@
 
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.edgegallery.developer.mapper.ProjectMapper">
-
     <resultMap id="AppProjectMap" type="org.edgegallery.developer.model.workspace.ApplicationProject">
         <id property="id" column="id"/>
         <result property="userId" column="user_id"/>
@@ -60,25 +59,23 @@
         <result property="lcmToken" column="lcm_token"/>
         <result property="packageId" column="package_id"/>
     </resultMap>
-    
+
     <sql id="AppProject_AllColumn">
     id, name, provider, platform, industries, type, description, status,user_id,create_date, last_test_id,version, capabilities,project_type,icon_file_id, open_capability_id,deploy_platform
     </sql>
-    <sql id="TestConfig_AllColumn"/>
+    
+    <sql id="TestConfig_AllColumn">
     test_id, project_id,agent_config,image_file_id, app_api_file_id, deploy_file_id, private_host, platform,access_url,error_log,deploy_date,hosts,app_instance_id,work_load_id,pods,deploy_status,stage_status,lcm_token,package_id
     </sql>
     
     <insert id="save" parameterType="org.edgegallery.developer.model.workspace.ApplicationProject">
-        insert into
-        tbl_app_project (id, project_type, name, version, provider, platform, icon_file_id, type, description, status,
-        user_id,
-        create_date, capabilities, industries, deploy_platform)
+        insert into tbl_app_project (id, project_type, name, version, provider, platform, icon_file_id, type, description, status,
+        user_id, create_date, capabilities, industries, deploy_platform)
         values
         ( #{id}, #{projectType}, #{name}, #{version}, #{provider},
         #{platform, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonCollectionTypeHandler},
         #{iconFileId}, #{type}, #{description}, #{status},
-        #{userId},
-        #{createDate},
+        #{userId}, #{createDate},
         #{capabilityList, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonCollectionTypeHandler},
         #{industry, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonCollectionTypeHandler},
         #{deployPlatform} )

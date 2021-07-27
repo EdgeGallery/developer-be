@@ -22,9 +22,6 @@
     </sql>
 
     <select id="getAppTagList" resultType="java.lang.String">
-        SELECT
-        funcname
-        FROM
-        tbl_appfunction
+        SELECT funcname FROM tbl_appfunction
     </select>
 </mapper>

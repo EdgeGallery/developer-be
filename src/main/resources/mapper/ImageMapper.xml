@@ -17,9 +17,7 @@
 
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.edgegallery.developer.mapper.SystemImageMapper">
-
-    <resultMap id="ImageMap"
-               type="org.edgegallery.developer.model.system.VmSystem">
+    <resultMap id="ImageMap" type="org.edgegallery.developer.model.system.VmSystem">
         <id property="systemId" column="system_id"/>
         <result property="systemName" column="system_name"/>
         <result property="fileName" column="file_name"/>
@@ -35,25 +33,16 @@
         <result property="uploadTime" column="upload_time"/>
         <result property="status" column="status"/>
     </resultMap>
-
+    
+    <sql id="AllColumn">
+    system_id, system_name, type, operate_system, version, system_bit, system_disk, user_id, user_name, create_time,modify_time,system_format,upload_time,system_path,file_name,file_md5,status
+    </sql>
+    
     <select id="getSystemImagesByCondition" parameterType="org.edgegallery.developer.model.system.MepGetSystemImageReq"
             resultMap="ImageMap">
-        SELECT
-        system_id,
-        system_name,
-        type,
-        operate_system,
-        version,
-        system_bit,
-        system_disk,
-        user_id,
-        user_name,
-        system_format,
-        to_char(upload_time, 'YYYY-MM-DD HH24:MI:SS') as upload_time,
-        status,
-        to_char(create_time, 'YYYY-MM-DD HH24:MI:SS') as create_time
-        FROM
-        tbl_vm_system
+        SELECT system_id, system_name, type, operate_system, version, system_bit, system_disk, user_id, user_name, system_format,
+               to_char(upload_time, 'YYYY-MM-DD HH24:MI:SS') as upload_time, status, to_char(create_time, 'YYYY-MM-DD HH24:MI:SS') as create_time
+        FROM tbl_vm_system
         <where>
             <if test="userId != null and userId !=''">
                 and (user_id = #{userId} or type = 'public')
@@ -89,12 +78,7 @@
 
     <select id="getSystemImagesCount" resultType="java.lang.Integer"
             parameterType="org.edgegallery.developer.model.system.MepGetSystemImageReq">
-        SELECT
-        COUNT(1)
-        FROM
-        tbl_vm_system
-        WHERE
-        1 = 1
+        SELECT COUNT(1) FROM tbl_vm_system WHERE 1 = 1
         <if test="userId != null and userId !=''">
             and (user_id = #{userId} or type = 'public')
         </if>
@@ -118,34 +102,18 @@
         </if>
     </select>
 
-    <select id="getVmImage" resultMap="ImageMap"
-            parameterType="java.lang.Integer">
+    <select id="getVmImage" resultMap="ImageMap" parameterType="java.lang.Integer">
         SELECT
-        *
-        FROM
-        tbl_vm_system
-        WHERE
-        system_id = #{systemId}
+         <include refid="AllColumn"/>
+        FROM tbl_vm_system WHERE system_id = #{systemId}
     </select>
 
-    <select id="getSystemImagesPath" resultType="java.lang.String"
-            parameterType="java.lang.Integer">
-        SELECT
-        system_path
-        FROM
-        tbl_vm_system
-        WHERE
-        system_id = #{systemId}
+    <select id="getSystemImagesPath" resultType="java.lang.String" parameterType="java.lang.Integer">
+        SELECT system_path FROM tbl_vm_system WHERE system_id = #{systemId}
     </select>
 
-    <select id="getSystemNameCount" resultType="java.lang.Integer"
-            parameterType="org.edgegallery.developer.model.system.VmSystem">
-        SELECT
-        COUNT(1)
-        FROM
-        tbl_vm_system
-        WHERE
-        system_name = #{systemName}
+    <select id="getSystemNameCount" resultType="java.lang.Integer" parameterType="org.edgegallery.developer.model.system.VmSystem">
+        SELECT COUNT(1) FROM tbl_vm_system WHERE system_name = #{systemName}
         <if test="userId != null and userId!=''">
             and user_id = #{userId}
         </if>
@@ -154,24 +122,16 @@
         </if>
     </select>
 
-    <insert id="createSystemImage"
-            parameterType="org.edgegallery.developer.model.system.VmSystem">
-        insert into tbl_vm_system (system_name, type, operate_system, version, system_bit, system_disk, user_id,
-        user_name, create_time, modify_time, status)
-        values (#{systemName}, #{type}, #{operateSystem}, #{version}, #{systemBit}, #{systemDisk}, #{userId},
-        #{userName}, now(), now(), #{status})
+    <insert id="createSystemImage" parameterType="org.edgegallery.developer.model.system.VmSystem">
+        insert into tbl_vm_system (system_name, type, operate_system, version, system_bit, system_disk, user_id, user_name, create_time, modify_time, status)
+        values (#{systemName}, #{type}, #{operateSystem}, #{version}, #{systemBit}, #{systemDisk}, #{userId}, #{userName}, now(), now(), #{status})
     </insert>
 
     <update id="updateSystemImage" parameterType="org.edgegallery.developer.model.system.VmSystem">
-        UPDATE
-        tbl_vm_system
-        SET system_name=#{systemName},
-        type=#{type},
-        operate_system=#{operateSystem},
-        version=#{version},
-        system_bit=#{systemBit},
-        system_disk=#{systemDisk},
-        modify_time=now()
+        UPDATE tbl_vm_system
+        SET system_name=#{systemName}, type=#{type},
+            operate_system=#{operateSystem}, version=#{version},
+            system_bit=#{systemBit}, system_disk=#{systemDisk}, modify_time=now()
         WHERE system_id = #{systemId}
         <if test="userId != null">
             and user_id = #{userId}
@@ -179,30 +139,20 @@
     </update>
 
     <delete id="deleteSystemImage" parameterType="org.edgegallery.developer.model.system.VmSystem">
-        DELETE FROM
-        tbl_vm_system
-        WHERE system_id = #{systemId}
+        DELETE FROM tbl_vm_system WHERE system_id = #{systemId}
         <if test="userId != null">
             and user_id = #{userId}
         </if>
     </delete>
 
     <update id="updateSystemImageStatus">
-        UPDATE
-        tbl_vm_system
-        SET status = #{status}
-        WHERE system_id = #{systemId}
+        UPDATE tbl_vm_system SET status = #{status} WHERE system_id = #{systemId}
     </update>
 
     <update id="updateSystemImageUploadInfo" parameterType="org.edgegallery.developer.model.system.UploadFileInfo">
-        UPDATE
-        tbl_vm_system
-        SET status = #{status},
-        system_path = #{systemPath},
-        file_name=#{fileName},
-        file_md5=#{fileMd5},
-        system_format=#{fileFormat},
-        upload_time=now()
+        UPDATE tbl_vm_system
+        SET status = #{status}, system_path = #{systemPath}, file_name=#{fileName},
+            file_md5=#{fileMd5}, system_format=#{fileFormat}, upload_time=now()
         WHERE system_id = #{systemId}
     </update>
 </mapper>
