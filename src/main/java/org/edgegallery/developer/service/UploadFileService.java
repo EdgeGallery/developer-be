@@ -89,7 +89,6 @@ import com.github.dockerjava.api.model.Image;
 import com.github.dockerjava.core.DefaultDockerClientConfig;
 import com.github.dockerjava.core.DockerClientBuilder;
 import com.github.dockerjava.core.DockerClientConfig;
-import com.github.dockerjava.core.command.PushImageResultCallback;
 import com.github.dockerjava.netty.NettyDockerCmdExecFactory;
 import com.google.common.collect.Lists;
 import com.google.gson.Gson;
@@ -732,7 +731,7 @@ public class UploadFileService {
         //push image
         DockerClient pushClient = getDockerClient(devRepoEndpoint, devRepoUsername, devRepoPassword);
         try {
-            pushClient.pushImageCmd(targetName).exec(new PushImageResultCallback()).awaitCompletion();
+            pushClient.pushImageCmd(targetName).start().awaitCompletion();
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             LOGGER.error("failed to push image {} occur {}", targetName, e.getMessage());
