@@ -107,67 +107,93 @@ public class ResponseConsts {
     public static final int RET_REQUEST_INVALID = 20018;
 
     /**
-     *there is no needed file.
+     * there is no needed file.
      */
     public static final int RET_NO_NEEDED_FILE = 20019;
 
     /**
-     *invalid chunk number.
+     * invalid chunk number.
      */
     public static final int RET_CHUNK_NUMBER_INVALID = 20020;
 
     /**
-     *create temporary upload path failed.
+     * create temporary upload path failed.
      */
     public static final int RET_TEMPORARY_PATH_FAILED = 20021;
 
     /**
-     *upload system image file exception.
+     * upload system image file exception.
      */
     public static final int RET_UPLOAD_SYSTEM_IMAGE_EXCEPTION = 20022;
 
-
     /**
-     *system image is merging, it cannot be cancelled.
+     * system image is merging, it cannot be cancelled.
      */
     public static final int RET_SYSTEM_IMAGE_CANCELLED_FAILED = 20023;
 
     /**
-     *uploaded part file path not found.
+     * uploaded part file path not found.
      */
     public static final int RET_FILE_PATH_NOT_FOUND = 20024;
 
-
     /**
-     *upload system image file exception.
+     * upload system image file exception.
      */
     public static final int RET_FILE_NOT_FOUND = 20025;
 
-
     /**
-     *process merged file failed.
+     * process merged file failed.
      */
     public static final int RET_PROCESS_MERGED_FILE_FAILED = 20026;
 
-
     /**
-     *upload system image file exception.
+     * upload system image file exception.
      */
     public static final int RET_PROCESS_MERGED_FILE_EXCEPTION = 20027;
 
-
     /**
-     *delete old system image on remote server failed.
+     * delete old system image on remote server failed.
      */
     public static final int RET_DELETE_IMAGE_OR_SERVER_FAILED = 20028;
 
     /**
-     *push system image file failed.
+     * push system image file failed.
      */
     public static final int RET_PUSH_IMAGE_FILE_FAILED = 20029;
 
     /**
-     *upload to remote file server failed.
+     * upload to remote file server failed.
      */
     public static final int RET_UPLOAD_FILE_SERVER_FAILED = 20030;
+
+    /**
+     * create container image failed.
+     */
+    public static final int RET_CREATE_CONTAINER_IMAGE_FAILED = 20031;
+
+    /**
+     * create container image, param check failed exist empty param.
+     */
+    public static final int RET_CREATE_CONTAINER_IMAGE_CHECK_PARAM_FAILED = 20032;
+
+    /**
+     * create container image, param check failed exist same name and version.
+     */
+    public static final int RET_EXIST_SAME_NAME_AND_VERSION = 20033;
+
+    /**
+     * update container image, auth check.
+     */
+    public static final int RET_UPDATE_IMAGE_AUTH_CHECK_FAILED = 20034;
+
+    /**
+     * update container image failed.
+     */
+    public static final int RET_UPDATE_CONTAINER_IMAGE_FAILED = 20035;
+
+    /**
+     * delete container image failed.
+     */
+    public static final int RET_DEL_CONTAINER_IMAGE_FAILED = 20036;
+
 }

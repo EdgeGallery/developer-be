@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~    Copyright 2021 Huawei Technologies Co., Ltd.
+  ~
+  ~    Licensed under the Apache License, Version 2.0 (the "License");
+  ~    you may not use this file except in compliance with the License.
+  ~    You may obtain a copy of the License at
+  ~
+  ~        http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~    Unless required by applicable law or agreed to in writing, software
+  ~    distributed under the License is distributed on an "AS IS" BASIS,
+  ~    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~    See the License for the specific language governing permissions and
+  ~    limitations under the License.
+  -->
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.edgegallery.developer.mapper.ContainerImageMapper">
+
+    <resultMap id="ContainerImageMap"
+               type="org.edgegallery.developer.model.containerimage.ContainerImage">
+        <id property="imageId" column="image_id"/>
+        <result property="imageName" column="image_name"/>
+        <result property="imageVersion" column="image_version"/>
+        <result property="userId" column="user_id"/>
+        <result property="userName" column="user_name"/>
+        <result property="uploadTime" column="upload_time"/>
+        <result property="createTime" column="create_time"/>
+        <result property="imageStatus" column="image_status"/>
+        <result property="imageType" column="image_type"/>
+        <result property="imagePath" column="image_path"/>
+        <result property="fileMd5" column="file_md5"/>
+        <result property="fileName" column="file_name"/>
+    </resultMap>
+
+    <insert id="createContainerImage"
+            parameterType="org.edgegallery.developer.model.containerimage.ContainerImage">
+        insert into
+        tbl_container_image (image_id, image_name, image_version, user_id, user_name, upload_time,
+        create_time,image_status,image_type,image_path,file_md5,file_name)
+        values
+        ( #{imageId}, #{imageName}, #{imageVersion}, #{userId}, #{userName}, #{uploadTime},
+        #{createTime},#{imageStatus},#{imageType},#{imagePath},#{fileMd5},#{fileName})
+    </insert>
+
+
+    <select id="getContainerImage" parameterType="String" resultMap="ContainerImageMap">
+        SELECT
+        *
+        FROM
+        tbl_container_image
+        WHERE
+        image_id = #{imageId}
+    </select>
+
+    <select id="getAllImage" resultMap="ContainerImageMap">
+        SELECT
+        *
+        FROM
+        tbl_container_image
+    </select>
+
+    <select id="getAllImageByAdminAuth" parameterType="org.edgegallery.developer.model.containerimage.ContainerImageReq"
+            resultMap="ContainerImageMap">
+        SELECT
+        image_id,image_name,image_version,user_id,user_name,
+        to_char(create_time, 'YYYY-MM-DD HH24:MI:SS') as create_time,
+        to_char(upload_time, 'YYYY-MM-DD HH24:MI:SS') as upload_time,
+        image_status,image_type,image_path,file_md5,file_name
+        FROM
+        tbl_container_image
+        <where>
+            <if test="imageName != null and imageName !=''">
+                and lower(image_name) like lower(CONCAT('%', #{image_name}, '%'))
+            </if>
+            <if test="imageType != null and imageType !=''">
+                and image_type = #{imageType}
+            </if>
+            <if test="imageStatus != null and imageStatus !=''">
+                and image_status= #{imageStatus}
+            </if>
+            <if test="createTimeBegin != null and createTimeBegin != ''">
+                <![CDATA[ and create_time >= to_timestamp(#{createTimeBegin}, 'YYYY-MM-DD HH24:MI:SS') ]]>
+            </if>
+            <if test="createTimeEnd != null and createTimeEnd != ''">
+                <![CDATA[ and create_time <= to_timestamp(#{createTimeEnd}, 'YYYY-MM-DD HH24:MI:SS') ]]>
+            </if>
+        </where>
+        <if test="sortBy != null and sortBy != '' and sortOrder != null and sortOrder != ''">
+            order by ${sortBy} ${sortOrder}
+        </if>
+    </select>
+
+    <select id="getAllImageByOrdinaryAuth"
+            parameterType="org.edgegallery.developer.model.containerimage.ContainerImageReq"
+            resultMap="ContainerImageMap">
+        SELECT
+        image_id,image_name,image_version,user_id,user_name,
+        to_char(create_time, 'YYYY-MM-DD HH24:MI:SS') as create_time,
+        to_char(upload_time, 'YYYY-MM-DD HH24:MI:SS') as upload_time,
+        image_status,image_type,image_path,file_md5,file_name
+        FROM
+        tbl_container_image
+        <where>
+            <if test="userId != null and userId !=''">
+                and user_id =#{userId} or image_type = 'public'
+            </if>
+            <if test="imageName != null and imageName !=''">
+                and lower(image_name) like lower(CONCAT('%', #{imageName}, '%'))
+            </if>
+            <if test="imageType != null and imageType !=''">
+                and image_type = #{imageType}
+            </if>
+            <if test="imageStatus != null and imageStatus !=''">
+                and image_status= #{imageStatus}
+            </if>
+            <if test="createTimeBegin != null and createTimeBegin != ''">
+                <![CDATA[ and create_time >= to_timestamp(#{createTimeBegin}, 'YYYY-MM-DD HH24:MI:SS') ]]>
+            </if>
+            <if test="createTimeEnd != null and createTimeEnd != ''">
+                <![CDATA[ and create_time <= to_timestamp(#{createTimeEnd}, 'YYYY-MM-DD HH24:MI:SS') ]]>
+            </if>
+        </where>
+        <if test="sortBy != null and sortBy != '' and sortOrder != null and sortOrder != ''">
+            order by ${sortBy} ${sortOrder}
+        </if>
+    </select>
+
+    <update id="updateContainerImageByAdmin"
+            parameterType="org.edgegallery.developer.model.containerimage.ContainerImage">
+        update tbl_container_image set
+        image_id=#{imageId},image_name=#{imageName},image_version=#{imageVersion},
+        user_id=#{userId},user_name=#{userName},create_time=#{createTime},
+        upload_time=#{uploadTime},image_status=#{imageStatus},
+        image_type=#{imageType},image_path=#{imagePath},
+        file_md5=#{fileMd5} ,file_name=#{fileName}
+        where image_id=#{imageId}
+    </update>
+
+    <update id="updateContainerImageByOrdinary"
+            parameterType="org.edgegallery.developer.model.containerimage.ContainerImage">
+        update tbl_container_image set
+        image_id=#{imageId},image_name=#{imageName},image_version=#{imageVersion},
+        user_id=#{userId},user_name=#{userName},create_time=#{createTime},
+        upload_time=#{uploadTime},image_status=#{imageStatus},
+        image_type=#{imageType},image_path=#{imagePath},
+        file_md5=#{fileMd5} ,file_name=#{fileName}
+        where image_id=#{imageId} and user_id =#{userId} and user_name =#{userName}
+    </update>
+
+    <delete id="deleteContainerImageByOrdinary"
+            parameterType="java.lang.String">
+        delete from  tbl_container_image
+        where image_id=#{imageId} and user_id =#{userId} and user_name =#{userName}
+    </delete>
+
+    <delete id="deleteContainerImageByAdmin"
+            parameterType="java.lang.String">
+        delete from  tbl_container_image
+        where image_id=#{imageId}
+    </delete>
+
+</mapper>
