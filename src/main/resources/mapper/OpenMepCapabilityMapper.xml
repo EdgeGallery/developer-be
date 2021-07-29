@@ -16,11 +16,9 @@
   -->
 
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper
-        namespace="org.edgegallery.developer.mapper.OpenMepCapabilityMapper">
+<mapper namespace="org.edgegallery.developer.mapper.OpenMepCapabilityMapper">
 
-    <resultMap id="GroupMap"
-               type="org.edgegallery.developer.model.workspace.OpenMepCapabilityGroup">
+    <resultMap id="GroupMap" type="org.edgegallery.developer.model.workspace.OpenMepCapabilityGroup">
         <id property="groupId" column="group_id"/>
         <result property="oneLevelName" column="one_level_name"/>
         <result property="oneLevelNameEn" column="one_level_name_en"/>
@@ -35,8 +33,7 @@
         <result property="uploadTime" column="upload_time"/>
     </resultMap>
 
-    <resultMap id="OpenMEPList"
-               type="org.edgegallery.developer.model.workspace.OpenMepApi">
+    <resultMap id="OpenMEPList" type="org.edgegallery.developer.model.workspace.OpenMepApi">
         <result property="name" column="name"/>
         <result property="service" column="service"/>
         <result property="description" column="description"/>
@@ -44,8 +41,7 @@
         <result property="guideFileId" column="guide_file_Id"/>
     </resultMap>
 
-    <resultMap id="CapabilityMap"
-               type="org.edgegallery.developer.model.workspace.OpenMepCapabilityDetail">
+    <resultMap id="CapabilityMap" type="org.edgegallery.developer.model.workspace.OpenMepCapabilityDetail">
         <id property="detailId" column="detail_id"/>
         <result property="groupId" column="group_id"/>
         <result property="service" column="service"/>
@@ -66,8 +62,7 @@
 
     </resultMap>
 
-    <resultMap id="OpenMEPDetail"
-               type="org.edgegallery.developer.model.workspace.OpenMepCapabilityGroup">
+    <resultMap id="OpenMEPDetail" type="org.edgegallery.developer.model.workspace.OpenMepCapabilityGroup">
         <id property="groupId" column="group_id"/>
         <result property="oneLevelName" column="one_level_name"/>
         <result property="oneLevelNameEn" column="one_level_name_en"/>
@@ -98,187 +93,149 @@
             <result property="userId" column="user_id"/>
         </collection>
     </resultMap>
+    <sql id="CAP_AllColumn">
+    group_id, one_level_name, one_level_name_en, two_level_name, two_level_name_en,type, description, description_en,icon_file_id,author,select_count,upload_time
+    </sql>
+    
+    <sql id="DETAIL_AllColumn">
+    detail_id,service, service_en, version, description, description_en,  provider,group_id, api_file_id,guide_file_id,guide_file_id_en,upload_time, host, port, protocol, app_id, package_id, user_id
+    </sql>
+    
+    <sql id="CAPGROUP_AllColumn">
+     a.group_id,a.one_level_name,a.one_level_name_en,a.two_level_name,a.two_level_name_en,a.type,a.description,a.description_en,
+     b.detail_id,b.service,b.service_en,b.version,b.description as detail_description,b.description_en as detail_description_en,
+	 b.provider,b.api_file_id,b.guide_file_id,b.guide_file_id_en,b.upload_time,b.port,b.host,b.protocol,b.app_id,b.package_id,b.user_id
+    </sql>
 
-    <insert id="saveGroup"
-            parameterType="org.edgegallery.developer.model.workspace.OpenMepCapabilityGroup">
-        insert into
-        tbl_openmep_capability (group_id, one_level_name, one_level_name_en, two_level_name, two_level_name_en,
-        type, description, description_en,icon_file_id,author,upload_time)
-        values
+    <insert id="saveGroup" parameterType="org.edgegallery.developer.model.workspace.OpenMepCapabilityGroup">
+        insert into tbl_openmep_capability 
+        (group_id, one_level_name, one_level_name_en, two_level_name, two_level_name_en,
+         type, description, description_en,icon_file_id,author,upload_time)
+        values 
         ( #{groupId}, #{oneLevelName}, #{oneLevelNameEn}, #{twoLevelName}, #{twoLevelNameEn},
-        #{type}, #{description}, #{descriptionEn}, #{iconFileId}, #{author}, #{uploadTime})
+          #{type}, #{description}, #{descriptionEn}, #{iconFileId}, #{author}, #{uploadTime})
     </insert>
 
-    <insert id="saveCapability"
-            parameterType="org.edgegallery.developer.model.workspace.OpenMepCapabilityDetail">
-        insert into
-        tbl_openmep_capability_detail (detail_id,
-        group_id, service, service_en, version, description, description_en, api_file_id, provider, upload_time,
-        guide_file_id,
-        guide_file_id_en, host, port, protocol, app_id, package_id, user_id)
+    <insert id="saveCapability" parameterType="org.edgegallery.developer.model.workspace.OpenMepCapabilityDetail">
+        insert intotbl_openmep_capability_detail 
+        (detail_id,group_id, service, service_en, version, description, description_en, api_file_id, provider, upload_time,
+         guide_file_id,guide_file_id_en, host, port, protocol, app_id, package_id, user_id)
         values
         ( #{detailId}, #{groupId}, #{service}, #{serviceEn}, #{version}, #{description}, #{descriptionEn},
-        #{apiFileId}, #{provider}, #{uploadTime}, #{guideFileId}, #{guideFileIdEn}, #{host}, #{port},
-        #{protocol}, #{appId}, #{packageId}, #{userId})
+          #{apiFileId}, #{provider}, #{uploadTime}, #{guideFileId}, #{guideFileIdEn}, #{host}, #{port},#{protocol}, #{appId}, #{packageId}, #{userId})
     </insert>
 
     <delete id="deleteGroup" parameterType="String">
-        DELETE FROM
-        tbl_openmep_capability_detail WHERE group_id = #{groupId};
-        DELETE FROM
-        tbl_openmep_capability WHERE group_id = #{groupId};
+        DELETE FROM tbl_openmep_capability_detail WHERE group_id = #{groupId};
+        DELETE FROM tbl_openmep_capability WHERE group_id = #{groupId};
     </delete>
 
     <delete id="deleteCapability" parameterType="String">
-        DELETE FROM
-        tbl_openmep_capability_detail
-        WHERE
-        detail_id = #{param1};
+        DELETE FROM tbl_openmep_capability_detail WHERE detail_id = #{param1};
     </delete>
 
     <select id="getOpenMepCapabilities" resultMap="GroupMap">
         SELECT
-        *
-        FROM
-        tbl_openmep_capability order by upload_time asc
+        <include refid="CAP_AllColumn"/>
+        FROM tbl_openmep_capability order by upload_time asc
     </select>
 
     <update id="updateSelectCount" parameterType="java.lang.String">
-        UPDATE
-        tbl_openmep_capability
-        SET
-        select_count = select_count+1
-        WHERE
-        group_id=#{groupId}
+        UPDATE tbl_openmep_capability
+        SET select_count = select_count+1
+        WHERE group_id=#{groupId}
     </update>
 
-    <select id="getOpenMepCapabilitiesDetail"
-            resultMap="OpenMEPDetail">
+    <select id="getOpenMepCapabilitiesDetail" resultMap="OpenMEPDetail">
         SELECT
-        a.*, b.*
-        FROM
-        tbl_openmep_capability a LEFT JOIN
-        tbl_openmep_capability_detail b on a.group_id = b.group_id
+         <include refid="CAPGROUP_AllColumn"/>
+        FROM tbl_openmep_capability a LEFT JOIN
+             tbl_openmep_capability_detail b 
+             on a.group_id = b.group_id
     </select>
 
-    <select id="getGroup" parameterType="String"
-            resultMap="GroupMap">
+    <select id="getGroup" parameterType="String" resultMap="GroupMap">
         SELECT
-        *
-        FROM
-        tbl_openmep_capability
-        WHERE group_id = #{groupId}
+        <include refid="CAP_AllColumn"/>
+        FROM tbl_openmep_capability WHERE group_id = #{groupId}
     </select>
 
     <select id="getEcoGroupByName" parameterType="String" resultMap="GroupMap">
         SELECT
-        *
-        FROM
-        tbl_openmep_capability
-        WHERE one_level_name = #{name} and type = 'OPENMEP_ECO'
+        <include refid="CAP_AllColumn"/>
+        FROM tbl_openmep_capability WHERE one_level_name = #{name} and type = 'OPENMEP_ECO'
     </select>
 
     <select id="getGroupIdByDetailId" parameterType="String" resultType="java.lang.String">
-        SELECT
-        group_id
-        FROM
-        tbl_openmep_capability_detail
-        WHERE detail_id= #{detailId}
+        SELECT group_id FROM tbl_openmep_capability_detail WHERE detail_id= #{detailId}
     </select>
 
-    <select id="getDetail" parameterType="String"
-            resultMap="CapabilityMap">
+    <select id="getDetail" parameterType="String" resultMap="CapabilityMap">
         SELECT
-        *
-        FROM
-        tbl_openmep_capability_detail
-        WHERE detail_id =
-        #{capabilityId}
+        <include refid="DETAIL_AllColumn"/>
+        FROM tbl_openmep_capability_detail
+        WHERE detail_id = #{capabilityId}
     </select>
 
-    <select id="getDetailByGroupId" parameterType="String"
-            resultMap="CapabilityMap">
+    <select id="getDetailByGroupId" parameterType="String" resultMap="CapabilityMap">
         SELECT
-        *
-        FROM
-        tbl_openmep_capability_detail
-        WHERE group_id =
-        #{groupId}
+        <include refid="DETAIL_AllColumn"/>
+        FROM tbl_openmep_capability_detail
+        WHERE group_id = #{groupId}
     </select>
 
-    <select id="getOpenMepByFileId" parameterType="String"
-            resultMap="CapabilityMap">
+    <select id="getOpenMepByFileId" parameterType="String" resultMap="CapabilityMap">
         SELECT
-        *
-        FROM
-        tbl_openmep_capability_detail
-        WHERE api_file_id =
-        #{fileId}
+        <include refid="DETAIL_AllColumn"/>
+        FROM tbl_openmep_capability_detail
+        WHERE api_file_id = #{fileId}
     </select>
 
-    <select id="updateOpenMepByFileId"
-            parameterType="org.edgegallery.developer.model.workspace.OpenMepCapabilityDetail">
-        UPDATE
-        tbl_openmep_capability_detail
-        SET
-        app_id = #{appId},
-        package_id = #{packageId}
-        WHERE detail_id =
-        #{detailId}
+    <select id="updateOpenMepByFileId" parameterType="org.edgegallery.developer.model.workspace.OpenMepCapabilityDetail">
+        UPDATE tbl_openmep_capability_detail
+        SET app_id = #{appId},
+            package_id = #{packageId}
+        WHERE detail_id = #{detailId}
     </select>
 
-
-    <select id="getOpenMepCapabilitiesByGroupId"
-            parameterType="String" resultMap="OpenMEPDetail">
-        SELECT
-        a.*, b.*, b.description as detail_description
-        FROM
-        tbl_openmep_capability a LEFT JOIN tbl_openmep_capability_detail b on
-        a.group_id = b.group_id
+    <select id="getOpenMepCapabilitiesByGroupId" parameterType="String" resultMap="OpenMEPDetail">
+        SELECT 
+         <include refid="CAPGROUP_AllColumn"/>
+        FROM tbl_openmep_capability a 
+             LEFT JOIN tbl_openmep_capability_detail b 
+             on a.group_id = b.group_id
         WHERE a.group_id = #{groupId}
     </select>
 
     <select id="getOpenMepList" parameterType="String" resultMap="OpenMEPDetail">
-        SELECT
-        a.*, b.*, b.description as detail_description
-        FROM
-        tbl_openmep_capability a LEFT JOIN tbl_openmep_capability_detail b on
-        a.group_id = b.group_id
-        WHERE
-        a.type = #{type}
+        SELECT  
+        <include refid="CAPGROUP_AllColumn"/>
+        FROM tbl_openmep_capability a 
+             LEFT JOIN tbl_openmep_capability_detail b 
+             on a.group_id = b.group_id
+        WHERE a.type = #{type}
     </select>
     <select id="getOpenMepEcoList" resultMap="OpenMEPList">
-        SELECT
-        a.name,
-        b.service,
-        b.description,
-        b.api_file_id,
-        b.guide_file_id
-        FROM
-        tbl_openmep_capability a
-        LEFT JOIN tbl_openmep_capability_detail b ON a.group_id = b.group_id
-        WHERE
-        a.type = 'OPENMEP_ECO'
+        SELECT a.name, b.service, b.description, b.api_file_id, b.guide_file_id
+        FROM tbl_openmep_capability a
+             LEFT JOIN tbl_openmep_capability_detail b 
+             ON a.group_id = b.group_id
+        WHERE a.type = 'OPENMEP_ECO'
     </select>
-    <select id="getDetailByApiFileId" parameterType="String"
-            resultMap="CapabilityMap">
+    <select id="getDetailByApiFileId" parameterType="String" resultMap="CapabilityMap">
         SELECT
-        *
-        FROM
-        tbl_openmep_capability_detail
-        WHERE api_file_id =
-        #{apiFileId}
+        <include refid="DETAIL_AllColumn"/>
+        FROM tbl_openmep_capability_detail
+        WHERE api_file_id = #{apiFileId}
     </select>
 
     <select id="getOpenMepListByCondition" resultMap="OpenMEPDetail">
         SELECT
-        a.*,
-        b.*
-        FROM
-        tbl_openmep_capability a
-        LEFT JOIN tbl_openmep_capability_detail b ON A.group_id = b.group_id
-        WHERE
-        1=1
+         <include refid="CAPGROUP_AllColumn"/>
+        FROM tbl_openmep_capability a
+             LEFT JOIN tbl_openmep_capability_detail b 
+             ON A.group_id = b.group_id
+        WHERE 1=1
         <if test="userId != null">
             and b.user_id=#{userId}
         </if>
@@ -291,18 +248,18 @@
         order by a.upload_time desc
     </select>
     <update id="updateGroup" parameterType="org.edgegallery.developer.model.workspace.OpenMepCapabilityGroup">
-        update tbl_openmep_capability set one_level_name =#{oneLevelName},one_level_name_en=#{oneLevelNameEn},
-        two_level_name =#{twoLevelName},two_level_name_en=#{twoLevelNameEn},type=#{type},description=#{description},
-        description_en=#{descriptionEn},icon_file_id=#{iconFileId},author=#{author},select_count=#{selectCount},
-        upload_time =#{uploadTime}
+        update tbl_openmep_capability 
+        set one_level_name =#{oneLevelName},one_level_name_en=#{oneLevelNameEn},
+            two_level_name =#{twoLevelName},two_level_name_en=#{twoLevelNameEn},type=#{type},description=#{description},
+            description_en=#{descriptionEn},icon_file_id=#{iconFileId},author=#{author},select_count=#{selectCount}, upload_time =#{uploadTime}
         where group_id = #{groupId}
     </update>
     <update id="updateDetail" parameterType="org.edgegallery.developer.model.workspace.OpenMepCapabilityDetail">
-        update tbl_openmep_capability_detail set service =#{service},service_en=#{serviceEn},
-        version =#{version},description=#{description},description_en=#{descriptionEn},provider=#{provider},
-        group_id=#{groupId},api_file_id=#{apiFileId},guide_file_id=#{guideFileId},guide_file_id_en=#{guideFileIdEn},
-        host=#{host},port=#{port},protocol=#{protocol},app_id=#{appId},package_id=#{packageId},user_id=#{userId},
-        upload_time =#{uploadTime}
+        update tbl_openmep_capability_detail 
+        set service =#{service},service_en=#{serviceEn},
+            version =#{version},description=#{description},description_en=#{descriptionEn},provider=#{provider},
+            group_id=#{groupId},api_file_id=#{apiFileId},guide_file_id=#{guideFileId},guide_file_id_en=#{guideFileIdEn},
+            host=#{host},port=#{port},protocol=#{protocol},app_id=#{appId},package_id=#{packageId},user_id=#{userId}, upload_time =#{uploadTime}
         where detail_id = #{detailId}
     </update>
 </mapper>

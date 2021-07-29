@@ -16,29 +16,27 @@
 
 package org.edgegallery.developer.service;
 
-import com.spencerwi.either.Either;
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
+
 import javax.ws.rs.core.Response;
+
 import org.edgegallery.developer.model.AppPkgStructure;
 import org.edgegallery.developer.response.FormatRespDto;
 import org.edgegallery.developer.util.BusinessConfigUtil;
+import org.edgegallery.developer.util.FileUtil;
 import org.edgegallery.developer.util.InitConfigUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import com.spencerwi.either.Either;
+
 @Service("appReleaseService")
 public class AppReleaseService {
-
     private static final Logger LOGGER = LoggerFactory.getLogger(AppReleaseService.class);
-
-    private List<String> listLocal = new ArrayList<>();
 
     /**
      * getPkgStruById.
@@ -83,7 +81,7 @@ public class AppReleaseService {
             return Either.left(error);
         }
         File file = new File(getProjectPath(projectId));
-        List<String> paths = getFilesPath(file);
+        List<String> paths = FileUtil.getAllFilePath(file);
         if (paths == null || paths.isEmpty()) {
             LOGGER.error("can not find any file!");
             FormatRespDto error = new FormatRespDto(Response.Status.BAD_REQUEST, "can not find any file!");
@@ -92,7 +90,7 @@ public class AppReleaseService {
         String fileContent = "";
         for (String path : paths) {
             if (path.contains(fileName)) {
-                fileContent = readFileIntoString(path);
+                fileContent = FileUtil.readFileContent(path);
             }
         }
         if (fileContent.equals("error")) {
@@ -140,60 +138,5 @@ public class AppReleaseService {
         }
         appPkgStructure.setChildren(fileList);
         return appPkgStructure;
-    }
-
-    /**
-     * getFilesPath.
-     *
-     * @param dir file dir
-     * @return
-     */
-    public List<String> getFilesPath(File dir) {
-        File[] files = dir.listFiles();
-        if (files != null && files.length != 0) {
-            for (File file : files) {
-                if (file.isDirectory()) {
-                    getFilesPath(file);
-                }
-                if (file.isFile()) {
-                    try {
-                        listLocal.add(file.getCanonicalPath());
-                    } catch (IOException e) {
-                        LOGGER.error("get unzip dir occur exception {}", e.getMessage());
-                        return new ArrayList<>();
-                    }
-                }
-            }
-        }
-        return listLocal;
-    }
-
-    /**
-     * readFileIntoString.
-     *
-     * @param filePath filepath
-     * @return
-     */
-    public String readFileIntoString(String filePath) {
-        String msg = "error";
-        StringBuffer sb = new StringBuffer();
-        String encoding = "UTF-8";
-        File file = new File(filePath);
-        if (file.isFile() && file.exists()) {
-            try (InputStreamReader read = new InputStreamReader(new FileInputStream(file), encoding);
-                 BufferedReader bufferedReader = new BufferedReader(read)) {
-                String lineTxt = null;
-                while ((lineTxt = bufferedReader.readLine()) != null) {
-                    sb.append(lineTxt + "\r\n");
-                }
-            } catch (IOException e) {
-                LOGGER.error("read file occur exception {}", e.getMessage());
-                return msg;
-            }
-        } else {
-            LOGGER.error("There are no files in this directory!");
-            return msg;
-        }
-        return sb.toString();
     }
 }

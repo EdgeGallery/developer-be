@@ -17,9 +17,7 @@
 
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.edgegallery.developer.mapper.ReleaseConfigMapper">
-
-    <resultMap id="ConfigMap"
-               type="org.edgegallery.developer.model.ReleaseConfig">
+    <resultMap id="ConfigMap" type="org.edgegallery.developer.model.ReleaseConfig">
         <id property="releaseId" column="release_id"/>
         <result property="projectId" column="project_id"/>
         <result property="guideFileId" column="guide_file_id"/>
@@ -31,55 +29,42 @@
         <result property="testStatus" column="test_status"/>
         <result property="createTime" column="create_time"/>
     </resultMap>
+    
+    <sql id="AllColumn">
+      release_id, project_id, guide_file_id, appinstance_id, capabilities_detail, atp_test,test_status, create_time
+    </sql>
 
-    <insert id="saveConfig"
-            parameterType="org.edgegallery.developer.model.ReleaseConfig">
-        insert into
-        tbl_release_config (release_id, project_id, guide_file_id, appinstance_id, capabilities_detail, atp_test,
-        test_status, create_time)
+    <insert id="saveConfig" parameterType="org.edgegallery.developer.model.ReleaseConfig">
+        insert into tbl_release_config (release_id, project_id, guide_file_id, appinstance_id, capabilities_detail, atp_test, test_status, create_time)
         values
         ( #{releaseId}, #{projectId}, #{guideFileId}, #{appInstanceId},
-        #{capabilitiesDetail, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonTypeHandler},
-        #{atpTest, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonTypeHandler},
-        #{testStatus}, #{createTime})
+          #{capabilitiesDetail, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonTypeHandler},
+          #{atpTest, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonTypeHandler}, #{testStatus}, #{createTime})
     </insert>
 
     <select id="getConfigByReleaseId" parameterType="java.lang.String" resultMap="ConfigMap">
         SELECT
-        *
-        FROM
-        tbl_release_config
-        where release_id = #{releaseId}
+        <include refid="AllColumn"/>
+        FROM tbl_release_config where release_id = #{releaseId}
     </select>
 
     <select id="getConfigByProjectId" parameterType="java.lang.String" resultMap="ConfigMap">
         SELECT
-        *
-        FROM
-        tbl_release_config
-        where project_id = #{projectId}
+        <include refid="AllColumn"/>
+        FROM tbl_release_config where project_id = #{projectId}
     </select>
 
     <update id="modifyReleaseConfig" parameterType="org.edgegallery.developer.model.ReleaseConfig">
-        UPDATE
-        tbl_release_config
-        SET
-        release_id = #{releaseId}, project_id = #{projectId}, guide_file_id = #{guideFileId},
-        appinstance_id = #{appInstanceId}, capabilities_detail =
-        #{capabilitiesDetail, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonTypeHandler},
-        atp_test = #{atpTest, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonTypeHandler},
-        test_status = #{testStatus}, create_time=#{createTime}
-        where
-        project_id = #{projectId}
+        UPDATE tbl_release_config
+        SET release_id = #{releaseId}, project_id = #{projectId}, guide_file_id = #{guideFileId},
+            appinstance_id = #{appInstanceId}, capabilities_detail = #{capabilitiesDetail, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonTypeHandler},
+            atp_test = #{atpTest, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonTypeHandler}, test_status = #{testStatus}, create_time=#{createTime}
+        where project_id = #{projectId}
     </update>
     
      <update id="updateAtpStatus" parameterType="org.edgegallery.developer.model.ReleaseConfig">
-        UPDATE
-        tbl_release_config
-        SET
-        atp_test = #{atpTest, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonTypeHandler}
-        where
-        project_id = #{projectId}
+        UPDATE tbl_release_config
+        SET atp_test = #{atpTest, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonTypeHandler}
+        where project_id = #{projectId}
     </update>
-
 </mapper>

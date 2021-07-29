@@ -16,22 +16,6 @@
 
 package org.edgegallery.developer.service;
 
-import com.github.dockerjava.api.DockerClient;
-import com.github.dockerjava.api.command.DockerCmdExecFactory;
-import com.github.dockerjava.api.command.InspectImageResponse;
-import com.github.dockerjava.api.command.PullImageResultCallback;
-import com.github.dockerjava.api.exception.DockerClientException;
-import com.github.dockerjava.api.exception.NotFoundException;
-import com.github.dockerjava.api.model.ContainerConfig;
-import com.github.dockerjava.api.model.Image;
-import com.github.dockerjava.core.DefaultDockerClientConfig;
-import com.github.dockerjava.core.DockerClientBuilder;
-import com.github.dockerjava.core.DockerClientConfig;
-import com.github.dockerjava.core.command.PushImageResultCallback;
-import com.github.dockerjava.netty.NettyDockerCmdExecFactory;
-import com.google.common.collect.Lists;
-import com.google.gson.Gson;
-import com.spencerwi.either.Either;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -47,8 +31,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.regex.Pattern;
+
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.edgegallery.developer.common.Consts;
@@ -75,6 +61,7 @@ import org.edgegallery.developer.response.HelmTemplateYamlRespDto;
 import org.edgegallery.developer.util.BusinessConfigUtil;
 import org.edgegallery.developer.util.CompressFileUtils;
 import org.edgegallery.developer.util.DeveloperFileUtils;
+import org.edgegallery.developer.util.FileUtil;
 import org.edgegallery.developer.util.InitConfigUtil;
 import org.edgegallery.developer.util.RuntimeUtil;
 import org.edgegallery.developer.util.samplecode.SampleCodeServer;
@@ -90,6 +77,22 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.SafeConstructor;
+
+import com.github.dockerjava.api.DockerClient;
+import com.github.dockerjava.api.command.DockerCmdExecFactory;
+import com.github.dockerjava.api.command.InspectImageResponse;
+import com.github.dockerjava.api.command.PullImageResultCallback;
+import com.github.dockerjava.api.exception.DockerClientException;
+import com.github.dockerjava.api.exception.NotFoundException;
+import com.github.dockerjava.api.model.ContainerConfig;
+import com.github.dockerjava.api.model.Image;
+import com.github.dockerjava.core.DefaultDockerClientConfig;
+import com.github.dockerjava.core.DockerClientBuilder;
+import com.github.dockerjava.core.DockerClientConfig;
+import com.github.dockerjava.netty.NettyDockerCmdExecFactory;
+import com.google.common.collect.Lists;
+import com.google.gson.Gson;
+import com.spencerwi.either.Either;
 
 @Service("uploadFileService")
 public class UploadFileService {
@@ -337,7 +340,7 @@ public class UploadFileService {
             return Either.left(new FormatRespDto(Status.BAD_REQUEST, "get sample code path fail!"));
         }
         File dir = new File(sampleCodePath);
-        List<String> paths = appReleaseService.getFilesPath(dir);
+        List<String> paths = FileUtil.getAllFilePath(dir);
         if (paths == null || paths.isEmpty()) {
             LOGGER.error("can not find any file!");
             FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "can not find any file!");
@@ -346,7 +349,7 @@ public class UploadFileService {
         String fileContent = "";
         for (String path : paths) {
             if (path.contains(fileName)) {
-                fileContent = appReleaseService.readFileIntoString(path);
+                fileContent = FileUtil.readFileContent(path);
             }
         }
         if (fileContent.equals("")) {
@@ -728,7 +731,7 @@ public class UploadFileService {
         //push image
         DockerClient pushClient = getDockerClient(devRepoEndpoint, devRepoUsername, devRepoPassword);
         try {
-            pushClient.pushImageCmd(targetName).exec(new PushImageResultCallback()).awaitCompletion();
+            pushClient.pushImageCmd(targetName).start().awaitCompletion();
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             LOGGER.error("failed to push image {} occur {}", targetName, e.getMessage());

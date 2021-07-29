@@ -129,79 +129,60 @@
         <result property="createTime" column="create_time"/>
         <result property="log" column="log"/>
     </resultMap>
+    
+    <sql id="VMCreateConfig_AllColumn">
+    vm_id,project_id,vm_name,host,status,stage_status,lcm_token,vm_info,app_instance_id,package_id,create_time,log
+    </sql>
+    <sql id="VMImageConfig_ALLColumn">
+    vm_id,image_id,project_id,vm_name,image_name,app_instance_id,host_ip,sum_chunk_num,chunk_size,stage_status,status,lcm_token,create_time,log
+    </sql>
 
-    <select id="getVmRegulation"
-      resultMap="VmRegulation">
-        SELECT
-        *
-        FROM
-        tbl_vm_regulation
+    <select id="getVmRegulation" resultMap="VmRegulation">
+        SELECT regulation_id,architecture,name_zh,name_en,scene_zh,scene_en,memory,cpu,system_disk,data_disk,gpu,other_ability
+        FROM tbl_vm_regulation
     </select>
 
-    <select id="getVmSystem"
-      parameterType="String"
-      resultMap="VmSystem">
-        SELECT
-        *
-        FROM
-        tbl_vm_system
+    <select id="getVmSystem" parameterType="String" resultMap="VmSystem">
+        SELECT system_id,system_name,type,operate_system,version,system_bit,system_disk,user_id,user_name,create_time,modify_time,system_format,upload_time,system_path,file_name,file_md5,status
+        FROM tbl_vm_system
         WHERE status = 'PUBLISHED' and (type = 'public' or user_id = #{userId})
     </select>
 
-    <select id="getVmNetwork"
-      resultMap="VmNetwork">
-        SELECT
-        *
-        FROM
-        tbl_vm_network
+    <select id="getVmNetwork" resultMap="VmNetwork">
+        SELECT network_type,description_zh,description_en,network_name FROM tbl_vm_network
     </select>
 
-    <select id="getVmNetworkByType"
-      resultMap="VmNetwork">
-        SELECT
-        *
-        FROM
-        tbl_vm_network
+    <select id="getVmNetworkByType" resultMap="VmNetwork">
+        SELECT network_type,description_zh,description_en,network_name FROM tbl_vm_network
         WHERE network_type = #{networkType}
     </select>
 
-    <select id="getVmFlavor"
-      resultMap="VmFlavor">
-        SELECT
-        *
-        FROM
-        tbl_vm_flavor
+    <select id="getVmFlavor" resultMap="VmFlavor">
+        SELECT architecture,flavor,constraints FROM tbl_vm_flavor
         where architecture = #{architecture}
     </select>
 
-    <select id="getVmUserData"
-      resultMap="VmUserData">
-        SELECT
-        *
-        FROM
-        tbl_vm_user_data
+    <select id="getVmUserData" resultMap="VmUserData">
+        SELECT operate_system,flavor_extra_specs,is_temp,contents,params
+        FROM tbl_vm_user_data
     </select>
 
-    <insert id="saveVmPackageConfig"
-      parameterType="org.edgegallery.developer.model.vm.VmPackageConfig">
+    <insert id="saveVmPackageConfig" parameterType="org.edgegallery.developer.model.vm.VmPackageConfig">
         insert into
         tbl_project_vm_package_config (id, project_id, vm_regulation_desc,
         vm_system_desc, vm_network_desc, vm_name, app_instance_id, vm_user_data, ak, sk, create_time)
         values
-        ( #{id}, #{projectId},
-        #{vmRegulation, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonTypeHandler},
-        #{vmSystem, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonTypeHandler},
-        #{vmNetwork, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonCollectionTypeHandler},
-        #{vmName}, #{appInstanceId}, #{vmUserData, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonTypeHandler},
-        #{ak}, #{sk}, #{createTime})
+        ( #{id}, #{projectId}, #{vmRegulation, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonTypeHandler},
+          #{vmSystem, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonTypeHandler},
+          #{vmNetwork, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonCollectionTypeHandler},
+          #{vmName}, #{appInstanceId}, #{vmUserData, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonTypeHandler},
+          #{ak}, #{sk}, #{createTime})
     </insert>
 
     <select id="getVmPackageConfig"
       parameterType="String" resultMap="VmPackageConfigMap">
-        SELECT
-        *
-        FROM
-        tbl_project_vm_package_config
+        SELECT id,project_id,vm_regulation_desc,vm_system_desc,vm_network_desc,vm_user_data,vm_name,ak,sk,app_instance_id,create_time
+        FROM tbl_project_vm_package_config
         where project_id = #{projectId}
     </select>
 
@@ -209,36 +190,26 @@
         DELETE FROM tbl_project_vm_package_config WHERE id = #{id};
     </delete>
 
-    <insert id="saveVmCreateConfig"
-      parameterType="org.edgegallery.developer.model.vm.VmCreateConfig">
-        insert into
-        tbl_project_vm_create_config (vm_id, project_id, vm_name, app_instance_id, lcm_token, status, stage_status)
+    <insert id="saveVmCreateConfig" parameterType="org.edgegallery.developer.model.vm.VmCreateConfig">
+        insert into tbl_project_vm_create_config (vm_id, project_id, vm_name, app_instance_id, lcm_token, status, stage_status)
         values
         ( #{vmId}, #{projectId}, #{vmName}, #{appInstanceId}, #{lcmToken}, #{status},
-        #{stageStatus, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonTypeHandler})
+          #{stageStatus, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonTypeHandler})
     </insert>
 
     <update id="updateVmCreateConfig" parameterType="org.edgegallery.developer.model.vm.VmCreateConfig">
-        UPDATE
-        tbl_project_vm_create_config
-        SET
-        status = #{status}, stage_status =
-        #{stageStatus, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonTypeHandler},
-        host =
-        #{host, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonTypeHandler},
-        lcm_token = #{lcmToken},
-        vm_info = #{vmInfo, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonTypeHandler},
-        create_time = #{createTime}, package_id = #{packageId}, log = #{log}
-        WHERE
-        vm_id = #{vmId}
+        UPDATE tbl_project_vm_create_config
+        SET status = #{status}, stage_status = #{stageStatus, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonTypeHandler},
+            host = #{host, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonTypeHandler},
+            lcm_token = #{lcmToken}, vm_info = #{vmInfo, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonTypeHandler},
+            create_time = #{createTime}, package_id = #{packageId}, log = #{log}
+        WHERE vm_id = #{vmId}
     </update>
 
-    <select id="getVmCreateConfigs"
-      parameterType="String" resultMap="VmCreateConfigMap">
+    <select id="getVmCreateConfigs" parameterType="String" resultMap="VmCreateConfigMap">
         SELECT
-        *
-        FROM
-        tbl_project_vm_create_config
+        <include refid="VMCreateConfig_AllColumn"/>
+        FROM tbl_project_vm_create_config
         where project_id = #{projectId}
     </select>
 
@@ -250,43 +221,32 @@
         DELETE FROM tbl_project_vm_create_config WHERE project_id = #{arg0} and vm_id = #{arg1};
     </delete>
 
-    <select id="getVmCreateConfig"
-      parameterType="String" resultMap="VmCreateConfigMap">
+    <select id="getVmCreateConfig" parameterType="String" resultMap="VmCreateConfigMap">
         SELECT
-        *
-        FROM
-        tbl_project_vm_create_config
-        WHERE
-        project_id = #{arg0} and vm_id = #{arg1}
+         <include refid="VMCreateConfig_AllColumn"/>
+        FROM tbl_project_vm_create_config
+        WHERE project_id = #{arg0} and vm_id = #{arg1}
     </select>
 
     <select id="getVmCreateConfigStatus" parameterType="String" resultMap="VmCreateConfigMap">
         SELECT
-        *
-        FROM
-        tbl_project_vm_create_config
-        WHERE
-        status = #{status}
+         <include refid="VMCreateConfig_AllColumn"/>
+        FROM tbl_project_vm_create_config
+        WHERE status = #{status}
     </select>
 
-    <insert id="saveVmImageConfig"
-      parameterType="org.edgegallery.developer.model.vm.VmImageConfig">
-        insert into
-        tbl_project_vm_image_config (vm_id, project_id, vm_name, app_instance_id, lcm_token, status, stage_status)
+    <insert id="saveVmImageConfig" parameterType="org.edgegallery.developer.model.vm.VmImageConfig">
+        insert into tbl_project_vm_image_config (vm_id, project_id, vm_name, app_instance_id, lcm_token, status, stage_status)
         values
-        ( #{vmId}, #{projectId},
-        #{vmName}, #{appInstanceId}, #{lcmToken}, #{status},
-        #{stageStatus, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonTypeHandler})
+        ( #{vmId}, #{projectId}, #{vmName}, #{appInstanceId}, #{lcmToken}, #{status},
+          #{stageStatus, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonTypeHandler})
     </insert>
 
-    <select id="getVmImage"
-      parameterType="String" resultMap="VmImageMap">
+    <select id="getVmImage" parameterType="String" resultMap="VmImageMap">
         SELECT
-        *
-        FROM
-        tbl_project_vm_image_config
-        WHERE
-        project_id = #{arg0} and vm_id = #{arg1}
+        <include refid="VMImageConfig_ALLColumn"/>
+        FROM tbl_project_vm_image_config
+        WHERE project_id = #{arg0} and vm_id = #{arg1}
     </select>
 
     <delete id="deleteVmImage" parameterType="String">
@@ -294,24 +254,18 @@
     </delete>
 
     <update id="updateVmImageConfig" parameterType="org.edgegallery.developer.model.vm.VmImageConfig">
-        UPDATE
-        tbl_project_vm_image_config
-        SET
-        status = #{status}, stage_status =
-        #{stageStatus, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonTypeHandler},
-        host_ip = #{hostIp}, image_id = #{imageId}, sum_chunk_num = #{sumChunkNum}, chunk_size = #{chunkSize},
-        create_time = #{createTime}, log = #{log}, image_name = #{imageName}
-        WHERE
-        vm_id = #{vmId}
+        UPDATE  tbl_project_vm_image_config
+        SET status = #{status}, stage_status = #{stageStatus, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonTypeHandler},
+            host_ip = #{hostIp}, image_id = #{imageId}, sum_chunk_num = #{sumChunkNum}, chunk_size = #{chunkSize},
+            create_time = #{createTime}, log = #{log}, image_name = #{imageName}
+        WHERE vm_id = #{vmId}
     </update>
 
     <select id="getVmImageConfigStatus" parameterType="String" resultMap="VmImageMap">
         SELECT
-        *
-        FROM
-        tbl_project_vm_image_config
-        WHERE
-        status = #{status}
+        <include refid="VMImageConfig_ALLColumn"/>
+        FROM tbl_project_vm_image_config
+        WHERE status = #{status}
     </select>
 
 </mapper>
