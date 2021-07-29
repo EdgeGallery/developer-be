@@ -19,6 +19,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -42,9 +43,9 @@ public final class FileUtil {
 	 * @return file content
 	 */
 	public static String readFileContent(String filePath) {
-		Path path = Path.of(filePath);
+		Path path = Paths.get(filePath);
 		try {
-			return Files.readString(path);
+			return new String(Files.readAllBytes(path), "UTF-8");
 		} catch (IOException ex) {
 			LOGGER.error("read file {} occur exception {}", filePath, ex.getMessage());
 			return "error";
@@ -53,6 +54,7 @@ public final class FileUtil {
 
 	/**
 	 * Get all files in the directory.<br>
+	 * 
 	 * @param dir file directory
 	 * @return all files in the directory
 	 */
