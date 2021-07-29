@@ -288,15 +288,18 @@ CREATE TABLE IF NOT EXISTS tbl_service_host (
   address varchar(255)  DEFAULT NULL,
   architecture varchar(100)  DEFAULT NULL,
   status varchar(20)  DEFAULT NULL,
-  ip varchar(20)  DEFAULT NULL,
+  protocol varchar(20)  DEFAULT NULL,
+  lcm_ip varchar(20) DEFAULT NULL,
+  mec_host varchar(20) DEFAULT NULL, 
   os varchar(255)  DEFAULT NULL,
   port_range_min int DEFAULT '-1',
   port_range_max int DEFAULT '-1',
   port int DEFAULT '-1',
-  protocol varchar(20)  DEFAULT NULL,
-  delete int DEFAULT NULL,
-  user_name varchar(100)  DEFAULT NULL,
-  password varchar(255)  DEFAULT NULL
+  user_name varchar(100)  DEFAULT NULL, 
+  password varchar(255)  DEFAULT NULL,
+  vnc_port int DEFAULT 22,
+  parameter text DEFAULT NULL,
+  delete int DEFAULT NULL
 )
 ;
 
@@ -381,16 +384,14 @@ CREATE TABLE IF NOT EXISTS  tbl_vm_regulation  (
     CREATE TABLE IF NOT EXISTS  tbl_project_vm_create_config  (
        vm_id   varchar(255) NOT NULL DEFAULT NULL,
        project_id  varchar(50) DEFAULT NULL,
-       vm_regulation_desc  varchar(512) DEFAULT NULL,
-       vm_system_desc  varchar(512) NOT NULL DEFAULT NULL,
-       vm_network_desc  varchar(512) DEFAULT NULL,
-       vm_name  varchar(50)  DEFAULT NULL,
-       host  varchar(512)  DEFAULT NULL,
+       vm_name  varchar(500)  DEFAULT NULL,
+       host  text  DEFAULT NULL,
        status  varchar(50)  DEFAULT NULL,
        stage_status  varchar(500)  DEFAULT NULL,
        lcm_token  varchar(1024)  DEFAULT NULL,
        vm_info  varchar(512)  DEFAULT NULL,
        app_instance_id  varchar(50)  DEFAULT NULL,
+       package_id varchar(100) DEFAULT NULL,
        create_time   timestamp(6)  DEFAULT NULL,
        log  text  DEFAULT NULL,
       CONSTRAINT  tbl_vm_create_config_pkey  PRIMARY KEY (vm_id)
@@ -479,8 +480,7 @@ MERGE INTO tbl_uploaded_file (file_id, file_name, is_temp, user_id, upload_date,
 
 
 -- workspace mep host init --
-
-MERGE INTO tbl_service_host (host_id, name, address, architecture, status, ip, os, port_range_min, port_range_max, port, protocol, delete) KEY(host_id) VALUES ('3c55ac26-60e9-42c0-958b-1bf7ea4da60a', 'Node1', 'XIAN', 'X86', 'NORMAL', '127.0.0.1', 'Ubuntu', 30000, 32767, 30201, 'http', null);
-
+MERGE INTO tbl_service_host(host_id, user_id, name, address, architecture, status, protocol,lcm_ip, mec_host, os, port_range_min, port_range_max,port, user_name, password,delete, parameter, vnc_port) KEY(host_id) 
+VALUES ('3c55ac26-60e9-42c0-958b-1bf7ea4da60a', 'e111f3e7-90d8-4a39-9874-ea6ea6752ef6','Node1','xian','X86','NORMAL','https','10.1.12.1','10.1.12.1','linux',30000,300001,30000,'root','123456',null,null,22);
 -- workspace mep host init end--
 -- workspace table end -----------------
