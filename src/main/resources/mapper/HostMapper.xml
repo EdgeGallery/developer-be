@@ -39,7 +39,7 @@
     </resultMap>
 
     <sql id="AllColumn">
-    host_id, user_id, name, address, architecture, status, protocol,lcm_ip, mec_host, os, port_range_min, port_range_max,port, user_name, password,delete, parameter, vnc_port
+    host_id, user_id, name, address, architecture, status, protocol, lcm_ip, mec_host, os, port_range_min, port_range_max,port, user_name, password,delete, parameter, vnc_port
     </sql>
     
     <insert id="createHost"
@@ -52,22 +52,15 @@
     </insert>
 
     <select id="getAllHosts" resultMap="HostMap">
-        SELECT
-         <include refid="AllColumn"/>
-        FROM tbl_service_host
+        SELECT <include refid="AllColumn"/> FROM tbl_service_host
     </select>
 
    <select id="getHostsByUserId" resultMap="HostMap">
-        SELECT
-         <include refid="AllColumn"/>
-        FROM tbl_service_host
-        WHERE user_id = #{userId}
+        SELECT <include refid="AllColumn"/> FROM tbl_service_host WHERE user_id = #{userId}
    </select>
 
    <select id="getHostsByStatus" resultMap="HostMap">
-        SELECT
-         <include refid="AllColumn"/>
-        FROM tbl_service_host
+        SELECT <include refid="AllColumn"/> FROM tbl_service_host
         WHERE status = #{param1} and user_id = #{param2} and architecture = #{param3} and os = #{param4}
    </select>
 
@@ -165,7 +158,7 @@
             and user_id = #{userId}
         </if>
         <if test="ip != null">
-            and ip = #{ip}
+            and lcm_ip = #{ip}
         </if>
         <if test="name != null">
             and name like CONCAT('%',#{name},'%')

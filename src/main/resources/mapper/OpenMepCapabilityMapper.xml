@@ -117,7 +117,7 @@
     </insert>
 
     <insert id="saveCapability" parameterType="org.edgegallery.developer.model.workspace.OpenMepCapabilityDetail">
-        insert intotbl_openmep_capability_detail 
+        insert into tbl_openmep_capability_detail 
         (detail_id,group_id, service, service_en, version, description, description_en, api_file_id, provider, upload_time,
          guide_file_id,guide_file_id_en, host, port, protocol, app_id, package_id, user_id)
         values
