@@ -178,13 +178,24 @@ public class NewCreateCsar {
     private String getSwImageData(List<String> images, ApplicationProject project) {
         Gson gson = new Gson();
         List<ImageDesc> imageDescs = new ArrayList<>();
+        ImageConfig imageConfig = (ImageConfig) SpringContextUtil.getBean(ImageConfig.class);
         for (String image : images) {
-            if (image.contains(".Values.imagelocation.domainname") || image.contains("swr.")) {
-                String[] imager = image.split("/");
-                ImageConfig imageConfig = (ImageConfig) SpringContextUtil.getBean(ImageConfig.class);
-                image = imageConfig.getDomainname() + "/" + imageConfig.getProject() + "/" + imager[2].trim();
+            if (image.contains(".Values.imagelocation.domainname") || image.contains("swr.") || image
+                .contains(imageConfig.getDomainname())) {
+                String[] imager = image.trim().split("/");
+                if (imager.length == 3) {
+                    image = imageConfig.getDomainname() + "/" + imageConfig.getProject() + "/" + imager[2].trim();
+                } else {
+                    StringBuilder sb = new StringBuilder();
+                    for (int i = 0; i < imager.length; i++) {
+                        if (i != 0 && i != 1) {
+                            sb.append(imager[i] + "/");
+                        }
+                    }
+                    String newImage = sb.toString().substring(0, sb.toString().length() - 1);
+                    image = imageConfig.getDomainname() + "/" + imageConfig.getProject() + "/" + newImage.trim();
+                }
             } else {
-                ImageConfig imageConfig = (ImageConfig) SpringContextUtil.getBean(ImageConfig.class);
                 image = imageConfig.getDomainname() + "/" + imageConfig.getProject() + "/" + image.trim();
             }
             ImageDesc imageDesc = new ImageDesc();
