@@ -3,10 +3,31 @@ package org.edgegallery.developer.service;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.spencerwi.either.Either;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
+import java.util.Base64;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
+import javax.net.ssl.SSLContext;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.client.CookieStore;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpDelete;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.conn.ssl.NoopHostnameVerifier;
+import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
+import org.apache.http.conn.ssl.TrustStrategy;
+import org.apache.http.cookie.Cookie;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
+import org.apache.http.impl.client.BasicCookieStore;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.DefaultRedirectStrategy;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.ssl.SSLContextBuilder;
 import org.edgegallery.developer.common.ResponseConsts;
 import org.edgegallery.developer.config.security.AccessUserUtil;
 import org.edgegallery.developer.domain.shared.Page;
@@ -20,6 +41,7 @@ import org.edgegallery.developer.util.SystemImageUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
@@ -30,6 +52,20 @@ public class ContainerImageMgmtServiceV2 {
 
     @Autowired
     private ContainerImageMapper containerImageMapper;
+
+    private static CookieStore cookieStore = new BasicCookieStore();
+
+    @Value("${imagelocation.username:}")
+    private String harborUsername;
+
+    @Value("${imagelocation.password:}")
+    private String harborPassword;
+
+    @Value("${imagelocation.domainname:}")
+    private String imageDomainName;
+
+    @Value("${imagelocation.project:}")
+    private String imageProject;
 
     /**
      * createSystemImage.
@@ -158,10 +194,19 @@ public class ContainerImageMgmtServiceV2 {
     public Either<FormatRespDto, Boolean> deleteContainerImage(String imageId) {
         String loginUserId = AccessUserUtil.getUser().getUserId();
         ContainerImage oldImage = containerImageMapper.getContainerImage(imageId);
-        if (!SystemImageUtil.isAdminUser() && !loginUserId.equals(oldImage.getUserId())) {
+        if (!SystemImageUtil.isAdminUser() && oldImage != null && !loginUserId.equals(oldImage.getUserId())) {
             String errorMsg = "Cannot modify data created by others";
             LOGGER.error(errorMsg);
             throw new DeveloperException(errorMsg, ResponseConsts.RET_UPDATE_IMAGE_AUTH_CHECK_FAILED);
+        }
+        //delete remote harbor image
+        if (StringUtils.isNotEmpty(oldImage.getImagePath())) {
+            boolean isDeleted = deleteHarborImage(oldImage.getImagePath());
+            if (!isDeleted) {
+                String errorMsg = "delete image from harbor failed!";
+                LOGGER.error(errorMsg);
+                throw new DeveloperException(errorMsg, ResponseConsts.RET_DEL_CONTAINER_IMAGE_FAILED);
+            }
         }
         int retCode;
         if (SystemImageUtil.isAdminUser()) {
@@ -177,6 +222,102 @@ public class ContainerImageMgmtServiceV2 {
         }
         LOGGER.info("delete ContainerImage success");
         return Either.right(true);
+    }
+
+    private boolean deleteHarborImage(String image) {
+        //Split image
+        if (!image.contains(imageDomainName)) {
+            LOGGER.warn("only delete image in harbor repo");
+            return true;
+        }
+        String[] images = image.trim().split("/");
+        String imageName = "";
+        String imageVersion = "";
+        if (images.length == 3) {
+            String[] names = images[2].split(":");
+            imageName = names[0];
+            imageVersion = names[1];
+            try (CloseableHttpClient client = createIgnoreSslHttpClient()) {
+                String userLoginUrl = "https://" + imageDomainName + "/c/login";
+                LOGGER.warn("harbor login url: {}", userLoginUrl);
+                //excute login to harbor repo
+                HttpPost httpPost = new HttpPost(userLoginUrl);
+                MultipartEntityBuilder builder = MultipartEntityBuilder.create();
+                builder.addTextBody("principal", harborUsername);
+                builder.addTextBody("password", harborPassword);
+                httpPost.setEntity(builder.build());
+                client.execute(httpPost);
+
+                // get _csrf from cookie
+                String csrf = getCsrf();
+                LOGGER.warn("__csrf: {}", csrf);
+
+                //excute delete image operation
+                String deleteImageUrl = "https://" + imageDomainName + "/api/v2.0/projects/" + imageProject
+                    + "/repositories/" + imageName + "/artifacts/" + imageVersion;
+                LOGGER.warn("delete image url: {}", deleteImageUrl);
+                HttpDelete httpDelete = new HttpDelete(deleteImageUrl);
+                String encodeStr = encodeUserAndPwd();
+                if (encodeStr.equals("")) {
+                    LOGGER.error("encode user and pwd failed!");
+                    return false;
+                }
+                httpDelete.setHeader("Authorization", "Basic " + encodeStr);
+                httpDelete.setHeader("X-Harbor-CSRF-Token", csrf);
+                CloseableHttpResponse res = client.execute(httpDelete);
+                InputStream inputStream = res.getEntity().getContent();
+                byte[] bytes = new byte[inputStream.available()];
+                int byteNums = inputStream.read(bytes);
+                if (byteNums > 0) {
+                    LOGGER.error("delete harbor image failed!");
+                    return false;
+                }
+            } catch (IOException e) {
+                LOGGER.error("call login or delete image interface occur error {}", e.getMessage());
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private static String getCsrf() {
+        for (Cookie cookie : cookieStore.getCookies()) {
+            if (cookie.getName().equals("__csrf")) {
+                return cookie.getValue();
+            }
+        }
+        return "";
+    }
+
+    private static CloseableHttpClient createIgnoreSslHttpClient() {
+        try {
+            SSLContext sslContext = new SSLContextBuilder().loadTrustMaterial(null, new TrustStrategy() {
+                public boolean isTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+                    return true;
+                }
+            }).build();
+            SSLConnectionSocketFactory sslConnectionSocketFactory = new SSLConnectionSocketFactory(sslContext,
+                NoopHostnameVerifier.INSTANCE);
+
+            return HttpClients.custom().setSSLSocketFactory(sslConnectionSocketFactory)
+                .setDefaultCookieStore(cookieStore).setRedirectStrategy(new DefaultRedirectStrategy()).build();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    private String encodeUserAndPwd() {
+        String user = harborUsername + ":" + harborPassword;
+        String base64encodedString = "";
+        try {
+            base64encodedString = Base64.getEncoder().encodeToString(user.getBytes("utf-8"));
+        } catch (UnsupportedEncodingException e) {
+            LOGGER.error("encode user and pwd failed!");
+            return "";
+        }
+        return base64encodedString;
     }
 
 }
