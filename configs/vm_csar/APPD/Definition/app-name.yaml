@@ -21,7 +21,7 @@ topology_template:
       description: DC_ID
     az_dc:
       type: string
-      default: az1.dc1
+      default: nova
       description: AZ.DZ
     ak:
       type: string
@@ -73,7 +73,7 @@ topology_template:
       description: app_internet_gw
     mep_ip:
       type: string
-      default:
+      default: 127.0.0.1
       description: mep_ip
     mep_port:
       type: string
@@ -120,10 +120,6 @@ topology_template:
       type: string
       default: 0.0.0.0/0
       description: ue_ip_segment
-    mec_internet_ip:
-      type: string
-      default: 0.0.0.0
-      description: mec_internet_ip
 
   node_templates:
     Simple_VNF:
@@ -190,7 +186,7 @@ topology_template:
         vnic_type: normal
         port_security_enabled: true
       attributes:
-        ipv4_address: {get_input: mec_internet_ip}
+        ipv4_address: {get_input: app_internet_ip}
         ipv6_address: 00::00
         mac: 00::00::00::00::00::00
         ipv4_vip_address: 0.0.0.0

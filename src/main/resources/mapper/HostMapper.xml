@@ -61,7 +61,7 @@
 
    <select id="getHostsByStatus" resultMap="HostMap">
         SELECT <include refid="AllColumn"/> FROM tbl_service_host
-        WHERE status = #{param1} and user_id = #{param2} and architecture = #{param3} and os = #{param4}
+        WHERE status = #{param1} and architecture = #{param2} and os = #{param3}
    </select>
 
     <select id="getNormalHosts" resultMap="HostMap">

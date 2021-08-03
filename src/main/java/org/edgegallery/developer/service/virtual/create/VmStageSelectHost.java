@@ -16,15 +16,22 @@
 
 package org.edgegallery.developer.service.virtual.create;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 import javax.annotation.Resource;
+import org.edgegallery.developer.mapper.HostLogMapper;
 import org.edgegallery.developer.mapper.HostMapper;
 import org.edgegallery.developer.mapper.ProjectMapper;
+import org.edgegallery.developer.mapper.VmConfigMapper;
 import org.edgegallery.developer.model.vm.VmCreateConfig;
+import org.edgegallery.developer.model.vm.VmPackageConfig;
 import org.edgegallery.developer.model.workspace.ApplicationProject;
 import org.edgegallery.developer.model.workspace.EnumHostStatus;
 import org.edgegallery.developer.model.workspace.EnumTestConfigStatus;
 import org.edgegallery.developer.model.workspace.MepHost;
+import org.edgegallery.developer.model.workspace.MepHostLog;
 import org.edgegallery.developer.service.virtual.VmService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,6 +51,12 @@ public class VmStageSelectHost implements VmCreateStage {
     private ProjectMapper projectMapper;
 
     @Autowired
+    private VmConfigMapper vmConfigMapper;
+
+    @Autowired
+    private HostLogMapper hostLogMapper;
+
+    @Autowired
     private VmService vmService;
 
     @Resource(name = "vm_instantiateInfo_service")
@@ -53,19 +66,33 @@ public class VmStageSelectHost implements VmCreateStage {
     public boolean execute(VmCreateConfig config) throws InterruptedException {
         boolean processSuccess = false;
         ApplicationProject project = projectMapper.getProjectById(config.getProjectId());
+
+        VmPackageConfig vmPackageConfig = vmConfigMapper.getVmPackageConfig(project.getId());
         EnumTestConfigStatus hostStatus = EnumTestConfigStatus.Failed;
         List<MepHost> enabledHosts = hostMapper
-            .getHostsByStatus(EnumHostStatus.NORMAL, "admin", project.getPlatform().get(0), "OpenStack");
+            .getHostsByStatus(EnumHostStatus.NORMAL, project.getPlatform().get(0), "OpenStack");
         if (CollectionUtils.isEmpty(enabledHosts)) {
             processSuccess = false;
             LOGGER.error("Cannot find available hosts information");
             config.setLog("Cannot find available hosts information");
         } else {
+            MepHost host = enabledHosts.get(0);
+            MepHostLog mepHostLog = new MepHostLog();
+            mepHostLog.setAppInstancesId(vmPackageConfig.getAppInstanceId());
+            SimpleDateFormat time = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+            mepHostLog.setDeployTime(time.format(new Date()));
+            mepHostLog.setHostId(host.getHostId());
+            mepHostLog.setHostIp(host.getMecHost());
+            mepHostLog.setLogId(UUID.randomUUID().toString());
+            mepHostLog.setUserId(project.getUserId());
+            mepHostLog.setProjectId(project.getId());
+            mepHostLog.setProjectName(project.getName());
+            mepHostLog.setStatus(host.getStatus());
+            hostLogMapper.insert(mepHostLog);
             processSuccess = true;
             config.setHost(enabledHosts.get(0));
             hostStatus = EnumTestConfigStatus.Success;
-            config.setLog("get mecHost success");
-
+            config.setLog("select host success");
         }
         vmService.updateCreateVmResult(config, project, "hostInfo", hostStatus);
         if (processSuccess) {

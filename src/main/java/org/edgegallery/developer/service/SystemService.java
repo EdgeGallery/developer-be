@@ -25,6 +25,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import javax.ws.rs.core.Response.Status;
 import org.apache.commons.lang3.StringUtils;
@@ -48,6 +49,7 @@ import org.edgegallery.developer.response.FormatRespDto;
 import org.edgegallery.developer.util.CustomResponseErrorHandler;
 import org.edgegallery.developer.util.HttpClientUtil;
 import org.edgegallery.developer.util.InitConfigUtil;
+import org.edgegallery.developer.util.InputParameterUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -106,17 +108,17 @@ public class SystemService {
      */
     @Transactional
     public Either<FormatRespDto, Boolean> createHost(MepCreateHost host, String token) {
-        if (StringUtils.isBlank(host.getUserName())) {
-            LOGGER.error("Create host failed, username is empty");
-            return Either.left(new FormatRespDto(Status.BAD_REQUEST, "username is empty"));
-        }
-        if (StringUtils.isBlank(host.getPassword())) {
-            LOGGER.error("Create host failed, password is empty");
-            return Either.left(new FormatRespDto(Status.BAD_REQUEST, "password is empty"));
-        }
         if (StringUtils.isBlank(host.getUserId()) || !isAdminUser()) {
             LOGGER.error("Create host failed, userId is empty or not admin");
             return Either.left(new FormatRespDto(Status.BAD_REQUEST, "userId is empty or not admin"));
+        }
+        if ("OpenStack".equals(host.getOs())) {
+            Map<String, String> getParams = InputParameterUtil.getParams(host.getParameter());
+            if(!getParams.containsKey("app_mp1_ip") || !getParams.containsKey("app_n6_ip")||
+                !getParams.containsKey("app_internet_ip")) {
+                LOGGER.error("Network params config error");
+                return Either.left(new FormatRespDto(Status.BAD_REQUEST, "Network params config error"));
+            }
         }
         //health check
         String healRes = HttpClientUtil.getHealth(host.getProtocol(), host.getLcmIp(), host.getPort());
