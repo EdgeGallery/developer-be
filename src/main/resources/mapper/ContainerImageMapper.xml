@@ -72,7 +72,7 @@
         tbl_container_image
         <where>
             <if test="imageName != null and imageName !=''">
-                and lower(image_name) like lower(CONCAT('%', #{image_name}, '%'))
+                and lower(image_name) like lower(CONCAT('%', #{imageName}, '%'))
             </if>
             <if test="imageType != null and imageType !=''">
                 and image_type = #{imageType}
