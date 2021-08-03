@@ -27,7 +27,6 @@ import java.io.IOException;
 import java.util.List;
 import javax.validation.constraints.Pattern;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
-import org.edgegallery.developer.config.ratelimit.RequestLimit;
 import org.edgegallery.developer.model.AppPkgStructure;
 import org.edgegallery.developer.model.workspace.UploadedFile;
 import org.edgegallery.developer.response.ErrorRespDto;
@@ -71,7 +70,7 @@ public class UploadedFilesController {
         produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN') || hasRole('DEVELOPER_GUEST')")
     public ResponseEntity<byte[]> getFile(@Pattern(regexp = REGEX_UUID, message = "fileId must be in UUID format")
-        @ApiParam(value = "fileId", required = true) @PathVariable("fileId") String fileId,
+    @ApiParam(value = "fileId", required = true) @PathVariable("fileId") String fileId,
         @Pattern(regexp = REGEX_UUID, message = "userId must be in UUID format") @ApiParam(value = "userId")
         @RequestParam("userId") String userId, @ApiParam(value = "type") @RequestParam("type") String type) {
         Either<FormatRespDto, ResponseEntity<byte[]>> either = uploadFileService.getFile(fileId, userId, type);
@@ -110,7 +109,6 @@ public class UploadedFilesController {
         @ApiResponse(code = 200, message = "OK", response = UploadedFile.class),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
-    @RequestLimit(number = 5, time = 5)
     @RequestMapping(value = "", method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
         produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
@@ -143,7 +141,7 @@ public class UploadedFilesController {
         @ApiParam(value = "configType", required = true) @RequestParam("configType") String configType)
         throws IOException {
         Either<FormatRespDto, HelmTemplateYamlRespDto> either = uploadFileService
-            .uploadHelmTemplateYaml(helmTemplateYaml, userId, projectId,configType);
+            .uploadHelmTemplateYaml(helmTemplateYaml, userId, projectId, configType);
         return ResponseDataUtil.buildResponse(either);
     }
 
@@ -253,7 +251,7 @@ public class UploadedFilesController {
         produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN') || hasRole('DEVELOPER_GUEST')")
     public ResponseEntity<byte[]> getSdkProject(@Pattern(regexp = REGEX_UUID, message = "fileId must be in UUID format")
-        @ApiParam(value = "fileId", required = true) @PathVariable("fileId") String fileId,
+    @ApiParam(value = "fileId", required = true) @PathVariable("fileId") String fileId,
         @Pattern(regexp = REGEX_UUID, message = "lan must be in UUID format") @ApiParam(value = "lan", required = true)
         @PathVariable("lan") String lan) throws IOException {
         Either<FormatRespDto, ResponseEntity<byte[]>> either = uploadFileService.getSdkProject(fileId, lan);
