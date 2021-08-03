@@ -205,7 +205,7 @@ public class UploadFileService {
             return FileUtils.readFileToByteArray(file);
         }
         if (fileFormat.equals(".yaml") || fileFormat.equals(".json")) {
-            List<MepHost> enabledHosts = hostMapper.getHostsByStatus(EnumHostStatus.NORMAL, "admin", "X86", "K8S");
+            List<MepHost> enabledHosts = hostMapper.getHostsByStatus(EnumHostStatus.NORMAL,  "X86", "K8S");
             if (!enabledHosts.isEmpty()) {
                 String host = enabledHosts.get(0).getLcmIp() + ":" + "32119";
                 return FileUtils.readFileToString(file, "UTF-8").replace("{HOST}", host)

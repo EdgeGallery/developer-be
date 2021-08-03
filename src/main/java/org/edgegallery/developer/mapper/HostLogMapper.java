@@ -27,7 +27,7 @@ import org.edgegallery.developer.model.workspace.MepHostLog;
 
 public interface HostLogMapper {
 
-    @Select("select * from tbl_host_log where host_id = #{hostId}")
+    @Select("select * from tbl_host_log where host_ip = #{hostId}")
     @Results(id = "hostLog", value = {
         @Result(property = "logId", column = "log_id"), @Result(property = "hostIp", column = "host_ip"),
         @Result(property = "userName", column = "user_name"), @Result(property = "userId", column = "user_id"),
@@ -45,5 +45,9 @@ public interface HostLogMapper {
             + "values (#{logId} ,#{hostIp} ,#{userName} ,#{userId} ,#{projectId} ,#{projectName} ,"
             + "#{appInstancesId} ,#{deployTime} ,#{hostId} ,#{status} ,#{operation} )")
     int insert(MepHostLog hostLog);
+
+    @Select("select count(1) from tbl_host_log where host_ip = #{hostIp}")
+    @ResultType(Integer.class)
+    int getHostLogCount(@Param("hostIp") String hostIp);
 }
 

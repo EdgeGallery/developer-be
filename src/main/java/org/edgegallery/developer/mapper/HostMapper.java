@@ -36,7 +36,7 @@ public interface HostMapper {
 
     List<MepHost> getHostsByUserId(String userId);
 
-    List<MepHost> getHostsByStatus(EnumHostStatus status, String userId, String architecture, String os);
+    List<MepHost> getHostsByStatus(EnumHostStatus status, String architecture, String os);
 
     List<MepHost> getHostsByCondition(@Param("userId") String userId, @Param("name") String name,
         @Param("ip") String ip);

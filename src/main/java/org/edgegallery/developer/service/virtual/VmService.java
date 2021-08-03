@@ -49,6 +49,7 @@ import org.apache.tomcat.util.http.fileupload.servlet.ServletFileUpload;
 import org.edgegallery.developer.common.Consts;
 import org.edgegallery.developer.config.security.AccessUserUtil;
 import org.edgegallery.developer.exception.DomainException;
+import org.edgegallery.developer.mapper.HostLogMapper;
 import org.edgegallery.developer.mapper.ProjectMapper;
 import org.edgegallery.developer.mapper.VmConfigMapper;
 import org.edgegallery.developer.model.Chunk;
@@ -75,6 +76,7 @@ import org.edgegallery.developer.model.workspace.ApplicationProject;
 import org.edgegallery.developer.model.workspace.EnumProjectStatus;
 import org.edgegallery.developer.model.workspace.EnumTestConfigStatus;
 import org.edgegallery.developer.model.workspace.MepHost;
+import org.edgegallery.developer.model.workspace.MepHostLog;
 import org.edgegallery.developer.response.FormatRespDto;
 import org.edgegallery.developer.service.ProjectService;
 import org.edgegallery.developer.service.csar.NewCreateVmCsar;
@@ -84,6 +86,7 @@ import org.edgegallery.developer.util.CompressFileUtilsJava;
 import org.edgegallery.developer.util.DeveloperFileUtils;
 import org.edgegallery.developer.util.HttpClientUtil;
 import org.edgegallery.developer.util.InputParameterUtil;
+import org.edgegallery.developer.util.IpCalculateUtil;
 import org.edgegallery.developer.util.ShhFileUploadUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -96,6 +99,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
+import org.stringtemplate.v4.ST;
 
 @Service("vmService")
 public class VmService {
@@ -133,6 +137,9 @@ public class VmService {
 
     @Autowired
     private Map<String, VmImageStage> imageServiceMap;
+
+    @Autowired
+    private HostLogMapper hostLogMapper;
 
     /**
      * getVirtualResource.
@@ -321,7 +328,11 @@ public class VmService {
         }
         // instantiate application
 
-        Map<String, String> vmInputParams = InputParameterUtil.getParams(host.getParameter());
+        Map<String, String> vmInputParams = getInputParams(host.getParameter(), host.getMecHost());
+
+
+
+
 
         if (!config.getAk().equals("") && !config.getSk().equals("")) {
             vmInputParams.put("ak", config.getAk());
@@ -345,6 +356,24 @@ public class VmService {
         }
 
         return true;
+    }
+
+    private Map<String, String> getInputParams(String parameter, String mecHost) {
+        int count = hostLogMapper.getHostLogCount(mecHost);
+        Map<String, String> vmInputParams = InputParameterUtil.getParams(parameter);
+        String n6Range = vmInputParams.get("app_n6_ip");
+        String mepRange = vmInputParams.get("app_mp1_ip");
+        String internetRange = vmInputParams.get("app_internet_ip");
+        vmInputParams.put("app_n6_ip",IpCalculateUtil.getStartIp(n6Range, count));
+        vmInputParams.put("app_mp1_ip",IpCalculateUtil.getStartIp(mepRange, count));
+        vmInputParams.put("app_internet_ip",IpCalculateUtil.getStartIp(internetRange, count));
+        vmInputParams.put("app_n6_mask",IpCalculateUtil.getNetMask(n6Range.split("/")[1]));
+        vmInputParams.put("app_mp1_mask",IpCalculateUtil.getNetMask(mepRange.split("/")[1]));
+        vmInputParams.put("app_internet_mask",IpCalculateUtil.getNetMask(internetRange.split("/")[1]));
+        vmInputParams.put("app_n6_gw",IpCalculateUtil.getStartIp(n6Range, 0));
+        vmInputParams.put("app_mp1_gw",IpCalculateUtil.getStartIp(mepRange, 0));
+        vmInputParams.put("app_internet_gw",IpCalculateUtil.getStartIp(internetRange, 0));
+        return vmInputParams;
     }
 
     private boolean deleteVmCreate(VmCreateConfig vmConfig, String userId, String lcmToken) {
