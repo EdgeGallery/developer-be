@@ -18,17 +18,9 @@ package org.edgegallery.developer.apitest;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 
-
-import com.google.gson.Gson;
-import com.spencerwi.either.Either;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
+
 import org.edgegallery.developer.DeveloperApplicationTests;
-import org.edgegallery.developer.model.workspace.EnumHostStatus;
-import org.edgegallery.developer.model.workspace.MepCreateHost;
-import org.edgegallery.developer.model.workspace.MepHost;
-import org.edgegallery.developer.model.workspace.MepHostLog;
 import org.edgegallery.developer.model.workspace.OpenMepCapabilityGroup;
 import org.edgegallery.developer.response.FormatRespDto;
 import org.edgegallery.developer.service.SystemService;
@@ -50,11 +42,13 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
+import com.google.gson.Gson;
+import com.spencerwi.either.Either;
+
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = DeveloperApplicationTests.class)
 @AutoConfigureMockMvc
 public class SystemApiTest {
-
     @MockBean
     private SystemService systemService;
 
@@ -67,88 +61,6 @@ public class SystemApiTest {
     }
 
     private Gson gson = new Gson();
-
-    @Test
-    @WithMockUser(roles = "DEVELOPER_ADMIN")
-    public void testGetAllHosts() throws Exception {
-        String url = String.format("/mec/developer/v1/system/hosts?userId=%s&name=%s&ip=%s&limit=1&offset=0",
-            "e111f3e7-90d8-4a39-9874-ea6ea6752ef6", "host", "127.0.0.1");
-        ResultActions actions = mvc.perform(MockMvcRequestBuilders.get(url).contentType(MediaType.APPLICATION_JSON_UTF8)
-            .accept(MediaType.APPLICATION_JSON_UTF8)).andExpect(MockMvcResultMatchers.status().isOk());
-        Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
-    }
-
-    @Test
-    @WithMockUser(roles = "DEVELOPER_ADMIN")
-    public void testGetHost() throws Exception {
-        Either<FormatRespDto, MepHost> response = Either.right(new MepHost());
-        Mockito.when(systemService.getHost(Mockito.any())).thenReturn(response);
-        String url = String.format("/mec/developer/v1/system/hosts/%s", "c8aac2b2-4162-40fe-9d99-0630e3245cf7");
-        ResultActions actions = mvc.perform(MockMvcRequestBuilders.get(url))
-            .andExpect(MockMvcResultMatchers.status().isOk());
-        Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
-    }
-
-    @Test
-    @WithMockUser(roles = "DEVELOPER_ADMIN")
-    public void testCreateHost() throws Exception {
-        MepCreateHost host = new MepCreateHost();
-        host.setHostId(UUID.randomUUID().toString());
-        host.setName("onlineever");
-        host.setAddress("address");
-        host.setArchitecture("x86");
-        host.setStatus(EnumHostStatus.NORMAL);
-        host.setLcmIp("127.0.0.1");
-        host.setPort(30200);
-        Either<FormatRespDto, Boolean> response = Either.right(true);
-        Mockito.when(systemService.createHost(Mockito.any(), Mockito.anyString())).thenReturn(response);
-        String url = String.format("/mec/developer/v1/system/hosts");
-        ResultActions actions = mvc.perform(MockMvcRequestBuilders.post(url).with(csrf()).content(gson.toJson(host))
-            .contentType(MediaType.APPLICATION_JSON_UTF8).accept(MediaType.APPLICATION_JSON_UTF8));
-        Assert.assertEquals(500, actions.andReturn().getResponse().getStatus());
-    }
-
-    @Test
-    @WithMockUser(roles = "DEVELOPER_ADMIN")
-    public void testDeleteHost() throws Exception {
-        Either<FormatRespDto, Boolean> response = Either.right(true);
-        Mockito.when(systemService.deleteHost(Mockito.any())).thenReturn(response);
-        String url = String.format("/mec/developer/v1/system/hosts/%s", UUID.randomUUID().toString());
-        ResultActions actions = mvc.perform(
-            MockMvcRequestBuilders.delete(url).with(csrf()).contentType(MediaType.APPLICATION_JSON_UTF8)
-                .accept(MediaType.APPLICATION_JSON_UTF8));
-        Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
-    }
-
-    @Test
-    @WithMockUser(roles = "DEVELOPER_ADMIN")
-    public void testModifyHost() throws Exception {
-        MepCreateHost host = new MepCreateHost();
-        host.setHostId(UUID.randomUUID().toString());
-        host.setName("onlineever");
-        host.setAddress("address");
-        host.setArchitecture("x86");
-        host.setStatus(EnumHostStatus.NORMAL);
-        host.setLcmIp("10.2.3.1");
-        host.setPort(30200);
-        Either<FormatRespDto, Boolean> response = Either.right(true);
-        Mockito.when(systemService.updateHost(Mockito.anyString(), Mockito.any(),Mockito.anyString())).thenReturn(response);
-        String url = String.format("/mec/developer/v1/system/hosts/%s", UUID.randomUUID().toString());
-        ResultActions actions = mvc.perform(MockMvcRequestBuilders.put(url).with(csrf()).content(gson.toJson(host))
-            .contentType(MediaType.APPLICATION_JSON_UTF8).accept(MediaType.APPLICATION_JSON_UTF8));
-        Assert.assertEquals(500, actions.andReturn().getResponse().getStatus());
-    }
-
-    @Test
-    @WithMockUser(roles = "DEVELOPER_ADMIN")
-    public void testGetHostLogByHostId() throws Exception {
-        Either<FormatRespDto, List<MepHostLog>> response = Either.right(new ArrayList<>());
-        Mockito.when(systemService.getHostLogByHostId(Mockito.anyString())).thenReturn(response);
-        String url = String.format("/mec/developer/v1/system/hosts/%s/log", UUID.randomUUID().toString());
-        ResultActions actions = mvc.perform(MockMvcRequestBuilders.get(url).contentType(MediaType.APPLICATION_JSON_UTF8)
-            .accept(MediaType.APPLICATION_JSON_UTF8));
-        Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
-    }
 
     @Test
     @WithMockUser(roles = "DEVELOPER_ADMIN")
@@ -195,5 +107,4 @@ public class SystemApiTest {
             .accept(MediaType.APPLICATION_JSON_UTF8));
         Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
     }
-
 }
