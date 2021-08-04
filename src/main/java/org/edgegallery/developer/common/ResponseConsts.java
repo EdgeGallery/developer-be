@@ -196,4 +196,10 @@ public class ResponseConsts {
      */
     public static final int RET_DEL_CONTAINER_IMAGE_FAILED = 20036;
 
+    /**
+     * download container image failed.
+     */
+    public static final int RET_DOWNLOAD_CONTAINER_IMAGE_FAILED = 20037;
+
+
 }
