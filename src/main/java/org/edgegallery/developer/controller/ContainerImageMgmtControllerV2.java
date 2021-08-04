@@ -6,6 +6,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import java.io.File;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.edgegallery.developer.domain.shared.Page;
 import org.edgegallery.developer.model.containerimage.ContainerImage;
@@ -16,6 +17,7 @@ import org.edgegallery.developer.util.ResponseDataUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -108,6 +110,20 @@ public class ContainerImageMgmtControllerV2 {
         @ApiParam(value = "imageId", required = true) @PathVariable String imageId) {
         Either<FormatRespDto, Boolean> either = containerImageMgmtServiceV2.deleteContainerImage(imageId);
         return ResponseDataUtil.buildResponse(either);
+    }
+
+    /**
+     * download harbor image.
+     */
+    @ApiOperation(value = "download system image", response = File.class)
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = "OK", response = File.class)
+    })
+    @RequestMapping(value = "/images/{imageId}/download", method = RequestMethod.GET)
+    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
+    public ResponseEntity<InputStreamResource> downloadSystemImage(
+        @ApiParam(value = "imageId", required = true) @PathVariable("imageId") String imageId) {
+        return containerImageMgmtServiceV2.downloadHarborImage(imageId);
     }
 
 }

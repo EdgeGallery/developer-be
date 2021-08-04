@@ -1,11 +1,20 @@
 package org.edgegallery.developer.service;
 
+import com.github.dockerjava.api.DockerClient;
+import com.github.dockerjava.api.command.DockerCmdExecFactory;
+import com.github.dockerjava.api.command.PullImageResultCallback;
+import com.github.dockerjava.api.command.SaveImageCmd;
+import com.github.dockerjava.core.DefaultDockerClientConfig;
+import com.github.dockerjava.core.DockerClientBuilder;
+import com.github.dockerjava.core.DockerClientConfig;
+import com.github.dockerjava.netty.NettyDockerCmdExecFactory;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.spencerwi.either.Either;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.net.URL;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.Base64;
@@ -42,6 +51,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
@@ -66,6 +79,15 @@ public class ContainerImageMgmtServiceV2 {
 
     @Value("${imagelocation.project:}")
     private String imageProject;
+
+    @Value("${imagelocation.port:}")
+    private String port;
+
+    @Value("${imagelocation.protocol:}")
+    private String protocol;
+
+    @Value("${security.oauth2.resource.jwt.key-uri:}")
+    private String loginUrl;
 
     /**
      * createSystemImage.
@@ -224,6 +246,57 @@ public class ContainerImageMgmtServiceV2 {
         return Either.right(true);
     }
 
+    /**
+     * downloadHarborImage.
+     *
+     * @param imageId imageId
+     * @return
+     */
+    public ResponseEntity<InputStreamResource> downloadHarborImage(String imageId) {
+        if (StringUtils.isEmpty(imageId)) {
+            LOGGER.error("imageId is null");
+            throw new DeveloperException("imageId is null", ResponseConsts.RET_DOWNLOAD_CONTAINER_IMAGE_FAILED);
+        }
+        ContainerImage containerImage = containerImageMapper.getContainerImage(imageId);
+        if (containerImage == null) {
+            LOGGER.error("imageId is incorrect");
+            throw new DeveloperException("imageId is incorrect", ResponseConsts.RET_DOWNLOAD_CONTAINER_IMAGE_FAILED);
+        }
+        String image = containerImage.getImagePath();
+        String fileName = containerImage.getFileName();
+        if (StringUtils.isEmpty(image) || StringUtils.isEmpty(fileName)) {
+            String msg = "image or fileName is empty";
+            LOGGER.error(msg);
+            throw new DeveloperException(msg, ResponseConsts.RET_DOWNLOAD_CONTAINER_IMAGE_FAILED);
+        }
+        try {
+            DockerClientConfig config = DefaultDockerClientConfig.createDefaultConfigBuilder()
+                .withDockerHost(protocol + "://" + imageDomainName + ":" + port).build();
+            DockerCmdExecFactory factory = new NettyDockerCmdExecFactory().withConnectTimeout(100000);
+            DockerClient dockerClient = DockerClientBuilder.getInstance(config).withDockerCmdExecFactory(factory)
+                .build();
+            //pull image
+            dockerClient.pullImageCmd(image).exec(new PullImageResultCallback()).awaitCompletion().close();
+            String[] images = image.trim().split(":");
+            //save image
+            SaveImageCmd saveImage = dockerClient.saveImageCmd(images[0]).withTag(images[1]);
+            InputStream input = saveImage.exec();
+            if (input == null) {
+                String msg = "save image  failed!";
+                LOGGER.error(msg);
+                throw new DeveloperException(msg, ResponseConsts.RET_DOWNLOAD_CONTAINER_IMAGE_FAILED);
+            }
+            return ResponseEntity.ok().header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_OCTET_STREAM_VALUE)
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=" + fileName)
+                .body(new InputStreamResource(input));
+        } catch (InterruptedException | IOException e) {
+            Thread.currentThread().interrupt();
+            String msg = "download Harbor image occur exception!";
+            LOGGER.error("download Harbor image failed! {}", e.getMessage());
+            throw new DeveloperException(msg, ResponseConsts.RET_DOWNLOAD_CONTAINER_IMAGE_FAILED);
+        }
+    }
+
     private boolean deleteHarborImage(String image) {
         //Split image
         if (!image.contains(imageDomainName)) {
@@ -238,7 +311,8 @@ public class ContainerImageMgmtServiceV2 {
             imageName = names[0];
             imageVersion = names[1];
             try (CloseableHttpClient client = createIgnoreSslHttpClient()) {
-                String userLoginUrl = "https://" + imageDomainName + "/c/login";
+                URL url = new URL(loginUrl);
+                String userLoginUrl = url.getProtocol() + "://" + imageDomainName + "/c/login";
                 LOGGER.warn("harbor login url: {}", userLoginUrl);
                 //excute login to harbor repo
                 HttpPost httpPost = new HttpPost(userLoginUrl);

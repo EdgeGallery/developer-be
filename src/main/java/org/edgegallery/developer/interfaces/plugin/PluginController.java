@@ -30,7 +30,6 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.Pattern;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.edgegallery.developer.application.plugin.PluginService;
-import org.edgegallery.developer.config.ratelimit.LimitAccess;
 import org.edgegallery.developer.config.security.AccessUserUtil;
 import org.edgegallery.developer.domain.model.plugin.Plugin;
 import org.edgegallery.developer.domain.model.user.User;
@@ -88,7 +87,6 @@ public class PluginController {
     /**
      * Upload a plugin by parameters.
      */
-    @LimitAccess(frequency = 1)
     @RequestMapping(value = "/", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE,
         consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @ApiOperation(value = "upload plugin to server", response = Plugin.class,
