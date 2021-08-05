@@ -19,7 +19,7 @@ package org.edgegallery.developer.mapper;
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
 import org.edgegallery.developer.model.workspace.OpenMepApi;
-import org.edgegallery.developer.model.workspace.OpenMepCapabilityDetail;
+import org.edgegallery.developer.model.workspace.OpenMepCapability;
 import org.edgegallery.developer.model.workspace.OpenMepCapabilityGroup;
 
 public interface OpenMepCapabilityMapper {
@@ -32,11 +32,11 @@ public interface OpenMepCapabilityMapper {
 
     int updateGroup(OpenMepCapabilityGroup group);
 
-    int updateDetail(OpenMepCapabilityDetail detail);
+    int updateDetail(OpenMepCapability detail);
 
     int updateSelectCount(String groupId);
 
-    int saveCapability(OpenMepCapabilityDetail capability);
+    int saveCapability(OpenMepCapability capability);
 
     int deleteCapability(String capabilityId);
 
@@ -44,13 +44,13 @@ public interface OpenMepCapabilityMapper {
 
     OpenMepCapabilityGroup getEcoGroupByName(String name);
 
-    OpenMepCapabilityDetail getDetail(String capabilityId);
+    OpenMepCapability getDetail(String capabilityId);
 
-    List<OpenMepCapabilityDetail> getDetailByGroupId(String groupId);
+    List<OpenMepCapability> getDetailByGroupId(String groupId);
 
-    OpenMepCapabilityDetail getOpenMepByFileId(String fileId);
+    OpenMepCapability getOpenMepByFileId(String fileId);
 
-    OpenMepCapabilityDetail updateOpenMepByFileId(OpenMepCapabilityDetail capability);
+    OpenMepCapability updateOpenMepByFileId(OpenMepCapability capability);
 
     List<OpenMepCapabilityGroup> getOpenMepCapabilitiesDetail();
 
@@ -62,7 +62,7 @@ public interface OpenMepCapabilityMapper {
 
     List<OpenMepApi> getOpenMepEcoList();
 
-    OpenMepCapabilityDetail getDetailByApiFileId(String apiFileId);
+    OpenMepCapability getDetailByApiFileId(String apiFileId);
 
     List<OpenMepCapabilityGroup> getOpenMepListByCondition(@Param("userId") String userId,
         @Param("twoLevelName") String twoLevelName, @Param("twoLevelNameEn") String twoLevelNameEn);

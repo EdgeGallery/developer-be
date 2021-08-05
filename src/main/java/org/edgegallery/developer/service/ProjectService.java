@@ -95,7 +95,7 @@ import org.edgegallery.developer.model.workspace.EnumTestConfigStatus;
 import org.edgegallery.developer.model.workspace.HelmTemplateYamlPo;
 import org.edgegallery.developer.model.workspace.MepHost;
 import org.edgegallery.developer.model.workspace.MepHostLog;
-import org.edgegallery.developer.model.workspace.OpenMepCapabilityDetail;
+import org.edgegallery.developer.model.workspace.OpenMepCapability;
 import org.edgegallery.developer.model.workspace.OpenMepCapabilityGroup;
 import org.edgegallery.developer.model.workspace.ProjectTestConfig;
 import org.edgegallery.developer.model.workspace.ProjectTestConfigStageStatus;
@@ -365,7 +365,7 @@ public class ProjectService {
                 openMepCapabilityMapper.deleteCapability(detailId);
                 if (!groupId.equals("")) {
                     LOGGER.info("groupId: {} .", groupId);
-                    List<OpenMepCapabilityDetail> detailList = openMepCapabilityMapper.getDetailByGroupId(groupId);
+                    List<OpenMepCapability> detailList = openMepCapabilityMapper.getDetailByGroupId(groupId);
                     if (detailList != null) {
                         LOGGER.info("detailList size: {} .", detailList.size());
                         if (detailList.isEmpty()) {
@@ -644,11 +644,11 @@ public class ProjectService {
         List<OpenMepCapabilityGroup> capabilities = gsonGroup
             .fromJson(gsonGroup.toJson(project.getCapabilityList()), groupType);
         for (OpenMepCapabilityGroup group : capabilities) {
-            List<OpenMepCapabilityDetail> openMepCapabilityGroups = group.getCapabilityDetailList();
-            Type openMepCapabilityType = new TypeToken<List<OpenMepCapabilityDetail>>() { }.getType();
-            List<OpenMepCapabilityDetail> openMepCapabilityDetails = gsonGroup
+            List<OpenMepCapability> openMepCapabilityGroups = group.getCapabilityDetailList();
+            Type openMepCapabilityType = new TypeToken<List<OpenMepCapability>>() { }.getType();
+            List<OpenMepCapability> openMepCapabilityDetails = gsonGroup
                 .fromJson(gsonGroup.toJson(openMepCapabilityGroups), openMepCapabilityType);
-            for (OpenMepCapabilityDetail detail : openMepCapabilityDetails) {
+            for (OpenMepCapability detail : openMepCapabilityDetails) {
                 if (!StringUtils.isEmpty(detail.getPackageId())) {
                     return true;
                 }
@@ -819,7 +819,7 @@ public class ProjectService {
             //save db to openmepcapabilitydetail
             List<String> openCapabilityIds = new ArrayList<>();
             for (ServiceDetail serviceDetail : capabilitiesDetail.getServiceDetails()) {
-                OpenMepCapabilityDetail detail = new OpenMepCapabilityDetail();
+                OpenMepCapability detail = new OpenMepCapability();
                 OpenMepCapabilityGroup group = new OpenMepCapabilityGroup();
                 String groupId = UUID.randomUUID().toString();
                 fillCapabilityGroup(serviceDetail, groupId, group);
@@ -849,7 +849,7 @@ public class ProjectService {
     }
 
     private Either<FormatRespDto, Boolean> doSomeDbOperation(OpenMepCapabilityGroup group,
-        OpenMepCapabilityDetail detail, ServiceDetail serviceDetail, List<String> openCapabilityIds) {
+        OpenMepCapability detail, ServiceDetail serviceDetail, List<String> openCapabilityIds) {
         if (StringUtils.isEmpty(group.getDescriptionEn())) {
             group.setDescriptionEn(group.getDescription());
         }
@@ -969,7 +969,7 @@ public class ProjectService {
         return Either.right(jsonObject);
     }
 
-    private void fillCapabilityDetail(ServiceDetail serviceDetail, OpenMepCapabilityDetail detail, JsonObject obj,
+    private void fillCapabilityDetail(ServiceDetail serviceDetail, OpenMepCapability detail, JsonObject obj,
         String userId, String groupId) {
         detail.setDetailId(UUID.randomUUID().toString());
         detail.setGroupId(groupId);
@@ -1053,7 +1053,7 @@ public class ProjectService {
             groupId = capabilityGroup.getGroupId();
         }
 
-        OpenMepCapabilityDetail detail = new OpenMepCapabilityDetail();
+        OpenMepCapability detail = new OpenMepCapability();
         detail.setDetailId(UUID.randomUUID().toString());
         detail.setGroupId(groupId);
         detail.setService(project.getName());

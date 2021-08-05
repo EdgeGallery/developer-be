@@ -21,7 +21,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class OpenMepCapabilityDetail {
+public class OpenMepCapability {
 
     private String detailId;
 
@@ -60,13 +60,13 @@ public class OpenMepCapabilityDetail {
 
     private String userId;
 
-    public OpenMepCapabilityDetail() {
+    public OpenMepCapability() {
     }
 
     /**
      * OpenMepCapabilityDetail.
      */
-    public OpenMepCapabilityDetail(String id, String groupId, String service, String serviceEn, String version,
+    public OpenMepCapability(String id, String groupId, String service, String serviceEn, String version,
         String description) {
         this.detailId = id;
         this.groupId = groupId;

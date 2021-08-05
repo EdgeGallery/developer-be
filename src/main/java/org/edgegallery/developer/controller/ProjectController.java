@@ -31,7 +31,7 @@ import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.edgegallery.developer.common.Consts;
 import org.edgegallery.developer.domain.shared.Page;
 import org.edgegallery.developer.model.workspace.ApplicationProject;
-import org.edgegallery.developer.model.workspace.OpenMepCapabilityDetail;
+import org.edgegallery.developer.model.workspace.OpenMepCapability;
 import org.edgegallery.developer.model.workspace.OpenMepCapabilityGroup;
 import org.edgegallery.developer.model.workspace.ProjectTestConfig;
 import org.edgegallery.developer.response.ErrorRespDto;
@@ -349,7 +349,7 @@ public class ProjectController {
         @Pattern(regexp = REGEX_UUID, message = "userId must be in UUID format")
         @ApiParam(value = "userId", required = true) @RequestParam("userId") String userId,
         @NotNull @ApiParam(value = "AbilityOpenConfig", required = true) @RequestBody
-            OpenMepCapabilityDetail abilityOpenConfig) {
+            OpenMepCapability abilityOpenConfig) {
         Either<FormatRespDto, OpenMepCapabilityGroup> either = projectService.openToMecEco(userId, projectId);
         return ResponseDataUtil.buildResponse(either);
     }

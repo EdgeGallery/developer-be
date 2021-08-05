@@ -49,7 +49,7 @@ public class OpenMepCapabilityGroup {
 
     private Date uploadTime;
 
-    private List<OpenMepCapabilityDetail> capabilityDetailList;
+    private List<OpenMepCapability> capabilityDetailList;
 
     public OpenMepCapabilityGroup() {
     }

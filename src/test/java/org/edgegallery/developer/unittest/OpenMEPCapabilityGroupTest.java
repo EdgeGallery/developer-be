@@ -26,7 +26,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.edgegallery.developer.DeveloperApplicationTests;
 import org.edgegallery.developer.model.workspace.EnumOpenMepType;
-import org.edgegallery.developer.model.workspace.OpenMepCapabilityDetail;
+import org.edgegallery.developer.model.workspace.OpenMepCapability;
 import org.edgegallery.developer.model.workspace.OpenMepCapabilityGroup;
 import org.edgegallery.developer.model.workspace.OpenMepCapabilityGroups;
 import org.edgegallery.developer.response.FormatRespDto;
@@ -96,7 +96,7 @@ public class OpenMEPCapabilityGroupTest {
     @Test
     @WithMockUser(roles = "DEVELOPER_TENANT")
     public void createCapability() {
-        OpenMepCapabilityDetail detail = new OpenMepCapabilityDetail();
+        OpenMepCapability detail = new OpenMepCapability();
         detail.setGroupId("c0db376b-ae50-48fc-b9f7-58a609e3ee12");
         detail.setService("Face Recognition Service New");
         detail.setServiceEn(detail.getService());
@@ -111,7 +111,7 @@ public class OpenMEPCapabilityGroupTest {
         SimpleDateFormat time=new SimpleDateFormat("yyyy-MM-dd HH:mm");
         detail.setUploadTime(time.format(new Date()));
         detail.setDetailId("e111f3e7-90d8-4a39-9874-ea6ea6752ef4");
-        Either<FormatRespDto, OpenMepCapabilityDetail> response = openMEPCapabilityService
+        Either<FormatRespDto, OpenMepCapability> response = openMEPCapabilityService
             .createCapability("c0db376b-ae50-48fc-b9f7-58a609e3ee12", detail);
         Assert.assertTrue(response.isRight());
     }

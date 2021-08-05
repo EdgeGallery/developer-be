@@ -41,7 +41,7 @@
         <result property="guideFileId" column="guide_file_Id"/>
     </resultMap>
 
-    <resultMap id="CapabilityMap" type="org.edgegallery.developer.model.workspace.OpenMepCapabilityDetail">
+    <resultMap id="CapabilityMap" type="org.edgegallery.developer.model.workspace.OpenMepCapability">
         <id property="detailId" column="detail_id"/>
         <result property="groupId" column="group_id"/>
         <result property="service" column="service"/>
@@ -72,7 +72,7 @@
         <result property="description" column="description"/>
         <result property="descriptionEn" column="description_en"/>
         <collection property="capabilityDetailList"
-                    ofType="org.edgegallery.developer.model.workspace.OpenMepCapabilityDetail">
+                    ofType="org.edgegallery.developer.model.workspace.OpenMepCapability">
             <id property="detailId" column="detail_id"/>
             <result property="service" column="service"/>
             <result property="serviceEn" column="service_en"/>
@@ -116,7 +116,7 @@
           #{type}, #{description}, #{descriptionEn}, #{iconFileId}, #{author}, #{uploadTime})
     </insert>
 
-    <insert id="saveCapability" parameterType="org.edgegallery.developer.model.workspace.OpenMepCapabilityDetail">
+    <insert id="saveCapability" parameterType="org.edgegallery.developer.model.workspace.OpenMepCapability">
         insert into tbl_openmep_capability_detail 
         (detail_id,group_id, service, service_en, version, description, description_en, api_file_id, provider, upload_time,
          guide_file_id,guide_file_id_en, host, port, protocol, app_id, package_id, user_id)
@@ -191,7 +191,7 @@
         WHERE api_file_id = #{fileId}
     </select>
 
-    <select id="updateOpenMepByFileId" parameterType="org.edgegallery.developer.model.workspace.OpenMepCapabilityDetail">
+    <select id="updateOpenMepByFileId" parameterType="org.edgegallery.developer.model.workspace.OpenMepCapability">
         UPDATE tbl_openmep_capability_detail
         SET app_id = #{appId},
             package_id = #{packageId}
@@ -254,7 +254,7 @@
             description_en=#{descriptionEn},icon_file_id=#{iconFileId},author=#{author},select_count=#{selectCount}, upload_time =#{uploadTime}
         where group_id = #{groupId}
     </update>
-    <update id="updateDetail" parameterType="org.edgegallery.developer.model.workspace.OpenMepCapabilityDetail">
+    <update id="updateDetail" parameterType="org.edgegallery.developer.model.workspace.OpenMepCapability">
         update tbl_openmep_capability_detail 
         set service =#{service},service_en=#{serviceEn},
             version =#{version},description=#{description},description_en=#{descriptionEn},provider=#{provider},

@@ -66,7 +66,7 @@ import org.edgegallery.developer.model.workspace.EnumHostStatus;
 import org.edgegallery.developer.model.workspace.EnumOpenMepType;
 import org.edgegallery.developer.model.workspace.HelmTemplateYamlPo;
 import org.edgegallery.developer.model.workspace.MepHost;
-import org.edgegallery.developer.model.workspace.OpenMepCapabilityDetail;
+import org.edgegallery.developer.model.workspace.OpenMepCapability;
 import org.edgegallery.developer.model.workspace.ProjectImageConfig;
 import org.edgegallery.developer.model.workspace.UploadedFile;
 import org.edgegallery.developer.response.FormatRespDto;
@@ -993,7 +993,7 @@ public class UploadFileService {
             LOGGER.error("can not find file {} in db", fileId);
             return Either.left(new FormatRespDto(Status.BAD_REQUEST, "can not find file in db."));
         }
-        OpenMepCapabilityDetail openMepCapabilityDetail = openMepCapabilityMapper.getDetailByApiFileId(fileId);
+        OpenMepCapability openMepCapabilityDetail = openMepCapabilityMapper.getDetailByApiFileId(fileId);
         //generate code
         GeneralConfig config = new GeneralConfig();
         config.setApiPackage("jar");

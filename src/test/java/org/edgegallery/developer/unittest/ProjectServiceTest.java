@@ -40,7 +40,7 @@ import org.edgegallery.developer.model.workspace.EnumProjectType;
 import org.edgegallery.developer.model.workspace.EnumTestConfigStatus;
 import org.edgegallery.developer.model.workspace.MepAgentConfig;
 import org.edgegallery.developer.model.workspace.MepHost;
-import org.edgegallery.developer.model.workspace.OpenMepCapabilityDetail;
+import org.edgegallery.developer.model.workspace.OpenMepCapability;
 import org.edgegallery.developer.model.workspace.OpenMepCapabilityGroup;
 import org.edgegallery.developer.model.workspace.ProjectTestConfig;
 import org.edgegallery.developer.model.workspace.ProjectTestConfigStageStatus;
@@ -109,8 +109,8 @@ public class ProjectServiceTest {
         List<OpenMepCapabilityGroup> capabilities = new ArrayList<>();
         OpenMepCapabilityGroup capability = new OpenMepCapabilityGroup("3", "Location", "", "", "",
             EnumOpenMepType.OPENMEP, "", "");
-        List<OpenMepCapabilityDetail> capabilitiesDetail = new ArrayList<>();
-        OpenMepCapabilityDetail detail = new OpenMepCapabilityDetail("3", "3", "LocationService", "", "version",
+        List<OpenMepCapability> capabilitiesDetail = new ArrayList<>();
+        OpenMepCapability detail = new OpenMepCapability("3", "3", "LocationService", "", "version",
             "description");
         capabilitiesDetail.add(detail);
         capability.setCapabilityDetailList(capabilitiesDetail);
@@ -119,7 +119,7 @@ public class ProjectServiceTest {
         OpenMepCapabilityGroup capabilityGPU = new OpenMepCapabilityGroup("10", "GPU", "", "", "",
             EnumOpenMepType.OPENMEP, "", "");
         capabilitiesDetail = new ArrayList<>();
-        detail = new OpenMepCapabilityDetail("2", "10", "GPUService-CMCC", "", "1.2", "Sample GPU Service");
+        detail = new OpenMepCapability("2", "10", "GPUService-CMCC", "", "1.2", "Sample GPU Service");
         capabilitiesDetail.add(detail);
         capabilityGPU.setCapabilityDetailList(capabilitiesDetail);
         capabilities.add(capabilityGPU);

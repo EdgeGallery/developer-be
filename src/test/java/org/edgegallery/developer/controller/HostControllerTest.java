@@ -143,7 +143,7 @@ public class HostControllerTest {
 	public void testGetHostLogByHostId() throws Exception {
 		Either<FormatRespDto, List<MepHostLog>> response = Either.right(new ArrayList<>());
 		Mockito.when(hostService.getHostLogByHostId(Mockito.anyString())).thenReturn(response);
-		String url = String.format("/mec/developer/v1/hosts/%s/log", UUID.randomUUID().toString());
+		String url = String.format("/mec/developer/v1/hosts/%s/logs", UUID.randomUUID().toString());
 		ResultActions actions = mvc.perform(MockMvcRequestBuilders.get(url).contentType(MediaType.APPLICATION_JSON_UTF8)
 				.accept(MediaType.APPLICATION_JSON_UTF8));
 		Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
