@@ -25,7 +25,7 @@ import io.swagger.annotations.ApiResponses;
 import java.util.List;
 import javax.validation.constraints.Pattern;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
-import org.edgegallery.developer.model.workspace.OpenMepCapabilityDetail;
+import org.edgegallery.developer.model.workspace.OpenMepCapability;
 import org.edgegallery.developer.model.workspace.OpenMepCapabilityGroup;
 import org.edgegallery.developer.response.ErrorRespDto;
 import org.edgegallery.developer.response.FormatRespDto;
@@ -100,20 +100,20 @@ public class MepCapabilityController {
      *
      * @return
      */
-    @ApiOperation(value = "create one EdgeGalleryCapability", response = OpenMepCapabilityDetail.class)
+    @ApiOperation(value = "create one EdgeGalleryCapability", response = OpenMepCapability.class)
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "OK", response = OpenMepCapabilityDetail.class),
+        @ApiResponse(code = 200, message = "OK", response = OpenMepCapability.class),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
     @RequestMapping(value = "/{groupId}", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_UTF8_VALUE,
         produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
-    public ResponseEntity<OpenMepCapabilityDetail> createCapability(
+    public ResponseEntity<OpenMepCapability> createCapability(
         @ApiParam(value = "groupId", required = true) @PathVariable("groupId")
         @Pattern(regexp = REG_UUID) String groupId,
         @ApiParam(value = "EdgeGalleryCapabilityDetail", required = true) @RequestBody
-            OpenMepCapabilityDetail capability) {
-        Either<FormatRespDto, OpenMepCapabilityDetail> either = openService.createCapability(groupId, capability);
+            OpenMepCapability capability) {
+        Either<FormatRespDto, OpenMepCapability> either = openService.createCapability(groupId, capability);
         return ResponseDataUtil.buildResponse(either);
     }
 
@@ -212,15 +212,15 @@ public class MepCapabilityController {
      *
      * @return
      */
-    @ApiOperation(value = "get EdgeGallery API by file id", response = OpenMepCapabilityDetail.class)
+    @ApiOperation(value = "get EdgeGallery API by file id", response = OpenMepCapability.class)
     @ApiResponses(value = {@ApiResponse(code = 200, message = "OK", response = OpenMepApiResponse.class)})
     @RequestMapping(value = "/openmep-api/{fileId}", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
-    public ResponseEntity<OpenMepCapabilityDetail> getOpenMepApiByFileId(
+    public ResponseEntity<OpenMepCapability> getOpenMepApiByFileId(
         @Pattern(regexp = REG_UUID, message = "fileId must be in UUID format")
         @ApiParam(value = "fileId", required = true) @PathVariable("fileId") String fileId) {
-        Either<FormatRespDto, OpenMepCapabilityDetail> either = openService.getOpenMepByFileId(fileId);
+        Either<FormatRespDto, OpenMepCapability> either = openService.getOpenMepByFileId(fileId);
         return ResponseDataUtil.buildResponse(either);
     }
 

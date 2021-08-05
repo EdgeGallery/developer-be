@@ -27,7 +27,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.edgegallery.developer.mapper.OpenMepCapabilityMapper;
 import org.edgegallery.developer.mapper.UploadedFileMapper;
 import org.edgegallery.developer.model.workspace.OpenMepApi;
-import org.edgegallery.developer.model.workspace.OpenMepCapabilityDetail;
+import org.edgegallery.developer.model.workspace.OpenMepCapability;
 import org.edgegallery.developer.model.workspace.OpenMepCapabilityGroup;
 import org.edgegallery.developer.model.workspace.OpenMepCapabilityGroups;
 import org.edgegallery.developer.response.FormatRespDto;
@@ -85,9 +85,9 @@ public class OpenMepCapabilityService {
     public Either<FormatRespDto, OpenMepCapabilityGroup> getCapabilitiesByGroupId(String groupId) {
         OpenMepCapabilityGroup group = openMepCapabilityMapper.getOpenMepCapabilitiesByGroupId(groupId);
         if (group != null) {
-            List<OpenMepCapabilityDetail> details = group.getCapabilityDetailList();
+            List<OpenMepCapability> details = group.getCapabilityDetailList();
             if (details != null) {
-                Iterator<OpenMepCapabilityDetail> iterator = details.iterator();
+                Iterator<OpenMepCapability> iterator = details.iterator();
                 while (iterator.hasNext()) {
                     if (iterator.next().getDetailId() == null) {
                         iterator.remove();
@@ -133,8 +133,8 @@ public class OpenMepCapabilityService {
      *
      * @return
      */
-    public Either<FormatRespDto, OpenMepCapabilityDetail> createCapability(String groupId,
-        OpenMepCapabilityDetail capability) {
+    public Either<FormatRespDto, OpenMepCapability> createCapability(String groupId,
+        OpenMepCapability capability) {
         OpenMepCapabilityGroup group = openMepCapabilityMapper.getGroup(groupId);
         if (group == null) {
             LOGGER.error("Can not find capability by {}", groupId);
@@ -186,7 +186,7 @@ public class OpenMepCapabilityService {
      * @return
      */
     public Either<FormatRespDto, Boolean> deleteCapabilityByUserId(String capabilityId, String userId) {
-        OpenMepCapabilityDetail openMepCapabilityDetail = openMepCapabilityMapper.getDetail(capabilityId);
+        OpenMepCapability openMepCapabilityDetail = openMepCapabilityMapper.getDetail(capabilityId);
         if (!openMepCapabilityDetail.getUserId().equals(userId)) {
             LOGGER.info("The user is not the owner of the capability");
             return Either.right(true);
@@ -232,8 +232,8 @@ public class OpenMepCapabilityService {
      *
      * @return
      */
-    public Either<FormatRespDto, OpenMepCapabilityDetail> getOpenMepByFileId(String fileId) {
-        OpenMepCapabilityDetail res = openMepCapabilityMapper.getOpenMepByFileId(fileId);
+    public Either<FormatRespDto, OpenMepCapability> getOpenMepByFileId(String fileId) {
+        OpenMepCapability res = openMepCapabilityMapper.getOpenMepByFileId(fileId);
         return Either.right(res);
     }
 

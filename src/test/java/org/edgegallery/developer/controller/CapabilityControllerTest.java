@@ -14,7 +14,7 @@
  *    limitations under the License.
  */
 
-package org.edgegallery.developer.apitest;
+package org.edgegallery.developer.controller;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 
@@ -23,7 +23,7 @@ import java.util.UUID;
 import org.edgegallery.developer.DeveloperApplicationTests;
 import org.edgegallery.developer.model.workspace.OpenMepCapabilityGroup;
 import org.edgegallery.developer.response.FormatRespDto;
-import org.edgegallery.developer.service.SystemService;
+import org.edgegallery.developer.service.CapabilityService;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -48,9 +48,9 @@ import com.spencerwi.either.Either;
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = DeveloperApplicationTests.class)
 @AutoConfigureMockMvc
-public class SystemApiTest {
+public class CapabilityControllerTest {
     @MockBean
-    private SystemService systemService;
+    private CapabilityService systemService;
 
     @Autowired
     private MockMvc mvc;
@@ -67,7 +67,7 @@ public class SystemApiTest {
     public void testCreateGroup() throws Exception {
         Either<FormatRespDto, OpenMepCapabilityGroup> response = Either.right(new OpenMepCapabilityGroup());
         Mockito.when(systemService.createCapabilityGroup(Mockito.any())).thenReturn(response);
-        String url = String.format("/mec/developer/v1/system/capability");
+        String url = String.format("/mec/developer/v1/capabilities");
         ResultActions actions = mvc.perform(
             MockMvcRequestBuilders.post(url).with(csrf()).content(gson.toJson(new OpenMepCapabilityGroup()))
                 .contentType(MediaType.APPLICATION_JSON_UTF8).accept(MediaType.APPLICATION_JSON_UTF8));
@@ -79,7 +79,7 @@ public class SystemApiTest {
     public void testDeleteCapabilityByUserIdAndGroupId() throws Exception {
         Either<FormatRespDto, Boolean> response = Either.right(true);
         Mockito.when(systemService.deleteCapabilityByUserIdAndGroupId(Mockito.anyString())).thenReturn(response);
-        String url = String.format("/mec/developer/v1/system/capability?groupId=%s", UUID.randomUUID().toString());
+        String url = String.format("/mec/developer/v1/capabilities?groupId=%s", UUID.randomUUID().toString());
         ResultActions actions = mvc.perform(
             MockMvcRequestBuilders.delete(url).with(csrf()).contentType(MediaType.APPLICATION_JSON_UTF8)
                 .accept(MediaType.APPLICATION_JSON_UTF8));
@@ -90,7 +90,7 @@ public class SystemApiTest {
     @WithMockUser(roles = "DEVELOPER_ADMIN")
     public void testGetAllCapability() throws Exception {
         String url = String
-            .format("/mec/developer/v1/system/capability?userId=%s&twoLevelName=%s&twoLevelNameEn=%s&limit=1&offset=0",
+            .format("/mec/developer/v1/capabilities?userId=%s&twoLevelName=%s&twoLevelNameEn=%s&limit=1&offset=0",
                 "admin", "group-2", "group-2-en");
         ResultActions actions = mvc.perform(MockMvcRequestBuilders.get(url).contentType(MediaType.APPLICATION_JSON_UTF8)
             .accept(MediaType.APPLICATION_JSON_UTF8)).andExpect(MockMvcResultMatchers.status().isOk());
@@ -102,7 +102,7 @@ public class SystemApiTest {
     public void tesGetCapalitiesByGroupId() throws Exception {
         Either<FormatRespDto, OpenMepCapabilityGroup> response = Either.right(new OpenMepCapabilityGroup());
         Mockito.when(systemService.getCapabilityByGroupId(Mockito.anyString())).thenReturn(response);
-        String url = String.format("/mec/developer/v1/system/capability/%s", UUID.randomUUID().toString());
+        String url = String.format("/mec/developer/v1/capabilities/%s", UUID.randomUUID().toString());
         ResultActions actions = mvc.perform(MockMvcRequestBuilders.get(url).contentType(MediaType.APPLICATION_JSON_UTF8)
             .accept(MediaType.APPLICATION_JSON_UTF8));
         Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());

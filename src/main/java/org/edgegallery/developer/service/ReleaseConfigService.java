@@ -58,7 +58,7 @@ import org.edgegallery.developer.model.TrafficRule;
 import org.edgegallery.developer.model.vm.VmPackageConfig;
 import org.edgegallery.developer.model.workspace.ApplicationProject;
 import org.edgegallery.developer.model.workspace.EnumDeployPlatform;
-import org.edgegallery.developer.model.workspace.OpenMepCapabilityDetail;
+import org.edgegallery.developer.model.workspace.OpenMepCapability;
 import org.edgegallery.developer.model.workspace.OpenMepCapabilityGroup;
 import org.edgegallery.developer.model.workspace.ProjectTestConfig;
 import org.edgegallery.developer.model.workspace.UploadedFile;
@@ -473,12 +473,12 @@ public class ReleaseConfigService {
             Type type = new TypeToken<List<OpenMepCapabilityGroup>>() { }.getType();
             List<OpenMepCapabilityGroup> capabilities = gson.fromJson(gson.toJson(project.getCapabilityList()), type);
             for (OpenMepCapabilityGroup obj : capabilities) {
-                List<OpenMepCapabilityDetail> openMepCapabilityGroups = obj.getCapabilityDetailList();
-                Type openMepCapabilityType = new TypeToken<List<OpenMepCapabilityDetail>>() { }.getType();
-                List<OpenMepCapabilityDetail> openMepCapabilityDetails = gson
+                List<OpenMepCapability> openMepCapabilityGroups = obj.getCapabilityDetailList();
+                Type openMepCapabilityType = new TypeToken<List<OpenMepCapability>>() { }.getType();
+                List<OpenMepCapability> openMepCapabilityDetails = gson
                     .fromJson(gson.toJson(openMepCapabilityGroups), openMepCapabilityType);
 
-                for (OpenMepCapabilityDetail capabilityDetail : openMepCapabilityDetails) {
+                for (OpenMepCapability capabilityDetail : openMepCapabilityDetails) {
                     AppConfigurationModel.ServiceRequired required = new AppConfigurationModel.ServiceRequired();
                     required.setSerName(capabilityDetail.getHost());
                     required.setAppId(capabilityDetail.getAppId());

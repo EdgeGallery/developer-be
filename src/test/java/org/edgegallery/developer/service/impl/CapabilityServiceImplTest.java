@@ -14,7 +14,7 @@
  *    limitations under the License.
  */
 
-package org.edgegallery.developer.unittest;
+package org.edgegallery.developer.service.impl;
 
 import com.spencerwi.either.Either;
 import java.util.ArrayList;
@@ -28,11 +28,11 @@ import org.edgegallery.developer.model.workspace.EnumOpenMepType;
 import org.edgegallery.developer.model.workspace.MepCreateHost;
 import org.edgegallery.developer.model.workspace.MepHost;
 import org.edgegallery.developer.model.workspace.MepHostLog;
-import org.edgegallery.developer.model.workspace.OpenMepCapabilityDetail;
+import org.edgegallery.developer.model.workspace.OpenMepCapability;
 import org.edgegallery.developer.model.workspace.OpenMepCapabilityGroup;
 import org.edgegallery.developer.response.FormatRespDto;
 import org.edgegallery.developer.service.OpenMepCapabilityService;
-import org.edgegallery.developer.service.SystemService;
+import org.edgegallery.developer.service.CapabilityService;
 import org.edgegallery.developer.service.impl.HostServiceImpl;
 import org.junit.After;
 import org.junit.Assert;
@@ -48,11 +48,11 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 @SpringBootTest(classes = DeveloperApplicationTests.class)
 @RunWith(SpringRunner.class)
-public class SystemServiceTest {
-	private static final Logger LOGGER = LoggerFactory.getLogger(SystemServiceTest.class);
+public class CapabilityServiceImplTest {
+	private static final Logger LOGGER = LoggerFactory.getLogger(CapabilityServiceImplTest.class);
 	
     @Autowired
-    private SystemService systemService;
+    private CapabilityService systemService;
 
     @Autowired
     private OpenMepCapabilityService openMepCapabilityService;
@@ -89,8 +89,8 @@ public class SystemServiceTest {
         group.setOneLevelName("test-1");
         group.setTwoLevelName("test-2");
         group.setType(EnumOpenMepType.OPENMEP);
-        List<OpenMepCapabilityDetail> list = new ArrayList<>();
-        OpenMepCapabilityDetail detail1 = new OpenMepCapabilityDetail();
+        List<OpenMepCapability> list = new ArrayList<>();
+        OpenMepCapability detail1 = new OpenMepCapability();
         detail1.setApiFileId("");
         list.add(detail1);
         group.setCapabilityDetailList(list);
@@ -105,8 +105,8 @@ public class SystemServiceTest {
         group.setOneLevelName("test-1");
         group.setTwoLevelName("test-2");
         group.setType(EnumOpenMepType.OPENMEP);
-        List<OpenMepCapabilityDetail> list = new ArrayList<>();
-        OpenMepCapabilityDetail detail1 = new OpenMepCapabilityDetail();
+        List<OpenMepCapability> list = new ArrayList<>();
+        OpenMepCapability detail1 = new OpenMepCapability();
         detail1.setApiFileId("apifileId");
         detail1.setGuideFileId("");
         list.add(detail1);
@@ -122,8 +122,8 @@ public class SystemServiceTest {
         group.setOneLevelName("test-1");
         group.setTwoLevelName("test-2");
         group.setType(EnumOpenMepType.OPENMEP);
-        List<OpenMepCapabilityDetail> list = new ArrayList<>();
-        OpenMepCapabilityDetail detail1 = new OpenMepCapabilityDetail();
+        List<OpenMepCapability> list = new ArrayList<>();
+        OpenMepCapability detail1 = new OpenMepCapability();
         detail1.setApiFileId("apifileId");
         detail1.setGuideFileId("guide");
         detail1.setGuideFileIdEn("guideFileEN");
@@ -140,8 +140,8 @@ public class SystemServiceTest {
         group.setOneLevelName("test-1");
         group.setTwoLevelName("test-2");
         group.setType(EnumOpenMepType.OPENMEP);
-        List<OpenMepCapabilityDetail> list = new ArrayList<>();
-        OpenMepCapabilityDetail detail1 = new OpenMepCapabilityDetail();
+        List<OpenMepCapability> list = new ArrayList<>();
+        OpenMepCapability detail1 = new OpenMepCapability();
         detail1.setApiFileId("e111f3e7-90d8-4a39-9874-ea6ea6752ef5");
         detail1.setGuideFileId("e111f3e7-90d8-4a39-9874-ea6ea6752ef5");
         detail1.setGuideFileIdEn("e111f3e7-90d8-4a39-9874-ea6ea6752ef5");

@@ -24,17 +24,20 @@ import org.edgegallery.developer.domain.shared.Page;
 import org.edgegallery.developer.model.workspace.OpenMepCapabilityGroup;
 import org.edgegallery.developer.response.ErrorRespDto;
 import org.edgegallery.developer.response.FormatRespDto;
-import org.edgegallery.developer.service.SystemService;
+import org.edgegallery.developer.service.CapabilityService;
 import org.edgegallery.developer.util.ResponseDataUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.spencerwi.either.Either;
@@ -46,14 +49,14 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 
 @Controller
-@RestSchema(schemaId = "system")
-@RequestMapping("/mec/developer/v1/system")
-@Api(tags = "system")
-public class SystemController {
+@RestSchema(schemaId = "capabilities")
+@RequestMapping("/mec/developer/v1/capabilities")
+@Api(tags = "capabilities")
+public class CapabilityController {
     private static final String REG_UUID = "[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}";
 
     @Autowired
-    private SystemService systemService;
+    private CapabilityService systemService;
 
     /**
      * create capability group by group.
@@ -65,8 +68,7 @@ public class SystemController {
         @ApiResponse(code = 200, message = "OK", response = OpenMepCapabilityGroup.class),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
-    @RequestMapping(value = "/capability", method = RequestMethod.POST,
-        consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @PostMapping(consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<OpenMepCapabilityGroup> createGroup(
         @ApiParam(value = "EdgeGalleryCapabilityGroup", required = true) @RequestBody OpenMepCapabilityGroup group) {
@@ -84,7 +86,7 @@ public class SystemController {
         @ApiResponse(code = 200, message = "OK", response = Boolean.class),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
-    @RequestMapping(value = "/capability", method = RequestMethod.DELETE,
+    @DeleteMapping(
         produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<Boolean> deleteCapabilityByUserIdAndGroupId(
@@ -105,7 +107,7 @@ public class SystemController {
         @ApiResponse(code = 200, message = "OK", response = OpenMepCapabilityGroup.class, responseContainer = "List"),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
-    @RequestMapping(value = "/capability", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @GetMapping(produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_ADMIN') || hasRole('DEVELOPER_GUEST')")
     public ResponseEntity<Page<OpenMepCapabilityGroup>> getAllCapability(
         @ApiParam(value = "userId", required = false) @RequestParam(value = "userId", required = false) String userId,
@@ -129,7 +131,7 @@ public class SystemController {
         @ApiResponse(code = 200, message = "OK", response = OpenMepCapabilityGroup.class),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
-    @RequestMapping(value = "/capability/{groupId}", method = RequestMethod.GET,
+    @GetMapping(value = "/{groupId}",
         produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_ADMIN') || hasRole('DEVELOPER_GUEST')")
     public ResponseEntity<OpenMepCapabilityGroup> getCapalitiesByGroupId(
@@ -149,7 +151,7 @@ public class SystemController {
         @ApiResponse(code = 200, message = "OK", response = OpenMepCapabilityGroup.class),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
-    @RequestMapping(value = "/capability/{groupId}", method = RequestMethod.PUT,
+    @PutMapping(value = "/{groupId}", 
         consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<OpenMepCapabilityGroup> modifyGroup(
@@ -159,5 +161,4 @@ public class SystemController {
         Either<FormatRespDto, OpenMepCapabilityGroup> either = systemService.updateGroup(groupId, group);
         return ResponseDataUtil.buildResponse(either);
     }
-
 }

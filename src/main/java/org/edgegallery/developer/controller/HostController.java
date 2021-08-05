@@ -160,7 +160,7 @@ public class HostController {
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "OK", response = MepHost.class, responseContainer = "List"),
 			@ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class) })
-	@RequestMapping(value = "/{hostId}/log", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@RequestMapping(value = "/{hostId}/logs", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@PreAuthorize("hasRole('DEVELOPER_ADMIN')")
 	public ResponseEntity<List<MepHostLog>> getHostLogByHostId(
 			@ApiParam(value = "hostId", required = true) @PathVariable String hostId) {

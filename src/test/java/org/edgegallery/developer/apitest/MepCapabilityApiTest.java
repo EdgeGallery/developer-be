@@ -23,7 +23,7 @@ import java.util.List;
 import org.edgegallery.developer.controller.MepCapabilityController;
 import org.edgegallery.developer.model.AppPkgStructure;
 import org.edgegallery.developer.model.workspace.EnumOpenMepType;
-import org.edgegallery.developer.model.workspace.OpenMepCapabilityDetail;
+import org.edgegallery.developer.model.workspace.OpenMepCapability;
 import org.edgegallery.developer.model.workspace.OpenMepCapabilityGroup;
 import org.edgegallery.developer.response.FormatRespDto;
 import org.edgegallery.developer.response.OpenMepApiResponse;
@@ -115,7 +115,7 @@ public class MepCapabilityApiTest {
     @Test
     @WithMockUser(roles = "DEVELOPER_TENANT")
     public void createCapability() throws Exception {
-        OpenMepCapabilityDetail detail = new OpenMepCapabilityDetail();
+        OpenMepCapability detail = new OpenMepCapability();
         detail.setDetailId("3857dc11-4220-46c6-8551-3a6b503b647f");
         detail.setGroupId("e111f3e7-90d8-4a39-9874-ea6ea6752ee3");
         detail.setService("Face Recognition Service New");
@@ -125,9 +125,9 @@ public class MepCapabilityApiTest {
         detail.setApiFileId("d0f8fa57-2f4c-4182-be33-0a508964d04a");
         detail.setUserId("d0f8fa57-2f4c-4182-be33-0a508964d0");
 
-        Either<FormatRespDto, OpenMepCapabilityDetail> response = Either.right(new OpenMepCapabilityDetail());
+        Either<FormatRespDto, OpenMepCapability> response = Either.right(new OpenMepCapability());
         Mockito.when(
-            openMEPCapabilityService.createCapability(Mockito.anyString(), Mockito.any(OpenMepCapabilityDetail.class)))
+            openMEPCapabilityService.createCapability(Mockito.anyString(), Mockito.any(OpenMepCapability.class)))
             .thenReturn(response);
 
         MockHttpServletRequestBuilder request = MockMvcRequestBuilders
@@ -198,7 +198,7 @@ public class MepCapabilityApiTest {
     @Test
     @WithMockUser(roles = "DEVELOPER_TENANT")
     public void getOpenMepEcoApiByFileIdSuccess() throws Exception {
-        Either<FormatRespDto, OpenMepCapabilityDetail> response = Either.right(new OpenMepCapabilityDetail());
+        Either<FormatRespDto, OpenMepCapability> response = Either.right(new OpenMepCapability());
         String url = String.format("/mec/developer/v1/capability-groups/openmep-api/%s","test-fileId");
         Mockito.when(openMEPCapabilityService.getOpenMepByFileId(Mockito.anyString())).thenReturn(response);
         ResultActions actions = mvc.perform(MockMvcRequestBuilders.get(url).contentType(MediaType.APPLICATION_JSON_UTF8)
