@@ -35,9 +35,12 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
+import java.util.Collection;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 import java.util.UUID;
 import javax.servlet.http.HttpServletRequest;
@@ -76,7 +79,6 @@ import org.edgegallery.developer.model.workspace.ApplicationProject;
 import org.edgegallery.developer.model.workspace.EnumProjectStatus;
 import org.edgegallery.developer.model.workspace.EnumTestConfigStatus;
 import org.edgegallery.developer.model.workspace.MepHost;
-import org.edgegallery.developer.model.workspace.MepHostLog;
 import org.edgegallery.developer.response.FormatRespDto;
 import org.edgegallery.developer.service.ProjectService;
 import org.edgegallery.developer.service.csar.NewCreateVmCsar;
@@ -175,21 +177,31 @@ public class VmService {
             FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "Can not get vm package config");
             return Either.left(error);
         }
-        VmCreateConfig vmCreateConfig = new VmCreateConfig();
-        vmCreateConfig.setAppInstanceId(vmPackageConfig.getAppInstanceId());
-        vmCreateConfig.setVmName(vmPackageConfig.getVmName());
-        vmCreateConfig.setLcmToken(token);
-        vmCreateConfig.setProjectId(projectId);
-        String vmId = UUID.randomUUID().toString();
-        vmCreateConfig.setVmId(vmId);
-        vmCreateConfig.setStatus(EnumVmCreateStatus.CREATING);
-        VmCreateStageStatus stageStatus = new VmCreateStageStatus();
-        vmCreateConfig.setStageStatus(stageStatus);
-        // create vm config
-        int tes = vmConfigMapper.saveVmCreateConfig(vmCreateConfig);
-        if (tes < 1) {
-            LOGGER.error("create vm config {} failed.", vmCreateConfig.getVmId());
+        VmCreateConfig vmCreateConfig = vmConfigMapper.getVmCreateConfigs(projectId);
+        if (vmCreateConfig == null) {
+            VmCreateConfig newVmCreateConfig = new VmCreateConfig();
+
+            newVmCreateConfig.setAppInstanceId(vmPackageConfig.getAppInstanceId());
+            newVmCreateConfig.setVmName(vmPackageConfig.getVmName());
+            newVmCreateConfig.setLcmToken(token);
+            newVmCreateConfig.setProjectId(projectId);
+            String vmId = UUID.randomUUID().toString();
+            newVmCreateConfig.setVmId(vmId);
+            newVmCreateConfig.setStatus(EnumVmCreateStatus.CREATING);
+            VmCreateStageStatus stageStatus = new VmCreateStageStatus();
+            newVmCreateConfig.setStageStatus(stageStatus);
+            vmConfigMapper.saveVmCreateConfig(newVmCreateConfig);
+        }else {
+            vmCreateConfig.setAppInstanceId(vmPackageConfig.getAppInstanceId());
+            vmCreateConfig.setVmName(vmPackageConfig.getVmName());
+            vmCreateConfig.setLcmToken(token);
+            vmCreateConfig.setStatus(EnumVmCreateStatus.CREATING);
+            VmCreateStageStatus stageStatus = new VmCreateStageStatus();
+            vmCreateConfig.setStageStatus(stageStatus);
+            vmConfigMapper.updateVmCreateConfig(vmCreateConfig);
         }
+
+
         // update project status
         ApplicationProject project = projectMapper.getProject(userId, projectId);
         project.setStatus(EnumProjectStatus.DEPLOYING);
@@ -409,7 +421,9 @@ public class VmService {
 
         LOGGER.info("Get project information success");
 
-        List<VmCreateConfig> vmCreateConfigs = vmConfigMapper.getVmCreateConfigs(projectId);
+        VmCreateConfig vmCreateConfig = vmConfigMapper.getVmCreateConfigs(projectId);
+        List<VmCreateConfig> vmCreateConfigs = new LinkedList<>();
+        vmCreateConfigs.add(vmCreateConfig);
         return Either.right(vmCreateConfigs);
     }
 
@@ -681,14 +695,13 @@ public class VmService {
             FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "Can not get vm package config");
             return Either.left(error);
         }
-        List<VmCreateConfig> vmCreateConfigs = vmConfigMapper.getVmCreateConfigs(projectId);
+        VmCreateConfig vmCreateConfig = vmConfigMapper.getVmCreateConfigs(projectId);
 
-        if (CollectionUtils.isEmpty(vmCreateConfigs)) {
+        if (vmCreateConfig == null) {
             LOGGER.error("Can not find the vm create config by projectId {}", projectId);
             FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "Can not find the vm config.");
             return Either.left(error);
         }
-        VmCreateConfig vmCreateConfig = vmCreateConfigs.get(0);
         if (vmCreateConfig.getStatus() != EnumVmCreateStatus.SUCCESS) {
             LOGGER.error("vm create fail, can not import image,projectId:{}", projectId);
             FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "vm create fail, can not import image");
@@ -699,20 +712,29 @@ public class VmService {
             FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "vm create fail,vm create config have exited");
             return Either.left(error);
         }
+        VmImageConfig vmImageConfig = vmConfigMapper.getVmImage(projectId, vmCreateConfig.getVmId());
+        if (vmImageConfig == null) {
+            VmImageConfig createVmImageConfig = new VmImageConfig();
+            createVmImageConfig.setVmId(vmCreateConfig.getVmId());
+            createVmImageConfig.setVmName(vmPackageConfig.getVmName());
+            createVmImageConfig.setAppInstanceId(vmCreateConfig.getAppInstanceId());
+            createVmImageConfig.setLcmToken(token);
+            createVmImageConfig.setProjectId(projectId);
+            createVmImageConfig.setStatus(EnumVmImportStatus.CREATING);
+            VmImportStageStatus stageStatus = new VmImportStageStatus();
+            createVmImageConfig.setStageStatus(stageStatus);
+            vmConfigMapper.saveVmImageConfig(createVmImageConfig);
+        } else {
+            vmImageConfig.setVmName(vmPackageConfig.getVmName());
+            vmImageConfig.setAppInstanceId(vmCreateConfig.getAppInstanceId());
+            vmImageConfig.setLcmToken(token);
+            vmImageConfig.setStatus(EnumVmImportStatus.CREATING);
+            VmImportStageStatus stageStatus = new VmImportStageStatus();
+            vmImageConfig.setStageStatus(stageStatus);
+            vmConfigMapper.updateVmImageConfig(vmImageConfig);
 
-        VmImageConfig vmImageConfig = new VmImageConfig();
-        vmImageConfig.setVmId(vmCreateConfig.getVmId());
-        vmImageConfig.setVmName(vmPackageConfig.getVmName());
-        vmImageConfig.setAppInstanceId(vmCreateConfig.getAppInstanceId());
-        vmImageConfig.setLcmToken(token);
-        vmImageConfig.setProjectId(projectId);
-        vmImageConfig.setStatus(EnumVmImportStatus.CREATING);
-        VmImportStageStatus stageStatus = new VmImportStageStatus();
-        vmImageConfig.setStageStatus(stageStatus);
-        int tes = vmConfigMapper.saveVmImageConfig(vmImageConfig);
-        if (tes < 1) {
-            LOGGER.error("create vm config {} failed.", vmCreateConfig.getVmId());
         }
+
         return Either.right(true);
 
     }
@@ -728,12 +750,7 @@ public class VmService {
             return Either.left(error);
         }
 
-        List<VmCreateConfig> vmCreateConfigs = vmConfigMapper.getVmCreateConfigs(projectId);
-        if (CollectionUtils.isEmpty(vmCreateConfigs)) {
-            LOGGER.error("Can not find the vm create config by projectId {}", projectId);
-            return Either.right(null);
-        }
-        VmCreateConfig vmCreateConfig = vmCreateConfigs.get(0);
+        VmCreateConfig vmCreateConfig = vmConfigMapper.getVmCreateConfigs(projectId);
 
         VmImageConfig vmImageConfig = vmConfigMapper.getVmImage(projectId, vmCreateConfig.getVmId());
         return Either.right(vmImageConfig);
@@ -749,13 +766,12 @@ public class VmService {
             FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "Can not find the project.");
             return Either.left(error);
         }
-        List<VmCreateConfig> vmCreateConfigs = vmConfigMapper.getVmCreateConfigs(projectId);
-        if (CollectionUtils.isEmpty(vmCreateConfigs)) {
+        VmCreateConfig vmCreateConfig = vmConfigMapper.getVmCreateConfigs(projectId);
+        if (vmCreateConfig == null) {
             LOGGER.error("Can not find the vm create config by projectId {}", projectId);
             FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "Can not find the vm config.");
             return Either.left(error);
         }
-        VmCreateConfig vmCreateConfig = vmCreateConfigs.get(0);
 
         LOGGER.info("Get vm create information success");
         VmImageConfig vmImageConfig = vmConfigMapper.getVmImage(projectId, vmCreateConfig.getVmId());
@@ -799,15 +815,6 @@ public class VmService {
             return Either.left(error);
         }
         //A project has only one virtual machine configuration
-        List<VmCreateConfig> vmConfigs = vmConfigMapper.getVmCreateConfigs(projectId);
-        if (!CollectionUtils.isEmpty(vmConfigs)) {
-            int res = vmConfigMapper.deleteVmCreateConfigs(projectId);
-            if (res < 1) {
-                FormatRespDto error = new FormatRespDto(Status.INTERNAL_SERVER_ERROR,
-                    "delete vm create config failed!");
-                return Either.left(error);
-            }
-        }
 
         VmSystem vmSystem = vmPackageConfig.getVmSystem();
         Boolean checkImageRes = HttpClientUtil.checkImageInfo(vmSystem.getSystemPath());
@@ -1111,5 +1118,42 @@ public class VmService {
         }
     }
 
+    public Either<FormatRespDto, Boolean> cleanVmDeploy(String projectId, String token) {
+        ApplicationProject project = projectMapper.getProjectById(projectId);
+        if (project == null) {
+            LOGGER.error("Can not find the project projectId {}", projectId);
+            FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "Can not find the project.");
+            return Either.left(error);
+        }
+
+        VmCreateConfig vmCreateConfig = vmConfigMapper.getVmCreateConfigs(projectId);
+        if (vmCreateConfig == null) {
+            LOGGER.info("Can not find the vm create config by projectId {}", projectId);
+            return Either.right(true);
+        }
+        VmImageConfig vmImageConfig = vmConfigMapper.getVmImage(projectId, vmCreateConfig.getVmId());
+        if (vmImageConfig != null) {
+            //clean data
+            vmImageConfig.initialVmImageConfig();
+            vmConfigMapper.updateVmImageConfig(vmImageConfig);
+        }
+
+        if (!StringUtils.isEmpty(vmCreateConfig.getPackageId())) {
+            deleteVmCreate(vmCreateConfig, project.getUserId(), token);
+        }
+        //clean data
+        vmCreateConfig.initialVmCreateConfig();
+        vmConfigMapper.updateVmCreateConfig(vmCreateConfig);
+        LOGGER.info("Update vm create config {} success", vmCreateConfig.getVmId());
+        project.initialProject();
+        int res = projectMapper.updateProject(project);
+        if (res < 1) {
+            LOGGER.error("Update project status failed");
+            FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "update project failed");
+            return Either.left(error);
+        }
+        LOGGER.info("Update project status to TESTED success");
+        return Either.right(true);
+    }
 }
 

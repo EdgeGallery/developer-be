@@ -20,6 +20,7 @@ import java.util.Date;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import org.edgegallery.developer.model.workspace.EnumTestConfigDeployStatus;
 
 @Getter
 @Setter
@@ -97,6 +98,21 @@ public class VmImageConfig {
             this.createTime = null;
         }
 
+    }
+
+    /**
+     * init config if necessary.
+     */
+    public void initialVmImageConfig() {
+        this.log = null;
+        this.status = EnumVmImportStatus.NOTCREATE;
+        this.stageStatus = null;
+        this.checksum = null;
+        this.lcmToken = null;
+        this.chunkSize = null;
+        this.sumChunkNum = null;
+        this.hostIp = null;
+        this.imageName = null;
     }
 
 }

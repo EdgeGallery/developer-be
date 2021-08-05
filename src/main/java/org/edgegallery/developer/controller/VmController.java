@@ -335,5 +335,24 @@ public class VmController {
         return ResponseDataUtil.buildResponse(either);
     }
 
+    /**
+     * clean vm deploy env by projectId .
+     */
+    @ApiOperation(value = "clean vm deploy env by projectId .", response = Boolean.class)
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = "OK", response = Boolean.class),
+        @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
+    })
+    @RequestMapping(value = "/projects/{projectId}/vm/clean", method = RequestMethod.POST,
+        produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
+    public ResponseEntity<Boolean> cleanVmDeploy(
+        @Pattern(regexp = REGEX_UUID, message = "projectId must be in UUID format") @ApiParam(value = "projectId")
+        @PathVariable("projectId") String projectId, HttpServletRequest request) {
+        String token = request.getHeader(Consts.ACCESS_TOKEN_STR);
+        Either<FormatRespDto, Boolean> either = vmService.cleanVmDeploy(projectId, token);
+        return ResponseDataUtil.buildResponse(either);
+    }
+
 }
 
