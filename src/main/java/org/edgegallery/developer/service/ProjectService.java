@@ -1281,8 +1281,6 @@ public class ProjectService {
         config.setAtpTest(atpResultInfo);
         LOGGER.info("update release config:{}", config);
         configMapper.updateAtpStatus(config);
-
-        threadPool.execute(new GetAtpStatusProcessor(config, token));
         return Either.right(true);
     }
 
@@ -1374,35 +1372,6 @@ public class ProjectService {
             pods = gson.toJson(status);
         }
         return pods;
-    }
-
-    private class GetAtpStatusProcessor implements Runnable {
-        ReleaseConfig config;
-
-        String token;
-
-        public GetAtpStatusProcessor(ReleaseConfig config, String token) {
-            this.config = config;
-            this.token = token;
-        }
-
-        @Override
-        public void run() {
-            AtpResultInfo atpResultInfo = config.getAtpTest();
-            String taskId = atpResultInfo.getId();
-            atpResultInfo.setStatus(AtpUtil.getTaskStatusFromAtp(taskId, token));
-            LOGGER.info("after status update: {}", config.getAtpTest().getStatus());
-            configMapper.updateAtpStatus(config);
-            ApplicationProject project = projectMapper.getProjectById(config.getProjectId());
-            //update project status
-            if (config.getAtpTest().getStatus().equals("success")) {
-                project.setStatus(EnumProjectStatus.TESTED);
-            } else {
-                project.setStatus(EnumProjectStatus.TESTING);
-            }
-            projectMapper.updateProject(project);
-        }
-
     }
 
     /**
