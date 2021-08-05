@@ -1127,8 +1127,6 @@ public class ProjectService {
         }
 
         deleteDeployApp(testConfig, project.getUserId(), token);
-        // modify host status save host logs
-        modifyHostStatus(testConfig, project, "terminate");
 
         // init project and config
         testConfig.initialConfig();

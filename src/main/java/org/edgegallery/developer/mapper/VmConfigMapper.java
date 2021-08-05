@@ -44,15 +44,13 @@ public interface VmConfigMapper {
 
     VmCreateConfig getVmCreateConfig(String projectId, String vmId);
 
-    List<VmCreateConfig> getVmCreateConfigs(String projectId);
+    VmCreateConfig getVmCreateConfigs(String projectId);
 
     List<VmCreateConfig> getVmCreateConfigStatus(String toString);
 
     int deleteVmCreateConfig(String projectId, String vmId);
 
     int deleteVmCreateConfigs(String projectId);
-
-    VmFlavor getVmFlavor(String architecture);
 
     int saveVmImageConfig(VmImageConfig vmImageConfig);
 

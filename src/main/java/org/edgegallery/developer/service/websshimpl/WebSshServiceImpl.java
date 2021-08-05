@@ -206,12 +206,11 @@ public class WebSshServiceImpl implements WebSshService {
             this.username = host.getUserName();
             this.password = host.getPassword();
         } else {
-            List<VmCreateConfig> vmCreateConfigs = vmConfigMapper.getVmCreateConfigs(projectId);
-            if (CollectionUtils.isEmpty(vmCreateConfigs)) {
+            VmCreateConfig vmCreateConfig = vmConfigMapper.getVmCreateConfigs(projectId);
+            if (vmCreateConfig == null) {
                 logger.info("This project has not vm create config.");
                 return;
             }
-            VmCreateConfig vmCreateConfig = vmCreateConfigs.get(0);
             if (vmCreateConfig.getStatus() != EnumVmCreateStatus.SUCCESS) {
                 logger.info("the vm is creating or create fail.");
                 return;

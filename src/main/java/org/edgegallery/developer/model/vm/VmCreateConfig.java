@@ -94,4 +94,21 @@ public class VmCreateConfig {
         }
 
     }
+
+    /**
+     * init config if necessary.
+     */
+    public void initialVmCreateConfig() {
+        this.log = null;
+        this.status = EnumVmCreateStatus.NOTCREATE;
+        this.stageStatus = null;
+        this.createTime = null;
+        this.lcmToken = null;
+        this.packageId = null;
+        this.appInstanceId = null;
+        this.vmInfo = null;
+        this.host = null;
+        this.vmName = null;
+
+    }
 }
