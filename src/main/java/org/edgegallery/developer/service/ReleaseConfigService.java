@@ -16,6 +16,8 @@
 
 package org.edgegallery.developer.service;
 
+import static org.edgegallery.developer.util.AtpUtil.getTaskStatusFromAtp;
+
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -55,9 +57,11 @@ import org.edgegallery.developer.model.ReleaseConfig;
 import org.edgegallery.developer.model.ServiceConfig;
 import org.edgegallery.developer.model.ServiceDetail;
 import org.edgegallery.developer.model.TrafficRule;
+import org.edgegallery.developer.model.atp.AtpResultInfo;
 import org.edgegallery.developer.model.vm.VmPackageConfig;
 import org.edgegallery.developer.model.workspace.ApplicationProject;
 import org.edgegallery.developer.model.workspace.EnumDeployPlatform;
+import org.edgegallery.developer.model.workspace.EnumProjectStatus;
 import org.edgegallery.developer.model.workspace.OpenMepCapability;
 import org.edgegallery.developer.model.workspace.OpenMepCapabilityGroup;
 import org.edgegallery.developer.model.workspace.ProjectTestConfig;
@@ -201,7 +205,7 @@ public class ReleaseConfigService {
     /**
      * getConfigById.
      */
-    public Either<FormatRespDto, ReleaseConfig> getConfigById(String projectId) {
+    public Either<FormatRespDto, ReleaseConfig> getConfigById(String projectId, String token) {
         if (StringUtils.isEmpty(projectId)) {
             LOGGER.error("req path miss project id!");
             FormatRespDto dto = new FormatRespDto(Response.Status.BAD_REQUEST, "projectId is null");
@@ -215,9 +219,24 @@ public class ReleaseConfigService {
             return Either.left(dto);
         }
         ReleaseConfig oldConfig = configMapper.getConfigByProjectId(projectId);
-        LOGGER.info("get release config success!");
+        // update atp test status
+        if (oldConfig.getAtpTest()!=null && !oldConfig.getAtpTest().getStatus().equals("success")
+            && !oldConfig.getAtpTest().getStatus().equals("failed")) {
+            AtpResultInfo atpResultInfo = oldConfig.getAtpTest();
+            String taskId = atpResultInfo.getId();
+            atpResultInfo.setStatus(getTaskStatusFromAtp(taskId, token));
+            LOGGER.info("after status update: {}", oldConfig.getAtpTest().getStatus());
+            //update project status
+            if (oldConfig.getAtpTest().getStatus().equals("success")) {
+                project.setStatus(EnumProjectStatus.TESTED);
+            } else {
+                project.setStatus(EnumProjectStatus.TESTING);
+            }
+            configMapper.updateAtpStatus(oldConfig);
+        }
         return Either.right(oldConfig);
     }
+
 
     /**
      * rebuildCsar.
