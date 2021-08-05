@@ -30,7 +30,6 @@
         <result property="imageStatus" column="image_status"/>
         <result property="imageType" column="image_type"/>
         <result property="imagePath" column="image_path"/>
-        <result property="fileMd5" column="file_md5"/>
         <result property="fileName" column="file_name"/>
     </resultMap>
 
@@ -38,10 +37,10 @@
             parameterType="org.edgegallery.developer.model.containerimage.ContainerImage">
         insert into
         tbl_container_image (image_id, image_name, image_version, user_id, user_name, upload_time,
-        create_time,image_status,image_type,image_path,file_md5,file_name)
+        create_time,image_status,image_type,image_path,file_name)
         values
         ( #{imageId}, #{imageName}, #{imageVersion}, #{userId}, #{userName}, #{uploadTime},
-        #{createTime},#{imageStatus},#{imageType},#{imagePath},#{fileMd5},#{fileName})
+        #{createTime},#{imageStatus},#{imageType},#{imagePath},#{fileName})
     </insert>
 
 
@@ -67,7 +66,7 @@
         image_id,image_name,image_version,user_id,user_name,
         to_char(create_time, 'YYYY-MM-DD HH24:MI:SS') as create_time,
         to_char(upload_time, 'YYYY-MM-DD HH24:MI:SS') as upload_time,
-        image_status,image_type,image_path,file_md5,file_name
+        image_status,image_type,image_path,file_name
         FROM
         tbl_container_image
         <where>
@@ -99,7 +98,7 @@
         image_id,image_name,image_version,user_id,user_name,
         to_char(create_time, 'YYYY-MM-DD HH24:MI:SS') as create_time,
         to_char(upload_time, 'YYYY-MM-DD HH24:MI:SS') as upload_time,
-        image_status,image_type,image_path,file_md5,file_name
+        image_status,image_type,image_path,file_name
         FROM
         tbl_container_image
         <where>
@@ -133,9 +132,16 @@
         image_id=#{imageId},image_name=#{imageName},image_version=#{imageVersion},
         user_id=#{userId},user_name=#{userName},create_time=#{createTime},
         upload_time=#{uploadTime},image_status=#{imageStatus},
-        image_type=#{imageType},image_path=#{imagePath},
-        file_md5=#{fileMd5} ,file_name=#{fileName}
+        image_type=#{imageType},image_path=#{imagePath},file_name=#{fileName}
         where image_id=#{imageId}
+    </update>
+
+    <update id="updateContainerImageStatus" parameterType="java.lang.String">
+        update tbl_container_image set image_status=#{imageStatus} where image_id=#{imageId}
+    </update>
+
+    <update id="updateContainerImagePath" parameterType="java.lang.String">
+        update tbl_container_image set image_path=#{imagePath} where image_id=#{imageId}
     </update>
 
     <update id="updateContainerImageByOrdinary"
@@ -144,20 +150,19 @@
         image_id=#{imageId},image_name=#{imageName},image_version=#{imageVersion},
         user_id=#{userId},user_name=#{userName},create_time=#{createTime},
         upload_time=#{uploadTime},image_status=#{imageStatus},
-        image_type=#{imageType},image_path=#{imagePath},
-        file_md5=#{fileMd5} ,file_name=#{fileName}
+        image_type=#{imageType},image_path=#{imagePath},file_name=#{fileName}
         where image_id=#{imageId} and user_id =#{userId} and user_name =#{userName}
     </update>
 
     <delete id="deleteContainerImageByOrdinary"
             parameterType="java.lang.String">
-        delete from  tbl_container_image
+        delete from tbl_container_image
         where image_id=#{imageId} and user_id =#{userId} and user_name =#{userName}
     </delete>
 
     <delete id="deleteContainerImageByAdmin"
             parameterType="java.lang.String">
-        delete from  tbl_container_image
+        delete from tbl_container_image
         where image_id=#{imageId}
     </delete>
 
