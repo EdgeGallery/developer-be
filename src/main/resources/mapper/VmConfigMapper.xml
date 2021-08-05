@@ -157,11 +157,6 @@
         WHERE network_type = #{networkType}
     </select>
 
-    <select id="getVmFlavor" resultMap="VmFlavor">
-        SELECT architecture,flavor,constraints FROM tbl_vm_flavor
-        where architecture = #{architecture}
-    </select>
-
     <select id="getVmUserData" resultMap="VmUserData">
         SELECT operate_system,flavor_extra_specs,is_temp,contents,params
         FROM tbl_vm_user_data
