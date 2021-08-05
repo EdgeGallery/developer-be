@@ -35,7 +35,6 @@ DROP TABLE  IF  EXISTS tbl_host_log;
 DROP TABLE  IF  EXISTS tbl_vm_regulation;
 DROP TABLE  IF  EXISTS tbl_vm_network;
 DROP TABLE  IF  EXISTS tbl_vm_system;
-DROP TABLE  IF  EXISTS tbl_vm_flavor;
 DROP TABLE  IF  EXISTS tbl_project_vm_create_config;
 DROP TABLE  IF  EXISTS tbl_project_vm_image_config;
 
@@ -373,12 +372,6 @@ CREATE TABLE IF NOT EXISTS  tbl_vm_regulation  (
        network_type  varchar(50) DEFAULT NULL,
        description_zh  varchar(255) DEFAULT NULL,
        description_en  varchar(255) DEFAULT NULL
-    )
-    ;
-    CREATE TABLE IF NOT EXISTS  tbl_vm_flavor  (
-       architecture  varchar(50) DEFAULT NULL,
-       flavor  varchar(50) DEFAULT NULL,
-       constraints  varchar(50) DEFAULT NULL
     )
     ;
     CREATE TABLE IF NOT EXISTS  tbl_project_vm_create_config  (
