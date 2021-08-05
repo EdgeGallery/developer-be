@@ -32,8 +32,6 @@ public class ContainerImage {
 
     private String imagePath;
 
-    private String fileMd5;
-
     private String fileName;
 
     /**

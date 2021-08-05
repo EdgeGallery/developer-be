@@ -201,5 +201,21 @@ public class ResponseConsts {
      */
     public static final int RET_DOWNLOAD_CONTAINER_IMAGE_FAILED = 20037;
 
+    /**
+     * upload container image update status failed.
+     */
+    public static final int RET_UPDATE_CONTAINER_IMAGE_STATUS_FAILED = 20038;
+
+    /**
+     * upload container image  failed.
+     */
+    public static final int RET_UPLOAD_CONTAINER_IMAGE_FAILED = 20039;
+
+    /**
+     * merge container image  failed.
+     */
+    public static final int RET_MERGE_CONTAINER_IMAGE_FAILED = 20039;
+
+
 
 }

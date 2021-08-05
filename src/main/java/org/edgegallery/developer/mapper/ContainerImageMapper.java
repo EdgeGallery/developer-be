@@ -34,6 +34,10 @@ public interface ContainerImageMapper {
     int deleteContainerImageByOrdinary(@Param("imageId") String imageId, @Param("userId") String userId,
         @Param("userName") String userName);
 
+    int updateContainerImageStatus(@Param("imageId") String imageId, @Param("imageStatus") String imageStatus);
+
+    int updateContainerImagePath(@Param("imageId") String imageId, @Param("imagePath") String imagePath);
+
     ContainerImage getContainerImage(@Param("imageId") String imageId);
 
     List<ContainerImage> getAllImage();
