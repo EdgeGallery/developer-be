@@ -33,11 +33,14 @@ import org.edgegallery.developer.model.workspace.OpenMepCapabilityGroup;
 import org.edgegallery.developer.response.FormatRespDto;
 import org.edgegallery.developer.service.OpenMepCapabilityService;
 import org.edgegallery.developer.service.SystemService;
+import org.edgegallery.developer.service.impl.HostServiceImpl;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -46,7 +49,8 @@ import org.springframework.test.context.junit4.SpringRunner;
 @SpringBootTest(classes = DeveloperApplicationTests.class)
 @RunWith(SpringRunner.class)
 public class SystemServiceTest {
-
+	private static final Logger LOGGER = LoggerFactory.getLogger(SystemServiceTest.class);
+	
     @Autowired
     private SystemService systemService;
 
@@ -55,201 +59,12 @@ public class SystemServiceTest {
 
     @Before
     public void init() {
-        System.out.println("start to test");
+    	LOGGER.info("start to test");
     }
 
     @After
     public void after() {
-        System.out.println("test over");
-    }
-
-    @Test
-    @WithMockUser(roles = "DEVELOPER_TENANT")
-    public void testGetAll() {
-        Page<MepHost> res = systemService
-            .getAllHosts("e111f3e7-90d8-4a39-9874-ea6ea6752ef6", "host", "10.1.12.1", 1, 0);
-        Assert.assertNotNull(res);
-    }
-
-    @Test
-    @WithMockUser(roles = "DEVELOPER_TENANT")
-    public void testCreateHostWithNullUserName() {
-        Either<FormatRespDto, Boolean> res = systemService.createHost(new MepCreateHost(), "");
-        // Assert.assertNull(res);
-        Assert.assertTrue(res.isLeft());
-    }
-
-    @Test
-    @WithMockUser(roles = "DEVELOPER_TENANT")
-    public void testCreateHostWithNullPwd() {
-        MepCreateHost host = new MepCreateHost();
-        host.setHostId(UUID.randomUUID().toString());
-        host.setName("onlineever");
-        host.setAddress("address");
-        host.setArchitecture("x86");
-        host.setStatus(EnumHostStatus.NORMAL);
-        host.setLcmIp("10.2.3.1");
-        host.setPort(30200);
-        host.setUserName("hlfonnnn");
-        Either<FormatRespDto, Boolean> res = systemService.createHost(host, "");
-        // Assert.assertNull(res);
-        Assert.assertTrue(res.isLeft());
-    }
-
-    @Test
-    @WithMockUser(roles = "DEVELOPER_TENANT")
-    public void testCreateHostWithNullUserId() {
-        MepCreateHost host = new MepCreateHost();
-        host.setHostId(UUID.randomUUID().toString());
-        host.setName("onlineever");
-        host.setAddress("address");
-        host.setArchitecture("x86");
-        host.setStatus(EnumHostStatus.NORMAL);
-        host.setLcmIp("10.2.3.1");
-        host.setPort(30200);
-        host.setUserName("hlfonnnn");
-        host.setPassword("xxxxxxxxxxxx");
-        host.setUserId("");
-        Either<FormatRespDto, Boolean> res = systemService.createHost(host, "");
-        // Assert.assertNull(res);
-        Assert.assertTrue(res.isLeft());
-    }
-
-    @Test
-    @WithMockUser(roles = "DEVELOPER_TENANT")
-    public void testCreateHostWithErrorLcmIp() {
-        MepCreateHost host = new MepCreateHost();
-        host.setHostId(UUID.randomUUID().toString());
-        host.setName("onlineever");
-        host.setAddress("address");
-        host.setArchitecture("x86");
-        host.setStatus(EnumHostStatus.NORMAL);
-        host.setLcmIp("10.2.3.1");
-        host.setPort(30200);
-        host.setUserName("hlfonnnn");
-        host.setPassword("xxxxxxxxxxxx");
-        host.setUserId(UUID.randomUUID().toString());
-        Either<FormatRespDto, Boolean> res = systemService.createHost(host, "");
-        // Assert.assertNull(res);
-        Assert.assertTrue(res.isLeft());
-    }
-
-    @Test
-    @WithMockUser(roles = "DEVELOPER_TENANT")
-    public void testCreateHostWithErrorConfId() {
-        MepCreateHost host = new MepCreateHost();
-        host.setHostId(UUID.randomUUID().toString());
-        host.setName("onlineever");
-        host.setAddress("address");
-        host.setArchitecture("x86");
-        host.setStatus(EnumHostStatus.NORMAL);
-        host.setLcmIp("127.0.0.1");
-        host.setPort(30204);
-        host.setUserName("hlfonnnn");
-        host.setPassword("xxxxxxxxxxxx");
-        host.setConfigId("errorId");
-        host.setUserId(UUID.randomUUID().toString());
-        Either<FormatRespDto, Boolean> res = systemService.createHost(host, "");
-        // Assert.assertNull(res);
-        Assert.assertTrue(res.isLeft());
-    }
-
-    @Test
-    @WithMockUser(roles = "DEVELOPER_TENANT")
-    public void testDeleteHostWithErrorId() {
-        Either<FormatRespDto, Boolean> res = systemService.deleteHost("hostId");
-        Assert.assertTrue(res.isLeft());
-    }
-
-    @Test
-    @WithMockUser(roles = "DEVELOPER_TENANT")
-    public void testDeleteHostSuccess() {
-        Either<FormatRespDto, Boolean> res = systemService.deleteHost("c8aac2b2-4162-40fe-9d99-0630e3245cf7");
-        Assert.assertTrue(res.isRight());
-    }
-
-    @Test
-    @WithMockUser(roles = "DEVELOPER_TENANT")
-    public void testUpdateHost() {
-        MepCreateHost host = new MepCreateHost();
-        // host.setHostId(UUID.randomUUID().toString());
-        host.setName("onlineever");
-        host.setAddress("address");
-        host.setArchitecture("x86");
-        host.setStatus(EnumHostStatus.NORMAL);
-        host.setLcmIp("127.0.0.1");
-        host.setPort(30204);
-        host.setUserName("hlfonnnn");
-        host.setPassword("xxxxxxxxxxxx");
-        host.setConfigId("errorId");
-        host.setUserId(UUID.randomUUID().toString());
-        Either<FormatRespDto, Boolean> res = systemService.updateHost("c8aac2b2-4162-40fe-9d99-0630e3245cf7", host, "");
-        Assert.assertTrue(res.isLeft());
-    }
-
-    @Test
-    @WithMockUser(roles = "DEVELOPER_TENANT")
-    public void testUpdateHostError() {
-        MepCreateHost host = new MepCreateHost();
-        // host.setHostId(UUID.randomUUID().toString());
-        host.setName("onlineever");
-        host.setAddress("address");
-        host.setArchitecture("x86");
-        host.setStatus(EnumHostStatus.NORMAL);
-        host.setLcmIp("127.0.0.1");
-        host.setPort(30204);
-        host.setUserName("hlfonnnn");
-        host.setPassword("xxxxxxxxxxxx");
-        host.setConfigId("errorId");
-        host.setUserId(UUID.randomUUID().toString());
-        Either<FormatRespDto, Boolean> res = systemService
-            .updateHost("c8aac2b2-4162-40fe-9d99-0630e3245cf789", host, "");
-        Assert.assertTrue(res.isLeft());
-    }
-
-    @Test
-    @WithMockUser(roles = "DEVELOPER_TENANT")
-    public void testGetHostError() {
-        Either<FormatRespDto, MepHost> res = systemService.getHost("c8aac2b2-4162-40fe-9d99-0630e3245cf789");
-        Assert.assertTrue(res.isLeft());
-    }
-
-    @Test
-    @WithMockUser(roles = "DEVELOPER_TENANT")
-    public void testGetHostSuccess() {
-        Either<FormatRespDto, MepHost> res = systemService.getHost("c8aac2b2-4162-40fe-9d99-0630e3245cdd");
-        Assert.assertTrue(res.isRight());
-    }
-
-    @Test
-    @WithMockUser(roles = "DEVELOPER_TENANT")
-    public void testGetHostLogSuccess() {
-        Either<FormatRespDto, List<MepHostLog>> res = systemService
-            .getHostLogByHostId("d6bcf665-ba9c-4474-b7fb-25ff859563d3");
-        Assert.assertTrue(res.isRight());
-    }
-
-    @Test
-    @WithMockUser(roles = "DEVELOPER_TENANT")
-    public void testCreateHostWithErrorUserId() {
-        AccessUserUtil.setUser("userID","userName","[\"ROLE_DEVELOPER_ADMIN\"]");
-        MepCreateHost host = new MepCreateHost();
-        host.setUserName("userName");
-        host.setPassword("password");
-        host.setUserId("userId");
-        Either<FormatRespDto, Boolean> res = systemService.createHost(host, "group");
-        Assert.assertTrue(res.isLeft());
-    }
-
-    @Test
-    @WithMockUser(roles = "DEVELOPER_TENANT")
-    public void testCreateHostWithBadHealth() {
-        MepCreateHost host = new MepCreateHost();
-        host.setUserName("userName");
-        host.setPassword("password");
-        host.setUserId("admin");
-        Either<FormatRespDto, Boolean> res = systemService.createHost(host, "group");
-        Assert.assertTrue(res.isLeft());
+    	LOGGER.info("test over");
     }
 
     @Test
