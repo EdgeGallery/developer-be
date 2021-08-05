@@ -16,8 +16,6 @@
 
 package org.edgegallery.developer.service;
 
-import static org.edgegallery.developer.util.AtpUtil.getTaskStatusFromAtp;
-
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -70,6 +68,7 @@ import org.edgegallery.developer.response.FormatRespDto;
 import org.edgegallery.developer.util.CompressFileUtils;
 import org.edgegallery.developer.util.CompressFileUtilsJava;
 import org.edgegallery.developer.util.InitConfigUtil;
+import org.edgegallery.developer.util.AtpUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -224,7 +223,7 @@ public class ReleaseConfigService {
             && !oldConfig.getAtpTest().getStatus().equals("failed")) {
             AtpResultInfo atpResultInfo = oldConfig.getAtpTest();
             String taskId = atpResultInfo.getId();
-            atpResultInfo.setStatus(getTaskStatusFromAtp(taskId, token));
+            atpResultInfo.setStatus(AtpUtil.getTaskStatusFromAtp(taskId, token));
             LOGGER.info("after status update: {}", oldConfig.getAtpTest().getStatus());
             //update project status
             if (oldConfig.getAtpTest().getStatus().equals("success")) {
