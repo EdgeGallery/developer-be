@@ -179,6 +179,19 @@ public class ContainerImageMgmtServiceV2 {
             LOGGER.error(errorMsg);
             throw new DeveloperException(errorMsg, ResponseConsts.RET_CREATE_CONTAINER_IMAGE_CHECK_PARAM_FAILED);
         }
+        // //keep imageName imageVersion unique
+        if (!oldImage.getImageName().equals(imageName) || !oldImage.getImageVersion().equals(imageVersion)) {
+            List<ContainerImage> imageList = containerImageMapper.getAllImage();
+            if (!CollectionUtils.isEmpty(imageList)) {
+                for (ContainerImage image : imageList) {
+                    if (imageName.equals(image.getImageName()) && imageVersion.equals(image.getImageVersion())) {
+                        String errorMsg = "exist the same imageName and imageVersion";
+                        LOGGER.error(errorMsg);
+                        throw new DeveloperException(errorMsg, ResponseConsts.RET_EXIST_SAME_NAME_AND_VERSION);
+                    }
+                }
+            }
+        }
         containerImage.setImageId(imageId);
         containerImage.setCreateTime(new Date());
         int retCode;
