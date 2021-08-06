@@ -14,8 +14,6 @@ import org.edgegallery.developer.model.containerimage.ContainerImageReq;
 import org.edgegallery.developer.response.FormatRespDto;
 import org.edgegallery.developer.service.ContainerImageMgmtServiceV2;
 import org.edgegallery.developer.util.ResponseDataUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.MediaType;
@@ -32,8 +30,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 @RequestMapping("/mec/developer/v2/container")
 @Api(tags = "containerImageV2")
 public class ContainerImageMgmtControllerV2 {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(ContainerImageMgmtControllerV2.class);
 
     @Autowired
     private ContainerImageMgmtServiceV2 containerImageMgmtServiceV2;
