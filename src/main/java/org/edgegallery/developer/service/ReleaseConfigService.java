@@ -218,6 +218,11 @@ public class ReleaseConfigService {
             return Either.left(dto);
         }
         ReleaseConfig oldConfig = configMapper.getConfigByProjectId(projectId);
+        if (StringUtils.isEmpty(token)) {
+            LOGGER.error("miss token!");
+            FormatRespDto dto = new FormatRespDto(Response.Status.BAD_REQUEST, "token is null");
+            return Either.left(dto);
+        }
         // update atp test status
         if (oldConfig.getAtpTest()!=null && !oldConfig.getAtpTest().getStatus().equals("success")
             && !oldConfig.getAtpTest().getStatus().equals("failed")) {
