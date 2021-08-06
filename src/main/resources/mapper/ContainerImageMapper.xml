@@ -94,6 +94,7 @@
     <select id="getAllImageByOrdinaryAuth"
             parameterType="org.edgegallery.developer.model.containerimage.ContainerImageReq"
             resultMap="ContainerImageMap">
+        select * from (
         SELECT
         image_id,image_name,image_version,user_id,user_name,
         to_char(create_time, 'YYYY-MM-DD HH24:MI:SS') as create_time,
@@ -105,25 +106,28 @@
             <if test="userId != null and userId !=''">
                 and user_id =#{userId} or image_type = 'public'
             </if>
-            <if test="imageName != null and imageName !=''">
-                and lower(image_name) like lower(CONCAT('%', #{imageName}, '%'))
-            </if>
-            <if test="imageType != null and imageType !=''">
-                and image_type = #{imageType}
-            </if>
-            <if test="imageStatus != null and imageStatus !=''">
-                and image_status= #{imageStatus}
-            </if>
-            <if test="createTimeBegin != null and createTimeBegin != ''">
-                <![CDATA[ and create_time >= to_timestamp(#{createTimeBegin}, 'YYYY-MM-DD HH24:MI:SS') ]]>
-            </if>
-            <if test="createTimeEnd != null and createTimeEnd != ''">
-                <![CDATA[ and create_time <= to_timestamp(#{createTimeEnd}, 'YYYY-MM-DD HH24:MI:SS') ]]>
-            </if>
         </where>
         <if test="sortBy != null and sortBy != '' and sortOrder != null and sortOrder != ''">
             order by ${sortBy} ${sortOrder}
         </if>
+        ) a
+        <where>
+            <if test="imageName != null and imageName !=''">
+                and lower(a.image_name) like lower(CONCAT('%', #{imageName}, '%'))
+            </if>
+            <if test="imageType != null and imageType !=''">
+                and a.image_type = #{imageType}
+            </if>
+            <if test="imageStatus != null and imageStatus !=''">
+                and a.image_status= #{imageStatus}
+            </if>
+            <if test="createTimeBegin != null and createTimeBegin != ''">
+                <![CDATA[ and to_timestamp(a.create_time,'YYYY-MM-DD HH24:MI:SS') >= to_timestamp(#{createTimeBegin}, 'YYYY-MM-DD HH24:MI:SS') ]]>
+            </if>
+            <if test="createTimeEnd != null and createTimeEnd != ''">
+                <![CDATA[ and to_timestamp(a.create_time,'YYYY-MM-DD HH24:MI:SS') <= to_timestamp(#{createTimeEnd}, 'YYYY-MM-DD HH24:MI:SS') ]]>
+            </if>
+        </where>
     </select>
 
     <update id="updateContainerImageByAdmin"

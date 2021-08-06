@@ -37,9 +37,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
-@RestSchema(schemaId = "image")
+@RestSchema(schemaId = "imageV2")
 @RequestMapping("/mec/developer/v2/image")
-@Api(tags = "image")
+@Api(tags = "imageV2")
 public class ImageControllerV2 {
 
     @Autowired
