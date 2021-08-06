@@ -108,8 +108,8 @@ public class ContainerImageMgmtServiceV2 {
         List<ContainerImage> imageList = containerImageMapper.getAllImage();
         if (!CollectionUtils.isEmpty(imageList)) {
             for (ContainerImage image : imageList) {
-                if (imageName.equals(image.getImageName()) && imageVersion.equals(image.getImageVersion())) {
-                    String errorMsg = "exist the same imageName and imageVersion";
+                if (imageName.equals(image.getImageName())) {
+                    String errorMsg = "exist the same imageName";
                     LOGGER.error(errorMsg);
                     throw new DeveloperException(errorMsg, ResponseConsts.RET_EXIST_SAME_NAME_AND_VERSION);
                 }
@@ -180,12 +180,12 @@ public class ContainerImageMgmtServiceV2 {
             throw new DeveloperException(errorMsg, ResponseConsts.RET_CREATE_CONTAINER_IMAGE_CHECK_PARAM_FAILED);
         }
         // //keep imageName imageVersion unique
-        if (!oldImage.getImageName().equals(imageName) || !oldImage.getImageVersion().equals(imageVersion)) {
+        if (!oldImage.getImageName().equals(imageName)) {
             List<ContainerImage> imageList = containerImageMapper.getAllImage();
             if (!CollectionUtils.isEmpty(imageList)) {
                 for (ContainerImage image : imageList) {
-                    if (imageName.equals(image.getImageName()) && imageVersion.equals(image.getImageVersion())) {
-                        String errorMsg = "exist the same imageName and imageVersion";
+                    if (imageName.equals(image.getImageName())) {
+                        String errorMsg = "exist the same imageName";
                         LOGGER.error(errorMsg);
                         throw new DeveloperException(errorMsg, ResponseConsts.RET_EXIST_SAME_NAME_AND_VERSION);
                     }
