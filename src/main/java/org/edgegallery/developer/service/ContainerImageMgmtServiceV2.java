@@ -364,8 +364,8 @@ public class ContainerImageMgmtServiceV2 {
                 LOGGER.warn("__csrf: {}", csrf);
 
                 //excute delete image operation
-                String deleteImageUrl = "https://" + imageDomainName + "/api/v2.0/projects/" + imageProject
-                    + "/repositories/" + imageName + "/artifacts/" + imageVersion;
+                String deleteImageUrl = url.getProtocol() + "://" + imageDomainName + "/api/v2.0/projects/"
+                    + imageProject + "/repositories/" + imageName + "/artifacts/" + imageVersion;
                 LOGGER.warn("delete image url: {}", deleteImageUrl);
                 HttpDelete httpDelete = new HttpDelete(deleteImageUrl);
                 String encodeStr = encodeUserAndPwd();
