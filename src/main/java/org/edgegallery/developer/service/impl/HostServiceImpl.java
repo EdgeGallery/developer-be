@@ -117,7 +117,7 @@ public class HostServiceImpl implements HostService {
 		if (StringUtils.isNotBlank(host.getConfigId())) {
 			// upload file
 			UploadedFile uploadedFile = uploadedFileMapper.getFileById(host.getConfigId());
-			boolean uploadRes = uploadFileToLcm(host.getLcmIp(), host.getPort(), uploadedFile.getFilePath(),
+			boolean uploadRes = uploadFileToLcm(host.getProtocol(), host.getLcmIp(), host.getPort(), uploadedFile.getFilePath(),
 					host.getMecHost(), token);
 			if (!uploadRes) {
 				String msg = "Create host failed,upload config file error";
@@ -182,7 +182,7 @@ public class HostServiceImpl implements HostService {
 		if (StringUtils.isNotBlank(host.getConfigId())) {
 			// upload file
 			UploadedFile uploadedFile = uploadedFileMapper.getFileById(host.getConfigId());
-			boolean uploadRes = uploadFileToLcm(host.getLcmIp(), host.getPort(), uploadedFile.getFilePath(),
+			boolean uploadRes = uploadFileToLcm(host.getProtocol(), host.getLcmIp(), host.getPort(), uploadedFile.getFilePath(),
 					host.getMecHost(), token);
 			if (!uploadRes) {
 				String msg = "Create host failed,upload config file error";
@@ -280,7 +280,7 @@ public class HostServiceImpl implements HostService {
 		return false;
 	}
 
-	private boolean uploadFileToLcm(String lcmIp, int port, String filePath, String mecHost, String token) {
+	private boolean uploadFileToLcm(String protocol, String lcmIp, int port, String filePath, String mecHost, String token) {
 		File file = new File(InitConfigUtil.getWorkSpaceBaseDir() + filePath);
 		RestTemplate restTemplate = RestTemplateBuilder.create();
 		MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
@@ -292,7 +292,7 @@ public class HostServiceImpl implements HostService {
 		HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
 		ResponseEntity<String> response;
 		try {
-			String url = getUrlPrefix("https", lcmIp, port) + Consts.APP_LCM_UPLOAD_FILE;
+			String url = getUrlPrefix(protocol, lcmIp, port) + Consts.APP_LCM_UPLOAD_FILE;
 			LOGGER.info(" upload file url is {}", url);
 			response = restTemplate.exchange(url, HttpMethod.POST, requestEntity, String.class);
 			LOGGER.info("upload file lcm log:{}", response);

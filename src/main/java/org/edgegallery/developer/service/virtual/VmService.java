@@ -423,7 +423,9 @@ public class VmService {
 
         VmCreateConfig vmCreateConfig = vmConfigMapper.getVmCreateConfigs(projectId);
         List<VmCreateConfig> vmCreateConfigs = new LinkedList<>();
-        vmCreateConfigs.add(vmCreateConfig);
+        if (vmCreateConfig != null) {
+            vmCreateConfigs.add(vmCreateConfig);
+        }
         return Either.right(vmCreateConfigs);
     }
 
