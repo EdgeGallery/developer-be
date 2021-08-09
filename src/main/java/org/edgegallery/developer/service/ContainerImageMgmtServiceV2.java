@@ -17,9 +17,12 @@ import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import javax.net.ssl.SSLContext;
 import org.apache.commons.lang3.StringUtils;
@@ -143,11 +146,30 @@ public class ContainerImageMgmtServiceV2 {
         if (!StringUtils.isBlank(createTimeEnd)) {
             containerImageReq.setCreateTimeEnd(createTimeEnd + " 23:59:59");
         }
+        String imageType = containerImageReq.getImageType();
+        String imageStatus = containerImageReq.getImageStatus();
+        List<String> types = new ArrayList<>();
+        List<String> status = new ArrayList<>();
+        if (StringUtils.isNotEmpty(imageType)) {
+            types = addTypeOrStatusToList(imageType);
+        }
+        if (StringUtils.isNotEmpty(imageStatus)) {
+            status = addTypeOrStatusToList(imageStatus);
+        }
+        Map<String, Object> map = new HashMap<>();
+        map.put("imageName", containerImageReq.getImageName());
+        map.put("createTimeBegin", containerImageReq.getCreateTimeBegin());
+        map.put("createTimeEnd", containerImageReq.getCreateTimeEnd());
+        map.put("userId", containerImageReq.getUserId());
+        map.put("sortBy", containerImageReq.getSortBy());
+        map.put("sortOrder", containerImageReq.getSortOrder());
+        map.put("imageType", types);
+        map.put("imageStatus", status);
         PageInfo pageInfo = null;
         if (SystemImageUtil.isAdminUser()) {
-            pageInfo = new PageInfo<ContainerImage>(containerImageMapper.getAllImageByAdminAuth(containerImageReq));
+            pageInfo = new PageInfo<>(containerImageMapper.getAllImageByAdminAuth(map));
         } else {
-            pageInfo = new PageInfo<ContainerImage>(containerImageMapper.getAllImageByOrdinaryAuth(containerImageReq));
+            pageInfo = new PageInfo<>(containerImageMapper.getAllImageByOrdinaryAuth(map));
         }
         if (pageInfo != null) {
             LOGGER.info("Get all container image success.");
@@ -155,6 +177,19 @@ public class ContainerImageMgmtServiceV2 {
                 containerImageReq.getOffset(), pageInfo.getTotal());
         }
         return null;
+    }
+
+    private List<String> addTypeOrStatusToList(String imageType) {
+        List<String> typeList = new ArrayList<>();
+        if (imageType.contains(",")) {
+            String[] types = imageType.split(",");
+            for (String type : types) {
+                typeList.add(type);
+            }
+        } else {
+            typeList.add(imageType);
+        }
+        return typeList;
     }
 
     /**
