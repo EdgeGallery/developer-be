@@ -17,6 +17,7 @@
 package org.edgegallery.developer.mapper;
 
 import java.util.List;
+import java.util.Map;
 import org.apache.ibatis.annotations.Param;
 import org.edgegallery.developer.model.containerimage.ContainerImage;
 import org.edgegallery.developer.model.containerimage.ContainerImageReq;
@@ -42,7 +43,7 @@ public interface ContainerImageMapper {
 
     List<ContainerImage> getAllImage();
 
-    List<ContainerImage> getAllImageByAdminAuth(ContainerImageReq containerImageReq);
+    List<ContainerImage> getAllImageByAdminAuth(Map map);
 
-    List<ContainerImage> getAllImageByOrdinaryAuth(ContainerImageReq containerImageReq);
+    List<ContainerImage> getAllImageByOrdinaryAuth(Map map);
 }
