@@ -42,6 +42,7 @@ import org.apache.http.impl.client.DefaultRedirectStrategy;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.ssl.SSLContextBuilder;
 import org.apache.tomcat.util.http.fileupload.servlet.ServletFileUpload;
+import org.edgegallery.developer.common.Consts;
 import org.edgegallery.developer.common.ResponseConsts;
 import org.edgegallery.developer.config.security.AccessUserUtil;
 import org.edgegallery.developer.exception.DeveloperException;
@@ -229,7 +230,7 @@ public class ImageServiceV2 {
     private void createHarborRepoByUserId(String userId) {
         try (CloseableHttpClient client = createIgnoreSslHttpClient()) {
             URL url = new URL(loginUrl);
-            String userLoginUrl = url.getProtocol() + "://" + devRepoEndpoint + "/c/login";
+            String userLoginUrl = String.format(Consts.HARBOR_IMAGE_LOGIN_URL, url.getProtocol(), devRepoEndpoint);
             LOGGER.warn("harbor login url: {}", userLoginUrl);
             //excute login to harbor repo
             HttpPost httpPost = new HttpPost(userLoginUrl);
@@ -244,7 +245,8 @@ public class ImageServiceV2 {
             LOGGER.warn("__csrf: {}", csrf);
 
             //excute create image operation
-            String postImageUrl = url.getProtocol() + "://" + devRepoEndpoint + "/api/v2.0/projects";
+            String postImageUrl = String
+                .format(Consts.HARBOR_IMAGE_CREATE_REPO_URL, url.getProtocol(), devRepoEndpoint);
             LOGGER.warn("create Image repo Url : {}", postImageUrl);
             HttpPost createPost = new HttpPost(postImageUrl);
             String encodeStr = encodeUserAndPwd();

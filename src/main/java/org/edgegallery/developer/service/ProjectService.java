@@ -409,6 +409,16 @@ public class ProjectService {
             FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "cannot modify projects that are online");
             return Either.left(error);
         }
+        String oldIconFileId = oldProject.getIconFileId();
+        String newIconFileId = newProject.getIconFileId();
+        if (!oldIconFileId.equals(newIconFileId)) {
+            int updateRes = uploadedFileMapper.updateFileStatus(newIconFileId, false);
+            if (updateRes < 1) {
+                LOGGER.error("modify project {} icon file id to not temp failed!", projectId);
+                FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "modify icon file status failed!");
+                return Either.left(error);
+            }
+        }
         newProject.setId(projectId);
         newProject.setUserId(userId);
 
@@ -848,8 +858,8 @@ public class ProjectService {
         return Either.right(true);
     }
 
-    private Either<FormatRespDto, Boolean> doSomeDbOperation(OpenMepCapabilityGroup group,
-        OpenMepCapability detail, ServiceDetail serviceDetail, List<String> openCapabilityIds) {
+    private Either<FormatRespDto, Boolean> doSomeDbOperation(OpenMepCapabilityGroup group, OpenMepCapability detail,
+        ServiceDetail serviceDetail, List<String> openCapabilityIds) {
         if (StringUtils.isEmpty(group.getDescriptionEn())) {
             group.setDescriptionEn(group.getDescription());
         }
