@@ -186,6 +186,19 @@ public class ContainerImageMgmtServiceV2 {
         return null;
     }
 
+    /**
+     * getAllContainerImages.
+     */
+    public List<ContainerImage> getAllImages(String userId) {
+        List<ContainerImage> list;
+        if (SystemImageUtil.isAdminUser()) {
+            list = containerImageMapper.getAllImageByAdmin();
+        } else {
+            list = containerImageMapper.getAllImageByOrdinary(userId);
+        }
+        return list;
+    }
+
     private List<String> addTypeOrStatusToList(String imageType) {
         List<String> typeList = new ArrayList<>();
         if (imageType.contains(",")) {
