@@ -21,8 +21,10 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.Pattern;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
+import org.edgegallery.developer.common.Consts;
 import org.edgegallery.developer.model.ReleaseConfig;
 import org.edgegallery.developer.response.ErrorRespDto;
 import org.edgegallery.developer.response.FormatRespDto;
@@ -90,8 +92,9 @@ public class ReleaseConfigController {
     public ResponseEntity<ReleaseConfig> getReleaseConfig(
         @Pattern(regexp = REGEX_UUID, message = "projectId must be in UUID format")
         @ApiParam(value = "projectId", required = true) @PathVariable(value = "projectId", required = true)
-            String projectId) {
-        Either<FormatRespDto, ReleaseConfig> either = releaseService.getConfigById(projectId);
+            String projectId, HttpServletRequest request) {
+        String token = request.getHeader(Consts.ACCESS_TOKEN_STR);
+        Either<FormatRespDto, ReleaseConfig> either = releaseService.getConfigById(projectId, token);
         return ResponseDataUtil.buildResponse(either);
     }
 

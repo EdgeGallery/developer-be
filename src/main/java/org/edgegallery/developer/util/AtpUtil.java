@@ -39,10 +39,6 @@ import org.springframework.web.client.RestTemplate;
 public class AtpUtil {
     private static final Logger LOGGER = LoggerFactory.getLogger(AtpUtil.class);
 
-    private static final String WAITING = "waiting";
-
-    private static final String RUNNING = "running";
-
     private static final String ATP_ADDRESS = "atp_address";
 
     private static final RestTemplate restTemplate = new RestTemplate();
@@ -99,47 +95,19 @@ public class AtpUtil {
         String url = InitConfigUtil.getProperties(ATP_ADDRESS).concat(String.format(Consts.GET_TASK_FROM_ATP, taskId));
         LOGGER.info("get task status frm atp, url: {}", url);
 
-        long startTime = System.currentTimeMillis();
-        while (true) {
-            try {
-                if ((System.currentTimeMillis() - startTime) > 100000) {
-                    LOGGER.error("Get atp task {} status from appo time out", taskId);
-                    throw new InvocationException(Response.Status.INTERNAL_SERVER_ERROR,
-                        "Get atp task status from appo time out.");
-                }
-                ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, request, String.class);
-                if (!HttpStatus.OK.equals(response.getStatusCode())) {
-                    LOGGER.error("Get task status from atp reponse failed, the taskId is {}, The status code is {}",
-                        taskId, response.getStatusCode());
-                    throw new InvocationException(Response.Status.INTERNAL_SERVER_ERROR,
-                        "Get task status from atp reponse failed.");
-                }
-
-                JsonObject jsonObject = new JsonParser().parse(response.getBody()).getAsJsonObject();
-                String status = jsonObject.get("status").getAsString();
-
-                LOGGER.info("status: {}", status);
-
-                if (!WAITING.equalsIgnoreCase(status) && !RUNNING.equals(status) && !"created"
-                    .equalsIgnoreCase(status)) {
-                    return status;
-                }
-                sleep5Mins();
-            } catch (RestClientException e) {
-                LOGGER.error("Failed to get task status from atp which taskId is {} exception {}", taskId, e);
-                sleep5Mins();
-            }
+        ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, request, String.class);
+        if (!HttpStatus.OK.equals(response.getStatusCode())) {
+            LOGGER.error("Get task status from atp reponse failed, the taskId is {}, The status code is {}",
+                taskId, response.getStatusCode());
+            throw new InvocationException(Response.Status.INTERNAL_SERVER_ERROR,
+                "Get task status from atp reponse failed.");
         }
+        JsonObject jsonObject = new JsonParser().parse(response.getBody()).getAsJsonObject();
+        String status = jsonObject.get("status").getAsString();
+        LOGGER.info("status: {}", status);
+        return status;
     }
 
-    private static void sleep5Mins() {
-        try {
-            Thread.sleep(5000);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            LOGGER.error("interrupt failed.");
-        }
-    }
 
     /**
      * get file path by projectId.
