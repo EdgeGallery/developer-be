@@ -125,8 +125,8 @@ public class ReleaseConfigServiceTest {
     @WithMockUser(roles = "DEVELOPER_TENANT")
     public void testGetRelConfig() {
         AccessUserUtil.setUser("f24ea0a2-d8e6-467c-8039-94f0d29bac43", "test-user");
-        Either<FormatRespDto, ReleaseConfig> stru = releaseConfigService.getConfigById("200dfab1-3c30-4fc7-a6ca-ed6f0620a85d");
-        Assert.assertTrue(stru.isRight());
+        Either<FormatRespDto, ReleaseConfig> stru = releaseConfigService.getConfigById("200dfab1-3c30-4fc7-a6ca-ed6f0620a85d", "");
+        Assert.assertTrue(stru.isLeft());
     }
 
     // @Test
@@ -141,7 +141,7 @@ public class ReleaseConfigServiceTest {
     @Test
     @WithMockUser(roles = "DEVELOPER_TENANT")
     public void testGetRelConfigWithIdError() {
-        Either<FormatRespDto, ReleaseConfig> stru = releaseConfigService.getConfigById("");
+        Either<FormatRespDto, ReleaseConfig> stru = releaseConfigService.getConfigById("", "");
         Assert.assertTrue(stru.isLeft());
         Assert.assertEquals(400, stru.getLeft().getEnumStatus().getStatusCode());
     }
