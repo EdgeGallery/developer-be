@@ -7,7 +7,7 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import java.io.File;
-import java.io.IOException;
+import java.util.List;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.edgegallery.developer.domain.shared.Page;
 import org.edgegallery.developer.model.containerimage.ContainerImage;
@@ -69,6 +69,24 @@ public class ContainerImageMgmtControllerV2 {
     public ResponseEntity<Page<ContainerImage>> getAllContainerImage(
         @ApiParam(value = "ContainerImages", required = true) @RequestBody ContainerImageReq containerImageReq) {
         Page<ContainerImage> either = containerImageMgmtServiceV2.getAllImage(containerImageReq);
+        return ResponseEntity.ok(either);
+    }
+
+    /**
+     * getAllContainerImages with no Pagination.
+     *
+     * @return
+     */
+    @ApiOperation(value = "get all ContainerImage", response = ContainerImage.class, responseContainer = "List")
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = "OK", response = ContainerImage.class, responseContainer = "List")
+    })
+    @RequestMapping(value = "/images/list", method = RequestMethod.GET,
+        consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @PreAuthorize("hasRole('DEVELOPER_ADMIN')|| hasRole('DEVELOPER_TENANT')")
+    public ResponseEntity<List<ContainerImage>> getAllContainerImages(
+        @ApiParam(value = "userId", required = true) @RequestParam String userId) {
+        List<ContainerImage> either = containerImageMgmtServiceV2.getAllImages(userId);
         return ResponseEntity.ok(either);
     }
 
@@ -135,7 +153,6 @@ public class ContainerImageMgmtControllerV2 {
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity cancelUploadHarborImage(
         @ApiParam(value = "imageId", required = true) @PathVariable("imageId") String imageId) {
-       // return systemImageMgmtServiceV2.cancelUploadSystemImage(systemId, identifier);
         return containerImageMgmtServiceV2.cancelUploadHarborImage(imageId);
     }
 

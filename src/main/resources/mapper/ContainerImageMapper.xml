@@ -151,6 +151,13 @@
         image_type=#{imageType},image_path=#{imagePath},file_name=#{fileName}
         where image_id=#{imageId}
     </update>
+    <select id="getAllImageByAdmin" resultMap="ContainerImageMap">
+        select * from tbl_container_image
+    </select>
+
+    <select id="getAllImageByOrdinary" parameterType="java.lang.String" resultMap="ContainerImageMap">
+        select * from tbl_container_image where user_id = #{userId}
+    </select>
 
     <update id="updateContainerImageStatus" parameterType="java.lang.String">
         update tbl_container_image set image_status=#{imageStatus} where image_id=#{imageId}
