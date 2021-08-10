@@ -11,6 +11,7 @@ import com.github.dockerjava.netty.NettyDockerCmdExecFactory;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.spencerwi.either.Either;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
@@ -40,6 +41,7 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.DefaultRedirectStrategy;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.ssl.SSLContextBuilder;
+import org.edgegallery.developer.common.Consts;
 import org.edgegallery.developer.common.ResponseConsts;
 import org.edgegallery.developer.config.security.AccessUserUtil;
 import org.edgegallery.developer.domain.shared.Page;
@@ -70,6 +72,11 @@ public class ContainerImageMgmtServiceV2 {
     private ContainerImageMapper containerImageMapper;
 
     private static CookieStore cookieStore = new BasicCookieStore();
+
+    private static final String SUBDIR_CONIMAGE = "ContainerImage";
+
+    @Value("${upload.tempPath}")
+    private String filePathTemp;
 
     @Value("${imagelocation.username:}")
     private String harborUsername;
@@ -334,6 +341,39 @@ public class ContainerImageMgmtServiceV2 {
         }
     }
 
+    /**
+     * cancelUploadHarborImage.
+     *
+     * @param imageId harbor image Id
+     * @return
+     */
+    public ResponseEntity cancelUploadHarborImage(String imageId) {
+        LOGGER.info("cancel upload harbor image file, harborImageId = {}, ", imageId);
+
+        ContainerImage containerImage = containerImageMapper.getContainerImage(imageId);
+        if (EnumContainerImageStatus.UPLOADING_MERGING == containerImage.getImageStatus()) {
+            LOGGER.error("harbor image is merging, it cannot be cancelled.");
+            throw new DeveloperException("harbor image is merging, it cannot be cancelled",
+                ResponseConsts.RET_CONTAINER_IMAGE_CANCELLED_FAILED);
+        }
+
+        LOGGER.info("update status and remove local directory.");
+        int updateRes = containerImageMapper
+            .updateContainerImageStatus(imageId, EnumContainerImageStatus.UPLOAD_CANCELLED.toString());
+        if (updateRes < 1) {
+            LOGGER.error("update image status failed.");
+            throw new DeveloperException("update image status failed",
+                ResponseConsts.RET_CONTAINER_IMAGE_CANCELLED_FAILED);
+        }
+        String rootDir = getUploadSysImageRootDir(imageId);
+        SystemImageUtil.cleanWorkDir(new File(rootDir));
+        return ResponseEntity.ok().build();
+    }
+
+    private String getUploadSysImageRootDir(String imageId) {
+        return filePathTemp + File.separator + SUBDIR_CONIMAGE + File.separator + imageId + File.separator;
+    }
+
     private boolean deleteHarborImage(String image) {
         //Split image
         if (!image.contains(imageDomainName)) {
@@ -349,7 +389,7 @@ public class ContainerImageMgmtServiceV2 {
             imageVersion = names[1];
             try (CloseableHttpClient client = createIgnoreSslHttpClient()) {
                 URL url = new URL(loginUrl);
-                String userLoginUrl = url.getProtocol() + "://" + imageDomainName + "/c/login";
+                String userLoginUrl = String.format(Consts.HARBOR_IMAGE_LOGIN_URL, url.getProtocol(), imageDomainName);
                 LOGGER.warn("harbor login url: {}", userLoginUrl);
                 //excute login to harbor repo
                 HttpPost httpPost = new HttpPost(userLoginUrl);
@@ -364,8 +404,15 @@ public class ContainerImageMgmtServiceV2 {
                 LOGGER.warn("__csrf: {}", csrf);
 
                 //excute delete image operation
-                String deleteImageUrl = url.getProtocol() + "://" + imageDomainName + "/api/v2.0/projects/"
-                    + imageProject + "/repositories/" + imageName + "/artifacts/" + imageVersion;
+                String deleteImageUrl = "";
+                if (SystemImageUtil.isAdminUser()) {
+                    deleteImageUrl = String
+                        .format(Consts.HARBOR_IMAGE_DELETE_URL, url.getProtocol(), imageDomainName, imageProject,
+                            imageName, imageVersion);
+                } else {
+                    deleteImageUrl = String.format(Consts.HARBOR_IMAGE_DELETE_URL, url.getProtocol(), imageDomainName,
+                        AccessUserUtil.getUser().getUserId(), imageName, imageVersion);
+                }
                 LOGGER.warn("delete image url: {}", deleteImageUrl);
                 HttpDelete httpDelete = new HttpDelete(deleteImageUrl);
                 String encodeStr = encodeUserAndPwd();

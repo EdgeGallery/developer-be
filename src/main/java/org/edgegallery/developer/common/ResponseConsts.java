@@ -216,6 +216,11 @@ public class ResponseConsts {
      */
     public static final int RET_MERGE_CONTAINER_IMAGE_FAILED = 20039;
 
+    /**
+     * container image is merging, it cannot be cancelled.
+     */
+    public static final int RET_CONTAINER_IMAGE_CANCELLED_FAILED = 20040;
+
 
 
 }

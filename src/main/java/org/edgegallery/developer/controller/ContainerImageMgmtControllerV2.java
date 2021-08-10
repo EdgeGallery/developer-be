@@ -7,6 +7,7 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import java.io.File;
+import java.io.IOException;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.edgegallery.developer.domain.shared.Page;
 import org.edgegallery.developer.model.containerimage.ContainerImage;
@@ -24,6 +25,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
 @RestSchema(schemaId = "containerImageMgmtV2")
@@ -120,6 +122,21 @@ public class ContainerImageMgmtControllerV2 {
     public ResponseEntity<InputStreamResource> downloadSystemImage(
         @ApiParam(value = "imageId", required = true) @PathVariable("imageId") String imageId) {
         return containerImageMgmtServiceV2.downloadHarborImage(imageId);
+    }
+
+    /**
+     * cancel upload harbor image.
+     */
+    @ApiOperation(value = "cancel upload harbor image", response = ResponseEntity.class)
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = "OK", response = ResponseEntity.class)
+    })
+    @RequestMapping(value = "/images/{imageId}/upload", method = RequestMethod.DELETE)
+    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
+    public ResponseEntity cancelUploadHarborImage(
+        @ApiParam(value = "imageId", required = true) @PathVariable("imageId") String imageId) {
+       // return systemImageMgmtServiceV2.cancelUploadSystemImage(systemId, identifier);
+        return containerImageMgmtServiceV2.cancelUploadHarborImage(imageId);
     }
 
 }
