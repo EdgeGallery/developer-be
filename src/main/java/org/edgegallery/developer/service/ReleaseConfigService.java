@@ -219,7 +219,7 @@ public class ReleaseConfigService {
         }
         ReleaseConfig oldConfig = configMapper.getConfigByProjectId(projectId);
         // update atp test status
-        if (oldConfig.getAtpTest()!=null && !oldConfig.getAtpTest().getStatus().equals("success")
+        if (oldConfig!=null && oldConfig.getAtpTest()!=null && !oldConfig.getAtpTest().getStatus().equals("success")
             && !oldConfig.getAtpTest().getStatus().equals("failed")) {
             AtpResultInfo atpResultInfo = oldConfig.getAtpTest();
             String taskId = atpResultInfo.getId();
