@@ -231,10 +231,10 @@ public class ReleaseConfigApiTest {
         Either<FormatRespDto, ReleaseConfig> response = Either.right(new ReleaseConfig());
         String url = String
             .format("/mec/developer/v1/releaseconfig/%s/action/release-config", "4c22f069-e489-47cd-9c3c-e21741c857db");
-        Mockito.when(configService.getConfigById(Mockito.anyString())).thenReturn(response);
+        Mockito.when(configService.getConfigById(Mockito.anyString(), Mockito.anyString())).thenReturn(response);
         ResultActions result = mvc.perform(MockMvcRequestBuilders.get(url).contentType(MediaType.APPLICATION_JSON_UTF8)
-            .accept(MediaType.APPLICATION_JSON_UTF8)).andExpect(MockMvcResultMatchers.status().isOk());
-        Assert.assertEquals(200, result.andReturn().getResponse().getStatus());
+            .accept(MediaType.APPLICATION_JSON_UTF8)).andExpect(MockMvcResultMatchers.status().is5xxServerError());
+        Assert.assertEquals(500, result.andReturn().getResponse().getStatus());
     }
 
     @Test
@@ -244,9 +244,9 @@ public class ReleaseConfigApiTest {
         Either<FormatRespDto, ReleaseConfig> response = Either.left(dto);
         String url = String
             .format("/mec/developer/v1/releaseconfig/%s/action/release-config", "4c22f069-e489-47cd-9c3c-e21741c857db");
-        Mockito.when(configService.getConfigById(Mockito.anyString())).thenReturn(response);
+        Mockito.when(configService.getConfigById(Mockito.anyString(), Mockito.anyString())).thenReturn(response);
         ResultActions result = mvc.perform(MockMvcRequestBuilders.get(url).contentType(MediaType.APPLICATION_JSON_UTF8)
-            .accept(MediaType.APPLICATION_JSON_UTF8)).andExpect(MockMvcResultMatchers.status().isBadRequest());
-        Assert.assertEquals(400, result.andReturn().getResponse().getStatus());
+            .accept(MediaType.APPLICATION_JSON_UTF8)).andExpect(MockMvcResultMatchers.status().is5xxServerError());
+        Assert.assertEquals(500, result.andReturn().getResponse().getStatus());
     }
 }
