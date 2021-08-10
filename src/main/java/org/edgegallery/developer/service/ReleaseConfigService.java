@@ -219,8 +219,11 @@ public class ReleaseConfigService {
         }
         ReleaseConfig oldConfig = configMapper.getConfigByProjectId(projectId);
         // update atp test status
-        if (oldConfig!=null && oldConfig.getAtpTest()!=null && oldConfig.getAtpTest().getStatus().equals("created")
-            && oldConfig.getAtpTest().getStatus().equals("running") && oldConfig.getAtpTest().getStatus().equals("waiting")) {
+        if (oldConfig==null || oldConfig.getAtpTest()==null || oldConfig.getAtpTest().getId().equals("")) {
+            return Either.right(oldConfig);
+        }
+        if (oldConfig.getAtpTest().getStatus().equals("created") || oldConfig.getAtpTest().getStatus().equals("running")
+            || oldConfig.getAtpTest().getStatus().equals("waiting")) {
             AtpResultInfo atpResultInfo = oldConfig.getAtpTest();
             String taskId = atpResultInfo.getId();
             atpResultInfo.setStatus(AtpUtil.getTaskStatusFromAtp(taskId, token));
