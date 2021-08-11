@@ -239,6 +239,7 @@ public class ReleaseConfigService {
             } else {
                 project.setStatus(EnumProjectStatus.TESTING);
             }
+            projectMapper.updateProject(project);
             configMapper.updateAtpStatus(oldConfig);
         }
         return Either.right(oldConfig);
