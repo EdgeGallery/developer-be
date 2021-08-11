@@ -25,7 +25,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.zip.GZIPOutputStream;
 import java.util.zip.ZipEntry;
 import net.lingala.zip4j.ZipFile;
@@ -40,6 +42,8 @@ import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 public final class CompressFileUtils {
 
@@ -215,6 +219,29 @@ public final class CompressFileUtils {
         byte[] b = new byte[BUFFER];
         while ((length = in.read(b)) != -1) {
             out.write(b, 0, length);
+        }
+    }
+
+    /**
+     * writeFile.
+     */
+    public static void fileToZip(String filePath, String fileName) {
+        if (!StringUtils.isEmpty(filePath)) {
+            File dir = new File(filePath);
+            if (dir.isDirectory()) {
+                File[] files = dir.listFiles();
+                if (files != null && files.length > 0) {
+                    List<File> subFiles = Arrays.asList(files);
+                    if (!CollectionUtils.isEmpty(subFiles)) {
+                        CompressFileUtilsJava
+                            .zipFiles(subFiles, new File(filePath + File.separator + fileName + ".zip"));
+                        for (File subFile : subFiles) {
+                            FileUtils.deleteQuietly(subFile);
+                        }
+                    }
+                }
+            }
+
         }
     }
 
