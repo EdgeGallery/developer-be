@@ -804,7 +804,7 @@ public class VmService {
     }
 
     /**
-     * genrate pkg.
+     * generate pkg.
      *
      * @return
      */
@@ -816,28 +816,24 @@ public class VmService {
             FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "Can not find the project.");
             return Either.left(error);
         }
-        //A project has only one virtual machine configuration
 
+        //check image info
         VmSystem vmSystem = vmPackageConfig.getVmSystem();
         Boolean checkImageRes = HttpClientUtil.checkImageInfo(vmSystem.getSystemPath());
         if (!checkImageRes) {
             LOGGER.error("image file no exit");
             return Either.left(new FormatRespDto(Response.Status.BAD_REQUEST, "image file no exit:"));
         }
-
-        String id = UUID.randomUUID().toString();
-        String appInstanceId = UUID.randomUUID().toString();
+        // generate vm package by config
         vmPackageConfig.setProjectId(projectId);
-        vmPackageConfig.setId(id);
-        vmPackageConfig.setAppInstanceId(appInstanceId);
-        vmPackageConfig.setCreateTime(new Date());
         try {
             generateVmPackageByConfig(vmPackageConfig);
         } catch (Exception e) {
             LOGGER.error("generate vm csar with id:{} on csar failed:{}", vmPackageConfig.getId(), e.getMessage());
             return Either.left(new FormatRespDto(Response.Status.BAD_REQUEST, "generate vm csar fail"));
         }
-        // create vm package config
+
+        // save vm package config to db
         int tes = vmConfigMapper.saveVmPackageConfig(vmPackageConfig);
         if (tes < 1) {
             LOGGER.error("create vm package config {} failed.", vmPackageConfig.getId());
@@ -877,11 +873,13 @@ public class VmService {
             LOGGER.error("get vm package config failed.");
             return Either.left(new FormatRespDto(Response.Status.BAD_REQUEST, "get vm package config failed."));
         }
+
         int res = vmConfigMapper.deleteVmPackageConfig(config.getId());
         if (res < 1) {
             LOGGER.error("delete vm package config failed.");
             return Either.left(new FormatRespDto(Response.Status.BAD_REQUEST, "delete vm package config failed."));
         }
+        // delete package file
         String projectPath = getProjectPath(projectId);
         DeveloperFileUtils.deleteDir(projectPath + config.getAppInstanceId());
         FileUtils.deleteQuietly(new File(projectPath + config.getAppInstanceId() + ".csar"));
@@ -894,6 +892,9 @@ public class VmService {
      * create vm package.
      */
     public File generateVmPackageByConfig(VmPackageConfig config) throws IOException, DomainException {
+        config.setId(UUID.randomUUID().toString());
+        config.setAppInstanceId(UUID.randomUUID().toString());
+        config.setCreateTime(new Date());
         ApplicationProject project = projectMapper.getProjectById(config.getProjectId());
         String projectPath = projectService.getProjectPath(config.getProjectId());
         File csarPkgDir;
