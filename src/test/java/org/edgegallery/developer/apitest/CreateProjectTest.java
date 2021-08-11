@@ -358,7 +358,7 @@ public class CreateProjectTest {
         project.setPlatform(platforms);
         project.setType("Video");
         project.setDescription("test");
-        project.setIconFileId("d71bd9cf-17f5-4477-9248-597c68c75541");
+        project.setIconFileId("e111f3e7-90d8-4a39-9874-ea6ea6752ef5");
         project.setStatus(EnumProjectStatus.ONLINE);
 
         List<OpenMepCapabilityGroup> capabilities = new ArrayList<>();
