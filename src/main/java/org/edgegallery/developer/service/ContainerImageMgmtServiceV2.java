@@ -11,15 +11,19 @@ import com.github.dockerjava.netty.NettyDockerCmdExecFactory;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.spencerwi.either.Either;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import javax.net.ssl.SSLContext;
 import org.apache.commons.lang3.StringUtils;
@@ -37,6 +41,7 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.DefaultRedirectStrategy;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.ssl.SSLContextBuilder;
+import org.edgegallery.developer.common.Consts;
 import org.edgegallery.developer.common.ResponseConsts;
 import org.edgegallery.developer.config.security.AccessUserUtil;
 import org.edgegallery.developer.domain.shared.Page;
@@ -67,6 +72,11 @@ public class ContainerImageMgmtServiceV2 {
     private ContainerImageMapper containerImageMapper;
 
     private static CookieStore cookieStore = new BasicCookieStore();
+
+    private static final String SUBDIR_CONIMAGE = "ContainerImage";
+
+    @Value("${upload.tempPath}")
+    private String filePathTemp;
 
     @Value("${imagelocation.username:}")
     private String harborUsername;
@@ -143,11 +153,30 @@ public class ContainerImageMgmtServiceV2 {
         if (!StringUtils.isBlank(createTimeEnd)) {
             containerImageReq.setCreateTimeEnd(createTimeEnd + " 23:59:59");
         }
+        String imageType = containerImageReq.getImageType();
+        String imageStatus = containerImageReq.getImageStatus();
+        List<String> types = new ArrayList<>();
+        List<String> status = new ArrayList<>();
+        if (StringUtils.isNotEmpty(imageType)) {
+            types = addTypeOrStatusToList(imageType);
+        }
+        if (StringUtils.isNotEmpty(imageStatus)) {
+            status = addTypeOrStatusToList(imageStatus);
+        }
+        Map<String, Object> map = new HashMap<>();
+        map.put("imageName", containerImageReq.getImageName());
+        map.put("createTimeBegin", containerImageReq.getCreateTimeBegin());
+        map.put("createTimeEnd", containerImageReq.getCreateTimeEnd());
+        map.put("userId", containerImageReq.getUserId());
+        map.put("sortBy", containerImageReq.getSortBy());
+        map.put("sortOrder", containerImageReq.getSortOrder());
+        map.put("imageType", types);
+        map.put("imageStatus", status);
         PageInfo pageInfo = null;
         if (SystemImageUtil.isAdminUser()) {
-            pageInfo = new PageInfo<ContainerImage>(containerImageMapper.getAllImageByAdminAuth(containerImageReq));
+            pageInfo = new PageInfo<>(containerImageMapper.getAllImageByAdminAuth(map));
         } else {
-            pageInfo = new PageInfo<ContainerImage>(containerImageMapper.getAllImageByOrdinaryAuth(containerImageReq));
+            pageInfo = new PageInfo<>(containerImageMapper.getAllImageByOrdinaryAuth(map));
         }
         if (pageInfo != null) {
             LOGGER.info("Get all container image success.");
@@ -155,6 +184,32 @@ public class ContainerImageMgmtServiceV2 {
                 containerImageReq.getOffset(), pageInfo.getTotal());
         }
         return null;
+    }
+
+    /**
+     * getAllContainerImages.
+     */
+    public List<ContainerImage> getAllImages(String userId) {
+        List<ContainerImage> list;
+        if (SystemImageUtil.isAdminUser()) {
+            list = containerImageMapper.getAllImageByAdmin();
+        } else {
+            list = containerImageMapper.getAllImageByOrdinary(userId);
+        }
+        return list;
+    }
+
+    private List<String> addTypeOrStatusToList(String imageType) {
+        List<String> typeList = new ArrayList<>();
+        if (imageType.contains(",")) {
+            String[] types = imageType.split(",");
+            for (String type : types) {
+                typeList.add(type);
+            }
+        } else {
+            typeList.add(imageType);
+        }
+        return typeList;
     }
 
     /**
@@ -299,6 +354,39 @@ public class ContainerImageMgmtServiceV2 {
         }
     }
 
+    /**
+     * cancelUploadHarborImage.
+     *
+     * @param imageId harbor image Id
+     * @return
+     */
+    public ResponseEntity cancelUploadHarborImage(String imageId) {
+        LOGGER.info("cancel upload harbor image file, harborImageId = {}, ", imageId);
+
+        ContainerImage containerImage = containerImageMapper.getContainerImage(imageId);
+        if (EnumContainerImageStatus.UPLOADING_MERGING == containerImage.getImageStatus()) {
+            LOGGER.error("harbor image is merging, it cannot be cancelled.");
+            throw new DeveloperException("harbor image is merging, it cannot be cancelled",
+                ResponseConsts.RET_CONTAINER_IMAGE_CANCELLED_FAILED);
+        }
+
+        LOGGER.info("update status and remove local directory.");
+        int updateRes = containerImageMapper
+            .updateContainerImageStatus(imageId, EnumContainerImageStatus.UPLOAD_CANCELLED.toString());
+        if (updateRes < 1) {
+            LOGGER.error("update image status failed.");
+            throw new DeveloperException("update image status failed",
+                ResponseConsts.RET_CONTAINER_IMAGE_CANCELLED_FAILED);
+        }
+        String rootDir = getUploadSysImageRootDir(imageId);
+        SystemImageUtil.cleanWorkDir(new File(rootDir));
+        return ResponseEntity.ok().build();
+    }
+
+    private String getUploadSysImageRootDir(String imageId) {
+        return filePathTemp + File.separator + SUBDIR_CONIMAGE + File.separator + imageId + File.separator;
+    }
+
     private boolean deleteHarborImage(String image) {
         //Split image
         if (!image.contains(imageDomainName)) {
@@ -314,7 +402,7 @@ public class ContainerImageMgmtServiceV2 {
             imageVersion = names[1];
             try (CloseableHttpClient client = createIgnoreSslHttpClient()) {
                 URL url = new URL(loginUrl);
-                String userLoginUrl = url.getProtocol() + "://" + imageDomainName + "/c/login";
+                String userLoginUrl = String.format(Consts.HARBOR_IMAGE_LOGIN_URL, url.getProtocol(), imageDomainName);
                 LOGGER.warn("harbor login url: {}", userLoginUrl);
                 //excute login to harbor repo
                 HttpPost httpPost = new HttpPost(userLoginUrl);
@@ -329,8 +417,15 @@ public class ContainerImageMgmtServiceV2 {
                 LOGGER.warn("__csrf: {}", csrf);
 
                 //excute delete image operation
-                String deleteImageUrl = "https://" + imageDomainName + "/api/v2.0/projects/" + imageProject
-                    + "/repositories/" + imageName + "/artifacts/" + imageVersion;
+                String deleteImageUrl = "";
+                if (SystemImageUtil.isAdminUser()) {
+                    deleteImageUrl = String
+                        .format(Consts.HARBOR_IMAGE_DELETE_URL, url.getProtocol(), imageDomainName, imageProject,
+                            imageName, imageVersion);
+                } else {
+                    deleteImageUrl = String.format(Consts.HARBOR_IMAGE_DELETE_URL, url.getProtocol(), imageDomainName,
+                        AccessUserUtil.getUser().getUserId(), imageName, imageVersion);
+                }
                 LOGGER.warn("delete image url: {}", deleteImageUrl);
                 HttpDelete httpDelete = new HttpDelete(deleteImageUrl);
                 String encodeStr = encodeUserAndPwd();

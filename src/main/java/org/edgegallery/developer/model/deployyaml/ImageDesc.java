@@ -17,6 +17,7 @@
 package org.edgegallery.developer.model.deployyaml;
 
 import com.google.gson.annotations.SerializedName;
+import lombok.Builder.Default;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -32,28 +33,28 @@ public class ImageDesc {
 
     private String checksum;
 
-    private String containerFormat;
+    private String containerFormat = "bare";
 
     private String diskFormat;
 
     private int minDisk;
 
-    private int minRam;
+    private int minRam = 6;
 
     private String architecture;
 
-    private int size;
+    private int size = 688390;
 
     private String swImage;
 
     @SerializedName("hw_scsi_model")
-    private String hwScsiModel;
+    private String hwScsiModel = "virtio-scsi";
 
     @SerializedName("hw_disk_bus")
-    private String hwDiskBus;
+    private String hwDiskBus = "scsi";
 
     private String operatingSystem;
 
-    private String supportedVirtualisationEnvironment;
+    private String supportedVirtualisationEnvironment = "linux";
 
 }

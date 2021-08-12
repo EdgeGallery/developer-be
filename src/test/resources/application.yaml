@@ -51,3 +51,6 @@ upload:
   path: /usr/app-test/images
   tempPath: /usr/app-test/tmp
 
+signature:
+  encrypted-key-path: src/test/resources/testdata/public.p12
+  key-password: ${EDGE_CERT_PASSWORD:Test12345_}
