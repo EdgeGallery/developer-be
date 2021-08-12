@@ -31,7 +31,7 @@ import org.edgegallery.developer.model.workspace.MepHostLog;
 import org.edgegallery.developer.model.workspace.OpenMepCapability;
 import org.edgegallery.developer.model.workspace.OpenMepCapabilityGroup;
 import org.edgegallery.developer.response.FormatRespDto;
-import org.edgegallery.developer.service.OpenMepCapabilityService;
+import org.edgegallery.developer.service.CapabilityGroupService;
 import org.edgegallery.developer.service.CapabilityService;
 import org.edgegallery.developer.service.impl.HostServiceImpl;
 import org.junit.After;
@@ -55,7 +55,7 @@ public class CapabilityServiceImplTest {
     private CapabilityService systemService;
 
     @Autowired
-    private OpenMepCapabilityService openMepCapabilityService;
+    private CapabilityGroupService openMepCapabilityService;
 
     @Before
     public void init() {

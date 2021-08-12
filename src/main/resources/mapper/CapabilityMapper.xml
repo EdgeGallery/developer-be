@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~    Copyright 2020 Huawei Technologies Co., Ltd.
+  ~
+  ~    Licensed under the Apache License, Version 2.0 (the "License");
+  ~    you may not use this file except in compliance with the License.
+  ~    You may obtain a copy of the License at
+  ~
+  ~        http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~    Unless required by applicable law or agreed to in writing, software
+  ~    distributed under the License is distributed on an "AS IS" BASIS,
+  ~    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~    See the License for the specific language governing permissions and
+  ~    limitations under the License.
+  -->
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.edgegallery.developer.mapper.capability.CapabilityMapper">
+    <resultMap id="Capability" type="org.edgegallery.developer.model.capability.Capability">
+        <id property="id" column="id"/>
+        <result property="groupId" column="group_id"/>
+        <result property="name" column="name"/>
+        <result property="nameEn" column="name_en"/>
+        <result property="version" column="version"/>
+        <result property="description" column="description"/>
+        <result property="descriptionEn" column="description_en"/>
+        <result property="apiFileId" column="api_file_id"/>
+        <result property="guideFileId" column="guide_file_id"/>
+        <result property="guideFileIdEn" column="guide_file_id_en"/>
+        <result property="uploadTime" column="upload_time"/>
+        <result property="port" column="port"/>
+        <result property="host" column="host"/>
+        <result property="protocol" column="protocol"/>
+        <result property="appId" column="app_id"/>
+        <result property="packageId" column="package_id"/>
+        <result property="userId" column="user_id"/>
+        <result property="selectCount" column="select_count"/>
+        <result property="iconFileId" column="icon_file_id"/>
+        <result property="author" column="author"/>
+        <result property="provider" column="provider"/>
+        <association property="group" javaType="org.edgegallery.developer.model.capability.CapabilityGroup">
+            <id property="id" column="group_id"/>
+	        <result property="name" column="g_name"/>
+	        <result property="nameEn" column="g_name_en"/>
+	        <result property="type" column="g_type"/>
+	        <result property="description" column="g_description"/>
+	        <result property="descriptionEn" column="g_description_en"/>
+	        <result property="iconFileId" column="g_icon_file_id"/>
+	        <result property="author" column="g_author"/>
+	        <result property="createTime" column="g_create_time"/>
+	        <result property="updateTime" column="g_update_time"/>
+        </association>
+    </resultMap>    
+
+    <sql id="AllColumn">
+     id,name,name_en,version,description,description_en,api_file_id,guide_file_id,guide_file_id_en,upload_time,port,host,protocol,app_id,package_id,user_id,select_count,icon_file_id,group_id,author,provider
+    </sql>
+    
+    <sql id="AllColumnWithCascade">
+    a.id,a.name,a.name_en,a.version,a.description,a.description_en,a.api_file_id,a.guide_file_id,a.guide_file_id_en,a.upload_time,a.port,a.host,a.protocol,a.app_id,a.package_id,a.user_id,a.select_count,a.icon_file_id,a.group_id,a.author,a.provider,
+    b.name g_name,b.name_en g_name_en,b.type g_type,b.description g_description,b.description_en g_description_en,b.icon_file_id g_iconFileId,b.author g_author,b.create_time g_create_time,b.update_time g_update_time
+    </sql>
+
+    <select id="selectAll" resultMap="Capability">
+        select <include refid="AllColumnWithCascade"/> 
+        from tbl_capability a,tbl_capability_group b
+        where a.group_id = b.id
+    </select>
+    
+    <select id="selectById" parameterType="String" resultMap="Capability">
+        select <include refid="AllColumnWithCascade"/> 
+        from tbl_capability a,tbl_capability_group b
+        where a.group_id = b.id and a.id=#{id}
+    </select>
+    
+    <select id="selectByGroupId" parameterType="String" resultMap="Capability">
+        select <include refid="AllColumnWithCascade"/> 
+        from tbl_capability a,tbl_capability_group b
+        where a.group_id=b.id and b.id=#{groupId} and a.group_id=#{groupId}
+    </select>
+    
+    <select id="selectByNameOrNameEn" resultMap="Capability">
+        select <include refid="AllColumnWithCascade"/> 
+        from tbl_capability a,tbl_capability_group b
+        where a.group_id = b.id and (a.name=#{name} or a.name_en=#{nameEn})
+    </select>    
+    
+    <select id="selectByName" resultMap="Capability">
+        select <include refid="AllColumnWithCascade"/> 
+        from tbl_capability a,tbl_capability_group b
+        where a.group_id = b.id and a.name=#{name}
+    </select>
+    
+    <select id="selectByNameWithFuzzy" resultMap="Capability">
+        select <include refid="AllColumnWithCascade"/> 
+        from tbl_capability a,tbl_capability_group b
+        where a.group_id = b.id
+        <if test="name != null">
+            and a.name like CONCAT('%',#{name},'%')
+        </if>
+        order by a.upload_time desc
+    </select>
+    
+    <select id="selectByNameEnWithFuzzy" resultMap="Capability">
+        select <include refid="AllColumnWithCascade"/> 
+        from tbl_capability a,tbl_capability_group b
+        where a.group_id = b.id
+        <if test="nameEn != null">
+            and a.name_en like CONCAT('%',#{nameEn},'%')
+        </if>
+        order by a.upload_time desc
+    </select>         
+    
+    <insert id="insert" parameterType="org.edgegallery.developer.model.capability.Capability">
+        insert into tbl_capability (<include refid="AllColumn"/>) values 
+        ( #{id}, #{name}, #{nameEn}, #{version}, #{description}, #{descriptionEn}, #{apiFileId}, #{guideFileId}, #{guideFileIdEn}, #{uploadTime}, 
+          #{port}, #{host}, #{protocol}, #{appId}, #{packageId}, #{userId}, #{selectCount},#{iconFileId},#{groupId},#{author},#{provider})
+    </insert>
+
+    <delete id="deleteById" parameterType="String">
+        DELETE FROM tbl_capability WHERE id = #{id}
+    </delete>
+    
+    <update id="updateById" parameterType="org.edgegallery.developer.model.capability.Capability">
+        update tbl_capability
+        set name =#{name},name_en=#{nameEn},version=#{version},description=#{description},description_en=#{descriptionEn},
+            api_file_id =#{apiFileId},guide_file_id =#{guideFileId},guide_file_id_en =#{guideFileIdEn},upload_time =#{uploadTime},
+            port =#{port},host =#{host},protocol =#{protocol},app_id =#{appId},package_id =#{packageId},user_id =#{userId},
+            select_count=#{selectCount},icon_file_id=#{iconFileId},group_id =#{groupId},author=#{author},provider=#{provider}
+        where id = #{id}
+    </update>    
+</mapper>

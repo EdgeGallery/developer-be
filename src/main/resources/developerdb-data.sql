@@ -772,3 +772,4 @@
         ('20aeed6a-f05f-4789-94b5-8a50db67d096', 'default service.jpg', false, 'admin', '2020-01-01 00:00:00.000000', '/mep_capability/images/default service.jpg')
         ON CONFLICT(file_id) do nothing;
         -- workspace mep capability init end--
+        

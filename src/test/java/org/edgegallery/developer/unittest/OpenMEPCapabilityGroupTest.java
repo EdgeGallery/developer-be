@@ -30,7 +30,7 @@ import org.edgegallery.developer.model.workspace.OpenMepCapability;
 import org.edgegallery.developer.model.workspace.OpenMepCapabilityGroup;
 import org.edgegallery.developer.model.workspace.OpenMepCapabilityGroups;
 import org.edgegallery.developer.response.FormatRespDto;
-import org.edgegallery.developer.service.OpenMepCapabilityService;
+import org.edgegallery.developer.service.CapabilityGroupService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -41,7 +41,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 public class OpenMEPCapabilityGroupTest {
 
     @Autowired
-    private OpenMepCapabilityService openMEPCapabilityService;
+    private CapabilityGroupService openMEPCapabilityService;
 
     @Test
     @WithMockUser(roles = "DEVELOPER_TENANT")

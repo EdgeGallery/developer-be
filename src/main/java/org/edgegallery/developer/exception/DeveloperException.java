@@ -31,7 +31,7 @@ public class DeveloperException extends RuntimeException {
      *
      * @param message exception message
      */
-    private DeveloperException(String message) {
+    public DeveloperException(String message) {
         super(message);
     }
 
