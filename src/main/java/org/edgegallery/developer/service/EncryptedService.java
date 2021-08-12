@@ -22,7 +22,7 @@ public class EncryptedService {
     @Value("${signature.key-password:}")
     private String keyPasswd;
 
-    public void encryptedFile(String filePath) throws WindowException, IOException {
+    public void encryptedFile(String filePath) throws IOException {
         try {
             BufferedReader reader = null;
             if (filePath == null) {
