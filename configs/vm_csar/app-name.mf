@@ -15,6 +15,3 @@ Source: Image/SwImageDesc.json
 Algorithm: SHA-256
 Hash: 2949bd976f40a259b14a39c5f785f9a8c5d791540c795601d59c25e5663544b2
 
------BEGIN CMS-----
-
------END CMS-----
