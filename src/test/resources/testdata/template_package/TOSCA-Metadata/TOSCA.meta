@@ -1,0 +1,14 @@
+TOSCA-Meta-File-Version: 1.0
+CSAR-Version: 3.25
+Created-by: EdgeGallery
+Entry-Definitions: APPD/vmtest.zip
+
+Name: APPD/vmtest.zip
+Content-Type: appd
+
+Name: Image/ubuntu_18_04.zip
+Content-Type: image
+
+Name: Image/SwImageDesc.json
+Content-Type: SwImageDesc
+
