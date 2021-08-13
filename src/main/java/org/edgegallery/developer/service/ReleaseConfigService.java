@@ -105,6 +105,9 @@ public class ReleaseConfigService {
     @Autowired
     private VmConfigMapper vmConfigMapper;
 
+    @Autowired
+    private EncryptedService encryptedService;
+
     /**
      * saveConfig.
      */
@@ -310,8 +313,12 @@ public class ReleaseConfigService {
             }
         }
 
+        // sign package
+        encryptedService.encryptedFile(csarFilePath);
+        encryptedService.encryptedCMS(csarFilePath);
         // compress csar
         try {
+
             CompressFileUtilsJava.compressToCsarAndDeleteSrc(csarFilePath, projectPath, config.getAppInstanceId());
         } catch (IOException e) {
             String msg = "Update csar failed: occur IOException";
@@ -442,6 +449,9 @@ public class ReleaseConfigService {
                 FileUtils.copyFile(new File(InitConfigUtil.getWorkSpaceBaseDir() + path.getFilePath()),
                     new File(readmePath));
             }
+            // sign package
+            encryptedService.encryptedFile(csarFilePath);
+            encryptedService.encryptedCMS(csarFilePath);
             // compress csar
             CompressFileUtilsJava.compressToCsarAndDeleteSrc(csarFilePath, projectService.getProjectPath(projectId),
                 vmPackageConfig.getAppInstanceId());
