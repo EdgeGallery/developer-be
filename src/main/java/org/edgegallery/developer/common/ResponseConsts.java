@@ -221,6 +221,16 @@ public class ResponseConsts {
      */
     public static final int RET_CONTAINER_IMAGE_CANCELLED_FAILED = 20040;
 
+    /**
+     * sign package failed.
+     */
+    public static final int RET_SIGN_PACKAGE_FAILED = 20041;
+
+    /**
+     * HASH package failed.
+     */
+    public static final int RET_HASH_PACKAGE_FAILED = 20042;
+
 
 
 }

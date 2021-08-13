@@ -35,12 +35,9 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
-import java.util.Collection;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Map;
 import java.util.UUID;
 import javax.servlet.http.HttpServletRequest;
@@ -80,6 +77,7 @@ import org.edgegallery.developer.model.workspace.EnumProjectStatus;
 import org.edgegallery.developer.model.workspace.EnumTestConfigStatus;
 import org.edgegallery.developer.model.workspace.MepHost;
 import org.edgegallery.developer.response.FormatRespDto;
+import org.edgegallery.developer.service.EncryptedService;
 import org.edgegallery.developer.service.ProjectService;
 import org.edgegallery.developer.service.csar.NewCreateVmCsar;
 import org.edgegallery.developer.service.virtual.create.VmCreateStage;
@@ -142,6 +140,9 @@ public class VmService {
 
     @Autowired
     private HostLogMapper hostLogMapper;
+
+    @Autowired
+    private EncryptedService encryptedService;
 
     /**
      * getVirtualResource.
@@ -899,6 +900,9 @@ public class VmService {
         String projectPath = projectService.getProjectPath(config.getProjectId());
         File csarPkgDir;
         csarPkgDir = new NewCreateVmCsar().create(projectPath, config, project);
+        // sign package
+        encryptedService.encryptedFile(csarPkgDir.getCanonicalPath());
+        encryptedService.encryptedCMS(csarPkgDir.getCanonicalPath());
         return CompressFileUtilsJava
             .compressToCsarAndDeleteSrc(csarPkgDir.getCanonicalPath(), projectPath, csarPkgDir.getName());
     }
