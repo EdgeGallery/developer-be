@@ -23,6 +23,8 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import java.io.IOException;
+import java.security.Principal;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
@@ -116,8 +118,9 @@ public class ProjectController {
     public ResponseEntity<ApplicationProject> createProject(
         @NotNull @ApiParam(value = "ApplicationProject", required = true) @RequestBody ApplicationProject project,
         @Pattern(regexp = REGEX_UUID, message = "userId must be in UUID format")
-        @ApiParam(value = "userId", required = true) @RequestParam("userId") String userId, HttpServletRequest request)
+        @ApiParam(value = "userId", required = true) @RequestParam("userId") String userId, Principal principal)
         throws IOException {
+    	
         Either<FormatRespDto, ApplicationProject> either = projectService.createProject(userId, project);
         return ResponseDataUtil.buildResponse(either);
     }

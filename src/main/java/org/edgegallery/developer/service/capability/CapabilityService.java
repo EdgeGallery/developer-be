@@ -35,6 +35,8 @@ public interface CapabilityService {
 	public Capability findById(String id);
 
 	public List<Capability> findByGroupId(String groupId);
+	
+	public List<Capability> findByProjectId(String projectId);
 
 	public Capability findByName(String name);
 

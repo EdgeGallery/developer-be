@@ -66,6 +66,7 @@
         select <include refid="AllColumnWithCascade"/> 
         from tbl_capability a,tbl_capability_group b
         where a.group_id = b.id
+        order by a.group_id
     </select>
     
     <select id="selectById" parameterType="String" resultMap="Capability">
@@ -74,10 +75,18 @@
         where a.group_id = b.id and a.id=#{id}
     </select>
     
+    <select id="selectByProjectId" parameterType="String" resultMap="Capability">
+        select <include refid="AllColumnWithCascade"/> 
+        from tbl_capability a,tbl_capability_group b,tbl_app_project_capability c
+        where a.group_id = b.id and c.capability_id=a.id and c.project_id=#{projectId}
+        order by a.group_id
+    </select>
+        
     <select id="selectByGroupId" parameterType="String" resultMap="Capability">
         select <include refid="AllColumnWithCascade"/> 
         from tbl_capability a,tbl_capability_group b
         where a.group_id=b.id and b.id=#{groupId} and a.group_id=#{groupId}
+        order by a.group_id
     </select>
     
     <select id="selectByNameOrNameEn" resultMap="Capability">

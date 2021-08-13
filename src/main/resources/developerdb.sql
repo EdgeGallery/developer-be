@@ -88,6 +88,13 @@
       CONSTRAINT "tbl_app_project_pkey" PRIMARY KEY ("id")
     )
     ;
+    
+    CREATE TABLE IF NOT EXISTS "tbl_app_project_capability" (
+      "project_id" varchar(50) NOT NULL,
+      "capability_id" varchar(50) NOT NULL,
+      CONSTRAINT "tbl_app_project_capability_pkey" PRIMARY KEY ("project_id","capability_id")
+    )
+    ;
 
     CREATE TABLE IF NOT EXISTS "tbl_openmep_capability" (
       "group_id" varchar(50) NOT NULL,

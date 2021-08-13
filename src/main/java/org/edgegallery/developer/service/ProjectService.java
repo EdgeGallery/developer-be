@@ -16,14 +16,6 @@
 
 package org.edgegallery.developer.service;
 
-import com.github.pagehelper.PageHelper;
-import com.github.pagehelper.PageInfo;
-import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import com.google.gson.reflect.TypeToken;
-import com.spencerwi.either.Either;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -46,8 +38,10 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+
 import javax.net.ssl.SSLContext;
 import javax.ws.rs.core.Response.Status;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.CookieStore;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -122,6 +116,15 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.google.gson.reflect.TypeToken;
+import com.spencerwi.either.Either;
+
 @Service("projectService")
 public class ProjectService {
 
@@ -180,6 +183,8 @@ public class ProjectService {
 
     @Autowired
     private VmConfigMapper vmConfigMapper;
+    @Autowired
+    private ProjectCapabilityService projectCapabilityService;
 
     /**
      * getAllProjects.
@@ -213,9 +218,8 @@ public class ProjectService {
      *
      * @return
      */
-    @Transactional
-    public Either<FormatRespDto, ApplicationProject> createProject(String userId, ApplicationProject project)
-        throws IOException {
+    @Transactional(rollbackFor = RuntimeException.class)
+    public Either<FormatRespDto, ApplicationProject> createProject(String userId, ApplicationProject project){
         String newName = project.getName();
         String newVersion = project.getVersion();
         String newProvider = project.getProvider();
@@ -235,7 +239,12 @@ public class ProjectService {
         project.setUserId(userId);
         String projectId = UUID.randomUUID().toString();
         String projectPath = getProjectPath(projectId);
-        DeveloperFileUtils.deleteAndCreateDir(projectPath);
+        try {
+			DeveloperFileUtils.deleteAndCreateDir(projectPath);
+		} catch (IOException e1) {
+			FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "Create project path failed.");
+            return Either.left(error);
+		}
         project.setId(projectId);
 
         // move icon file from temp dir to project dir
@@ -268,6 +277,10 @@ public class ProjectService {
             return Either.left(error);
         }
         LOGGER.info("Create project success.");
+        
+        project.getCapabilityList();
+        projectCapabilityService.create(null);
+        
         ApplicationProject newProject = projectMapper.getProject(userId, project.getId());
         //update tbl_openmep_capability column select_count
         int resUpdate = updateSelectCount(newProject);
@@ -303,7 +316,6 @@ public class ProjectService {
      * moveFileToWorkSpaceById.
      */
     private void moveFileToWorkSpaceById(String srcId, String projectId) throws IOException {
-
         // at firstly, update the file status in DB, then this file should not be delete by timer
         uploadedFileMapper.updateFileStatus(srcId, false);
 
@@ -556,7 +568,7 @@ public class ProjectService {
     public File createCsarPkg(String userId, ApplicationProject project, ProjectTestConfig testConfig)
         throws IOException {
         String projectId = project.getId();
-        List<OpenMepCapabilityGroup> mepCapability = project.getCapabilityList();
+        List<String> mepCapability = project.getCapabilityList();
         String projectPath = getProjectPath(projectId);
         String chartName = project.getName().replaceAll(Consts.PATTERN, "") + UUID.randomUUID().toString()
             .substring(0, 8);
@@ -644,7 +656,7 @@ public class ProjectService {
      * @return
      */
     public boolean checkDependency(ApplicationProject project) {
-        Optional<List<OpenMepCapabilityGroup>> groups = Optional.ofNullable(project.getCapabilityList());
+        Optional<List<String>> groups = Optional.ofNullable(project.getCapabilityList());
         if (!groups.isPresent()) {
             LOGGER.error("the project being deployed does not have any capabilities selected ");
             return true;
