@@ -1,9 +1,9 @@
 package org.edgegallery.developer.service;
 
-import io.netty.util.internal.ObjectUtil;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.LineIterator;
-import org.edgegallery.developer.exception.WindowException;
+import org.edgegallery.developer.common.ResponseConsts;
+import org.edgegallery.developer.exception.DeveloperException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -22,7 +22,7 @@ public class EncryptedService {
     @Value("${signature.key-password:}")
     private String keyPasswd;
 
-    public void encryptedFile(String filePath) throws IOException {
+    public void encryptedFile(String filePath) {
         try {
             BufferedReader reader = null;
             if (filePath == null) {
@@ -66,11 +66,11 @@ public class EncryptedService {
             out.close();
 
         } catch (IOException e) {
-            throw new IOException("Failed to encrypted code.");
+            throw new DeveloperException("Hash package failed.", ResponseConsts.RET_HASH_PACKAGE_FAILED);
         }
     }
 
-    public void encryptedCMS(String filePath) throws WindowException, IOException {
+    public void encryptedCMS(String filePath) {
         try {
             BufferedReader reader = null;
             if (filePath == null) {
@@ -98,7 +98,7 @@ public class EncryptedService {
             out.close();
 
         } catch (IOException e) {
-            throw new IOException("Failed to encrypted code.");
+            throw new DeveloperException("Failed to encrypted code.", ResponseConsts.RET_SIGN_PACKAGE_FAILED);
         }
     }
 
@@ -146,7 +146,7 @@ public class EncryptedService {
         return sb.toString();
     }
 
-    private String signPackage(String filePath, String keyPasswd) throws IOException, WindowException {
+    private String signPackage(String filePath, String keyPasswd) {
         if (!"".equals(keyPath)) {
             if (filePath != null && !"".equals(filePath)) {
                 List<String> rules = new ArrayList<>();
@@ -159,28 +159,15 @@ public class EncryptedService {
                 if (signBytes.isPresent()) {
                     return new String(signBytes.get(), StandardCharsets.UTF_8);
                 } else {
-                    throw new WindowException("Failed to sign.");
+                    throw new DeveloperException("sign package failed.", ResponseConsts.RET_SIGN_PACKAGE_FAILED);
                 }
             } else {
-                throw new WindowException("Can not find manifest file.");
+                throw new DeveloperException("sign package failed.", ResponseConsts.RET_SIGN_PACKAGE_FAILED);
             }
         } else {
-            throw new WindowException("Can not find private key file.");
+            throw new DeveloperException("sign package failed.", ResponseConsts.RET_SIGN_PACKAGE_FAILED);
         }
     }
-
-//    private static String getFirstFilePath(File file) throws IOException {
-//        File[] files = file.listFiles();
-//        if (files == null) {
-//            return "";
-//        }
-//        for (File tmp : files) {
-//            if (tmp.isFile()) {
-//                return tmp.getCanonicalPath();
-//            }
-//        }
-//        return "";
-//    }
 
     private static boolean canLineMatch(String line, List<String> rules) {
         String normalizeLine = Normalizer.normalize(line, Normalizer.Form.NFKC);
@@ -193,7 +180,7 @@ public class EncryptedService {
         return false;
     }
 
-    private static String readMatchLineContent(String fileName, List<String> rules) throws WindowException {
+    private static String readMatchLineContent(String fileName, List<String> rules){
         LineIterator lineIterator;
         StringBuilder result = new StringBuilder();
         String filePath = fileName.replace("\\", File.separator).replace("/", File.separator);
@@ -212,7 +199,7 @@ public class EncryptedService {
                 }
             }
         } catch (IOException e) {
-            throw new WindowException("");
+            throw new DeveloperException("sign package failed.", ResponseConsts.RET_SIGN_PACKAGE_FAILED);
         }
         return result.toString().trim();
     }
