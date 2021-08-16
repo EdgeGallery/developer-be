@@ -19,4 +19,5 @@ public interface CapabilityMapper {
 	public Capability selectByName(@Param("name")String name);
 	public List<Capability> selectByNameOrNameEn(@Param("name")String name,@Param("nameEn")String nameEn);
 	public List<Capability> selectByProjectId(@Param("projectId")String projectId);
+	public int updateSelectCountByIds(List<String> ids);
 }

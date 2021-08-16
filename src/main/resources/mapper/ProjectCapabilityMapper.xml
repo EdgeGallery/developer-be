@@ -23,7 +23,7 @@
     
     <insert id="insert" parameterType="org.edgegallery.developer.model.workspace.ApplicationProjectCapability">
         insert into tbl_app_project_capability (<include refid="AllColumn"/>)
-        values( #{project_id}, #{capability_id})
+        values( #{projectId}, #{capabilityId})
     </insert>
 
     <delete id="delete" parameterType="org.edgegallery.developer.model.workspace.ApplicationProjectCapability">

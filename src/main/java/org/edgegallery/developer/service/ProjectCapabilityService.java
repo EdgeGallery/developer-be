@@ -26,7 +26,9 @@ import com.spencerwi.either.Either;
 
 public interface ProjectCapabilityService {
 	public Either<FormatRespDto, ApplicationProjectCapability> create(ApplicationProjectCapability projectCapability);
-
+	
+	public Either<FormatRespDto, List<ApplicationProjectCapability>> create(List<ApplicationProjectCapability> projectCapabilities);
+	
 	public Either<FormatRespDto, Boolean> delete(ApplicationProjectCapability projectCapability);
 
 	public Either<FormatRespDto, Boolean> deleteByProjectId(@Param("projectId") String projectId);

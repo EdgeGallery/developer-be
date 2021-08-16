@@ -242,4 +242,13 @@ public class CapabilityServiceImpl implements CapabilityService {
 	public List<Capability> findByNameOrNameEn(String name, String nameEn) {
 		return capabilityMapper.selectByNameOrNameEn(name, nameEn);
 	}
+
+	@Override
+	public boolean updateSelectCountByIds(List<String> ids) {
+		if(CollectionUtils.isEmpty(ids)) {
+			return true;
+		}
+		
+		return capabilityMapper.updateSelectCountByIds(ids)>0;
+	}
 }

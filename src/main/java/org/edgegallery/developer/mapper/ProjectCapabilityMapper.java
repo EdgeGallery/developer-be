@@ -24,9 +24,11 @@ import org.edgegallery.developer.model.workspace.ApplicationProjectCapability;
 
 @Mapper
 public interface ProjectCapabilityMapper {
-    int insert(ApplicationProjectCapability projectCapability);
-    int delete(ApplicationProjectCapability projectCapability);
-    int deleteByProjectId(@Param("projectId")String projectId);
+	int insert(ApplicationProjectCapability projectCapability);
 
-    List<ApplicationProjectCapability> selectByProjectId(@Param("projectId")String projectId);
+	int delete(ApplicationProjectCapability projectCapability);
+
+	int deleteByProjectId(@Param("projectId") String projectId);
+
+	List<ApplicationProjectCapability> selectByProjectId(@Param("projectId") String projectId);
 }

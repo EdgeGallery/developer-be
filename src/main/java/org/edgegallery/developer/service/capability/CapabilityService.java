@@ -45,4 +45,6 @@ public interface CapabilityService {
 	public List<Capability> findByNameEnWithFuzzy(String nameEn);
 	
 	public List<Capability> findByNameOrNameEn(String name, String nameEn);
+	
+	public boolean updateSelectCountByIds(List<String> ids);
 }

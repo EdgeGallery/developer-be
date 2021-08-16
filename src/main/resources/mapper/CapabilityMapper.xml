@@ -139,4 +139,12 @@
             select_count=#{selectCount},icon_file_id=#{iconFileId},group_id =#{groupId},author=#{author},provider=#{provider}
         where id = #{id}
     </update>    
+    
+    <update id="updateSelectCountByIds" parameterType="java.util.List">
+        update tbl_capability set select_count=select_count+1
+        where id in 
+        <foreach collection="list" item="item" separator="," open="(" close=")">
+           #{item}
+        </foreach>
+    </update>    
 </mapper>
