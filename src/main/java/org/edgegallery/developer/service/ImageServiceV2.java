@@ -163,7 +163,7 @@ public class ImageServiceV2 {
      */
     public ResponseEntity mergeHarborImage(String fileName, String guid, String imageId) throws IOException {
         try {
-            LOGGER.info("merge harbor image file, systemId = {}, fileName = {}, guid = {}", imageId, fileName, guid);
+            LOGGER.info("merge harbor image file, harborImage = {}, fileName = {}, guid = {}", imageId, fileName, guid);
             containerImageMapper
                 .updateContainerImageStatus(imageId, EnumContainerImageStatus.UPLOADING_MERGING.toString());
             String rootDir = getUploadSysImageRootDir(imageId);
@@ -231,12 +231,14 @@ public class ImageServiceV2 {
         try (CloseableHttpClient client = createIgnoreSslHttpClient()) {
             URL url = new URL(loginUrl);
             String userLoginUrl = String.format(Consts.HARBOR_IMAGE_LOGIN_URL, url.getProtocol(), devRepoEndpoint);
+            LOGGER.warn("principal {}",devRepoUsername);
+            LOGGER.warn("password {}",devRepoPassword);
             LOGGER.warn("harbor login url: {}", userLoginUrl);
             //excute login to harbor repo
             HttpPost httpPost = new HttpPost(userLoginUrl);
             MultipartEntityBuilder builder = MultipartEntityBuilder.create();
-            builder.addTextBody("principal", "admin");
-            builder.addTextBody("password", "Harbor12345");
+            builder.addTextBody("principal", devRepoUsername);
+            builder.addTextBody("password", devRepoPassword);
             httpPost.setEntity(builder.build());
             client.execute(httpPost);
 
