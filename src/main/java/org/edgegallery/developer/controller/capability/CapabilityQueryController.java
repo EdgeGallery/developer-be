@@ -72,7 +72,7 @@ public class CapabilityQueryController {
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "OK", response = Capability.class, responseContainer = "List"),
 			@ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class) })
-	@GetMapping(value = "/projecdt-id/{projectId}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@GetMapping(value = "/project-id/{projectId}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@PreAuthorize("hasRole('DEVELOPER_ADMIN') || hasRole('DEVELOPER_GUEST')")
 	public ResponseEntity<List<Capability>> getCapabilityByProjectId(
 			@ApiParam(value = "projectId", required = true) @PathVariable(value = "projectId") String projectId) {

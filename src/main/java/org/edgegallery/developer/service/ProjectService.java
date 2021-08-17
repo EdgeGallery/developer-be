@@ -190,10 +190,18 @@ public class ProjectService {
 	@Autowired
 	private org.edgegallery.developer.service.capability.CapabilityService capabilityService;
 
-	public Page<ApplicationProject> getAllProjects(String userId, String projectName, int limit, int offset) {
+	public Page<ApplicationProject> getAllProjects(int limit, int offset) {
 		PageHelper.offsetPage(offset, limit);
 		PageInfo<ApplicationProject> pageInfo = new PageInfo<ApplicationProject>(
-				projectMapper.getAllProject(userId, projectName));
+				projectMapper.getAllProject());
+		LOGGER.info("get all projects success.");
+		return new Page<ApplicationProject>(pageInfo.getList(), limit, offset, pageInfo.getTotal());
+	}
+	
+	public Page<ApplicationProject> getProjectByNameWithFuzzy(String projectName, int limit, int offset) {
+		PageHelper.offsetPage(offset, limit);
+		PageInfo<ApplicationProject> pageInfo = new PageInfo<ApplicationProject>(
+				projectMapper.getProjectByNameWithFuzzy(projectName));
 		LOGGER.info("get all projects success.");
 		return new Page<ApplicationProject>(pageInfo.getList(), limit, offset, pageInfo.getTotal());
 	}
