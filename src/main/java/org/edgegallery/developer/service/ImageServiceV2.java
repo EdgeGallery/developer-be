@@ -12,7 +12,6 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.security.cert.CertificateException;
@@ -199,11 +198,11 @@ public class ImageServiceV2 {
             String userId = AccessUserUtil.getUser().getUserId();
             // judge user private harbor repo is exist
             boolean isExist = isExsitOfProject(userId);
-            if (!isExist) {
+            if (!isExist && !SystemImageUtil.isAdminUser()) {
                 createHarborRepoByUserId(userId);
             }
             //push image to created repo by current user id
-            if (!pushImageToRepo(mergedFile, rootDir, userId,imageId)) {
+            if (!pushImageToRepo(mergedFile, rootDir, userId, imageId)) {
                 LOGGER.error("push image to repo failed!");
                 throw new DeveloperException("process merged file exception",
                     ResponseConsts.RET_PROCESS_MERGED_FILE_EXCEPTION);
@@ -236,7 +235,8 @@ public class ImageServiceV2 {
     private boolean isExsitOfProject(String userId) {
         try (CloseableHttpClient client = createIgnoreSslHttpClient()) {
             URL url = new URL(loginUrl);
-            String isExistUrl = String.format(Consts.HARBOR_PRO_IS_EXIST_URL, url.getProtocol(), devRepoEndpoint,userId);
+            String isExistUrl = String
+                .format(Consts.HARBOR_PRO_IS_EXIST_URL, url.getProtocol(), devRepoEndpoint, userId);
             LOGGER.warn(" isExist Url : {}", isExistUrl);
             HttpGet httpGet = new HttpGet(isExistUrl);
             String encodeStr = encodeUserAndPwd();
@@ -296,9 +296,9 @@ public class ImageServiceV2 {
             createPost.setEntity(new StringEntity(body));
             CloseableHttpResponse res = client.execute(createPost);
             InputStream inputStream = res.getEntity().getContent();
-            byte[] bytes = new byte[inputStream.available()];
-            int byteNums = inputStream.read(bytes);
-            if (byteNums > 0) {
+            String result = IOUtils.toString(inputStream, StandardCharsets.UTF_8);
+            LOGGER.warn("result: {}", result);
+            if (!StringUtils.isEmpty(result)) {
                 LOGGER.error("create harbor repo failed!");
                 throw new DeveloperException("process merged file exception",
                     ResponseConsts.RET_PROCESS_MERGED_FILE_EXCEPTION);
@@ -310,7 +310,7 @@ public class ImageServiceV2 {
         }
     }
 
-    private boolean pushImageToRepo(File imageFile, String rootDir, String userId,String imId) throws IOException {
+    private boolean pushImageToRepo(File imageFile, String rootDir, String userId, String imId) throws IOException {
         DockerClient dockerClient = getDockerClient(devRepoEndpoint, devRepoUsername, devRepoPassword);
         try (InputStream inputStream = new FileInputStream(imageFile)) {
             //import image pkg
@@ -473,13 +473,7 @@ public class ImageServiceV2 {
 
     private String encodeUserAndPwd() {
         String user = devRepoUsername + ":" + devRepoPassword;
-        String base64encodedString = "";
-        try {
-            base64encodedString = Base64.getEncoder().encodeToString(user.getBytes("utf-8"));
-        } catch (UnsupportedEncodingException e) {
-            LOGGER.error("encode user and pwd failed!");
-            return "";
-        }
+        String base64encodedString = Base64.getEncoder().encodeToString(user.getBytes(StandardCharsets.UTF_8));
         return base64encodedString;
     }
 
