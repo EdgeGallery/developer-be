@@ -264,8 +264,6 @@ public class ImageServiceV2 {
         try (CloseableHttpClient client = createIgnoreSslHttpClient()) {
             URL url = new URL(loginUrl);
             String userLoginUrl = String.format(Consts.HARBOR_IMAGE_LOGIN_URL, url.getProtocol(), devRepoEndpoint);
-            LOGGER.warn("principal {}", devRepoUsername);
-            LOGGER.warn("password {}", devRepoPassword);
             LOGGER.warn("harbor login url: {}", userLoginUrl);
             //excute login to harbor repo
             HttpPost httpPost = new HttpPost(userLoginUrl);
