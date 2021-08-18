@@ -279,6 +279,9 @@ public class ImageServiceV2 {
             String csrf = getCsrf();
             LOGGER.warn("__csrf: {}", csrf);
 
+            String goCsrf = getGorillaCsrf();
+            LOGGER.warn("_gorilla_csrf: {}", goCsrf);
+
             //excute create image operation
             String postImageUrl = String
                 .format(Consts.HARBOR_IMAGE_CREATE_REPO_URL, url.getProtocol(), devRepoEndpoint);
@@ -292,6 +295,7 @@ public class ImageServiceV2 {
             }
             createPost.setHeader("Authorization", "Basic " + encodeStr);
             createPost.setHeader("X-Harbor-CSRF-Token", csrf);
+            createPost.setHeader("_gorilla_csrf", goCsrf);
             String body = "{\"project_name\":\"" + userId + "\",\"metadata\":{\"public\":\"true\"}}";
             createPost.setEntity(new StringEntity(body));
             CloseableHttpResponse res = client.execute(createPost);
@@ -480,6 +484,15 @@ public class ImageServiceV2 {
     private static String getCsrf() {
         for (Cookie cookie : cookieStore.getCookies()) {
             if (cookie.getName().equals("__csrf")) {
+                return cookie.getValue();
+            }
+        }
+        return "";
+    }
+
+    private static String getGorillaCsrf() {
+        for (Cookie cookie : cookieStore.getCookies()) {
+            if (cookie.getName().equals("_gorilla_csrf")) {
                 return cookie.getValue();
             }
         }
