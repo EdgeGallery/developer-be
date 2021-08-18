@@ -199,11 +199,11 @@ public class ImageServiceV2 {
             String userId = AccessUserUtil.getUser().getUserId();
             // judge user private harbor repo is exist
             boolean isExist = isExsitOfProject(userId);
-            if (!isExist) {
+            if (!isExist && !SystemImageUtil.isAdminUser()) {
                 createHarborRepoByUserId(userId);
             }
             //push image to created repo by current user id
-            if (!pushImageToRepo(mergedFile, rootDir, userId,imageId)) {
+            if (!pushImageToRepo(mergedFile, rootDir, userId, imageId)) {
                 LOGGER.error("push image to repo failed!");
                 throw new DeveloperException("process merged file exception",
                     ResponseConsts.RET_PROCESS_MERGED_FILE_EXCEPTION);
@@ -236,7 +236,8 @@ public class ImageServiceV2 {
     private boolean isExsitOfProject(String userId) {
         try (CloseableHttpClient client = createIgnoreSslHttpClient()) {
             URL url = new URL(loginUrl);
-            String isExistUrl = String.format(Consts.HARBOR_PRO_IS_EXIST_URL, url.getProtocol(), devRepoEndpoint,userId);
+            String isExistUrl = String
+                .format(Consts.HARBOR_PRO_IS_EXIST_URL, url.getProtocol(), devRepoEndpoint, userId);
             LOGGER.warn(" isExist Url : {}", isExistUrl);
             HttpGet httpGet = new HttpGet(isExistUrl);
             String encodeStr = encodeUserAndPwd();
@@ -310,7 +311,7 @@ public class ImageServiceV2 {
         }
     }
 
-    private boolean pushImageToRepo(File imageFile, String rootDir, String userId,String imId) throws IOException {
+    private boolean pushImageToRepo(File imageFile, String rootDir, String userId, String imId) throws IOException {
         DockerClient dockerClient = getDockerClient(devRepoEndpoint, devRepoUsername, devRepoPassword);
         try (InputStream inputStream = new FileInputStream(imageFile)) {
             //import image pkg
