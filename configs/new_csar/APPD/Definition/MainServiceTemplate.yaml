@@ -65,6 +65,13 @@ topology_template:
             virtual_local_storage:
               size_of_storage: 20
 
+    app_configuration:
+      type: tosca.nodes.nfv.app.configuration
+      properties:
+        appServiceRequired:
+          - serName: service-deploy
+            version: v1
+            requestedPermissions: true
   groups:
     AntiAffinityGroup:
       type: tosca.groups.nfv.PlacementGroup
