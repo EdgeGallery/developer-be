@@ -27,7 +27,6 @@ import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.http.Header;
 import org.apache.http.client.CookieStore;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -265,8 +264,6 @@ public class ImageServiceV2 {
         try (CloseableHttpClient client = createIgnoreSslHttpClient()) {
             URL url = new URL(loginUrl);
             String userLoginUrl = String.format(Consts.HARBOR_IMAGE_LOGIN_URL, url.getProtocol(), devRepoEndpoint);
-            LOGGER.warn("principal {}", devRepoUsername);
-            LOGGER.warn("password {}", devRepoPassword);
             LOGGER.warn("harbor login url: {}", userLoginUrl);
             //excute login to harbor repo
             HttpPost httpPost = new HttpPost(userLoginUrl);
@@ -274,24 +271,22 @@ public class ImageServiceV2 {
             builder.addTextBody("principal", devRepoUsername);
             builder.addTextBody("password", devRepoPassword);
             httpPost.setEntity(builder.build());
-            CloseableHttpResponse resLogin = client.execute(httpPost);
-            Header[] headers =  resLogin.getAllHeaders();
-            String csrf = "";
-            for(Header header:headers){
-                if(header.getName().equals("Set-Cookie")){
-                    LOGGER.warn(" Set-Cookie : {}", header.getValue());
-                    String cookies = header.getValue();
-                    if(cookies.contains("__csrf")){
-                        String[] cookArr = cookies.split(";");
-                        String[] cookArrs = cookArr[0].split("=");
-                        LOGGER.warn(" __csrf : {}", cookArrs[1]);
-                        csrf = cookArrs[1]+"==";
-                    }
-                }
-            }
-
+            // first call login interface
+            CloseableHttpResponse response = client.execute(httpPost);
+            InputStream inputStreamImage = response.getEntity().getContent();
+            String imageRes = IOUtils.toString(inputStreamImage, StandardCharsets.UTF_8);
+            LOGGER.info("first response : {}", imageRes);
+            String csrf = getCsrf();
+            LOGGER.warn("__csrf first: {}", csrf);
+            // secode call login interface
+            httpPost.setHeader("X-Harbor-CSRF-Token", csrf);
+            CloseableHttpResponse secondResponse = client.execute(httpPost);
+            InputStream secondInput = secondResponse.getEntity().getContent();
+            String secondBody= IOUtils.toString(secondInput, StandardCharsets.UTF_8);
+            LOGGER.info("second response : {}", secondBody);
+            String csrfToken = getCsrf();
             // get _csrf from cookie
-            LOGGER.warn("__csrf last: {}", csrf);
+            LOGGER.warn("__csrf second: {}", csrfToken);
 
             //excute create image operation
             String postImageUrl = String
@@ -305,7 +300,7 @@ public class ImageServiceV2 {
                     ResponseConsts.RET_PROCESS_MERGED_FILE_EXCEPTION);
             }
             createPost.setHeader("Authorization", "Basic " + encodeStr);
-            createPost.setHeader("X-Harbor-CSRF-Token", csrf);
+            createPost.setHeader("X-Harbor-CSRF-Token", csrfToken);
             String body = "{\"project_name\":\"" + userId + "\",\"metadata\":{\"public\":\"true\"}}";
             createPost.setEntity(new StringEntity(body));
             CloseableHttpResponse res = client.execute(createPost);
