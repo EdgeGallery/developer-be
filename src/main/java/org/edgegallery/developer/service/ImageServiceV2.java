@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.Base64;
@@ -29,6 +30,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.client.CookieStore;
 import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
@@ -195,9 +197,13 @@ public class ImageServiceV2 {
             mergedFileStream.close();
             //create repo by current user id
             String userId = AccessUserUtil.getUser().getUserId();
-            createHarborRepoByUserId(userId);
+            // judge user private harbor repo is exist
+            boolean isExist = isExsitOfProject(userId);
+            if (!isExist) {
+                createHarborRepoByUserId(userId);
+            }
             //push image to created repo by current user id
-            if (!pushImageToRepo(mergedFile, rootDir, userId)) {
+            if (!pushImageToRepo(mergedFile, rootDir, userId,imageId)) {
                 LOGGER.error("push image to repo failed!");
                 throw new DeveloperException("process merged file exception",
                     ResponseConsts.RET_PROCESS_MERGED_FILE_EXCEPTION);
@@ -227,12 +233,39 @@ public class ImageServiceV2 {
         }
     }
 
+    private boolean isExsitOfProject(String userId) {
+        try (CloseableHttpClient client = createIgnoreSslHttpClient()) {
+            URL url = new URL(loginUrl);
+            String isExistUrl = String.format(Consts.HARBOR_PRO_IS_EXIST_URL, url.getProtocol(), devRepoEndpoint,userId);
+            LOGGER.warn(" isExist Url : {}", isExistUrl);
+            HttpGet httpGet = new HttpGet(isExistUrl);
+            String encodeStr = encodeUserAndPwd();
+            if (encodeStr.equals("")) {
+                LOGGER.error("encode user and pwd failed!");
+                throw new DeveloperException("process merged file exception",
+                    ResponseConsts.RET_PROCESS_MERGED_FILE_EXCEPTION);
+            }
+            httpGet.setHeader("Authorization", "Basic " + encodeStr);
+            CloseableHttpResponse res = client.execute(httpGet);
+            InputStream inputStream = res.getEntity().getContent();
+            String imageRes = IOUtils.toString(inputStream, StandardCharsets.UTF_8);
+            if (imageRes.equals("null")) {
+                return false;
+            }
+        } catch (IOException e) {
+            LOGGER.error("call get one project occur error {}", e.getMessage());
+            throw new DeveloperException("process merged file exception",
+                ResponseConsts.RET_PROCESS_MERGED_FILE_EXCEPTION);
+        }
+        return true;
+    }
+
     private void createHarborRepoByUserId(String userId) {
         try (CloseableHttpClient client = createIgnoreSslHttpClient()) {
             URL url = new URL(loginUrl);
             String userLoginUrl = String.format(Consts.HARBOR_IMAGE_LOGIN_URL, url.getProtocol(), devRepoEndpoint);
-            LOGGER.warn("principal {}",devRepoUsername);
-            LOGGER.warn("password {}",devRepoPassword);
+            LOGGER.warn("principal {}", devRepoUsername);
+            LOGGER.warn("password {}", devRepoPassword);
             LOGGER.warn("harbor login url: {}", userLoginUrl);
             //excute login to harbor repo
             HttpPost httpPost = new HttpPost(userLoginUrl);
@@ -277,7 +310,7 @@ public class ImageServiceV2 {
         }
     }
 
-    private boolean pushImageToRepo(File imageFile, String rootDir, String userId) throws IOException {
+    private boolean pushImageToRepo(File imageFile, String rootDir, String userId,String imId) throws IOException {
         DockerClient dockerClient = getDockerClient(devRepoEndpoint, devRepoUsername, devRepoPassword);
         try (InputStream inputStream = new FileInputStream(imageFile)) {
             //import image pkg
@@ -338,7 +371,7 @@ public class ImageServiceV2 {
             dockerClient.tagImageCmd(imageId, uploadImgName, repos[1]).withForce().exec();
             LOGGER.debug("Upload tagged docker image: {}", uploadImgName);
             // set image path
-            int result = containerImageMapper.updateContainerImagePath(imageId, uploadImgName);
+            int result = containerImageMapper.updateContainerImagePath(imId, uploadImgName);
             if (result < 1) {
                 LOGGER.error("failed to update image {} path", imageId);
                 return false;

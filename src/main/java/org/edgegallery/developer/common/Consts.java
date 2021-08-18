@@ -109,6 +109,8 @@ public final class Consts {
 
     public static final String HARBOR_IMAGE_GET_TAGS_URL = "%s://%s/api/v2.0/projects/%s/repositories/%s/artifacts";
 
+    public static final String HARBOR_PRO_IS_EXIST_URL = "%s://%s/api/v2.0/projects?name=%s";
+
     private Consts() {
     }
 }
