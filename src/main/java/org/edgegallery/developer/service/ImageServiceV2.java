@@ -276,26 +276,22 @@ public class ImageServiceV2 {
             httpPost.setEntity(builder.build());
             CloseableHttpResponse resLogin = client.execute(httpPost);
             Header[] headers =  resLogin.getAllHeaders();
-            String goCsrf = "";
+            String csrf = "";
             for(Header header:headers){
                 if(header.getName().equals("Set-Cookie")){
                     LOGGER.warn(" Set-Cookie : {}", header.getValue());
                     String cookies = header.getValue();
-                    if(cookies.contains("_gorilla_csrf")){
+                    if(cookies.contains("__csrf")){
                         String[] cookArr = cookies.split(";");
                         String[] cookArrs = cookArr[0].split("=");
-                        LOGGER.warn(" _gorilla_csrf : {}", cookArrs[1]);
-                        goCsrf = cookArrs[1];
+                        LOGGER.warn(" __csrf : {}", cookArrs[1]);
+                        csrf = cookArrs[1]+"==";
                     }
                 }
             }
 
             // get _csrf from cookie
-            String csrf = getCsrf();
-            LOGGER.warn("__csrf: {}", csrf);
-
-           // String goCsrf = getGorillaCsrf();
-            LOGGER.warn("_gorilla_csrf: {}", goCsrf);
+            LOGGER.warn("__csrf last: {}", csrf);
 
             //excute create image operation
             String postImageUrl = String
@@ -310,7 +306,6 @@ public class ImageServiceV2 {
             }
             createPost.setHeader("Authorization", "Basic " + encodeStr);
             createPost.setHeader("X-Harbor-CSRF-Token", csrf);
-            createPost.setHeader("_gorilla_csrf", goCsrf);
             String body = "{\"project_name\":\"" + userId + "\",\"metadata\":{\"public\":\"true\"}}";
             createPost.setEntity(new StringEntity(body));
             CloseableHttpResponse res = client.execute(createPost);
