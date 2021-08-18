@@ -27,6 +27,7 @@ import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.http.Header;
 import org.apache.http.client.CookieStore;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -273,13 +274,27 @@ public class ImageServiceV2 {
             builder.addTextBody("principal", devRepoUsername);
             builder.addTextBody("password", devRepoPassword);
             httpPost.setEntity(builder.build());
-            client.execute(httpPost);
+            CloseableHttpResponse resLogin = client.execute(httpPost);
+            Header[] headers =  resLogin.getAllHeaders();
+            String goCsrf = "";
+            for(Header header:headers){
+                if(header.getName().equals("Set-Cookie")){
+                    LOGGER.warn(" Set-Cookie : {}", header.getValue());
+                    String cookies = header.getValue();
+                    if(cookies.contains("_gorilla_csrf")){
+                        String[] cookArr = cookies.split(";");
+                        String[] cookArrs = cookArr[0].split("=");
+                        LOGGER.warn(" _gorilla_csrf : {}", cookArrs[1]);
+                        goCsrf = cookArrs[1];
+                    }
+                }
+            }
 
             // get _csrf from cookie
             String csrf = getCsrf();
             LOGGER.warn("__csrf: {}", csrf);
 
-            String goCsrf = getGorillaCsrf();
+           // String goCsrf = getGorillaCsrf();
             LOGGER.warn("_gorilla_csrf: {}", goCsrf);
 
             //excute create image operation
