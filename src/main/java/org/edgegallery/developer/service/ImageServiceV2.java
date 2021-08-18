@@ -12,7 +12,6 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.security.cert.CertificateException;
@@ -297,9 +296,9 @@ public class ImageServiceV2 {
             createPost.setEntity(new StringEntity(body));
             CloseableHttpResponse res = client.execute(createPost);
             InputStream inputStream = res.getEntity().getContent();
-            byte[] bytes = new byte[inputStream.available()];
-            int byteNums = inputStream.read(bytes);
-            if (byteNums > 0) {
+            String result = IOUtils.toString(inputStream, StandardCharsets.UTF_8);
+            LOGGER.warn("result: {}", result);
+            if (!StringUtils.isEmpty(result)) {
                 LOGGER.error("create harbor repo failed!");
                 throw new DeveloperException("process merged file exception",
                     ResponseConsts.RET_PROCESS_MERGED_FILE_EXCEPTION);
@@ -474,13 +473,7 @@ public class ImageServiceV2 {
 
     private String encodeUserAndPwd() {
         String user = devRepoUsername + ":" + devRepoPassword;
-        String base64encodedString = "";
-        try {
-            base64encodedString = Base64.getEncoder().encodeToString(user.getBytes("utf-8"));
-        } catch (UnsupportedEncodingException e) {
-            LOGGER.error("encode user and pwd failed!");
-            return "";
-        }
+        String base64encodedString = Base64.getEncoder().encodeToString(user.getBytes(StandardCharsets.UTF_8));
         return base64encodedString;
     }
 
