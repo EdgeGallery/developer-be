@@ -39,9 +39,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service("openMepCapabilityService")
-public class OpenMepCapabilityService {
+public class CapabilityGroupService {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(OpenMepCapabilityService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CapabilityGroupService.class);
 
     @Autowired
     private OpenMepCapabilityMapper openMepCapabilityMapper;

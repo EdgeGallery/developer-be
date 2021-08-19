@@ -18,17 +18,16 @@ package org.edgegallery.developer.apitest;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 
-
-import com.google.gson.Gson;
-import com.spencerwi.either.Either;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+
 import org.edgegallery.developer.DeveloperApplicationTests;
 import org.edgegallery.developer.controller.ProjectController;
 import org.edgegallery.developer.model.workspace.ApplicationProject;
+import org.edgegallery.developer.model.workspace.ApplicationProjectCapability;
 import org.edgegallery.developer.model.workspace.EnumDeployPlatform;
 import org.edgegallery.developer.model.workspace.EnumHostStatus;
 import org.edgegallery.developer.model.workspace.EnumOpenMepType;
@@ -66,6 +65,9 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.web.multipart.MultipartFile;
+
+import com.google.gson.Gson;
+import com.spencerwi.either.Either;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = DeveloperApplicationTests.class)
@@ -289,18 +291,6 @@ public class CreateProjectTest {
             .accept(MediaType.APPLICATION_JSON_UTF8)).andExpect(MockMvcResultMatchers.status().isOk());
     }
 
-    //    @Test
-    //    @WithMockUser(roles = "DEVELOPER_TENANT")
-    //    public void testUploadToAppStore() throws Exception {
-    //
-    //        ApplicationProject project = createNewProject();
-    //        String url = String
-    //            .format("/mec/developer/v1/projects/" + project.getId() + "/action/upload?userId=%s&userName=%s", userId,
-    //                "lidazhao");
-    //        mvc.perform(MockMvcRequestBuilders.post(url).with(csrf()).contentType(MediaType.APPLICATION_JSON_UTF8)
-    //            .accept(MediaType.APPLICATION_JSON_UTF8)).andExpect(MockMvcResultMatchers.status().is4xxClientError());
-    //    }
-
     @Test
     @WithMockUser(roles = "DEVELOPER_TENANT")
     public void testGetProjectByIdCorrect() throws Exception {
@@ -349,6 +339,7 @@ public class CreateProjectTest {
     @WithMockUser(roles = "DEVELOPER_TENANT")
     public void testUpdateProjectById() throws Exception {
         ApplicationProject project = new ApplicationProject();
+        project.setId(UUID.randomUUID().toString());
         project.setProjectType(EnumProjectType.CREATE_NEW);
         project.setName("victor_test_new");
         project.setVersion("1.0");
@@ -361,23 +352,10 @@ public class CreateProjectTest {
         project.setIconFileId("e111f3e7-90d8-4a39-9874-ea6ea6752ef5");
         project.setStatus(EnumProjectStatus.ONLINE);
 
-        List<OpenMepCapabilityGroup> capabilities = new ArrayList<>();
-        OpenMepCapabilityGroup capability = new OpenMepCapabilityGroup("3", "Location", "", "", "",
-            EnumOpenMepType.OPENMEP, "", "");
-        List<OpenMepCapability> capabilitiesDetail = new ArrayList<>();
-        OpenMepCapability detail = new OpenMepCapability("3", "3", "LocationService", "", "version",
-            "description");
-        capabilitiesDetail.add(detail);
-        capability.setCapabilityDetailList(capabilitiesDetail);
-        capabilities.add(capability);
+        List<String> capabilities = new ArrayList<>();
+        capabilities.add("f24ea0a2-d8e6-467c-8039-94f0d29bac43");
 
-        OpenMepCapabilityGroup capabilityGPU = new OpenMepCapabilityGroup("10", "GPU", "", "", "",
-            EnumOpenMepType.OPENMEP, "", "");
-        capabilitiesDetail = new ArrayList<>();
-        detail = new OpenMepCapability("2", "10", "GPUService-CMCC", "", "1.2", "Sample GPU Service");
-        capabilitiesDetail.add(detail);
-        capabilityGPU.setCapabilityDetailList(capabilitiesDetail);
-        capabilities.add(capabilityGPU);
+        capabilities.add("f24ea0a2-d8e6-467c-8039-94f0d29bac44");
 
         project.setCapabilityList(capabilities);
         project.setLastTestId(null);
@@ -391,13 +369,6 @@ public class CreateProjectTest {
         request.accept(MediaType.APPLICATION_JSON);
         request.contentType(MediaType.APPLICATION_JSON);
         mvc.perform(request).andDo(MockMvcResultHandlers.print()).andExpect(MockMvcResultMatchers.status().isOk());
-    }
-
-    private ApplicationProject getProjectById(String projectId, String userId) throws Exception {
-        String url = String.format("/mec/developer/v1/projects/%s?userId=%s", projectId, userId);
-        ResultActions result = mvc.perform(MockMvcRequestBuilders.get(url).contentType(MediaType.APPLICATION_JSON_UTF8)
-            .accept(MediaType.APPLICATION_JSON_UTF8)).andExpect(MockMvcResultMatchers.status().isOk());
-        return gson.fromJson(result.andReturn().getResponse().getContentAsString(), ApplicationProject.class);
     }
 
     @Test

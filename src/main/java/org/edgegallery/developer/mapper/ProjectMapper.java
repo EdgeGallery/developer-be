@@ -32,8 +32,10 @@ public interface ProjectMapper {
     ApplicationProject getProject(String userId, String projectId);
 
     ApplicationProject getProjectById(String projectId);
+    
+    List<ApplicationProject> getAllProject();
 
-    List<ApplicationProject> getAllProject(@Param("userId") String userId, @Param("projectName") String projectName);
+    List<ApplicationProject> getProjectByNameWithFuzzy(@Param("name") String name);
 
     List<ApplicationProject> getAllProjectNoCondtion();
 

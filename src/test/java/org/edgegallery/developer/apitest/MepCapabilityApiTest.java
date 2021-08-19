@@ -28,7 +28,7 @@ import org.edgegallery.developer.model.workspace.OpenMepCapabilityGroup;
 import org.edgegallery.developer.response.FormatRespDto;
 import org.edgegallery.developer.response.OpenMepApiResponse;
 import org.edgegallery.developer.response.OpenMepEcoApiResponse;
-import org.edgegallery.developer.service.OpenMepCapabilityService;
+import org.edgegallery.developer.service.CapabilityGroupService;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -57,7 +57,7 @@ public class MepCapabilityApiTest {
     private MepCapabilityController mepCapabilityController;
 
     @Mock
-    private OpenMepCapabilityService openMEPCapabilityService;
+    private CapabilityGroupService openMEPCapabilityService;
 
     private MockMvc mvc;
 

@@ -16,17 +16,13 @@
 
 package org.edgegallery.developer.controller;
 
-import com.spencerwi.either.Either;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
 import java.io.IOException;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
+
 import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.edgegallery.developer.common.Consts;
 import org.edgegallery.developer.domain.shared.Page;
@@ -49,6 +45,14 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+
+import com.spencerwi.either.Either;
+
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 
 @Controller
 @RestSchema(schemaId = "projects")
@@ -79,10 +83,10 @@ public class ProjectController {
             String projectName,
         @ApiParam(value = "the max count of one page", required = true) @Min(1) @RequestParam("limit") int limit,
         @ApiParam(value = "start index of the page", required = true) @Min(0) @RequestParam("offset") int offset) {
-        return ResponseEntity.ok(projectService.getAllProjects(userId, projectName, limit, offset));
+        return ResponseEntity.ok(projectService.getProjectByNameWithFuzzy(projectName, limit, offset));
     }
 
-    /**
+    /** 
      * get one project by projectId.
      */
     @ApiOperation(value = "get one project by projectId", response = ApplicationProject.class)
@@ -116,8 +120,9 @@ public class ProjectController {
     public ResponseEntity<ApplicationProject> createProject(
         @NotNull @ApiParam(value = "ApplicationProject", required = true) @RequestBody ApplicationProject project,
         @Pattern(regexp = REGEX_UUID, message = "userId must be in UUID format")
-        @ApiParam(value = "userId", required = true) @RequestParam("userId") String userId, HttpServletRequest request)
+        @ApiParam(value = "userId", required = true) @RequestParam("userId") String userId)
         throws IOException {
+    	
         Either<FormatRespDto, ApplicationProject> either = projectService.createProject(userId, project);
         return ResponseDataUtil.buildResponse(either);
     }
