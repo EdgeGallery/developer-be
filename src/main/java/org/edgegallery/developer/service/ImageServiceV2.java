@@ -36,7 +36,6 @@ import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.conn.ssl.TrustStrategy;
 import org.apache.http.cookie.Cookie;
 import org.apache.http.entity.StringEntity;
-import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.DefaultRedirectStrategy;
@@ -262,33 +261,8 @@ public class ImageServiceV2 {
 
     private void createHarborRepoByUserId(String userId) {
         try (CloseableHttpClient client = createIgnoreSslHttpClient()) {
-            URL url = new URL(loginUrl);
-            String userLoginUrl = String.format(Consts.HARBOR_IMAGE_LOGIN_URL, url.getProtocol(), devRepoEndpoint);
-            LOGGER.warn("harbor login url: {}", userLoginUrl);
-            //excute login to harbor repo
-            HttpPost httpPost = new HttpPost(userLoginUrl);
-            MultipartEntityBuilder builder = MultipartEntityBuilder.create();
-            builder.addTextBody("principal", devRepoUsername);
-            builder.addTextBody("password", devRepoPassword);
-            httpPost.setEntity(builder.build());
-            // first call login interface
-            CloseableHttpResponse response = client.execute(httpPost);
-            InputStream inputStreamImage = response.getEntity().getContent();
-            String imageRes = IOUtils.toString(inputStreamImage, StandardCharsets.UTF_8);
-            LOGGER.info("first response : {}", imageRes);
-            String csrf = getCsrf();
-            LOGGER.warn("__csrf first: {}", csrf);
-            // secode call login interface
-            httpPost.setHeader("X-Harbor-CSRF-Token", csrf);
-            CloseableHttpResponse secondResponse = client.execute(httpPost);
-            InputStream secondInput = secondResponse.getEntity().getContent();
-            String secondBody= IOUtils.toString(secondInput, StandardCharsets.UTF_8);
-            LOGGER.info("second response : {}", secondBody);
-            String csrfToken = getCsrf();
-            // get _csrf from cookie
-            LOGGER.warn("__csrf second: {}", csrfToken);
-
             //excute create image operation
+            URL url = new URL(loginUrl);
             String postImageUrl = String
                 .format(Consts.HARBOR_IMAGE_CREATE_REPO_URL, url.getProtocol(), devRepoEndpoint);
             LOGGER.warn("create Image repo Url : {}", postImageUrl);
@@ -300,7 +274,6 @@ public class ImageServiceV2 {
                     ResponseConsts.RET_PROCESS_MERGED_FILE_EXCEPTION);
             }
             createPost.setHeader("Authorization", "Basic " + encodeStr);
-            createPost.setHeader("X-Harbor-CSRF-Token", csrfToken);
             String body = "{\"project_name\":\"" + userId + "\",\"metadata\":{\"public\":\"true\"}}";
             createPost.setEntity(new StringEntity(body));
             CloseableHttpResponse res = client.execute(createPost);
