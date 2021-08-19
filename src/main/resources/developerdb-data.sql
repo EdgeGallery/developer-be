@@ -759,7 +759,7 @@
 
         INSERT INTO tbl_openmep_capability (group_id, one_level_name, one_level_name_en, two_level_name, two_level_name_en, type, description, description_en,icon_file_id, author, select_count, upload_time) VALUES
         ('9527db3c-d296-492c-8375-b1a78d815589', '3GPP', '3GPP', '服务审计', 'Service Audit', 'OPENMEP', '服务审计', 'Service Audit','6dc35a61-9120-48f6-8b46-3e9343fefc14','admin',0,'2021-06-14 17:16:00.384+08')
-        ON CONFLICT(group_id) do nothing;
+        ON CONFLICT(group_id) do nothing;CreateProjectTest
         INSERT INTO tbl_openmep_capability_detail (detail_id, service, service_en, version, description, description_en, provider, group_id, api_file_id, guide_file_id, guide_file_id_en, port, host, protocol, upload_time, user_id) VALUES
         ('a407b72d-e461-4bd3-8ab7-dea18bb9041f', '服务审计', 'Service Audit', 'v2.1.1', '服务审计', 'Service Audit', '3GPP', '9527db3c-d296-492c-8375-b1a78d815589', '', '', '', 8080, '', 'http', '2021-03-04 00:00:00.000000', 'admin')
         ON CONFLICT(detail_id) do nothing;

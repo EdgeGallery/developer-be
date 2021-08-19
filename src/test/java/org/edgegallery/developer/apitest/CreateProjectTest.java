@@ -353,11 +353,9 @@ public class CreateProjectTest {
         project.setStatus(EnumProjectStatus.ONLINE);
 
         List<String> capabilities = new ArrayList<>();
-        capabilities.add("1111");
+        capabilities.add("f24ea0a2-d8e6-467c-8039-94f0d29bac43");
 
-        ApplicationProjectCapability capabilityGPU = new ApplicationProjectCapability();
-        capabilityGPU.setProjectId(project.getId());
-        capabilities.add("2222");
+        capabilities.add("f24ea0a2-d8e6-467c-8039-94f0d29bac44");
 
         project.setCapabilityList(capabilities);
         project.setLastTestId(null);

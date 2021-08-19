@@ -1,0 +1,27 @@
+#
+#  Copyright 2020-2021 Huawei Technologies Co., Ltd.
+#
+#  Licensed under the Apache License, Version 2.0 (the "License");
+#  you may not use this file except in compliance with the License.
+#  You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+#  limitations under the License.
+#
+###servicecomb config####
+servicecomb-config-order: 1
+APPLICATION_ID: edgegallery  #应用名
+service_description:
+  name: mec-developer  #微服务名
+  version: 1.0.0   #微服务版本
+  environment: development
+servicecomb:
+  service:
+    registry:
+      #address: ${SC_ADDRESS} #连接SC(Service Center,注册中心)的地址
+      address: http://127.0.0.1:30100 #连接SC(Service Center,注册中心)的地址
