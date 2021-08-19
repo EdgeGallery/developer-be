@@ -82,7 +82,7 @@ public class NewCreateVmCsar {
 
         String deployType = (project.getDeployPlatform() == EnumDeployPlatform.KUBERNETES) ? "container" : "vm";
         String projectName = project.getName();
-        String chartName = project.getName().replaceAll(Consts.PATTERN, "").toLowerCase();
+        String vmName = config.getVmName();
 
         // copy template files to the new project path
         File csar = DeveloperFileUtils
@@ -91,7 +91,7 @@ public class NewCreateVmCsar {
         // get data to Map<String, String>
         SimpleDateFormat time = new SimpleDateFormat("yyyy-MM-dd HH:mm");
         String timeStamp = time.format(new Date());
-        String templateName = projectName + "_" + project.getPlatform().get(0) + "_" + config.getVmSystem()
+        String templateName = vmName + "_" + project.getPlatform().get(0) + "_" + config.getVmSystem()
             .getOperateSystem();
 
         // modify the csar files and fill in the data
@@ -101,10 +101,10 @@ public class NewCreateVmCsar {
             FileUtils.writeStringToFile(csarValue,
                 FileUtils.readFileToString(csarValue, StandardCharsets.UTF_8).replace("{name}", projectName)
                     .replace("{time}", timeStamp).replace("{description}", project.getDescription())
-                    .replace("{ChartName}", chartName).replace("{class}", deployType)
+                    .replace("{class}", deployType)
                     .replace("{provider}", project.getProvider()).replace("{version}", project.getVersion())
-                    .replace("{appd-name}", projectName), StandardCharsets.UTF_8, false);
-            boolean isSuccess = csarValue.renameTo(new File(csar.getCanonicalPath() + "/" + projectName + ".mf"));
+                    .replace("{appd-name}", vmName), StandardCharsets.UTF_8, false);
+            boolean isSuccess = csarValue.renameTo(new File(csar.getCanonicalPath() + "/" + vmName + ".mf"));
             if (!isSuccess) {
                 LOGGER.error("rename mf file failed!");
                 return null;
@@ -119,7 +119,7 @@ public class NewCreateVmCsar {
             File vnfValue = new File(csar.getCanonicalPath() + TEMPLATE_TOSCA_VNFD__PATH);
 
             FileUtils.writeStringToFile(vnfValue,
-                FileUtils.readFileToString(vnfValue, StandardCharsets.UTF_8).replace("{VNFD}", projectName + ".yaml"),
+                FileUtils.readFileToString(vnfValue, StandardCharsets.UTF_8).replace("{VNFD}", vmName + ".yaml"),
                 StandardCharsets.UTF_8, false);
 
         } catch (IOException e) {
@@ -131,7 +131,7 @@ public class NewCreateVmCsar {
             File toscaValue = new File(csar.getCanonicalPath() + TEMPLATE_TOSCA_METADATA_PATH);
 
             FileUtils.writeStringToFile(toscaValue,
-                FileUtils.readFileToString(toscaValue, StandardCharsets.UTF_8).replace("{appdFile}", projectName),
+                FileUtils.readFileToString(toscaValue, StandardCharsets.UTF_8).replace("{appdFile}", vmName),
                 StandardCharsets.UTF_8, false);
         } catch (IOException e) {
             throw new IOException("replace file exception");
@@ -146,7 +146,7 @@ public class NewCreateVmCsar {
             FileUtils.writeStringToFile(resourceFile,
                 FileUtils.readFileToString(resourceFile, StandardCharsets.UTF_8).replace("<vnfd_id>", templateName)
                     .replace("<vnfd_name>", templateName).replace("<app_provider>", project.getProvider())
-                    .replace("<app_name>", projectName).replace("<product_version>", project.getVersion())
+                    .replace("<app_name>", vmName).replace("<product_version>", project.getVersion())
                     .replace("<virtual_mem_size>", Integer.toString(config.getVmRegulation().getMemory() * 1024))
                     .replace("<num_virtual_cpu>", Integer.toString(config.getVmRegulation().getCpu()))
                     .replace("<cpu_architecture>", config.getVmRegulation().getArchitecture())
@@ -186,9 +186,9 @@ public class NewCreateVmCsar {
         }
         File templateFileModify = new File(mainServiceTemplatePath);
         boolean isRename = templateFileModify
-            .renameTo(new File(csar.getCanonicalPath() + "/APPD/Definition/" + projectName + ".yaml"));
+            .renameTo(new File(csar.getCanonicalPath() + "/APPD/Definition/" + vmName + ".yaml"));
         if (!isRename) {
-            LOGGER.error("rename {}.yaml failed!", projectName);
+            LOGGER.error("rename {}.yaml failed!", vmName);
             return null;
         }
         // compress to zip
@@ -201,7 +201,7 @@ public class NewCreateVmCsar {
                     List<File> subFiles = Arrays.asList(files);
                     if (!CollectionUtils.isEmpty(subFiles)) {
                         CompressFileUtilsJava
-                            .zipFiles(subFiles, new File(chartsDir + File.separator + projectName + ".zip"));
+                            .zipFiles(subFiles, new File(chartsDir + File.separator + vmName + ".zip"));
                         for (File subFile : subFiles) {
                             FileUtils.deleteQuietly(subFile);
                         }
