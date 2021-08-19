@@ -31,12 +31,10 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.http.client.CookieStore;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
 import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.conn.ssl.TrustStrategy;
 import org.apache.http.cookie.Cookie;
-import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.DefaultRedirectStrategy;
@@ -170,7 +168,7 @@ public class ImageServiceV2 {
      * @param imageId harbor imageId
      * @return
      */
-    public ResponseEntity mergeHarborImage(String fileName, String guid, String imageId) throws IOException {
+    public ResponseEntity mergeHarborImage(String fileName, String guid, String imageId) {
         try {
             LOGGER.info("merge harbor image file, harborImage = {}, fileName = {}, guid = {}", imageId, fileName, guid);
             containerImageMapper
@@ -207,17 +205,17 @@ public class ImageServiceV2 {
             // judge user private harbor repo is exist
             boolean isExist = isExsitOfProject(userId);
             if (!isExist && !SystemImageUtil.isAdminUser()) {
-                String msg = createHarborRepo(userId);
+                String msg = createHarborRepo(imageId, userId);
                 if (msg.equals("error")) {
                     LOGGER.error("create harbor repo failed!");
-                    throw new DeveloperException("process merged file exception",
+                    throw new DeveloperException("preate harbor repo failed!",
                         ResponseConsts.RET_PROCESS_MERGED_FILE_EXCEPTION);
                 }
             }
             //push image to created repo by current user id
             if (!pushImageToRepo(mergedFile, rootDir, userId, imageId)) {
                 LOGGER.error("push image to repo failed!");
-                throw new DeveloperException("process merged file exception",
+                throw new DeveloperException("push image to repo failed!",
                     ResponseConsts.RET_PROCESS_MERGED_FILE_EXCEPTION);
             }
             ContainerImage containerImage = containerImageMapper.getContainerImage(imageId);
@@ -239,7 +237,8 @@ public class ImageServiceV2 {
 
             return ResponseEntity.ok().build();
         } catch (IOException e) {
-            LOGGER.error("process merged file exception!");
+            LOGGER.error("process merged file exception! {}", e.getMessage());
+            containerImageMapper.updateContainerImageStatus(imageId, EnumContainerImageStatus.UPLOAD_FAILED.toString());
             throw new DeveloperException("process merged file exception",
                 ResponseConsts.RET_PROCESS_MERGED_FILE_EXCEPTION);
         }
@@ -255,7 +254,7 @@ public class ImageServiceV2 {
             String encodeStr = encodeUserAndPwd();
             if (encodeStr.equals("")) {
                 LOGGER.error("encode user and pwd failed!");
-                throw new DeveloperException("process merged file exception",
+                throw new DeveloperException("encode user and pwd failed!",
                     ResponseConsts.RET_PROCESS_MERGED_FILE_EXCEPTION);
             }
             httpGet.setHeader("Authorization", "Basic " + encodeStr);
@@ -267,46 +266,13 @@ public class ImageServiceV2 {
             }
         } catch (IOException e) {
             LOGGER.error("call get one project occur error {}", e.getMessage());
-            throw new DeveloperException("process merged file exception",
+            throw new DeveloperException("call get one project occur error!",
                 ResponseConsts.RET_PROCESS_MERGED_FILE_EXCEPTION);
         }
         return true;
     }
 
-    private void createHarborRepoByUserId(String userId) {
-        try (CloseableHttpClient client = createIgnoreSslHttpClient()) {
-            //excute create image operation
-            URL url = new URL(loginUrl);
-            String postImageUrl = String
-                .format(Consts.HARBOR_IMAGE_CREATE_REPO_URL, url.getProtocol(), devRepoEndpoint);
-            LOGGER.warn("create Image repo Url : {}", postImageUrl);
-            HttpPost createPost = new HttpPost(postImageUrl);
-            String encodeStr = encodeUserAndPwd();
-            if (encodeStr.equals("")) {
-                LOGGER.error("encode user and pwd failed!");
-                throw new DeveloperException("process merged file exception",
-                    ResponseConsts.RET_PROCESS_MERGED_FILE_EXCEPTION);
-            }
-            createPost.setHeader("Authorization", "Basic " + encodeStr);
-            String body = "{\"project_name\":\"" + userId + "\",\"metadata\":{\"public\":\"true\"}}";
-            createPost.setEntity(new StringEntity(body));
-            CloseableHttpResponse res = client.execute(createPost);
-            InputStream inputStream = res.getEntity().getContent();
-            String result = IOUtils.toString(inputStream, StandardCharsets.UTF_8);
-            LOGGER.warn("result: {}", result);
-            if (!StringUtils.isEmpty(result)) {
-                LOGGER.error("create harbor repo failed!");
-                throw new DeveloperException("process merged file exception",
-                    ResponseConsts.RET_PROCESS_MERGED_FILE_EXCEPTION);
-            }
-        } catch (IOException e) {
-            LOGGER.error("call login or create repo interface occur error {}", e.getMessage());
-            throw new DeveloperException("process merged file exception",
-                ResponseConsts.RET_PROCESS_MERGED_FILE_EXCEPTION);
-        }
-    }
-
-    public String createHarborRepo(String name) {
+    private String createHarborRepo(String imageId, String name) {
         String body = "{\"project_name\":\"" + name + "\",\"metadata\":{\"public\":\"true\"}}";
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", "Basic " + encodeUserAndPwd());
@@ -318,6 +284,7 @@ public class ImageServiceV2 {
             response = REST_TEMPLATE.exchange(createUrl, HttpMethod.POST, requestEntity, String.class);
             LOGGER.warn("create harbor repo log:{}", response);
         } catch (RestClientException | MalformedURLException e) {
+            containerImageMapper.updateContainerImageStatus(imageId, EnumContainerImageStatus.UPLOAD_FAILED.toString());
             LOGGER.error("Failed create harbor repo {} occur {}", name, e.getMessage());
             return "error";
         }
@@ -328,19 +295,22 @@ public class ImageServiceV2 {
         return "error";
     }
 
-    private boolean pushImageToRepo(File imageFile, String rootDir, String userId, String imId) throws IOException {
+    private boolean pushImageToRepo(File imageFile, String rootDir, String userId, String inputImageId)
+        throws IOException {
         DockerClient dockerClient = getDockerClient(devRepoEndpoint, devRepoUsername, devRepoPassword);
         try (InputStream inputStream = new FileInputStream(imageFile)) {
             //import image pkg
             dockerClient.loadImageCmd(inputStream).exec();
         } catch (FileNotFoundException e) {
+            containerImageMapper
+                .updateContainerImageStatus(inputImageId, EnumContainerImageStatus.UPLOAD_FAILED.toString());
             LOGGER.error("can not find image file,{}", e.getMessage());
             return false;
         }
 
         //Unzip the image package，Find outmanifest.jsonmiddleRepoTags
         File file = new File(rootDir);
-        boolean res = deCompress(imageFile.getCanonicalPath(), file);
+        boolean res = deCompress(imageFile.getCanonicalPath(), file, inputImageId);
         String repoTags = "";
         if (res) {
             //Readmanifest.jsonContent
@@ -389,7 +359,8 @@ public class ImageServiceV2 {
             dockerClient.tagImageCmd(imageId, uploadImgName, repos[1]).withForce().exec();
             LOGGER.debug("Upload tagged docker image: {}", uploadImgName);
             // set image path
-            int result = containerImageMapper.updateContainerImagePath(imId, uploadImgName);
+            int result = containerImageMapper
+                .updateContainerImagePath(inputImageId, uploadImgName + ":" + repos[1].trim());
             if (result < 1) {
                 LOGGER.error("failed to update image {} path", imageId);
                 return false;
@@ -399,6 +370,8 @@ public class ImageServiceV2 {
                 dockerClient.pushImageCmd(uploadImgName).start().awaitCompletion();
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
+                containerImageMapper
+                    .updateContainerImageStatus(inputImageId, EnumContainerImageStatus.UPLOAD_FAILED.toString());
                 LOGGER.error("failed to push image {}", e.getMessage());
                 return false;
             }
@@ -429,7 +402,7 @@ public class ImageServiceV2 {
         return DockerClientBuilder.getInstance(config).build();
     }
 
-    private static boolean deCompress(String tarFile, File destFile) {
+    private boolean deCompress(String tarFile, File destFile, String imageId) {
         TarArchiveInputStream tis = null;
         try (FileInputStream fis = new FileInputStream(tarFile)) {
 
@@ -453,6 +426,7 @@ public class ImageServiceV2 {
                 }
             }
         } catch (IOException ex) {
+            containerImageMapper.updateContainerImageStatus(imageId, EnumContainerImageStatus.UPLOAD_FAILED.toString());
             LOGGER.error("failed to decompress, IO exception  {} ", ex.getMessage());
             return false;
         } finally {
@@ -463,8 +437,7 @@ public class ImageServiceV2 {
                     LOGGER.error("failed to close tar input stream {} ", ex.getMessage());
                 }
             }
-        }
-        return true;
+        } return true;
     }
 
     private String getUploadSysImageRootDir(String imageId) {
