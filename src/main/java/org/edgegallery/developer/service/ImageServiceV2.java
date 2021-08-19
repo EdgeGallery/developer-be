@@ -208,7 +208,7 @@ public class ImageServiceV2 {
                 String msg = createHarborRepo(imageId, userId);
                 if (msg.equals("error")) {
                     LOGGER.error("create harbor repo failed!");
-                    throw new DeveloperException("preate harbor repo failed!",
+                    throw new DeveloperException("create harbor repo failed!",
                         ResponseConsts.RET_PROCESS_MERGED_FILE_EXCEPTION);
                 }
             }
