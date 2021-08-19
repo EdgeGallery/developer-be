@@ -523,6 +523,7 @@ public class UploadFileService {
                 LOGGER.error("Failed to save Image");
                 return Either.left(new FormatRespDto(Status.INTERNAL_SERVER_ERROR, "Failed to save image"));
             }
+        	
             List<HelmTemplateYamlPo> list = helmTemplateYamlMapper.queryTemplateYamlByProjectId(userId, projectId);
             if (!CollectionUtils.isEmpty(list)) {
                 for (HelmTemplateYamlPo po : list) {
@@ -578,7 +579,7 @@ public class UploadFileService {
         }
         //verify image info
         LOGGER.warn("podImages {}", podImages);
-        boolean result = verifyImage(podImages);
+        boolean result =  verifyImage(podImages);
         if (!result) {
             LOGGER.error("the image configuration in the yaml file is incorrect");
             return false;

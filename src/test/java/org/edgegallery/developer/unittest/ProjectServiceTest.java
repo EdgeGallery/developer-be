@@ -16,7 +16,6 @@
 
 package org.edgegallery.developer.unittest;
 
-import com.spencerwi.either.Either;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -24,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
+
 import org.apache.commons.fileupload.FileItem;
 import org.apache.ibatis.io.Resources;
 import org.apache.servicecomb.swagger.invocation.exception.InvocationException;
@@ -63,6 +63,8 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.commons.CommonsMultipartFile;
+
+import com.spencerwi.either.Either;
 
 @SpringBootTest(classes = DeveloperApplicationTests.class)
 @RunWith(SpringRunner.class)
@@ -209,8 +211,7 @@ public class ProjectServiceTest {
     @Test
     @WithMockUser(roles = "DEVELOPER_TENANT")
     public void testGetAllProject() throws IOException {
-        String userId = "f24ea0a2-d8e6-467c-8039-94f0d29bac43";
-        Page<ApplicationProject> response = projectService.getAllProjects(userId, null, 10, 0);
+        Page<ApplicationProject> response = projectService.getProjectByNameWithFuzzy(null, 10, 0);
         Assert.assertNotNull(response.getResults());
     }
 

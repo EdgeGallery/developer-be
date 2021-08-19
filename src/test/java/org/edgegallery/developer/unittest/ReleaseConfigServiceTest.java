@@ -59,19 +59,19 @@ public class ReleaseConfigServiceTest {
 
     private String projectId = "200dfab1-3c30-4fc7-a6ca-ed6f0620a85e";
 
-    // @Test
-    // @WithMockUser(roles = "DEVELOPER_TENANT")
-    // public void testCreateRelConfig() {
-    //     ReleaseConfig releaseConfig = new ReleaseConfig();
-    //     Either<FormatRespDto, ReleaseConfig> stru = releaseConfigService.saveConfig(projectId, releaseConfig);
-    //     if(stru.isLeft()){
-    //         Assert.assertEquals(400,stru.getLeft().getErrorRespDto().getCode());
-    //         Assert.assertEquals("releaseConfig have exit!",stru.getLeft().getErrorRespDto().getDetail());
-    //     }else {
-    //         Assert.assertTrue(stru.isRight());
-    //     }
-    //
-    // }
+    @Test
+    @WithMockUser(roles = "DEVELOPER_TENANT")
+    public void testCreateRelConfig() {
+        ReleaseConfig releaseConfig = new ReleaseConfig();
+        Either<FormatRespDto, ReleaseConfig> stru = releaseConfigService.saveConfig(projectId, releaseConfig);
+        if (stru.isLeft()) {
+            Assert.assertEquals(400, stru.getLeft().getErrorRespDto().getCode());
+            Assert.assertEquals("releaseConfig have exit!", stru.getLeft().getErrorRespDto().getDetail());
+        } else {
+            Assert.assertTrue(stru.isRight());
+        }
+
+    }
 
     @Test
     @WithMockUser(roles = "DEVELOPER_TENANT")
@@ -80,14 +80,14 @@ public class ReleaseConfigServiceTest {
         Assert.assertTrue(stru.isLeft());
     }
 
-    // @Test
-    // @WithMockUser(roles = "DEVELOPER_TENANT")
-    // public void testCreateRelConfigWithCsarError() {
-    //     ReleaseConfig releaseConfig = new ReleaseConfig();
-    //     releaseConfig.setCapabilitiesDetail(new CapabilitiesDetail());
-    //     Either<FormatRespDto, ReleaseConfig> stru = releaseConfigService.saveConfig(projectId, releaseConfig);
-    //     Assert.assertTrue(stru.isRight());
-    // }
+    @Test
+    @WithMockUser(roles = "DEVELOPER_TENANT")
+    public void testCreateRelConfigWithCsarError() {
+        ReleaseConfig releaseConfig = new ReleaseConfig();
+        releaseConfig.setCapabilitiesDetail(new CapabilitiesDetail());
+        Either<FormatRespDto, ReleaseConfig> stru = releaseConfigService.saveConfig(projectId, releaseConfig);
+        Assert.assertTrue(stru.isLeft());
+    }
 
     @Test
     @WithMockUser(roles = "DEVELOPER_TENANT")
@@ -113,30 +113,21 @@ public class ReleaseConfigServiceTest {
 
     @Test
     @WithMockUser(roles = "DEVELOPER_TENANT")
-    public void testUpdateRelConfigWithCsarError() {
-        ReleaseConfig releaseConfig = new ReleaseConfig();
-        releaseConfig.setCapabilitiesDetail(new CapabilitiesDetail());
-        Either<FormatRespDto, ReleaseConfig> stru = releaseConfigService.modifyConfig(projectId, releaseConfig);
-        Assert.assertTrue(stru.isRight());
-       // Assert.assertEquals(400, stru.getLeft().getEnumStatus().getStatusCode());
+    public void testGetRelConfig() {
+        AccessUserUtil.setUser("f24ea0a2-d8e6-467c-8039-94f0d29bac43", "test-user");
+        Either<FormatRespDto, ReleaseConfig> stru = releaseConfigService
+            .getConfigById("200dfab1-3c30-4fc7-a6ca-ed6f0620a85d", "");
+        Assert.assertTrue(stru.isLeft());
     }
 
     @Test
     @WithMockUser(roles = "DEVELOPER_TENANT")
-    public void testGetRelConfig() {
-        AccessUserUtil.setUser("f24ea0a2-d8e6-467c-8039-94f0d29bac43", "test-user");
-        Either<FormatRespDto, ReleaseConfig> stru = releaseConfigService.getConfigById("200dfab1-3c30-4fc7-a6ca-ed6f0620a85d", "");
+    public void should_failed_when_use_userid_A_to_get_project_of_userB() {
+        AccessUserUtil.setUser("otheruid-d8e6-467c-8039-94f0d29bac43", "test-user");
+        Either<FormatRespDto, ReleaseConfig> stru = releaseConfigService
+            .getConfigById("200dfab1-3c30-4fc7-a6ca-ed6f0620a85e", "");
         Assert.assertTrue(stru.isLeft());
     }
-
-    // @Test
-    // @WithMockUser(roles = "DEVELOPER_TENANT")
-    // public void should_failed_when_use_userid_A_to_get_project_of_userB() {
-    //     AccessUserUtil.setUser("otheruid-d8e6-467c-8039-94f0d29bac43", "test-user");
-    //     Either<FormatRespDto, ReleaseConfig> stru = releaseConfigService.getConfigById("200dfab1-3c30-4fc7-a6ca-ed6f0620a85e");
-    //     Assert.assertTrue(stru.isLeft());
-    // }
-
 
     @Test
     @WithMockUser(roles = "DEVELOPER_TENANT")

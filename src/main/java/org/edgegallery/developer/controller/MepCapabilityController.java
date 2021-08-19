@@ -31,7 +31,7 @@ import org.edgegallery.developer.response.ErrorRespDto;
 import org.edgegallery.developer.response.FormatRespDto;
 import org.edgegallery.developer.response.OpenMepApiResponse;
 import org.edgegallery.developer.response.OpenMepEcoApiResponse;
-import org.edgegallery.developer.service.OpenMepCapabilityService;
+import org.edgegallery.developer.service.CapabilityGroupService;
 import org.edgegallery.developer.util.ResponseDataUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -47,13 +47,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 @Controller
 @RestSchema(schemaId = "capability-groups")
 @RequestMapping("/mec/developer/v1/capability-groups")
-@Api(tags = "MEPCapability")
+@Api(tags = "capability-groups")
 public class MepCapabilityController {
 
     private static final String REG_UUID = "[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}";
 
     @Autowired
-    private OpenMepCapabilityService openService;
+    private CapabilityGroupService openService;
 
     /**
      * create group by group.

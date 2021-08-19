@@ -16,23 +16,19 @@
 
 package org.edgegallery.developer.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator;
-import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
-import com.google.gson.Gson;
-import com.spencerwi.either.Either;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+
 import javax.ws.rs.core.Response;
+
 import org.apache.commons.lang.StringEscapeUtils;
 import org.edgegallery.developer.mapper.HelmTemplateYamlMapper;
 import org.edgegallery.developer.mapper.ProjectImageMapper;
 import org.edgegallery.developer.mapper.ProjectMapper;
+import org.edgegallery.developer.mapper.capability.CapabilityMapper;
+import org.edgegallery.developer.model.capability.Capability;
 import org.edgegallery.developer.model.deployyaml.ConfigMap;
 import org.edgegallery.developer.model.deployyaml.Containers;
 import org.edgegallery.developer.model.deployyaml.DeployYaml;
@@ -44,7 +40,6 @@ import org.edgegallery.developer.model.deployyaml.ValueFrom;
 import org.edgegallery.developer.model.deployyaml.VolumeMounts;
 import org.edgegallery.developer.model.deployyaml.Volumes;
 import org.edgegallery.developer.model.workspace.HelmTemplateYamlPo;
-import org.edgegallery.developer.model.workspace.OpenMepCapabilityGroup;
 import org.edgegallery.developer.model.workspace.ProjectImageConfig;
 import org.edgegallery.developer.response.FormatRespDto;
 import org.slf4j.Logger;
@@ -53,6 +48,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator;
+import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
+import com.google.gson.Gson;
+import com.spencerwi.either.Either;
 
 @Service("deployService")
 public class DeployService {
@@ -67,6 +71,9 @@ public class DeployService {
 
     @Autowired
     private ProjectMapper projectMapper;
+    
+    @Autowired
+    private CapabilityMapper capabilityMapper;
 
     /**
      * saveDeployYaml.
@@ -106,7 +113,7 @@ public class DeployService {
         }
 
         //judge mep
-        List<OpenMepCapabilityGroup> list = projectMapper.getProjectById(projectId).getCapabilityList();
+        List<Capability> list = capabilityMapper.selectByProjectId(projectId);
         //save service
         StringBuilder sb = new StringBuilder();
         List<String> podName = new ArrayList<>();

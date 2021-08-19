@@ -22,8 +22,6 @@
         <result property="userId" column="user_id"/>
         <result property="createDate" column="create_date"/>
         <result property="projectType" column="project_type"/>
-        <result property="capabilityList" column="capabilities"
-                typeHandler="org.edgegallery.developer.model.handler.JsonCollectionTypeHandler"/>
         <result property="industry" column="industries"
                 typeHandler="org.edgegallery.developer.model.handler.JsonCollectionTypeHandler"/>
         <result property="platform" column="platform"
@@ -89,10 +87,8 @@
         #{platform, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonCollectionTypeHandler},
         icon_file_id = #{iconFileId}, type = #{type}, description = #{description}, status = #{status}, user_id =
         #{userId},
-        last_test_id = #{lastTestId}, capabilities =
-        #{capabilityList, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonCollectionTypeHandler},
-        industries =
-        #{industry, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonCollectionTypeHandler},
+        last_test_id = #{lastTestId}, 
+        industries =#{industry, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonCollectionTypeHandler},
         open_capability_id = #{openCapabilityId}, deploy_platform = #{deployPlatform}
         WHERE
         id = #{id}
@@ -116,15 +112,22 @@
         FROM tbl_app_project where id = #{projectId}
     </select>
 
-    <select id="getAllProject" parameterType="String" resultMap="AppProjectMap">
+    <select id="getProjectByNameWithFuzzy" parameterType="String" resultMap="AppProjectMap">
         SELECT
         <include refid="AppProject_AllColumn"/>
-        FROM tbl_app_project where user_id = #{userId}
-        <if test="projectName != null and projectName != ''">
-            and name like  CONCAT('%',#{projectName},'%')
+        FROM tbl_app_project
+        <where>
+        <if test="name != null and name != ''">
+            and name like  CONCAT('%',#{name},'%')
         </if>
+        </where>
         order by create_date desc
     </select>
+    
+    <select id="getAllProject" parameterType="String" resultMap="AppProjectMap">
+        SELECT <include refid="AppProject_AllColumn"/> FROM tbl_app_project 
+        order by create_date desc
+    </select>    
 
     <select id="getAllProjectNoCondtion"  resultMap="AppProjectMap">
         SELECT
