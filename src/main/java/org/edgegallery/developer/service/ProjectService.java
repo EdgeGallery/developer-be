@@ -189,6 +189,7 @@ public class ProjectService {
 	private ProjectCapabilityService projectCapabilityService;
 	@Autowired
 	private org.edgegallery.developer.service.capability.CapabilityService capabilityService;
+	
 
 	public Page<ApplicationProject> getAllProjects(int limit, int offset) {
 		PageHelper.offsetPage(offset, limit);
@@ -395,11 +396,7 @@ public class ProjectService {
 		return Either.right(true);
 	}
 
-	/**
-	 * modifyProject.
-	 *
-	 * @return
-	 */
+	@Transactional(rollbackFor = RuntimeException.class)
 	public Either<FormatRespDto, ApplicationProject> modifyProject(String userId, String projectId,
 			ApplicationProject newProject) {
 		ApplicationProject oldProject = projectMapper.getProject(userId, projectId);
@@ -427,11 +424,20 @@ public class ProjectService {
 		newProject.setId(projectId);
 		newProject.setUserId(userId);
 
+		projectCapabilityService.deleteByProjectId(projectId);
+		List<ApplicationProjectCapability> applicationProjectCapabilities = newProject.getApplicationProjectCapabilities();
+		Either<FormatRespDto, List<ApplicationProjectCapability>> prjCapaResult = projectCapabilityService.create(applicationProjectCapabilities);
+		if(prjCapaResult.isLeft()) {
+			LOGGER.error("Update ApplicationProjectCapability {} failed", newProject.getId());
+			throw new DeveloperException("Update ApplicationProjectCapability ["+newProject.getId()+"] failed" );
+		}
+		
 		int res = projectMapper.updateProject(newProject);
 		if (res < 1) {
 			LOGGER.error("Update project {} failed", newProject.getId());
-			FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "Update project failed.");
-			return Either.left(error);
+			//FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "Update project failed.");
+			//return Either.left(error);
+			throw new DeveloperException("Update project ["+newProject.getId()+"] failed" );
 		}
 		LOGGER.info("Update project {} success.", projectId);
 		return Either.right(projectMapper.getProject(userId, projectId));

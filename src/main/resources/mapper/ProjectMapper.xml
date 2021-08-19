@@ -87,10 +87,8 @@
         #{platform, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonCollectionTypeHandler},
         icon_file_id = #{iconFileId}, type = #{type}, description = #{description}, status = #{status}, user_id =
         #{userId},
-        last_test_id = #{lastTestId}, capabilities =
-        #{capabilityList, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonCollectionTypeHandler},
-        industries =
-        #{industry, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonCollectionTypeHandler},
+        last_test_id = #{lastTestId}, 
+        industries =#{industry, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonCollectionTypeHandler},
         open_capability_id = #{openCapabilityId}, deploy_platform = #{deployPlatform}
         WHERE
         id = #{id}
