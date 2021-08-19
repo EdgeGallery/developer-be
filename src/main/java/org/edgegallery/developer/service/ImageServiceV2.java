@@ -322,8 +322,7 @@ public class ImageServiceV2 {
             return "error";
         }
         if (response.getStatusCode() == HttpStatus.OK || response.getStatusCode() == HttpStatus.CREATED) {
-            LOGGER.warn("response body {}", response.getBody());
-            return response.getBody();
+            return "ok";
         }
         LOGGER.error("Failed create harbor repo!");
         return "error";
