@@ -12,8 +12,8 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.Base64;
@@ -29,6 +29,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.client.CookieStore;
 import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
@@ -163,7 +164,7 @@ public class ImageServiceV2 {
      */
     public ResponseEntity mergeHarborImage(String fileName, String guid, String imageId) throws IOException {
         try {
-            LOGGER.info("merge harbor image file, systemId = {}, fileName = {}, guid = {}", imageId, fileName, guid);
+            LOGGER.info("merge harbor image file, harborImage = {}, fileName = {}, guid = {}", imageId, fileName, guid);
             containerImageMapper
                 .updateContainerImageStatus(imageId, EnumContainerImageStatus.UPLOADING_MERGING.toString());
             String rootDir = getUploadSysImageRootDir(imageId);
@@ -195,9 +196,13 @@ public class ImageServiceV2 {
             mergedFileStream.close();
             //create repo by current user id
             String userId = AccessUserUtil.getUser().getUserId();
-            createHarborRepoByUserId(userId);
+            // judge user private harbor repo is exist
+            boolean isExist = isExsitOfProject(userId);
+            if (!isExist && !SystemImageUtil.isAdminUser()) {
+                createHarborRepoByUserId(userId);
+            }
             //push image to created repo by current user id
-            if (!pushImageToRepo(mergedFile, rootDir, userId)) {
+            if (!pushImageToRepo(mergedFile, rootDir, userId, imageId)) {
                 LOGGER.error("push image to repo failed!");
                 throw new DeveloperException("process merged file exception",
                     ResponseConsts.RET_PROCESS_MERGED_FILE_EXCEPTION);
@@ -227,6 +232,34 @@ public class ImageServiceV2 {
         }
     }
 
+    private boolean isExsitOfProject(String userId) {
+        try (CloseableHttpClient client = createIgnoreSslHttpClient()) {
+            URL url = new URL(loginUrl);
+            String isExistUrl = String
+                .format(Consts.HARBOR_PRO_IS_EXIST_URL, url.getProtocol(), devRepoEndpoint, userId);
+            LOGGER.warn(" isExist Url : {}", isExistUrl);
+            HttpGet httpGet = new HttpGet(isExistUrl);
+            String encodeStr = encodeUserAndPwd();
+            if (encodeStr.equals("")) {
+                LOGGER.error("encode user and pwd failed!");
+                throw new DeveloperException("process merged file exception",
+                    ResponseConsts.RET_PROCESS_MERGED_FILE_EXCEPTION);
+            }
+            httpGet.setHeader("Authorization", "Basic " + encodeStr);
+            CloseableHttpResponse res = client.execute(httpGet);
+            InputStream inputStream = res.getEntity().getContent();
+            String imageRes = IOUtils.toString(inputStream, StandardCharsets.UTF_8);
+            if (imageRes.equals("null")) {
+                return false;
+            }
+        } catch (IOException e) {
+            LOGGER.error("call get one project occur error {}", e.getMessage());
+            throw new DeveloperException("process merged file exception",
+                ResponseConsts.RET_PROCESS_MERGED_FILE_EXCEPTION);
+        }
+        return true;
+    }
+
     private void createHarborRepoByUserId(String userId) {
         try (CloseableHttpClient client = createIgnoreSslHttpClient()) {
             URL url = new URL(loginUrl);
@@ -235,14 +268,25 @@ public class ImageServiceV2 {
             //excute login to harbor repo
             HttpPost httpPost = new HttpPost(userLoginUrl);
             MultipartEntityBuilder builder = MultipartEntityBuilder.create();
-            builder.addTextBody("principal", "admin");
-            builder.addTextBody("password", "Harbor12345");
+            builder.addTextBody("principal", devRepoUsername);
+            builder.addTextBody("password", devRepoPassword);
             httpPost.setEntity(builder.build());
-            client.execute(httpPost);
-
-            // get _csrf from cookie
+            // first call login interface
+            CloseableHttpResponse response = client.execute(httpPost);
+            InputStream inputStreamImage = response.getEntity().getContent();
+            String imageRes = IOUtils.toString(inputStreamImage, StandardCharsets.UTF_8);
+            LOGGER.info("first response : {}", imageRes);
             String csrf = getCsrf();
-            LOGGER.warn("__csrf: {}", csrf);
+            LOGGER.warn("__csrf first: {}", csrf);
+            // secode call login interface
+            httpPost.setHeader("X-Harbor-CSRF-Token", csrf);
+            CloseableHttpResponse secondResponse = client.execute(httpPost);
+            InputStream secondInput = secondResponse.getEntity().getContent();
+            String secondBody= IOUtils.toString(secondInput, StandardCharsets.UTF_8);
+            LOGGER.info("second response : {}", secondBody);
+            String csrfToken = getCsrf();
+            // get _csrf from cookie
+            LOGGER.warn("__csrf second: {}", csrfToken);
 
             //excute create image operation
             String postImageUrl = String
@@ -256,14 +300,14 @@ public class ImageServiceV2 {
                     ResponseConsts.RET_PROCESS_MERGED_FILE_EXCEPTION);
             }
             createPost.setHeader("Authorization", "Basic " + encodeStr);
-            createPost.setHeader("X-Harbor-CSRF-Token", csrf);
+            createPost.setHeader("X-Harbor-CSRF-Token", csrfToken);
             String body = "{\"project_name\":\"" + userId + "\",\"metadata\":{\"public\":\"true\"}}";
             createPost.setEntity(new StringEntity(body));
             CloseableHttpResponse res = client.execute(createPost);
             InputStream inputStream = res.getEntity().getContent();
-            byte[] bytes = new byte[inputStream.available()];
-            int byteNums = inputStream.read(bytes);
-            if (byteNums > 0) {
+            String result = IOUtils.toString(inputStream, StandardCharsets.UTF_8);
+            LOGGER.warn("result: {}", result);
+            if (!StringUtils.isEmpty(result)) {
                 LOGGER.error("create harbor repo failed!");
                 throw new DeveloperException("process merged file exception",
                     ResponseConsts.RET_PROCESS_MERGED_FILE_EXCEPTION);
@@ -275,7 +319,7 @@ public class ImageServiceV2 {
         }
     }
 
-    private boolean pushImageToRepo(File imageFile, String rootDir, String userId) throws IOException {
+    private boolean pushImageToRepo(File imageFile, String rootDir, String userId, String imId) throws IOException {
         DockerClient dockerClient = getDockerClient(devRepoEndpoint, devRepoUsername, devRepoPassword);
         try (InputStream inputStream = new FileInputStream(imageFile)) {
             //import image pkg
@@ -336,7 +380,7 @@ public class ImageServiceV2 {
             dockerClient.tagImageCmd(imageId, uploadImgName, repos[1]).withForce().exec();
             LOGGER.debug("Upload tagged docker image: {}", uploadImgName);
             // set image path
-            int result = containerImageMapper.updateContainerImagePath(imageId, uploadImgName);
+            int result = containerImageMapper.updateContainerImagePath(imId, uploadImgName);
             if (result < 1) {
                 LOGGER.error("failed to update image {} path", imageId);
                 return false;
@@ -438,19 +482,22 @@ public class ImageServiceV2 {
 
     private String encodeUserAndPwd() {
         String user = devRepoUsername + ":" + devRepoPassword;
-        String base64encodedString = "";
-        try {
-            base64encodedString = Base64.getEncoder().encodeToString(user.getBytes("utf-8"));
-        } catch (UnsupportedEncodingException e) {
-            LOGGER.error("encode user and pwd failed!");
-            return "";
-        }
+        String base64encodedString = Base64.getEncoder().encodeToString(user.getBytes(StandardCharsets.UTF_8));
         return base64encodedString;
     }
 
     private static String getCsrf() {
         for (Cookie cookie : cookieStore.getCookies()) {
             if (cookie.getName().equals("__csrf")) {
+                return cookie.getValue();
+            }
+        }
+        return "";
+    }
+
+    private static String getGorillaCsrf() {
+        for (Cookie cookie : cookieStore.getCookies()) {
+            if (cookie.getName().equals("_gorilla_csrf")) {
                 return cookie.getValue();
             }
         }

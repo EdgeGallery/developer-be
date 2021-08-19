@@ -10,14 +10,23 @@ import com.github.dockerjava.core.DockerClientConfig;
 import com.github.dockerjava.netty.NettyDockerCmdExecFactory;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.google.gson.reflect.TypeToken;
 import com.spencerwi.either.Either;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Type;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Date;
@@ -26,10 +35,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import javax.net.ssl.SSLContext;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.CookieStore;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpDelete;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
@@ -50,7 +61,9 @@ import org.edgegallery.developer.mapper.ContainerImageMapper;
 import org.edgegallery.developer.model.containerimage.ContainerImage;
 import org.edgegallery.developer.model.containerimage.ContainerImageReq;
 import org.edgegallery.developer.model.containerimage.EnumContainerImageStatus;
+import org.edgegallery.developer.model.containerimage.HarborImage;
 import org.edgegallery.developer.response.FormatRespDto;
+import org.edgegallery.developer.util.ListUtil;
 import org.edgegallery.developer.util.SystemImageUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -381,6 +394,133 @@ public class ContainerImageMgmtServiceV2 {
         String rootDir = getUploadSysImageRootDir(imageId);
         SystemImageUtil.cleanWorkDir(new File(rootDir));
         return ResponseEntity.ok().build();
+    }
+
+    /**
+     * synchronizeHarborImage.
+     */
+    public ResponseEntity synchronizeHarborImage() {
+        LOGGER.info("begin synchronize image...");
+        // get imagePath list from db
+        List<ContainerImage> containerImages = containerImageMapper.getAllImageByAdmin();
+        List<String> list = new ArrayList<>();
+        if (!CollectionUtils.isEmpty(containerImages)) {
+            for (ContainerImage containerImage : containerImages) {
+                String image = containerImage.getImagePath();
+                if (StringUtils.isNotEmpty(image)) {
+                    list.add(image.substring(image.indexOf("/") + 1).trim());
+                }
+            }
+        }
+        // get Harbor image list
+        List<String> harborList = getHarborImageList();
+        if (CollectionUtils.isEmpty(harborList)) {
+            LOGGER.error("no need synchronize!");
+            throw new DeveloperException("no need synchronize!", ResponseConsts.RET_SYNCHRONIZE_IMAGE_NO_NEED);
+        }
+        List<String> imageList = new ArrayList<>();
+        for (String harbor : harborList) {
+            imageList.add(harbor.substring(harbor.indexOf("/") + 1, harbor.indexOf("+")));
+        }
+        if (ListUtil.isEquals(list, imageList)) {
+            LOGGER.error("no need synchronize!");
+            throw new DeveloperException("no need synchronize!", ResponseConsts.RET_SYNCHRONIZE_IMAGE_NO_NEED);
+        }
+
+        for (String harborImage : harborList) {
+            ContainerImage containerImage = new ContainerImage();
+            containerImage.setImageId(UUID.randomUUID().toString());
+            String imageName = harborImage.substring(harborImage.indexOf("/") + 1, harborImage.indexOf(":"));
+            containerImage.setImageName(imageName);
+            containerImage
+                .setImageVersion(harborImage.substring(harborImage.indexOf(":") + 1, harborImage.indexOf("+")));
+            containerImage.setUserId(AccessUserUtil.getUser().getUserId());
+            containerImage.setUserName(AccessUserUtil.getUser().getUserName());
+            String pushTime = harborImage.substring(harborImage.indexOf("+") + 1);
+            containerImage.setUploadTime(new Date(Instant.parse(pushTime).toEpochMilli()));
+            containerImage.setCreateTime(new Date());
+            containerImage.setImageType("private");
+            containerImage.setImagePath(
+                imageDomainName + "/" + harborImage.substring(harborImage.indexOf("/") + 1, harborImage.indexOf("+")));
+            containerImage.setImageStatus(EnumContainerImageStatus.UPLOAD_SUCCEED);
+            containerImage.setFileName(imageName + ".tar");
+            int res = containerImageMapper.createContainerImage(containerImage);
+            if (res < 1) {
+                LOGGER.error("create container image failed!");
+                throw new DeveloperException("create container image failed",
+                    ResponseConsts.RET_CREATE_CONTAINER_IMAGE_FAILED);
+            }
+        }
+        LOGGER.info("end synchronize image...");
+        return ResponseEntity.ok().build();
+
+    }
+
+    private List<String> getHarborImageList() {
+        //create project
+        try (CloseableHttpClient client = createIgnoreSslHttpClient()) {
+            //get all image
+            URL url = new URL(loginUrl);
+            String getImageUrl = String
+                .format(Consts.HARBOR_IMAGE_GET_LIST_URL, url.getProtocol(), imageDomainName, imageProject);
+            LOGGER.warn("getImageUrl : {}", getImageUrl);
+            HttpGet httpImage = new HttpGet(getImageUrl);
+            String encodeStrImage = encodeUserAndPwd();
+            if (encodeStrImage.equals("")) {
+                LOGGER.error("encode user and pwd failed!");
+            }
+            httpImage.setHeader("Authorization", "Basic " + encodeStrImage);
+            CloseableHttpResponse resImage = client.execute(httpImage);
+            InputStream inputStreamImage = resImage.getEntity().getContent();
+            String imageRes = IOUtils.toString(inputStreamImage, StandardCharsets.UTF_8);
+            LOGGER.info("image response : {}", imageRes);
+            Gson gson = new Gson();
+            Type type = new TypeToken<List<HarborImage>>() { }.getType();
+            List<HarborImage> imageList = gson.fromJson(imageRes, type);
+            List<String> names = new ArrayList<>();
+            for (HarborImage harborImage : imageList) {
+                String name = harborImage.getName();
+                if (!name.substring(10).contains("/")) {
+                    //get tags of one image
+                    String getTagUrl = String
+                        .format(Consts.HARBOR_IMAGE_GET_TAGS_URL, url.getProtocol(), imageDomainName, imageProject,
+                            name.substring(10).trim());
+                    LOGGER.info("getTagUrl : {}", getTagUrl);
+                    HttpGet httpTag = new HttpGet(getTagUrl);
+                    String encodeStrTag = encodeUserAndPwd();
+                    if (encodeStrTag.equals("")) {
+                        LOGGER.error("encode user and pwd failed!");
+                    }
+                    httpTag.setHeader("Authorization", "Basic " + encodeStrImage);
+                    CloseableHttpResponse tagImage = client.execute(httpTag);
+                    InputStream inputStreamTag = tagImage.getEntity().getContent();
+                    String tagRes = IOUtils.toString(inputStreamTag, StandardCharsets.UTF_8);
+                    // convert string to json
+                    JsonParser jp = new JsonParser();
+                    JsonArray jsonArray = jp.parse(tagRes).getAsJsonArray();
+                    for (JsonElement jsonElement : jsonArray) {
+                        JsonObject ob = jsonElement.getAsJsonObject();
+                        if (!ob.get("tags").isJsonNull()) {
+                            JsonElement eleTag = ob.get("tags");
+                            JsonArray jsonArrayTag = eleTag.getAsJsonArray();
+                            for (JsonElement element : jsonArrayTag) {
+                                JsonObject object = element.getAsJsonObject();
+                                if (!object.get("name").isJsonNull() && !object.get("push_time").isJsonNull()) {
+                                    String image = name + ":" + object.get("name").getAsString() + "+" + object
+                                        .get("push_time").getAsString();
+                                    names.add(image.trim());
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            return names;
+        } catch (IOException e) {
+            LOGGER.error("get image list from harbor repo {}", e.getMessage());
+            throw new DeveloperException("get image list from harbor repo failed!",
+                ResponseConsts.RET_GET_IMAGE_FROM_HARBOR_FAILED);
+        }
     }
 
     private String getUploadSysImageRootDir(String imageId) {

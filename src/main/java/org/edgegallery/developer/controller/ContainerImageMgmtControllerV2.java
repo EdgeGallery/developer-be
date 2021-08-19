@@ -156,4 +156,18 @@ public class ContainerImageMgmtControllerV2 {
         return containerImageMgmtServiceV2.cancelUploadHarborImage(imageId);
     }
 
+    /**
+     * synchronize image from harbor repo.
+     */
+    @ApiOperation(value = "synchronize image from harbor repo", response = ResponseEntity.class)
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = "OK", response = ResponseEntity.class)
+    })
+    @RequestMapping(value = "/images/synchronize", method = RequestMethod.GET)
+    @PreAuthorize("hasRole('DEVELOPER_ADMIN')")
+    public ResponseEntity synchronizeHarborImage() {
+        return containerImageMgmtServiceV2.synchronizeHarborImage();
+
+    }
+
 }
