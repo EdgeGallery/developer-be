@@ -12,6 +12,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.security.cert.CertificateException;
@@ -55,9 +56,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
+import org.springframework.web.client.RestClientException;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
 @Service("imageServiceV2")
@@ -67,6 +74,8 @@ public class ImageServiceV2 {
     private static final String SUBDIR_CONIMAGE = "ContainerImage";
 
     private static CookieStore cookieStore = new BasicCookieStore();
+
+    private static final RestTemplate REST_TEMPLATE = new RestTemplate();
 
     @Value("${upload.tempPath}")
     private String filePathTemp;
@@ -198,7 +207,12 @@ public class ImageServiceV2 {
             // judge user private harbor repo is exist
             boolean isExist = isExsitOfProject(userId);
             if (!isExist && !SystemImageUtil.isAdminUser()) {
-                createHarborRepoByUserId(userId);
+                String msg = createHarborRepo(userId);
+                if (msg.equals("error")) {
+                    LOGGER.error("create harbor repo failed!");
+                    throw new DeveloperException("process merged file exception",
+                        ResponseConsts.RET_PROCESS_MERGED_FILE_EXCEPTION);
+                }
             }
             //push image to created repo by current user id
             if (!pushImageToRepo(mergedFile, rootDir, userId, imageId)) {
@@ -290,6 +304,29 @@ public class ImageServiceV2 {
             throw new DeveloperException("process merged file exception",
                 ResponseConsts.RET_PROCESS_MERGED_FILE_EXCEPTION);
         }
+    }
+
+    public String createHarborRepo(String name) {
+        String body = "{\"project_name\":\"" + name + "\",\"metadata\":{\"public\":\"true\"}}";
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", "Basic " + encodeUserAndPwd());
+        HttpEntity requestEntity = new HttpEntity<>(body, headers);
+        ResponseEntity<String> response;
+        try {
+            URL url = new URL(loginUrl);
+            String createUrl = String.format(Consts.HARBOR_IMAGE_CREATE_REPO_URL, url.getProtocol(), devRepoEndpoint);
+            response = REST_TEMPLATE.exchange(createUrl, HttpMethod.POST, requestEntity, String.class);
+            LOGGER.warn("create harbor repo log:{}", response);
+        } catch (RestClientException | MalformedURLException e) {
+            LOGGER.error("Failed create harbor repo {} occur {}", name, e.getMessage());
+            return "error";
+        }
+        if (response.getStatusCode() == HttpStatus.OK || response.getStatusCode() == HttpStatus.CREATED) {
+            LOGGER.warn("response body {}", response.getBody());
+            return response.getBody();
+        }
+        LOGGER.error("Failed create harbor repo!");
+        return "error";
     }
 
     private boolean pushImageToRepo(File imageFile, String rootDir, String userId, String imId) throws IOException {
