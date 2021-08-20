@@ -211,7 +211,7 @@ public class ProjectServiceTest {
     @Test
     @WithMockUser(roles = "DEVELOPER_TENANT")
     public void testGetAllProject() throws IOException {
-        Page<ApplicationProject> response = projectService.getProjectByNameWithFuzzy(null, 10, 0);
+        Page<ApplicationProject> response = projectService.getProjectByNameWithFuzzy(null, null, 10, 0);
         Assert.assertNotNull(response.getResults());
     }
 
