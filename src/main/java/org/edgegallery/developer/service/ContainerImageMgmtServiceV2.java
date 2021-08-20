@@ -422,7 +422,7 @@ public class ContainerImageMgmtServiceV2 {
         for (String harbor : harborList) {
             imageList.add(harbor.substring(harbor.indexOf("/") + 1, harbor.indexOf("+")));
         }
-        if (ListUtil.isEquals(list, imageList)) {
+        if (ListUtil.isEquals(list, imageList) || list.containsAll(imageList)) {
             LOGGER.error("no need synchronize!");
             throw new DeveloperException("no need synchronize!", ResponseConsts.RET_SYNCHRONIZE_IMAGE_NO_NEED);
         }
