@@ -117,6 +117,9 @@
         <include refid="AppProject_AllColumn"/>
         FROM tbl_app_project
         <where>
+        <if test="userId != null and userId != ''">
+            and user_id = #{userId}
+        </if>        
         <if test="name != null and name != ''">
             and name like  CONCAT('%',#{name},'%')
         </if>

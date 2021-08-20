@@ -83,7 +83,7 @@ public class ProjectController {
             String projectName,
         @ApiParam(value = "the max count of one page", required = true) @Min(1) @RequestParam("limit") int limit,
         @ApiParam(value = "start index of the page", required = true) @Min(0) @RequestParam("offset") int offset) {
-        return ResponseEntity.ok(projectService.getProjectByNameWithFuzzy(projectName, limit, offset));
+        return ResponseEntity.ok(projectService.getProjectByNameWithFuzzy(userId, projectName, limit, offset));
     }
 
     /** 
