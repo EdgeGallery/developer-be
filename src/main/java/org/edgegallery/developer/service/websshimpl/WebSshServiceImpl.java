@@ -49,6 +49,7 @@ import org.edgegallery.developer.model.workspace.EnumDeployPlatform;
 import org.edgegallery.developer.model.workspace.MepHost;
 import org.edgegallery.developer.model.workspace.ProjectTestConfig;
 import org.edgegallery.developer.service.WebSshService;
+import org.edgegallery.developer.util.InputParameterUtil;
 import org.edgegallery.developer.util.webssh.constant.ConstantPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -216,14 +217,17 @@ public class WebSshServiceImpl implements WebSshService {
                 logger.info("the vm is creating or create fail.");
                 return;
             }
-            String networkType = "Network_N6";
-            VmNetwork vmNetwork = vmConfigMapper.getVmNetworkByType(networkType);
+            Type hostType = new TypeToken<MepHost>() { }.getType();
+            MepHost host = gson.fromJson(gson.toJson(vmCreateConfig.getHost()), hostType);
+            Map<String, String> vmInputParams = InputParameterUtil.getParams(host.getParameter());
+
+            String networkName = vmInputParams.getOrDefault("network_name_n6", "mec_network_n6");
             Type type = new TypeToken<List<VmInfo>>() { }.getType();
             List<VmInfo> vmInfo = gson.fromJson(gson.toJson(vmCreateConfig.getVmInfo()), type);
             List<NetworkInfo> networkInfos = vmInfo.get(0).getNetworks();
             String networkIp = "";
             for (NetworkInfo networkInfo : networkInfos) {
-                if (networkInfo.getName().equals(vmNetwork.getNetworkName())) {
+                if (networkInfo.getName().equals(networkName)) {
                     networkIp = networkInfo.getIp();
                 }
             }
