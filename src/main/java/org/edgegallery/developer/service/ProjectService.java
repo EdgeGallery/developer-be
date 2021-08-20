@@ -391,6 +391,8 @@ public class ProjectService {
 		// delete files of project
 		String projectPath = getProjectPath(projectId);
 		DeveloperFileUtils.deleteDir(projectPath);
+		
+		projectCapabilityService.deleteByProjectId(projectId);
 
 		LOGGER.info("Delete project {} success.", projectId);
 		return Either.right(true);

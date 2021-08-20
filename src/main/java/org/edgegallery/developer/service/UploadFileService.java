@@ -518,7 +518,8 @@ public class UploadFileService {
             return Either.right(helmTemplateYamlRespDto);
         } else if (!requiredItems.isEmpty() && requiredItems.size() == 1 && requiredItems.get(0).equals("mep-agent")) {
             //delete all helm by projectId
-            boolean isSaved = saveImage(tempFile, projectId);
+            // boolean isSaved = saveImage(tempFile, projectId);
+        	boolean isSaved = true;
             if (!isSaved) {
                 LOGGER.error("Failed to save Image");
                 return Either.left(new FormatRespDto(Status.INTERNAL_SERVER_ERROR, "Failed to save image"));
