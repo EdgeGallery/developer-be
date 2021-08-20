@@ -1023,14 +1023,17 @@ public class VmService {
     }
 
     private Boolean pushFileToVm(File appFile, VmCreateConfig vmCreateConfig) {
-        String networkType = "Network_N6";
-        VmNetwork vmNetwork = vmConfigMapper.getVmNetworkByType(networkType);
+        Type hostType = new TypeToken<MepHost>() { }.getType();
+        MepHost host = gson.fromJson(gson.toJson(vmCreateConfig.getHost()), hostType);
+        Map<String, String> vmInputParams = InputParameterUtil.getParams(host.getParameter());
+
+        String networkName = vmInputParams.getOrDefault("network_name_n6", "mec_network_n6");
         Type type = new TypeToken<List<VmInfo>>() { }.getType();
         List<VmInfo> vmInfo = gson.fromJson(gson.toJson(vmCreateConfig.getVmInfo()), type);
         List<NetworkInfo> networkInfos = vmInfo.get(0).getNetworks();
         String networkIp = "";
         for (NetworkInfo networkInfo : networkInfos) {
-            if (networkInfo.getName().equals(vmNetwork.getNetworkName())) {
+            if (networkInfo.getName().equals(networkName)) {
                 networkIp = networkInfo.getIp();
             }
         }
