@@ -17,6 +17,9 @@
 package org.edgegallery.developer.service.virtual.image;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
 import javax.annotation.Resource;
@@ -91,22 +94,25 @@ public class VmImageStatus implements VmImageStage {
                 return true;
             }
         } else {
-            Type vmInfoType = new TypeToken<VmImageInfo>() { }.getType();
-            VmImageInfo vmImageInfo = gson.fromJson(workStatus, vmInfoType);
-            if (vmImageInfo.getStatus().equals("active")) {
+            JsonObject jsonObject = new JsonParser().parse(workStatus).getAsJsonObject();
+            JsonElement imageStatus = jsonObject.get("status");
+            if (imageStatus.getAsString().equals("active")) {
                 processStatus = true;
                 status = EnumTestConfigStatus.Success;
                 config.setLog("get vm status success");
-                config.setImageName(vmImageInfo.getImageName());
-                config.setSumChunkNum(vmImageInfo.getSumChunkNum());
-                config.setChunkSize(vmImageInfo.getChunkSize());
-                config.setChecksum(vmImageInfo.getChecksum());
+                config.setImageName(jsonObject.get("imageName").getAsString());
+                config.setSumChunkNum(jsonObject.get("sumChunkNum").getAsInt());
+                config.setChunkSize(jsonObject.get("chunkSize").getAsInt());
+                config.setChecksum(jsonObject.get("checksum").getAsString());
                 // get config
                 LOGGER.info("update config result:{}", config.getStatus());
-            } else {
+            } else if (imageStatus.getAsString().equals("killed")) {
+                config.setLog("create vm image fail: killed!");
+                LOGGER.error("create vm image fail: killed!");
+            }
+            else {
                 return true;
             }
-
         }
         vmService.updateVmImageResult(config, project, "imageStatus", status);
         return processStatus == true ? vmImageStage.execute(config) : processStatus;
