@@ -86,7 +86,7 @@ public class CapabilityController {
 			@ApiResponse(code = 200, message = "OK", response = Capability.class, responseContainer = "List"),
 			@ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class) })
 	@GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-	@PreAuthorize("hasRole('DEVELOPER_ADMIN') || hasRole('DEVELOPER_GUEST')")
+	@PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN') || hasRole('DEVELOPER_GUEST')")
 	public ResponseEntity<Capability> getCapabilityById(
 			@ApiParam(value = "id", required = true)  @PathVariable("id") @Pattern(regexp = REG_UUID, message = "id must be in UUID format") String id,
 			HttpServletRequest request) {
@@ -98,11 +98,9 @@ public class CapabilityController {
 			@ApiResponse(code = 200, message = "OK", response = Capability.class, responseContainer = "List"),
 			@ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class) })
 	@GetMapping(produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-	@PreAuthorize("hasRole('DEVELOPER_ADMIN') || hasRole('DEVELOPER_GUEST')")
+	@PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN') || hasRole('DEVELOPER_GUEST')")
 	public ResponseEntity<List<Capability>> getAllCapability(
 			@ApiParam(value = "filterType", required = false) @RequestParam(value = "filterType", required = false) String filterType,
-//			@ApiParam(value = "the max count of one page", required = true) @Min(1) @RequestParam("limit") int limit,
-//			@ApiParam(value = "start index of the page", required = true) @Min(0) @RequestParam("offset") int offset,
 			HttpServletRequest request) {
 		return ResponseEntity.ok(capabilityService.findAll());
 	}

@@ -199,10 +199,10 @@ public class ProjectService {
 		return new Page<ApplicationProject>(pageInfo.getList(), limit, offset, pageInfo.getTotal());
 	}
 	
-	public Page<ApplicationProject> getProjectByNameWithFuzzy(String projectName, int limit, int offset) {
+	public Page<ApplicationProject> getProjectByNameWithFuzzy(String userId, String projectName, int limit, int offset) {
 		PageHelper.offsetPage(offset, limit);
 		PageInfo<ApplicationProject> pageInfo = new PageInfo<ApplicationProject>(
-				projectMapper.getProjectByNameWithFuzzy(projectName));
+				projectMapper.getProjectByNameWithFuzzy(userId, projectName));
 		LOGGER.info("get all projects success.");
 		return new Page<ApplicationProject>(pageInfo.getList(), limit, offset, pageInfo.getTotal());
 	}
@@ -391,6 +391,8 @@ public class ProjectService {
 		// delete files of project
 		String projectPath = getProjectPath(projectId);
 		DeveloperFileUtils.deleteDir(projectPath);
+		
+		projectCapabilityService.deleteByProjectId(projectId);
 
 		LOGGER.info("Delete project {} success.", projectId);
 		return Either.right(true);

@@ -53,7 +53,6 @@ import io.swagger.annotations.ApiResponses;
 @RequestMapping("/mec/developer/v2/capability-groups")
 @Api(tags = "capability-groups")
 public class CapabilityGroupController {
-	private static final Logger LOGGER = LoggerFactory.getLogger(CapabilityGroupController.class);
 	private static final String REG_UUID = "[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}";
 
 	@Autowired
