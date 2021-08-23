@@ -294,7 +294,7 @@ public class ContainerImageMgmtServiceV2 {
         }
         //delete remote harbor image
         if (StringUtils.isNotEmpty(oldImage.getImagePath())) {
-            boolean isDeleted = deleteHarborImage(oldImage.getImagePath());
+            boolean isDeleted = deleteHarborImage(oldImage.getImagePath(), oldImage.getUserId());
             if (!isDeleted) {
                 String errorMsg = "delete image from harbor failed!";
                 LOGGER.error(errorMsg);
@@ -532,7 +532,7 @@ public class ContainerImageMgmtServiceV2 {
         return filePathTemp + File.separator + SUBDIR_CONIMAGE + File.separator + imageId + File.separator;
     }
 
-    private boolean deleteHarborImage(String image) {
+    private boolean deleteHarborImage(String image, String userId) {
         //Split image
         if (!image.contains(imageDomainName)) {
             LOGGER.warn("only delete image in harbor repo");
@@ -563,13 +563,14 @@ public class ContainerImageMgmtServiceV2 {
 
                 //excute delete image operation
                 String deleteImageUrl = "";
-                if (SystemImageUtil.isAdminUser()) {
+                if (SystemImageUtil.isAdminUser() && AccessUserUtil.getUser().getUserId().equals(userId)) {
                     deleteImageUrl = String
                         .format(Consts.HARBOR_IMAGE_DELETE_URL, url.getProtocol(), imageDomainName, imageProject,
                             imageName, imageVersion);
                 } else {
-                    deleteImageUrl = String.format(Consts.HARBOR_IMAGE_DELETE_URL, url.getProtocol(), imageDomainName,
-                        AccessUserUtil.getUser().getUserId(), imageName, imageVersion);
+                    deleteImageUrl = String
+                        .format(Consts.HARBOR_IMAGE_DELETE_URL, url.getProtocol(), imageDomainName, userId, imageName,
+                            imageVersion);
                 }
                 LOGGER.warn("delete image url: {}", deleteImageUrl);
                 HttpDelete httpDelete = new HttpDelete(deleteImageUrl);
