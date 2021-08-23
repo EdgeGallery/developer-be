@@ -29,6 +29,7 @@ import java.security.cert.X509Certificate;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -415,16 +416,16 @@ public class ContainerImageMgmtServiceV2 {
         // get Harbor image list
         List<String> harborList = getHarborImageList();
         if (CollectionUtils.isEmpty(harborList)) {
-            LOGGER.error("no need synchronize!");
-            throw new DeveloperException("no need synchronize!", ResponseConsts.RET_SYNCHRONIZE_IMAGE_NO_NEED);
+            LOGGER.warn("harbor repo no images!");
+            return ResponseEntity.ok("harbor repo no images!");
         }
         List<String> imageList = new ArrayList<>();
         for (String harbor : harborList) {
             imageList.add(harbor.substring(harbor.indexOf("/") + 1, harbor.indexOf("+")));
         }
         if (ListUtil.isEquals(list, imageList) || list.containsAll(imageList)) {
-            LOGGER.error("no need synchronize!");
-            throw new DeveloperException("no need synchronize!", ResponseConsts.RET_SYNCHRONIZE_IMAGE_NO_NEED);
+            LOGGER.warn("no need synchronize!");
+            return ResponseEntity.ok("already the latest image list!");
         }
 
         for (String harborImage : harborList) {
@@ -452,7 +453,7 @@ public class ContainerImageMgmtServiceV2 {
             }
         }
         LOGGER.info("end synchronize image...");
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok("synchronized successfully!");
 
     }
 
@@ -474,6 +475,9 @@ public class ContainerImageMgmtServiceV2 {
             InputStream inputStreamImage = resImage.getEntity().getContent();
             String imageRes = IOUtils.toString(inputStreamImage, StandardCharsets.UTF_8);
             LOGGER.info("image response : {}", imageRes);
+            if (StringUtils.isNotEmpty(imageRes) && imageRes.equals("[]")) {
+                return Collections.EMPTY_LIST;
+            }
             Gson gson = new Gson();
             Type type = new TypeToken<List<HarborImage>>() { }.getType();
             List<HarborImage> imageList = gson.fromJson(imageRes, type);
@@ -481,38 +485,7 @@ public class ContainerImageMgmtServiceV2 {
             for (HarborImage harborImage : imageList) {
                 String name = harborImage.getName();
                 if (!name.substring(10).contains("/")) {
-                    //get tags of one image
-                    String getTagUrl = String
-                        .format(Consts.HARBOR_IMAGE_GET_TAGS_URL, url.getProtocol(), imageDomainName, imageProject,
-                            name.substring(10).trim());
-                    LOGGER.info("getTagUrl : {}", getTagUrl);
-                    HttpGet httpTag = new HttpGet(getTagUrl);
-                    String encodeStrTag = encodeUserAndPwd();
-                    if (encodeStrTag.equals("")) {
-                        LOGGER.error("encode user and pwd failed!");
-                    }
-                    httpTag.setHeader("Authorization", "Basic " + encodeStrImage);
-                    CloseableHttpResponse tagImage = client.execute(httpTag);
-                    InputStream inputStreamTag = tagImage.getEntity().getContent();
-                    String tagRes = IOUtils.toString(inputStreamTag, StandardCharsets.UTF_8);
-                    // convert string to json
-                    JsonParser jp = new JsonParser();
-                    JsonArray jsonArray = jp.parse(tagRes).getAsJsonArray();
-                    for (JsonElement jsonElement : jsonArray) {
-                        JsonObject ob = jsonElement.getAsJsonObject();
-                        if (!ob.get("tags").isJsonNull()) {
-                            JsonElement eleTag = ob.get("tags");
-                            JsonArray jsonArrayTag = eleTag.getAsJsonArray();
-                            for (JsonElement element : jsonArrayTag) {
-                                JsonObject object = element.getAsJsonObject();
-                                if (!object.get("name").isJsonNull() && !object.get("push_time").isJsonNull()) {
-                                    String image = name + ":" + object.get("name").getAsString() + "+" + object
-                                        .get("push_time").getAsString();
-                                    names.add(image.trim());
-                                }
-                            }
-                        }
-                    }
+                    getTagsOfImages(name, names, url, client, encodeStrImage);
                 }
             }
             return names;
@@ -520,6 +493,38 @@ public class ContainerImageMgmtServiceV2 {
             LOGGER.error("get image list from harbor repo {}", e.getMessage());
             throw new DeveloperException("get image list from harbor repo failed!",
                 ResponseConsts.RET_GET_IMAGE_FROM_HARBOR_FAILED);
+        }
+    }
+
+    private void getTagsOfImages(String name, List<String> names, URL url, CloseableHttpClient client, String encode)
+        throws IOException {
+        //get tags of one image
+        String getTagUrl = String
+            .format(Consts.HARBOR_IMAGE_GET_TAGS_URL, url.getProtocol(), imageDomainName, imageProject,
+                name.substring(10).trim());
+        LOGGER.info("getTagUrl : {}", getTagUrl);
+        HttpGet httpTag = new HttpGet(getTagUrl);
+        httpTag.setHeader("Authorization", "Basic " + encode);
+        CloseableHttpResponse tagImage = client.execute(httpTag);
+        InputStream inputStreamTag = tagImage.getEntity().getContent();
+        String tagRes = IOUtils.toString(inputStreamTag, StandardCharsets.UTF_8);
+        // convert string to json
+        JsonParser jp = new JsonParser();
+        JsonArray jsonArray = jp.parse(tagRes).getAsJsonArray();
+        for (JsonElement jsonElement : jsonArray) {
+            JsonObject ob = jsonElement.getAsJsonObject();
+            if (!ob.get("tags").isJsonNull()) {
+                JsonElement eleTag = ob.get("tags");
+                JsonArray jsonArrayTag = eleTag.getAsJsonArray();
+                for (JsonElement element : jsonArrayTag) {
+                    JsonObject object = element.getAsJsonObject();
+                    if (!object.get("name").isJsonNull() && !object.get("push_time").isJsonNull()) {
+                        String image = name + ":" + object.get("name").getAsString() + "+" + object.get("push_time")
+                            .getAsString();
+                        names.add(image.trim());
+                    }
+                }
+            }
         }
     }
 
