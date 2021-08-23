@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Type;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.security.cert.CertificateException;
@@ -40,14 +41,10 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.CookieStore;
 import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
 import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.conn.ssl.TrustStrategy;
-import org.apache.http.cookie.Cookie;
-import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.DefaultRedirectStrategy;
@@ -71,11 +68,16 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
+import org.springframework.web.client.RestClientException;
+import org.springframework.web.client.RestTemplate;
 
 @Service("containerImageMgmtServiceV2")
 public class ContainerImageMgmtServiceV2 {
@@ -88,6 +90,8 @@ public class ContainerImageMgmtServiceV2 {
     private static CookieStore cookieStore = new BasicCookieStore();
 
     private static final String SUBDIR_CONIMAGE = "ContainerImage";
+
+    private static final RestTemplate REST_TEMPLATE = new RestTemplate();
 
     @Value("${upload.tempPath}")
     private String filePathTemp;
@@ -294,7 +298,7 @@ public class ContainerImageMgmtServiceV2 {
         }
         //delete remote harbor image
         if (StringUtils.isNotEmpty(oldImage.getImagePath())) {
-            boolean isDeleted = deleteHarborImage(oldImage.getImagePath(), oldImage.getUserId());
+            boolean isDeleted = deleteImage(oldImage.getImagePath(), oldImage.getUserId());
             if (!isDeleted) {
                 String errorMsg = "delete image from harbor failed!";
                 LOGGER.error(errorMsg);
@@ -532,7 +536,26 @@ public class ContainerImageMgmtServiceV2 {
         return filePathTemp + File.separator + SUBDIR_CONIMAGE + File.separator + imageId + File.separator;
     }
 
-    private boolean deleteHarborImage(String image, String userId) {
+    private String deleteHarborImage(String image, String url) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", "Basic " + encodeUserAndPwd());
+        HttpEntity requestEntity = new HttpEntity<>(headers);
+        ResponseEntity<String> response;
+        try {
+            response = REST_TEMPLATE.exchange(url, HttpMethod.DELETE, requestEntity, String.class);
+            LOGGER.warn("delete harbor image log:{}", response);
+        } catch (RestClientException e) {
+            LOGGER.error("Failed delete harbor image {} occur {}", image, e.getMessage());
+            return "error";
+        }
+        if (response.getStatusCode() == HttpStatus.OK || response.getStatusCode() == HttpStatus.CREATED) {
+            return "ok";
+        }
+        LOGGER.error("Failed delete harbor image!");
+        return "error";
+    }
+
+    private boolean deleteImage(String image, String userId) {
         //Split image
         if (!image.contains(imageDomainName)) {
             LOGGER.warn("only delete image in harbor repo");
@@ -545,22 +568,9 @@ public class ContainerImageMgmtServiceV2 {
             String[] names = images[2].split(":");
             imageName = names[0];
             imageVersion = names[1];
-            try (CloseableHttpClient client = createIgnoreSslHttpClient()) {
-                URL url = new URL(loginUrl);
-                String userLoginUrl = String.format(Consts.HARBOR_IMAGE_LOGIN_URL, url.getProtocol(), imageDomainName);
-                LOGGER.warn("harbor login url: {}", userLoginUrl);
-                //excute login to harbor repo
-                HttpPost httpPost = new HttpPost(userLoginUrl);
-                MultipartEntityBuilder builder = MultipartEntityBuilder.create();
-                builder.addTextBody("principal", harborUsername);
-                builder.addTextBody("password", harborPassword);
-                httpPost.setEntity(builder.build());
-                client.execute(httpPost);
-
-                // get _csrf from cookie
-                String csrf = getCsrf();
-                LOGGER.warn("__csrf: {}", csrf);
-
+            URL url = null;
+            try {
+                url = new URL(loginUrl);
                 //excute delete image operation
                 String deleteImageUrl = "";
                 if (SystemImageUtil.isAdminUser() && AccessUserUtil.getUser().getUserId().equals(userId)) {
@@ -573,38 +583,17 @@ public class ContainerImageMgmtServiceV2 {
                             imageVersion);
                 }
                 LOGGER.warn("delete image url: {}", deleteImageUrl);
-                HttpDelete httpDelete = new HttpDelete(deleteImageUrl);
-                String encodeStr = encodeUserAndPwd();
-                if (encodeStr.equals("")) {
-                    LOGGER.error("encode user and pwd failed!");
+                String deleteRes = deleteHarborImage(image, deleteImageUrl);
+                if (deleteRes.equals("error")) {
+                    LOGGER.error("delete harbor repo failed!");
                     return false;
                 }
-                httpDelete.setHeader("Authorization", "Basic " + encodeStr);
-                httpDelete.setHeader("X-Harbor-CSRF-Token", csrf);
-                CloseableHttpResponse res = client.execute(httpDelete);
-                InputStream inputStream = res.getEntity().getContent();
-                byte[] bytes = new byte[inputStream.available()];
-                int byteNums = inputStream.read(bytes);
-                if (byteNums > 0) {
-                    LOGGER.error("delete harbor image failed!");
-                    return false;
-                }
-            } catch (IOException e) {
+            } catch (MalformedURLException e) {
                 LOGGER.error("call login or delete image interface occur error {}", e.getMessage());
                 return false;
             }
         }
-
         return true;
-    }
-
-    private static String getCsrf() {
-        for (Cookie cookie : cookieStore.getCookies()) {
-            if (cookie.getName().equals("__csrf")) {
-                return cookie.getValue();
-            }
-        }
-        return "";
     }
 
     private static CloseableHttpClient createIgnoreSslHttpClient() {
