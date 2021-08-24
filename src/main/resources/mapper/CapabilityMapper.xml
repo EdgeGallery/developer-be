@@ -95,7 +95,14 @@
         where a.group_id=b.id and b.id=#{groupId} and a.group_id=#{groupId}
         order by a.group_id
     </select>
-
+    
+    <select id="selectByType" parameterType="String" resultMap="Capability">
+        select <include refid="AllColumnWithCascade"/> 
+        from tbl_capability a,tbl_capability_group b
+        where a.group_id=b.id and b.type=#{type}
+        order by a.group_id
+    </select>
+    
     <select id="selectByNameOrNameEn" resultMap="Capability">
         select
         <include refid="AllColumnWithCascade"/>
