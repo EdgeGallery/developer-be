@@ -22,4 +22,6 @@ import org.edgegallery.developer.model.capability.CapabilityGroupStat;
 
 public interface CapabilityGroupStatService {
 	public List<CapabilityGroupStat> findAll();
+	
+	public List<CapabilityGroupStat> findByType(String type);
 }
