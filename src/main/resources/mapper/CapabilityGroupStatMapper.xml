@@ -41,4 +41,11 @@
         where a.id=b.group_id
         group by <include refid="AllColumn"/>
     </select>
+    
+    <select id="selectByType" parameterType="String" resultMap="CapabilityGroupStat">
+        SELECT <include refid="AllColumn"/>,count(1) capability_count
+        FROM tbl_capability_group a,tbl_capability b
+        where a.id=b.group_id and a.type=#{type}
+        group by <include refid="AllColumn"/>
+    </select>
 </mapper>

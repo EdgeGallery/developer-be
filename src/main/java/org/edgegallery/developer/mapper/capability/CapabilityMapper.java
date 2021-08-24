@@ -12,6 +12,7 @@ public interface CapabilityMapper {
 	public int updateById(Capability capability);
 	public int deleteById(@Param("id")String id);
 	public List<Capability> selectAll();
+	public List<Capability> selectByType(@Param("type")String type);
 	public Capability selectById(@Param("id")String id);
 	public List<Capability> selectByGroupId(@Param("groupId")String groupId);
 	public List<Capability> selectByNameWithFuzzy(@Param("name")String name);

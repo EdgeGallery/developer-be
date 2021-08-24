@@ -31,6 +31,8 @@ public interface CapabilityService {
 	public Either<FormatRespDto, Capability> updateById(Capability capability);
 
 	public List<Capability> findAll();
+	
+	public List<Capability> findByType(String type);
 
 	public Capability findById(String id);
 
