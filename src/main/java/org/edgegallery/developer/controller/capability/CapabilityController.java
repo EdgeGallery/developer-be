@@ -52,7 +52,7 @@ import io.swagger.annotations.ApiResponses;
 @Controller("v2-capabilityController")
 @RestSchema(schemaId = "capabilities-v2")
 @RequestMapping("/mec/developer/v2/capabilities")
-@Api(tags = "capabilities")
+@Api(tags = "capabilities-v2")
 public class CapabilityController {
 	private static final String REG_UUID = "[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}";
 
