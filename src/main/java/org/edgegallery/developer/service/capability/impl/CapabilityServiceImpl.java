@@ -209,6 +209,11 @@ public class CapabilityServiceImpl implements CapabilityService {
 	}
 
 	@Override
+	public List<Capability> findByType(String type) {
+		return capabilityMapper.selectByType(type);
+	}
+
+	@Override
 	public Capability findById(String id) {
 		return capabilityMapper.selectById(id);
 	}

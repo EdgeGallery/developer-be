@@ -12,8 +12,14 @@ import org.springframework.stereotype.Service;
 public class CapabilityGroupStatServiceImpl implements CapabilityGroupStatService{
 	@Autowired
 	private CapabilityGroupStatMapper capabilityGroupStatMapper;
+	
 	@Override
 	public List<CapabilityGroupStat> findAll() {
 		return capabilityGroupStatMapper.selectAll();
+	}
+	
+	@Override
+	public List<CapabilityGroupStat> findByType(String type) {
+		return capabilityGroupStatMapper.selectByType(type);
 	}
 }

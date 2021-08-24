@@ -26,8 +26,6 @@ import org.edgegallery.developer.response.ErrorRespDto;
 import org.edgegallery.developer.response.FormatRespDto;
 import org.edgegallery.developer.service.capability.CapabilityGroupService;
 import org.edgegallery.developer.util.ResponseDataUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;

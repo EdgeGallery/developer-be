@@ -21,8 +21,6 @@ import java.util.List;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.edgegallery.developer.model.capability.CapabilityGroup;
 import org.edgegallery.developer.service.capability.CapabilityGroupService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -39,13 +37,10 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 
 @Controller
-@RestSchema(schemaId = "capability-groups-query-v2")
+@RestSchema(schemaId = "capability-groups-query")
 @RequestMapping("/mec/developer/v2/query/capability-groups")
-@Api(tags = "capability-groups-query-v2")
+@Api(tags = "capability-groups-query")
 public class CapabilityGroupQueryController {
-	private static final Logger LOGGER = LoggerFactory.getLogger(CapabilityGroupQueryController.class);
-	private static final String REG_UUID = "[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}";
-
 	@Autowired
 	private CapabilityGroupService capabilityGroupService;
 
