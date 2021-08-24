@@ -425,7 +425,9 @@ public class SystemService {
         body.setCity(host.getAddress());
         body.setMechostIp(host.getMecHost());
         body.setMechostName(host.getName());
-        body.setVim(host.getOs());
+        if (host.getOs().equals("openStack") || host.getOs().equals("FusionSphere")) {
+            body.setVim("openStack");
+        }
         body.setOrigin("developer");
         //add headers
         HttpHeaders headers = new HttpHeaders();
