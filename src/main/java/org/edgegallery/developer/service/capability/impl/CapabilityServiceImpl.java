@@ -160,7 +160,8 @@ public class CapabilityServiceImpl implements CapabilityService {
             int api = uploadedFileMapper.updateFileStatus(capability.getApiFileId(), false);
             int guide = uploadedFileMapper.updateFileStatus(capability.getGuideFileId(), false);
             int guideEn = uploadedFileMapper.updateFileStatus(capability.getGuideFileIdEn(), false);
-            if (api <= 0 || guide <= 0 || guideEn <= 0) {
+			int icon = uploadedFileMapper.updateFileStatus(capability.getIconFileId(), false);
+            if (api <= 0 || guide <= 0 || guideEn <= 0 || icon <= 0) {
                 String msg = "update api or guide or guide-en file status occur db error";
                 return Either.left(new FormatRespDto(Status.INTERNAL_SERVER_ERROR, msg));
             }
