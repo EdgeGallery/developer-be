@@ -39,70 +39,80 @@
         <result property="iconFileId" column="icon_file_id"/>
         <result property="author" column="author"/>
         <result property="provider" column="provider"/>
+        <result property="experienceUrl" column="experience_url"/>
         <association property="group" javaType="org.edgegallery.developer.model.capability.CapabilityGroup">
             <id property="id" column="group_id"/>
-	        <result property="name" column="g_name"/>
-	        <result property="nameEn" column="g_name_en"/>
-	        <result property="type" column="g_type"/>
-	        <result property="description" column="g_description"/>
-	        <result property="descriptionEn" column="g_description_en"/>
-	        <result property="iconFileId" column="g_icon_file_id"/>
-	        <result property="author" column="g_author"/>
-	        <result property="createTime" column="g_create_time"/>
-	        <result property="updateTime" column="g_update_time"/>
+            <result property="name" column="g_name"/>
+            <result property="nameEn" column="g_name_en"/>
+            <result property="type" column="g_type"/>
+            <result property="description" column="g_description"/>
+            <result property="descriptionEn" column="g_description_en"/>
+            <result property="iconFileId" column="g_icon_file_id"/>
+            <result property="author" column="g_author"/>
+            <result property="createTime" column="g_create_time"/>
+            <result property="updateTime" column="g_update_time"/>
         </association>
-    </resultMap>    
+    </resultMap>
 
     <sql id="AllColumn">
-     id,name,name_en,version,description,description_en,api_file_id,guide_file_id,guide_file_id_en,upload_time,port,host,protocol,app_id,package_id,user_id,select_count,icon_file_id,group_id,author,provider
+        id,name,name_en,version,description,description_en,api_file_id,guide_file_id,guide_file_id_en,upload_time,port,host,protocol,app_id,package_id,user_id,select_count,icon_file_id,group_id,author,provider,experience_url
     </sql>
-    
+
     <sql id="AllColumnWithCascade">
-    a.id,a.name,a.name_en,a.version,a.description,a.description_en,a.api_file_id,a.guide_file_id,a.guide_file_id_en,a.upload_time,a.port,a.host,a.protocol,a.app_id,a.package_id,a.user_id,a.select_count,a.icon_file_id,a.group_id,a.author,a.provider,
-    b.name g_name,b.name_en g_name_en,b.type g_type,b.description g_description,b.description_en g_description_en,b.icon_file_id g_iconFileId,b.author g_author,b.create_time g_create_time,b.update_time g_update_time
+        a.id,a.name,a.name_en,a.version,a.description,a.description_en,a.api_file_id,a.guide_file_id,a.guide_file_id_en,a.upload_time,a.port,a.host,a.protocol,a.app_id,a.package_id,a.user_id,a.select_count,a.icon_file_id,a.group_id,a.author,a.provider,
+        a.experience_url,b.name g_name,b.name_en g_name_en,b.type g_type,b.description g_description,b.description_en
+        g_description_en,b.icon_file_id g_iconFileId,b.author g_author,b.create_time g_create_time,b.update_time
+        g_update_time
     </sql>
 
     <select id="selectAll" resultMap="Capability">
-        select <include refid="AllColumnWithCascade"/> 
+        select
+        <include refid="AllColumnWithCascade"/>
         from tbl_capability a,tbl_capability_group b
         where a.group_id = b.id
         order by a.group_id
     </select>
-    
+
     <select id="selectById" parameterType="String" resultMap="Capability">
-        select <include refid="AllColumnWithCascade"/> 
+        select
+        <include refid="AllColumnWithCascade"/>
         from tbl_capability a,tbl_capability_group b
         where a.group_id = b.id and a.id=#{id}
     </select>
-    
+
     <select id="selectByProjectId" parameterType="String" resultMap="Capability">
-        select <include refid="AllColumnWithCascade"/> 
+        select
+        <include refid="AllColumnWithCascade"/>
         from tbl_capability a,tbl_capability_group b,tbl_app_project_capability c
         where a.group_id = b.id and c.capability_id=a.id and c.project_id=#{projectId}
         order by a.group_id
     </select>
-        
+
     <select id="selectByGroupId" parameterType="String" resultMap="Capability">
-        select <include refid="AllColumnWithCascade"/> 
+        select
+        <include refid="AllColumnWithCascade"/>
         from tbl_capability a,tbl_capability_group b
         where a.group_id=b.id and b.id=#{groupId} and a.group_id=#{groupId}
         order by a.group_id
     </select>
-    
+
     <select id="selectByNameOrNameEn" resultMap="Capability">
-        select <include refid="AllColumnWithCascade"/> 
+        select
+        <include refid="AllColumnWithCascade"/>
         from tbl_capability a,tbl_capability_group b
         where a.group_id = b.id and (a.name=#{name} or a.name_en=#{nameEn})
-    </select>    
-    
+    </select>
+
     <select id="selectByName" resultMap="Capability">
-        select <include refid="AllColumnWithCascade"/> 
+        select
+        <include refid="AllColumnWithCascade"/>
         from tbl_capability a,tbl_capability_group b
         where a.group_id = b.id and a.name=#{name}
     </select>
-    
+
     <select id="selectByNameWithFuzzy" resultMap="Capability">
-        select <include refid="AllColumnWithCascade"/> 
+        select
+        <include refid="AllColumnWithCascade"/>
         from tbl_capability a,tbl_capability_group b
         where a.group_id = b.id
         <if test="name != null">
@@ -110,41 +120,47 @@
         </if>
         order by a.upload_time desc
     </select>
-    
+
     <select id="selectByNameEnWithFuzzy" resultMap="Capability">
-        select <include refid="AllColumnWithCascade"/> 
+        select
+        <include refid="AllColumnWithCascade"/>
         from tbl_capability a,tbl_capability_group b
         where a.group_id = b.id
         <if test="nameEn != null">
             and a.name_en like CONCAT('%',#{nameEn},'%')
         </if>
         order by a.upload_time desc
-    </select>         
-    
+    </select>
+
     <insert id="insert" parameterType="org.edgegallery.developer.model.capability.Capability">
-        insert into tbl_capability (<include refid="AllColumn"/>) values 
-        ( #{id}, #{name}, #{nameEn}, #{version}, #{description}, #{descriptionEn}, #{apiFileId}, #{guideFileId}, #{guideFileIdEn}, #{uploadTime}, 
-          #{port}, #{host}, #{protocol}, #{appId}, #{packageId}, #{userId}, #{selectCount},#{iconFileId},#{groupId},#{author},#{provider})
+        insert into tbl_capability (<include refid="AllColumn"/>) values
+        ( #{id}, #{name}, #{nameEn}, #{version}, #{description}, #{descriptionEn}, #{apiFileId}, #{guideFileId},
+        #{guideFileIdEn}, #{uploadTime},
+        #{port}, #{host}, #{protocol}, #{appId}, #{packageId}, #{userId},
+        #{selectCount},#{iconFileId},#{groupId},#{author},#{provider},#{experienceUrl})
     </insert>
 
     <delete id="deleteById" parameterType="String">
         DELETE FROM tbl_capability WHERE id = #{id}
     </delete>
-    
+
     <update id="updateById" parameterType="org.edgegallery.developer.model.capability.Capability">
         update tbl_capability
-        set name =#{name},name_en=#{nameEn},version=#{version},description=#{description},description_en=#{descriptionEn},
-            api_file_id =#{apiFileId},guide_file_id =#{guideFileId},guide_file_id_en =#{guideFileIdEn},upload_time =#{uploadTime},
-            port =#{port},host =#{host},protocol =#{protocol},app_id =#{appId},package_id =#{packageId},user_id =#{userId},
-            select_count=#{selectCount},icon_file_id=#{iconFileId},group_id =#{groupId},author=#{author},provider=#{provider}
+        set name
+        =#{name},name_en=#{nameEn},version=#{version},description=#{description},description_en=#{descriptionEn},
+        api_file_id =#{apiFileId},guide_file_id =#{guideFileId},guide_file_id_en =#{guideFileIdEn},upload_time
+        =#{uploadTime},
+        port =#{port},host =#{host},protocol =#{protocol},app_id =#{appId},package_id =#{packageId},user_id =#{userId},
+        select_count=#{selectCount},icon_file_id=#{iconFileId},group_id=#{groupId},
+        author=#{author},provider=#{provider},experience_url=#{experienceUrl}
         where id = #{id}
-    </update>    
-    
+    </update>
+
     <update id="updateSelectCountByIds" parameterType="java.util.List">
         update tbl_capability set select_count=select_count+1
-        where id in 
+        where id in
         <foreach collection="list" item="item" separator="," open="(" close=")">
-           #{item}
+            #{item}
         </foreach>
-    </update>    
+    </update>
 </mapper>
