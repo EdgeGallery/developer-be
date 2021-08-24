@@ -397,11 +397,14 @@ public class UploadFileService {
                 LOGGER.error("read api file to string exception: {}", e.getMessage());
                 return Either.left(new FormatRespDto(Status.BAD_REQUEST, "read api file to string exception"));
             }
+            if(StringUtils.isEmpty(apiJson)) {
+            	continue;
+            }
             if (apifile.getFileName().endsWith(".yaml") || apifile.getFileName().endsWith(".yml")) {
                 Yaml yaml = new Yaml(new SafeConstructor());
                 try {
                     apiJson = new Gson().toJson(yaml.load(apiJson));
-                } catch (DomainException e) {
+                } catch (Exception e) {
                     LOGGER.error("Yaml deserialization failed {}", e.getMessage());
                     FormatRespDto error = new FormatRespDto(Response.Status.BAD_REQUEST, "Yaml deserialization failed");
                     return Either.left(error);

@@ -25,8 +25,6 @@ import org.edgegallery.developer.domain.shared.Page;
 import org.edgegallery.developer.model.capability.Capability;
 import org.edgegallery.developer.response.ErrorRespDto;
 import org.edgegallery.developer.service.capability.CapabilityService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -47,9 +45,9 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 
 @Controller
-@RestSchema(schemaId = "capability-query-v2")
+@RestSchema(schemaId = "capability-query")
 @RequestMapping("/mec/developer/v2/query/capabilities")
-@Api(tags = "capability-query-v2")
+@Api(tags = "capability-query")
 public class CapabilityQueryController {
 	@Autowired
 	private CapabilityService capabilityService;
@@ -104,5 +102,16 @@ public class CapabilityQueryController {
 		PageHelper.offsetPage(offset, limit);
 		PageInfo<Capability> pageInfo = new PageInfo<>(capabilityService.findByNameEnWithFuzzy(nameEn));
 		return ResponseEntity.ok(new Page<Capability>(pageInfo.getList(), limit, offset, pageInfo.getTotal()));
+	}
+	
+	@ApiOperation(value = "get Capability by type", response = Capability.class, responseContainer = "List")
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message = "OK", response = Capability.class, responseContainer = "List"),
+			@ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class) })
+	@GetMapping(value = "/type/{type}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN') || hasRole('DEVELOPER_GUEST')")
+	public ResponseEntity<List<Capability>> getCapabilityByType(
+			@ApiParam(value = "type", required = true) @PathVariable(value = "type") String type) {
+		return ResponseEntity.ok(capabilityService.findByType(type));
 	}
 }

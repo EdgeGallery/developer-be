@@ -236,12 +236,5 @@ public class ResponseConsts {
      */
     public static final int RET_GET_IMAGE_FROM_HARBOR_FAILED = 20043;
 
-    /**
-     * no need synchronize harbor image.
-     */
-    public static final int RET_SYNCHRONIZE_IMAGE_NO_NEED = 20044;
-
-
-
 
 }

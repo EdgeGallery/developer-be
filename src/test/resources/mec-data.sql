@@ -53,20 +53,20 @@ MERGE INTO tbl_openmep_capability_detail (detail_id,group_id, service, service_e
 -- ----------------------------
 MERGE INTO tbl_capability_group (id, name, name_en, type,description, description_en)KEY(id) 
 values ('e111f3e7-90d8-4a39-9874-ea6ea6752ef3','group-1', 'group-1', 'OPENMEP','group1', 'group1');
-MERGE INTO tbl_capability (id,group_id, name, name_en, version, description, description_en, api_file_id, provider, guide_file_id, guide_file_id_en, port, host, upload_time, user_id)  KEY(id) values
+MERGE INTO tbl_capability (id,group_id, name, name_en, version, description, description_en, api_file_id, provider, guide_file_id, guide_file_id_en, port, host, upload_time, user_id, experience_url)  KEY(id) values
 ( 'e111f3e7-90d8-4a39-9874-ea6ea6752ef4', 'e111f3e7-90d8-4a39-9874-ea6ea6752ef3', 'Face Reg', 'Face Reg', '1.0.0', 'face-recognition-plus', 'Face Reg','e111f3e7-90d8-4a39-9874-ea6ea6752ef5', 'huawei',
-'b8b5d055-1024-4ea8-8439-64de19875834', 'b8b5d055-1024-4ea8-8439-64de19875834', 9999, 'face-recognition-plus', 0, 'admin');
+'b8b5d055-1024-4ea8-8439-64de19875834', 'b8b5d055-1024-4ea8-8439-64de19875834', 9999, 'face-recognition-plus', 0, 'admin','');
 
-MERGE INTO tbl_capability (id,group_id, name, name_en,version, description, description_en, api_file_id, provider, guide_file_id, guide_file_id_en, port, host, upload_time, user_id)  KEY(id) values
+MERGE INTO tbl_capability (id,group_id, name, name_en,version, description, description_en, api_file_id, provider, guide_file_id, guide_file_id_en, port, host, upload_time, user_id, experience_url)  KEY(id) values
 ( 'e111f3e7-90d8-4a39-9874-ea6ea6752ef0', 'e111f3e7-90d8-4a39-9874-ea6ea6752ef3', 'Face Reg', 'Face Reg', '1.0.0', 'face-recognition-plus', 'Face Reg','e111f3e7-90d8-4a39-9874-ea6ea6752ef5', 'huawei',
-'b8b5d055-1024-4ea8-8439-64de19875834', 'b8b5d055-1024-4ea8-8439-64de19875834', 9999, 'face-recognition-plus', 0, 'admin');
+'b8b5d055-1024-4ea8-8439-64de19875834', 'b8b5d055-1024-4ea8-8439-64de19875834', 9999, 'face-recognition-plus', 0, 'admin','');
 
 MERGE INTO tbl_capability_group (id, name, name_en, type,description, description_en)  KEY(id) values 
 ('e111f3e7-90d8-4a39-9874-ea6ea6752eb2','group-3', 'group-3', 'OPENMEP','group3', 'group3');
 
-MERGE INTO tbl_capability (id,group_id, name, name_en, version, description, description_en, api_file_id, provider, guide_file_id, guide_file_id_en, port, host, upload_time, user_id)  KEY(id) values
+MERGE INTO tbl_capability (id,group_id, name, name_en, version, description, description_en, api_file_id, provider, guide_file_id, guide_file_id_en, port, host, upload_time, user_id, experience_url)  KEY(id) values
 ( 'e111f3e7-90d8-4a39-9874-ea6ea6752efgd', 'e111f3e7-90d8-4a39-9874-ea6ea6752eb2', 'Face Reg', 'Face Reg', '1.0.0', 'face-recognition-plus', 'Face Reg','e111f3e7-90d8-4a39-9874-ea6ea6752ef5', 'huawei',
-'b8b5d055-1024-4ea8-8439-64de19875834', 'b8b5d055-1024-4ea8-8439-64de19875834', 9999, 'face-recognition-plus', 0, 'admin');
+'b8b5d055-1024-4ea8-8439-64de19875834', 'b8b5d055-1024-4ea8-8439-64de19875834', 9999, 'face-recognition-plus', 0, 'admin','');
 -- ----------------------------
 -- Records of tbl_uploaded_file
 -- ----------------------------

@@ -13,231 +13,262 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
+
 package org.edgegallery.developer.model.capability;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 public class Capability {
-	private String id;
-	private String name;
-	private String nameEn;
-	private String version;
-	private String description;
-	private String descriptionEn;
-	private String provider;
-	private String apiFileId;
-	private String guideFileId;
-	private String guideFileIdEn;
-	private long uploadTime;
-	private int port;
-	private String host;
-	private String protocol;
-	private String appId;
-	private String packageId;
-	private String userId;
-	private int selectCount;
-	private String iconFileId;
-	private String author;
-	private CapabilityGroup group;
+    private String id;
 
-	public String getGroupId() {
-		return group == null ? null : group.getId();
-	}
+    private String name;
 
-	public void setGroupId(String groupId) {
-		if (group == null) {
-			group = new CapabilityGroup();
-		}
-		group.setId(groupId);
-	}
+    private String nameEn;
 
-	@Override
-	public int hashCode() {
-		HashCodeBuilder builder = new HashCodeBuilder().append(id);
-		return builder.build();
-	}
+    private String version;
 
-	@Override
-	public boolean equals(Object obj) {
-		if (!(obj instanceof CapabilityGroup)) {
-			return false;
-		}
-		CapabilityGroup another = (CapabilityGroup) obj;
-		EqualsBuilder builder = new EqualsBuilder().append(id, another.getId());
-		return builder.build();
-	}
+    private String description;
 
-	@Override
-	public String toString() {
-		return "Capability [id=" + id + ", name=" + name + "]";
-	}
+    private String descriptionEn;
 
-	public String getAuthor() {
-		return author;
-	}
+    private String provider;
 
-	public void setAuthor(String author) {
-		this.author = author;
-	}
+    private String apiFileId;
 
-	public String getIconFileId() {
-		return iconFileId;
-	}
+    private String guideFileId;
 
-	public void setIconFileId(String iconFileId) {
-		this.iconFileId = iconFileId;
-	}
+    private String guideFileIdEn;
 
-	public int getSelectCount() {
-		return selectCount;
-	}
+    private long uploadTime;
 
-	public void setSelectCount(int selectCount) {
-		this.selectCount = selectCount;
-	}
+    private int port;
 
-	public String getId() {
-		return id;
-	}
+    private String host;
 
-	public void setId(String id) {
-		this.id = id;
-	}
+    private String protocol;
 
-	public String getName() {
-		return name;
-	}
+    private String appId;
 
-	public void setName(String name) {
-		this.name = name;
-	}
+    private String packageId;
 
-	public String getNameEn() {
-		return nameEn;
-	}
+    private String userId;
 
-	public void setNameEn(String nameEn) {
-		this.nameEn = nameEn;
-	}
+    private int selectCount;
 
-	public String getVersion() {
-		return version;
-	}
+    private String iconFileId;
 
-	public void setVersion(String version) {
-		this.version = version;
-	}
+    private String author;
 
-	public String getDescription() {
-		return description;
-	}
+    private String experienceUrl;
 
-	public void setDescription(String description) {
-		this.description = description;
-	}
+    private CapabilityGroup group;
 
-	public String getDescriptionEn() {
-		return descriptionEn;
-	}
+    public String getGroupId() {
+        return group == null ? null : group.getId();
+    }
 
-	public void setDescriptionEn(String descriptionEn) {
-		this.descriptionEn = descriptionEn;
-	}
+    public void setGroupId(String groupId) {
+        if (group == null) {
+            group = new CapabilityGroup();
+        }
+        group.setId(groupId);
+    }
 
-	public String getProvider() {
-		return provider;
-	}
+    @Override
+    public int hashCode() {
+        HashCodeBuilder builder = new HashCodeBuilder().append(id);
+        return builder.build();
+    }
 
-	public void setProvider(String provider) {
-		this.provider = provider;
-	}
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof CapabilityGroup)) {
+            return false;
+        }
+        CapabilityGroup another = (CapabilityGroup) obj;
+        EqualsBuilder builder = new EqualsBuilder().append(id, another.getId());
+        return builder.build();
+    }
 
-	public String getApiFileId() {
-		return apiFileId;
-	}
+    @Override
+    public String toString() {
+        return "Capability [id=" + id + ", name=" + name + "]";
+    }
 
-	public void setApiFileId(String apiFileId) {
-		this.apiFileId = apiFileId;
-	}
+    public String getAuthor() {
+        return author;
+    }
 
-	public String getGuideFileId() {
-		return guideFileId;
-	}
+    public void setAuthor(String author) {
+        this.author = author;
+    }
 
-	public void setGuideFileId(String guideFileId) {
-		this.guideFileId = guideFileId;
-	}
+    public String getIconFileId() {
+        return iconFileId;
+    }
 
-	public String getGuideFileIdEn() {
-		return guideFileIdEn;
-	}
+    public void setIconFileId(String iconFileId) {
+        this.iconFileId = iconFileId;
+    }
 
-	public void setGuideFileIdEn(String guideFileIdEn) {
-		this.guideFileIdEn = guideFileIdEn;
-	}
+    public int getSelectCount() {
+        return selectCount;
+    }
 
-	public long getUploadTime() {
-		return uploadTime;
-	}
+    public void setSelectCount(int selectCount) {
+        this.selectCount = selectCount;
+    }
 
-	public void setUploadTime(long uploadTime) {
-		this.uploadTime = uploadTime;
-	}
+    public String getId() {
+        return id;
+    }
 
-	public int getPort() {
-		return port;
-	}
+    public void setId(String id) {
+        this.id = id;
+    }
 
-	public void setPort(int port) {
-		this.port = port;
-	}
+    public String getName() {
+        return name;
+    }
 
-	public String getHost() {
-		return host;
-	}
+    public void setName(String name) {
+        this.name = name;
+    }
 
-	public void setHost(String host) {
-		this.host = host;
-	}
+    public String getNameEn() {
+        return nameEn;
+    }
 
-	public String getProtocol() {
-		return protocol;
-	}
+    public void setNameEn(String nameEn) {
+        this.nameEn = nameEn;
+    }
 
-	public void setProtocol(String protocol) {
-		this.protocol = protocol;
-	}
+    public String getVersion() {
+        return version;
+    }
 
-	public String getAppId() {
-		return appId;
-	}
+    public void setVersion(String version) {
+        this.version = version;
+    }
 
-	public void setAppId(String appId) {
-		this.appId = appId;
-	}
+    public String getDescription() {
+        return description;
+    }
 
-	public String getPackageId() {
-		return packageId;
-	}
+    public void setDescription(String description) {
+        this.description = description;
+    }
 
-	public void setPackageId(String packageId) {
-		this.packageId = packageId;
-	}
+    public String getDescriptionEn() {
+        return descriptionEn;
+    }
 
-	public String getUserId() {
-		return userId;
-	}
+    public void setDescriptionEn(String descriptionEn) {
+        this.descriptionEn = descriptionEn;
+    }
 
-	public void setUserId(String userId) {
-		this.userId = userId;
-	}
+    public String getProvider() {
+        return provider;
+    }
 
-	public CapabilityGroup getGroup() {
-		return group;
-	}
+    public void setProvider(String provider) {
+        this.provider = provider;
+    }
 
-	public void setGroup(CapabilityGroup group) {
-		this.group = group;
-	}
+    public String getApiFileId() {
+        return apiFileId;
+    }
+
+    public void setApiFileId(String apiFileId) {
+        this.apiFileId = apiFileId;
+    }
+
+    public String getGuideFileId() {
+        return guideFileId;
+    }
+
+    public void setGuideFileId(String guideFileId) {
+        this.guideFileId = guideFileId;
+    }
+
+    public String getGuideFileIdEn() {
+        return guideFileIdEn;
+    }
+
+    public void setGuideFileIdEn(String guideFileIdEn) {
+        this.guideFileIdEn = guideFileIdEn;
+    }
+
+    public long getUploadTime() {
+        return uploadTime;
+    }
+
+    public void setUploadTime(long uploadTime) {
+        this.uploadTime = uploadTime;
+    }
+
+    public int getPort() {
+        return port;
+    }
+
+    public void setPort(int port) {
+        this.port = port;
+    }
+
+    public String getHost() {
+        return host;
+    }
+
+    public void setHost(String host) {
+        this.host = host;
+    }
+
+    public String getProtocol() {
+        return protocol;
+    }
+
+    public void setProtocol(String protocol) {
+        this.protocol = protocol;
+    }
+
+    public String getAppId() {
+        return appId;
+    }
+
+    public void setAppId(String appId) {
+        this.appId = appId;
+    }
+
+    public String getPackageId() {
+        return packageId;
+    }
+
+    public void setPackageId(String packageId) {
+        this.packageId = packageId;
+    }
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
+
+    public CapabilityGroup getGroup() {
+        return group;
+    }
+
+    public void setGroup(CapabilityGroup group) {
+        this.group = group;
+    }
+
+    public String getExperienceUrl() {
+        return experienceUrl;
+    }
+
+    public void setExperienceUrl(String experienceUrl) {
+        this.experienceUrl = experienceUrl;
+    }
 }
