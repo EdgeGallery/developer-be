@@ -254,6 +254,7 @@ CREATE TABLE IF NOT EXISTS tbl_capability (
   select_count integer NOT NULL DEFAULT 0,
   icon_file_id varchar(50) DEFAULT NULL,
   author varchar(50) DEFAULT NULL,
+  experience_url text DEFAULT NULL,
   CONSTRAINT tbl_capability_pkey PRIMARY KEY (id)
     )
     ;
