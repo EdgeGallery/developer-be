@@ -223,6 +223,9 @@ public class ReleaseConfigService {
             FormatRespDto dto = new FormatRespDto(Response.Status.BAD_REQUEST, "token is null");
             return Either.left(dto);
         }
+        if (oldConfig==null) {
+            return Either.right(null);
+        }
         // update atp test status
         if (oldConfig.getAtpTest()!=null && !oldConfig.getAtpTest().getStatus().equals("success")
             && !oldConfig.getAtpTest().getStatus().equals("failed")) {
