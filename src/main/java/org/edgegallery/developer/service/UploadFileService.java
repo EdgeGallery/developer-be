@@ -220,42 +220,10 @@ public class UploadFileService {
      */
     public Either<FormatRespDto, UploadedFile> uploadFile(String userId, MultipartFile uploadFile) {
         LOGGER.info("Start uploading file");
-        UploadedFile result = new UploadedFile();
-        String fileName = uploadFile.getOriginalFilename();
-        if (!FileChecker.isValid(fileName)) {
-            LOGGER.error("File Name is invalid.");
-            return Either.left(new FormatRespDto(Status.BAD_REQUEST, "File Name is invalid."));
-        }
-        String fileId = UUID.randomUUID().toString();
-        String upLoadDir = InitConfigUtil.getWorkSpaceBaseDir() + BusinessConfigUtil.getUploadfilesPath();
-
-        String fileRealPath = upLoadDir + fileId;
-        File dir = new File(upLoadDir);
-
-        if (!dir.isDirectory()) {
-            boolean isSuccess = dir.mkdirs();
-            if (!isSuccess) {
-                return Either.left(new FormatRespDto(Status.BAD_REQUEST, "make file dir failed"));
-            }
-        }
-
-        File newFile = new File(fileRealPath);
-        try {
-            uploadFile.transferTo(newFile);
-            result.setFileName(fileName);
-            result.setFileId(fileId);
-            result.setUserId(userId);
-            result.setUploadDate(new Date());
-            result.setTemp(true);
-            result.setFilePath(BusinessConfigUtil.getUploadfilesPath() + fileId);
-            uploadedFileMapper.saveFile(result);
-        } catch (IOException e) {
-            LOGGER.error("Failed to save file with IOException. {}", e.getMessage());
+        UploadedFile result = saveFileToLocal(uploadFile, userId);
+        if (result==null) {
             return Either.left(new FormatRespDto(Status.BAD_REQUEST, "Failed to save file."));
         }
-        LOGGER.info("upload file success {}", fileName);
-        //upload success
-        result.setFilePath("");
         return Either.right(result);
     }
 
@@ -1049,4 +1017,51 @@ public class UploadFileService {
 
     }
 
+    public Either<FormatRespDto, UploadedFile> uploadMdFile(String userId, MultipartFile uploadFile) {
+        /*
+        todo 文件格式和名称校验
+         */
+        LOGGER.info("Start uploading file");
+
+        /*
+        todo 文件保存
+         */
+
+        return Either.right(null);
+    }
+
+    private UploadedFile saveFileToLocal(MultipartFile uploadFile, String userId) {
+        UploadedFile result = new UploadedFile();
+        String fileName = uploadFile.getOriginalFilename();
+        String fileId = UUID.randomUUID().toString();
+        String upLoadDir = InitConfigUtil.getWorkSpaceBaseDir() + BusinessConfigUtil.getUploadfilesPath();
+        String fileRealPath = upLoadDir + fileId;
+        File dir = new File(upLoadDir);
+
+        if (!dir.isDirectory()) {
+            boolean isSuccess = dir.mkdirs();
+            if (!isSuccess) {
+                LOGGER.error("make file dir failed");
+                return null;
+            }
+        }
+        File newFile = new File(fileRealPath);
+        try {
+            uploadFile.transferTo(newFile);
+            result.setFileName(fileName);
+            result.setFileId(fileId);
+            result.setUserId(userId);
+            result.setUploadDate(new Date());
+            result.setTemp(true);
+            result.setFilePath(BusinessConfigUtil.getUploadfilesPath() + fileId);
+            uploadedFileMapper.saveFile(result);
+        } catch (IOException e) {
+            LOGGER.error("Failed to save file.");
+            return null;
+        }
+        LOGGER.info("upload file success {}", fileName);
+        //upload success
+        result.setFilePath("");
+        return result;
+    }
 }
