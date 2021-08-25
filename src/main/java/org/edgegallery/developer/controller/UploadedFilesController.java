@@ -122,6 +122,26 @@ public class UploadedFilesController {
     }
 
     /**
+     * upload md file.
+     */
+    @ApiOperation(value = "upload file", response = UploadedFile.class)
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = "OK", response = UploadedFile.class),
+        @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
+    })
+    @RequestMapping(value = "/md", method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
+        produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
+    public ResponseEntity<UploadedFile> uploadMdFile(
+        @ApiParam(value = "file", required = true) @RequestPart("file") MultipartFile uploadFile,
+        @Pattern(regexp = REGEX_UUID, message = "userId must be in UUID format")
+        @ApiParam(value = "userId", required = true) @RequestParam("userId") String userId) {
+        Either<FormatRespDto, UploadedFile> either = uploadFileService.uploadMdFile(userId, uploadFile);
+        return ResponseDataUtil.buildResponse(either);
+
+    }
+
+    /**
      * upload helm template yaml.
      */
     @ApiOperation(value = "upload helm template yaml", response = HelmTemplateYamlRespDto.class)
