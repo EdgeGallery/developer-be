@@ -158,6 +158,25 @@ public class SystemImageMgmtController {
         return ResponseDataUtil.buildResponse(either);
     }
 
+
+    /**
+     * reset image status.
+     *
+     * @return
+     */
+    @ApiOperation(value = "reset image status", response = Boolean.class)
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = "OK", response = Boolean.class),
+        @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
+    })
+    @RequestMapping(value = "/images/{systemId}/reset", method = RequestMethod.PUT)
+    @PreAuthorize("hasRole('DEVELOPER_ADMIN')|| hasRole('DEVELOPER_TENANT')")
+    public ResponseEntity<Boolean> resetImageStatus(@PathVariable("systemId") Integer systemId) throws Exception {
+        LOGGER.info("reset system image status, systemId = {}", systemId);
+        Either<FormatRespDto, Boolean> either = systemImageMgmtService.resetImageStatus(systemId);
+        return ResponseDataUtil.buildResponse(either);
+    }
+
     /**
      * upload system image.
      */

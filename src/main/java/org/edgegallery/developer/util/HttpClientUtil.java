@@ -565,6 +565,9 @@ public final class HttpClientUtil {
         } catch (RestClientException e) {
             LOGGER.error("Failed upload system image exception {}", e.getMessage());
             return null;
+        } catch (Exception e) {
+            LOGGER.error("Failed upload system image exception {}", e.getMessage());
+            return null;
         }
 
         if (response == null || response.getStatusCode() != HttpStatus.OK) {
@@ -608,6 +611,9 @@ public final class HttpClientUtil {
         } catch (RestClientException e) {
             LOGGER.error("slice upload file exception {}", e.getMessage());
             return false;
+        } catch (Exception e) {
+            LOGGER.error("slice upload file exception {}", e.getMessage());
+            return false;
         }
 
         if (response == null || response.getStatusCode() != HttpStatus.OK) {
@@ -646,6 +652,9 @@ public final class HttpClientUtil {
             LOGGER.error("cancel slice upload file exception {}", errorLog);
             return false;
         } catch (RestClientException e) {
+            LOGGER.error("cancel slice upload file exception {}", e.getMessage());
+            return false;
+        } catch (Exception e) {
             LOGGER.error("cancel slice upload file exception {}", e.getMessage());
             return false;
         }
@@ -691,6 +700,9 @@ public final class HttpClientUtil {
             LOGGER.error("slice merge file exception {}", errorLog);
             return null;
         } catch (RestClientException e) {
+            LOGGER.error("slice merge file exception {}", e.getMessage());
+            return null;
+        } catch (Exception e) {
             LOGGER.error("slice merge file exception {}", e.getMessage());
             return null;
         }

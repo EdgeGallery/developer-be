@@ -43,5 +43,9 @@ public interface SystemImageMapper {
 
     int updateSystemImageStatus(@Param("systemId") Integer systemId, @Param("status") String status);
 
+    int updateSystemImageIdentifier(@Param("systemId") Integer systemId, @Param("identifier") String identifier);
+
+    int updateSystemImageErrorType(@Param("systemId") Integer systemId, @Param("errorType") String errorType);
+
     void updateSystemImageUploadInfo(UploadFileInfo uploadFileInfo);
 }
