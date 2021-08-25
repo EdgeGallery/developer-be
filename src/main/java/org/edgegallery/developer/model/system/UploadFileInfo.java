@@ -23,6 +23,12 @@ import org.edgegallery.developer.model.workspace.EnumSystemImageStatus;
 @Getter
 @Setter
 public class UploadFileInfo {
+    private boolean succeeded = false;
+
+    private int respStatusCode;
+
+    private String errorType = null;
+
     private Integer systemId;
 
     private String fileName;
@@ -38,11 +44,24 @@ public class UploadFileInfo {
     /**
      * constructor.
      *
+     * @param respStatusCode resp status code
+     * @param errorType error type
+     */
+    public UploadFileInfo(int respStatusCode, String errorType) {
+        this.succeeded = false;
+        setRespStatusCode(respStatusCode);
+        setErrorType(errorType);
+    }
+
+    /**
+     * constructor.
+     *
      * @param fileName File Name
      * @param fileMd5 File Md5
      * @param fileFormat File Format
      */
     public UploadFileInfo(String fileName, String fileMd5, String fileFormat) {
+        this.succeeded = true;
         setFileName(fileName);
         setFileMd5(fileMd5);
         setFileFormat(fileFormat);

@@ -74,4 +74,8 @@ public class VmSystem {
 
     private String fileMd5;
 
+    private String fileIdentifier;
+
+    private String errorType;
+
 }

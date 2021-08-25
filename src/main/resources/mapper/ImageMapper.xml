@@ -32,16 +32,19 @@
         <result property="systemFormat" column="system_format"/>
         <result property="uploadTime" column="upload_time"/>
         <result property="status" column="status"/>
+        <result property="fileIdentifier" column="file_identifier"/>
+        <result property="errorType" column="error_type"/>
     </resultMap>
     
     <sql id="AllColumn">
-    system_id, system_name, type, operate_system, version, system_bit, system_disk, user_id, user_name, create_time,modify_time,system_format,upload_time,system_path,file_name,file_md5,status
+    system_id, system_name, type, operate_system, version, system_bit, system_disk, user_id, user_name, create_time,modify_time,system_format,upload_time,system_path,file_name,file_md5,status,file_identifier,error_type
     </sql>
     
     <select id="getSystemImagesByCondition" parameterType="org.edgegallery.developer.model.system.MepGetSystemImageReq"
             resultMap="ImageMap">
         SELECT system_id, system_name, type, operate_system, version, system_bit, system_disk, user_id, user_name, system_format,
-               to_char(upload_time, 'YYYY-MM-DD HH24:MI:SS') as upload_time, status, to_char(create_time, 'YYYY-MM-DD HH24:MI:SS') as create_time
+               to_char(upload_time, 'YYYY-MM-DD HH24:MI:SS') as upload_time, status, to_char(create_time, 'YYYY-MM-DD HH24:MI:SS') as create_time,
+               error_type
         FROM tbl_vm_system
         <where>
             <if test="userId != null and userId !=''">
@@ -147,6 +150,14 @@
 
     <update id="updateSystemImageStatus">
         UPDATE tbl_vm_system SET status = #{status} WHERE system_id = #{systemId}
+    </update>
+
+    <update id="updateSystemImageIdentifier">
+        UPDATE tbl_vm_system SET file_identifier = #{identifier} WHERE system_id = #{systemId}
+    </update>
+
+    <update id="updateSystemImageErrorType">
+        UPDATE tbl_vm_system SET error_type = #{errorType} WHERE system_id = #{systemId}
     </update>
 
     <update id="updateSystemImageUploadInfo" parameterType="org.edgegallery.developer.model.system.UploadFileInfo">
