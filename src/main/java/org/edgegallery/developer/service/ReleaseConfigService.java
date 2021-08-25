@@ -227,8 +227,8 @@ public class ReleaseConfigService {
             return Either.right(null);
         }
         // update atp test status
-        if (oldConfig.getAtpTest()!=null && !oldConfig.getAtpTest().getStatus().equals("success")
-            && !oldConfig.getAtpTest().getStatus().equals("failed")) {
+        if (oldConfig.getAtpTest()!=null && oldConfig.getAtpTest().getStatus().equals("created")
+            && oldConfig.getAtpTest().getStatus().equals("waiting") && oldConfig.getAtpTest().getStatus().equals("running")) {
             AtpResultInfo atpResultInfo = oldConfig.getAtpTest();
             String taskId = atpResultInfo.getId();
             atpResultInfo.setStatus(AtpUtil.getTaskStatusFromAtp(taskId, token));
