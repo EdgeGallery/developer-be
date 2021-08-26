@@ -204,19 +204,6 @@ public class ContainerImageMgmtServiceV2 {
         return null;
     }
 
-    /**
-     * getAllContainerImages.
-     */
-    public List<ContainerImage> getAllImages(String userId) {
-        List<ContainerImage> list;
-        if (SystemImageUtil.isAdminUser()) {
-            list = containerImageMapper.getAllImageByAdmin();
-        } else {
-            list = containerImageMapper.getAllImageByOrdinary(userId);
-        }
-        return list;
-    }
-
     private List<String> addTypeOrStatusToList(String imageType) {
         List<String> typeList = new ArrayList<>();
         if (imageType.contains(",")) {
@@ -298,7 +285,7 @@ public class ContainerImageMgmtServiceV2 {
         }
         //delete remote harbor image
         if (StringUtils.isNotEmpty(oldImage.getImagePath())) {
-            boolean isDeleted = deleteImage(oldImage.getImagePath(), oldImage.getUserId());
+            boolean isDeleted = deleteImage(oldImage.getImagePath(), oldImage.getUserName());
             if (!isDeleted) {
                 String errorMsg = "delete image from harbor failed!";
                 LOGGER.error(errorMsg);
@@ -555,7 +542,7 @@ public class ContainerImageMgmtServiceV2 {
         return "error";
     }
 
-    private boolean deleteImage(String image, String userId) {
+    private boolean deleteImage(String image, String userName) {
         //Split image
         if (!image.contains(imageDomainName)) {
             LOGGER.warn("only delete image in harbor repo");
@@ -573,13 +560,13 @@ public class ContainerImageMgmtServiceV2 {
                 url = new URL(loginUrl);
                 //excute delete image operation
                 String deleteImageUrl = "";
-                if (SystemImageUtil.isAdminUser() && AccessUserUtil.getUser().getUserId().equals(userId)) {
+                if (SystemImageUtil.isAdminUser() && AccessUserUtil.getUser().getUserName().equals(userName)) {
                     deleteImageUrl = String
                         .format(Consts.HARBOR_IMAGE_DELETE_URL, url.getProtocol(), imageDomainName, imageProject,
                             imageName, imageVersion);
                 } else {
                     deleteImageUrl = String
-                        .format(Consts.HARBOR_IMAGE_DELETE_URL, url.getProtocol(), imageDomainName, userId, imageName,
+                        .format(Consts.HARBOR_IMAGE_DELETE_URL, url.getProtocol(), imageDomainName, userName, imageName,
                             imageVersion);
                 }
                 LOGGER.warn("delete image url: {}", deleteImageUrl);
