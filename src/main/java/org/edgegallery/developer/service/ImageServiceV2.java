@@ -5,6 +5,7 @@ import com.github.dockerjava.api.model.Image;
 import com.github.dockerjava.core.DefaultDockerClientConfig;
 import com.github.dockerjava.core.DockerClientBuilder;
 import com.github.dockerjava.core.DockerClientConfig;
+import com.spencerwi.either.Either;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -18,7 +19,6 @@ import java.nio.charset.StandardCharsets;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.Base64;
-import java.util.Date;
 import java.util.List;
 import java.util.zip.GZIPInputStream;
 import javax.net.ssl.SSLContext;
@@ -48,7 +48,7 @@ import org.edgegallery.developer.exception.DeveloperException;
 import org.edgegallery.developer.mapper.ContainerImageMapper;
 import org.edgegallery.developer.model.Chunk;
 import org.edgegallery.developer.model.containerimage.ContainerImage;
-import org.edgegallery.developer.model.containerimage.EnumContainerImageStatus;
+import org.edgegallery.developer.response.FormatRespDto;
 import org.edgegallery.developer.util.SystemImageUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -96,6 +96,9 @@ public class ImageServiceV2 {
     @Autowired
     private ContainerImageMapper containerImageMapper;
 
+    @Autowired
+    private ContainerImageMgmtServiceV2 containerImageMgmtServiceV2;
+
     /**
      * uploadHarborImage.
      *
@@ -127,14 +130,6 @@ public class ImageServiceV2 {
                 throw new DeveloperException("invalid chunk number", ResponseConsts.RET_CHUNK_NUMBER_INVALID);
             }
 
-            LOGGER.info("update system image status.");
-            int res = containerImageMapper
-                .updateContainerImageStatus(imageId, EnumContainerImageStatus.UPLOADING.toString());
-            if (res < 1) {
-                String errorMsg = "update image status failed.";
-                LOGGER.error(errorMsg);
-                throw new DeveloperException(errorMsg, ResponseConsts.RET_UPDATE_CONTAINER_IMAGE_STATUS_FAILED);
-            }
             LOGGER.info("save file to local directory.");
             String rootDir = getUploadSysImageRootDir(imageId);
             File uploadRootDir = new File(rootDir);
@@ -143,8 +138,6 @@ public class ImageServiceV2 {
                 if (!isMk) {
                     String mkErr = "create temporary upload path failed";
                     LOGGER.error(mkErr);
-                    containerImageMapper
-                        .updateContainerImageStatus(imageId, EnumContainerImageStatus.UPLOAD_FAILED.toString());
                     throw new DeveloperException(mkErr, ResponseConsts.RET_TEMPORARY_PATH_FAILED);
                 }
             }
@@ -171,15 +164,11 @@ public class ImageServiceV2 {
     public ResponseEntity mergeHarborImage(String fileName, String guid, String imageId) {
         try {
             LOGGER.info("merge harbor image file, harborImage = {}, fileName = {}, guid = {}", imageId, fileName, guid);
-            containerImageMapper
-                .updateContainerImageStatus(imageId, EnumContainerImageStatus.UPLOADING_MERGING.toString());
             String rootDir = getUploadSysImageRootDir(imageId);
             String partFilePath = rootDir + guid;
             File partFileDir = new File(partFilePath);
             if (!partFileDir.exists() || !partFileDir.isDirectory()) {
                 LOGGER.error("uploaded part file path not found!");
-                containerImageMapper
-                    .updateContainerImageStatus(imageId, EnumContainerImageStatus.UPLOAD_FAILED.toString());
                 throw new DeveloperException("uploaded part file path not found",
                     ResponseConsts.RET_FILE_PATH_NOT_FOUND);
             }
@@ -187,8 +176,6 @@ public class ImageServiceV2 {
             File[] partFiles = partFileDir.listFiles();
             if (partFiles == null || partFiles.length == 0) {
                 LOGGER.error("uploaded part file not found!");
-                containerImageMapper
-                    .updateContainerImageStatus(imageId, EnumContainerImageStatus.UPLOAD_FAILED.toString());
                 throw new DeveloperException("uploaded part file not found", ResponseConsts.RET_FILE_NOT_FOUND);
             }
 
@@ -213,32 +200,17 @@ public class ImageServiceV2 {
                 }
             }
             //push image to created repo by current user id
-            if (!pushImageToRepo(mergedFile, rootDir, userName, imageId)) {
+            if (!pushImageToRepo(mergedFile, rootDir, userName, imageId, fileName)) {
                 LOGGER.error("push image to repo failed!");
                 throw new DeveloperException("push image to repo failed!",
                     ResponseConsts.RET_PROCESS_MERGED_FILE_EXCEPTION);
             }
-            ContainerImage containerImage = containerImageMapper.getContainerImage(imageId);
-            containerImage.setImageStatus(EnumContainerImageStatus.UPLOAD_SUCCEED);
-            containerImage.setUploadTime(new Date());
-            containerImage.setFileName(mergedFile.getName());
-            int res = containerImageMapper.updateContainerImageByAdmin(containerImage);
-            if (res < 1) {
-                String mergeFail = "update image status success failed!";
-                LOGGER.error(mergeFail);
-                containerImageMapper
-                    .updateContainerImageStatus(imageId, EnumContainerImageStatus.UPLOAD_FAILED.toString());
-                throw new DeveloperException(mergeFail, ResponseConsts.RET_MERGE_CONTAINER_IMAGE_FAILED);
-            }
-            // delete all file in "rootdir"
             File uploadPath = new File(rootDir);
             FileUtils.cleanDirectory(uploadPath);
             LOGGER.info("harbor image file upload succeed.");
-
             return ResponseEntity.ok().build();
         } catch (IOException e) {
             LOGGER.error("process merged file exception! {}", e.getMessage());
-            containerImageMapper.updateContainerImageStatus(imageId, EnumContainerImageStatus.UPLOAD_FAILED.toString());
             throw new DeveloperException("process merged file exception",
                 ResponseConsts.RET_PROCESS_MERGED_FILE_EXCEPTION);
         }
@@ -284,7 +256,6 @@ public class ImageServiceV2 {
             response = REST_TEMPLATE.exchange(createUrl, HttpMethod.POST, requestEntity, String.class);
             LOGGER.warn("create harbor repo log:{}", response);
         } catch (RestClientException | MalformedURLException e) {
-            containerImageMapper.updateContainerImageStatus(imageId, EnumContainerImageStatus.UPLOAD_FAILED.toString());
             LOGGER.error("Failed create harbor repo {} occur {}", name, e.getMessage());
             return "error";
         }
@@ -295,22 +266,43 @@ public class ImageServiceV2 {
         return "error";
     }
 
-    private boolean pushImageToRepo(File imageFile, String rootDir, String userName, String inputImageId)
-        throws IOException {
+    private boolean pushImageToRepo(File imageFile, String rootDir, String userName, String inputImageId,
+        String fileName) throws IOException {
         DockerClient dockerClient = getDockerClient(devRepoEndpoint, devRepoUsername, devRepoPassword);
         try (InputStream inputStream = new FileInputStream(imageFile)) {
             //import image pkg
             dockerClient.loadImageCmd(inputStream).exec();
         } catch (FileNotFoundException e) {
-            containerImageMapper
-                .updateContainerImageStatus(inputImageId, EnumContainerImageStatus.UPLOAD_FAILED.toString());
             LOGGER.error("can not find image file,{}", e.getMessage());
             return false;
         }
 
-        //Unzip the image package，Find outmanifest.jsonmiddleRepoTags
+        //Unzip the image package，Find out manifest.json middle RepoTags
+        String repoTags = deCompressAndGetRePoTags(rootDir, imageFile);
+        if (repoTags.equals("")) {
+            return false;
+        }
+        //get image id
+        String imageId = getImageIdFromRepoTags(repoTags, dockerClient);
+        if (imageId.equals("")) {
+            return false;
+        }
+        //push
+        boolean ret = retagAndPush(dockerClient, imageId, userName, repoTags);
+        if (!ret) {
+            return false;
+        }
+        //create container image
+        boolean retContainer = createContainerImage(repoTags, inputImageId, fileName, userName);
+        if (!retContainer) {
+            return false;
+        }
+        return true;
+    }
+
+    private String deCompressAndGetRePoTags(String rootDir, File imageFile) throws IOException {
         File file = new File(rootDir);
-        boolean res = deCompress(imageFile.getCanonicalPath(), file, inputImageId);
+        boolean res = deCompress(imageFile.getCanonicalPath(), file);
         String repoTags = "";
         if (res) {
             //Readmanifest.jsonContent
@@ -324,7 +316,69 @@ public class ImageServiceV2 {
                 }
             }
         }
-        LOGGER.debug("repoTags: {} ", repoTags);
+        LOGGER.warn("repoTags: {} res {} ", repoTags, res);
+        return repoTags;
+    }
+
+    private boolean retagAndPush(DockerClient dockerClient, String imageId, String userName, String repoTags) {
+        String uploadImgName = "";
+        String[] names = repoTags.split(":");
+        if (SystemImageUtil.isAdminUser()) {
+            uploadImgName = new StringBuilder(devRepoEndpoint).append("/").append(devRepoProject).append("/")
+                .append(names[0]).toString();
+        } else {
+            uploadImgName = new StringBuilder(devRepoEndpoint).append("/").append(userName).append("/").append(names[0])
+                .toString();
+        }
+
+        //Mirror tagging，Repush
+        String[] repos = repoTags.split(":");
+        if (repos.length > 1 && !imageId.equals("")) {
+            //tag image
+            dockerClient.tagImageCmd(imageId, uploadImgName, repos[1]).withForce().exec();
+            LOGGER.warn("Upload tagged docker image: {}", uploadImgName);
+            //push image
+            try {
+                dockerClient.pushImageCmd(uploadImgName).start().awaitCompletion();
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                LOGGER.error("failed to push image {}", e.getMessage());
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean createContainerImage(String repoTags, String inputImageId, String fileName, String userName) {
+        String uploadImgName = "";
+        String[] names = repoTags.split(":");
+        if (SystemImageUtil.isAdminUser()) {
+            uploadImgName = new StringBuilder(devRepoEndpoint).append("/").append(devRepoProject).append("/")
+                .append(names[0]).toString();
+        } else {
+            uploadImgName = new StringBuilder(devRepoEndpoint).append("/").append(userName).append("/").append(names[0])
+                .toString();
+        }
+        ContainerImage containerImage = new ContainerImage();
+        containerImage.setImageId(inputImageId);
+        containerImage.setImageType("private");
+        containerImage.setImageName(uploadImgName);
+        containerImage.setImageVersion(names[1].trim());
+        containerImage.setImagePath(uploadImgName + ":" + names[1].trim());
+        containerImage.setUserId(AccessUserUtil.getUser().getUserId());
+        containerImage.setUserName(AccessUserUtil.getUser().getUserName());
+        containerImage.setFileName(fileName);
+        Either<FormatRespDto, ContainerImage> either = containerImageMgmtServiceV2.createContainerImage(containerImage);
+        if (either.isLeft()) {
+            LOGGER.error("create harbor image db record failed!");
+            return false;
+        }
+
+        return true;
+
+    }
+
+    private String getImageIdFromRepoTags(String repoTags, DockerClient dockerClient) {
         String[] names = repoTags.split(":");
         //Judge the compressed package manifest.json in RepoTags And the value of load Are the incoming mirror images equal
         LOGGER.debug(names[0]);
@@ -342,56 +396,8 @@ public class ImageServiceV2 {
                 }
             }
         }
-        LOGGER.debug("imageID: {} ", imageId);
-        String uploadImgName = "";
-        if (SystemImageUtil.isAdminUser()) {
-            uploadImgName = new StringBuilder(devRepoEndpoint).append("/").append(devRepoProject).append("/")
-                .append(names[0]).toString();
-        } else {
-            uploadImgName = new StringBuilder(devRepoEndpoint).append("/").append(userName).append("/").append(names[0])
-                .toString();
-        }
-
-        //Mirror tagging，Repush
-        String[] repos = repoTags.split(":");
-        if (repos.length > 1 && !imageId.equals("")) {
-            //tag image
-            dockerClient.tagImageCmd(imageId, uploadImgName, repos[1]).withForce().exec();
-            LOGGER.debug("Upload tagged docker image: {}", uploadImgName);
-            // set image path
-            int result = containerImageMapper
-                .updateContainerImagePath(inputImageId, uploadImgName + ":" + repos[1].trim());
-            if (result < 1) {
-                LOGGER.error("failed to update image {} path", imageId);
-                return false;
-            }
-            //push image
-            try {
-                dockerClient.pushImageCmd(uploadImgName).start().awaitCompletion();
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                containerImageMapper
-                    .updateContainerImageStatus(inputImageId, EnumContainerImageStatus.UPLOAD_FAILED.toString());
-                LOGGER.error("failed to push image {}", e.getMessage());
-                return false;
-            }
-        }
-
-        if (!res || imageId.equals("")) {
-            LOGGER.error("decompress tar failed!");
-            return false;
-        }
-
-        if (repoTags.equals("")) {
-            LOGGER.error("get RepoTags in manifest file failed!");
-            return false;
-        }
-        if (imageId.equals("")) {
-            LOGGER.error("get image id failed!");
-            return false;
-        }
-
-        return true;
+        LOGGER.warn("imageID: {} ", imageId);
+        return imageId;
     }
 
     private DockerClient getDockerClient(String repo, String userName, String password) {
@@ -402,7 +408,7 @@ public class ImageServiceV2 {
         return DockerClientBuilder.getInstance(config).build();
     }
 
-    private boolean deCompress(String tarFile, File destFile, String imageId) {
+    private boolean deCompress(String tarFile, File destFile) {
         TarArchiveInputStream tis = null;
         try (FileInputStream fis = new FileInputStream(tarFile)) {
 
@@ -426,7 +432,6 @@ public class ImageServiceV2 {
                 }
             }
         } catch (IOException ex) {
-            containerImageMapper.updateContainerImageStatus(imageId, EnumContainerImageStatus.UPLOAD_FAILED.toString());
             LOGGER.error("failed to decompress, IO exception  {} ", ex.getMessage());
             return false;
         } finally {
@@ -437,7 +442,8 @@ public class ImageServiceV2 {
                     LOGGER.error("failed to close tar input stream {} ", ex.getMessage());
                 }
             }
-        } return true;
+        }
+        return true;
     }
 
     private String getUploadSysImageRootDir(String imageId) {
