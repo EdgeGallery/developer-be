@@ -7,7 +7,6 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import java.io.File;
-import java.util.List;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.edgegallery.developer.domain.shared.Page;
 import org.edgegallery.developer.model.containerimage.ContainerImage;
@@ -25,7 +24,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
 @RestSchema(schemaId = "containerImageMgmtV2")
@@ -72,23 +70,6 @@ public class ContainerImageMgmtControllerV2 {
         return ResponseEntity.ok(either);
     }
 
-    /**
-     * getAllContainerImages with no Pagination.
-     *
-     * @return
-     */
-    @ApiOperation(value = "get all ContainerImage", response = ContainerImage.class, responseContainer = "List")
-    @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "OK", response = ContainerImage.class, responseContainer = "List")
-    })
-    @RequestMapping(value = "/images/list", method = RequestMethod.GET,
-        consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    @PreAuthorize("hasRole('DEVELOPER_ADMIN')|| hasRole('DEVELOPER_TENANT')")
-    public ResponseEntity<List<ContainerImage>> getAllContainerImages(
-        @ApiParam(value = "userId", required = true) @RequestParam String userId) {
-        List<ContainerImage> either = containerImageMgmtServiceV2.getAllImages(userId);
-        return ResponseEntity.ok(either);
-    }
 
     /**
      * modifyContainerImage.

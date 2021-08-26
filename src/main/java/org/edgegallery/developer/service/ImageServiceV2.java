@@ -201,11 +201,11 @@ public class ImageServiceV2 {
             }
             mergedFileStream.close();
             //create repo by current user id
-            String userId = AccessUserUtil.getUser().getUserId();
+            String userName = AccessUserUtil.getUser().getUserName();
             // judge user private harbor repo is exist
-            boolean isExist = isExsitOfProject(userId);
+            boolean isExist = isExsitOfProject(userName);
             if (!isExist && !SystemImageUtil.isAdminUser()) {
-                String msg = createHarborRepo(imageId, userId);
+                String msg = createHarborRepo(imageId, userName);
                 if (msg.equals("error")) {
                     LOGGER.error("create harbor repo failed!");
                     throw new DeveloperException("create harbor repo failed!",
@@ -213,7 +213,7 @@ public class ImageServiceV2 {
                 }
             }
             //push image to created repo by current user id
-            if (!pushImageToRepo(mergedFile, rootDir, userId, imageId)) {
+            if (!pushImageToRepo(mergedFile, rootDir, userName, imageId)) {
                 LOGGER.error("push image to repo failed!");
                 throw new DeveloperException("push image to repo failed!",
                     ResponseConsts.RET_PROCESS_MERGED_FILE_EXCEPTION);
@@ -244,11 +244,11 @@ public class ImageServiceV2 {
         }
     }
 
-    private boolean isExsitOfProject(String userId) {
+    private boolean isExsitOfProject(String userName) {
         try (CloseableHttpClient client = createIgnoreSslHttpClient()) {
             URL url = new URL(loginUrl);
             String isExistUrl = String
-                .format(Consts.HARBOR_PRO_IS_EXIST_URL, url.getProtocol(), devRepoEndpoint, userId);
+                .format(Consts.HARBOR_PRO_IS_EXIST_URL, url.getProtocol(), devRepoEndpoint, userName);
             LOGGER.warn(" isExist Url : {}", isExistUrl);
             HttpGet httpGet = new HttpGet(isExistUrl);
             String encodeStr = encodeUserAndPwd();
@@ -295,7 +295,7 @@ public class ImageServiceV2 {
         return "error";
     }
 
-    private boolean pushImageToRepo(File imageFile, String rootDir, String userId, String inputImageId)
+    private boolean pushImageToRepo(File imageFile, String rootDir, String userName, String inputImageId)
         throws IOException {
         DockerClient dockerClient = getDockerClient(devRepoEndpoint, devRepoUsername, devRepoPassword);
         try (InputStream inputStream = new FileInputStream(imageFile)) {
@@ -348,7 +348,7 @@ public class ImageServiceV2 {
             uploadImgName = new StringBuilder(devRepoEndpoint).append("/").append(devRepoProject).append("/")
                 .append(names[0]).toString();
         } else {
-            uploadImgName = new StringBuilder(devRepoEndpoint).append("/").append(userId).append("/").append(names[0])
+            uploadImgName = new StringBuilder(devRepoEndpoint).append("/").append(userName).append("/").append(names[0])
                 .toString();
         }
 
