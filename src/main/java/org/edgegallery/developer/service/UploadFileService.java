@@ -17,17 +17,10 @@
 package org.edgegallery.developer.service;
 
 import com.github.dockerjava.api.DockerClient;
-import com.github.dockerjava.api.command.DockerCmdExecFactory;
-import com.github.dockerjava.api.command.InspectImageResponse;
-import com.github.dockerjava.api.command.PullImageResultCallback;
 import com.github.dockerjava.api.exception.DockerClientException;
-import com.github.dockerjava.api.exception.NotFoundException;
-import com.github.dockerjava.api.model.ContainerConfig;
-import com.github.dockerjava.api.model.Image;
 import com.github.dockerjava.core.DefaultDockerClientConfig;
 import com.github.dockerjava.core.DockerClientBuilder;
 import com.github.dockerjava.core.DockerClientConfig;
-import com.github.dockerjava.netty.NettyDockerCmdExecFactory;
 import com.google.common.collect.Lists;
 import com.google.gson.Gson;
 import com.spencerwi.either.Either;
@@ -36,8 +29,12 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -51,8 +48,6 @@ import javax.ws.rs.core.Response.Status;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.edgegallery.developer.common.Consts;
-import org.edgegallery.developer.domain.shared.FileChecker;
-import org.edgegallery.developer.exception.DomainException;
 import org.edgegallery.developer.mapper.HelmTemplateYamlMapper;
 import org.edgegallery.developer.mapper.HostMapper;
 import org.edgegallery.developer.mapper.OpenMepCapabilityMapper;
@@ -82,11 +77,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
+import org.springframework.web.client.RestClientException;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.SafeConstructor;
@@ -104,7 +104,21 @@ public class UploadFileService {
 
     private static final String REGEX_UUID = "[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}";
 
+    private static final RestTemplate REST_TEMPLATE = new RestTemplate();
+
     private String sampleCodePath;
+
+    @Value("${imagelocation.username:}")
+    private String harborUsername;
+
+    @Value("${imagelocation.password:}")
+    private String harborPassword;
+
+    @Value("${security.oauth2.resource.jwt.key-uri:}")
+    private String loginUrl;
+
+    @Value("${imagelocation.domainname:}")
+    private String imageDomainName;
 
     @Autowired
     private UploadedFileMapper uploadedFileMapper;
@@ -202,7 +216,7 @@ public class UploadFileService {
             return FileUtils.readFileToByteArray(file);
         }
         if (fileFormat.equals(".yaml") || fileFormat.equals(".json")) {
-            List<MepHost> enabledHosts = hostMapper.getHostsByStatus(EnumHostStatus.NORMAL,  "X86", "K8S");
+            List<MepHost> enabledHosts = hostMapper.getHostsByStatus(EnumHostStatus.NORMAL, "X86", "K8S");
             if (!enabledHosts.isEmpty()) {
                 String host = enabledHosts.get(0).getLcmIp() + ":" + "32119";
                 return FileUtils.readFileToString(file, "UTF-8").replace("{HOST}", host)
@@ -221,7 +235,7 @@ public class UploadFileService {
     public Either<FormatRespDto, UploadedFile> uploadFile(String userId, MultipartFile uploadFile) {
         LOGGER.info("Start uploading file");
         UploadedFile result = saveFileToLocal(uploadFile, userId);
-        if (result==null) {
+        if (result == null) {
             return Either.left(new FormatRespDto(Status.BAD_REQUEST, "Failed to save file."));
         }
         return Either.right(result);
@@ -365,8 +379,8 @@ public class UploadFileService {
                 LOGGER.error("read api file to string exception: {}", e.getMessage());
                 return Either.left(new FormatRespDto(Status.BAD_REQUEST, "read api file to string exception"));
             }
-            if(StringUtils.isEmpty(apiJson)) {
-            	continue;
+            if (StringUtils.isEmpty(apiJson)) {
+                continue;
             }
             if (apifile.getFileName().endsWith(".yaml") || apifile.getFileName().endsWith(".yml")) {
                 Yaml yaml = new Yaml(new SafeConstructor());
@@ -494,7 +508,7 @@ public class UploadFileService {
                 LOGGER.error("Failed to save Image");
                 return Either.left(new FormatRespDto(Status.INTERNAL_SERVER_ERROR, "Failed to save image"));
             }
-        	
+
             List<HelmTemplateYamlPo> list = helmTemplateYamlMapper.queryTemplateYamlByProjectId(userId, projectId);
             if (!CollectionUtils.isEmpty(list)) {
                 for (HelmTemplateYamlPo po : list) {
@@ -550,7 +564,7 @@ public class UploadFileService {
         }
         //verify image info
         LOGGER.warn("podImages {}", podImages);
-        boolean result =  verifyImage(podImages);
+        boolean result = isExist(podImages);
         if (!result) {
             LOGGER.error("the image configuration in the yaml file is incorrect");
             return false;
@@ -574,26 +588,11 @@ public class UploadFileService {
         return true;
     }
 
-    private static List<String> readFileByLine(File fin) {
-        String line;
-        List<String> sb = new ArrayList<>();
-        try (FileInputStream fis = new FileInputStream(fin);
-             BufferedReader br = new BufferedReader(new InputStreamReader(fis, StandardCharsets.UTF_8))) {
-            while ((line = br.readLine()) != null) {
-                sb.add(line + "\r\n");
-            }
-        } catch (IOException e) {
-            return Collections.emptyList();
-        }
-        return sb;
-    }
-
-    private boolean verifyImage(List<String> imageList) {
+    private boolean isExist(List<String> imageList) {
         if (CollectionUtils.isEmpty(imageList)) {
             LOGGER.error("deploy yaml has no any image info");
             return false;
         }
-        DockerClient dockerClient = getDockerClient(devRepoEndpoint, devRepoUsername, devRepoPassword);
         for (String image : imageList) {
             LOGGER.info("deploy yaml image: {}", image);
             //judge image in format
@@ -601,114 +600,61 @@ public class UploadFileService {
                 LOGGER.error("image {} must be in xxx:xxx format!", image);
                 return false;
             }
-            //The image format is{{.Values.imagelocation.domainname}}/{{.Values.imagelocation.project}}/name:tag
-            // Or forharborWarehouse Address
             String envStr = "{{.Values.imagelocation.domainname}}/{{.Values.imagelocation.project}}";
             String harborStr = devRepoEndpoint + "/" + devRepoProject;
-            if (image.contains(envStr) || image.contains(harborStr)) {
-                if (image.contains(envStr)) {
-                    image = image.replace(envStr, harborStr);
-                }
-                try {
-                    LOGGER.warn("before pull image {}", image);
-                    dockerClient.pullImageCmd(image).exec(new PullImageResultCallback()).awaitCompletion().close();
-                    LOGGER.warn("after pull image {}", image);
-                } catch (InterruptedException | IOException e) {
-                    Thread.currentThread().interrupt();
-                    LOGGER.error("pull image {} from harbor repo failed! {}", image, e.getMessage());
-                    return false;
-                }
-            } else {
-                //Mirror in other formats，Pull,tag,push
-                pullAndPushImage(image);
+            if (image.contains(envStr)) {
+                image = image.replace(envStr, harborStr);
+            }
+            String[] images = image.split("/");
+            if (images != null && images.length != 3) {
+                LOGGER.error("image {} incorrect format!", image);
+                return false;
+            }
+            String project = images[1];
+            String[] nameVers = images[2].split(":");
+            String imageName = nameVers[0];
+            String imageVersion = nameVers[1];
+            String ret = getHarborImageInfo(project, imageName, imageVersion);
+            if (ret.equals("error")) {
+                return false;
             }
         }
+
         return true;
     }
 
-    private boolean pullAndPushImage(String image) {
-        //Mirror information is notharborWarehouse format，Pull(failure，returnfalse)，hitTag，Repush
-        DockerClientConfig config = DefaultDockerClientConfig.createDefaultConfigBuilder()
-            .withDockerHost(protocol + "://" + devRepoEndpoint + ":" + port).build();
-        DockerCmdExecFactory factory = new NettyDockerCmdExecFactory().withConnectTimeout(100000);
-        DockerClient dockerClient = DockerClientBuilder.getInstance(config).withDockerCmdExecFactory(factory).build();
+    private String getHarborImageInfo(String project, String name, String version) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", "Basic " + encodeUserAndPwd());
+        HttpEntity requestEntity = new HttpEntity<>(headers);
+        ResponseEntity<String> response;
         try {
-            InspectImageResponse imageInfo = dockerClient.inspectImageCmd(image).exec();
-            if (imageInfo != null) {
-                String imageId = imageInfo.getId();
-                if (StringUtils.isNotEmpty(imageId)) {
-                    dockerClient.removeImageCmd(imageId).withForce(true).exec();
-                }
-                if (StringUtils.isNotEmpty(imageInfo.getContainer())) {
-                    ContainerConfig containerConfig = imageInfo.getContainerConfig();
-                    LOGGER.info("containerConfig : {} ", containerConfig);
-                    if (containerConfig != null) {
-                        String hostName = containerConfig.getHostName();
-                        if (StringUtils.isNotEmpty(hostName)) {
-                            LOGGER.info("containerConfig hostName: {} ", hostName);
-                            dockerClient.stopContainerCmd(hostName).exec();
-                        }
-                    }
-                }
-            }
-        } catch (NotFoundException e) {
-            LOGGER.warn("not found image : {} ", image);
+            URL getUrl = new URL(loginUrl);
+            String url = String
+                .format(Consts.HARBOR_IMAGE_DELETE_URL, getUrl.getProtocol(), imageDomainName, project, name, version);
+            response = REST_TEMPLATE.exchange(url, HttpMethod.GET, requestEntity, String.class);
+            LOGGER.warn("get harbor image log:{}", response);
+        } catch (RestClientException | MalformedURLException e) {
+            LOGGER.error("Failed get harbor image {} occur {}", name, e.getMessage());
+            return "error";
         }
-        try {
-            dockerClient.pullImageCmd(image).exec(new PullImageResultCallback()).awaitCompletion().close();
-        } catch (InterruptedException | IOException e) {
-            Thread.currentThread().interrupt();
-            LOGGER.error("pull image {} from other public repo  failed! {}", image, e.getMessage());
-            return false;
+        if (response.getStatusCode() == HttpStatus.OK || response.getStatusCode() == HttpStatus.CREATED) {
+            return "ok";
         }
-        LOGGER.warn("pull image : {} success", image);
-        //According to the image name，Get mirrorid
-        String[] imageNames = image.split(":");
-        List<Image> lists = dockerClient.listImagesCmd().withImageNameFilter(imageNames[0]).exec();
-        String imageId = "";
-        if (!CollectionUtils.isEmpty(lists)) {
-            for (Image imageLocal : lists) {
-                if (imageLocal.getRepoTags() != null && imageLocal.getRepoTags().length > 0) {
-                    LOGGER.info(imageLocal.getRepoTags()[0]);
-                    String[] imagNames = imageLocal.getRepoTags();
-                    if (imageNames != null && imagNames[0].equals(image)) {
-                        imageId = imageLocal.getId();
-                        LOGGER.info(imageId);
-                    }
-                }
-            }
-        }
-        LOGGER.warn("image {} imageID: {} ", image, imageId);
+        LOGGER.error("Failed get harbor image!");
+        return "error";
+    }
 
-        String targetName;
-        if (!image.contains("/")) {
-            targetName = devRepoEndpoint + "/" + devRepoProject + "/" + image;
-            dockerClient.tagImageCmd(imageId, targetName, imageNames[1]).withForce().exec();
-            LOGGER.warn("image {} re-tag success", image);
-        } else {
-            String[] targetImageArray = image.split("/");
-            if (targetImageArray.length == 2) {
-                targetName = devRepoEndpoint + "/" + devRepoProject + "/" + image;
-            } else if (targetImageArray.length == 3) {
-                targetName = devRepoEndpoint + "/" + devRepoProject + "/" + targetImageArray[2];
-            } else {
-                targetName = devRepoEndpoint + "/" + devRepoProject + "/" + targetImageArray[3];
-            }
-            dockerClient.tagImageCmd(imageId, targetName, imageNames[1]).withForce().exec();
-            LOGGER.warn("image {} re-tag {} success", image, targetName);
-        }
-        //push image
-        DockerClient pushClient = getDockerClient(devRepoEndpoint, devRepoUsername, devRepoPassword);
+    private String encodeUserAndPwd() {
+        String user = harborUsername + ":" + harborPassword;
+        String base64encodedString = "";
         try {
-            pushClient.pushImageCmd(targetName).start().awaitCompletion();
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            LOGGER.error("failed to push image {} occur {}", targetName, e.getMessage());
-            return false;
+            base64encodedString = Base64.getEncoder().encodeToString(user.getBytes("utf-8"));
+        } catch (UnsupportedEncodingException e) {
+            LOGGER.error("encode user and pwd failed!");
+            return "";
         }
-        LOGGER.warn("image {} push success", targetName);
-        return true;
-
+        return base64encodedString;
     }
 
     private DockerClient getDockerClient(String repo, String userName, String password) {
@@ -722,6 +668,20 @@ public class UploadFileService {
             LOGGER.error("get docker instance occur {}", e.getMessage());
             return null;
         }
+    }
+
+    private static List<String> readFileByLine(File fin) {
+        String line;
+        List<String> sb = new ArrayList<>();
+        try (FileInputStream fis = new FileInputStream(fin);
+             BufferedReader br = new BufferedReader(new InputStreamReader(fis, StandardCharsets.UTF_8))) {
+            while ((line = br.readLine()) != null) {
+                sb.add(line + "\r\n");
+            }
+        } catch (IOException e) {
+            return Collections.emptyList();
+        }
+        return sb;
     }
 
     private String readFile(File fin) {

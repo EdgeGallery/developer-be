@@ -143,10 +143,9 @@ public class ContainerImageMgmtServiceV2 {
                 }
             }
         }
-        String imageId = UUID.randomUUID().toString();
-        containerImage.setImageId(imageId);
+        containerImage.setUploadTime(new Date());
         containerImage.setCreateTime(new Date());
-        containerImage.setImageStatus(EnumContainerImageStatus.UPLOAD_WAIT);
+        containerImage.setImageStatus(EnumContainerImageStatus.UPLOAD_SUCCEED);
         int retCode = containerImageMapper.createContainerImage(containerImage);
         if (retCode < 1) {
             String errorMsg = "Create ContainerImage failed.";
@@ -154,7 +153,7 @@ public class ContainerImageMgmtServiceV2 {
             throw new DeveloperException(errorMsg, ResponseConsts.RET_CREATE_CONTAINER_IMAGE_FAILED);
         }
         LOGGER.info("create ContainerImage success");
-        ContainerImage queryImage = containerImageMapper.getContainerImage(imageId);
+        ContainerImage queryImage = containerImageMapper.getContainerImage(containerImage.getImageId());
         return Either.right(queryImage);
     }
 
