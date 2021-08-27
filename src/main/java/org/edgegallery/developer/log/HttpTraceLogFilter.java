@@ -61,13 +61,16 @@ public class HttpTraceLogFilter extends OncePerRequestFilter implements Ordered 
         }
 
         String accessId = UUID.randomUUID().toString();
-        try {
-            logForRequest(accessId, request);
-            filterChain.doFilter(request, response);
-        } finally {
-            logForResponse(accessId, response);
-            updateResponse(response);
+        if (!(request.getRequestURI().equals("/health"))) {
+            try {
+                logForRequest(accessId, request);
+                filterChain.doFilter(request, response);
+            } finally {
+                logForResponse(accessId, response);
+                updateResponse(response);
+            }
         }
+
     }
 
     private void logForRequest(String accessId, HttpServletRequest request) {

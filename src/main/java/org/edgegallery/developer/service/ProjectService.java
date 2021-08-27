@@ -571,7 +571,7 @@ public class ProjectService {
 		String projectId = project.getId();
 		List<String> mepCapability = project.getCapabilityList();
 		String projectPath = getProjectPath(projectId);
-		String chartName = project.getName().replaceAll(Consts.PATTERN, "")
+		String chartName = project.getName().replaceAll(Consts.PATTERN, "").toLowerCase()
 				+ UUID.randomUUID().toString().substring(0, 8);
 		String configMapName = "mepagent" + UUID.randomUUID().toString();
 		String namespace = chartName;
@@ -632,9 +632,9 @@ public class ProjectService {
 		testConfig.setPackageId(pkgId);
 		projectMapper.updateTestConfig(testConfig);
 		// distribute pkg
-		boolean distributeRes = HttpClientUtil.distributePkg(basePath, userId, token, pkgId, host.getMecHost(), lcmLog);
+		String distributeRes = HttpClientUtil.distributePkg(basePath, userId, token, pkgId, host.getMecHost(), lcmLog);
 		LOGGER.info("distribute res {}", distributeRes);
-		if (!distributeRes) {
+		if (distributeRes==null) {
 			testConfig.setErrorLog(lcmLog.getLog());
 			return false;
 		}

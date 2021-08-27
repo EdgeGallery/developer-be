@@ -61,6 +61,8 @@ public class VmCreateConfig {
     public String getNextStage() {
         if (this.getStageStatus() == null || this.getStageStatus().getHostInfo() == null) {
             return "hostInfo";
+        } else if (this.getStageStatus().getDistributeInfo() == null) {
+            return "distributeInfo";
         } else if (this.getStageStatus().getInstantiateInfo() == null) {
             return "instantiateInfo";
         } else if (this.getStageStatus().getWorkStatus() == null) {

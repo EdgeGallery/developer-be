@@ -58,7 +58,7 @@ public class VmStageWorkStatus implements VmCreateStage {
     @Override
     public boolean execute(VmCreateConfig config) throws InterruptedException {
         boolean processStatus = false;
-        EnumTestConfigStatus status = EnumTestConfigStatus.Failed;
+        EnumTestConfigStatus instantiateStatus = EnumTestConfigStatus.Failed;
         Type type = new TypeToken<MepHost>() { }.getType();
         MepHost host = gson.fromJson(gson.toJson(config.getHost()), type);
         ApplicationProject project = projectMapper.getProjectById(config.getProjectId());
@@ -78,7 +78,6 @@ public class VmStageWorkStatus implements VmCreateStage {
             LOGGER.info("over time:{}, wait max time:{}, start time:{}", time, MAX_SECONDS,
                 config.getCreateTime().getTime());
             if (config.getCreateTime() == null || time > MAX_SECONDS * 1000) {
-                config.setLog("Failed to get create vm result ");
                 String message = "Failed to get create vm result after wait {} seconds which appInstanceId is : {}";
                 LOGGER.error(message, MAX_SECONDS, config.getAppInstanceId());
             } else {
@@ -86,31 +85,32 @@ public class VmStageWorkStatus implements VmCreateStage {
             }
         } else {
             JsonObject jsonObject = new JsonParser().parse(workStatus).getAsJsonObject();
-            JsonElement code = jsonObject.get("code");
             JsonElement msg = jsonObject.get("msg");
-            if (!code.getAsString().equals("200")) {
-                if (msg != null) {
-                    config.setLog(msg.getAsString());
-                }
-                config.setLog("get vm status fail");
-            } else {
+            JsonElement status = jsonObject.get("status");
+            if (status.getAsString().equals("Instantiated")) {
                 Type vmInfoType = new TypeToken<VmInstantiateInfo>() { }.getType();
                 VmInstantiateInfo vmInstantiateInfo = gson.fromJson(workStatus, vmInfoType);
-                List<NetworkInfo> networkInfo = vmInstantiateInfo.getData().get(0).getNetworks();
-                if (networkInfo == null || networkInfo.isEmpty()) {
-                    config.setLog("lack of resources");
-                } else {
-                    processStatus = true;
-                    status = EnumTestConfigStatus.Success;
-                    config.setLog("get vm status success");
-                }
+                processStatus = true;
+                instantiateStatus = EnumTestConfigStatus.Success;
+                config.setLog("get vm status success");
                 config.setVmInfo(vmInstantiateInfo.getData());
-
+            }else if(status.getAsString().equals("error")) {
+                config.setLog(msg.getAsString());
+            } else {
+                // compare time between now and deployDate
+                long time = System.currentTimeMillis() - config.getCreateTime().getTime();
+                LOGGER.info("over time:{}, wait max time:{}, start time:{}", time, MAX_SECONDS,
+                    config.getCreateTime().getTime());
+                if (config.getCreateTime() == null || time > MAX_SECONDS * 1000) {
+                    String message = "Failed to get create vm result after wait {} seconds which appInstanceId is : {}";
+                    LOGGER.error(message, MAX_SECONDS, config.getAppInstanceId());
+                } else {
+                    return true;
+                }
             }
-
         }
         // update test-config
-        vmService.updateCreateVmResult(config, project, "workStatus", status);
+        vmService.updateCreateVmResult(config, project, "workStatus", instantiateStatus);
         LOGGER.info("update config result:{}", config.getStatus());
         return processStatus;
     }

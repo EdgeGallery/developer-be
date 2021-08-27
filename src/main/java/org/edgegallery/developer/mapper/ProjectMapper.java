@@ -20,6 +20,7 @@ import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.edgegallery.developer.model.workspace.ApplicationProject;
+import org.edgegallery.developer.model.workspace.EnumProjectStatus;
 import org.edgegallery.developer.model.workspace.ProjectTestConfig;
 
 @Mapper
@@ -55,4 +56,5 @@ public interface ProjectMapper {
 
     List<ProjectTestConfig> getTestConfigByDeployStatus(String deployStatus);
 
+    void updateProjectStatus(@Param("id") String id, @Param("status") String status);
 }
