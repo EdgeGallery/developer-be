@@ -180,30 +180,16 @@ public class NewCreateCsar {
         List<ImageDesc> imageDescs = new ArrayList<>();
         ImageConfig imageConfig = (ImageConfig) SpringContextUtil.getBean(ImageConfig.class);
         for (String image : images) {
-            if (image.contains(".Values.imagelocation.domainname") || image.contains("swr.") || image
-                .contains(imageConfig.getDomainname())) {
+            if (image.contains(imageConfig.getDomainname())) {
                 String[] imager = image.trim().split("/");
-                if (imager.length == 3) {
-                    image = imageConfig.getDomainname() + "/" + imageConfig.getProject() + "/" + imager[2].trim();
-                } else {
-                    StringBuilder sb = new StringBuilder();
-                    for (int i = 0; i < imager.length; i++) {
-                        if (i != 0 && i != 1) {
-                            sb.append(imager[i] + "/");
-                        }
-                    }
-                    String newImage = sb.toString().substring(0, sb.toString().length() - 1);
-                    image = imageConfig.getDomainname() + "/" + imageConfig.getProject() + "/" + newImage.trim();
-                }
-            } else {
-                image = imageConfig.getDomainname() + "/" + imageConfig.getProject() + "/" + image.trim();
+                image = "{{.Values.imagelocation.domainname}}/{{.Values.imagelocation.project}}/" + imager[2].trim();
             }
             ImageDesc imageDesc = new ImageDesc();
             imageDesc.setId(UUID.randomUUID().toString());
             String[] names = image.split("/");
             int len = names.length - 1;
-            imageDesc.setName(names[len]);
             String[] vers = names[len].split(":");
+            imageDesc.setName(vers[0]);
             imageDesc.setVersion(vers[1]);
             imageDesc.setChecksum("2");
             imageDesc.setContainerFormat("bare");
