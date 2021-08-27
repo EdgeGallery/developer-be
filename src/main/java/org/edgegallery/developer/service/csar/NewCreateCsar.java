@@ -180,9 +180,9 @@ public class NewCreateCsar {
         List<ImageDesc> imageDescs = new ArrayList<>();
         ImageConfig imageConfig = (ImageConfig) SpringContextUtil.getBean(ImageConfig.class);
         for (String image : images) {
-            if (image.contains(imageConfig.getDomainname())) {
+            if (image.contains(".Values.imagelocation.domainname") || image.contains(".Values.imagelocation.project")) {
                 String[] imager = image.trim().split("/");
-                image = "{{.Values.imagelocation.domainname}}/{{.Values.imagelocation.project}}/" + imager[2].trim();
+                image = imageConfig.getDomainname() + "/" + imageConfig.getProject() + "/" + imager[2].trim();
             }
             ImageDesc imageDesc = new ImageDesc();
             imageDesc.setId(UUID.randomUUID().toString());
