@@ -386,16 +386,21 @@ public class ContainerImageMgmtServiceV2 {
                 }
             }
         }
+        LOGGER.warn("list: {}", list);
         // get Harbor image list
         List<String> harborList = getHarborImageList();
         if (CollectionUtils.isEmpty(harborList)) {
             LOGGER.warn("harbor repo no images!");
             return ResponseEntity.ok("harbor repo no images!");
         }
+        LOGGER.warn("harborList: {}", harborList);
         List<String> imageList = new ArrayList<>();
         for (String harbor : harborList) {
             imageList.add(harbor.substring(harbor.indexOf("/") + 1, harbor.indexOf("+")));
         }
+        LOGGER.warn("imageList: {}", imageList);
+        LOGGER.warn("bijiao: {}", ListUtil.isEquals(list, imageList));
+        LOGGER.warn("bijiao2: {}", list.containsAll(imageList));
         if (ListUtil.isEquals(list, imageList) || list.containsAll(imageList)) {
             LOGGER.warn("no need synchronize!");
             return ResponseEntity.ok("already the latest image list!");
