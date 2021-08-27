@@ -611,9 +611,6 @@ public final class HttpClientUtil {
         } catch (Exception e) {
             LOGGER.error("slice upload file exception {}", e.getMessage());
             return false;
-        } catch (Exception e) {
-            LOGGER.error("slice upload file exception {}", e.getMessage());
-            return false;
         }
 
         if (response == null || response.getStatusCode() != HttpStatus.OK) {
