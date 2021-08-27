@@ -79,6 +79,15 @@
         #{deployPlatform} )
     </insert>
 
+    <update id="updateProjectStatus" >
+        UPDATE
+        tbl_app_project
+        SET
+        status = #{status}
+        WHERE
+        id = #{id}
+    </update>
+
     <update id="updateProject" parameterType="org.edgegallery.developer.model.workspace.ApplicationProject">
         UPDATE
         tbl_app_project
@@ -87,7 +96,7 @@
         #{platform, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonCollectionTypeHandler},
         icon_file_id = #{iconFileId}, type = #{type}, description = #{description}, status = #{status}, user_id =
         #{userId},
-        last_test_id = #{lastTestId}, 
+        last_test_id = #{lastTestId},
         industries =#{industry, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonCollectionTypeHandler},
         open_capability_id = #{openCapabilityId}, deploy_platform = #{deployPlatform}
         WHERE

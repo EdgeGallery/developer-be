@@ -52,26 +52,18 @@ public class VmStageInstantiate implements VmCreateStage {
         String userId = project.getUserId();
         EnumTestConfigStatus instantiateStatus = EnumTestConfigStatus.Failed;
         // deploy app
-        File csar;
-        try {
-            csar = new File(projectService.getProjectPath(config.getProjectId()) + config.getAppInstanceId() + ".csar");
-            instantiateAppResult = vmService.createVmToAppLcm(csar, project, config, userId, config.getLcmToken());
-            if (!instantiateAppResult) {
-                LOGGER.error("Failed to create vm which packageId is : {}.", config.getPackageId());
-            } else {
-                // update status when instantiate success
-                config.setCreateTime(new Date());
-                processSuccess = true;
-                instantiateStatus = EnumTestConfigStatus.Success;
-                config.setLog("vm instantiate success");
-            }
-        } catch (Exception e) {
-            config.setLog("Failed to create vm  with err:" + e.getMessage());
-            LOGGER.error("Failed to create vm with err: {}.", e.getMessage());
-        } finally {
-            vmService.updateCreateVmResult(config, project, "instantiateInfo", instantiateStatus);
-            LOGGER.info("update config result:{}", config.getStatus());
+        instantiateAppResult = vmService.createVmToAppLcm(config, userId, config.getLcmToken());
+        if (!instantiateAppResult) {
+            LOGGER.error("Failed to create vm which packageId is : {}.", config.getPackageId());
+        } else {
+            // update status when instantiate success
+            config.setCreateTime(new Date());
+            processSuccess = true;
+            instantiateStatus = EnumTestConfigStatus.Success;
+            config.setLog("vm instantiate success");
         }
+        vmService.updateCreateVmResult(config, project, "instantiateInfo", instantiateStatus);
+        LOGGER.info("update config result:{}", config.getStatus());
         return processSuccess;
     }
 

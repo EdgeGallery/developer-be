@@ -202,17 +202,9 @@ public class VmService {
             vmConfigMapper.updateVmCreateConfig(vmCreateConfig);
         }
 
-
         // update project status
-        ApplicationProject project = projectMapper.getProject(userId, projectId);
-        project.setStatus(EnumProjectStatus.DEPLOYING);
-        int res = projectMapper.updateProject(project);
-        if (res < 1) {
-            LOGGER.error("Update project {} in db failed.", project.getId());
-            FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "update project in db failed.");
-            return Either.left(error);
-        }
-        return Either.right(vmCreateConfig);
+        projectMapper.updateProjectStatus(projectId, EnumProjectStatus.DEPLOYING.toString());
+        return Either.right(vmConfigMapper.getVmCreateConfigs(projectId));
 
     }
 
@@ -229,6 +221,9 @@ public class VmService {
         switch (stage) {
             case "hostInfo":
                 testConfig.getStageStatus().setHostInfo(stageStatus);
+                break;
+            case "distributeInfo":
+                testConfig.getStageStatus().setDistributeInfo(stageStatus);
                 break;
             case "instantiateInfo":
                 testConfig.getStageStatus().setInstantiateInfo(stageStatus);
@@ -304,70 +299,68 @@ public class VmService {
      *
      * @return
      */
-    public boolean createVmToAppLcm(File csar, ApplicationProject project, VmCreateConfig vmConfig, String userId,
-        String lcmToken) {
-        VmPackageConfig config = vmConfigMapper.getVmPackageConfig(project.getId());
+    public String distributeVmToAppLcm(File csar, ApplicationProject project, VmCreateConfig config, String userId, String lcmToken) {
+        VmPackageConfig vmPackageConfig = vmConfigMapper.getVmPackageConfig(project.getId());
         if (config == null) {
             LOGGER.error("get vm package config failed.");
-            return false;
+            return null;
         }
         Type type = new TypeToken<MepHost>() { }.getType();
-        MepHost host = gson.fromJson(gson.toJson(vmConfig.getHost()), type);
+        MepHost host = gson.fromJson(gson.toJson(config.getHost()), type);
 
         String basePath = HttpClientUtil.getUrlPrefix(host.getProtocol(), host.getLcmIp(), host.getPort());
-        // upload pkg
         LcmLog lcmLog = new LcmLog();
-        String uploadRes = HttpClientUtil.uploadPkg(basePath, csar.getPath(), userId, lcmToken, lcmLog);
-        LOGGER.info("upload package result: {}", uploadRes);
-        if (StringUtils.isEmpty(uploadRes)) {
-            vmConfig.setLog(lcmLog.getLog());
-            return false;
+        if (StringUtils.isEmpty(config.getPackageId())) {
+
+            // upload pkg
+            String uploadRes = HttpClientUtil.uploadPkg(basePath, csar.getPath(), userId, lcmToken, lcmLog);
+            LOGGER.info("upload package result: {}", uploadRes);
+            if (StringUtils.isEmpty(uploadRes)) {
+                config.setLog("upload package fail");
+                return null;
+            }
+            Gson gson = new Gson();
+            Type typeEvents = new TypeToken<UploadResponse>() { }.getType();
+            UploadResponse uploadResponse = gson.fromJson(uploadRes, typeEvents);
+            String pkgId = uploadResponse.getPackageId();
+            config.setPackageId(pkgId);
+            config.setCreateTime(new Date());
+            config.setLog("upload csar package success" + pkgId);
+            vmConfigMapper.updateVmCreateConfig(config);
         }
-        Gson gson = new Gson();
-        Type typeEvents = new TypeToken<UploadResponse>() { }.getType();
-        UploadResponse uploadResponse = gson.fromJson(uploadRes, typeEvents);
-        String pkgId = uploadResponse.getPackageId();
-        vmConfig.setPackageId(pkgId);
-        vmConfig.setLog("upload csar package success" + pkgId);
-        vmConfigMapper.updateVmCreateConfig(vmConfig);
 
         // distribute pkg
-        boolean distributeRes = HttpClientUtil
-            .distributePkg(basePath, userId, lcmToken, pkgId, host.getMecHost(), lcmLog);
+        String distributeRes = HttpClientUtil
+            .distributePkg(basePath, userId, lcmToken, config.getPackageId(), host.getMecHost(), lcmLog);
         LOGGER.info("distribute package result: {}", distributeRes);
-        if (!distributeRes) {
-            vmConfig.setLog(lcmLog.getLog());
-            return false;
+        if (distributeRes==null) {
+            config.setLog(lcmLog.getLog());
+            return null;
         }
+        return distributeRes;
+    }
+
+    /**
+     * createVmToAppLcm.
+     *
+     * @return
+     */
+    public boolean createVmToAppLcm(VmCreateConfig vmConfig, String userId, String lcmToken) {
+        Type type = new TypeToken<MepHost>() { }.getType();
+        MepHost host = gson.fromJson(gson.toJson(vmConfig.getHost()), type);
+        String basePath = HttpClientUtil.getUrlPrefix(host.getProtocol(), host.getLcmIp(), host.getPort());
+        LcmLog lcmLog = new LcmLog();
         // instantiate application
-
         Map<String, String> vmInputParams = getInputParams(host.getParameter(), host.getMecHost());
-
-
-
-
-
-        if (!config.getAk().equals("") && !config.getSk().equals("")) {
-            vmInputParams.put("ak", config.getAk());
-            vmInputParams.put("sk", config.getSk());
-        }
-
         String appInstanceId = vmConfig.getAppInstanceId();
-        try {
-            Thread.sleep(60000);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            LOGGER.error("sleep fail! {}", e.getMessage());
-        }
         boolean instantRes = HttpClientUtil
-            .instantiateApplication(basePath, appInstanceId, userId, lcmToken, lcmLog, pkgId, host.getMecHost(),
+            .instantiateApplication(basePath, appInstanceId, userId, lcmToken, lcmLog, vmConfig.getPackageId(), host.getMecHost(),
                 vmInputParams);
         LOGGER.info("distribute package result: {}", instantRes);
         if (!instantRes) {
             vmConfig.setLog(lcmLog.getLog());
             return false;
         }
-
         return true;
     }
 
@@ -380,12 +373,15 @@ public class VmService {
         vmInputParams.put("app_n6_ip",IpCalculateUtil.getStartIp(n6Range, count));
         vmInputParams.put("app_mp1_ip",IpCalculateUtil.getStartIp(mepRange, count));
         vmInputParams.put("app_internet_ip",IpCalculateUtil.getStartIp(internetRange, count));
-        vmInputParams.put("app_n6_mask",IpCalculateUtil.getNetMask(n6Range.split("/")[1]));
-        vmInputParams.put("app_mp1_mask",IpCalculateUtil.getNetMask(mepRange.split("/")[1]));
-        vmInputParams.put("app_internet_mask",IpCalculateUtil.getNetMask(internetRange.split("/")[1]));
-        vmInputParams.put("app_n6_gw",IpCalculateUtil.getStartIp(n6Range, 0));
-        vmInputParams.put("app_mp1_gw",IpCalculateUtil.getStartIp(mepRange, 0));
-        vmInputParams.put("app_internet_gw",IpCalculateUtil.getStartIp(internetRange, 0));
+        if (vmInputParams.getOrDefault("app_n6_gw",null)==null) {
+            vmInputParams.put("app_n6_gw",IpCalculateUtil.getStartIp(n6Range, 0));
+        }
+        if (vmInputParams.getOrDefault("app_mp1_gw",null)==null) {
+            vmInputParams.put("app_mp1_gw",IpCalculateUtil.getStartIp(mepRange, 0));
+        }
+        if (vmInputParams.getOrDefault("app_internet_gw",null)==null) {
+            vmInputParams.put("app_internet_gw",IpCalculateUtil.getStartIp(internetRange, 0));
+        }
         return vmInputParams;
     }
 
@@ -420,8 +416,6 @@ public class VmService {
             return Either.left(error);
         }
 
-        LOGGER.info("Get project information success");
-
         VmCreateConfig vmCreateConfig = vmConfigMapper.getVmCreateConfigs(projectId);
         List<VmCreateConfig> vmCreateConfigs = new LinkedList<>();
         if (vmCreateConfig != null) {
@@ -442,7 +436,6 @@ public class VmService {
             return Either.left(error);
         }
 
-        LOGGER.info("Get project information success");
         VmCreateConfig vmCreateConfig = vmConfigMapper.getVmCreateConfig(projectId, vmId);
         if (vmCreateConfig == null) {
             LOGGER.info("Can not find the vm create config by vmId {} and projectId {}", vmId, projectId);
@@ -699,7 +692,6 @@ public class VmService {
             return Either.left(error);
         }
         VmCreateConfig vmCreateConfig = vmConfigMapper.getVmCreateConfigs(projectId);
-
         if (vmCreateConfig == null) {
             LOGGER.error("Can not find the vm create config by projectId {}", projectId);
             FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "Can not find the vm config.");
@@ -708,11 +700,6 @@ public class VmService {
         if (vmCreateConfig.getStatus() != EnumVmCreateStatus.SUCCESS) {
             LOGGER.error("vm create fail, can not import image,projectId:{}", projectId);
             FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "vm create fail, can not import image");
-            return Either.left(error);
-        }
-        if (vmConfigMapper.getVmImage(projectId, vmCreateConfig.getVmId()) != null) {
-            LOGGER.error("vm create fail,vm create config have exited ,vmId:{}", vmCreateConfig.getVmId());
-            FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "vm create fail,vm create config have exited");
             return Either.left(error);
         }
         VmImageConfig vmImageConfig = vmConfigMapper.getVmImage(projectId, vmCreateConfig.getVmId());
@@ -728,6 +715,7 @@ public class VmService {
             createVmImageConfig.setStageStatus(stageStatus);
             vmConfigMapper.saveVmImageConfig(createVmImageConfig);
         } else {
+            deleteVmImageToLcm(vmCreateConfig, vmImageConfig, userId);
             vmImageConfig.setVmName(vmPackageConfig.getVmName());
             vmImageConfig.setAppInstanceId(vmCreateConfig.getAppInstanceId());
             vmImageConfig.setLcmToken(token);
@@ -735,11 +723,19 @@ public class VmService {
             VmImportStageStatus stageStatus = new VmImportStageStatus();
             vmImageConfig.setStageStatus(stageStatus);
             vmConfigMapper.updateVmImageConfig(vmImageConfig);
-
         }
 
         return Either.right(true);
 
+    }
+
+    private void deleteVmImageToLcm(VmCreateConfig vmCreateConfig, VmImageConfig vmImageConfig, String userId) {
+        Type type = new TypeToken<MepHost>() { }.getType();
+        MepHost host = gson.fromJson(gson.toJson(vmCreateConfig.getHost()), type);
+        if (!StringUtils.isEmpty(vmImageConfig.getImageId())) {
+            HttpClientUtil.deleteVmImage(host.getProtocol(), host.getLcmIp(), host.getPort(), userId,
+                vmImageConfig.getAppInstanceId(), vmImageConfig.getImageId(), vmImageConfig.getLcmToken());
+        }
     }
 
     /**
@@ -1066,14 +1062,17 @@ public class VmService {
     }
 
     private Boolean pushFileToVm(File appFile, VmCreateConfig vmCreateConfig) {
-        String networkType = "Network_N6";
-        VmNetwork vmNetwork = vmConfigMapper.getVmNetworkByType(networkType);
+        Type hostType = new TypeToken<MepHost>() { }.getType();
+        MepHost host = gson.fromJson(gson.toJson(vmCreateConfig.getHost()), hostType);
+        Map<String, String> vmInputParams = InputParameterUtil.getParams(host.getParameter());
+
+        String networkName = vmInputParams.getOrDefault("network_name_n6", "mec_network_n6");
         Type type = new TypeToken<List<VmInfo>>() { }.getType();
         List<VmInfo> vmInfo = gson.fromJson(gson.toJson(vmCreateConfig.getVmInfo()), type);
         List<NetworkInfo> networkInfos = vmInfo.get(0).getNetworks();
         String networkIp = "";
         for (NetworkInfo networkInfo : networkInfos) {
-            if (networkInfo.getName().equals(vmNetwork.getNetworkName())) {
+            if (networkInfo.getName().equals(networkName)) {
                 networkIp = networkInfo.getIp();
             }
         }
@@ -1144,6 +1143,9 @@ public class VmService {
             vmImageConfig.initialVmImageConfig();
             vmConfigMapper.updateVmImageConfig(vmImageConfig);
         }
+        if(vmImageConfig != null && !vmImageConfig.getImageId().isEmpty()) {
+            deleteVmImageToLcm(vmCreateConfig, vmImageConfig, project.getUserId());
+        }
 
         if (!StringUtils.isEmpty(vmCreateConfig.getPackageId())) {
             deleteVmCreate(vmCreateConfig, project.getUserId(), token);
@@ -1162,5 +1164,6 @@ public class VmService {
         LOGGER.info("Update project status to TESTED success");
         return Either.right(true);
     }
+
 }
 

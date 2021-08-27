@@ -59,8 +59,6 @@ public class VmStageSelectHost implements VmCreateStage {
     @Autowired
     private VmService vmService;
 
-    @Resource(name = "vm_instantiateInfo_service")
-    private VmCreateStage vmCreateStage;
 
     @Override
     public boolean execute(VmCreateConfig config) throws InterruptedException {
@@ -95,11 +93,7 @@ public class VmStageSelectHost implements VmCreateStage {
             config.setLog("select host success");
         }
         vmService.updateCreateVmResult(config, project, "hostInfo", hostStatus);
-        if (processSuccess) {
-            return vmCreateStage.execute(config);
-        } else {
-            return false;
-        }
+        return processSuccess;
     }
 
     @Override

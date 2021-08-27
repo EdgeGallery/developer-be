@@ -158,7 +158,7 @@ public final class HttpClientUtil {
     /**
      * distribute pkg.
      */
-    public static boolean distributePkg(String basePath, String userId, String token, String packageId, String mecHost,
+    public static String distributePkg(String basePath, String userId, String token, String packageId, String mecHost,
         LcmLog lcmLog) {
         //add body
         DistributeBody body = new DistributeBody();
@@ -183,16 +183,16 @@ public final class HttpClientUtil {
             String errorLog = e.getBody();
             LOGGER.error("Failed distribute pkg packageId  {} exception {}", packageId, errorLog);
             lcmLog.setLog(errorLog);
-            return false;
+            return null;
         } catch (RestClientException e) {
             LOGGER.error("Failed distribute pkg packageId is {} exception {}", packageId, e.getMessage());
-            return false;
+            return null;
         }
         if (response.getStatusCode() == HttpStatus.OK) {
-            return true;
+            return response.getBody();
         }
         LOGGER.error("Failed to distribute pkg which packageId is {}", packageId);
-        return false;
+        return null;
     }
 
     /**
@@ -605,7 +605,7 @@ public final class HttpClientUtil {
             String errorLog = e.getBody();
             LOGGER.error("slice upload file exception {}", errorLog);
             return false;
-        } catch (RestClientException e) {
+        } catch (Exception e) {
             LOGGER.error("slice upload file exception {}", e.getMessage());
             return false;
         }
