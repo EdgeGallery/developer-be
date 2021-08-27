@@ -362,7 +362,7 @@ public class ImageServiceV2 {
         ContainerImage containerImage = new ContainerImage();
         containerImage.setImageId(inputImageId);
         containerImage.setImageType("private");
-        containerImage.setImageName(uploadImgName);
+        containerImage.setImageName(names[0]);
         containerImage.setImageVersion(names[1].trim());
         containerImage.setImagePath(uploadImgName + ":" + names[1].trim());
         containerImage.setUserId(AccessUserUtil.getUser().getUserId());

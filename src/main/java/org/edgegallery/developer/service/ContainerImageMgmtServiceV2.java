@@ -365,23 +365,6 @@ public class ContainerImageMgmtServiceV2 {
      * @return
      */
     public ResponseEntity cancelUploadHarborImage(String imageId) {
-        LOGGER.info("cancel upload harbor image file, harborImageId = {}, ", imageId);
-
-        ContainerImage containerImage = containerImageMapper.getContainerImage(imageId);
-        if (EnumContainerImageStatus.UPLOADING_MERGING == containerImage.getImageStatus()) {
-            LOGGER.error("harbor image is merging, it cannot be cancelled.");
-            throw new DeveloperException("harbor image is merging, it cannot be cancelled",
-                ResponseConsts.RET_CONTAINER_IMAGE_CANCELLED_FAILED);
-        }
-
-        LOGGER.info("update status and remove local directory.");
-        int updateRes = containerImageMapper
-            .updateContainerImageStatus(imageId, EnumContainerImageStatus.UPLOAD_CANCELLED.toString());
-        if (updateRes < 1) {
-            LOGGER.error("update image status failed.");
-            throw new DeveloperException("update image status failed",
-                ResponseConsts.RET_CONTAINER_IMAGE_CANCELLED_FAILED);
-        }
         String rootDir = getUploadSysImageRootDir(imageId);
         SystemImageUtil.cleanWorkDir(new File(rootDir));
         return ResponseEntity.ok().build();
