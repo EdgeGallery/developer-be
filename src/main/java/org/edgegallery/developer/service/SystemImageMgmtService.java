@@ -81,7 +81,7 @@ public class SystemImageMgmtService {
                 queryCtrl.setSortBy("user_name");
             }
             if (queryCtrl.getSortOrder() == null) {
-                queryCtrl.setSortBy("DESC");
+                queryCtrl.setSortOrder("DESC");
             }
             String createTimeBegin = mepGetSystemImageReq.getCreateTimeBegin();
             String createTimeEnd = mepGetSystemImageReq.getCreateTimeEnd();
@@ -97,7 +97,7 @@ public class SystemImageMgmtService {
             mepGetSystemImageRes.setImageList(systemImageMapper.getSystemImagesByCondition(mepGetSystemImageReq));
             return Either.right(mepGetSystemImageRes);
         } catch (Exception e) {
-            LOGGER.error("Query SystemImages failed");
+            LOGGER.error("Query SystemImages failed {}",e.getMessage());
             return Either.left(new FormatRespDto(Response.Status.BAD_REQUEST, "Can not query SystemImages."));
         }
     }
@@ -131,7 +131,7 @@ public class SystemImageMgmtService {
             LOGGER.error("Create SystemImage failed.");
             return Either.left(new FormatRespDto(Response.Status.BAD_REQUEST, "Can not create a SystemImage."));
         } catch (Exception e) {
-            LOGGER.error("Create SystemImages failed");
+            LOGGER.error("Create SystemImages failed {}", e.getMessage());
             return Either.left(new FormatRespDto(Response.Status.BAD_REQUEST, "Can not create SystemImages."));
         }
     }
@@ -168,7 +168,7 @@ public class SystemImageMgmtService {
             LOGGER.error("Update SystemImage failed ");
             return Either.left(new FormatRespDto(Response.Status.BAD_REQUEST, "Can not update a SystemImage."));
         } catch (Exception e) {
-            LOGGER.error("Update SystemImages failed");
+            LOGGER.error("Update SystemImages failed {}", e.getMessage());
             return Either.left(new FormatRespDto(Response.Status.BAD_REQUEST, "Can not update SystemImages."));
         }
     }
