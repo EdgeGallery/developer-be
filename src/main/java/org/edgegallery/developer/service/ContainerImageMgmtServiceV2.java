@@ -382,7 +382,7 @@ public class ContainerImageMgmtServiceV2 {
             for (ContainerImage containerImage : containerImages) {
                 String image = containerImage.getImagePath();
                 if (StringUtils.isNotEmpty(image)) {
-                    list.add(image.substring(image.indexOf("/") + 1).trim());
+                    list.add(image.substring(image.lastIndexOf("/") + 1).trim());
                 }
             }
         }
@@ -396,7 +396,7 @@ public class ContainerImageMgmtServiceV2 {
         LOGGER.warn("harborList: {}", harborList);
         List<String> imageList = new ArrayList<>();
         for (String harbor : harborList) {
-            imageList.add(harbor.substring(harbor.indexOf("/") + 1, harbor.indexOf("+")));
+            imageList.add(harbor.substring(harbor.indexOf("/") + 1, harbor.indexOf("+")).trim());
         }
         LOGGER.warn("imageList: {}", imageList);
         LOGGER.warn("bijiao: {}", ListUtil.isEquals(list, imageList));
@@ -420,7 +420,7 @@ public class ContainerImageMgmtServiceV2 {
             containerImage.setCreateTime(new Date());
             containerImage.setImageType("private");
             containerImage.setImagePath(
-                imageDomainName + "/" + harborImage.substring(harborImage.indexOf("/") + 1, harborImage.indexOf("+")));
+                imageDomainName + "/" + harborImage.substring(0, harborImage.indexOf("+")));
             containerImage.setImageStatus(EnumContainerImageStatus.UPLOAD_SUCCEED);
             containerImage.setFileName(imageName + ".tar");
             int res = containerImageMapper.createContainerImage(containerImage);
