@@ -21,23 +21,23 @@ public final class Consts {
     public static final String APP_LCM_INSTANTIATE_APP_URL
         = "/lcmcontroller/v1/tenants/tenantId/app_instances/appInstanceId/instantiate";
 
-    public static final String APP_LCM_UPLOAD_APPPKG_URL = "/lcmcontroller/v1/tenants/tenantId/packages";
+    public static final String APP_LCM_UPLOAD_APPPKG_URL = "/lcmcontroller/v2/tenants/tenantId/packages";
 
-    public static final String APP_LCM_DISTRIBUTE_APPPKG_URL = "/lcmcontroller/v1/tenants/tenantId/packages/packageId";
+    public static final String APP_LCM_DISTRIBUTE_APPPKG_URL = "/lcmcontroller/v2/tenants/tenantId/packages/packageId";
 
     public static final String APP_LCM_DELETE_HOST_URL
         = "/lcmcontroller/v1/tenants/tenantId/packages/packageId/hosts/hostIp";
 
-    public static final String APP_LCM_DELETE_APPPKG_URL = "/lcmcontroller/v1/tenants/tenantId/packages/packageId";
+    public static final String APP_LCM_DELETE_APPPKG_URL = "/lcmcontroller/v2/tenants/tenantId/packages/packageId";
 
     public static final String APP_LCM_INSTANTIATE_IMAGE_URL
         = "/lcmcontroller/v1/tenants/tenantId/app_instances/appInstanceId/images";
 
     public static final String APP_LCM_TERMINATE_APP_URL
-        = "/lcmcontroller/v1/tenants/tenantId/app_instances/appInstanceId/terminate";
+        = "/lcmcontroller/v2/tenants/tenantId/app_instances/appInstanceId/terminate";
 
     public static final String APP_LCM_GET_WORKLOAD_STATUS_URL
-        = "/lcmcontroller/v1/tenants/tenantId/app_instances/appInstanceId";
+        = "/lcmcontroller/v2/tenants/tenantId/app_instances/appInstanceId";
 
     public static final String APP_LCM_GET_WORKLOAD_EVENTS_URL
         = "/lcmcontroller/v1/tenants/tenantId/app_instances/appInstanceId/workload/events";

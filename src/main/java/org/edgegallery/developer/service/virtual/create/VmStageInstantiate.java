@@ -56,7 +56,6 @@ public class VmStageInstantiate implements VmCreateStage {
         if (!instantiateAppResult) {
             LOGGER.error("Failed to create vm which packageId is : {}.", config.getPackageId());
         } else {
-            // update status when instantiate success
             config.setCreateTime(new Date());
             processSuccess = true;
             instantiateStatus = EnumTestConfigStatus.Success;

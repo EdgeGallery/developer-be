@@ -55,6 +55,8 @@ import org.edgegallery.developer.mapper.VmConfigMapper;
 import org.edgegallery.developer.model.Chunk;
 import org.edgegallery.developer.model.LcmLog;
 import org.edgegallery.developer.model.deployyaml.ImageDesc;
+import org.edgegallery.developer.model.lcm.DistributeResponse;
+import org.edgegallery.developer.model.lcm.MecHostInfo;
 import org.edgegallery.developer.model.lcm.UploadResponse;
 import org.edgegallery.developer.model.system.VmSystem;
 import org.edgegallery.developer.model.vm.EnumVmCreateStatus;
@@ -122,6 +124,11 @@ public class VmService {
     private static Gson gson = new Gson();
 
     private static final String TEMPLATE_TOSCA_IMAGE_DESC_PATH = "/SwImageDesc.json";
+
+    /**
+     * the max time for wait workStatus.
+     */
+    private static final Long MAX_SECONDS = 30*1000L;
 
     @Autowired
     private VmConfigMapper vmConfigMapper;
@@ -300,44 +307,58 @@ public class VmService {
      * @return
      */
     public String distributeVmToAppLcm(File csar, ApplicationProject project, VmCreateConfig config, String userId, String lcmToken) {
-        VmPackageConfig vmPackageConfig = vmConfigMapper.getVmPackageConfig(project.getId());
-        if (config == null) {
-            LOGGER.error("get vm package config failed.");
-            return null;
-        }
-        Type type = new TypeToken<MepHost>() { }.getType();
-        MepHost host = gson.fromJson(gson.toJson(config.getHost()), type);
+        MepHost host = gson.fromJson(gson.toJson(config.getHost()), new TypeToken<MepHost>() { }.getType());
 
         String basePath = HttpClientUtil.getUrlPrefix(host.getProtocol(), host.getLcmIp(), host.getPort());
-        LcmLog lcmLog = new LcmLog();
         if (StringUtils.isEmpty(config.getPackageId())) {
-
             // upload pkg
-            String uploadRes = HttpClientUtil.uploadPkg(basePath, csar.getPath(), userId, lcmToken, lcmLog);
-            LOGGER.info("upload package result: {}", uploadRes);
-            if (StringUtils.isEmpty(uploadRes)) {
+            String packageId = uploadPackageToLcm(basePath,csar.getPath(), userId, lcmToken);
+            if (packageId==null) {
                 config.setLog("upload package fail");
                 return null;
             }
-            Gson gson = new Gson();
-            Type typeEvents = new TypeToken<UploadResponse>() { }.getType();
-            UploadResponse uploadResponse = gson.fromJson(uploadRes, typeEvents);
-            String pkgId = uploadResponse.getPackageId();
-            config.setPackageId(pkgId);
+            config.setPackageId(packageId);
             config.setCreateTime(new Date());
-            config.setLog("upload csar package success" + pkgId);
+            config.setLog("upload package success");
             vmConfigMapper.updateVmCreateConfig(config);
+            String distributeRes = HttpClientUtil.distributePkg(basePath, userId, lcmToken, config.getPackageId(), host.getMecHost(), new LcmLog());
+            if (distributeRes==null) {
+                config.setLog("distribute package fail");
+                return null;
+            }
         }
 
-        // distribute pkg
-        String distributeRes = HttpClientUtil
-            .distributePkg(basePath, userId, lcmToken, config.getPackageId(), host.getMecHost(), lcmLog);
-        LOGGER.info("distribute package result: {}", distributeRes);
-        if (distributeRes==null) {
-            config.setLog(lcmLog.getLog());
+        // get distribute pkg status
+        return getDistributeStatus(basePath, userId, lcmToken, config.getPackageId());
+    }
+
+    private String getDistributeStatus(String basePath, String userId, String lcmToken, String packageId) {
+        String distributeResult = HttpClientUtil.getDistributeRes(basePath, userId, lcmToken, packageId);
+        LOGGER.info("distribute package result: {}", distributeResult);
+        if (distributeResult==null) {
+            LOGGER.error("get distribute package status fail");
             return null;
         }
-        return distributeRes;
+        List<DistributeResponse> list = gson.fromJson(distributeResult, new TypeToken<List<DistributeResponse>>() { }.getType());
+        List<MecHostInfo> mecHostInfo = list.get(0).getMecHostInfo();
+        if (mecHostInfo==null) {
+            LOGGER.error("get distribute package status fail");
+            return null;
+        }
+        String status = mecHostInfo.get(0).getStatus();
+        return status;
+
+    }
+
+    private String uploadPackageToLcm(String basePath, String path, String userId, String lcmToken) {
+        String uploadRes = HttpClientUtil.uploadPkg(basePath, path, userId, lcmToken, new LcmLog());
+        LOGGER.info("upload package result: {}", uploadRes);
+        if (StringUtils.isEmpty(uploadRes)) {
+            LOGGER.error("upload package fail: {}", uploadRes);
+            return null;
+        }
+        UploadResponse uploadResponse = gson.fromJson(uploadRes, UploadResponse.class);
+        return  uploadResponse.getPackageId();
     }
 
     /**
@@ -1163,6 +1184,18 @@ public class VmService {
         }
         LOGGER.info("Update project status to TESTED success");
         return Either.right(true);
+    }
+
+    public boolean runOverTime(Date createTime) {
+        long time = System.currentTimeMillis() - createTime.getTime();
+        LOGGER.info("over time:{}, wait max time:{}, start time:{}", time, MAX_SECONDS,
+            createTime.getTime());
+        if (time > MAX_SECONDS * 20) {
+            String message = "get status after wait {} seconds";
+            LOGGER.error(message, MAX_SECONDS);
+            return true;
+        }
+        return false;
     }
 
 }
