@@ -136,11 +136,16 @@ public class ReleaseConfigService {
             List<ServiceDetail> list = capabilitiesDetail.getServiceDetails();
             if (!CollectionUtils.isEmpty(list)) {
                 for (ServiceDetail detail : list) {
-                    if (StringUtils.isNotEmpty(detail.getIconFileId())) {
+                    if (StringUtils.isNotEmpty(detail.getIconFileId()) || StringUtils.isNotEmpty(detail.getApiJson())
+                        || StringUtils.isNotEmpty(detail.getApiMd())) {
                         String iconFileId = detail.getIconFileId();
+                        String apiId = detail.getApiJson();
+                        String mdId = detail.getApiMd();
                         int icon = uploadedFileMapper.updateFileStatus(iconFileId, false);
-                        if (icon <= 0) {
-                            String msg = "update icon file status in service detail occur db error";
+                        int api = uploadedFileMapper.updateFileStatus(apiId, false);
+                        int md = uploadedFileMapper.updateFileStatus(mdId, false);
+                        if (icon <= 0 || api <= 0 || md <= 0) {
+                            String msg = "update icon or api or md file status in service detail occur db error";
                             return Either.left(new FormatRespDto(Response.Status.INTERNAL_SERVER_ERROR, msg));
                         }
                     }
@@ -201,11 +206,16 @@ public class ReleaseConfigService {
             List<ServiceDetail> list = capabilitiesDetail.getServiceDetails();
             if (!CollectionUtils.isEmpty(list)) {
                 for (ServiceDetail detail : list) {
-                    if (StringUtils.isNotEmpty(detail.getIconFileId())) {
+                    if (StringUtils.isNotEmpty(detail.getIconFileId()) || StringUtils.isNotEmpty(detail.getApiJson())
+                        || StringUtils.isNotEmpty(detail.getApiMd())) {
                         String iconFileId = detail.getIconFileId();
+                        String apiId = detail.getApiJson();
+                        String mdId = detail.getApiMd();
                         int icon = uploadedFileMapper.updateFileStatus(iconFileId, false);
-                        if (icon <= 0) {
-                            String msg = "update icon file status in service detail occur db error";
+                        int api = uploadedFileMapper.updateFileStatus(apiId, false);
+                        int md = uploadedFileMapper.updateFileStatus(mdId, false);
+                        if (icon <= 0 || api <= 0 || md <= 0) {
+                            String msg = "update icon or api or md file status in service detail occur db error";
                             return Either.left(new FormatRespDto(Response.Status.INTERNAL_SERVER_ERROR, msg));
                         }
                     }

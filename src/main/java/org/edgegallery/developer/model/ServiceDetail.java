@@ -53,4 +53,6 @@ public class ServiceDetail {
     private String iconFileId;
 
     private String author;
+
+    private String experienceUrl;
 }
