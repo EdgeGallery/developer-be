@@ -59,55 +59,34 @@ public class VmStageWorkStatus implements VmCreateStage {
     public boolean execute(VmCreateConfig config) throws InterruptedException {
         boolean processStatus = false;
         EnumTestConfigStatus instantiateStatus = EnumTestConfigStatus.Failed;
-        Type type = new TypeToken<MepHost>() { }.getType();
-        MepHost host = gson.fromJson(gson.toJson(config.getHost()), type);
         ApplicationProject project = projectMapper.getProjectById(config.getProjectId());
-        try {
-            Thread.sleep(10000);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            LOGGER.error("sleep fail! {}", e.getMessage());
+        if(vmService.runOverTime(config.getCreateTime())) {
+            vmService.updateCreateVmResult(config, project, "workStatus", instantiateStatus);
+            LOGGER.info("update config result:{}", config.getStatus());
+            return false;
         }
+
+        MepHost host = gson.fromJson(gson.toJson(config.getHost()), new TypeToken<MepHost>() { }.getType());
         String workStatus = HttpClientUtil
             .getWorkloadStatus(host.getProtocol(), host.getLcmIp(), host.getPort(), config.getAppInstanceId(),
                 project.getUserId(), config.getLcmToken());
         LOGGER.info("get instantiate status: {}", workStatus);
         if (workStatus == null) {
             // compare time between now and deployDate
-            long time = System.currentTimeMillis() - config.getCreateTime().getTime();
-            LOGGER.info("over time:{}, wait max time:{}, start time:{}", time, MAX_SECONDS,
-                config.getCreateTime().getTime());
-            if (config.getCreateTime() == null || time > MAX_SECONDS * 1000) {
-                String message = "Failed to get create vm result after wait {} seconds which appInstanceId is : {}";
-                LOGGER.error(message, MAX_SECONDS, config.getAppInstanceId());
-            } else {
-                return true;
-            }
+            return true;
+        }
+        JsonObject jsonObject = new JsonParser().parse(workStatus).getAsJsonObject();
+        JsonElement code = jsonObject.get("code");
+        if (code.getAsString().equals("200")) {
+            Type vmInfoType = new TypeToken<VmInstantiateInfo>() { }.getType();
+            VmInstantiateInfo vmInstantiateInfo = gson.fromJson(workStatus, vmInfoType);
+            processStatus = true;
+            instantiateStatus = EnumTestConfigStatus.Success;
+            config.setLog("get vm status success");
+            config.setVmInfo(vmInstantiateInfo.getData());
         } else {
-            JsonObject jsonObject = new JsonParser().parse(workStatus).getAsJsonObject();
-            JsonElement msg = jsonObject.get("msg");
-            JsonElement status = jsonObject.get("status");
-            if (status.getAsString().equals("Instantiated")) {
-                Type vmInfoType = new TypeToken<VmInstantiateInfo>() { }.getType();
-                VmInstantiateInfo vmInstantiateInfo = gson.fromJson(workStatus, vmInfoType);
-                processStatus = true;
-                instantiateStatus = EnumTestConfigStatus.Success;
-                config.setLog("get vm status success");
-                config.setVmInfo(vmInstantiateInfo.getData());
-            }else if(status.getAsString().equals("error")) {
-                config.setLog(msg.getAsString());
-            } else {
-                // compare time between now and deployDate
-                long time = System.currentTimeMillis() - config.getCreateTime().getTime();
-                LOGGER.info("over time:{}, wait max time:{}, start time:{}", time, MAX_SECONDS,
-                    config.getCreateTime().getTime());
-                if (config.getCreateTime() == null || time > MAX_SECONDS * 1000) {
-                    String message = "Failed to get create vm result after wait {} seconds which appInstanceId is : {}";
-                    LOGGER.error(message, MAX_SECONDS, config.getAppInstanceId());
-                } else {
-                    return true;
-                }
-            }
+            // compare time between now and deployDate
+            return true;
         }
         // update test-config
         vmService.updateCreateVmResult(config, project, "workStatus", instantiateStatus);

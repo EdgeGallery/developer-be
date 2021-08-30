@@ -17,6 +17,9 @@
 package org.edgegallery.developer.util;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.google.gson.reflect.TypeToken;
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -35,6 +38,7 @@ import org.edgegallery.developer.model.LcmLog;
 import org.edgegallery.developer.model.lcm.DistributeBody;
 import org.edgegallery.developer.model.lcm.DistributeResponse;
 import org.edgegallery.developer.model.lcm.InstantRequest;
+import org.edgegallery.developer.model.lcm.LcmResponseBody;
 import org.edgegallery.developer.model.vm.VmImageRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,6 +61,8 @@ public final class HttpClientUtil {
     private static final Logger LOGGER = LoggerFactory.getLogger(HttpClientUtil.class);
 
     private static final RestTemplate REST_TEMPLATE = new RestTemplate();
+
+    private static Gson gson = new Gson();
 
     private HttpClientUtil() {
 
@@ -149,7 +155,8 @@ public final class HttpClientUtil {
             return null;
         }
         if (response.getStatusCode() == HttpStatus.OK) {
-            return response.getBody();
+            LcmResponseBody lcmResponseBody = gson.fromJson(response.getBody(), LcmResponseBody.class);
+            return lcmResponseBody.getData().toString();
         }
         LOGGER.error("Failed to upload pkg!");
         return null;
@@ -264,7 +271,8 @@ public final class HttpClientUtil {
             return null;
         }
         if (response.getStatusCode() == HttpStatus.OK) {
-            return response.getBody();
+            LcmResponseBody lcmResponseBody = gson.fromJson(response.getBody(), LcmResponseBody.class);
+            return gson.toJson(lcmResponseBody.getData());
         }
         LOGGER.error("Failed to get distribute result!");
         return null;
@@ -319,7 +327,8 @@ public final class HttpClientUtil {
             return null;
         }
         if (response.getStatusCode() == HttpStatus.OK) {
-            return response.getBody();
+            LcmResponseBody lcmResponseBody = gson.fromJson(response.getBody(), LcmResponseBody.class);
+            return lcmResponseBody.getData().toString();
         }
         LOGGER.error("Failed to get workload status which appInstanceId is {}", appInstanceId);
         return null;
