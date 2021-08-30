@@ -84,9 +84,7 @@ public final class HttpClientUtil {
             return false;
         }
         //parse dis res
-        Gson gson = new Gson();
-        Type typeEvents = new TypeToken<List<DistributeResponse>>() { }.getType();
-        List<DistributeResponse> list = gson.fromJson(disRes, typeEvents);
+        List<DistributeResponse> list = gson.fromJson(disRes, new TypeToken<List<DistributeResponse>>() { }.getType());
         String appName = list.get(0).getAppPkgName();
         //set instantiate headers
         HttpHeaders headers = new HttpHeaders();

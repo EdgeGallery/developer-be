@@ -252,7 +252,11 @@ public class HostServiceImpl implements HostService {
 		body.setCity(host.getAddress());
 		body.setMechostIp(host.getMecHost());
 		body.setMechostName(host.getName());
-		body.setVim(host.getOs());
+		if (host.getOs().equals("OpenStack") || host.getOs().equals("FusionSphere")) {
+			body.setVim("OpenStack");
+		}else {
+			body.setVim("K8s");
+		}
 		body.setOrigin("developer");
 		// add headers
 		HttpHeaders headers = new HttpHeaders();

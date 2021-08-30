@@ -67,14 +67,21 @@ public class VmStageSelectHost implements VmCreateStage {
 
         VmPackageConfig vmPackageConfig = vmConfigMapper.getVmPackageConfig(project.getId());
         EnumTestConfigStatus hostStatus = EnumTestConfigStatus.Failed;
-        List<MepHost> enabledHosts = hostMapper
+        List<MepHost> openStackHosts = hostMapper
             .getHostsByStatus(EnumHostStatus.NORMAL, project.getPlatform().get(0), "OpenStack");
-        if (CollectionUtils.isEmpty(enabledHosts)) {
+        List<MepHost> fusionSphereHosts = hostMapper
+            .getHostsByStatus(EnumHostStatus.NORMAL, project.getPlatform().get(0), "FusionSphere");
+        if (CollectionUtils.isEmpty(openStackHosts) && CollectionUtils.isEmpty(fusionSphereHosts)) {
             processSuccess = false;
             LOGGER.error("Cannot find available hosts information");
             config.setLog("Cannot find available hosts information");
         } else {
-            MepHost host = enabledHosts.get(0);
+            if(!CollectionUtils.isEmpty(openStackHosts)) {
+                config.setHost(openStackHosts.get(0));
+            }else {
+                config.setHost(fusionSphereHosts.get(0));
+            }
+            MepHost host = config.getHost();
             MepHostLog mepHostLog = new MepHostLog();
             mepHostLog.setAppInstancesId(vmPackageConfig.getAppInstanceId());
             SimpleDateFormat time = new SimpleDateFormat("yyyy-MM-dd HH:mm");
@@ -88,7 +95,6 @@ public class VmStageSelectHost implements VmCreateStage {
             mepHostLog.setStatus(host.getStatus());
             hostLogMapper.insert(mepHostLog);
             processSuccess = true;
-            config.setHost(enabledHosts.get(0));
             hostStatus = EnumTestConfigStatus.Success;
             config.setLog("select host success");
         }
