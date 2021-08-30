@@ -624,10 +624,7 @@ public class ProjectService {
 			testConfig.setErrorLog(lcmLog.getLog());
 			return false;
 		}
-		Gson gson = new Gson();
-		Type typeEvents = new TypeToken<UploadResponse>() {
-		}.getType();
-		UploadResponse uploadResponse = gson.fromJson(uploadRes, typeEvents);
+		UploadResponse uploadResponse = gson.fromJson(uploadRes, UploadResponse.class);
 		String pkgId = uploadResponse.getPackageId();
 		testConfig.setPackageId(pkgId);
 		projectMapper.updateTestConfig(testConfig);

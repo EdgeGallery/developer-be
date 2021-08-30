@@ -85,7 +85,6 @@ public class VmStageWorkStatus implements VmCreateStage {
             config.setLog("get vm status success");
             config.setVmInfo(vmInstantiateInfo.getData());
         } else {
-            // compare time between now and deployDate
             return true;
         }
         // update test-config
