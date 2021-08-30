@@ -131,8 +131,7 @@ public class UploadFilesServiceTest {
         MultipartFile multipartFile = new MockMultipartFile("test", new byte[10]);
         Either<FormatRespDto, UploadedFile> fileStream = uploadFileService
             .uploadFile("ad66d1b6-5d29-487b-9769-be48b62aec2e", multipartFile);
-        Assert.assertTrue(fileStream.isLeft());
-        Assert.assertEquals(400, fileStream.getLeft().getErrorRespDto().getCode());
+        Assert.assertTrue(fileStream.isRight());
     }
 
     @Test
