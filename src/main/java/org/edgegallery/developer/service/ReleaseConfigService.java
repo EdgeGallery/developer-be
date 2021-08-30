@@ -65,10 +65,10 @@ import org.edgegallery.developer.model.workspace.OpenMepCapabilityGroup;
 import org.edgegallery.developer.model.workspace.ProjectTestConfig;
 import org.edgegallery.developer.model.workspace.UploadedFile;
 import org.edgegallery.developer.response.FormatRespDto;
+import org.edgegallery.developer.util.AtpUtil;
 import org.edgegallery.developer.util.CompressFileUtils;
 import org.edgegallery.developer.util.CompressFileUtilsJava;
 import org.edgegallery.developer.util.InitConfigUtil;
-import org.edgegallery.developer.util.AtpUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -131,6 +131,22 @@ public class ReleaseConfigService {
             FormatRespDto dto = new FormatRespDto(Response.Status.INTERNAL_SERVER_ERROR, "save config data fail");
             return Either.left(dto);
         }
+        CapabilitiesDetail capabilitiesDetail = config.getCapabilitiesDetail();
+        if (capabilitiesDetail != null) {
+            List<ServiceDetail> list = capabilitiesDetail.getServiceDetails();
+            if (!CollectionUtils.isEmpty(list)) {
+                for (ServiceDetail detail : list) {
+                    if (StringUtils.isNotEmpty(detail.getIconFileId())) {
+                        String iconFileId = detail.getIconFileId();
+                        int icon = uploadedFileMapper.updateFileStatus(iconFileId, false);
+                        if (icon <= 0) {
+                            String msg = "update icon file status in service detail occur db error";
+                            return Either.left(new FormatRespDto(Response.Status.INTERNAL_SERVER_ERROR, msg));
+                        }
+                    }
+                }
+            }
+        }
 
         ApplicationProject applicationProject = projectMapper.getProjectById(projectId);
         if (!CollectionUtils.isEmpty(applicationProject.getCapabilityList()) || !CapabilitiesDetail
@@ -180,6 +196,23 @@ public class ReleaseConfigService {
             return Either.left(dto);
         }
 
+        CapabilitiesDetail capabilitiesDetail = config.getCapabilitiesDetail();
+        if (capabilitiesDetail != null) {
+            List<ServiceDetail> list = capabilitiesDetail.getServiceDetails();
+            if (!CollectionUtils.isEmpty(list)) {
+                for (ServiceDetail detail : list) {
+                    if (StringUtils.isNotEmpty(detail.getIconFileId())) {
+                        String iconFileId = detail.getIconFileId();
+                        int icon = uploadedFileMapper.updateFileStatus(iconFileId, false);
+                        if (icon <= 0) {
+                            String msg = "update icon file status in service detail occur db error";
+                            return Either.left(new FormatRespDto(Response.Status.INTERNAL_SERVER_ERROR, msg));
+                        }
+                    }
+                }
+            }
+        }
+
         ApplicationProject applicationProject = projectMapper.getProjectById(projectId);
         if (!CollectionUtils.isEmpty(applicationProject.getCapabilityList()) || !CapabilitiesDetail
             .isEmpty(config.getCapabilitiesDetail()) || !StringUtils.isEmpty(config.getGuideFileId())) {
@@ -223,12 +256,12 @@ public class ReleaseConfigService {
             FormatRespDto dto = new FormatRespDto(Response.Status.BAD_REQUEST, "token is null");
             return Either.left(dto);
         }
-        if (oldConfig==null) {
+        if (oldConfig == null) {
             return Either.right(null);
         }
         // update atp test status
-        if (oldConfig.getAtpTest()!=null && oldConfig.getAtpTest().getStatus().equals("created")
-            && oldConfig.getAtpTest().getStatus().equals("waiting") && oldConfig.getAtpTest().getStatus().equals("running")) {
+        if (oldConfig.getAtpTest() != null && oldConfig.getAtpTest().getStatus().equals("created") && oldConfig
+            .getAtpTest().getStatus().equals("waiting") && oldConfig.getAtpTest().getStatus().equals("running")) {
             AtpResultInfo atpResultInfo = oldConfig.getAtpTest();
             String taskId = atpResultInfo.getId();
             atpResultInfo.setStatus(AtpUtil.getTaskStatusFromAtp(taskId, token));
@@ -243,7 +276,6 @@ public class ReleaseConfigService {
         }
         return Either.right(oldConfig);
     }
-
 
     /**
      * rebuildCsar.
