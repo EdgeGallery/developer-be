@@ -288,7 +288,7 @@ public class WebSshServiceImpl implements WebSshService {
                     namespace = names[0];
                 }
             }
-            if (namespace.equals("")) {
+            if (namespace.equals("") && !list.get(0).getPodstatus().equals("Running")) {
                 logger.warn("namespace in pods is empty!");
                 return;
             }
