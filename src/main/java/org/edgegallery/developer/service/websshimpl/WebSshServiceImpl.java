@@ -35,7 +35,6 @@ import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import org.apache.commons.io.IOUtils;
 import org.edgegallery.developer.mapper.HostMapper;
 import org.edgegallery.developer.mapper.ProjectMapper;
 import org.edgegallery.developer.mapper.VmConfigMapper;
@@ -302,21 +301,20 @@ public class WebSshServiceImpl implements WebSshService {
 
         //Read the information flow returned by the terminal
         InputStream inputStream = channel.getInputStream();
-        // String command = IOUtils.toString(inputStream, StandardCharsets.UTF_8);
-        // logger.warn("input command: {}", command);
-        // if (command.equals("exit\r") || command.equals("exit") || command.equals("exit\n\r")) {
-        //     session.disconnect();
-        //     channel.disconnect();
-        //     inputStream.close();
-        // }
         try {
             //Loop reading
             byte[] buffer = new byte[1024];
             int i = 0;
             //If there is no data to come，The thread will always be blocked in this place waiting for data。
             while ((i = inputStream.read(buffer)) != -1) {
+                //  logger.warn(inputStream);
+                byte[] readBuffer = Arrays.copyOfRange(buffer, 0, i);
+                logger.warn("read byte array length: {}", readBuffer.length);
+                String toStr = new String(readBuffer, StandardCharsets.UTF_8);
+                logger.warn("read byte array to String: {}", toStr);
                 sendMessage(webSocketSession, Arrays.copyOfRange(buffer, 0, i));
             }
+
         } finally {
             //Close the session after disconnecting
             session.disconnect();
