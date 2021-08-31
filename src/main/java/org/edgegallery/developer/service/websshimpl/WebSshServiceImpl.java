@@ -23,12 +23,13 @@ import com.jcraft.jsch.Channel;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -301,18 +302,24 @@ public class WebSshServiceImpl implements WebSshService {
 
         //Read the information flow returned by the terminal
         InputStream inputStream = channel.getInputStream();
+        BufferedReader br = null;
+        InputStreamReader ir = null;
         try {
             //Loop reading
-            byte[] buffer = new byte[1024];
-            int i = 0;
+            // byte[] buffer = new byte[1024];
+            // int i = 0;
+            br = new BufferedReader(ir);
             //If there is no data to come，The thread will always be blocked in this place waiting for data。
-            while ((i = inputStream.read(buffer)) != -1) {
+            String readContent;
+            while ((readContent = br.readLine()) != null) {
                 //  logger.warn(inputStream);
-                byte[] readBuffer = Arrays.copyOfRange(buffer, 0, i);
-                logger.warn("read byte array length: {}", readBuffer.length);
-                String toStr = new String(readBuffer, StandardCharsets.UTF_8);
-                logger.warn("read byte array to String: {}", toStr);
-                sendMessage(webSocketSession, Arrays.copyOfRange(buffer, 0, i));
+                logger.warn("read byte array to String: {}", readContent);
+                // byte[] readBuffer = Arrays.copyOfRange(buffer, 0, i);
+                // logger.warn("read byte array length: {}", readBuffer.length);
+                // String toStr = new String(readBuffer, StandardCharsets.UTF_8);
+                // logger.warn("read byte array to String: {}", toStr);
+                //sendMessage(webSocketSession, Arrays.copyOfRange(buffer, 0, i));
+                sendMessage(webSocketSession, readContent.getBytes(StandardCharsets.UTF_8));
             }
 
         } finally {
@@ -321,6 +328,12 @@ public class WebSshServiceImpl implements WebSshService {
             channel.disconnect();
             if (inputStream != null) {
                 inputStream.close();
+            }
+            if (br != null) {
+                br.close();
+            }
+            if (ir != null) {
+                ir.close();
             }
         }
 
