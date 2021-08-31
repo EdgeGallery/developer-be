@@ -302,13 +302,13 @@ public class WebSshServiceImpl implements WebSshService {
 
         //Read the information flow returned by the terminal
         InputStream inputStream = channel.getInputStream();
-        String command = IOUtils.toString(inputStream, StandardCharsets.UTF_8);
-        logger.warn("input command: {}", command);
-        if (command.equals("exit\r") || command.equals("exit") || command.equals("exit\n\r")) {
-            session.disconnect();
-            channel.disconnect();
-            inputStream.close();
-        }
+        // String command = IOUtils.toString(inputStream, StandardCharsets.UTF_8);
+        // logger.warn("input command: {}", command);
+        // if (command.equals("exit\r") || command.equals("exit") || command.equals("exit\n\r")) {
+        //     session.disconnect();
+        //     channel.disconnect();
+        //     inputStream.close();
+        // }
         try {
             //Loop reading
             byte[] buffer = new byte[1024];
