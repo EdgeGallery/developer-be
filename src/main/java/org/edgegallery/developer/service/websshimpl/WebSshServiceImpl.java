@@ -270,12 +270,29 @@ public class WebSshServiceImpl implements WebSshService {
                 logger.warn("pods is empty!");
                 return;
             }
-            String podName = podStatusInfos.getPods().get(0).getPodname();
+            String podName = list.get(0).getPodname();
             if (StringUtils.isEmpty(podName)) {
                 logger.warn("podName in pods is empty!");
                 return;
             }
-            String enterPodCommand = "kubectl exec -it " + podName + " -- sh";
+            String[] eventsInfo = list.get(0).getPodEventsInfo();
+            if (eventsInfo == null || eventsInfo.length == 0) {
+                logger.warn("eventsInfo in pods is empty!");
+                return;
+            }
+            String namespace = "";
+            for (String event : eventsInfo) {
+                if (event.contains("Successfully")) {
+                    String[] events = event.split(" ");
+                    String[] names = events[2].split("/");
+                    namespace = names[0];
+                }
+            }
+            if (namespace.equals("")) {
+                logger.warn("namespace in pods is empty!");
+                return;
+            }
+            String enterPodCommand = "kubectl exec -it " + podName + " -n " + namespace + " -- sh";
             transToSsh(channel, enterPodCommand);
             transToSsh(channel, "\r");
         } else {
@@ -285,6 +302,13 @@ public class WebSshServiceImpl implements WebSshService {
 
         //Read the information flow returned by the terminal
         InputStream inputStream = channel.getInputStream();
+        String command = IOUtils.toString(inputStream, StandardCharsets.UTF_8);
+        logger.warn("input command: {}", command);
+        if (command.equals("exit\r") || command.equals("exit") || command.equals("exit\n\r")) {
+            session.disconnect();
+            channel.disconnect();
+            inputStream.close();
+        }
         try {
             //Loop reading
             byte[] buffer = new byte[1024];
@@ -293,14 +317,6 @@ public class WebSshServiceImpl implements WebSshService {
             while ((i = inputStream.read(buffer)) != -1) {
                 sendMessage(webSocketSession, Arrays.copyOfRange(buffer, 0, i));
             }
-            String command = IOUtils.toString(inputStream, StandardCharsets.UTF_8);
-            logger.warn("input command: {}", command);
-            if (command.equals("exit\r") || command.equals("exit") || command.equals("exit\n\r")) {
-                session.disconnect();
-                channel.disconnect();
-                inputStream.close();
-            }
-
         } finally {
             //Close the session after disconnecting
             session.disconnect();
