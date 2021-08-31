@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Type;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -34,16 +35,18 @@ import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import org.apache.commons.io.IOUtils;
 import org.edgegallery.developer.mapper.HostMapper;
 import org.edgegallery.developer.mapper.ProjectMapper;
 import org.edgegallery.developer.mapper.VmConfigMapper;
 import org.edgegallery.developer.model.SshConnectInfo;
 import org.edgegallery.developer.model.WebSshData;
+import org.edgegallery.developer.model.deployyaml.PodStatusInfo;
+import org.edgegallery.developer.model.deployyaml.PodStatusInfos;
 import org.edgegallery.developer.model.vm.EnumVmCreateStatus;
 import org.edgegallery.developer.model.vm.NetworkInfo;
 import org.edgegallery.developer.model.vm.VmCreateConfig;
 import org.edgegallery.developer.model.vm.VmInfo;
-import org.edgegallery.developer.model.vm.VmNetwork;
 import org.edgegallery.developer.model.workspace.ApplicationProject;
 import org.edgegallery.developer.model.workspace.EnumDeployPlatform;
 import org.edgegallery.developer.model.workspace.MepHost;
@@ -57,6 +60,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 
@@ -251,9 +255,33 @@ public class WebSshServiceImpl implements WebSshService {
 
         //Set upchannel
         sshConnectInfo.setChannel(channel);
-
-        //Forward message
-        transToSsh(channel, "\r");
+        if (project.getDeployPlatform() == EnumDeployPlatform.KUBERNETES) {
+            List<ProjectTestConfig> testConfigList = projectMapper.getTestConfigByProjectId(projectId);
+            ProjectTestConfig testConfig = testConfigList.get(0);
+            if (testConfig == null || StringUtils.isEmpty(testConfig.getPods())) {
+                logger.warn("testconfig is null or don't have pods!");
+                return;
+            }
+            String pods = testConfig.getPods();
+            Type type = new TypeToken<PodStatusInfos>() { }.getType();
+            PodStatusInfos podStatusInfos = gson.fromJson(pods, type);
+            List<PodStatusInfo> list = podStatusInfos.getPods();
+            if (CollectionUtils.isEmpty(list)) {
+                logger.warn("pods is empty!");
+                return;
+            }
+            String podName = podStatusInfos.getPods().get(0).getPodname();
+            if (StringUtils.isEmpty(podName)) {
+                logger.warn("podName in pods is empty!");
+                return;
+            }
+            String enterPodCommand = "kubectl exec -it " + podName + " -- sh";
+            transToSsh(channel, enterPodCommand);
+            transToSsh(channel, "\r");
+        } else {
+            //Forward message
+            transToSsh(channel, "\r");
+        }
 
         //Read the information flow returned by the terminal
         InputStream inputStream = channel.getInputStream();
@@ -264,6 +292,13 @@ public class WebSshServiceImpl implements WebSshService {
             //If there is no data to come，The thread will always be blocked in this place waiting for data。
             while ((i = inputStream.read(buffer)) != -1) {
                 sendMessage(webSocketSession, Arrays.copyOfRange(buffer, 0, i));
+            }
+            String command = IOUtils.toString(inputStream, StandardCharsets.UTF_8);
+            logger.warn("input command: {}", command);
+            if (command.equals("exit\r") || command.equals("exit") || command.equals("exit\n\r")) {
+                session.disconnect();
+                channel.disconnect();
+                inputStream.close();
             }
 
         } finally {
