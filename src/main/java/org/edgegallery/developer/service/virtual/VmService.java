@@ -372,7 +372,13 @@ public class VmService {
         String basePath = HttpClientUtil.getUrlPrefix(host.getProtocol(), host.getLcmIp(), host.getPort());
         LcmLog lcmLog = new LcmLog();
         // instantiate application
-        Map<String, String> vmInputParams = getInputParams(host.getParameter(), host.getMecHost());
+        Map<String, String> vmInputParams;
+        try {
+            vmInputParams = getInputParams(host.getParameter(), host.getMecHost());
+        }catch (Exception e) {
+            LOGGER.error("network params error");
+            return false;
+        }
         String appInstanceId = vmConfig.getAppInstanceId();
         boolean instantRes = HttpClientUtil
             .instantiateApplication(basePath, appInstanceId, userId, lcmToken, lcmLog, vmConfig.getPackageId(), host.getMecHost(),
