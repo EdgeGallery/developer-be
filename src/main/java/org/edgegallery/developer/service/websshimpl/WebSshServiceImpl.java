@@ -305,20 +305,18 @@ public class WebSshServiceImpl implements WebSshService {
 
         //Read the information flow returned by the terminal
         InputStream inputStream = channel.getInputStream();
-        Scanner s = new Scanner(inputStream).useDelimiter("\\A");
-        String resultOther = s.hasNext() ? s.next() : "";
-        logger.warn("resultOther: {}", resultOther);
-        String result = IOUtils.toString(inputStream, StandardCharsets.UTF_8);
-        logger.warn("result: {}", result);
         try {
             //Loop reading
             byte[] buffer = new byte[1024];
             int i = 0;
             //If there is no data to come，The thread will always be blocked in this place waiting for data。
             while ((i = inputStream.read(buffer)) != -1) {
+                String allChar ="";
                 byte[] readBuffer = Arrays.copyOfRange(buffer, 0, i);
                 String toStr = new String(readBuffer, StandardCharsets.UTF_8);
+                allChar = allChar+toStr;
                 logger.warn("read byte array to String: {}", toStr);
+                logger.warn("allChar: {}", allChar);
                 sendMessage(webSocketSession, Arrays.copyOfRange(buffer, 0, i));
             }
         } finally {
