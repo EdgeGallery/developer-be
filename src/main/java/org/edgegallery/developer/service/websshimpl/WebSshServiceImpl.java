@@ -305,15 +305,15 @@ public class WebSshServiceImpl implements WebSshService {
             //Loop reading
             byte[] buffer = new byte[1024];
             int i = 0;
-            StringBuilder allChar = new StringBuilder();
             //If there is no data to come，The thread will always be blocked in this place waiting for data。
             while ((i = inputStream.read(buffer)) != -1) {
                 byte[] readBuffer = Arrays.copyOfRange(buffer, 0, i);
                 String toStr = new String(readBuffer, StandardCharsets.UTF_8);
-                allChar.append(toStr);
+                String newStr = new String(buffer, 0, i);
+                logger.warn("toStr: {}", toStr);
+                logger.warn("newStr: {}", newStr);
                 sendMessage(webSocketSession, Arrays.copyOfRange(buffer, 0, i));
             }
-            logger.warn("allChar: {}", allChar.toString());
         } finally {
             //Close the session after disconnecting
             session.disconnect();
