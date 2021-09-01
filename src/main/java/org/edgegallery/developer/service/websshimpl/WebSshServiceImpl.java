@@ -30,6 +30,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -302,38 +303,26 @@ public class WebSshServiceImpl implements WebSshService {
 
         //Read the information flow returned by the terminal
         InputStream inputStream = channel.getInputStream();
-        BufferedReader br = null;
-        InputStreamReader ir = null;
         try {
             //Loop reading
-            // byte[] buffer = new byte[1024];
-            // int i = 0;
-            br = new BufferedReader(ir);
+            byte[] buffer = new byte[1024];
+            int i = 0;
             //If there is no data to come，The thread will always be blocked in this place waiting for data。
-            String readContent;
-            while ((readContent = br.readLine()) != null) {
-                //  logger.warn(inputStream);
-                logger.warn("read byte array to String: {}", readContent);
-                // byte[] readBuffer = Arrays.copyOfRange(buffer, 0, i);
-                // logger.warn("read byte array length: {}", readBuffer.length);
-                // String toStr = new String(readBuffer, StandardCharsets.UTF_8);
-                // logger.warn("read byte array to String: {}", toStr);
-                //sendMessage(webSocketSession, Arrays.copyOfRange(buffer, 0, i));
-                sendMessage(webSocketSession, readContent.getBytes(StandardCharsets.UTF_8));
+            StringBuilder sb = new StringBuilder();
+            while ((i = inputStream.read(buffer)) != -1) {
+                byte[] readBuffer = Arrays.copyOfRange(buffer, 0, i);
+                String toStr = new String(readBuffer, StandardCharsets.UTF_8);
+                logger.warn("read byte array to String: {}", toStr);
+                sb.append(toStr);
+                sendMessage(webSocketSession, Arrays.copyOfRange(buffer, 0, i));
             }
-
+            logger.warn("sb: {}", sb.toString());
         } finally {
             //Close the session after disconnecting
             session.disconnect();
             channel.disconnect();
             if (inputStream != null) {
                 inputStream.close();
-            }
-            if (br != null) {
-                br.close();
-            }
-            if (ir != null) {
-                ir.close();
             }
         }
 
