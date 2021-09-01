@@ -23,10 +23,8 @@ import com.jcraft.jsch.Channel;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
@@ -34,11 +32,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Scanner;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import org.apache.commons.io.IOUtils;
 import org.edgegallery.developer.mapper.HostMapper;
 import org.edgegallery.developer.mapper.ProjectMapper;
 import org.edgegallery.developer.mapper.VmConfigMapper;
@@ -309,16 +305,15 @@ public class WebSshServiceImpl implements WebSshService {
             //Loop reading
             byte[] buffer = new byte[1024];
             int i = 0;
+            StringBuilder allChar = new StringBuilder();
             //If there is no data to come，The thread will always be blocked in this place waiting for data。
             while ((i = inputStream.read(buffer)) != -1) {
-                String allChar ="";
                 byte[] readBuffer = Arrays.copyOfRange(buffer, 0, i);
                 String toStr = new String(readBuffer, StandardCharsets.UTF_8);
-                allChar = allChar+toStr;
-                logger.warn("read byte array to String: {}", toStr);
-                logger.warn("allChar: {}", allChar);
+                allChar.append(toStr);
                 sendMessage(webSocketSession, Arrays.copyOfRange(buffer, 0, i));
             }
+            logger.warn("allChar: {}", allChar.toString());
         } finally {
             //Close the session after disconnecting
             session.disconnect();
