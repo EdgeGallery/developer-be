@@ -308,7 +308,7 @@ public class WebSshServiceImpl implements WebSshService {
             int i = 0;
             //If there is no data to come，The thread will always be blocked in this place waiting for data。
             while ((i = inputStream.read(buffer)) != -1) {
-                String cmd = new String(Arrays.copyOfRange(buffer, 0, i), StandardCharsets.UTF_8));
+                String cmd = new String(Arrays.copyOfRange(buffer, 0, i), StandardCharsets.UTF_8);
                 logger.warn("cmd: {}", cmd);
                 sendMessage(webSocketSession, Arrays.copyOfRange(buffer, 0, i));
             }
