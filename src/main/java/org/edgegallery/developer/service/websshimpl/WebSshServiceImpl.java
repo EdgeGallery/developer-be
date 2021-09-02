@@ -309,7 +309,7 @@ public class WebSshServiceImpl implements WebSshService {
             StringBuilder sb = new StringBuilder();
             //If there is no data to come，The thread will always be blocked in this place waiting for data。
             while ((i = inputStream.read(buffer)) != -1) {
-                sb.append((char)i);
+                sb.append(new String(buffer, 0, i));
                 sendMessage(webSocketSession, Arrays.copyOfRange(buffer, 0, i));
             }
             logger.warn("out: {}",sb.toString());
