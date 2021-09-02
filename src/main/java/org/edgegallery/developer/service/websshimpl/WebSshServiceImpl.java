@@ -23,11 +23,11 @@ import com.jcraft.jsch.Channel;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Type;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -306,13 +306,12 @@ public class WebSshServiceImpl implements WebSshService {
             //Loop reading
             byte[] buffer = new byte[1024];
             int i = 0;
-            StringBuilder sb = new StringBuilder();
             //If there is no data to come，The thread will always be blocked in this place waiting for data。
             while ((i = inputStream.read(buffer)) != -1) {
-                sb.append(new String(buffer, 0, i));
+                String cmd = new String(Arrays.copyOfRange(buffer, 0, i), StandardCharsets.UTF_8));
+                logger.warn("cmd: {}", cmd);
                 sendMessage(webSocketSession, Arrays.copyOfRange(buffer, 0, i));
             }
-            logger.warn("out: {}",sb.toString());
 
         } finally {
             //Close the session after disconnecting
