@@ -281,7 +281,7 @@ public class WebSshServiceImpl implements WebSshService {
             }
             String namespace = "";
             for (String event : eventsInfo) {
-                if (event.contains("Successfully")) {
+                if (event.contains("assigned")) {
                     String[] events = event.split(" ");
                     String[] names = events[2].split("/");
                     namespace = names[0];
@@ -292,6 +292,7 @@ public class WebSshServiceImpl implements WebSshService {
                 return;
             }
             String enterPodCommand = "kubectl exec -it " + podName + " -n " + namespace + " -- sh";
+            transToSsh(channel, "\r");
             transToSsh(channel, enterPodCommand);
             transToSsh(channel, "\r");
         } else {
@@ -305,17 +306,13 @@ public class WebSshServiceImpl implements WebSshService {
             //Loop reading
             byte[] buffer = new byte[1024];
             int i = 0;
+            StringBuilder sb = new StringBuilder();
             //If there is no data to come，The thread will always be blocked in this place waiting for data。
             while ((i = inputStream.read(buffer)) != -1) {
+                sb.append((char)i);
                 sendMessage(webSocketSession, Arrays.copyOfRange(buffer, 0, i));
             }
-            OutputStream outputStream = channel.getOutputStream();
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            outputStream.write(baos.toByteArray());
-            String outputInfo = baos.toString();
-            logger.warn("outputInfo: {}", outputInfo);
-            outputStream.flush();
-            outputStream.close();
+            logger.warn("out: {}",sb.toString());
 
         } finally {
             //Close the session after disconnecting
