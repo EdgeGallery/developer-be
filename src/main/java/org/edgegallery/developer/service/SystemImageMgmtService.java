@@ -6,7 +6,10 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -313,6 +316,29 @@ public class SystemImageMgmtService {
         return ResponseEntity.ok().build();
     }
 
+    public List<Integer> checkUploadedChunks(Integer systemId, String identifier) {
+        LOGGER.info("check uploaded chunks, systemId = {}, identifier = {}", systemId, identifier);
+        String rootDir = getUploadSysImageRootDir(systemId);
+        String partFilePath = rootDir + identifier;
+        File partFileDir = new File(partFilePath);
+        if (!partFileDir.exists() || !partFileDir.isDirectory()) {
+            return Collections.emptyList();
+        }
+
+        File[] partFiles = partFileDir.listFiles();
+        if (partFiles == null || partFiles.length == 0) {
+            return Collections.emptyList();
+        }
+
+        List<Integer> uploadedChunks = new ArrayList<>();
+        for (int i = 1; i <= partFiles.length - Consts.UPLOAD_CONCURRENT_COUNT; i++) {
+            uploadedChunks.add(i);
+        }
+
+        LOGGER.info("uploadedChunks = {}", uploadedChunks);
+        return uploadedChunks;
+    }
+
     /**
      * cancel upload system image.
      *
@@ -321,7 +347,7 @@ public class SystemImageMgmtService {
      * @return Resposne
      */
     public ResponseEntity cancelUploadSystemImage(Integer systemId, String identifier) {
-        LOGGER.info("cancel upload system image file, systemId = {}, ", systemId);
+        LOGGER.info("cancel upload system image file, systemId = {}", systemId);
         VmSystem vmSystemImage = systemImageMapper.getVmImage(systemId);
         if (EnumSystemImageStatus.UPLOADING_MERGING == vmSystemImage.getStatus()) {
             LOGGER.error("system image is merging, it cannot be cancelled.");
