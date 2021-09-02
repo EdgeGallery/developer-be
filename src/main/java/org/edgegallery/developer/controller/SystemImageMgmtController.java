@@ -194,6 +194,23 @@ public class SystemImageMgmtController {
     }
 
     /**
+     * check chunk for upload system image.
+     */
+    @ApiOperation(value = "check chunk for upload system image", response = ResponseEntity.class)
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = "OK", response = ResponseEntity.class),
+        @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
+    })
+    @RequestMapping(value = "/images/{systemId}/upload", method = RequestMethod.GET)
+    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
+    public ResponseEntity checkChunkForUploadSystemImage(
+        @RequestParam(value = "identifier", required = false) String identifier,
+        @ApiParam(value = "systemId", required = true) @PathVariable("systemId") Integer systemId) throws IOException {
+        LOGGER.info("check chunk for upload system image file, systemId = {}, identifier = {}", systemId, identifier);
+        return ResponseEntity.ok(systemImageMgmtService.checkUploadedChunks(systemId, identifier));
+    }
+
+    /**
      * cancel upload system image.
      */
     @ApiOperation(value = "cancel upload system image", response = ResponseEntity.class)
