@@ -309,7 +309,7 @@ public class WebSshServiceImpl implements WebSshService {
             while ((i = inputStream.read(buffer)) != -1) {
                 byte[] readBuffer = Arrays.copyOfRange(buffer, 0, i);
                 String toStr = new String(readBuffer, StandardCharsets.UTF_8);
-                String newStr = new String(buffer, 0, i);
+                String newStr = new String(buffer);
                 logger.warn("toStr: {}", toStr);
                 logger.warn("newStr: {}", newStr);
                 sendMessage(webSocketSession, Arrays.copyOfRange(buffer, 0, i));
