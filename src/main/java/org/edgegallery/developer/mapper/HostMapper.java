@@ -20,7 +20,7 @@ import java.util.List;
 import org.apache.ibatis.annotations.Param;
 import org.edgegallery.developer.model.workspace.EnumHostStatus;
 import org.edgegallery.developer.model.workspace.MepCreateHost;
-import org.edgegallery.developer.model.workspace.MepHost;
+import org.edgegallery.developer.model.resource.MepHost;
 
 public interface HostMapper {
 

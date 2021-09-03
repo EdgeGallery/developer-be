@@ -14,13 +14,14 @@
  *    limitations under the License.
  */
 
-package org.edgegallery.developer.model.workspace;
+package org.edgegallery.developer.model.resource;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
+import org.edgegallery.developer.model.workspace.EnumHostStatus;
 import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.Range;
 

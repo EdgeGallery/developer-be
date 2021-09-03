@@ -177,7 +177,7 @@ definitions:
       portRangeMax:
         type: "integer"
         format: "int32"
-    x-java-class: "org.edgegallery.developer.model.workspace.MepHost"
+    x-java-class: "org.edgegallery.developer.model.resource.MepHost"
   ErrorRespDto:
     type: "object"
     properties:

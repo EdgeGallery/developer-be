@@ -1,5 +1,5 @@
 /*
- *    Copyright 2020 Huawei Technologies Co., Ltd.
+ *    Copyright 2021 Huawei Technologies Co., Ltd.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -14,28 +14,25 @@
  *    limitations under the License.
  */
 
-package org.edgegallery.developer.model;
+package org.edgegallery.developer.model.application.vm;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
-@Setter
 @Getter
-@JsonInclude(JsonInclude.Include.NON_NULL)
-public class TrafficRule {
+@Setter
+@ToString
+public class VMCertificate {
 
-    private String trafficRuleId;
+    public static final String CERTIFICATE_TYPE_PWD = "PASSWORD";
 
-    private String action;
+    public static final String CERTIFICATE_TYPE_KEYPAIR = "KEYPAIR";
 
-    private String priority;
+    // certificateType can be PASSWORD/KEYPAIR
+    private String certificateType;
 
-    private String filterType;
+    private PwdCertificate pwdCertificate;
 
-    private List<TrafficFilter> trafficFilter;
-
-    private List<DstInterface> dstInterface;
-
+    private KeyPairCertificate keyPairCertificate;
 }

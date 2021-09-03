@@ -1,5 +1,5 @@
 /*
- *    Copyright 2020 Huawei Technologies Co., Ltd.
+ *    Copyright 2021 Huawei Technologies Co., Ltd.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -14,16 +14,18 @@
  *    limitations under the License.
  */
 
-package org.edgegallery.developer.model.workspace;
+package org.edgegallery.developer.model.application.configuration;
 
-import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
-import org.edgegallery.developer.model.resource.MepHost;
+import lombok.ToString;
 
 @Getter
 @Setter
-public class MepHosts {
+@ToString
+public class AppCertificate {
 
-    private List<MepHost> values;
+    private String ak;
+
+    private String sk;
 }

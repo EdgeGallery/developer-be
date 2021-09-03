@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.edgegallery.developer.domain.shared.Page;
 import org.edgegallery.developer.model.workspace.MepCreateHost;
-import org.edgegallery.developer.model.workspace.MepHost;
+import org.edgegallery.developer.model.resource.MepHost;
 import org.edgegallery.developer.model.workspace.MepHostLog;
 import org.edgegallery.developer.response.FormatRespDto;
 

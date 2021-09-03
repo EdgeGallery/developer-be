@@ -29,7 +29,7 @@ import org.edgegallery.developer.model.deployyaml.ServiceInfo;
 import org.edgegallery.developer.model.deployyaml.ServicePort;
 import org.edgegallery.developer.model.workspace.ApplicationProject;
 import org.edgegallery.developer.model.workspace.EnumTestConfigStatus;
-import org.edgegallery.developer.model.workspace.MepHost;
+import org.edgegallery.developer.model.resource.MepHost;
 import org.edgegallery.developer.model.workspace.ProjectTestConfig;
 import org.edgegallery.developer.service.ProjectService;
 import org.edgegallery.developer.util.HttpClientUtil;

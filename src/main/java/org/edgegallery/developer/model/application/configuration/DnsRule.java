@@ -14,16 +14,25 @@
  *    limitations under the License.
  */
 
-package org.edgegallery.developer.model.workspace;
+package org.edgegallery.developer.model.application.configuration;
 
-import java.util.List;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Getter;
 import lombok.Setter;
-import org.edgegallery.developer.model.resource.MepHost;
 
-@Getter
 @Setter
-public class MepHosts {
+@Getter
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public class DnsRule {
 
-    private List<MepHost> values;
+    private String dnsRuleId;
+
+    private String domainName;
+
+    private String ipAddressType;
+
+    private String ipAddress;
+
+    private String ttl;
+
 }

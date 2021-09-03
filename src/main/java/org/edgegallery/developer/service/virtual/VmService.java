@@ -77,7 +77,7 @@ import org.edgegallery.developer.model.vm.VmUserData;
 import org.edgegallery.developer.model.workspace.ApplicationProject;
 import org.edgegallery.developer.model.workspace.EnumProjectStatus;
 import org.edgegallery.developer.model.workspace.EnumTestConfigStatus;
-import org.edgegallery.developer.model.workspace.MepHost;
+import org.edgegallery.developer.model.resource.MepHost;
 import org.edgegallery.developer.response.FormatRespDto;
 import org.edgegallery.developer.service.EncryptedService;
 import org.edgegallery.developer.service.ProjectService;
@@ -101,7 +101,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
-import org.stringtemplate.v4.ST;
 
 @Service("vmService")
 public class VmService {

@@ -22,6 +22,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.edgegallery.developer.model.application.configuration.DnsRule;
+import org.edgegallery.developer.model.application.configuration.TrafficRule;
 
 @NoArgsConstructor
 @ToString

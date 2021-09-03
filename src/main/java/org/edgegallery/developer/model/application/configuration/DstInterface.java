@@ -14,16 +14,24 @@
  *    limitations under the License.
  */
 
-package org.edgegallery.developer.model.workspace;
+package org.edgegallery.developer.model.application.configuration;
 
-import java.util.List;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Getter;
 import lombok.Setter;
-import org.edgegallery.developer.model.resource.MepHost;
 
 @Getter
 @Setter
-public class MepHosts {
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public class DstInterface {
 
-    private List<MepHost> values;
+    private String interfaceType;
+
+    private String srcMacAddress;
+
+    private String dstMacAddress;
+
+    private String dstIpAddress;
+
+    private TunnelInfo tunnelInfo;
 }
