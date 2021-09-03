@@ -25,7 +25,7 @@ import org.edgegallery.developer.model.application.configuration.AppConfiguratio
 @Getter
 @Setter
 @ToString
-public abstract class Application {
+public class Application {
 
     private String id;
 

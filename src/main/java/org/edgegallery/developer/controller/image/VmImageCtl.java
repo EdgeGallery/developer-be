@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
 @RestSchema(schemaId = "vmImage")
-@RequestMapping("/mec/developer/v2/image/vm")
+@RequestMapping("/mec/developer/v2/vmimages")
 @Api(tags = "vmImage")
 public class VmImageCtl {
     @Autowired
