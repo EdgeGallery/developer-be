@@ -294,9 +294,7 @@ public class WebSshServiceImpl implements WebSshService {
                 return;
             }
             String enterPodCommand = "kubectl exec -it " + podName + " -n " + namespace + " -- sh";
-            transToSsh(channel, "\r");
-            transToSsh(channel, enterPodCommand);
-            transToSsh(channel, "\r");
+            transToSsh(channel, enterPodCommand+"\r");
         } else {
             //Forward message
             transToSsh(channel, "\r");
