@@ -254,6 +254,7 @@ public class WebSshServiceImpl implements WebSshService {
 
         //Set upchannel
         sshConnectInfo.setChannel(channel);
+        String hostName="";
         if (project.getDeployPlatform() == EnumDeployPlatform.KUBERNETES) {
             List<ProjectTestConfig> testConfigList = projectMapper.getTestConfigByProjectId(projectId);
             ProjectTestConfig testConfig = testConfigList.get(0);
@@ -285,6 +286,7 @@ public class WebSshServiceImpl implements WebSshService {
                     String[] events = event.split(" ");
                     String[] names = events[2].split("/");
                     namespace = names[0];
+                    hostName = events[events.length-1];
                 }
             }
             if (namespace.equals("") && !list.get(0).getPodstatus().equals("Running")) {
@@ -310,11 +312,9 @@ public class WebSshServiceImpl implements WebSshService {
             while ((i = inputStream.read(buffer)) != -1) {
                 String cmd = new String(Arrays.copyOfRange(buffer, 0, i), StandardCharsets.UTF_8);
                 logger.warn("cmd: {}", cmd);
-                String exitCmd = "";
-                if (cmd.equals("e") || cmd.equals("x") || cmd.equals("i") || cmd.equals("t")) {
-                    exitCmd = exitCmd + cmd;
-                }
-                if (exitCmd.equals("exit")) {
+                logger.warn("hostName: {}", hostName);
+                String exitCmd = this.username+"@"+hostName+":~#";
+                if (exitCmd.trim().equals(exitCmd)) {
                     transToSsh(channel, "exit");
                     transToSsh(channel, "\r");
                     sendExitMessage(webSocketSession, channel, session);
