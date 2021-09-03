@@ -314,7 +314,7 @@ public class WebSshServiceImpl implements WebSshService {
                 logger.warn("cmd: {}", cmd);
                 logger.warn("hostName: {}", hostName);
                 String exitCmd = this.username+"@"+hostName+":~#";
-                if (exitCmd.trim().equals(exitCmd)) {
+                if (cmd.trim().equals(exitCmd)) {
                     transToSsh(channel, "exit");
                     transToSsh(channel, "\r");
                     sendExitMessage(webSocketSession, channel, session);
