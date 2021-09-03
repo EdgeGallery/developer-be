@@ -317,7 +317,7 @@ public class WebSshServiceImpl implements WebSshService {
                 if (exitCmd.equals("exit")) {
                     transToSsh(channel, "exit");
                     transToSsh(channel, "\r");
-                    sendExitMessage(webSocketSession, channel,session);
+                    sendExitMessage(webSocketSession, channel, session);
                 }
                 sendMessage(webSocketSession, Arrays.copyOfRange(buffer, 0, i));
             }
@@ -341,7 +341,8 @@ public class WebSshServiceImpl implements WebSshService {
         }
     }
 
-    private void sendExitMessage(WebSocketSession webSocketSession, Channel channel,Session session) throws IOException {
+    private void sendExitMessage(WebSocketSession webSocketSession, Channel channel, Session session)
+        throws IOException {
         InputStream inputStream = channel.getInputStream();
         try {
             //Loop reading
