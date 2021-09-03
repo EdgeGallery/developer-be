@@ -252,7 +252,7 @@
         UPDATE  tbl_project_vm_image_config
         SET status = #{status}, stage_status = #{stageStatus, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonTypeHandler},
             host_ip = #{hostIp}, image_id = #{imageId}, sum_chunk_num = #{sumChunkNum}, chunk_size = #{chunkSize},
-            create_time = #{createTime}, log = #{log}, image_name = #{imageName}, vm_name = #{vmName}, app_instance_id = #{appInstanceId}, token = # {token}
+            create_time = #{createTime}, log = #{log}, image_name = #{imageName}, vm_name = #{vmName}, app_instance_id = #{appInstanceId}, token = #{token}
         WHERE vm_id = #{vmId}
     </update>
 
