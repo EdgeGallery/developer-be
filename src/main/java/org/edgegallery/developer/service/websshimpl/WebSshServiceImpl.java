@@ -297,41 +297,61 @@ public class WebSshServiceImpl implements WebSshService {
             transToSsh(channel, "\r");
             transToSsh(channel, enterPodCommand);
             transToSsh(channel, "\r");
+            //Read the information flow returned by the terminal
+            InputStream inputStream = channel.getInputStream();
+            int j = 0;
+            try {
+                //Loop reading
+                byte[] buffer = new byte[1024];
+                int i = 0;
+                //If there is no data to come，The thread will always be blocked in this place waiting for data。
+                while ((i = inputStream.read(buffer)) != -1) {
+                    String cmd = new String(Arrays.copyOfRange(buffer, 0, i), StandardCharsets.UTF_8);
+                    logger.warn("cmd: {}", cmd);
+                    logger.warn("hostName: {}", hostName);
+                    String exitCmd = this.username + "@" + hostName + ":~#";
+                    if (cmd.trim().equals(exitCmd) && j != 1 && j != 2) {
+                        transToSsh(channel, "exit");
+                        transToSsh(channel, "\r");
+                        sendExitMessage(webSocketSession, channel, session);
+                    }
+                    j++;
+                    sendMessage(webSocketSession, Arrays.copyOfRange(buffer, 0, i));
+                }
+
+            } finally {
+                //Close the session after disconnecting
+                session.disconnect();
+                channel.disconnect();
+                if (inputStream != null) {
+                    inputStream.close();
+                }
+            }
         } else {
             //Forward message
             transToSsh(channel, "\r");
-        }
-
-        //Read the information flow returned by the terminal
-        InputStream inputStream = channel.getInputStream();
-        int j = 0;
-        try {
-            //Loop reading
-            byte[] buffer = new byte[1024];
-            int i = 0;
-            //If there is no data to come，The thread will always be blocked in this place waiting for data。
-            while ((i = inputStream.read(buffer)) != -1) {
-                String cmd = new String(Arrays.copyOfRange(buffer, 0, i), StandardCharsets.UTF_8);
-                logger.warn("cmd: {}", cmd);
-                logger.warn("hostName: {}", hostName);
-                String exitCmd = this.username + "@" + hostName + ":~#";
-                if (cmd.trim().equals(exitCmd) && j != 1) {
-                    transToSsh(channel, "exit");
-                    transToSsh(channel, "\r");
-                    sendExitMessage(webSocketSession, channel, session);
+            //Read the information flow returned by the terminal
+            InputStream inputStream = channel.getInputStream();
+            try {
+                //Loop reading
+                byte[] buffer = new byte[1024];
+                int i = 0;
+                //If there is no data to come，The thread will always be blocked in this place waiting for data。
+                while ((i = inputStream.read(buffer)) != -1) {
+                    sendMessage(webSocketSession, Arrays.copyOfRange(buffer, 0, i));
                 }
-                j++;
-                sendMessage(webSocketSession, Arrays.copyOfRange(buffer, 0, i));
-            }
 
-        } finally {
-            //Close the session after disconnecting
-            session.disconnect();
-            channel.disconnect();
-            if (inputStream != null) {
-                inputStream.close();
+            } finally {
+                //Close the session after disconnecting
+                session.disconnect();
+                channel.disconnect();
+                if (inputStream != null) {
+                    inputStream.close();
+                }
             }
         }
+
+
 
     }
 
