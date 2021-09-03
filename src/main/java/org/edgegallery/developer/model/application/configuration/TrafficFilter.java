@@ -14,7 +14,7 @@
  *    limitations under the License.
  */
 
-package org.edgegallery.developer.model;
+package org.edgegallery.developer.model.application.configuration;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Getter;

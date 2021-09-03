@@ -26,7 +26,7 @@ import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.edgegallery.developer.common.Consts;
 import org.edgegallery.developer.domain.shared.Page;
 import org.edgegallery.developer.model.workspace.MepCreateHost;
-import org.edgegallery.developer.model.workspace.MepHost;
+import org.edgegallery.developer.model.resource.MepHost;
 import org.edgegallery.developer.model.workspace.MepHostLog;
 import org.edgegallery.developer.response.ErrorRespDto;
 import org.edgegallery.developer.response.FormatRespDto;

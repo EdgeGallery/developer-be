@@ -14,16 +14,28 @@
  *    limitations under the License.
  */
 
-package org.edgegallery.developer.model.workspace;
+package org.edgegallery.developer.model.application.configuration;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
-import org.edgegallery.developer.model.resource.MepHost;
 
-@Getter
 @Setter
-public class MepHosts {
+@Getter
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public class TrafficRule {
 
-    private List<MepHost> values;
+    private String trafficRuleId;
+
+    private String action;
+
+    private String priority;
+
+    private String filterType;
+
+    private List<TrafficFilter> trafficFilter;
+
+    private List<DstInterface> dstInterface;
+
 }

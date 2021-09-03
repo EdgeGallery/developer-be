@@ -60,7 +60,7 @@ import org.edgegallery.developer.model.workspace.ApplicationProject;
 import org.edgegallery.developer.model.workspace.EnumHostStatus;
 import org.edgegallery.developer.model.workspace.EnumOpenMepType;
 import org.edgegallery.developer.model.workspace.HelmTemplateYamlPo;
-import org.edgegallery.developer.model.workspace.MepHost;
+import org.edgegallery.developer.model.resource.MepHost;
 import org.edgegallery.developer.model.workspace.OpenMepCapability;
 import org.edgegallery.developer.model.workspace.ProjectImageConfig;
 import org.edgegallery.developer.model.workspace.UploadedFile;

@@ -25,7 +25,7 @@ import org.edgegallery.developer.model.vm.VmCreateConfig;
 import org.edgegallery.developer.model.vm.VmImageConfig;
 import org.edgegallery.developer.model.workspace.ApplicationProject;
 import org.edgegallery.developer.model.workspace.EnumTestConfigStatus;
-import org.edgegallery.developer.model.workspace.MepHost;
+import org.edgegallery.developer.model.resource.MepHost;
 import org.edgegallery.developer.service.virtual.VmService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

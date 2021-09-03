@@ -1,5 +1,5 @@
 /*
- *    Copyright 2020 Huawei Technologies Co., Ltd.
+ *    Copyright 2021 Huawei Technologies Co., Ltd.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -13,17 +13,21 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-
-package org.edgegallery.developer.model.workspace;
+package org.edgegallery.developer.model.application;
 
 import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
-import org.edgegallery.developer.model.resource.MepHost;
+import lombok.ToString;
+import org.edgegallery.developer.model.application.vm.Network;
+import org.edgegallery.developer.model.application.vm.VirtualMachine;
 
 @Getter
 @Setter
-public class MepHosts {
+@ToString
+public class VMApplication extends Application{
 
-    private List<MepHost> values;
+    private List<VirtualMachine> vmList;
+
+    private List<Network>  networkList;
 }

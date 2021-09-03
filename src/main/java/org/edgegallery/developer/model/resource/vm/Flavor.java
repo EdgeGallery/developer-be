@@ -1,5 +1,5 @@
 /*
- *    Copyright 2020 Huawei Technologies Co., Ltd.
+ *    Copyright 2021 Huawei Technologies Co., Ltd.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -14,22 +14,34 @@
  *    limitations under the License.
  */
 
-package org.edgegallery.developer.model;
+package org.edgegallery.developer.model.resource.vm;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
-@Setter
 @Getter
-@JsonInclude(JsonInclude.Include.NON_NULL)
-public class TunnelInfo {
+@Setter
+@ToString
+public class Flavor {
 
-    private String tunnelType;
+    private String id;
 
-    private String tunnelDstAddress;
+    private String name;
 
-    private String tunnelSrcAddress;
+    private String description;
 
-    private String tunnelSpecificData;
+    private String architecture;
+
+    private int cpu;
+
+    private int memory;
+
+    private int systemDiskSize;
+
+    private int dataDiskSize;
+
+    private String gpuExtraInfo;
+
+    private String otherExtraInfo;
 }

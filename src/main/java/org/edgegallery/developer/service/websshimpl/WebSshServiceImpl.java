@@ -48,7 +48,7 @@ import org.edgegallery.developer.model.vm.VmCreateConfig;
 import org.edgegallery.developer.model.vm.VmInfo;
 import org.edgegallery.developer.model.workspace.ApplicationProject;
 import org.edgegallery.developer.model.workspace.EnumDeployPlatform;
-import org.edgegallery.developer.model.workspace.MepHost;
+import org.edgegallery.developer.model.resource.MepHost;
 import org.edgegallery.developer.model.workspace.ProjectTestConfig;
 import org.edgegallery.developer.service.WebSshService;
 import org.edgegallery.developer.util.InputParameterUtil;

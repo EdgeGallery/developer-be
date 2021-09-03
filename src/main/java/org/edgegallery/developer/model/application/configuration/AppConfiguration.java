@@ -1,5 +1,5 @@
 /*
- *    Copyright 2020 Huawei Technologies Co., Ltd.
+ *    Copyright 2021 Huawei Technologies Co., Ltd.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -14,36 +14,30 @@
  *    limitations under the License.
  */
 
-package org.edgegallery.developer.model;
+package org.edgegallery.developer.model.application.configuration;
 
 import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
+import org.edgegallery.developer.model.application.configuration.AppCertificate;
+import org.edgegallery.developer.model.application.configuration.AppServiceProduced;
+import org.edgegallery.developer.model.application.configuration.AppServiceRequired;
 import org.edgegallery.developer.model.application.configuration.DnsRule;
 import org.edgegallery.developer.model.application.configuration.TrafficRule;
-import org.springframework.util.CollectionUtils;
 
 @Getter
 @Setter
-public class CapabilitiesDetail {
-    private List<TrafficRule> appTrafficRule;
+@ToString
+public class AppConfiguration {
 
-    private List<DnsRule> appDNSRule;
+    private AppCertificate appCertificate;
 
-    private List<ServiceDetail> serviceDetails;
+    private List<AppServiceProduced> appServiceProducedList;
 
-    /**
-     * judge null.
-     *
-     * @param capabilitiesDetail capabilitiesDetail
-     * @return
-     */
-    public static Boolean isEmpty(CapabilitiesDetail capabilitiesDetail) {
+    private List<AppServiceRequired> appServiceRequiredList;
 
-        return CollectionUtils.isEmpty(capabilitiesDetail.getAppTrafficRule()) && CollectionUtils
-            .isEmpty(capabilitiesDetail.getAppDNSRule()) && CollectionUtils
-            .isEmpty(capabilitiesDetail.getServiceDetails());
-    }
+    private List<TrafficRule> trafficRuleList;
 
+    private List<DnsRule> dnsRuleList;
 }
-

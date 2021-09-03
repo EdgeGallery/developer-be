@@ -1,5 +1,5 @@
 /*
- *    Copyright 2020 Huawei Technologies Co., Ltd.
+ *    Copyright 2021 Huawei Technologies Co., Ltd.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -13,26 +13,16 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
+package org.edgegallery.developer.model.application;
 
-package org.edgegallery.developer.model;
-
-import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
-@Setter
 @Getter
-@JsonInclude(JsonInclude.Include.NON_NULL)
-public class DnsRule {
+@Setter
+@ToString
+public class ContainerApplication extends Application{
 
-    private String dnsRuleId;
-
-    private String domainName;
-
-    private String ipAddressType;
-
-    private String ipAddress;
-
-    private String ttl;
-
+    private String deployFileId;
 }

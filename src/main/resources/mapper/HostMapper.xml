@@ -18,7 +18,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.edgegallery.developer.mapper.HostMapper">
     <resultMap id="HostMap"
-               type="org.edgegallery.developer.model.workspace.MepHost">
+               type="org.edgegallery.developer.model.resource.MepHost">
         <id property="hostId" column="host_id"/>
         <result property="userId" column="user_id"/>
         <result property="name" column="name"/>
@@ -85,13 +85,13 @@
     WHERE host_id = #{hostId}
   </select>
 
-    <update id="updateHost" parameterType="org.edgegallery.developer.model.workspace.MepHost">
+    <update id="updateHost" parameterType="org.edgegallery.developer.model.resource.MepHost">
         UPDATE tbl_service_host
         SET ip=#{ip}, port=#{port}
         WHERE user_id = #{userId}
     </update>
 
-    <update id="updateHostSelected" parameterType="org.edgegallery.developer.model.workspace.MepHost">
+    <update id="updateHostSelected" parameterType="org.edgegallery.developer.model.resource.MepHost">
         UPDATE tbl_service_host
         <set>
             <if test="lcmIp != null">

@@ -18,7 +18,7 @@ import org.edgegallery.developer.mapper.HostMapper;
 import org.edgegallery.developer.mapper.UploadedFileMapper;
 import org.edgegallery.developer.model.lcm.MecHostBody;
 import org.edgegallery.developer.model.workspace.MepCreateHost;
-import org.edgegallery.developer.model.workspace.MepHost;
+import org.edgegallery.developer.model.resource.MepHost;
 import org.edgegallery.developer.model.workspace.MepHostLog;
 import org.edgegallery.developer.model.workspace.UploadedFile;
 import org.edgegallery.developer.response.FormatRespDto;
