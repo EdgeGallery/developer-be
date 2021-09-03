@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
 @RestSchema(schemaId = "sandbox")
-@RequestMapping("/mec/developer/v2/sandbox")
+@RequestMapping("/mec/developer/v2/mephosts")
 @Api(tags = "sandbox")
 public class MepHostCtl {
     private static final String REG_UUID = "[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}";

@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
 @RestSchema(schemaId = "ContainerImage")
-@RequestMapping("/mec/developer/v2/image/container")
+@RequestMapping("/mec/developer/v2/containerimages")
 @Api(tags = "ContainerImage")
 public class ContainerImageCtl {
     @Autowired
