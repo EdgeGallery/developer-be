@@ -254,7 +254,7 @@ public class WebSshServiceImpl implements WebSshService {
 
         //Set upchannel
         sshConnectInfo.setChannel(channel);
-        String hostName="";
+        String hostName = "";
         if (project.getDeployPlatform() == EnumDeployPlatform.KUBERNETES) {
             List<ProjectTestConfig> testConfigList = projectMapper.getTestConfigByProjectId(projectId);
             ProjectTestConfig testConfig = testConfigList.get(0);
@@ -286,7 +286,7 @@ public class WebSshServiceImpl implements WebSshService {
                     String[] events = event.split(" ");
                     String[] names = events[2].split("/");
                     namespace = names[0];
-                    hostName = events[events.length-1];
+                    hostName = events[events.length - 1];
                 }
             }
             if (namespace.equals("") && !list.get(0).getPodstatus().equals("Running")) {
@@ -294,7 +294,9 @@ public class WebSshServiceImpl implements WebSshService {
                 return;
             }
             String enterPodCommand = "kubectl exec -it " + podName + " -n " + namespace + " -- sh";
-            transToSsh(channel, enterPodCommand+"\r");
+            transToSsh(channel, "\r");
+            transToSsh(channel, enterPodCommand);
+            transToSsh(channel, "\r");
         } else {
             //Forward message
             transToSsh(channel, "\r");
@@ -302,6 +304,7 @@ public class WebSshServiceImpl implements WebSshService {
 
         //Read the information flow returned by the terminal
         InputStream inputStream = channel.getInputStream();
+        int j = 0;
         try {
             //Loop reading
             byte[] buffer = new byte[1024];
@@ -311,12 +314,13 @@ public class WebSshServiceImpl implements WebSshService {
                 String cmd = new String(Arrays.copyOfRange(buffer, 0, i), StandardCharsets.UTF_8);
                 logger.warn("cmd: {}", cmd);
                 logger.warn("hostName: {}", hostName);
-                String exitCmd = this.username+"@"+hostName+":~#";
-                if (cmd.trim().equals(exitCmd)) {
+                String exitCmd = this.username + "@" + hostName + ":~#";
+                if (cmd.trim().equals(exitCmd) && j != 0) {
                     transToSsh(channel, "exit");
                     transToSsh(channel, "\r");
                     sendExitMessage(webSocketSession, channel, session);
                 }
+                j++;
                 sendMessage(webSocketSession, Arrays.copyOfRange(buffer, 0, i));
             }
 
