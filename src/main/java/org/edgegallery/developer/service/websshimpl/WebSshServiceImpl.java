@@ -310,6 +310,15 @@ public class WebSshServiceImpl implements WebSshService {
             while ((i = inputStream.read(buffer)) != -1) {
                 String cmd = new String(Arrays.copyOfRange(buffer, 0, i), StandardCharsets.UTF_8);
                 logger.warn("cmd: {}", cmd);
+                String exitCmd = "";
+                if (cmd.equals("e") || cmd.equals("x") || cmd.equals("i") || cmd.equals("t")) {
+                    exitCmd = exitCmd + cmd;
+                }
+                if (exitCmd.equals("exit")) {
+                    transToSsh(channel, "exit");
+                    transToSsh(channel, "\r");
+                    sendExitMessage(webSocketSession, channel, session);
+                }
                 sendMessage(webSocketSession, Arrays.copyOfRange(buffer, 0, i));
             }
 
@@ -330,6 +339,31 @@ public class WebSshServiceImpl implements WebSshService {
             outputStream.write(command.getBytes("UTF-8"));
             outputStream.flush();
         }
+    }
+
+    private void sendExitMessage(WebSocketSession webSocketSession, Channel channel, Session session)
+        throws IOException {
+        InputStream inputStream = channel.getInputStream();
+        try {
+            //Loop reading
+            byte[] buffer = new byte[1024];
+            int i = 0;
+            //If there is no data to come，The thread will always be blocked in this place waiting for data。
+            while ((i = inputStream.read(buffer)) != -1) {
+                String cmd = new String(Arrays.copyOfRange(buffer, 0, i), StandardCharsets.UTF_8);
+                logger.warn("exit cmd: {}", cmd);
+                sendMessage(webSocketSession, Arrays.copyOfRange(buffer, 0, i));
+            }
+
+        } finally {
+            //Close the session after disconnecting
+            session.disconnect();
+            channel.disconnect();
+            if (inputStream != null) {
+                inputStream.close();
+            }
+        }
+
     }
 
     @Override
