@@ -13,8 +13,43 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
+
 package org.edgegallery.developer.mapper.image;
 
+import java.util.List;
+import java.util.Map;
+import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
+import org.edgegallery.developer.model.containerimage.ContainerImage;
+
+@Mapper
 public interface ContainersImageMapper {
+
+    int createContainerImage(ContainerImage containerImage);
+
+    int updateContainerImageByAdmin(ContainerImage containerImage);
+
+    int updateContainerImageByOrdinary(ContainerImage containerImage);
+
+    int deleteContainerImageByAdmin(@Param("imageId") String imageId);
+
+    int deleteContainerImageByOrdinary(@Param("imageId") String imageId, @Param("userId") String userId,
+        @Param("userName") String userName);
+
+    int updateContainerImageStatus(@Param("imageId") String imageId, @Param("imageStatus") String imageStatus);
+
+    int updateContainerImagePath(@Param("imageId") String imageId, @Param("imagePath") String imagePath);
+
+    ContainerImage getContainerImage(@Param("imageId") String imageId);
+
+    List<ContainerImage> getAllImage();
+
+    List<ContainerImage> getAllImageByAdmin();
+
+    List<ContainerImage> getAllImageByOrdinary(@Param("userId") String userId);
+
+    List<ContainerImage> getAllImageByAdminAuth(Map map);
+
+    List<ContainerImage> getAllImageByOrdinaryAuth(Map map);
 
 }
