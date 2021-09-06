@@ -25,8 +25,6 @@ import lombok.ToString;
 @ToString
 public class AppServiceRequired {
 
-    private String id;
-
     private String serName;
 
     private String version;

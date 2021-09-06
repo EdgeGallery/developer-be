@@ -52,7 +52,11 @@ public class AppConfigurationServiceImpl implements AppConfigurationService {
 
     @Override
     public Either<FormatRespDto, TrafficRule> createTrafficRules(String applicationId, TrafficRule trafficRule) {
-        trafficRule.setId(UUID.randomUUID().toString());
+        TrafficRule result = appConfigurationMapper.getTrafficRule(applicationId, trafficRule.getTrafficRuleId());
+        if (result != null) {
+            LOGGER.error("create trafficRule failed: ruleId have exit");
+            throw new DeveloperException("create trafficRule failed: ruleId have exit", ResponseConsts.INSERT_DATA_FAILED);
+        }
         int res = appConfigurationMapper.createTrafficRule(applicationId,trafficRule);
         if (res < 1) {
             LOGGER.error("create TrafficRule failed");
@@ -63,7 +67,7 @@ public class AppConfigurationServiceImpl implements AppConfigurationService {
 
     @Override
     public Either<FormatRespDto, Boolean> modifyTrafficRule(String applicationId, TrafficRule trafficRule) {
-        int res = appConfigurationMapper.modifyTrafficRule(trafficRule);
+        int res = appConfigurationMapper.modifyTrafficRule(applicationId, trafficRule);
         if (res < 1) {
             LOGGER.error("modify TrafficRule failed");
             throw new DeveloperException("modify TrafficRule failed", ResponseConsts.MODIFY_DATA_FAILED);
@@ -72,14 +76,18 @@ public class AppConfigurationServiceImpl implements AppConfigurationService {
     }
 
     @Override
-    public Either<FormatRespDto, Boolean> deleteTrafficRule(String applicationId, String id) {
-        appConfigurationMapper.deleteTrafficRule(id);
+    public Either<FormatRespDto, Boolean> deleteTrafficRule(String applicationId, String ruleId) {
+        appConfigurationMapper.deleteTrafficRule(applicationId, ruleId);
         return Either.right(true);
     }
 
     @Override
     public Either<FormatRespDto, DnsRule> createDnsRule(String applicationId, DnsRule dnsRule) {
-        dnsRule.setId(UUID.randomUUID().toString());
+        DnsRule result = appConfigurationMapper.getDnsRule(applicationId, dnsRule.getDnsRuleId());
+        if (result != null) {
+            LOGGER.error("create DnsRule failed: ruleId have exit");
+            throw new DeveloperException("create DnsRule failed: ruleId have exit", ResponseConsts.INSERT_DATA_FAILED);
+        }
         int res = appConfigurationMapper.createDnsRule(applicationId,dnsRule);
         if (res < 1) {
             LOGGER.error("create DnsRule failed");
@@ -94,14 +102,14 @@ public class AppConfigurationServiceImpl implements AppConfigurationService {
     }
 
     @Override
-    public Either<FormatRespDto, Boolean> deleteDnsRule(String applicationId, String id) {
-        appConfigurationMapper.deleteDnsRule(id);
+    public Either<FormatRespDto, Boolean> deleteDnsRule(String applicationId, String ruleId) {
+        appConfigurationMapper.deleteDnsRule(applicationId, ruleId);
         return Either.right(true);
     }
 
     @Override
     public Either<FormatRespDto, Boolean> modifyDnsRule(String applicationId, DnsRule dnsRule) {
-        int res = appConfigurationMapper.modifyDnsRule(dnsRule);
+        int res = appConfigurationMapper.modifyDnsRule(applicationId, dnsRule);
         if (res < 1) {
             LOGGER.error("modify DnsRule failed");
             throw new DeveloperException("modify DnsRule failed", ResponseConsts.MODIFY_DATA_FAILED);
@@ -117,7 +125,11 @@ public class AppConfigurationServiceImpl implements AppConfigurationService {
     @Override
     public Either<FormatRespDto, AppServiceProduced> createServiceProduced(String applicationId,
         AppServiceProduced serviceProduced) {
-        serviceProduced.setId(UUID.randomUUID().toString());
+        AppServiceProduced appServiceProduced = appConfigurationMapper.getServiceProduced(applicationId, serviceProduced.getSerName());
+        if (appServiceProduced != null) {
+            LOGGER.error("create serviceProduced failed: serName have exit");
+            throw new DeveloperException("create serviceProduced failed", ResponseConsts.INSERT_DATA_FAILED);
+        }
         int res = appConfigurationMapper.createServiceProduced(applicationId,serviceProduced);
         if (res < 1) {
             LOGGER.error("create serviceProduced failed");
@@ -127,14 +139,14 @@ public class AppConfigurationServiceImpl implements AppConfigurationService {
     }
 
     @Override
-    public Either<FormatRespDto, Boolean> deleteServiceProduced(String applicationId, String id) {
-        appConfigurationMapper.deleteServiceProduced(id);
+    public Either<FormatRespDto, Boolean> deleteServiceProduced(String applicationId, String serName) {
+        appConfigurationMapper.deleteServiceProduced(applicationId, serName);
         return Either.right(true);
     }
 
     @Override
     public Either<FormatRespDto, Boolean> modifyServiceProduced(String applicationId, AppServiceProduced serviceProduced) {
-        int res = appConfigurationMapper.modifyServiceProduced(serviceProduced);
+        int res = appConfigurationMapper.modifyServiceProduced(applicationId, serviceProduced);
         if (res < 1) {
             LOGGER.error("modify AppServiceProduced failed");
             throw new DeveloperException("modify AppServiceProduced failed", ResponseConsts.MODIFY_DATA_FAILED);
@@ -150,7 +162,11 @@ public class AppConfigurationServiceImpl implements AppConfigurationService {
     @Override
     public Either<FormatRespDto, AppServiceRequired> createServiceRequired(String applicationId,
         AppServiceRequired serviceRequired) {
-        serviceRequired.setId(UUID.randomUUID().toString());
+        AppServiceRequired appServiceRequired = appConfigurationMapper.getServiceRequired(applicationId, serviceRequired.getSerName());
+        if (appServiceRequired != null) {
+            LOGGER.error("create serviceRequired failed: serName have exit");
+            throw new DeveloperException("create serviceRequired failed: serName have exit", ResponseConsts.INSERT_DATA_FAILED);
+        }
         int res = appConfigurationMapper.createServiceRequired(applicationId,serviceRequired);
         if (res < 1) {
             LOGGER.error("create serviceRequired failed");
@@ -161,7 +177,7 @@ public class AppConfigurationServiceImpl implements AppConfigurationService {
 
     @Override
     public Either<FormatRespDto, Boolean> modifyServiceRequired(String applicationId, AppServiceRequired serviceRequired) {
-        int res = appConfigurationMapper.modifyServiceRequired(serviceRequired);
+        int res = appConfigurationMapper.modifyServiceRequired(applicationId, serviceRequired);
         if (res < 1) {
             LOGGER.error("modify serviceRequired failed");
             throw new DeveloperException("modify serviceRequired failed", ResponseConsts.MODIFY_DATA_FAILED);
@@ -170,8 +186,8 @@ public class AppConfigurationServiceImpl implements AppConfigurationService {
     }
 
     @Override
-    public Either<FormatRespDto, Boolean> deleteServiceRequired(String applicationId, String id) {
-        appConfigurationMapper.deleteServiceRequired(id);
+    public Either<FormatRespDto, Boolean> deleteServiceRequired(String applicationId, String serName) {
+        appConfigurationMapper.deleteServiceRequired(applicationId, serName);
         return Either.right(true);
     }
 
@@ -183,7 +199,6 @@ public class AppConfigurationServiceImpl implements AppConfigurationService {
     @Override
     public Either<FormatRespDto, AppCertificate> createAppCertificate(String applicationId,
         AppCertificate appCertificate) {
-        appCertificate.setId(UUID.randomUUID().toString());
         int res = appConfigurationMapper.createAppCertificate(applicationId,appCertificate);
         if (res < 1) {
             LOGGER.error("create appCertificate failed");
@@ -194,7 +209,7 @@ public class AppConfigurationServiceImpl implements AppConfigurationService {
 
     @Override
     public Either<FormatRespDto, Boolean> modifyAppCertificate(String applicationId, AppCertificate appCertificate) {
-        int res = appConfigurationMapper.modifyAppCertificate(appCertificate);
+        int res = appConfigurationMapper.modifyAppCertificate(applicationId, appCertificate);
         if (res < 1) {
             LOGGER.error("modify appCertificate failed");
             throw new DeveloperException("modify appCertificate failed", ResponseConsts.MODIFY_DATA_FAILED);
@@ -203,8 +218,8 @@ public class AppConfigurationServiceImpl implements AppConfigurationService {
     }
 
     @Override
-    public Either<FormatRespDto, Boolean> deleteAppCertificate(String applicationId, String id) {
-        appConfigurationMapper.deleteAppCertificate(id);
+    public Either<FormatRespDto, Boolean> deleteAppCertificate(String applicationId) {
+        appConfigurationMapper.deleteAppCertificate(applicationId);
         return Either.right(true);
     }
 

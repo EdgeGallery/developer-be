@@ -428,7 +428,6 @@
     );
 
     CREATE TABLE IF NOT EXISTS "tbl_app_traffic_rule" (
-    "id" varchar(255) NOT NULL,
     "app_id" varchar(255) NOT NULL,
     "traffic_rule_id" varchar(255) NOT NULL,
     "action" varchar(255) DEFAULT NULL,
@@ -436,47 +435,43 @@
     "filter_type" varchar(255) DEFAULT NULL,
     "traffic_filter" text DEFAULT NULL,
     "dst_interface" text DEFAULT NULL,
-    CONSTRAINT "tbl_app_traffic_rule_pkey" PRIMARY KEY ("id")
+    CONSTRAINT  "tbl_app_traffic_rule_unique_id_traffic_rule" UNIQUE ("app_id","traffic_rule_id")
     );
 
     CREATE TABLE IF NOT EXISTS "tbl_app_dns_rule" (
-    "id" varchar(255) NOT NULL,
     "app_id" varchar(255) NOT NULL,
     "dns_rule_id" varchar(255) NOT NULL,
     "domain_name" varchar(255) DEFAULT NULL,
     "ip_address_type" varchar(255) DEFAULT NULL,
     "ip_address" varchar(255) DEFAULT NULL,
     "ttl" varchar(255) DEFAULT NULL,
-    CONSTRAINT "tbl_app_dns_rule_pkey" PRIMARY KEY ("id")
+    CONSTRAINT  "tbl_app_dns_rule_unique_id_dns_rule" UNIQUE ("app_id","dns_rule_id")
     );
 
     CREATE TABLE IF NOT EXISTS "tbl_app_service_produced" (
-    "id" varchar(255) NOT NULL,
     "app_id" varchar(255) NOT NULL,
     "ser_name" varchar(255) NOT NULL,
     "version" varchar(255) DEFAULT NULL,
     "dns_rule_id_list" text DEFAULT NULL,
     "traffic_rule_id_list" text DEFAULT NULL,
-    CONSTRAINT "tbl_app_service_produced_pkey" PRIMARY KEY ("id")
+    CONSTRAINT  "tbl_app_service_produced_unique_id_name" UNIQUE ("app_id","ser_name")
     );
 
     CREATE TABLE IF NOT EXISTS "tbl_app_service_required" (
-    "id" varchar(255) NOT NULL,
     "app_id" varchar(255) NOT NULL,
     "ser_name" varchar(255) NOT NULL,
     "version" varchar(255) DEFAULT NULL,
     "requested_permissions" bool DEFAULT NULL,
     "ser_app_id" varchar(255) DEFAULT NULL,
     "package_id" varchar(255) DEFAULT NULL,
-    CONSTRAINT "tbl_app_service_required_pkey" PRIMARY KEY ("id")
+    CONSTRAINT  "tbl_app_service_required_unique_id_name" UNIQUE ("app_id","ser_name")
     );
 
     CREATE TABLE IF NOT EXISTS "tbl_app_certificate" (
-    "id" varchar(255) NOT NULL,
     "app_id" varchar(255) NOT NULL,
     "ak" text DEFAULT NULL,
     "sk" text DEFAULT NULL,
-    CONSTRAINT "tbl_app_certificate_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "tbl_app_certificate_pkey" PRIMARY KEY ("app_id")
     );
 
     CREATE TABLE IF NOT EXISTS "tbl_application" (
@@ -508,7 +503,7 @@
     "user_data" text DEFAULT NULL,
     "status" varchar(255) DEFAULT NULL,
     "area_zone" varchar(255) DEFAULT NULL,
-    "flavor_extra_spes"  text DEFAULT NULL,,
+    "flavor_extra_spes"  text DEFAULT NULL,
     "vim_vm_id" varchar(255) DEFAULT NULL,
     "vnc_url" varchar(255) DEFAULT NULL,
     CONSTRAINT "tbl_vm_pkey" PRIMARY KEY ("id")
@@ -551,7 +546,7 @@
     "cpu" text DEFAULT NULL,
     "memory" varchar(255) DEFAULT NULL,
     "system_disk_size" int4 DEFAULT NULL,
-    "data_disk_size"  int4 DEFAULT NULL,,
+    "data_disk_size"  int4 DEFAULT NULL,
     "gpu_extra_info" text DEFAULT NULL,
     "other_extra_info" text DEFAULT NULL,
     CONSTRAINT "tbl_vm_flavor_pkey" PRIMARY KEY ("id")
@@ -575,5 +570,5 @@
     "upload_time" timestamptz(6)  DEFAULT NULL,
     "user_id" varchar(255) DEFAULT NULL,
     "user_name" varchar(255) DEFAULT NULL,
-    CONSTRAINT "tbl_vm_flavor_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "tbl_vm_image_pkey" PRIMARY KEY ("id")
     );

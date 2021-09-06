@@ -26,8 +26,6 @@ import lombok.Setter;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class TrafficRule {
 
-    private String id;
-
     private String trafficRuleId;
 
     private String action;
