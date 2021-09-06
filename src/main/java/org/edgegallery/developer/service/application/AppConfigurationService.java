@@ -1,6 +1,7 @@
 package org.edgegallery.developer.service.application;
 
 import java.util.List;
+import org.edgegallery.developer.model.application.configuration.AppCertificate;
 import org.edgegallery.developer.model.application.configuration.AppConfiguration;
 import org.edgegallery.developer.model.application.configuration.AppServiceProduced;
 import org.edgegallery.developer.model.application.configuration.AppServiceRequired;
@@ -19,7 +20,7 @@ public interface AppConfigurationService {
      * @return
      */
     @Transactional
-    public Either<FormatRespDto, AppConfiguration> getAppConfiguration(String applicationId);
+    public AppConfiguration getAppConfiguration(String applicationId);
     /**
      * modify AppConfiguration
      *
@@ -35,7 +36,7 @@ public interface AppConfigurationService {
      * @return
      */
     @Transactional
-    Either<FormatRespDto, List<TrafficRule>> getAllTrafficRules(String applicationId);
+    List<TrafficRule> getAllTrafficRules(String applicationId);
 
     /**
      * create AppConfiguration TrafficRules
@@ -54,7 +55,7 @@ public interface AppConfigurationService {
      * @return
      */
     @Transactional
-    Either<FormatRespDto, Boolean> modifyTrafficRules(String applicationId, String ruleId, TrafficRule trafficRule);
+    Either<FormatRespDto, Boolean> modifyTrafficRule(String applicationId, TrafficRule trafficRule);
 
     /**
      * delete a  AppConfiguration TrafficRule
@@ -63,7 +64,7 @@ public interface AppConfigurationService {
      * @return
      */
     @Transactional
-    Either<FormatRespDto, Boolean> deleteTrafficRule(String applicationId, String ruleId);
+    Either<FormatRespDto, Boolean> deleteTrafficRule(String applicationId, String id);
 
     /**
      * create a  AppConfiguration DnsRule
@@ -81,7 +82,7 @@ public interface AppConfigurationService {
      * @return
      */
     @Transactional
-    Either<FormatRespDto, List<DnsRule>> getAllDnsRules(String applicationId);
+   List<DnsRule> getAllDnsRules(String applicationId);
 
     /**
      * delete a  AppConfiguration DnsRule
@@ -99,7 +100,7 @@ public interface AppConfigurationService {
      * @return
      */
     @Transactional
-    Either<FormatRespDto, Boolean> modifyDnsRule(String applicationId, String ruleId, DnsRule dnsRule);
+    Either<FormatRespDto, Boolean> modifyDnsRule(String applicationId, DnsRule dnsRule);
 
     /**
      * get all  AppConfiguration ServiceProduced
@@ -108,7 +109,7 @@ public interface AppConfigurationService {
      * @return
      */
     @Transactional
-    Either<FormatRespDto, List<AppServiceProduced>> getAllServiceProduced(String applicationId);
+    List<AppServiceProduced> getAllServiceProduced(String applicationId);
 
     /**
      * create a   AppConfiguration ServiceProduced
@@ -126,7 +127,7 @@ public interface AppConfigurationService {
      * @return
      */
     @Transactional
-    Either<FormatRespDto, Boolean> deleteServiceProduced(String applicationId, String serName);
+    Either<FormatRespDto, Boolean> deleteServiceProduced(String applicationId, String id);
 
     /**
      * modify a  AppConfiguration ServiceProduced
@@ -135,7 +136,7 @@ public interface AppConfigurationService {
      * @return
      */
     @Transactional
-    Either<FormatRespDto, Boolean> modifyServiceProduced(String applicationId, String serName, AppServiceProduced serviceProduced);
+    Either<FormatRespDto, Boolean> modifyServiceProduced(String applicationId, AppServiceProduced serviceProduced);
 
     /**
      * get all  AppConfiguration ServiceRequired
@@ -144,7 +145,7 @@ public interface AppConfigurationService {
      * @return
      */
     @Transactional
-    Either<FormatRespDto, List<AppServiceRequired>> getAllServiceRequired(String applicationId);
+    List<AppServiceRequired> getAllServiceRequired(String applicationId);
 
     /**
      * create  AppConfiguration ServiceRequired
@@ -162,7 +163,7 @@ public interface AppConfigurationService {
      * @return
      */
     @Transactional
-    Either<FormatRespDto, Boolean> modifyServiceRequired(String applicationId, String serName, AppServiceRequired serviceRequired);
+    Either<FormatRespDto, Boolean> modifyServiceRequired(String applicationId, AppServiceRequired serviceRequired);
 
     /**
      * delete a   AppConfiguration ServiceRequired
@@ -171,5 +172,13 @@ public interface AppConfigurationService {
      * @return
      */
     @Transactional
-    Either<FormatRespDto, Boolean> deleteServiceRequired(String applicationId, String serName);
+    Either<FormatRespDto, Boolean> deleteServiceRequired(String applicationId, String id);
+
+    AppCertificate getAppCertificate(String applicationId);
+
+    Either<FormatRespDto, AppCertificate> createAppCertificate(String applicationId, AppCertificate appCertificate);
+
+    Either<FormatRespDto, Boolean> modifyAppCertificate(String applicationId, AppCertificate appCertificate);
+
+    Either<FormatRespDto, Boolean> deleteAppCertificate(String applicationId, String id);
 }
