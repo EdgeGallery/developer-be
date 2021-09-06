@@ -48,16 +48,17 @@ public class Application {
 
     private String iconFileId;
 
+    //appCreateType can be INTEGRATE/DEVELOP
+    private String appCreateType;
+
+    private Date createTime;
+
     private String status;
 
     private String userId;
 
     private String userName;
 
-    private Date createDate;
-
-    //appCreateType can be INTEGRATE/DEVELOP
-    private String appCreateType;
-
     private AppConfiguration appConfiguration;
+
 }

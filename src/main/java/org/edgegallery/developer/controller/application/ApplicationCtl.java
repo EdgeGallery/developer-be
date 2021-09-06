@@ -9,6 +9,7 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
+import org.edgegallery.developer.config.security.AccessUserUtil;
 import org.edgegallery.developer.domain.shared.Page;
 import org.edgegallery.developer.model.application.Application;
 import org.edgegallery.developer.response.ErrorRespDto;
@@ -50,10 +51,8 @@ public class ApplicationCtl {
         produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<Application> createApplication(
-        @NotNull @ApiParam(value = "Application", required = true) @RequestBody Application application,
-        @Pattern(regexp = REGEX_UUID, message = "userId must be in UUID format")
-        @ApiParam(value = "userId", required = true) @RequestParam("userId") String userId) {
-        Either<FormatRespDto, Application> either = applicationService.createApplication(userId, application);
+        @NotNull @ApiParam(value = "Application", required = true) @RequestBody Application application){
+        Either<FormatRespDto, Application> either = applicationService.createApplication(application);
         return ResponseDataUtil.buildResponse(either);
     }
 

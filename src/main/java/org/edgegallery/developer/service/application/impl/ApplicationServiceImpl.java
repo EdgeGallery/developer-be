@@ -11,7 +11,7 @@ import com.spencerwi.either.Either;
 public class ApplicationServiceImpl implements ApplicationService {
 
     @Override
-    public Either<FormatRespDto, Application> createApplication(String userId, Application application) {
+    public Either<FormatRespDto, Application> createApplication(Application application) {
         return null;
     }
 

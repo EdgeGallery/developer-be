@@ -15,7 +15,7 @@ public interface ApplicationService {
      * @return
      */
     @Transactional
-    public Either<FormatRespDto, Application> createApplication(String userId, Application application);
+    public Either<FormatRespDto, Application> createApplication(Application application);
 
     /**
      * get a application

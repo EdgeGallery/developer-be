@@ -478,3 +478,102 @@
     "sk" text DEFAULT NULL,
     CONSTRAINT "tbl_app_certificate_pkey" PRIMARY KEY ("id")
     );
+
+    CREATE TABLE IF NOT EXISTS "tbl_application" (
+    "id" varchar(255) NOT NULL,
+    "name" varchar(255) NOT NULL,
+    "description" varchar(255) DEFAULT NULL,
+    "version" varchar(255) NOT NULL,
+    "provider" varchar(255) NOT NULL,
+    "architecture" varchar(255) DEFAULT NULL,
+    "app_class" varchar(255) DEFAULT NULL,
+    "type" varchar(255) DEFAULT NULL,
+    "industry" varchar(255) DEFAULT NULL,
+    "icon_file_id" varchar(255) DEFAULT NULL,
+    "app_create_type" varchar(255) DEFAULT NULL,
+    "create_time" timestamptz(6)  DEFAULT NULL,
+    "status" varchar(255) DEFAULT NULL,
+    "user_id" varchar(255) DEFAULT NULL,
+    "user_name" varchar(255) DEFAULT NULL,
+    CONSTRAINT  "tbl_application_unique_name_version" UNIQUE ("name","version"),
+    CONSTRAINT "tbl_application_pkey" PRIMARY KEY ("id")
+    );
+
+    CREATE TABLE IF NOT EXISTS "tbl_vm" (
+    "id" varchar(255) NOT NULL,
+    "app_id" varchar(255) DEFAULT NULL,
+    "name" varchar(255) NOT NULL,
+    "flavor_id" varchar(255) DEFAULT NULL,
+    "image_id" varchar(255) DEFAULT NULL,
+    "user_data" text DEFAULT NULL,
+    "status" varchar(255) DEFAULT NULL,
+    "area_zone" varchar(255) DEFAULT NULL,
+    "flavor_extra_spes"  text DEFAULT NULL,,
+    "vim_vm_id" varchar(255) DEFAULT NULL,
+    "vnc_url" varchar(255) DEFAULT NULL,
+    CONSTRAINT "tbl_vm_pkey" PRIMARY KEY ("id")
+    );
+
+    CREATE TABLE IF NOT EXISTS "tbl_network" (
+    "id" varchar(255) NOT NULL,
+    "app_id" varchar(255) DEFAULT NULL,
+    "name" varchar(255) NOT NULL,
+    "description" varchar(255) DEFAULT NULL,
+    CONSTRAINT "tbl_network_pkey" PRIMARY KEY ("id")
+    );
+
+    CREATE TABLE IF NOT EXISTS "tbl_vm_port" (
+    "id" varchar(255) NOT NULL,
+    "vm_id" varchar(255) DEFAULT NULL,
+    "name" varchar(255) NOT NULL,
+    "description" varchar(255) DEFAULT NULL,
+    "ip_type" varchar(255) DEFAULT NULL,
+    "network_name" varchar(255) DEFAULT NULL,
+    "ip" varchar(255) DEFAULT NULL,
+    "mask" varchar(255) DEFAULT NULL,
+    CONSTRAINT "tbl_vm_port_pkey" PRIMARY KEY ("id")
+    );
+
+    CREATE TABLE IF NOT EXISTS "tbl_vm_certificate" (
+    "id" varchar(255) NOT NULL,
+    "vm_id" varchar(255) DEFAULT NULL,
+    "certificate_type" varchar(255) NOT NULL,
+    "pwd_certificate" text DEFAULT NULL,
+    "key_pair_certificate" text DEFAULT NULL,
+    CONSTRAINT "tbl_vm_certificate_pkey" PRIMARY KEY ("id")
+    );
+
+    CREATE TABLE IF NOT EXISTS "tbl_vm_flavor" (
+    "id" varchar(255) NOT NULL,
+    "name" varchar(255) NOT NULL,
+    "description" varchar(255) DEFAULT NULL,
+    "architecture" varchar(255) DEFAULT NULL,
+    "cpu" text DEFAULT NULL,
+    "memory" varchar(255) DEFAULT NULL,
+    "system_disk_size" int4 DEFAULT NULL,
+    "data_disk_size"  int4 DEFAULT NULL,,
+    "gpu_extra_info" text DEFAULT NULL,
+    "other_extra_info" text DEFAULT NULL,
+    CONSTRAINT "tbl_vm_flavor_pkey" PRIMARY KEY ("id")
+    );
+
+    CREATE TABLE IF NOT EXISTS "tbl_vm_image" (
+    "id" varchar(255) NOT NULL,
+    "name" varchar(255) NOT NULL,
+    "visible_type" varchar(255) DEFAULT NULL,
+    "os_type" varchar(255) DEFAULT NULL,
+    "os_version" varchar(255) DEFAULT NULL,
+    "os_bit_type" varchar(255) DEFAULT NULL,
+    "system_disk_size" int4 DEFAULT NULL,
+    "image_file_name" varchar(255) DEFAULT NULL,
+    "image_format" varchar(255) DEFAULT NULL,
+    "down_load_url" varchar(255) DEFAULT NULL,
+    "file_md5" varchar(255) DEFAULT NULL,
+    "status" varchar(255) DEFAULT NULL,
+    "create_time" timestamptz(6)  DEFAULT NULL,
+    "modify_time" timestamptz(6)  DEFAULT NULL,
+    "upload_time" timestamptz(6)  DEFAULT NULL,
+    "user_id" varchar(255) DEFAULT NULL,
+    "user_name" varchar(255) DEFAULT NULL,
+    CONSTRAINT "tbl_vm_flavor_pkey" PRIMARY KEY ("id")
+    );
