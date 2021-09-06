@@ -16,6 +16,7 @@
 
 package org.edgegallery.developer.model.application.vm;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -23,13 +24,12 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class VMCertificate {
 
     public static final String CERTIFICATE_TYPE_PWD = "PASSWORD";
 
     public static final String CERTIFICATE_TYPE_KEYPAIR = "KEYPAIR";
-
-    private String id;
 
     // certificateType can be PASSWORD/KEYPAIR
     private String certificateType;

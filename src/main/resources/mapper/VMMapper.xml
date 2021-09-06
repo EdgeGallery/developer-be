@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~    Copyright 2021 Huawei Technologies Co., Ltd.
+  ~
+  ~    Licensed under the Apache License, Version 2.0 (the "License");
+  ~    you may not use this file except in compliance with the License.
+  ~    You may obtain a copy of the License at
+  ~
+  ~        http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~    Unless required by applicable law or agreed to in writing, software
+  ~    distributed under the License is distributed on an "AS IS" BASIS,
+  ~    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~    See the License for the specific language governing permissions and
+  ~    limitations under the License.
+  -->
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.edgegallery.developer.mapper.application.VMMapper">
+  <resultMap id="VMMap" type="org.edgegallery.developer.model.application.vm.VirtualMachine">
+    <id property="id" column="id"/>
+    <result property="name" column="name"/>
+    <result property="flavorId" column="flavor_id"/>
+    <result property="imageId" column="image_id"/>
+    <result property="userData" column="user_data"/>
+    <result property="status" column="status"/>
+    <result property="areaZone" column="area_zone"/>
+    <result property="flavorExtraSpes" column="flavor_extra_spes"/>
+    <result property="vimVMId" column="vim_vm_id"/>
+    <result property="vncUrl" column="vnc_url"/>
+  </resultMap>
+
+  <resultMap id="VMPortMap" type="org.edgegallery.developer.model.application.vm.VMPort">
+    <id property="id" column="id"/>
+    <result property="name" column="name"/>
+    <result property="description" column="description"/>
+    <result property="ipType" column="ip_type"/>
+    <result property="networkName" column="network_name"/>
+    <result property="ip" column="ip"/>
+    <result property="mask" column="mask"/>
+  </resultMap>
+
+  <resultMap id="VMCertificateMap" type="org.edgegallery.developer.model.application.vm.VMCertificate">
+    <result property="certificateType" column="certificate_type"/>
+    <result property="pwdCertificate" column="pwd_certificate" typeHandler="org.edgegallery.developer.model.handler.JsonCollectionTypeHandler"/>
+    <result property="keyPairCertificate" column="key_pair_certificate" typeHandler="org.edgegallery.developer.model.handler.JsonCollectionTypeHandler"/>
+  </resultMap>
+
+  <sql id="VMAllColumn">
+    id, name, flavor_id, image_id, user_data, status, area_zone, flavor_extra_spes, vim_vm_id, vnc_url
+  </sql>
+
+  <sql id="VMPortAllColumn">
+    id, name, description, ip_type, network_name, ip, mask
+  </sql>
+
+  <sql id="VMCertificateAllColumn">
+    certificate_type, pwd_certificate, key_pair_certificate
+  </sql>
+
+  <insert id="createVM">
+    insert into tbl_vm (id, app_id, name, flavor_id, image_id, user_data, status, area_zone, flavor_extra_spes, vim_vm_id, vnc_url)
+    values
+    ( #{vm.id}, #{applicationId}, #{vm.name}, #{vm.flavorId}, #{vm.imageId}, #{vm.userData}, #{vm.status},  #{vm.areaZone},
+    #{vm.flavorExtraSpes}, #{vm.vimVMId}, #{vm.vncUrl})
+  </insert>
+
+  <update id="modifyVM" parameterType="org.edgegallery.developer.model.application.vm.VirtualMachine">
+    UPDATE
+    tbl_vm
+    SET
+    name = #{name}, flavor_id = #{flavorId}, image_id = #{imageId}, user_data = #{userData},
+    status = #{status}, area_zone = #{area_zone}, flavor_extra_spes = #{flavorExtraSpes},
+    vim_vm_id = #{vimVMId}, vncUrl = #{vnc_url}
+    WHERE
+    id = #{id}
+  </update>
+
+  <delete id="deleteVM" parameterType="String">
+    DELETE FROM tbl_vm WHERE id = #{id};
+  </delete>
+
+  <delete id="deleteAllVMsByAppId" parameterType="String">
+    DELETE FROM tbl_vm WHERE where app_id = #{applicationId}
+  </delete>
+
+  <select id="getAllVMs" resultMap="VMMap">
+    SELECT
+    <include refid="VMAllColumn"/>
+    FROM tbl_vm
+  </select>
+
+  <select id="getAllVMsByAppId" parameterType="String" resultMap="VMMap">
+    SELECT
+    <include refid="VMAllColumn"/>
+    FROM tbl_vm where app_id = #{applicationId}
+  </select>
+
+  <select id="getVMById" parameterType="String" resultMap="VMMap">
+    SELECT
+    <include refid="VMAllColumn"/>
+    FROM tbl_vm where id = #{id}
+  </select>
+
+  <insert id="createVMPort">
+    insert into tbl_vm_port (id, vm_id, name, description, ip_type, ip, mask)
+    values
+    ( #{port.id}, #{vmId}, #{port.name}, #{port.description}, #{port.ipType}, #{port.ip}, #{port.mask})
+  </insert>
+
+  <update id="modifyVMPort" parameterType="org.edgegallery.developer.model.application.vm.VMPort">
+    UPDATE
+    tbl_vm_port
+    SET
+    name = #{name}, description = #{description}, ip_type = #{ipType}, ip = #{ip}, mask = #{mask}
+    WHERE
+    id = #{id}
+  </update>
+
+  <delete id="deleteVMPort" parameterType="String">
+    DELETE FROM tbl_vm_port WHERE id = #{id};
+  </delete>
+
+  <delete id="deleteAllVMPortsByVMId" parameterType="String">
+    DELETE FROM tbl_vm_port WHERE where vm_id = #{vmId}
+  </delete>
+
+  <select id="getAllVMPorts" resultMap="VMPortMap">
+    SELECT
+    <include refid="VMPortAllColumn"/>
+    FROM tbl_vm_port
+  </select>
+
+  <select id="getAllVMPortsByVMId" parameterType="String" resultMap="VMPortMap">
+    SELECT
+    <include refid="VMPortAllColumn"/>
+    FROM tbl_vm_port where vm_id = #{vmId}
+  </select>
+
+  <select id="getVMPortById" parameterType="String" resultMap="VMPortMap">
+    SELECT
+    <include refid="VMPortAllColumn"/>
+    FROM tbl_vm_port where id = #{id}
+  </select>
+
+  <insert id="createVMCertificate">
+    insert into tbl_vm_certificate (vm_id, certificate_type, pwd_certificate, key_pair_certificate)
+    values
+    (#{vmId} #{certificate.certificateType},
+    #{certificate.pwdCertificate, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonCollectionTypeHandler},
+    #{certificate.keyPairCertificate, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonCollectionTypeHandler})
+  </insert>
+
+  <update id="modifyVMCertificate">
+    UPDATE
+    tbl_vm_certificate
+    SET
+    certificate_type = #{certificate.certificateType}, pwd_certificate = #{certificate.pwdCertificate}, key_pair_certificate = #{certificate.keyPairCertificate}
+    WHERE
+    vm_id = #{vmId}
+  </update>
+
+  <delete id="deleteVMCertificate" parameterType="String">
+    DELETE FROM tbl_vm_certificate WHERE vm_id = #{vmId};
+  </delete>
+
+  <select id="getVMCertificate" parameterType="String" resultMap="VMCertificateMap">
+    SELECT
+    <include refid="VMCertificateAllColumn"/>
+    FROM tbl_vm_certificate where vm_id = #{vmId}
+  </select>
+
+</mapper>

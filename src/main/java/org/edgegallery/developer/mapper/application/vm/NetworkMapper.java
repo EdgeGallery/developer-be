@@ -15,6 +15,21 @@
  */
 package org.edgegallery.developer.mapper.application.vm;
 
-public class VMNetworkMapper {
+import java.util.List;
+import org.apache.ibatis.annotations.Param;
+import org.edgegallery.developer.model.application.vm.Network;
 
+public interface NetworkMapper {
+
+    int createNetwork(@Param("applicationId")String applicationId, @Param("network")Network network);
+
+    int modifyNetwork(Network network);
+
+    int deleteNetwork(String id);
+
+    int deleteNetworksByAppId(String id);
+
+    Network getNetworkById(String id);
+
+    List<Network> getNetworkByAppId(String applicationId);
 }
