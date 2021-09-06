@@ -16,7 +16,7 @@
   -->
 
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="org.edgegallery.developer.mapper.application.VMMapper">
+<mapper namespace="org.edgegallery.developer.mapper.application.vm.VMMapper">
   <resultMap id="VMMap" type="org.edgegallery.developer.model.application.vm.VirtualMachine">
     <id property="id" column="id"/>
     <result property="name" column="name"/>
@@ -25,7 +25,7 @@
     <result property="userData" column="user_data"/>
     <result property="status" column="status"/>
     <result property="areaZone" column="area_zone"/>
-    <result property="flavorExtraSpes" column="flavor_extra_spes"/>
+    <result property="flavorExtraSpecs" column="flavor_extra_spes"/>
     <result property="vimVMId" column="vim_vm_id"/>
     <result property="vncUrl" column="vnc_url"/>
   </resultMap>
@@ -47,7 +47,7 @@
   </resultMap>
 
   <sql id="VMAllColumn">
-    id, name, flavor_id, image_id, user_data, status, area_zone, flavor_extra_spes, vim_vm_id, vnc_url
+    id, name, flavor_id, image_id, user_data, status, area_zone, flavor_extra_specs, vim_vm_id, vnc_url
   </sql>
 
   <sql id="VMPortAllColumn">
@@ -59,10 +59,10 @@
   </sql>
 
   <insert id="createVM">
-    insert into tbl_vm (id, app_id, name, flavor_id, image_id, user_data, status, area_zone, flavor_extra_spes, vim_vm_id, vnc_url)
+    insert into tbl_vm (id, app_id, name, flavor_id, image_id, user_data, status, area_zone, flavor_extra_specs, vim_vm_id, vnc_url)
     values
     ( #{vm.id}, #{applicationId}, #{vm.name}, #{vm.flavorId}, #{vm.imageId}, #{vm.userData}, #{vm.status},  #{vm.areaZone},
-    #{vm.flavorExtraSpes}, #{vm.vimVMId}, #{vm.vncUrl})
+    #{vm.flavorExtraSpecs}, #{vm.vimVMId}, #{vm.vncUrl})
   </insert>
 
   <update id="modifyVM" parameterType="org.edgegallery.developer.model.application.vm.VirtualMachine">
@@ -70,7 +70,7 @@
     tbl_vm
     SET
     name = #{name}, flavor_id = #{flavorId}, image_id = #{imageId}, user_data = #{userData},
-    status = #{status}, area_zone = #{area_zone}, flavor_extra_spes = #{flavorExtraSpes},
+    status = #{status}, area_zone = #{area_zone}, flavor_extra_spes = #{flavorExtraSpecs},
     vim_vm_id = #{vimVMId}, vncUrl = #{vnc_url}
     WHERE
     id = #{id}

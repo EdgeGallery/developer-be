@@ -242,14 +242,19 @@ public class ResponseConsts {
     public static final int INSERT_DATA_FAILED = 20044;
 
     /**
-     * insert data to postgres failed.
+     * delete data to postgres failed.
      */
-    public static final int QUERY_DATA_FAILED = 20045;
+    public static final int DELETE_DATA_FAILED = 20045;
 
     /**
      * modify data to postgres failed.
      */
     public static final int MODIFY_DATA_FAILED = 20046;
+
+    /**
+     * icon file is null.
+     */
+    public static final int ICON_FILE_NULL = 20047;
 
 
 }

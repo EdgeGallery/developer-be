@@ -503,7 +503,7 @@
     "user_data" text DEFAULT NULL,
     "status" varchar(255) DEFAULT NULL,
     "area_zone" varchar(255) DEFAULT NULL,
-    "flavor_extra_spes"  text DEFAULT NULL,
+    "flavor_extra_specs"  text DEFAULT NULL,
     "vim_vm_id" varchar(255) DEFAULT NULL,
     "vnc_url" varchar(255) DEFAULT NULL,
     CONSTRAINT "tbl_vm_pkey" PRIMARY KEY ("id")

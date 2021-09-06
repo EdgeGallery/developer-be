@@ -17,6 +17,7 @@ package org.edgegallery.developer.mapper.application;
 
 import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 import org.edgegallery.developer.model.application.Application;
 
 @Mapper
@@ -30,7 +31,7 @@ public interface ApplicationMapper {
 
     List<Application> getAllApplications();
 
-    List<Application> getAllApplicationsByUserId(String userId);
+    List<Application> getAllApplicationsByUserId(@Param("userId")String userId,@Param("name") String name);
 
     Application getApplicationById(String id);
 }

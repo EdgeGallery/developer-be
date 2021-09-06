@@ -23,7 +23,7 @@ import io.swagger.annotations.ApiResponses;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
-import org.edgegallery.developer.model.application.SelectSandbox;
+import org.edgegallery.developer.model.application.SelectMepHost;
 import org.edgegallery.developer.response.ErrorRespDto;
 import org.edgegallery.developer.response.FormatRespDto;
 import org.edgegallery.developer.service.application.ApplicationActionService;
@@ -63,7 +63,7 @@ public class ApplicationActionCtl {
     public ResponseEntity<Boolean> selectSandbox(
         @Pattern(regexp = REGEX_UUID, message = "applicationId must be in UUID format")
         @ApiParam(value = "applicationId", required = true) @PathVariable("applicationId") String applicationId,
-        @NotNull @ApiParam(value = "selectSandbox", required = true) @RequestBody SelectSandbox selectSandbox) {
+        @NotNull @ApiParam(value = "selectSandbox", required = true) @RequestBody SelectMepHost selectSandbox) {
         Either<FormatRespDto, Boolean> either = applicationActionService.selectSandbox(applicationId, selectSandbox);
         return ResponseDataUtil.buildResponse(either);
     }
