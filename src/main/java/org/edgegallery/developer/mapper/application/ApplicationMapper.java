@@ -15,6 +15,22 @@
  */
 package org.edgegallery.developer.mapper.application;
 
+import java.util.List;
+import org.apache.ibatis.annotations.Mapper;
+import org.edgegallery.developer.model.application.Application;
+
+@Mapper
 public interface ApplicationMapper {
 
+    int createApplication(Application application);
+
+    int modifyApplication(Application application);
+
+    int deleteApplication(String id);
+
+    List<Application> getAllApplications();
+
+    List<Application> getAllApplicationsByUserId(String userId);
+
+    Application getApplicationById(String id);
 }
