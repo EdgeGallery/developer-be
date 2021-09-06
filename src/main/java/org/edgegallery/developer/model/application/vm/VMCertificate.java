@@ -29,6 +29,8 @@ public class VMCertificate {
 
     public static final String CERTIFICATE_TYPE_KEYPAIR = "KEYPAIR";
 
+    private String id;
+
     // certificateType can be PASSWORD/KEYPAIR
     private String certificateType;
 
