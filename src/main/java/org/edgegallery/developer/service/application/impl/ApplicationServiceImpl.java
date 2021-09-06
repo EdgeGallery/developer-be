@@ -1,4 +1,4 @@
-package org.edgegallery.developer.service.impl.application;
+package org.edgegallery.developer.service.application.impl;
 
 import org.edgegallery.developer.domain.shared.Page;
 import org.edgegallery.developer.model.application.Application;

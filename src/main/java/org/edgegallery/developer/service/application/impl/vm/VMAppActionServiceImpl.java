@@ -1,4 +1,4 @@
-package org.edgegallery.developer.service.impl.application.vm;
+package org.edgegallery.developer.service.application.impl.vm;
 
 import javax.servlet.http.HttpServletRequest;
 import org.edgegallery.developer.model.Chunk;

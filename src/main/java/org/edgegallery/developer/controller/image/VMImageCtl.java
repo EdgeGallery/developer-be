@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RestSchema(schemaId = "vmImage")
 @RequestMapping("/mec/developer/v2/vmimages")
 @Api(tags = "vmImage")
-public class VmImageCtl {
+public class VMImageCtl {
     @Autowired
     private VmImageService vmImageService;
 
