@@ -20,11 +20,10 @@ import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import org.edgegallery.developer.model.application.configuration.AppCertificate;
-import org.edgegallery.developer.model.application.configuration.AppServiceProduced;
-import org.edgegallery.developer.model.application.configuration.AppServiceRequired;
-import org.edgegallery.developer.model.application.configuration.DnsRule;
-import org.edgegallery.developer.model.application.configuration.TrafficRule;
+import org.edgegallery.developer.response.FormatRespDto;
+import org.edgegallery.developer.service.application.AppConfigurationService;
+import org.springframework.beans.factory.annotation.Autowired;
+import com.spencerwi.either.Either;
 
 @Getter
 @Setter
@@ -40,4 +39,5 @@ public class AppConfiguration {
     private List<TrafficRule> trafficRuleList;
 
     private List<DnsRule> dnsRuleList;
+
 }

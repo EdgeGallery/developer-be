@@ -426,3 +426,55 @@
     CONSTRAINT  "tbl_container_image_uniqueName" UNIQUE ("image_name","image_version"),
     CONSTRAINT "tbl_container_image_pkey" PRIMARY KEY ("image_id")
     );
+
+    CREATE TABLE IF NOT EXISTS "tbl_app_traffic_rule" (
+    "id" varchar(255) NOT NULL,
+    "app_id" varchar(255) NOT NULL,
+    "traffic_rule_id" varchar(255) NOT NULL,
+    "action" varchar(255) DEFAULT NULL,
+    "priority" varchar(255) DEFAULT NULL,
+    "filter_type" varchar(255) DEFAULT NULL,
+    "traffic_filter" text DEFAULT NULL,
+    "dst_interface" text DEFAULT NULL,
+    CONSTRAINT "tbl_app_traffic_rule_pkey" PRIMARY KEY ("id")
+    );
+
+    CREATE TABLE IF NOT EXISTS "tbl_app_dns_rule" (
+    "id" varchar(255) NOT NULL,
+    "app_id" varchar(255) NOT NULL,
+    "dns_rule_id" varchar(255) NOT NULL,
+    "domain_name" varchar(255) DEFAULT NULL,
+    "ip_address_type" varchar(255) DEFAULT NULL,
+    "ip_address" varchar(255) DEFAULT NULL,
+    "ttl" varchar(255) DEFAULT NULL,
+    CONSTRAINT "tbl_app_dns_rule_pkey" PRIMARY KEY ("id")
+    );
+
+    CREATE TABLE IF NOT EXISTS "tbl_app_service_produced" (
+    "id" varchar(255) NOT NULL,
+    "app_id" varchar(255) NOT NULL,
+    "ser_name" varchar(255) NOT NULL,
+    "version" varchar(255) DEFAULT NULL,
+    "dns_rule_id_list" text DEFAULT NULL,
+    "traffic_rule_id_list" text DEFAULT NULL,
+    CONSTRAINT "tbl_app_service_produced_pkey" PRIMARY KEY ("id")
+    );
+
+    CREATE TABLE IF NOT EXISTS "tbl_app_service_required" (
+    "id" varchar(255) NOT NULL,
+    "app_id" varchar(255) NOT NULL,
+    "ser_name" varchar(255) NOT NULL,
+    "version" varchar(255) DEFAULT NULL,
+    "requested_permissions" bool DEFAULT NULL,
+    "ser_app_id" varchar(255) DEFAULT NULL,
+    "package_id" varchar(255) DEFAULT NULL,
+    CONSTRAINT "tbl_app_service_required_pkey" PRIMARY KEY ("id")
+    );
+
+    CREATE TABLE IF NOT EXISTS "tbl_app_certificate" (
+    "id" varchar(255) NOT NULL,
+    "app_id" varchar(255) NOT NULL,
+    "ak" text DEFAULT NULL,
+    "sk" text DEFAULT NULL,
+    CONSTRAINT "tbl_app_certificate_pkey" PRIMARY KEY ("id")
+    );

@@ -25,6 +25,8 @@ import lombok.Setter;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class DnsRule {
 
+    private String id;
+
     private String dnsRuleId;
 
     private String domainName;

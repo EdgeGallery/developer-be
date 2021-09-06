@@ -236,5 +236,20 @@ public class ResponseConsts {
      */
     public static final int RET_GET_IMAGE_FROM_HARBOR_FAILED = 20043;
 
+    /**
+     * insert data to postgres failed.
+     */
+    public static final int INSERT_DATA_FAILED = 20044;
+
+    /**
+     * insert data to postgres failed.
+     */
+    public static final int QUERY_DATA_FAILED = 20045;
+
+    /**
+     * modify data to postgres failed.
+     */
+    public static final int MODIFY_DATA_FAILED = 20046;
+
 
 }
