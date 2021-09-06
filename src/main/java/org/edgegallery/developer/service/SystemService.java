@@ -425,8 +425,10 @@ public class SystemService {
         body.setCity(host.getAddress());
         body.setMechostIp(host.getMecHost());
         body.setMechostName(host.getName());
-        if (host.getOs().equals("openStack") || host.getOs().equals("FusionSphere")) {
-            body.setVim("openStack");
+        if (host.getOs().equals("OpenStack") || host.getOs().equals("FusionSphere")) {
+            body.setVim("OpenStack");
+        }else {
+            body.setVim("K8s");
         }
         body.setOrigin("developer");
         //add headers
