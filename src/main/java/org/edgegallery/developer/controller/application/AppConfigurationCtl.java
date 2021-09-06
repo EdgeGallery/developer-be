@@ -135,13 +135,13 @@ public class AppConfigurationCtl {
         @ApiResponse(code = 200, message = "OK", response = Boolean.class),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
-    @RequestMapping(value = "/{applicationId}/appconfiguration/trafficrules/{id}", method = RequestMethod.PUT,
+    @RequestMapping(value = "/{applicationId}/appconfiguration/trafficrules/{ruleId}", method = RequestMethod.PUT,
         consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<Boolean> modifyTrafficRule(
         @Pattern(regexp = REGEX_UUID, message = "applicationId must be in UUID format")
         @ApiParam(value = "applicationId", required = true) @PathVariable("applicationId") String applicationId,
-        @ApiParam(value = "id", required = true) @PathVariable("id") String id,
+        @ApiParam(value = "ruleId", required = true) @PathVariable("ruleId") String ruleId,
         @NotNull @ApiParam(value = "TrafficRule", required = true) @RequestBody TrafficRule trafficRule){
         Either<FormatRespDto, Boolean> either = appConfigurationService.modifyTrafficRule(applicationId, trafficRule);
         return ResponseDataUtil.buildResponse(either);
@@ -155,13 +155,13 @@ public class AppConfigurationCtl {
         @ApiResponse(code = 200, message = "OK", response = Boolean.class),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
-    @RequestMapping(value = "/{applicationId}/appconfiguration/trafficrules/{id}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @RequestMapping(value = "/{applicationId}/appconfiguration/trafficrules/{ruleId}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<Boolean> deleteTrafficRule(
         @Pattern(regexp = REGEX_UUID, message = "applicationId must be in UUID format")
         @ApiParam(value = "applicationId", required = true) @PathVariable("applicationId") String applicationId,
-        @ApiParam(value = "id", required = true) @PathVariable("id") String id){
-        Either<FormatRespDto, Boolean> either = appConfigurationService.deleteTrafficRule(applicationId, id);
+        @ApiParam(value = "ruleId", required = true) @PathVariable("ruleId") String ruleId){
+        Either<FormatRespDto, Boolean> either = appConfigurationService.deleteTrafficRule(applicationId, ruleId);
         return ResponseDataUtil.buildResponse(either);
     }
 
@@ -208,13 +208,13 @@ public class AppConfigurationCtl {
         @ApiResponse(code = 200, message = "OK", response = Boolean.class),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
-    @RequestMapping(value = "/{applicationId}/appconfiguration/dnsrules/{id}", method = RequestMethod.PUT,
+    @RequestMapping(value = "/{applicationId}/appconfiguration/dnsrules/{ruleId}", method = RequestMethod.PUT,
         consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<Boolean> modifyDnsRule(
         @Pattern(regexp = REGEX_UUID, message = "applicationId must be in UUID format")
         @ApiParam(value = "applicationId", required = true) @PathVariable("applicationId") String applicationId,
-        @ApiParam(value = "id", required = true) @PathVariable("id") String id,
+        @ApiParam(value = "ruleId", required = true) @PathVariable("ruleId") String ruleId,
         @NotNull @ApiParam(value = "DnsRule", required = true) @RequestBody DnsRule dnsRule){
         Either<FormatRespDto, Boolean> either = appConfigurationService.modifyDnsRule(applicationId, dnsRule);
         return ResponseDataUtil.buildResponse(either);
@@ -228,14 +228,14 @@ public class AppConfigurationCtl {
         @ApiResponse(code = 200, message = "OK", response = Boolean.class),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
-    @RequestMapping(value = "/{applicationId}/appconfiguration/dnsrules/{id}", method = RequestMethod.DELETE,
+    @RequestMapping(value = "/{applicationId}/appconfiguration/dnsrules/{ruleId}", method = RequestMethod.DELETE,
         produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<Boolean> deleteDnsRule(
         @Pattern(regexp = REGEX_UUID, message = "applicationId must be in UUID format")
         @ApiParam(value = "applicationId", required = true) @PathVariable("applicationId") String applicationId,
-        @ApiParam(value = "id", required = true) @PathVariable("id") String id){
-        Either<FormatRespDto, Boolean> either = appConfigurationService.deleteDnsRule(applicationId, id);
+        @ApiParam(value = "ruleId", required = true) @PathVariable("ruleId") String ruleId){
+        Either<FormatRespDto, Boolean> either = appConfigurationService.deleteDnsRule(applicationId, ruleId);
         return ResponseDataUtil.buildResponse(either);
     }
 
@@ -283,13 +283,13 @@ public class AppConfigurationCtl {
         @ApiResponse(code = 200, message = "OK", response = Boolean.class),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
-    @RequestMapping(value = "/{applicationId}/appconfiguration/serviceproduced/{id}", method = RequestMethod.PUT,
+    @RequestMapping(value = "/{applicationId}/appconfiguration/serviceproduced/{serName}", method = RequestMethod.PUT,
         consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<Boolean> modifyServiceProduced(
         @Pattern(regexp = REGEX_UUID, message = "applicationId must be in UUID format")
         @ApiParam(value = "applicationId", required = true) @PathVariable("applicationId") String applicationId,
-        @ApiParam(value = "id", required = true) @PathVariable("id") String id,
+        @ApiParam(value = "serName", required = true) @PathVariable("serName") String serName,
         @NotNull @ApiParam(value = "ServiceProduced", required = true) @RequestBody AppServiceProduced serviceProduced){
         Either<FormatRespDto, Boolean> either = appConfigurationService.modifyServiceProduced(applicationId, serviceProduced);
         return ResponseDataUtil.buildResponse(either);
@@ -303,13 +303,13 @@ public class AppConfigurationCtl {
         @ApiResponse(code = 200, message = "OK", response = Boolean.class),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
-    @RequestMapping(value = "/{applicationId}/appconfiguration/serviceproduced/{id}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @RequestMapping(value = "/{applicationId}/appconfiguration/serviceproduced/{serName}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<Boolean> deleteServiceProduced(
         @Pattern(regexp = REGEX_UUID, message = "applicationId must be in UUID format")
         @ApiParam(value = "applicationId", required = true) @PathVariable("applicationId") String applicationId,
-        @ApiParam(value = "id", required = true) @PathVariable("id") String id){
-        Either<FormatRespDto, Boolean> either = appConfigurationService.deleteServiceProduced(applicationId, id);
+        @ApiParam(value = "serName", required = true) @PathVariable("serName") String serName){
+        Either<FormatRespDto, Boolean> either = appConfigurationService.deleteServiceProduced(applicationId, serName);
         return ResponseDataUtil.buildResponse(either);
     }
 
@@ -356,13 +356,13 @@ public class AppConfigurationCtl {
         @ApiResponse(code = 200, message = "OK", response = Boolean.class),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
-    @RequestMapping(value = "/{applicationId}/appconfiguration/servicerequireds/{id}", method = RequestMethod.PUT,
+    @RequestMapping(value = "/{applicationId}/appconfiguration/servicerequireds/{serName}", method = RequestMethod.PUT,
         consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<Boolean> modifyServiceRequired(
         @Pattern(regexp = REGEX_UUID, message = "applicationId must be in UUID format")
         @ApiParam(value = "applicationId", required = true) @PathVariable("applicationId") String applicationId,
-        @ApiParam(value = "id", required = true) @PathVariable("id") String id,
+        @ApiParam(value = "serName", required = true) @PathVariable("serName") String serName,
         @NotNull @ApiParam(value = "ServiceRequired", required = true) @RequestBody AppServiceRequired serviceRequired){
         Either<FormatRespDto, Boolean> either = appConfigurationService.modifyServiceRequired(applicationId, serviceRequired);
         return ResponseDataUtil.buildResponse(either);
@@ -376,14 +376,14 @@ public class AppConfigurationCtl {
         @ApiResponse(code = 200, message = "OK", response = Boolean.class),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
-    @RequestMapping(value = "/{applicationId}/appconfiguration/servicerequireds/{id}", method = RequestMethod.DELETE,
+    @RequestMapping(value = "/{applicationId}/appconfiguration/servicerequireds/{serName}", method = RequestMethod.DELETE,
         produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<Boolean> deleteServiceRequired(
         @Pattern(regexp = REGEX_UUID, message = "applicationId must be in UUID format")
         @ApiParam(value = "applicationId", required = true) @PathVariable("applicationId") String applicationId,
-        @ApiParam(value = "id", required = true) @PathVariable("id") String id){
-        Either<FormatRespDto, Boolean> either = appConfigurationService.deleteServiceRequired(applicationId, id);
+        @ApiParam(value = "serName", required = true) @PathVariable("serName") String serName){
+        Either<FormatRespDto, Boolean> either = appConfigurationService.deleteServiceRequired(applicationId, serName);
         return ResponseDataUtil.buildResponse(either);
     }
 
@@ -430,13 +430,12 @@ public class AppConfigurationCtl {
         @ApiResponse(code = 200, message = "OK", response = Boolean.class),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
-    @RequestMapping(value = "/{applicationId}/appconfiguration/appcertificate/{id}", method = RequestMethod.PUT,
+    @RequestMapping(value = "/{applicationId}/appconfiguration/appcertificate", method = RequestMethod.PUT,
         consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<Boolean> modifyAppCertificate(
         @Pattern(regexp = REGEX_UUID, message = "applicationId must be in UUID format")
         @ApiParam(value = "applicationId", required = true) @PathVariable("applicationId") String applicationId,
-        @ApiParam(value = "id", required = true) @PathVariable("id") String id,
         @NotNull @ApiParam(value = "AppCertificate", required = true) @RequestBody AppCertificate appCertificate){
         Either<FormatRespDto, Boolean> either = appConfigurationService.modifyAppCertificate(applicationId, appCertificate);
         return ResponseDataUtil.buildResponse(either);
@@ -450,14 +449,13 @@ public class AppConfigurationCtl {
         @ApiResponse(code = 200, message = "OK", response = Boolean.class),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
-    @RequestMapping(value = "/{applicationId}/appconfiguration/appcertificate/{id}", method = RequestMethod.DELETE,
+    @RequestMapping(value = "/{applicationId}/appconfiguration/appcertificate", method = RequestMethod.DELETE,
         produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<Boolean> deleteAppCertificate(
         @Pattern(regexp = REGEX_UUID, message = "applicationId must be in UUID format")
-        @ApiParam(value = "applicationId", required = true) @PathVariable("applicationId") String applicationId,
-        @ApiParam(value = "id", required = true) @PathVariable("id") String id){
-        Either<FormatRespDto, Boolean> either = appConfigurationService.deleteAppCertificate(applicationId, id);
+        @ApiParam(value = "applicationId", required = true) @PathVariable("applicationId") String applicationId){
+        Either<FormatRespDto, Boolean> either = appConfigurationService.deleteAppCertificate(applicationId);
         return ResponseDataUtil.buildResponse(either);
     }
 

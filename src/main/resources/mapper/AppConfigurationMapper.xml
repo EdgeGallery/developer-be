@@ -19,7 +19,6 @@
 <mapper namespace="org.edgegallery.developer.mapper.application.AppConfigurationMapper">
   <resultMap id="TrafficRuleMap"
     type="org.edgegallery.developer.model.application.configuration.TrafficRule">
-    <id property="id" column="id"/>
     <result property="trafficRuleId" column="traffic_rule_id"/>
     <result property="action" column="action"/>
     <result property="priority" column="priority"/>
@@ -31,7 +30,6 @@
   </resultMap>
   <resultMap id="DnsRuleMap"
     type="org.edgegallery.developer.model.application.configuration.DnsRule">
-    <id property="id" column="id"/>
     <result property="dnsRuleId" column="dns_rule_id"/>
     <result property="domainName" column="domain_name"/>
     <result property="ipAddressType" column="ip_address_type"/>
@@ -41,7 +39,6 @@
 
   <resultMap id="AppServiceProducedMap"
     type="org.edgegallery.developer.model.application.configuration.AppServiceProduced">
-    <id property="id" column="id"/>
     <result property="serName" column="ser_name"/>
     <result property="version" column="version"/>
     <result property="dnsRuleIdList" column="dns_rule_id_list"
@@ -51,7 +48,6 @@
   </resultMap>
   <resultMap id="AppServiceRequiredMap"
     type="org.edgegallery.developer.model.application.configuration.AppServiceRequired">
-    <id property="id" column="id"/>
     <result property="serName" column="ser_name"/>
     <result property="version" column="version"/>
     <result property="requestedPermissions" column="requested_permissions"/>
@@ -60,52 +56,51 @@
   </resultMap>
   <resultMap id="AppCertificateMap"
     type="org.edgegallery.developer.model.application.configuration.AppCertificate">
-    <id property="id" column="id"/>
     <result property="ak" column="ak"/>
     <result property="sk" column="sk"/>
   </resultMap>
 
   <sql id="trafficRuleAllColumn">
-    id, traffic_rule_id, action, priority, filter_type, traffic_filter, dst_interface
+    traffic_rule_id, action, priority, filter_type, traffic_filter, dst_interface
   </sql>
 
   <sql id="DnsRuleAllColumn">
-    id, dns_rule_id, domain_name, ip_address_type, ip_address, ttl
+    dns_rule_id, domain_name, ip_address_type, ip_address, ttl
   </sql>
 
   <sql id="AppServiceProducedAllColumn">
-    id, ser_name, version, dns_rule_id_list, traffic_rule_id_list
+    ser_name, version, dns_rule_id_list, traffic_rule_id_list
   </sql>
 
   <sql id="AppServiceRequiredAllColumn">
-    id, ser_name, version, requested_permissions, ser_app_id, package_id
+    ser_name, version, requested_permissions, ser_app_id, package_id
   </sql>
 
   <sql id="AppCertificateAllColumn">
-    id, ak, sk
+    ak, sk
   </sql>
 
   <insert id="createTrafficRule">
-    insert into tbl_app_traffic_rule (id, app_id, traffic_rule_id, action, priority, filter_type, traffic_filter, dst_interface)
+    insert into tbl_app_traffic_rule (app_id, traffic_rule_id, action, priority, filter_type, traffic_filter, dst_interface)
     values
-    ( #{trafficRule.id}, #{applicationId}, #{trafficRule.trafficRuleId}, #{trafficRule.action}, #{trafficRule.priority}, #{trafficRule.filterType},
+    (#{applicationId}, #{trafficRule.trafficRuleId}, #{trafficRule.action}, #{trafficRule.priority}, #{trafficRule.filterType},
     #{trafficRule.trafficFilter, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonCollectionTypeHandler},
     #{trafficRule.dstInterface, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonCollectionTypeHandler})
   </insert>
 
-  <update id="modifyTrafficRule" parameterType="org.edgegallery.developer.model.application.configuration.TrafficRule">
+  <update id="modifyTrafficRule">
     UPDATE
     tbl_app_traffic_rule
     SET
-    traffic_rule_id = #{trafficRuleId}, action = #{action}, priority = #{priority}, filter_type = #{filterType},
-    traffic_Filter = #{trafficFilter, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonCollectionTypeHandler},
-    dst_interface = #{dstInterface, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonCollectionTypeHandler}
+    action = #{trafficRule.action}, priority = #{trafficRule.priority}, filter_type = #{trafficRule.filterType},
+    traffic_Filter = #{trafficRule.trafficFilter, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonCollectionTypeHandler},
+    dst_interface = #{trafficRule.dstInterface, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonCollectionTypeHandler}
     WHERE
-    id = #{id}
+    app_id = #{applicationId} and traffic_rule_id = #{trafficRule.trafficRuleId}
   </update>
 
-  <delete id="deleteTrafficRule" parameterType="String">
-    DELETE FROM tbl_app_traffic_rule WHERE id = #{id};
+  <delete id="deleteTrafficRule">
+    DELETE FROM tbl_app_traffic_rule WHERE app_id = #{applicationId} and traffic_rule_id = #{ruleId};
   </delete>
 
   <select id="getAllTrafficRules" parameterType="String" resultMap="TrafficRuleMap">
@@ -114,26 +109,32 @@
     FROM tbl_app_traffic_rule where app_id = #{applicationId}
   </select>
 
+  <select id="getTrafficRule" resultMap="TrafficRuleMap">
+    SELECT
+    <include refid="trafficRuleAllColumn"/>
+    FROM tbl_app_traffic_rule where app_id = #{applicationId} and traffic_rule_id = #{ruleId}
+  </select>
+
   <insert id="createDnsRule">
-    insert into tbl_app_dns_rule (id, app_id, dns_rule_id, domain_name, ip_address_type, ip_address, ttl)
+    insert into tbl_app_dns_rule (app_id, dns_rule_id, domain_name, ip_address_type, ip_address, ttl)
     values
-    ( #{dnsRule.id}, #{applicationId}, #{dnsRule.dnsRuleId}, #{dnsRule.domainName},
+    ( #{applicationId}, #{dnsRule.dnsRuleId}, #{dnsRule.domainName},
     #{dnsRule.ipAddressType}, #{dnsRule.ipAddress}, #{dnsRule.ttl})
   </insert>
 
-  <update id="modifyDnsRule" parameterType="org.edgegallery.developer.model.application.configuration.DnsRule">
+  <update id="modifyDnsRule">
     UPDATE
     tbl_app_dns_rule
     SET
-    dns_rule_id = #{dnsRuleId}, domain_name = #{domainName}, ip_address_type = #{ipAddressType},
-    ip_address = #{ipAddress},
-    ttl = #{ttl}
+    domain_name = #{dnsRule.domainName}, ip_address_type = #{dnsRule.ipAddressType},
+    ip_address = #{dnsRule.ipAddress},
+    ttl = #{dnsRule.ttl}
     WHERE
-    id = #{id}
+    app_id = #{applicationId} and dns_rule_id = #{dnsRule.dnsRuleId}
   </update>
 
-  <delete id="deleteDnsRule" parameterType="String">
-    DELETE FROM tbl_app_dns_rule WHERE id = #{id};
+  <delete id="deleteDnsRule">
+    DELETE FROM tbl_app_dns_rule WHERE app_id = #{applicationId} and dns_rule_id = #{ruleId}
   </delete>
 
   <select id="getAllDnsRules" parameterType="String" resultMap="DnsRuleMap">
@@ -142,28 +143,34 @@
     FROM tbl_app_dns_rule where app_id = #{applicationId}
   </select>
 
+  <select id="getDnsRule" resultMap="DnsRuleMap">
+    SELECT
+    <include refid="DnsRuleAllColumn"/>
+    FROM tbl_app_dns_rule where app_id = #{applicationId} and dns_rule_id = #{ruleId}
+  </select>
+
 
   <insert id="createServiceProduced">
-    insert into tbl_app_service_produced (id, app_id, ser_name, version, dns_rule_id_list, traffic_rule_id_list)
+    insert into tbl_app_service_produced (app_id, ser_name, version, dns_rule_id_list, traffic_rule_id_list)
     values
-    ( #{appServiceProduced.id}, #{applicationId}, #{appServiceProduced.serName}, #{appServiceProduced.version},
+    ( #{applicationId}, #{appServiceProduced.serName}, #{appServiceProduced.version},
     #{appServiceProduced.dnsRuleIdList, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonCollectionTypeHandler},
     #{appServiceProduced.trafficRuleIdList, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonCollectionTypeHandler})
   </insert>
 
-  <update id="modifyServiceProduced" parameterType="org.edgegallery.developer.model.application.configuration.AppServiceProduced">
+  <update id="modifyServiceProduced">
     UPDATE
     tbl_app_service_produced
     SET
-    ser_name = #{serName}, version = #{version},
-    dns_rule_id_list = #{dnsRuleIdList, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonCollectionTypeHandler},
-    traffic_rule_id_list = #{trafficRuleIdList, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonCollectionTypeHandler}
+    version = #{serviceProduced.version},
+    dns_rule_id_list = #{serviceProduced.dnsRuleIdList, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonCollectionTypeHandler},
+    traffic_rule_id_list = #{serviceProduced.trafficRuleIdList, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonCollectionTypeHandler}
     WHERE
-    id = #{id}
+    app_id = #{applicationId} and ser_name = #{serviceProduced.serName}
   </update>
 
-  <delete id="deleteServiceProduced" parameterType="String">
-    DELETE FROM tbl_app_service_produced WHERE id = #{id};
+  <delete id="deleteServiceProduced">
+    DELETE FROM tbl_app_service_produced WHERE app_id = #{applicationId} and ser_name = #{serName}
   </delete>
 
   <select id="getAllServiceProduced" parameterType="String" resultMap="AppServiceProducedMap">
@@ -172,51 +179,63 @@
     FROM tbl_app_service_produced where app_id = #{applicationId}
   </select>
 
+  <select id="getServiceProduced" resultMap="AppServiceProducedMap">
+    SELECT
+    <include refid="AppServiceProducedAllColumn"/>
+    FROM tbl_app_service_produced where app_id = #{applicationId} and ser_name = #{serName}
+  </select>
+
 
   <insert id="createServiceRequired">
-    insert into tbl_app_service_required (id, app_id, ser_name, version, requested_permissions, ser_app_id, package_id)
+    insert into tbl_app_service_required (app_id, ser_name, version, requested_permissions, ser_app_id, package_id)
     values
-    ( #{serviceRequired.id}, #{applicationId}, #{serviceRequired.serName}, #{serviceRequired.version},
+    ( #{applicationId}, #{serviceRequired.serName}, #{serviceRequired.version},
     #{serviceRequired.requestedPermissions}, #{serviceRequired.appId}, #{serviceRequired.packageId})
   </insert>
 
-  <update id="modifyServiceRequired" parameterType="org.edgegallery.developer.model.application.configuration.AppServiceRequired">
+  <update id="modifyServiceRequired">
     UPDATE
     tbl_app_service_required
     SET
-    ser_name = #{serName}, version = #{version}, requested_permissions = #{requestedPermissions},
-    ser_app_id = #{appId}, package_id = #{packageId}
+    version = #{serviceRequired.version}, requested_permissions = #{serviceRequired.requestedPermissions},
+    ser_app_id = #{serviceRequired.appId}, package_id = #{serviceRequired.packageId}
     WHERE
-    id = #{id}
+    app_id = #{applicationId} and ser_name = #{serviceRequired.serName}
   </update>
 
-  <delete id="deleteServiceRequired" parameterType="String">
-    DELETE FROM tbl_app_service_required WHERE id = #{id};
+  <delete id="deleteServiceRequired">
+    DELETE FROM tbl_app_service_required WHERE app_id = #{applicationId} and ser_name = #{serName}
   </delete>
 
-  <select id="getAllServiceRequired" parameterType="String" resultMap="AppServiceProducedMap">
+  <select id="getAllServiceRequired" parameterType="String" resultMap="AppServiceRequiredMap">
     SELECT
     <include refid="AppServiceRequiredAllColumn"/>
     FROM tbl_app_service_required where app_id = #{applicationId}
   </select>
 
-  <insert id="createAppCertificate" parameterType="org.edgegallery.developer.model.application.configuration.DnsRule">
-    insert into tbl_app_certificate (id, app_id, ak, sk)
+  <select id="getServiceRequired" resultMap="AppServiceRequiredMap">
+    SELECT
+    <include refid="AppServiceRequiredAllColumn"/>
+    FROM tbl_app_service_required where app_id = #{applicationId} and ser_name = #{serName}
+  </select>
+
+  <insert id="createAppCertificate">
+    insert into tbl_app_certificate (app_id, ak, sk)
     values
-    ( #{appCertificate.id}, #{applicationId}, #{appCertificate.ak}, #{appCertificate.sk})
+    ( #{applicationId}, #{appCertificate.ak}, #{appCertificate.sk})
   </insert>
 
-  <update id="modifyAppCertificate" parameterType="org.edgegallery.developer.model.application.configuration.AppCertificate">
+  <update id="modifyAppCertificate">
     UPDATE
     tbl_app_certificate
     SET
-    ak = #{ak}, sk = #{sk}
+    ak = #{appCertificate.ak}, sk = #{appCertificate.sk}
     WHERE
-    id = #{id}
+    app_id = #{applicationId}
   </update>
 
   <delete id="deleteAppCertificate" parameterType="String">
-    DELETE FROM tbl_app_certificate WHERE id = #{id};
+    DELETE FROM tbl_app_certificate WHERE app_id = #{applicationId};
   </delete>
 
   <select id="getAppCertificate" parameterType="String" resultMap="AppCertificateMap">
@@ -224,6 +243,5 @@
     <include refid="AppCertificateAllColumn"/>
     FROM tbl_app_certificate where app_id = #{applicationId}
   </select>
-
-
+  
 </mapper>

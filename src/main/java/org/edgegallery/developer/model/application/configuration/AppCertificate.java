@@ -25,8 +25,6 @@ import lombok.ToString;
 @ToString
 public class AppCertificate {
 
-    private String id;
-
     private String ak;
 
     private String sk;

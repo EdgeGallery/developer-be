@@ -172,7 +172,7 @@ public interface AppConfigurationService {
      * @return
      */
     @Transactional
-    Either<FormatRespDto, Boolean> deleteServiceRequired(String applicationId, String id);
+    Either<FormatRespDto, Boolean> deleteServiceRequired(String applicationId, String serName);
 
     AppCertificate getAppCertificate(String applicationId);
 
@@ -180,5 +180,5 @@ public interface AppConfigurationService {
 
     Either<FormatRespDto, Boolean> modifyAppCertificate(String applicationId, AppCertificate appCertificate);
 
-    Either<FormatRespDto, Boolean> deleteAppCertificate(String applicationId, String id);
+    Either<FormatRespDto, Boolean> deleteAppCertificate(String applicationId);
 }
