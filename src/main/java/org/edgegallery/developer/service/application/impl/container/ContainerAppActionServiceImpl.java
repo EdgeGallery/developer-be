@@ -1,4 +1,4 @@
-package org.edgegallery.developer.service.impl.application.container;
+package org.edgegallery.developer.service.application.impl.container;
 
 import org.edgegallery.developer.response.FormatRespDto;
 import org.edgegallery.developer.service.application.container.ContainerAppActionService;

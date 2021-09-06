@@ -8,13 +8,13 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
-@RestSchema(schemaId = "sandbox")
+@RestSchema(schemaId = "mepHosts")
 @RequestMapping("/mec/developer/v2/mephosts")
-@Api(tags = "sandbox")
+@Api(tags = "mepHosts")
 public class MepHostCtl {
     private static final String REG_UUID = "[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}";
 
     @Autowired
-    private MepHostService sandboxService;
+    private MepHostService mepHostService;
 
 }

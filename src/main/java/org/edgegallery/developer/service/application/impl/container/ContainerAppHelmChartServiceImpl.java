@@ -1,4 +1,4 @@
-package org.edgegallery.developer.service.impl.application.container;
+package org.edgegallery.developer.service.application.impl.container;
 
 import java.util.List;
 import org.edgegallery.developer.response.FormatRespDto;

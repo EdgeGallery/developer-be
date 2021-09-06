@@ -1,4 +1,4 @@
-package org.edgegallery.developer.service.impl.application.vm;
+package org.edgegallery.developer.service.application.impl.vm;
 
 import java.util.List;
 import org.edgegallery.developer.model.application.vm.Network;

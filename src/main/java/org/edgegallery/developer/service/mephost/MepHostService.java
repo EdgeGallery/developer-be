@@ -17,7 +17,7 @@ package org.edgegallery.developer.service.mephost;
 
 import org.springframework.stereotype.Service;
 
-@Service("sandboxService")
+@Service("mepHostService")
 public class MepHostService {
 
 }

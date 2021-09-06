@@ -1,4 +1,4 @@
-package org.edgegallery.developer.service.impl.application;
+package org.edgegallery.developer.service.application.impl;
 
 import java.util.List;
 import java.util.UUID;
