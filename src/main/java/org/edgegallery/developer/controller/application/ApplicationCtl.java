@@ -69,8 +69,7 @@ public class ApplicationCtl {
     public ResponseEntity<Application> getApplication(
         @Pattern(regexp = REGEX_UUID, message = "applicationId must be in UUID format")
         @ApiParam(value = "applicationId", required = true) @PathVariable("applicationId") String applicationId){
-        Either<FormatRespDto, Application> either = applicationService.getApplication(applicationId);
-        return ResponseDataUtil.buildResponse(either);
+        return ResponseEntity.ok(applicationService.getApplication(applicationId));
     }
 
     /**

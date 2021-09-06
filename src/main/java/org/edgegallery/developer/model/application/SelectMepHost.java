@@ -1,5 +1,5 @@
 package org.edgegallery.developer.model.application;
 
-public class SelectSandbox {
+public class SelectMepHost {
 
 }

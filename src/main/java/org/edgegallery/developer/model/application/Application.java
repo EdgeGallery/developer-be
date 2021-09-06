@@ -16,10 +16,12 @@
 
 package org.edgegallery.developer.model.application;
 
+import java.util.UUID;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import java.util.Date;
+import javax.validation.constraints.Pattern;
 import org.edgegallery.developer.model.application.configuration.AppConfiguration;
 
 @Getter
@@ -31,16 +33,19 @@ public class Application {
 
     private String name;
 
+    @Pattern(regexp = "^(?!\\s)[\\S.\\s\\n\\r]{1,128}$")
     private String description;
 
+    @Pattern(regexp = "^[\\w\\-][\\w\\-\\s.]{0,9}$")
     private String version;
 
+    @Pattern(regexp = "^\\S.{0,29}$")
     private String provider;
 
     private String architecture;
 
     // appClass can be CONTAINER/VM
-    private String appClass;
+    private EnumAppClass appClass;
 
     private String type;
 
@@ -49,16 +54,30 @@ public class Application {
     private String iconFileId;
 
     //appCreateType can be INTEGRATE/DEVELOP
-    private String appCreateType;
+    private EnumApplicationType appCreateType;
 
     private Date createTime;
 
-    private String status;
+    private EnumApplicationStatus status;
 
     private String userId;
 
     private String userName;
 
     private AppConfiguration appConfiguration;
+
+    public String getId() {
+        if (this.id == null) {
+            this.id = UUID.randomUUID().toString();
+        }
+        return this.id;
+    }
+
+    /**
+     * initialProject.
+     */
+    public void initialProject() {
+        this.status = EnumApplicationStatus.ONLINE;
+    }
 
 }

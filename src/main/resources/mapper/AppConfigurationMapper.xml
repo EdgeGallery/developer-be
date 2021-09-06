@@ -243,5 +243,5 @@
     <include refid="AppCertificateAllColumn"/>
     FROM tbl_app_certificate where app_id = #{applicationId}
   </select>
-  
+
 </mapper>

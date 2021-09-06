@@ -41,6 +41,17 @@ public final class DeveloperFileUtils {
     }
 
     /**
+     * get Absolute Path
+     *
+     * @throws IOException io exception
+     */
+
+    public static String getAbsolutePath(String relativePath) {
+        return InitConfigUtil.getWorkSpaceBaseDir() + BusinessConfigUtil.getWorkspacePath() + relativePath
+            + File.separator;
+    }
+
+    /**
      * copy template to des dir and rename the dir name.
      *
      * @param srcDir src

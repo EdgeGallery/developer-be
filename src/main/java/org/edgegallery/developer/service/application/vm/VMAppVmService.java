@@ -9,9 +9,9 @@ public interface VMAppVmService {
 
     Either<FormatRespDto, VirtualMachine> createVm(String applicationId, VirtualMachine virtualMachine);
 
-    Either<FormatRespDto, List<VirtualMachine>> getAllVm(String applicationId);
+    List<VirtualMachine> getAllVm(String applicationId);
 
-    Either<FormatRespDto, VirtualMachine> getVm(String applicationId, String vmId);
+    VirtualMachine getVm(String applicationId, String vmId);
 
     Either<FormatRespDto, Boolean> modifyVm(String applicationId, String vmId, VirtualMachine virtualMachine);
 

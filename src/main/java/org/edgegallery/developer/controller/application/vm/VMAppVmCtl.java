@@ -82,8 +82,7 @@ public class VMAppVmCtl {
     public ResponseEntity<List<VirtualMachine>> getAllVm(
         @Pattern(regexp = REGEX_UUID, message = "applicationId must be in UUID format")
         @ApiParam(value = "applicationId", required = true) @PathVariable("applicationId") String applicationId) {
-        Either<FormatRespDto, List<VirtualMachine>> either = vmAppVmService.getAllVm(applicationId);
-        return ResponseDataUtil.buildResponse(either);
+        return ResponseEntity.ok(vmAppVmService.getAllVm(applicationId));
     }
 
     /**
@@ -101,8 +100,7 @@ public class VMAppVmCtl {
         @Pattern(regexp = REGEX_UUID, message = "applicationId must be in UUID format")
         @ApiParam(value = "applicationId", required = true) @PathVariable("applicationId") String applicationId,
         @ApiParam(value = "vmId", required = true) @PathVariable("vmId") String vmId) {
-        Either<FormatRespDto, VirtualMachine> either = vmAppVmService.getVm(applicationId, vmId);
-        return ResponseDataUtil.buildResponse(either);
+        return ResponseEntity.ok(vmAppVmService.getVm(applicationId, vmId));
     }
 
     /**

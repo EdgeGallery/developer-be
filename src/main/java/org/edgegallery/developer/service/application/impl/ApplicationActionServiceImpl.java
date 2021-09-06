@@ -1,6 +1,6 @@
 package org.edgegallery.developer.service.application.impl;
 
-import org.edgegallery.developer.model.application.SelectSandbox;
+import org.edgegallery.developer.model.application.SelectMepHost;
 import org.edgegallery.developer.response.FormatRespDto;
 import org.edgegallery.developer.service.application.ApplicationActionService;
 import org.springframework.stereotype.Service;
@@ -25,7 +25,7 @@ public class ApplicationActionServiceImpl implements ApplicationActionService {
     }
 
     @Override
-    public Either<FormatRespDto, Boolean> selectSandbox(String applicationId, SelectSandbox selectSandbox) {
+    public Either<FormatRespDto, Boolean> selectSandbox(String applicationId, SelectMepHost selectSandbox) {
         return null;
     }
 }

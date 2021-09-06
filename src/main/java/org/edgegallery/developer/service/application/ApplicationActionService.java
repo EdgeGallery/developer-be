@@ -1,6 +1,6 @@
 package org.edgegallery.developer.service.application;
 
-import org.edgegallery.developer.model.application.SelectSandbox;
+import org.edgegallery.developer.model.application.SelectMepHost;
 import org.edgegallery.developer.response.FormatRespDto;
 import com.spencerwi.either.Either;
 
@@ -12,5 +12,5 @@ public interface ApplicationActionService {
 
     Either<FormatRespDto, Boolean> commitTest(String applicationId);
 
-    Either<FormatRespDto, Boolean> selectSandbox(String applicationId, SelectSandbox selectSandbox);
+    Either<FormatRespDto, Boolean> selectSandbox(String applicationId, SelectMepHost selectSandbox);
 }

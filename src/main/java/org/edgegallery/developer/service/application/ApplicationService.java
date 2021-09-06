@@ -24,7 +24,7 @@ public interface ApplicationService {
      * @return
      */
     @Transactional
-    public Either<FormatRespDto, Application> getApplication(String applicationId);
+    public Application getApplication(String applicationId);
 
     /**
      * modify a application
