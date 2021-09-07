@@ -1,6 +1,7 @@
 package org.edgegallery.developer.service.application.impl.vm;
 
 import java.util.List;
+import java.util.UUID;
 import org.edgegallery.developer.common.ResponseConsts;
 import org.edgegallery.developer.exception.DeveloperException;
 import org.edgegallery.developer.mapper.application.vm.NetworkMapper;
@@ -22,6 +23,7 @@ public class VMAppNetworkServiceImpl implements VMAppNetworkService {
 
     @Override
     public Either<FormatRespDto, Network> createNetwork(String applicationId, Network network) {
+        network.setId(UUID.randomUUID().toString());
         int res = networkMapper.createNetwork(applicationId, network);
         if (res < 1) {
             LOGGER.error("Create network in db error.");

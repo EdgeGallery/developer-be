@@ -25,7 +25,7 @@
     <result property="userData" column="user_data"/>
     <result property="status" column="status"/>
     <result property="areaZone" column="area_zone"/>
-    <result property="flavorExtraSpecs" column="flavor_extra_spes"/>
+    <result property="flavorExtraSpecs" column="flavor_extra_specs"/>
     <result property="vimVMId" column="vim_vm_id"/>
     <result property="vncUrl" column="vnc_url"/>
   </resultMap>
@@ -70,8 +70,8 @@
     tbl_vm
     SET
     name = #{name}, flavor_id = #{flavorId}, image_id = #{imageId}, user_data = #{userData},
-    status = #{status}, area_zone = #{area_zone}, flavor_extra_spes = #{flavorExtraSpecs},
-    vim_vm_id = #{vimVMId}, vncUrl = #{vnc_url}
+    status = #{status}, area_zone = #{areaZone}, flavor_extra_specs = #{flavorExtraSpecs},
+    vim_vm_id = #{vimVMId}, vnc_url = #{vncUrl}
     WHERE
     id = #{id}
   </update>

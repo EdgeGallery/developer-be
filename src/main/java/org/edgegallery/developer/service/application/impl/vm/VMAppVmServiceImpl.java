@@ -1,6 +1,7 @@
 package org.edgegallery.developer.service.application.impl.vm;
 
 import java.util.List;
+import java.util.UUID;
 import org.edgegallery.developer.common.ResponseConsts;
 import org.edgegallery.developer.exception.DeveloperException;
 import org.edgegallery.developer.mapper.application.vm.VMMapper;
@@ -26,6 +27,7 @@ public class VMAppVmServiceImpl implements VMAppVmService {
 
     @Override
     public Either<FormatRespDto, VirtualMachine> createVm(String applicationId, VirtualMachine virtualMachine) {
+        virtualMachine.setId(UUID.randomUUID().toString());
         int res = vmMapper.createVM(applicationId, virtualMachine);
         if (res < 1) {
             LOGGER.error("Create vm in db error.");
