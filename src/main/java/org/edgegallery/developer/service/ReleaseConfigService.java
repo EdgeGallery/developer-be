@@ -42,6 +42,7 @@ import java.util.stream.Collectors;
 import javax.ws.rs.core.Response;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.edgegallery.developer.common.Consts;
 import org.edgegallery.developer.config.security.AccessUserUtil;
 import org.edgegallery.developer.exception.DomainException;
 import org.edgegallery.developer.mapper.ProjectMapper;
@@ -302,6 +303,8 @@ public class ReleaseConfigService {
         ProjectTestConfig config = testConfigs.get(0);
         String projectPath = projectService.getProjectPath(config.getProjectId());
         String csarFilePath = projectPath + config.getAppInstanceId();
+        String namespace = project.getName().replaceAll(Consts.PATTERN, "").toLowerCase()
+            + config.getAppInstanceId().substring(0, 8);
         // modify md file
         if (!StringUtils.isEmpty(releaseConfig.getGuideFileId())) {
             try {
@@ -345,7 +348,7 @@ public class ReleaseConfigService {
                         if (!tgzFile.isFile() || !tgzFile.getName().endsWith(".tgz")) {
                             continue;
                         }
-                        fillTemplateInTgzFile(tgzFile, details);
+                        fillTemplateInTgzFile(tgzFile, details, namespace);
                     }
                 }
             }
@@ -581,7 +584,7 @@ public class ReleaseConfigService {
     /**
      * fill value template with detailList.
      */
-    private void fillTemplateInTgzFile(File tgzFile, List<ServiceDetail> detailList) {
+    private void fillTemplateInTgzFile(File tgzFile, List<ServiceDetail> detailList, String namespace) {
         String fileName = tgzFile.getName().replace(".tgz", "");
         try {
             // decompress tgz
@@ -607,7 +610,7 @@ public class ReleaseConfigService {
             // build node template
             List<ServiceConfig> configs = detailList.stream().map(
                 t -> new ServiceConfig(t.getServiceName(), t.getInternalPort(), t.getVersion(), t.getProtocol(),
-                    fileName)).collect(Collectors.toList());
+                    namespace)).collect(Collectors.toList());
             // update node in template
             loaded.put("serviceconfig", configs);
             // write content to yaml

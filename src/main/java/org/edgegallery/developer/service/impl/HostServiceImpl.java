@@ -97,6 +97,11 @@ public class HostServiceImpl implements HostService {
     @Transactional
     @Override
     public Either<FormatRespDto, Boolean> createHost(MepCreateHost host, String token) {
+        MepHost mepHost = hostMapper.getHostsByMecHost(host.getMecHost());
+        if (mepHost != null) {
+            LOGGER.info("mecHost have exit:{}", host.getMecHost());
+            return Either.left(new FormatRespDto(Status.BAD_REQUEST, "mecHost have exit"));
+        }
         if (StringUtils.isBlank(host.getUserId()) || !isAdminUser()) {
             LOGGER.error("Create host failed, userId is empty or not admin");
             return Either.left(new FormatRespDto(Status.BAD_REQUEST, "userId is empty or not admin"));

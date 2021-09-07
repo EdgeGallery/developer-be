@@ -582,9 +582,9 @@ public class ProjectService {
         String projectId = project.getId();
         List<String> mepCapability = project.getCapabilityList();
         String projectPath = getProjectPath(projectId);
-        String chartName = project.getName().replaceAll(Consts.PATTERN, "").toLowerCase() + UUID.randomUUID().toString()
-            .substring(0, 8);
-        String configMapName = "mepagent" + UUID.randomUUID().toString();
+        String chartName = project.getName().replaceAll(Consts.PATTERN, "").toLowerCase()
+            + testConfig.getAppInstanceId().substring(0, 8);
+        String configMapName = "mepagent" + testConfig.getAppInstanceId().toString();
         String namespace = chartName;
         List<HelmTemplateYamlPo> yamlPoList = helmTemplateYamlMapper.queryTemplateYamlByProjectId(userId, projectId);
         File csarPkgDir;

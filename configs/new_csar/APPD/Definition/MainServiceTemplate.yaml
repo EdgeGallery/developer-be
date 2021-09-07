@@ -69,7 +69,7 @@ topology_template:
       type: tosca.nodes.nfv.app.configuration
       properties:
         appServiceRequired:
-          - serName: service-deploy
+          - serName: service-discovery
             version: v1
             requestedPermissions: true
   groups:
