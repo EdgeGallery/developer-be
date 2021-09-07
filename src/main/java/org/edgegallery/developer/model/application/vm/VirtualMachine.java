@@ -45,7 +45,7 @@ public class VirtualMachine {
 
     private String areaZone;
 
-    private String flavorExtraSpes;
+    private String flavorExtraSpecs;
 
     private String vimVMId;
 
