@@ -22,4 +22,5 @@ public interface HostService {
     Either<FormatRespDto, MepHost> getHost(String hostId);
 
     Either<FormatRespDto, List<MepHostLog>> getHostLogByHostId(String hostId);
+
 }

@@ -95,6 +95,11 @@
         WHERE host_id = #{hostId}
     </select>
 
+    <select id="getHostsByMecHost" resultMap="HostMap">
+        SELECT <include refid="AllColumn"/> FROM tbl_service_host
+        WHERE mec_host = #{mecHost}
+    </select>
+
     <update id="updateHost" parameterType="org.edgegallery.developer.model.resource.MepHost">
         UPDATE tbl_service_host
         SET ip=#{ip}, port=#{port}

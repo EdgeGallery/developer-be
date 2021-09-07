@@ -43,5 +43,6 @@ public interface HostMapper {
 
     List<MepHost>selectHostsByCondition(@Param("os") String os, @Param("architecture") String architecture);
 
+    MepHost getHostsByMecHost(String mecHost);
 }
 
