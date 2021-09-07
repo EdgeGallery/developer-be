@@ -85,6 +85,25 @@ public class HostController {
 	}
 
 	/**
+	 * selectAllHosts.
+	 *
+	 * @return
+	 */
+	@ApiOperation(value = "select all server(build and test app)", response = MepHost.class, responseContainer = "List")
+	@ApiResponses(value = {
+		@ApiResponse(code = 200, message = "OK", response = MepHost.class, responseContainer = "List"),
+		@ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class) })
+	@RequestMapping(value = "/list", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@PreAuthorize("hasRole('DEVELOPER_ADMIN')")
+	public ResponseEntity<Page<MepHost>> selectAllHosts(
+		@ApiParam(value = "os", required = true) @RequestParam(value = "os") String os,
+		@ApiParam(value = "architecture", required = true) @RequestParam(value = "architecture") String architecture,
+		@ApiParam(value = "the max count of one page", required = true) @Min(1) @RequestParam("limit") int limit,
+		@ApiParam(value = "start index of the page", required = true) @Min(0) @RequestParam("offset") int offset) {
+		return ResponseEntity.ok(hostService.selectAllHosts(os, architecture, limit, offset));
+	}
+
+	/**
 	 * getHost.
 	 * @return
 	 */

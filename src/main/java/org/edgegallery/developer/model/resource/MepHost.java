@@ -72,4 +72,6 @@ public class MepHost {
     private int vncPort;
 
     private String parameter;
+
+    private String resource;
 }
