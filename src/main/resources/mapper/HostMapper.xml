@@ -32,58 +32,68 @@
         <result property="os" column="os"/>
         <result property="portRangeMin" column="port_range_min"/>
         <result property="portRangeMax" column="port_range_max"/>
-        <result property="userName" column="user_name" />
-        <result property="password" column="password" />
-        <result property="vncPort" column="vnc_port" />
-        <result property="parameter" column="parameter" />
+        <result property="userName" column="user_name"/>
+        <result property="password" column="password"/>
+        <result property="vncPort" column="vnc_port"/>
+        <result property="parameter" column="parameter"/>
+        <result property="resource" column="resource"/>
     </resultMap>
 
     <sql id="AllColumn">
-    host_id, user_id, name, address, architecture, status, protocol, lcm_ip, mec_host, os, port_range_min, port_range_max,port, user_name, password,delete, parameter, vnc_port
+        host_id, user_id, name, address, architecture, status, protocol, lcm_ip, mec_host, os, port_range_min,
+        port_range_max,port, user_name, password,delete, parameter, vnc_port, resource
     </sql>
-    
+
     <insert id="createHost"
-      parameterType="org.edgegallery.developer.model.workspace.MepCreateHost">
-      insert into
-      tbl_service_host (host_id, user_id, name, address, architecture, status, lcm_ip, mec_host, port, os, port_range_min, port_range_max, protocol, user_name, password, vnc_port, parameter)
-      values
-      ( #{hostId}, #{userId}, #{name}, #{address}, #{architecture}, #{status}, #{lcmIp}, #{mecHost},
-      #{port}, #{os}, #{portRangeMin}, #{portRangeMax}, #{protocol}, #{userName}, #{password}, #{vncPort}, #{parameter})
+            parameterType="org.edgegallery.developer.model.workspace.MepCreateHost">
+        insert into
+        tbl_service_host (host_id, user_id, name, address, architecture, status, lcm_ip, mec_host, port, os,
+        port_range_min, port_range_max, protocol, user_name, password, vnc_port, parameter, resource)
+        values
+        ( #{hostId}, #{userId}, #{name}, #{address}, #{architecture}, #{status}, #{lcmIp}, #{mecHost},
+        #{port}, #{os}, #{portRangeMin}, #{portRangeMax}, #{protocol}, #{userName}, #{password}, #{vncPort},
+        #{parameter}, #{resource})
     </insert>
 
     <select id="getAllHosts" resultMap="HostMap">
-        SELECT <include refid="AllColumn"/> FROM tbl_service_host
+        SELECT
+        <include refid="AllColumn"/>
+        FROM tbl_service_host
     </select>
 
-   <select id="getHostsByUserId" resultMap="HostMap">
-        SELECT <include refid="AllColumn"/> FROM tbl_service_host WHERE user_id = #{userId}
-   </select>
+    <select id="getHostsByUserId" resultMap="HostMap">
+        SELECT
+        <include refid="AllColumn"/>
+        FROM tbl_service_host WHERE user_id = #{userId}
+    </select>
 
-   <select id="getHostsByStatus" resultMap="HostMap">
-        SELECT <include refid="AllColumn"/> FROM tbl_service_host
+    <select id="getHostsByStatus" resultMap="HostMap">
+        SELECT
+        <include refid="AllColumn"/>
+        FROM tbl_service_host
         WHERE status = #{param1} and architecture = #{param2} and os = #{param3}
-   </select>
+    </select>
 
     <select id="getNormalHosts" resultMap="HostMap">
         SELECT
-         <include refid="AllColumn"/>
+        <include refid="AllColumn"/>
         FROM tbl_service_host
         WHERE status = 'NORMAL'
     </select>
 
     <select id="getHost" parameterType="java.lang.String" resultMap="HostMap">
         SELECT
-         <include refid="AllColumn"/>
+        <include refid="AllColumn"/>
         FROM tbl_service_host
         WHERE host_id = #{hostId}
     </select>
 
-  <select id="getCreateHost" parameterType="java.lang.String" resultMap="HostMap">
-    SELECT
-     <include refid="AllColumn"/>
-    FROM tbl_service_host
-    WHERE host_id = #{hostId}
-  </select>
+    <select id="getCreateHost" parameterType="java.lang.String" resultMap="HostMap">
+        SELECT
+        <include refid="AllColumn"/>
+        FROM tbl_service_host
+        WHERE host_id = #{hostId}
+    </select>
 
     <update id="updateHost" parameterType="org.edgegallery.developer.model.resource.MepHost">
         UPDATE tbl_service_host
@@ -95,10 +105,10 @@
         UPDATE tbl_service_host
         <set>
             <if test="lcmIp != null">
-              lcm_ip=#{lcmIp},
+                lcm_ip=#{lcmIp},
             </if>
             <if test="mecHost != null">
-              mec_host=#{mecHost},
+                mec_host=#{mecHost},
             </if>
             <if test="port != null">
                 port=#{port},
@@ -140,7 +150,10 @@
                 vnc_port=#{vncPort},
             </if>
             <if test="parameter != null">
-              parameter=#{parameter}
+                parameter=#{parameter}
+            </if>
+            <if test="resource != null">
+                resource=#{resource}
             </if>
         </set>
         WHERE host_id = #{hostId}
@@ -152,7 +165,7 @@
 
     <select id="getHostsByCondition" resultMap="HostMap">
         SELECT
-         <include refid="AllColumn"/>
+        <include refid="AllColumn"/>
         FROM tbl_service_host WHERE 1=1
         <if test="userId != null">
             and user_id = #{userId}
@@ -163,6 +176,25 @@
         <if test="name != null">
             and name like CONCAT('%',#{name},'%')
         </if>
-         order by ROW_NUMBER () OVER() desc
+        order by ROW_NUMBER () OVER() desc
     </select>
+
+    <select id="selectHostsByCondition" resultMap="HostMap">
+        SELECT
+        <include refid="AllColumn"/>
+        FROM tbl_service_host WHERE 1=1
+        <if test="os != null and os !=''">
+            <if test="os=='container'.toString()">
+                and os = 'K8S'
+            </if>
+            <if test="os=='vm'.toString()">
+                and os != 'K8S'
+            </if>
+        </if>
+        <if test="architecture != null and architecture !=''">
+            and architecture = #{architecture}
+        </if>
+        order by ROW_NUMBER () OVER() desc
+    </select>
+
 </mapper>

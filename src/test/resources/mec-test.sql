@@ -344,6 +344,7 @@ CREATE TABLE IF NOT EXISTS tbl_service_host (
   password varchar(255)  DEFAULT NULL,
   vnc_port int DEFAULT 22,
   parameter text DEFAULT NULL,
+  resource text DEFAULT NULL,
   delete int DEFAULT NULL
 )
 ;

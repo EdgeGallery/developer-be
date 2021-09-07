@@ -255,7 +255,8 @@
       "password" varchar(50) DEFAULT NULL,
       "vnc_port" int4 DEFAULT 22,
       "parameter" text DEFAULT NULL,
-      "delete" bool DEFAULT NULL
+      "delete" bool DEFAULT NULL,
+      "resource" text DEFAULT NULL
     )
     ;
 

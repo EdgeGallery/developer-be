@@ -17,15 +17,15 @@
 -- ----------------------------
 -- Records of tbl_service_host
 -- ----------------------------
-MERGE INTO tbl_service_host(host_id, user_id, name, address, architecture, status, protocol,lcm_ip, mec_host, os, port_range_min, port_range_max,port, user_name, password,delete, parameter, vnc_port) KEY(host_id) 
-VALUES ('c8aac2b2-4162-40fe-9d99-0630e3245cf7', 'e111f3e7-90d8-4a39-9874-ea6ea6752ef6','host-1','xian','ARM','NORMAL','https','10.1.12.1','10.1.12.1','linux',30000,300001,30000,'root','123456',null,null,22);
-MERGE INTO tbl_service_host(host_id, user_id, name, address, architecture, status, protocol,lcm_ip, mec_host, os, port_range_min, port_range_max,port, user_name, password,delete, parameter, vnc_port) KEY(host_id) 
-VALUES ('c8aac2b2-4162-40fe-9d99-0630e3245cf8', 'e111f3e7-90d8-4a39-9874-ea6ea6752ef6','host-2','xian','ARM','NORMAL','https','10.1.12.1','10.1.12.1','linux',30000,300001,30000,'root','123456',null,null,22);
+MERGE INTO tbl_service_host(host_id, user_id, name, address, architecture, status, protocol,lcm_ip, mec_host, os, port_range_min, port_range_max,port, user_name, password,delete, parameter, vnc_port,resource) KEY(host_id)
+VALUES ('c8aac2b2-4162-40fe-9d99-0630e3245cf7', 'e111f3e7-90d8-4a39-9874-ea6ea6752ef6','host-1','xian','ARM','NORMAL','https','10.1.12.1','10.1.12.1','linux',30000,300001,30000,'root','123456',null,null,22,null);
+MERGE INTO tbl_service_host(host_id, user_id, name, address, architecture, status, protocol,lcm_ip, mec_host, os, port_range_min, port_range_max,port, user_name, password,delete, parameter, vnc_port,resource) KEY(host_id)
+VALUES ('c8aac2b2-4162-40fe-9d99-0630e3245cf8', 'e111f3e7-90d8-4a39-9874-ea6ea6752ef6','host-2','xian','ARM','NORMAL','https','10.1.12.1','10.1.12.1','linux',30000,300001,30000,'root','123456',null,null,22,null);
 
-MERGE INTO tbl_service_host(host_id, user_id, name, address, architecture, status, protocol,lcm_ip, mec_host, os, port_range_min, port_range_max,port, user_name, password,delete, parameter, vnc_port) KEY(host_id) 
-VALUES ('c8aac2b2-4162-40fe-9d99-0630e3245cf9', 'f24ea0a2-d8e6-467c-8039-94f0d29bac43','host-2','xian','ARM','NORMAL','https','10.1.12.1','10.1.12.1','linux',30000,300001,30000,'root','123456',null,null,22);
-MERGE INTO tbl_service_host(host_id, user_id, name, address, architecture, status, protocol,lcm_ip, mec_host, os, port_range_min, port_range_max,port, user_name, password,delete, parameter, vnc_port) KEY(host_id) 
-VALUES ('c8aac2b2-4162-40fe-9d99-0630e3245cdd', 'e111f3e7-90d8-4a39-9874-ea6ea6752eaa','host-1','xian','ARM','NORMAL','https','10.1.12.1','10.1.12.1','linux',30000,300001,30000,'root','123456',null,null,22);
+MERGE INTO tbl_service_host(host_id, user_id, name, address, architecture, status, protocol,lcm_ip, mec_host, os, port_range_min, port_range_max,port, user_name, password,delete, parameter, vnc_port,resource) KEY(host_id)
+VALUES ('c8aac2b2-4162-40fe-9d99-0630e3245cf9', 'f24ea0a2-d8e6-467c-8039-94f0d29bac43','host-2','xian','ARM','NORMAL','https','10.1.12.1','10.1.12.1','linux',30000,300001,30000,'root','123456',null,null,22,null);
+MERGE INTO tbl_service_host(host_id, user_id, name, address, architecture, status, protocol,lcm_ip, mec_host, os, port_range_min, port_range_max,port, user_name, password,delete, parameter, vnc_port,resource) KEY(host_id)
+VALUES ('c8aac2b2-4162-40fe-9d99-0630e3245cdd', 'e111f3e7-90d8-4a39-9874-ea6ea6752eaa','host-1','xian','ARM','NORMAL','https','10.1.12.1','10.1.12.1','linux',30000,300001,30000,'root','123456',null,null,22,null);
 
 -- ----------------------------
 -- Records of tbl_vm_system
