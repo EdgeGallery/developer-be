@@ -132,6 +132,14 @@ public class ReleaseConfigService {
             FormatRespDto dto = new FormatRespDto(Response.Status.INTERNAL_SERVER_ERROR, "save config data fail");
             return Either.left(dto);
         }
+        String guideFileId = config.getGuideFileId();
+        if(StringUtils.isNotEmpty(guideFileId)){
+            int guideId = uploadedFileMapper.updateFileStatus(guideFileId, false);
+            if (guideId <= 0) {
+                String msg = "update guide md file status occur db error";
+                return Either.left(new FormatRespDto(Response.Status.INTERNAL_SERVER_ERROR, msg));
+            }
+        }
         CapabilitiesDetail capabilitiesDetail = config.getCapabilitiesDetail();
         if (capabilitiesDetail != null) {
             List<ServiceDetail> list = capabilitiesDetail.getServiceDetails();
@@ -201,7 +209,14 @@ public class ReleaseConfigService {
             FormatRespDto dto = new FormatRespDto(Response.Status.INTERNAL_SERVER_ERROR, "modify config data fail");
             return Either.left(dto);
         }
-
+        String guideFileId = config.getGuideFileId();
+        if(StringUtils.isNotEmpty(guideFileId)){
+            int guideId = uploadedFileMapper.updateFileStatus(guideFileId, false);
+            if (guideId <= 0) {
+                String msg = "update guide md file status occur db error";
+                return Either.left(new FormatRespDto(Response.Status.INTERNAL_SERVER_ERROR, msg));
+            }
+        }
         CapabilitiesDetail capabilitiesDetail = config.getCapabilitiesDetail();
         if (capabilitiesDetail != null) {
             List<ServiceDetail> list = capabilitiesDetail.getServiceDetails();
