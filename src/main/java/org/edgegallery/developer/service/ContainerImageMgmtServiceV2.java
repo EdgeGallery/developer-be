@@ -217,56 +217,28 @@ public class ContainerImageMgmtServiceV2 {
     }
 
     /**
-     * modifySystemImage.
+     * update Container Image type.
      */
     public Either<FormatRespDto, ContainerImage> updateContainerImage(String imageId, ContainerImage containerImage) {
         String loginUserId = AccessUserUtil.getUser().getUserId();
         ContainerImage oldImage = containerImageMapper.getContainerImage(imageId);
-        if (!SystemImageUtil.isAdminUser() && !loginUserId.equals(oldImage.getUserId())) {
+        String oldUserId = oldImage.getUserId();
+        if (StringUtils.isNotEmpty(oldUserId) && !loginUserId.equals(oldImage.getUserId())) {
             String errorMsg = "Cannot modify data created by others";
             LOGGER.error(errorMsg);
             throw new DeveloperException(errorMsg, ResponseConsts.RET_UPDATE_IMAGE_AUTH_CHECK_FAILED);
         }
-        String imageName = containerImage.getImageName();
-        String imageVersion = containerImage.getImageVersion();
-        String userId = containerImage.getUserId();
-        String userName = containerImage.getUserName();
-        if (StringUtils.isEmpty(imageName) || StringUtils.isEmpty(imageVersion) || StringUtils.isEmpty(userId)
-            || StringUtils.isEmpty(userName)) {
-            String errorMsg
-                = "The required parameter is empty. pls check imageName or imageVersion or userId or userName";
-            LOGGER.error(errorMsg);
-            throw new DeveloperException(errorMsg, ResponseConsts.RET_CREATE_CONTAINER_IMAGE_CHECK_PARAM_FAILED);
-        }
-        // //keep imageName imageVersion unique
-        if (!oldImage.getImageName().equals(imageName)) {
-            List<ContainerImage> imageList = containerImageMapper.getAllImage();
-            if (!CollectionUtils.isEmpty(imageList)) {
-                for (ContainerImage image : imageList) {
-                    if (imageName.equals(image.getImageName())) {
-                        String errorMsg = "exist the same imageName";
-                        LOGGER.error(errorMsg);
-                        throw new DeveloperException(errorMsg, ResponseConsts.RET_EXIST_SAME_NAME_AND_VERSION);
-                    }
-                }
-            }
-        }
-        containerImage.setImageId(imageId);
-        containerImage.setCreateTime(new Date());
-        int retCode;
-        if (SystemImageUtil.isAdminUser()) {
-            retCode = containerImageMapper.updateContainerImageByAdmin(containerImage);
-        } else {
-            containerImage.setUserId(loginUserId);
-            containerImage.setUserName(AccessUserUtil.getUser().getUserName());
-            retCode = containerImageMapper.updateContainerImageByOrdinary(containerImage);
+        String type = containerImage.getImageType();
+        int retCode = 0;
+        if (StringUtils.isNotEmpty(oldUserId) && StringUtils.isNotEmpty(type)) {
+             retCode = containerImageMapper.updateContainerImageType(imageId,oldUserId,type);
         }
         if (retCode < 1) {
-            String errorMsg = "update ContainerImage failed.";
+            String errorMsg = "update ContainerImage type failed.";
             LOGGER.error(errorMsg);
             throw new DeveloperException(errorMsg, ResponseConsts.RET_UPDATE_CONTAINER_IMAGE_FAILED);
         }
-        LOGGER.info("update ContainerImage success");
+        LOGGER.info("update ContainerImage type success");
         ContainerImage queryImage = containerImageMapper.getContainerImage(imageId);
         return Either.right(queryImage);
     }
@@ -419,8 +391,7 @@ public class ContainerImageMgmtServiceV2 {
             containerImage.setUploadTime(new Date(Instant.parse(pushTime).toEpochMilli()));
             containerImage.setCreateTime(new Date());
             containerImage.setImageType("private");
-            containerImage.setImagePath(
-                imageDomainName + "/" + harborImage.substring(0, harborImage.indexOf("+")));
+            containerImage.setImagePath(imageDomainName + "/" + harborImage.substring(0, harborImage.indexOf("+")));
             containerImage.setImageStatus(EnumContainerImageStatus.UPLOAD_SUCCEED);
             containerImage.setFileName(imageName + ".tar");
             int res = containerImageMapper.createContainerImage(containerImage);

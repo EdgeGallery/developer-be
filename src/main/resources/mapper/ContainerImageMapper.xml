@@ -142,51 +142,23 @@
         </where>
     </select>
 
-    <update id="updateContainerImageByAdmin"
-            parameterType="org.edgegallery.developer.model.containerimage.ContainerImage">
-        update tbl_container_image set
-        image_id=#{imageId},image_name=#{imageName},image_version=#{imageVersion},
-        user_id=#{userId},user_name=#{userName},create_time=#{createTime},
-        upload_time=#{uploadTime},image_status=#{imageStatus},
-        image_type=#{imageType},image_path=#{imagePath},file_name=#{fileName}
-        where image_id=#{imageId}
-    </update>
     <select id="getAllImageByAdmin" resultMap="ContainerImageMap">
         select * from tbl_container_image
     </select>
 
-    <select id="getAllImageByOrdinary" parameterType="java.lang.String" resultMap="ContainerImageMap">
-        select * from tbl_container_image where user_id = #{userId}
-    </select>
-
-    <update id="updateContainerImageStatus" parameterType="java.lang.String">
-        update tbl_container_image set image_status=#{imageStatus} where image_id=#{imageId}
-    </update>
-
-    <update id="updateContainerImagePath" parameterType="java.lang.String">
-        update tbl_container_image set image_path=#{imagePath} where image_id=#{imageId}
-    </update>
-
-    <update id="updateContainerImageByOrdinary"
-            parameterType="org.edgegallery.developer.model.containerimage.ContainerImage">
-        update tbl_container_image set
-        image_id=#{imageId},image_name=#{imageName},image_version=#{imageVersion},
-        user_id=#{userId},user_name=#{userName},create_time=#{createTime},
-        upload_time=#{uploadTime},image_status=#{imageStatus},
-        image_type=#{imageType},image_path=#{imagePath},file_name=#{fileName}
-        where image_id=#{imageId} and user_id =#{userId} and user_name =#{userName}
-    </update>
-
-    <delete id="deleteContainerImageByOrdinary"
-            parameterType="java.lang.String">
+    <delete id="deleteContainerImageByOrdinary" parameterType="java.lang.String">
         delete from tbl_container_image
         where image_id=#{imageId} and user_id =#{userId} and user_name =#{userName}
     </delete>
 
-    <delete id="deleteContainerImageByAdmin"
-            parameterType="java.lang.String">
-        delete from tbl_container_image
-        where image_id=#{imageId}
+    <update id="updateContainerImageType" parameterType="java.lang.String">
+        update tbl_container_image
+        set image_type=#{imageType}
+        where image_id=#{imageId} and user_id =#{userId}
+    </update>
+
+    <delete id="deleteContainerImageByAdmin" parameterType="java.lang.String">
+        delete from tbl_container_image where image_id=#{imageId}
     </delete>
 
 </mapper>

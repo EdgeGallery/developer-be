@@ -25,18 +25,10 @@ public interface ContainerImageMapper {
 
     int createContainerImage(ContainerImage containerImage);
 
-    int updateContainerImageByAdmin(ContainerImage containerImage);
-
-    int updateContainerImageByOrdinary(ContainerImage containerImage);
-
     int deleteContainerImageByAdmin(@Param("imageId") String imageId);
 
     int deleteContainerImageByOrdinary(@Param("imageId") String imageId, @Param("userId") String userId,
         @Param("userName") String userName);
-
-    int updateContainerImageStatus(@Param("imageId") String imageId, @Param("imageStatus") String imageStatus);
-
-    int updateContainerImagePath(@Param("imageId") String imageId, @Param("imagePath") String imagePath);
 
     ContainerImage getContainerImage(@Param("imageId") String imageId);
 
@@ -44,9 +36,10 @@ public interface ContainerImageMapper {
 
     List<ContainerImage> getAllImageByAdmin();
 
-    List<ContainerImage> getAllImageByOrdinary(@Param("userId") String userId);
-
     List<ContainerImage> getAllImageByAdminAuth(Map map);
 
     List<ContainerImage> getAllImageByOrdinaryAuth(Map map);
+    
+    int updateContainerImageType(@Param("imageId") String imageId, @Param("userId") String userId,
+        @Param("imageType") String imageType);
 }
