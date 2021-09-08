@@ -30,8 +30,10 @@ import org.edgegallery.developer.model.system.UploadFileInfo;
 import org.edgegallery.developer.model.system.VmSystem;
 import org.edgegallery.developer.model.workspace.EnumSystemImageStatus;
 import org.edgegallery.developer.response.FormatRespDto;
+import org.edgegallery.developer.util.BusinessConfigUtil;
 import org.edgegallery.developer.util.FileHashCode;
 import org.edgegallery.developer.util.HttpClientUtil;
+import org.edgegallery.developer.util.InitConfigUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,9 +56,6 @@ public class SystemImageMgmtService {
     private static final String FILE_FORMAT_QCOW2 = "qcow2";
 
     private static final String FILE_FORMAT_ISO = "iso";
-
-    @Value("${upload.tempPath}")
-    private String tempUploadPath;
 
     @Value("${fileserver.address}")
     private String fileServerAddress;
@@ -501,7 +500,7 @@ public class SystemImageMgmtService {
     }
 
     private String getUploadSysImageRootDir(int systemId) {
-        return tempUploadPath + File.separator + SUBDIR_SYSIMAGE + File.separator + systemId + File.separator;
+        return InitConfigUtil.getWorkSpaceBaseDir() + BusinessConfigUtil.getTmpPath() + SUBDIR_SYSIMAGE + File.separator + systemId + File.separator;
     }
 
     private boolean isAdminUser() {
