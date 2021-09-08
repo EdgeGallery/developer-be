@@ -29,6 +29,10 @@ import org.edgegallery.developer.model.application.configuration.AppConfiguratio
 @ToString
 public class Application {
 
+    public static final String APPCLASS_CONTAINER = "CONTAINER";
+
+    public static final String APPCLASS_VM = "VM";
+
     private String id;
 
     private String name;
