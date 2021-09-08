@@ -24,7 +24,7 @@ import javax.validation.constraints.Pattern;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.edgegallery.developer.response.ErrorRespDto;
 import org.edgegallery.developer.response.FormatRespDto;
-import org.edgegallery.developer.service.application.container.ContainerAppActionService;
+import org.edgegallery.developer.service.application.container.ContainerAppOperationService;
 import org.edgegallery.developer.util.ResponseDataUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -42,11 +42,11 @@ import com.spencerwi.either.Either;
 @RequestMapping("/mec/developer/v2/applications")
 @Api(tags = "containerAppAction")
 @Validated
-public class ContainerAppActionCtl {
+public class ContainerAppOperationCtl {
     private static final String REGEX_UUID = "[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}";
 
     @Autowired
-    private ContainerAppActionService containerAppActionService;
+    private ContainerAppOperationService containerAppOperationService;
 
     /**
      * action a container.
@@ -62,7 +62,7 @@ public class ContainerAppActionCtl {
     public ResponseEntity<Boolean> actionContainer(
         @Pattern(regexp = REGEX_UUID, message = "applicationId must be in UUID format")
         @ApiParam(value = "applicationId", required = true) @PathVariable("applicationId") String applicationId) {
-        Either<FormatRespDto, Boolean> either = containerAppActionService.actionContainer(applicationId);
+        Either<FormatRespDto, Boolean> either = containerAppOperationService.actionContainer(applicationId);
         return ResponseDataUtil.buildResponse(either);
     }
 
@@ -80,7 +80,7 @@ public class ContainerAppActionCtl {
     public ResponseEntity<Boolean> getContainerDetail(
         @Pattern(regexp = REGEX_UUID, message = "applicationId must be in UUID format")
         @ApiParam(value = "applicationId", required = true) @PathVariable("applicationId") String applicationId) {
-        Either<FormatRespDto, Boolean> either = containerAppActionService.getContainerDetail(applicationId);
+        Either<FormatRespDto, Boolean> either = containerAppOperationService.getContainerDetail(applicationId);
         return ResponseDataUtil.buildResponse(either);
     }
 

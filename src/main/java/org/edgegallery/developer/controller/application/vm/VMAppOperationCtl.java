@@ -26,7 +26,7 @@ import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.edgegallery.developer.model.Chunk;
 import org.edgegallery.developer.response.ErrorRespDto;
 import org.edgegallery.developer.response.FormatRespDto;
-import org.edgegallery.developer.service.application.vm.VmAppActionService;
+import org.edgegallery.developer.service.application.vm.VmAppOperationService;
 import org.edgegallery.developer.util.ResponseDataUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -44,10 +44,10 @@ import com.spencerwi.either.Either;
 @RequestMapping("/mec/developer/v2/applications")
 @Api(tags = "VmAppAction")
 @Validated
-public class VMAppActionCtl {
+public class VMAppOperationCtl {
     private static final String REGEX_UUID = "[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}";
     @Autowired
-    private VmAppActionService VmAppActionService;
+    private VmAppOperationService VmAppOperationService;
     /**
      * action a vm.
      */
@@ -63,7 +63,7 @@ public class VMAppActionCtl {
         @Pattern(regexp = REGEX_UUID, message = "applicationId must be in UUID format")
         @ApiParam(value = "applicationId", required = true) @PathVariable("applicationId") String applicationId,
         @ApiParam(value = "vmId", required = true) @PathVariable("vmId") String vmId) {
-        Either<FormatRespDto, Boolean> either = VmAppActionService.actionVm(applicationId, vmId);
+        Either<FormatRespDto, Boolean> either = VmAppOperationService.actionVm(applicationId, vmId);
         return ResponseDataUtil.buildResponse(either);
     }
 
@@ -81,7 +81,7 @@ public class VMAppActionCtl {
         @ApiParam(value = "applicationId", required = true) @PathVariable("applicationId") String applicationId,
         @Pattern(regexp = REGEX_UUID, message = "vmId must be in UUID format")
         @ApiParam(value = "vmId", required = true) @PathVariable("vmId") String vmId) {
-        Either<FormatRespDto, Boolean> either = VmAppActionService.uploadFileToVm(applicationId, vmId, request, chunk);
+        Either<FormatRespDto, Boolean> either = VmAppOperationService.uploadFileToVm(applicationId, vmId, request, chunk);
         return ResponseDataUtil.buildResponse(either);
     }
 
@@ -101,7 +101,7 @@ public class VMAppActionCtl {
         @Pattern(regexp = REGEX_UUID, message = "vmId must be in UUID format")
         @ApiParam(value = "vmId", required = true) @PathVariable("vmId") String vmId) {
 
-        return VmAppActionService.mergeAppFile(applicationId, vmId, fileName, identifier);
+        return VmAppOperationService.mergeAppFile(applicationId, vmId, fileName, identifier);
     }
 
 }

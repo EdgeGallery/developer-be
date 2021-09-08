@@ -15,20 +15,18 @@
  */
 package org.edgegallery.developer.service.application.vm;
 
-import java.util.List;
-import org.edgegallery.developer.model.application.vm.Network;
+import javax.servlet.http.HttpServletRequest;
+import org.edgegallery.developer.model.Chunk;
 import org.edgegallery.developer.response.FormatRespDto;
+import org.edgegallery.developer.service.application.AppOperationService;
+import org.springframework.http.ResponseEntity;
 import com.spencerwi.either.Either;
 
-public interface VMAppNetworkService {
+public interface VmAppOperationService {
 
-    Either<FormatRespDto, Network> createNetwork(String applicationId, Network network);
+    Either<FormatRespDto, Boolean> actionVm(String applicationId, String vmId);
 
-    List<Network> getAllNetwork(String applicationId);
+    Either<FormatRespDto, Boolean> uploadFileToVm(String applicationId, String vmId, HttpServletRequest request, Chunk chunk);
 
-    Network getNetwork(String applicationId, String networkId);
-
-    Either<FormatRespDto, Boolean> modifyNetwork(String applicationId, String networkId, Network network);
-
-    Either<FormatRespDto, Boolean> deleteNetwork(String applicationId, String networkId);
+    ResponseEntity mergeAppFile(String applicationId, String vmId, String fileName, String identifier);
 }
