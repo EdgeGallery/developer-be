@@ -56,4 +56,8 @@ public final class BusinessConfigUtil {
         return PROPERTIES.getProperty("remote.uploadfiles");
     }
 
+    public static String getTmpPath() {
+        return PROPERTIES.getProperty("remote.tmp");
+    }
+
 }
