@@ -70,4 +70,6 @@ public class MepCreateHost {
 
     private String parameter;
 
+    private String resource;
+
 }
