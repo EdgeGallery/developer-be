@@ -13,22 +13,15 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package org.edgegallery.developer.service.application.vm;
+package org.edgegallery.developer.service.application.container;
 
-import java.util.List;
-import org.edgegallery.developer.model.application.vm.Network;
 import org.edgegallery.developer.response.FormatRespDto;
 import com.spencerwi.either.Either;
+import org.edgegallery.developer.service.application.AppOperationService;
 
-public interface VMAppNetworkService {
+public interface ContainerAppOperationService{
 
-    Either<FormatRespDto, Network> createNetwork(String applicationId, Network network);
+    Either<FormatRespDto, Boolean> actionContainer(String applicationId);
 
-    List<Network> getAllNetwork(String applicationId);
-
-    Network getNetwork(String applicationId, String networkId);
-
-    Either<FormatRespDto, Boolean> modifyNetwork(String applicationId, String networkId, Network network);
-
-    Either<FormatRespDto, Boolean> deleteNetwork(String applicationId, String networkId);
+    Either<FormatRespDto, Boolean> getContainerDetail(String applicationId);
 }

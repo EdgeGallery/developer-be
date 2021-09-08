@@ -13,22 +13,19 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package org.edgegallery.developer.service.application.vm;
+package org.edgegallery.developer.service.application;
 
-import java.util.List;
-import org.edgegallery.developer.model.application.vm.Network;
+import org.edgegallery.developer.model.application.SelectMepHost;
 import org.edgegallery.developer.response.FormatRespDto;
 import com.spencerwi.either.Either;
 
-public interface VMAppNetworkService {
+public interface AppOperationService {
 
-    Either<FormatRespDto, Network> createNetwork(String applicationId, Network network);
+    Either<FormatRespDto, Boolean> cleanEnv(String applicationId);
 
-    List<Network> getAllNetwork(String applicationId);
+    Either<FormatRespDto, Boolean> generatePackage(String applicationId);
 
-    Network getNetwork(String applicationId, String networkId);
+    Either<FormatRespDto, Boolean> commitTest(String applicationId);
 
-    Either<FormatRespDto, Boolean> modifyNetwork(String applicationId, String networkId, Network network);
-
-    Either<FormatRespDto, Boolean> deleteNetwork(String applicationId, String networkId);
+    Either<FormatRespDto, Boolean> selectSandbox(String applicationId, SelectMepHost selectSandbox);
 }
