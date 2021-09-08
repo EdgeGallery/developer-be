@@ -220,7 +220,7 @@ public class ProjectServiceTest {
     public void testDeleteProject() throws IOException {
         String userId = "f24ea0a2-d8e6-467c-8039-94f0d29bac43";
         String projectId = "200dfab1-3c30-4fc7-a6ca-ed6f0620a85e";
-        Either<FormatRespDto, Boolean> response = projectService.deleteProject(userId, projectId);
+        Either<FormatRespDto, Boolean> response = projectService.deleteProject(userId, projectId,"");
         Assert.assertTrue(response.isRight());
     }
 
@@ -229,7 +229,7 @@ public class ProjectServiceTest {
     public void testDeleteProjectWithRes() throws IOException {
         String userId = "f24ea0a2-d8e6-467c-8039-94f0d29bac43";
         String projectId = "200dfab1-3c30-4fc7-a6ca-ed6f0620a85p";
-        Either<FormatRespDto, Boolean> response = projectService.deleteProject(userId, projectId);
+        Either<FormatRespDto, Boolean> response = projectService.deleteProject(userId, projectId,"");
         Assert.assertTrue(response.isRight());
     }
 
@@ -256,7 +256,7 @@ public class ProjectServiceTest {
     public void testDeleteProjectError() throws IOException {
         String userId = "f24ea0a2-d8e6-467c-8039-94f0d29bac43";
         String projectId = "aaaaa";
-        Either<FormatRespDto, Boolean> response = projectService.deleteProject(userId, projectId);
+        Either<FormatRespDto, Boolean> response = projectService.deleteProject(userId, projectId,"");
         Assert.assertTrue(response.isRight());
     }
 

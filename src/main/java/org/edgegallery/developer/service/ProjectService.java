@@ -107,6 +107,7 @@ import org.edgegallery.developer.response.FormatRespDto;
 import org.edgegallery.developer.service.csar.NewCreateCsar;
 import org.edgegallery.developer.service.dao.ProjectDao;
 import org.edgegallery.developer.service.deploy.IConfigDeployStage;
+import org.edgegallery.developer.service.virtual.VmService;
 import org.edgegallery.developer.template.ChartFileCreator;
 import org.edgegallery.developer.util.AppStoreUtil;
 import org.edgegallery.developer.util.AtpUtil;
@@ -183,6 +184,9 @@ public class ProjectService {
 
     @Autowired
     private VmConfigMapper vmConfigMapper;
+
+    @Autowired
+    private VmService vmService;
 
     @Autowired
     private ProjectCapabilityService projectCapabilityService;
@@ -297,16 +301,16 @@ public class ProjectService {
             throw new DeveloperException("updateSelectCountByIds failed.");
         }
         // new release config
-		ReleaseConfig releaseConfig = new ReleaseConfig();
+        ReleaseConfig releaseConfig = new ReleaseConfig();
         releaseConfig.setReleaseId(UUID.randomUUID().toString());
         releaseConfig.setProjectId(projectId);
         releaseConfig.setCreateTime(new Date());
-		int saveRet = configMapper.saveConfig(releaseConfig);
-		if (saveRet < 1) {
-			LOGGER.error("save config data fail!");
-			FormatRespDto dto = new FormatRespDto(Response.Status.INTERNAL_SERVER_ERROR, "save config data fail");
-			return Either.left(dto);
-		}
+        int saveRet = configMapper.saveConfig(releaseConfig);
+        if (saveRet < 1) {
+            LOGGER.error("save config data fail!");
+            FormatRespDto dto = new FormatRespDto(Response.Status.INTERNAL_SERVER_ERROR, "save config data fail");
+            return Either.left(dto);
+        }
         return Either.right(project);
     }
 
@@ -363,7 +367,7 @@ public class ProjectService {
      *
      * @return
      */
-    public Either<FormatRespDto, Boolean> deleteProject(String userId, String projectId) {
+    public Either<FormatRespDto, Boolean> deleteProject(String userId, String projectId, String token) {
         ApplicationProject project = projectMapper.getProject(userId, projectId);
         if (project == null) {
             LOGGER.warn("Can not find project by userId {} and projectId {}, do not need delete.", userId, projectId);
@@ -397,14 +401,31 @@ public class ProjectService {
         if (delResult.isLeft()) {
             return delResult;
         }
-
         // delete files of project
         String projectPath = getProjectPath(projectId);
         DeveloperFileUtils.deleteDir(projectPath);
-
         projectCapabilityService.deleteByProjectId(projectId);
-
         LOGGER.info("Delete project {} success.", projectId);
+        EnumDeployPlatform platform = project.getDeployPlatform();
+        EnumProjectStatus status = project.getStatus();
+        // clean sandbox env
+        if (platform.equals("KUBERNETES") && !status.equals("ONLINE")) {
+            Either<FormatRespDto, Boolean> ret = cleanTestEnv(userId, projectId, token);
+            if (ret == null || ret.isLeft()) {
+                LOGGER.error("clean container project {} failed!", projectId);
+                FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "clean container project env failed!");
+                return Either.left(error);
+            }
+        }
+        // clean vm env
+        if (platform.equals("VIRTUALMACHINE") && !status.equals("ONLINE")) {
+            Either<FormatRespDto, Boolean> vmRet = vmService.cleanVmDeploy(projectId, token);
+            if (vmRet == null || vmRet.isLeft()) {
+                LOGGER.error("clean vm project {} failed!", projectId);
+                FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "clean vm project env failed!");
+                return Either.left(error);
+            }
+        }
         return Either.right(true);
     }
 
@@ -449,8 +470,6 @@ public class ProjectService {
         int res = projectMapper.updateProject(newProject);
         if (res < 1) {
             LOGGER.error("Update project {} failed", newProject.getId());
-            //FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "Update project failed.");
-            //return Either.left(error);
             throw new DeveloperException("Update project [" + newProject.getId() + "] failed");
         }
         LOGGER.info("Update project {} success.", projectId);
@@ -582,8 +601,8 @@ public class ProjectService {
         String projectId = project.getId();
         List<String> mepCapability = project.getCapabilityList();
         String projectPath = getProjectPath(projectId);
-        String chartName = project.getName().replaceAll(Consts.PATTERN, "").toLowerCase()
-            + testConfig.getAppInstanceId().substring(0, 8);
+        String chartName = project.getName().replaceAll(Consts.PATTERN, "").toLowerCase() + testConfig
+            .getAppInstanceId().substring(0, 8);
         String configMapName = "mepagent" + testConfig.getAppInstanceId().toString();
         String namespace = chartName;
         List<HelmTemplateYamlPo> yamlPoList = helmTemplateYamlMapper.queryTemplateYamlByProjectId(userId, projectId);
