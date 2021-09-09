@@ -231,7 +231,7 @@ public class ContainerImageMgmtServiceV2 {
         String type = containerImage.getImageType();
         int retCode = 0;
         if (StringUtils.isNotEmpty(oldUserId) && StringUtils.isNotEmpty(type)) {
-             retCode = containerImageMapper.updateContainerImageType(imageId,oldUserId,type);
+            retCode = containerImageMapper.updateContainerImageType(imageId, oldUserId, type);
         }
         if (retCode < 1) {
             String errorMsg = "update ContainerImage type failed.";
@@ -373,35 +373,50 @@ public class ContainerImageMgmtServiceV2 {
         LOGGER.warn("imageList: {}", imageList);
         LOGGER.warn("bijiao: {}", ListUtil.isEquals(list, imageList));
         LOGGER.warn("bijiao2: {}", list.containsAll(imageList));
+        List<String> compareList = new ArrayList<>();
         if (ListUtil.isEquals(list, imageList) || list.containsAll(imageList)) {
             LOGGER.warn("no need synchronize!");
             return ResponseEntity.ok("already the latest image list!");
-        }
-
-        for (String harborImage : harborList) {
-            ContainerImage containerImage = new ContainerImage();
-            containerImage.setImageId(UUID.randomUUID().toString());
-            String imageName = harborImage.substring(harborImage.indexOf("/") + 1, harborImage.indexOf(":"));
-            containerImage.setImageName(imageName);
-            containerImage
-                .setImageVersion(harborImage.substring(harborImage.indexOf(":") + 1, harborImage.indexOf("+")));
-            containerImage.setUserId(AccessUserUtil.getUser().getUserId());
-            containerImage.setUserName(AccessUserUtil.getUser().getUserName());
-            String pushTime = harborImage.substring(harborImage.indexOf("+") + 1);
-            containerImage.setUploadTime(new Date(Instant.parse(pushTime).toEpochMilli()));
-            containerImage.setCreateTime(new Date());
-            containerImage.setImageType("private");
-            containerImage.setImagePath(imageDomainName + "/" + harborImage.substring(0, harborImage.indexOf("+")));
-            containerImage.setImageStatus(EnumContainerImageStatus.UPLOAD_SUCCEED);
-            containerImage.setFileName(imageName + ".tar");
-            int res = containerImageMapper.createContainerImage(containerImage);
-            if (res < 1) {
-                LOGGER.error("create container image failed!");
-                throw new DeveloperException("create container image failed",
-                    ResponseConsts.RET_CREATE_CONTAINER_IMAGE_FAILED);
+        } else {
+            imageList.removeAll(list);
+            for (int i = 0; i < imageList.size(); i++) {
+                for (int j = 0; j < harborList.size(); j++) {
+                    String harbor = harborList.get(j)
+                        .substring(harborList.get(j).indexOf("/") + 1, harborList.get(j).indexOf("+")).trim();
+                    if (imageList.get(i).equals(harbor)) {
+                        compareList.add(harborList.get(j));
+                    }
+                }
             }
         }
-        LOGGER.info("end synchronize image...");
+        LOGGER.warn("compareList: {}", compareList);
+        if (!CollectionUtils.isEmpty(compareList)) {
+            for (String harborImage : compareList) {
+                ContainerImage containerImage = new ContainerImage();
+                containerImage.setImageId(UUID.randomUUID().toString());
+                String imageName = harborImage.substring(harborImage.indexOf("/") + 1, harborImage.indexOf(":"));
+                containerImage.setImageName(imageName);
+                containerImage
+                    .setImageVersion(harborImage.substring(harborImage.indexOf(":") + 1, harborImage.indexOf("+")));
+                containerImage.setUserId(AccessUserUtil.getUser().getUserId());
+                containerImage.setUserName(AccessUserUtil.getUser().getUserName());
+                String pushTime = harborImage.substring(harborImage.indexOf("+") + 1);
+                containerImage.setUploadTime(new Date(Instant.parse(pushTime).toEpochMilli()));
+                containerImage.setCreateTime(new Date());
+                containerImage.setImageType("private");
+                containerImage.setImagePath(imageDomainName + "/" + harborImage.substring(0, harborImage.indexOf("+")));
+                containerImage.setImageStatus(EnumContainerImageStatus.UPLOAD_SUCCEED);
+                containerImage.setFileName(imageName + ".tar");
+                int res = containerImageMapper.createContainerImage(containerImage);
+                if (res < 1) {
+                    LOGGER.error("create container image failed!");
+                    throw new DeveloperException("create container image failed",
+                        ResponseConsts.RET_CREATE_CONTAINER_IMAGE_FAILED);
+                }
+            }
+            LOGGER.info("end synchronize image...");
+        }
+
         return ResponseEntity.ok("synchronized successfully!");
 
     }
