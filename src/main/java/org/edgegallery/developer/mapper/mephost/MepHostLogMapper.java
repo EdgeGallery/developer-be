@@ -23,7 +23,7 @@ import org.apache.ibatis.annotations.Result;
 import org.apache.ibatis.annotations.ResultType;
 import org.apache.ibatis.annotations.Results;
 import org.apache.ibatis.annotations.Select;
-import org.edgegallery.developer.model.workspace.MepHostLog;
+import org.edgegallery.developer.model.mephost.MepHostLog;
 
 public interface MepHostLogMapper {
 

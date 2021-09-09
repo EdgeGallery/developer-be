@@ -32,7 +32,7 @@ import org.edgegallery.developer.mapper.mephost.MepHostLogMapper;
 import org.edgegallery.developer.mapper.mephost.MepHostMapper;
 import org.edgegallery.developer.model.mephost.CreateMepHost;
 import org.edgegallery.developer.model.mephost.MepHost;
-import org.edgegallery.developer.model.workspace.MepHostLog;
+import org.edgegallery.developer.model.mephost.MepHostLog;
 import org.edgegallery.developer.model.workspace.UploadedFile;
 import org.edgegallery.developer.response.FormatRespDto;
 import org.edgegallery.developer.service.mephost.MepHostService;
