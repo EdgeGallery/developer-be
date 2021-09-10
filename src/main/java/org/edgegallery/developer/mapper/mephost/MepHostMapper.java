@@ -19,23 +19,22 @@ package org.edgegallery.developer.mapper.mephost;
 import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
-import org.edgegallery.developer.model.mephost.CreateMepHost;
 import org.edgegallery.developer.model.mephost.MepHost;
 
 @Mapper
 public interface MepHostMapper {
 
-    int createHost(CreateMepHost mepCreateHost);
+    int createHost(MepHost mepHost);
 
-    int updateHostSelected(CreateMepHost host);
+    int updateHostSelected(MepHost host);
 
-    int deleteHost(String hostId);
+    int deleteHost(@Param("hostId") String hostId);
 
-    MepHost getHost(String hostId);
+    MepHost getHost(@Param("hostId") String hostId);
 
-    List<MepHost> getHostsByCondition(@Param("userId") String userId, @Param("name") String name,
-        @Param("ip") String ip);
+    List<MepHost> getHostsByCondition(@Param("name") String name, @Param("vimType") String vimType,
+        @Param("architecture") String architecture);
 
-    MepHost getHostsByMecHost(String mecHost);
+    MepHost getHostsByMecHostIp(@Param("mecHost") String mecHost);
 }
 
