@@ -29,8 +29,16 @@ import org.edgegallery.developer.domain.shared.Page;
 import org.edgegallery.developer.exception.DeveloperException;
 import org.edgegallery.developer.mapper.UploadedFileMapper;
 import org.edgegallery.developer.mapper.application.ApplicationMapper;
+import org.edgegallery.developer.mapper.application.vm.NetworkMapper;
+import org.edgegallery.developer.mapper.application.vm.VMMapper;
 import org.edgegallery.developer.model.application.Application;
+import org.edgegallery.developer.model.application.ContainerApplication;
+import org.edgegallery.developer.model.application.EnumAppClass;
 import org.edgegallery.developer.model.application.EnumApplicationStatus;
+import org.edgegallery.developer.model.application.VMApplication;
+import org.edgegallery.developer.model.application.vm.Network;
+import org.edgegallery.developer.model.application.vm.VirtualMachine;
+import org.edgegallery.developer.model.restful.ApplicationDetail;
 import org.edgegallery.developer.model.workspace.UploadedFile;
 import org.edgegallery.developer.response.FormatRespDto;
 import org.edgegallery.developer.service.ProjectService;
@@ -54,6 +62,15 @@ public class ApplicationServiceImpl implements ApplicationService {
 
     @Autowired
     private ApplicationMapper applicationMapper;
+
+    @Autowired
+    private NetworkMapper networkMapper;
+
+    @Autowired
+    private VMMapper vmMapper;
+
+    @Autowired
+    AppConfigurationServiceImpl AppConfigurationServiceImpl;
 
     @Override
     public Either<FormatRespDto, Application> createApplication(Application application) {
@@ -133,6 +150,55 @@ public class ApplicationServiceImpl implements ApplicationService {
         DeveloperFileUtils.deleteDir(projectPath);
         LOGGER.info("Delete project {} success.", applicationId);
         return Either.right(true);
+    }
+
+    @Override
+    public ApplicationDetail getApplicationDetail(String applicationId) {
+        ApplicationDetail applicationDetail = new ApplicationDetail();
+        Application application = applicationMapper.getApplicationById(applicationId);
+        if (application == null) {
+            LOGGER.error("Can not find project by applicationId:{}.", applicationId);
+            throw new DeveloperException("Can not find project", ResponseConsts.DELETE_DATA_FAILED);
+        }
+        if (application.getAppClass()== EnumAppClass.VM) {
+            VMApplication vmApplication = new VMApplication(application);
+            vmApplication.setNetworkList(networkMapper.getNetworkByAppId(applicationId));
+            vmApplication.setVmList(vmMapper.getAllVMsByAppId(applicationId));
+            vmApplication.setAppConfiguration(AppConfigurationServiceImpl.getAppConfiguration(applicationId));
+            applicationDetail.setVmApp(vmApplication);
+        }else {
+            ContainerApplication containerApplication = new ContainerApplication(application);
+            containerApplication.setAppConfiguration(AppConfigurationServiceImpl.getAppConfiguration(applicationId));
+            // todo get helmchart
+            applicationDetail.setContainerApp(containerApplication);
+        }
+        return applicationDetail;
+    }
+
+    @Override
+    public Either<FormatRespDto, Boolean> modifyApplicationDetail(String applicationId,
+        ApplicationDetail applicationDetail) {
+        Application application = applicationMapper.getApplicationById(applicationId);
+        if (application == null) {
+            LOGGER.error("Can not find project by applicationId:{}.", applicationId);
+            throw new DeveloperException("Can not find project", ResponseConsts.DELETE_DATA_FAILED);
+        }
+        if (application.getAppClass()== EnumAppClass.VM) {
+            applicationMapper.modifyApplication(applicationDetail.getVmApp());
+            AppConfigurationServiceImpl.modifyAppConfiguration(applicationId, applicationDetail.getVmApp().getAppConfiguration());
+            for(Network network:applicationDetail.getVmApp().getNetworkList()) {
+                networkMapper.modifyNetwork(network);
+            }
+            for(VirtualMachine virtualMachine: applicationDetail.getVmApp().getVmList()) {
+                vmMapper.modifyVM(virtualMachine);
+            }
+        }else {
+            applicationMapper.modifyApplication(applicationDetail.getContainerApp());
+            AppConfigurationServiceImpl.modifyAppConfiguration(applicationId, applicationDetail.getContainerApp().getAppConfiguration());
+            //todo modify helmchart
+        }
+        return Either.right(true);
+
     }
 
     /**

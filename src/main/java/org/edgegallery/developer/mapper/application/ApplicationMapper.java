@@ -19,6 +19,7 @@ import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.edgegallery.developer.model.application.Application;
+import org.edgegallery.developer.model.application.SelectMepHost;
 
 @Mapper
 public interface ApplicationMapper {
@@ -34,4 +35,6 @@ public interface ApplicationMapper {
     List<Application> getAllApplicationsByUserId(@Param("userId")String userId,@Param("name") String name);
 
     Application getApplicationById(String id);
+
+    int modifyMepHostById(@Param("applicationId")String applicationId, @Param("hostMepId")String hostMepId);
 }

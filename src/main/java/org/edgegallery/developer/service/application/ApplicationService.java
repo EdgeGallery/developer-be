@@ -17,6 +17,7 @@ package org.edgegallery.developer.service.application;
 
 import org.edgegallery.developer.domain.shared.Page;
 import org.edgegallery.developer.model.application.Application;
+import org.edgegallery.developer.model.restful.ApplicationDetail;
 import org.edgegallery.developer.response.FormatRespDto;
 import org.springframework.transaction.annotation.Transactional;
 import com.spencerwi.either.Either;
@@ -68,4 +69,7 @@ public interface ApplicationService {
     @Transactional
     Either<FormatRespDto, Boolean> deleteApplication(String applicationId);
 
+    ApplicationDetail getApplicationDetail(String applicationId);
+
+    Either<FormatRespDto, Boolean> modifyApplicationDetail(String applicationId, ApplicationDetail applicationDetail);
 }

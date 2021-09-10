@@ -25,4 +25,8 @@ import lombok.ToString;
 public class ContainerApplication extends Application{
 
     private String deployFileId;
+
+    public ContainerApplication(Application application) {
+        super(application);
+    }
 }

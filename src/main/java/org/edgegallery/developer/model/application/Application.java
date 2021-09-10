@@ -68,6 +68,8 @@ public class Application {
 
     private String userName;
 
+    private String mepHostId;
+
     private AppConfiguration appConfiguration;
 
     public String getId() {
@@ -83,5 +85,25 @@ public class Application {
     public void initialProject() {
         this.status = EnumApplicationStatus.ONLINE;
     }
+
+    public Application(Application app) {
+        this.id=app.getId();
+        this.name=app.getName();
+        this.status=app.getStatus();
+        this.userId=app.getUserId();
+        this.userName=app.getUserName();
+        this.appClass=app.getAppClass();
+        this.appCreateType=app.getAppCreateType();
+        this.architecture=app.getArchitecture();
+        this.createTime=app.getCreateTime();
+        this.description=app.getDescription();
+        this.iconFileId=app.getIconFileId();
+        this.industry=app.getIndustry();
+        this.provider=app.getProvider();
+        this.type=app.getType();
+        this.version=app.getVersion();
+        this.mepHostId=app.getMepHostId();
+    }
+
 
 }

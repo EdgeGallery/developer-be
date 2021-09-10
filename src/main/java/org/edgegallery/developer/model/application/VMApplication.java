@@ -30,4 +30,9 @@ public class VMApplication extends Application{
     private List<VirtualMachine> vmList;
 
     private List<Network>  networkList;
+
+    public VMApplication(Application application) {
+        super(application);
+    }
+
 }

@@ -33,10 +33,11 @@
     <result property="status" column="status"/>
     <result property="userId" column="user_id"/>
     <result property="userName" column="user_name"/>
+    <result property="mepHostId" column="mep_host_id"/>
   </resultMap>
 
   <sql id="ApplicationAllColumn">
-    id, name, description, version, provider, architecture, app_class, type, industry, icon_file_id, app_create_type, create_time, user_id, user_name, status
+    id, name, description, version, provider, architecture, app_class, type, industry, icon_file_id, app_create_type, create_time, user_id, user_name, status, mep_host_id
   </sql>
 
   <insert id="createApplication">
@@ -56,6 +57,15 @@
     id = #{id}
   </update>
 
+  <update id="modifyMepHostById" >
+    UPDATE
+    tbl_application
+    SET
+    mep_host_id = #{hostMepId}
+    WHERE
+    id = #{applicationId}
+  </update>
+
   <delete id="deleteApplication" parameterType="String">
     DELETE FROM tbl_application WHERE id = #{id};
   </delete>
@@ -63,13 +73,14 @@
   <select id="getAllApplications" resultMap="ApplicationMap">
     SELECT
     id, name, description, version, provider, architecture, app_class, type, industry, icon_file_id,
-    app_create_type, to_char(create_time, 'YYYY-MM-DD HH24:MI:SS') as create_time, user_id, user_name, status
+    app_create_type, to_char(create_time, 'YYYY-MM-DD HH24:MI:SS') as create_time, user_id, user_name, status, mep_host_id
     FROM tbl_application
   </select>
 
   <select id="getAllApplicationsByUserId" parameterType="String" resultMap="ApplicationMap">
     SELECT
-    <include refid="ApplicationAllColumn"/>
+    id, name, description, version, provider, architecture, app_class, type, industry, icon_file_id,
+    app_create_type, to_char(create_time, 'YYYY-MM-DD HH24:MI:SS') as create_time, user_id, user_name, status, mep_host_id
     FROM tbl_application
     <where>
       <if test="userId != null and userId != ''">
@@ -84,7 +95,8 @@
 
   <select id="getApplicationById" parameterType="String" resultMap="ApplicationMap">
     SELECT
-    <include refid="ApplicationAllColumn"/>
+    id, name, description, version, provider, architecture, app_class, type, industry, icon_file_id,
+    app_create_type, to_char(create_time, 'YYYY-MM-DD HH24:MI:SS') as create_time, user_id, user_name, status, mep_host_id
     FROM tbl_application where id = #{id}
   </select>
 

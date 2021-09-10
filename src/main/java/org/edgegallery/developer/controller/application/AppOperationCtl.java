@@ -51,21 +51,21 @@ public class AppOperationCtl {
 
     private AppOperationServiceFactory appServiceFactory = new AppOperationServiceFactory();
     /**
-     * select  a sandbox.
+     * select  a hostMep.
      */
-    @ApiOperation(value = "create one application.", response = Boolean.class)
+    @ApiOperation(value = "select a hostMep.", response = Boolean.class)
     @ApiResponses(value = {
         @ApiResponse(code = 200, message = "OK", response = Boolean.class),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
-    @RequestMapping(value = "/{applicationId}/selsandbox", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_UTF8_VALUE,
+    @RequestMapping(value = "/{applicationId}/selmephost", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_UTF8_VALUE,
         produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
-    public ResponseEntity<Boolean> selectSandbox(
+    public ResponseEntity<Boolean> selectMepHost(
         @Pattern(regexp = REGEX_UUID, message = "applicationId must be in UUID format")
         @ApiParam(value = "applicationId", required = true) @PathVariable("applicationId") String applicationId,
         @NotNull @ApiParam(value = "selectSandbox", required = true) @RequestBody SelectMepHost selectSandbox) {
-        Either<FormatRespDto, Boolean> either = getAppOperationService(applicationId).selectSandbox(applicationId, selectSandbox);
+        Either<FormatRespDto, Boolean> either = getAppOperationService(applicationId).selectMepHost(applicationId, selectSandbox);
         return ResponseDataUtil.buildResponse(either);
     }
 
