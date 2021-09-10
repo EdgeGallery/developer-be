@@ -13,13 +13,17 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package org.edgegallery.developer.service.application.action.impl.container;
+package org.edgegallery.developer.model.instantiate.vm;
 
-import org.edgegallery.developer.service.application.action.impl.InstantiateAppAction;
+public enum EnumImageExportStatus {
+    IMAGE_CREATING("Creating Image"),
+    IMAGE_QUERYING("Querying Image Status"),
+    IMAGE_DOWNLOADING("Downloading Image"),
+    SUCCESS("Success");
 
-public class InstantiateContainerAppAction extends InstantiateAppAction {
-    @Override
-    public int execute() {
-        return 0;
+    private String name;
+
+    EnumImageExportStatus(String name) {
+        this.name = name;
     }
 }

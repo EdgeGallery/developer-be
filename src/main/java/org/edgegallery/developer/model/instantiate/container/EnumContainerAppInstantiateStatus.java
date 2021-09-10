@@ -13,13 +13,20 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package org.edgegallery.developer.service.application.action.impl.container;
+package org.edgegallery.developer.model.instantiate.container;
 
-import org.edgegallery.developer.service.application.action.impl.InstantiateAppAction;
+public enum EnumContainerAppInstantiateStatus {
+    PACKAGE_GENERATING("Generating Package"),
+    PACKAGE_GENERATE_FAILED("Generate Package Failed"),
+    PACKAGE_DISTRIBUTING("Distributing Package"),
+    PACKAGE_DISTRIBUTE_FAILED("Distribute Package Failed"),
+    INSTANTIATING_APP("Instantiating Application"),
+    APP_INSTANTIATE_FAILED("Instantiate Application Failed"),
+    SUCCESS("Success");
 
-public class InstantiateContainerAppAction extends InstantiateAppAction {
-    @Override
-    public int execute() {
-        return 0;
+    private String name;
+
+    EnumContainerAppInstantiateStatus(String name) {
+        this.name = name;
     }
 }
