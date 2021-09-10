@@ -33,8 +33,8 @@ public class ContainerLaunchActionCollection implements IActionCollection {
         new BuildPackageAction(),
         new DistributePackageAction(),
         new QueryDistributePackageStatusAction(),
-        new InstantiateVMAppAction(),
-        new QueryInstantiateVMAppStatusAction());
+        new InstantiateContainerAppAction(),
+        new QueryInstantiateContainerAppStatusAction());
 
     @Override
     public IActionIterator getActionIterator() {

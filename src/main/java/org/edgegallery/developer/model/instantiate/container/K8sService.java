@@ -13,13 +13,21 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package org.edgegallery.developer.service.application.action.impl.container;
+package org.edgegallery.developer.model.instantiate.container;
 
-import org.edgegallery.developer.service.application.action.impl.InstantiateAppAction;
+import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 
-public class InstantiateContainerAppAction extends InstantiateAppAction {
-    @Override
-    public int execute() {
-        return 0;
-    }
+@Getter
+@Setter
+@ToString
+public class K8sService {
+
+    private String name;
+
+    private String type;
+
+    private List<K8sServicePort> servicePortList;
 }

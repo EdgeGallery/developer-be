@@ -22,4 +22,5 @@ public class InstantiateAppAction implements IAction {
     public int execute() {
         return 0;
     }
+
 }

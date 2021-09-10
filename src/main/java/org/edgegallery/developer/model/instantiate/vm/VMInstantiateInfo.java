@@ -13,13 +13,36 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package org.edgegallery.developer.service.application.action.impl.container;
+package org.edgegallery.developer.model.instantiate.vm;
 
-import org.edgegallery.developer.service.application.action.impl.InstantiateAppAction;
+import java.util.Date;
+import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 
-public class InstantiateContainerAppAction extends InstantiateAppAction {
-    @Override
-    public int execute() {
-        return 0;
-    }
+@Getter
+@Setter
+@ToString
+public class VMInstantiateInfo {
+
+    private String id;
+
+    private String appPackageId;
+
+    private String appInstanceId;
+
+    private String vmInstanceId;
+
+    private EnumVMInstantiateStatus status;
+
+    private Date instantiateTime;
+
+    private String log;
+
+    private String vncUrl;
+
+    private List<PortInstantiateInfo> portInstanceList;
+
+
 }
