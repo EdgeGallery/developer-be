@@ -412,7 +412,7 @@ public final class HttpClientUtil {
             LOGGER.error("Failed to create vm image  which appInstanceId is {} exception {}", appInstanceId, errorLog);
             lcmLog.setLog(errorLog);
             return null;
-        } catch (RestClientException e) {
+        } catch (Exception e) {
             LOGGER.error("Failed to create vm image  which appInstanceId is {} exception {}", appInstanceId,
                 e.getMessage());
             return null;

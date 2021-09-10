@@ -15,14 +15,26 @@
  */
 package org.edgegallery.developer.service.application.impl;
 
+import org.edgegallery.developer.common.ResponseConsts;
+import org.edgegallery.developer.exception.DeveloperException;
+import org.edgegallery.developer.mapper.application.ApplicationMapper;
 import org.edgegallery.developer.model.application.SelectMepHost;
 import org.edgegallery.developer.response.FormatRespDto;
+import org.edgegallery.developer.service.ProjectService;
 import org.edgegallery.developer.service.application.AppOperationService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.spencerwi.either.Either;
 
 @Service("applicationActionService")
 public class AppOperationServiceImpl implements AppOperationService {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ProjectService.class);
+
+    @Autowired
+    private ApplicationMapper applicationMapper;
 
     @Override
     public Either<FormatRespDto, Boolean> cleanEnv(String applicationId) {
@@ -40,7 +52,12 @@ public class AppOperationServiceImpl implements AppOperationService {
     }
 
     @Override
-    public Either<FormatRespDto, Boolean> selectSandbox(String applicationId, SelectMepHost selectSandbox) {
-        return null;
+    public Either<FormatRespDto, Boolean> selectMepHost(String applicationId, SelectMepHost selectMepHost) {
+        int res = applicationMapper.modifyMepHostById(applicationId, selectMepHost.getMepHostId());
+        if (res < 1) {
+            LOGGER.error("modify mep host fail");
+            throw new DeveloperException("modify mep host fail", ResponseConsts.MODIFY_DATA_FAILED);
+        }
+        return Either.right(true);
     }
 }

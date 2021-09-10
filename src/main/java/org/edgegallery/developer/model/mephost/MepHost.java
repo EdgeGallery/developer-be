@@ -4,13 +4,12 @@ import lombok.Getter;
 import lombok.Setter;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-import org.edgegallery.developer.model.workspace.EnumHostStatus;
 import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.Range;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 @Getter
 @Setter
 public class MepHost {
+
     private String id;
 
     @NotBlank
@@ -18,39 +17,41 @@ public class MepHost {
     private String name;
 
     @NotBlank
-    private String address;
+    private String lcmIp;
+
+    @NotBlank
+    private String lcmProtocol;
+
+    @Range(min = 30000, max = 30400)
+    private int lcmPort;
 
     @NotBlank
     private String architecture;
 
     @NotNull
-    private EnumHostStatus status;
+    private EnumMepHostStatus status;
 
     @NotBlank
-    private String lcmIp;
+    private String mecHostIp;
 
-    private String mecHost;
+    @NotBlank
+    private EnumVimType vimType;
 
-    private String protocol;
+    private String mecHostUserName;
 
-    @Range(min = 30000, max = 30400)
-    private int port;
+    private String mecHostPassword;
 
-    private String os;
+    private int mecHostPort;
 
     private String userId;
 
     private String configId;
 
-    private String userName;
-
-    @JsonIgnore
-    private String password;
-
-    private int vncPort;
-
-    private String parameter;
+    private String networkParameter;
 
     private String resource;
+
+    @NotBlank
+    private String address;
 
 }

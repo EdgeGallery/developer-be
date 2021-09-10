@@ -27,5 +27,5 @@ public interface AppOperationService {
 
     Either<FormatRespDto, Boolean> commitTest(String applicationId);
 
-    Either<FormatRespDto, Boolean> selectSandbox(String applicationId, SelectMepHost selectSandbox);
+    Either<FormatRespDto, Boolean> selectMepHost(String applicationId, SelectMepHost selectMepHost);
 }

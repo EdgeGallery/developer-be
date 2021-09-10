@@ -17,12 +17,14 @@
 package org.edgegallery.developer.model.application.vm;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
 @Getter
 @Setter
 @ToString
+@NoArgsConstructor
 public class Network {
 
     private String id;
@@ -30,4 +32,10 @@ public class Network {
     private String name;
 
     private String description;
+
+    public Network(String id, String name, String description) {
+        this.id = id;
+        this.name = name;
+        this.description = description;
+    }
 }

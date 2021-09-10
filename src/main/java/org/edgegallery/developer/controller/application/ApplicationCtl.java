@@ -12,6 +12,7 @@ import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.edgegallery.developer.config.security.AccessUserUtil;
 import org.edgegallery.developer.domain.shared.Page;
 import org.edgegallery.developer.model.application.Application;
+import org.edgegallery.developer.model.restful.ApplicationDetail;
 import org.edgegallery.developer.response.ErrorRespDto;
 import org.edgegallery.developer.response.FormatRespDto;
 import org.edgegallery.developer.service.application.ApplicationService;
@@ -127,5 +128,41 @@ public class ApplicationCtl {
         Either<FormatRespDto, Boolean> either = applicationService.deleteApplication(applicationId);
         return ResponseDataUtil.buildResponse(either);
     }
+
+    /**
+     * get a application detail.
+     */
+    @ApiOperation(value = "get a application detail.", response = ApplicationDetail.class)
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = "OK", response = ApplicationDetail.class),
+        @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
+    })
+    @RequestMapping(value = "/{applicationId}/detail", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
+    public ResponseEntity<ApplicationDetail> getApplicationDetail(
+        @Pattern(regexp = REGEX_UUID, message = "applicationId must be in UUID format")
+        @ApiParam(value = "applicationId", required = true) @PathVariable("applicationId") String applicationId) {
+        return ResponseEntity.ok(applicationService.getApplicationDetail(applicationId));
+    }
+
+    /**
+     * modify a application detail.
+     */
+    @ApiOperation(value = "modify a application detail.", response = Boolean.class)
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = "OK", response = Boolean.class),
+        @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
+    })
+    @RequestMapping(value = "/{applicationId}/detail", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_UTF8_VALUE,
+        produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
+    public ResponseEntity<Boolean> modifyApplicationDetail(
+        @Pattern(regexp = REGEX_UUID, message = "applicationId must be in UUID format")
+        @ApiParam(value = "applicationId", required = true) @PathVariable("applicationId") String applicationId,
+        @NotNull @ApiParam(value = "ApplicationDetail", required = true) @RequestBody ApplicationDetail applicationDetail) {
+        Either<FormatRespDto, Boolean> either = applicationService.modifyApplicationDetail(applicationId, applicationDetail);
+        return ResponseDataUtil.buildResponse(either);
+    }
+
 
 }
