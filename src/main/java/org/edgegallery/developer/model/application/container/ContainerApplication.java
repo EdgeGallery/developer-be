@@ -13,27 +13,29 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package org.edgegallery.developer.mapper.application;
+package org.edgegallery.developer.model.application.container;
 
 import java.util.List;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Param;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 import org.edgegallery.developer.model.application.Application;
+import org.edgegallery.developer.model.instantiate.container.ContainerAppInstantiateInfo;
 
-@Mapper
-public interface ApplicationMapper {
+@Getter
+@Setter
+@ToString
+public class ContainerApplication extends Application {
 
-    int createApplication(Application application);
+    private List<HelmChart> helmChartList;
 
-    int modifyApplication(Application application);
+    private ContainerAppInstantiateInfo instantiateInfo;
 
-    int deleteApplication(String id);
+    public ContainerApplication(){
+        super();
+    }
 
-    List<Application> getAllApplications();
-
-    List<Application> getAllApplicationsByUserId(@Param("userId")String userId,@Param("name") String name);
-
-    Application getApplicationById(String id);
-
-    int modifyMepHostById(@Param("applicationId")String applicationId, @Param("hostMepId")String hostMepId);
+    public ContainerApplication(Application application) {
+        super(application);
+    }
 }

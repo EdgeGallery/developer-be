@@ -13,27 +13,31 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package org.edgegallery.developer.mapper.application;
+package org.edgegallery.developer.model.application.vm;
 
 import java.util.List;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Param;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 import org.edgegallery.developer.model.application.Application;
+import org.edgegallery.developer.model.application.vm.Network;
+import org.edgegallery.developer.model.application.vm.VirtualMachine;
 
-@Mapper
-public interface ApplicationMapper {
+@Getter
+@Setter
+@ToString
+public class VMApplication extends Application {
 
-    int createApplication(Application application);
+    private List<VirtualMachine> vmList;
 
-    int modifyApplication(Application application);
+    private List<Network>  networkList;
 
-    int deleteApplication(String id);
+    public VMApplication(){
+        super();
+    }
 
-    List<Application> getAllApplications();
+    public VMApplication(Application application) {
+        super(application);
+    }
 
-    List<Application> getAllApplicationsByUserId(@Param("userId")String userId,@Param("name") String name);
-
-    Application getApplicationById(String id);
-
-    int modifyMepHostById(@Param("applicationId")String applicationId, @Param("hostMepId")String hostMepId);
 }

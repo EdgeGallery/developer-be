@@ -13,26 +13,29 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package org.edgegallery.developer.model.application;
+package org.edgegallery.developer.model.instantiate.container;
 
-import java.util.List;
+import java.util.Date;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import org.edgegallery.developer.model.application.vm.Network;
-import org.edgegallery.developer.model.application.vm.VirtualMachine;
 
 @Getter
 @Setter
 @ToString
-public class VMApplication extends Application{
+public class ContainerAppInstantiateInfo {
 
-    private List<VirtualMachine> vmList;
+    private String id;
 
-    private List<Network>  networkList;
+    private String appPackageId;
 
-    public VMApplication(Application application) {
-        super(application);
-    }
+    private String appInstanceId;
+
+    private EnumContainerAppInstantiateStatus status;
+
+    private String log;
+
+    private Date instantiateTime;
+
 
 }

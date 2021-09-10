@@ -40,4 +40,11 @@ public class VMAppOperationServiceImpl extends AppOperationServiceImpl implement
     public ResponseEntity mergeAppFile(String applicationId, String vmId, String fileName, String identifier) {
         return null;
     }
+
+
+    @Override
+    public Either<FormatRespDto, Boolean> generatePackage(String applicationId) {
+        return null;
+    }
+
 }

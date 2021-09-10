@@ -15,7 +15,7 @@
  */
 package org.edgegallery.developer.service.application;
 
-import org.edgegallery.developer.model.application.SelectMepHost;
+import org.edgegallery.developer.model.restful.SelectMepHostReq;
 import org.edgegallery.developer.response.FormatRespDto;
 import com.spencerwi.either.Either;
 
@@ -27,5 +27,5 @@ public interface AppOperationService {
 
     Either<FormatRespDto, Boolean> commitTest(String applicationId);
 
-    Either<FormatRespDto, Boolean> selectMepHost(String applicationId, SelectMepHost selectMepHost);
+    Either<FormatRespDto, Boolean> selectMepHost(String applicationId, SelectMepHostReq selectMepHostReq);
 }

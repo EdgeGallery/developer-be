@@ -13,20 +13,17 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package org.edgegallery.developer.model.application;
+package org.edgegallery.developer.model.instantiate.vm;
 
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+public enum EnumImageExportStatus {
+    IMAGE_CREATING("Creating Image"),
+    IMAGE_QUERYING("Querying Image Status"),
+    IMAGE_DOWNLOADING("Downloading Image"),
+    SUCCESS("Success");
 
-@Getter
-@Setter
-@ToString
-public class ContainerApplication extends Application{
+    private String name;
 
-    private String deployFileId;
-
-    public ContainerApplication(Application application) {
-        super(application);
+    EnumImageExportStatus(String name) {
+        this.name = name;
     }
 }
