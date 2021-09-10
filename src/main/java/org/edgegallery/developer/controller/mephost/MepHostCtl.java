@@ -13,7 +13,6 @@ import javax.validation.constraints.Pattern;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.edgegallery.developer.common.Consts;
 import org.edgegallery.developer.domain.shared.Page;
-import org.edgegallery.developer.model.mephost.CreateMepHost;
 import org.edgegallery.developer.model.mephost.MepHost;
 import org.edgegallery.developer.model.mephost.MepHostLog;
 import org.edgegallery.developer.response.ErrorRespDto;
@@ -58,11 +57,11 @@ public class MepHostCtl {
     @PreAuthorize("hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<Page<MepHost>> getAllHosts(
         @ApiParam(value = "name", required = false) @RequestParam(value = "name", required = false) String name,
-        @ApiParam(value = "os", required = true) @RequestParam(value = "os") String os,
+        @ApiParam(value = "vimType", required = true) @RequestParam(value = "vimType") String vimType,
         @ApiParam(value = "architecture", required = true) @RequestParam(value = "architecture") String architecture,
         @ApiParam(value = "the max count of one page", required = true) @Min(1) @RequestParam("limit") int limit,
         @ApiParam(value = "start index of the page", required = true) @Min(0) @RequestParam("offset") int offset) {
-        return ResponseEntity.ok(mepHostService.getAllHosts(name, os, architecture, limit, offset));
+        return ResponseEntity.ok(mepHostService.getAllHosts(name, vimType, architecture, limit, offset));
     }
 
     /**
@@ -78,7 +77,7 @@ public class MepHostCtl {
     @PostMapping(consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<Boolean> createHost(
-        @ApiParam(value = "MepHost", required = true) @Validated @RequestBody CreateMepHost host,
+        @ApiParam(value = "MepHost", required = true) @Validated @RequestBody MepHost host,
         HttpServletRequest request) {
         String token = request.getHeader(Consts.ACCESS_TOKEN_STR);
         Either<FormatRespDto, Boolean> either = mepHostService.createHost(host, token);
@@ -102,7 +101,7 @@ public class MepHostCtl {
     @PreAuthorize("hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<Boolean> modifyHost(@PathVariable("mephostId")
     @Pattern(regexp = REG_UUID, message = "hostId must be in UUID format") String mephostId,
-        @Validated @RequestBody CreateMepHost host, HttpServletRequest request) {
+        @Validated @RequestBody MepHost host, HttpServletRequest request) {
         String token = request.getHeader(Consts.ACCESS_TOKEN_STR);
         Either<FormatRespDto, Boolean> either = mepHostService.updateHost(mephostId, host, token);
         return ResponseDataUtil.buildResponse(either);
@@ -154,8 +153,10 @@ public class MepHostCtl {
     @ApiOperation(value = "get all server(build and test app)", response = MepHost.class, responseContainer = "List")
     @ApiResponses(value = {
         @ApiResponse(code = 200, message = "OK", response = MepHost.class, responseContainer = "List"),
-        @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class) })
-    @RequestMapping(value = "/{hostId}/logs", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+        @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
+    })
+    @RequestMapping(value = "/{hostId}/logs", method = RequestMethod.GET,
+        produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<List<MepHostLog>> getHostLogByHostId(
         @ApiParam(value = "hostId", required = true) @PathVariable String hostId) {

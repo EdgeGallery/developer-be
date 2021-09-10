@@ -30,7 +30,6 @@ import org.edgegallery.developer.domain.shared.Page;
 import org.edgegallery.developer.mapper.UploadedFileMapper;
 import org.edgegallery.developer.mapper.mephost.MepHostLogMapper;
 import org.edgegallery.developer.mapper.mephost.MepHostMapper;
-import org.edgegallery.developer.model.mephost.CreateMepHost;
 import org.edgegallery.developer.model.mephost.MepHost;
 import org.edgegallery.developer.model.mephost.MepHostLog;
 import org.edgegallery.developer.model.workspace.UploadedFile;
@@ -70,9 +69,9 @@ public class MepHostServiceImpl implements MepHostService {
      * @return
      */
     @Override
-    public Page<MepHost> getAllHosts(String name, String os, String architecture, int limit, int offset) {
+    public Page<MepHost> getAllHosts(String name, String vimType, String architecture, int limit, int offset) {
         PageHelper.offsetPage(offset, limit);
-        PageInfo<MepHost> pageInfo = new PageInfo<>(mepHostMapper.getHostsByCondition(name, os, architecture));
+        PageInfo<MepHost> pageInfo = new PageInfo<>(mepHostMapper.getHostsByCondition(name, vimType, architecture));
         LOGGER.info("Get all hosts success.");
         return new Page<MepHost>(pageInfo.getList(), limit, offset, pageInfo.getTotal());
     }
@@ -84,18 +83,18 @@ public class MepHostServiceImpl implements MepHostService {
      */
     @Transactional
     @Override
-    public Either<FormatRespDto, Boolean> createHost(CreateMepHost host, String token) {
-        MepHost mepHost = mepHostMapper.getHostsByMecHost(host.getMecHost());
+    public Either<FormatRespDto, Boolean> createHost(MepHost host, String token) {
+        MepHost mepHost = mepHostMapper.getHostsByMecHostIp(host.getMecHostIp());
         if (mepHost != null) {
-            LOGGER.info("mecHost have exit:{}", host.getMecHost());
+            LOGGER.info("mecHost have exit:{}", host.getMecHostIp());
             return Either.left(new FormatRespDto(Response.Status.BAD_REQUEST, "mecHost have exit"));
         }
-        if (StringUtils.isBlank(host.getUserId()) || !isAdminUser()) {
+        if (StringUtils.isBlank(host.getUserId()) || !isAdminUser() ) {
             LOGGER.error("Create host failed, userId is empty or not admin");
             return Either.left(new FormatRespDto(Response.Status.BAD_REQUEST, "userId is empty or not admin"));
         }
-        if ("OpenStack".equals(host.getOs())) {
-            Map<String, String> getParams = InputParameterUtil.getParams(host.getParameter());
+        if ("OpenStack".equals(host.getVimType())) {
+            Map<String, String> getParams = InputParameterUtil.getParams(host.getNetworkParameter());
             if (!getParams.containsKey("app_mp1_ip") || !getParams.containsKey("app_n6_ip") || !getParams
                 .containsKey("app_internet_ip")) {
                 LOGGER.error("Network params config error");
@@ -103,7 +102,7 @@ public class MepHostServiceImpl implements MepHostService {
             }
         }
         // health check
-        String healRes = HttpClientUtil.getHealth(host.getProtocol(), host.getLcmIp(), host.getPort());
+        String healRes = HttpClientUtil.getHealth(host.getLcmProtocol(), host.getLcmIp(), host.getLcmPort());
         if (healRes == null) {
             String msg = "health check faild,current ip or port cann't be used!";
             LOGGER.error(msg);
@@ -123,8 +122,8 @@ public class MepHostServiceImpl implements MepHostService {
             // upload file
             UploadedFile uploadedFile = uploadedFileMapper.getFileById(host.getConfigId());
             boolean uploadRes = MepHostUtil
-                .uploadFileToLcm(host.getProtocol(), host.getLcmIp(), host.getPort(), uploadedFile.getFilePath(),
-                    host.getMecHost(), token);
+                .uploadFileToLcm(host.getLcmProtocol(), host.getLcmIp(), host.getLcmPort(), uploadedFile.getFilePath(),
+                    host.getMecHostIp(), token);
             if (!uploadRes) {
                 String msg = "Create host failed,upload config file error";
                 LOGGER.error(msg);
@@ -132,11 +131,11 @@ public class MepHostServiceImpl implements MepHostService {
                 return Either.left(dto);
             }
         }
-        host.setHostId(UUID.randomUUID().toString()); // no need to set hostId by user
-        host.setVncPort(VNC_PORT);
+        host.setId(UUID.randomUUID().toString()); // no need to set hostId by user
+        host.setMecHostPort(VNC_PORT);
         int ret = mepHostMapper.createHost(host);
         if (ret > 0) {
-            LOGGER.info("Crete host {} success ", host.getHostId());
+            LOGGER.info("Crete host {} success ", host.getId());
             return Either.right(true);
         }
         LOGGER.error("Create host failed ");
@@ -168,9 +167,9 @@ public class MepHostServiceImpl implements MepHostService {
      */
     @Override
     @Transactional
-    public Either<FormatRespDto, Boolean> updateHost(String hostId, CreateMepHost host, String token) {
+    public Either<FormatRespDto, Boolean> updateHost(String hostId, MepHost host, String token) {
         // health check
-        String healRes = HttpClientUtil.getHealth(host.getProtocol(), host.getLcmIp(), host.getPort());
+        String healRes = HttpClientUtil.getHealth(host.getLcmProtocol(), host.getLcmIp(), host.getLcmPort());
         if (healRes == null) {
             String msg = "health check faild,current ip or port cann't be used!";
             LOGGER.error(msg);
@@ -189,8 +188,8 @@ public class MepHostServiceImpl implements MepHostService {
             // upload file
             UploadedFile uploadedFile = uploadedFileMapper.getFileById(host.getConfigId());
             boolean uploadRes = MepHostUtil
-                .uploadFileToLcm(host.getProtocol(), host.getLcmIp(), host.getPort(), uploadedFile.getFilePath(),
-                    host.getMecHost(), token);
+                .uploadFileToLcm(host.getLcmProtocol(), host.getLcmIp(), host.getLcmPort(), uploadedFile.getFilePath(),
+                    host.getMecHostIp(), token);
             if (!uploadRes) {
                 String msg = "Create host failed,upload config file error";
                 LOGGER.error(msg);
@@ -205,7 +204,7 @@ public class MepHostServiceImpl implements MepHostService {
             return Either.left(error);
         }
 
-        host.setHostId(hostId); // no need to set hostId by user
+        host.setId(hostId); // no need to set hostId by user
         host.setUserId(currentHost.getUserId());
         int ret = mepHostMapper.updateHostSelected(host);
         if (ret > 0) {

@@ -8,7 +8,7 @@ import org.apache.servicecomb.provider.springmvc.reference.RestTemplateBuilder;
 import org.edgegallery.developer.common.Consts;
 import org.edgegallery.developer.exception.CustomException;
 import org.edgegallery.developer.model.lcm.MecHostBody;
-import org.edgegallery.developer.model.mephost.CreateMepHost;
+import org.edgegallery.developer.model.mephost.MepHost;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.FileSystemResource;
@@ -41,13 +41,13 @@ public final class MepHostUtil {
      * @param host request body
      * @return
      */
-    public static boolean addMecHostToLcm(CreateMepHost host) {
+    public static boolean addMecHostToLcm(MepHost host) {
         MecHostBody body = new MecHostBody();
         body.setAffinity(host.getArchitecture());
         body.setCity(host.getAddress());
-        body.setMechostIp(host.getMecHost());
+        body.setMechostIp(host.getMecHostIp());
         body.setMechostName(host.getName());
-        if (host.getOs().equals("OpenStack") || host.getOs().equals("FusionSphere")) {
+        if (host.getVimType().equals("OpenStack") || host.getVimType().equals("FusionSphere")) {
             body.setVim("OpenStack");
         } else {
             body.setVim("K8s");
@@ -58,7 +58,7 @@ public final class MepHostUtil {
         headers.setContentType(MediaType.APPLICATION_JSON);
         Gson gson = new Gson();
         HttpEntity<String> requestEntity = new HttpEntity<>(gson.toJson(body), headers);
-        String url = getUrlPrefix(host.getProtocol(), host.getLcmIp(), host.getPort()) + Consts.APP_LCM_ADD_MECHOST;
+        String url = getUrlPrefix(host.getLcmProtocol(), host.getLcmIp(), host.getLcmPort()) + Consts.APP_LCM_ADD_MECHOST;
         LOGGER.info("add mec host url:{}", url);
         ResponseEntity<String> response;
         try {

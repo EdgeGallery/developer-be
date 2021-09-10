@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~    Copyright 2020 Huawei Technologies Co., Ltd.
+  ~
+  ~    Licensed under the Apache License, Version 2.0 (the "License");
+  ~    you may not use this file except in compliance with the License.
+  ~    You may obtain a copy of the License at
+  ~
+  ~        http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~    Unless required by applicable law or agreed to in writing, software
+  ~    distributed under the License is distributed on an "AS IS" BASIS,
+  ~    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~    See the License for the specific language governing permissions and
+  ~    limitations under the License.
+  -->
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.edgegallery.developer.mapper.mephost.MepHostMapper">
+    <resultMap id="HostMap"
+               type="org.edgegallery.developer.model.mephost.MepHost">
+        <id property="id" column="host_id"/>
+        <result property="name" column="name"/>
+        <result property="lcmIp" column="lcm_ip"/>
+        <result property="lcmProtocol" column="lcm_protocol"/>
+        <result property="lcmPort" column="lcm_port"/>
+        <result property="architecture" column="architecture"/>
+        <result property="status" column="status"/>
+        <result property="mecHostIp" column="mec_host_ip"/>
+        <result property="vimType" column="vim_type"/>
+        <result property="mecHostUserName" column="mec_host_user_name"/>
+        <result property="mecHostPassword" column="mec_host_password"/>
+        <result property="mecHostPort" column="mec_host_port"/>
+        <result property="userId" column="user_id"/>
+        <result property="configId" column="config_file_id"/>
+        <result property="networkParameter" column="net_work_parameter"/>
+        <result property="resource" column="resource"/>
+        <result property="address" column="address"/>
+    </resultMap>
+
+    <sql id="AllColumn">
+        host_id, name, lcm_ip,lcm_protocol,lcm_port,architecture,status,mec_host_ip,
+        vim_type,mec_host_user_name,mec_host_password,mec_host_port,user_id,config_file_id,net_work_parameter,
+        resource,address
+    </sql>
+
+    <insert id="createHost"
+            parameterType="org.edgegallery.developer.model.mephost.MepHost">
+        insert into
+        tbl_mep_host (host_id, name, lcm_ip,lcm_protocol,lcm_port,architecture,status,mec_host_ip,
+        vim_type,mec_host_user_name,mec_host_password,mec_host_port,user_id,config_file_id,net_work_parameter,
+        reource,address)
+        values
+        ( #{id}, #{name}, #{lcmIp},#{lcmProtocol},#{lcmPort},#{architecture},#{status},#{mecHostIp},
+        #{vimType},#{mecHostUserName},#{mecHostPassword},#{mecHostPort},#{userId},#{configId},#{networkParameter},
+        #{resource},#{address})
+    </insert>
+
+    <select id="getHost" parameterType="java.lang.String" resultMap="HostMap">
+        SELECT
+        <include refid="AllColumn"/>
+        FROM tbl_mep_host
+        WHERE host_id = #{hostId}
+    </select>
+
+    <select id="getHostsByMecHostIp" resultMap="HostMap">
+        SELECT
+        <include refid="AllColumn"/>
+        FROM tbl_mep_host
+        WHERE mec_host_ip = #{mecHost}
+    </select>
+
+    <update id="updateHostSelected" parameterType="org.edgegallery.developer.model.mephost.MepHost">
+        UPDATE tbl_mep_host
+        <set>
+            <if test="name != null and name!=''">
+                name=#{name},
+            </if>
+            <if test="lcmIp != null and lcmIp!=''">
+                lcm_ip=#{lcmIp},
+            </if>
+            <if test="lcmProtocol != null and lcmProtocol!=''">
+                lcm_protocol=#{lcmProtocol},
+            </if>
+            <if test="lcmPort != null">
+                lcm_port=#{lcmPort},
+            </if>
+            <if test="architecture != null and architecture!=''">
+                architecture=#{architecture},
+            </if>
+            <if test="status != null and status!=''">
+                status=#{status},
+            </if>
+            <if test="mecHostIp != null and mecHostIp!=''">
+                mec_host_ip=#{mecHostIp},
+            </if>
+            <if test="vimType != null and vimType!=''">
+                vim_type=#{vimType},
+            </if>
+            <if test="mecHostUserName != null and mecHostUserName!=''">
+                mec_host_user_name=#{mecHostUserName},
+            </if>
+            <if test="mecHostPassword != null and mecHostPassword!=''">
+                mec_host_password=#{mecHostPassword},
+            </if>
+            <if test="mecHostPort != null">
+                mec_host_port=#{mecHostPort},
+            </if>
+            <if test="configId != null and configId!=''">
+                config_file_id=#{configId},
+            </if>
+            <if test="networkParameter != null and networkParameter!=''">
+                net_work_parameter=#{networkParameter},
+            </if>
+            <if test="resource != null and resource!=''">
+                resource=#{resource},
+            </if>
+            <if test="address != null and address!=''">
+                address=#{address},
+            </if>
+        </set>
+        WHERE host_id = #{id}
+    </update>
+
+    <delete id="deleteHost" parameterType="java.lang.String">
+        DELETE FROM tbl_mep_host WHERE host_id = #{hostId}
+    </delete>
+
+    <select id="getHostsByCondition" resultMap="HostMap">
+        SELECT
+        <include refid="AllColumn"/>
+        FROM tbl_mep_host WHERE 1=1
+        <if test="name != null and name!=''">
+            and name like CONCAT('%',#{name},'%')
+        </if>
+        <if test="vimType != null and vimType != ''">
+            and vim_type = #{vimType}
+        </if>
+        <if test="architecture != null and architecture != ''">
+            and architecture = #{architecture}
+        </if>
+        order by ROW_NUMBER () OVER() desc
+    </select>
+
+</mapper>
