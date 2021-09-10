@@ -38,8 +38,6 @@ public interface ContainersImageMapper {
 
     List<ContainerImage> getAllImageByAdmin();
 
-    List<ContainerImage> getAllImageByOrdinary(@Param("userId") String userId);
-
     List<ContainerImage> getAllImageByAdminAuth(Map map);
 
     List<ContainerImage> getAllImageByOrdinaryAuth(Map map);
