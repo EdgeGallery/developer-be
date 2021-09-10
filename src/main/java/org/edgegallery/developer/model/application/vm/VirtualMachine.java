@@ -21,6 +21,7 @@ import java.util.Map;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import org.edgegallery.developer.model.instantiate.vm.VMInstantiateInfo;
 
 @Getter
 @Setter
@@ -47,7 +48,5 @@ public class VirtualMachine {
 
     private String flavorExtraSpecs;
 
-    private String vimVMId;
-
-    private String vncUrl;
+    private VMInstantiateInfo vmInstantiateInfo;
 }

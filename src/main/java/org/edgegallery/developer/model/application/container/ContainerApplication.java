@@ -13,18 +13,27 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package org.edgegallery.developer.model.application;
+package org.edgegallery.developer.model.application.container;
 
+import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import org.edgegallery.developer.model.application.Application;
+import org.edgegallery.developer.model.instantiate.container.ContainerAppInstantiateInfo;
 
 @Getter
 @Setter
 @ToString
-public class ContainerApplication extends Application{
+public class ContainerApplication extends Application {
 
-    private String deployFileId;
+    private List<HelmChart> helmChartList;
+
+    private ContainerAppInstantiateInfo instantiateInfo;
+
+    public ContainerApplication(){
+        super();
+    }
 
     public ContainerApplication(Application application) {
         super(application);

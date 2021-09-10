@@ -86,24 +86,28 @@ public class Application {
         this.status = EnumApplicationStatus.ONLINE;
     }
 
-    public Application(Application app) {
-        this.id=app.getId();
-        this.name=app.getName();
-        this.status=app.getStatus();
-        this.userId=app.getUserId();
-        this.userName=app.getUserName();
-        this.appClass=app.getAppClass();
-        this.appCreateType=app.getAppCreateType();
-        this.architecture=app.getArchitecture();
-        this.createTime=app.getCreateTime();
-        this.description=app.getDescription();
-        this.iconFileId=app.getIconFileId();
-        this.industry=app.getIndustry();
-        this.provider=app.getProvider();
-        this.type=app.getType();
-        this.version=app.getVersion();
-        this.mepHostId=app.getMepHostId();
+    public Application() {
+
     }
 
+    public Application(Application app) {
+        this.id = app.id;
+        this.name = app.name;
+        this.description = app.description;
+        this.version = app.version;
+        this.provider = app.provider;
+        this.architecture = app.architecture;
+        this.appClass = app.appClass;
+        this.type = app.type;
+        this.industry = app.industry;
+        this.iconFileId = app.iconFileId;
+        this.appCreateType = app.appCreateType;
+        this.createTime = app.createTime;
+        this.status = app.status;
+        this.userId = app.userId;
+        this.userName = app.userName;
+        this.mepHostId = app.mepHostId;
+        this.appConfiguration = app.appConfiguration;
+    }
 
 }
