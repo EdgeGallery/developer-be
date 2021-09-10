@@ -18,7 +18,7 @@ package org.edgegallery.developer.service.application.impl;
 import org.edgegallery.developer.common.ResponseConsts;
 import org.edgegallery.developer.exception.DeveloperException;
 import org.edgegallery.developer.mapper.application.ApplicationMapper;
-import org.edgegallery.developer.model.application.SelectMepHost;
+import org.edgegallery.developer.model.restful.SelectMepHostReq;
 import org.edgegallery.developer.response.FormatRespDto;
 import org.edgegallery.developer.service.ProjectService;
 import org.edgegallery.developer.service.application.AppOperationService;
@@ -52,8 +52,8 @@ public class AppOperationServiceImpl implements AppOperationService {
     }
 
     @Override
-    public Either<FormatRespDto, Boolean> selectMepHost(String applicationId, SelectMepHost selectMepHost) {
-        int res = applicationMapper.modifyMepHostById(applicationId, selectMepHost.getMepHostId());
+    public Either<FormatRespDto, Boolean> selectMepHost(String applicationId, SelectMepHostReq selectMepHostReq) {
+        int res = applicationMapper.modifyMepHostById(applicationId, selectMepHostReq.getMepHostId());
         if (res < 1) {
             LOGGER.error("modify mep host fail");
             throw new DeveloperException("modify mep host fail", ResponseConsts.MODIFY_DATA_FAILED);

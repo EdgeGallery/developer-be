@@ -23,13 +23,12 @@ import io.swagger.annotations.ApiResponses;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
-import org.edgegallery.developer.model.application.SelectMepHost;
+import org.edgegallery.developer.model.restful.SelectMepHostReq;
 import org.edgegallery.developer.response.ErrorRespDto;
 import org.edgegallery.developer.response.FormatRespDto;
 import org.edgegallery.developer.service.application.AppOperationService;
 import org.edgegallery.developer.service.application.factory.AppOperationServiceFactory;
 import org.edgegallery.developer.util.ResponseDataUtil;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -64,7 +63,7 @@ public class AppOperationCtl {
     public ResponseEntity<Boolean> selectMepHost(
         @Pattern(regexp = REGEX_UUID, message = "applicationId must be in UUID format")
         @ApiParam(value = "applicationId", required = true) @PathVariable("applicationId") String applicationId,
-        @NotNull @ApiParam(value = "selectSandbox", required = true) @RequestBody SelectMepHost selectSandbox) {
+        @NotNull @ApiParam(value = "selectSandbox", required = true) @RequestBody SelectMepHostReq selectSandbox) {
         Either<FormatRespDto, Boolean> either = getAppOperationService(applicationId).selectMepHost(applicationId, selectSandbox);
         return ResponseDataUtil.buildResponse(either);
     }

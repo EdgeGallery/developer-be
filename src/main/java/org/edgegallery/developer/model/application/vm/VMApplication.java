@@ -13,23 +13,28 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package org.edgegallery.developer.model.application;
+package org.edgegallery.developer.model.application.vm;
 
 import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import org.edgegallery.developer.model.application.Application;
 import org.edgegallery.developer.model.application.vm.Network;
 import org.edgegallery.developer.model.application.vm.VirtualMachine;
 
 @Getter
 @Setter
 @ToString
-public class VMApplication extends Application{
+public class VMApplication extends Application {
 
     private List<VirtualMachine> vmList;
 
     private List<Network>  networkList;
+
+    public VMApplication(){
+        super();
+    }
 
     public VMApplication(Application application) {
         super(application);

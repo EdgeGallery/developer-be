@@ -35,9 +35,4 @@ public class VMPort {
     private String ipType;
 
     private String networkName;
-
-    private String ip;
-
-    private String mask;
-
 }
