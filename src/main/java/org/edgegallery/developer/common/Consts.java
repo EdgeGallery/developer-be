@@ -63,7 +63,7 @@ public final class Consts {
 
     public static final int TEMP_FILE_TIMEOUT = 30;
 
-    public static final int UPLOAD_CONCURRENT_COUNT = 5;
+    public static final int UPLOAD_RETRANSPART_COUNT = 5;
 
     public static final String FILE_ENCODING = "utf-8";
 
