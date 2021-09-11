@@ -40,18 +40,18 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import com.spencerwi.either.Either;
 @Controller
-@RestSchema(schemaId = "VmAppAction")
+@RestSchema(schemaId = "VmAppOperation")
 @RequestMapping("/mec/developer/v2/applications")
-@Api(tags = "VmAppAction")
+@Api(tags = "VmAppOperation")
 @Validated
 public class VMAppOperationCtl {
     private static final String REGEX_UUID = "[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}";
     @Autowired
     private VmAppOperationService VmAppOperationService;
     /**
-     * action a vm.
+     * instantiate a vm .
      */
-    @ApiOperation(value = "create a vm.", response = Boolean.class)
+    @ApiOperation(value = "instantiate a vm .", response = Boolean.class)
     @ApiResponses(value = {
         @ApiResponse(code = 200, message = "OK", response = Boolean.class),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
@@ -59,11 +59,11 @@ public class VMAppOperationCtl {
     @RequestMapping(value = "/{applicationId}/vms/{vmId}/launch", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_UTF8_VALUE,
         produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
-    public ResponseEntity<Boolean> actionVm(
+    public ResponseEntity<Boolean> instantiateVmApp(
         @Pattern(regexp = REGEX_UUID, message = "applicationId must be in UUID format")
         @ApiParam(value = "applicationId", required = true) @PathVariable("applicationId") String applicationId,
         @ApiParam(value = "vmId", required = true) @PathVariable("vmId") String vmId) {
-        Either<FormatRespDto, Boolean> either = VmAppOperationService.actionVm(applicationId, vmId);
+        Either<FormatRespDto, Boolean> either = VmAppOperationService.instantiateVmApp(applicationId, vmId);
         return ResponseDataUtil.buildResponse(either);
     }
 

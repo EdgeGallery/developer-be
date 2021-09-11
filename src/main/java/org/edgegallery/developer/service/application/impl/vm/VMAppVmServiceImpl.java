@@ -25,6 +25,9 @@ public class VMAppVmServiceImpl implements VMAppVmService {
     @Autowired
     VMMapper vmMapper;
 
+    @Autowired
+    VMAppOperationServiceImpl vmAppOperationServiceImpl;
+
     @Override
     public Either<FormatRespDto, VirtualMachine> createVm(String applicationId, VirtualMachine virtualMachine) {
         virtualMachine.setId(UUID.randomUUID().toString());
@@ -38,11 +41,19 @@ public class VMAppVmServiceImpl implements VMAppVmService {
 
     @Override
     public List<VirtualMachine> getAllVm(String applicationId) {
+        List<VirtualMachine> virtualMachines = vmMapper.getAllVMsByAppId(applicationId);
+        for (VirtualMachine virtualMachine:virtualMachines) {
+            virtualMachine.setVmInstantiateInfo(vmAppOperationServiceImpl.getInstantiateInfo(virtualMachine.getId()));
+            virtualMachine.setImageExportInfo(vmAppOperationServiceImpl.getImageExportInfo(virtualMachine.getId()));
+        }
         return vmMapper.getAllVMsByAppId(applicationId);
     }
 
     @Override
     public VirtualMachine getVm(String applicationId, String vmId) {
+        VirtualMachine virtualMachine = vmMapper.getVMById(vmId);
+        virtualMachine.setImageExportInfo(vmAppOperationServiceImpl.getImageExportInfo(virtualMachine.getId()));
+        virtualMachine.setVmInstantiateInfo(vmAppOperationServiceImpl.getInstantiateInfo(virtualMachine.getId()));
         return vmMapper.getVMById(vmId);
     }
 
@@ -58,6 +69,7 @@ public class VMAppVmServiceImpl implements VMAppVmService {
 
     @Override
     public Either<FormatRespDto, Boolean> deleteVm(String applicationId, String vmId) {
+        // todo delete package instantiate and image
         int res = vmMapper.deleteVM(vmId);
         if (res < 1) {
             LOGGER.error("delete vm in db error.");

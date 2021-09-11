@@ -38,9 +38,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import com.spencerwi.either.Either;
 
 @Controller
-@RestSchema(schemaId = "containerAppAction")
+@RestSchema(schemaId = "containerAppOperation")
 @RequestMapping("/mec/developer/v2/applications")
-@Api(tags = "containerAppAction")
+@Api(tags = "containerAppOperation")
 @Validated
 public class ContainerAppOperationCtl {
     private static final String REGEX_UUID = "[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}";
@@ -49,9 +49,9 @@ public class ContainerAppOperationCtl {
     private ContainerAppOperationService containerAppOperationService;
 
     /**
-     * action a container.
+     * instantiate a container app.
      */
-    @ApiOperation(value = "action a container.", response = Boolean.class)
+    @ApiOperation(value = "instantiate a container app.", response = Boolean.class)
     @ApiResponses(value = {
         @ApiResponse(code = 200, message = "OK", response = Boolean.class),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
@@ -59,17 +59,17 @@ public class ContainerAppOperationCtl {
     @RequestMapping(value = "/{applicationId}/container/launch", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_UTF8_VALUE,
         produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
-    public ResponseEntity<Boolean> actionContainer(
+    public ResponseEntity<Boolean> instantiateContainerApp(
         @Pattern(regexp = REGEX_UUID, message = "applicationId must be in UUID format")
         @ApiParam(value = "applicationId", required = true) @PathVariable("applicationId") String applicationId) {
-        Either<FormatRespDto, Boolean> either = containerAppOperationService.actionContainer(applicationId);
+        Either<FormatRespDto, Boolean> either = containerAppOperationService.instantiateContainerApp(applicationId);
         return ResponseDataUtil.buildResponse(either);
     }
 
     /**
-     * action a container.
+     * get container app instantiate info .
      */
-    @ApiOperation(value = "action a container.", response = Boolean.class)
+    @ApiOperation(value = "get container app instantiate info .", response = Boolean.class)
     @ApiResponses(value = {
         @ApiResponse(code = 200, message = "OK", response = Boolean.class),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)

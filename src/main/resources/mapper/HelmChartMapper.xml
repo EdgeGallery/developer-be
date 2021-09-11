@@ -21,26 +21,31 @@
   <resultMap id="HelmChartMap" type="org.edgegallery.developer.model.application.container.HelmChart">
     <id property="id" column="id"/>
     <result property="name" column="name"/>
-    <result property="helmChartFileId" column="helm_chart_file_id"/>
-    <result property="imageRepoList" column="image_repo_list"/>
+    <result property="helmChartFileContent" column="helm_chart_file_content"/>
+    <result property="imageRepoList" column="image_repo_list"
+      typeHandler="org.edgegallery.developer.model.handler.JsonCollectionTypeHandler"/>
+    <result property="helmChartCheck" column="helm_chart_check"
+      typeHandler="org.edgegallery.developer.model.handler.JsonTypeHandler"/>
   </resultMap>
 
   <sql id="HelmChartAllColumn">
-    id, app_id, name, helm_chart_file_id, image_repo_list
+    id, app_id, name, helm_chart_file_content, image_repo_list, helm_chart_check
   </sql>
 
   <insert id="createHelmChart">
-    insert into tbl_container_helm_chart (id, app_id, name, helm_chart_file_id, image_repo_list)
+    insert into tbl_container_helm_chart (id, app_id, name, helm_chart_file_content, image_repo_list, helm_chart_check)
     values
-    ( #{helmChart.id}, #{applicationId}, #{helmChart.name}, #{helmChart.helmChartFileId},
-    #{helmChart.imageRepoList})
+    ( #{helmChart.id}, #{applicationId}, #{helmChart.name}, #{helmChart.helmChartFileContent},
+    #{helmChart.imageRepoList, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonCollectionTypeHandler},
+    #{helmChart.helm_chart_check, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonCollectionTypeHandler})
   </insert>
 
   <update id="modifyHelmChart">
     UPDATE
     tbl_container_helm_chart
     SET
-    name = #{name}, helm_chart_file_id = #{helmChartFileId}, image_repo_list = #{imageRepoList}
+    name = #{name}, helm_chart_file_content = #{helmChartFileContent},
+    image_repo_list = #{imageRepoList, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonCollectionTypeHandler}
     WHERE
     id = #{id}
   </update>

@@ -1,7 +1,13 @@
 package org.edgegallery.developer.service.application.impl.vm;
 
+import java.util.List;
 import javax.servlet.http.HttpServletRequest;
+import org.edgegallery.developer.mapper.application.vm.ImageExportInfoMapper;
+import org.edgegallery.developer.mapper.application.vm.VMInstantiateInfoMapper;
 import org.edgegallery.developer.model.Chunk;
+import org.edgegallery.developer.model.instantiate.vm.ImageExportInfo;
+import org.edgegallery.developer.model.instantiate.vm.PortInstantiateInfo;
+import org.edgegallery.developer.model.instantiate.vm.VMInstantiateInfo;
 import org.edgegallery.developer.response.FormatRespDto;
 import org.edgegallery.developer.service.application.AppOperationService;
 import org.edgegallery.developer.service.application.action.IAction;
@@ -9,15 +15,22 @@ import org.edgegallery.developer.service.application.action.IActionIterator;
 import org.edgegallery.developer.service.application.action.impl.vm.VMLaunchActionCollection;
 import org.edgegallery.developer.service.application.impl.AppOperationServiceImpl;
 import org.edgegallery.developer.service.application.vm.VmAppOperationService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import com.spencerwi.either.Either;
 
-@Service("vmAppActionService")
+@Service("vmAppOperationService")
 public class VMAppOperationServiceImpl extends AppOperationServiceImpl implements VmAppOperationService {
 
+    @Autowired
+    VMInstantiateInfoMapper vmInstantiateInfoMapper;
+
+    @Autowired
+    ImageExportInfoMapper imageExportInfoMapper;
+
     @Override
-    public Either<FormatRespDto, Boolean> actionVm(String applicationId, String vmId) {
+    public Either<FormatRespDto, Boolean> instantiateVmApp(String applicationId, String vmId) {
         VMLaunchActionCollection actionCollection = new VMLaunchActionCollection();
         IActionIterator iterator = actionCollection.getActionIterator();
         while(iterator.hasNext()){
@@ -45,6 +58,16 @@ public class VMAppOperationServiceImpl extends AppOperationServiceImpl implement
     @Override
     public Either<FormatRespDto, Boolean> generatePackage(String applicationId) {
         return null;
+    }
+
+    public VMInstantiateInfo getInstantiateInfo(String vmId) {
+        VMInstantiateInfo vmInstantiateInfo = vmInstantiateInfoMapper.getVMInstantiateInfo(vmId);
+        vmInstantiateInfo.setPortInstanceList(vmInstantiateInfoMapper.getPortInstantiateInfoByVMId(vmId));
+        return vmInstantiateInfo;
+    }
+
+    public ImageExportInfo getImageExportInfo(String vmId) {
+        return imageExportInfoMapper.getImageExportInfoInfoByVMId(vmId);
     }
 
 }

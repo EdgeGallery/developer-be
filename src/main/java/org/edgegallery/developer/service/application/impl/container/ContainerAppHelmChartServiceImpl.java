@@ -16,6 +16,7 @@
 package org.edgegallery.developer.service.application.impl.container;
 
 import java.util.List;
+import org.edgegallery.developer.model.application.container.HelmChart;
 import org.edgegallery.developer.response.FormatRespDto;
 import org.edgegallery.developer.response.HelmTemplateYamlRespDto;
 import org.edgegallery.developer.service.application.container.ContainerAppHelmChartService;
@@ -26,19 +27,23 @@ import com.spencerwi.either.Either;
 public class ContainerAppHelmChartServiceImpl implements ContainerAppHelmChartService {
 
     @Override
-    public Either<FormatRespDto, HelmTemplateYamlRespDto> uploadHelmTemplateYaml(MultipartFile helmTemplateYaml,
-        String userId, String projectId, String configType) {
+    public Either<FormatRespDto, Boolean> uploadHelmChartYaml(MultipartFile helmTemplateYaml, String applicationId) {
+        // upload helm chart yaml
         return null;
     }
 
     @Override
-    public Either<FormatRespDto, List<HelmTemplateYamlRespDto>> getHelmTemplateYamlList(String userId,
-        String projectId) {
+    public List<HelmChart> getHelmChartList(String applicationId) {
         return null;
     }
 
     @Override
-    public Either<FormatRespDto, String> deleteHelmTemplateYamlByFileId(String fileId) {
+    public HelmChart getHelmChartById(String applicationId, String id) {
+        return null;
+    }
+
+    @Override
+    public Either<FormatRespDto, Boolean> deleteHelmChartById(String applicationId, String id) {
         return null;
     }
 }

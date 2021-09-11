@@ -28,7 +28,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.spencerwi.either.Either;
 
-@Service("applicationActionService")
+@Service("AppOperationService")
 public class AppOperationServiceImpl implements AppOperationService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ProjectService.class);
