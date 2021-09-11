@@ -16,6 +16,7 @@
 package org.edgegallery.developer.model.instantiate.container;
 
 import java.util.Date;
+import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -34,6 +35,10 @@ public class ContainerAppInstantiateInfo {
     private String log;
 
     private Date instantiateTime;
+
+    private List<K8sPod> pods;
+
+    private List<K8sService> serviceList;
 
 
 }

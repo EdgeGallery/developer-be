@@ -520,9 +520,10 @@
     CREATE TABLE IF NOT EXISTS "tbl_container_helm_chart" (
     "id" varchar(255) NOT NULL,
     "app_id" varchar(255) NOT NULL,
-    "name", varchar(255) DEFAULT NULL,
-    "helm_chart_file_id" varchar(255) DEFAULT NULL,
+    "name" varchar(255) DEFAULT NULL,
+    "helm_chart_file_content" text DEFAULT NULL,
     "image_repo_list" text DEFAULT NULL,
+    "helm_chart_check" text DEFAULT NULL,
     CONSTRAINT "tbl_container_helm_chart_pkey" PRIMARY KEY ("id")
     );
 
@@ -536,8 +537,6 @@
     "status" varchar(255) DEFAULT NULL,
     "area_zone" varchar(255) DEFAULT NULL,
     "flavor_extra_specs"  text DEFAULT NULL,
-    "vim_vm_id" varchar(255) DEFAULT NULL,
-    "vnc_url" varchar(255) DEFAULT NULL,
     CONSTRAINT "tbl_vm_pkey" PRIMARY KEY ("id")
     );
 
@@ -614,14 +613,14 @@
     "vnc_url" varchar(255) DEFAULT NULL,
     "log" text DEFAULT NULL,
     "instantiate_time" timestamptz(6)  DEFAULT NULL,
-    CONSTRAINT "tbl_vm_instantiate_info_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "tbl_vm_instantiate_info_pkey" PRIMARY KEY ("vm_id")
     );
 
     CREATE TABLE IF NOT EXISTS "tbl_vm_port_instantiate_info" (
     "vm_id" varchar(255) NOT NULL,
     "network_name" varchar(255) NOT NULL,
     "ip_address" varchar(255) DEFAULT NULL,
-    CONSTRAINT  "tbl_vm_port_instantiate_info_unique_id_name" UNIQUE ("vm_instantiate_id","network_name")
+    CONSTRAINT  "tbl_vm_port_instantiate_info_unique_id_name" UNIQUE ("vm_id","network_name")
     );
 
     CREATE TABLE IF NOT EXISTS "tbl_vm_image_export_info" (
@@ -634,7 +633,7 @@
     "status" varchar(255) DEFAULT NULL,
     "log" text DEFAULT NULL,
     "create_time" timestamptz(6)  DEFAULT NULL,
-    CONSTRAINT "tbl_vm_image_export_info_pkey" PRIMARY KEY ("image_instance_id")
+    CONSTRAINT "tbl_vm_image_export_info_pkey" PRIMARY KEY ("vm_id")
     );
 
     CREATE TABLE IF NOT EXISTS "tbl_container_app_instantiate_info" (
@@ -644,7 +643,7 @@
     "status" varchar(255) DEFAULT NULL,
     "log" text DEFAULT NULL,
     "instantiate_time" timestamptz(6)  DEFAULT NULL,
-    CONSTRAINT "tbl_container_app_instantiate_info_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "tbl_container_app_instantiate_info_pkey" PRIMARY KEY ("app_id")
     );
 
     CREATE TABLE IF NOT EXISTS "tbl_k8s_pod_instantiate_info" (
@@ -652,7 +651,7 @@
     "app_id" varchar(255) NOT NULL,
     "pod_status" varchar(255) DEFAULT NULL,
     "events_info" text DEFAULT NULL,
-    CONSTRAINT "tbl_k8s_pod_instantiate_info_pkey" PRIMARY KEY ("name")
+    CONSTRAINT  "tbl_k8s_pod_instantiate_info_unique_id_name" UNIQUE ("app_id","name")
     );
 
     CREATE TABLE IF NOT EXISTS "tbl_container_instantiate_info" (
@@ -661,7 +660,7 @@
     "cpu_usage" varchar(255) DEFAULT NULL,
     "mem_usage" varchar(255) DEFAULT NULL,
     "disk_usage" varchar(255) DEFAULT NULL,
-    CONSTRAINT "tbl_container_instantiate_info_pkey" PRIMARY KEY ("name")
+    CONSTRAINT  "tbl_container_instantiate_info_unique_id_name" UNIQUE ("pod_name","name")
     );
 
     CREATE TABLE IF NOT EXISTS "tbl_k8s_service_instantiate_info" (
@@ -676,5 +675,5 @@
     "service_name" varchar(255) NOT NULL,
     "target_port" varchar(255) DEFAULT NULL,
     "node_port" varchar(255) DEFAULT NULL,
-    CONSTRAINT "tbl_k8s_service_port_instantiate_info_pkey" PRIMARY KEY ("name")
+    CONSTRAINT "tbl_k8s_service_port_instantiate_info_pkey" PRIMARY KEY ("service_name")
     );

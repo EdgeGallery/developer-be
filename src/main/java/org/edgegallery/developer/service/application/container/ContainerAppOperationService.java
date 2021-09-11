@@ -21,7 +21,7 @@ import org.edgegallery.developer.service.application.AppOperationService;
 
 public interface ContainerAppOperationService{
 
-    Either<FormatRespDto, Boolean> actionContainer(String applicationId);
+    Either<FormatRespDto, Boolean> instantiateContainerApp(String applicationId);
 
     Either<FormatRespDto, Boolean> getContainerDetail(String applicationId);
 }

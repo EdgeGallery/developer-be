@@ -41,9 +41,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import com.spencerwi.either.Either;
 
 @Controller
-@RestSchema(schemaId = "applicationAction")
+@RestSchema(schemaId = "AppOperation")
 @RequestMapping("/mec/developer/v2/applications")
-@Api(tags = "applicationAction")
+@Api(tags = "AppOperation")
 @Validated
 public class AppOperationCtl {
     private static final String REGEX_UUID = "[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}";

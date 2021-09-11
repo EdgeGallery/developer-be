@@ -36,7 +36,7 @@
     <result property="type" column="type"/>
   </resultMap>
 
-  <resultMap id="Container" type="org.edgegallery.developer.model.instantiate.container.Container">
+  <resultMap id="ContainerMap" type="org.edgegallery.developer.model.instantiate.container.Container">
     <id property="name" column="name"/>
     <result property="cpuUsage" column="cpu_usage"/>
     <result property="memUsage" column="mem_usage"/>

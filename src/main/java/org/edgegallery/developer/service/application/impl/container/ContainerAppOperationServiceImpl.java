@@ -24,7 +24,7 @@ import com.spencerwi.either.Either;
 public class ContainerAppOperationServiceImpl extends AppOperationServiceImpl implements ContainerAppOperationService {
 
     @Override
-    public Either<FormatRespDto, Boolean> actionContainer(String applicationId) {
+    public Either<FormatRespDto, Boolean> instantiateContainerApp(String applicationId) {
         return null;
     }
 

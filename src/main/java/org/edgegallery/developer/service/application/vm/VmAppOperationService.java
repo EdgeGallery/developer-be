@@ -24,7 +24,7 @@ import com.spencerwi.either.Either;
 
 public interface VmAppOperationService {
 
-    Either<FormatRespDto, Boolean> actionVm(String applicationId, String vmId);
+    Either<FormatRespDto, Boolean> instantiateVmApp(String applicationId, String vmId);
 
     Either<FormatRespDto, Boolean> uploadFileToVm(String applicationId, String vmId, HttpServletRequest request, Chunk chunk);
 

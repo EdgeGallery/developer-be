@@ -24,6 +24,8 @@ import java.io.IOException;
 import java.util.List;
 import javax.validation.constraints.Pattern;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
+import org.edgegallery.developer.model.application.container.HelmChart;
+import org.edgegallery.developer.model.application.vm.VirtualMachine;
 import org.edgegallery.developer.response.ErrorRespDto;
 import org.edgegallery.developer.response.FormatRespDto;
 import org.edgegallery.developer.response.HelmTemplateYamlRespDto;
@@ -54,63 +56,75 @@ public class ContainerAppHelmChartCtl {
     /**
      * upload helm template yaml.
      */
-    @ApiOperation(value = "upload helm template yaml", response = HelmTemplateYamlRespDto.class)
+    @ApiOperation(value = "upload helm template yaml", response = Boolean.class)
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "OK", response = HelmTemplateYamlRespDto.class),
+        @ApiResponse(code = 200, message = "OK", response = Boolean.class),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
     @RequestMapping(value = "/{applicationId}/helmchart", method = RequestMethod.POST,
         consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
-    public ResponseEntity<HelmTemplateYamlRespDto> uploadHelmTemplateYaml(
+    public ResponseEntity<Boolean> uploadHelmChartYaml(
         @ApiParam(value = "file", required = true) @RequestPart("file") MultipartFile helmTemplateYaml,
-        @Pattern(regexp = REGEX_UUID, message = "userId must be in UUID format")
-        @ApiParam(value = "userId", required = true) @RequestParam("userId") String userId,
         @Pattern(regexp = REGEX_UUID, message = "projectId must be in UUID format")
-        @ApiParam(value = "projectId", required = true) @RequestParam("projectId") String projectId,
-        @ApiParam(value = "configType", required = true) @RequestParam("configType") String configType)
-        throws IOException {
-        Either<FormatRespDto, HelmTemplateYamlRespDto> either = containerAppHelmChartService
-            .uploadHelmTemplateYaml(helmTemplateYaml, userId, projectId, configType);
+        @ApiParam(value = "applicationId", required = true) @RequestParam("applicationId") String applicationId) {
+        Either<FormatRespDto, Boolean> either = containerAppHelmChartService
+            .uploadHelmChartYaml(helmTemplateYaml, applicationId);
         return ResponseDataUtil.buildResponse(either);
     }
 
     /**
-     * get helm template yaml list.
+     * get helm chart yaml list.
      */
-    @ApiOperation(value = "get helm template yaml list", response = List.class)
+    @ApiOperation(value = "get helm chart yaml list", response = HelmChart.class, responseContainer = "List")
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "OK", response = List.class),
+        @ApiResponse(code = 200, message = "OK", response = HelmChart.class, responseContainer = "List"),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
-    @RequestMapping(value = "/helmchart", method = RequestMethod.GET,
+    @RequestMapping(value = "/{applicationId}/helmchart", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
-    public ResponseEntity<List<HelmTemplateYamlRespDto>> getHelmTemplateYamlList(
-        @Pattern(regexp = REGEX_UUID, message = "userId must be in UUID format")
-        @ApiParam(value = "userId", required = true) @RequestParam("userId") String userId,
-        @Pattern(regexp = REGEX_UUID, message = "projectId must be in UUID format")
-        @ApiParam(value = "projectId", required = true) @RequestParam("projectId") String projectId) {
-        Either<FormatRespDto, List<HelmTemplateYamlRespDto>> either = containerAppHelmChartService
-            .getHelmTemplateYamlList(userId, projectId);
-        return ResponseDataUtil.buildResponse(either);
+    public ResponseEntity<List<HelmChart>> getHelmChartList(
+        @Pattern(regexp = REGEX_UUID, message = "applicationId must be in UUID format")
+        @ApiParam(value = "applicationId", required = true) @RequestParam("applicationId") String applicationId) {
+        return ResponseEntity.ok(containerAppHelmChartService.getHelmChartList(applicationId));
     }
 
     /**
-     * delete helm template yaml.
+     * get a helm chart yaml.
      */
-    @ApiOperation(value = "delete helm template yaml", response = String.class)
+    @ApiOperation(value = "get a helm chart yaml.", response = HelmChart.class)
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "OK", response = String.class),
+        @ApiResponse(code = 200, message = "OK", response = HelmChart.class),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
-    @RequestMapping(value = "/helm-template-yaml", method = RequestMethod.DELETE,
+    @RequestMapping(value = "/{applicationId}/helmchart/{id}", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
-    public ResponseEntity<String> deleteHelmTemplateYamlByFileId(
+    public ResponseEntity<HelmChart> getHelmChartById(
+        @Pattern(regexp = REGEX_UUID, message = "applicationId must be in UUID format")
+        @ApiParam(value = "applicationId", required = true) @RequestParam("applicationId") String applicationId,
+        @ApiParam(value = "id", required = true) @RequestParam("id") String id) {
+        return ResponseEntity.ok(containerAppHelmChartService.getHelmChartById(applicationId, id));
+    }
+
+    /**
+     * delete helm chart yaml.
+     */
+    @ApiOperation(value = "delete helm chart yaml.", response = Boolean.class)
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = "OK", response = Boolean.class),
+        @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
+    })
+    @RequestMapping(value = "/{applicationId}/helmchart/{id}", method = RequestMethod.DELETE,
+        produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
+    public ResponseEntity<Boolean> deleteHelmChartById(
+        @Pattern(regexp = REGEX_UUID, message = "applicationId must be in UUID format")
+        @ApiParam(value = "applicationId", required = true) @RequestParam("applicationId") String applicationId,
         @Pattern(regexp = REGEX_UUID, message = "fileId must be in UUID format")
-        @ApiParam(value = "fileId", required = true) @RequestParam("fileId") String fileId) {
-        Either<FormatRespDto, String> either = containerAppHelmChartService.deleteHelmTemplateYamlByFileId(fileId);
+        @ApiParam(value = "id", required = true) @RequestParam("id") String id) {
+        Either<FormatRespDto, Boolean> either = containerAppHelmChartService.deleteHelmChartById(applicationId, id);
         return ResponseDataUtil.buildResponse(either);
     }
 

@@ -16,6 +16,7 @@
 package org.edgegallery.developer.service.application.container;
 
 import java.util.List;
+import org.edgegallery.developer.model.application.container.HelmChart;
 import org.edgegallery.developer.response.FormatRespDto;
 import org.edgegallery.developer.response.HelmTemplateYamlRespDto;
 import org.springframework.web.multipart.MultipartFile;
@@ -23,9 +24,11 @@ import com.spencerwi.either.Either;
 
 public interface ContainerAppHelmChartService {
 
-    Either<FormatRespDto, HelmTemplateYamlRespDto> uploadHelmTemplateYaml(MultipartFile helmTemplateYaml, String userId, String projectId, String configType);
+    Either<FormatRespDto, Boolean> uploadHelmChartYaml(MultipartFile helmTemplateYaml, String applicationId);
 
-    Either<FormatRespDto, List<HelmTemplateYamlRespDto>> getHelmTemplateYamlList(String userId, String projectId);
+    List<HelmChart> getHelmChartList(String applicationId);
 
-    Either<FormatRespDto, String> deleteHelmTemplateYamlByFileId(String fileId);
+    HelmChart getHelmChartById(String applicationId, String id);
+
+    Either<FormatRespDto, Boolean> deleteHelmChartById(String applicationId, String id);
 }
