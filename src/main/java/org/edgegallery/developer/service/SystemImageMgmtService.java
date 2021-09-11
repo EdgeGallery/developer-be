@@ -330,8 +330,17 @@ public class SystemImageMgmtService {
         }
 
         List<Integer> uploadedChunks = new ArrayList<>();
-        for (int i = 1; i <= partFiles.length - Consts.UPLOAD_CONCURRENT_COUNT; i++) {
-            uploadedChunks.add(i);
+        for (File partFile : partFiles) {
+            String partFileName = partFile.getName();
+            uploadedChunks.add(Integer.parseInt(partFileName.substring(0, partFileName.indexOf('.'))));
+        }
+        Collections.sort(uploadedChunks);
+
+        int retransPartCount = uploadedChunks.size() > Consts.UPLOAD_RETRANSPART_COUNT
+            ? Consts.UPLOAD_RETRANSPART_COUNT
+            : uploadedChunks.size();
+        for (int i = 0; i < retransPartCount; i++) {
+            uploadedChunks.remove(uploadedChunks.size() - 1);
         }
 
         LOGGER.info("uploadedChunks = {}", uploadedChunks);
@@ -408,13 +417,20 @@ public class SystemImageMgmtService {
         }
 
         File mergedFile = new File(rootDir + File.separator + fileName);
-        FileOutputStream mergedFileStream = new FileOutputStream(mergedFile, true);
-        for (int i = 1; i <= partFiles.length; i++) {
-            File partFile = new File(partFilePath, i + ".part");
-            FileUtils.copyFile(partFile, mergedFileStream);
-            partFile.delete();
+        try (FileOutputStream mergedFileStream = new FileOutputStream(mergedFile, true);) {
+            for (int i = 1; i <= partFiles.length; i++) {
+                File partFile = new File(partFilePath, i + ".part");
+                FileUtils.copyFile(partFile, mergedFileStream);
+                partFile.delete();
+            }
+        } catch (Exception ex) {
+            LOGGER.error("merge local file failed: {}", ex.getMessage());
+            cancelOnRemoteFileServer(identifier);
+            systemImageMapper.updateSystemImageStatus(systemId, EnumSystemImageStatus.UPLOAD_FAILED.toString());
+            systemImageMapper.updateSystemImageErrorType(systemId, EnumProcessErrorType.OPEN_FAILED.getErrorType());
+            cleanWorkDir(mergedFile.getParentFile());
+            return ResponseEntity.status(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode()).build();
         }
-        mergedFileStream.close();
 
         LOGGER.info("process merged file.");
         UploadFileInfo uploadFileInfo = processMergedFile(mergedFile);
