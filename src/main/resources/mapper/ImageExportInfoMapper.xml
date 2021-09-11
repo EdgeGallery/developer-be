@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~    Copyright 2021 Huawei Technologies Co., Ltd.
+  ~
+  ~    Licensed under the Apache License, Version 2.0 (the "License");
+  ~    you may not use this file except in compliance with the License.
+  ~    You may obtain a copy of the License at
+  ~
+  ~        http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~    Unless required by applicable law or agreed to in writing, software
+  ~    distributed under the License is distributed on an "AS IS" BASIS,
+  ~    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~    See the License for the specific language governing permissions and
+  ~    limitations under the License.
+  -->
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.edgegallery.developer.mapper.application.vm.ImageExportInfoMapper">
+
+  <resultMap id="ImageExportInfoMap" type="org.edgegallery.developer.model.instantiate.vm.ImageExportInfo">
+    <id property="imageInstanceId" column="image_instance_id"/>
+    <result property="imageName" column="image_name"/>
+    <result property="sumChunkNum" column="sum_chunk_num"/>
+    <result property="chunkSize" column="chunk_size"/>
+    <result property="checkSum" column="check_sum"/>
+    <result property="log" column="log"/>
+    <result property="status" column="status"/>
+    <result property="createTime" column="create_time"/>
+  </resultMap>
+
+  <sql id="ImageExportInfoAllColumn">
+    vm_id, image_instance_id, vm_instantiate_id, image_name, sum_chunk_num, chunk_size, check_sum, log, status, create_time
+  </sql>
+
+  <insert id="createImageExportInfoInfo">
+    insert into tbl_vm_image_export_info (vm_id, image_instance_id, image_name, sum_chunk_num, chunk_size, check_sum, log, status, create_time)
+    values
+    ( #{vmId}, #{imageExportInfo.imageInstanceId}, #{imageExportInfo.imageName}, #{imageExportInfo.sumChunkNum},
+    #{imageExportInfo.chunkSize}, #{imageExportInfo.checkSum}, #{imageExportInfo.log},  #{imageExportInfo.status},
+    #{imageExportInfo.createTime})
+  </insert>
+
+  <update id="modifyImageExportInfoInfoByVMId">
+    UPDATE
+    tbl_vm_image_export_info
+    SET
+    image_instance_id = #{imageExportInfo.imageInstanceId}, image_name = #{imageExportInfo.imageName},
+    sum_chunk_num = #{imageExportInfo.sumChunkNum}, chunk_size = #{imageExportInfo.chunkSize}, check_sum = #{imageExportInfo.checkSum},
+    log = #{imageExportInfo.log}, status = #{imageExportInfo.status}, create_time = #{imageExportInfo.createTime}
+    WHERE
+    vm_id = #{vmId}
+  </update>
+
+  <delete id="deleteImageExportInfoInfoByVMId" parameterType="String">
+    DELETE FROM tbl_vm_image_export_info WHERE vm_id = #{vmId};
+  </delete>
+
+  <select id="getImageExportInfoInfoByVMId" parameterType="String" resultMap="ImageExportInfoMap">
+    SELECT
+    <include refid="ImageExportInfoAllColumn"/>
+    FROM tbl_vm_image_export_info where vm_id = #{vmId}
+  </select>
+
+</mapper>

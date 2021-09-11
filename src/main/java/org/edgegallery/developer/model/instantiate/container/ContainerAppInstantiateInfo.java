@@ -25,8 +25,6 @@ import lombok.ToString;
 @ToString
 public class ContainerAppInstantiateInfo {
 
-    private String id;
-
     private String appPackageId;
 
     private String appInstanceId;

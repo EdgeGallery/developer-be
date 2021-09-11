@@ -13,34 +13,22 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package org.edgegallery.developer.model.instantiate.vm;
+package org.edgegallery.developer.mapper.application.container;
 
-import java.util.Date;
 import java.util.List;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import org.apache.ibatis.annotations.Param;
+import org.edgegallery.developer.model.application.container.HelmChart;
 
-@Getter
-@Setter
-@ToString
-public class VMInstantiateInfo {
+public interface HelmChartMapper {
 
-    private String appPackageId;
+    int createHelmChart(@Param("applicationId")String applicationId,@Param("helmChart") HelmChart helmChart);
 
-    private String appInstanceId;
+    int modifyHelmChart(HelmChart helmChart);
 
-    private String vmInstanceId;
+    int deleteHelmChart(String id);
 
-    private EnumVMInstantiateStatus status;
+    List<HelmChart> getHelmChartsByAppId(String applicationId);
 
-    private Date instantiateTime;
-
-    private String log;
-
-    private String vncUrl;
-
-    private List<PortInstantiateInfo> portInstanceList;
-
+    HelmChart getHelmChartById(String id);
 
 }
