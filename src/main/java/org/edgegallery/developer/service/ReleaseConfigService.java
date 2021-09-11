@@ -42,6 +42,7 @@ import java.util.stream.Collectors;
 import javax.ws.rs.core.Response;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.edgegallery.developer.common.Consts;
 import org.edgegallery.developer.config.security.AccessUserUtil;
 import org.edgegallery.developer.exception.DomainException;
 import org.edgegallery.developer.mapper.ProjectMapper;
@@ -535,6 +536,7 @@ public class ReleaseConfigService {
      * fill value template with detailList.
      */
     private void fillTemplateInTgzFile(File tgzFile, List<ServiceDetail> detailList, String projectName) {
+        String namespace = projectName.replaceAll(Consts.PATTERN, "").toLowerCase();
         String fileName = tgzFile.getName().replace(".tgz", "");
         try {
             // decompress tgz
@@ -560,7 +562,7 @@ public class ReleaseConfigService {
             // build node template
             List<ServiceConfig> configs = detailList.stream().map(
                 t -> new ServiceConfig(t.getServiceName(), t.getInternalPort(), t.getVersion(), t.getProtocol(),
-                    projectName)).collect(Collectors.toList());
+                    namespace)).collect(Collectors.toList());
             // update node in template
             loaded.put("serviceconfig", configs);
             // write content to yaml
