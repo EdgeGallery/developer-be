@@ -13,8 +13,21 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package org.edgegallery.developer.mapper.application.container;
+package org.edgegallery.developer.mapper.application.vm;
 
-public interface ContainerAppHelmChartMapper {
+import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
+import org.edgegallery.developer.model.instantiate.vm.ImageExportInfo;
+
+@Mapper
+public interface ImageExportInfoMapper {
+
+    int createImageExportInfoInfo(@Param("vmId")String vmId, @Param("imageExportInfo")ImageExportInfo imageExportInfo);
+
+    int modifyImageExportInfoInfoByVMId(@Param("vmId")String vmId, @Param("imageExportInfo")ImageExportInfo imageExportInfo);
+
+    int deleteImageExportInfoInfoByVMId(String vmId);
+
+    ImageExportInfo getImageExportInfoInfoByVMId(String vmId);
 
 }
