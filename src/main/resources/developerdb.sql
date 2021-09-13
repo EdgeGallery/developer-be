@@ -445,7 +445,7 @@
     "image_type" varchar(255) DEFAULT NULL,
     "image_path" text DEFAULT NULL,
     "file_name" varchar(255) DEFAULT NULL,
-    CONSTRAINT  "tbl_container_image_uniqueName" UNIQUE ("image_name","image_version"),
+    CONSTRAINT  "tbl_container_image_uniqueName" UNIQUE ("image_name","image_version","user_name"),
     CONSTRAINT "tbl_container_image_pkey" PRIMARY KEY ("image_id")
     );
 
