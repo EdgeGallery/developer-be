@@ -512,7 +512,7 @@
     "status" varchar(255) DEFAULT NULL,
     "user_id" varchar(255) DEFAULT NULL,
     "user_name" varchar(255) DEFAULT NULL,
-    "host_mep_id" varchar(255) DEFAULT NULL,
+    "mep_host_id" varchar(255) DEFAULT NULL,
     CONSTRAINT  "tbl_application_unique_name_version" UNIQUE ("name","version"),
     CONSTRAINT "tbl_application_pkey" PRIMARY KEY ("id")
     );
@@ -561,12 +561,11 @@
     );
 
     CREATE TABLE IF NOT EXISTS "tbl_vm_certificate" (
-    "id" varchar(255) NOT NULL,
     "vm_id" varchar(255) DEFAULT NULL,
     "certificate_type" varchar(255) NOT NULL,
     "pwd_certificate" text DEFAULT NULL,
     "key_pair_certificate" text DEFAULT NULL,
-    CONSTRAINT "tbl_vm_certificate_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "tbl_vm_certificate_pkey" PRIMARY KEY ("vm_id")
     );
 
     CREATE TABLE IF NOT EXISTS "tbl_vm_flavor" (

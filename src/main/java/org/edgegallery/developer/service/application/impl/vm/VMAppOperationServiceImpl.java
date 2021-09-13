@@ -58,9 +58,7 @@ public class VMAppOperationServiceImpl extends AppOperationServiceImpl implement
     }
 
     public VMInstantiateInfo getInstantiateInfo(String vmId) {
-        VMInstantiateInfo vmInstantiateInfo = vmInstantiateInfoMapper.getVMInstantiateInfo(vmId);
-        vmInstantiateInfo.setPortInstanceList(vmInstantiateInfoMapper.getPortInstantiateInfoByVMId(vmId));
-        return vmInstantiateInfo;
+        return vmInstantiateInfoMapper.getVMInstantiateInfo(vmId);
     }
 
     public ImageExportInfo getImageExportInfo(String vmId) {

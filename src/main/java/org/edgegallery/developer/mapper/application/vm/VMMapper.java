@@ -34,8 +34,6 @@ public interface VMMapper {
 
     int deleteAllVMsByAppId(String applicationId);
 
-    List<VirtualMachine> getAllVMs();
-
     List<VirtualMachine> getAllVMsByAppId(String applicationId);
 
     VirtualMachine getVMById(String id);

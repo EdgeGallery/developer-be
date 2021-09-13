@@ -56,8 +56,26 @@ public class AppConfigurationServiceImpl implements AppConfigurationService {
     @Override
     public Either<FormatRespDto, Boolean> modifyAppConfiguration(String applicationId,
         AppConfiguration appConfiguration) {
+        try {
+            appConfigurationMapper.modifyAppCertificate(applicationId, appConfiguration.getAppCertificate());
+            for (AppServiceProduced appServiceProduced:appConfiguration.getAppServiceProducedList()) {
+                appConfigurationMapper.modifyServiceProduced(applicationId, appServiceProduced);
+            }
+            for (AppServiceRequired appServiceRequired:appConfiguration.getAppServiceRequiredList()) {
+                appConfigurationMapper.modifyServiceRequired(applicationId, appServiceRequired);
+            }
+            for (TrafficRule trafficRule: appConfiguration.getTrafficRuleList()) {
+                appConfigurationMapper.modifyTrafficRule(applicationId, trafficRule);
+            }
+            for (DnsRule dnsRule: appConfiguration.getDnsRuleList()) {
+                appConfigurationMapper.modifyDnsRule(applicationId, dnsRule);
+            }
+        } catch (Exception e) {
+            LOGGER.error("modify appConfiguration failed");
+            throw new DeveloperException("modify appConfiguration failed", ResponseConsts.MODIFY_DATA_FAILED);
+        }
 
-        return null;
+        return Either.right(true);
     }
 
     @Override

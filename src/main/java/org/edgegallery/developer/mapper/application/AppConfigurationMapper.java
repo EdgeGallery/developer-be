@@ -36,9 +36,9 @@ public interface AppConfigurationMapper {
 
     AppServiceProduced getServiceProduced(@Param("applicationId")String applicationId, @Param("serName")String serName);
 
-    int createServiceProduced(@Param("applicationId")String applicationId, @Param("appServiceProduced")AppServiceProduced appServiceProduced);
+    int createServiceProduced(@Param("applicationId")String applicationId, @Param("serviceProduced")AppServiceProduced serviceProduced);
 
-    int modifyServiceProduced(@Param("applicationId")String applicationId, @Param("appServiceProduced")AppServiceProduced serviceProduced);
+    int modifyServiceProduced(@Param("applicationId")String applicationId, @Param("serviceProduced")AppServiceProduced serviceProduced);
 
     int deleteServiceProduced(@Param("applicationId")String applicationId, @Param("serName")String serName);
 
