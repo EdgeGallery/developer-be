@@ -220,7 +220,10 @@ public final class ContainerImageUtil {
      */
     public static String createHarborRepo(String projectName, String loginUrl, String endpoint, String repoUserName,
         String repoPwd) {
-        String body = "{\"project_name\":\"" + projectName + "\",\"metadata\":{\"public\":\"true\"}}";
+        if (projectName.equals("_")) {
+            projectName = projectName.replace("_", "");
+        }
+        String body = "{\"project_name\":\"" + projectName.toLowerCase() + "\",\"metadata\":{\"public\":\"true\"}}";
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", "Basic " + ContainerImageUtil.encodeUserAndPwd(repoUserName, repoPwd));
         HttpEntity requestEntity = new HttpEntity<>(body, headers);

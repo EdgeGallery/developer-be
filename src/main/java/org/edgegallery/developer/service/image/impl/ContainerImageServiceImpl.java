@@ -249,7 +249,8 @@ public class ContainerImageServiceImpl implements ContainerImageService {
         List<ContainerImage> imageList = containerImageMapper.getAllImage();
         if (!CollectionUtils.isEmpty(imageList)) {
             for (ContainerImage image : imageList) {
-                if (imageName.equals(image.getImageName())) {
+                if (imageName.equals(image.getImageName()) && imageVersion.equals(image.getImageVersion()) && userName
+                    .equals(image.getUserName())) {
                     String errorMsg = "exist the same imageName";
                     LOGGER.error(errorMsg);
                     throw new DeveloperException(errorMsg, ResponseConsts.RET_EXIST_SAME_NAME_AND_VERSION);
@@ -340,7 +341,7 @@ public class ContainerImageServiceImpl implements ContainerImageService {
         String type = containerImage.getImageType();
         int retCode = 0;
         if (StringUtils.isNotEmpty(oldUserId) && StringUtils.isNotEmpty(type)) {
-            retCode = containerImageMapper.updateContainerImageType(imageId,oldUserId,type);
+            retCode = containerImageMapper.updateContainerImageType(imageId, oldUserId, type);
         }
         if (retCode < 1) {
             String errorMsg = "update ContainerImage type failed.";
