@@ -13,14 +13,20 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package org.edgegallery.developer.service.application.action.impl.vm;
+package org.edgegallery.developer.service.application.action;
 
-import org.edgegallery.developer.service.application.action.IContext;
-import org.edgegallery.developer.service.application.action.impl.QueryInstantiateAppStatusAction;
+import org.edgegallery.developer.model.operation.ActionStatus;
 
-public class QueryInstantiateVMAppStatusAction extends QueryInstantiateAppStatusAction {
-    @Override
-    public int execute() {
-        return 0;
-    }
+public interface IContext {
+
+    String getLcmToken();
+
+    void addParameter(String key, Object value);
+
+    Object getParameter(String key);
+
+    int addActionStatus(ActionStatus status);
+
+    int updateActionStatus(ActionStatus status);
+
 }

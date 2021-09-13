@@ -1,18 +1,15 @@
 package org.edgegallery.developer.service.application.impl.vm;
 
-import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import org.edgegallery.developer.mapper.application.vm.ImageExportInfoMapper;
 import org.edgegallery.developer.mapper.application.vm.VMInstantiateInfoMapper;
 import org.edgegallery.developer.model.Chunk;
 import org.edgegallery.developer.model.instantiate.vm.ImageExportInfo;
-import org.edgegallery.developer.model.instantiate.vm.PortInstantiateInfo;
 import org.edgegallery.developer.model.instantiate.vm.VMInstantiateInfo;
 import org.edgegallery.developer.response.FormatRespDto;
-import org.edgegallery.developer.service.application.AppOperationService;
 import org.edgegallery.developer.service.application.action.IAction;
 import org.edgegallery.developer.service.application.action.IActionIterator;
-import org.edgegallery.developer.service.application.action.impl.vm.VMLaunchActionCollection;
+import org.edgegallery.developer.service.application.action.impl.vm.VMLaunchOperation;
 import org.edgegallery.developer.service.application.impl.AppOperationServiceImpl;
 import org.edgegallery.developer.service.application.vm.VmAppOperationService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +28,7 @@ public class VMAppOperationServiceImpl extends AppOperationServiceImpl implement
 
     @Override
     public Either<FormatRespDto, Boolean> instantiateVmApp(String applicationId, String vmId) {
-        VMLaunchActionCollection actionCollection = new VMLaunchActionCollection();
+        VMLaunchOperation actionCollection = new VMLaunchOperation(null, null);
         IActionIterator iterator = actionCollection.getActionIterator();
         while(iterator.hasNext()){
             IAction action = iterator.nextAction();

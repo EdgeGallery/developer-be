@@ -13,11 +13,27 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
+
 package org.edgegallery.developer.service.application.action.impl;
 
 import org.edgegallery.developer.service.application.action.IAction;
 
 public class DistributePackageAction implements IAction {
+
+    public static final String ACTION_NAME = "Distribute Application Package";
+
+    private OperationContext context;
+
+    @Override
+    public void setContext(OperationContext context) {
+        this.context = context;
+    }
+
+    @Override
+    public String getActionName() {
+        return ACTION_NAME;
+    }
+
     @Override
     public int execute() {
         return 0;

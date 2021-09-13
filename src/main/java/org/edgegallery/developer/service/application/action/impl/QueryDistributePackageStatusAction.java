@@ -18,6 +18,20 @@ package org.edgegallery.developer.service.application.action.impl;
 import org.edgegallery.developer.service.application.action.IAction;
 
 public class QueryDistributePackageStatusAction implements IAction {
+    public static final String ACTION_NAME = "Query Distribute Application Package Status";
+
+    private OperationContext context;
+
+    @Override
+    public void setContext(OperationContext context) {
+        this.context = context;
+    }
+
+    @Override
+    public String getActionName() {
+        return ACTION_NAME;
+    }
+
     @Override
     public int execute() {
         return 0;
