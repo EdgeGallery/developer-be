@@ -153,9 +153,9 @@
   <insert id="createServiceProduced">
     insert into tbl_app_service_produced (app_id, ser_name, version, dns_rule_id_list, traffic_rule_id_list)
     values
-    ( #{applicationId}, #{appServiceProduced.serName}, #{appServiceProduced.version},
-    #{appServiceProduced.dnsRuleIdList, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonCollectionTypeHandler},
-    #{appServiceProduced.trafficRuleIdList, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonCollectionTypeHandler})
+    ( #{applicationId}, #{serviceProduced.serName}, #{serviceProduced.version},
+    #{serviceProduced.dnsRuleIdList, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonCollectionTypeHandler},
+    #{serviceProduced.trafficRuleIdList, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonCollectionTypeHandler})
   </insert>
 
   <update id="modifyServiceProduced">

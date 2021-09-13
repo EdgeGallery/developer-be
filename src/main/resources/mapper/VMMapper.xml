@@ -40,11 +40,43 @@
 
   <resultMap id="VMCertificateMap" type="org.edgegallery.developer.model.application.vm.VMCertificate">
     <result property="certificateType" column="certificate_type"/>
-    <result property="pwdCertificate" column="pwd_certificate" typeHandler="org.edgegallery.developer.model.handler.JsonCollectionTypeHandler"/>
-    <result property="keyPairCertificate" column="key_pair_certificate" typeHandler="org.edgegallery.developer.model.handler.JsonCollectionTypeHandler"/>
+    <result property="pwdCertificate" column="pwd_certificate" typeHandler="org.edgegallery.developer.model.handler.JsonTypeHandler"/>
+    <result property="keyPairCertificate" column="key_pair_certificate" typeHandler="org.edgegallery.developer.model.handler.JsonTypeHandler"/>
+  </resultMap>
+
+  <resultMap id="VMDetailMap" type="org.edgegallery.developer.model.application.vm.VirtualMachine">
+    <id property="id" column="id"/>
+    <result property="name" column="name"/>
+    <result property="flavorId" column="flavor_id"/>
+    <result property="imageId" column="image_id"/>
+    <result property="userData" column="user_data"/>
+    <result property="status" column="status"/>
+    <result property="areaZone" column="area_zone"/>
+    <result property="flavorExtraSpecs" column="flavor_extra_specs"/>
+    <collection property="vmCertificate"
+      ofType="org.edgegallery.developer.model.application.vm.VMCertificate">
+    <result property="certificateType" column="certificate_type"/>
+    <result property="pwdCertificate" column="pwd_certificate" typeHandler="org.edgegallery.developer.model.handler.JsonTypeHandler"/>
+    <result property="keyPairCertificate" column="key_pair_certificate" typeHandler="org.edgegallery.developer.model.handler.JsonTypeHandler"/>
+    </collection>
+    <collection property="portList"
+      ofType="org.edgegallery.developer.model.application.vm.VMPort">
+      <id property="id" column="id"/>
+      <result property="name" column="name"/>
+      <result property="description" column="description"/>
+      <result property="ipType" column="ip_type"/>
+      <result property="networkName" column="network_name"/>
+      <result property="ip" column="ip"/>
+      <result property="mask" column="mask"/>
+    </collection>
   </resultMap>
 
   <sql id="VMAllColumn">
+    a.id, a.name, a.flavor_id, a.image_id, a.user_data, a.status, a.area_zone, a.flavor_extra_specs,
+    b.certificate_type, b.pwd_certificate, b.key_pair_certificate,
+    c.id, c.name, c.description, c.ip_type, c.network_name, c.ip, c.mask
+  </sql>
+  <sql id="VMColumn">
     id, name, flavor_id, image_id, user_data, status, area_zone, flavor_extra_specs
   </sql>
 
@@ -60,7 +92,7 @@
     insert into tbl_vm (id, app_id, name, flavor_id, image_id, user_data, status, area_zone, flavor_extra_specs)
     values
     ( #{vm.id}, #{applicationId}, #{vm.name}, #{vm.flavorId}, #{vm.imageId}, #{vm.userData}, #{vm.status},  #{vm.areaZone},
-    #{vm.flavorExtraSpecs})
+    #{vm.flavorExtraSpecs});
   </insert>
 
   <update id="modifyVM" parameterType="org.edgegallery.developer.model.application.vm.VirtualMachine">
@@ -86,28 +118,23 @@
     DELETE FROM tbl_vm WHERE where app_id = #{applicationId}
   </delete>
 
-  <select id="getAllVMs" resultMap="VMMap">
-    SELECT
-    <include refid="VMAllColumn"/>
-    FROM tbl_vm
-  </select>
-
   <select id="getAllVMsByAppId" parameterType="String" resultMap="VMMap">
     SELECT
-    <include refid="VMAllColumn"/>
+    <include refid="VMColumn"/>
     FROM tbl_vm where app_id = #{applicationId}
   </select>
 
-  <select id="getVMById" parameterType="String" resultMap="VMMap">
+  <select id="getVMById" parameterType="String" resultMap="VMDetailMap">
     SELECT
     <include refid="VMAllColumn"/>
-    FROM tbl_vm where id = #{id}
+    from tbl_vm a, tbl_vm_certificate b, tbl_vm_port c
+    where a.id=#{vmId} and b.vm_id=#{vmId} and c.vm_id=#{vmId}
   </select>
 
   <insert id="createVMPort">
-    insert into tbl_vm_port (id, vm_id, name, description, ip_type, ip, mask)
+    insert into tbl_vm_port (id, vm_id, name, description, ip_type, ip, mask, network_name)
     values
-    ( #{port.id}, #{vmId}, #{port.name}, #{port.description}, #{port.ipType}, #{port.ip}, #{port.mask})
+    ( #{port.id}, #{vmId}, #{port.name}, #{port.description}, #{port.ipType}, #{port.ip}, #{port.mask}, #{port.networkName})
   </insert>
 
   <update id="modifyVMPort" parameterType="org.edgegallery.developer.model.application.vm.VMPort">
@@ -148,9 +175,9 @@
   <insert id="createVMCertificate">
     insert into tbl_vm_certificate (vm_id, certificate_type, pwd_certificate, key_pair_certificate)
     values
-    (#{vmId} #{certificate.certificateType},
-    #{certificate.pwdCertificate, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonCollectionTypeHandler},
-    #{certificate.keyPairCertificate, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonCollectionTypeHandler})
+    (#{vmId}, #{certificate.certificateType},
+    #{certificate.pwdCertificate, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonTypeHandler},
+    #{certificate.keyPairCertificate, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonTypeHandler})
   </insert>
 
   <update id="modifyVMCertificate">

@@ -247,7 +247,7 @@ public class AppConfigurationCtl {
         @ApiResponse(code = 200, message = "OK", response = AppServiceProduced.class, responseContainer = "List"),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
-    @RequestMapping(value = "/{applicationId}/appconfiguration/serviceproduced", method = RequestMethod.GET,
+    @RequestMapping(value = "/{applicationId}/appconfiguration/serviceproduceds", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<List<AppServiceProduced>> getAllServiceProduced(
@@ -264,7 +264,7 @@ public class AppConfigurationCtl {
         @ApiResponse(code = 200, message = "OK", response = AppServiceProduced.class),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
-    @RequestMapping(value = "/{applicationId}/appconfiguration/serviceproduced", method = RequestMethod.POST,
+    @RequestMapping(value = "/{applicationId}/appconfiguration/serviceproduceds", method = RequestMethod.POST,
         consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<AppServiceProduced> createServiceProduced(
@@ -283,7 +283,7 @@ public class AppConfigurationCtl {
         @ApiResponse(code = 200, message = "OK", response = Boolean.class),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
-    @RequestMapping(value = "/{applicationId}/appconfiguration/serviceproduced/{serName}", method = RequestMethod.PUT,
+    @RequestMapping(value = "/{applicationId}/appconfiguration/serviceproduceds/{serName}", method = RequestMethod.PUT,
         consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<Boolean> modifyServiceProduced(
@@ -303,7 +303,7 @@ public class AppConfigurationCtl {
         @ApiResponse(code = 200, message = "OK", response = Boolean.class),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
-    @RequestMapping(value = "/{applicationId}/appconfiguration/serviceproduced/{serName}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @RequestMapping(value = "/{applicationId}/appconfiguration/serviceproduceds/{serName}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<Boolean> deleteServiceProduced(
         @Pattern(regexp = REGEX_UUID, message = "applicationId must be in UUID format")

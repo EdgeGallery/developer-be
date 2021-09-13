@@ -13,6 +13,7 @@ import org.edgegallery.developer.config.security.AccessUserUtil;
 import org.edgegallery.developer.domain.shared.Page;
 import org.edgegallery.developer.model.application.Application;
 import org.edgegallery.developer.model.restful.ApplicationDetail;
+import org.edgegallery.developer.model.workspace.UploadedFile;
 import org.edgegallery.developer.response.ErrorRespDto;
 import org.edgegallery.developer.response.FormatRespDto;
 import org.edgegallery.developer.service.application.ApplicationService;
@@ -28,6 +29,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.multipart.MultipartFile;
 import com.spencerwi.either.Either;
 
 @Controller
@@ -103,13 +106,11 @@ public class ApplicationCtl {
     @RequestMapping(value = "/", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<Page<Application>> getAllApplication(
-        @Pattern(regexp = REGEX_UUID, message = "userId must be in UUID format")
-        @ApiParam(value = "userId", required = true) @RequestParam("userId") String userId,
         @ApiParam(value = "name", required = false) @RequestParam(value = "name", required = false)
             String name,
         @ApiParam(value = "the max count of one page", required = true) @Min(1) @RequestParam("limit") int limit,
         @ApiParam(value = "start index of the page", required = true) @Min(0) @RequestParam("offset") int offset) {
-        return ResponseEntity.ok(applicationService.getApplicationByNameWithFuzzy(userId, name, limit, offset));
+        return ResponseEntity.ok(applicationService.getApplicationByNameWithFuzzy(name, limit, offset));
     }
 
     /**
@@ -162,6 +163,24 @@ public class ApplicationCtl {
         @NotNull @ApiParam(value = "ApplicationDetail", required = true) @RequestBody ApplicationDetail applicationDetail) {
         Either<FormatRespDto, Boolean> either = applicationService.modifyApplicationDetail(applicationId, applicationDetail);
         return ResponseDataUtil.buildResponse(either);
+    }
+
+    /**
+     * upload application icon file.
+     */
+    @ApiOperation(value = "upload application icon file.", response = UploadedFile.class)
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = "OK", response = UploadedFile.class),
+        @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
+    })
+    @RequestMapping(value = "/file/icon", method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
+        produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
+    public ResponseEntity<UploadedFile> uploadFile(
+        @ApiParam(value = "file", required = true) @RequestPart("file") MultipartFile uploadFile) {
+        Either<FormatRespDto, UploadedFile> either = applicationService.uploadIconFile(uploadFile);
+        return ResponseDataUtil.buildResponse(either);
+
     }
 
 

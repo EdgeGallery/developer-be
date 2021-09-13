@@ -21,13 +21,13 @@ import com.google.gson.Gson;
 import com.spencerwi.either.Either;
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 import java.util.UUID;
 import javax.ws.rs.core.Response.Status;
 import org.edgegallery.developer.common.ResponseConsts;
 import org.edgegallery.developer.config.security.AccessUserUtil;
 import org.edgegallery.developer.domain.shared.Page;
 import org.edgegallery.developer.exception.DeveloperException;
-import org.edgegallery.developer.mapper.UploadedFileMapper;
 import org.edgegallery.developer.mapper.application.ApplicationMapper;
 import org.edgegallery.developer.mapper.application.vm.NetworkMapper;
 import org.edgegallery.developer.mapper.application.vm.VMMapper;
@@ -40,25 +40,25 @@ import org.edgegallery.developer.model.application.vm.Network;
 import org.edgegallery.developer.model.application.vm.VirtualMachine;
 import org.edgegallery.developer.model.restful.ApplicationDetail;
 import org.edgegallery.developer.model.workspace.UploadedFile;
+import org.edgegallery.developer.domain.shared.FileChecker;
 import org.edgegallery.developer.response.FormatRespDto;
 import org.edgegallery.developer.service.ProjectService;
 import org.edgegallery.developer.service.application.ApplicationService;
-import org.edgegallery.developer.util.BusinessConfigUtil;
+import org.edgegallery.developer.service.uploadfile.UploadServiceImpl;
 import org.edgegallery.developer.util.DeveloperFileUtils;
-import org.edgegallery.developer.util.InitConfigUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service("applicationService")
 public class ApplicationServiceImpl implements ApplicationService {
     private static final Logger LOGGER = LoggerFactory.getLogger(ProjectService.class);
 
-    private static Gson gson = new Gson();
 
     @Autowired
-    private UploadedFileMapper uploadedFileMapper;
+    private UploadServiceImpl uploadServiceImpl;
 
     @Autowired
     private ApplicationMapper applicationMapper;
@@ -68,6 +68,7 @@ public class ApplicationServiceImpl implements ApplicationService {
 
     @Autowired
     private VMMapper vmMapper;
+
 
     @Autowired
     AppConfigurationServiceImpl AppConfigurationServiceImpl;
@@ -92,11 +93,14 @@ public class ApplicationServiceImpl implements ApplicationService {
             throw new DeveloperException("icon file is null", ResponseConsts.ICON_FILE_NULL);
         }
         try {
-            moveFileToWorkSpaceById(iconFileId, applicationId);
+            uploadServiceImpl.moveFileToWorkSpaceById(iconFileId, applicationId);
         } catch (IOException e) {
             LOGGER.error("move icon file failed {}", e.getMessage());
             throw new DeveloperException("move icon file failed", ResponseConsts.ICON_FILE_NULL);
         }
+
+        // init network
+        initNetwork(applicationId);
 
         // save project to DB
         int res = applicationMapper.createApplication(application);
@@ -106,6 +110,18 @@ public class ApplicationServiceImpl implements ApplicationService {
         }
         LOGGER.info("Create application success.");
         return Either.right(application);
+    }
+
+    private void initNetwork(String applicationId) {
+        List<Network> networks = networkMapper.getNetworkByAppId("init-application");
+        for (Network network:networks) {
+            network.setId(UUID.randomUUID().toString());
+            int res = networkMapper.createNetwork(applicationId, network);
+            if (res < 1) {
+                LOGGER.error("Create network in db error.");
+                return;
+            }
+        }
     }
 
     @Override
@@ -124,7 +140,8 @@ public class ApplicationServiceImpl implements ApplicationService {
     }
 
     @Override
-    public Page<Application> getApplicationByNameWithFuzzy(String userId, String projectName, int limit, int offset) {
+    public Page<Application> getApplicationByNameWithFuzzy(String projectName, int limit, int offset) {
+        String userId = AccessUserUtil.getUser().getUserId();
         PageHelper.offsetPage(offset, limit);
         PageInfo<Application> pageInfo = new PageInfo<Application>(
             applicationMapper.getAllApplicationsByUserId(userId, projectName));
@@ -162,8 +179,10 @@ public class ApplicationServiceImpl implements ApplicationService {
         }
         if (application.getAppClass()== EnumAppClass.VM) {
             VMApplication vmApplication = new VMApplication(application);
+
             vmApplication.setNetworkList(networkMapper.getNetworkByAppId(applicationId));
             vmApplication.setVmList(vmMapper.getAllVMsByAppId(applicationId));
+
             vmApplication.setAppConfiguration(AppConfigurationServiceImpl.getAppConfiguration(applicationId));
             applicationDetail.setVmApp(vmApplication);
         }else {
@@ -201,38 +220,39 @@ public class ApplicationServiceImpl implements ApplicationService {
 
     }
 
-    /**
-     * moveFileToWorkSpaceById.
-     */
-    private void moveFileToWorkSpaceById(String srcId, String applicationId) throws IOException {
-        uploadedFileMapper.updateFileStatus(srcId, false);
-        // to confirm, whether the status is updated
-        UploadedFile file = uploadedFileMapper.getFileById(srcId);
-        if (file == null || file.isTemp()) {
-            FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "Can not find file, please upload again.");
-            uploadedFileMapper.updateFileStatus(srcId, true);
-            throw new IOException(gson.toJson(error));
+    @Override
+    public Either<FormatRespDto, UploadedFile> uploadIconFile(MultipartFile uploadFile) {
+        LOGGER.info("Start uploading file");
+        String fileName = uploadFile.getOriginalFilename();
+        String userId = AccessUserUtil.getUser().getUserId();
+        Boolean iconTypeCheck = iconTypeCheck(fileName);
+        if (!iconTypeCheck) {
+            return Either.left(new FormatRespDto(Status.BAD_REQUEST, "File type is error."));
         }
-        // get temp file
-        String tempFilePath = InitConfigUtil.getWorkSpaceBaseDir() + BusinessConfigUtil.getUploadfilesPath() + srcId;
-        File tempFile = new File(tempFilePath);
-        if (!tempFile.exists() || tempFile.isDirectory()) {
-            FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "Can not find file, please upload again.");
-            uploadedFileMapper.updateFileStatus(srcId, true);
-            throw new IOException(gson.toJson(error));
+
+        UploadedFile result = uploadServiceImpl.saveFileToLocal(uploadFile, userId);
+        if (result == null) {
+            return Either.left(new FormatRespDto(Status.BAD_REQUEST, "Failed to save file."));
         }
-        // move file
-        File desFile = new File(DeveloperFileUtils.getAbsolutePath(applicationId) + srcId);
-        try {
-            DeveloperFileUtils.moveFile(tempFile, desFile);
-            String filePath = BusinessConfigUtil.getWorkspacePath() + applicationId + File.separator + srcId;
-            uploadedFileMapper.updateFilePath(srcId, filePath);
-        } catch (IOException e) {
-            LOGGER.error("move icon file failed {}", e.getMessage());
-            FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "Move icon file failed.");
-            uploadedFileMapper.updateFileStatus(srcId, true);
-            throw new IOException(gson.toJson(error));
-        }
+        return Either.right(result);
     }
+
+    private Boolean iconTypeCheck(String fileName) {
+        if (!FileChecker.isValid(fileName)) {
+            LOGGER.error("File Name is invalid.");
+            return false;
+        }
+        String fileType= "";
+        int i = fileName.lastIndexOf('.');
+        if (i > 0) {
+            fileType= fileName.substring(i+1);
+        }
+        if(!"jpg".equals(fileType) && !"png".equals(fileType)){
+            LOGGER.error("File type is error.");
+            return false;
+        }
+        return true;
+    }
+
 
 }

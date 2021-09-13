@@ -30,7 +30,7 @@
   </resultMap>
 
   <sql id="ImageExportInfoAllColumn">
-    vm_id, image_instance_id, vm_instantiate_id, image_name, sum_chunk_num, chunk_size, check_sum, log, status, create_time
+    image_instance_id, image_name, sum_chunk_num, chunk_size, check_sum, log, status, create_time
   </sql>
 
   <insert id="createImageExportInfoInfo">

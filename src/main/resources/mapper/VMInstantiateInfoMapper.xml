@@ -17,8 +17,22 @@
 
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.edgegallery.developer.mapper.application.vm.VMInstantiateInfoMapper">
+<!--  <resultMap id="VMInstantiateInfoMap" type="org.edgegallery.developer.model.instantiate.vm.VMInstantiateInfo">-->
+<!--    <result property="appPackageId" column="app_package_id"/>-->
+<!--    <result property="appInstanceId" column="app_instance_id"/>-->
+<!--    <result property="vmInstanceId" column="vm_instance_id"/>-->
+<!--    <result property="status" column="status"/>-->
+<!--    <result property="log" column="log"/>-->
+<!--    <result property="vncUrl" column="vnc_url"/>-->
+<!--    <result property="instantiateTime" column="instantiate_time"/>-->
+<!--  </resultMap>-->
+
+<!--  <resultMap id="PortInstantiateInfoMap" type="org.edgegallery.developer.model.instantiate.vm.PortInstantiateInfo">-->
+<!--    <id property="networkName" column="network_name"/>-->
+<!--    <result property="ipAddress" column="ip_address"/>-->
+<!--  </resultMap>-->
+
   <resultMap id="VMInstantiateInfoMap" type="org.edgegallery.developer.model.instantiate.vm.VMInstantiateInfo">
-    <id property="id" column="id"/>
     <result property="appPackageId" column="app_package_id"/>
     <result property="appInstanceId" column="app_instance_id"/>
     <result property="vmInstanceId" column="vm_instance_id"/>
@@ -26,19 +40,20 @@
     <result property="log" column="log"/>
     <result property="vncUrl" column="vnc_url"/>
     <result property="instantiateTime" column="instantiate_time"/>
+    <collection property="portInstanceList"
+      ofType="org.edgegallery.developer.model.instantiate.vm.PortInstantiateInfo">
+      <result property="networkName" column="network_name"/>
+      <result property="ipAddress" column="ip_address"/>
+    </collection>
   </resultMap>
 
-  <resultMap id="PortInstantiateInfoMap" type="org.edgegallery.developer.model.instantiate.vm.PortInstantiateInfo">
-    <id property="networkName" column="network_name"/>
-    <result property="ipAddress" column="ip_address"/>
-  </resultMap>
+<!--  <sql id="VMInstantiateInfoColumn">-->
+<!--    vm_id, app_package_id, app_instance_id, vm_instance_id, status, log, vnc_url, instantiate_time-->
+<!--  </sql>-->
 
   <sql id="VMInstantiateInfoAllColumn">
-    vm_id, app_package_id, app_instance_id, vm_instance_id, status, log, vnc_url, instantiate_time
-  </sql>
-
-  <sql id="PortInstantiateInfoAllColumn">
-    vm_instantiate_id, network_name, ip_address
+    a.vm_id, a.app_package_id, a.app_instance_id, a.vm_instance_id, a.status, a.log, a.vnc_url,
+    a.instantiate_time, b.network_name, b.ip_address
   </sql>
 
   <insert id="createVMInstantiateInfo">
@@ -61,12 +76,15 @@
 
   <delete id="deleteVMInstantiateInfoByVMId" parameterType="String">
     DELETE FROM tbl_vm_instantiate_info WHERE vm_id = #{vmId};
+    DELETE FROM tbl_vm_port_instantiate_info WHERE vm_id = #{vmId};
   </delete>
 
-  <select id="getVMInstantiateInfoByVMId" parameterType="String" resultMap="VMInstantiateInfoMap">
+  <select id="getVMInstantiateInfo" parameterType="String" resultMap="VMInstantiateInfoMap">
     SELECT
     <include refid="VMInstantiateInfoAllColumn"/>
-    FROM tbl_application where vm_id = #{vmId}
+    from tbl_vm_instantiate_info a, tbl_vm_port_instantiate_info b
+    where a.vm_id=b.vm_id and b.vm_id=#{vmId} and a.vm_id=#{vmId}
+    order by a.vm_id
   </select>
 
   <insert id="createPortInstantiateInfo">
@@ -79,9 +97,4 @@
     DELETE FROM tbl_vm_port_instantiate_info WHERE vm_id = #{vmId};
   </delete>
 
-  <select id="getPortInstantiateInfoByVMId" parameterType="String" resultMap="PortInstantiateInfoMap">
-    SELECT
-    <include refid="PortInstantiateInfoAllColumn"/>
-    FROM tbl_vm_port_instantiate_info where vm_id = #{vmId}
-  </select>
 </mapper>

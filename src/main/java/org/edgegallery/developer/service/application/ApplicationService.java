@@ -18,8 +18,10 @@ package org.edgegallery.developer.service.application;
 import org.edgegallery.developer.domain.shared.Page;
 import org.edgegallery.developer.model.application.Application;
 import org.edgegallery.developer.model.restful.ApplicationDetail;
+import org.edgegallery.developer.model.workspace.UploadedFile;
 import org.edgegallery.developer.response.FormatRespDto;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 import com.spencerwi.either.Either;
 
 public interface ApplicationService {
@@ -53,12 +55,10 @@ public interface ApplicationService {
 
     /**
      * get a application
-     *
-     * @param userId userId
      * @return
      */
     @Transactional
-    Page<Application> getApplicationByNameWithFuzzy(String userId, String projectName, int limit, int offset);
+    Page<Application> getApplicationByNameWithFuzzy(String projectName, int limit, int offset);
 
     /**
      * DELETE a application
@@ -72,4 +72,6 @@ public interface ApplicationService {
     ApplicationDetail getApplicationDetail(String applicationId);
 
     Either<FormatRespDto, Boolean> modifyApplicationDetail(String applicationId, ApplicationDetail applicationDetail);
+
+    Either<FormatRespDto, UploadedFile> uploadIconFile(MultipartFile uploadFile);
 }
