@@ -25,14 +25,11 @@ import org.edgegallery.developer.service.application.action.impl.BuildPackageAct
 import org.edgegallery.developer.service.application.action.impl.DistributePackageAction;
 import org.edgegallery.developer.service.application.action.impl.QueryDistributePackageStatusAction;
 
-public class VMLaunchActionCollection implements IActionCollection {
-
+public class VMExportImageOperation implements IActionCollection {
     public List<IAction> actions = Arrays.asList(
-    new BuildPackageAction(),
-    new DistributePackageAction(),
-    new QueryDistributePackageStatusAction(),
-    new InstantiateVMAppAction(),
-    new QueryInstantiateVMAppStatusAction());
+        new CreateImageAction(),
+        new QueryImageStatusAction(),
+        new DownloadImageAction());
 
     @Override
     public IActionIterator getActionIterator() {

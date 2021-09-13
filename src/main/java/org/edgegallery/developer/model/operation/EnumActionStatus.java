@@ -13,14 +13,11 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package org.edgegallery.developer.service.application.action.impl.vm;
 
-import org.edgegallery.developer.service.application.action.IContext;
-import org.edgegallery.developer.service.application.action.impl.QueryInstantiateAppStatusAction;
+package org.edgegallery.developer.model.operation;
 
-public class QueryInstantiateVMAppStatusAction extends QueryInstantiateAppStatusAction {
-    @Override
-    public int execute() {
-        return 0;
-    }
+public enum EnumActionStatus {
+    ONGOING,
+    SUCCESS,
+    FAILED
 }

@@ -16,8 +16,25 @@
 package org.edgegallery.developer.service.application.action.impl.vm;
 
 import org.edgegallery.developer.service.application.action.IAction;
+import org.edgegallery.developer.service.application.action.IContext;
+import org.edgegallery.developer.service.application.action.impl.OperationContext;
 
 public class CreateImageAction implements IAction {
+
+    public static final String ACTION_NAME = "Create Image";
+
+    private OperationContext context;
+
+    @Override
+    public void setContext(OperationContext context) {
+        this.context = context;
+    }
+
+    @Override
+    public String getActionName() {
+        return ACTION_NAME;
+    }
+
     @Override
     public int execute() {
         return 0;

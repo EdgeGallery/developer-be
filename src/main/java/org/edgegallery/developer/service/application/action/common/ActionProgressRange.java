@@ -13,14 +13,24 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package org.edgegallery.developer.service.application.action.impl.vm;
 
-import org.edgegallery.developer.service.application.action.IContext;
-import org.edgegallery.developer.service.application.action.impl.QueryInstantiateAppStatusAction;
+package org.edgegallery.developer.service.application.action.common;
 
-public class QueryInstantiateVMAppStatusAction extends QueryInstantiateAppStatusAction {
-    @Override
-    public int execute() {
-        return 0;
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
+public class ActionProgressRange {
+
+    //the action's start percent
+    private int start;
+
+    // the action continue between start to end.
+    private int end;
+
+    public ActionProgressRange(int start, int end) {
+        this.start = start;
+        this.end = end;
     }
 }

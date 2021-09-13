@@ -13,14 +13,35 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package org.edgegallery.developer.service.application.action.impl.vm;
 
-import org.edgegallery.developer.service.application.action.IContext;
-import org.edgegallery.developer.service.application.action.impl.QueryInstantiateAppStatusAction;
+package org.edgegallery.developer.model.operation;
 
-public class QueryInstantiateVMAppStatusAction extends QueryInstantiateAppStatusAction {
-    @Override
-    public int execute() {
-        return 0;
-    }
+import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
+
+@Getter
+@Setter
+@ToString
+public class OperationStatus {
+
+    private String id;
+
+    private EnumOperationObjectType objectType;
+
+    private String objectId;
+
+    private String operationName;
+
+    //progress should be 0-100
+    private int progress;
+
+    private EnumActionStatus status;
+
+    private String errorMsg;
+
+    private String type;
+
+    private List<ActionStatus> actionStatusList;
 }

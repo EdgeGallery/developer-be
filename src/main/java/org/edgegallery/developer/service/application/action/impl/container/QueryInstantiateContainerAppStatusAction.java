@@ -15,6 +15,7 @@
  */
 package org.edgegallery.developer.service.application.action.impl.container;
 
+import org.edgegallery.developer.service.application.action.IContext;
 import org.edgegallery.developer.service.application.action.impl.QueryInstantiateAppStatusAction;
 
 public class QueryInstantiateContainerAppStatusAction extends QueryInstantiateAppStatusAction {
