@@ -21,20 +21,73 @@ import java.util.List;
 import org.edgegallery.developer.domain.shared.Page;
 import org.edgegallery.developer.model.mephost.MepHost;
 import org.edgegallery.developer.model.mephost.MepHostLog;
+import org.edgegallery.developer.model.workspace.UploadedFile;
 import org.edgegallery.developer.response.FormatRespDto;
+import org.springframework.web.multipart.MultipartFile;
 
 public interface MepHostService {
 
+    /**
+     * get all host.
+     *
+     * @param name host name
+     * @param vimType vimType
+     * @param architecture architecture
+     * @param limit limit
+     * @param offset offset
+     * @return
+     */
     Page<MepHost> getAllHosts(String name, String vimType, String architecture, int limit, int offset);
 
+    /**
+     * create host.
+     *
+     * @param host request body
+     * @param token access token
+     * @return
+     */
     Either<FormatRespDto, Boolean> createHost(MepHost host, String token);
 
+    /**
+     * delete host by host id.
+     *
+     * @param hostId host id
+     * @return
+     */
     Either<FormatRespDto, Boolean> deleteHost(String hostId);
 
+    /**
+     * update host by host id and token.
+     *
+     * @param hostId host id
+     * @param host request body
+     * @param token access token
+     * @return
+     */
     Either<FormatRespDto, Boolean> updateHost(String hostId, MepHost host, String token);
 
+    /**
+     * get one host by host id.
+     *
+     * @param hostId host id
+     * @return
+     */
     Either<FormatRespDto, MepHost> getHost(String hostId);
 
+    /**
+     * get one host log by host id.
+     *
+     * @param hostId host id
+     * @return
+     */
     Either<FormatRespDto, List<MepHostLog>> getHostLogByHostId(String hostId);
+
+    /**
+     * upload host config file.
+     *
+     * @param uploadFile config file
+     * @return
+     */
+    Either<FormatRespDto, UploadedFile> uploadConfigFile(MultipartFile uploadFile);
 
 }

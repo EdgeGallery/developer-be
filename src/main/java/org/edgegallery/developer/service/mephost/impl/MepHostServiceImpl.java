@@ -22,11 +22,12 @@ import com.spencerwi.either.Either;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.StringUtils;
 import org.edgegallery.developer.common.Consts;
+import org.edgegallery.developer.common.ResponseConsts;
 import org.edgegallery.developer.config.security.AccessUserUtil;
 import org.edgegallery.developer.domain.shared.Page;
+import org.edgegallery.developer.exception.DeveloperException;
 import org.edgegallery.developer.mapper.UploadedFileMapper;
 import org.edgegallery.developer.mapper.mephost.MepHostLogMapper;
 import org.edgegallery.developer.mapper.mephost.MepHostMapper;
@@ -35,6 +36,7 @@ import org.edgegallery.developer.model.mephost.MepHostLog;
 import org.edgegallery.developer.model.workspace.UploadedFile;
 import org.edgegallery.developer.response.FormatRespDto;
 import org.edgegallery.developer.service.mephost.MepHostService;
+import org.edgegallery.developer.service.uploadfile.UploadServiceImpl;
 import org.edgegallery.developer.util.HttpClientUtil;
 import org.edgegallery.developer.util.InputParameterUtil;
 import org.edgegallery.developer.util.MepHostUtil;
@@ -44,6 +46,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service("mepHostService")
 public class MepHostServiceImpl implements MepHostService {
@@ -62,6 +65,9 @@ public class MepHostServiceImpl implements MepHostService {
 
     @Autowired
     private UploadedFileMapper uploadedFileMapper;
+
+    @Autowired
+    private UploadServiceImpl uploadService;
 
     /**
      * getALlHosts.
@@ -86,36 +92,33 @@ public class MepHostServiceImpl implements MepHostService {
     public Either<FormatRespDto, Boolean> createHost(MepHost host, String token) {
         MepHost mepHost = mepHostMapper.getHostsByMecHostIp(host.getMecHostIp());
         if (mepHost != null) {
-            LOGGER.info("mecHost have exit:{}", host.getMecHostIp());
-            return Either.left(new FormatRespDto(Response.Status.BAD_REQUEST, "mecHost have exit"));
+            LOGGER.error("mecHost have exit:{}", host.getMecHostIp());
+            throw new DeveloperException("mecHost have exit!", ResponseConsts.EXIST_SAME_MEC_HOST);
         }
-        if (StringUtils.isBlank(host.getUserId()) || !isAdminUser() ) {
+        if (StringUtils.isBlank(host.getUserId()) || !isAdminUser()) {
             LOGGER.error("Create host failed, userId is empty or not admin");
-            return Either.left(new FormatRespDto(Response.Status.BAD_REQUEST, "userId is empty or not admin"));
+            throw new DeveloperException("userId is empty or not admin!", ResponseConsts.USER_ID_EMPTY_OR_NOT_ADMIN);
         }
         if ("OpenStack".equals(host.getVimType())) {
             Map<String, String> getParams = InputParameterUtil.getParams(host.getNetworkParameter());
             if (!getParams.containsKey("app_mp1_ip") || !getParams.containsKey("app_n6_ip") || !getParams
                 .containsKey("app_internet_ip")) {
                 LOGGER.error("Network params config error");
-                return Either.left(new FormatRespDto(Response.Status.BAD_REQUEST, "Network params config error"));
+                throw new DeveloperException("Network params config error!", ResponseConsts.NET_WORK_CONFIG_ERROR);
             }
         }
         // health check
         String healRes = HttpClientUtil.getHealth(host.getLcmProtocol(), host.getLcmIp(), host.getLcmPort());
         if (healRes == null) {
-            String msg = "health check faild,current ip or port cann't be used!";
-            LOGGER.error(msg);
-            FormatRespDto dto = new FormatRespDto(Response.Status.BAD_REQUEST, msg);
-            return Either.left(dto);
+            LOGGER.error("health check faild,current ip or port cann't be used!");
+            throw new DeveloperException("current lcmip or lcmport cann't be used!",
+                ResponseConsts.LCM_IP_OR_PORT_CAN_NOT_BE_USED);
         }
         // add mechost to lcm
         boolean addMecHostRes = MepHostUtil.addMecHostToLcm(host);
         if (!addMecHostRes) {
-            String msg = "add mec host to lcm fail";
-            LOGGER.error(msg);
-            FormatRespDto dto = new FormatRespDto(Response.Status.BAD_REQUEST, msg);
-            return Either.left(dto);
+            LOGGER.error("add mec host to lcm fail");
+            throw new DeveloperException("add mec host to lcm fail!", ResponseConsts.ADD_MEC_HOST_TO_LCM_FAILED);
         }
         // upload config file
         if (StringUtils.isNotBlank(host.getConfigId())) {
@@ -125,10 +128,8 @@ public class MepHostServiceImpl implements MepHostService {
                 .uploadFileToLcm(host.getLcmProtocol(), host.getLcmIp(), host.getLcmPort(), uploadedFile.getFilePath(),
                     host.getMecHostIp(), token);
             if (!uploadRes) {
-                String msg = "Create host failed,upload config file error";
-                LOGGER.error(msg);
-                FormatRespDto dto = new FormatRespDto(Response.Status.BAD_REQUEST, msg);
-                return Either.left(dto);
+                LOGGER.error("create host failed,upload config file error");
+                throw new DeveloperException("upload config file error!", ResponseConsts.CREATE_HOST_CONFIG_FILE_ERROR);
             }
         }
         host.setId(UUID.randomUUID().toString()); // no need to set hostId by user
@@ -138,8 +139,8 @@ public class MepHostServiceImpl implements MepHostService {
             LOGGER.info("Crete host {} success ", host.getId());
             return Either.right(true);
         }
-        LOGGER.error("Create host failed ");
-        return Either.left(new FormatRespDto(Response.Status.BAD_REQUEST, "Can not create a host."));
+        LOGGER.error("Create host failed!");
+        throw new DeveloperException("Create host failed!", ResponseConsts.INSERT_DATA_FAILED);
     }
 
     /**
@@ -153,8 +154,7 @@ public class MepHostServiceImpl implements MepHostService {
         int res = mepHostMapper.deleteHost(hostId);
         if (res < 1) {
             LOGGER.error("Delete host {} failed", hostId);
-            FormatRespDto error = new FormatRespDto(Response.Status.BAD_REQUEST, "delete failed.");
-            return Either.left(error);
+            throw new DeveloperException("delete host failed!", ResponseConsts.DELETE_DATA_FAILED);
         }
         LOGGER.info("Delete host {} success", hostId);
         return Either.right(true);
@@ -173,16 +173,14 @@ public class MepHostServiceImpl implements MepHostService {
         if (healRes == null) {
             String msg = "health check faild,current ip or port cann't be used!";
             LOGGER.error(msg);
-            FormatRespDto dto = new FormatRespDto(Response.Status.BAD_REQUEST, msg);
-            return Either.left(dto);
+            throw new DeveloperException("current lcmip or lcmport cann't be used!",
+                ResponseConsts.LCM_IP_OR_PORT_CAN_NOT_BE_USED);
         }
         // add mechost to lcm
         boolean addMecHostRes = MepHostUtil.addMecHostToLcm(host);
         if (!addMecHostRes) {
-            String msg = "add mec host to lcm fail";
-            LOGGER.error(msg);
-            FormatRespDto dto = new FormatRespDto(Response.Status.BAD_REQUEST, msg);
-            return Either.left(dto);
+            LOGGER.error("add mec host to lcm fail");
+            throw new DeveloperException("add mec host to lcm fail!", ResponseConsts.ADD_MEC_HOST_TO_LCM_FAILED);
         }
         if (StringUtils.isNotBlank(host.getConfigId())) {
             // upload file
@@ -191,17 +189,14 @@ public class MepHostServiceImpl implements MepHostService {
                 .uploadFileToLcm(host.getLcmProtocol(), host.getLcmIp(), host.getLcmPort(), uploadedFile.getFilePath(),
                     host.getMecHostIp(), token);
             if (!uploadRes) {
-                String msg = "Create host failed,upload config file error";
-                LOGGER.error(msg);
-                FormatRespDto dto = new FormatRespDto(Response.Status.BAD_REQUEST, msg);
-                return Either.left(dto);
+                LOGGER.error("Create host failed,upload config file error");
+                throw new DeveloperException("upload config file error!", ResponseConsts.CREATE_HOST_CONFIG_FILE_ERROR);
             }
         }
         MepHost currentHost = mepHostMapper.getHost(hostId);
         if (currentHost == null) {
             LOGGER.error("Can not find host by {}", hostId);
-            FormatRespDto error = new FormatRespDto(Response.Status.BAD_REQUEST, "Can not find the host.");
-            return Either.left(error);
+            throw new DeveloperException("Can not find the host!", ResponseConsts.QUERY_DATA_FAILED);
         }
 
         host.setId(hostId); // no need to set hostId by user
@@ -212,7 +207,7 @@ public class MepHostServiceImpl implements MepHostService {
             return Either.right(true);
         }
         LOGGER.error("Update host {} failed", hostId);
-        return Either.left(new FormatRespDto(Response.Status.BAD_REQUEST, "Can not update the host"));
+        throw new DeveloperException("update host failed!", ResponseConsts.MODIFY_DATA_FAILED);
     }
 
     /**
@@ -228,8 +223,7 @@ public class MepHostServiceImpl implements MepHostService {
             return Either.right(host);
         } else {
             LOGGER.error("Can not find host by {}", hostId);
-            FormatRespDto error = new FormatRespDto(Response.Status.BAD_REQUEST, "Can not find the host.");
-            return Either.left(error);
+            throw new DeveloperException("can not find the host!", ResponseConsts.QUERY_DATA_FAILED);
         }
     }
 
@@ -244,6 +238,29 @@ public class MepHostServiceImpl implements MepHostService {
         List<MepHostLog> hostLogList = hostLogMapper.getHostLogByHostId(hostId);
         LOGGER.info("Get host logs success.");
         return Either.right(hostLogList);
+    }
+
+    /**
+     * upload host config file.
+     *
+     * @param uploadFile config file
+     * @return
+     */
+    @Override
+    public Either<FormatRespDto, UploadedFile> uploadConfigFile(MultipartFile uploadFile) {
+        LOGGER.info("Start uploading file");
+        String userId = AccessUserUtil.getUser().getUserId();
+        UploadedFile result = uploadService.saveFileToLocal(uploadFile, userId);
+        if (result == null) {
+            LOGGER.error("save config file failed!");
+            throw new DeveloperException("Failed to save file!", ResponseConsts.INSERT_DATA_FAILED);
+        }
+        int ret = uploadedFileMapper.updateFileStatus(result.getFileId(), false);
+        if (ret < 1) {
+            LOGGER.error("update config file status failed!!");
+            throw new DeveloperException("update config file status failed!", ResponseConsts.MODIFY_DATA_FAILED);
+        }
+        return Either.right(result);
     }
 
     private boolean isAdminUser() {

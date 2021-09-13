@@ -31,10 +31,6 @@ public final class MepHostUtil {
 
     private static final RestTemplate REST_TEMPLATE = new RestTemplate();
 
-    private MepHostUtil() {
-        throw new IllegalStateException("MepHostUtil class");
-    }
-
     /**
      * addMecHostToLcm.
      *
@@ -58,7 +54,8 @@ public final class MepHostUtil {
         headers.setContentType(MediaType.APPLICATION_JSON);
         Gson gson = new Gson();
         HttpEntity<String> requestEntity = new HttpEntity<>(gson.toJson(body), headers);
-        String url = getUrlPrefix(host.getLcmProtocol(), host.getLcmIp(), host.getLcmPort()) + Consts.APP_LCM_ADD_MECHOST;
+        String url = getUrlPrefix(host.getLcmProtocol(), host.getLcmIp(), host.getLcmPort())
+            + Consts.APP_LCM_ADD_MECHOST;
         LOGGER.info("add mec host url:{}", url);
         ResponseEntity<String> response;
         try {

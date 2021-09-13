@@ -252,9 +252,43 @@ public class ResponseConsts {
     public static final int MODIFY_DATA_FAILED = 20046;
 
     /**
+     * query data  failed.
+     */
+    public static final int QUERY_DATA_FAILED = 20054;
+
+    /**
      * icon file is null.
      */
     public static final int ICON_FILE_NULL = 20047;
 
+    /**
+     * exist same mec host.
+     */
+    public static final int EXIST_SAME_MEC_HOST = 20048;
+
+    /**
+     * Create host failed, userId is empty or not admin.
+     */
+    public static final int USER_ID_EMPTY_OR_NOT_ADMIN = 20049;
+
+    /**
+     * Create host failed, net work config error.
+     */
+    public static final int NET_WORK_CONFIG_ERROR = 20050;
+
+    /**
+     * Create host failed, lcm ip or port cann't be used.
+     */
+    public static final int LCM_IP_OR_PORT_CAN_NOT_BE_USED = 20051;
+
+    /**
+     * Create host failed, add mec host ip to lcm failed.
+     */
+    public static final int ADD_MEC_HOST_TO_LCM_FAILED = 20052;
+
+    /**
+     * Create host failed, config file error.
+     */
+    public static final int CREATE_HOST_CONFIG_FILE_ERROR = 20053;
 
 }
