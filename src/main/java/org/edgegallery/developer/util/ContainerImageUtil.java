@@ -223,7 +223,7 @@ public final class ContainerImageUtil {
         if (projectName.equals("_")) {
             projectName = projectName.replace("_", "");
         }
-        String body = "{\"project_name\":\"" + projectName.toLowerCase() + "\",\"metadata\":{\"public\":\"true\"}}";
+        String body = "{\"project_name\":\"" + projectName.toLowerCase().trim() + "\",\"metadata\":{\"public\":\"true\"}}";
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", "Basic " + ContainerImageUtil.encodeUserAndPwd(repoUserName, repoPwd));
         HttpEntity requestEntity = new HttpEntity<>(body, headers);
