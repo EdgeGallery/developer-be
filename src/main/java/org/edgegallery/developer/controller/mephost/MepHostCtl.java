@@ -15,6 +15,7 @@ import org.edgegallery.developer.common.Consts;
 import org.edgegallery.developer.domain.shared.Page;
 import org.edgegallery.developer.model.mephost.MepHost;
 import org.edgegallery.developer.model.mephost.MepHostLog;
+import org.edgegallery.developer.model.workspace.UploadedFile;
 import org.edgegallery.developer.response.ErrorRespDto;
 import org.edgegallery.developer.response.FormatRespDto;
 import org.edgegallery.developer.service.mephost.MepHostService;
@@ -32,6 +33,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.multipart.MultipartFile;
 
 @Controller
 @RestSchema(schemaId = "mepHosts")
@@ -57,8 +60,8 @@ public class MepHostCtl {
     @PreAuthorize("hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<Page<MepHost>> getAllHosts(
         @ApiParam(value = "name", required = false) @RequestParam(value = "name", required = false) String name,
-        @ApiParam(value = "vimType", required = true) @RequestParam(value = "vimType") String vimType,
-        @ApiParam(value = "architecture", required = true) @RequestParam(value = "architecture") String architecture,
+        @ApiParam(value = "vimType", required = false) @RequestParam(value = "vimType") String vimType,
+        @ApiParam(value = "architecture", required = false) @RequestParam(value = "architecture") String architecture,
         @ApiParam(value = "the max count of one page", required = true) @Min(1) @RequestParam("limit") int limit,
         @ApiParam(value = "start index of the page", required = true) @Min(0) @RequestParam("offset") int offset) {
         return ResponseEntity.ok(mepHostService.getAllHosts(name, vimType, architecture, limit, offset));
@@ -150,18 +153,36 @@ public class MepHostCtl {
      *
      * @return
      */
-    @ApiOperation(value = "get all server(build and test app)", response = MepHost.class, responseContainer = "List")
+    @ApiOperation(value = "get all logs", response = MepHostLog.class, responseContainer = "List")
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "OK", response = MepHost.class, responseContainer = "List"),
+        @ApiResponse(code = 200, message = "OK", response = MepHostLog.class, responseContainer = "List"),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
-    @RequestMapping(value = "/{hostId}/logs", method = RequestMethod.GET,
+    @RequestMapping(value = "/{mephostId}/logs", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<List<MepHostLog>> getHostLogByHostId(
-        @ApiParam(value = "hostId", required = true) @PathVariable String hostId) {
-        Either<FormatRespDto, List<MepHostLog>> either = mepHostService.getHostLogByHostId(hostId);
+        @ApiParam(value = "mephostId", required = true) @PathVariable String mephostId) {
+        Either<FormatRespDto, List<MepHostLog>> either = mepHostService.getHostLogByHostId(mephostId);
         return ResponseDataUtil.buildResponse(either);
+    }
+
+    /**
+     * upload config file.
+     */
+    @ApiOperation(value = "upload file", response = UploadedFile.class)
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = "OK", response = UploadedFile.class),
+        @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
+    })
+    @RequestMapping(value = "/upload", method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
+        produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
+    public ResponseEntity<UploadedFile> uploadFile(
+        @ApiParam(value = "file", required = true) @RequestPart("file") MultipartFile uploadFile) {
+        Either<FormatRespDto, UploadedFile> either = mepHostService.uploadConfigFile(uploadFile);
+        return ResponseDataUtil.buildResponse(either);
+
     }
 
 }
