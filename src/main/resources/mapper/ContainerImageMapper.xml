@@ -60,7 +60,7 @@
         tbl_container_image
     </select>
 
-    <select id="getAllImageByAdminAuth" parameterType="java.util.Map"
+    <select id="getAllImageByAdminAuth" parameterType="org.edgegallery.developer.model.containerimage.ContainerImageReq"
             resultMap="ContainerImageMap">
         SELECT
         image_id,image_name,image_version,user_id,user_name,
@@ -72,18 +72,6 @@
         <where>
             <if test="imageName != null and imageName !=''">
                 and lower(image_name) like lower(CONCAT('%', #{imageName}, '%'))
-            </if>
-            <if test="imageType != null and imageType.size()>0">
-                and image_type in
-                <foreach collection="imageType" item="item" index="index" open="(" close=")" separator=",">
-                    #{item}
-                </foreach>
-            </if>
-            <if test="imageStatus != null and imageStatus.size()>0">
-                and image_status in
-                <foreach collection="imageStatus" item="item" index="index" open="(" close=")" separator=",">
-                    #{item}
-                </foreach>
             </if>
             <if test="createTimeBegin != null and createTimeBegin != ''">
                 <![CDATA[ and create_time >= to_timestamp(#{createTimeBegin}, 'YYYY-MM-DD HH24:MI:SS') ]]>
@@ -98,7 +86,7 @@
     </select>
 
     <select id="getAllImageByOrdinaryAuth"
-            parameterType="java.util.Map"
+            parameterType="org.edgegallery.developer.model.containerimage.ContainerImageReq"
             resultMap="ContainerImageMap">
         select * from (
         SELECT
@@ -120,18 +108,6 @@
         <where>
             <if test="imageName != null and imageName !=''">
                 and lower(a.image_name) like lower(CONCAT('%', #{imageName}, '%'))
-            </if>
-            <if test="imageType != null and imageType.size()>0">
-                and image_type in
-                <foreach collection="imageType" item="item" index="index" open="(" close=")" separator=",">
-                    #{item}
-                </foreach>
-            </if>
-            <if test="imageStatus != null and imageStatus.size()>0">
-                and image_status in
-                <foreach collection="imageStatus" item="item" index="index" open="(" close=")" separator=",">
-                    #{item}
-                </foreach>
             </if>
             <if test="createTimeBegin != null and createTimeBegin != ''">
                 <![CDATA[ and to_timestamp(a.create_time,'YYYY-MM-DD HH24:MI:SS') >= to_timestamp(#{createTimeBegin}, 'YYYY-MM-DD HH24:MI:SS') ]]>

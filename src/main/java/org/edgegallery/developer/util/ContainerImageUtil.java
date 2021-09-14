@@ -18,7 +18,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Type;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.security.cert.CertificateException;
@@ -68,6 +67,8 @@ public final class ContainerImageUtil {
     private static CookieStore cookieStore = new BasicCookieStore();
 
     private static final RestTemplate REST_TEMPLATE = new RestTemplate();
+
+    private static final String HARBOR_PROTOCOL = "https";
 
     private ContainerImageUtil() {
         throw new IllegalStateException("ContainerImageUtil class");
@@ -173,21 +174,18 @@ public final class ContainerImageUtil {
     /**
      * judge project exist before create.
      *
-     * @param userName login user name
-     * @param loginUrl login url
-     * @param endpoint harbor address
-     * @param repoUserName login harbor user name
-     * @param repoPwd login harbor password
+     * @param projectName login user name
      * @return
      */
-    public static boolean isExsitOfProject(String userName, String loginUrl, String endpoint, String repoUserName,
-        String repoPwd) {
+    public static boolean isExist(String projectName) {
+        ImageConfig imageConfig = (ImageConfig) SpringContextUtil.getBean(ImageConfig.class);
         try (CloseableHttpClient client = ContainerImageUtil.createIgnoreSslHttpClient()) {
-            URL url = new URL(loginUrl);
-            String isExistUrl = String.format(Consts.HARBOR_PRO_IS_EXIST_URL, url.getProtocol(), endpoint, userName);
+            String isExistUrl = String
+                .format(Consts.HARBOR_PRO_IS_EXIST_URL, HARBOR_PROTOCOL, imageConfig.getDomainname(), projectName);
             LOGGER.warn(" isExist Url : {}", isExistUrl);
             HttpGet httpGet = new HttpGet(isExistUrl);
-            String encodeStr = ContainerImageUtil.encodeUserAndPwd(repoUserName, repoPwd);
+            String encodeStr = ContainerImageUtil
+                .encodeUserAndPwd(imageConfig.getUsername(), imageConfig.getPassword());
             if (encodeStr.equals("")) {
                 LOGGER.error("encode user and pwd failed!");
                 throw new DeveloperException("encode user and pwd failed!",
@@ -212,36 +210,30 @@ public final class ContainerImageUtil {
      * create harbor project.
      *
      * @param projectName project Name
-     * @param loginUrl loginurl
-     * @param endpoint harbor address
-     * @param repoUserName login harbor user name
-     * @param repoPwd login harbor password
      * @return
      */
-    public static String createHarborRepo(String projectName, String loginUrl, String endpoint, String repoUserName,
-        String repoPwd) {
-        if (projectName.equals("_")) {
-            projectName = projectName.replace("_", "");
-        }
-        String body = "{\"project_name\":\"" + projectName.toLowerCase().trim() + "\",\"metadata\":{\"public\":\"true\"}}";
+    public static boolean createHarborRepo(String projectName) {
+        String body = "{\"project_name\":\"" + projectName + "\",\"metadata\":{\"public\":\"true\"}}";
         HttpHeaders headers = new HttpHeaders();
-        headers.set("Authorization", "Basic " + ContainerImageUtil.encodeUserAndPwd(repoUserName, repoPwd));
+        ImageConfig imageConfig = (ImageConfig) SpringContextUtil.getBean(ImageConfig.class);
+        headers.set("Authorization",
+            "Basic " + ContainerImageUtil.encodeUserAndPwd(imageConfig.getUsername(), imageConfig.getPassword()));
         HttpEntity requestEntity = new HttpEntity<>(body, headers);
         ResponseEntity<String> response;
         try {
-            URL url = new URL(loginUrl);
-            String createUrl = String.format(Consts.HARBOR_IMAGE_CREATE_REPO_URL, url.getProtocol(), endpoint);
+            String createUrl = String
+                .format(Consts.HARBOR_IMAGE_CREATE_REPO_URL, HARBOR_PROTOCOL, imageConfig.getDomainname());
             response = REST_TEMPLATE.exchange(createUrl, HttpMethod.POST, requestEntity, String.class);
             LOGGER.warn("create harbor repo log:{}", response);
-        } catch (RestClientException | MalformedURLException e) {
+        } catch (RestClientException e) {
             LOGGER.error("Failed create harbor repo {} occur {}", projectName, e.getMessage());
-            return "error";
+            return false;
         }
         if (response.getStatusCode() == HttpStatus.OK || response.getStatusCode() == HttpStatus.CREATED) {
-            return "ok";
+            return true;
         }
         LOGGER.error("Failed create harbor repo!");
-        return "error";
+        return false;
     }
 
     /**
@@ -277,27 +269,28 @@ public final class ContainerImageUtil {
      *
      * @param dockerClient docker client
      * @param imageId imageId
-     * @param userName login user name
+     * @param projectName login user name
      * @param repoTags tags in image tar file
      * @return
      */
-    public static boolean retagAndPush(DockerClient dockerClient, String imageId, String userName, String repoTags,
+    public static boolean retagAndPush(DockerClient dockerClient, String imageId, String projectName, String repoTags,
         String point, String project) {
         String uploadImgName = "";
-        String[] names = repoTags.split(":");
+        String[] images = repoTags.split(":");
+        String imageName = images[0];
+        String imageVersion = images[1];
         if (SystemImageUtil.isAdminUser()) {
-            uploadImgName = new StringBuilder(point).append("/").append(project).append("/").append(names[0])
+            uploadImgName = new StringBuilder(point).append("/").append(project).append("/").append(imageName)
                 .toString();
         } else {
-            uploadImgName = new StringBuilder(point).append("/").append(userName).append("/").append(names[0])
+            uploadImgName = new StringBuilder(point).append("/").append(projectName).append("/").append(imageName)
                 .toString();
         }
 
         //Mirror tagging，Repush
-        String[] repos = repoTags.split(":");
-        if (repos.length > 1 && !imageId.equals("")) {
+        if (!imageId.equals("")) {
             //tag image
-            dockerClient.tagImageCmd(imageId, uploadImgName, repos[1]).withForce().exec();
+            dockerClient.tagImageCmd(imageId, uploadImgName, imageVersion).withForce().exec();
             LOGGER.warn("Upload tagged docker image: {}", uploadImgName);
             //push image
             try {
@@ -319,44 +312,26 @@ public final class ContainerImageUtil {
      * @return
      */
     public static String getImageIdFromRepoTags(String repoTags, DockerClient dockerClient) {
-        String[] names = repoTags.split(":");
+        String[] imageArr = repoTags.split(":");
         //Judge the compressed package manifest.json in RepoTags And the value of load Are the incoming mirror images equal
-        LOGGER.debug(names[0]);
-        List<Image> lists = dockerClient.listImagesCmd().withImageNameFilter(names[0]).exec();
+        String imageName = imageArr[0];
+        LOGGER.warn(imageArr[0]);
+        List<Image> lists = dockerClient.listImagesCmd().withImageNameFilter(imageName).exec();
         LOGGER.debug("lists is empty ?{},lists size {},number 0 {}", CollectionUtils.isEmpty(lists), lists.size(),
             lists.get(0));
         String imageId = "";
         if (!CollectionUtils.isEmpty(lists) && !StringUtils.isEmpty(repoTags)) {
             for (Image image : lists) {
-                LOGGER.debug(image.getRepoTags()[0]);
+                LOGGER.warn(image.getRepoTags()[0]);
                 String[] images = image.getRepoTags();
                 if (images[0].equals(repoTags)) {
                     imageId = image.getId();
-                    LOGGER.debug(imageId);
+                    LOGGER.warn(imageId);
                 }
             }
         }
         LOGGER.warn("imageID: {} ", imageId);
         return imageId;
-    }
-
-    /**
-     * addTypeOrStatusToList.
-     *
-     * @param imageType imageType
-     * @return
-     */
-    public static List<String> addTypeOrStatusToList(String imageType) {
-        List<String> typeList = new ArrayList<>();
-        if (imageType.contains(",")) {
-            String[] types = imageType.split(",");
-            for (String type : types) {
-                typeList.add(type);
-            }
-        } else {
-            typeList.add(imageType);
-        }
-        return typeList;
     }
 
     /**
@@ -366,10 +341,10 @@ public final class ContainerImageUtil {
      * @param userName userName
      * @return
      */
-    public static boolean deleteImage(String image, String userName, String imageDomainName, String loginUrl,
-        String imageProject, String repoUserName, String password) {
+    public static boolean deleteImage(String image, String userName) {
         //Split image
-        if (!image.contains(imageDomainName)) {
+        ImageConfig imageConfig = (ImageConfig) SpringContextUtil.getBean(ImageConfig.class);
+        if (!image.contains(imageConfig.getDomainname())) {
             LOGGER.warn("only delete image in harbor repo");
             return true;
         }
@@ -380,35 +355,28 @@ public final class ContainerImageUtil {
             String[] names = images[2].split(":");
             imageName = names[0];
             imageVersion = names[1];
-            URL url = null;
-            try {
-                url = new URL(loginUrl);
-                //excute delete image operation
-                String deleteImageUrl = "";
-                if (SystemImageUtil.isAdminUser() && AccessUserUtil.getUser().getUserName().equals(userName)) {
-                    deleteImageUrl = String
-                        .format(Consts.HARBOR_IMAGE_DELETE_URL, url.getProtocol(), imageDomainName, imageProject,
-                            imageName, imageVersion);
-                } else {
-                    deleteImageUrl = String
-                        .format(Consts.HARBOR_IMAGE_DELETE_URL, url.getProtocol(), imageDomainName, userName, imageName,
-                            imageVersion);
-                }
-                LOGGER.warn("delete image url: {}", deleteImageUrl);
-                String deleteRes = deleteHarborImage(image, deleteImageUrl, repoUserName, password);
-                if (deleteRes.equals("error")) {
-                    LOGGER.error("delete harbor repo failed!");
-                    return false;
-                }
-            } catch (MalformedURLException e) {
-                LOGGER.error("call login or delete image interface occur error {}", e.getMessage());
+            //excute delete image operation
+            String deleteImageUrl = "";
+            if (SystemImageUtil.isAdminUser() && AccessUserUtil.getUser().getUserName().equals(userName)) {
+                deleteImageUrl = String
+                    .format(Consts.HARBOR_IMAGE_DELETE_URL, HARBOR_PROTOCOL, imageConfig.getDomainname(),
+                        imageConfig.getProject(), imageName, imageVersion);
+            } else {
+                deleteImageUrl = String
+                    .format(Consts.HARBOR_IMAGE_DELETE_URL, HARBOR_PROTOCOL, imageConfig.getDomainname(), userName,
+                        imageName, imageVersion);
+            }
+            LOGGER.warn("delete image url: {}", deleteImageUrl);
+            boolean deleteRes = deleteHarborImage(image, deleteImageUrl, imageConfig.getUsername(),
+                imageConfig.getPassword());
+            if (!deleteRes){
+                LOGGER.error("delete harbor repo failed!");
                 return false;
             }
-        }
-        return true;
+        } return true;
     }
 
-    private static String deleteHarborImage(String image, String url, String repoUserName, String password) {
+    private static boolean deleteHarborImage(String image, String url, String repoUserName, String password) {
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", "Basic " + ContainerImageUtil.encodeUserAndPwd(repoUserName, password));
         HttpEntity requestEntity = new HttpEntity<>(headers);
@@ -418,13 +386,13 @@ public final class ContainerImageUtil {
             LOGGER.warn("delete harbor image log:{}", response);
         } catch (RestClientException e) {
             LOGGER.error("Failed delete harbor image {} occur {}", image, e.getMessage());
-            return "error";
+            return false;
         }
         if (response.getStatusCode() == HttpStatus.OK || response.getStatusCode() == HttpStatus.CREATED) {
-            return "ok";
+            return true;
         }
         LOGGER.error("Failed delete harbor image!");
-        return "error";
+        return false;
     }
 
     /**

@@ -26,11 +26,7 @@ public class ContainerImageReq {
 
     private String imageName;
 
-    private String imageType;
-
     private String userId;
-
-    private String imageStatus;
 
     private String createTimeBegin;
 
