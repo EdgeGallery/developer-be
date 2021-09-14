@@ -16,14 +16,15 @@
 package org.edgegallery.developer.service.application.action.impl;
 
 import org.edgegallery.developer.service.application.action.IAction;
+import org.edgegallery.developer.service.application.action.IContext;
 
 public class QueryDistributePackageStatusAction implements IAction {
     public static final String ACTION_NAME = "Query Distribute Application Package Status";
 
-    private OperationContext context;
+    private IContext context;
 
     @Override
-    public void setContext(OperationContext context) {
+    public void setContext(IContext context) {
         this.context = context;
     }
 

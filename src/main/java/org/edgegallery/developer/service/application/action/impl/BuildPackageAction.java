@@ -22,10 +22,10 @@ public class BuildPackageAction implements IAction {
 
     public static final String ACTION_NAME = "Build Application Package";
 
-    private OperationContext context;
+    private IContext context;
 
     @Override
-    public void setContext(OperationContext context) {
+    public void setContext(IContext context) {
         this.context = context;
     }
 

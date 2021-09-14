@@ -21,14 +21,14 @@ import org.edgegallery.developer.service.application.action.IContext;
 public class InstantiateAppAction implements IAction {
     public static final String ACTION_NAME = "Instantiate Application";
 
-    private OperationContext context;
+    private IContext context;
 
     @Override
-    public void setContext(OperationContext context) {
+    public void setContext(IContext context) {
         this.context = context;
     }
 
-    public OperationContext getContext(){
+    public IContext getContext(){
         return this.context;
     }
 

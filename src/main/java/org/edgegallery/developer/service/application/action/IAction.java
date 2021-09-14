@@ -15,11 +15,9 @@
  */
 package org.edgegallery.developer.service.application.action;
 
-import org.edgegallery.developer.service.application.action.impl.OperationContext;
-
 public interface IAction {
 
-    void setContext(OperationContext context);
+    void setContext(IContext context);
 
     String getActionName();
 

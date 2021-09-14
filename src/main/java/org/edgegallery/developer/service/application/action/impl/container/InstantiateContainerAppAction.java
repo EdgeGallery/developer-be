@@ -15,7 +15,6 @@
  */
 package org.edgegallery.developer.service.application.action.impl.container;
 
-import org.edgegallery.developer.service.application.action.IContext;
 import org.edgegallery.developer.service.application.action.impl.InstantiateAppAction;
 
 public class InstantiateContainerAppAction extends InstantiateAppAction {
