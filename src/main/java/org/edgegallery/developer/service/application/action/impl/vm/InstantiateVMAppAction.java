@@ -15,8 +15,6 @@
  */
 package org.edgegallery.developer.service.application.action.impl.vm;
 
-import org.edgegallery.developer.service.application.action.IAction;
-import org.edgegallery.developer.service.application.action.IContext;
 import org.edgegallery.developer.service.application.action.impl.InstantiateAppAction;
 
 public class InstantiateVMAppAction extends InstantiateAppAction {

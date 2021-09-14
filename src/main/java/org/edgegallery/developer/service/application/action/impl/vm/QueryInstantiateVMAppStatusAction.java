@@ -15,7 +15,6 @@
  */
 package org.edgegallery.developer.service.application.action.impl.vm;
 
-import org.edgegallery.developer.service.application.action.IContext;
 import org.edgegallery.developer.service.application.action.impl.QueryInstantiateAppStatusAction;
 
 public class QueryInstantiateVMAppStatusAction extends QueryInstantiateAppStatusAction {

@@ -17,16 +17,15 @@ package org.edgegallery.developer.service.application.action.impl.vm;
 
 import org.edgegallery.developer.service.application.action.IAction;
 import org.edgegallery.developer.service.application.action.IContext;
-import org.edgegallery.developer.service.application.action.impl.OperationContext;
 
 public class DownloadImageAction implements IAction {
 
     public static final String ACTION_NAME = "Download Image";
 
-    private OperationContext context;
+    private IContext context;
 
     @Override
-    public void setContext(OperationContext context) {
+    public void setContext(IContext context) {
         this.context = context;
     }
 
