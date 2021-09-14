@@ -21,6 +21,7 @@ import java.util.Map;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.edgegallery.developer.model.containerimage.ContainerImage;
+import org.edgegallery.developer.model.containerimage.ContainerImageReq;
 
 @Mapper
 public interface ContainersImageMapper {
@@ -38,9 +39,9 @@ public interface ContainersImageMapper {
 
     List<ContainerImage> getAllImageByAdmin();
 
-    List<ContainerImage> getAllImageByAdminAuth(Map map);
+    List<ContainerImage> getAllImageByAdminAuth(ContainerImageReq containerImageReq);
 
-    List<ContainerImage> getAllImageByOrdinaryAuth(Map map);
+    List<ContainerImage> getAllImageByOrdinaryAuth(ContainerImageReq containerImageReq);
 
     int updateContainerImageType(@Param("imageId") String imageId, @Param("userId") String userId,
         @Param("imageType") String imageType);

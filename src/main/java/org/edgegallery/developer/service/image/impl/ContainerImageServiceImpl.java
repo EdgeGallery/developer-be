@@ -36,14 +36,13 @@ import java.io.InputStream;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.tomcat.util.http.fileupload.servlet.ServletFileUpload;
+import org.edgegallery.developer.common.Consts;
 import org.edgegallery.developer.common.ResponseConsts;
 import org.edgegallery.developer.config.security.AccessUserUtil;
 import org.edgegallery.developer.domain.shared.Page;
@@ -197,32 +196,31 @@ public class ContainerImageServiceImpl implements ContainerImageService {
             mergedFileStream.close();
             //create repo by current user id
             String userName = AccessUserUtil.getUser().getUserName();
+            String projectName = userName.replaceAll(Consts.PATTERN, "").toLowerCase();
             // judge user private harbor repo is exist
-            boolean isExist = ContainerImageUtil
-                .isExsitOfProject(userName, loginUrl, devRepoEndpoint, devRepoUsername, devRepoPassword);
+            boolean isExist = ContainerImageUtil.isExist(projectName);
             if (!isExist && !SystemImageUtil.isAdminUser()) {
-                String msg = ContainerImageUtil
-                    .createHarborRepo(userName, loginUrl, devRepoEndpoint, devRepoUsername, devRepoPassword);
-                if (msg.equals("error")) {
-                    LOGGER.error("create harbor repo failed!");
-                    throw new DeveloperException("create harbor repo failed!",
-                        ResponseConsts.RET_PROCESS_MERGED_FILE_EXCEPTION);
+                boolean createRes = ContainerImageUtil.createHarborRepo(projectName);
+                if (!createRes) {
+                    String errMsg = "create harbor repo failed!";
+                    LOGGER.error(errMsg);
+                    throw new DeveloperException(errMsg, ResponseConsts.RET_PROCESS_MERGED_FILE_EXCEPTION);
                 }
             }
             //push image to created repo by current user id
-            if (!pushImageToRepo(mergedFile, rootDir, userName, imageId, fileName)) {
-                LOGGER.error("push image to repo failed!");
-                throw new DeveloperException("push image to repo failed!",
-                    ResponseConsts.RET_PROCESS_MERGED_FILE_EXCEPTION);
+            if (!pushImageToRepo(mergedFile, rootDir, projectName, imageId, fileName)) {
+                String errMsg = "push image to repo failed!";
+                LOGGER.error(errMsg);
+                throw new DeveloperException(errMsg, ResponseConsts.RET_PROCESS_MERGED_FILE_EXCEPTION);
             }
             File uploadPath = new File(rootDir);
             FileUtils.cleanDirectory(uploadPath);
             LOGGER.info("harbor image file upload succeed.");
             return ResponseEntity.ok().build();
         } catch (IOException e) {
+            String errorMsg = "process merged file occur exception!";
             LOGGER.error("process merged file exception! {}", e.getMessage());
-            throw new DeveloperException("process merged file exception",
-                ResponseConsts.RET_PROCESS_MERGED_FILE_EXCEPTION);
+            throw new DeveloperException(errorMsg, ResponseConsts.RET_PROCESS_MERGED_FILE_EXCEPTION);
         }
     }
 
@@ -288,37 +286,15 @@ public class ContainerImageServiceImpl implements ContainerImageService {
         if (!StringUtils.isBlank(createTimeEnd)) {
             containerImageReq.setCreateTimeEnd(createTimeEnd + " 23:59:59");
         }
-        String imageType = containerImageReq.getImageType();
-        String imageStatus = containerImageReq.getImageStatus();
-        List<String> types = new ArrayList<>();
-        List<String> status = new ArrayList<>();
-        if (StringUtils.isNotEmpty(imageType)) {
-            types = ContainerImageUtil.addTypeOrStatusToList(imageType);
-        }
-        if (StringUtils.isNotEmpty(imageStatus)) {
-            status = ContainerImageUtil.addTypeOrStatusToList(imageStatus);
-        }
-        Map<String, Object> map = new HashMap<>();
-        map.put("imageName", containerImageReq.getImageName());
-        map.put("createTimeBegin", containerImageReq.getCreateTimeBegin());
-        map.put("createTimeEnd", containerImageReq.getCreateTimeEnd());
-        map.put("userId", containerImageReq.getUserId());
-        map.put("sortBy", containerImageReq.getSortBy());
-        map.put("sortOrder", containerImageReq.getSortOrder());
-        map.put("imageType", types);
-        map.put("imageStatus", status);
-        PageInfo pageInfo = null;
+        PageInfo pageInfo;
         if (SystemImageUtil.isAdminUser()) {
-            pageInfo = new PageInfo<>(containerImageMapper.getAllImageByAdminAuth(map));
+            pageInfo = new PageInfo<>(containerImageMapper.getAllImageByAdminAuth(containerImageReq));
         } else {
-            pageInfo = new PageInfo<>(containerImageMapper.getAllImageByOrdinaryAuth(map));
+            pageInfo = new PageInfo<>(containerImageMapper.getAllImageByOrdinaryAuth(containerImageReq));
         }
-        if (pageInfo != null) {
-            LOGGER.info("Get all container image success.");
-            return new Page<ContainerImage>(pageInfo.getList(), containerImageReq.getLimit(),
-                containerImageReq.getOffset(), pageInfo.getTotal());
-        }
-        return null;
+        LOGGER.info("Get all container image success.");
+        return new Page<ContainerImage>(pageInfo.getList(), containerImageReq.getLimit(), containerImageReq.getOffset(),
+            pageInfo.getTotal());
     }
 
     /**
@@ -363,30 +339,24 @@ public class ContainerImageServiceImpl implements ContainerImageService {
     public Either<FormatRespDto, Boolean> deleteContainerImage(String imageId) {
         String loginUserId = AccessUserUtil.getUser().getUserId();
         ContainerImage oldImage = containerImageMapper.getContainerImage(imageId);
-        if (!SystemImageUtil.isAdminUser() && oldImage != null && !loginUserId.equals(oldImage.getUserId())) {
-            String errorMsg = "Cannot modify data created by others";
-            LOGGER.error(errorMsg);
-            throw new DeveloperException(errorMsg, ResponseConsts.RET_UPDATE_IMAGE_AUTH_CHECK_FAILED);
-        }
-        //delete remote harbor image
-        if (StringUtils.isNotEmpty(oldImage.getImagePath())) {
-            boolean isDeleted = ContainerImageUtil
-                .deleteImage(oldImage.getImagePath(), oldImage.getUserName(), devRepoEndpoint, loginUrl, devRepoProject,
-                    devRepoUsername, devRepoPassword);
-            if (!isDeleted) {
-                String errorMsg = "delete image from harbor failed!";
-                LOGGER.error(errorMsg);
-                throw new DeveloperException(errorMsg, ResponseConsts.RET_DEL_CONTAINER_IMAGE_FAILED);
-            }
-        }
         int retCode;
+        boolean isDel;
         if (SystemImageUtil.isAdminUser()) {
+            isDel = ContainerImageUtil.deleteImage(oldImage.getImagePath(), oldImage.getUserName());
             retCode = containerImageMapper.deleteContainerImageByAdmin(imageId);
         } else {
+            if (oldImage != null && !loginUserId.equals(oldImage.getUserId())) {
+                String errorMsg = "Cannot delete data created by others";
+                LOGGER.error(errorMsg);
+                throw new DeveloperException(errorMsg, ResponseConsts.RET_UPDATE_IMAGE_AUTH_CHECK_FAILED);
+            }
+            isDel = ContainerImageUtil.deleteImage(oldImage.getImagePath(), oldImage.getUserName());
             String loginUserName = AccessUserUtil.getUser().getUserName();
             retCode = containerImageMapper.deleteContainerImageByOrdinary(imageId, loginUserId, loginUserName);
         }
-        if (retCode < 1) {
+        LOGGER.warn("isDel {}", isDel);
+        LOGGER.warn("retcode {}", retCode);
+        if (!isDel || retCode < 1) {
             String errorMsg = "delete ContainerImage failed.";
             LOGGER.error(errorMsg);
             throw new DeveloperException(errorMsg, ResponseConsts.RET_DEL_CONTAINER_IMAGE_FAILED);
@@ -542,7 +512,7 @@ public class ContainerImageServiceImpl implements ContainerImageService {
         return ResponseEntity.ok("synchronized successfully!");
     }
 
-    private boolean pushImageToRepo(File imageFile, String rootDir, String userName, String inputImageId,
+    private boolean pushImageToRepo(File imageFile, String rootDir, String projectName, String inputImageId,
         String fileName) throws IOException {
         DockerClient dockerClient = ContainerImageUtil
             .getDockerClient(devRepoEndpoint, devRepoUsername, devRepoPassword);
@@ -566,34 +536,36 @@ public class ContainerImageServiceImpl implements ContainerImageService {
         }
         //push
         boolean ret = ContainerImageUtil
-            .retagAndPush(dockerClient, imageId, userName, repoTags, devRepoEndpoint, devRepoProject);
+            .retagAndPush(dockerClient, imageId, projectName, repoTags, devRepoEndpoint, devRepoProject);
         if (!ret) {
             return false;
         }
         //create container image
-        boolean retContainer = createContainerImage(repoTags, inputImageId, fileName, userName);
+        boolean retContainer = createContainerImage(repoTags, inputImageId, fileName, projectName);
         if (!retContainer) {
             return false;
         }
         return true;
     }
 
-    private boolean createContainerImage(String repoTags, String inputImageId, String fileName, String userName) {
-        String uploadImgName = "";
-        String[] names = repoTags.split(":");
+    private boolean createContainerImage(String repoTags, String inputImageId, String fileName, String projectName) {
+        String uploadImgPath = "";
+        String[] images = repoTags.split(":");
+        String imageName = images[0];
+        String imageVersion = images[1];
         if (SystemImageUtil.isAdminUser()) {
-            uploadImgName = new StringBuilder(devRepoEndpoint).append("/").append(devRepoProject).append("/")
-                .append(names[0]).toString();
+            uploadImgPath = new StringBuilder(devRepoEndpoint).append("/").append(devRepoProject).append("/")
+                .append(imageName).append(":").append(imageVersion).toString();
         } else {
-            uploadImgName = new StringBuilder(devRepoEndpoint).append("/").append(userName).append("/").append(names[0])
-                .toString();
+            uploadImgPath = new StringBuilder(devRepoEndpoint).append("/").append(projectName).append("/")
+                .append(imageName).append(":").append(imageVersion).toString();
         }
         ContainerImage containerImage = new ContainerImage();
         containerImage.setImageId(inputImageId);
         containerImage.setImageType("private");
-        containerImage.setImageName(names[0]);
-        containerImage.setImageVersion(names[1].trim());
-        containerImage.setImagePath(uploadImgName + ":" + names[1].trim());
+        containerImage.setImageName(imageName.trim());
+        containerImage.setImageVersion(imageVersion.trim());
+        containerImage.setImagePath(uploadImgPath);
         containerImage.setUserId(AccessUserUtil.getUser().getUserId());
         containerImage.setUserName(AccessUserUtil.getUser().getUserName());
         containerImage.setFileName(fileName);

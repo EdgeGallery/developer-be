@@ -30,4 +30,11 @@ public class ImageConfig {
 
     @Value("${imagelocation.project}")
     private String project;
+
+    @Value("${imagelocation.password}")
+    private String password;
+
+    @Value("${imagelocation.username}")
+    private String username;
+
 }
