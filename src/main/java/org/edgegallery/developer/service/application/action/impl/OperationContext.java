@@ -17,12 +17,11 @@
 package org.edgegallery.developer.service.application.action.impl;
 
 import java.util.Map;
-import org.edgegallery.developer.mapper.operation.OperationStatusMapper;
 import org.edgegallery.developer.model.operation.ActionStatus;
 import org.edgegallery.developer.model.operation.OperationStatus;
+import org.edgegallery.developer.service.application.OperationStatusService;
 import org.edgegallery.developer.service.application.action.IContext;
-import org.edgegallery.developer.service.application.action.common.ActionProgressRange;
-import org.edgegallery.developer.model.operation.EnumActionStatus;
+import org.edgegallery.developer.service.application.common.ActionProgressRange;
 import org.springframework.beans.factory.annotation.Autowired;
 
 public class OperationContext implements IContext {
@@ -37,7 +36,7 @@ public class OperationContext implements IContext {
     private Map<String, ActionProgressRange> actionProgressRangeMap;
 
     @Autowired
-    private OperationStatusMapper operationStatusMapper;
+    private OperationStatusService operationStatusService;
 
     public OperationContext(String token, OperationStatus operationStatus,
         Map<String, ActionProgressRange> actionProgressRangeMap) {
@@ -63,26 +62,12 @@ public class OperationContext implements IContext {
 
     @Override
     public int addActionStatus(ActionStatus status) {
-        updateOperationStatusByActionStatus(status);
-        return operationStatusMapper.createActionStatus(operationStatus.getId(), status);
+        return operationStatusService.addActionStatusWithUpdateOperationStatus(operationStatus.getId(), status, actionProgressRangeMap);
     }
 
     @Override
     public int updateActionStatus(ActionStatus status) {
-        updateOperationStatusByActionStatus(status);
-        return operationStatusMapper.modifyActionStatus(status);
+        return operationStatusService.updateActionStatusWithUpdateOperationStatus(operationStatus.getId(), status, actionProgressRangeMap);
     }
 
-    private void updateOperationStatusByActionStatus(ActionStatus actionStatus) {
-        ActionProgressRange actionProgressRange = actionProgressRangeMap.get(actionStatus.getActionName());
-        int actionProgressLength = actionProgressRange.getEnd() - actionProgressRange.getStart();
-        int progress = actionProgressRangeMap.get(actionStatus.getActionName()).getStart()
-            + actionProgressLength * actionStatus.getProgress();
-        operationStatus.setProgress(progress);
-        if (EnumActionStatus.FAILED.equals(actionStatus.getStatus())) {
-            operationStatus.setStatus(EnumActionStatus.FAILED);
-            operationStatus.setErrorMsg(actionStatus.getErrorMsg());
-        }
-        operationStatusMapper.modifyOperationStatus(operationStatus);
-    }
 }
