@@ -15,7 +15,10 @@
  */
 package org.edgegallery.developer.service.application.action.impl;
 
+import org.edgegallery.developer.model.operation.ActionStatus;
+import org.edgegallery.developer.model.operation.OperationStatus;
 import org.edgegallery.developer.service.application.action.IAction;
+import org.edgegallery.developer.service.application.action.IActionCollection;
 import org.edgegallery.developer.service.application.action.IContext;
 
 public class BuildPackageAction implements IAction {
@@ -35,7 +38,11 @@ public class BuildPackageAction implements IAction {
     }
 
     @Override
-    public int execute() {
-        return 0;
+    public boolean execute() {
+
+        OperationStatus getOperationStatus = context.getOperationStatus();
+
+        String token = context.getLcmToken();
+        return false;
     }
 }

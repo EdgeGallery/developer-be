@@ -15,11 +15,9 @@
  */
 package org.edgegallery.developer.model.application.container;
 
-import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import org.edgegallery.developer.model.application.Application;
 
 @Getter
 @Setter
@@ -30,10 +28,6 @@ public class HelmChart{
 
     private String name;
 
-    private String helmChartFileContent;
-
-    private List<ImageRepo> imageRepoList;
-
-    private HelmChartCheck helmChartCheck;
+    private String helmChartFileId;
 
 }

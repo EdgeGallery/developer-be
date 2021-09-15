@@ -70,4 +70,9 @@ public class OperationContext implements IContext {
         return operationStatusService.updateActionStatusWithUpdateOperationStatus(operationStatus.getId(), status, actionProgressRangeMap);
     }
 
+    @Override
+    public OperationStatus getOperationStatus() {
+        return null;
+    }
+
 }

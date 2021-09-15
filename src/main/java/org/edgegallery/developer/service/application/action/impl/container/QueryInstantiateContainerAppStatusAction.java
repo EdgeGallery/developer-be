@@ -19,7 +19,7 @@ import org.edgegallery.developer.service.application.action.impl.QueryInstantiat
 
 public class QueryInstantiateContainerAppStatusAction extends QueryInstantiateAppStatusAction {
     @Override
-    public int execute() {
-        return 0;
+    public boolean execute() {
+        return true;
     }
 }

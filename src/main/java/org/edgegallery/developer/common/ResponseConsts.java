@@ -257,6 +257,21 @@ public class ResponseConsts {
     public static final int QUERY_DATA_FAILED = 20054;
 
     /**
+     * application is not exited.
+     */
+    public static final int APPLICATION_NOT_EXIT = 20055;
+
+    /**
+     * application is not exited.
+     */
+    public static final int VIRTUAL_MACHINE_NOT_EXIT = 20056;
+
+    /**
+     * instantiate vm app fail.
+     */
+    public static final int INSTANTIATE_VM_FAIL = 20056;
+
+    /**
      * icon file is null.
      */
     public static final int ICON_FILE_NULL = 20047;

@@ -23,7 +23,9 @@ import io.swagger.annotations.ApiResponses;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.Pattern;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
+import org.edgegallery.developer.common.Consts;
 import org.edgegallery.developer.model.Chunk;
+import org.edgegallery.developer.model.restful.OperationInfoRep;
 import org.edgegallery.developer.response.ErrorRespDto;
 import org.edgegallery.developer.response.FormatRespDto;
 import org.edgegallery.developer.service.application.vm.VmAppOperationService;
@@ -51,19 +53,20 @@ public class VMAppOperationCtl {
     /**
      * instantiate a vm .
      */
-    @ApiOperation(value = "instantiate a vm .", response = Boolean.class)
+    @ApiOperation(value = "instantiate a vm .", response = OperationInfoRep.class)
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "OK", response = Boolean.class),
+        @ApiResponse(code = 200, message = "OK", response = OperationInfoRep.class),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
-    @RequestMapping(value = "/{applicationId}/vms/{vmId}/launch", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_UTF8_VALUE,
+    @RequestMapping(value = "/{applicationId}/vms/{vmId}/launch", method = RequestMethod.POST,
         produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
-    public ResponseEntity<Boolean> instantiateVmApp(
+    public ResponseEntity<OperationInfoRep> instantiateVmApp(
         @Pattern(regexp = REGEX_UUID, message = "applicationId must be in UUID format")
         @ApiParam(value = "applicationId", required = true) @PathVariable("applicationId") String applicationId,
-        @ApiParam(value = "vmId", required = true) @PathVariable("vmId") String vmId) {
-        Either<FormatRespDto, Boolean> either = VmAppOperationService.instantiateVmApp(applicationId, vmId);
+        @ApiParam(value = "vmId", required = true) @PathVariable("vmId") String vmId, HttpServletRequest request) {
+        String accessToken = request.getHeader(Consts.ACCESS_TOKEN_STR);
+        Either<FormatRespDto, OperationInfoRep> either = VmAppOperationService.instantiateVmApp(applicationId, vmId, accessToken);
         return ResponseDataUtil.buildResponse(either);
     }
 
