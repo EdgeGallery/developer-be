@@ -521,9 +521,7 @@
     "id" varchar(255) NOT NULL,
     "app_id" varchar(255) NOT NULL,
     "name" varchar(255) DEFAULT NULL,
-    "helm_chart_file_content" text DEFAULT NULL,
-    "image_repo_list" text DEFAULT NULL,
-    "helm_chart_check" text DEFAULT NULL,
+    "helm_chart_file_id" text DEFAULT NULL,
     CONSTRAINT "tbl_container_helm_chart_pkey" PRIMARY KEY ("id")
     );
 

@@ -44,9 +44,9 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.multipart.MultipartFile;
 import com.spencerwi.either.Either;
 @Controller
-@RestSchema(schemaId = "helmChart")
+@RestSchema(schemaId = "helmCharts")
 @RequestMapping("/mec/developer/v2/applications")
-@Api(tags = "helmChart")
+@Api(tags = "helmCharts")
 @Validated
 public class ContainerAppHelmChartCtl {
     private static final String REGEX_UUID = "[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}";
@@ -61,7 +61,7 @@ public class ContainerAppHelmChartCtl {
         @ApiResponse(code = 200, message = "OK", response = Boolean.class),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
-    @RequestMapping(value = "/{applicationId}/helmchart", method = RequestMethod.POST,
+    @RequestMapping(value = "/{applicationId}/helmcharts", method = RequestMethod.POST,
         consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<Boolean> uploadHelmChartYaml(
@@ -81,7 +81,7 @@ public class ContainerAppHelmChartCtl {
         @ApiResponse(code = 200, message = "OK", response = HelmChart.class, responseContainer = "List"),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
-    @RequestMapping(value = "/{applicationId}/helmchart", method = RequestMethod.GET,
+    @RequestMapping(value = "/{applicationId}/helmcharts", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<List<HelmChart>> getHelmChartList(
@@ -98,7 +98,7 @@ public class ContainerAppHelmChartCtl {
         @ApiResponse(code = 200, message = "OK", response = HelmChart.class),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
-    @RequestMapping(value = "/{applicationId}/helmchart/{id}", method = RequestMethod.GET,
+    @RequestMapping(value = "/{applicationId}/helmcharts/{id}", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<HelmChart> getHelmChartById(
@@ -116,7 +116,7 @@ public class ContainerAppHelmChartCtl {
         @ApiResponse(code = 200, message = "OK", response = Boolean.class),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
-    @RequestMapping(value = "/{applicationId}/helmchart/{id}", method = RequestMethod.DELETE,
+    @RequestMapping(value = "/{applicationId}/helmcharts/{id}", method = RequestMethod.DELETE,
         produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<Boolean> deleteHelmChartById(

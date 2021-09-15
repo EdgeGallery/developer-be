@@ -38,7 +38,7 @@ public class QueryInstantiateAppStatusAction implements IAction {
     }
 
     @Override
-    public int execute() {
-        return 0;
+    public boolean execute() {
+        return true;
     }
 }

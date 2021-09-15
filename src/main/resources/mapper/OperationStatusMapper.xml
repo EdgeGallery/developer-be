@@ -37,8 +37,33 @@
     <result property="statusLog" column="status_log"/>
   </resultMap>
 
+  <resultMap id="OperationStatusDetailMap" type="org.edgegallery.developer.model.operation.OperationStatus">
+    <id property="id" column="id"/>
+    <result property="objectType" column="object_type"/>
+    <result property="objectId" column="object_id"/>
+    <result property="operationName" column="operation_name"/>
+    <result property="progress" column="progress"/>
+    <result property="status" column="status"/>
+    <result property="errorMsg" column="error_msg"/>
+    <collection property="actionStatusList"
+      ofType="org.edgegallery.developer.model.operation.ActionStatus">
+      <id property="id" column="id"/>
+      <result property="objectType" column="object_type"/>
+      <result property="objectId" column="object_id"/>
+      <result property="actionName" column="action_name"/>
+      <result property="progress" column="progress"/>
+      <result property="status" column="status"/>
+      <result property="errorMsg" column="error_msg"/>
+      <result property="statusLog" column="status_log"/>
+    </collection>
+  </resultMap>
+
+  <sql id="OperationStatusAllColumn">
+    a.id, a.operation_id, a.object_type, a.object_id, a.action_name, a.progress, a.status, a.error_msg, a.status_log,
+    b.id, b.object_type, b.action_name, b.progress, b.status, b.error_msg, b.status_log
+  </sql>
   <sql id="ActionStatusAllColumn">
-    id, operation_id, object_type, object_id, action_name, progress, status, error_msg, status_log
+    id, object_type, object_id, action_name, progress, status, error_msg, status_log
   </sql>
 
   <insert id="createOperationStatus">
@@ -61,10 +86,11 @@
     DELETE FROM tbl_operation_status WHERE id = #{id};
   </delete>
 
-  <select id="getOperationStatusById" parameterType="String" resultMap="OperationStatusMap">
+  <select id="getOperationStatusById" parameterType="String" resultMap="OperationStatusDetailMap">
     SELECT
-    id, object_type, object_id, operation_name, progress, status, error_msg
-    FROM tbl_application WHERE id = #{id}
+    <include refid="OperationStatusAllColumn"/>
+    from tbl_operation_status a, tbl_action_status b
+    where a.id=#{id} and b.operation_id=#{id}
   </select>
 
   <insert id="createActionStatus">

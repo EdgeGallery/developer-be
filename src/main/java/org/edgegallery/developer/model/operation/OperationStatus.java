@@ -41,7 +41,5 @@ public class OperationStatus {
 
     private String errorMsg;
 
-    private String type;
-
     private List<ActionStatus> actionStatusList;
 }

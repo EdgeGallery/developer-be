@@ -15,11 +15,16 @@
  */
 package org.edgegallery.developer.service.application.action;
 
+import org.edgegallery.developer.model.operation.ActionStatus;
+import org.edgegallery.developer.model.operation.OperationStatus;
+import org.edgegallery.developer.model.restful.ApplicationDetail;
+
 public interface IAction {
 
     void setContext(IContext context);
 
     String getActionName();
 
-    int execute();
+    boolean execute();
+
 }

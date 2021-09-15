@@ -17,6 +17,7 @@ package org.edgegallery.developer.service.application.vm;
 
 import javax.servlet.http.HttpServletRequest;
 import org.edgegallery.developer.model.Chunk;
+import org.edgegallery.developer.model.restful.OperationInfoRep;
 import org.edgegallery.developer.response.FormatRespDto;
 import org.edgegallery.developer.service.application.AppOperationService;
 import org.springframework.http.ResponseEntity;
@@ -24,7 +25,7 @@ import com.spencerwi.either.Either;
 
 public interface VmAppOperationService {
 
-    Either<FormatRespDto, Boolean> instantiateVmApp(String applicationId, String vmId);
+    Either<FormatRespDto, OperationInfoRep> instantiateVmApp(String applicationId, String vmId, String accessToken);
 
     Either<FormatRespDto, Boolean> uploadFileToVm(String applicationId, String vmId, HttpServletRequest request, Chunk chunk);
 

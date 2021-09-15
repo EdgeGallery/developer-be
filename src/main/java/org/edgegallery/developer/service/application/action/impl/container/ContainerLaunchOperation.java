@@ -23,8 +23,6 @@ import org.edgegallery.developer.service.application.action.IActionIterator;
 import org.edgegallery.developer.service.application.action.impl.BuildPackageAction;
 import org.edgegallery.developer.service.application.action.impl.DistributePackageAction;
 import org.edgegallery.developer.service.application.action.impl.QueryDistributePackageStatusAction;
-import org.edgegallery.developer.service.application.action.impl.vm.InstantiateVMAppAction;
-import org.edgegallery.developer.service.application.action.impl.vm.QueryInstantiateVMAppStatusAction;
 import org.edgegallery.developer.service.application.action.impl.ActionIterator;
 
 public class ContainerLaunchOperation implements IActionCollection {
