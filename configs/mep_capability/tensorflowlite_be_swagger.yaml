@@ -1,0 +1,276 @@
+swagger: "2.0"
+info:
+  description: "EdgeGallery社区提供的基于Tensorflow Lite AI提供的Restful接口API"
+  version: "1.0.0"
+  title: "Tensorflow Lite AI"
+
+basePath: "/tensorflowlite/v1"
+tags:
+- name: "tensorflow lite ai"
+  description: "Tensorflow Lite AI"
+
+schemes:
+- "https"
+paths:
+  /image/action/classification:
+    post:
+      tags:
+      - "Image"
+      summary: "图片分类"
+      description: "图片分类"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "body"
+        in: "body"
+        description: "(图片名称,图片格式,图片的Base64编码数据)"
+        required: true
+        schema:
+          $ref: "#/definitions/Image"
+      responses:
+        "400":
+          description: "Invalid input"
+        "200":
+          description: "图片分类成功"
+          schema:
+            $ref: "#/definitions/ImageClassificationResult"
+  /pose/action/movenet:
+    post:
+      tags:
+      - "Pose"
+      summary: "姿态检测"
+      description: "姿态检测,输出17个KeyPoint"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "body"
+        in: "body"
+        description: "(图片名称,图片格式,图片的Base64编码数据)"
+        required: true
+        schema:
+          $ref: "#/definitions/Image"
+      responses:
+        "400":
+          description: "Invalid input"
+        "200":
+          description: "姿态检测成功"
+          schema:
+            $ref: "#/definitions/MovenetResult"
+  /image/action/object-detection:
+    post:
+      tags:
+      - "Image"
+      summary: "对象检测"
+      description: "对象检测"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "body"
+        in: "body"
+        description: "(图片名称,图片格式,图片的Base64编码数据)"
+        required: true
+        schema:
+          $ref: "#/definitions/Image"
+      responses:
+        "400":
+          description: "Invalid input"
+        "200":
+          description: "对象检测成功"
+          schema:
+            $ref: "#/definitions/ObjectDetectionResult"
+  /image/action/style-transfer:
+    post:
+      tags:
+      - "Image"
+      summary: "图片风格化"
+      description: "图片风格化"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "body"
+        in: "body"
+        description: "(图片名称,图片格式,图片的Base64编码数据)"
+        required: true
+        schema:
+          $ref: "#/definitions/StyleImage"
+      responses:
+        "400":
+          description: "Invalid input"
+        "200":
+          description: "图片风格化成功"
+          schema:
+            $ref: "#/definitions/StyleTransferResult"
+  /image/action/super-resolution:
+    post:
+      tags:
+      - "Image"
+      summary: "超分辨率"
+      description: "超分辨率"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "body"
+        in: "body"
+        description: "(图片名称,图片格式,图片的Base64编码数据)"
+        required: true
+        schema:
+          $ref: "#/definitions/Image"
+      responses:
+        "400":
+          description: "Invalid input"
+        "200":
+          description: "超分辨率成功"
+          schema:
+            $ref: "#/definitions/SuperResolutionResult"
+definitions:
+  Image:
+    type: "object"
+    properties:
+      name: 
+        type: "string"
+        description: "图片名称"
+      image: 
+        type: "string"
+        description: "图片的Base64编码数据"
+      format: 
+        type: "string"
+        description: "图片的格式(png,jpeg,...)"
+  StyleImage:
+    type: "object"
+    properties:
+      style: 
+        $ref: '#/definitions/Image'
+      content: 
+        $ref: '#/definitions/Image'
+  ImageClassificationResult:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        label: 
+          type: "string"
+          description: "分类标签"
+        score: 
+          type: "number"
+          format: "float"
+          description: "分类得分"
+  ScoreAndLocation:
+    type: "object"
+    properties:
+      score: 
+        type: "number"
+        format: "float"
+        description: "得分"
+      x: 
+        type: "integer"
+        description: "X坐标"
+      y: 
+        type: "integer"
+        description: "Y坐标"          
+  MovenetResult:
+    type: "object"
+    properties:
+        nose: 
+          $ref: '#/definitions/ScoreAndLocation'
+          description: "鼻子"
+        leftEye: 
+          $ref: '#/definitions/ScoreAndLocation'
+          description: "左眼"
+        rightEye: 
+          $ref: '#/definitions/ScoreAndLocation'
+          description: "右眼"
+        leftEar: 
+          $ref: '#/definitions/ScoreAndLocation'
+          description: "左耳"
+        rightEar: 
+          $ref: '#/definitions/ScoreAndLocation'
+          description: "右耳"
+        leftShoulder: 
+          $ref: '#/definitions/ScoreAndLocation'
+          description: "左肩"  
+        rightShoulder: 
+          $ref: '#/definitions/ScoreAndLocation'
+          description: "右肩"
+        leftElbow: 
+          $ref: '#/definitions/ScoreAndLocation'
+          description: "左眉"
+        rightElbow: 
+          $ref: '#/definitions/ScoreAndLocation'
+          description: "右眉"
+        leftWrist: 
+          $ref: '#/definitions/ScoreAndLocation'
+          description: "左腕"
+        rightWrist: 
+          $ref: '#/definitions/ScoreAndLocation'
+          description: "右腕"
+        leftHip: 
+          $ref: '#/definitions/ScoreAndLocation'
+          description: "左臀"  
+        rightHip: 
+          $ref: '#/definitions/ScoreAndLocation'
+          description: "右臀"
+        leftKnee: 
+          $ref: '#/definitions/ScoreAndLocation'
+          description: "左膝"
+        rightKnee: 
+          $ref: '#/definitions/ScoreAndLocation'
+          description: "右膝"
+        leftAnkle: 
+          $ref: '#/definitions/ScoreAndLocation'
+          description: "左踝"
+        rightAnkle: 
+          $ref: '#/definitions/ScoreAndLocation'
+          description: "右踝"
+  ObjectDetectionResult:
+    type: "object"
+    properties:
+      score: 
+        type: "number"
+        format: "float"
+        description: "得分"
+      label: 
+        type: "string"
+        description: "标签"
+      box: 
+        type: "object"
+        properties:
+          top:
+            type: "integer"
+            description: "top坐标"   
+          left:
+            type: "integer"
+            description: "left坐标"    
+          bottom:
+            type: "integer"
+            description: "bottom坐标"   
+          right:
+            type: "integer"
+            description: "right坐标"             
+  StyleTransferResult:
+    type: "object"
+    properties:
+      image: 
+        type: "string"
+        description: "超分辨率图片的Base64编码"
+      format: 
+        type: "string"
+        description: "图片格式(png,jpeg,...)"
+  SuperResolutionResult:
+    type: "object"
+    properties:
+      image: 
+        type: "string"
+        description: "超分辨率图片的Base64编码"
+      format: 
+        type: "string"
+        description: "图片格式(png,jpeg,...)"
