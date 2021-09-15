@@ -36,7 +36,7 @@ import org.edgegallery.developer.model.mephost.MepHostLog;
 import org.edgegallery.developer.model.workspace.UploadedFile;
 import org.edgegallery.developer.response.FormatRespDto;
 import org.edgegallery.developer.service.mephost.MepHostService;
-import org.edgegallery.developer.service.uploadfile.UploadServiceImpl;
+import org.edgegallery.developer.service.uploadfile.impl.UploadServiceImpl;
 import org.edgegallery.developer.util.HttpClientUtil;
 import org.edgegallery.developer.util.InputParameterUtil;
 import org.edgegallery.developer.util.MepHostUtil;
