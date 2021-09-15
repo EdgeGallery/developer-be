@@ -18,7 +18,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Type;
-import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
@@ -69,6 +68,8 @@ public final class ContainerImageUtil {
     private static final RestTemplate REST_TEMPLATE = new RestTemplate();
 
     private static final String HARBOR_PROTOCOL = "https";
+
+    private static final String SUBDIR_CONIMAGE = "ContainerImage";
 
     private ContainerImageUtil() {
         throw new IllegalStateException("ContainerImageUtil class");
@@ -135,15 +136,13 @@ public final class ContainerImageUtil {
     /**
      * get docker client.
      *
-     * @param repo image repo
-     * @param userName login user
-     * @param password login pwd
      * @return
      */
-    public static DockerClient getDockerClient(String repo, String userName, String password) {
+    public static DockerClient getDockerClient() {
+        ImageConfig imageConfig = (ImageConfig) SpringContextUtil.getBean(ImageConfig.class);
         DockerClientConfig config = DefaultDockerClientConfig.createDefaultConfigBuilder().withDockerTlsVerify(true)
-            .withDockerCertPath("/usr/app/ssl").withRegistryUrl("https://" + repo).withRegistryUsername(userName)
-            .withRegistryPassword(password).build();
+            .withDockerCertPath("/usr/app/ssl").withRegistryUrl("https://" + imageConfig.getDomainname())
+            .withRegistryUsername(imageConfig.getUsername()).withRegistryPassword(imageConfig.getPassword()).build();
         LOGGER.warn("docker register url: {}", config.getRegistryUrl());
         return DockerClientBuilder.getInstance(config).build();
     }
@@ -252,12 +251,23 @@ public final class ContainerImageUtil {
             //Readmanifest.jsonContent
             File manFile = new File(rootDir + "manifest.json");
             String fileContent = FileUtils.readFileToString(manFile, "UTF-8");
-            String[] st = fileContent.split(",");
-            for (String repoTag : st) {
-                if (repoTag.contains("RepoTags")) {
-                    String[] repo = repoTag.split(":\\[");
-                    repoTags = repo[1].substring(1, repo[1].length() - 2);
+            JsonParser jp = new JsonParser();
+            JsonArray jsonArray = jp.parse(fileContent).getAsJsonArray();
+            List<String> tagList = new ArrayList<>();
+            for (JsonElement jsonElement : jsonArray) {
+                JsonObject ob = jsonElement.getAsJsonObject();
+                if (!ob.get("RepoTags").isJsonNull()) {
+                    JsonElement eleTag = ob.get("RepoTags");
+                    JsonArray jsonArrayTag = eleTag.getAsJsonArray();
+                    for (JsonElement element : jsonArrayTag) {
+                        String tag = element.getAsString();
+                        tagList.add(tag);
+                    }
                 }
+            }
+            LOGGER.warn("tagList {}", tagList);
+            if (!CollectionUtils.isEmpty(tagList)) {
+                repoTags = tagList.get(0);
             }
         }
         LOGGER.warn("repoTags: {} res {} ", repoTags, res);
@@ -273,18 +283,18 @@ public final class ContainerImageUtil {
      * @param repoTags tags in image tar file
      * @return
      */
-    public static boolean retagAndPush(DockerClient dockerClient, String imageId, String projectName, String repoTags,
-        String point, String project) {
+    public static boolean retagAndPush(DockerClient dockerClient, String imageId, String projectName, String repoTags) {
+        ImageConfig imageConfig = (ImageConfig) SpringContextUtil.getBean(ImageConfig.class);
         String uploadImgName = "";
         String[] images = repoTags.split(":");
         String imageName = images[0];
         String imageVersion = images[1];
         if (SystemImageUtil.isAdminUser()) {
-            uploadImgName = new StringBuilder(point).append("/").append(project).append("/").append(imageName)
-                .toString();
+            uploadImgName = new StringBuilder(imageConfig.getDomainname()).append("/").append(imageConfig.getProject())
+                .append("/").append(imageName).toString();
         } else {
-            uploadImgName = new StringBuilder(point).append("/").append(projectName).append("/").append(imageName)
-                .toString();
+            uploadImgName = new StringBuilder(imageConfig.getDomainname()).append("/").append(projectName).append("/")
+                .append(imageName).toString();
         }
 
         //Mirror tagging，Repush
@@ -369,11 +379,12 @@ public final class ContainerImageUtil {
             LOGGER.warn("delete image url: {}", deleteImageUrl);
             boolean deleteRes = deleteHarborImage(image, deleteImageUrl, imageConfig.getUsername(),
                 imageConfig.getPassword());
-            if (!deleteRes){
+            if (!deleteRes) {
                 LOGGER.error("delete harbor repo failed!");
                 return false;
             }
-        } return true;
+        }
+        return true;
     }
 
     private static boolean deleteHarborImage(String image, String url, String repoUserName, String password) {
@@ -400,17 +411,17 @@ public final class ContainerImageUtil {
      *
      * @return
      */
-    public static List<String> getHarborImageList(String loginUrl, String imageDomainName, String imageProject,
-        String devUserName, String devPwd) {
+    public static List<String> getHarborImageList() {
+        ImageConfig imageConfig = (ImageConfig) SpringContextUtil.getBean(ImageConfig.class);
         //create project
         try (CloseableHttpClient client = createIgnoreSslHttpClient()) {
             //get all image
-            URL url = new URL(loginUrl);
             String getImageUrl = String
-                .format(Consts.HARBOR_IMAGE_GET_LIST_URL, url.getProtocol(), imageDomainName, imageProject);
+                .format(Consts.HARBOR_IMAGE_GET_LIST_URL, HARBOR_PROTOCOL, imageConfig.getDomainname(),
+                    imageConfig.getProject());
             LOGGER.warn("getImageUrl : {}", getImageUrl);
             HttpGet httpImage = new HttpGet(getImageUrl);
-            String encodeStrImage = encodeUserAndPwd(devUserName, devPwd);
+            String encodeStrImage = encodeUserAndPwd(imageConfig.getUsername(), imageConfig.getPassword());
             if (encodeStrImage.equals("")) {
                 LOGGER.error("encode user and pwd failed!");
             }
@@ -419,20 +430,21 @@ public final class ContainerImageUtil {
             InputStream inputStreamImage = resImage.getEntity().getContent();
             String imageRes = IOUtils.toString(inputStreamImage, StandardCharsets.UTF_8);
             LOGGER.info("image response : {}", imageRes);
-            if (org.apache.commons.lang3.StringUtils.isNotEmpty(imageRes) && imageRes.equals("[]")) {
+            if (StringUtils.isNotEmpty(imageRes) && imageRes.equals("[]")) {
                 return Collections.EMPTY_LIST;
             }
             Gson gson = new Gson();
             Type type = new TypeToken<List<HarborImage>>() { }.getType();
             List<HarborImage> imageList = gson.fromJson(imageRes, type);
-            List<String> names = new ArrayList<>();
+            List<String> harborImageList = new ArrayList<>();
             for (HarborImage harborImage : imageList) {
-                String name = harborImage.getName();
-                if (!name.substring(10).contains("/")) {
-                    getTagsOfImages(name, names, url, client, encodeStrImage, imageDomainName, imageProject);
+                String imageName = harborImage.getName();
+                if (!imageName.substring(10).contains("/")) {
+                    getTagsOfImages(imageName, harborImageList, client, encodeStrImage, imageConfig.getDomainname(),
+                        imageConfig.getProject());
                 }
             }
-            return names;
+            return harborImageList;
         } catch (IOException e) {
             LOGGER.error("get image list from harbor repo {}", e.getMessage());
             throw new DeveloperException("get image list from harbor repo failed!",
@@ -440,12 +452,12 @@ public final class ContainerImageUtil {
         }
     }
 
-    private static void getTagsOfImages(String name, List<String> names, URL url, CloseableHttpClient client,
+    private static void getTagsOfImages(String imageName, List<String> harborImageList, CloseableHttpClient client,
         String encode, String imageDomainName, String imageProject) throws IOException {
         //get tags of one image
         String getTagUrl = String
-            .format(Consts.HARBOR_IMAGE_GET_TAGS_URL, url.getProtocol(), imageDomainName, imageProject,
-                name.substring(10).trim());
+            .format(Consts.HARBOR_IMAGE_GET_TAGS_URL, HARBOR_PROTOCOL, imageDomainName, imageProject,
+                imageName.substring(10).trim());
         LOGGER.info("getTagUrl : {}", getTagUrl);
         HttpGet httpTag = new HttpGet(getTagUrl);
         httpTag.setHeader("Authorization", "Basic " + encode);
@@ -463,13 +475,24 @@ public final class ContainerImageUtil {
                 for (JsonElement element : jsonArrayTag) {
                     JsonObject object = element.getAsJsonObject();
                     if (!object.get("name").isJsonNull() && !object.get("push_time").isJsonNull()) {
-                        String image = name + ":" + object.get("name").getAsString() + "+" + object.get("push_time")
-                            .getAsString();
-                        names.add(image.trim());
+                        String image = imageName + ":" + object.get("name").getAsString() + "+" + object
+                            .get("push_time").getAsString();
+                        harborImageList.add(image.trim());
                     }
                 }
             }
         }
+    }
+
+    /**
+     * create path of image upload
+     *
+     * @param imageId imageId
+     * @return
+     */
+    public static String getUploadSysImageRootDir(String imageId) {
+        return InitConfigUtil.getWorkSpaceBaseDir() + BusinessConfigUtil.getTmpPath() + SUBDIR_CONIMAGE + File.separator
+            + imageId + File.separator;
     }
 
 }
