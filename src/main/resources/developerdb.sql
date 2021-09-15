@@ -676,3 +676,29 @@
     "node_port" varchar(255) DEFAULT NULL,
     CONSTRAINT "tbl_k8s_service_port_instantiate_info_pkey" PRIMARY KEY ("service_name")
     );
+
+    CREATE TABLE IF NOT EXISTS "tbl_operation_status" (
+    "id" varchar(255) NOT NULL,
+    "object_type" varchar(255) DEFAULT NULL,
+    "object_id" varchar(255) DEFAULT NULL,
+    "operation_name" varchar(255) DEFAULT NULL,
+    "progress" int4 DEFAULT NULL,
+    "status" varchar(255) DEFAULT NULL,
+    "error_msg" text DEFAULT NULL,
+    "update_time" timestamptz(6)  DEFAULT NULL,
+    CONSTRAINT "tbl_action_status_pkey" PRIMARY KEY ("id")
+    );
+
+    CREATE TABLE IF NOT EXISTS "tbl_action_status" (
+    "id" varchar(255) NOT NULL,
+    "operation_id" varchar(255) NOT NULL,
+    "object_type" varchar(255) DEFAULT NULL,
+    "object_id" varchar(255) DEFAULT NULL,
+    "action_name" varchar(255) DEFAULT NULL,
+    "progress" int4 DEFAULT NULL,
+    "status" varchar(255) DEFAULT NULL,
+    "error_msg" text DEFAULT NULL,
+    "status_log" text DEFAULT NULL,
+    "update_time" timestamptz(6)  DEFAULT NULL,
+    CONSTRAINT "tbl_action_status_pkey" PRIMARY KEY ("id")
+    );
