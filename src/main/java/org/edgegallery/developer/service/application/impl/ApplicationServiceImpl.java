@@ -13,38 +13,38 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
+
 package org.edgegallery.developer.service.application.impl;
 
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import com.google.gson.Gson;
 import com.spencerwi.either.Either;
-import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 import javax.ws.rs.core.Response.Status;
 import org.edgegallery.developer.common.ResponseConsts;
 import org.edgegallery.developer.config.security.AccessUserUtil;
+import org.edgegallery.developer.domain.shared.FileChecker;
 import org.edgegallery.developer.domain.shared.Page;
 import org.edgegallery.developer.exception.DeveloperException;
 import org.edgegallery.developer.mapper.application.ApplicationMapper;
 import org.edgegallery.developer.mapper.application.vm.NetworkMapper;
 import org.edgegallery.developer.mapper.application.vm.VMMapper;
 import org.edgegallery.developer.model.application.Application;
-import org.edgegallery.developer.model.application.container.ContainerApplication;
 import org.edgegallery.developer.model.application.EnumAppClass;
 import org.edgegallery.developer.model.application.EnumApplicationStatus;
-import org.edgegallery.developer.model.application.vm.VMApplication;
+import org.edgegallery.developer.model.application.container.ContainerApplication;
 import org.edgegallery.developer.model.application.vm.Network;
+import org.edgegallery.developer.model.application.vm.VMApplication;
 import org.edgegallery.developer.model.application.vm.VirtualMachine;
 import org.edgegallery.developer.model.restful.ApplicationDetail;
 import org.edgegallery.developer.model.workspace.UploadedFile;
-import org.edgegallery.developer.domain.shared.FileChecker;
 import org.edgegallery.developer.response.FormatRespDto;
 import org.edgegallery.developer.service.ProjectService;
 import org.edgegallery.developer.service.application.ApplicationService;
-import org.edgegallery.developer.service.uploadfile.UploadServiceImpl;
+import org.edgegallery.developer.service.uploadfile.UploadService;
+import org.edgegallery.developer.service.uploadfile.impl.UploadServiceImpl;
 import org.edgegallery.developer.util.DeveloperFileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,7 +55,6 @@ import org.springframework.web.multipart.MultipartFile;
 @Service("applicationService")
 public class ApplicationServiceImpl implements ApplicationService {
     private static final Logger LOGGER = LoggerFactory.getLogger(ProjectService.class);
-
 
     @Autowired
     private UploadServiceImpl uploadServiceImpl;
@@ -68,7 +67,6 @@ public class ApplicationServiceImpl implements ApplicationService {
 
     @Autowired
     private VMMapper vmMapper;
-
 
     @Autowired
     AppConfigurationServiceImpl AppConfigurationServiceImpl;
@@ -92,13 +90,7 @@ public class ApplicationServiceImpl implements ApplicationService {
             LOGGER.error("icon file is null");
             throw new DeveloperException("icon file is null", ResponseConsts.ICON_FILE_NULL);
         }
-        try {
-            uploadServiceImpl.moveFileToWorkSpaceById(iconFileId, applicationId);
-        } catch (IOException e) {
-            LOGGER.error("move icon file failed {}", e.getMessage());
-            throw new DeveloperException("move icon file failed", ResponseConsts.ICON_FILE_NULL);
-        }
-
+        uploadServiceImpl.moveFileToWorkSpaceById(iconFileId, applicationId);
         // init network
         initNetwork(applicationId);
 
@@ -114,7 +106,7 @@ public class ApplicationServiceImpl implements ApplicationService {
 
     private void initNetwork(String applicationId) {
         List<Network> networks = networkMapper.getNetworkByAppId("init-application");
-        for (Network network:networks) {
+        for (Network network : networks) {
             network.setId(UUID.randomUUID().toString());
             int res = networkMapper.createNetwork(applicationId, network);
             if (res < 1) {
@@ -177,7 +169,7 @@ public class ApplicationServiceImpl implements ApplicationService {
             LOGGER.error("Can not find project by applicationId:{}.", applicationId);
             throw new DeveloperException("Can not find project", ResponseConsts.DELETE_DATA_FAILED);
         }
-        if (application.getAppClass()== EnumAppClass.VM) {
+        if (application.getAppClass() == EnumAppClass.VM) {
             VMApplication vmApplication = new VMApplication(application);
 
             vmApplication.setNetworkList(networkMapper.getNetworkByAppId(applicationId));
@@ -185,7 +177,7 @@ public class ApplicationServiceImpl implements ApplicationService {
 
             vmApplication.setAppConfiguration(AppConfigurationServiceImpl.getAppConfiguration(applicationId));
             applicationDetail.setVmApp(vmApplication);
-        }else {
+        } else {
             ContainerApplication containerApplication = new ContainerApplication(application);
             containerApplication.setAppConfiguration(AppConfigurationServiceImpl.getAppConfiguration(applicationId));
             // todo get helmchart
@@ -202,18 +194,20 @@ public class ApplicationServiceImpl implements ApplicationService {
             LOGGER.error("Can not find project by applicationId:{}.", applicationId);
             throw new DeveloperException("Can not find project", ResponseConsts.DELETE_DATA_FAILED);
         }
-        if (application.getAppClass()== EnumAppClass.VM) {
+        if (application.getAppClass() == EnumAppClass.VM) {
             applicationMapper.modifyApplication(applicationDetail.getVmApp());
-            AppConfigurationServiceImpl.modifyAppConfiguration(applicationId, applicationDetail.getVmApp().getAppConfiguration());
-            for(Network network:applicationDetail.getVmApp().getNetworkList()) {
+            AppConfigurationServiceImpl
+                .modifyAppConfiguration(applicationId, applicationDetail.getVmApp().getAppConfiguration());
+            for (Network network : applicationDetail.getVmApp().getNetworkList()) {
                 networkMapper.modifyNetwork(network);
             }
-            for(VirtualMachine virtualMachine: applicationDetail.getVmApp().getVmList()) {
+            for (VirtualMachine virtualMachine : applicationDetail.getVmApp().getVmList()) {
                 vmMapper.modifyVM(virtualMachine);
             }
-        }else {
+        } else {
             applicationMapper.modifyApplication(applicationDetail.getContainerApp());
-            AppConfigurationServiceImpl.modifyAppConfiguration(applicationId, applicationDetail.getContainerApp().getAppConfiguration());
+            AppConfigurationServiceImpl
+                .modifyAppConfiguration(applicationId, applicationDetail.getContainerApp().getAppConfiguration());
             //todo modify helmchart
         }
         return Either.right(true);
@@ -242,17 +236,16 @@ public class ApplicationServiceImpl implements ApplicationService {
             LOGGER.error("File Name is invalid.");
             return false;
         }
-        String fileType= "";
+        String fileType = "";
         int i = fileName.lastIndexOf('.');
         if (i > 0) {
-            fileType= fileName.substring(i+1);
+            fileType = fileName.substring(i + 1);
         }
-        if(!"jpg".equals(fileType) && !"png".equals(fileType)){
+        if (!"jpg".equals(fileType) && !"png".equals(fileType)) {
             LOGGER.error("File type is error.");
             return false;
         }
         return true;
     }
-
 
 }
