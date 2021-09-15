@@ -74,8 +74,6 @@ public class ContainerImageServiceImpl implements ContainerImageService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ContainerImageServiceImpl.class);
 
-    private static final String SUBDIR_CONIMAGE = "ContainerImage";
-
     @Autowired
     private ContainersImageMapper containerImageMapper;
 
@@ -137,7 +135,7 @@ public class ContainerImageServiceImpl implements ContainerImageService {
             }
 
             LOGGER.info("save file to local directory.");
-            String rootDir = getUploadSysImageRootDir(imageId);
+            String rootDir = ContainerImageUtil.getUploadSysImageRootDir(imageId);
             File uploadRootDir = new File(rootDir);
             if (!uploadRootDir.exists()) {
                 boolean isMk = uploadRootDir.mkdirs();
@@ -171,7 +169,7 @@ public class ContainerImageServiceImpl implements ContainerImageService {
     public ResponseEntity mergeContainerImage(String fileName, String guid, String imageId) {
         try {
             LOGGER.info("merge harbor image file, harborImage = {}, fileName = {}, guid = {}", imageId, fileName, guid);
-            String rootDir = getUploadSysImageRootDir(imageId);
+            String rootDir = ContainerImageUtil.getUploadSysImageRootDir(imageId);
             String partFilePath = rootDir + guid;
             File partFileDir = new File(partFilePath);
             if (!partFileDir.exists() || !partFileDir.isDirectory()) {
@@ -341,19 +339,13 @@ public class ContainerImageServiceImpl implements ContainerImageService {
         ContainerImage oldImage = containerImageMapper.getContainerImage(imageId);
         int retCode;
         boolean isDel;
-        if (SystemImageUtil.isAdminUser()) {
-            isDel = ContainerImageUtil.deleteImage(oldImage.getImagePath(), oldImage.getUserName());
-            retCode = containerImageMapper.deleteContainerImageByAdmin(imageId);
-        } else {
-            if (oldImage != null && !loginUserId.equals(oldImage.getUserId())) {
-                String errorMsg = "Cannot delete data created by others";
-                LOGGER.error(errorMsg);
-                throw new DeveloperException(errorMsg, ResponseConsts.RET_UPDATE_IMAGE_AUTH_CHECK_FAILED);
-            }
-            isDel = ContainerImageUtil.deleteImage(oldImage.getImagePath(), oldImage.getUserName());
-            String loginUserName = AccessUserUtil.getUser().getUserName();
-            retCode = containerImageMapper.deleteContainerImageByOrdinary(imageId, loginUserId, loginUserName);
+        if (!SystemImageUtil.isAdminUser() && !loginUserId.equals(oldImage.getUserId())) {
+            String errorMsg = "Cannot delete data created by others";
+            LOGGER.error(errorMsg);
+            throw new DeveloperException(errorMsg, ResponseConsts.RET_UPDATE_IMAGE_AUTH_CHECK_FAILED);
         }
+        isDel = ContainerImageUtil.deleteImage(oldImage.getImagePath(), oldImage.getUserName());
+        retCode = containerImageMapper.deleteContainerImageById(imageId);
         LOGGER.warn("isDel {}", isDel);
         LOGGER.warn("retcode {}", retCode);
         if (!isDel || retCode < 1) {
@@ -425,7 +417,7 @@ public class ContainerImageServiceImpl implements ContainerImageService {
      */
     @Override
     public ResponseEntity cancelUploadHarborImage(String imageId) {
-        String rootDir = getUploadSysImageRootDir(imageId);
+        String rootDir = ContainerImageUtil.getUploadSysImageRootDir(imageId);
         SystemImageUtil.cleanWorkDir(new File(rootDir));
         return ResponseEntity.ok().build();
     }
@@ -451,8 +443,7 @@ public class ContainerImageServiceImpl implements ContainerImageService {
         }
         LOGGER.warn("list: {}", list);
         // get Harbor image list
-        List<String> harborList = ContainerImageUtil
-            .getHarborImageList(loginUrl, devRepoEndpoint, devRepoProject, devRepoUsername, devRepoPassword);
+        List<String> harborList = ContainerImageUtil.getHarborImageList();
         if (CollectionUtils.isEmpty(harborList)) {
             LOGGER.warn("harbor repo no images!");
             return ResponseEntity.ok("harbor repo no images!");
@@ -514,8 +505,7 @@ public class ContainerImageServiceImpl implements ContainerImageService {
 
     private boolean pushImageToRepo(File imageFile, String rootDir, String projectName, String inputImageId,
         String fileName) throws IOException {
-        DockerClient dockerClient = ContainerImageUtil
-            .getDockerClient(devRepoEndpoint, devRepoUsername, devRepoPassword);
+        DockerClient dockerClient = ContainerImageUtil.getDockerClient();
         try (InputStream inputStream = new FileInputStream(imageFile)) {
             //import image pkg
             dockerClient.loadImageCmd(inputStream).exec();
@@ -535,8 +525,7 @@ public class ContainerImageServiceImpl implements ContainerImageService {
             return false;
         }
         //push
-        boolean ret = ContainerImageUtil
-            .retagAndPush(dockerClient, imageId, projectName, repoTags, devRepoEndpoint, devRepoProject);
+        boolean ret = ContainerImageUtil.retagAndPush(dockerClient, imageId, projectName, repoTags);
         if (!ret) {
             return false;
         }
@@ -577,8 +566,6 @@ public class ContainerImageServiceImpl implements ContainerImageService {
         return true;
     }
 
-    private String getUploadSysImageRootDir(String imageId) {
-        return filePathTemp + File.separator + SUBDIR_CONIMAGE + File.separator + imageId + File.separator;
-    }
+
 
 }

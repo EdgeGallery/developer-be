@@ -28,10 +28,7 @@ public interface ContainersImageMapper {
 
     int createContainerImage(ContainerImage containerImage);
 
-    int deleteContainerImageByAdmin(@Param("imageId") String imageId);
-
-    int deleteContainerImageByOrdinary(@Param("imageId") String imageId, @Param("userId") String userId,
-        @Param("userName") String userName);
+    int deleteContainerImageById(@Param("imageId") String imageId);
 
     ContainerImage getContainerImage(@Param("imageId") String imageId);
 

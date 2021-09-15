@@ -122,18 +122,13 @@
         select * from tbl_container_image
     </select>
 
-    <delete id="deleteContainerImageByOrdinary" parameterType="java.lang.String">
-        delete from tbl_container_image
-        where image_id=#{imageId} and user_id =#{userId} and user_name =#{userName}
-    </delete>
-
     <update id="updateContainerImageType" parameterType="java.lang.String">
         update tbl_container_image
         set image_type=#{imageType}
         where image_id=#{imageId} and user_id =#{userId}
     </update>
 
-    <delete id="deleteContainerImageByAdmin" parameterType="java.lang.String">
+    <delete id="deleteContainerImageById" parameterType="java.lang.String">
         delete from tbl_container_image where image_id=#{imageId}
     </delete>
 
