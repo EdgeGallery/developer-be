@@ -25,9 +25,9 @@ import com.spencerwi.either.Either;
 
 public interface VmAppOperationService {
 
-    Either<FormatRespDto, OperationInfoRep> instantiateVmApp(String applicationId, String vmId, String accessToken);
+    OperationInfoRep instantiateVmApp(String applicationId, String vmId, String accessToken);
 
-    Either<FormatRespDto, Boolean> uploadFileToVm(String applicationId, String vmId, HttpServletRequest request, Chunk chunk);
+    Boolean uploadFileToVm(String applicationId, String vmId, HttpServletRequest request, Chunk chunk);
 
     ResponseEntity mergeAppFile(String applicationId, String vmId, String fileName, String identifier);
 }

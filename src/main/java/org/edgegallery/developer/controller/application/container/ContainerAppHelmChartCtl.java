@@ -20,17 +20,12 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import java.io.IOException;
 import java.util.List;
 import javax.validation.constraints.Pattern;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.edgegallery.developer.model.application.container.HelmChart;
-import org.edgegallery.developer.model.application.vm.VirtualMachine;
 import org.edgegallery.developer.response.ErrorRespDto;
-import org.edgegallery.developer.response.FormatRespDto;
-import org.edgegallery.developer.response.HelmTemplateYamlRespDto;
 import org.edgegallery.developer.service.application.container.ContainerAppHelmChartService;
-import org.edgegallery.developer.util.ResponseDataUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -42,7 +37,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.multipart.MultipartFile;
-import com.spencerwi.either.Either;
 @Controller
 @RestSchema(schemaId = "helmCharts")
 @RequestMapping("/mec/developer/v2/applications")
@@ -68,9 +62,9 @@ public class ContainerAppHelmChartCtl {
         @ApiParam(value = "file", required = true) @RequestPart("file") MultipartFile helmTemplateYaml,
         @Pattern(regexp = REGEX_UUID, message = "projectId must be in UUID format")
         @ApiParam(value = "applicationId", required = true) @RequestParam("applicationId") String applicationId) {
-        Either<FormatRespDto, Boolean> either = containerAppHelmChartService
+        Boolean result = containerAppHelmChartService
             .uploadHelmChartYaml(helmTemplateYaml, applicationId);
-        return ResponseDataUtil.buildResponse(either);
+        return ResponseEntity.ok(result);
     }
 
     /**
@@ -124,8 +118,8 @@ public class ContainerAppHelmChartCtl {
         @ApiParam(value = "applicationId", required = true) @RequestParam("applicationId") String applicationId,
         @Pattern(regexp = REGEX_UUID, message = "fileId must be in UUID format")
         @ApiParam(value = "id", required = true) @RequestParam("id") String id) {
-        Either<FormatRespDto, Boolean> either = containerAppHelmChartService.deleteHelmChartById(applicationId, id);
-        return ResponseDataUtil.buildResponse(either);
+        Boolean result = containerAppHelmChartService.deleteHelmChartById(applicationId, id);
+        return ResponseEntity.ok(result);
     }
 
 }

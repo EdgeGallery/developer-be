@@ -25,10 +25,8 @@ import javax.validation.constraints.Pattern;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.edgegallery.developer.model.restful.SelectMepHostReq;
 import org.edgegallery.developer.response.ErrorRespDto;
-import org.edgegallery.developer.response.FormatRespDto;
 import org.edgegallery.developer.service.application.AppOperationService;
 import org.edgegallery.developer.service.application.factory.AppOperationServiceFactory;
-import org.edgegallery.developer.util.ResponseDataUtil;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -38,7 +36,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import com.spencerwi.either.Either;
 
 @Controller
 @RestSchema(schemaId = "AppOperation")
@@ -64,8 +61,8 @@ public class AppOperationCtl {
         @Pattern(regexp = REGEX_UUID, message = "applicationId must be in UUID format")
         @ApiParam(value = "applicationId", required = true) @PathVariable("applicationId") String applicationId,
         @NotNull @ApiParam(value = "selectSandbox", required = true) @RequestBody SelectMepHostReq selectSandbox) {
-        Either<FormatRespDto, Boolean> either = getAppOperationService(applicationId).selectMepHost(applicationId, selectSandbox);
-        return ResponseDataUtil.buildResponse(either);
+        Boolean result = getAppOperationService(applicationId).selectMepHost(applicationId, selectSandbox);
+        return ResponseEntity.ok(result);
     }
 
     /**
@@ -82,8 +79,8 @@ public class AppOperationCtl {
     public ResponseEntity<Boolean> cleanEnv(
         @Pattern(regexp = REGEX_UUID, message = "applicationId must be in UUID format")
         @ApiParam(value = "applicationId", required = true) @PathVariable("applicationId") String applicationId) {
-        Either<FormatRespDto, Boolean> either = getAppOperationService(applicationId).cleanEnv(applicationId);
-        return ResponseDataUtil.buildResponse(either);
+        Boolean result = getAppOperationService(applicationId).cleanEnv(applicationId);
+        return ResponseEntity.ok(result);
     }
 
     /**
@@ -100,8 +97,8 @@ public class AppOperationCtl {
     public ResponseEntity<Boolean> generatePackage(
         @Pattern(regexp = REGEX_UUID, message = "applicationId must be in UUID format")
         @ApiParam(value = "applicationId", required = true) @PathVariable("applicationId") String applicationId) {
-        Either<FormatRespDto, Boolean> either = getAppOperationService(applicationId).generatePackage(applicationId);
-        return ResponseDataUtil.buildResponse(either);
+        Boolean result = getAppOperationService(applicationId).generatePackage(applicationId);
+        return ResponseEntity.ok(result);
     }
 
     /**
@@ -118,8 +115,8 @@ public class AppOperationCtl {
     public ResponseEntity<Boolean> commitTest(
         @Pattern(regexp = REGEX_UUID, message = "applicationId must be in UUID format")
         @ApiParam(value = "applicationId", required = true) @PathVariable("applicationId") String applicationId) {
-        Either<FormatRespDto, Boolean> either = getAppOperationService(applicationId).commitTest(applicationId);
-        return ResponseDataUtil.buildResponse(either);
+        Boolean result = getAppOperationService(applicationId).commitTest(applicationId);
+        return ResponseEntity.ok(result);
     }
 
     private AppOperationService getAppOperationService(String applicationId){

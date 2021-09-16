@@ -16,16 +16,14 @@
 package org.edgegallery.developer.service.application;
 
 import org.edgegallery.developer.model.restful.SelectMepHostReq;
-import org.edgegallery.developer.response.FormatRespDto;
-import com.spencerwi.either.Either;
 
 public interface AppOperationService {
 
-    Either<FormatRespDto, Boolean> cleanEnv(String applicationId);
+    Boolean cleanEnv(String applicationId);
 
-    Either<FormatRespDto, Boolean> generatePackage(String applicationId);
+    Boolean generatePackage(String applicationId);
 
-    Either<FormatRespDto, Boolean> commitTest(String applicationId);
+    Boolean commitTest(String applicationId);
 
-    Either<FormatRespDto, Boolean> selectMepHost(String applicationId, SelectMepHostReq selectMepHostReq);
+    Boolean selectMepHost(String applicationId, SelectMepHostReq selectMepHostReq);
 }

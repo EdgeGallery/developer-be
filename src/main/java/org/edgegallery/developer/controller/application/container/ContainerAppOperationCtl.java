@@ -23,9 +23,7 @@ import io.swagger.annotations.ApiResponses;
 import javax.validation.constraints.Pattern;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.edgegallery.developer.response.ErrorRespDto;
-import org.edgegallery.developer.response.FormatRespDto;
 import org.edgegallery.developer.service.application.container.ContainerAppOperationService;
-import org.edgegallery.developer.util.ResponseDataUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -35,7 +33,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import com.spencerwi.either.Either;
 
 @Controller
 @RestSchema(schemaId = "containerAppOperation")
@@ -62,8 +59,8 @@ public class ContainerAppOperationCtl {
     public ResponseEntity<Boolean> instantiateContainerApp(
         @Pattern(regexp = REGEX_UUID, message = "applicationId must be in UUID format")
         @ApiParam(value = "applicationId", required = true) @PathVariable("applicationId") String applicationId) {
-        Either<FormatRespDto, Boolean> either = containerAppOperationService.instantiateContainerApp(applicationId);
-        return ResponseDataUtil.buildResponse(either);
+        Boolean result = containerAppOperationService.instantiateContainerApp(applicationId);
+        return ResponseEntity.ok(result);
     }
 
     /**
@@ -80,8 +77,8 @@ public class ContainerAppOperationCtl {
     public ResponseEntity<Boolean> getContainerDetail(
         @Pattern(regexp = REGEX_UUID, message = "applicationId must be in UUID format")
         @ApiParam(value = "applicationId", required = true) @PathVariable("applicationId") String applicationId) {
-        Either<FormatRespDto, Boolean> either = containerAppOperationService.getContainerDetail(applicationId);
-        return ResponseDataUtil.buildResponse(either);
+        Boolean result = containerAppOperationService.getContainerDetail(applicationId);
+        return ResponseEntity.ok(result);
     }
 
 }

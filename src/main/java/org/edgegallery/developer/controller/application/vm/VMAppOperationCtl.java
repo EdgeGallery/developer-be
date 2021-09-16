@@ -27,9 +27,7 @@ import org.edgegallery.developer.common.Consts;
 import org.edgegallery.developer.model.Chunk;
 import org.edgegallery.developer.model.restful.OperationInfoRep;
 import org.edgegallery.developer.response.ErrorRespDto;
-import org.edgegallery.developer.response.FormatRespDto;
 import org.edgegallery.developer.service.application.vm.VmAppOperationService;
-import org.edgegallery.developer.util.ResponseDataUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -40,7 +38,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import com.spencerwi.either.Either;
 @Controller
 @RestSchema(schemaId = "VmAppOperation")
 @RequestMapping("/mec/developer/v2/applications")
@@ -66,8 +63,8 @@ public class VMAppOperationCtl {
         @ApiParam(value = "applicationId", required = true) @PathVariable("applicationId") String applicationId,
         @ApiParam(value = "vmId", required = true) @PathVariable("vmId") String vmId, HttpServletRequest request) {
         String accessToken = request.getHeader(Consts.ACCESS_TOKEN_STR);
-        Either<FormatRespDto, OperationInfoRep> either = VmAppOperationService.instantiateVmApp(applicationId, vmId, accessToken);
-        return ResponseDataUtil.buildResponse(either);
+        OperationInfoRep result = VmAppOperationService.instantiateVmApp(applicationId, vmId, accessToken);
+        return ResponseEntity.ok(result);
     }
 
     /**
@@ -84,8 +81,8 @@ public class VMAppOperationCtl {
         @ApiParam(value = "applicationId", required = true) @PathVariable("applicationId") String applicationId,
         @Pattern(regexp = REGEX_UUID, message = "vmId must be in UUID format")
         @ApiParam(value = "vmId", required = true) @PathVariable("vmId") String vmId) {
-        Either<FormatRespDto, Boolean> either = VmAppOperationService.uploadFileToVm(applicationId, vmId, request, chunk);
-        return ResponseDataUtil.buildResponse(either);
+        Boolean result = VmAppOperationService.uploadFileToVm(applicationId, vmId, request, chunk);
+        return ResponseEntity.ok(result);
     }
 
     /**
