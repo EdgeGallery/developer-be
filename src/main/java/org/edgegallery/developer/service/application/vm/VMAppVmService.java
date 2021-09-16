@@ -22,13 +22,13 @@ import com.spencerwi.either.Either;
 
 public interface VMAppVmService {
 
-    Either<FormatRespDto, VirtualMachine> createVm(String applicationId, VirtualMachine virtualMachine);
+    VirtualMachine createVm(String applicationId, VirtualMachine virtualMachine);
 
     List<VirtualMachine> getAllVm(String applicationId);
 
     VirtualMachine getVm(String applicationId, String vmId);
 
-    Either<FormatRespDto, Boolean> modifyVm(String applicationId, String vmId, VirtualMachine virtualMachine);
+    Boolean modifyVm(String applicationId, String vmId, VirtualMachine virtualMachine);
 
-    Either<FormatRespDto, Boolean> deleteVm(String applicationId, String vmId);
+    Boolean deleteVm(String applicationId, String vmId);
 }

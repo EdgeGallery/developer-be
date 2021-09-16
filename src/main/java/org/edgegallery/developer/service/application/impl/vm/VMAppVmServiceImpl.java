@@ -1,3 +1,18 @@
+/*
+ *    Copyright 2021 Huawei Technologies Co., Ltd.
+ *
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
+ */
 package org.edgegallery.developer.service.application.impl.vm;
 
 import java.util.List;
@@ -5,10 +20,8 @@ import java.util.UUID;
 import org.edgegallery.developer.common.ResponseConsts;
 import org.edgegallery.developer.exception.DeveloperException;
 import org.edgegallery.developer.mapper.application.vm.VMMapper;
-import org.edgegallery.developer.model.application.Application;
 import org.edgegallery.developer.model.application.vm.VMPort;
 import org.edgegallery.developer.model.application.vm.VirtualMachine;
-import org.edgegallery.developer.response.FormatRespDto;
 import org.edgegallery.developer.service.ProjectService;
 import org.edgegallery.developer.service.application.vm.VMAppVmService;
 import org.slf4j.Logger;
@@ -17,7 +30,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import com.google.gson.Gson;
-import com.spencerwi.either.Either;
 @Service("vmAppVmService")
 public class VMAppVmServiceImpl implements VMAppVmService {
 
@@ -32,7 +44,7 @@ public class VMAppVmServiceImpl implements VMAppVmService {
     VMAppOperationServiceImpl vmAppOperationServiceImpl;
 
     @Override
-    public Either<FormatRespDto, VirtualMachine> createVm(String applicationId, VirtualMachine virtualMachine) {
+    public VirtualMachine createVm(String applicationId, VirtualMachine virtualMachine) {
         virtualMachine.setId(UUID.randomUUID().toString());
         int res = vmMapper.createVM(applicationId, virtualMachine);
         if (res < 1) {
@@ -47,7 +59,7 @@ public class VMAppVmServiceImpl implements VMAppVmService {
                 createVmPort(virtualMachine.getId(),port);
             }
         }
-        return Either.right(virtualMachine);
+        return virtualMachine;
     }
 
     @Override
@@ -78,7 +90,7 @@ public class VMAppVmServiceImpl implements VMAppVmService {
     }
 
     @Override
-    public Either<FormatRespDto, Boolean> modifyVm(String applicationId, String vmId, VirtualMachine virtualMachine) {
+    public Boolean modifyVm(String applicationId, String vmId, VirtualMachine virtualMachine) {
         int res = vmMapper.modifyVM(virtualMachine);
         if (res < 1) {
             LOGGER.error("modify vm in db error.");
@@ -88,11 +100,11 @@ public class VMAppVmServiceImpl implements VMAppVmService {
         for (VMPort vmPort: virtualMachine.getPortList()) {
             vmMapper.modifyVMPort(vmPort);
         }
-        return Either.right(true);
+        return true;
     }
 
     @Override
-    public Either<FormatRespDto, Boolean> deleteVm(String applicationId, String vmId) {
+    public Boolean deleteVm(String applicationId, String vmId) {
         VirtualMachine getVm = getVm(applicationId, vmId);
         if (getVm == null || getVm.getVmInstantiateInfo() != null || getVm.getImageExportInfo() != null) {
             LOGGER.error("delete vm  fail, vm is not exit or is used,vmId:{}", vmId);
@@ -102,7 +114,7 @@ public class VMAppVmServiceImpl implements VMAppVmService {
         vmMapper.deleteVMPort(vmId);
         vmMapper.deleteVM(vmId);
 
-        return Either.right(true);
+        return true;
     }
 
     public int createVmPort(String vmId, VMPort port) {

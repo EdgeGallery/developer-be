@@ -26,9 +26,7 @@ import javax.validation.constraints.Pattern;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.edgegallery.developer.model.application.vm.VirtualMachine;
 import org.edgegallery.developer.response.ErrorRespDto;
-import org.edgegallery.developer.response.FormatRespDto;
 import org.edgegallery.developer.service.application.vm.VMAppVmService;
-import org.edgegallery.developer.util.ResponseDataUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -39,7 +37,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import com.spencerwi.either.Either;
 @Controller
 @RestSchema(schemaId = "VMAppVm")
 @RequestMapping("/mec/developer/v2/applications")
@@ -64,8 +61,8 @@ public class VMAppVmCtl {
         @Pattern(regexp = REGEX_UUID, message = "applicationId must be in UUID format")
         @ApiParam(value = "applicationId", required = true) @PathVariable("applicationId") String applicationId,
         @NotNull @ApiParam(value = "VirtualMachine", required = true) @RequestBody VirtualMachine virtualMachine) {
-        Either<FormatRespDto, VirtualMachine> either = vmAppVmService.createVm(applicationId, virtualMachine);
-        return ResponseDataUtil.buildResponse(either);
+        VirtualMachine result = vmAppVmService.createVm(applicationId, virtualMachine);
+        return ResponseEntity.ok(result);
     }
 
     /**
@@ -119,8 +116,8 @@ public class VMAppVmCtl {
         @ApiParam(value = "applicationId", required = true) @PathVariable("applicationId") String applicationId,
         @ApiParam(value = "vmId", required = true) @PathVariable("vmId") String vmId,
         @NotNull @ApiParam(value = "VirtualMachine", required = true) @RequestBody VirtualMachine virtualMachine) {
-        Either<FormatRespDto, Boolean> either = vmAppVmService.modifyVm(applicationId, vmId, virtualMachine);
-        return ResponseDataUtil.buildResponse(either);
+        Boolean result = vmAppVmService.modifyVm(applicationId, vmId, virtualMachine);
+        return ResponseEntity.ok(result);
     }
 
     /**
@@ -138,8 +135,8 @@ public class VMAppVmCtl {
         @Pattern(regexp = REGEX_UUID, message = "applicationId must be in UUID format")
         @ApiParam(value = "applicationId", required = true) @PathVariable("applicationId") String applicationId,
         @ApiParam(value = "vmId", required = true) @PathVariable("vmId") String vmId) {
-        Either<FormatRespDto, Boolean> either = vmAppVmService.deleteVm(applicationId, vmId);
-        return ResponseDataUtil.buildResponse(either);
+        Boolean result = vmAppVmService.deleteVm(applicationId, vmId);
+        return ResponseEntity.ok(result);
     }
 
 }

@@ -18,7 +18,6 @@ package org.edgegallery.developer.service.application.impl;
 
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import com.spencerwi.either.Either;
 import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
@@ -43,7 +42,6 @@ import org.edgegallery.developer.model.workspace.UploadedFile;
 import org.edgegallery.developer.response.FormatRespDto;
 import org.edgegallery.developer.service.ProjectService;
 import org.edgegallery.developer.service.application.ApplicationService;
-import org.edgegallery.developer.service.uploadfile.UploadService;
 import org.edgegallery.developer.service.uploadfile.impl.UploadServiceImpl;
 import org.edgegallery.developer.util.DeveloperFileUtils;
 import org.slf4j.Logger;
@@ -72,14 +70,14 @@ public class ApplicationServiceImpl implements ApplicationService {
     AppConfigurationServiceImpl AppConfigurationServiceImpl;
 
     @Override
-    public Either<FormatRespDto, Application> createApplication(Application application) {
+    public Application createApplication(Application application) {
         String applicationId = UUID.randomUUID().toString();
         String projectPath = DeveloperFileUtils.getAbsolutePath(applicationId);
         try {
             DeveloperFileUtils.deleteAndCreateDir(projectPath);
         } catch (IOException e1) {
             FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "Create project path failed.");
-            return Either.left(error);
+            throw new DeveloperException("Create project path failed.", ResponseConsts.DELETE_DATA_FAILED);
         }
         application.setId(applicationId);
         application.setUserId(AccessUserUtil.getUser().getUserId());
@@ -101,7 +99,7 @@ public class ApplicationServiceImpl implements ApplicationService {
             throw new DeveloperException("Create application in db error.", ResponseConsts.INSERT_DATA_FAILED);
         }
         LOGGER.info("Create application success.");
-        return Either.right(application);
+        return application;
     }
 
     private void initNetwork(String applicationId) {
@@ -122,13 +120,13 @@ public class ApplicationServiceImpl implements ApplicationService {
     }
 
     @Override
-    public Either<FormatRespDto, Boolean> modifyApplication(String applicationId, Application application) {
+    public Boolean modifyApplication(String applicationId, Application application) {
         int res = applicationMapper.modifyApplication(application);
         if (res < 1) {
             LOGGER.error("modify application in db error.");
             throw new DeveloperException("modify application in db error.", ResponseConsts.MODIFY_DATA_FAILED);
         }
-        return Either.right(true);
+        return true;
     }
 
     @Override
@@ -142,7 +140,7 @@ public class ApplicationServiceImpl implements ApplicationService {
     }
 
     @Override
-    public Either<FormatRespDto, Boolean> deleteApplication(String applicationId) {
+    public Boolean deleteApplication(String applicationId) {
         Application application = applicationMapper.getApplicationById(applicationId);
         if (application == null) {
             LOGGER.error("Can not find project by applicationId:{}.", applicationId);
@@ -158,7 +156,7 @@ public class ApplicationServiceImpl implements ApplicationService {
         String projectPath = DeveloperFileUtils.getAbsolutePath(applicationId);
         DeveloperFileUtils.deleteDir(projectPath);
         LOGGER.info("Delete project {} success.", applicationId);
-        return Either.right(true);
+        return true;
     }
 
     @Override
@@ -187,7 +185,7 @@ public class ApplicationServiceImpl implements ApplicationService {
     }
 
     @Override
-    public Either<FormatRespDto, Boolean> modifyApplicationDetail(String applicationId,
+    public Boolean modifyApplicationDetail(String applicationId,
         ApplicationDetail applicationDetail) {
         Application application = applicationMapper.getApplicationById(applicationId);
         if (application == null) {
@@ -210,25 +208,28 @@ public class ApplicationServiceImpl implements ApplicationService {
                 .modifyAppConfiguration(applicationId, applicationDetail.getContainerApp().getAppConfiguration());
             //todo modify helmchart
         }
-        return Either.right(true);
+        return true;
 
     }
 
     @Override
-    public Either<FormatRespDto, UploadedFile> uploadIconFile(MultipartFile uploadFile) {
+    public UploadedFile uploadIconFile(MultipartFile uploadFile) {
         LOGGER.info("Start uploading file");
         String fileName = uploadFile.getOriginalFilename();
         String userId = AccessUserUtil.getUser().getUserId();
         Boolean iconTypeCheck = iconTypeCheck(fileName);
         if (!iconTypeCheck) {
-            return Either.left(new FormatRespDto(Status.BAD_REQUEST, "File type is error."));
+            LOGGER.error("File type is error.");
+            throw new DeveloperException("File type is error.", ResponseConsts.DELETE_DATA_FAILED);
         }
 
         UploadedFile result = uploadServiceImpl.saveFileToLocal(uploadFile, userId);
         if (result == null) {
-            return Either.left(new FormatRespDto(Status.BAD_REQUEST, "Failed to save file."));
+            LOGGER.error("File type is error.");
+            throw new DeveloperException("File type is error.", ResponseConsts.DELETE_DATA_FAILED);
         }
-        return Either.right(result);
+        LOGGER.error("File type is error.");
+        throw new DeveloperException("File type is error.", ResponseConsts.DELETE_DATA_FAILED);
     }
 
     private Boolean iconTypeCheck(String fileName) {

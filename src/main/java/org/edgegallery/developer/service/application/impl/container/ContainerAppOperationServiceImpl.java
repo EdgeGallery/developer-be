@@ -15,21 +15,19 @@
  */
 package org.edgegallery.developer.service.application.impl.container;
 
-import org.edgegallery.developer.response.FormatRespDto;
 import org.edgegallery.developer.service.application.container.ContainerAppOperationService;
 import org.edgegallery.developer.service.application.impl.AppOperationServiceImpl;
 import org.springframework.stereotype.Service;
-import com.spencerwi.either.Either;
 @Service("containerAppActionService")
 public class ContainerAppOperationServiceImpl extends AppOperationServiceImpl implements ContainerAppOperationService {
 
     @Override
-    public Either<FormatRespDto, Boolean> instantiateContainerApp(String applicationId) {
+    public Boolean instantiateContainerApp(String applicationId) {
         return null;
     }
 
     @Override
-    public Either<FormatRespDto, Boolean> getContainerDetail(String applicationId) {
+    public Boolean getContainerDetail(String applicationId) {
         return null;
     }
 }

@@ -17,17 +17,14 @@ package org.edgegallery.developer.service.application.impl.container;
 
 import java.util.List;
 import org.edgegallery.developer.model.application.container.HelmChart;
-import org.edgegallery.developer.response.FormatRespDto;
-import org.edgegallery.developer.response.HelmTemplateYamlRespDto;
 import org.edgegallery.developer.service.application.container.ContainerAppHelmChartService;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import com.spencerwi.either.Either;
 @Service("containerAppHelmChartService")
 public class ContainerAppHelmChartServiceImpl implements ContainerAppHelmChartService {
 
     @Override
-    public Either<FormatRespDto, Boolean> uploadHelmChartYaml(MultipartFile helmTemplateYaml, String applicationId) {
+    public Boolean uploadHelmChartYaml(MultipartFile helmTemplateYaml, String applicationId) {
         // upload helm chart yaml
         return null;
     }
@@ -43,7 +40,7 @@ public class ContainerAppHelmChartServiceImpl implements ContainerAppHelmChartSe
     }
 
     @Override
-    public Either<FormatRespDto, Boolean> deleteHelmChartById(String applicationId, String id) {
+    public Boolean deleteHelmChartById(String applicationId, String id) {
         return null;
     }
 }

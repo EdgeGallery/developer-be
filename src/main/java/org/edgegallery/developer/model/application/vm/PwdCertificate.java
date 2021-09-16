@@ -25,4 +25,8 @@ import lombok.ToString;
 @Setter
 @ToString
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class PwdCertificate { }
+public class PwdCertificate {
+
+    private String password;
+    private String username;
+}

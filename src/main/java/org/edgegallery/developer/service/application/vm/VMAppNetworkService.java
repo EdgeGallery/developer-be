@@ -22,13 +22,13 @@ import com.spencerwi.either.Either;
 
 public interface VMAppNetworkService {
 
-    Either<FormatRespDto, Network> createNetwork(String applicationId, Network network);
+    Network createNetwork(String applicationId, Network network);
 
     List<Network> getAllNetwork(String applicationId);
 
     Network getNetwork(String applicationId, String networkId);
 
-    Either<FormatRespDto, Boolean> modifyNetwork(String applicationId, String networkId, Network network);
+    Boolean modifyNetwork(String applicationId, String networkId, Network network);
 
-    Either<FormatRespDto, Boolean> deleteNetwork(String applicationId, String networkId);
+    Boolean deleteNetwork(String applicationId, String networkId);
 }

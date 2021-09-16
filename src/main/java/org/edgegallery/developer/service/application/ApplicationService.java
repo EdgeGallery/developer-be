@@ -19,10 +19,8 @@ import org.edgegallery.developer.domain.shared.Page;
 import org.edgegallery.developer.model.application.Application;
 import org.edgegallery.developer.model.restful.ApplicationDetail;
 import org.edgegallery.developer.model.workspace.UploadedFile;
-import org.edgegallery.developer.response.FormatRespDto;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-import com.spencerwi.either.Either;
 
 public interface ApplicationService {
 
@@ -33,7 +31,7 @@ public interface ApplicationService {
      * @return
      */
     @Transactional
-    public Either<FormatRespDto, Application> createApplication(Application application);
+    public Application createApplication(Application application);
 
     /**
      * get a application
@@ -51,7 +49,7 @@ public interface ApplicationService {
      * @return
      */
     @Transactional
-    Either<FormatRespDto, Boolean> modifyApplication(String applicationId, Application application);
+    Boolean modifyApplication(String applicationId, Application application);
 
     /**
      * get a application
@@ -67,11 +65,11 @@ public interface ApplicationService {
      * @return
      */
     @Transactional
-    Either<FormatRespDto, Boolean> deleteApplication(String applicationId);
+    Boolean deleteApplication(String applicationId);
 
     ApplicationDetail getApplicationDetail(String applicationId);
 
-    Either<FormatRespDto, Boolean> modifyApplicationDetail(String applicationId, ApplicationDetail applicationDetail);
+    Boolean modifyApplicationDetail(String applicationId, ApplicationDetail applicationDetail);
 
-    Either<FormatRespDto, UploadedFile> uploadIconFile(MultipartFile uploadFile);
+    UploadedFile uploadIconFile(MultipartFile uploadFile);
 }

@@ -24,11 +24,11 @@ import com.spencerwi.either.Either;
 
 public interface ContainerAppHelmChartService {
 
-    Either<FormatRespDto, Boolean> uploadHelmChartYaml(MultipartFile helmTemplateYaml, String applicationId);
+    Boolean uploadHelmChartYaml(MultipartFile helmTemplateYaml, String applicationId);
 
     List<HelmChart> getHelmChartList(String applicationId);
 
     HelmChart getHelmChartById(String applicationId, String id);
 
-    Either<FormatRespDto, Boolean> deleteHelmChartById(String applicationId, String id);
+    Boolean deleteHelmChartById(String applicationId, String id);
 }
