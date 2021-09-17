@@ -128,6 +128,14 @@
         where image_id=#{imageId} and user_id =#{userId}
     </update>
 
+    <update id="updateContainerImage" parameterType="org.edgegallery.developer.model.containerimage.ContainerImage">
+        update tbl_container_image
+        set image_name=#{imageName},image_version=#{imageVersion},user_id=#{userId},
+        user_name=#{userName},upload_time=#{uploadTime},create_time=#{createTime},
+        image_status=#{imageStatus},image_type=#{imageType},image_path=#{imagePath},
+        file_name=#{fileName} where image_id=#{oldImageId}
+    </update>
+
     <delete id="deleteContainerImageById" parameterType="java.lang.String">
         delete from tbl_container_image where image_id=#{imageId}
     </delete>
