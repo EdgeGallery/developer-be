@@ -174,7 +174,7 @@ public class ResponseConsts {
     /**
      * create container image, param check failed exist empty param.
      */
-    public static final int RET_CREATE_CONTAINER_IMAGE_CHECK_PARAM_FAILED = 20032;
+    public static final int RET_CREATE_CONTAINER_IMAGE_PARAM_INVALID = 20032;
 
     /**
      * create container image, param check failed exist same name and version.
@@ -197,14 +197,14 @@ public class ResponseConsts {
     public static final int RET_DEL_CONTAINER_IMAGE_FAILED = 20036;
 
     /**
-     * download container image failed.
+     * download container image param check failed.
      */
-    public static final int RET_DOWNLOAD_CONTAINER_IMAGE_FAILED = 20037;
+    public static final int RET_DOWNLOAD_CONTAINER_IMAGE_PARAM_INVALID = 20037;
 
     /**
-     * upload container image update status failed.
+     * download container image failed.
      */
-    public static final int RET_UPDATE_CONTAINER_IMAGE_STATUS_FAILED = 20038;
+    public static final int RET_DOWNLOAD_CONTAINER_IMAGE_INTERNAL_ERROR = 20038;
 
     /**
      * upload container image  failed.
@@ -252,26 +252,6 @@ public class ResponseConsts {
     public static final int MODIFY_DATA_FAILED = 20046;
 
     /**
-     * query data  failed.
-     */
-    public static final int QUERY_DATA_FAILED = 20054;
-
-    /**
-     * application is not exited.
-     */
-    public static final int APPLICATION_NOT_EXIT = 20055;
-
-    /**
-     * application is not exited.
-     */
-    public static final int VIRTUAL_MACHINE_NOT_EXIT = 20056;
-
-    /**
-     * instantiate vm app fail.
-     */
-    public static final int INSTANTIATE_VM_FAIL = 20056;
-
-    /**
      * icon file is null.
      */
     public static final int ICON_FILE_NULL = 20047;
@@ -305,5 +285,45 @@ public class ResponseConsts {
      * Create host failed, config file error.
      */
     public static final int CREATE_HOST_CONFIG_FILE_ERROR = 20053;
+
+    /**
+     * query mep host failed.
+     */
+    public static final int MEP_HOST_NOT_EXIST = 20054;
+
+    /**
+     * application is not exited.
+     */
+    public static final int APPLICATION_NOT_EXIT = 20055;
+
+    /**
+     * application is not exited.
+     */
+    public static final int VIRTUAL_MACHINE_NOT_EXIT = 20056;
+
+    /**
+     * instantiate vm app fail.
+     */
+    public static final int INSTANTIATE_VM_FAIL = 20057;
+
+    /**
+     * query uploaded file failed.
+     */
+    public static final int UPLOADED_FILE_NOT_EXIST = 20058;
+
+    /**
+     * move uploaded file to workspace failed.
+     */
+    public static final int MOVE_UPLOADED_FILE_FAILED = 20059;
+
+    /**
+     * get uploaded file  failed.
+     */
+    public static final int GET_UPLOADED_FILE_FAILED = 20060;
+
+    /**
+     * save uploaded file  failed.
+     */
+    public static final int SAVE_UPLOADED_FILE_FAILED = 20061;
 
 }

@@ -684,7 +684,7 @@
     "status" varchar(255) DEFAULT NULL,
     "error_msg" text DEFAULT NULL,
     "update_time" timestamptz(6)  DEFAULT NULL,
-    CONSTRAINT "tbl_action_status_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "tbl_operation_status_pkey" PRIMARY KEY ("id")
     );
 
     CREATE TABLE IF NOT EXISTS "tbl_action_status" (

@@ -47,6 +47,8 @@ import org.edgegallery.developer.common.ResponseConsts;
 import org.edgegallery.developer.config.security.AccessUserUtil;
 import org.edgegallery.developer.domain.shared.Page;
 import org.edgegallery.developer.exception.DeveloperException;
+import org.edgegallery.developer.exception.FileOperateException;
+import org.edgegallery.developer.exception.IllegalRequestException;
 import org.edgegallery.developer.mapper.image.ContainersImageMapper;
 import org.edgegallery.developer.model.Chunk;
 import org.edgegallery.developer.model.containerimage.ContainerImage;
@@ -119,19 +121,19 @@ public class ContainerImageServiceImpl implements ContainerImageService {
             boolean isMultipart = ServletFileUpload.isMultipartContent(request);
             if (!isMultipart) {
                 LOGGER.error("upload request is invalid.");
-                throw new DeveloperException("upload request is invalid", ResponseConsts.RET_REQUEST_INVALID);
+                throw new IllegalRequestException("upload request is invalid", ResponseConsts.RET_REQUEST_INVALID);
             }
 
             MultipartFile file = chunk.getFile();
             if (file == null) {
                 LOGGER.error("there is no needed file");
-                throw new DeveloperException("there is no needed file", ResponseConsts.RET_NO_NEEDED_FILE);
+                throw new IllegalRequestException("there is no needed file", ResponseConsts.RET_NO_NEEDED_FILE);
             }
 
             Integer chunkNumber = chunk.getChunkNumber();
             if (chunkNumber == null) {
                 LOGGER.error("invalid chunk number.");
-                throw new DeveloperException("invalid chunk number", ResponseConsts.RET_CHUNK_NUMBER_INVALID);
+                throw new IllegalRequestException("invalid chunk number", ResponseConsts.RET_CHUNK_NUMBER_INVALID);
             }
 
             LOGGER.info("save file to local directory.");
@@ -142,7 +144,7 @@ public class ContainerImageServiceImpl implements ContainerImageService {
                 if (!isMk) {
                     String mkErr = "create temporary upload path failed";
                     LOGGER.error(mkErr);
-                    throw new DeveloperException(mkErr, ResponseConsts.RET_TEMPORARY_PATH_FAILED);
+                    throw new FileOperateException(mkErr, ResponseConsts.RET_TEMPORARY_PATH_FAILED);
                 }
             }
 
@@ -153,7 +155,7 @@ public class ContainerImageServiceImpl implements ContainerImageService {
         } catch (IOException e) {
             String errMsg = "upload container image file exception.";
             LOGGER.error(errMsg);
-            throw new DeveloperException(errMsg, ResponseConsts.RET_UPLOAD_CONTAINER_IMAGE_FAILED);
+            throw new FileOperateException(errMsg, ResponseConsts.RET_UPLOAD_CONTAINER_IMAGE_FAILED);
         }
     }
 
@@ -174,14 +176,14 @@ public class ContainerImageServiceImpl implements ContainerImageService {
             File partFileDir = new File(partFilePath);
             if (!partFileDir.exists() || !partFileDir.isDirectory()) {
                 LOGGER.error("uploaded part file path not found!");
-                throw new DeveloperException("uploaded part file path not found",
+                throw new FileOperateException("uploaded part file path not found",
                     ResponseConsts.RET_FILE_PATH_NOT_FOUND);
             }
 
             File[] partFiles = partFileDir.listFiles();
             if (partFiles == null || partFiles.length == 0) {
                 LOGGER.error("uploaded part file not found!");
-                throw new DeveloperException("uploaded part file not found", ResponseConsts.RET_FILE_NOT_FOUND);
+                throw new FileOperateException("uploaded part file not found", ResponseConsts.RET_FILE_NOT_FOUND);
             }
 
             File mergedFile = new File(rootDir + File.separator + fileName);
@@ -209,7 +211,7 @@ public class ContainerImageServiceImpl implements ContainerImageService {
             if (!pushImageToRepo(mergedFile, rootDir, projectName, imageId, fileName)) {
                 String errMsg = "push image to repo failed!";
                 LOGGER.error(errMsg);
-                throw new DeveloperException(errMsg, ResponseConsts.RET_PROCESS_MERGED_FILE_EXCEPTION);
+                throw new FileOperateException(errMsg, ResponseConsts.RET_PROCESS_MERGED_FILE_EXCEPTION);
             }
             File uploadPath = new File(rootDir);
             FileUtils.cleanDirectory(uploadPath);
@@ -218,7 +220,7 @@ public class ContainerImageServiceImpl implements ContainerImageService {
         } catch (IOException e) {
             String errorMsg = "process merged file occur exception!";
             LOGGER.error("process merged file exception! {}", e.getMessage());
-            throw new DeveloperException(errorMsg, ResponseConsts.RET_PROCESS_MERGED_FILE_EXCEPTION);
+            throw new FileOperateException(errorMsg, ResponseConsts.RET_PROCESS_MERGED_FILE_EXCEPTION);
         }
     }
 
@@ -229,7 +231,7 @@ public class ContainerImageServiceImpl implements ContainerImageService {
      * @return
      */
     @Override
-    public Either<FormatRespDto, ContainerImage> createContainerImage(ContainerImage containerImage) {
+    public ContainerImage createContainerImage(ContainerImage containerImage) {
         String imageName = containerImage.getImageName();
         String imageVersion = containerImage.getImageVersion();
         String userId = containerImage.getUserId();
@@ -239,7 +241,7 @@ public class ContainerImageServiceImpl implements ContainerImageService {
             String errorMsg
                 = "The required parameter is empty. pls check imageName or imageVersion or userId or userName";
             LOGGER.error(errorMsg);
-            throw new DeveloperException(errorMsg, ResponseConsts.RET_CREATE_CONTAINER_IMAGE_CHECK_PARAM_FAILED);
+            throw new IllegalRequestException(errorMsg, ResponseConsts.RET_CREATE_CONTAINER_IMAGE_PARAM_INVALID);
         }
         //keep imageName imageVersion unique
         List<ContainerImage> imageList = containerImageMapper.getAllImage();
@@ -249,7 +251,7 @@ public class ContainerImageServiceImpl implements ContainerImageService {
                     .equals(image.getUserName())) {
                     String errorMsg = "exist the same imageName";
                     LOGGER.error(errorMsg);
-                    throw new DeveloperException(errorMsg, ResponseConsts.RET_EXIST_SAME_NAME_AND_VERSION);
+                    throw new IllegalRequestException(errorMsg, ResponseConsts.RET_EXIST_SAME_NAME_AND_VERSION);
                 }
             }
         }
@@ -264,7 +266,7 @@ public class ContainerImageServiceImpl implements ContainerImageService {
         }
         LOGGER.info("create ContainerImage success");
         ContainerImage queryImage = containerImageMapper.getContainerImage(containerImage.getImageId());
-        return Either.right(queryImage);
+        return queryImage;
     }
 
     /**
@@ -303,14 +305,14 @@ public class ContainerImageServiceImpl implements ContainerImageService {
      * @return
      */
     @Override
-    public Either<FormatRespDto, ContainerImage> updateContainerImage(String imageId, ContainerImage containerImage) {
+    public ContainerImage updateContainerImage(String imageId, ContainerImage containerImage) {
         String loginUserId = AccessUserUtil.getUser().getUserId();
         ContainerImage oldImage = containerImageMapper.getContainerImage(imageId);
         String oldUserId = oldImage.getUserId();
         if (StringUtils.isNotEmpty(oldUserId) && !loginUserId.equals(oldImage.getUserId())) {
             String errorMsg = "Cannot modify data created by others";
             LOGGER.error(errorMsg);
-            throw new DeveloperException(errorMsg, ResponseConsts.RET_UPDATE_IMAGE_AUTH_CHECK_FAILED);
+            throw new IllegalRequestException(errorMsg, ResponseConsts.RET_UPDATE_IMAGE_AUTH_CHECK_FAILED);
         }
         String type = containerImage.getImageType();
         int retCode = 0;
@@ -324,7 +326,7 @@ public class ContainerImageServiceImpl implements ContainerImageService {
         }
         LOGGER.info("update ContainerImage type success");
         ContainerImage queryImage = containerImageMapper.getContainerImage(imageId);
-        return Either.right(queryImage);
+        return queryImage;
     }
 
     /**
@@ -334,7 +336,7 @@ public class ContainerImageServiceImpl implements ContainerImageService {
      * @return
      */
     @Override
-    public Either<FormatRespDto, Boolean> deleteContainerImage(String imageId) {
+    public Boolean deleteContainerImage(String imageId) {
         String loginUserId = AccessUserUtil.getUser().getUserId();
         ContainerImage oldImage = containerImageMapper.getContainerImage(imageId);
         int retCode;
@@ -342,7 +344,7 @@ public class ContainerImageServiceImpl implements ContainerImageService {
         if (!SystemImageUtil.isAdminUser() && !loginUserId.equals(oldImage.getUserId())) {
             String errorMsg = "Cannot delete data created by others";
             LOGGER.error(errorMsg);
-            throw new DeveloperException(errorMsg, ResponseConsts.RET_UPDATE_IMAGE_AUTH_CHECK_FAILED);
+            throw new IllegalRequestException(errorMsg, ResponseConsts.RET_UPDATE_IMAGE_AUTH_CHECK_FAILED);
         }
         isDel = ContainerImageUtil.deleteImage(oldImage.getImagePath(), oldImage.getUserName());
         retCode = containerImageMapper.deleteContainerImageById(imageId);
@@ -354,7 +356,7 @@ public class ContainerImageServiceImpl implements ContainerImageService {
             throw new DeveloperException(errorMsg, ResponseConsts.RET_DEL_CONTAINER_IMAGE_FAILED);
         }
         LOGGER.info("delete ContainerImage success");
-        return Either.right(true);
+        return true;
     }
 
     /**
@@ -367,19 +369,19 @@ public class ContainerImageServiceImpl implements ContainerImageService {
     public ResponseEntity<InputStreamResource> downloadHarborImage(String imageId) {
         if (StringUtils.isEmpty(imageId)) {
             LOGGER.error("imageId is null");
-            throw new DeveloperException("imageId is null", ResponseConsts.RET_DOWNLOAD_CONTAINER_IMAGE_FAILED);
+            throw new IllegalRequestException("imageId is null", ResponseConsts.RET_DOWNLOAD_CONTAINER_IMAGE_PARAM_INVALID);
         }
         ContainerImage containerImage = containerImageMapper.getContainerImage(imageId);
         if (containerImage == null) {
             LOGGER.error("imageId is incorrect");
-            throw new DeveloperException("imageId is incorrect", ResponseConsts.RET_DOWNLOAD_CONTAINER_IMAGE_FAILED);
+            throw new IllegalRequestException("imageId is incorrect", ResponseConsts.RET_DOWNLOAD_CONTAINER_IMAGE_PARAM_INVALID);
         }
         String image = containerImage.getImagePath();
         String fileName = containerImage.getFileName();
         if (StringUtils.isEmpty(image) || StringUtils.isEmpty(fileName)) {
             String msg = "image or fileName is empty";
             LOGGER.error(msg);
-            throw new DeveloperException(msg, ResponseConsts.RET_DOWNLOAD_CONTAINER_IMAGE_FAILED);
+            throw new IllegalRequestException(msg, ResponseConsts.RET_DOWNLOAD_CONTAINER_IMAGE_PARAM_INVALID);
         }
         try {
             DockerClientConfig config = DefaultDockerClientConfig.createDefaultConfigBuilder()
@@ -396,7 +398,7 @@ public class ContainerImageServiceImpl implements ContainerImageService {
             if (input == null) {
                 String msg = "save image  failed!";
                 LOGGER.error(msg);
-                throw new DeveloperException(msg, ResponseConsts.RET_DOWNLOAD_CONTAINER_IMAGE_FAILED);
+                throw new DeveloperException(msg, ResponseConsts.RET_DOWNLOAD_CONTAINER_IMAGE_INTERNAL_ERROR);
             }
             return ResponseEntity.ok().header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_OCTET_STREAM_VALUE)
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=" + fileName)
@@ -405,7 +407,7 @@ public class ContainerImageServiceImpl implements ContainerImageService {
             Thread.currentThread().interrupt();
             String msg = "download Harbor image occur exception!";
             LOGGER.error("download Harbor image failed! {}", e.getMessage());
-            throw new DeveloperException(msg, ResponseConsts.RET_DOWNLOAD_CONTAINER_IMAGE_FAILED);
+            throw new DeveloperException(msg, ResponseConsts.RET_DOWNLOAD_CONTAINER_IMAGE_INTERNAL_ERROR);
         }
     }
 
@@ -558,14 +560,12 @@ public class ContainerImageServiceImpl implements ContainerImageService {
         containerImage.setUserId(AccessUserUtil.getUser().getUserId());
         containerImage.setUserName(AccessUserUtil.getUser().getUserName());
         containerImage.setFileName(fileName);
-        Either<FormatRespDto, ContainerImage> either = createContainerImage(containerImage);
-        if (either.isLeft()) {
+        ContainerImage either = createContainerImage(containerImage);
+        if (either == null) {
             LOGGER.error("create harbor image db record failed!");
             return false;
         }
         return true;
     }
-
-
 
 }

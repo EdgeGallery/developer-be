@@ -83,8 +83,8 @@ public class ContainerImageCtl {
     @PreAuthorize("hasRole('DEVELOPER_ADMIN')|| hasRole('DEVELOPER_TENANT')")
     public ResponseEntity<ContainerImage> createContainerImage(
         @ApiParam(value = "ContainerImage", required = true) @RequestBody ContainerImage containerImage) {
-        Either<FormatRespDto, ContainerImage> either = containerImageService.createContainerImage(containerImage);
-        return ResponseDataUtil.buildResponse(either);
+        ContainerImage createImage = containerImageService.createContainerImage(containerImage);
+        return ResponseEntity.ok(createImage);
     }
 
     /**
@@ -120,9 +120,8 @@ public class ContainerImageCtl {
     public ResponseEntity<ContainerImage> modifyContainerImage(
         @ApiParam(value = "imageId", required = true) @PathVariable String imageId,
         @ApiParam(value = "ContainerImage", required = true) @RequestBody ContainerImage containerImage) {
-        Either<FormatRespDto, ContainerImage> either = containerImageService
-            .updateContainerImage(imageId, containerImage);
-        return ResponseDataUtil.buildResponse(either);
+        ContainerImage either = containerImageService.updateContainerImage(imageId, containerImage);
+        return ResponseEntity.ok(either);
     }
 
     /**
@@ -139,8 +138,8 @@ public class ContainerImageCtl {
     @PreAuthorize("hasRole('DEVELOPER_ADMIN')|| hasRole('DEVELOPER_TENANT')")
     public ResponseEntity<Boolean> deleteContainerImage(
         @ApiParam(value = "imageId", required = true) @PathVariable String imageId) {
-        Either<FormatRespDto, Boolean> either = containerImageService.deleteContainerImage(imageId);
-        return ResponseDataUtil.buildResponse(either);
+        Boolean either = containerImageService.deleteContainerImage(imageId);
+        return ResponseEntity.ok(either);
     }
 
     /**

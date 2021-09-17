@@ -23,7 +23,6 @@ import org.edgegallery.developer.mapper.OpenMepCapabilityMapper;
 import org.edgegallery.developer.mapper.ProjectImageMapper;
 import org.edgegallery.developer.mapper.ProjectMapper;
 import org.edgegallery.developer.mapper.UploadedFileMapper;
-import org.edgegallery.developer.mapper.uploadfile.UploadMapper;
 import org.edgegallery.developer.model.AppPkgStructure;
 import org.edgegallery.developer.model.GeneralConfig;
 import org.edgegallery.developer.model.resource.MepHost;
@@ -120,12 +119,12 @@ public class UploadServiceImpl implements UploadService {
         UploadedFile uploadedFile = uploadedFileMapper.getFileById(fileId);
         if (uploadedFile == null) {
             LOGGER.error("can not find file {} in db", fileId);
-            throw new DeveloperException("can not find file in db!", ResponseConsts.QUERY_DATA_FAILED);
+            throw new DeveloperException("can not find file in db!", ResponseConsts.UPLOADED_FILE_NOT_EXIST);
         }
         File file = new File(InitConfigUtil.getWorkSpaceBaseDir() + uploadedFile.getFilePath());
         if (!file.exists()) {
             LOGGER.error("can not find file {} in repository", fileId);
-            throw new DeveloperException("can not find file in repository!", ResponseConsts.QUERY_DATA_FAILED);
+            throw new DeveloperException("can not find file in repository!", ResponseConsts.UPLOADED_FILE_NOT_EXIST);
         }
         String fileName = uploadedFile.getFileName();
 
@@ -138,8 +137,7 @@ public class UploadServiceImpl implements UploadService {
             return Either.right(ResponseEntity.ok().headers(headers).body(fileData));
         } catch (IOException e) {
             LOGGER.error("Failed to get file stream: {}", e.getMessage());
-            FormatRespDto error = new FormatRespDto(Response.Status.BAD_REQUEST, "Failed to get file stream.");
-            return Either.left(error);
+            throw new DeveloperException("can not find file in repository!", ResponseConsts.GET_UPLOADED_FILE_FAILED);
         }
     }
 
@@ -167,7 +165,7 @@ public class UploadServiceImpl implements UploadService {
             File file = new File(InitConfigUtil.getWorkSpaceBaseDir() + uploadedFile.getFilePath());
             if (!file.exists()) {
                 LOGGER.error("can not find file {} in repository", fileId);
-                return Either.left(new FormatRespDto(Response.Status.BAD_REQUEST, "can not find file in repository."));
+                throw new DeveloperException("api file not exist!", ResponseConsts.UPLOADED_FILE_NOT_EXIST);
             }
         }
         return Either.right(uploadedFile);
@@ -178,7 +176,7 @@ public class UploadServiceImpl implements UploadService {
         LOGGER.info("Start uploading file");
         UploadedFile result = saveFileToLocal(uploadFile, userId);
         if (result == null) {
-            return Either.left(new FormatRespDto(Response.Status.BAD_REQUEST, "Failed to save file."));
+            throw new DeveloperException("Failed to save file.!", ResponseConsts.SAVE_UPLOADED_FILE_FAILED);
         }
         return Either.right(result);
     }
@@ -330,7 +328,8 @@ public class UploadServiceImpl implements UploadService {
         int saveResult = helmTemplateYamlMapper.saveYaml(helmTemplateYamlPo);
         if (saveResult <= 0) {
             LOGGER.error("Failed to save helm template yaml, file id : {}", fileId);
-            return Either.left(new FormatRespDto(Response.Status.INTERNAL_SERVER_ERROR, "Failed to save helm template yaml"));
+            return Either
+                .left(new FormatRespDto(Response.Status.INTERNAL_SERVER_ERROR, "Failed to save helm template yaml"));
         }
         helmTemplateYamlRespDto.setResponse(helmTemplateYamlPo);
         LOGGER.info("Succeed to save helm template yaml with file id : {}", fileId);
@@ -619,7 +618,7 @@ public class UploadServiceImpl implements UploadService {
         if (file == null || file.isTemp()) {
             uploadedFileMapper.updateFileStatus(srcId, true);
             LOGGER.error("Can not find file, please upload again.");
-            throw new DeveloperException("Can not find file", ResponseConsts.QUERY_DATA_FAILED);
+            throw new DeveloperException("Can not find file", ResponseConsts.UPLOADED_FILE_NOT_EXIST);
         }
         // get temp file
         String tempFilePath = InitConfigUtil.getWorkSpaceBaseDir() + BusinessConfigUtil.getUploadfilesPath() + srcId;
@@ -627,7 +626,7 @@ public class UploadServiceImpl implements UploadService {
         if (!tempFile.exists() || tempFile.isDirectory()) {
             uploadedFileMapper.updateFileStatus(srcId, true);
             LOGGER.error("Can not find file, please upload again.");
-            throw new DeveloperException("Can not find file", ResponseConsts.QUERY_DATA_FAILED);
+            throw new DeveloperException("Can not find file", ResponseConsts.UPLOADED_FILE_NOT_EXIST);
         }
         // move file
         File desFile = new File(DeveloperFileUtils.getAbsolutePath(applicationId) + srcId);
@@ -638,7 +637,7 @@ public class UploadServiceImpl implements UploadService {
         } catch (IOException e) {
             LOGGER.error("move icon file failed {}", e.getMessage());
             uploadedFileMapper.updateFileStatus(srcId, true);
-            throw new DeveloperException("Move icon file failed.", ResponseConsts.QUERY_DATA_FAILED);
+            throw new DeveloperException("Move icon file failed.", ResponseConsts.MOVE_UPLOADED_FILE_FAILED);
         }
     }
 
