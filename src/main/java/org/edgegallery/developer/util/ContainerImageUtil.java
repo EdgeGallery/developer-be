@@ -285,19 +285,12 @@ public final class ContainerImageUtil {
      */
     public static boolean retagAndPush(DockerClient dockerClient, String imageId, String projectName, String repoTags) {
         ImageConfig imageConfig = (ImageConfig) SpringContextUtil.getBean(ImageConfig.class);
-        String uploadImgName = "";
         String[] images = repoTags.split(":");
         String imageName = images[0];
         String imageVersion = images[1];
-        if (SystemImageUtil.isAdminUser()) {
-            uploadImgName = new StringBuilder(imageConfig.getDomainname()).append("/").append(imageConfig.getProject())
-                .append("/").append(imageName).toString();
-        } else {
-            uploadImgName = new StringBuilder(imageConfig.getDomainname()).append("/").append(projectName).append("/")
-                .append(imageName).toString();
-        }
-
-        //Mirror tagging，Repush
+        String uploadImgName = imageConfig.getDomainname() + "/" + projectName + "/" + imageName;
+        LOGGER.warn("uploadImgName: {}", uploadImgName);
+        //image retag,push
         if (!imageId.equals("")) {
             //tag image
             dockerClient.tagImageCmd(imageId, uploadImgName, imageVersion).withForce().exec();
@@ -372,6 +365,7 @@ public final class ContainerImageUtil {
                     .format(Consts.HARBOR_IMAGE_DELETE_URL, HARBOR_PROTOCOL, imageConfig.getDomainname(),
                         imageConfig.getProject(), imageName, imageVersion);
             } else {
+                userName = userName.replaceAll(Consts.PATTERN, "").toLowerCase();
                 deleteImageUrl = String
                     .format(Consts.HARBOR_IMAGE_DELETE_URL, HARBOR_PROTOCOL, imageConfig.getDomainname(), userName,
                         imageName, imageVersion);
