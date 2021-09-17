@@ -22,7 +22,7 @@ import org.edgegallery.developer.service.apppackage.AppPackageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-@Service("OperationService")
+@Service("AppPackageService")
 public class AppPackageServiceImpl implements AppPackageService {
 
     @Override
