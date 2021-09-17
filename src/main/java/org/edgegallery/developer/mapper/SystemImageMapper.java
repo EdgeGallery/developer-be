@@ -48,4 +48,6 @@ public interface SystemImageMapper {
     int updateSystemImageErrorType(@Param("systemId") Integer systemId, @Param("errorType") String errorType);
 
     void updateSystemImageUploadInfo(UploadFileInfo uploadFileInfo);
+
+    void updateSystemImageSlimStatus(@Param("systemId")Integer systemId, @Param("slimStatus")String slimStatus);
 }

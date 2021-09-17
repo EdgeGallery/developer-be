@@ -102,7 +102,7 @@ public class ResponseConsts {
     public static final int RET_ZIP_FILE_EXCEPTION = 20017;
 
     /**
-     * upload request is invalid.
+     *  request is invalid.
      */
     public static final int RET_REQUEST_INVALID = 20018;
 
@@ -325,5 +325,10 @@ public class ResponseConsts {
      * save uploaded file  failed.
      */
     public static final int SAVE_UPLOADED_FILE_FAILED = 20061;
+
+    /**
+     * Format check  failed.
+     */
+    public static final int FORMAT_CHECK_FAILED = 20061;
 
 }
