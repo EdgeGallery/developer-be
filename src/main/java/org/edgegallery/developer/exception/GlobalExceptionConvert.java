@@ -21,7 +21,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.ConstraintViolationException;
 import javax.ws.rs.core.Response;
 import org.apache.servicecomb.swagger.invocation.exception.InvocationException;
-import org.edgegallery.developer.domain.shared.exceptions.EntityNotFoundException;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
