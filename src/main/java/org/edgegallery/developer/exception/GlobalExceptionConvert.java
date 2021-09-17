@@ -181,4 +181,44 @@ public class GlobalExceptionConvert {
             .message(e.getErrorData().toString()).path(request.getRequestURI()).build();
     }
 
+    /**
+     * Handle RuntimeException.
+     *
+     */
+    @ExceptionHandler(value = IllegalRequestException.class)
+    @ResponseBody
+    public RestReturn illegalRequestException(HttpServletRequest request, IllegalRequestException e) {
+        return RestReturn.builder().code(Response.Status.BAD_REQUEST.getStatusCode())
+            .error(Response.Status.BAD_REQUEST.getReasonPhrase()).message(e.getMessage())
+            .path(request.getRequestURI()).retCode(e.getErrMsg().getRetCode())
+            .params(e.getErrMsg().getParams()).build();
+    }
+
+    /**
+     * Handle InternalException.
+     *
+     */
+    @ExceptionHandler(value = DeveloperException.class)
+    @ResponseBody
+    public RestReturn developerException(HttpServletRequest request, DeveloperException e) {
+        return RestReturn.builder().code(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode())
+            .error(Response.Status.INTERNAL_SERVER_ERROR.getReasonPhrase()).message(e.getMessage())
+            .path(request.getRequestURI()).retCode(e.getErrMsg().getRetCode())
+            .params(e.getErrMsg().getParams()).build();
+    }
+
+
+    /**
+     * Handle FileOperateException.
+     *
+     */
+    @ExceptionHandler(value = FileOperateException.class)
+    @ResponseBody
+    public RestReturn fileOperateException(HttpServletRequest request, FileOperateException e) {
+        return RestReturn.builder().code(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode())
+            .error(Response.Status.INTERNAL_SERVER_ERROR.getReasonPhrase()).message(e.getMessage())
+            .path(request.getRequestURI()).retCode(e.getErrMsg().getRetCode())
+            .params(e.getErrMsg().getParams()).build();
+    }
+
 }

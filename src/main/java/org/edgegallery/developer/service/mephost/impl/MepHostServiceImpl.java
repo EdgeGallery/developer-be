@@ -196,7 +196,7 @@ public class MepHostServiceImpl implements MepHostService {
         MepHost currentHost = mepHostMapper.getHost(hostId);
         if (currentHost == null) {
             LOGGER.error("Can not find host by {}", hostId);
-            throw new DeveloperException("Can not find the host!", ResponseConsts.QUERY_DATA_FAILED);
+            throw new DeveloperException("Can not find the host!", ResponseConsts.MEP_HOST_NOT_EXIST);
         }
 
         host.setId(hostId); // no need to set hostId by user
@@ -223,7 +223,7 @@ public class MepHostServiceImpl implements MepHostService {
             return Either.right(host);
         } else {
             LOGGER.error("Can not find host by {}", hostId);
-            throw new DeveloperException("can not find the host!", ResponseConsts.QUERY_DATA_FAILED);
+            throw new DeveloperException("can not find the host!", ResponseConsts.MEP_HOST_NOT_EXIST);
         }
     }
 
