@@ -23,7 +23,7 @@ import org.edgegallery.developer.mapper.OpenMepCapabilityMapper;
 import org.edgegallery.developer.mapper.ProjectImageMapper;
 import org.edgegallery.developer.mapper.ProjectMapper;
 import org.edgegallery.developer.mapper.UploadedFileMapper;
-import org.edgegallery.developer.model.AppPkgStructure;
+import org.edgegallery.developer.model.apppackage.AppPkgStructure;
 import org.edgegallery.developer.model.GeneralConfig;
 import org.edgegallery.developer.model.resource.MepHost;
 import org.edgegallery.developer.model.workspace.ApplicationProject;

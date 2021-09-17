@@ -14,27 +14,27 @@
  *    limitations under the License.
  */
 
-package org.edgegallery.developer.model;
+package org.edgegallery.developer.model.apppackage;
 
+import java.util.List;
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.ToString;
 
-@ToString
-@Getter
 @Setter
-public class AppPackageBasicInfo {
+@Getter
+@Data
+public class AppPkgStructure {
+    private String name;
 
-    private String appname;
+    private String id;
 
-    private String provider;
+    private List<AppPkgStructure> children;
 
-    private String version;
+    private boolean isParent = true;
 
-    private String format;
-
-    private String fileStructure;
-
-    private String detailContent;
+    public boolean isParent() {
+        return isParent;
+    }
 
 }

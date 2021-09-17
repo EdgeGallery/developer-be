@@ -19,7 +19,7 @@ package org.edgegallery.developer.unittest;
 import com.google.gson.Gson;
 import com.spencerwi.either.Either;
 import org.edgegallery.developer.DeveloperApplicationTests;
-import org.edgegallery.developer.model.AppPkgStructure;
+import org.edgegallery.developer.model.apppackage.AppPkgStructure;
 import org.edgegallery.developer.response.FormatRespDto;
 import org.edgegallery.developer.service.AppReleaseService;
 import org.edgegallery.developer.service.ProjectService;
