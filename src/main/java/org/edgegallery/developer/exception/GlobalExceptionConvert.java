@@ -165,7 +165,23 @@ public class GlobalExceptionConvert {
     public RestReturn fileNotFoundException(HttpServletRequest request, FileNotFoundException e) {
         return RestReturn.builder().code(Response.Status.NOT_FOUND.getStatusCode())
             .error(Response.Status.NOT_FOUND.getReasonPhrase()).message(e.getMessage()).path(request.getRequestURI())
-            .build();
+            .build()
+            ;
+
+    }
+
+    /**
+     * Handle FileNotFoundException.
+     *
+     * @return
+     */
+    @ExceptionHandler(value = FileFoundFailException.class)
+    @ResponseBody
+    public RestReturn fileFoundFailException(HttpServletRequest request, FileFoundFailException e) {
+        return RestReturn.builder().code(Response.Status.NOT_FOUND.getStatusCode())
+            .error(Response.Status.NOT_FOUND.getReasonPhrase()).message(e.getMessage())
+            .path(request.getRequestURI()).retCode(e.getErrMsg().getRetCode())
+            .params(e.getErrMsg().getParams()).build();
 
     }
 
