@@ -37,6 +37,8 @@ public class UploadFileInfo {
 
     private String fileFormat;
 
+    private Integer fileSize;
+
     private String status;
 
     private String systemPath;
@@ -65,6 +67,22 @@ public class UploadFileInfo {
         setFileName(fileName);
         setFileMd5(fileMd5);
         setFileFormat(fileFormat);
+    }
+
+    /**
+     * constructor.
+     *
+     * @param fileName File Name
+     * @param fileMd5 File Md5
+     * @param fileFormat File Format
+     * @param fileSize File size
+     */
+    public UploadFileInfo(String fileName, String fileMd5, String fileFormat, int fileSize) {
+        this.succeeded = true;
+        setFileName(fileName);
+        setFileMd5(fileMd5);
+        setFileFormat(fileFormat);
+        setFileSize(fileSize);
     }
 
     /**

@@ -793,4 +793,23 @@ public final class HttpClientUtil {
         return false;
 
     }
+
+    public static boolean imageSlim(String url) {
+        HttpHeaders headers = new HttpHeaders();
+        HttpEntity<String> requestEntity = new HttpEntity<>(headers);
+        ResponseEntity<String> response;
+        try {
+            REST_TEMPLATE.setErrorHandler(new CustomResponseErrorHandler());
+            response = REST_TEMPLATE.exchange(url, HttpMethod.POST, requestEntity, String.class);
+        } catch (RestClientException e) {
+            LOGGER.error("image slim fail exception {}", e.getMessage());
+            return false;
+        }
+        if (response.getStatusCode() == HttpStatus.OK) {
+            LOGGER.info("image slim  success, resp = {}", response);
+            return true;
+        }
+        LOGGER.error("image slim fail!");
+        return false;
+    }
 }
