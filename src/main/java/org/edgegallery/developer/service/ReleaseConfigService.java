@@ -106,6 +106,9 @@ public class ReleaseConfigService {
     @Autowired
     private VmConfigMapper vmConfigMapper;
 
+    @Autowired
+    private EncryptedService encryptedService;
+
     /**
      * saveConfig.
      */
@@ -368,7 +371,8 @@ public class ReleaseConfigService {
                 }
             }
         }
-
+        encryptedService.encryptedFile(csarFilePath);
+        encryptedService.encryptedCMS(csarFilePath);
         // compress csar
         try {
             CompressFileUtilsJava.compressToCsarAndDeleteSrc(csarFilePath, projectPath, config.getAppInstanceId());
