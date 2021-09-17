@@ -25,9 +25,7 @@ import javax.validation.constraints.Pattern;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.edgegallery.developer.model.operation.OperationStatus;
 import org.edgegallery.developer.response.ErrorRespDto;
-import org.edgegallery.developer.service.application.ApplicationService;
 import org.edgegallery.developer.service.application.OperationStatusService;
-import org.edgegallery.developer.service.application.factory.AppOperationServiceFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -43,10 +41,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 @RequestMapping("/mec/developer/v2/operations")
 @Api(tags = "Operation")
 @Validated
-public class OperationCtl {
+public class OperationStatusCtl {
     private static final String REGEX_UUID = "[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}";
-
-    private AppOperationServiceFactory appServiceFactory = new AppOperationServiceFactory();
 
     @Autowired
     private OperationStatusService operationStatusService;

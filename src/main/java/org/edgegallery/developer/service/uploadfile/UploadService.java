@@ -2,7 +2,7 @@ package org.edgegallery.developer.service.uploadfile;
 
 import com.spencerwi.either.Either;
 import java.util.List;
-import org.edgegallery.developer.model.AppPkgStructure;
+import org.edgegallery.developer.model.apppackage.AppPkgStructure;
 import org.edgegallery.developer.model.workspace.UploadedFile;
 import org.edgegallery.developer.response.FormatRespDto;
 import org.edgegallery.developer.response.HelmTemplateYamlRespDto;

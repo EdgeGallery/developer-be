@@ -21,7 +21,6 @@ import com.spencerwi.either.Either;
 import java.util.ArrayList;
 import java.util.List;
 import org.edgegallery.developer.controller.MepCapabilityController;
-import org.edgegallery.developer.model.AppPkgStructure;
 import org.edgegallery.developer.model.workspace.EnumOpenMepType;
 import org.edgegallery.developer.model.workspace.OpenMepCapability;
 import org.edgegallery.developer.model.workspace.OpenMepCapabilityGroup;

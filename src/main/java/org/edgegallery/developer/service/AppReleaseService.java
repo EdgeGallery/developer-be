@@ -23,7 +23,7 @@ import java.util.List;
 
 import javax.ws.rs.core.Response;
 
-import org.edgegallery.developer.model.AppPkgStructure;
+import org.edgegallery.developer.model.apppackage.AppPkgStructure;
 import org.edgegallery.developer.response.FormatRespDto;
 import org.edgegallery.developer.util.BusinessConfigUtil;
 import org.edgegallery.developer.util.FileUtil;
