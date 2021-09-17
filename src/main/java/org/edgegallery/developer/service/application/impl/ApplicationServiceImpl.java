@@ -18,15 +18,19 @@ package org.edgegallery.developer.service.application.impl;
 
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
-import javax.ws.rs.core.Response.Status;
 import org.edgegallery.developer.common.ResponseConsts;
 import org.edgegallery.developer.config.security.AccessUserUtil;
 import org.edgegallery.developer.domain.shared.FileChecker;
 import org.edgegallery.developer.domain.shared.Page;
 import org.edgegallery.developer.exception.DeveloperException;
+import org.edgegallery.developer.exception.EntityNotFoundException;
+import org.edgegallery.developer.exception.FileFoundFailException;
+import org.edgegallery.developer.exception.FileOperateException;
+import org.edgegallery.developer.exception.IllegalRequestException;
 import org.edgegallery.developer.mapper.application.ApplicationMapper;
 import org.edgegallery.developer.mapper.application.vm.NetworkMapper;
 import org.edgegallery.developer.mapper.application.vm.VMMapper;
@@ -39,7 +43,6 @@ import org.edgegallery.developer.model.application.vm.VMApplication;
 import org.edgegallery.developer.model.application.vm.VirtualMachine;
 import org.edgegallery.developer.model.restful.ApplicationDetail;
 import org.edgegallery.developer.model.workspace.UploadedFile;
-import org.edgegallery.developer.response.FormatRespDto;
 import org.edgegallery.developer.service.ProjectService;
 import org.edgegallery.developer.service.application.ApplicationService;
 import org.edgegallery.developer.service.uploadfile.impl.UploadServiceImpl;
@@ -76,8 +79,7 @@ public class ApplicationServiceImpl implements ApplicationService {
         try {
             DeveloperFileUtils.deleteAndCreateDir(projectPath);
         } catch (IOException e1) {
-            FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "Create project path failed.");
-            throw new DeveloperException("Create project path failed.", ResponseConsts.DELETE_DATA_FAILED);
+            throw new FileOperateException("Create project path failed.", ResponseConsts.DELETE_DATA_FAILED);
         }
         application.setId(applicationId);
         application.setUserId(AccessUserUtil.getUser().getUserId());
@@ -86,7 +88,7 @@ public class ApplicationServiceImpl implements ApplicationService {
         application.setStatus(EnumApplicationStatus.ONLINE);
         if (iconFileId == null) {
             LOGGER.error("icon file is null");
-            throw new DeveloperException("icon file is null", ResponseConsts.ICON_FILE_NULL);
+            throw new FileFoundFailException("icon file is null", ResponseConsts.ICON_FILE_NULL);
         }
         uploadServiceImpl.moveFileToWorkSpaceById(iconFileId, applicationId);
         // init network
@@ -150,7 +152,7 @@ public class ApplicationServiceImpl implements ApplicationService {
         int delResult = applicationMapper.deleteApplication(applicationId);
         if (delResult < 1) {
             LOGGER.error("Can not find project by applicationId:{}.", applicationId);
-            throw new DeveloperException("Can not find project", ResponseConsts.DELETE_DATA_FAILED);
+            throw new EntityNotFoundException("Can not find project", ResponseConsts.DELETE_DATA_FAILED);
         }
         // delete files of project
         String projectPath = DeveloperFileUtils.getAbsolutePath(applicationId);
@@ -165,7 +167,7 @@ public class ApplicationServiceImpl implements ApplicationService {
         Application application = applicationMapper.getApplicationById(applicationId);
         if (application == null) {
             LOGGER.error("Can not find project by applicationId:{}.", applicationId);
-            throw new DeveloperException("Can not find project", ResponseConsts.DELETE_DATA_FAILED);
+            throw new EntityNotFoundException("Can not find project", ResponseConsts.DELETE_DATA_FAILED);
         }
         if (application.getAppClass() == EnumAppClass.VM) {
             VMApplication vmApplication = new VMApplication(application);
@@ -190,7 +192,7 @@ public class ApplicationServiceImpl implements ApplicationService {
         Application application = applicationMapper.getApplicationById(applicationId);
         if (application == null) {
             LOGGER.error("Can not find project by applicationId:{}.", applicationId);
-            throw new DeveloperException("Can not find project", ResponseConsts.DELETE_DATA_FAILED);
+            throw new EntityNotFoundException("Can not find project", ResponseConsts.DELETE_DATA_FAILED);
         }
         if (application.getAppClass() == EnumAppClass.VM) {
             applicationMapper.modifyApplication(applicationDetail.getVmApp());
@@ -220,16 +222,15 @@ public class ApplicationServiceImpl implements ApplicationService {
         Boolean iconTypeCheck = iconTypeCheck(fileName);
         if (!iconTypeCheck) {
             LOGGER.error("File type is error.");
-            throw new DeveloperException("File type is error.", ResponseConsts.DELETE_DATA_FAILED);
+            throw new IllegalRequestException("File type is error.", ResponseConsts.FORMAT_CHECK_FAILED);
         }
 
         UploadedFile result = uploadServiceImpl.saveFileToLocal(uploadFile, userId);
         if (result == null) {
-            LOGGER.error("File type is error.");
-            throw new DeveloperException("File type is error.", ResponseConsts.DELETE_DATA_FAILED);
+            LOGGER.error("File save to db fail.");
+            throw new DeveloperException("File save to db fail.", ResponseConsts.SAVE_UPLOADED_FILE_FAILED);
         }
-        LOGGER.error("File type is error.");
-        throw new DeveloperException("File type is error.", ResponseConsts.DELETE_DATA_FAILED);
+        return result;
     }
 
     private Boolean iconTypeCheck(String fileName) {

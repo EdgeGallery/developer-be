@@ -197,6 +197,7 @@ public class ContainerImageServiceImpl implements ContainerImageService {
             //create repo by current user id
             String userName = AccessUserUtil.getUser().getUserName();
             String projectName = userName.replaceAll(Consts.PATTERN, "").toLowerCase();
+
             // judge user private harbor repo is exist
             boolean isExist = ContainerImageUtil.isExist(projectName);
             if (!isExist && !SystemImageUtil.isAdminUser()) {
