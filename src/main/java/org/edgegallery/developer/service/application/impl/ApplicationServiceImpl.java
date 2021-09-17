@@ -41,7 +41,9 @@ import org.edgegallery.developer.model.restful.ApplicationDetail;
 import org.edgegallery.developer.model.workspace.UploadedFile;
 import org.edgegallery.developer.response.FormatRespDto;
 import org.edgegallery.developer.service.ProjectService;
+import org.edgegallery.developer.service.application.AppConfigurationService;
 import org.edgegallery.developer.service.application.ApplicationService;
+import org.edgegallery.developer.service.uploadfile.UploadService;
 import org.edgegallery.developer.service.uploadfile.impl.UploadServiceImpl;
 import org.edgegallery.developer.util.DeveloperFileUtils;
 import org.slf4j.Logger;
@@ -55,7 +57,7 @@ public class ApplicationServiceImpl implements ApplicationService {
     private static final Logger LOGGER = LoggerFactory.getLogger(ProjectService.class);
 
     @Autowired
-    private UploadServiceImpl uploadServiceImpl;
+    private UploadService uploadService;
 
     @Autowired
     private ApplicationMapper applicationMapper;
@@ -67,7 +69,7 @@ public class ApplicationServiceImpl implements ApplicationService {
     private VMMapper vmMapper;
 
     @Autowired
-    AppConfigurationServiceImpl AppConfigurationServiceImpl;
+    AppConfigurationService appConfigurationService;
 
     @Override
     public Application createApplication(Application application) {
@@ -88,7 +90,7 @@ public class ApplicationServiceImpl implements ApplicationService {
             LOGGER.error("icon file is null");
             throw new DeveloperException("icon file is null", ResponseConsts.ICON_FILE_NULL);
         }
-        uploadServiceImpl.moveFileToWorkSpaceById(iconFileId, applicationId);
+        uploadService.moveFileToWorkSpaceById(iconFileId, applicationId);
         // init network
         initNetwork(applicationId);
 
@@ -109,7 +111,7 @@ public class ApplicationServiceImpl implements ApplicationService {
             int res = networkMapper.createNetwork(applicationId, network);
             if (res < 1) {
                 LOGGER.error("Create network in db error.");
-                return;
+                throw new DeveloperException("Create network  in db error.", ResponseConsts.INSERT_DATA_FAILED);
             }
         }
     }
@@ -173,11 +175,11 @@ public class ApplicationServiceImpl implements ApplicationService {
             vmApplication.setNetworkList(networkMapper.getNetworkByAppId(applicationId));
             vmApplication.setVmList(vmMapper.getAllVMsByAppId(applicationId));
 
-            vmApplication.setAppConfiguration(AppConfigurationServiceImpl.getAppConfiguration(applicationId));
+            vmApplication.setAppConfiguration(appConfigurationService.getAppConfiguration(applicationId));
             applicationDetail.setVmApp(vmApplication);
         } else {
             ContainerApplication containerApplication = new ContainerApplication(application);
-            containerApplication.setAppConfiguration(AppConfigurationServiceImpl.getAppConfiguration(applicationId));
+            containerApplication.setAppConfiguration(appConfigurationService.getAppConfiguration(applicationId));
             // todo get helmchart
             applicationDetail.setContainerApp(containerApplication);
         }
@@ -185,8 +187,7 @@ public class ApplicationServiceImpl implements ApplicationService {
     }
 
     @Override
-    public Boolean modifyApplicationDetail(String applicationId,
-        ApplicationDetail applicationDetail) {
+    public Boolean modifyApplicationDetail(String applicationId, ApplicationDetail applicationDetail) {
         Application application = applicationMapper.getApplicationById(applicationId);
         if (application == null) {
             LOGGER.error("Can not find project by applicationId:{}.", applicationId);
@@ -194,8 +195,8 @@ public class ApplicationServiceImpl implements ApplicationService {
         }
         if (application.getAppClass() == EnumAppClass.VM) {
             applicationMapper.modifyApplication(applicationDetail.getVmApp());
-            AppConfigurationServiceImpl
-                .modifyAppConfiguration(applicationId, applicationDetail.getVmApp().getAppConfiguration());
+            appConfigurationService.modifyAppConfiguration(applicationId,
+                applicationDetail.getVmApp().getAppConfiguration());
             for (Network network : applicationDetail.getVmApp().getNetworkList()) {
                 networkMapper.modifyNetwork(network);
             }
@@ -204,8 +205,8 @@ public class ApplicationServiceImpl implements ApplicationService {
             }
         } else {
             applicationMapper.modifyApplication(applicationDetail.getContainerApp());
-            AppConfigurationServiceImpl
-                .modifyAppConfiguration(applicationId, applicationDetail.getContainerApp().getAppConfiguration());
+            appConfigurationService.modifyAppConfiguration(applicationId,
+                applicationDetail.getContainerApp().getAppConfiguration());
             //todo modify helmchart
         }
         return true;
@@ -223,7 +224,7 @@ public class ApplicationServiceImpl implements ApplicationService {
             throw new DeveloperException("File type is error.", ResponseConsts.DELETE_DATA_FAILED);
         }
 
-        UploadedFile result = uploadServiceImpl.saveFileToLocal(uploadFile, userId);
+        UploadedFile result = uploadService.saveFileToLocal(uploadFile, userId);
         if (result == null) {
             LOGGER.error("File type is error.");
             throw new DeveloperException("File type is error.", ResponseConsts.DELETE_DATA_FAILED);
