@@ -57,6 +57,7 @@ import org.edgegallery.developer.model.ServiceConfig;
 import org.edgegallery.developer.model.ServiceDetail;
 import org.edgegallery.developer.model.application.configuration.TrafficRule;
 import org.edgegallery.developer.model.atp.AtpResultInfo;
+import org.edgegallery.developer.model.capability.Capability;
 import org.edgegallery.developer.model.vm.VmPackageConfig;
 import org.edgegallery.developer.model.workspace.ApplicationProject;
 import org.edgegallery.developer.model.workspace.EnumDeployPlatform;
@@ -66,6 +67,7 @@ import org.edgegallery.developer.model.workspace.OpenMepCapabilityGroup;
 import org.edgegallery.developer.model.workspace.ProjectTestConfig;
 import org.edgegallery.developer.model.workspace.UploadedFile;
 import org.edgegallery.developer.response.FormatRespDto;
+import org.edgegallery.developer.service.capability.CapabilityService;
 import org.edgegallery.developer.util.AtpUtil;
 import org.edgegallery.developer.util.CompressFileUtils;
 import org.edgegallery.developer.util.CompressFileUtilsJava;
@@ -108,6 +110,9 @@ public class ReleaseConfigService {
 
     @Autowired
     private EncryptedService encryptedService;
+
+    @Autowired
+    private CapabilityService capabilityService;
 
     /**
      * saveConfig.
@@ -165,8 +170,10 @@ public class ReleaseConfigService {
             }
         }
 
+        List<Capability> capabilities = capabilityService.findByProjectId(projectId);
+
         ApplicationProject applicationProject = projectMapper.getProjectById(projectId);
-        if (!CollectionUtils.isEmpty(applicationProject.getCapabilityList()) || !CapabilitiesDetail
+        if (!CollectionUtils.isEmpty(capabilities) || !CapabilitiesDetail
             .isEmpty(config.getCapabilitiesDetail()) || !StringUtils.isEmpty(config.getGuideFileId())) {
             if (applicationProject.getDeployPlatform() == EnumDeployPlatform.KUBERNETES) {
                 Either<FormatRespDto, Boolean> rebuildRes = rebuildCsar(projectId, config);
@@ -243,7 +250,8 @@ public class ReleaseConfigService {
         }
 
         ApplicationProject applicationProject = projectMapper.getProjectById(projectId);
-        if (!CollectionUtils.isEmpty(applicationProject.getCapabilityList()) || !CapabilitiesDetail
+        List<Capability> capabilities = capabilityService.findByProjectId(projectId);
+        if (!CollectionUtils.isEmpty(capabilities) || !CapabilitiesDetail
             .isEmpty(config.getCapabilitiesDetail()) || !StringUtils.isEmpty(config.getGuideFileId())) {
             if (applicationProject.getDeployPlatform() == EnumDeployPlatform.KUBERNETES) {
                 Either<FormatRespDto, Boolean> rebuildRes = rebuildCsar(projectId, config);
@@ -342,8 +350,9 @@ public class ReleaseConfigService {
             }
         }
 
+        List<Capability> capabilities = capabilityService.findByProjectId(projectId);
         if (!CapabilitiesDetail.isEmpty(releaseConfig.getCapabilitiesDetail()) || !CollectionUtils
-            .isEmpty(project.getCapabilityList())) {
+            .isEmpty(capabilities)) {
             // modify MainServiceTemplate zip
             Boolean res = rebuildAppd(project, csarFilePath, releaseConfig);
             if (!res) {
@@ -557,25 +566,16 @@ public class ReleaseConfigService {
         if (!CollectionUtils.isEmpty(trafficRules)) {
             properties.setAppTrafficRule(trafficRules);
         }
-        if (!CollectionUtils.isEmpty(project.getCapabilityList())) {
+        List<Capability> requiredCapabilities = capabilityService.findByProjectId(project.getId());
+        if (!CollectionUtils.isEmpty(requiredCapabilities)) {
             List<AppConfigurationModel.ServiceRequired> requiredList = new ArrayList<>();
-            Gson gson = new Gson();
-            Type type = new TypeToken<List<OpenMepCapabilityGroup>>() { }.getType();
-            List<OpenMepCapabilityGroup> capabilities = gson.fromJson(gson.toJson(project.getCapabilityList()), type);
-            for (OpenMepCapabilityGroup obj : capabilities) {
-                List<OpenMepCapability> openMepCapabilityGroups = obj.getCapabilityDetailList();
-                Type openMepCapabilityType = new TypeToken<List<OpenMepCapability>>() { }.getType();
-                List<OpenMepCapability> openMepCapabilityDetails = gson
-                    .fromJson(gson.toJson(openMepCapabilityGroups), openMepCapabilityType);
-
-                for (OpenMepCapability capabilityDetail : openMepCapabilityDetails) {
-                    AppConfigurationModel.ServiceRequired required = new AppConfigurationModel.ServiceRequired();
-                    required.setSerName(capabilityDetail.getHost());
-                    required.setAppId(capabilityDetail.getAppId());
-                    required.setPackageId(capabilityDetail.getPackageId());
-                    required.setVersion(capabilityDetail.getVersion());
-                    requiredList.add(required);
-                }
+            for (Capability capability:requiredCapabilities) {
+                AppConfigurationModel.ServiceRequired required = new AppConfigurationModel.ServiceRequired();
+                required.setSerName(capability.getHost());
+                required.setAppId(capability.getAppId());
+                required.setPackageId(capability.getPackageId());
+                required.setVersion(capability.getVersion());
+                requiredList.add(required);
             }
             properties.setAppServiceRequired(requiredList);
         }
