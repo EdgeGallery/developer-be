@@ -77,6 +77,8 @@ public class ContainerImageServiceImpl implements ContainerImageService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ContainerImageServiceImpl.class);
 
+    private static final String SUBDIR_CONIMAGE = "ContainerImage";
+
     @Autowired
     private ContainersImageMapper containerImageMapper;
 
@@ -138,7 +140,7 @@ public class ContainerImageServiceImpl implements ContainerImageService {
             }
 
             LOGGER.info("save file to local directory.");
-            String rootDir = ContainerImageUtil.getUploadSysImageRootDir(imageId);
+            String rootDir = getUploadSysImageRootDir(imageId);
             File uploadRootDir = new File(rootDir);
             if (!uploadRootDir.exists()) {
                 boolean isMk = uploadRootDir.mkdirs();
@@ -172,7 +174,7 @@ public class ContainerImageServiceImpl implements ContainerImageService {
     public ResponseEntity mergeContainerImage(String fileName, String guid, String imageId) {
         try {
             LOGGER.info("merge harbor image file, harborImage = {}, fileName = {}, guid = {}", imageId, fileName, guid);
-            String rootDir = ContainerImageUtil.getUploadSysImageRootDir(imageId);
+            String rootDir = getUploadSysImageRootDir(imageId);
             String partFilePath = rootDir + guid;
             File partFileDir = new File(partFilePath);
             if (!partFileDir.exists() || !partFileDir.isDirectory()) {
@@ -415,7 +417,7 @@ public class ContainerImageServiceImpl implements ContainerImageService {
      */
     @Override
     public ResponseEntity cancelUploadHarborImage(String imageId) {
-        String rootDir = ContainerImageUtil.getUploadSysImageRootDir(imageId);
+        String rootDir = getUploadSysImageRootDir(imageId);
         SystemImageUtil.cleanWorkDir(new File(rootDir));
         return ResponseEntity.ok().build();
     }
@@ -576,6 +578,10 @@ public class ContainerImageServiceImpl implements ContainerImageService {
             return false;
         }
         return true;
+    }
+
+    private String getUploadSysImageRootDir(String imageId) {
+        return filePathTemp + File.separator + SUBDIR_CONIMAGE + File.separator + imageId + File.separator;
     }
 
 }
