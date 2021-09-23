@@ -81,6 +81,8 @@ import org.edgegallery.developer.model.LcmLog;
 import org.edgegallery.developer.model.ReleaseConfig;
 import org.edgegallery.developer.model.ServiceDetail;
 import org.edgegallery.developer.model.SshConnectInfo;
+import org.edgegallery.developer.model.application.configuration.DnsRule;
+import org.edgegallery.developer.model.application.configuration.TrafficRule;
 import org.edgegallery.developer.model.atp.AtpResultInfo;
 import org.edgegallery.developer.model.capability.Capability;
 import org.edgegallery.developer.model.deployyaml.PodEvents;
@@ -310,6 +312,14 @@ public class ProjectService {
         releaseConfig.setReleaseId(UUID.randomUUID().toString());
         releaseConfig.setProjectId(projectId);
         releaseConfig.setCreateTime(new Date());
+        CapabilitiesDetail capabilitiesDetail = new CapabilitiesDetail();
+        List<TrafficRule> appTrafficRule = new ArrayList<>();
+        List<DnsRule> appDNSRule = new ArrayList<>();
+        List<ServiceDetail> serviceDetails = new ArrayList<>();
+        capabilitiesDetail.setAppTrafficRule(appTrafficRule);
+        capabilitiesDetail.setAppDNSRule(appDNSRule);
+        capabilitiesDetail.setServiceDetails(serviceDetails);
+        releaseConfig.setCapabilitiesDetail(capabilitiesDetail);
         int saveRet = configMapper.saveConfig(releaseConfig);
         if (saveRet < 1) {
             LOGGER.error("save config data fail!");
