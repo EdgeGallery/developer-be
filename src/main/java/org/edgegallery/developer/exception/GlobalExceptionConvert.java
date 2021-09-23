@@ -192,9 +192,9 @@ public class GlobalExceptionConvert {
     /**
      * Handle UnknownException.
      */
-    @ExceptionHandler(value = UnknownException.class)
+    @ExceptionHandler(value = DeveloperException.class)
     @ResponseBody
-    public RestReturn unauthorizedException(HttpServletRequest request, UnknownException e) {
+    public RestReturn unauthorizedException(HttpServletRequest request, DeveloperException e) {
         return RestReturn.builder().code(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode())
             .error(Response.Status.INTERNAL_SERVER_ERROR.getReasonPhrase()).message(e.getMessage())
             .path(request.getRequestURI()).retCode(e.getErrMsg().getRetCode()).params(e.getErrMsg().getParams())
