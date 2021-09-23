@@ -23,7 +23,7 @@ import org.edgegallery.developer.service.application.action.IActionIterator;
 import org.edgegallery.developer.service.application.action.impl.vm.VMLaunchOperation;
 import org.edgegallery.developer.service.application.impl.AppOperationServiceImpl;
 import org.edgegallery.developer.service.application.impl.ApplicationServiceImpl;
-import org.edgegallery.developer.service.application.vm.VmAppOperationService;
+import org.edgegallery.developer.service.application.vm.VMAppOperationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +31,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 @Service("vmAppOperationService")
-public class VMAppOperationServiceImpl extends AppOperationServiceImpl implements VmAppOperationService {
+public class VMAppOperationServiceImpl extends AppOperationServiceImpl implements VMAppOperationService {
 
     public static final String OPERATION_NAME = "VirtualMachine launch";
 

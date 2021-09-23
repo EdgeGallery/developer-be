@@ -326,4 +326,10 @@ public class ResponseConsts {
      */
     public static final int SAVE_UPLOADED_FILE_FAILED = 20061;
 
+    /**
+     * create  application work folder failed.
+     */
+    public static final int APPLICATION_DIR_CREATE_FAILED = 20062;
+
+    public static final int DATA_NOT_EXIST = 20063;
 }

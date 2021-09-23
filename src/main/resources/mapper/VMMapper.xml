@@ -49,7 +49,7 @@
   </sql>
 
   <sql id="VMPortAllColumn">
-    id, name, description, ip_type, network_name, ip, mask
+    id, name, description, network_name
   </sql>
 
   <sql id="VMCertificateAllColumn">
@@ -99,7 +99,7 @@
   </select>
 
   <insert id="createVMPort">
-    insert into tbl_vm_port (id, vm_id, name, description, ip_type, ip, mask, network_name)
+    insert into tbl_vm_port (id, vm_id, name, description, network_name)
     values
     ( #{port.id}, #{vmId}, #{port.name}, #{port.description}, #{port.ipType}, #{port.ip}, #{port.mask}, #{port.networkName})
   </insert>
@@ -108,7 +108,7 @@
     UPDATE
     tbl_vm_port
     SET
-    name = #{name}, description = #{description}, ip_type = #{ipType}, ip = #{ip}, mask = #{mask}
+    name = #{name}, description = #{description}
     WHERE
     id = #{id}
   </update>

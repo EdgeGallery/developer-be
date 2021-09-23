@@ -56,7 +56,7 @@ public interface ApplicationService {
      * @return
      */
     @Transactional
-    Page<Application> getApplicationByNameWithFuzzy(String projectName, int limit, int offset);
+    Page<Application> getApplicationByNameWithFuzzy(String appName, int limit, int offset);
 
     /**
      * DELETE a application

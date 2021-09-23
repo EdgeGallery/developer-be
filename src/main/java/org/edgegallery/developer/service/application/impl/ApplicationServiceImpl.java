@@ -28,6 +28,7 @@ import org.edgegallery.developer.domain.shared.FileChecker;
 import org.edgegallery.developer.domain.shared.Page;
 import org.edgegallery.developer.exception.DeveloperException;
 import org.edgegallery.developer.mapper.application.ApplicationMapper;
+import org.edgegallery.developer.mapper.application.container.HelmChartMapper;
 import org.edgegallery.developer.mapper.application.vm.NetworkMapper;
 import org.edgegallery.developer.mapper.application.vm.VMMapper;
 import org.edgegallery.developer.model.application.Application;
@@ -40,11 +41,9 @@ import org.edgegallery.developer.model.application.vm.VirtualMachine;
 import org.edgegallery.developer.model.restful.ApplicationDetail;
 import org.edgegallery.developer.model.workspace.UploadedFile;
 import org.edgegallery.developer.response.FormatRespDto;
-import org.edgegallery.developer.service.ProjectService;
 import org.edgegallery.developer.service.application.AppConfigurationService;
 import org.edgegallery.developer.service.application.ApplicationService;
 import org.edgegallery.developer.service.uploadfile.UploadService;
-import org.edgegallery.developer.service.uploadfile.impl.UploadServiceImpl;
 import org.edgegallery.developer.util.DeveloperFileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,7 +53,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 @Service("applicationService")
 public class ApplicationServiceImpl implements ApplicationService {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ProjectService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ApplicationService.class);
 
     @Autowired
     private UploadService uploadService;
@@ -69,17 +68,20 @@ public class ApplicationServiceImpl implements ApplicationService {
     private VMMapper vmMapper;
 
     @Autowired
+    private HelmChartMapper helmChartMapper;
+
+    @Autowired
     AppConfigurationService appConfigurationService;
 
     @Override
     public Application createApplication(Application application) {
         String applicationId = UUID.randomUUID().toString();
-        String projectPath = DeveloperFileUtils.getAbsolutePath(applicationId);
+        String applicationPath = DeveloperFileUtils.getAbsolutePath(applicationId);
         try {
-            DeveloperFileUtils.deleteAndCreateDir(projectPath);
+            DeveloperFileUtils.deleteAndCreateDir(applicationPath);
         } catch (IOException e1) {
-            FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "Create project path failed.");
-            throw new DeveloperException("Create project path failed.", ResponseConsts.DELETE_DATA_FAILED);
+            FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "Create application work path failed.");
+            throw new DeveloperException("Create application work path failed.", ResponseConsts.APPLICATION_DIR_CREATE_FAILED);
         }
         application.setId(applicationId);
         application.setUserId(AccessUserUtil.getUser().getUserId());
@@ -94,7 +96,7 @@ public class ApplicationServiceImpl implements ApplicationService {
         // init network
         initNetwork(applicationId);
 
-        // save project to DB
+        // save application to DB
         int res = applicationMapper.createApplication(application);
         if (res < 1) {
             LOGGER.error("Create application in db error.");
@@ -132,12 +134,12 @@ public class ApplicationServiceImpl implements ApplicationService {
     }
 
     @Override
-    public Page<Application> getApplicationByNameWithFuzzy(String projectName, int limit, int offset) {
+    public Page<Application> getApplicationByNameWithFuzzy(String appName, int limit, int offset) {
         String userId = AccessUserUtil.getUser().getUserId();
         PageHelper.offsetPage(offset, limit);
         PageInfo<Application> pageInfo = new PageInfo<Application>(
-            applicationMapper.getAllApplicationsByUserId(userId, projectName));
-        LOGGER.info("get all projects success.");
+            applicationMapper.getAllApplicationsByUserId(userId, appName));
+        LOGGER.info("get all applications success.");
         return new Page<Application>(pageInfo.getList(), limit, offset, pageInfo.getTotal());
     }
 
@@ -145,19 +147,19 @@ public class ApplicationServiceImpl implements ApplicationService {
     public Boolean deleteApplication(String applicationId) {
         Application application = applicationMapper.getApplicationById(applicationId);
         if (application == null) {
-            LOGGER.error("Can not find project by applicationId:{}.", applicationId);
-            throw new DeveloperException("Can not find project", ResponseConsts.DELETE_DATA_FAILED);
+            LOGGER.error("Can not find application by applicationId:{}.", applicationId);
+            throw new DeveloperException("Application does not exist.", ResponseConsts.DATA_NOT_EXIST);
         }
         // delete the application from db
         int delResult = applicationMapper.deleteApplication(applicationId);
         if (delResult < 1) {
-            LOGGER.error("Can not find project by applicationId:{}.", applicationId);
-            throw new DeveloperException("Can not find project", ResponseConsts.DELETE_DATA_FAILED);
+            LOGGER.error("Delete application by applicationId:{} failed.", applicationId);
+            throw new DeveloperException("Delete application failed.", ResponseConsts.DELETE_DATA_FAILED);
         }
-        // delete files of project
-        String projectPath = DeveloperFileUtils.getAbsolutePath(applicationId);
-        DeveloperFileUtils.deleteDir(projectPath);
-        LOGGER.info("Delete project {} success.", applicationId);
+        // delete files of application
+        String applicationPath = DeveloperFileUtils.getAbsolutePath(applicationId);
+        DeveloperFileUtils.deleteDir(applicationPath);
+        LOGGER.info("Delete application {} success.", applicationId);
         return true;
     }
 
@@ -166,8 +168,8 @@ public class ApplicationServiceImpl implements ApplicationService {
         ApplicationDetail applicationDetail = new ApplicationDetail();
         Application application = applicationMapper.getApplicationById(applicationId);
         if (application == null) {
-            LOGGER.error("Can not find project by applicationId:{}.", applicationId);
-            throw new DeveloperException("Can not find project", ResponseConsts.DELETE_DATA_FAILED);
+            LOGGER.error("Can not find application by applicationId:{}.", applicationId);
+            throw new DeveloperException("Application does not exist.", ResponseConsts.DATA_NOT_EXIST);
         }
         if (application.getAppClass() == EnumAppClass.VM) {
             VMApplication vmApplication = new VMApplication(application);
@@ -179,8 +181,8 @@ public class ApplicationServiceImpl implements ApplicationService {
             applicationDetail.setVmApp(vmApplication);
         } else {
             ContainerApplication containerApplication = new ContainerApplication(application);
+            containerApplication.setHelmChartList(helmChartMapper.getHelmChartsByAppId(applicationId));
             containerApplication.setAppConfiguration(appConfigurationService.getAppConfiguration(applicationId));
-            // todo get helmchart
             applicationDetail.setContainerApp(containerApplication);
         }
         return applicationDetail;
@@ -190,8 +192,8 @@ public class ApplicationServiceImpl implements ApplicationService {
     public Boolean modifyApplicationDetail(String applicationId, ApplicationDetail applicationDetail) {
         Application application = applicationMapper.getApplicationById(applicationId);
         if (application == null) {
-            LOGGER.error("Can not find project by applicationId:{}.", applicationId);
-            throw new DeveloperException("Can not find project", ResponseConsts.DELETE_DATA_FAILED);
+            LOGGER.error("Can not find application by applicationId:{}.", applicationId);
+            throw new DeveloperException("Application does not exist.", ResponseConsts.DATA_NOT_EXIST);
         }
         if (application.getAppClass() == EnumAppClass.VM) {
             applicationMapper.modifyApplication(applicationDetail.getVmApp());
