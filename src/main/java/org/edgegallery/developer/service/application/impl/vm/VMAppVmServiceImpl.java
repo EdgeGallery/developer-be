@@ -23,6 +23,7 @@ import org.edgegallery.developer.mapper.application.vm.VMMapper;
 import org.edgegallery.developer.model.application.vm.VMPort;
 import org.edgegallery.developer.model.application.vm.VirtualMachine;
 import org.edgegallery.developer.service.ProjectService;
+import org.edgegallery.developer.service.application.vm.VMAppOperationService;
 import org.edgegallery.developer.service.application.vm.VMAppVmService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,7 +42,7 @@ public class VMAppVmServiceImpl implements VMAppVmService {
     VMMapper vmMapper;
 
     @Autowired
-    VMAppOperationServiceImpl vmAppOperationServiceImpl;
+    VMAppOperationService vmAppOperationService;
 
     @Override
     public VirtualMachine createVm(String applicationId, VirtualMachine virtualMachine) {
@@ -67,8 +68,8 @@ public class VMAppVmServiceImpl implements VMAppVmService {
         List<VirtualMachine> virtualMachines = vmMapper.getAllVMsByAppId(applicationId);
 
         for (VirtualMachine virtualMachine:virtualMachines) {
-            virtualMachine.setVmInstantiateInfo(vmAppOperationServiceImpl.getInstantiateInfo(virtualMachine.getId()));
-            virtualMachine.setImageExportInfo(vmAppOperationServiceImpl.getImageExportInfo(virtualMachine.getId()));
+            virtualMachine.setVmInstantiateInfo(vmAppOperationService.getInstantiateInfo(virtualMachine.getId()));
+            virtualMachine.setImageExportInfo(vmAppOperationService.getImageExportInfo(virtualMachine.getId()));
             virtualMachine.setPortList(vmMapper.getAllVMPortsByVMId(virtualMachine.getId()));
             virtualMachine.setVmCertificate(vmMapper.getVMCertificate(virtualMachine.getId()));
         }
@@ -84,8 +85,8 @@ public class VMAppVmServiceImpl implements VMAppVmService {
         }
         virtualMachine.setVmCertificate(vmMapper.getVMCertificate(vmId));
         virtualMachine.setPortList(vmMapper.getAllVMPortsByVMId(vmId));
-        virtualMachine.setImageExportInfo(vmAppOperationServiceImpl.getImageExportInfo(virtualMachine.getId()));
-        virtualMachine.setVmInstantiateInfo(vmAppOperationServiceImpl.getInstantiateInfo(virtualMachine.getId()));
+        virtualMachine.setImageExportInfo(vmAppOperationService.getImageExportInfo(virtualMachine.getId()));
+        virtualMachine.setVmInstantiateInfo(vmAppOperationService.getInstantiateInfo(virtualMachine.getId()));
         return virtualMachine;
     }
 

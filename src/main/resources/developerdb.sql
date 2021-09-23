@@ -552,10 +552,7 @@
     "vm_id" varchar(255) DEFAULT NULL,
     "name" varchar(255) NOT NULL,
     "description" varchar(255) DEFAULT NULL,
-    "ip_type" varchar(255) DEFAULT NULL,
     "network_name" varchar(255) DEFAULT NULL,
-    "ip" varchar(255) DEFAULT NULL,
-    "mask" varchar(255) DEFAULT NULL,
     CONSTRAINT "tbl_vm_port_pkey" PRIMARY KEY ("id")
     );
 

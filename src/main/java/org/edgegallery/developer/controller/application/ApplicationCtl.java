@@ -108,7 +108,7 @@ public class ApplicationCtl {
     /**
      * get all application.
      */
-    @ApiOperation(value = "get one application.", response = Application.class, responseContainer = "List")
+    @ApiOperation(value = "get one page applications.", response = Application.class, responseContainer = "List")
     @ApiResponses(value = {
         @ApiResponse(code = 200, message = "OK", response = Application.class, responseContainer = "List"),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)

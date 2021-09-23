@@ -27,7 +27,7 @@ import org.edgegallery.developer.common.Consts;
 import org.edgegallery.developer.model.Chunk;
 import org.edgegallery.developer.model.restful.OperationInfoRep;
 import org.edgegallery.developer.response.ErrorRespDto;
-import org.edgegallery.developer.service.application.vm.VmAppOperationService;
+import org.edgegallery.developer.service.application.vm.VMAppOperationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -46,7 +46,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 public class VMAppOperationCtl {
     private static final String REGEX_UUID = "[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}";
     @Autowired
-    private VmAppOperationService VmAppOperationService;
+    private VMAppOperationService VmAppOperationService;
     /**
      * instantiate a vm .
      */

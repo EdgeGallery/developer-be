@@ -329,6 +329,12 @@ public class ResponseConsts {
     /**
      * Format check  failed.
      */
-    public static final int FORMAT_CHECK_FAILED = 20061;
+    public static final int FORMAT_CHECK_FAILED = 20062;
 
+    /**
+     * create  application work folder failed.
+     */
+    public static final int APPLICATION_DIR_CREATE_FAILED = 20063;
+
+    public static final int DATA_NOT_EXIST = 20064;
 }
