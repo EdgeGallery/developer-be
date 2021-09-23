@@ -32,10 +32,7 @@
     <id property="id" column="id"/>
     <result property="name" column="name"/>
     <result property="description" column="description"/>
-    <result property="ipType" column="ip_type"/>
     <result property="networkName" column="network_name"/>
-    <result property="ip" column="ip"/>
-    <result property="mask" column="mask"/>
   </resultMap>
 
   <resultMap id="VMCertificateMap" type="org.edgegallery.developer.model.application.vm.VMCertificate">
@@ -101,7 +98,7 @@
   <insert id="createVMPort">
     insert into tbl_vm_port (id, vm_id, name, description, network_name)
     values
-    ( #{port.id}, #{vmId}, #{port.name}, #{port.description}, #{port.ipType}, #{port.ip}, #{port.mask}, #{port.networkName})
+    ( #{port.id}, #{vmId}, #{port.name}, #{port.description}, #{port.networkName})
   </insert>
 
   <update id="modifyVMPort" parameterType="org.edgegallery.developer.model.application.vm.VMPort">
