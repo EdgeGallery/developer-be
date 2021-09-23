@@ -69,8 +69,6 @@ public final class ContainerImageUtil {
 
     private static final String HARBOR_PROTOCOL = "https";
 
-    private static final String SUBDIR_CONIMAGE = "ContainerImage";
-
     private ContainerImageUtil() {
         throw new IllegalStateException("ContainerImageUtil class");
     }
@@ -476,17 +474,6 @@ public final class ContainerImageUtil {
                 }
             }
         }
-    }
-
-    /**
-     * create path of image upload
-     *
-     * @param imageId imageId
-     * @return
-     */
-    public static String getUploadSysImageRootDir(String imageId) {
-        return InitConfigUtil.getWorkSpaceBaseDir() + BusinessConfigUtil.getTmpPath() + SUBDIR_CONIMAGE + File.separator
-            + imageId + File.separator;
     }
 
 }
