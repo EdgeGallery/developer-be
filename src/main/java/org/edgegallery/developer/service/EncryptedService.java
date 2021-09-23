@@ -1,17 +1,25 @@
 package org.edgegallery.developer.service;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.LineIterator;
-import org.edgegallery.developer.common.ResponseConsts;
-import org.edgegallery.developer.exception.DeveloperException;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.text.Normalizer;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.LineIterator;
+import org.edgegallery.developer.common.ResponseConsts;
+import org.edgegallery.developer.exception.FileOperateException;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
 
 @Service("encryptedService")
 public class EncryptedService {
@@ -66,7 +74,7 @@ public class EncryptedService {
             out.close();
 
         } catch (IOException e) {
-            throw new DeveloperException("Hash package failed.", ResponseConsts.RET_HASH_PACKAGE_FAILED);
+            throw new FileOperateException("Hash package failed.", ResponseConsts.RET_HASH_FILE_FAIL);
         }
     }
 
@@ -98,7 +106,7 @@ public class EncryptedService {
             out.close();
 
         } catch (IOException e) {
-            throw new DeveloperException("Failed to encrypted code.", ResponseConsts.RET_SIGN_PACKAGE_FAILED);
+            throw new FileOperateException("Failed to encrypted code.", ResponseConsts.RET_SIGN_FILE_FAIL);
         }
     }
 
@@ -155,17 +163,18 @@ public class EncryptedService {
                 rules.add("[Hh]ash\\s*:");
                 String in = readMatchLineContent(filePath, rules);
                 Signature signature = new Signature();
-                Optional<byte[]> signBytes = signature.signMessage(in.trim(), StandardCharsets.UTF_8.toString(), keyPath, keyPasswd);
+                Optional<byte[]> signBytes = signature
+                    .signMessage(in.trim(), StandardCharsets.UTF_8.toString(), keyPath, keyPasswd);
                 if (signBytes.isPresent()) {
                     return new String(signBytes.get(), StandardCharsets.UTF_8);
                 } else {
-                    throw new DeveloperException("sign package failed.", ResponseConsts.RET_SIGN_PACKAGE_FAILED);
+                    throw new FileOperateException("sign package failed.", ResponseConsts.RET_SIGN_FILE_FAIL);
                 }
             } else {
-                throw new DeveloperException("sign package failed.", ResponseConsts.RET_SIGN_PACKAGE_FAILED);
+                throw new FileOperateException("sign package failed.", ResponseConsts.RET_SIGN_FILE_FAIL);
             }
         } else {
-            throw new DeveloperException("sign package failed.", ResponseConsts.RET_SIGN_PACKAGE_FAILED);
+            throw new FileOperateException("sign package failed.", ResponseConsts.RET_SIGN_FILE_FAIL);
         }
     }
 
@@ -180,7 +189,7 @@ public class EncryptedService {
         return false;
     }
 
-    private static String readMatchLineContent(String fileName, List<String> rules){
+    private static String readMatchLineContent(String fileName, List<String> rules) {
         LineIterator lineIterator;
         StringBuilder result = new StringBuilder();
         String filePath = fileName.replace("\\", File.separator).replace("/", File.separator);
@@ -199,7 +208,7 @@ public class EncryptedService {
                 }
             }
         } catch (IOException e) {
-            throw new DeveloperException("sign package failed.", ResponseConsts.RET_SIGN_PACKAGE_FAILED);
+            throw new FileOperateException("sign package failed.", ResponseConsts.RET_SIGN_FILE_FAIL);
         }
         return result.toString().trim();
     }
