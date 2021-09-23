@@ -45,9 +45,9 @@ public class MepGetSystemImageReq {
     @Pattern(regexp = "All|UPLOAD_WAIT|UPLOADING|UPLOAD_SUCCEED|UPLOAD_FAILED|PUBLISHED")
     private String status;
 
-    private String createTimeBegin;
+    private String uploadTimeBegin;
 
-    private String createTimeEnd;
+    private String uploadTimeEnd;
 
     @NotBlank
     @Valid

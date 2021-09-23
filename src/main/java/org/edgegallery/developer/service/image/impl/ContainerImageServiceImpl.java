@@ -271,13 +271,13 @@ public class ContainerImageServiceImpl implements ContainerImageService {
     @Override
     public Page<ContainerImage> getAllImage(ContainerImageReq containerImageReq) {
         PageHelper.offsetPage(containerImageReq.getOffset(), containerImageReq.getLimit());
-        String createTimeBegin = containerImageReq.getCreateTimeBegin();
-        String createTimeEnd = containerImageReq.getCreateTimeEnd();
-        if (!StringUtils.isBlank(createTimeBegin)) {
-            containerImageReq.setCreateTimeBegin(createTimeBegin + " 00:00:00");
+        String uploadTimeBegin = containerImageReq.getUploadTimeBegin();
+        String uploadTimeEnd = containerImageReq.getUploadTimeEnd();
+        if (!StringUtils.isBlank(uploadTimeBegin)) {
+            containerImageReq.setUploadTimeBegin(uploadTimeBegin + " 00:00:00");
         }
-        if (!StringUtils.isBlank(createTimeEnd)) {
-            containerImageReq.setCreateTimeEnd(createTimeEnd + " 23:59:59");
+        if (!StringUtils.isBlank(uploadTimeEnd)) {
+            containerImageReq.setUploadTimeEnd(uploadTimeEnd + " 23:59:59");
         }
         PageInfo pageInfo;
         if (SystemImageUtil.isAdminUser()) {

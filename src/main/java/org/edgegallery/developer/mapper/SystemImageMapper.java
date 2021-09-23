@@ -17,6 +17,7 @@
 package org.edgegallery.developer.mapper;
 
 import java.util.List;
+import java.util.Map;
 import org.apache.ibatis.annotations.Param;
 import org.edgegallery.developer.model.system.MepGetSystemImageReq;
 import org.edgegallery.developer.model.system.UploadFileInfo;
@@ -24,9 +25,9 @@ import org.edgegallery.developer.model.system.VmSystem;
 
 public interface SystemImageMapper {
 
-    Integer getSystemImagesCount(MepGetSystemImageReq mepGetSystemImageReq);
+    Integer getSystemImagesCount(Map map);
 
-    List<VmSystem> getSystemImagesByCondition(MepGetSystemImageReq mepGetSystemImageReq);
+    List<VmSystem> getSystemImagesByCondition(Map map);
 
     VmSystem getVmImage(Integer systemId);
 

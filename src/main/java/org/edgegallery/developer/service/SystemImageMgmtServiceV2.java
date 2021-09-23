@@ -23,6 +23,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import javax.servlet.http.HttpServletRequest;
@@ -88,26 +90,47 @@ public class SystemImageMgmtServiceV2 {
             mepGetSystemImageReq.setUserId(userId);
         }
         MepSystemQueryCtrl queryCtrl = mepGetSystemImageReq.getQueryCtrl();
-        if (queryCtrl.getSortBy() == null || queryCtrl.getSortBy().equalsIgnoreCase("createTime")) {
-            queryCtrl.setSortBy("create_time");
+        if (queryCtrl.getSortBy() == null || queryCtrl.getSortBy().equalsIgnoreCase("uploadTime")) {
+            queryCtrl.setSortBy("upload_time");
         } else if (queryCtrl.getSortBy().equalsIgnoreCase("userName")) {
             queryCtrl.setSortBy("user_name");
         }
         if (queryCtrl.getSortOrder() == null) {
             queryCtrl.setSortBy("DESC");
         }
-        String createTimeBegin = mepGetSystemImageReq.getCreateTimeBegin();
-        String createTimeEnd = mepGetSystemImageReq.getCreateTimeEnd();
-        if (!StringUtils.isBlank(createTimeBegin)) {
-            mepGetSystemImageReq.setCreateTimeBegin(createTimeBegin + " 00:00:00");
+        String uploadTimeBegin = mepGetSystemImageReq.getUploadTimeBegin();
+        String uploadTimeEnd = mepGetSystemImageReq.getUploadTimeEnd();
+        if (!StringUtils.isBlank(uploadTimeBegin)) {
+            mepGetSystemImageReq.setUploadTimeBegin(uploadTimeBegin + " 00:00:00");
         }
-        if (!StringUtils.isBlank(createTimeEnd)) {
-            mepGetSystemImageReq.setCreateTimeEnd(createTimeEnd + " 23:59:59");
+        if (!StringUtils.isBlank(uploadTimeEnd)) {
+            mepGetSystemImageReq.setUploadTimeEnd(uploadTimeEnd + " 23:59:59");
         }
         mepGetSystemImageReq.setQueryCtrl(queryCtrl);
         MepGetSystemImageRes mepGetSystemImageRes = new MepGetSystemImageRes();
-        mepGetSystemImageRes.setTotalCount(systemImageMapper.getSystemImagesCount(mepGetSystemImageReq));
-        mepGetSystemImageRes.setImageList(systemImageMapper.getSystemImagesByCondition(mepGetSystemImageReq));
+        Map map = new HashMap<>();
+        map.put("systemName",mepGetSystemImageReq.getSystemName());
+        if(StringUtils.isNotEmpty(mepGetSystemImageReq.getType())){
+            map.put("types",SystemImageUtil.splitParam(mepGetSystemImageReq.getType()));
+        }else {
+            map.put("types",null);
+        }
+        map.put("userId",mepGetSystemImageReq.getUserId());
+        if(StringUtils.isNotEmpty(mepGetSystemImageReq.getOperateSystem())){
+            map.put("operateSystems", SystemImageUtil.splitParam(mepGetSystemImageReq.getOperateSystem()));
+        }else {
+            map.put("operateSystems", null);
+        }
+        if(StringUtils.isNotEmpty(mepGetSystemImageReq.getStatus())){
+            map.put("statusList", SystemImageUtil.splitParam(mepGetSystemImageReq.getStatus()));
+        }else {
+            map.put("statusList", null);
+        }
+        map.put("uploadTimeBegin",mepGetSystemImageReq.getUploadTimeBegin());
+        map.put("uploadTimeEnd",mepGetSystemImageReq.getUploadTimeEnd());
+        map.put("queryCtrl",mepGetSystemImageReq.getQueryCtrl());
+        mepGetSystemImageRes.setTotalCount(systemImageMapper.getSystemImagesCount(map));
+        mepGetSystemImageRes.setImageList(systemImageMapper.getSystemImagesByCondition(map));
         return Either.right(mepGetSystemImageRes);
 
     }
