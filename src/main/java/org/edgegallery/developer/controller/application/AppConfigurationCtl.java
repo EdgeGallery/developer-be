@@ -56,7 +56,7 @@ public class AppConfigurationCtl {
     /**
      * get app configuration.
      */
-    @ApiOperation(value = "get one application.", response = AppConfiguration.class)
+    @ApiOperation(value = "get application configuration.", response = AppConfiguration.class)
     @ApiResponses(value = {
         @ApiResponse(code = 200, message = "OK", response = AppConfiguration.class),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
@@ -72,7 +72,7 @@ public class AppConfigurationCtl {
     /**
      * modify app configuration.
      */
-    @ApiOperation(value = "put one application.", response = Boolean.class)
+    @ApiOperation(value = "update application configuration.", response = Boolean.class)
     @ApiResponses(value = {
         @ApiResponse(code = 200, message = "OK", response = Boolean.class),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)

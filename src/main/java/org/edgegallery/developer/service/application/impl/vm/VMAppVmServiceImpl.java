@@ -15,6 +15,7 @@
  */
 package org.edgegallery.developer.service.application.impl.vm;
 
+import com.google.gson.Gson;
 import java.util.List;
 import java.util.UUID;
 import org.edgegallery.developer.common.ResponseConsts;
@@ -22,7 +23,6 @@ import org.edgegallery.developer.exception.DeveloperException;
 import org.edgegallery.developer.mapper.application.vm.VMMapper;
 import org.edgegallery.developer.model.application.vm.VMPort;
 import org.edgegallery.developer.model.application.vm.VirtualMachine;
-import org.edgegallery.developer.service.ProjectService;
 import org.edgegallery.developer.service.application.vm.VMAppOperationService;
 import org.edgegallery.developer.service.application.vm.VMAppVmService;
 import org.slf4j.Logger;
@@ -30,11 +30,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
-import com.google.gson.Gson;
+
 @Service("vmAppVmService")
 public class VMAppVmServiceImpl implements VMAppVmService {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ProjectService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(VMAppVmServiceImpl.class);
 
     private static Gson gson = new Gson();
 

@@ -13,9 +13,11 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
+
 package org.edgegallery.developer.service.application.impl;
 
 import java.util.List;
+import java.util.UUID;
 import org.edgegallery.developer.common.ResponseConsts;
 import org.edgegallery.developer.exception.DeveloperException;
 import org.edgegallery.developer.mapper.application.AppConfigurationMapper;
@@ -25,7 +27,6 @@ import org.edgegallery.developer.model.application.configuration.AppServiceProdu
 import org.edgegallery.developer.model.application.configuration.AppServiceRequired;
 import org.edgegallery.developer.model.application.configuration.DnsRule;
 import org.edgegallery.developer.model.application.configuration.TrafficRule;
-import org.edgegallery.developer.service.SystemImageMgmtService;
 import org.edgegallery.developer.service.application.AppConfigurationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,7 +35,7 @@ import org.springframework.stereotype.Service;
 
 @Service("appConfigurationService")
 public class AppConfigurationServiceImpl implements AppConfigurationService {
-    private static final Logger LOGGER = LoggerFactory.getLogger(SystemImageMgmtService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AppConfigurationServiceImpl.class);
 
     @Autowired
     private AppConfigurationMapper appConfigurationMapper;
@@ -51,24 +52,23 @@ public class AppConfigurationServiceImpl implements AppConfigurationService {
     }
 
     @Override
-    public Boolean modifyAppConfiguration(String applicationId,
-        AppConfiguration appConfiguration) {
+    public Boolean modifyAppConfiguration(String applicationId, AppConfiguration appConfiguration) {
         try {
             appConfigurationMapper.modifyAppCertificate(applicationId, appConfiguration.getAppCertificate());
-            for (AppServiceProduced appServiceProduced:appConfiguration.getAppServiceProducedList()) {
+            for (AppServiceProduced appServiceProduced : appConfiguration.getAppServiceProducedList()) {
                 appConfigurationMapper.modifyServiceProduced(applicationId, appServiceProduced);
             }
-            for (AppServiceRequired appServiceRequired:appConfiguration.getAppServiceRequiredList()) {
+            for (AppServiceRequired appServiceRequired : appConfiguration.getAppServiceRequiredList()) {
                 appConfigurationMapper.modifyServiceRequired(applicationId, appServiceRequired);
             }
-            for (TrafficRule trafficRule: appConfiguration.getTrafficRuleList()) {
+            for (TrafficRule trafficRule : appConfiguration.getTrafficRuleList()) {
                 appConfigurationMapper.modifyTrafficRule(applicationId, trafficRule);
             }
-            for (DnsRule dnsRule: appConfiguration.getDnsRuleList()) {
+            for (DnsRule dnsRule : appConfiguration.getDnsRuleList()) {
                 appConfigurationMapper.modifyDnsRule(applicationId, dnsRule);
             }
         } catch (Exception e) {
-            LOGGER.error("modify appConfiguration failed");
+            LOGGER.error("modify appConfiguration failed, appId: {}", applicationId);
             throw new DeveloperException("modify appConfiguration failed", ResponseConsts.MODIFY_DATA_FAILED);
         }
 
@@ -85,9 +85,10 @@ public class AppConfigurationServiceImpl implements AppConfigurationService {
         TrafficRule result = appConfigurationMapper.getTrafficRule(applicationId, trafficRule.getTrafficRuleId());
         if (result != null) {
             LOGGER.error("create trafficRule failed: ruleId have exit");
-            throw new DeveloperException("create trafficRule failed: ruleId have exit", ResponseConsts.INSERT_DATA_FAILED);
+            throw new DeveloperException("create trafficRule failed: ruleId have exit",
+                ResponseConsts.INSERT_DATA_FAILED);
         }
-        int res = appConfigurationMapper.createTrafficRule(applicationId,trafficRule);
+        int res = appConfigurationMapper.createTrafficRule(applicationId, trafficRule);
         if (res < 1) {
             LOGGER.error("create TrafficRule failed");
             throw new DeveloperException("create TrafficRule failed", ResponseConsts.INSERT_DATA_FAILED);
@@ -118,7 +119,7 @@ public class AppConfigurationServiceImpl implements AppConfigurationService {
             LOGGER.error("create DnsRule failed: ruleId have exit");
             throw new DeveloperException("create DnsRule failed: ruleId have exit", ResponseConsts.INSERT_DATA_FAILED);
         }
-        int res = appConfigurationMapper.createDnsRule(applicationId,dnsRule);
+        int res = appConfigurationMapper.createDnsRule(applicationId, dnsRule);
         if (res < 1) {
             LOGGER.error("create DnsRule failed");
             throw new DeveloperException("create DnsRule failed", ResponseConsts.INSERT_DATA_FAILED);
@@ -153,14 +154,14 @@ public class AppConfigurationServiceImpl implements AppConfigurationService {
     }
 
     @Override
-    public AppServiceProduced createServiceProduced(String applicationId,
-        AppServiceProduced serviceProduced) {
-        AppServiceProduced appServiceProduced = appConfigurationMapper.getServiceProduced(applicationId, serviceProduced.getSerName());
+    public AppServiceProduced createServiceProduced(String applicationId, AppServiceProduced serviceProduced) {
+        AppServiceProduced appServiceProduced = appConfigurationMapper.getServiceProduced(applicationId,
+            serviceProduced.getSerName());
         if (appServiceProduced != null) {
             LOGGER.error("create serviceProduced failed: serName have exit");
             throw new DeveloperException("create serviceProduced failed", ResponseConsts.INSERT_DATA_FAILED);
         }
-        int res = appConfigurationMapper.createServiceProduced(applicationId,serviceProduced);
+        int res = appConfigurationMapper.createServiceProduced(applicationId, serviceProduced);
         if (res < 1) {
             LOGGER.error("create serviceProduced failed");
             throw new DeveloperException("create serviceProduced failed", ResponseConsts.INSERT_DATA_FAILED);
@@ -190,14 +191,15 @@ public class AppConfigurationServiceImpl implements AppConfigurationService {
     }
 
     @Override
-    public AppServiceRequired createServiceRequired(String applicationId,
-        AppServiceRequired serviceRequired) {
-        AppServiceRequired appServiceRequired = appConfigurationMapper.getServiceRequired(applicationId, serviceRequired.getSerName());
+    public AppServiceRequired createServiceRequired(String applicationId, AppServiceRequired serviceRequired) {
+        AppServiceRequired appServiceRequired = appConfigurationMapper.getServiceRequired(applicationId,
+            serviceRequired.getSerName());
         if (appServiceRequired != null) {
             LOGGER.error("create serviceRequired failed: serName have exit");
-            throw new DeveloperException("create serviceRequired failed: serName have exit", ResponseConsts.INSERT_DATA_FAILED);
+            throw new DeveloperException("create serviceRequired failed: serName have exit",
+                ResponseConsts.INSERT_DATA_FAILED);
         }
-        int res = appConfigurationMapper.createServiceRequired(applicationId,serviceRequired);
+        int res = appConfigurationMapper.createServiceRequired(applicationId, serviceRequired);
         if (res < 1) {
             LOGGER.error("create serviceRequired failed");
             throw new DeveloperException("create serviceRequired failed", ResponseConsts.INSERT_DATA_FAILED);
@@ -227,9 +229,8 @@ public class AppConfigurationServiceImpl implements AppConfigurationService {
     }
 
     @Override
-    public AppCertificate createAppCertificate(String applicationId,
-        AppCertificate appCertificate) {
-        int res = appConfigurationMapper.createAppCertificate(applicationId,appCertificate);
+    public AppCertificate createAppCertificate(String applicationId, AppCertificate appCertificate) {
+        int res = appConfigurationMapper.createAppCertificate(applicationId, appCertificate);
         if (res < 1) {
             LOGGER.error("create appCertificate failed");
             throw new DeveloperException("create appCertificate failed", ResponseConsts.INSERT_DATA_FAILED);
@@ -252,6 +253,5 @@ public class AppConfigurationServiceImpl implements AppConfigurationService {
         appConfigurationMapper.deleteAppCertificate(applicationId);
         return true;
     }
-
 
 }
