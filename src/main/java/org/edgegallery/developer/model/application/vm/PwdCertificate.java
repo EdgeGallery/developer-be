@@ -28,5 +28,6 @@ import lombok.ToString;
 public class PwdCertificate {
 
     private String password;
+
     private String username;
 }

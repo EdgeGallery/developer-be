@@ -27,6 +27,8 @@ import org.edgegallery.developer.config.security.AccessUserUtil;
 import org.edgegallery.developer.domain.shared.FileChecker;
 import org.edgegallery.developer.domain.shared.Page;
 import org.edgegallery.developer.exception.DeveloperException;
+import org.edgegallery.developer.exception.FileFoundFailException;
+import org.edgegallery.developer.exception.IllegalRequestException;
 import org.edgegallery.developer.mapper.application.ApplicationMapper;
 import org.edgegallery.developer.mapper.application.container.HelmChartMapper;
 import org.edgegallery.developer.mapper.application.vm.NetworkMapper;
@@ -90,7 +92,7 @@ public class ApplicationServiceImpl implements ApplicationService {
         application.setStatus(EnumApplicationStatus.ONLINE);
         if (iconFileId == null) {
             LOGGER.error("icon file is null");
-            throw new DeveloperException("icon file is null", ResponseConsts.ICON_FILE_NULL);
+            throw new FileFoundFailException("icon file is null", ResponseConsts.ICON_FILE_NULL);
         }
         uploadService.moveFileToWorkSpaceById(iconFileId, applicationId);
         // init network
@@ -223,16 +225,15 @@ public class ApplicationServiceImpl implements ApplicationService {
         Boolean iconTypeCheck = iconTypeCheck(fileName);
         if (!iconTypeCheck) {
             LOGGER.error("File type is error.");
-            throw new DeveloperException("File type is error.", ResponseConsts.DELETE_DATA_FAILED);
+            throw new IllegalRequestException("File type is error.", ResponseConsts.FORMAT_CHECK_FAILED);
         }
 
         UploadedFile result = uploadService.saveFileToLocal(uploadFile, userId);
         if (result == null) {
-            LOGGER.error("File type is error.");
-            throw new DeveloperException("File type is error.", ResponseConsts.DELETE_DATA_FAILED);
+            LOGGER.error("File save to db fail.");
+            throw new DeveloperException("File save to db fail.", ResponseConsts.SAVE_UPLOADED_FILE_FAILED);
         }
-        LOGGER.error("File type is error.");
-        throw new DeveloperException("File type is error.", ResponseConsts.DELETE_DATA_FAILED);
+        return result;
     }
 
     private Boolean iconTypeCheck(String fileName) {

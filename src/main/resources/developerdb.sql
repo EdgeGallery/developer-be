@@ -346,29 +346,30 @@
     ;
 
     CREATE TABLE IF NOT EXISTS "tbl_vm_system" (
-        "system_id" SERIAL,
-        "system_name" varchar(128) DEFAULT NULL,
-        "type" varchar(50) DEFAULT NULL,
-        "operate_system" varchar(50) DEFAULT NULL,
-        "version" varchar(50) DEFAULT NULL,
-        "system_bit" varchar(50) DEFAULT NULL,
-        "system_disk" int4  DEFAULT NULL,
-        "user_id" varchar(50) DEFAULT NULL,
-        "user_name" varchar(50) DEFAULT NULL,
-        "create_time" timestamptz(6)  DEFAULT NULL,
-        "modify_time" timestamptz(6)  DEFAULT NULL,
-        "system_format" varchar(50) DEFAULT NULL,
-        "upload_time" timestamptz(6)  DEFAULT NULL,
-        "system_path" varchar(128) DEFAULT NULL,
-        "file_name" varchar(128) DEFAULT NULL,
-        "file_md5" varchar(128) DEFAULT NULL,
-        "status" varchar(50) DEFAULT NULL,
-        "file_identifier" varchar(128) DEFAULT NULL,
-        "error_type" varchar(32) DEFAULT NULL,
-        CONSTRAINT "tbl_vm_system_uniqueName" UNIQUE ("system_name","user_id"),
-        CONSTRAINT "tbl_vm_system_pkey" PRIMARY KEY ("system_id")
-        )
-    ;
+      "system_id" SERIAL,
+      "system_name" varchar(128) DEFAULT NULL,
+      "type" varchar(50) DEFAULT NULL,
+      "operate_system" varchar(50) DEFAULT NULL,
+      "version" varchar(50) DEFAULT NULL,
+      "system_bit" varchar(50) DEFAULT NULL,
+      "system_disk" int4  DEFAULT NULL,
+      "user_id" varchar(50) DEFAULT NULL,
+      "user_name" varchar(50) DEFAULT NULL,
+      "create_time" timestamptz(6)  DEFAULT NULL,
+      "modify_time" timestamptz(6)  DEFAULT NULL,
+      "system_format" varchar(50) DEFAULT NULL,
+      "system_size" int4 DEFAULT NULL,
+      "system_slim" varchar(50) DEFAULT NULL,
+      "upload_time" timestamptz(6)  DEFAULT NULL,
+      "system_path" varchar(128) DEFAULT NULL,
+      "file_name" varchar(128) DEFAULT NULL,
+      "file_md5" varchar(128) DEFAULT NULL,
+      "status" varchar(50) DEFAULT NULL,
+      "file_identifier" varchar(128) DEFAULT NULL,
+      "error_type" varchar(32) DEFAULT NULL,
+      CONSTRAINT "tbl_vm_system_uniqueName" UNIQUE ("system_name","user_id"),
+      CONSTRAINT "tbl_vm_system_pkey" PRIMARY KEY ("system_id")
+      );
 
     CREATE TABLE IF NOT EXISTS "tbl_vm_user_data" (
       "operate_system" varchar(50) DEFAULT NULL,

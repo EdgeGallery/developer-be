@@ -33,7 +33,7 @@ import org.edgegallery.developer.domain.shared.AFile;
 import org.edgegallery.developer.domain.shared.FileChecker;
 import org.edgegallery.developer.domain.shared.IconChecker;
 import org.edgegallery.developer.domain.shared.PluginChecker;
-import org.edgegallery.developer.domain.shared.exceptions.EntityNotFoundException;
+import org.edgegallery.developer.exception.EntityNotFoundException;
 import org.edgegallery.developer.response.FormatRespDto;
 import org.edgegallery.developer.service.AppReleaseService;
 import org.edgegallery.developer.util.FileHashCode;
