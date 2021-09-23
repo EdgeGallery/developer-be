@@ -17,6 +17,7 @@
 package org.edgegallery.developer.service.application.impl;
 
 import org.edgegallery.developer.common.ResponseConsts;
+import org.edgegallery.developer.exception.DataBaseException;
 import org.edgegallery.developer.exception.DeveloperException;
 import org.edgegallery.developer.mapper.application.ApplicationMapper;
 import org.edgegallery.developer.model.restful.SelectMepHostReq;
@@ -54,7 +55,7 @@ public class AppOperationServiceImpl implements AppOperationService {
         int res = applicationMapper.modifyMepHostById(applicationId, selectMepHostReq.getMepHostId());
         if (res < 1) {
             LOGGER.error("modify mep host  of application {} fail", applicationId);
-            throw new DeveloperException("modify mep host of application fail", ResponseConsts.MODIFY_DATA_FAILED);
+            throw new DeveloperException("modify mep host of application fail", ResponseConsts.RET_UPDATE_DATA_FAIL);
         }
         return true;
     }

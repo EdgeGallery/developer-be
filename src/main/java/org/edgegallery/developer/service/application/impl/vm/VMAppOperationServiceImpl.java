@@ -3,7 +3,9 @@ package org.edgegallery.developer.service.application.impl.vm;
 import java.util.UUID;
 import javax.servlet.http.HttpServletRequest;
 import org.edgegallery.developer.common.ResponseConsts;
+import org.edgegallery.developer.exception.DataBaseException;
 import org.edgegallery.developer.exception.DeveloperException;
+import org.edgegallery.developer.exception.EntityNotFoundException;
 import org.edgegallery.developer.mapper.application.vm.ImageExportInfoMapper;
 import org.edgegallery.developer.mapper.application.vm.VMInstantiateInfoMapper;
 import org.edgegallery.developer.mapper.application.vm.VMMapper;
@@ -60,14 +62,14 @@ public class VMAppOperationServiceImpl extends AppOperationServiceImpl implement
         Application application = applicationServiceImpl.getApplication(applicationId);
         if (application == null) {
             LOGGER.error("application is not exited,id:{}", applicationId);
-            throw new DeveloperException("application is not exited.", ResponseConsts.APPLICATION_NOT_EXIT);
+            throw new EntityNotFoundException("application is not exited.", ResponseConsts.RET_QUERY_DATA_EMPTY);
         }
 
         VirtualMachine virtualMachine = vmAppVmServiceImpl.getVm(applicationId, vmId);
         if (virtualMachine==null || virtualMachine.getVmInstantiateInfo()!=null
             || virtualMachine.getImageExportInfo() != null) {
             LOGGER.error("instantiate vm app fail ,vm is not exit or is used,vmId:{}", vmId);
-            throw new DeveloperException("instantiate vm app fail ,vm is not exit or is used.", ResponseConsts.INSTANTIATE_VM_FAIL);
+            throw new EntityNotFoundException("instantiate vm app fail ,vm is not exit or is used.", ResponseConsts.RET_QUERY_DATA_EMPTY);
         }
 
         // create OperationStatus
@@ -81,7 +83,7 @@ public class VMAppOperationServiceImpl extends AppOperationServiceImpl implement
         int res = operationStatusMapper.createOperationStatus(operationStatus);
         if (res < 1) {
             LOGGER.error("Create operationStatus in db error.");
-            throw new DeveloperException("Create operationStatus in db error.", ResponseConsts.INSERT_DATA_FAILED);
+            throw new DataBaseException("Create operationStatus in db error.", ResponseConsts.RET_CERATE_DATA_FAIL);
         }
         VMLaunchOperation actionCollection = new VMLaunchOperation(accessToken, operationStatus);
         LOGGER.info("start instantiate vm app");

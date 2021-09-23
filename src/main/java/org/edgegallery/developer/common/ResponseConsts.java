@@ -17,324 +17,143 @@ package org.edgegallery.developer.common;
 public class ResponseConsts {
 
     /**
-     * get system image failed.
+     * request format is error.
      */
-    public static final int RET_GET_SYSTEM_IMAGE_FAILED = 20001;
+    public static final int RET_REQUEST_FORMAT_ERROR = 20001;
 
     /**
-     * create system image failed.
+     * request param is error.
      */
-    public static final int RET_CREATE_SYSTEM_IMAGE_FAILED = 20002;
+    public static final int RET_REQUEST_PARAM_ERROR = 20002;
 
     /**
-     * systemName duplicate.
+     * request param is empty.
      */
-    public static final int RET_SYSTEM_NAME_DUPLICATE = 20003;
+    public static final int RET_REQUEST_PARAM_EMPTY = 20003;
 
     /**
-     * create system image exception.
+     * insert data  fail.
      */
-    public static final int RET_CREATE_SYSTEM_IMAGE_EXCEPTION = 20004;
+    public static final int RET_CERATE_DATA_FAIL = 20004;
 
     /**
-     * systemName is blank.
+     * update data  fail.
      */
-    public static final int RET_SYSTEM_NAME_BLANK = 20005;
+    public static final int RET_UPDATE_DATA_FAIL = 20005;
 
     /**
-     * update system image failed.
+     * delete data  fail.
      */
-    public static final int RET_UPDATE_SYSTEM_IMAGE_FAILED = 20006;
+    public static final int RET_DELETE_DATA_FAIL = 20006;
 
     /**
-     * update system image exception.
+     * query data  empty.
      */
-    public static final int RET_UPDATE_SYSTEM_IMAGE_EXCEPTION = 20007;
+    public static final int RET_QUERY_DATA_EMPTY = 20007;
 
     /**
-     * systemName or userId is blank.
+     * query data  fail.
      */
-    public static final int RET_SYSTEM_NAME_BLANK_OR_IMAGE_NOT_EXISTS = 20008;
+    public static final int RET_QUERY_DATA_FAIL = 20008;
 
     /**
-     * publish system image failed.
+     * push vm Image  fail.
      */
-    public static final int RET_PUBLISH_SYSTEM_IMAGE_FAILED = 20009;
+    public static final int RET_PUSH_VM_IMAGE_FAIL = 20009;
 
     /**
-     * publish system image exception.
+     * push harbor Image  fail.
      */
-    public static final int RET_PUBLISH_SYSTEM_IMAGE_EXCEPTION = 20010;
+    public static final int RET_PUSH_HARBOR_IMAGE_FAIL = 20010;
 
     /**
-     * delete system image failed.
+     * encode harbor user and pwd  fail.
      */
-    public static final int RET_DELETE_SYSTEM_IMAGE_FAILED = 20011;
+    public static final int RET_HARBOR_ENCODE_FAIL = 20011;
 
     /**
-     * delete system image exception.
+     * get harbor image list   fail.
      */
-    public static final int RET_DELETE_SYSTEM_IMAGE_EXCEPTION = 20012;
+    public static final int RET_GET_HARBOR_IMAGE_LIST_FAIL = 20012;
 
     /**
-     * delete system image on remote server failed.
+     * query harbor project  fail.
      */
-    public static final int RET_DELETE_SYSTEM_IMAGE_ON_REMOTE_SERVER_FAILED = 20013;
+    public static final int RET_QUERY_HARBOR_PROJECT_FAIL = 20013;
 
     /**
-     * download system image exception.
+     * request Unauthorized.
      */
-    public static final int RET_DOWNLOAD_SYSTEM_IMAGE_EXCEPTION = 20014;
+    public static final int RET_REQUEST_UNAUTHORIZED = 20014;
 
     /**
-     * download system image null.
+     * request forbidden.
      */
-    public static final int RET_DOWNLOAD_SYSTEM_IMAGE_NULL = 20015;
+    public static final int RET_REQUEST_FORBIDDEN = 20015;
 
     /**
-     * zipFile format is mistake.
+     * file not found.
      */
-    public static final int RET_ZIP_FILE_INVALID = 20016;
+    public static final int RET_FILE_NOT_FOUND = 20016;
 
     /**
-     * process merged zip file failed.
+     * Create file  fail.
      */
-    public static final int RET_ZIP_FILE_EXCEPTION = 20017;
+    public static final int RET_CREATE_FILE_FAIL = 20017;
 
     /**
-     *  request is invalid.
+     * upload file fail.
      */
-    public static final int RET_REQUEST_INVALID = 20018;
+    public static final int RET_UPLOAD_FILE_FAIL = 20018;
 
     /**
-     * there is no needed file.
+     * merge file fail.
      */
-    public static final int RET_NO_NEEDED_FILE = 20019;
+    public static final int RET_MERGE_FILE_FAIL = 20019;
 
     /**
-     * invalid chunk number.
+     * delete file fail.
      */
-    public static final int RET_CHUNK_NUMBER_INVALID = 20020;
+    public static final int RET_DELETE_FILE_FAIL = 20020;
 
     /**
-     * create temporary upload path failed.
+     * save file  fail.
      */
-    public static final int RET_TEMPORARY_PATH_FAILED = 20021;
+    public static final int RET_SAVE_FILE_FAIL = 20021;
 
     /**
-     * upload system image file exception.
+     * download file  fail.
      */
-    public static final int RET_UPLOAD_SYSTEM_IMAGE_EXCEPTION = 20022;
+    public static final int RET_DOWNLOAD_FILE_FAIL = 20022;
 
     /**
-     * system image is merging, it cannot be cancelled.
+     * download file is null.
      */
-    public static final int RET_SYSTEM_IMAGE_CANCELLED_FAILED = 20023;
+    public static final int RET_DOWNLOAD_FILE_EMPTY = 20023;
 
     /**
-     * uploaded part file path not found.
+     *  file format error.
      */
-    public static final int RET_FILE_PATH_NOT_FOUND = 20024;
+    public static final int RET_FILE_FORMAT_ERROR = 20024;
 
     /**
-     * upload system image file exception.
+     *  sign file fail.
      */
-    public static final int RET_FILE_NOT_FOUND = 20025;
+    public static final int RET_SIGN_FILE_FAIL= 20025;
 
     /**
-     * process merged file failed.
+     *  hash file fail.
      */
-    public static final int RET_PROCESS_MERGED_FILE_FAILED = 20026;
+    public static final int RET_HASH_FILE_FAIL= 20026;
 
     /**
-     * upload system image file exception.
+     *  move file fail.
      */
-    public static final int RET_PROCESS_MERGED_FILE_EXCEPTION = 20027;
+    public static final int RET_MOVE_FILE_FAIL= 20027;
 
     /**
-     * delete old system image on remote server failed.
+     *  call lcm interce fail.
      */
-    public static final int RET_DELETE_IMAGE_OR_SERVER_FAILED = 20028;
+    public static final int RET_CALL_LCM_FAIL= 20028;
 
-    /**
-     * push system image file failed.
-     */
-    public static final int RET_PUSH_IMAGE_FILE_FAILED = 20029;
-
-    /**
-     * upload to remote file server failed.
-     */
-    public static final int RET_UPLOAD_FILE_SERVER_FAILED = 20030;
-
-    /**
-     * create container image failed.
-     */
-    public static final int RET_CREATE_CONTAINER_IMAGE_FAILED = 20031;
-
-    /**
-     * create container image, param check failed exist empty param.
-     */
-    public static final int RET_CREATE_CONTAINER_IMAGE_PARAM_INVALID = 20032;
-
-    /**
-     * create container image, param check failed exist same name and version.
-     */
-    public static final int RET_EXIST_SAME_NAME_AND_VERSION = 20033;
-
-    /**
-     * update container image, auth check.
-     */
-    public static final int RET_UPDATE_IMAGE_AUTH_CHECK_FAILED = 20034;
-
-    /**
-     * update container image failed.
-     */
-    public static final int RET_UPDATE_CONTAINER_IMAGE_FAILED = 20035;
-
-    /**
-     * delete container image failed.
-     */
-    public static final int RET_DEL_CONTAINER_IMAGE_FAILED = 20036;
-
-    /**
-     * download container image param check failed.
-     */
-    public static final int RET_DOWNLOAD_CONTAINER_IMAGE_PARAM_INVALID = 20037;
-
-    /**
-     * download container image failed.
-     */
-    public static final int RET_DOWNLOAD_CONTAINER_IMAGE_INTERNAL_ERROR = 20038;
-
-    /**
-     * upload container image  failed.
-     */
-    public static final int RET_UPLOAD_CONTAINER_IMAGE_FAILED = 20039;
-
-    /**
-     * merge container image  failed.
-     */
-    public static final int RET_MERGE_CONTAINER_IMAGE_FAILED = 20039;
-
-    /**
-     * container image is merging, it cannot be cancelled.
-     */
-    public static final int RET_CONTAINER_IMAGE_CANCELLED_FAILED = 20040;
-
-    /**
-     * sign package failed.
-     */
-    public static final int RET_SIGN_PACKAGE_FAILED = 20041;
-
-    /**
-     * HASH package failed.
-     */
-    public static final int RET_HASH_PACKAGE_FAILED = 20042;
-
-    /**
-     * get image list from harbor failed.
-     */
-    public static final int RET_GET_IMAGE_FROM_HARBOR_FAILED = 20043;
-
-    /**
-     * insert data to postgres failed.
-     */
-    public static final int INSERT_DATA_FAILED = 20044;
-
-    /**
-     * delete data to postgres failed.
-     */
-    public static final int DELETE_DATA_FAILED = 20045;
-
-    /**
-     * modify data to postgres failed.
-     */
-    public static final int MODIFY_DATA_FAILED = 20046;
-
-    /**
-     * icon file is null.
-     */
-    public static final int ICON_FILE_NULL = 20047;
-
-    /**
-     * exist same mec host.
-     */
-    public static final int EXIST_SAME_MEC_HOST = 20048;
-
-    /**
-     * Create host failed, userId is empty or not admin.
-     */
-    public static final int USER_ID_EMPTY_OR_NOT_ADMIN = 20049;
-
-    /**
-     * Create host failed, net work config error.
-     */
-    public static final int NET_WORK_CONFIG_ERROR = 20050;
-
-    /**
-     * Create host failed, lcm ip or port cann't be used.
-     */
-    public static final int LCM_IP_OR_PORT_CAN_NOT_BE_USED = 20051;
-
-    /**
-     * Create host failed, add mec host ip to lcm failed.
-     */
-    public static final int ADD_MEC_HOST_TO_LCM_FAILED = 20052;
-
-    /**
-     * Create host failed, config file error.
-     */
-    public static final int CREATE_HOST_CONFIG_FILE_ERROR = 20053;
-
-    /**
-     * query mep host failed.
-     */
-    public static final int MEP_HOST_NOT_EXIST = 20054;
-
-    /**
-     * application is not exited.
-     */
-    public static final int APPLICATION_NOT_EXIT = 20055;
-
-    /**
-     * application is not exited.
-     */
-    public static final int VIRTUAL_MACHINE_NOT_EXIT = 20056;
-
-    /**
-     * instantiate vm app fail.
-     */
-    public static final int INSTANTIATE_VM_FAIL = 20057;
-
-    /**
-     * query uploaded file failed.
-     */
-    public static final int UPLOADED_FILE_NOT_EXIST = 20058;
-
-    /**
-     * move uploaded file to workspace failed.
-     */
-    public static final int MOVE_UPLOADED_FILE_FAILED = 20059;
-
-    /**
-     * get uploaded file  failed.
-     */
-    public static final int GET_UPLOADED_FILE_FAILED = 20060;
-
-    /**
-     * save uploaded file  failed.
-     */
-    public static final int SAVE_UPLOADED_FILE_FAILED = 20061;
-
-    /**
-     * Format check  failed.
-     */
-    public static final int FORMAT_CHECK_FAILED = 20062;
-
-    /**
-     * create  application work folder failed.
-     */
-    public static final int APPLICATION_DIR_CREATE_FAILED = 20063;
-
-    public static final int DATA_NOT_EXIST = 20064;
 }

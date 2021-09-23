@@ -26,8 +26,10 @@ import org.edgegallery.developer.common.ResponseConsts;
 import org.edgegallery.developer.config.security.AccessUserUtil;
 import org.edgegallery.developer.domain.shared.FileChecker;
 import org.edgegallery.developer.domain.shared.Page;
-import org.edgegallery.developer.exception.DeveloperException;
+import org.edgegallery.developer.exception.DataBaseException;
+import org.edgegallery.developer.exception.EntityNotFoundException;
 import org.edgegallery.developer.exception.FileFoundFailException;
+import org.edgegallery.developer.exception.FileOperateException;
 import org.edgegallery.developer.exception.IllegalRequestException;
 import org.edgegallery.developer.mapper.application.ApplicationMapper;
 import org.edgegallery.developer.mapper.application.container.HelmChartMapper;
@@ -83,7 +85,7 @@ public class ApplicationServiceImpl implements ApplicationService {
             DeveloperFileUtils.deleteAndCreateDir(applicationPath);
         } catch (IOException e1) {
             FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "Create application work path failed.");
-            throw new DeveloperException("Create application work path failed.", ResponseConsts.APPLICATION_DIR_CREATE_FAILED);
+            throw new FileOperateException("Create application work path failed.", ResponseConsts.RET_CREATE_FILE_FAIL);
         }
         application.setId(applicationId);
         application.setUserId(AccessUserUtil.getUser().getUserId());
@@ -92,7 +94,7 @@ public class ApplicationServiceImpl implements ApplicationService {
         application.setStatus(EnumApplicationStatus.ONLINE);
         if (iconFileId == null) {
             LOGGER.error("icon file is null");
-            throw new FileFoundFailException("icon file is null", ResponseConsts.ICON_FILE_NULL);
+            throw new FileFoundFailException("icon file is null", ResponseConsts.RET_FILE_NOT_FOUND);
         }
         uploadService.moveFileToWorkSpaceById(iconFileId, applicationId);
         // init network
@@ -102,7 +104,7 @@ public class ApplicationServiceImpl implements ApplicationService {
         int res = applicationMapper.createApplication(application);
         if (res < 1) {
             LOGGER.error("Create application in db error.");
-            throw new DeveloperException("Create application in db error.", ResponseConsts.INSERT_DATA_FAILED);
+            throw new DataBaseException("Create application in db error.", ResponseConsts.RET_CERATE_DATA_FAIL);
         }
         LOGGER.info("Create application success.");
         return application;
@@ -115,7 +117,7 @@ public class ApplicationServiceImpl implements ApplicationService {
             int res = networkMapper.createNetwork(applicationId, network);
             if (res < 1) {
                 LOGGER.error("Create network in db error.");
-                throw new DeveloperException("Create network  in db error.", ResponseConsts.INSERT_DATA_FAILED);
+                throw new DataBaseException("Create network  in db error.", ResponseConsts.RET_CERATE_DATA_FAIL);
             }
         }
     }
@@ -130,7 +132,7 @@ public class ApplicationServiceImpl implements ApplicationService {
         int res = applicationMapper.modifyApplication(application);
         if (res < 1) {
             LOGGER.error("modify application in db error.");
-            throw new DeveloperException("modify application in db error.", ResponseConsts.MODIFY_DATA_FAILED);
+            throw new DataBaseException("modify application in db error.", ResponseConsts.RET_UPDATE_DATA_FAIL);
         }
         return true;
     }
@@ -150,13 +152,13 @@ public class ApplicationServiceImpl implements ApplicationService {
         Application application = applicationMapper.getApplicationById(applicationId);
         if (application == null) {
             LOGGER.error("Can not find application by applicationId:{}.", applicationId);
-            throw new DeveloperException("Application does not exist.", ResponseConsts.DATA_NOT_EXIST);
+            throw new EntityNotFoundException("Application does not exist.", ResponseConsts.RET_QUERY_DATA_EMPTY);
         }
         // delete the application from db
         int delResult = applicationMapper.deleteApplication(applicationId);
         if (delResult < 1) {
             LOGGER.error("Delete application by applicationId:{} failed.", applicationId);
-            throw new DeveloperException("Delete application failed.", ResponseConsts.DELETE_DATA_FAILED);
+            throw new DataBaseException("Delete application failed.", ResponseConsts.RET_DELETE_DATA_FAIL);
         }
         // delete files of application
         String applicationPath = DeveloperFileUtils.getAbsolutePath(applicationId);
@@ -171,7 +173,7 @@ public class ApplicationServiceImpl implements ApplicationService {
         Application application = applicationMapper.getApplicationById(applicationId);
         if (application == null) {
             LOGGER.error("Can not find application by applicationId:{}.", applicationId);
-            throw new DeveloperException("Application does not exist.", ResponseConsts.DATA_NOT_EXIST);
+            throw new EntityNotFoundException("Application does not exist.", ResponseConsts.RET_QUERY_DATA_EMPTY);
         }
         if (application.getAppClass() == EnumAppClass.VM) {
             VMApplication vmApplication = new VMApplication(application);
@@ -195,12 +197,12 @@ public class ApplicationServiceImpl implements ApplicationService {
         Application application = applicationMapper.getApplicationById(applicationId);
         if (application == null) {
             LOGGER.error("Can not find application by applicationId:{}.", applicationId);
-            throw new DeveloperException("Application does not exist.", ResponseConsts.DATA_NOT_EXIST);
+            throw new EntityNotFoundException("Application does not exist.", ResponseConsts.RET_QUERY_DATA_EMPTY);
         }
         if (application.getAppClass() == EnumAppClass.VM) {
             applicationMapper.modifyApplication(applicationDetail.getVmApp());
-            appConfigurationService.modifyAppConfiguration(applicationId,
-                applicationDetail.getVmApp().getAppConfiguration());
+            appConfigurationService
+                .modifyAppConfiguration(applicationId, applicationDetail.getVmApp().getAppConfiguration());
             for (Network network : applicationDetail.getVmApp().getNetworkList()) {
                 networkMapper.modifyNetwork(network);
             }
@@ -209,8 +211,8 @@ public class ApplicationServiceImpl implements ApplicationService {
             }
         } else {
             applicationMapper.modifyApplication(applicationDetail.getContainerApp());
-            appConfigurationService.modifyAppConfiguration(applicationId,
-                applicationDetail.getContainerApp().getAppConfiguration());
+            appConfigurationService
+                .modifyAppConfiguration(applicationId, applicationDetail.getContainerApp().getAppConfiguration());
             //todo modify helmchart
         }
         return true;
@@ -225,13 +227,13 @@ public class ApplicationServiceImpl implements ApplicationService {
         Boolean iconTypeCheck = iconTypeCheck(fileName);
         if (!iconTypeCheck) {
             LOGGER.error("File type is error.");
-            throw new IllegalRequestException("File type is error.", ResponseConsts.FORMAT_CHECK_FAILED);
+            throw new IllegalRequestException("File type is error.", ResponseConsts.RET_REQUEST_FORMAT_ERROR);
         }
 
         UploadedFile result = uploadService.saveFileToLocal(uploadFile, userId);
         if (result == null) {
             LOGGER.error("File save to db fail.");
-            throw new DeveloperException("File save to db fail.", ResponseConsts.SAVE_UPLOADED_FILE_FAILED);
+            throw new FileOperateException("File save to db fail.", ResponseConsts.RET_SAVE_FILE_FAIL);
         }
         return result;
     }

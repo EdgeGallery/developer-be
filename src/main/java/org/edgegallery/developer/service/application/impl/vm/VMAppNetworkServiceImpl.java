@@ -19,6 +19,7 @@ package org.edgegallery.developer.service.application.impl.vm;
 import java.util.List;
 import java.util.UUID;
 import org.edgegallery.developer.common.ResponseConsts;
+import org.edgegallery.developer.exception.DataBaseException;
 import org.edgegallery.developer.exception.DeveloperException;
 import org.edgegallery.developer.mapper.application.vm.NetworkMapper;
 import org.edgegallery.developer.model.application.vm.Network;
@@ -41,7 +42,7 @@ public class VMAppNetworkServiceImpl implements VMAppNetworkService {
         int res = networkMapper.createNetwork(applicationId, network);
         if (res < 1) {
             LOGGER.error("Create network in db error.");
-            throw new DeveloperException("Create network in db error.", ResponseConsts.INSERT_DATA_FAILED);
+            throw new DataBaseException("Create network in db error.", ResponseConsts.RET_CERATE_DATA_FAIL);
         }
         return network;
     }
@@ -62,7 +63,7 @@ public class VMAppNetworkServiceImpl implements VMAppNetworkService {
         int res = networkMapper.modifyNetwork(network);
         if (res < 1) {
             LOGGER.error("modify network in db error.");
-            throw new DeveloperException("modify network in db error.", ResponseConsts.MODIFY_DATA_FAILED);
+            throw new DataBaseException("modify network in db error.", ResponseConsts.RET_UPDATE_DATA_FAIL);
         }
         return true;
     }
@@ -72,7 +73,7 @@ public class VMAppNetworkServiceImpl implements VMAppNetworkService {
         int res = networkMapper.deleteNetwork(networkId);
         if (res < 1) {
             LOGGER.error("delete network in db error.");
-            throw new DeveloperException("delete network in db error.", ResponseConsts.DELETE_DATA_FAILED);
+            throw new DataBaseException("delete network in db error.", ResponseConsts.RET_DELETE_DATA_FAIL);
         }
         return true;
     }

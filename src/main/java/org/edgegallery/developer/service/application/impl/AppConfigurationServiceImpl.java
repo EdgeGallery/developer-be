@@ -19,7 +19,9 @@ package org.edgegallery.developer.service.application.impl;
 import java.util.List;
 import java.util.UUID;
 import org.edgegallery.developer.common.ResponseConsts;
+import org.edgegallery.developer.exception.DataBaseException;
 import org.edgegallery.developer.exception.DeveloperException;
+import org.edgegallery.developer.exception.EntityNotFoundException;
 import org.edgegallery.developer.mapper.application.AppConfigurationMapper;
 import org.edgegallery.developer.model.application.configuration.AppCertificate;
 import org.edgegallery.developer.model.application.configuration.AppConfiguration;
@@ -69,7 +71,7 @@ public class AppConfigurationServiceImpl implements AppConfigurationService {
             }
         } catch (Exception e) {
             LOGGER.error("modify appConfiguration failed, appId: {}", applicationId);
-            throw new DeveloperException("modify appConfiguration failed", ResponseConsts.MODIFY_DATA_FAILED);
+            throw new DataBaseException("modify appConfiguration failed", ResponseConsts.RET_UPDATE_DATA_FAIL);
         }
 
         return true;
@@ -86,12 +88,12 @@ public class AppConfigurationServiceImpl implements AppConfigurationService {
         if (result != null) {
             LOGGER.error("create trafficRule failed: ruleId have exit");
             throw new DeveloperException("create trafficRule failed: ruleId have exit",
-                ResponseConsts.INSERT_DATA_FAILED);
+                ResponseConsts.RET_CERATE_DATA_FAIL);
         }
         int res = appConfigurationMapper.createTrafficRule(applicationId, trafficRule);
         if (res < 1) {
             LOGGER.error("create TrafficRule failed");
-            throw new DeveloperException("create TrafficRule failed", ResponseConsts.INSERT_DATA_FAILED);
+            throw new DataBaseException("create TrafficRule failed", ResponseConsts.RET_CERATE_DATA_FAIL);
         }
         return trafficRule;
     }
@@ -101,7 +103,7 @@ public class AppConfigurationServiceImpl implements AppConfigurationService {
         int res = appConfigurationMapper.modifyTrafficRule(applicationId, trafficRule);
         if (res < 1) {
             LOGGER.error("modify TrafficRule failed");
-            throw new DeveloperException("modify TrafficRule failed", ResponseConsts.MODIFY_DATA_FAILED);
+            throw new DataBaseException("modify TrafficRule failed", ResponseConsts.RET_UPDATE_DATA_FAIL);
         }
         return true;
     }
@@ -117,12 +119,12 @@ public class AppConfigurationServiceImpl implements AppConfigurationService {
         DnsRule result = appConfigurationMapper.getDnsRule(applicationId, dnsRule.getDnsRuleId());
         if (result != null) {
             LOGGER.error("create DnsRule failed: ruleId have exit");
-            throw new DeveloperException("create DnsRule failed: ruleId have exit", ResponseConsts.INSERT_DATA_FAILED);
+            throw new EntityNotFoundException("create DnsRule failed: ruleId have exit", ResponseConsts.RET_QUERY_DATA_EMPTY);
         }
         int res = appConfigurationMapper.createDnsRule(applicationId, dnsRule);
         if (res < 1) {
             LOGGER.error("create DnsRule failed");
-            throw new DeveloperException("create DnsRule failed", ResponseConsts.INSERT_DATA_FAILED);
+            throw new DataBaseException("create DnsRule failed", ResponseConsts.RET_CERATE_DATA_FAIL);
         }
         return dnsRule;
     }
@@ -143,7 +145,7 @@ public class AppConfigurationServiceImpl implements AppConfigurationService {
         int res = appConfigurationMapper.modifyDnsRule(applicationId, dnsRule);
         if (res < 1) {
             LOGGER.error("modify DnsRule failed");
-            throw new DeveloperException("modify DnsRule failed", ResponseConsts.MODIFY_DATA_FAILED);
+            throw new DataBaseException("modify DnsRule failed", ResponseConsts.RET_UPDATE_DATA_FAIL);
         }
         return true;
     }
@@ -159,12 +161,12 @@ public class AppConfigurationServiceImpl implements AppConfigurationService {
             serviceProduced.getSerName());
         if (appServiceProduced != null) {
             LOGGER.error("create serviceProduced failed: serName have exit");
-            throw new DeveloperException("create serviceProduced failed", ResponseConsts.INSERT_DATA_FAILED);
+            throw new EntityNotFoundException("create serviceProduced failed", ResponseConsts.RET_QUERY_DATA_EMPTY);
         }
         int res = appConfigurationMapper.createServiceProduced(applicationId, serviceProduced);
         if (res < 1) {
             LOGGER.error("create serviceProduced failed");
-            throw new DeveloperException("create serviceProduced failed", ResponseConsts.INSERT_DATA_FAILED);
+            throw new DataBaseException("create serviceProduced failed", ResponseConsts.RET_CERATE_DATA_FAIL);
         }
         return serviceProduced;
     }
@@ -180,7 +182,7 @@ public class AppConfigurationServiceImpl implements AppConfigurationService {
         int res = appConfigurationMapper.modifyServiceProduced(applicationId, serviceProduced);
         if (res < 1) {
             LOGGER.error("modify AppServiceProduced failed");
-            throw new DeveloperException("modify AppServiceProduced failed", ResponseConsts.MODIFY_DATA_FAILED);
+            throw new DataBaseException("modify AppServiceProduced failed", ResponseConsts.RET_UPDATE_DATA_FAIL);
         }
         return true;
     }
@@ -197,12 +199,12 @@ public class AppConfigurationServiceImpl implements AppConfigurationService {
         if (appServiceRequired != null) {
             LOGGER.error("create serviceRequired failed: serName have exit");
             throw new DeveloperException("create serviceRequired failed: serName have exit",
-                ResponseConsts.INSERT_DATA_FAILED);
-        }
+                ResponseConsts.RET_CERATE_DATA_FAIL);
+       }
         int res = appConfigurationMapper.createServiceRequired(applicationId, serviceRequired);
         if (res < 1) {
             LOGGER.error("create serviceRequired failed");
-            throw new DeveloperException("create serviceRequired failed", ResponseConsts.INSERT_DATA_FAILED);
+            throw new DataBaseException("create serviceRequired failed", ResponseConsts.RET_CERATE_DATA_FAIL);
         }
         return serviceRequired;
     }
@@ -212,7 +214,6 @@ public class AppConfigurationServiceImpl implements AppConfigurationService {
         int res = appConfigurationMapper.modifyServiceRequired(applicationId, serviceRequired);
         if (res < 1) {
             LOGGER.error("modify serviceRequired failed");
-            throw new DeveloperException("modify serviceRequired failed", ResponseConsts.MODIFY_DATA_FAILED);
         }
         return true;
     }
@@ -233,7 +234,7 @@ public class AppConfigurationServiceImpl implements AppConfigurationService {
         int res = appConfigurationMapper.createAppCertificate(applicationId, appCertificate);
         if (res < 1) {
             LOGGER.error("create appCertificate failed");
-            throw new DeveloperException("create appCertificate failed", ResponseConsts.INSERT_DATA_FAILED);
+            throw new DataBaseException("create appCertificate failed", ResponseConsts.RET_CERATE_DATA_FAIL);
         }
         return appCertificate;
     }
@@ -243,7 +244,7 @@ public class AppConfigurationServiceImpl implements AppConfigurationService {
         int res = appConfigurationMapper.modifyAppCertificate(applicationId, appCertificate);
         if (res < 1) {
             LOGGER.error("modify appCertificate failed");
-            throw new DeveloperException("modify appCertificate failed", ResponseConsts.MODIFY_DATA_FAILED);
+            throw new DataBaseException("modify appCertificate failed", ResponseConsts.RET_UPDATE_DATA_FAIL);
         }
         return true;
     }

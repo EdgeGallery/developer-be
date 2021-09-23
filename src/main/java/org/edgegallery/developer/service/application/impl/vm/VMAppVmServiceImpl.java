@@ -13,13 +13,16 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
+
 package org.edgegallery.developer.service.application.impl.vm;
 
 import com.google.gson.Gson;
 import java.util.List;
 import java.util.UUID;
 import org.edgegallery.developer.common.ResponseConsts;
+import org.edgegallery.developer.exception.DataBaseException;
 import org.edgegallery.developer.exception.DeveloperException;
+import org.edgegallery.developer.exception.EntityNotFoundException;
 import org.edgegallery.developer.mapper.application.vm.VMMapper;
 import org.edgegallery.developer.model.application.vm.VMPort;
 import org.edgegallery.developer.model.application.vm.VirtualMachine;
@@ -50,14 +53,14 @@ public class VMAppVmServiceImpl implements VMAppVmService {
         int res = vmMapper.createVM(applicationId, virtualMachine);
         if (res < 1) {
             LOGGER.error("Create vm in db error.");
-            throw new DeveloperException("Create vm in db error.", ResponseConsts.INSERT_DATA_FAILED);
+            throw new DataBaseException("Create vm in db error.", ResponseConsts.RET_CERATE_DATA_FAIL);
         }
         if (virtualMachine.getVmCertificate() != null) {
-            vmMapper.createVMCertificate(virtualMachine.getId(),virtualMachine.getVmCertificate());
+            vmMapper.createVMCertificate(virtualMachine.getId(), virtualMachine.getVmCertificate());
         }
         if (!CollectionUtils.isEmpty(virtualMachine.getPortList())) {
-            for (VMPort port:virtualMachine.getPortList()) {
-                createVmPort(virtualMachine.getId(),port);
+            for (VMPort port : virtualMachine.getPortList()) {
+                createVmPort(virtualMachine.getId(), port);
             }
         }
         return virtualMachine;
@@ -67,7 +70,7 @@ public class VMAppVmServiceImpl implements VMAppVmService {
     public List<VirtualMachine> getAllVm(String applicationId) {
         List<VirtualMachine> virtualMachines = vmMapper.getAllVMsByAppId(applicationId);
 
-        for (VirtualMachine virtualMachine:virtualMachines) {
+        for (VirtualMachine virtualMachine : virtualMachines) {
             virtualMachine.setVmInstantiateInfo(vmAppOperationService.getInstantiateInfo(virtualMachine.getId()));
             virtualMachine.setImageExportInfo(vmAppOperationService.getImageExportInfo(virtualMachine.getId()));
             virtualMachine.setPortList(vmMapper.getAllVMPortsByVMId(virtualMachine.getId()));
@@ -79,9 +82,9 @@ public class VMAppVmServiceImpl implements VMAppVmService {
     @Override
     public VirtualMachine getVm(String applicationId, String vmId) {
         VirtualMachine virtualMachine = vmMapper.getVMById(applicationId, vmId);
-        if (virtualMachine==null) {
+        if (virtualMachine == null) {
             LOGGER.error("vm is not exit.");
-            throw new DeveloperException("vm is not exit.", ResponseConsts.VIRTUAL_MACHINE_NOT_EXIT);
+            throw new EntityNotFoundException("vm is not exit.", ResponseConsts.RET_QUERY_DATA_EMPTY);
         }
         virtualMachine.setVmCertificate(vmMapper.getVMCertificate(vmId));
         virtualMachine.setPortList(vmMapper.getAllVMPortsByVMId(vmId));
@@ -95,10 +98,10 @@ public class VMAppVmServiceImpl implements VMAppVmService {
         int res = vmMapper.modifyVM(virtualMachine);
         if (res < 1) {
             LOGGER.error("modify vm in db error.");
-            throw new DeveloperException("modify vm in db error.", ResponseConsts.MODIFY_DATA_FAILED);
+            throw new DataBaseException("modify vm in db error.", ResponseConsts.RET_UPDATE_DATA_FAIL);
         }
         vmMapper.modifyVMCertificate(vmId, virtualMachine.getVmCertificate());
-        for (VMPort vmPort: virtualMachine.getPortList()) {
+        for (VMPort vmPort : virtualMachine.getPortList()) {
             vmMapper.modifyVMPort(vmPort);
         }
         return true;
@@ -109,7 +112,8 @@ public class VMAppVmServiceImpl implements VMAppVmService {
         VirtualMachine getVm = getVm(applicationId, vmId);
         if (getVm == null || getVm.getVmInstantiateInfo() != null || getVm.getImageExportInfo() != null) {
             LOGGER.error("delete vm  fail, vm is not exit or is used,vmId:{}", vmId);
-            throw new DeveloperException("delete vm  fail, vm is not exit or is used.", ResponseConsts.DELETE_DATA_FAILED);
+            throw new EntityNotFoundException("delete vm  fail, vm is not exit or is used.",
+                ResponseConsts.RET_QUERY_DATA_EMPTY);
         }
         vmMapper.deleteVMCertificate(vmId);
         vmMapper.deleteVMPort(vmId);
@@ -123,7 +127,7 @@ public class VMAppVmServiceImpl implements VMAppVmService {
         int res = vmMapper.createVMPort(vmId, port);
         if (res < 1) {
             LOGGER.error("Create VMPort in db error.");
-            throw new DeveloperException("Create VMPort in db error.", ResponseConsts.INSERT_DATA_FAILED);
+            throw new DataBaseException("Create VMPort in db error.", ResponseConsts.RET_CERATE_DATA_FAIL);
         }
         return res;
     }

@@ -46,7 +46,7 @@ import org.apache.http.ssl.SSLContextBuilder;
 import org.edgegallery.developer.common.Consts;
 import org.edgegallery.developer.common.ResponseConsts;
 import org.edgegallery.developer.config.security.AccessUserUtil;
-import org.edgegallery.developer.exception.DeveloperException;
+import org.edgegallery.developer.exception.HarborException;
 import org.edgegallery.developer.model.containerimage.HarborImage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -185,8 +185,7 @@ public final class ContainerImageUtil {
                 .encodeUserAndPwd(imageConfig.getUsername(), imageConfig.getPassword());
             if (encodeStr.equals("")) {
                 LOGGER.error("encode user and pwd failed!");
-                throw new DeveloperException("encode user and pwd failed!",
-                    ResponseConsts.RET_PROCESS_MERGED_FILE_EXCEPTION);
+                throw new HarborException("encode user and pwd failed!", ResponseConsts.RET_HARBOR_ENCODE_FAIL);
             }
             httpGet.setHeader("Authorization", "Basic " + encodeStr);
             CloseableHttpResponse res = client.execute(httpGet);
@@ -197,8 +196,7 @@ public final class ContainerImageUtil {
             }
         } catch (IOException e) {
             LOGGER.error("call get one project occur error {}", e.getMessage());
-            throw new DeveloperException("call get one project occur error!",
-                ResponseConsts.RET_PROCESS_MERGED_FILE_EXCEPTION);
+            throw new HarborException("call get one project occur error!", ResponseConsts.RET_QUERY_HARBOR_PROJECT_FAIL);
         }
         return true;
     }
@@ -438,9 +436,9 @@ public final class ContainerImageUtil {
             }
             return harborImageList;
         } catch (IOException e) {
+            String err = "get image list from harbor repo failed!";
             LOGGER.error("get image list from harbor repo {}", e.getMessage());
-            throw new DeveloperException("get image list from harbor repo failed!",
-                ResponseConsts.RET_GET_IMAGE_FROM_HARBOR_FAILED);
+            throw new HarborException(err, ResponseConsts.RET_GET_HARBOR_IMAGE_LIST_FAIL);
         }
     }
 
