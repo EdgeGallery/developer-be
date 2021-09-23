@@ -57,7 +57,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 @Service("applicationService")
 public class ApplicationServiceImpl implements ApplicationService {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ApplicationService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ApplicationServiceImpl.class);
 
     @Autowired
     private UploadService uploadService;

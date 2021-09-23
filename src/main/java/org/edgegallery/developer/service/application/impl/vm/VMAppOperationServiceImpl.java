@@ -19,7 +19,6 @@ import org.edgegallery.developer.model.operation.EnumActionStatus;
 import org.edgegallery.developer.model.operation.EnumOperationObjectType;
 import org.edgegallery.developer.model.operation.OperationStatus;
 import org.edgegallery.developer.model.restful.OperationInfoRep;
-import org.edgegallery.developer.service.ProjectService;
 import org.edgegallery.developer.service.application.action.IAction;
 import org.edgegallery.developer.service.application.action.IActionIterator;
 import org.edgegallery.developer.service.application.action.impl.vm.VMLaunchOperation;
@@ -37,7 +36,7 @@ public class VMAppOperationServiceImpl extends AppOperationServiceImpl implement
 
     public static final String OPERATION_NAME = "VirtualMachine launch";
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ProjectService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(VMAppOperationServiceImpl.class);
 
     @Autowired
     VMInstantiateInfoMapper vmInstantiateInfoMapper;

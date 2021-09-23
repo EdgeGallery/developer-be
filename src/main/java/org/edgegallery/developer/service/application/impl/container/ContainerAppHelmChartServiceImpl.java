@@ -18,10 +18,14 @@ package org.edgegallery.developer.service.application.impl.container;
 import java.util.List;
 import org.edgegallery.developer.model.application.container.HelmChart;
 import org.edgegallery.developer.service.application.container.ContainerAppHelmChartService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 @Service("containerAppHelmChartService")
 public class ContainerAppHelmChartServiceImpl implements ContainerAppHelmChartService {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ContainerAppHelmChartServiceImpl.class);
 
     @Override
     public Boolean uploadHelmChartYaml(MultipartFile helmTemplateYaml, String applicationId) {
