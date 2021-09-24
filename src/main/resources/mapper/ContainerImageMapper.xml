@@ -73,11 +73,11 @@
             <if test="imageName != null and imageName !=''">
                 and lower(image_name) like lower(CONCAT('%', #{imageName}, '%'))
             </if>
-            <if test="createTimeBegin != null and createTimeBegin != ''">
-                <![CDATA[ and create_time >= to_timestamp(#{createTimeBegin}, 'YYYY-MM-DD HH24:MI:SS') ]]>
+            <if test="uploadTimeBegin != null and uploadTimeBegin != ''">
+                <![CDATA[ and upload_time >= to_timestamp(#{uploadTimeBegin}, 'YYYY-MM-DD HH24:MI:SS') ]]>
             </if>
-            <if test="createTimeEnd != null and createTimeEnd != ''">
-                <![CDATA[ and create_time <= to_timestamp(#{createTimeEnd}, 'YYYY-MM-DD HH24:MI:SS') ]]>
+            <if test="uploadTimeEnd != null and uploadTimeEnd != ''">
+                <![CDATA[ and upload_time <= to_timestamp(#{uploadTimeEnd}, 'YYYY-MM-DD HH24:MI:SS') ]]>
             </if>
         </where>
         <if test="sortBy != null and sortBy != '' and sortOrder != null and sortOrder != ''">
@@ -109,11 +109,11 @@
             <if test="imageName != null and imageName !=''">
                 and lower(a.image_name) like lower(CONCAT('%', #{imageName}, '%'))
             </if>
-            <if test="createTimeBegin != null and createTimeBegin != ''">
-                <![CDATA[ and to_timestamp(a.create_time,'YYYY-MM-DD HH24:MI:SS') >= to_timestamp(#{createTimeBegin}, 'YYYY-MM-DD HH24:MI:SS') ]]>
+            <if test="uploadTimeBegin != null and uploadTimeBegin != ''">
+                <![CDATA[ and to_timestamp(a.upload_time,'YYYY-MM-DD HH24:MI:SS') >= to_timestamp(#{uploadTimeBegin}, 'YYYY-MM-DD HH24:MI:SS') ]]>
             </if>
-            <if test="createTimeEnd != null and createTimeEnd != ''">
-                <![CDATA[ and to_timestamp(a.create_time,'YYYY-MM-DD HH24:MI:SS') <= to_timestamp(#{createTimeEnd}, 'YYYY-MM-DD HH24:MI:SS') ]]>
+            <if test="uploadTimeEnd != null and uploadTimeEnd != ''">
+                <![CDATA[ and to_timestamp(a.upload_time,'YYYY-MM-DD HH24:MI:SS') <= to_timestamp(#{uploadTimeEnd}, 'YYYY-MM-DD HH24:MI:SS') ]]>
             </if>
         </where>
     </select>

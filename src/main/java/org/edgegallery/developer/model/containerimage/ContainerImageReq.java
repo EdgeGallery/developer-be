@@ -28,9 +28,9 @@ public class ContainerImageReq {
 
     private String userId;
 
-    private String createTimeBegin;
+    private String uploadTimeBegin;
 
-    private String createTimeEnd;
+    private String uploadTimeEnd;
 
     //the max count of one page
     @Min(1)
