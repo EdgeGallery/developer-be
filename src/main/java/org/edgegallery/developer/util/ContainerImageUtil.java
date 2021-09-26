@@ -196,7 +196,8 @@ public final class ContainerImageUtil {
             }
         } catch (IOException e) {
             LOGGER.error("call get one project occur error {}", e.getMessage());
-            throw new HarborException("call get one project occur error!", ResponseConsts.RET_QUERY_HARBOR_PROJECT_FAIL);
+            throw new HarborException("call get one project occur error!",
+                ResponseConsts.RET_QUERY_HARBOR_PROJECT_FAIL);
         }
         return true;
     }
@@ -265,6 +266,10 @@ public final class ContainerImageUtil {
             if (!CollectionUtils.isEmpty(tagList)) {
                 repoTags = tagList.get(0);
             }
+        }
+        if (StringUtils.isNotEmpty(repoTags) && repoTags.contains("/")) {
+            LOGGER.error("pls retag image tar,insure image name not clude '/'");
+            return "";
         }
         LOGGER.warn("repoTags: {} res {} ", repoTags, res);
         return repoTags;
