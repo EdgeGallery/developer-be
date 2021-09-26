@@ -36,7 +36,7 @@ public class VmSystem {
     private String type;
 
     @ApiModelProperty(example = "ubuntu")
-    @Pattern(regexp = "ubuntu|centos|window|cirros")
+    @Pattern(regexp = "ubuntu|centos|windows|cirros")
     private String operateSystem;
 
     @Length(max = 50)
