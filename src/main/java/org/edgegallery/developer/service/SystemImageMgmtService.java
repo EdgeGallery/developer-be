@@ -613,12 +613,12 @@ public class SystemImageMgmtService {
         try (ZipFile zipFile = new ZipFile(mergedFile)) {
             String fileMd5 = null;
             String fileFormat = null;
-            int fileSize = 0;
+            Long fileSize = 0L;
             Enumeration<? extends ZipEntry> entries = zipFile.entries();
             while (entries.hasMoreElements()) {
                 ZipEntry entry = entries.nextElement();
                 String name = entry.getName();
-                fileSize = (int) (entry.getCompressedSize() / FILE_SIZE_UNIT);
+                fileSize = entry.getCompressedSize();
                 fileFormat = name.substring(name.lastIndexOf(".") + 1, name.length());
                 if (fileFormat.equalsIgnoreCase(FILE_FORMAT_QCOW2) || fileFormat.equalsIgnoreCase(FILE_FORMAT_ISO)) {
                     fileMd5 = FileHashCode.md5HashCode32(zipFile.getInputStream(entry));
