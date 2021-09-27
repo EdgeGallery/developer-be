@@ -358,7 +358,7 @@
       "create_time" timestamptz(6)  DEFAULT NULL,
       "modify_time" timestamptz(6)  DEFAULT NULL,
       "system_format" varchar(50) DEFAULT NULL,
-      "system_size" int4 DEFAULT NULL,
+      "system_size" bigint DEFAULT NULL,
       "system_slim" varchar(50) DEFAULT NULL,
       "upload_time" timestamptz(6)  DEFAULT NULL,
       "system_path" varchar(128) DEFAULT NULL,

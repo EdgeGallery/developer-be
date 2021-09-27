@@ -37,7 +37,7 @@ public class UploadFileInfo {
 
     private String fileFormat;
 
-    private Integer fileSize;
+    private Long fileSize;
 
     private String status;
 
@@ -77,7 +77,7 @@ public class UploadFileInfo {
      * @param fileFormat File Format
      * @param fileSize File size
      */
-    public UploadFileInfo(String fileName, String fileMd5, String fileFormat, int fileSize) {
+    public UploadFileInfo(String fileName, String fileMd5, String fileFormat, long fileSize) {
         this.succeeded = true;
         setFileName(fileName);
         setFileMd5(fileMd5);

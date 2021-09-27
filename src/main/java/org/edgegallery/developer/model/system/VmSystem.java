@@ -60,7 +60,7 @@ public class VmSystem {
     @Length(max = 50)
     private String systemFormat;
 
-    private Integer systemSize;
+    private Long systemSize;
 
     private EnumSystemImageSlimStatus systemSlim;
 
