@@ -643,6 +643,8 @@ public class ProjectService {
         } else {
             csarPkgDir = new NewCreateCsar().create(projectPath, testConfig, project, chartName, null);
         }
+        encryptedService.encryptedFile(csarPkgDir.getCanonicalPath());
+        encryptedService.encryptedCMS(csarPkgDir.getCanonicalPath());
         return CompressFileUtilsJava
             .compressToCsarAndDeleteSrc(csarPkgDir.getCanonicalPath(), projectPath, csarPkgDir.getName());
     }

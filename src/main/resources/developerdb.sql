@@ -393,6 +393,7 @@
       "sk" text DEFAULT NULL,
       "app_instance_id" varchar(50) DEFAULT NULL,
       "create_time" timestamptz(6) DEFAULT NULL,
+      CONSTRAINT  "tbl_project_vm_package__uniqueProjectId" UNIQUE ("project_id"),
       CONSTRAINT "tbl_project_vm_package_config_pkey" PRIMARY KEY ("id")
     )
     ;
