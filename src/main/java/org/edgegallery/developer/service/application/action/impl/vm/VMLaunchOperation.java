@@ -30,6 +30,7 @@ import org.edgegallery.developer.service.application.action.impl.BuildPackageAct
 import org.edgegallery.developer.service.application.action.impl.DistributePackageAction;
 import org.edgegallery.developer.service.application.action.impl.OperationContext;
 import org.edgegallery.developer.service.application.action.impl.QueryDistributePackageStatusAction;
+import org.edgegallery.developer.service.application.common.IContextParameter;
 
 public class VMLaunchOperation implements IActionCollection {
 
@@ -37,7 +38,7 @@ public class VMLaunchOperation implements IActionCollection {
 
     public List<IAction> actions;
 
-    public VMLaunchOperation(String lcmController, OperationStatus operationStatus) {
+    public VMLaunchOperation(String applicationId, String vmId, String token, OperationStatus operationStatus) {
 
         IAction buildPackageAction = new BuildPackageAction();
         IAction distributePackageAction = new DistributePackageAction();
@@ -52,12 +53,14 @@ public class VMLaunchOperation implements IActionCollection {
         actionProgressRangeMap.put(instantiateVMAppAction.getActionName(), new ActionProgressRange(60, 80));
         actionProgressRangeMap.put(queryInstantiateVMAppStatusAction.getActionName(), new ActionProgressRange(80, 100));
 
-        OperationContext context = new OperationContext(lcmController, operationStatus, actionProgressRangeMap);
+        OperationContext context = new OperationContext(token, operationStatus, actionProgressRangeMap);
         buildPackageAction.setContext(context);
         distributePackageAction.setContext(context);
         queryDistributePackageStatusAction.setContext(context);
         instantiateVMAppAction.setContext(context);
         queryInstantiateVMAppStatusAction.setContext(context);
+        context.addParameter(IContextParameter.PARAM_APPLICATION_ID, applicationId);
+        context.addParameter(IContextParameter.PARAM_VM_ID, vmId);
 
         actions = Arrays.asList(buildPackageAction, distributePackageAction, queryDistributePackageStatusAction,
             instantiateVMAppAction, queryInstantiateVMAppStatusAction);

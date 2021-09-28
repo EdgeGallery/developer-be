@@ -23,6 +23,7 @@ import io.swagger.annotations.ApiResponses;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
+import org.edgegallery.developer.model.apppackage.AppPackage;
 import org.edgegallery.developer.model.restful.SelectMepHostReq;
 import org.edgegallery.developer.response.ErrorRespDto;
 import org.edgegallery.developer.service.application.AppOperationService;
@@ -86,19 +87,19 @@ public class AppOperationCtl {
     /**
      * generate a package:下载镜像.
      */
-    @ApiOperation(value = "generate a package.", response = Boolean.class)
+    @ApiOperation(value = "generate a package.", response = AppPackage.class)
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "OK", response = Boolean.class),
+        @ApiResponse(code = 200, message = "OK", response = AppPackage.class),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
     @RequestMapping(value = "/{applicationId}/generatepackage", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_UTF8_VALUE,
         produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
-    public ResponseEntity<Boolean> generatePackage(
+    public ResponseEntity<AppPackage> generatePackage(
         @Pattern(regexp = REGEX_UUID, message = "applicationId must be in UUID format")
         @ApiParam(value = "applicationId", required = true) @PathVariable("applicationId") String applicationId) {
-        Boolean result = getAppOperationService(applicationId).generatePackage(applicationId);
-        return ResponseEntity.ok(result);
+        AppPackage appPkg = getAppOperationService(applicationId).generatePackage(applicationId);
+        return ResponseEntity.ok(appPkg);
     }
 
     /**

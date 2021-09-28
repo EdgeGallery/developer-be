@@ -12,7 +12,9 @@ import org.edgegallery.developer.mapper.application.vm.VMMapper;
 import org.edgegallery.developer.mapper.operation.OperationStatusMapper;
 import org.edgegallery.developer.model.Chunk;
 import org.edgegallery.developer.model.application.Application;
+import org.edgegallery.developer.model.application.vm.VMApplication;
 import org.edgegallery.developer.model.application.vm.VirtualMachine;
+import org.edgegallery.developer.model.apppackage.AppPackage;
 import org.edgegallery.developer.model.instantiate.vm.ImageExportInfo;
 import org.edgegallery.developer.model.instantiate.vm.VMInstantiateInfo;
 import org.edgegallery.developer.model.operation.EnumActionStatus;
@@ -85,7 +87,7 @@ public class VMAppOperationServiceImpl extends AppOperationServiceImpl implement
             LOGGER.error("Create operationStatus in db error.");
             throw new DataBaseException("Create operationStatus in db error.", ResponseConsts.RET_CERATE_DATA_FAIL);
         }
-        VMLaunchOperation actionCollection = new VMLaunchOperation(accessToken, operationStatus);
+        VMLaunchOperation actionCollection = new VMLaunchOperation(applicationId, vmId, accessToken, operationStatus);
         LOGGER.info("start instantiate vm app");
         new InstantiateVmAppProcessor(actionCollection).start();
         return new OperationInfoRep(operationStatus.getId());
@@ -104,7 +106,12 @@ public class VMAppOperationServiceImpl extends AppOperationServiceImpl implement
 
 
     @Override
-    public Boolean generatePackage(String applicationId) {
+    public AppPackage generatePackage(String applicationId) {
+        return null;
+    }
+
+    @Override
+    public AppPackage generatePackage(VMApplication application){
         return null;
     }
 
