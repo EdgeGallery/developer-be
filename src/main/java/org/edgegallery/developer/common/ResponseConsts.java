@@ -156,4 +156,55 @@ public class ResponseConsts {
      */
     public static final int RET_CALL_LCM_FAIL= 20028;
 
+    /**
+     *  yaml load fail.
+     */
+    public static final int RET_LOAD_YAML_FAIL= 20029;
+
+    /**
+     *  decompress file fail.
+     */
+    public static final int RET_DECOPRESS_FILE_FAIL= 20030;
+
+    /**
+     *  get file structure error.
+     */
+    public static final int RET_FILE_STRUCTURE_FAIL= 20031;
+
+    /**
+     *   file is empty.
+     */
+    public static final int RET_FILE_EMPTY= 20032;
+
+    /**
+     *   file not readable.
+     */
+    public static final int RET_FILE_NOT_READABLE= 20033;
+
+    /**
+     *  compress file fail.
+     */
+    public static final int RET_COPRESS_FILE_FAIL= 20034;
+
+    /**
+     *  build sdk project fail.
+     */
+    public static final int RET_BUILD_SDK_FAIL= 20035;
+
+    /**
+     *   read file fail.
+     */
+    public static final int RET_READ_FILE_FAIL= 20036;
+
+    /**
+     *   write file fail.
+     */
+    public static final int RET_WRITE_FILE_FAIL= 20037;
+
+
+    /**
+     *   transfer file fail.
+     */
+    public static final int RET_TRANSFER_FILE_FAIL= 20038;
+
 }

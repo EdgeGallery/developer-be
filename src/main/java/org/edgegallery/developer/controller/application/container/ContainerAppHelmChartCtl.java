@@ -13,6 +13,7 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
+
 package org.edgegallery.developer.controller.application.container;
 
 import io.swagger.annotations.Api;
@@ -37,6 +38,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.multipart.MultipartFile;
+
 @Controller
 @RestSchema(schemaId = "helmCharts")
 @RequestMapping("/mec/developer/v2/applications")
@@ -47,6 +49,7 @@ public class ContainerAppHelmChartCtl {
 
     @Autowired
     private ContainerAppHelmChartService containerAppHelmChartService;
+
     /**
      * upload helm template yaml.
      */
@@ -62,9 +65,7 @@ public class ContainerAppHelmChartCtl {
         @ApiParam(value = "file", required = true) @RequestPart("file") MultipartFile helmTemplateYaml,
         @Pattern(regexp = REGEX_UUID, message = "projectId must be in UUID format")
         @ApiParam(value = "applicationId", required = true) @RequestParam("applicationId") String applicationId) {
-        Boolean result = containerAppHelmChartService
-            .uploadHelmChartYaml(helmTemplateYaml, applicationId);
-        return ResponseEntity.ok(result);
+        return ResponseEntity.ok(containerAppHelmChartService.uploadHelmChartYaml(helmTemplateYaml, applicationId));
     }
 
     /**
@@ -118,8 +119,7 @@ public class ContainerAppHelmChartCtl {
         @ApiParam(value = "applicationId", required = true) @RequestParam("applicationId") String applicationId,
         @Pattern(regexp = REGEX_UUID, message = "fileId must be in UUID format")
         @ApiParam(value = "id", required = true) @RequestParam("id") String id) {
-        Boolean result = containerAppHelmChartService.deleteHelmChartById(applicationId, id);
-        return ResponseEntity.ok(result);
+        return ResponseEntity.ok(containerAppHelmChartService.deleteHelmChartById(applicationId, id));
     }
 
 }

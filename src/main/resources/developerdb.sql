@@ -186,6 +186,7 @@
       "svc_type" varchar(255)  DEFAULT NULL,
       "svc_port" varchar(255)  DEFAULT NULL,
       "svc_node_port" varchar(255)  DEFAULT NULL,
+      "helm_chart_file_id" varchar(255) DEFAULT NULL,
       CONSTRAINT "tbl_project_image_pkey" PRIMARY KEY ("id")
     )
     ;

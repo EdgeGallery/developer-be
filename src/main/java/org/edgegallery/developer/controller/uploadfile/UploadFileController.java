@@ -31,7 +31,6 @@ import org.edgegallery.developer.model.apppackage.AppPkgStructure;
 import org.edgegallery.developer.model.workspace.UploadedFile;
 import org.edgegallery.developer.response.ErrorRespDto;
 import org.edgegallery.developer.response.FormatRespDto;
-import org.edgegallery.developer.response.HelmTemplateYamlRespDto;
 import org.edgegallery.developer.service.uploadfile.UploadService;
 import org.edgegallery.developer.util.ResponseDataUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,7 +58,7 @@ public class UploadFileController {
     private UploadService uploadFileService;
 
     /**
-     * get a file stream.
+     * get file stream.
      */
     @ApiOperation(value = "get a file", response = File.class)
     @ApiResponses(value = {
@@ -73,16 +72,11 @@ public class UploadFileController {
     @ApiParam(value = "fileId", required = true) @PathVariable("fileId") String fileId,
         @Pattern(regexp = REGEX_UUID, message = "userId must be in UUID format") @ApiParam(value = "userId")
         @RequestParam("userId") String userId, @ApiParam(value = "type") @RequestParam("type") String type) {
-        Either<FormatRespDto, ResponseEntity<byte[]>> either = uploadFileService.getFile(fileId, userId, type);
-        if (either.isRight()) {
-            return either.getRight();
-        } else {
-            return null;
-        }
+        return uploadFileService.getFile(fileId, userId, type);
     }
 
     /**
-     * get a api file .
+     * get file Echo use.
      */
     @ApiOperation(value = "get a file", response = File.class)
     @ApiResponses(value = {
@@ -97,34 +91,14 @@ public class UploadFileController {
         @ApiParam(value = "fileId", required = true) @PathVariable("fileId") String fileId,
         @Pattern(regexp = REGEX_UUID, message = "userId must be in UUID format") @ApiParam(value = "userId")
         @RequestParam("userId") String userId) {
-        Either<FormatRespDto, UploadedFile> either = uploadFileService.getApiFile(fileId, userId);
-        return ResponseDataUtil.buildResponse(either);
-    }
-
-    /**
-     * upload file.
-     */
-    @ApiOperation(value = "upload file", response = UploadedFile.class)
-    @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "OK", response = UploadedFile.class),
-        @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
-    })
-    @RequestMapping(value = "", method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
-        produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
-    public ResponseEntity<UploadedFile> uploadFile(
-        @ApiParam(value = "file", required = true) @RequestPart("file") MultipartFile uploadFile,
-        @Pattern(regexp = REGEX_UUID, message = "userId must be in UUID format")
-        @ApiParam(value = "userId", required = true) @RequestParam("userId") String userId) {
-        Either<FormatRespDto, UploadedFile> either = uploadFileService.uploadFile(userId, uploadFile);
-        return ResponseDataUtil.buildResponse(either);
-
+        UploadedFile either = uploadFileService.getApiFile(fileId, userId);
+        return ResponseEntity.ok(either);
     }
 
     /**
      * upload md file.
      */
-    @ApiOperation(value = "upload file", response = UploadedFile.class)
+    @ApiOperation(value = "upload md file", response = UploadedFile.class)
     @ApiResponses(value = {
         @ApiResponse(code = 200, message = "OK", response = UploadedFile.class),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
@@ -136,72 +110,66 @@ public class UploadFileController {
         @ApiParam(value = "file", required = true) @RequestPart("file") MultipartFile uploadFile,
         @Pattern(regexp = REGEX_UUID, message = "userId must be in UUID format")
         @ApiParam(value = "userId", required = true) @RequestParam("userId") String userId) {
-        Either<FormatRespDto, UploadedFile> either = uploadFileService.uploadMdFile(userId, uploadFile);
-        return ResponseDataUtil.buildResponse(either);
+        UploadedFile either = uploadFileService.uploadMdFile(userId, uploadFile);
+        return ResponseEntity.ok(either);
 
     }
 
     /**
-     * upload helm template yaml.
+     * upload pic file.
      */
-    @ApiOperation(value = "upload helm template yaml", response = HelmTemplateYamlRespDto.class)
+    @ApiOperation(value = "upload pic file", response = UploadedFile.class)
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "OK", response = HelmTemplateYamlRespDto.class),
+        @ApiResponse(code = 200, message = "OK", response = UploadedFile.class),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
-    @RequestMapping(value = "/helm-template-yaml", method = RequestMethod.POST,
+    @RequestMapping(value = "/pic", method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
+        produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
+    public ResponseEntity<UploadedFile> uploadPicture(
+        @ApiParam(value = "file", required = true) @RequestPart("file") MultipartFile uploadFile,
+        @Pattern(regexp = REGEX_UUID, message = "userId must be in UUID format")
+        @ApiParam(value = "userId", required = true) @RequestParam("userId") String userId) {
+        UploadedFile either = uploadFileService.uploadPicFile(userId, uploadFile);
+        return ResponseEntity.ok(either);
+    }
+
+    /**
+     * upload api file.
+     */
+    @ApiOperation(value = "upload pic file", response = UploadedFile.class)
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = "OK", response = UploadedFile.class),
+        @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
+    })
+    @RequestMapping(value = "/api", method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
+        produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
+    public ResponseEntity<UploadedFile> uploadApiFile(
+        @ApiParam(value = "file", required = true) @RequestPart("file") MultipartFile uploadFile,
+        @Pattern(regexp = REGEX_UUID, message = "userId must be in UUID format")
+        @ApiParam(value = "userId", required = true) @RequestParam("userId") String userId) {
+        UploadedFile either = uploadFileService.uploadApiFile(userId, uploadFile);
+        return ResponseEntity.ok(either);
+    }
+
+    /**
+     * upload host config file.
+     */
+    @ApiOperation(value = "upload pic file", response = UploadedFile.class)
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = "OK", response = UploadedFile.class),
+        @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
+    })
+    @RequestMapping(value = "/configuration", method = RequestMethod.POST,
         consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
-    public ResponseEntity<HelmTemplateYamlRespDto> uploadHelmTemplateYaml(
-        @ApiParam(value = "file", required = true) @RequestPart("file") MultipartFile helmTemplateYaml,
+    public ResponseEntity<UploadedFile> uploadConfigFile(
+        @ApiParam(value = "file", required = true) @RequestPart("file") MultipartFile uploadFile,
         @Pattern(regexp = REGEX_UUID, message = "userId must be in UUID format")
-        @ApiParam(value = "userId", required = true) @RequestParam("userId") String userId,
-        @Pattern(regexp = REGEX_UUID, message = "projectId must be in UUID format")
-        @ApiParam(value = "projectId", required = true) @RequestParam("projectId") String projectId,
-        @ApiParam(value = "configType", required = true) @RequestParam("configType") String configType)
-        throws IOException {
-        Either<FormatRespDto, HelmTemplateYamlRespDto> either = uploadFileService
-            .uploadHelmTemplateYaml(helmTemplateYaml, userId, projectId, configType);
-        return ResponseDataUtil.buildResponse(either);
-    }
-
-    /**
-     * get helm template yaml list.
-     */
-    @ApiOperation(value = "get helm template yaml list", response = List.class)
-    @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "OK", response = List.class),
-        @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
-    })
-    @RequestMapping(value = "/helm-template-yaml", method = RequestMethod.GET,
-        produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
-    public ResponseEntity<List<HelmTemplateYamlRespDto>> getHelmTemplateYamlList(
-        @Pattern(regexp = REGEX_UUID, message = "userId must be in UUID format")
-        @ApiParam(value = "userId", required = true) @RequestParam("userId") String userId,
-        @Pattern(regexp = REGEX_UUID, message = "projectId must be in UUID format")
-        @ApiParam(value = "projectId", required = true) @RequestParam("projectId") String projectId) {
-        Either<FormatRespDto, List<HelmTemplateYamlRespDto>> either = uploadFileService
-            .getHelmTemplateYamlList(userId, projectId);
-        return ResponseDataUtil.buildResponse(either);
-    }
-
-    /**
-     * delete helm template yaml.
-     */
-    @ApiOperation(value = "delete helm template yaml", response = String.class)
-    @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "OK", response = String.class),
-        @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
-    })
-    @RequestMapping(value = "/helm-template-yaml", method = RequestMethod.DELETE,
-        produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
-    public ResponseEntity<String> deleteHelmTemplateYamlByFileId(
-        @Pattern(regexp = REGEX_UUID, message = "fileId must be in UUID format")
-        @ApiParam(value = "fileId", required = true) @RequestParam("fileId") String fileId) {
-        Either<FormatRespDto, String> either = uploadFileService.deleteHelmTemplateYamlByFileId(fileId);
-        return ResponseDataUtil.buildResponse(either);
+        @ApiParam(value = "userId", required = true) @RequestParam("userId") String userId) {
+        UploadedFile either = uploadFileService.uploadConfigFile(userId, uploadFile);
+        return ResponseEntity.ok(either);
     }
 
     /**
@@ -217,12 +185,7 @@ public class UploadFileController {
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN') || hasRole('DEVELOPER_GUEST')")
     public ResponseEntity<byte[]> getSampleCode(
         @ApiParam(value = "apiFileIds", required = true) @RequestBody List<String> apiFileIds) {
-        Either<FormatRespDto, ResponseEntity<byte[]>> either = uploadFileService.downloadSampleCode(apiFileIds);
-        if (either.isRight()) {
-            return either.getRight();
-        } else {
-            return null;
-        }
+        return uploadFileService.downloadSampleCode(apiFileIds);
     }
 
     /**
@@ -238,11 +201,10 @@ public class UploadFileController {
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN') || hasRole('DEVELOPER_GUEST')")
     public ResponseEntity<AppPkgStructure> getSampleCodeStru(
         @ApiParam(value = "apiFileIds", required = true) @RequestBody List<String> apiFileIds) {
-        Either<FormatRespDto, AppPkgStructure> either = uploadFileService.getSampleCodeStru(apiFileIds);
-        return ResponseDataUtil.buildResponse(either);
+        return ResponseEntity.ok(uploadFileService.getSampleCodeStru(apiFileIds));
     }
 
-    /**
+    /**+
      * get sample code content.
      */
     @ApiOperation(value = "get sample code content", response = String.class)
@@ -255,8 +217,7 @@ public class UploadFileController {
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN') || hasRole('DEVELOPER_GUEST')")
     public ResponseEntity<String> getSampleCodeContent(
         @ApiParam(value = "fileName", required = true) @RequestParam String fileName) {
-        Either<FormatRespDto, String> either = uploadFileService.getSampleCodeContent(fileName);
-        return ResponseDataUtil.buildResponse(either);
+        return ResponseEntity.ok(uploadFileService.getSampleCodeContent(fileName));
     }
 
     /**
@@ -274,12 +235,7 @@ public class UploadFileController {
     @ApiParam(value = "fileId", required = true) @PathVariable("fileId") String fileId,
         @Pattern(regexp = REGEX_UUID, message = "lan must be in UUID format") @ApiParam(value = "lan", required = true)
         @PathVariable("lan") String lan) throws IOException {
-        Either<FormatRespDto, ResponseEntity<byte[]>> either = uploadFileService.getSdkProject(fileId, lan);
-        if (either.isRight()) {
-            return either.getRight();
-        } else {
-            return null;
-        }
+        return uploadFileService.getSdkProject(fileId, lan);
     }
 
 }

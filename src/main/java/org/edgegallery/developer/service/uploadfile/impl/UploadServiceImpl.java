@@ -1,42 +1,32 @@
 package org.edgegallery.developer.service.uploadfile.impl;
 
-import com.google.common.collect.Lists;
 import com.google.gson.Gson;
-import com.spencerwi.either.Either;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
-import java.util.regex.Pattern;
-import javax.ws.rs.core.Response;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.edgegallery.developer.common.ResponseConsts;
+import org.edgegallery.developer.exception.DeveloperException;
 import org.edgegallery.developer.exception.EntityNotFoundException;
 import org.edgegallery.developer.exception.FileFoundFailException;
 import org.edgegallery.developer.exception.FileOperateException;
-import org.edgegallery.developer.mapper.HelmTemplateYamlMapper;
+import org.edgegallery.developer.exception.IllegalRequestException;
 import org.edgegallery.developer.mapper.HostMapper;
 import org.edgegallery.developer.mapper.OpenMepCapabilityMapper;
-import org.edgegallery.developer.mapper.ProjectImageMapper;
-import org.edgegallery.developer.mapper.ProjectMapper;
 import org.edgegallery.developer.mapper.UploadedFileMapper;
-import org.edgegallery.developer.model.apppackage.AppPkgStructure;
 import org.edgegallery.developer.model.GeneralConfig;
+import org.edgegallery.developer.model.apppackage.AppPkgStructure;
 import org.edgegallery.developer.model.resource.MepHost;
-import org.edgegallery.developer.model.workspace.ApplicationProject;
 import org.edgegallery.developer.model.workspace.EnumHostStatus;
 import org.edgegallery.developer.model.workspace.EnumOpenMepType;
-import org.edgegallery.developer.model.workspace.HelmTemplateYamlPo;
 import org.edgegallery.developer.model.workspace.OpenMepCapability;
-import org.edgegallery.developer.model.workspace.ProjectImageConfig;
 import org.edgegallery.developer.model.workspace.UploadedFile;
-import org.edgegallery.developer.response.FormatRespDto;
-import org.edgegallery.developer.response.HelmTemplateYamlRespDto;
 import org.edgegallery.developer.service.AppReleaseService;
 import org.edgegallery.developer.service.uploadfile.UploadService;
 import org.edgegallery.developer.util.BusinessConfigUtil;
@@ -45,17 +35,14 @@ import org.edgegallery.developer.util.DeveloperFileUtils;
 import org.edgegallery.developer.util.FileUtil;
 import org.edgegallery.developer.util.InitConfigUtil;
 import org.edgegallery.developer.util.RuntimeUtil;
-import org.edgegallery.developer.util.UploadFileUtil;
 import org.edgegallery.developer.util.samplecode.SampleCodeServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.SafeConstructor;
@@ -66,14 +53,6 @@ public class UploadServiceImpl implements UploadService {
     private static final Logger LOGGER = LoggerFactory.getLogger(UploadServiceImpl.class);
 
     private static final String REGEX_UUID = "[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}";
-
-    private static final String REGEX_START = Pattern.quote("{{");
-
-    private static final String REGEX_END = Pattern.quote("}}");
-
-    private static final Pattern REPLACE_PATTERN = Pattern.compile(REGEX_START + "(.*?)" + REGEX_END);
-
-    private static Gson gson = new Gson();
 
     @Autowired
     private UploadedFileMapper uploadedFileMapper;
@@ -87,37 +66,10 @@ public class UploadServiceImpl implements UploadService {
     @Autowired
     private AppReleaseService appReleaseService;
 
-    @Autowired
-    private HelmTemplateYamlMapper helmTemplateYamlMapper;
-
-    @Autowired
-    private ProjectImageMapper projectImageMapper;
-
-    @Autowired
-    private ProjectMapper projectMapper;
-
     private String sampleCodePath;
 
-    @Value("${imagelocation.domainname:}")
-    private String devRepoEndpoint;
-
-    @Value("${imagelocation.username:}")
-    private String devRepoUsername;
-
-    @Value("${imagelocation.password:}")
-    private String devRepoPassword;
-
-    @Value("${imagelocation.project:}")
-    private String devRepoProject;
-
-    @Value("${imagelocation.port:}")
-    private String port;
-
-    @Value("${imagelocation.protocol:}")
-    private String protocol;
-
     @Override
-    public Either<FormatRespDto, ResponseEntity<byte[]>> getFile(String fileId, String userId, String type) {
+    public ResponseEntity<byte[]> getFile(String fileId, String userId, String type) {
         UploadedFile uploadedFile = uploadedFileMapper.getFileById(fileId);
         if (uploadedFile == null) {
             LOGGER.error("can not find file {} in db", fileId);
@@ -136,7 +88,7 @@ public class UploadServiceImpl implements UploadService {
             headers.add("Content-Disposition", "attachment; filename=" + file.getName());
             LOGGER.info("get file success {}", fileId);
             byte[] fileData = getFileByteArray(file, userId, type, fileName);
-            return Either.right(ResponseEntity.ok().headers(headers).body(fileData));
+            return ResponseEntity.ok().headers(headers).body(fileData);
         } catch (IOException e) {
             LOGGER.error("Failed to get file stream: {}", e.getMessage());
             throw new FileFoundFailException("can not find file in repository!", ResponseConsts.RET_FILE_NOT_FOUND);
@@ -161,7 +113,7 @@ public class UploadServiceImpl implements UploadService {
     }
 
     @Override
-    public Either<FormatRespDto, UploadedFile> getApiFile(String fileId, String userId) {
+    public UploadedFile getApiFile(String fileId, String userId) {
         UploadedFile uploadedFile = uploadedFileMapper.getFileById(fileId);
         if (uploadedFile != null) {
             File file = new File(InitConfigUtil.getWorkSpaceBaseDir() + uploadedFile.getFilePath());
@@ -170,297 +122,128 @@ public class UploadServiceImpl implements UploadService {
                 throw new FileFoundFailException("api file not exist!", ResponseConsts.RET_FILE_NOT_FOUND);
             }
         }
-        return Either.right(uploadedFile);
+        return uploadedFile;
     }
 
     @Override
-    public Either<FormatRespDto, UploadedFile> uploadFile(String userId, MultipartFile uploadFile) {
+    public UploadedFile uploadMdFile(String userId, MultipartFile uploadFile) {
+        //check format
+        String fileName = uploadFile.getOriginalFilename();
+        String[] nameSuffixes = {"md", "MD"};
+        String suffix = fileName.substring(fileName.lastIndexOf(".") + 1);
+        if (!Arrays.asList(nameSuffixes).contains(suffix)) {
+            LOGGER.error("upload file is not in md format");
+            throw new IllegalRequestException("The file is not in md format", ResponseConsts.RET_FILE_FORMAT_ERROR);
+        }
         LOGGER.info("Start uploading file");
         UploadedFile result = saveFileToLocal(uploadFile, userId);
         if (result == null) {
-            throw new FileOperateException("Failed to save file.!", ResponseConsts.RET_SAVE_FILE_FAIL);
+            throw new FileOperateException("Failed to save md file.!", ResponseConsts.RET_SAVE_FILE_FAIL);
         }
-        return Either.right(result);
+        return result;
     }
 
     @Override
-    public Either<FormatRespDto, UploadedFile> uploadMdFile(String userId, MultipartFile uploadFile) {
-        return null;
+    public UploadedFile uploadPicFile(String userId, MultipartFile uploadFile) {
+        //check format
+        String fileName = uploadFile.getOriginalFilename();
+        String[] nameSuffixes = {"png", "jpg", "PNG", "JPG"};
+        String suffix = fileName.substring(fileName.lastIndexOf(".") + 1);
+        if (!Arrays.asList(nameSuffixes).contains(suffix)) {
+            LOGGER.error("upload file is not in jpg or png format");
+            throw new IllegalRequestException("The file is not in jpg or png format",
+                ResponseConsts.RET_FILE_FORMAT_ERROR);
+        }
+        boolean res = FileUtil.checkFileSize(uploadFile.getSize(), 2, "M");
+        if (!res) {
+            LOGGER.error("file size can not be greater than 2m");
+            throw new IllegalRequestException("file size can not be greater than 2m",
+                ResponseConsts.RET_FILE_FORMAT_ERROR);
+        }
+        LOGGER.info("Start uploading file");
+        UploadedFile result = saveFileToLocal(uploadFile, userId);
+        if (result == null) {
+            throw new FileOperateException("Failed to save picture file.!", ResponseConsts.RET_SAVE_FILE_FAIL);
+        }
+        return result;
     }
 
     @Override
-    public Either<FormatRespDto, HelmTemplateYamlRespDto> uploadHelmTemplateYaml(MultipartFile helmTemplateYaml,
-        String userId, String projectId, String configType) {
-        String fileName = helmTemplateYaml.getOriginalFilename();
-        if (StringUtils.isEmpty(fileName)) {
-            return Either.left(new FormatRespDto(Response.Status.BAD_REQUEST, "file name is null!"));
+    public UploadedFile uploadApiFile(String userId, MultipartFile uploadFile) {
+        //check format
+        String fileName = uploadFile.getOriginalFilename();
+        String[] nameSuffixes = {"yaml", "yml", "YAML", "YML", "json", "JSON"};
+        String suffix = fileName.substring(fileName.lastIndexOf(".") + 1);
+        if (!Arrays.asList(nameSuffixes).contains(suffix)) {
+            LOGGER.error("upload file is not in yaml or json format");
+            throw new IllegalRequestException("The file is not in yaml or json format",
+                ResponseConsts.RET_FILE_FORMAT_ERROR);
         }
-        if (!fileName.endsWith("yaml") && !fileName.endsWith("yml") && !fileName.endsWith("YAML") && !fileName
-            .endsWith("YML")) {
-            return Either.left(new FormatRespDto(Response.Status.BAD_REQUEST, "file type is not yaml!"));
+        LOGGER.info("Start uploading file");
+        UploadedFile result = saveFileToLocal(uploadFile, userId);
+        if (result == null) {
+            throw new FileOperateException("Failed to save api file.!", ResponseConsts.RET_SAVE_FILE_FAIL);
         }
-        String content;
-        File tempFile;
-        try {
-            tempFile = File.createTempFile(UUID.randomUUID().toString(), null);
-            helmTemplateYaml.transferTo(tempFile);
-            content = UploadFileUtil.readFile(tempFile);
-        } catch (IOException e) {
-            String errorMsg = "Failed to read content of helm template yaml, userId: {}, projectId: {},exception: {}";
-            LOGGER.error(errorMsg, userId, projectId, e.getMessage());
-            String returnMsg = "Failed to read content of helm template yaml";
-            return Either.left(new FormatRespDto(Response.Status.INTERNAL_SERVER_ERROR, returnMsg));
-        }
-        //empty yaml
-        if (StringUtils.isEmpty(content)) {
-            return Either.left(new FormatRespDto(Response.Status.BAD_REQUEST, "yaml file is empty!"));
-        }
-        //Verify whether there exists a configuration namespace
-        if (!content.contains("namespace")) {
-            content = UploadFileUtil.addNameSpace(content);
-        } else {
-            //replace namespace content
-            content = UploadFileUtil.replaceContent(content);
-        }
-        //The image format isname:tag(nameDoes not contain delimiter)
-        HelmTemplateYamlRespDto helmTemplateYamlRespDto = new HelmTemplateYamlRespDto();
-        String oriName = helmTemplateYaml.getOriginalFilename();
-        if (!StringUtils.isEmpty(oriName) && !oriName.endsWith(".yaml")) {
-            return Either.right(helmTemplateYamlRespDto);
-        }
-        // verify yaml scheme
-        String[] multiContent = content.split("---");
-        List<Map<String, Object>> mapList = new ArrayList<>();
-        try {
-            for (String str : multiContent) {
-                if (StringUtils.isBlank(str)) {
-                    continue;
-                }
-                Yaml yaml = new Yaml(new SafeConstructor());
-                Map<String, Object> loaded = yaml.load(str);
-                mapList.add(loaded);
-            }
-            helmTemplateYamlRespDto.setFormatSuccess(true);
-        } catch (Exception e) {
-            LOGGER.error("Failed to validate yaml scheme, userId: {}, projectId: {},exception: {}", userId, projectId,
-                e.getMessage());
-            helmTemplateYamlRespDto.setFormatSuccess(false);
-            helmTemplateYamlRespDto.setMepAgentSuccess(null);
-            helmTemplateYamlRespDto.setServiceSuccess(null);
-            helmTemplateYamlRespDto.setImageSuccess(null);
-            return Either.right(helmTemplateYamlRespDto);
-        }
-        List<String> requiredItems = Lists.newArrayList("image", "service", "mep-agent");
-        // verify service,image,mep-agent
-        UploadFileUtil.verifyHelmTemplate(mapList, requiredItems, helmTemplateYamlRespDto);
-
-        if (!requiredItems.isEmpty() && requiredItems.size() >= 2) {
-            LOGGER.error("Failed to verify helm template yaml, userId: {}, projectId: {},exception: verify: {} failed",
-                userId, projectId, String.join(",", requiredItems));
-            return Either.right(helmTemplateYamlRespDto);
-        } else if (!requiredItems.isEmpty() && requiredItems.size() == 1 && requiredItems.get(0).equals("mep-agent")) {
-            //delete all helm by projectId
-            boolean isSaved = saveImage(tempFile, projectId);
-            if (!isSaved) {
-                LOGGER.error("Failed to save Image");
-                return Either.left(new FormatRespDto(Response.Status.INTERNAL_SERVER_ERROR, "Failed to save image"));
-            }
-
-            List<HelmTemplateYamlPo> list = helmTemplateYamlMapper.queryTemplateYamlByProjectId(userId, projectId);
-            if (!CollectionUtils.isEmpty(list)) {
-                for (HelmTemplateYamlPo po : list) {
-                    helmTemplateYamlMapper.deleteYamlByFileId(po.getFileId());
-                }
-            }
-            // create HelmTemplateYamlPo
-            HelmTemplateYamlPo helmTemplateYamlPo = new HelmTemplateYamlPo();
-            helmTemplateYamlPo.setContent(content);
-            String fileId = UUID.randomUUID().toString();
-            String filename = helmTemplateYaml.getOriginalFilename();
-            helmTemplateYamlPo.setFileId(fileId);
-            helmTemplateYamlPo.setFileName(filename);
-            helmTemplateYamlPo.setUserId(userId);
-            helmTemplateYamlPo.setProjectId(projectId);
-            helmTemplateYamlPo.setUploadTimeStamp(System.currentTimeMillis());
-            helmTemplateYamlPo.setConfigType(configType);
-            int saveResult = helmTemplateYamlMapper.saveYaml(helmTemplateYamlPo);
-            if (saveResult <= 0) {
-                LOGGER.error("Failed to save helm template yaml, file id : {}", fileId);
-                return Either.left(
-                    new FormatRespDto(Response.Status.INTERNAL_SERVER_ERROR, "Failed to save helm template yaml"));
-            }
-            helmTemplateYamlRespDto.setResponse(helmTemplateYamlPo);
-            helmTemplateYamlRespDto.setImageSuccess(true);
-            helmTemplateYamlRespDto.setServiceSuccess(true);
-            helmTemplateYamlRespDto.setMepAgentSuccess(false);
-
-            LOGGER.info("Succeed to save helm template yaml with file id : {}", fileId);
-            return Either.right(helmTemplateYamlRespDto);
-        }
-        return getSuccessResult(helmTemplateYaml, userId, projectId, content, helmTemplateYamlRespDto, configType,
-            tempFile);
-    }
-
-    private Either<FormatRespDto, HelmTemplateYamlRespDto> getSuccessResult(MultipartFile helmTemplateYaml,
-        String userId, String projectId, String content, HelmTemplateYamlRespDto helmTemplateYamlRespDto,
-        String configType, File tempFile) {
-        //save image
-        boolean isSaved = saveImage(tempFile, projectId);
-        if (!isSaved) {
-            LOGGER.error("Failed to save image!");
-            return Either.left(new FormatRespDto(Response.Status.INTERNAL_SERVER_ERROR, "Failed to save image!"));
-        }
-        //delete all helm by projectId
-        List<HelmTemplateYamlPo> list = helmTemplateYamlMapper.queryTemplateYamlByProjectId(userId, projectId);
-        if (!CollectionUtils.isEmpty(list)) {
-            for (HelmTemplateYamlPo po : list) {
-                helmTemplateYamlMapper.deleteYamlByFileId(po.getFileId());
-            }
-        }
-        HelmTemplateYamlPo helmTemplateYamlPo = new HelmTemplateYamlPo();
-        helmTemplateYamlPo.setContent(content);
-        String fileId = UUID.randomUUID().toString();
-        String filename = helmTemplateYaml.getOriginalFilename();
-        helmTemplateYamlPo.setFileId(fileId);
-        helmTemplateYamlPo.setFileName(filename);
-        helmTemplateYamlPo.setUserId(userId);
-        helmTemplateYamlPo.setProjectId(projectId);
-        helmTemplateYamlPo.setUploadTimeStamp(System.currentTimeMillis());
-        helmTemplateYamlPo.setConfigType(configType);
-        int saveResult = helmTemplateYamlMapper.saveYaml(helmTemplateYamlPo);
-        if (saveResult <= 0) {
-            LOGGER.error("Failed to save helm template yaml, file id : {}", fileId);
-            return Either
-                .left(new FormatRespDto(Response.Status.INTERNAL_SERVER_ERROR, "Failed to save helm template yaml"));
-        }
-        helmTemplateYamlRespDto.setResponse(helmTemplateYamlPo);
-        LOGGER.info("Succeed to save helm template yaml with file id : {}", fileId);
-        return Either.right(helmTemplateYamlRespDto);
-
+        return result;
     }
 
     @Override
-    public Either<FormatRespDto, List<HelmTemplateYamlRespDto>> getHelmTemplateYamlList(String userId,
-        String projectId) {
-        List<HelmTemplateYamlPo> templateYamlPoList = helmTemplateYamlMapper
-            .queryTemplateYamlByProjectId(userId, projectId);
-        List<HelmTemplateYamlRespDto> helmTemplateYamlRespDtoList = new ArrayList<>();
-        templateYamlPoList.forEach(helmTemplateYamlPo -> {
-            HelmTemplateYamlRespDto helmTemplateYamlRespDto = new HelmTemplateYamlRespDto();
-            helmTemplateYamlRespDto.setResponse(helmTemplateYamlPo);
-            String content = helmTemplateYamlPo.getContent().replaceAll("\r", "");
-            content = content.replaceAll(REPLACE_PATTERN.toString(), "");
-            // verify yaml scheme
-            String[] multiContent = content.split("---");
-            List<Map<String, Object>> mapList = new ArrayList<>();
-            try {
-                for (String str : multiContent) {
-                    if (StringUtils.isBlank(str)) {
-                        continue;
-                    }
-                    Yaml yaml = new Yaml(new SafeConstructor());
-                    Map<String, Object> loaded = yaml.load(str);
-                    mapList.add(loaded);
-                }
-                helmTemplateYamlRespDto.setFormatSuccess(true);
-            } catch (Exception e) {
-                LOGGER
-                    .error("Failed to validate yaml scheme, userId: {}, projectId: {},exception: {}", userId, projectId,
-                        e.getMessage());
-                helmTemplateYamlRespDto.setFormatSuccess(false);
-                helmTemplateYamlRespDto.setMepAgentSuccess(null);
-                helmTemplateYamlRespDto.setServiceSuccess(null);
-                helmTemplateYamlRespDto.setImageSuccess(null);
-            }
-            List<String> requiredItems = Lists.newArrayList("image", "service", "mep-agent");
-            // verify service,image,mep-agent
-            UploadFileUtil.verifyHelmTemplate(mapList, requiredItems, helmTemplateYamlRespDto);
-
-            if (!requiredItems.isEmpty() && requiredItems.size() >= 2) {
-                LOGGER.error(
-                    "Failed to verify helm template yaml, userId: {}, projectId: {},exception: verify: {} failed",
-                    userId, projectId, String.join(",", requiredItems));
-            } else if (!requiredItems.isEmpty() && requiredItems.size() == 1 && requiredItems.get(0)
-                .equals("mep-agent")) {
-                helmTemplateYamlRespDto.setImageSuccess(true);
-                helmTemplateYamlRespDto.setServiceSuccess(true);
-                helmTemplateYamlRespDto.setMepAgentSuccess(false);
-            }
-            helmTemplateYamlRespDtoList.add(helmTemplateYamlRespDto);
-        });
-        LOGGER.info("Succeed to query helm template yaml with user id : {}, project id : {}", userId, projectId);
-        return Either.right(helmTemplateYamlRespDtoList);
+    public UploadedFile uploadConfigFile(String userId, MultipartFile uploadFile) {
+        //check format
+        String fileName = uploadFile.getOriginalFilename();
+        if (fileName.contains(".")) {
+            LOGGER.error("upload file should not have suffix");
+            throw new IllegalRequestException("upload file should not have suffix",
+                ResponseConsts.RET_FILE_FORMAT_ERROR);
+        }
+        LOGGER.info("Start uploading file");
+        UploadedFile result = saveFileToLocal(uploadFile, userId);
+        if (result == null) {
+            throw new FileOperateException("Failed to save config file.!", ResponseConsts.RET_SAVE_FILE_FAIL);
+        }
+        return result;
     }
 
     @Override
-    public Either<FormatRespDto, String> deleteHelmTemplateYamlByFileId(String fileId) {
-        //delete  pod image
-        String projectId = helmTemplateYamlMapper.queryProjectId(fileId);
-        if (!org.springframework.util.StringUtils.isEmpty(projectId)) {
-            int res = projectImageMapper.deleteImage(projectId);
-            if (res <= 0) {
-                LOGGER.error("delete image by projectId failed!");
-                return Either.left(
-                    new FormatRespDto(Response.Status.INTERNAL_SERVER_ERROR, "delete image by projectId failed!"));
-            }
-        } else {
-            LOGGER.error("query image by fileId failed!");
-            return Either
-                .left(new FormatRespDto(Response.Status.INTERNAL_SERVER_ERROR, "query image by fileId failed!"));
+    public ResponseEntity<byte[]> downloadSampleCode(List<String> apiFileIds) {
+        File res = generateTgz(apiFileIds);
+        if (res == null) {
+            throw new FileOperateException("generate samplecode file failed!", ResponseConsts.RET_SAVE_FILE_FAIL);
         }
-        int deleteResult = helmTemplateYamlMapper.deleteYamlByFileId(fileId);
-        if (deleteResult <= 0) {
-            LOGGER.error("Failed to delete helm template yaml with file id : {}", fileId);
-            return Either
-                .left(new FormatRespDto(Response.Status.INTERNAL_SERVER_ERROR, "Failed to delete helm template yaml"));
-        }
-        LOGGER.info("Succeed to delete helm template yaml with file id : {}", fileId);
-        return Either.right("Delete helm template yaml success");
-    }
-
-    @Override
-    public Either<FormatRespDto, ResponseEntity<byte[]>> downloadSampleCode(List<String> apiFileIds) {
-        Either<FormatRespDto, File> res = generateTgz(apiFileIds);
-        if (res.isLeft()) {
-            return Either.left(res.getLeft());
-        }
-        File tar = res.getRight();
         try {
             HttpHeaders headers = new HttpHeaders();
             headers.add("Content-Type", MediaType.APPLICATION_OCTET_STREAM_VALUE);
             headers.add("Content-Disposition", "attachment; filename=SampleCode.tgz");
-            byte[] fileData = FileUtils.readFileToByteArray(tar);
+            byte[] fileData = FileUtils.readFileToByteArray(res);
             LOGGER.info("get sample code file success");
-            DeveloperFileUtils.deleteTempFile(tar);
-            return Either.right(ResponseEntity.ok().headers(headers).body(fileData));
+            DeveloperFileUtils.deleteTempFile(res);
+            return ResponseEntity.ok().headers(headers).body(fileData);
         } catch (IOException e) {
             LOGGER.error("get sample code file failed : {}", e.getMessage());
-            return Either.left(new FormatRespDto(Response.Status.BAD_REQUEST, "get sample code file failed "));
+            throw new FileOperateException("get samplecode file failed!", ResponseConsts.RET_DOWNLOAD_FILE_FAIL);
         }
     }
 
     @Override
-    public Either<FormatRespDto, AppPkgStructure> getSampleCodeStru(List<String> apiFileIds) {
-        Either<FormatRespDto, File> res = generateTgz(apiFileIds);
-        if (res.isLeft()) {
-            return Either.left(res.getLeft());
+    public AppPkgStructure getSampleCodeStru(List<String> apiFileIds) {
+        File res = generateTgz(apiFileIds);
+        if (res == null) {
+            throw new FileOperateException("generate samplecode file failed!", ResponseConsts.RET_SAVE_FILE_FAIL);
         }
-        File sampleTgz = res.getRight();
-        boolean decompressRes = false;
+        boolean decompressRes;
         String samplePath = "";
         try {
-            samplePath = sampleTgz.getCanonicalPath();
+            samplePath = res.getCanonicalPath();
             decompressRes = CompressFileUtils.decompress(samplePath, samplePath.substring(0, samplePath.length() - 15));
         } catch (IOException e) {
             LOGGER.error("get sample code dir fail,{}", e.getMessage());
-            return Either.left(new FormatRespDto(Response.Status.BAD_REQUEST, "get sample code dir fail"));
+            throw new FileOperateException("get sample code dir fail!", ResponseConsts.RET_DECOPRESS_FILE_FAIL);
         }
-
         if (!decompressRes) {
             LOGGER.error("decompress sample code file fail");
-            return Either.left(new FormatRespDto(Response.Status.BAD_REQUEST, "decompress sample code file fail"));
+            throw new FileOperateException("decompress file failed!", ResponseConsts.RET_DECOPRESS_FILE_FAIL);
         }
-        DeveloperFileUtils.deleteTempFile(sampleTgz);
+        DeveloperFileUtils.deleteTempFile(res);
         // get csar pkg structure
         AppPkgStructure structure;
         try {
@@ -470,24 +253,22 @@ public class UploadServiceImpl implements UploadService {
         } catch (IOException ex) {
             LOGGER.error("get sample code pkg occur io exception: {}", ex.getMessage());
             String message = "get sample code pkg occur io exception!";
-            FormatRespDto error = new FormatRespDto(Response.Status.BAD_REQUEST, message);
-            return Either.left(error);
+            throw new FileOperateException(message, ResponseConsts.RET_FILE_STRUCTURE_FAIL);
         }
-        return Either.right(structure);
+        return structure;
     }
 
     @Override
-    public Either<FormatRespDto, String> getSampleCodeContent(String fileName) {
+    public String getSampleCodeContent(String fileName) {
         if (StringUtils.isEmpty(sampleCodePath)) {
             LOGGER.error("decompress sample code tgz failed!");
-            return Either.left(new FormatRespDto(Response.Status.BAD_REQUEST, "get sample code path fail!"));
+            throw new FileOperateException("decompress file failed!", ResponseConsts.RET_DECOPRESS_FILE_FAIL);
         }
         File dir = new File(sampleCodePath);
         List<String> paths = FileUtil.getAllFilePath(dir);
-        if (paths == null || paths.isEmpty()) {
+        if (paths.isEmpty()) {
             LOGGER.error("can not find any file!");
-            FormatRespDto error = new FormatRespDto(Response.Status.BAD_REQUEST, "can not find any file!");
-            return Either.left(error);
+            throw new FileFoundFailException("can not find any file!", ResponseConsts.RET_FILE_NOT_FOUND);
         }
         String fileContent = "";
         for (String path : paths) {
@@ -496,25 +277,23 @@ public class UploadServiceImpl implements UploadService {
             }
         }
         if (fileContent.equals("")) {
-            LOGGER.warn("file has not any content!");
-            FormatRespDto error = new FormatRespDto(Response.Status.BAD_REQUEST, "file is null!");
-            return Either.left(error);
+            LOGGER.error("file has not any content!");
+            throw new IllegalRequestException("file has not any content!", ResponseConsts.RET_FILE_EMPTY);
         }
 
         if (fileContent.equals("error")) {
-            LOGGER.warn("file is not readable!");
-            FormatRespDto error = new FormatRespDto(Response.Status.BAD_REQUEST, "file is not readable!");
-            return Either.left(error);
+            LOGGER.error("file is not readable!");
+            throw new IllegalRequestException("file is not readable!", ResponseConsts.RET_FILE_NOT_READABLE);
         }
-        return Either.right(fileContent);
+        return fileContent;
     }
 
     @Override
-    public Either<FormatRespDto, ResponseEntity<byte[]>> getSdkProject(String fileId, String lan) {
+    public ResponseEntity<byte[]> getSdkProject(String fileId, String lan) {
         UploadedFile uploadedFile = uploadedFileMapper.getFileById(fileId);
         if (uploadedFile == null) {
             LOGGER.error("can not find file {} in db", fileId);
-            return Either.left(new FormatRespDto(Response.Status.BAD_REQUEST, "can not find file in db."));
+            throw new FileFoundFailException("can not find file in db", ResponseConsts.RET_FILE_NOT_FOUND);
         }
         OpenMepCapability openMepCapabilityDetail = openMepCapabilityMapper.getDetailByApiFileId(fileId);
         //generate code
@@ -538,8 +317,8 @@ public class UploadServiceImpl implements UploadService {
                 LOGGER.info("codegenSDK {} successful", config.getProjectName());
             }
         } catch (Exception e) {
-            LOGGER.error("Failed to build project", e.getMessage());
-            return Either.left(new FormatRespDto(Response.Status.INTERNAL_SERVER_ERROR, "Failed to build project"));
+            LOGGER.error("failed to build project {}", e.getMessage());
+            throw new DeveloperException("Failed to build project", ResponseConsts.RET_BUILD_SDK_FAIL);
         }
 
         try {
@@ -547,8 +326,8 @@ public class UploadServiceImpl implements UploadService {
                 .compressToTgzAndDeleteSrc(sdkPath, InitConfigUtil.getWorkSpaceBaseDir() + config.getOutput(),
                     config.getProjectName());
         } catch (IOException e) {
-            LOGGER.error("Failed to compress project", e.getMessage());
-            return Either.left(new FormatRespDto(Response.Status.INTERNAL_SERVER_ERROR, "Failed to compress project"));
+            LOGGER.error("Failed to compress project {}", e.getMessage());
+            throw new FileOperateException("Failed to compress project", ResponseConsts.RET_COPRESS_FILE_FAIL);
         }
 
         File tar = new File(sdkPath + ".tgz");
@@ -560,10 +339,10 @@ public class UploadServiceImpl implements UploadService {
             byte[] fileData = FileUtils.readFileToByteArray(tar);
             LOGGER.info("get sample code file success");
             DeveloperFileUtils.deleteTempFile(tar);
-            return Either.right(ResponseEntity.ok().headers(headers).body(fileData));
+            return ResponseEntity.ok().headers(headers).body(fileData);
         } catch (IOException e) {
             LOGGER.error("get sample code file failed : {}", e.getMessage());
-            return Either.left(new FormatRespDto(Response.Status.BAD_REQUEST, "get sample code file failed "));
+            throw new FileOperateException("Failed to get sample code file ", ResponseConsts.RET_DOWNLOAD_FILE_FAIL);
         }
     }
 
@@ -643,7 +422,7 @@ public class UploadServiceImpl implements UploadService {
         }
     }
 
-    private Either<FormatRespDto, File> generateTgz(List<String> apiFileIds) {
+    private File generateTgz(List<String> apiFileIds) {
         File tempDir = DeveloperFileUtils.createTempDir("mec_sample_code");
         // add sample resources code
         File sampleResource = new File(tempDir, InitConfigUtil.getSampleCodeDir());
@@ -652,13 +431,14 @@ public class UploadServiceImpl implements UploadService {
         } catch (IOException e) {
             String msg = "create sample code dir failed!";
             LOGGER.error("create sample code dir failed! occur {}", e.getMessage());
-            return Either.left(new FormatRespDto(Response.Status.BAD_REQUEST, msg));
+            throw new FileOperateException(msg, ResponseConsts.RET_CREATE_FILE_FAIL);
         }
 
         for (String apiFileId : apiFileIds) {
             if (!apiFileId.matches(REGEX_UUID)) {
                 LOGGER.error("The input is not in UUID format.");
-                return Either.left(new FormatRespDto(Response.Status.BAD_REQUEST, "The input is not in UUID format."));
+                throw new IllegalRequestException("The input is not in UUID format.",
+                    ResponseConsts.RET_REQUEST_FORMAT_ERROR);
             }
         }
         // add sample api file
@@ -667,7 +447,7 @@ public class UploadServiceImpl implements UploadService {
             UploadedFile apifile = uploadedFileMapper.getFileById(apiFileId);
             if (apifile == null) {
                 LOGGER.error("can not find file {} in db", apiFileId);
-                return Either.left(new FormatRespDto(Response.Status.BAD_REQUEST, "can not find file in db."));
+                throw new FileFoundFailException("can not find api file.", ResponseConsts.RET_FILE_NOT_FOUND);
             }
             String fileRealPath = InitConfigUtil.getWorkSpaceBaseDir() + apifile.getFilePath();
             String apiJson;
@@ -675,7 +455,7 @@ public class UploadServiceImpl implements UploadService {
                 apiJson = DeveloperFileUtils.readFileToString(new File(fileRealPath));
             } catch (IOException e) {
                 LOGGER.error("read api file to string exception: {}", e.getMessage());
-                return Either.left(new FormatRespDto(Response.Status.BAD_REQUEST, "read api file to string exception"));
+                throw new FileFoundFailException("can not find api file.", ResponseConsts.RET_FILE_NOT_FOUND);
             }
             if (StringUtils.isEmpty(apiJson)) {
                 continue;
@@ -686,8 +466,7 @@ public class UploadServiceImpl implements UploadService {
                     apiJson = new Gson().toJson(yaml.load(apiJson));
                 } catch (Exception e) {
                     LOGGER.error("Yaml deserialization failed {}", e.getMessage());
-                    FormatRespDto error = new FormatRespDto(Response.Status.BAD_REQUEST, "Yaml deserialization failed");
-                    return Either.left(error);
+                    throw new DeveloperException("Yaml deserialization failed.", ResponseConsts.RET_LOAD_YAML_FAIL);
                 }
             }
             apiJsonList.add(apiJson);
@@ -695,49 +474,7 @@ public class UploadServiceImpl implements UploadService {
 
         SampleCodeServer generateCode = new SampleCodeServer();
         File tar = generateCode.analysis(apiJsonList);
-        return Either.right(tar);
+        return tar;
     }
 
-    private boolean saveImage(File helmYaml, String projectId) {
-        //yamlRead aslist
-        List<String> list = UploadFileUtil.readFileByLine(helmYaml);
-        List<String> podImages = new ArrayList<>();
-        //query image and save
-        for (String str : list) {
-            if (str.contains("image:")) {
-                if (str.contains(".Values.imagelocation.domainname")) {
-                    String[] images = str.split("\'");
-                    podImages.add(images[1].trim());
-                } else {
-                    String[] images = str.split(":");
-                    podImages.add(images[1].trim() + ":" + images[2].trim());
-                }
-            }
-
-        }
-        //verify image info
-        LOGGER.warn("podImages {}", podImages);
-        boolean result = UploadFileUtil.isExist(podImages);
-        if (!result) {
-            LOGGER.error("the image configuration in the yaml file is incorrect");
-            return false;
-        }
-        List<ProjectImageConfig> listImage = projectImageMapper.getAllImage(projectId);
-        if (!CollectionUtils.isEmpty(listImage)) {
-            for (ProjectImageConfig po : listImage) {
-                projectImageMapper.deleteImage(po.getProjectId());
-            }
-        }
-        ApplicationProject project = projectMapper.getProjectById(projectId);
-        ProjectImageConfig config = new ProjectImageConfig();
-        config.setId(UUID.randomUUID().toString());
-        config.setPodName(project.getName());
-        config.setPodContainers(podImages.toString());
-        config.setProjectId(projectId);
-        int res = projectImageMapper.saveImage(config);
-        if (res <= 0) {
-            return false;
-        }
-        return true;
-    }
 }
