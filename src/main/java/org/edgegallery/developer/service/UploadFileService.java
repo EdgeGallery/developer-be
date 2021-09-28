@@ -575,11 +575,9 @@ public class UploadFileService {
                 projectImageMapper.deleteImage(po.getProjectId());
             }
         }
-        ApplicationProject project = projectMapper.getProjectById(projectId);
         ProjectImageConfig config = new ProjectImageConfig();
         config.setId(UUID.randomUUID().toString());
-        config.setPodName(project.getName());
-        config.setPodContainers(podImages.toString());
+        config.setImageInfo(podImages.toString());
         config.setProjectId(projectId);
         int res = projectImageMapper.saveImage(config);
         if (res <= 0) {

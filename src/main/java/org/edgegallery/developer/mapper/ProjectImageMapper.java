@@ -27,7 +27,5 @@ public interface ProjectImageMapper {
 
     int deleteImage(String projectId);
 
-    int deleteImageByHelmId(@Param("projectId") String projectId,@Param("helmChartFileId") String helmChartFileId);
-
     List<ProjectImageConfig> getAllImage(String projectId);
 }

@@ -196,11 +196,7 @@ public class DeployService {
         ProjectImageConfig imageConfig = new ProjectImageConfig();
         imageConfig.setId(UUID.randomUUID().toString());
         imageConfig.setProjectId(projectId);
-        imageConfig.setPodName(podName.toString());
-        imageConfig.setPodContainers(podImages.toString());
-        imageConfig.setSvcType(svcType.toString());
-        imageConfig.setSvcNodePort(svcNodePort.toString());
-        imageConfig.setSvcPort(svcPort.toString());
+        imageConfig.setImageInfo(podImages.toString());
         int resImage = projectImageMapper.saveImage(imageConfig);
         if (resImage <= 0) {
             Either.left(new FormatRespDto(Response.Status.BAD_REQUEST, "save image failed!"));

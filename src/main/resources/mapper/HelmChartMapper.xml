@@ -34,17 +34,11 @@
     ( #{helmChart.id}, #{applicationId}, #{helmChart.name}, #{helmChart.helmChartFileId},
     </insert>
 
-  <update id="modifyHelmChart">
-    UPDATE
-    tbl_container_helm_chart
-    SET
-    name = #{name}, helm_chart_file_content = #{helmChartFileId},
-    WHERE
-    id = #{id}
-  </update>
-
-  <delete id="deleteHelmChartById" parameterType="String">
+  <delete id="deleteFileAndImage" parameterType="String">
     DELETE FROM tbl_container_helm_chart WHERE id = #{id};
+    DELETE FROM tbl_uploaded_file WHERE file_id = #{helmChartId};
+    DELETE FROM
+    tbl_project_image where project_id = #{applicationId} and helm_chart_file_id=#{helmChartId};
   </delete>
 
   <select id="getHelmChartById" parameterType="String" resultMap="HelmChartMap">

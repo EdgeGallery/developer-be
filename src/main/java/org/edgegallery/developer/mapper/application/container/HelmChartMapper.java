@@ -13,6 +13,7 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
+
 package org.edgegallery.developer.mapper.application.container;
 
 import java.util.List;
@@ -21,14 +22,13 @@ import org.edgegallery.developer.model.application.container.HelmChart;
 
 public interface HelmChartMapper {
 
-    int createHelmChart(@Param("applicationId")String applicationId,@Param("helmChart") HelmChart helmChart);
-
-    int modifyHelmChart(HelmChart helmChart);
-
-    int deleteHelmChart(String id);
+    int createHelmChart(@Param("applicationId") String applicationId, @Param("helmChart") HelmChart helmChart);
 
     List<HelmChart> getHelmChartsByAppId(String applicationId);
 
     HelmChart getHelmChartById(String id);
+
+    int deleteFileAndImage(@Param("id") String id, @Param("helmChartId") String helmChartId,
+        @Param("applicationId") String applicationId);
 
 }
