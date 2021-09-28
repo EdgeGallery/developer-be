@@ -44,6 +44,7 @@ import org.edgegallery.developer.model.workspace.OpenMepCapability;
 import org.edgegallery.developer.model.workspace.OpenMepCapabilityGroup;
 import org.edgegallery.developer.model.workspace.ProjectTestConfig;
 import org.edgegallery.developer.model.workspace.ProjectTestConfigStageStatus;
+import org.edgegallery.developer.model.workspace.PublishAppReqDto;
 import org.edgegallery.developer.model.workspace.UploadedFile;
 import org.edgegallery.developer.response.FormatRespDto;
 import org.edgegallery.developer.service.ProjectService;
@@ -112,8 +113,7 @@ public class ProjectServiceTest {
         OpenMepCapabilityGroup capability = new OpenMepCapabilityGroup("3", "Location", "", "", "",
             EnumOpenMepType.OPENMEP, "", "");
         List<OpenMepCapability> capabilitiesDetail = new ArrayList<>();
-        OpenMepCapability detail = new OpenMepCapability("3", "3", "LocationService", "", "version",
-            "description");
+        OpenMepCapability detail = new OpenMepCapability("3", "3", "LocationService", "", "version", "description");
         capabilitiesDetail.add(detail);
         capability.setCapabilityDetailList(capabilitiesDetail);
         capabilities.add(capability);
@@ -220,7 +220,7 @@ public class ProjectServiceTest {
     public void testDeleteProject() throws IOException {
         String userId = "f24ea0a2-d8e6-467c-8039-94f0d29bac43";
         String projectId = "200dfab1-3c30-4fc7-a6ca-ed6f0620a85e";
-        Either<FormatRespDto, Boolean> response = projectService.deleteProject(userId, projectId,"");
+        Either<FormatRespDto, Boolean> response = projectService.deleteProject(userId, projectId, "");
         Assert.assertTrue(response.isRight());
     }
 
@@ -229,7 +229,7 @@ public class ProjectServiceTest {
     public void testDeleteProjectWithRes() throws IOException {
         String userId = "f24ea0a2-d8e6-467c-8039-94f0d29bac43";
         String projectId = "200dfab1-3c30-4fc7-a6ca-ed6f0620a85p";
-        Either<FormatRespDto, Boolean> response = projectService.deleteProject(userId, projectId,"");
+        Either<FormatRespDto, Boolean> response = projectService.deleteProject(userId, projectId, "");
         Assert.assertTrue(response.isRight());
     }
 
@@ -256,7 +256,7 @@ public class ProjectServiceTest {
     public void testDeleteProjectError() throws IOException {
         String userId = "f24ea0a2-d8e6-467c-8039-94f0d29bac43";
         String projectId = "aaaaa";
-        Either<FormatRespDto, Boolean> response = projectService.deleteProject(userId, projectId,"");
+        Either<FormatRespDto, Boolean> response = projectService.deleteProject(userId, projectId, "");
         Assert.assertTrue(response.isRight());
     }
 
@@ -447,7 +447,8 @@ public class ProjectServiceTest {
         String userName = "mec";
         String projectId = project.getRight().getId();
         String token = "";
-        Either<FormatRespDto, Boolean> result = projectService.uploadToAppStore(userId, projectId, userName, token);
+        Either<FormatRespDto, Boolean> result = projectService
+            .uploadToAppStore(userId, projectId, userName, token, new PublishAppReqDto());
         Assert.assertTrue(result.isLeft());
     }
 
@@ -459,7 +460,8 @@ public class ProjectServiceTest {
         String userId = "f24ea0a2-d8e6-467c-8039-94f0d29bac43";
         AccessUserUtil.setUser(userId, "testName");
         Either<FormatRespDto, Boolean> result = projectService
-            .uploadToAppStore(userId, "200dfab1-3c30-4fc7-a6ca-ed6f0620a85e", "testName", "token");
+            .uploadToAppStore(userId, "200dfab1-3c30-4fc7-a6ca-ed6f0620a85e", "testName", "token",
+                new PublishAppReqDto());
         Assert.assertTrue(result.isLeft());
     }
 
@@ -472,7 +474,7 @@ public class ProjectServiceTest {
         String userId = "f24ea0a2-d8e6-467c-8039-94f0d29bac43";
         AccessUserUtil.setUser(userId, "testName");
         Either<FormatRespDto, Boolean> result = projectService
-            .uploadToAppStore(userId, res.getRight().getProjectId(), "testName", "token");
+            .uploadToAppStore(userId, res.getRight().getProjectId(), "testName", "token", new PublishAppReqDto());
         Assert.assertTrue(result.isLeft());
     }
 
@@ -484,7 +486,8 @@ public class ProjectServiceTest {
         String userId = "f24ea0a2-d8e6-467c-8039-94f0d29bac43";
         AccessUserUtil.setUser(userId, "testName");
         Either<FormatRespDto, Boolean> result = projectService
-            .uploadToAppStore(userId, "200dfab1-3c30-4fc7-a6ca-ed6f0620a85y", "testName", "token");
+            .uploadToAppStore(userId, "200dfab1-3c30-4fc7-a6ca-ed6f0620a85y", "testName", "token",
+                new PublishAppReqDto());
         Assert.assertTrue(result.isLeft());
     }
 
@@ -496,7 +499,8 @@ public class ProjectServiceTest {
         String userName = "mec";
         String projectId = project.getRight().getId();
         String token = "";
-        Either<FormatRespDto, Boolean> result = projectService.uploadToAppStore(userId, projectId, userName, token);
+        Either<FormatRespDto, Boolean> result = projectService
+            .uploadToAppStore(userId, projectId, userName, token, new PublishAppReqDto());
         Assert.assertTrue(result.isLeft());
 
     }
@@ -638,7 +642,8 @@ public class ProjectServiceTest {
         String userId = "f24ea0a2-d8e6-467c-8039-94f0d29bac43";
         String projectId = "200dfab1-3c30-4fc7-a6ca-ed6f0620a85d";
         try {
-            Either<FormatRespDto, Boolean> res = projectService.uploadToAppStore(userId, projectId, "hello", "hello");
+            Either<FormatRespDto, Boolean> res = projectService
+                .uploadToAppStore(userId, projectId, "hello", "hello", new PublishAppReqDto());
         } catch (NullPointerException e) {
             LOGGER.warn("occuse exception {}", e.getMessage());
         }
@@ -649,7 +654,8 @@ public class ProjectServiceTest {
     public void testUploadToAppStoreFail1() throws Exception {
         String userId = "f24ea0a2-d8e6-467c-8039-94f0d29bac43";
         String projectId = "200dfab1-3c30-4fc7-a6ca-ed6f0620a85e";
-        Either<FormatRespDto, Boolean> res = projectService.uploadToAppStore(userId, projectId, "hello", "hello");
+        Either<FormatRespDto, Boolean> res = projectService
+            .uploadToAppStore(userId, projectId, "hello", "hello", new PublishAppReqDto());
         Assert.assertTrue(res.isLeft());
     }
 
@@ -659,7 +665,8 @@ public class ProjectServiceTest {
         String userId = "f24ea0a2-d8e6-467c-8039-94f0d29bac43";
         String projectId = "200dfab1-3c30-4fc7-a6ca-ed6f0620a85d";
         try {
-            Either<FormatRespDto, Boolean> res = projectService.uploadToAppStore(userId, projectId, "hello", "hello");
+            Either<FormatRespDto, Boolean> res = projectService
+                .uploadToAppStore(userId, projectId, "hello", "hello", new PublishAppReqDto());
         } catch (NullPointerException e) {
             LOGGER.warn("occuse exception {}", e.getMessage());
         }

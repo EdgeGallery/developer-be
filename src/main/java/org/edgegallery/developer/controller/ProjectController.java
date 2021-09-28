@@ -30,6 +30,7 @@ import org.edgegallery.developer.model.workspace.ApplicationProject;
 import org.edgegallery.developer.model.workspace.OpenMepCapability;
 import org.edgegallery.developer.model.workspace.OpenMepCapabilityGroup;
 import org.edgegallery.developer.model.workspace.ProjectTestConfig;
+import org.edgegallery.developer.model.workspace.PublishAppReqDto;
 import org.edgegallery.developer.response.ErrorRespDto;
 import org.edgegallery.developer.response.FormatRespDto;
 import org.edgegallery.developer.service.ProjectService;
@@ -332,9 +333,10 @@ public class ProjectController {
         @Pattern(regexp = REGEX_UUID, message = "userId must be in UUID format")
         @ApiParam(value = "userId", required = true) @RequestParam("userId") String userId,
         @ApiParam(value = "userName", required = true) @RequestParam(value = "userName", required = true)
-            String userName, HttpServletRequest request) {
+            String userName, HttpServletRequest request,
+        @ApiParam(value = "PublishAppDto", required = true) @RequestBody PublishAppReqDto publishAppDto) {
         String token = request.getHeader(Consts.ACCESS_TOKEN_STR);
-        Either<FormatRespDto, Boolean> either = projectService.uploadToAppStore(userId, projectId, userName, token);
+        Either<FormatRespDto, Boolean> either = projectService.uploadToAppStore(userId, projectId, userName, token, publishAppDto);
         return ResponseDataUtil.buildResponse(either);
     }
 
