@@ -14,7 +14,7 @@
  *    limitations under the License.
  */
 
-package org.edgegallery.developer.service.application.action.common;
+package org.edgegallery.developer.service.application.common;
 
 import lombok.Getter;
 import lombok.Setter;

@@ -46,7 +46,7 @@ import org.apache.http.ssl.SSLContextBuilder;
 import org.edgegallery.developer.common.Consts;
 import org.edgegallery.developer.common.ResponseConsts;
 import org.edgegallery.developer.config.security.AccessUserUtil;
-import org.edgegallery.developer.exception.DeveloperException;
+import org.edgegallery.developer.exception.HarborException;
 import org.edgegallery.developer.model.containerimage.HarborImage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,8 +68,6 @@ public final class ContainerImageUtil {
     private static final RestTemplate REST_TEMPLATE = new RestTemplate();
 
     private static final String HARBOR_PROTOCOL = "https";
-
-    private static final String SUBDIR_CONIMAGE = "ContainerImage";
 
     private ContainerImageUtil() {
         throw new IllegalStateException("ContainerImageUtil class");
@@ -187,8 +185,7 @@ public final class ContainerImageUtil {
                 .encodeUserAndPwd(imageConfig.getUsername(), imageConfig.getPassword());
             if (encodeStr.equals("")) {
                 LOGGER.error("encode user and pwd failed!");
-                throw new DeveloperException("encode user and pwd failed!",
-                    ResponseConsts.RET_PROCESS_MERGED_FILE_EXCEPTION);
+                throw new HarborException("encode user and pwd failed!", ResponseConsts.RET_HARBOR_ENCODE_FAIL);
             }
             httpGet.setHeader("Authorization", "Basic " + encodeStr);
             CloseableHttpResponse res = client.execute(httpGet);
@@ -199,8 +196,8 @@ public final class ContainerImageUtil {
             }
         } catch (IOException e) {
             LOGGER.error("call get one project occur error {}", e.getMessage());
-            throw new DeveloperException("call get one project occur error!",
-                ResponseConsts.RET_PROCESS_MERGED_FILE_EXCEPTION);
+            throw new HarborException("call get one project occur error!",
+                ResponseConsts.RET_QUERY_HARBOR_PROJECT_FAIL);
         }
         return true;
     }
@@ -270,6 +267,10 @@ public final class ContainerImageUtil {
                 repoTags = tagList.get(0);
             }
         }
+        if (StringUtils.isNotEmpty(repoTags) && repoTags.contains("/")) {
+            LOGGER.error("pls retag image tar,insure image name not clude '/'");
+            return "";
+        }
         LOGGER.warn("repoTags: {} res {} ", repoTags, res);
         return repoTags;
     }
@@ -285,19 +286,12 @@ public final class ContainerImageUtil {
      */
     public static boolean retagAndPush(DockerClient dockerClient, String imageId, String projectName, String repoTags) {
         ImageConfig imageConfig = (ImageConfig) SpringContextUtil.getBean(ImageConfig.class);
-        String uploadImgName = "";
         String[] images = repoTags.split(":");
         String imageName = images[0];
         String imageVersion = images[1];
-        if (SystemImageUtil.isAdminUser()) {
-            uploadImgName = new StringBuilder(imageConfig.getDomainname()).append("/").append(imageConfig.getProject())
-                .append("/").append(imageName).toString();
-        } else {
-            uploadImgName = new StringBuilder(imageConfig.getDomainname()).append("/").append(projectName).append("/")
-                .append(imageName).toString();
-        }
-
-        //Mirror tagging，Repush
+        String uploadImgName = imageConfig.getDomainname() + "/" + projectName + "/" + imageName;
+        LOGGER.warn("uploadImgName: {}", uploadImgName);
+        //image retag,push
         if (!imageId.equals("")) {
             //tag image
             dockerClient.tagImageCmd(imageId, uploadImgName, imageVersion).withForce().exec();
@@ -372,6 +366,7 @@ public final class ContainerImageUtil {
                     .format(Consts.HARBOR_IMAGE_DELETE_URL, HARBOR_PROTOCOL, imageConfig.getDomainname(),
                         imageConfig.getProject(), imageName, imageVersion);
             } else {
+                userName = userName.replaceAll(Consts.PATTERN, "").toLowerCase();
                 deleteImageUrl = String
                     .format(Consts.HARBOR_IMAGE_DELETE_URL, HARBOR_PROTOCOL, imageConfig.getDomainname(), userName,
                         imageName, imageVersion);
@@ -446,9 +441,9 @@ public final class ContainerImageUtil {
             }
             return harborImageList;
         } catch (IOException e) {
+            String err = "get image list from harbor repo failed!";
             LOGGER.error("get image list from harbor repo {}", e.getMessage());
-            throw new DeveloperException("get image list from harbor repo failed!",
-                ResponseConsts.RET_GET_IMAGE_FROM_HARBOR_FAILED);
+            throw new HarborException(err, ResponseConsts.RET_GET_HARBOR_IMAGE_LIST_FAIL);
         }
     }
 
@@ -482,17 +477,6 @@ public final class ContainerImageUtil {
                 }
             }
         }
-    }
-
-    /**
-     * create path of image upload
-     *
-     * @param imageId imageId
-     * @return
-     */
-    public static String getUploadSysImageRootDir(String imageId) {
-        return InitConfigUtil.getWorkSpaceBaseDir() + BusinessConfigUtil.getTmpPath() + SUBDIR_CONIMAGE + File.separator
-            + imageId + File.separator;
     }
 
 }

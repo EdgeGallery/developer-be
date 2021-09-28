@@ -1,3 +1,18 @@
+/*
+ *    Copyright 2021 Huawei Technologies Co., Ltd.
+ *
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
+ */
 package org.edgegallery.developer.controller.application;
 
 import io.swagger.annotations.Api;
@@ -9,15 +24,12 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
-import org.edgegallery.developer.config.security.AccessUserUtil;
 import org.edgegallery.developer.domain.shared.Page;
 import org.edgegallery.developer.model.application.Application;
 import org.edgegallery.developer.model.restful.ApplicationDetail;
 import org.edgegallery.developer.model.workspace.UploadedFile;
 import org.edgegallery.developer.response.ErrorRespDto;
-import org.edgegallery.developer.response.FormatRespDto;
 import org.edgegallery.developer.service.application.ApplicationService;
-import org.edgegallery.developer.util.ResponseDataUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -31,7 +43,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.multipart.MultipartFile;
-import com.spencerwi.either.Either;
 
 @Controller
 @RestSchema(schemaId = "application")
@@ -56,8 +67,7 @@ public class ApplicationCtl {
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<Application> createApplication(
         @NotNull @ApiParam(value = "Application", required = true) @RequestBody Application application){
-        Either<FormatRespDto, Application> either = applicationService.createApplication(application);
-        return ResponseDataUtil.buildResponse(either);
+        return ResponseEntity.ok(applicationService.createApplication(application));
     }
 
     /**
@@ -91,14 +101,14 @@ public class ApplicationCtl {
         @Pattern(regexp = REGEX_UUID, message = "applicationId must be in UUID format")
         @ApiParam(value = "applicationId", required = true) @PathVariable("applicationId") String applicationId,
         @NotNull @ApiParam(value = "Application", required = true) @RequestBody Application application){
-        Either<FormatRespDto, Boolean> either = applicationService.modifyApplication(applicationId, application);
-        return ResponseDataUtil.buildResponse(either);
+        Boolean result = applicationService.modifyApplication(applicationId, application);
+        return ResponseEntity.ok(result);
     }
 
     /**
      * get all application.
      */
-    @ApiOperation(value = "get one application.", response = Application.class, responseContainer = "List")
+    @ApiOperation(value = "get one page applications.", response = Application.class, responseContainer = "List")
     @ApiResponses(value = {
         @ApiResponse(code = 200, message = "OK", response = Application.class, responseContainer = "List"),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
@@ -126,8 +136,8 @@ public class ApplicationCtl {
     public ResponseEntity<Boolean> deleteApplication(
         @Pattern(regexp = REGEX_UUID, message = "applicationId must be in UUID format")
         @ApiParam(value = "applicationId", required = true) @PathVariable("applicationId") String applicationId){
-        Either<FormatRespDto, Boolean> either = applicationService.deleteApplication(applicationId);
-        return ResponseDataUtil.buildResponse(either);
+        Boolean result = applicationService.deleteApplication(applicationId);
+        return ResponseEntity.ok(result);
     }
 
     /**
@@ -161,8 +171,8 @@ public class ApplicationCtl {
         @Pattern(regexp = REGEX_UUID, message = "applicationId must be in UUID format")
         @ApiParam(value = "applicationId", required = true) @PathVariable("applicationId") String applicationId,
         @NotNull @ApiParam(value = "ApplicationDetail", required = true) @RequestBody ApplicationDetail applicationDetail) {
-        Either<FormatRespDto, Boolean> either = applicationService.modifyApplicationDetail(applicationId, applicationDetail);
-        return ResponseDataUtil.buildResponse(either);
+        Boolean result = applicationService.modifyApplicationDetail(applicationId, applicationDetail);
+        return ResponseEntity.ok(result);
     }
 
     /**
@@ -178,8 +188,8 @@ public class ApplicationCtl {
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<UploadedFile> uploadFile(
         @ApiParam(value = "file", required = true) @RequestPart("file") MultipartFile uploadFile) {
-        Either<FormatRespDto, UploadedFile> either = applicationService.uploadIconFile(uploadFile);
-        return ResponseDataUtil.buildResponse(either);
+        UploadedFile result = applicationService.uploadIconFile(uploadFile);
+        return ResponseEntity.ok(result);
 
     }
 

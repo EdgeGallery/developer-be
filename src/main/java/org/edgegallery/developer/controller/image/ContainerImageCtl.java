@@ -1,6 +1,5 @@
 package org.edgegallery.developer.controller.image;
 
-import com.spencerwi.either.Either;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -15,9 +14,7 @@ import org.edgegallery.developer.model.Chunk;
 import org.edgegallery.developer.model.containerimage.ContainerImage;
 import org.edgegallery.developer.model.containerimage.ContainerImageReq;
 import org.edgegallery.developer.response.ErrorRespDto;
-import org.edgegallery.developer.response.FormatRespDto;
 import org.edgegallery.developer.service.image.ContainerImageService;
-import org.edgegallery.developer.util.ResponseDataUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.MediaType;
@@ -83,8 +80,8 @@ public class ContainerImageCtl {
     @PreAuthorize("hasRole('DEVELOPER_ADMIN')|| hasRole('DEVELOPER_TENANT')")
     public ResponseEntity<ContainerImage> createContainerImage(
         @ApiParam(value = "ContainerImage", required = true) @RequestBody ContainerImage containerImage) {
-        Either<FormatRespDto, ContainerImage> either = containerImageService.createContainerImage(containerImage);
-        return ResponseDataUtil.buildResponse(either);
+        ContainerImage createImage = containerImageService.createContainerImage(containerImage);
+        return ResponseEntity.ok(createImage);
     }
 
     /**
@@ -96,8 +93,8 @@ public class ContainerImageCtl {
     @ApiResponses(value = {
         @ApiResponse(code = 200, message = "OK", response = ContainerImage.class)
     })
-    @RequestMapping(value = "/list", method = RequestMethod.POST,
-        consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @RequestMapping(value = "/list", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_UTF8_VALUE,
+        produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_ADMIN')|| hasRole('DEVELOPER_TENANT')")
     public ResponseEntity<Page<ContainerImage>> getAllContainerImage(
         @ApiParam(value = "ContainerImages", required = true) @RequestBody ContainerImageReq containerImageReq) {
@@ -114,15 +111,14 @@ public class ContainerImageCtl {
     @ApiResponses(value = {
         @ApiResponse(code = 200, message = "OK", response = ContainerImage.class)
     })
-    @RequestMapping(value = "/{imageId}", method = RequestMethod.PUT,
-        consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @RequestMapping(value = "/{imageId}", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_UTF8_VALUE,
+        produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_ADMIN')|| hasRole('DEVELOPER_TENANT')")
     public ResponseEntity<ContainerImage> modifyContainerImage(
         @ApiParam(value = "imageId", required = true) @PathVariable String imageId,
         @ApiParam(value = "ContainerImage", required = true) @RequestBody ContainerImage containerImage) {
-        Either<FormatRespDto, ContainerImage> either = containerImageService
-            .updateContainerImage(imageId, containerImage);
-        return ResponseDataUtil.buildResponse(either);
+        ContainerImage either = containerImageService.updateContainerImage(imageId, containerImage);
+        return ResponseEntity.ok(either);
     }
 
     /**
@@ -139,8 +135,8 @@ public class ContainerImageCtl {
     @PreAuthorize("hasRole('DEVELOPER_ADMIN')|| hasRole('DEVELOPER_TENANT')")
     public ResponseEntity<Boolean> deleteContainerImage(
         @ApiParam(value = "imageId", required = true) @PathVariable String imageId) {
-        Either<FormatRespDto, Boolean> either = containerImageService.deleteContainerImage(imageId);
-        return ResponseDataUtil.buildResponse(either);
+        Boolean either = containerImageService.deleteContainerImage(imageId);
+        return ResponseEntity.ok(either);
     }
 
     /**

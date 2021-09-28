@@ -377,7 +377,7 @@ public class CreateProjectTest {
             .format("/mec/developer/v1/projects/%s/action/clean?userId=%s&completed=%s", "can not find projectId",
                 userId, false);
         mvc.perform(MockMvcRequestBuilders.post(url).with(csrf()).contentType(MediaType.APPLICATION_JSON_UTF8)
-            .accept(MediaType.APPLICATION_JSON_UTF8)).andExpect(MockMvcResultMatchers.status().isBadRequest());
+            .accept(MediaType.APPLICATION_JSON_UTF8)).andExpect(MockMvcResultMatchers.status().is5xxServerError());
     }
 
     @Test

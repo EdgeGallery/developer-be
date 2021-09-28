@@ -20,6 +20,7 @@ import io.swagger.annotations.ApiModelProperty;
 import javax.validation.constraints.Pattern;
 import lombok.Getter;
 import lombok.Setter;
+import org.edgegallery.developer.model.workspace.EnumSystemImageSlimStatus;
 import org.edgegallery.developer.model.workspace.EnumSystemImageStatus;
 import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.Range;
@@ -35,7 +36,7 @@ public class VmSystem {
     private String type;
 
     @ApiModelProperty(example = "ubuntu")
-    @Pattern(regexp = "ubuntu|centos|window|cirros")
+    @Pattern(regexp = "ubuntu|centos|windows|cirros")
     private String operateSystem;
 
     @Length(max = 50)
@@ -58,6 +59,10 @@ public class VmSystem {
 
     @Length(max = 50)
     private String systemFormat;
+
+    private Long systemSize;
+
+    private EnumSystemImageSlimStatus systemSlim;
 
     private String uploadTime;
 

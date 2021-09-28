@@ -1,5 +1,5 @@
 /*
- *    Copyright 2020 Huawei Technologies Co., Ltd.
+ *    Copyright 2021 Huawei Technologies Co., Ltd.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -13,28 +13,21 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
+package org.edgegallery.developer.mapper.apppackage;
 
-package org.edgegallery.developer.model;
+import org.apache.ibatis.annotations.Mapper;
+import org.edgegallery.developer.model.apppackage.AppPackage;
 
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+@Mapper
+public interface AppPackageMapper {
 
-@ToString
-@Getter
-@Setter
-public class AppPackageBasicInfo {
+    int createAppPackage(AppPackage pkg);
 
-    private String appname;
+    int deleteAppPackage(String id);
 
-    private String provider;
+    int deleteAppPackageByAppId(String appId);
 
-    private String version;
+    AppPackage getAppPackage(String id);
 
-    private String format;
-
-    private String fileStructure;
-
-    private String detailContent;
-
+    AppPackage getAppPackageByAppId(String appId);
 }

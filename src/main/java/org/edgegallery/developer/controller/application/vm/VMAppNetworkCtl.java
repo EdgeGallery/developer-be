@@ -26,9 +26,7 @@ import javax.validation.constraints.Pattern;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.edgegallery.developer.model.application.vm.Network;
 import org.edgegallery.developer.response.ErrorRespDto;
-import org.edgegallery.developer.response.FormatRespDto;
 import org.edgegallery.developer.service.application.vm.VMAppNetworkService;
-import org.edgegallery.developer.util.ResponseDataUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -39,7 +37,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import com.spencerwi.either.Either;
 
 @Controller
 @RestSchema(schemaId = "VMAppNetwork")
@@ -65,8 +62,8 @@ public class VMAppNetworkCtl {
         @Pattern(regexp = REGEX_UUID, message = "applicationId must be in UUID format")
         @ApiParam(value = "applicationId", required = true) @PathVariable("applicationId") String applicationId,
         @NotNull @ApiParam(value = "Network", required = true) @RequestBody Network network) {
-        Either<FormatRespDto, Network> either = vmAppNetworkService.createNetwork(applicationId, network);
-        return ResponseDataUtil.buildResponse(either);
+        Network result = vmAppNetworkService.createNetwork(applicationId, network);
+        return ResponseEntity.ok(result);
     }
 
     /**
@@ -120,8 +117,8 @@ public class VMAppNetworkCtl {
         @ApiParam(value = "applicationId", required = true) @PathVariable("applicationId") String applicationId,
         @ApiParam(value = "networkId", required = true) @PathVariable("networkId") String networkId,
         @NotNull @ApiParam(value = "Network", required = true) @RequestBody Network network) {
-        Either<FormatRespDto, Boolean> either = vmAppNetworkService.modifyNetwork(applicationId, networkId, network);
-        return ResponseDataUtil.buildResponse(either);
+        Boolean result = vmAppNetworkService.modifyNetwork(applicationId, networkId, network);
+        return ResponseEntity.ok(result);
     }
 
     /**
@@ -139,8 +136,8 @@ public class VMAppNetworkCtl {
         @Pattern(regexp = REGEX_UUID, message = "applicationId must be in UUID format")
         @ApiParam(value = "applicationId", required = true) @PathVariable("applicationId") String applicationId,
         @ApiParam(value = "networkId", required = true) @PathVariable("networkId") String networkId) {
-        Either<FormatRespDto, Boolean> either = vmAppNetworkService.deleteNetwork(applicationId, networkId);
-        return ResponseDataUtil.buildResponse(either);
+        Boolean result = vmAppNetworkService.deleteNetwork(applicationId, networkId);
+        return ResponseEntity.ok(result);
     }
 
 }

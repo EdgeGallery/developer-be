@@ -267,12 +267,13 @@ CREATE TABLE IF NOT EXISTS tbl_capability (
 
 CREATE TABLE IF NOT EXISTS tbl_project_image (
   id varchar(50)  NOT NULL DEFAULT NULL,
-  pod_name varchar(100)  NOT NULL DEFAULT NULL,
-  pod_containers text  NOT NULL DEFAULT NULL,
-  project_id varchar(50)  NOT NULL DEFAULT NULL,
-  svc_type varchar(255)  NOT NULL DEFAULT NULL,
-  svc_port varchar(255)  NOT NULL DEFAULT NULL,
-  svc_node_port varchar(255)  NOT NULL DEFAULT NULL,
+  pod_name varchar(100)  DEFAULT NULL,
+  pod_containers text  DEFAULT NULL,
+  project_id varchar(50)  DEFAULT NULL,
+  svc_type varchar(255)   DEFAULT NULL,
+  svc_port varchar(255)   DEFAULT NULL,
+  svc_node_port varchar(255)   DEFAULT NULL,
+  helm_chart_file_id varchar(255)  DEFAULT NULL,
   CONSTRAINT tbl_project_image_pkey PRIMARY KEY (id)
 )
 ;
@@ -450,6 +451,8 @@ CREATE TABLE IF NOT EXISTS  tbl_vm_regulation  (
        create_time varchar(50)  DEFAULT NULL,
        modify_time varchar(50)  DEFAULT NULL,
        system_format varchar(50) DEFAULT NULL,
+       system_size int4 DEFAULT NULL,
+       system_slim varchar(50) DEFAULT NULL,
        upload_time varchar(50)  DEFAULT NULL,
        system_path varchar(128) DEFAULT NULL,
        file_name varchar(128) DEFAULT NULL,

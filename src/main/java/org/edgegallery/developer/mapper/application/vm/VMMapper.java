@@ -36,7 +36,7 @@ public interface VMMapper {
 
     List<VirtualMachine> getAllVMsByAppId(String applicationId);
 
-    VirtualMachine getVMById(String id);
+    VirtualMachine getVMById(@Param("applicationId")String applicationId, @Param("vmId")String vmId);
 
     int createVMPort(@Param("vmId")String vmId, @Param("port")VMPort port);
 

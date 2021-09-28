@@ -31,12 +31,5 @@ public class VMPort {
 
     private String description;
 
-    //ipType can be IPV4/IPV6
-    private String ipType;
-
-    private String ip;
-
     private String networkName;
-
-    private String mask;
 }

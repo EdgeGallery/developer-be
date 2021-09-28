@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~    Copyright 2021 Huawei Technologies Co., Ltd.
+  ~
+  ~    Licensed under the Apache License, Version 2.0 (the "License");
+  ~    you may not use this file except in compliance with the License.
+  ~    You may obtain a copy of the License at
+  ~
+  ~        http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~    Unless required by applicable law or agreed to in writing, software
+  ~    distributed under the License is distributed on an "AS IS" BASIS,
+  ~    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~    See the License for the specific language governing permissions and
+  ~    limitations under the License.
+  -->
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.edgegallery.developer.mapper.apppackage.AppPackageMapper">
+  <resultMap id="AppPackageMap" type="org.edgegallery.developer.model.apppackage.AppPackage">
+    <id property="id" column="id"/>
+    <result property="appId" column="app_id"/>
+    <result property="packageFileName" column="package_file_name"/>
+  </resultMap>
+
+  <insert id="createAppPackage">
+    insert into tbl_app_package (id, app_id, package_file_name)
+    values
+    ( #{id}, #{appId}, #{packageFileName})
+  </insert>
+
+  <delete id="deleteAppPackage" parameterType="String">
+    DELETE FROM tbl_app_package WHERE id = #{id};
+  </delete>
+
+  <delete id="deleteAppPackageByAppId" parameterType="String">
+    DELETE FROM tbl_app_package WHERE app_id = #{appId};
+  </delete>
+
+  <select id="getAppPackage" parameterType="String" resultMap="AppPackageMap">
+    SELECT
+    id, app_id, package_file_name
+    FROM tbl_app_package
+    WHERE id=#{id}
+  </select>
+
+  <select id="getAppPackageByAppId" parameterType="String" resultMap="AppPackageMap">
+    SELECT
+    id, app_id, package_file_name
+    FROM tbl_app_package
+    WHERE app_id=#{appId}
+  </select>
+
+
+</mapper>

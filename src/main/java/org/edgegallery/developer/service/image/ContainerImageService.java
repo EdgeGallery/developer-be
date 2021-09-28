@@ -16,13 +16,11 @@
 
 package org.edgegallery.developer.service.image;
 
-import com.spencerwi.either.Either;
 import javax.servlet.http.HttpServletRequest;
 import org.edgegallery.developer.domain.shared.Page;
 import org.edgegallery.developer.model.Chunk;
 import org.edgegallery.developer.model.containerimage.ContainerImage;
 import org.edgegallery.developer.model.containerimage.ContainerImageReq;
-import org.edgegallery.developer.response.FormatRespDto;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
@@ -50,7 +48,7 @@ public interface ContainerImageService {
      * @return
      */
     @Transactional
-    Either<FormatRespDto, ContainerImage> createContainerImage(ContainerImage containerImage);
+    ContainerImage createContainerImage(ContainerImage containerImage);
 
     /**
      * get all container image record.
@@ -69,7 +67,7 @@ public interface ContainerImageService {
      * @return
      */
     @Transactional
-    Either<FormatRespDto, ContainerImage> updateContainerImage(String imageId, ContainerImage containerImage);
+    ContainerImage updateContainerImage(String imageId, ContainerImage containerImage);
 
     /**
      * delete container image record and delete imgae of harbor repo.
@@ -78,7 +76,7 @@ public interface ContainerImageService {
      * @return
      */
     @Transactional
-    Either<FormatRespDto, Boolean> deleteContainerImage(String imageId);
+    Boolean deleteContainerImage(String imageId);
 
     /**
      * download container image from harbor repo.

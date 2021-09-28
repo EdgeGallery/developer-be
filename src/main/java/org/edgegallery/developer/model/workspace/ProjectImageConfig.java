@@ -38,6 +38,8 @@ public class ProjectImageConfig {
 
     private String svcNodePort;
 
+    private String helmChartFileId;
+
     /**
      * getId.
      */

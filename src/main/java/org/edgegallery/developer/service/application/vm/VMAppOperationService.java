@@ -17,16 +17,24 @@ package org.edgegallery.developer.service.application.vm;
 
 import javax.servlet.http.HttpServletRequest;
 import org.edgegallery.developer.model.Chunk;
+import org.edgegallery.developer.model.instantiate.vm.ImageExportInfo;
+import org.edgegallery.developer.model.instantiate.vm.VMInstantiateInfo;
+import org.edgegallery.developer.model.restful.OperationInfoRep;
 import org.edgegallery.developer.response.FormatRespDto;
 import org.edgegallery.developer.service.application.AppOperationService;
 import org.springframework.http.ResponseEntity;
 import com.spencerwi.either.Either;
 
-public interface VmAppOperationService {
+public interface VMAppOperationService {
 
-    Either<FormatRespDto, Boolean> instantiateVmApp(String applicationId, String vmId);
+    OperationInfoRep instantiateVmApp(String applicationId, String vmId, String accessToken);
 
-    Either<FormatRespDto, Boolean> uploadFileToVm(String applicationId, String vmId, HttpServletRequest request, Chunk chunk);
+    Boolean uploadFileToVm(String applicationId, String vmId, HttpServletRequest request, Chunk chunk);
 
     ResponseEntity mergeAppFile(String applicationId, String vmId, String fileName, String identifier);
+
+    ImageExportInfo getImageExportInfo(String vmId);
+
+    VMInstantiateInfo getInstantiateInfo(String vmId);
+
 }

@@ -23,11 +23,11 @@ import io.swagger.annotations.ApiResponses;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.Pattern;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
+import org.edgegallery.developer.common.Consts;
 import org.edgegallery.developer.model.Chunk;
+import org.edgegallery.developer.model.restful.OperationInfoRep;
 import org.edgegallery.developer.response.ErrorRespDto;
-import org.edgegallery.developer.response.FormatRespDto;
-import org.edgegallery.developer.service.application.vm.VmAppOperationService;
-import org.edgegallery.developer.util.ResponseDataUtil;
+import org.edgegallery.developer.service.application.vm.VMAppOperationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -38,7 +38,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import com.spencerwi.either.Either;
 @Controller
 @RestSchema(schemaId = "VmAppOperation")
 @RequestMapping("/mec/developer/v2/applications")
@@ -47,24 +46,25 @@ import com.spencerwi.either.Either;
 public class VMAppOperationCtl {
     private static final String REGEX_UUID = "[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}";
     @Autowired
-    private VmAppOperationService VmAppOperationService;
+    private VMAppOperationService VmAppOperationService;
     /**
      * instantiate a vm .
      */
-    @ApiOperation(value = "instantiate a vm .", response = Boolean.class)
+    @ApiOperation(value = "instantiate a vm .", response = OperationInfoRep.class)
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "OK", response = Boolean.class),
+        @ApiResponse(code = 200, message = "OK", response = OperationInfoRep.class),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
-    @RequestMapping(value = "/{applicationId}/vms/{vmId}/launch", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_UTF8_VALUE,
+    @RequestMapping(value = "/{applicationId}/vms/{vmId}/launch", method = RequestMethod.POST,
         produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
-    public ResponseEntity<Boolean> instantiateVmApp(
+    public ResponseEntity<OperationInfoRep> instantiateVmApp(
         @Pattern(regexp = REGEX_UUID, message = "applicationId must be in UUID format")
         @ApiParam(value = "applicationId", required = true) @PathVariable("applicationId") String applicationId,
-        @ApiParam(value = "vmId", required = true) @PathVariable("vmId") String vmId) {
-        Either<FormatRespDto, Boolean> either = VmAppOperationService.instantiateVmApp(applicationId, vmId);
-        return ResponseDataUtil.buildResponse(either);
+        @ApiParam(value = "vmId", required = true) @PathVariable("vmId") String vmId, HttpServletRequest request) {
+        String accessToken = request.getHeader(Consts.ACCESS_TOKEN_STR);
+        OperationInfoRep result = VmAppOperationService.instantiateVmApp(applicationId, vmId, accessToken);
+        return ResponseEntity.ok(result);
     }
 
     /**
@@ -81,8 +81,8 @@ public class VMAppOperationCtl {
         @ApiParam(value = "applicationId", required = true) @PathVariable("applicationId") String applicationId,
         @Pattern(regexp = REGEX_UUID, message = "vmId must be in UUID format")
         @ApiParam(value = "vmId", required = true) @PathVariable("vmId") String vmId) {
-        Either<FormatRespDto, Boolean> either = VmAppOperationService.uploadFileToVm(applicationId, vmId, request, chunk);
-        return ResponseDataUtil.buildResponse(either);
+        Boolean result = VmAppOperationService.uploadFileToVm(applicationId, vmId, request, chunk);
+        return ResponseEntity.ok(result);
     }
 
     /**

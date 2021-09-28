@@ -14,20 +14,27 @@
  *    limitations under the License.
  */
 
-package org.edgegallery.developer.domain.shared.exceptions;
+package org.edgegallery.developer.model.apppackage;
 
+import java.util.List;
+import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
-import org.edgegallery.developer.domain.shared.Entity;
+@Setter
+@Getter
+@Data
+public class AppPkgStructure {
+    private String name;
 
-public class EntityNotFoundException extends RuntimeException {
+    private String id;
 
-    private static final long serialVersionUID = 5224743617068936039L;
+    private List<AppPkgStructure> children;
 
-    public EntityNotFoundException(String message) {
-        super(message);
+    private boolean isParent = true;
+
+    public boolean isParent() {
+        return isParent;
     }
 
-    public <T extends Entity> EntityNotFoundException(Class<T> entityClass, String id) {
-        super("cannot find the " + entityClass.getSimpleName().toLowerCase() + " with id " + id);
-    }
 }

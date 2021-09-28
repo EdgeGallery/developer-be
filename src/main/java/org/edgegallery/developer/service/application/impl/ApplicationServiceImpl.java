@@ -18,7 +18,6 @@ package org.edgegallery.developer.service.application.impl;
 
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import com.spencerwi.either.Either;
 import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
@@ -27,8 +26,13 @@ import org.edgegallery.developer.common.ResponseConsts;
 import org.edgegallery.developer.config.security.AccessUserUtil;
 import org.edgegallery.developer.domain.shared.FileChecker;
 import org.edgegallery.developer.domain.shared.Page;
-import org.edgegallery.developer.exception.DeveloperException;
+import org.edgegallery.developer.exception.DataBaseException;
+import org.edgegallery.developer.exception.EntityNotFoundException;
+import org.edgegallery.developer.exception.FileFoundFailException;
+import org.edgegallery.developer.exception.FileOperateException;
+import org.edgegallery.developer.exception.IllegalRequestException;
 import org.edgegallery.developer.mapper.application.ApplicationMapper;
+import org.edgegallery.developer.mapper.application.container.HelmChartMapper;
 import org.edgegallery.developer.mapper.application.vm.NetworkMapper;
 import org.edgegallery.developer.mapper.application.vm.VMMapper;
 import org.edgegallery.developer.model.application.Application;
@@ -41,10 +45,9 @@ import org.edgegallery.developer.model.application.vm.VirtualMachine;
 import org.edgegallery.developer.model.restful.ApplicationDetail;
 import org.edgegallery.developer.model.workspace.UploadedFile;
 import org.edgegallery.developer.response.FormatRespDto;
-import org.edgegallery.developer.service.ProjectService;
+import org.edgegallery.developer.service.application.AppConfigurationService;
 import org.edgegallery.developer.service.application.ApplicationService;
 import org.edgegallery.developer.service.uploadfile.UploadService;
-import org.edgegallery.developer.service.uploadfile.impl.UploadServiceImpl;
 import org.edgegallery.developer.util.DeveloperFileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,10 +57,10 @@ import org.springframework.web.multipart.MultipartFile;
 
 @Service("applicationService")
 public class ApplicationServiceImpl implements ApplicationService {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ProjectService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ApplicationServiceImpl.class);
 
     @Autowired
-    private UploadServiceImpl uploadServiceImpl;
+    private UploadService uploadService;
 
     @Autowired
     private ApplicationMapper applicationMapper;
@@ -69,17 +72,20 @@ public class ApplicationServiceImpl implements ApplicationService {
     private VMMapper vmMapper;
 
     @Autowired
-    AppConfigurationServiceImpl AppConfigurationServiceImpl;
+    private HelmChartMapper helmChartMapper;
+
+    @Autowired
+    AppConfigurationService appConfigurationService;
 
     @Override
-    public Either<FormatRespDto, Application> createApplication(Application application) {
+    public Application createApplication(Application application) {
         String applicationId = UUID.randomUUID().toString();
-        String projectPath = DeveloperFileUtils.getAbsolutePath(applicationId);
+        String applicationPath = DeveloperFileUtils.getAbsolutePath(applicationId);
         try {
-            DeveloperFileUtils.deleteAndCreateDir(projectPath);
+            DeveloperFileUtils.deleteAndCreateDir(applicationPath);
         } catch (IOException e1) {
-            FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "Create project path failed.");
-            return Either.left(error);
+            FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "Create application work path failed.");
+            throw new FileOperateException("Create application work path failed.", ResponseConsts.RET_CREATE_FILE_FAIL);
         }
         application.setId(applicationId);
         application.setUserId(AccessUserUtil.getUser().getUserId());
@@ -88,20 +94,20 @@ public class ApplicationServiceImpl implements ApplicationService {
         application.setStatus(EnumApplicationStatus.ONLINE);
         if (iconFileId == null) {
             LOGGER.error("icon file is null");
-            throw new DeveloperException("icon file is null", ResponseConsts.ICON_FILE_NULL);
+            throw new FileFoundFailException("icon file is null", ResponseConsts.RET_FILE_NOT_FOUND);
         }
-        uploadServiceImpl.moveFileToWorkSpaceById(iconFileId, applicationId);
+        uploadService.moveFileToWorkSpaceById(iconFileId, applicationId);
         // init network
         initNetwork(applicationId);
 
-        // save project to DB
+        // save application to DB
         int res = applicationMapper.createApplication(application);
         if (res < 1) {
             LOGGER.error("Create application in db error.");
-            throw new DeveloperException("Create application in db error.", ResponseConsts.INSERT_DATA_FAILED);
+            throw new DataBaseException("Create application in db error.", ResponseConsts.RET_CERATE_DATA_FAIL);
         }
         LOGGER.info("Create application success.");
-        return Either.right(application);
+        return application;
     }
 
     private void initNetwork(String applicationId) {
@@ -111,7 +117,7 @@ public class ApplicationServiceImpl implements ApplicationService {
             int res = networkMapper.createNetwork(applicationId, network);
             if (res < 1) {
                 LOGGER.error("Create network in db error.");
-                return;
+                throw new DataBaseException("Create network  in db error.", ResponseConsts.RET_CERATE_DATA_FAIL);
             }
         }
     }
@@ -122,43 +128,43 @@ public class ApplicationServiceImpl implements ApplicationService {
     }
 
     @Override
-    public Either<FormatRespDto, Boolean> modifyApplication(String applicationId, Application application) {
+    public Boolean modifyApplication(String applicationId, Application application) {
         int res = applicationMapper.modifyApplication(application);
         if (res < 1) {
             LOGGER.error("modify application in db error.");
-            throw new DeveloperException("modify application in db error.", ResponseConsts.MODIFY_DATA_FAILED);
+            throw new DataBaseException("modify application in db error.", ResponseConsts.RET_UPDATE_DATA_FAIL);
         }
-        return Either.right(true);
+        return true;
     }
 
     @Override
-    public Page<Application> getApplicationByNameWithFuzzy(String projectName, int limit, int offset) {
+    public Page<Application> getApplicationByNameWithFuzzy(String appName, int limit, int offset) {
         String userId = AccessUserUtil.getUser().getUserId();
         PageHelper.offsetPage(offset, limit);
         PageInfo<Application> pageInfo = new PageInfo<Application>(
-            applicationMapper.getAllApplicationsByUserId(userId, projectName));
-        LOGGER.info("get all projects success.");
+            applicationMapper.getAllApplicationsByUserId(userId, appName));
+        LOGGER.info("get all applications success.");
         return new Page<Application>(pageInfo.getList(), limit, offset, pageInfo.getTotal());
     }
 
     @Override
-    public Either<FormatRespDto, Boolean> deleteApplication(String applicationId) {
+    public Boolean deleteApplication(String applicationId) {
         Application application = applicationMapper.getApplicationById(applicationId);
         if (application == null) {
-            LOGGER.error("Can not find project by applicationId:{}.", applicationId);
-            throw new DeveloperException("Can not find project", ResponseConsts.DELETE_DATA_FAILED);
+            LOGGER.error("Can not find application by applicationId:{}.", applicationId);
+            throw new EntityNotFoundException("Application does not exist.", ResponseConsts.RET_QUERY_DATA_EMPTY);
         }
         // delete the application from db
         int delResult = applicationMapper.deleteApplication(applicationId);
         if (delResult < 1) {
-            LOGGER.error("Can not find project by applicationId:{}.", applicationId);
-            throw new DeveloperException("Can not find project", ResponseConsts.DELETE_DATA_FAILED);
+            LOGGER.error("Delete application by applicationId:{} failed.", applicationId);
+            throw new DataBaseException("Delete application failed.", ResponseConsts.RET_DELETE_DATA_FAIL);
         }
-        // delete files of project
-        String projectPath = DeveloperFileUtils.getAbsolutePath(applicationId);
-        DeveloperFileUtils.deleteDir(projectPath);
-        LOGGER.info("Delete project {} success.", applicationId);
-        return Either.right(true);
+        // delete files of application
+        String applicationPath = DeveloperFileUtils.getAbsolutePath(applicationId);
+        DeveloperFileUtils.deleteDir(applicationPath);
+        LOGGER.info("Delete application {} success.", applicationId);
+        return true;
     }
 
     @Override
@@ -166,8 +172,8 @@ public class ApplicationServiceImpl implements ApplicationService {
         ApplicationDetail applicationDetail = new ApplicationDetail();
         Application application = applicationMapper.getApplicationById(applicationId);
         if (application == null) {
-            LOGGER.error("Can not find project by applicationId:{}.", applicationId);
-            throw new DeveloperException("Can not find project", ResponseConsts.DELETE_DATA_FAILED);
+            LOGGER.error("Can not find application by applicationId:{}.", applicationId);
+            throw new EntityNotFoundException("Application does not exist.", ResponseConsts.RET_QUERY_DATA_EMPTY);
         }
         if (application.getAppClass() == EnumAppClass.VM) {
             VMApplication vmApplication = new VMApplication(application);
@@ -175,28 +181,27 @@ public class ApplicationServiceImpl implements ApplicationService {
             vmApplication.setNetworkList(networkMapper.getNetworkByAppId(applicationId));
             vmApplication.setVmList(vmMapper.getAllVMsByAppId(applicationId));
 
-            vmApplication.setAppConfiguration(AppConfigurationServiceImpl.getAppConfiguration(applicationId));
+            vmApplication.setAppConfiguration(appConfigurationService.getAppConfiguration(applicationId));
             applicationDetail.setVmApp(vmApplication);
         } else {
             ContainerApplication containerApplication = new ContainerApplication(application);
-            containerApplication.setAppConfiguration(AppConfigurationServiceImpl.getAppConfiguration(applicationId));
-            // todo get helmchart
+            containerApplication.setHelmChartList(helmChartMapper.getHelmChartsByAppId(applicationId));
+            containerApplication.setAppConfiguration(appConfigurationService.getAppConfiguration(applicationId));
             applicationDetail.setContainerApp(containerApplication);
         }
         return applicationDetail;
     }
 
     @Override
-    public Either<FormatRespDto, Boolean> modifyApplicationDetail(String applicationId,
-        ApplicationDetail applicationDetail) {
+    public Boolean modifyApplicationDetail(String applicationId, ApplicationDetail applicationDetail) {
         Application application = applicationMapper.getApplicationById(applicationId);
         if (application == null) {
-            LOGGER.error("Can not find project by applicationId:{}.", applicationId);
-            throw new DeveloperException("Can not find project", ResponseConsts.DELETE_DATA_FAILED);
+            LOGGER.error("Can not find application by applicationId:{}.", applicationId);
+            throw new EntityNotFoundException("Application does not exist.", ResponseConsts.RET_QUERY_DATA_EMPTY);
         }
         if (application.getAppClass() == EnumAppClass.VM) {
             applicationMapper.modifyApplication(applicationDetail.getVmApp());
-            AppConfigurationServiceImpl
+            appConfigurationService
                 .modifyAppConfiguration(applicationId, applicationDetail.getVmApp().getAppConfiguration());
             for (Network network : applicationDetail.getVmApp().getNetworkList()) {
                 networkMapper.modifyNetwork(network);
@@ -206,29 +211,31 @@ public class ApplicationServiceImpl implements ApplicationService {
             }
         } else {
             applicationMapper.modifyApplication(applicationDetail.getContainerApp());
-            AppConfigurationServiceImpl
+            appConfigurationService
                 .modifyAppConfiguration(applicationId, applicationDetail.getContainerApp().getAppConfiguration());
             //todo modify helmchart
         }
-        return Either.right(true);
+        return true;
 
     }
 
     @Override
-    public Either<FormatRespDto, UploadedFile> uploadIconFile(MultipartFile uploadFile) {
+    public UploadedFile uploadIconFile(MultipartFile uploadFile) {
         LOGGER.info("Start uploading file");
         String fileName = uploadFile.getOriginalFilename();
         String userId = AccessUserUtil.getUser().getUserId();
         Boolean iconTypeCheck = iconTypeCheck(fileName);
         if (!iconTypeCheck) {
-            return Either.left(new FormatRespDto(Status.BAD_REQUEST, "File type is error."));
+            LOGGER.error("File type is error.");
+            throw new IllegalRequestException("File type is error.", ResponseConsts.RET_REQUEST_FORMAT_ERROR);
         }
 
-        UploadedFile result = uploadServiceImpl.saveFileToLocal(uploadFile, userId);
+        UploadedFile result = uploadService.saveFileToLocal(uploadFile, userId);
         if (result == null) {
-            return Either.left(new FormatRespDto(Status.BAD_REQUEST, "Failed to save file."));
+            LOGGER.error("File save to db fail.");
+            throw new FileOperateException("File save to db fail.", ResponseConsts.RET_SAVE_FILE_FAIL);
         }
-        return Either.right(result);
+        return result;
     }
 
     private Boolean iconTypeCheck(String fileName) {

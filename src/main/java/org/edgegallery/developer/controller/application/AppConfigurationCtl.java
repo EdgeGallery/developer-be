@@ -31,9 +31,7 @@ import org.edgegallery.developer.model.application.configuration.AppConfiguratio
 import org.edgegallery.developer.model.application.configuration.DnsRule;
 import org.edgegallery.developer.model.application.configuration.TrafficRule;
 import org.edgegallery.developer.response.ErrorRespDto;
-import org.edgegallery.developer.response.FormatRespDto;
 import org.edgegallery.developer.service.application.AppConfigurationService;
-import org.edgegallery.developer.util.ResponseDataUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -44,7 +42,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import com.spencerwi.either.Either;
 
 @Controller
 @RestSchema(schemaId = "appConfiguration")
@@ -59,7 +56,7 @@ public class AppConfigurationCtl {
     /**
      * get app configuration.
      */
-    @ApiOperation(value = "get one application.", response = AppConfiguration.class)
+    @ApiOperation(value = "get application configuration.", response = AppConfiguration.class)
     @ApiResponses(value = {
         @ApiResponse(code = 200, message = "OK", response = AppConfiguration.class),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
@@ -75,7 +72,7 @@ public class AppConfigurationCtl {
     /**
      * modify app configuration.
      */
-    @ApiOperation(value = "put one application.", response = Boolean.class)
+    @ApiOperation(value = "update application configuration.", response = Boolean.class)
     @ApiResponses(value = {
         @ApiResponse(code = 200, message = "OK", response = Boolean.class),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
@@ -88,8 +85,7 @@ public class AppConfigurationCtl {
         @ApiParam(value = "applicationId", required = true) @PathVariable("applicationId") String applicationId,
         @NotNull @ApiParam(value = "AppConfiguration", required = true) @RequestBody AppConfiguration appConfiguration)
     {
-        Either<FormatRespDto, Boolean> either = appConfigurationService.modifyAppConfiguration(applicationId, appConfiguration);
-        return ResponseDataUtil.buildResponse(either);
+        return ResponseEntity.ok(appConfigurationService.modifyAppConfiguration(applicationId, appConfiguration));
     }
 
     /**
@@ -123,8 +119,8 @@ public class AppConfigurationCtl {
         @Pattern(regexp = REGEX_UUID, message = "applicationId must be in UUID format")
         @ApiParam(value = "applicationId", required = true) @PathVariable("applicationId") String applicationId,
         @NotNull @ApiParam(value = "TrafficRule", required = true) @RequestBody TrafficRule trafficRule){
-        Either<FormatRespDto, TrafficRule> either = appConfigurationService.createTrafficRules(applicationId, trafficRule);
-        return ResponseDataUtil.buildResponse(either);
+        TrafficRule result = appConfigurationService.createTrafficRules(applicationId, trafficRule);
+        return ResponseEntity.ok(result);
     }
 
     /**
@@ -143,8 +139,8 @@ public class AppConfigurationCtl {
         @ApiParam(value = "applicationId", required = true) @PathVariable("applicationId") String applicationId,
         @ApiParam(value = "ruleId", required = true) @PathVariable("ruleId") String ruleId,
         @NotNull @ApiParam(value = "TrafficRule", required = true) @RequestBody TrafficRule trafficRule){
-        Either<FormatRespDto, Boolean> either = appConfigurationService.modifyTrafficRule(applicationId, trafficRule);
-        return ResponseDataUtil.buildResponse(either);
+        Boolean result = appConfigurationService.modifyTrafficRule(applicationId, trafficRule);
+        return ResponseEntity.ok(result);
     }
 
     /**
@@ -161,8 +157,8 @@ public class AppConfigurationCtl {
         @Pattern(regexp = REGEX_UUID, message = "applicationId must be in UUID format")
         @ApiParam(value = "applicationId", required = true) @PathVariable("applicationId") String applicationId,
         @ApiParam(value = "ruleId", required = true) @PathVariable("ruleId") String ruleId){
-        Either<FormatRespDto, Boolean> either = appConfigurationService.deleteTrafficRule(applicationId, ruleId);
-        return ResponseDataUtil.buildResponse(either);
+        Boolean result = appConfigurationService.deleteTrafficRule(applicationId, ruleId);
+        return ResponseEntity.ok(result);
     }
 
     /**
@@ -196,8 +192,8 @@ public class AppConfigurationCtl {
         @Pattern(regexp = REGEX_UUID, message = "applicationId must be in UUID format")
         @ApiParam(value = "applicationId", required = true) @PathVariable("applicationId") String applicationId,
         @NotNull @ApiParam(value = "DnsRule", required = true) @RequestBody DnsRule dnsRule){
-        Either<FormatRespDto, DnsRule> either = appConfigurationService.createDnsRule(applicationId, dnsRule);
-        return ResponseDataUtil.buildResponse(either);
+        DnsRule result = appConfigurationService.createDnsRule(applicationId, dnsRule);
+        return ResponseEntity.ok(result);
     }
 
     /**
@@ -216,8 +212,8 @@ public class AppConfigurationCtl {
         @ApiParam(value = "applicationId", required = true) @PathVariable("applicationId") String applicationId,
         @ApiParam(value = "ruleId", required = true) @PathVariable("ruleId") String ruleId,
         @NotNull @ApiParam(value = "DnsRule", required = true) @RequestBody DnsRule dnsRule){
-        Either<FormatRespDto, Boolean> either = appConfigurationService.modifyDnsRule(applicationId, dnsRule);
-        return ResponseDataUtil.buildResponse(either);
+        Boolean result = appConfigurationService.modifyDnsRule(applicationId, dnsRule);
+        return ResponseEntity.ok(result);
     }
 
     /**
@@ -235,8 +231,8 @@ public class AppConfigurationCtl {
         @Pattern(regexp = REGEX_UUID, message = "applicationId must be in UUID format")
         @ApiParam(value = "applicationId", required = true) @PathVariable("applicationId") String applicationId,
         @ApiParam(value = "ruleId", required = true) @PathVariable("ruleId") String ruleId){
-        Either<FormatRespDto, Boolean> either = appConfigurationService.deleteDnsRule(applicationId, ruleId);
-        return ResponseDataUtil.buildResponse(either);
+        Boolean result = appConfigurationService.deleteDnsRule(applicationId, ruleId);
+        return ResponseEntity.ok(result);
     }
 
     /**
@@ -271,8 +267,8 @@ public class AppConfigurationCtl {
         @Pattern(regexp = REGEX_UUID, message = "applicationId must be in UUID format")
         @ApiParam(value = "applicationId", required = true) @PathVariable("applicationId") String applicationId,
         @NotNull @ApiParam(value = "ServiceProduced", required = true) @RequestBody AppServiceProduced serviceProduced){
-        Either<FormatRespDto, AppServiceProduced> either = appConfigurationService.createServiceProduced(applicationId, serviceProduced);
-        return ResponseDataUtil.buildResponse(either);
+        AppServiceProduced result = appConfigurationService.createServiceProduced(applicationId, serviceProduced);
+        return ResponseEntity.ok(result);
     }
 
     /**
@@ -291,8 +287,8 @@ public class AppConfigurationCtl {
         @ApiParam(value = "applicationId", required = true) @PathVariable("applicationId") String applicationId,
         @ApiParam(value = "serName", required = true) @PathVariable("serName") String serName,
         @NotNull @ApiParam(value = "ServiceProduced", required = true) @RequestBody AppServiceProduced serviceProduced){
-        Either<FormatRespDto, Boolean> either = appConfigurationService.modifyServiceProduced(applicationId, serviceProduced);
-        return ResponseDataUtil.buildResponse(either);
+        Boolean result = appConfigurationService.modifyServiceProduced(applicationId, serviceProduced);
+        return ResponseEntity.ok(result);
     }
 
     /**
@@ -309,8 +305,8 @@ public class AppConfigurationCtl {
         @Pattern(regexp = REGEX_UUID, message = "applicationId must be in UUID format")
         @ApiParam(value = "applicationId", required = true) @PathVariable("applicationId") String applicationId,
         @ApiParam(value = "serName", required = true) @PathVariable("serName") String serName){
-        Either<FormatRespDto, Boolean> either = appConfigurationService.deleteServiceProduced(applicationId, serName);
-        return ResponseDataUtil.buildResponse(either);
+        Boolean result = appConfigurationService.deleteServiceProduced(applicationId, serName);
+        return ResponseEntity.ok(result);
     }
 
     /**
@@ -344,8 +340,8 @@ public class AppConfigurationCtl {
         @Pattern(regexp = REGEX_UUID, message = "applicationId must be in UUID format")
         @ApiParam(value = "applicationId", required = true) @PathVariable("applicationId") String applicationId,
         @NotNull @ApiParam(value = "ServiceRequired", required = true) @RequestBody AppServiceRequired serviceRequired){
-        Either<FormatRespDto, AppServiceRequired> either = appConfigurationService.createServiceRequired(applicationId, serviceRequired);
-        return ResponseDataUtil.buildResponse(either);
+        AppServiceRequired result = appConfigurationService.createServiceRequired(applicationId, serviceRequired);
+        return ResponseEntity.ok(result);
     }
 
     /**
@@ -364,8 +360,8 @@ public class AppConfigurationCtl {
         @ApiParam(value = "applicationId", required = true) @PathVariable("applicationId") String applicationId,
         @ApiParam(value = "serName", required = true) @PathVariable("serName") String serName,
         @NotNull @ApiParam(value = "ServiceRequired", required = true) @RequestBody AppServiceRequired serviceRequired){
-        Either<FormatRespDto, Boolean> either = appConfigurationService.modifyServiceRequired(applicationId, serviceRequired);
-        return ResponseDataUtil.buildResponse(either);
+        Boolean result = appConfigurationService.modifyServiceRequired(applicationId, serviceRequired);
+        return ResponseEntity.ok(result);
     }
 
     /**
@@ -383,8 +379,8 @@ public class AppConfigurationCtl {
         @Pattern(regexp = REGEX_UUID, message = "applicationId must be in UUID format")
         @ApiParam(value = "applicationId", required = true) @PathVariable("applicationId") String applicationId,
         @ApiParam(value = "serName", required = true) @PathVariable("serName") String serName){
-        Either<FormatRespDto, Boolean> either = appConfigurationService.deleteServiceRequired(applicationId, serName);
-        return ResponseDataUtil.buildResponse(either);
+        Boolean result = appConfigurationService.deleteServiceRequired(applicationId, serName);
+        return ResponseEntity.ok(result);
     }
 
     /**
@@ -418,8 +414,8 @@ public class AppConfigurationCtl {
         @Pattern(regexp = REGEX_UUID, message = "applicationId must be in UUID format")
         @ApiParam(value = "applicationId", required = true) @PathVariable("applicationId") String applicationId,
         @NotNull @ApiParam(value = "AppCertificate", required = true) @RequestBody AppCertificate appCertificate){
-        Either<FormatRespDto, AppCertificate> either = appConfigurationService.createAppCertificate(applicationId, appCertificate);
-        return ResponseDataUtil.buildResponse(either);
+        AppCertificate result = appConfigurationService.createAppCertificate(applicationId, appCertificate);
+        return ResponseEntity.ok(result);
     }
 
     /**
@@ -437,8 +433,8 @@ public class AppConfigurationCtl {
         @Pattern(regexp = REGEX_UUID, message = "applicationId must be in UUID format")
         @ApiParam(value = "applicationId", required = true) @PathVariable("applicationId") String applicationId,
         @NotNull @ApiParam(value = "AppCertificate", required = true) @RequestBody AppCertificate appCertificate){
-        Either<FormatRespDto, Boolean> either = appConfigurationService.modifyAppCertificate(applicationId, appCertificate);
-        return ResponseDataUtil.buildResponse(either);
+        Boolean result = appConfigurationService.modifyAppCertificate(applicationId, appCertificate);
+        return ResponseEntity.ok(result);
     }
 
     /**
@@ -455,8 +451,8 @@ public class AppConfigurationCtl {
     public ResponseEntity<Boolean> deleteAppCertificate(
         @Pattern(regexp = REGEX_UUID, message = "applicationId must be in UUID format")
         @ApiParam(value = "applicationId", required = true) @PathVariable("applicationId") String applicationId){
-        Either<FormatRespDto, Boolean> either = appConfigurationService.deleteAppCertificate(applicationId);
-        return ResponseDataUtil.buildResponse(either);
+        Boolean result = appConfigurationService.deleteAppCertificate(applicationId);
+        return ResponseEntity.ok(result);
     }
 
 }

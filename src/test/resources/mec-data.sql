@@ -124,7 +124,7 @@ MERGE INTO tbl_uploaded_file KEY(file_id) VALUES ('ad66d1b6-5d29-487b-9769-be48b
 -- ----------------------------
 -- Records of tbl_project_image 
 -- ----------------------------
-MERGE INTO tbl_project_image KEY(id) VALUES ('78055873-58cf-4712-8f12-cfdd4e19f268', 'p-001-image001', '1.0.0', '200dfab1-3c30-4fc7-a6ca-ed6f0620a85e', 'PLATFORM', 3000, 3020);
+MERGE INTO tbl_project_image KEY(id) VALUES ('78055873-58cf-4712-8f12-cfdd4e19f268', 'p-001-image001', '1.0.0', '200dfab1-3c30-4fc7-a6ca-ed6f0620a85e', 'PLATFORM', 3000, 3020,'');
 
 -- ----------------------------
 -- Records of tbl_project_test_config

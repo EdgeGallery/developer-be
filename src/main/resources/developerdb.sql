@@ -186,6 +186,7 @@
       "svc_type" varchar(255)  DEFAULT NULL,
       "svc_port" varchar(255)  DEFAULT NULL,
       "svc_node_port" varchar(255)  DEFAULT NULL,
+      "helm_chart_file_id" varchar(255) DEFAULT NULL,
       CONSTRAINT "tbl_project_image_pkey" PRIMARY KEY ("id")
     )
     ;
@@ -346,29 +347,30 @@
     ;
 
     CREATE TABLE IF NOT EXISTS "tbl_vm_system" (
-        "system_id" SERIAL,
-        "system_name" varchar(128) DEFAULT NULL,
-        "type" varchar(50) DEFAULT NULL,
-        "operate_system" varchar(50) DEFAULT NULL,
-        "version" varchar(50) DEFAULT NULL,
-        "system_bit" varchar(50) DEFAULT NULL,
-        "system_disk" int4  DEFAULT NULL,
-        "user_id" varchar(50) DEFAULT NULL,
-        "user_name" varchar(50) DEFAULT NULL,
-        "create_time" timestamptz(6)  DEFAULT NULL,
-        "modify_time" timestamptz(6)  DEFAULT NULL,
-        "system_format" varchar(50) DEFAULT NULL,
-        "upload_time" timestamptz(6)  DEFAULT NULL,
-        "system_path" varchar(128) DEFAULT NULL,
-        "file_name" varchar(128) DEFAULT NULL,
-        "file_md5" varchar(128) DEFAULT NULL,
-        "status" varchar(50) DEFAULT NULL,
-        "file_identifier" varchar(128) DEFAULT NULL,
-        "error_type" varchar(32) DEFAULT NULL,
-        CONSTRAINT "tbl_vm_system_uniqueName" UNIQUE ("system_name","user_id"),
-        CONSTRAINT "tbl_vm_system_pkey" PRIMARY KEY ("system_id")
-        )
-    ;
+      "system_id" SERIAL,
+      "system_name" varchar(128) DEFAULT NULL,
+      "type" varchar(50) DEFAULT NULL,
+      "operate_system" varchar(50) DEFAULT NULL,
+      "version" varchar(50) DEFAULT NULL,
+      "system_bit" varchar(50) DEFAULT NULL,
+      "system_disk" int4  DEFAULT NULL,
+      "user_id" varchar(50) DEFAULT NULL,
+      "user_name" varchar(50) DEFAULT NULL,
+      "create_time" timestamptz(6)  DEFAULT NULL,
+      "modify_time" timestamptz(6)  DEFAULT NULL,
+      "system_format" varchar(50) DEFAULT NULL,
+      "system_size" bigint DEFAULT NULL,
+      "system_slim" varchar(50) DEFAULT NULL,
+      "upload_time" timestamptz(6)  DEFAULT NULL,
+      "system_path" varchar(128) DEFAULT NULL,
+      "file_name" varchar(128) DEFAULT NULL,
+      "file_md5" varchar(128) DEFAULT NULL,
+      "status" varchar(50) DEFAULT NULL,
+      "file_identifier" varchar(128) DEFAULT NULL,
+      "error_type" varchar(32) DEFAULT NULL,
+      CONSTRAINT "tbl_vm_system_uniqueName" UNIQUE ("system_name","user_id"),
+      CONSTRAINT "tbl_vm_system_pkey" PRIMARY KEY ("system_id")
+      );
 
     CREATE TABLE IF NOT EXISTS "tbl_vm_user_data" (
       "operate_system" varchar(50) DEFAULT NULL,
@@ -392,6 +394,7 @@
       "sk" text DEFAULT NULL,
       "app_instance_id" varchar(50) DEFAULT NULL,
       "create_time" timestamptz(6) DEFAULT NULL,
+      CONSTRAINT  "tbl_project_vm_package__uniqueProjectId" UNIQUE ("project_id"),
       CONSTRAINT "tbl_project_vm_package_config_pkey" PRIMARY KEY ("id")
     )
     ;
@@ -521,9 +524,7 @@
     "id" varchar(255) NOT NULL,
     "app_id" varchar(255) NOT NULL,
     "name" varchar(255) DEFAULT NULL,
-    "helm_chart_file_content" text DEFAULT NULL,
-    "image_repo_list" text DEFAULT NULL,
-    "helm_chart_check" text DEFAULT NULL,
+    "helm_chart_file_id" text DEFAULT NULL,
     CONSTRAINT "tbl_container_helm_chart_pkey" PRIMARY KEY ("id")
     );
 
@@ -553,10 +554,7 @@
     "vm_id" varchar(255) DEFAULT NULL,
     "name" varchar(255) NOT NULL,
     "description" varchar(255) DEFAULT NULL,
-    "ip_type" varchar(255) DEFAULT NULL,
     "network_name" varchar(255) DEFAULT NULL,
-    "ip" varchar(255) DEFAULT NULL,
-    "mask" varchar(255) DEFAULT NULL,
     CONSTRAINT "tbl_vm_port_pkey" PRIMARY KEY ("id")
     );
 
@@ -675,4 +673,37 @@
     "target_port" varchar(255) DEFAULT NULL,
     "node_port" varchar(255) DEFAULT NULL,
     CONSTRAINT "tbl_k8s_service_port_instantiate_info_pkey" PRIMARY KEY ("service_name")
+    );
+
+    CREATE TABLE IF NOT EXISTS "tbl_operation_status" (
+    "id" varchar(255) NOT NULL,
+    "object_type" varchar(255) DEFAULT NULL,
+    "object_id" varchar(255) DEFAULT NULL,
+    "operation_name" varchar(255) DEFAULT NULL,
+    "progress" int4 DEFAULT NULL,
+    "status" varchar(255) DEFAULT NULL,
+    "error_msg" text DEFAULT NULL,
+    "update_time" timestamptz(6)  DEFAULT NULL,
+    CONSTRAINT "tbl_operation_status_pkey" PRIMARY KEY ("id")
+    );
+
+    CREATE TABLE IF NOT EXISTS "tbl_action_status" (
+    "id" varchar(255) NOT NULL,
+    "operation_id" varchar(255) NOT NULL,
+    "object_type" varchar(255) DEFAULT NULL,
+    "object_id" varchar(255) DEFAULT NULL,
+    "action_name" varchar(255) DEFAULT NULL,
+    "progress" int4 DEFAULT NULL,
+    "status" varchar(255) DEFAULT NULL,
+    "error_msg" text DEFAULT NULL,
+    "status_log" text DEFAULT NULL,
+    "update_time" timestamptz(6)  DEFAULT NULL,
+    CONSTRAINT "tbl_action_status_pkey" PRIMARY KEY ("id")
+    );
+
+    CREATE TABLE IF NOT EXISTS "tbl_app_package" (
+    "id" varchar(255) NOT NULL,
+    "app_id" varchar(255) NOT NULL,
+    "package_file_name" varchar(255) DEFAULT NULL,
+    CONSTRAINT "tbl_app_package_pkey" PRIMARY KEY ("id")
     );

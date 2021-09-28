@@ -81,7 +81,10 @@ import org.edgegallery.developer.model.LcmLog;
 import org.edgegallery.developer.model.ReleaseConfig;
 import org.edgegallery.developer.model.ServiceDetail;
 import org.edgegallery.developer.model.SshConnectInfo;
+import org.edgegallery.developer.model.application.configuration.DnsRule;
+import org.edgegallery.developer.model.application.configuration.TrafficRule;
 import org.edgegallery.developer.model.atp.AtpResultInfo;
+import org.edgegallery.developer.model.capability.Capability;
 import org.edgegallery.developer.model.deployyaml.PodEvents;
 import org.edgegallery.developer.model.deployyaml.PodEventsRes;
 import org.edgegallery.developer.model.deployyaml.PodStatusInfo;
@@ -108,6 +111,7 @@ import org.edgegallery.developer.service.csar.NewCreateCsar;
 import org.edgegallery.developer.service.dao.ProjectDao;
 import org.edgegallery.developer.service.deploy.IConfigDeployStage;
 import org.edgegallery.developer.service.virtual.VmService;
+import org.edgegallery.developer.service.capability.CapabilityService;
 import org.edgegallery.developer.template.ChartFileCreator;
 import org.edgegallery.developer.util.AppStoreUtil;
 import org.edgegallery.developer.util.AtpUtil;
@@ -192,7 +196,10 @@ public class ProjectService {
     private ProjectCapabilityService projectCapabilityService;
 
     @Autowired
-    private org.edgegallery.developer.service.capability.CapabilityService capabilityService;
+    private EncryptedService encryptedService;
+
+    @Autowired
+    private CapabilityService capabilityService;
 
     public Page<ApplicationProject> getAllProjects(int limit, int offset) {
         PageHelper.offsetPage(offset, limit);
@@ -305,6 +312,14 @@ public class ProjectService {
         releaseConfig.setReleaseId(UUID.randomUUID().toString());
         releaseConfig.setProjectId(projectId);
         releaseConfig.setCreateTime(new Date());
+        CapabilitiesDetail capabilitiesDetail = new CapabilitiesDetail();
+        List<TrafficRule> appTrafficRule = new ArrayList<>();
+        List<DnsRule> appDNSRule = new ArrayList<>();
+        List<ServiceDetail> serviceDetails = new ArrayList<>();
+        capabilitiesDetail.setAppTrafficRule(appTrafficRule);
+        capabilitiesDetail.setAppDNSRule(appDNSRule);
+        capabilitiesDetail.setServiceDetails(serviceDetails);
+        releaseConfig.setCapabilitiesDetail(capabilitiesDetail);
         int saveRet = configMapper.saveConfig(releaseConfig);
         if (saveRet < 1) {
             LOGGER.error("save config data fail!");
@@ -599,7 +614,7 @@ public class ProjectService {
     public File createCsarPkg(String userId, ApplicationProject project, ProjectTestConfig testConfig)
         throws IOException {
         String projectId = project.getId();
-        List<String> mepCapability = project.getCapabilityList();
+        List<Capability> capabilities = capabilityService.findByProjectId(project.getId());
         String projectPath = getProjectPath(projectId);
         String chartName = project.getName().replaceAll(Consts.PATTERN, "").toLowerCase() + testConfig
             .getAppInstanceId().substring(0, 8);
@@ -611,7 +626,7 @@ public class ProjectService {
             // create chart file
             ChartFileCreator chartFileCreator = new ChartFileCreator(chartName);
             chartFileCreator.setChartName(chartName);
-            if (mepCapability == null || mepCapability.isEmpty()) {
+            if (CollectionUtils.isEmpty(capabilities)) {
                 chartFileCreator
                     .setChartValues("false", "true", namespace, configMapName, imageDomainName, imageProject);
             } else {
@@ -628,6 +643,8 @@ public class ProjectService {
         } else {
             csarPkgDir = new NewCreateCsar().create(projectPath, testConfig, project, chartName, null);
         }
+        encryptedService.encryptedFile(csarPkgDir.getCanonicalPath());
+        encryptedService.encryptedCMS(csarPkgDir.getCanonicalPath());
         return CompressFileUtilsJava
             .compressToCsarAndDeleteSrc(csarPkgDir.getCanonicalPath(), projectPath, csarPkgDir.getName());
     }

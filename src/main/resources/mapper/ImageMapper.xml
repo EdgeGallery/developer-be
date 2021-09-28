@@ -30,6 +30,8 @@
         <result property="userName" column="user_name"/>
         <result property="createTime" column="create_time"/>
         <result property="systemFormat" column="system_format"/>
+        <result property="systemSize" column="system_size"/>
+        <result property="systemSlim" column="system_slim"/>
         <result property="uploadTime" column="upload_time"/>
         <result property="status" column="status"/>
         <result property="fileIdentifier" column="file_identifier"/>
@@ -37,12 +39,12 @@
     </resultMap>
     
     <sql id="AllColumn">
-    system_id, system_name, type, operate_system, version, system_bit, system_disk, user_id, user_name, create_time,modify_time,system_format,upload_time,system_path,file_name,file_md5,status,file_identifier,error_type
+    system_id, system_name, type, operate_system, version, system_bit, system_disk, user_id, user_name, create_time,modify_time, system_format,system_size, system_slim, upload_time,system_path,file_name,file_md5,status,file_identifier,error_type
     </sql>
     
-    <select id="getSystemImagesByCondition" parameterType="org.edgegallery.developer.model.system.MepGetSystemImageReq"
+    <select id="getSystemImagesByCondition" parameterType="java.util.Map"
             resultMap="ImageMap">
-        SELECT system_id, system_name, type, operate_system, version, system_bit, system_disk, user_id, user_name, system_format,
+        SELECT system_id, system_name, type, operate_system, version, system_bit, system_disk, user_id, user_name, system_format, system_slim,system_size,
                to_char(upload_time, 'YYYY-MM-DD HH24:MI:SS') as upload_time, status, to_char(create_time, 'YYYY-MM-DD HH24:MI:SS') as create_time,
                error_type
         FROM tbl_vm_system
@@ -50,23 +52,32 @@
             <if test="userId != null and userId !=''">
                 and (user_id = #{userId} or type = 'public')
             </if>
-            <if test="operateSystem != null and operateSystem !=''">
-                and lower(operate_system) like lower(CONCAT('%', #{operateSystem}, '%'))
+            <if test="operateSystems != null and operateSystems.size()>0">
+                and operate_system in
+                <foreach collection="operateSystems" item="item" index="index" open="(" close=")" separator=",">
+                    #{item}
+                </foreach>
             </if>
             <if test="systemName != null and systemName !=''">
                 and lower(system_name) like lower(CONCAT('%', #{systemName}, '%'))
             </if>
-            <if test="status != null and status !='All'">
-                and status = #{status}
+            <if test="statusList != null and statusList.size()>0">
+                and status in
+                <foreach collection="statusList" item="item" index="index" open="(" close=")" separator=",">
+                    #{item}
+                </foreach>
             </if>
-            <if test="type != null and type !='All'">
-                and type = #{type}
+            <if test="types != null and types.size()>0">
+                and type in
+                <foreach collection="types" item="item" index="index" open="(" close=")" separator=",">
+                    #{item}
+                </foreach>
             </if>
-            <if test="createTimeBegin != null and createTimeBegin != ''">
-                <![CDATA[ and create_time >= to_timestamp(#{createTimeBegin}, 'YYYY-MM-DD HH24:MI:SS') ]]>
+            <if test="uploadTimeBegin != null and uploadTimeBegin != ''">
+                <![CDATA[ and upload_time >= to_timestamp(#{uploadTimeBegin}, 'YYYY-MM-DD HH24:MI:SS') ]]>
             </if>
-            <if test="createTimeEnd != null and createTimeEnd != ''">
-                <![CDATA[ and create_time <= to_timestamp(#{createTimeEnd}, 'YYYY-MM-DD HH24:MI:SS') ]]>
+            <if test="uploadTimeEnd != null and uploadTimeEnd != ''">
+                <![CDATA[ and upload_time <= to_timestamp(#{uploadTimeEnd}, 'YYYY-MM-DD HH24:MI:SS') ]]>
             </if>
         </where>
         <if test="queryCtrl != null">
@@ -80,28 +91,37 @@
     </select>
 
     <select id="getSystemImagesCount" resultType="java.lang.Integer"
-            parameterType="org.edgegallery.developer.model.system.MepGetSystemImageReq">
+            parameterType="java.util.Map">
         SELECT COUNT(1) FROM tbl_vm_system WHERE 1 = 1
         <if test="userId != null and userId !=''">
             and (user_id = #{userId} or type = 'public')
         </if>
-        <if test="operateSystem != null and operateSystem!=''">
-            and lower(operate_system) like lower(CONCAT('%', #{operateSystem}, '%'))
+        <if test="operateSystems != null and operateSystems.size()>0">
+            and operate_system in
+            <foreach collection="operateSystems" item="item" index="index" open="(" close=")" separator=",">
+                #{item}
+            </foreach>
         </if>
-        <if test="systemName != null and systemName!=''">
+        <if test="systemName != null and systemName !=''">
             and lower(system_name) like lower(CONCAT('%', #{systemName}, '%'))
         </if>
-        <if test="status != null and status !='All'">
-            and status = #{status}
+        <if test="statusList != null and statusList.size()>0">
+            and status in
+            <foreach collection="statusList" item="item" index="index" open="(" close=")" separator=",">
+                #{item}
+            </foreach>
         </if>
-        <if test="type != null and type !='All'">
-            and type = #{type}
+        <if test="types != null and types.size()>0">
+            and type in
+            <foreach collection="types" item="item" index="index" open="(" close=")" separator=",">
+                #{item}
+            </foreach>
         </if>
-        <if test="createTimeBegin != null and createTimeBegin != ''">
-            <![CDATA[ and create_time >= to_timestamp(#{createTimeBegin}, 'YYYY-MM-DD HH24:MI:SS') ]]>
+        <if test="uploadTimeBegin != null and uploadTimeBegin != ''">
+            <![CDATA[ and upload_time >= to_timestamp(#{uploadTimeBegin}, 'YYYY-MM-DD HH24:MI:SS') ]]>
         </if>
-        <if test="createTimeEnd != null and createTimeEnd != ''">
-            <![CDATA[ and create_time <= to_timestamp(#{createTimeEnd}, 'YYYY-MM-DD HH24:MI:SS') ]]>
+        <if test="uploadTimeEnd != null and uploadTimeEnd != ''">
+            <![CDATA[ and upload_time <= to_timestamp(#{uploadTimeEnd}, 'YYYY-MM-DD HH24:MI:SS') ]]>
         </if>
     </select>
 
@@ -152,6 +172,10 @@
         UPDATE tbl_vm_system SET status = #{status} WHERE system_id = #{systemId}
     </update>
 
+    <update id="updateSystemImageSlimStatus">
+        UPDATE tbl_vm_system SET system_slim = #{slimStatus} WHERE system_id = #{systemId}
+    </update>
+
     <update id="updateSystemImageIdentifier">
         UPDATE tbl_vm_system SET file_identifier = #{identifier} WHERE system_id = #{systemId}
     </update>
@@ -163,7 +187,8 @@
     <update id="updateSystemImageUploadInfo" parameterType="org.edgegallery.developer.model.system.UploadFileInfo">
         UPDATE tbl_vm_system
         SET status = #{status}, system_path = #{systemPath}, file_name=#{fileName},
-            file_md5=#{fileMd5}, system_format=#{fileFormat}, upload_time=now()
+            file_md5=#{fileMd5}, system_format=#{fileFormat}, upload_time=now(),
+            system_size=#{fileSize}
         WHERE system_id = #{systemId}
     </update>
 </mapper>

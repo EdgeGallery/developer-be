@@ -9,6 +9,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.zip.ZipEntry;
@@ -28,12 +29,14 @@ import org.edgegallery.developer.model.system.MepGetSystemImageRes;
 import org.edgegallery.developer.model.system.MepSystemQueryCtrl;
 import org.edgegallery.developer.model.system.UploadFileInfo;
 import org.edgegallery.developer.model.system.VmSystem;
+import org.edgegallery.developer.model.workspace.EnumSystemImageSlimStatus;
 import org.edgegallery.developer.model.workspace.EnumSystemImageStatus;
 import org.edgegallery.developer.response.FormatRespDto;
 import org.edgegallery.developer.util.BusinessConfigUtil;
 import org.edgegallery.developer.util.FileHashCode;
 import org.edgegallery.developer.util.HttpClientUtil;
 import org.edgegallery.developer.util.InitConfigUtil;
+import org.edgegallery.developer.util.SystemImageUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,6 +60,10 @@ public class SystemImageMgmtService {
 
     private static final String FILE_FORMAT_ISO = "iso";
 
+    private static final String FILE_SLIM_PATH = "/slim";
+
+    private static final int FILE_SIZE_UNIT = 1024 * 1024;
+
     @Value("${fileserver.address}")
     private String fileServerAddress;
 
@@ -77,29 +84,50 @@ public class SystemImageMgmtService {
                 mepGetSystemImageReq.setUserId(userId);
             }
             MepSystemQueryCtrl queryCtrl = mepGetSystemImageReq.getQueryCtrl();
-            if (queryCtrl.getSortBy() == null || queryCtrl.getSortBy().equalsIgnoreCase("createTime")) {
-                queryCtrl.setSortBy("create_time");
+            if (queryCtrl.getSortBy() == null || queryCtrl.getSortBy().equalsIgnoreCase("uploadTime")) {
+                queryCtrl.setSortBy("upload_time");
             } else if (queryCtrl.getSortBy().equalsIgnoreCase("userName")) {
                 queryCtrl.setSortBy("user_name");
             }
             if (queryCtrl.getSortOrder() == null) {
                 queryCtrl.setSortOrder("DESC");
             }
-            String createTimeBegin = mepGetSystemImageReq.getCreateTimeBegin();
-            String createTimeEnd = mepGetSystemImageReq.getCreateTimeEnd();
-            if (!StringUtils.isBlank(createTimeBegin)) {
-                mepGetSystemImageReq.setCreateTimeBegin(createTimeBegin + " 00:00:00");
+            String uploadTimeBegin = mepGetSystemImageReq.getUploadTimeBegin();
+            String uploadTimeEnd = mepGetSystemImageReq.getUploadTimeEnd();
+            if (!StringUtils.isBlank(uploadTimeBegin)) {
+                mepGetSystemImageReq.setUploadTimeBegin(uploadTimeBegin + " 00:00:00");
             }
-            if (!StringUtils.isBlank(createTimeEnd)) {
-                mepGetSystemImageReq.setCreateTimeEnd(createTimeEnd + " 23:59:59");
+            if (!StringUtils.isBlank(uploadTimeEnd)) {
+                mepGetSystemImageReq.setUploadTimeEnd(uploadTimeEnd + " 23:59:59");
             }
             mepGetSystemImageReq.setQueryCtrl(queryCtrl);
             MepGetSystemImageRes mepGetSystemImageRes = new MepGetSystemImageRes();
-            mepGetSystemImageRes.setTotalCount(systemImageMapper.getSystemImagesCount(mepGetSystemImageReq));
-            mepGetSystemImageRes.setImageList(systemImageMapper.getSystemImagesByCondition(mepGetSystemImageReq));
+            Map map = new HashMap<>();
+            map.put("systemName", mepGetSystemImageReq.getSystemName());
+            if (StringUtils.isNotEmpty(mepGetSystemImageReq.getType())) {
+                map.put("types", SystemImageUtil.splitParam(mepGetSystemImageReq.getType()));
+            } else {
+                map.put("types", null);
+            }
+            map.put("userId", mepGetSystemImageReq.getUserId());
+            if (StringUtils.isNotEmpty(mepGetSystemImageReq.getOperateSystem())) {
+                map.put("operateSystems", SystemImageUtil.splitParam(mepGetSystemImageReq.getOperateSystem()));
+            } else {
+                map.put("operateSystems", null);
+            }
+            if (StringUtils.isNotEmpty(mepGetSystemImageReq.getStatus())) {
+                map.put("statusList", SystemImageUtil.splitParam(mepGetSystemImageReq.getStatus()));
+            } else {
+                map.put("statusList", null);
+            }
+            map.put("uploadTimeBegin", mepGetSystemImageReq.getUploadTimeBegin());
+            map.put("uploadTimeEnd", mepGetSystemImageReq.getUploadTimeEnd());
+            map.put("queryCtrl", mepGetSystemImageReq.getQueryCtrl());
+            mepGetSystemImageRes.setTotalCount(systemImageMapper.getSystemImagesCount(map));
+            mepGetSystemImageRes.setImageList(systemImageMapper.getSystemImagesByCondition(map));
             return Either.right(mepGetSystemImageRes);
         } catch (Exception e) {
-            LOGGER.error("Query SystemImages failed {}",e.getMessage());
+            LOGGER.error("Query SystemImages failed {}", e.getMessage());
             return Either.left(new FormatRespDto(Response.Status.BAD_REQUEST, "Can not query SystemImages."));
         }
     }
@@ -308,7 +336,8 @@ public class SystemImageMgmtService {
         if (!HttpClientUtil.sliceUploadFile(fileServerAddress, chunk, outFile.getAbsolutePath())) {
             LOGGER.error("upload to remote file server failed.");
             systemImageMapper.updateSystemImageStatus(systemId, EnumSystemImageStatus.UPLOAD_FAILED.toString());
-            systemImageMapper.updateSystemImageErrorType(systemId, EnumProcessErrorType.FILESYSTEM_UPLOAD_FAILED.getErrorType());
+            systemImageMapper
+                .updateSystemImageErrorType(systemId, EnumProcessErrorType.FILESYSTEM_UPLOAD_FAILED.getErrorType());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
 
@@ -463,6 +492,32 @@ public class SystemImageMgmtService {
         return ResponseEntity.ok().build();
     }
 
+    public Either<FormatRespDto, Boolean> imageSlim(Integer systemId) {
+        LOGGER.info("Reset SystemImage status, systemId = {}", systemId);
+        VmSystem vmSystemImage = systemImageMapper.getVmImage(systemId);
+        if (vmSystemImage == null) {
+            LOGGER.error("SystemImage not found, systemId = {}", systemId);
+            return Either.left(new FormatRespDto(Response.Status.BAD_REQUEST, "SystemImage not found."));
+        }
+
+        if (!isAdminUser() && !vmSystemImage.getUserId().equalsIgnoreCase(AccessUserUtil.getUserId())) {
+            LOGGER.error("forbidden reset the image");
+            return Either.left(new FormatRespDto(Response.Status.FORBIDDEN, "Forbidden reset the image."));
+        }
+
+        LOGGER.info("clean uploaded file.");
+        boolean slimResult = imageSlimByFileServer(systemId);
+        if (!slimResult) {
+            LOGGER.error("image slim fail.");
+            systemImageMapper.updateSystemImageSlimStatus(systemId, EnumSystemImageSlimStatus.SLIM_FAILED.toString());
+            return Either.left(new FormatRespDto(Response.Status.FORBIDDEN, "image slim fail."));
+        }
+
+        LOGGER.info("update image status to upload_wait.");
+        systemImageMapper.updateSystemImageSlimStatus(systemId, EnumSystemImageSlimStatus.SLIM_SUCCEED.toString());
+        return Either.right(true);
+    }
+
     private boolean deleteImageFileOnRemote(Integer systemId) {
         String systemPath = systemImageMapper.getSystemImagesPath(systemId);
         if (StringUtils.isEmpty(systemPath)) {
@@ -516,7 +571,8 @@ public class SystemImageMgmtService {
     }
 
     private String getUploadSysImageRootDir(int systemId) {
-        return InitConfigUtil.getWorkSpaceBaseDir() + BusinessConfigUtil.getTmpPath() + SUBDIR_SYSIMAGE + File.separator + systemId + File.separator;
+        return InitConfigUtil.getWorkSpaceBaseDir() + BusinessConfigUtil.getTmpPath() + SUBDIR_SYSIMAGE + File.separator
+            + systemId + File.separator;
     }
 
     private boolean isAdminUser() {
@@ -557,14 +613,16 @@ public class SystemImageMgmtService {
         try (ZipFile zipFile = new ZipFile(mergedFile)) {
             String fileMd5 = null;
             String fileFormat = null;
+            Long fileSize = 0L;
             Enumeration<? extends ZipEntry> entries = zipFile.entries();
             while (entries.hasMoreElements()) {
                 ZipEntry entry = entries.nextElement();
                 String name = entry.getName();
+                fileSize = entry.getCompressedSize();
                 fileFormat = name.substring(name.lastIndexOf(".") + 1, name.length());
                 if (fileFormat.equalsIgnoreCase(FILE_FORMAT_QCOW2) || fileFormat.equalsIgnoreCase(FILE_FORMAT_ISO)) {
                     fileMd5 = FileHashCode.md5HashCode32(zipFile.getInputStream(entry));
-                    return new UploadFileInfo(mergedFile.getName(), fileMd5, fileFormat);
+                    return new UploadFileInfo(mergedFile.getName(), fileMd5, fileFormat, fileSize);
                 }
             }
             LOGGER.error("zipFile format is mistake!");
@@ -577,5 +635,25 @@ public class SystemImageMgmtService {
         } finally {
             cleanWorkDir(mergedFile.getParentFile());
         }
+    }
+
+    private boolean imageSlimByFileServer(Integer systemId) {
+        String systemPath = systemImageMapper.getSystemImagesPath(systemId);
+        if (StringUtils.isEmpty(systemPath)) {
+            LOGGER.debug("system path is invalid, no need to delete.");
+            return false;
+        }
+        try {
+            String url = systemPath.substring(0, systemPath.length() - 16) + FILE_SLIM_PATH;
+            boolean slimResult = HttpClientUtil.imageSlim(url);
+            if (!slimResult) {
+                LOGGER.error("merge on remote file server failed.");
+                return false;
+            }
+        } catch (Exception e) {
+            LOGGER.error("merge on remote file server failed. {}", e.getMessage());
+            return false;
+        }
+        return true;
     }
 }

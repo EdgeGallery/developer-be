@@ -19,7 +19,7 @@ import org.edgegallery.developer.service.application.action.impl.InstantiateAppA
 
 public class InstantiateContainerAppAction extends InstantiateAppAction {
     @Override
-    public int execute() {
-        return 0;
+    public boolean execute() {
+        return true;
     }
 }

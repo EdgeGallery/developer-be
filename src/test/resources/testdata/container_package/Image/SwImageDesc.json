@@ -1,0 +1,1 @@
+[{"id":"69d1433e-24c0-47fc-848d-b4a86da0ed1c","name":"joomla:latest","version":"latest","checksum":"2","containerFormat":"bare","diskFormat":"raw","minDisk":3,"minRam":6,"architecture":"X86","size":688390,"swImage":"119.8.63.144/developer/joomla:latest","hw_scsi_model":"virtio-scsi","hw_disk_bus":"scsi","operatingSystem":"linux","supportedVirtualisationEnvironment":"linux"}]

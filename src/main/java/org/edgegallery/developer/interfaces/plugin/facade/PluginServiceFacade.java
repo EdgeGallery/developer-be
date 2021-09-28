@@ -27,7 +27,7 @@ import org.edgegallery.developer.domain.model.plugin.PluginPageCriteria;
 import org.edgegallery.developer.domain.model.plugin.PluginRepository;
 import org.edgegallery.developer.domain.model.user.User;
 import org.edgegallery.developer.domain.shared.Page;
-import org.edgegallery.developer.domain.shared.exceptions.EntityNotFoundException;
+import org.edgegallery.developer.exception.EntityNotFoundException;
 import org.edgegallery.developer.interfaces.plugin.facade.dto.PluginDto;
 import org.edgegallery.developer.response.FormatRespDto;
 import org.slf4j.Logger;

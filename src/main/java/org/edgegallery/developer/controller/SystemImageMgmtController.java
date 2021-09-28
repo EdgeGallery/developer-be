@@ -261,4 +261,22 @@ public class SystemImageMgmtController {
         LOGGER.info("download system image file, systemId = {}", systemId);
         return systemImageMgmtService.downloadSystemImage(systemId);
     }
+
+    /**
+     *  image slim.
+     *
+     * @return
+     */
+    @ApiOperation(value = "image slim.", response = Boolean.class)
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = "OK", response = Boolean.class),
+        @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
+    })
+    @RequestMapping(value = "/images/{systemId}/slim", method = RequestMethod.POST)
+    @PreAuthorize("hasRole('DEVELOPER_ADMIN')|| hasRole('DEVELOPER_TENANT')")
+    public ResponseEntity<Boolean> imageSlim(@PathVariable("systemId") Integer systemId) throws Exception {
+        LOGGER.info("image slim, systemId = {}", systemId);
+        Either<FormatRespDto, Boolean> either = systemImageMgmtService.imageSlim(systemId);
+        return ResponseDataUtil.buildResponse(either);
+    }
 }
