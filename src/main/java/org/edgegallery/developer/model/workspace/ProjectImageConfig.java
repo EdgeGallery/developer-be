@@ -26,17 +26,9 @@ public class ProjectImageConfig {
 
     private String id;
 
-    private String podName;
-
-    private String svcPort;
-
-    private String podContainers;
+    private String imageInfo;
 
     private String projectId;
-
-    private String svcType;
-
-    private String svcNodePort;
 
     private String helmChartFileId;
 

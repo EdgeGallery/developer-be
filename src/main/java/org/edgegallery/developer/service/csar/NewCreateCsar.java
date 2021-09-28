@@ -151,7 +151,7 @@ public class NewCreateCsar {
         }
         if (!CollectionUtils.isEmpty(list)) {
             ProjectImageConfig imageConfig = list.get(0);
-            String containers = imageConfig.getPodContainers();
+            String containers = imageConfig.getImageInfo();
             String imageData = "";
             if (containers.contains("podName")) {
                 List<PodImage> images = new Gson().fromJson(containers, new TypeToken<List<PodImage>>() { }.getType());

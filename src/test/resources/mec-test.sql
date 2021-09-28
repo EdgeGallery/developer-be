@@ -267,12 +267,8 @@ CREATE TABLE IF NOT EXISTS tbl_capability (
 
 CREATE TABLE IF NOT EXISTS tbl_project_image (
   id varchar(50)  NOT NULL DEFAULT NULL,
-  pod_name varchar(100)  DEFAULT NULL,
-  pod_containers text  DEFAULT NULL,
+  image_info text  DEFAULT NULL,
   project_id varchar(50)  DEFAULT NULL,
-  svc_type varchar(255)   DEFAULT NULL,
-  svc_port varchar(255)   DEFAULT NULL,
-  svc_node_port varchar(255)   DEFAULT NULL,
   helm_chart_file_id varchar(255)  DEFAULT NULL,
   CONSTRAINT tbl_project_image_pkey PRIMARY KEY (id)
 )
