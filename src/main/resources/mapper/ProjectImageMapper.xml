@@ -35,7 +35,7 @@
         svc_node_port,helm_chart_file_id)
         values
         ( #{id}, #{podName}, #{podContainers}, #{projectId}, #{svcType},
-        #{svcPort},#{svcNodePort},#{helm_chart_file_id})
+        #{svcPort},#{svcNodePort},#{helmChartFileId})
     </insert>
 
     <delete id="deleteImage" parameterType="java.lang.String">
