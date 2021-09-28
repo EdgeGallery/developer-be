@@ -17,9 +17,9 @@
 package org.edgegallery.developer.service.application.impl;
 
 import org.edgegallery.developer.common.ResponseConsts;
-import org.edgegallery.developer.exception.DataBaseException;
 import org.edgegallery.developer.exception.DeveloperException;
 import org.edgegallery.developer.mapper.application.ApplicationMapper;
+import org.edgegallery.developer.model.apppackage.AppPackage;
 import org.edgegallery.developer.model.restful.SelectMepHostReq;
 import org.edgegallery.developer.service.application.AppOperationService;
 import org.slf4j.Logger;
@@ -41,7 +41,7 @@ public class AppOperationServiceImpl implements AppOperationService {
     }
 
     @Override
-    public Boolean generatePackage(String applicationId) {
+    public AppPackage generatePackage(String applicationId) {
         return null;
     }
 

@@ -13,18 +13,16 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package org.edgegallery.developer.service.application;
+package org.edgegallery.developer.service.application.common;
 
-import org.edgegallery.developer.model.apppackage.AppPackage;
-import org.edgegallery.developer.model.restful.SelectMepHostReq;
+public interface IContextParameter {
+    String PARAM_APPLICATION_ID = "application_id";
 
-public interface AppOperationService {
+    String PARAM_VM_ID = "vm_id";
 
-    Boolean cleanEnv(String applicationId);
+    String PARAM_PACKAGE_ID = "package_id";
 
-    AppPackage generatePackage(String applicationId);
+    String PARAM_APP_INSTANCE_ID = "app_instance_id";
 
-    Boolean commitTest(String applicationId);
-
-    Boolean selectMepHost(String applicationId, SelectMepHostReq selectMepHostReq);
+    String PARAM_IMAGE_INSTANCE_ID = "image_instance_id";
 }

@@ -41,4 +41,9 @@ public class ActionStatus {
     private String errorMsg;
 
     private String statusLog;
+
+    public void appendStatusLog(String log){
+        this.statusLog = statusLog + log + System.getProperty("line.separator");
+    }
+
 }
