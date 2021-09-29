@@ -33,8 +33,10 @@ import org.edgegallery.developer.exception.IllegalRequestException;
 import org.edgegallery.developer.mapper.ProjectImageMapper;
 import org.edgegallery.developer.mapper.UploadedFileMapper;
 import org.edgegallery.developer.mapper.application.ApplicationMapper;
+import org.edgegallery.developer.mapper.application.container.ContainerAppImageInfoMapper;
 import org.edgegallery.developer.mapper.application.container.HelmChartMapper;
 import org.edgegallery.developer.model.application.Application;
+import org.edgegallery.developer.model.application.container.ContainerAppImageInfo;
 import org.edgegallery.developer.model.application.container.HelmChart;
 import org.edgegallery.developer.model.workspace.ProjectImageConfig;
 import org.edgegallery.developer.model.workspace.UploadedFile;
@@ -56,7 +58,7 @@ public class ContainerAppHelmChartServiceImpl implements ContainerAppHelmChartSe
     private static final Logger LOGGER = LoggerFactory.getLogger(ContainerAppHelmChartServiceImpl.class);
 
     @Autowired
-    private ProjectImageMapper projectImageMapper;
+    private ContainerAppImageInfoMapper containerAppImageInfoMapper;
 
     @Autowired
     private ApplicationMapper applicationMapper;
@@ -210,12 +212,12 @@ public class ContainerAppHelmChartServiceImpl implements ContainerAppHelmChartSe
             LOGGER.error("the image configuration in the yaml file is incorrect");
             return false;
         }
-        ProjectImageConfig config = new ProjectImageConfig();
-        config.setId(UUID.randomUUID().toString());
-        config.setImageInfo(podImages.toString());
-        config.setProjectId(applicationId);
-        config.setHelmChartFileId(newFileId);
-        int res = projectImageMapper.saveImage(config);
+        ContainerAppImageInfo imageInfo = new ContainerAppImageInfo();
+        imageInfo.setId(UUID.randomUUID().toString());
+        imageInfo.setImageInfo(podImages.toString());
+        imageInfo.setApplicationId(applicationId);
+        imageInfo.setHelmChartFileId(newFileId);
+        int res = containerAppImageInfoMapper.saveImageInfo(imageInfo);
         if (res <= 0) {
             return false;
         }

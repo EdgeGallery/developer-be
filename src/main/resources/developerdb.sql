@@ -187,6 +187,15 @@
     )
     ;
 
+     CREATE TABLE IF NOT EXISTS "tbl_container_app_image_info" (
+       "id"  varchar(255) NOT NULL,
+       "image_info" text  DEFAULT NULL,
+       "application_id" varchar(255) DEFAULT NULL,
+       "helm_chart_file_id" varchar(255) DEFAULT NULL,
+       CONSTRAINT "tbl_container_app_image_info_pkey" PRIMARY KEY ("id")
+     )
+     ;
+
     CREATE TABLE IF NOT EXISTS "tbl_project_test_config" (
       "test_id" varchar(50) NOT NULL,
       "project_id" varchar(50) DEFAULT NULL,
