@@ -1549,7 +1549,11 @@ public class ProjectService {
                 if (status.equals(EnumProjectStatus.DEPLOYED)
                     || status.equals(EnumProjectStatus.DEPLOYED_FAILED) && StringUtils.isNotEmpty(accessToken)
                     && timeDiff.intValue() >= 24) {
-                    cleanTestEnv(project.getUserId(), project.getId(), accessToken);
+                    if (project.getDeployPlatform().equals("KUBERNETES")) {
+                        cleanTestEnv(project.getUserId(), project.getId(), accessToken);
+                    } else {
+                        vmService.cleanVmDeploy(project.getId(), accessToken);
+                    }
                 }
             }
         } catch (IOException | ParseException e) {
