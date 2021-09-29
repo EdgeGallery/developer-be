@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~    Copyright 2020 Huawei Technologies Co., Ltd.
+  ~
+  ~    Licensed under the Apache License, Version 2.0 (the "License");
+  ~    you may not use this file except in compliance with the License.
+  ~    You may obtain a copy of the License at
+  ~
+  ~        http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~    Unless required by applicable law or agreed to in writing, software
+  ~    distributed under the License is distributed on an "AS IS" BASIS,
+  ~    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~    See the License for the specific language governing permissions and
+  ~    limitations under the License.
+  -->
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.edgegallery.developer.mapper.image.VMImageMapper">
+  <resultMap id="VmImageMap" type="org.edgegallery.developer.model.vmimage.VMImage">
+    <id property="id" column="id"/>
+    <result property="name" column="name"/>
+    <result property="visibleType" column="visible_type"/>
+    <result property="osType" column="os_type"/>
+    <result property="osVersion" column="os_version"/>
+    <result property="osBitType" column="os_bit_type"/>
+    <result property="systemDiskSize" column="system_disk_size"/>
+    <result property="imageFileName" column="image_file_name"/>
+    <result property="createTime" column="create_time"/>
+    <result property="modifyTime" column="modify_time"/>
+    <result property="imageFormat" column="image_format"/>
+    <result property="uploadTime" column="upload_time"/>
+    <result property="downLoadUrl" column="down_load_url"/>
+    <result property="imageSize" column="image_size"/>
+    <result property="status" column="status"/>
+    <result property="imageSlimStatus" column="image_slim_status"/>
+    <result property="userId" column="user_id"/>
+    <result property="userName" column="user_name"/>
+    <result property="fileMd5" column="file_md5"/>
+    <result property="fileIdentifier" column="file_identifier"/>
+    <result property="errorType" column="error_type"/>
+  </resultMap>
+
+  <sql id="AllColumn">
+    id, name, visible_type, os_type, os_version, os_bit_type, system_disk_size, image_file_name,
+    create_time, modify_time, image_format, upload_time, down_load_url, image_size, status, image_slim_status,
+    user_id, user_name, file_md5, file_identifier, error_type
+  </sql>
+
+  <select id="getVmImagesByCondition" parameterType="java.util.Map"
+    resultMap="VmImageMap">
+    SELECT id, name, visible_type, os_type, os_version, os_bit_type, system_disk_size, user_id, user_name,
+    image_format, image_slim_status, image_size, to_char(upload_time, 'YYYY-MM-DD HH24:MI:SS') as upload_time,
+    status, to_char(create_time, 'YYYY-MM-DD HH24:MI:SS') as create_time, error_type
+    FROM tbl_vm_image
+    <where>
+      <if test="userId != null and userId !=''">
+        and (user_id = #{userId} or visible_type = 'public')
+      </if>
+      <if test="osTypes != null and osTypes.size()>0">
+        and os_type in
+        <foreach collection="osTypes" item="item" index="index" open="(" close=")" separator=",">
+          #{item}
+        </foreach>
+      </if>
+      <if test="name != null and name !=''">
+        and lower(name) like lower(CONCAT('%', #{name}, '%'))
+      </if>
+      <if test="statusList != null and statusList.size()>0">
+        and status in
+        <foreach collection="statusList" item="item" index="index" open="(" close=")" separator=",">
+          #{item}
+        </foreach>
+      </if>
+      <if test="visibleTypes != null and visibleTypes.size()>0">
+        and visible_type in
+        <foreach collection="visibleTypes" item="item" index="index" open="(" close=")" separator=",">
+          #{item}
+        </foreach>
+      </if>
+      <if test="uploadTimeBegin != null and uploadTimeBegin != ''">
+        <![CDATA[ and upload_time >= to_timestamp(#{uploadTimeBegin}, 'YYYY-MM-DD HH24:MI:SS') ]]>
+      </if>
+      <if test="uploadTimeEnd != null and uploadTimeEnd != ''">
+        <![CDATA[ and upload_time <= to_timestamp(#{uploadTimeEnd}, 'YYYY-MM-DD HH24:MI:SS') ]]>
+      </if>
+    </where>
+    <if test="queryCtrl != null">
+      <if test="queryCtrl.sortBy != null and queryCtrl.sortBy != '' and queryCtrl.sortOrder != null and queryCtrl.sortOrder != ''">
+        order by ${queryCtrl.sortBy} ${queryCtrl.sortOrder}
+      </if>
+      <if test="queryCtrl.offset >=0 and queryCtrl.limit > 0">
+        offset #{queryCtrl.offset} limit #{queryCtrl.limit}
+      </if>
+    </if>
+  </select>
+
+  <select id="getVmImagesCount" resultType="java.lang.Integer"
+    parameterType="java.util.Map">
+    SELECT COUNT(1) FROM tbl_vm_image WHERE 1 = 1
+    <if test="userId != null and userId !=''">
+      and (user_id = #{userId} or visible_type = 'public')
+    </if>
+    <if test="osTypes != null and osTypes.size()>0">
+      and os_type in
+      <foreach collection="osTypes" item="item" index="index" open="(" close=")" separator=",">
+        #{item}
+      </foreach>
+    </if>
+    <if test="name != null and name !=''">
+      and lower(name) like lower(CONCAT('%', #{name}, '%'))
+    </if>
+    <if test="statusList != null and statusList.size()>0">
+      and status in
+      <foreach collection="statusList" item="item" index="index" open="(" close=")" separator=",">
+        #{item}
+      </foreach>
+    </if>
+    <if test="visibleTypes != null and visibleTypes.size()>0">
+      and visible_type in
+      <foreach collection="visibleTypes" item="item" index="index" open="(" close=")" separator=",">
+        #{item}
+      </foreach>
+    </if>
+    <if test="uploadTimeBegin != null and uploadTimeBegin != ''">
+      <![CDATA[ and upload_time >= to_timestamp(#{uploadTimeBegin}, 'YYYY-MM-DD HH24:MI:SS') ]]>
+    </if>
+    <if test="uploadTimeEnd != null and uploadTimeEnd != ''">
+      <![CDATA[ and upload_time <= to_timestamp(#{uploadTimeEnd}, 'YYYY-MM-DD HH24:MI:SS') ]]>
+    </if>
+  </select>
+
+  <select id="getVmImage" resultMap="VmImageMap" parameterType="java.lang.Integer">
+    SELECT
+    <include refid="AllColumn"/>
+    FROM tbl_vm_image WHERE id = #{imageId}
+  </select>
+
+  <select id="getVmImagesPath" resultType="java.lang.String" parameterType="java.lang.Integer">
+    SELECT down_load_url FROM tbl_vm_image WHERE id = #{imageId}
+  </select>
+
+  <select id="getVmNameCount" resultType="java.lang.Integer" parameterType="org.edgegallery.developer.model.vmimage.VMImage">
+    SELECT COUNT(1) FROM tbl_vm_image WHERE name = #{name}
+    <if test="userId != null and userId!=''">
+      and user_id = #{userId}
+    </if>
+    <if test="imageId != null and imageId!=''">
+      and id != #{imageId}
+    </if>
+  </select>
+
+  <insert id="createVmImage" parameterType="org.edgegallery.developer.model.vmimage.VMImage">
+    insert into tbl_vm_image (name, visible_type, os_type, os_version, os_bit_type, system_disk_size,
+    user_id, user_name, create_time, modify_time, status)
+    values (#{name}, #{visibleType}, #{osType}, #{osVersion}, #{osBitType}, #{systemDiskSize}, #{userId}, #{userName}, now(), now(), #{status})
+  </insert>
+
+  <update id="updateVmImage" parameterType="org.edgegallery.developer.model.vmimage.VMImage">
+    UPDATE tbl_vm_image
+    SET name=#{name}, visible_type=#{visibleType},
+    os_type=#{osType}, os_version=#{osVersion},
+    os_bit_type=#{osBitType}, system_disk_size=#{systemDiskSize}, modify_time=now()
+    WHERE id = #{id}
+    <if test="userId != null">
+      and user_id = #{userId}
+    </if>
+  </update>
+
+  <delete id="deleteVmImage" parameterType="org.edgegallery.developer.model.vmimage.VMImage">
+    DELETE FROM tbl_vm_image WHERE id = #{id}
+    <if test="userId != null">
+      and user_id = #{userId}
+    </if>
+  </delete>
+
+  <update id="updateVmImageStatus">
+    UPDATE tbl_vm_image SET status = #{status} WHERE id = #{imageId}
+  </update>
+
+  <update id="updateVmImageSlimStatus">
+    UPDATE tbl_vm_image SET image_slim_status = #{imageSlimStatus} WHERE id = #{imageId}
+  </update>
+
+  <update id="updateVmImageIdentifier">
+    UPDATE tbl_vm_image SET file_identifier = #{identifier} WHERE id = #{imageId}
+  </update>
+
+  <update id="updateVmImageErrorType">
+    UPDATE tbl_vm_image SET error_type = #{errorType} WHERE id = #{imageId}
+  </update>
+
+  <update id="updateVmImageUploadInfo" parameterType="org.edgegallery.developer.model.vmimage.UploadFileInfo">
+    UPDATE tbl_vm_image
+    SET status = #{status}, down_load_url = #{downLoadUrl}, image_file_name=#{imageFileName},
+    file_md5=#{fileMd5}, image_format=#{imageFormat}, upload_time=now(),
+    image_size=#{imageSize}
+    WHERE id = #{imageId}
+  </update>
+</mapper>

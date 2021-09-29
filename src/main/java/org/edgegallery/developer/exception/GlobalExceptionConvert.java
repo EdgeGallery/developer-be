@@ -201,6 +201,18 @@ public class GlobalExceptionConvert {
             .build();
     }
 
+    /**
+     * Handle RestfulRequestException.
+     */
+    @ExceptionHandler(value = RestfulRequestException.class)
+    @ResponseBody
+    public RestReturn restfulRequestException(HttpServletRequest request, RestfulRequestException e) {
+        return RestReturn.builder().code(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode())
+            .error(Response.Status.INTERNAL_SERVER_ERROR.getReasonPhrase()).message(e.getMessage())
+            .path(request.getRequestURI()).retCode(e.getErrMsg().getRetCode()).params(e.getErrMsg().getParams())
+            .build();
+    }
+
 
 }
 

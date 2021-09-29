@@ -1,5 +1,5 @@
 /*
- *    Copyright 2021 Huawei Technologies Co., Ltd.
+ *    Copyright 2020 Huawei Technologies Co., Ltd.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -13,11 +13,15 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package org.edgegallery.developer.service.image;
 
-import org.springframework.stereotype.Service;
+package org.edgegallery.developer.model.vmimage;
 
-@Service("vmImageService")
-public class VmImageService {
-
+public enum EnumVmImageStatus {
+    UPLOAD_WAIT,
+    UPLOADING,
+    UPLOADING_MERGING,
+    UPLOAD_SUCCEED,
+    UPLOAD_FAILED,
+    UPLOAD_CANCELLED,
+    PUBLISHED
 }
