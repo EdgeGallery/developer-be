@@ -577,7 +577,7 @@
     );
 
     CREATE TABLE IF NOT EXISTS "tbl_vm_image" (
-    "id" varchar(255) NOT NULL,
+    "id" SERIAL,
     "name" varchar(255) NOT NULL,
     "visible_type" varchar(255) DEFAULT NULL,
     "os_type" varchar(255) DEFAULT NULL,
@@ -588,12 +588,17 @@
     "image_format" varchar(255) DEFAULT NULL,
     "down_load_url" varchar(255) DEFAULT NULL,
     "file_md5" varchar(255) DEFAULT NULL,
+    "image_size" bigint DEFAULT NULL,
+    "image_slim_status" varchar(50) DEFAULT NULL,
     "status" varchar(255) DEFAULT NULL,
     "create_time" timestamptz(6)  DEFAULT NULL,
     "modify_time" timestamptz(6)  DEFAULT NULL,
     "upload_time" timestamptz(6)  DEFAULT NULL,
     "user_id" varchar(255) DEFAULT NULL,
     "user_name" varchar(255) DEFAULT NULL,
+    "file_identifier" varchar(128) DEFAULT NULL,
+    "error_type" varchar(32) DEFAULT NULL,
+    CONSTRAINT "tbl_vm_image_uniqueName" UNIQUE ("name","user_id"),
     CONSTRAINT "tbl_vm_image_pkey" PRIMARY KEY ("id")
     );
 

@@ -207,4 +207,10 @@ public class ResponseConsts {
      */
     public static final int RET_TRANSFER_FILE_FAIL= 20038;
 
+    /**
+     *   restful request fail.
+     */
+    public static final int RET_RESTFUL_REQUEST_FAIL= 20039;
+
+
 }
