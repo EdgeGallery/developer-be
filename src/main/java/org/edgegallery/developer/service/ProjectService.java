@@ -107,11 +107,11 @@ import org.edgegallery.developer.model.workspace.ProjectTestConfig;
 import org.edgegallery.developer.model.workspace.ProjectTestConfigStageStatus;
 import org.edgegallery.developer.model.workspace.UploadedFile;
 import org.edgegallery.developer.response.FormatRespDto;
+import org.edgegallery.developer.service.capability.CapabilityService;
 import org.edgegallery.developer.service.csar.NewCreateCsar;
 import org.edgegallery.developer.service.dao.ProjectDao;
 import org.edgegallery.developer.service.deploy.IConfigDeployStage;
 import org.edgegallery.developer.service.virtual.VmService;
-import org.edgegallery.developer.service.capability.CapabilityService;
 import org.edgegallery.developer.template.ChartFileCreator;
 import org.edgegallery.developer.util.AppStoreUtil;
 import org.edgegallery.developer.util.AtpUtil;
@@ -1005,7 +1005,7 @@ public class ProjectService {
         UploadedFile iconFile = uploadedFileMapper.getFileById(iconFileId);
         String iconPath = getProjectPath(projectId) + project.getIconFileId();
         File icon = new File(iconPath);
-        File desIcon = new File(iconPath + iconFile.getFileName());
+        File desIcon = new File(iconPath + File.separator + iconFile.getFileName());
 
         try {
             DeveloperFileUtils.deleteAndCreateFile(desIcon);

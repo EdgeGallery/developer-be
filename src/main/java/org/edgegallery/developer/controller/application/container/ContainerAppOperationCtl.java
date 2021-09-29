@@ -20,8 +20,11 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.Pattern;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
+import org.edgegallery.developer.common.Consts;
+import org.edgegallery.developer.model.restful.OperationInfoRep;
 import org.edgegallery.developer.response.ErrorRespDto;
 import org.edgegallery.developer.service.application.container.ContainerAppOperationService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,31 +56,16 @@ public class ContainerAppOperationCtl {
         @ApiResponse(code = 200, message = "OK", response = Boolean.class),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
-    @RequestMapping(value = "/{applicationId}/container/launch", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_UTF8_VALUE,
+    @RequestMapping(value = "/{applicationId}/containers/{helmChartId}launch", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_UTF8_VALUE,
         produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
-    public ResponseEntity<Boolean> instantiateContainerApp(
+    public ResponseEntity<OperationInfoRep> instantiateContainerApp(
         @Pattern(regexp = REGEX_UUID, message = "applicationId must be in UUID format")
-        @ApiParam(value = "applicationId", required = true) @PathVariable("applicationId") String applicationId) {
-        Boolean result = containerAppOperationService.instantiateContainerApp(applicationId);
-        return ResponseEntity.ok(result);
-    }
-
-    /**
-     * get container app instantiate info .
-     */
-    @ApiOperation(value = "get container app instantiate info .", response = Boolean.class)
-    @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "OK", response = Boolean.class),
-        @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
-    })
-    @RequestMapping(value = "/{applicationId}/container/detail", method = RequestMethod.GET,
-        produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
-    public ResponseEntity<Boolean> getContainerDetail(
-        @Pattern(regexp = REGEX_UUID, message = "applicationId must be in UUID format")
-        @ApiParam(value = "applicationId", required = true) @PathVariable("applicationId") String applicationId) {
-        Boolean result = containerAppOperationService.getContainerDetail(applicationId);
+        @ApiParam(value = "applicationId", required = true) @PathVariable("applicationId") String applicationId,
+        @Pattern(regexp = REGEX_UUID, message = "helmChartId must be in UUID format")
+        @ApiParam(value = "helmChartId", required = true) @PathVariable("helmChartId") String helmChartId, HttpServletRequest request) {
+        String accessToken = request.getHeader(Consts.ACCESS_TOKEN_STR);
+        OperationInfoRep result = containerAppOperationService.instantiateContainerApp(applicationId,helmChartId,accessToken);
         return ResponseEntity.ok(result);
     }
 
