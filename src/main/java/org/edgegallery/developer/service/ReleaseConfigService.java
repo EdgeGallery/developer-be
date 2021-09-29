@@ -296,21 +296,20 @@ public class ReleaseConfigService {
         if (oldConfig==null || oldConfig.getAtpTest()==null || oldConfig.getAtpTest().getId().equals("")) {
             return Either.right(oldConfig);
         }
-        if (oldConfig.getAtpTest().getStatus().equals("created") || oldConfig.getAtpTest().getStatus().equals("running")
-            || oldConfig.getAtpTest().getStatus().equals("waiting")) {
-            AtpResultInfo atpResultInfo = oldConfig.getAtpTest();
-            String taskId = atpResultInfo.getId();
-            atpResultInfo.setStatus(AtpUtil.getTaskStatusFromAtp(taskId, token));
-            LOGGER.info("after status update: {}", oldConfig.getAtpTest().getStatus());
-            //update project status
-            if (oldConfig.getAtpTest().getStatus().equals("success")) {
-                project.setStatus(EnumProjectStatus.TESTED);
-            } else {
-                project.setStatus(EnumProjectStatus.TESTING);
-            }
-            projectMapper.updateProject(project);
-            configMapper.updateAtpStatus(oldConfig);
+
+        AtpResultInfo atpResultInfo = oldConfig.getAtpTest();
+        String taskId = atpResultInfo.getId();
+        atpResultInfo.setStatus(AtpUtil.getTaskStatusFromAtp(taskId, token));
+        LOGGER.info("after status update: {}", oldConfig.getAtpTest().getStatus());
+        //update project status
+        if (oldConfig.getAtpTest().getStatus().equals("success")) {
+            project.setStatus(EnumProjectStatus.TESTED);
+        } else {
+            project.setStatus(EnumProjectStatus.TESTING);
         }
+        projectMapper.updateProject(project);
+        configMapper.updateAtpStatus(oldConfig);
+
         return Either.right(oldConfig);
     }
 
