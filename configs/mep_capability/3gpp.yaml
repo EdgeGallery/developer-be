@@ -1,0 +1,905 @@
+swagger: "2.0"
+info:
+  description: "Apache APISIX 是一个动态、实时、高性能的 API 网关，基于 Nginx 网络库和 etcd 实现， 提供负载均衡、动态上游、灰度发布、服务熔断、身份认证、可观测性等丰富的流量管理功能。"
+  version: "2.1-alpine"
+  title: "Apache APISIX"
+
+basePath: "/apisix/admin"
+tags:
+- name: "Gateway"
+  description: "提供负载均衡、动态上游、灰度发布、服务熔断、身份认证、可观测性等丰富的流量管理功能。"
+
+schemes:
+- "http"
+paths:
+  /routes:
+    post:
+      tags:
+      - "route"
+      summary: "创建路由规则"
+      description: "创建路由规则"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "路由规则属性"
+        required: true
+        schema:
+          $ref: "#/definitions/Routes"
+      responses:
+        "400":
+          description: "Bad Request"
+        "200":
+          description: "直接返回与ETCD交互的结果"  
+          schema:
+            $ref: "#/definitions/EtcdResult"
+  /routes/{id}:
+    put:
+      tags:
+      - "route"
+      summary: "根据ID创建路由规则"
+      description: "根据ID创建路由规则"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "路由规则ID"
+        required: true
+        type: "string"
+      - name: "body"
+        in: "body"
+        description: "路由规则属性"
+        required: true
+        schema:
+          $ref: "#/definitions/Routes"
+      responses:
+        "400":
+          description: "Bad Request"
+        "200":
+          description: "直接返回与ETCD交互的结果"  
+          schema:
+            $ref: "#/definitions/EtcdResult"
+    patch:
+      tags:
+      - "route"
+      summary: "修改已有 Route 的部分属性，其他不涉及的属性会原样保留"
+      description: "修改已有 Route 的部分属性，其他不涉及的属性会原样保留"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "路由规则ID"
+        required: true
+        type: "string"
+      - name: "body"
+        in: "body"
+        description: "路由规则属性"
+        required: true
+        schema:
+          $ref: "#/definitions/Routes"
+      responses:
+        "400":
+          description: "Bad Request"
+        "200":
+          description: "直接返回与ETCD交互的结果"  
+          schema:
+            $ref: "#/definitions/EtcdResult"
+    delete:
+      tags:
+      - "route"
+      summary: "删除路由规则"
+      description: "删除路由规则"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "路由规则ID"
+        required: true
+        type: "string"
+      responses:
+        "400":
+          description: "Bad Request"
+        "200":
+          description: "直接返回与ETCD交互的结果"  
+          schema:
+            $ref: "#/definitions/EtcdResult"
+    get:
+      tags:
+      - "route"
+      summary: "查询路由规则"
+      description: "查询路由规则"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "路由规则ID"
+        required: true
+        type: "string"
+      responses:
+        "400":
+          description: "Bad Request"
+        "200":
+          description: "直接返回与ETCD交互的结果"  
+          schema:
+            $ref: "#/definitions/EtcdResult"
+  /routes/{id}/{path}:
+    patch:
+      tags:
+      - "route"
+      summary: "通过 {path} 指定路由规则要更新的属性"
+      description: "通过 {path} 指定路由规则要更新的属性，全量更新该属性的数据，其他不涉及的属性会原样保留。"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "路由规则ID"
+        required: true
+        type: "string"
+      - name: "path"
+        in: "path"
+        description: "路由规则属性路径"
+        required: true
+        type: "string"
+      - name: "body"
+        in: "body"
+        description: "待修改的路由规则属性"
+        required: true
+        schema:
+          $ref: "#/definitions/Routes"
+      responses:
+        "400":
+          description: "Bad Request"
+        "200":
+          description: "直接返回与ETCD交互的结果"  
+          schema:
+            $ref: "#/definitions/EtcdResult"
+  /services:
+    post:
+      tags:
+      - "service"
+      summary: "创建服务"
+      description: "Service 是某类 API 的抽象（也可以理解为一组 Route 的抽象）。它通常与上游服务抽象是一一对应的，Route 与 Service 之间，通常是 N:1 的关系。"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "服务属性"
+        required: true
+        schema:
+          $ref: "#/definitions/Services"
+      responses:
+        "400":
+          description: "Bad Request"
+        "200":
+          description: "直接返回与ETCD交互的结果"  
+          schema:
+            $ref: "#/definitions/EtcdResult"
+  /services/{id}:
+    put:
+      tags:
+      - "service"
+      summary: "根据ID创建服务"
+      description: "Service 是某类 API 的抽象（也可以理解为一组 Route 的抽象）。它通常与上游服务抽象是一一对应的，Route 与 Service 之间，通常是 N:1 的关系。"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "服务ID"
+        required: true
+        type: "string"
+      - name: "body"
+        in: "body"
+        description: "服务属性"
+        required: true
+        schema:
+          $ref: "#/definitions/Services"
+      responses:
+        "400":
+          description: "Bad Request"
+        "200":
+          description: "直接返回与ETCD交互的结果"  
+          schema:
+            $ref: "#/definitions/EtcdResult"
+    patch:
+      tags:
+      - "service"
+      summary: "修改已有 Service 的部分属性，其他不涉及的属性会原样保留"
+      description: "Service 是某类 API 的抽象（也可以理解为一组 Route 的抽象）。它通常与上游服务抽象是一一对应的，Route 与 Service 之间，通常是 N:1 的关系。"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "服务ID"
+        required: true
+        type: "string"
+      - name: "body"
+        in: "body"
+        description: "服务属性"
+        required: true
+        schema:
+          $ref: "#/definitions/Services"
+      responses:
+        "400":
+          description: "Bad Request"
+        "200":
+          description: "直接返回与ETCD交互的结果"  
+          schema:
+            $ref: "#/definitions/EtcdResult"
+    delete:
+      tags:
+      - "service"
+      summary: "删除服务"
+      description: "Service 是某类 API 的抽象（也可以理解为一组 Route 的抽象）。它通常与上游服务抽象是一一对应的，Route 与 Service 之间，通常是 N:1 的关系。"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "服务ID"
+        required: true
+        type: "string"
+      responses:
+        "400":
+          description: "Bad Request"
+        "200":
+          description: "直接返回与ETCD交互的结果"  
+          schema:
+            $ref: "#/definitions/EtcdResult"
+    get:
+      tags:
+      - "service"
+      summary: "查询服务"
+      description: "Service 是某类 API 的抽象（也可以理解为一组 Route 的抽象）。它通常与上游服务抽象是一一对应的，Route 与 Service 之间，通常是 N:1 的关系。"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "服务ID"
+        required: true
+        type: "string"
+      responses:
+        "400":
+          description: "Bad Request"
+        "200":
+          description: "直接返回与ETCD交互的结果"  
+          schema:
+            $ref: "#/definitions/EtcdResult"
+  /services/{id}/{path}:
+    patch:
+      tags:
+      - "service"
+      summary: "通过 {path} 指定服务要更新的属性"
+      description: "通过 {path} 指定服务要更新的属性，全量更新该属性的数据，其他不涉及的属性会原样保留。"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "服务ID"
+        required: true
+        type: "string"
+      - name: "path"
+        in: "path"
+        description: "服务属性路径"
+        required: true
+        type: "string"
+      - name: "body"
+        in: "body"
+        description: "待更新的服务属性"
+        required: true
+        schema:
+          $ref: "#/definitions/Services"
+      responses:
+        "400":
+          description: "Bad Request"
+        "200":
+          description: "直接返回与ETCD交互的结果"  
+          schema:
+            $ref: "#/definitions/EtcdResult"
+  /consumers:
+    post:
+      tags:
+      - "consumer"
+      summary: "创建消费者"
+      description: "Consumer 是某类服务的消费者，需与用户认证体系配合才能使用。"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "消费者属性"
+        required: true
+        schema:
+          $ref: "#/definitions/Consumers"
+      responses:
+        "400":
+          description: "Bad Request"
+        "200":
+          description: "直接返回与ETCD交互的结果"  
+          schema:
+            $ref: "#/definitions/EtcdResult"
+  /consumers/{id}:
+    put:
+      tags:
+      - "consumer"
+      summary: "根据ID创建消费者"
+      description: "Consumer 是某类服务的消费者，需与用户认证体系配合才能使用。"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "消费者ID"
+        required: true
+        type: "string"
+      - name: "body"
+        in: "body"
+        description: "消费者属性"
+        required: true
+        schema:
+          $ref: "#/definitions/Consumers"
+      responses:
+        "400":
+          description: "Bad Request"
+        "200":
+          description: "直接返回与ETCD交互的结果"  
+          schema:
+            $ref: "#/definitions/EtcdResult"
+    delete:
+      tags:
+      - "consumer"
+      summary: "删除消费者"
+      description: "Consumer 是某类服务的消费者，需与用户认证体系配合才能使用。"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "消费者ID"
+        required: true
+        type: "string"
+      responses:
+        "400":
+          description: "Bad Request"
+        "200":
+          description: "直接返回与ETCD交互的结果"  
+          schema:
+            $ref: "#/definitions/EtcdResult"
+    get:
+      tags:
+      - "consumer"
+      summary: "查询消费者"
+      description: "Consumer 是某类服务的消费者，需与用户认证体系配合才能使用。"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "消费者ID"
+        required: true
+        type: "string"
+      responses:
+        "400":
+          description: "Bad Request"
+        "200":
+          description: "直接返回与ETCD交互的结果"  
+          schema:
+            $ref: "#/definitions/EtcdResult"
+  /upstreams:
+    post:
+      tags:
+      - "upstream"
+      summary: "创建虚拟主机"
+      description: "Upstream 是虚拟主机抽象，对给定的多个服务节点按照配置规则进行负载均衡。Upstream 的地址信息可以直接配置到 Route（或 Service) 上，当 Upstream 有重复时，就需要用“引用”方式避免重复了。"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "虚拟主机属性"
+        required: true
+        schema:
+          $ref: "#/definitions/Upstreams"
+      responses:
+        "400":
+          description: "Bad Request"
+        "200":
+          description: "直接返回与ETCD交互的结果"  
+          schema:
+            $ref: "#/definitions/EtcdResult"
+  /upstreams/{id}:
+    put:
+      tags:
+      - "upstream"
+      summary: "根据ID创建虚拟主机"
+      description: "Upstream 是虚拟主机抽象，对给定的多个服务节点按照配置规则进行负载均衡。Upstream 的地址信息可以直接配置到 Route（或 Service) 上，当 Upstream 有重复时，就需要用“引用”方式避免重复了。"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "虚拟主机ID"
+        required: true
+        type: "string"
+      - name: "body"
+        in: "body"
+        description: "虚拟主机属性"
+        required: true
+        schema:
+          $ref: "#/definitions/Upstreams"
+      responses:
+        "400":
+          description: "Bad Request"
+        "200":
+          description: "直接返回与ETCD交互的结果"  
+          schema:
+            $ref: "#/definitions/EtcdResult"
+    patch:
+      tags:
+      - "upstream"
+      summary: "修改已有虚拟主机的部分属性，其他不涉及的属性会原样保留"
+      description: "Upstream 是虚拟主机抽象，对给定的多个服务节点按照配置规则进行负载均衡。Upstream 的地址信息可以直接配置到 Route（或 Service) 上，当 Upstream 有重复时，就需要用“引用”方式避免重复了。"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "虚拟主机ID"
+        required: true
+        type: "string"
+      - name: "body"
+        in: "body"
+        description: "虚拟主机属性"
+        required: true
+        schema:
+          $ref: "#/definitions/Upstreams"
+      responses:
+        "400":
+          description: "Bad Request"
+        "200":
+          description: "直接返回与ETCD交互的结果"  
+          schema:
+            $ref: "#/definitions/EtcdResult"
+    delete:
+      tags:
+      - "upstream"
+      summary: "删除虚拟主机"
+      description: "Upstream 是虚拟主机抽象，对给定的多个服务节点按照配置规则进行负载均衡。Upstream 的地址信息可以直接配置到 Route（或 Service) 上，当 Upstream 有重复时，就需要用“引用”方式避免重复了。"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "虚拟主机ID"
+        required: true
+        type: "string"
+      responses:
+        "400":
+          description: "Bad Request"
+        "200":
+          description: "直接返回与ETCD交互的结果"  
+          schema:
+            $ref: "#/definitions/EtcdResult"
+    get:
+      tags:
+      - "upstream"
+      summary: "查询虚拟主机"
+      description: "Upstream 是虚拟主机抽象，对给定的多个服务节点按照配置规则进行负载均衡。Upstream 的地址信息可以直接配置到 Route（或 Service) 上，当 Upstream 有重复时，就需要用“引用”方式避免重复了。"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "虚拟主机ID"
+        required: true
+        type: "string"
+      responses:
+        "400":
+          description: "Bad Request"
+        "200":
+          description: "直接返回与ETCD交互的结果"  
+          schema:
+            $ref: "#/definitions/EtcdResult"
+  /upstreams/{id}/{path}:
+    patch:
+      tags:
+      - "upstream"
+      summary: "通过 {path} 指定虚拟主机要更新的属性"
+      description: "通过 {path} 指定虚拟主机要更新的属性，全量更新该属性的数据，其他不涉及的属性会原样保留。"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "虚拟主机ID"
+        required: true
+        type: "string"
+      - name: "path"
+        in: "path"
+        description: "虚拟主机属性路径"
+        required: true
+        type: "string"
+      - name: "body"
+        in: "body"
+        description: "待更新的虚拟主机属性"
+        required: true
+        schema:
+          $ref: "#/definitions/Upstreams"
+      responses:
+        "400":
+          description: "Bad Request"
+        "200":
+          description: "直接返回与ETCD交互的结果"  
+          schema:
+            $ref: "#/definitions/EtcdResult"
+  /ssl:
+    post:
+      tags:
+      - "ssl"
+      summary: "创建SSL资源，id 由后台服务自动生成"
+      description: "SSL"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "SSL属性"
+        required: true
+        schema:
+          $ref: "#/definitions/Ssl"
+      responses:
+        "400":
+          description: "Bad Request"
+        "200":
+          description: "直接返回与ETCD交互的结果"  
+          schema:
+            $ref: "#/definitions/EtcdResult"
+  /ssl/{id}:
+    put:
+      tags:
+      - "ssl"
+      summary: "根据ID创建SSL资源"
+      description: "SSL"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "SSL资源ID"
+        required: true
+        type: "string"
+      - name: "body"
+        in: "body"
+        description: "SSL资源属性"
+        required: true
+        schema:
+          $ref: "#/definitions/Ssl"
+      responses:
+        "400":
+          description: "Bad Request"
+        "200":
+          description: "直接返回与ETCD交互的结果"  
+          schema:
+            $ref: "#/definitions/EtcdResult"
+    delete:
+      tags:
+      - "ssl"
+      summary: "删除SSL资源"
+      description: "SSL"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "SSL资源ID"
+        required: true
+        type: "string"
+      responses:
+        "400":
+          description: "Bad Request"
+        "200":
+          description: "直接返回与ETCD交互的结果"  
+          schema:
+            $ref: "#/definitions/EtcdResult"
+    get:
+      tags:
+      - "ssl"
+      summary: "查询SSL资源"
+      description: "SSL"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "SSL资源ID"
+        required: true
+        type: "string"
+      responses:
+        "400":
+          description: "Bad Request"
+        "200":
+          description: "直接返回与ETCD交互的结果"  
+          schema:
+            $ref: "#/definitions/EtcdResult"
+definitions:
+  Routes:
+    type: "object"
+    properties: 
+      id:
+        type: "string"
+        description: "id，非必填"
+      uri:
+        type: "string"
+        description: "URL 路径"
+      uris:
+        type: "array"
+        description: "一组 URL 路径， URL 与 uris 只需要有一个非空即可"
+        items:
+          type: "string"
+      methods:
+        type: "array"
+        description: "可以填多个方法"
+        items:
+          type: "string"
+      host:
+        type: "string"
+        description: "host 域名"
+      hosts:
+        type: "array"
+        description: "一组 host 域名， host 与 hosts 只需要有一个非空即可"
+        items:
+          type: "string"
+      plugins:
+        type: "object"
+        description: "指定 route 绑定的插件"
+      priority:
+        type: "integer"
+        description: "apisix 支持多种匹配方式，可能会在一次匹配中同时匹配到多条路由，此时优先级高的优先匹配中"
+      name:
+        type: "string"
+        description: "路由名称"
+      desc:
+        type: "string"
+        description: "路由描述"
+      remote_addr:
+        type: "string"
+        description: "客户端请求 IP 地址"
+      remote_addrs:
+        type: "array"
+        description: "一组客户端请求 IP 地址， remote_addr 与 remote_addrs 只需要有一个非空即可"
+        items:
+          type: "string"
+      vars:
+        type: "array"
+        description: "由一个或多个 {var, operator, val} 元素组成的列表"
+        items:
+          type: "string"
+      upstream_id:
+        type: "string"
+        description: "upstream 对象在 etcd 中的 id ，建议使用此值"
+      upstream:
+        type: "object"
+        description: "upstream 信息对象，建议尽量不要使用"
+      filter_func:
+        type: "string"
+        description: "用户自定义的过滤函数，非必填"
+  Header:
+    type: "object"
+    properties: 
+      cluster_id:
+        type: "string"
+        description: "集群ID"
+      member_id: 
+        type: "string"
+        description: "集群成员ID"
+      revision:
+        type: "integer"
+        description: "数据修改的版本号"
+      raft_term:
+        type: "integer"
+        description: "Raft期限"
+  Node:
+    type: "object"
+    properties: 
+      key:
+        type: "string"
+        description: "数据库key"
+      value:
+        type: "object"
+        description: "与key对应的value"
+  EtcdResult: 
+    type: "object"
+    properties: 
+      header:
+        description: "ETCD返回的header"
+        $ref: "#/definitions/Header" 
+      action:
+        type: "string"
+        description: "动作"
+      node:
+        description: "ETCD返回的节点"
+        $ref: "#/definitions/Node"
+  Services:
+    type: "object"
+    properties: 
+      id:
+        type: "string"
+        description: "id，非必填"
+      plugins:
+        type: "object"
+        description: "指定 service 绑定的插件"
+      upstream_id:
+        type: "string"
+        description: "upstream 对象在 etcd 中的 id ，建议使用此值"
+      upstream:
+        type: "object"
+        description: "upstream 信息对象，建议尽量不要使用"
+      name:
+        type: "string"
+        description: "service 名称"
+      desc:
+        type: "string"
+        description: "service 描述"
+  Consumers:
+    type: "object"
+    properties: 
+      id:
+        type: "string"
+        description: "id，非必填"
+      plugins:
+        type: "object"
+        description: "指定 Consumer 绑定的插件"
+      username:
+        type: "string"
+        description: "Consumer 名称"
+      desc:
+        type: "string"
+        description: "Consumer 描述"
+  Timeout:
+    type: "object"
+    properties: 
+      connect:
+        type: "integer"
+        description: "连接超时时间"
+      send:
+        type: "integer"
+        description: "发送超时时间"
+      read:
+        type: "integer"
+        description: "接收超时时间"
+  K8sDeploymentInfo:
+    type: "object"
+    properties: 
+      namespace:
+        type: "string"
+        description: "名称空间"
+      deploy_name:
+        type: "string"
+        description: "部署名称"
+      service_name:
+        type: "string"
+        description: "服务名称"
+      backend_type:
+        type: "string"
+        description: "pod or service"
+      port:
+        type: "integer"
+        description: "端口"
+  Upstreams:
+    type: "object"
+    properties: 
+      id:
+        type: "string"
+        description: "id，非必填"
+      retries:
+        type: "integer"
+        description: "请求重试次数"
+      timeout:
+        type: "object"
+        description: "设置连接、发送消息、接收消息的超时时间"
+        $ref: "#/definitions/Timeout"
+      enable_websocket:
+        type: "boolean"
+        description: "使能websocket标志"
+      nodes:
+        type: "object"
+        description: "上游机器地址列表，格式为`地址 + Port`"
+      k8s_deployment_info:
+        type: "object"
+        description: "k8s deployment 信息"
+        $ref: "#/definitions/K8sDeploymentInfo"
+      type:
+        type: "string"
+        description: "chash or roundrobin"
+      checks:
+        type: "object"
+        description: "配置健康检查参数"
+      hash_on:
+        type: "string"
+        description: "该参数作为一致性 hash 的入参"
+      key:
+        type: "string"
+        description: "该选项只有类型是 chash 才有效。根据 key 来查找对应的 node id"
+      name:
+        type: "string"
+        description: "标识上游服务名称、使用场景等。"
+      desc:
+        type: "string"
+        description: "上游服务描述、使用场景等。"
+  Ssl:
+    type: "object"
+    properties: 
+      id:
+        type: "string"
+        description: "id，非必填"
+      cert:
+        type: "string"
+        description: "公钥"
+      key:
+        type: "string"
+        description: "私钥"
+      sni:
+        type: "string"
+        description: "host 域名"
