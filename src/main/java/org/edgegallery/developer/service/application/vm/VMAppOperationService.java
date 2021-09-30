@@ -29,7 +29,7 @@ import com.spencerwi.either.Either;
 
 public interface VMAppOperationService {
 
-    OperationInfoRep instantiateVmApp(String applicationId, String vmId, String accessToken);
+    OperationInfoRep instantiateVM(String applicationId, String vmId, String accessToken);
 
     Boolean uploadFileToVm(String applicationId, String vmId, HttpServletRequest request, Chunk chunk);
 

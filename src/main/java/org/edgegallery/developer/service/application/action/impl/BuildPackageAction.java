@@ -102,12 +102,13 @@ public class BuildPackageAction implements IAction {
             context.updateActionStatus(actionStatus);
             return false;
         }
-
+        context.addParameter(IContextParameter.PARAM_PACKAGE_ID, appPkg.getId());
         statusLog = "Build package for single vm finished.";
         LOGGER.info(statusLog);
         actionStatus.setProgress(100);
         actionStatus.appendStatusLog(statusLog);
         context.updateActionStatus(actionStatus);
+
         return true;
     }
 }
