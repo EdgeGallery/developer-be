@@ -58,12 +58,12 @@ public class VMAppOperationCtl {
     @RequestMapping(value = "/{applicationId}/vms/{vmId}/launch", method = RequestMethod.POST,
         produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
-    public ResponseEntity<OperationInfoRep> instantiateVmApp(
+    public ResponseEntity<OperationInfoRep> instantiateVm(
         @Pattern(regexp = REGEX_UUID, message = "applicationId must be in UUID format")
         @ApiParam(value = "applicationId", required = true) @PathVariable("applicationId") String applicationId,
         @ApiParam(value = "vmId", required = true) @PathVariable("vmId") String vmId, HttpServletRequest request) {
         String accessToken = request.getHeader(Consts.ACCESS_TOKEN_STR);
-        OperationInfoRep result = VmAppOperationService.instantiateVmApp(applicationId, vmId, accessToken);
+        OperationInfoRep result = VmAppOperationService.instantiateVM(applicationId, vmId, accessToken);
         return ResponseEntity.ok(result);
     }
 

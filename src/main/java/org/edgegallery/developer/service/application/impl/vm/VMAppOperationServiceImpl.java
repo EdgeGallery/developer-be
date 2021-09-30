@@ -20,6 +20,7 @@ import org.edgegallery.developer.model.instantiate.vm.VMInstantiateInfo;
 import org.edgegallery.developer.model.operation.EnumActionStatus;
 import org.edgegallery.developer.model.operation.EnumOperationObjectType;
 import org.edgegallery.developer.model.operation.OperationStatus;
+import org.edgegallery.developer.model.restful.ApplicationDetail;
 import org.edgegallery.developer.model.restful.OperationInfoRep;
 import org.edgegallery.developer.service.application.action.IAction;
 import org.edgegallery.developer.service.application.action.IActionIterator;
@@ -59,7 +60,7 @@ public class VMAppOperationServiceImpl extends AppOperationServiceImpl implement
     VMMapper vmMapper;
 
     @Override
-    public OperationInfoRep instantiateVmApp(String applicationId, String vmId, String accessToken) {
+    public OperationInfoRep instantiateVM(String applicationId, String vmId, String accessToken) {
 
         Application application = applicationServiceImpl.getApplication(applicationId);
         if (application == null) {
@@ -107,7 +108,8 @@ public class VMAppOperationServiceImpl extends AppOperationServiceImpl implement
 
     @Override
     public AppPackage generatePackage(String applicationId) {
-        return null;
+        ApplicationDetail detail  = applicationServiceImpl.getApplicationDetail(applicationId);
+        return generatePackage(detail.getVmApp());
     }
 
     @Override
