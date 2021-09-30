@@ -50,18 +50,17 @@ import org.apache.commons.lang.StringUtils;
 import org.edgegallery.developer.common.Consts;
 import org.edgegallery.developer.mapper.HelmTemplateYamlMapper;
 import org.edgegallery.developer.mapper.HostMapper;
-import org.edgegallery.developer.mapper.OpenMepCapabilityMapper;
 import org.edgegallery.developer.mapper.ProjectImageMapper;
 import org.edgegallery.developer.mapper.ProjectMapper;
 import org.edgegallery.developer.mapper.UploadedFileMapper;
-import org.edgegallery.developer.model.apppackage.AppPkgStructure;
+import org.edgegallery.developer.mapper.capability.CapabilityMapper;
 import org.edgegallery.developer.model.GeneralConfig;
-import org.edgegallery.developer.model.workspace.ApplicationProject;
+import org.edgegallery.developer.model.apppackage.AppPkgStructure;
+import org.edgegallery.developer.model.capability.Capability;
+import org.edgegallery.developer.model.resource.MepHost;
 import org.edgegallery.developer.model.workspace.EnumHostStatus;
 import org.edgegallery.developer.model.workspace.EnumOpenMepType;
 import org.edgegallery.developer.model.workspace.HelmTemplateYamlPo;
-import org.edgegallery.developer.model.resource.MepHost;
-import org.edgegallery.developer.model.workspace.OpenMepCapability;
 import org.edgegallery.developer.model.workspace.ProjectImageConfig;
 import org.edgegallery.developer.model.workspace.UploadedFile;
 import org.edgegallery.developer.response.FormatRespDto;
@@ -130,7 +129,7 @@ public class UploadFileService {
     private HelmTemplateYamlMapper helmTemplateYamlMapper;
 
     @Autowired
-    private OpenMepCapabilityMapper openMepCapabilityMapper;
+    private CapabilityMapper capabilityMapper;
 
     @Autowired
     private AppReleaseService appReleaseService;
@@ -923,19 +922,22 @@ public class UploadFileService {
             LOGGER.error("can not find file {} in db", fileId);
             return Either.left(new FormatRespDto(Status.BAD_REQUEST, "can not find file in db."));
         }
-        OpenMepCapability openMepCapabilityDetail = openMepCapabilityMapper.getDetailByApiFileId(fileId);
+        List<Capability> capability = capabilityMapper.selectByApiFileId(fileId);
+        if (CollectionUtils.isEmpty(capability)) {
+            return Either.left(new FormatRespDto(Status.BAD_REQUEST, "can not find capability in db"));
+        }
         //generate code
         GeneralConfig config = new GeneralConfig();
         config.setApiPackage("jar");
         config.setArtifactId("org.edgegallery");
         config.setInvokerPackage("edgegallerys");
         config.setModelPackage("edgegallerysdk");
-        config.setArtifactVersion(openMepCapabilityDetail.getVersion());
+        config.setArtifactVersion(capability.get(0).getVersion());
         config.setGroupId("org.edgegallery");
         config.setOutput(InitConfigUtil.getWorkSpaceBaseDir());
-        config.setProjectName(openMepCapabilityDetail.getHost());
+        config.setProjectName(capability.get(0).getHost());
         config.setInputSpec(uploadedFile.getFilePath());
-        String sdkPath = InitConfigUtil.getWorkSpaceBaseDir() + config.getOutput() + openMepCapabilityDetail.getHost();
+        String sdkPath = InitConfigUtil.getWorkSpaceBaseDir() + config.getOutput() + capability.get(0).getHost();
 
         try {
 
@@ -963,7 +965,7 @@ public class UploadFileService {
         try {
             HttpHeaders headers = new HttpHeaders();
             headers.add("Content-Type", MediaType.APPLICATION_OCTET_STREAM_VALUE);
-            headers.add("Content-Disposition", "attachment; filename=" + openMepCapabilityDetail.getHost() + ".tgz");
+            headers.add("Content-Disposition", "attachment; filename=" + capability.get(0).getHost() + ".tgz");
             byte[] fileData = FileUtils.readFileToByteArray(tar);
             LOGGER.info("get sample code file success");
             DeveloperFileUtils.deleteTempFile(tar);

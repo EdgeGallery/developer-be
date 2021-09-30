@@ -16,19 +16,21 @@
 
 package org.edgegallery.developer.controller;
 
+import com.spencerwi.either.Either;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import java.io.IOException;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
-
 import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.edgegallery.developer.common.Consts;
 import org.edgegallery.developer.domain.shared.Page;
 import org.edgegallery.developer.model.workspace.ApplicationProject;
-import org.edgegallery.developer.model.workspace.OpenMepCapability;
-import org.edgegallery.developer.model.workspace.OpenMepCapabilityGroup;
 import org.edgegallery.developer.model.workspace.ProjectTestConfig;
 import org.edgegallery.developer.response.ErrorRespDto;
 import org.edgegallery.developer.response.FormatRespDto;
@@ -45,14 +47,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-
-import com.spencerwi.either.Either;
-
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
 
 @Controller
 @RestSchema(schemaId = "projects")
@@ -86,7 +80,7 @@ public class ProjectController {
         return ResponseEntity.ok(projectService.getProjectByNameWithFuzzy(userId, projectName, limit, offset));
     }
 
-    /** 
+    /**
      * get one project by projectId.
      */
     @ApiOperation(value = "get one project by projectId", response = ApplicationProject.class)
@@ -120,9 +114,8 @@ public class ProjectController {
     public ResponseEntity<ApplicationProject> createProject(
         @NotNull @ApiParam(value = "ApplicationProject", required = true) @RequestBody ApplicationProject project,
         @Pattern(regexp = REGEX_UUID, message = "userId must be in UUID format")
-        @ApiParam(value = "userId", required = true) @RequestParam("userId") String userId)
-        throws IOException {
-    	
+        @ApiParam(value = "userId", required = true) @RequestParam("userId") String userId) throws IOException {
+
         Either<FormatRespDto, ApplicationProject> either = projectService.createProject(userId, project);
         return ResponseDataUtil.buildResponse(either);
     }
@@ -335,28 +328,6 @@ public class ProjectController {
             String userName, HttpServletRequest request) {
         String token = request.getHeader(Consts.ACCESS_TOKEN_STR);
         Either<FormatRespDto, Boolean> either = projectService.uploadToAppStore(userId, projectId, userName, token);
-        return ResponseDataUtil.buildResponse(either);
-    }
-
-    /**
-     * open this project to mec eco.
-     */
-    @ApiOperation(value = "open this project to mec eco", response = OpenMepCapabilityGroup.class)
-    @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "OK", response = OpenMepCapabilityGroup.class),
-        @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
-    })
-    @RequestMapping(value = "/{projectId}/action/open-api", method = RequestMethod.POST,
-        consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
-    public ResponseEntity<OpenMepCapabilityGroup> openToMecEco(
-        @Pattern(regexp = REGEX_UUID, message = "projectId must be in UUID format")
-        @ApiParam(value = "projectId", required = true) @PathVariable("projectId") String projectId,
-        @Pattern(regexp = REGEX_UUID, message = "userId must be in UUID format")
-        @ApiParam(value = "userId", required = true) @RequestParam("userId") String userId,
-        @NotNull @ApiParam(value = "AbilityOpenConfig", required = true) @RequestBody
-            OpenMepCapability abilityOpenConfig) {
-        Either<FormatRespDto, OpenMepCapabilityGroup> either = projectService.openToMecEco(userId, projectId);
         return ResponseDataUtil.buildResponse(either);
     }
 

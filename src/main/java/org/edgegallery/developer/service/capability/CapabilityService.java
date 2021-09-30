@@ -16,37 +16,35 @@
 
 package org.edgegallery.developer.service.capability;
 
+import com.spencerwi.either.Either;
 import java.util.List;
-
 import org.edgegallery.developer.model.capability.Capability;
 import org.edgegallery.developer.response.FormatRespDto;
 
-import com.spencerwi.either.Either;
-
 public interface CapabilityService {
-	public Either<FormatRespDto, Capability> create(Capability capability);
+    Either<FormatRespDto, Capability> create(Capability capability);
 
-	public Either<FormatRespDto, Capability> deleteById(String id);
+    Either<FormatRespDto, Capability> deleteById(String id);
 
-	public Either<FormatRespDto, Capability> updateById(Capability capability);
+    Either<FormatRespDto, Capability> updateById(Capability capability);
 
-	public List<Capability> findAll();
-	
-	public List<Capability> findByType(String type);
+    List<Capability> findAll();
 
-	public Capability findById(String id);
+    List<Capability> findByType(String type);
 
-	public List<Capability> findByGroupId(String groupId);
-	
-	public List<Capability> findByProjectId(String projectId);
+    Capability findById(String id);
 
-	public Capability findByName(String name);
+    List<Capability> findByGroupId(String groupId);
 
-	public List<Capability> findByNameWithFuzzy(String name);
+    List<Capability> findByProjectId(String projectId);
 
-	public List<Capability> findByNameEnWithFuzzy(String nameEn);
-	
-	public List<Capability> findByNameOrNameEn(String name, String nameEn);
-	
-	public boolean updateSelectCountByIds(List<String> ids);
+    Capability findByName(String name);
+
+    List<Capability> findByNameWithFuzzy(String name);
+
+    List<Capability> findByNameEnWithFuzzy(String nameEn);
+
+    List<Capability> findByNameOrNameEn(String name, String nameEn);
+
+    boolean updateSelectCountByIds(List<String> ids);
 }

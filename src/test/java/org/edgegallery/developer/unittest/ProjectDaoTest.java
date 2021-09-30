@@ -18,11 +18,8 @@ package org.edgegallery.developer.unittest;
 
 import com.spencerwi.either.Either;
 import org.edgegallery.developer.DeveloperApplicationTests;
-import org.edgegallery.developer.application.plugin.PluginService;
-import org.edgegallery.developer.mapper.OpenMepCapabilityMapper;
 import org.edgegallery.developer.mapper.ProjectMapper;
 import org.edgegallery.developer.mapper.UploadedFileMapper;
-import org.edgegallery.developer.model.workspace.ApplicationProject;
 import org.edgegallery.developer.response.FormatRespDto;
 import org.edgegallery.developer.service.dao.ProjectDao;
 import org.junit.After;
@@ -32,7 +29,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit4.SpringRunner;
 
 @SpringBootTest(classes = DeveloperApplicationTests.class)
@@ -44,9 +40,6 @@ public class ProjectDaoTest {
 
     @Autowired
     private UploadedFileMapper uploadedFileMapper;
-
-    @Autowired
-    private OpenMepCapabilityMapper openMepCapabilityMapper;
 
     @Autowired
     private ProjectDao projectDao;
