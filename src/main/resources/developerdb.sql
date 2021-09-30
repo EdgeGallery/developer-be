@@ -95,46 +95,6 @@
       CONSTRAINT "tbl_app_project_capability_pkey" PRIMARY KEY ("project_id","capability_id")
     )
     ;
-
-    CREATE TABLE IF NOT EXISTS "tbl_openmep_capability" (
-      "group_id" varchar(50) NOT NULL,
-      "one_level_name" varchar(255)  DEFAULT NULL,
-      "one_level_name_en" varchar(255) DEFAULT NULL,
-      "two_level_name" varchar(255) DEFAULT NULL,
-      "two_level_name_en" varchar(255) DEFAULT NULL,
-      "type" varchar(20) DEFAULT NULL,
-      "description" text DEFAULT NULL,
-      "description_en" text DEFAULT NULL,
-      "icon_file_id" varchar(50) DEFAULT NULL,
-      "author" varchar(50) DEFAULT NULL,
-      "select_count" int4 NOT NULL DEFAULT 0,
-      "upload_time" timestamptz(6) DEFAULT NULL,
-      CONSTRAINT "tbl_openmep_capability_pkey" PRIMARY KEY ("group_id")
-    )
-    ;
-
-    CREATE TABLE IF NOT EXISTS "tbl_openmep_capability_detail" (
-      "detail_id" varchar(50) NOT NULL,
-      "service" varchar(100) DEFAULT NULL,
-      "service_en" varchar(100) DEFAULT NULL,
-      "version" varchar(100) DEFAULT NULL,
-      "description" text DEFAULT NULL,
-      "description_en" text DEFAULT NULL,
-      "provider" varchar(100) DEFAULT NULL,
-      "group_id" varchar(50) DEFAULT NULL,
-      "api_file_id" varchar(255) DEFAULT NULL,
-      "guide_file_id" varchar(255) DEFAULT NULL,
-      "guide_file_id_en" varchar(255) DEFAULT NULL,
-      "upload_time" varchar(50) NOT NULL,
-      "host" varchar(50) DEFAULT NULL,
-      "port" int4 DEFAULT NULL,
-      "protocol" varchar(20) DEFAULT NULL,
-      "app_id" varchar(255) DEFAULT NULL,
-      "package_id" varchar(255) DEFAULT NULL,
-      "user_id" varchar(255) DEFAULT NULL,
-      CONSTRAINT "tbl_openmep_capability_detail_pkey" PRIMARY KEY ("detail_id")
-    )
-    ;
     
     CREATE TABLE IF NOT EXISTS "tbl_capability_group" (
       "id" varchar(50) NOT NULL,
