@@ -117,6 +117,13 @@
         where a.group_id = b.id and a.name=#{name}
     </select>
 
+    <select id="selectByApiFileId" parameterType="String" resultMap="Capability">
+        select
+        <include refid="AllColumnWithCascade"/>
+        from tbl_capability a,tbl_capability_group b
+        where a.group_id = b.id and a.api_file_id=#{apiFileId}
+    </select>
+
     <select id="selectByNameWithFuzzy" resultMap="Capability">
         select
         <include refid="AllColumnWithCascade"/>
@@ -149,6 +156,10 @@
 
     <delete id="deleteById" parameterType="String">
         DELETE FROM tbl_capability WHERE id = #{id}
+    </delete>
+
+    <delete id="deleteByGroupId" parameterType="String">
+        DELETE FROM tbl_capability WHERE group_id = #{groupId}
     </delete>
 
     <update id="updateById" parameterType="org.edgegallery.developer.model.capability.Capability">

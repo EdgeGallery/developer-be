@@ -71,11 +71,13 @@ import org.edgegallery.developer.exception.DeveloperException;
 import org.edgegallery.developer.mapper.HelmTemplateYamlMapper;
 import org.edgegallery.developer.mapper.HostLogMapper;
 import org.edgegallery.developer.mapper.HostMapper;
-import org.edgegallery.developer.mapper.OpenMepCapabilityMapper;
+import org.edgegallery.developer.mapper.ProjectCapabilityMapper;
 import org.edgegallery.developer.mapper.ProjectMapper;
 import org.edgegallery.developer.mapper.ReleaseConfigMapper;
 import org.edgegallery.developer.mapper.UploadedFileMapper;
 import org.edgegallery.developer.mapper.VmConfigMapper;
+import org.edgegallery.developer.mapper.capability.CapabilityGroupMapper;
+import org.edgegallery.developer.mapper.capability.CapabilityMapper;
 import org.edgegallery.developer.model.CapabilitiesDetail;
 import org.edgegallery.developer.model.LcmLog;
 import org.edgegallery.developer.model.ReleaseConfig;
@@ -85,6 +87,7 @@ import org.edgegallery.developer.model.application.configuration.DnsRule;
 import org.edgegallery.developer.model.application.configuration.TrafficRule;
 import org.edgegallery.developer.model.atp.AtpResultInfo;
 import org.edgegallery.developer.model.capability.Capability;
+import org.edgegallery.developer.model.capability.CapabilityGroup;
 import org.edgegallery.developer.model.deployyaml.PodEvents;
 import org.edgegallery.developer.model.deployyaml.PodEventsRes;
 import org.edgegallery.developer.model.deployyaml.PodStatusInfo;
@@ -172,7 +175,10 @@ public class ProjectService {
     private HelmTemplateYamlMapper helmTemplateYamlMapper;
 
     @Autowired
-    private OpenMepCapabilityMapper openMepCapabilityMapper;
+    private CapabilityMapper capabilityMapper;
+
+    @Autowired
+    private CapabilityGroupMapper capabilityGroupMapper;
 
     @Autowired
     private ProjectDao projectDto;
@@ -188,6 +194,9 @@ public class ProjectService {
 
     @Autowired
     private VmConfigMapper vmConfigMapper;
+
+    @Autowired
+    private ProjectCapabilityMapper projectCapabilityMapper;
 
     @Autowired
     private VmService vmService;
@@ -390,27 +399,7 @@ public class ProjectService {
         }
 
         // delete capabilityGroup and CapabilityDetail
-        String openCapabilityDetailId = project.getOpenCapabilityId();
-        LOGGER.info("detailId: {} .", openCapabilityDetailId);
-        String groupId = "";
-        if (!StringUtils.isEmpty(openCapabilityDetailId)) {
-            String[] ids = openCapabilityDetailId.substring(1, openCapabilityDetailId.length() - 1).split(",");
-            for (String detailId : ids) {
-                groupId = openMepCapabilityMapper.getGroupIdByDetailId(detailId);
-                openMepCapabilityMapper.deleteCapability(detailId);
-                if (!groupId.equals("")) {
-                    LOGGER.info("groupId: {} .", groupId);
-                    List<OpenMepCapability> detailList = openMepCapabilityMapper.getDetailByGroupId(groupId);
-                    if (detailList != null) {
-                        LOGGER.info("detailList size: {} .", detailList.size());
-                        if (detailList.isEmpty()) {
-                            openMepCapabilityMapper.deleteGroup(groupId);
-                        }
-                    }
-                }
-            }
-        }
-
+        projectCapabilityMapper.deleteByProjectId(projectId);
         // delete the project from db
         Either<FormatRespDto, Boolean> delResult = projectDto.deleteProject(userId, projectId);
         if (delResult.isLeft()) {
@@ -888,8 +877,8 @@ public class ProjectService {
             // save db to openmepcapabilitydetail
             List<String> openCapabilityIds = new ArrayList<>();
             for (ServiceDetail serviceDetail : capabilitiesDetail.getServiceDetails()) {
-                OpenMepCapability detail = new OpenMepCapability();
-                OpenMepCapabilityGroup group = new OpenMepCapabilityGroup();
+                Capability detail = new Capability();
+                CapabilityGroup group = new CapabilityGroup();
                 String groupId = UUID.randomUUID().toString();
                 fillCapabilityGroup(serviceDetail, groupId, group);
                 fillCapabilityDetail(serviceDetail, detail, jsonObject, userId, groupId);
@@ -917,45 +906,22 @@ public class ProjectService {
         return Either.right(true);
     }
 
-    private Either<FormatRespDto, Boolean> doSomeDbOperation(OpenMepCapabilityGroup group, OpenMepCapability detail,
+    private Either<FormatRespDto, Boolean> doSomeDbOperation(CapabilityGroup group, Capability detail,
         ServiceDetail serviceDetail, List<String> openCapabilityIds) {
-        if (StringUtils.isEmpty(group.getDescriptionEn())) {
-            group.setDescriptionEn(group.getDescription());
-        }
-        if (StringUtils.isEmpty(group.getTwoLevelNameEn())) {
-            group.setTwoLevelNameEn(group.getTwoLevelName());
-        }
-        if (StringUtils.isEmpty(group.getIconFileId())) {
-            group.setIconFileId(group.getIconFileId());
-        }
-        if (StringUtils.isEmpty(group.getAuthor())) {
-            group.setAuthor(group.getAuthor());
-        }
-        if (StringUtils.isEmpty(detail.getServiceEn())) {
-            detail.setServiceEn(detail.getService());
-        }
-        if (StringUtils.isEmpty(detail.getGuideFileIdEn())) {
-            detail.setGuideFileIdEn(detail.getGuideFileId());
-        }
-        if (StringUtils.isEmpty(detail.getDescriptionEn())) {
-            detail.setDescriptionEn(detail.getDescription());
-        }
-        group.setUploadTime(new Date());
-        int resGroup = openMepCapabilityMapper.saveGroup(group);
+        int resGroup = capabilityGroupMapper.insert(group);
         if (resGroup < 1) {
-            LOGGER.error("store db to openmepcapability fail!");
-            FormatRespDto error = new FormatRespDto(Status.INTERNAL_SERVER_ERROR, "save openmepcapability db fail!");
+            LOGGER.error("store db to tbl_capability_group fail!");
+            FormatRespDto error = new FormatRespDto(Status.INTERNAL_SERVER_ERROR, "save capability group db fail!");
             return Either.left(error);
         }
-        int res = openMepCapabilityMapper.saveCapability(detail);
+        int res = capabilityMapper.insert(detail);
         if (res < 1) {
-            LOGGER.error("store db to openmepcapabilitydetail fail!");
-            FormatRespDto error = new FormatRespDto(Status.INTERNAL_SERVER_ERROR,
-                "save openmepcapabilitydetail db fail!");
+            LOGGER.error("store db to tbl_capability fail!");
+            FormatRespDto error = new FormatRespDto(Status.INTERNAL_SERVER_ERROR, "save capability db fail!");
             return Either.left(error);
         }
         // set open_capability_id
-        openCapabilityIds.add(detail.getDetailId());
+        openCapabilityIds.add(detail.getId());
         // update file status
         int apiRes = uploadedFileMapper.updateFileStatus(serviceDetail.getApiJson(), false);
         if (apiRes < 1) {
@@ -1012,7 +978,7 @@ public class ProjectService {
             DeveloperFileUtils.copyFile(icon, desIcon);
         } catch (IOException e) {
             // logger
-            LOGGER.error("Create app icon file failed ", e.getMessage());
+            LOGGER.error("Create app icon file failed {}", e.getMessage());
             FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "Create app icon file failed");
             return Either.left(error);
         }
@@ -1038,125 +1004,47 @@ public class ProjectService {
         return Either.right(jsonObject);
     }
 
-    private void fillCapabilityDetail(ServiceDetail serviceDetail, OpenMepCapability detail, JsonObject obj,
-        String userId, String groupId) {
-        detail.setDetailId(UUID.randomUUID().toString());
-        detail.setGroupId(groupId);
+    private void fillCapabilityDetail(ServiceDetail serviceDetail, Capability detail, JsonObject obj, String userId,
+        String groupId) {
+        detail.setId(UUID.randomUUID().toString());
+        detail.setName(serviceDetail.getServiceName());
+        detail.setNameEn(serviceDetail.getServiceName());
+        detail.setVersion(serviceDetail.getVersion());
+        detail.setDescription("");
+        detail.setDescriptionEn("");
         JsonElement provider = obj.get("provider");
         if (provider != null) {
             detail.setProvider(provider.getAsString());
+        } else {
+            detail.setProvider("");
         }
-        detail.setService(serviceDetail.getServiceName());
-        detail.setVersion(serviceDetail.getVersion());
-        detail.setDescription(serviceDetail.getDescription());
         detail.setApiFileId(serviceDetail.getApiJson());
         detail.setGuideFileId(serviceDetail.getApiMd());
-        SimpleDateFormat time = new SimpleDateFormat("yyyy-MM-dd HH:mm");
-        detail.setUploadTime(time.format(new Date()));
+        detail.setGuideFileIdEn(serviceDetail.getApiMd());
+        detail.setUploadTime(new Date().getTime());
         detail.setPort(serviceDetail.getInternalPort());
         detail.setHost(serviceDetail.getServiceName());
         detail.setProtocol(serviceDetail.getProtocol());
         detail.setAppId(obj.get("appId").getAsString());
         detail.setPackageId(obj.get("packageId").getAsString());
         detail.setUserId(userId);
+        detail.setSelectCount(0);
+        detail.setIconFileId(serviceDetail.getIconFileId());
+        detail.setAuthor(serviceDetail.getAuthor());
+        detail.setExperienceUrl(serviceDetail.getExperienceUrl());
     }
 
-    private void fillCapabilityGroup(ServiceDetail serviceDetail, String groupId, OpenMepCapabilityGroup group) {
-        group.setGroupId(groupId);
-        group.setOneLevelName(serviceDetail.getOneLevelName());
-        group.setOneLevelNameEn(serviceDetail.getOneLevelNameEn());
-        group.setTwoLevelName(serviceDetail.getTwoLevelName());
-        group.setType(EnumOpenMepType.OPENMEP);
+    private void fillCapabilityGroup(ServiceDetail serviceDetail, String groupId, CapabilityGroup group) {
+        group.setId(groupId);
+        group.setName(serviceDetail.getOneLevelName());
+        group.setNameEn(serviceDetail.getOneLevelNameEn());
         group.setDescription(serviceDetail.getDescription());
+        group.setDescriptionEn(serviceDetail.getDescription());
+        group.setType(EnumOpenMepType.OPENMEP.toString());
         group.setIconFileId(serviceDetail.getIconFileId());
+        group.setCreateTime(new Date().getTime());
+        group.setUpdateTime(new Date().getTime());
         group.setAuthor(serviceDetail.getAuthor());
-    }
-
-    /**
-     * openToMecEco.
-     *
-     * @return
-     */
-    public Either<FormatRespDto, OpenMepCapabilityGroup> openToMecEco(String userId, String projectId) {
-        ApplicationProject project = projectMapper.getProject(userId, projectId);
-        // verify app project and test config
-        if (project == null) {
-            LOGGER.error("Can not get project by userId {} and projectId {}", userId, projectId);
-            return Either
-                .left(new FormatRespDto(Status.BAD_REQUEST, "Can not get project, userId or projectId is error."));
-
-        }
-        if (project.getStatus() != EnumProjectStatus.TESTED) {
-            LOGGER.error("Status {} is not TESTED, can not open to MEC eco", project.getStatus());
-            return Either.left(new FormatRespDto(Status.BAD_REQUEST, "Only TESTED App can be open."));
-        }
-        ProjectTestConfig test = projectMapper.getTestConfig(project.getLastTestId());
-        if (test == null) {
-            LOGGER.error("Can not get test config by {}", project.getLastTestId());
-            return Either.left(new FormatRespDto(Status.BAD_REQUEST, "Can not get test config."));
-        }
-
-        // if has opened, delete before
-        String openCapabilityDetailId = project.getOpenCapabilityId();
-        if (openCapabilityDetailId != null) {
-            openMepCapabilityMapper.deleteCapability(openCapabilityDetailId);
-        }
-
-        OpenMepCapabilityGroup capabilityGroup = openMepCapabilityMapper.getEcoGroupByName(project.getType());
-        String groupId;
-        if (capabilityGroup == null) {
-            OpenMepCapabilityGroup group = new OpenMepCapabilityGroup();
-            groupId = UUID.randomUUID().toString();
-            group.setGroupId(groupId);
-            group.setOneLevelName(project.getType());
-            group.setType(EnumOpenMepType.OPENMEP_ECO);
-            group.setDescription("Open MEP ecology group.");
-
-            int groupRes = openMepCapabilityMapper.saveGroup(group);
-            if (groupRes < 1) {
-                LOGGER.error("Create capability group failed {}", group.getGroupId());
-                FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "create capability group failed");
-                return Either.left(error);
-            }
-        } else {
-            groupId = capabilityGroup.getGroupId();
-        }
-
-        OpenMepCapability detail = new OpenMepCapability();
-        detail.setDetailId(UUID.randomUUID().toString());
-        detail.setGroupId(groupId);
-        detail.setService(project.getName());
-        detail.setVersion(project.getVersion());
-        detail.setDescription(project.getDescription());
-        detail.setProvider(project.getProvider());
-        detail.setApiFileId(test.getAppApiFileId());
-        SimpleDateFormat time = new SimpleDateFormat("yyyy-MM-dd HH:mm");
-        detail.setUploadTime(time.format(new Date()));
-
-        int detailRes = openMepCapabilityMapper.saveCapability(detail);
-        if (detailRes < 1) {
-            LOGGER.error("Create capability detail failed {}", detail);
-            FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "create capability detail failed");
-            return Either.left(error);
-        }
-
-        OpenMepCapabilityGroup result = openMepCapabilityMapper.getOpenMepCapabilitiesByGroupId(groupId);
-        if (result == null) {
-            LOGGER.error("Crete capability {} failed", groupId);
-            FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "create capability failed");
-            return Either.left(error);
-        }
-
-        project.setOpenCapabilityId(detail.getDetailId());
-        int updateRes = projectMapper.updateProject(project);
-        if (updateRes < 1) {
-            LOGGER.error("update project is_open error");
-            openMepCapabilityMapper.deleteGroup(groupId);
-            return Either.left(new FormatRespDto(Status.BAD_REQUEST, "update project is_open error."));
-        }
-
-        LOGGER.info("Open {} to Mec Success", groupId);
-        return Either.right(result);
     }
 
     /**

@@ -501,15 +501,15 @@ public class ProjectServiceTest {
 
     }
 
-    @Test
-    @WithMockUser(roles = "DEVELOPER_TENANT")
-    public void testOpenToMecEco() throws Exception {
-        Either<FormatRespDto, ApplicationProject> project = createNewProject();
-        Either<FormatRespDto, OpenMepCapabilityGroup> result = projectService
-            .openToMecEco(project.getRight().getUserId(), project.getRight().getId());
-        Assert.assertTrue(result.isLeft());
-
-    }
+    // @Test
+    // @WithMockUser(roles = "DEVELOPER_TENANT")
+    // public void testOpenToMecEco() throws Exception {
+    //     Either<FormatRespDto, ApplicationProject> project = createNewProject();
+    //     Either<FormatRespDto, OpenMepCapabilityGroup> result = projectService
+    //         .openToMecEco(project.getRight().getUserId(), project.getRight().getId());
+    //     Assert.assertTrue(result.isLeft());
+    //
+    // }
 
     @Test
     @WithMockUser(roles = "DEVELOPER_TENANT")
@@ -666,39 +666,39 @@ public class ProjectServiceTest {
         // Assert.assertTrue(res.isLeft());
     }
 
-    @Test
-    @WithMockUser(roles = "DEVELOPER_TENANT")
-    public void testOpenToMecFail() throws Exception {
-        Either<FormatRespDto, OpenMepCapabilityGroup> res = projectService.openToMecEco("test", "test1");
-        Assert.assertTrue(res.isLeft());
-    }
+    // @Test
+    // @WithMockUser(roles = "DEVELOPER_TENANT")
+    // public void testOpenToMecFail() throws Exception {
+    //     Either<FormatRespDto, OpenMepCapabilityGroup> res = projectService.openToMecEco("test", "test1");
+    //     Assert.assertTrue(res.isLeft());
+    // }
+    //
+    // @Test
+    // @WithMockUser(roles = "DEVELOPER_TENANT")
+    // public void testOpenToMecFail1() throws Exception {
+    //     String userId = "f24ea0a2-d8e6-467c-8039-94f0d29bac43";
+    //     String projectId = "200dfab1-3c30-4fc7-a6ca-ed6f0620a85d";
+    //     Either<FormatRespDto, OpenMepCapabilityGroup> res = projectService.openToMecEco(userId, projectId);
+    //     Assert.assertTrue(res.isLeft());
+    // }
+    //
+    // @Test
+    // @WithMockUser(roles = "DEVELOPER_TENANT")
+    // public void testOpenToMecFail2() throws Exception {
+    //     String userId = "f24ea0a2-d8e6-467c-8039-94f0d29bac43";
+    //     String projectId = "200dfab1-3c30-4fc7-a6ca-ed6f0620a85f";
+    //     Either<FormatRespDto, OpenMepCapabilityGroup> res = projectService.openToMecEco(userId, projectId);
+    //     Assert.assertTrue(res.isLeft());
+    // }
 
-    @Test
-    @WithMockUser(roles = "DEVELOPER_TENANT")
-    public void testOpenToMecFail1() throws Exception {
-        String userId = "f24ea0a2-d8e6-467c-8039-94f0d29bac43";
-        String projectId = "200dfab1-3c30-4fc7-a6ca-ed6f0620a85d";
-        Either<FormatRespDto, OpenMepCapabilityGroup> res = projectService.openToMecEco(userId, projectId);
-        Assert.assertTrue(res.isLeft());
-    }
-
-    @Test
-    @WithMockUser(roles = "DEVELOPER_TENANT")
-    public void testOpenToMecFail2() throws Exception {
-        String userId = "f24ea0a2-d8e6-467c-8039-94f0d29bac43";
-        String projectId = "200dfab1-3c30-4fc7-a6ca-ed6f0620a85f";
-        Either<FormatRespDto, OpenMepCapabilityGroup> res = projectService.openToMecEco(userId, projectId);
-        Assert.assertTrue(res.isLeft());
-    }
-
-    @Test
-    @WithMockUser(roles = "DEVELOPER_TENANT")
-    public void testOpenToMecSuccess() throws Exception {
-        String userId = "f24ea0a2-d8e6-467c-8039-94f0d29bac43";
-        String projectId = "200dfab1-3c30-4fc7-a6ca-ed6f0620a85h";
-        Either<FormatRespDto, OpenMepCapabilityGroup> res = projectService.openToMecEco(userId, projectId);
-        Assert.assertTrue(res.isRight());
-    }
+    // @Test
+    // @WithMockUser(roles = "DEVELOPER_TENANT")
+    // public void testOpenToMecSuccess() throws Exception {
+    //     String userId = "f24ea0a2-d8e6-467c-8039-94f0d29bac43";
+    //     String projectId = "200dfab1-3c30-4fc7-a6ca-ed6f0620a85h";
+    //     Either<FormatRespDto, OpenMepCapabilityGroup> res = projectService.openToMecEco(userId, projectId);
+    //     Assert.assertTrue(res.isRight());
+    // }
 
     @Test
     @WithMockUser(roles = "DEVELOPER_TENANT")
