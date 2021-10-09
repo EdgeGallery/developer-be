@@ -13,6 +13,7 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
+
 package org.edgegallery.developer.model.instantiate.container;
 
 import java.util.Date;
@@ -39,6 +40,5 @@ public class ContainerAppInstantiateInfo {
     private List<K8sPod> pods;
 
     private List<K8sService> serviceList;
-
 
 }

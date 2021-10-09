@@ -24,12 +24,12 @@ import org.edgegallery.developer.mapper.HostLogMapper;
 import org.edgegallery.developer.mapper.HostMapper;
 import org.edgegallery.developer.mapper.ProjectMapper;
 import org.edgegallery.developer.mapper.VmConfigMapper;
+import org.edgegallery.developer.model.resource.MepHost;
 import org.edgegallery.developer.model.vm.VmCreateConfig;
 import org.edgegallery.developer.model.vm.VmPackageConfig;
 import org.edgegallery.developer.model.workspace.ApplicationProject;
 import org.edgegallery.developer.model.workspace.EnumHostStatus;
 import org.edgegallery.developer.model.workspace.EnumTestConfigStatus;
-import org.edgegallery.developer.model.resource.MepHost;
 import org.edgegallery.developer.model.workspace.MepHostLog;
 import org.edgegallery.developer.service.virtual.VmService;
 import org.slf4j.Logger;
@@ -58,7 +58,6 @@ public class VmStageSelectHost implements VmCreateStage {
     @Autowired
     private VmService vmService;
 
-
     @Override
     public boolean execute(VmCreateConfig config) throws InterruptedException {
         boolean processSuccess = false;
@@ -75,9 +74,9 @@ public class VmStageSelectHost implements VmCreateStage {
             LOGGER.error("Cannot find available hosts information");
             config.setLog("Cannot find available hosts information");
         } else {
-            if(!CollectionUtils.isEmpty(openStackHosts)) {
+            if (!CollectionUtils.isEmpty(openStackHosts)) {
                 config.setHost(openStackHosts.get(0));
-            }else {
+            } else {
                 config.setHost(fusionSphereHosts.get(0));
             }
             MepHost host = config.getHost();

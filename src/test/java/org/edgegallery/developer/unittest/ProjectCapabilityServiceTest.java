@@ -98,7 +98,7 @@ public class ProjectCapabilityServiceTest {
         projectCapability.setProjectId(UUID.randomUUID().toString());
         projectCapability.setCapabilityId("e111f3e7-90d8-4a39-9874-ea6ea6752ef0");
         list.add(projectCapability);
-        Either<FormatRespDto, List<ApplicationProjectCapability>> response = capabilityService.create(list);
+        Either<FormatRespDto, List<ApplicationProjectCapability>> response = capabilityService.createCapabilities(list);
         Assert.assertEquals(true,response.isRight());
     }
 }

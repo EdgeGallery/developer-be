@@ -22,12 +22,12 @@ import java.lang.reflect.Type;
 import javax.annotation.Resource;
 import org.edgegallery.developer.mapper.ProjectMapper;
 import org.edgegallery.developer.mapper.VmConfigMapper;
+import org.edgegallery.developer.model.resource.MepHost;
 import org.edgegallery.developer.model.vm.VmCreateConfig;
 import org.edgegallery.developer.model.vm.VmImageConfig;
 import org.edgegallery.developer.model.vm.VmImageInfo;
 import org.edgegallery.developer.model.workspace.ApplicationProject;
 import org.edgegallery.developer.model.workspace.EnumTestConfigStatus;
-import org.edgegallery.developer.model.resource.MepHost;
 import org.edgegallery.developer.service.virtual.VmService;
 import org.edgegallery.developer.util.HttpClientUtil;
 import org.slf4j.Logger;
@@ -75,8 +75,8 @@ public class VmImageStatus implements VmImageStage {
         }
         String basePath = HttpClientUtil.getUrlPrefix(host.getProtocol(), host.getLcmIp(), host.getPort());
         String workStatus = HttpClientUtil
-            .getImageStatus(basePath, config.getAppInstanceId(),
-                project.getUserId(), config.getImageId(), config.getLcmToken());
+            .getImageStatus(basePath, config.getAppInstanceId(), project.getUserId(), config.getImageId(),
+                config.getLcmToken());
         LOGGER.info("import image result: {}", workStatus);
         if (workStatus == null) {
             // compare time between now and deployDate

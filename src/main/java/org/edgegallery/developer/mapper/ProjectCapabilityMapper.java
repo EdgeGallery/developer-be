@@ -17,18 +17,17 @@
 package org.edgegallery.developer.mapper;
 
 import java.util.List;
-
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.edgegallery.developer.model.workspace.ApplicationProjectCapability;
 
 @Mapper
 public interface ProjectCapabilityMapper {
-	int insert(ApplicationProjectCapability projectCapability);
+    int insert(ApplicationProjectCapability projectCapability);
 
-	int delete(ApplicationProjectCapability projectCapability);
+    int delete(ApplicationProjectCapability projectCapability);
 
-	int deleteByProjectId(@Param("projectId") String projectId);
+    int deleteByProjectId(@Param("projectId") String projectId);
 
-	List<ApplicationProjectCapability> selectByProjectId(@Param("projectId") String projectId);
+    List<ApplicationProjectCapability> selectByProjectId(@Param("projectId") String projectId);
 }

@@ -16,11 +16,10 @@
 
 package org.edgegallery.developer.service.capability.impl;
 
+import com.spencerwi.either.Either;
 import java.util.List;
 import java.util.UUID;
-
 import javax.ws.rs.core.Response.Status;
-
 import org.apache.commons.lang3.StringUtils;
 import org.edgegallery.developer.mapper.capability.CapabilityGroupMapper;
 import org.edgegallery.developer.model.capability.CapabilityGroup;
@@ -31,66 +30,64 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.spencerwi.either.Either;
-
 @Service("v2-capabilityGroupService")
 public class CapabilityGroupServiceImpl implements CapabilityGroupService {
-	private static final Logger LOGGER = LoggerFactory.getLogger(CapabilityGroupServiceImpl.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CapabilityGroupServiceImpl.class);
 
-	@Autowired
-	private CapabilityGroupMapper capabilityGroupMapper;
+    @Autowired
+    private CapabilityGroupMapper capabilityGroupMapper;
 
-	@Override
-	public List<CapabilityGroup> findByNameOrNameEn(String name, String nameEn) {
-		return capabilityGroupMapper.selectByNameOrNameEn(name, nameEn);
-	}
+    @Override
+    public List<CapabilityGroup> findByNameOrNameEn(String name, String nameEn) {
+        return capabilityGroupMapper.selectByNameOrNameEn(name, nameEn);
+    }
 
-	@Override
-	public Either<FormatRespDto, CapabilityGroup> create(CapabilityGroup capabilityGroup) {
-		capabilityGroup.setId(UUID.randomUUID().toString());
+    @Override
+    public Either<FormatRespDto, CapabilityGroup> create(CapabilityGroup capabilityGroup) {
+        capabilityGroup.setId(UUID.randomUUID().toString());
 
-		if (StringUtils.isEmpty(capabilityGroup.getNameEn())) {
-			capabilityGroup.setName(capabilityGroup.getName());
-		}
+        if (StringUtils.isEmpty(capabilityGroup.getNameEn())) {
+            capabilityGroup.setName(capabilityGroup.getName());
+        }
 
-		if (StringUtils.isEmpty(capabilityGroup.getDescriptionEn())) {
-			capabilityGroup.setDescriptionEn(capabilityGroup.getDescription());
-		}
+        if (StringUtils.isEmpty(capabilityGroup.getDescriptionEn())) {
+            capabilityGroup.setDescriptionEn(capabilityGroup.getDescription());
+        }
 
-		long currTime = System.currentTimeMillis();
-		capabilityGroup.setCreateTime(currTime);
-		capabilityGroup.setUpdateTime(currTime);
-		int ret = capabilityGroupMapper.insert(capabilityGroup);
-		if (ret <= 0) {
-			LOGGER.error("Create capabilityGroup {} failed!", capabilityGroup.getName());
-			return Either.left(new FormatRespDto(Status.BAD_REQUEST, "Create capability group failed."));
-		}
-		return Either.right(capabilityGroup);
-	}
+        long currTime = System.currentTimeMillis();
+        capabilityGroup.setCreateTime(currTime);
+        capabilityGroup.setUpdateTime(currTime);
+        int ret = capabilityGroupMapper.insert(capabilityGroup);
+        if (ret <= 0) {
+            LOGGER.error("Create capabilityGroup {} failed!", capabilityGroup.getName());
+            return Either.left(new FormatRespDto(Status.BAD_REQUEST, "Create capability group failed."));
+        }
+        return Either.right(capabilityGroup);
+    }
 
-	@Override
-	public Either<FormatRespDto, String> deleteById(String groupId) {
-		int ret = capabilityGroupMapper.deleteById(groupId);
-		if (ret <= 0) {
-			LOGGER.error("Delete capabilityGroup {} failed!", groupId);
-			return Either.left(new FormatRespDto(Status.BAD_REQUEST, "Delete capability group failed."));
-		}
-		return Either.right(groupId);
-	}
+    @Override
+    public Either<FormatRespDto, String> deleteById(String groupId) {
+        int ret = capabilityGroupMapper.deleteById(groupId);
+        if (ret <= 0) {
+            LOGGER.error("Delete capabilityGroup {} failed!", groupId);
+            return Either.left(new FormatRespDto(Status.BAD_REQUEST, "Delete capability group failed."));
+        }
+        return Either.right(groupId);
+    }
 
-	@Override
-	public List<CapabilityGroup> findByType(String type) {
-		return capabilityGroupMapper.selectByType(type);
-	}
+    @Override
+    public List<CapabilityGroup> findByType(String type) {
+        return capabilityGroupMapper.selectByType(type);
+    }
 
-	@Override
-	public List<CapabilityGroup> findAll() {
-		return capabilityGroupMapper.selectAll();
-	}
+    @Override
+    public List<CapabilityGroup> findAll() {
+        return capabilityGroupMapper.selectAll();
+    }
 
-	@Override
-	public CapabilityGroup findById(String id) {
-		return capabilityGroupMapper.selectById(id);
-	}
+    @Override
+    public CapabilityGroup findById(String id) {
+        return capabilityGroupMapper.selectById(id);
+    }
 
 }

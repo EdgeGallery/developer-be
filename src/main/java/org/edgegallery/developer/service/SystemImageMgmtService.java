@@ -101,8 +101,7 @@ public class SystemImageMgmtService {
                 mepGetSystemImageReq.setUploadTimeEnd(uploadTimeEnd + " 23:59:59");
             }
             mepGetSystemImageReq.setQueryCtrl(queryCtrl);
-            MepGetSystemImageRes mepGetSystemImageRes = new MepGetSystemImageRes();
-            Map map = new HashMap<>();
+            Map<String, Object> map = new HashMap<>();
             map.put("systemName", mepGetSystemImageReq.getSystemName());
             if (StringUtils.isNotEmpty(mepGetSystemImageReq.getType())) {
                 map.put("types", SystemImageUtil.splitParam(mepGetSystemImageReq.getType()));
@@ -123,6 +122,7 @@ public class SystemImageMgmtService {
             map.put("uploadTimeBegin", mepGetSystemImageReq.getUploadTimeBegin());
             map.put("uploadTimeEnd", mepGetSystemImageReq.getUploadTimeEnd());
             map.put("queryCtrl", mepGetSystemImageReq.getQueryCtrl());
+            MepGetSystemImageRes mepGetSystemImageRes = new MepGetSystemImageRes();
             mepGetSystemImageRes.setTotalCount(systemImageMapper.getSystemImagesCount(map));
             mepGetSystemImageRes.setImageList(systemImageMapper.getSystemImagesByCondition(map));
             return Either.right(mepGetSystemImageRes);
@@ -225,7 +225,7 @@ public class SystemImageMgmtService {
      * @param systemId system image id
      * @return
      */
-    public Either<FormatRespDto, Boolean> resetImageStatus(Integer systemId) throws Exception {
+    public Either<FormatRespDto, Boolean> resetImageStatus(Integer systemId) {
         LOGGER.info("Reset SystemImage status, systemId = {}", systemId);
         VmSystem vmSystemImage = systemImageMapper.getVmImage(systemId);
         if (vmSystemImage == null) {
@@ -344,6 +344,11 @@ public class SystemImageMgmtService {
         return ResponseEntity.ok().build();
     }
 
+    /**
+     * checkUploadedChunks.
+     *
+     * @return
+     */
     public List<Integer> checkUploadedChunks(Integer systemId, String identifier) {
         LOGGER.info("check uploaded chunks, systemId = {}, identifier = {}", systemId, identifier);
         String rootDir = getUploadSysImageRootDir(systemId);
@@ -451,7 +456,7 @@ public class SystemImageMgmtService {
                 File partFile = new File(partFilePath, i + ".part");
                 FileUtils.copyFile(partFile, mergedFileStream);
                 boolean res = partFile.delete();
-                if(!res){
+                if (!res) {
                     LOGGER.error("delete part file failed!");
                     throw new FileOperateException("delete part file failed!", ResponseConsts.RET_DELETE_FILE_FAIL);
                 }
@@ -496,6 +501,12 @@ public class SystemImageMgmtService {
         return ResponseEntity.ok().build();
     }
 
+    /**
+     * imageSlim.
+     *
+     * @param systemId systemId
+     * @return
+     */
     public Either<FormatRespDto, Boolean> imageSlim(Integer systemId) {
         LOGGER.info("Reset SystemImage status, systemId = {}", systemId);
         VmSystem vmSystemImage = systemImageMapper.getVmImage(systemId);

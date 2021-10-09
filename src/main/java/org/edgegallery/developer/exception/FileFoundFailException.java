@@ -3,6 +3,7 @@ package org.edgegallery.developer.exception;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.RandomAccessFile;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,17 +11,17 @@ import java.util.List;
  * Signals that an attempt to open the file denoted by a specified pathname
  * has failed.
  *
- * <p> This exception will be thrown by the {@link FileInputStream}, {@link
+ * <p>This exception will be thrown by the {@link FileInputStream}, {@link
  * FileOutputStream}, and {@link RandomAccessFile} constructors when a file
  * with the specified pathname does not exist.  It will also be thrown by these
  * constructors if the file does exist but for some reason is inaccessible, for
  * example when an attempt is made to open a read-only file for writing.
  *
- * @author  unascribed
- * @since   JDK1.0
+ * @author unascribed
+ * @since JDK1.0
  */
 
-public class FileFoundFailException extends RuntimeException {
+public class FileFoundFailException extends RuntimeException implements Serializable {
 
     private static final long serialVersionUID = -897856973823710492L;
 
@@ -43,7 +44,6 @@ public class FileFoundFailException extends RuntimeException {
 
     /**
      * get error message.
-     *
      */
     public ErrorMessage getErrMsg() {
         return errMsg;
@@ -65,8 +65,6 @@ public class FileFoundFailException extends RuntimeException {
         ErrorMessage errorMessage = new ErrorMessage(ret, params);
         errMsg = errorMessage;
     }
-
-
 
 }
 

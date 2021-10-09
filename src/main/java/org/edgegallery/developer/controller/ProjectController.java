@@ -22,7 +22,6 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
@@ -219,7 +218,7 @@ public class ProjectController {
         consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<Boolean> clean(@Pattern(regexp = REGEX_UUID, message = "projectId must be in UUID format")
-    @ApiParam(value = "projectId", required = true) @PathVariable("projectId") String projectId,
+        @ApiParam(value = "projectId", required = true) @PathVariable("projectId") String projectId,
         @Pattern(regexp = REGEX_UUID, message = "userId must be in UUID format")
         @ApiParam(value = "userId", required = true) @RequestParam("userId") String userId,
         HttpServletRequest request) {

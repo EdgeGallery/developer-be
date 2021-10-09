@@ -157,7 +157,7 @@ public class VmController {
         @ApiParam(value = "userId", required = true) @RequestParam("userId") String userId,
         HttpServletRequest request) {
         String token = request.getHeader(Consts.ACCESS_TOKEN_STR);
-        Either<FormatRespDto, VmCreateConfig> either = vmService.createVm(userId, projectId, token);
+        Either<FormatRespDto, VmCreateConfig> either = vmService.createVm(projectId, token);
         return ResponseDataUtil.buildResponse(either);
     }
 

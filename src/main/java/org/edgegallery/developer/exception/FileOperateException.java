@@ -1,6 +1,8 @@
 package org.edgegallery.developer.exception;
 
-public class FileOperateException extends DomainException {
+import java.io.Serializable;
+
+public class FileOperateException extends DomainException implements Serializable {
 
     private static final long serialVersionUID = 1311109258952411151L;
 

@@ -19,9 +19,6 @@ package org.edgegallery.developer.model.system;
 import lombok.Getter;
 
 @Getter
-/**
- *  task status
- */
 public enum EnumProcessErrorType {
     /**
      * upload to file system failed.

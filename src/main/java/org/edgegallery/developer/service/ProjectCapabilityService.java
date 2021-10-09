@@ -23,13 +23,14 @@ import org.edgegallery.developer.model.workspace.ApplicationProjectCapability;
 import org.edgegallery.developer.response.FormatRespDto;
 
 public interface ProjectCapabilityService {
-	Either<FormatRespDto, ApplicationProjectCapability> create(ApplicationProjectCapability projectCapability);
+    Either<FormatRespDto, ApplicationProjectCapability> create(ApplicationProjectCapability projectCapability);
 
-	Either<FormatRespDto, List<ApplicationProjectCapability>> create(List<ApplicationProjectCapability> projectCapabilities);
+    Either<FormatRespDto, List<ApplicationProjectCapability>> createCapabilities(
+        List<ApplicationProjectCapability> projectCapabilities);
 
-	Either<FormatRespDto, Boolean> delete(ApplicationProjectCapability projectCapability);
+    Either<FormatRespDto, Boolean> delete(ApplicationProjectCapability projectCapability);
 
-	Either<FormatRespDto, Boolean> deleteByProjectId(@Param("projectId") String projectId);
+    Either<FormatRespDto, Boolean> deleteByProjectId(@Param("projectId") String projectId);
 
-	List<ApplicationProjectCapability> findByProjectId(@Param("projectId") String projectId);
+    List<ApplicationProjectCapability> findByProjectId(@Param("projectId") String projectId);
 }

@@ -17,9 +17,6 @@
 package org.edgegallery.developer.util;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import com.google.gson.reflect.TypeToken;
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -27,7 +24,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Map;
 import org.edgegallery.developer.common.Consts;
@@ -383,7 +379,6 @@ public final class HttpClientUtil {
     public static String getUrlPrefix(String protocol, String ip, int port) {
         return protocol + "://" + ip + ":" + port;
     }
-
 
     /**
      * vmInstantiateImage.
@@ -794,6 +789,12 @@ public final class HttpClientUtil {
 
     }
 
+    /**
+     * imageSlim.
+     *
+     * @param url url
+     * @return
+     */
     public static boolean imageSlim(String url) {
         HttpHeaders headers = new HttpHeaders();
         HttpEntity<String> requestEntity = new HttpEntity<>(headers);

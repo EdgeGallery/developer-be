@@ -16,10 +16,11 @@
 
 package org.edgegallery.developer.exception;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class UnauthorizedException extends RuntimeException {
+public class UnauthorizedException extends RuntimeException implements Serializable {
 
     private static final long serialVersionUID = 1646444285623052461L;
 

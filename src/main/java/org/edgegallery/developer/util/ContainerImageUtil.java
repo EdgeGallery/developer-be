@@ -82,8 +82,7 @@ public final class ContainerImageUtil {
      */
     public static String encodeUserAndPwd(String userName, String password) {
         String user = userName + ":" + password;
-        String base64encodedString = Base64.getEncoder().encodeToString(user.getBytes(StandardCharsets.UTF_8));
-        return base64encodedString;
+        return Base64.getEncoder().encodeToString(user.getBytes(StandardCharsets.UTF_8));
     }
 
     /**
@@ -238,7 +237,6 @@ public final class ContainerImageUtil {
      * @param rootDir decompress path
      * @param imageFile image file
      * @return
-     * @throws IOException
      */
     public static String deCompressAndGetRePoTags(String rootDir, File imageFile) throws IOException {
         File file = new File(rootDir);
@@ -317,7 +315,8 @@ public final class ContainerImageUtil {
      */
     public static String getImageIdFromRepoTags(String repoTags, DockerClient dockerClient) {
         String[] imageArr = repoTags.split(":");
-        //Judge the compressed package manifest.json in RepoTags And the value of load Are the incoming mirror images equal
+        //Judge the compressed package manifest.json in RepoTags And the value of load Are the
+        // incoming mirror images equal
         String imageName = imageArr[0];
         LOGGER.warn(imageArr[0]);
         List<Image> lists = dockerClient.listImagesCmd().withImageNameFilter(imageName).exec();
@@ -426,7 +425,7 @@ public final class ContainerImageUtil {
             String imageRes = IOUtils.toString(inputStreamImage, StandardCharsets.UTF_8);
             LOGGER.info("image response : {}", imageRes);
             if (StringUtils.isNotEmpty(imageRes) && imageRes.equals("[]")) {
-                return Collections.EMPTY_LIST;
+                return Collections.emptyList();
             }
             Gson gson = new Gson();
             Type type = new TypeToken<List<HarborImage>>() { }.getType();

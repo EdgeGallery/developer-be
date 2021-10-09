@@ -16,13 +16,12 @@
 
 package org.edgegallery.developer.service;
 
+import com.spencerwi.either.Either;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.ws.rs.core.Response;
-
 import org.edgegallery.developer.model.apppackage.AppPkgStructure;
 import org.edgegallery.developer.response.FormatRespDto;
 import org.edgegallery.developer.util.BusinessConfigUtil;
@@ -31,8 +30,6 @@ import org.edgegallery.developer.util.InitConfigUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-
-import com.spencerwi.either.Either;
 
 @Service("appReleaseService")
 public class AppReleaseService {

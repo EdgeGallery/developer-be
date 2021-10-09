@@ -16,11 +16,10 @@
 
 package org.edgegallery.developer.application.plugin;
 
+import com.spencerwi.either.Either;
 import java.io.IOException;
 import java.io.InputStream;
-
 import javax.ws.rs.core.Response;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.servicecomb.swagger.invocation.exception.InvocationException;
 import org.edgegallery.developer.domain.model.comment.PluginDownloadRecord;
@@ -35,7 +34,6 @@ import org.edgegallery.developer.domain.shared.IconChecker;
 import org.edgegallery.developer.domain.shared.PluginChecker;
 import org.edgegallery.developer.exception.EntityNotFoundException;
 import org.edgegallery.developer.response.FormatRespDto;
-import org.edgegallery.developer.service.AppReleaseService;
 import org.edgegallery.developer.util.FileHashCode;
 import org.edgegallery.developer.util.FileUtil;
 import org.slf4j.Logger;
@@ -44,8 +42,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-
-import com.spencerwi.either.Either;
 
 @Service("pluginService")
 public class PluginService {
@@ -57,9 +53,6 @@ public class PluginService {
 
     @Autowired
     private FileService fileService;
-
-    @Autowired
-    private AppReleaseService appReleaseService;
 
     /**
      * publish plugin over.

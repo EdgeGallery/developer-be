@@ -13,16 +13,14 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
+
 package org.edgegallery.developer.model.capability;
 
-public class CapabilityGroupStat extends CapabilityGroup{
-	private int capabilityCount;
+import lombok.Getter;
+import lombok.Setter;
 
-	public int getCapabilityCount() {
-		return capabilityCount;
-	}
-
-	public void setCapabilityCount(int capabilityCount) {
-		this.capabilityCount = capabilityCount;
-	}
+@Getter
+@Setter
+public class CapabilityGroupStat extends CapabilityGroup {
+    private int capabilityCount;
 }

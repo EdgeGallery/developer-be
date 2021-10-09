@@ -70,7 +70,7 @@ public class UploadedFilesController {
         produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN') || hasRole('DEVELOPER_GUEST')")
     public ResponseEntity<byte[]> getFile(@Pattern(regexp = REGEX_UUID, message = "fileId must be in UUID format")
-    @ApiParam(value = "fileId", required = true) @PathVariable("fileId") String fileId,
+        @ApiParam(value = "fileId", required = true) @PathVariable("fileId") String fileId,
         @Pattern(regexp = REGEX_UUID, message = "userId must be in UUID format") @ApiParam(value = "userId")
         @RequestParam("userId") String userId, @ApiParam(value = "type") @RequestParam("type") String type) {
         Either<FormatRespDto, ResponseEntity<byte[]>> either = uploadFileService.getFile(fileId, userId, type);
@@ -117,26 +117,6 @@ public class UploadedFilesController {
         @Pattern(regexp = REGEX_UUID, message = "userId must be in UUID format")
         @ApiParam(value = "userId", required = true) @RequestParam("userId") String userId) {
         Either<FormatRespDto, UploadedFile> either = uploadFileService.uploadFile(userId, uploadFile);
-        return ResponseDataUtil.buildResponse(either);
-
-    }
-
-    /**
-     * upload md file.
-     */
-    @ApiOperation(value = "upload file", response = UploadedFile.class)
-    @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "OK", response = UploadedFile.class),
-        @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
-    })
-    @RequestMapping(value = "/md", method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
-        produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
-    public ResponseEntity<UploadedFile> uploadMdFile(
-        @ApiParam(value = "file", required = true) @RequestPart("file") MultipartFile uploadFile,
-        @Pattern(regexp = REGEX_UUID, message = "userId must be in UUID format")
-        @ApiParam(value = "userId", required = true) @RequestParam("userId") String userId) {
-        Either<FormatRespDto, UploadedFile> either = uploadFileService.uploadMdFile(userId, uploadFile);
         return ResponseDataUtil.buildResponse(either);
 
     }
@@ -271,7 +251,7 @@ public class UploadedFilesController {
         produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN') || hasRole('DEVELOPER_GUEST')")
     public ResponseEntity<byte[]> getSdkProject(@Pattern(regexp = REGEX_UUID, message = "fileId must be in UUID format")
-    @ApiParam(value = "fileId", required = true) @PathVariable("fileId") String fileId,
+        @ApiParam(value = "fileId", required = true) @PathVariable("fileId") String fileId,
         @Pattern(regexp = REGEX_UUID, message = "lan must be in UUID format") @ApiParam(value = "lan", required = true)
         @PathVariable("lan") String lan) throws IOException {
         Either<FormatRespDto, ResponseEntity<byte[]>> either = uploadFileService.getSdkProject(fileId, lan);

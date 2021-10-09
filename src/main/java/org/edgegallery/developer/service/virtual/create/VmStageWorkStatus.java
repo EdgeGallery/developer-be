@@ -23,11 +23,11 @@ import com.google.gson.JsonParser;
 import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
 import org.edgegallery.developer.mapper.ProjectMapper;
+import org.edgegallery.developer.model.resource.MepHost;
 import org.edgegallery.developer.model.vm.VmCreateConfig;
 import org.edgegallery.developer.model.vm.VmInstantiateInfo;
 import org.edgegallery.developer.model.workspace.ApplicationProject;
 import org.edgegallery.developer.model.workspace.EnumTestConfigStatus;
-import org.edgegallery.developer.model.resource.MepHost;
 import org.edgegallery.developer.service.virtual.VmService;
 import org.edgegallery.developer.util.HttpClientUtil;
 import org.slf4j.Logger;
@@ -42,11 +42,6 @@ public class VmStageWorkStatus implements VmCreateStage {
 
     private static Gson gson = new Gson();
 
-    /**
-     * the max time for wait workStatus.
-     */
-    private static final Long MAX_SECONDS = 360L;
-
     @Autowired
     private VmService vmService;
 
@@ -58,7 +53,7 @@ public class VmStageWorkStatus implements VmCreateStage {
         boolean processStatus = false;
         EnumTestConfigStatus instantiateStatus = EnumTestConfigStatus.Failed;
         ApplicationProject project = projectMapper.getProjectById(config.getProjectId());
-        if(vmService.runOverTime(config.getCreateTime())) {
+        if (vmService.runOverTime(config.getCreateTime())) {
             vmService.updateCreateVmResult(config, project, "workStatus", instantiateStatus);
             LOGGER.info("update config result:{}", config.getStatus());
             return false;
@@ -76,11 +71,11 @@ public class VmStageWorkStatus implements VmCreateStage {
         JsonObject jsonObject = new JsonParser().parse(workStatus).getAsJsonObject();
         JsonElement code = jsonObject.get("code");
         if (code.getAsString().equals("200")) {
-            Type vmInfoType = new TypeToken<VmInstantiateInfo>() { }.getType();
-            VmInstantiateInfo vmInstantiateInfo = gson.fromJson(workStatus, vmInfoType);
             processStatus = true;
             instantiateStatus = EnumTestConfigStatus.Success;
             config.setLog("get vm status success");
+            Type vmInfoType = new TypeToken<VmInstantiateInfo>() { }.getType();
+            VmInstantiateInfo vmInstantiateInfo = gson.fromJson(workStatus, vmInfoType);
             config.setVmInfo(vmInstantiateInfo.getData());
         } else {
             return true;

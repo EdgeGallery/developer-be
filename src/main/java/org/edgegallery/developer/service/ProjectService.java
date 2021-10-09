@@ -210,6 +210,11 @@ public class ProjectService {
     @Autowired
     private CapabilityService capabilityService;
 
+    /**
+     * getAllProjects.
+     *
+     * @return
+     */
     public Page<ApplicationProject> getAllProjects(int limit, int offset) {
         PageHelper.offsetPage(offset, limit);
         PageInfo<ApplicationProject> pageInfo = new PageInfo<ApplicationProject>(projectMapper.getAllProject());
@@ -217,6 +222,11 @@ public class ProjectService {
         return new Page<ApplicationProject>(pageInfo.getList(), limit, offset, pageInfo.getTotal());
     }
 
+    /**
+     * getProjectByNameWithFuzzy.
+     *
+     * @return
+     */
     public Page<ApplicationProject> getProjectByNameWithFuzzy(String userId, String projectName, int limit,
         int offset) {
         PageHelper.offsetPage(offset, limit);
@@ -226,6 +236,11 @@ public class ProjectService {
         return new Page<ApplicationProject>(pageInfo.getList(), limit, offset, pageInfo.getTotal());
     }
 
+    /**
+     * getProject.
+     *
+     * @return
+     */
     public Either<FormatRespDto, ApplicationProject> getProject(String userId, String projectId) {
         ApplicationProject project = projectMapper.getProject(userId, projectId);
         if (project == null) {
@@ -238,6 +253,11 @@ public class ProjectService {
         return Either.right(project);
     }
 
+    /**
+     * createProject.
+     *
+     * @return
+     */
     @Transactional(rollbackFor = RuntimeException.class)
     public Either<FormatRespDto, ApplicationProject> createProject(String userId, ApplicationProject project) {
         String newName = project.getName();
@@ -323,10 +343,10 @@ public class ProjectService {
         releaseConfig.setCreateTime(new Date());
         CapabilitiesDetail capabilitiesDetail = new CapabilitiesDetail();
         List<TrafficRule> appTrafficRule = new ArrayList<>();
-        List<DnsRule> appDNSRule = new ArrayList<>();
+        List<DnsRule> appDnsRule = new ArrayList<>();
         List<ServiceDetail> serviceDetails = new ArrayList<>();
         capabilitiesDetail.setAppTrafficRule(appTrafficRule);
-        capabilitiesDetail.setAppDNSRule(appDNSRule);
+        capabilitiesDetail.setAppDNSRule(appDnsRule);
         capabilitiesDetail.setServiceDetails(serviceDetails);
         releaseConfig.setCapabilitiesDetail(capabilitiesDetail);
         int saveRet = configMapper.saveConfig(releaseConfig);
@@ -338,6 +358,11 @@ public class ProjectService {
         return Either.right(project);
     }
 
+    /**
+     * getProjectPath.
+     *
+     * @return
+     */
     public String getProjectPath(String projectId) {
         return InitConfigUtil.getWorkSpaceBaseDir() + BusinessConfigUtil.getWorkspacePath() + projectId
             + File.separator;
@@ -433,6 +458,9 @@ public class ProjectService {
         return Either.right(true);
     }
 
+    /**
+     * modifyProject.
+     */
     @Transactional(rollbackFor = RuntimeException.class)
     public Either<FormatRespDto, ApplicationProject> modifyProject(String userId, String projectId,
         ApplicationProject newProject) {
@@ -465,7 +493,7 @@ public class ProjectService {
         List<ApplicationProjectCapability> applicationProjectCapabilities = newProject
             .getApplicationProjectCapabilities();
         Either<FormatRespDto, List<ApplicationProjectCapability>> prjCapaResult = projectCapabilityService
-            .create(applicationProjectCapabilities);
+            .createCapabilities(applicationProjectCapabilities);
         if (prjCapaResult.isLeft()) {
             LOGGER.error("Update ApplicationProjectCapability {} failed", newProject.getId());
             throw new DeveloperException("Update ApplicationProjectCapability [" + newProject.getId() + "] failed");
@@ -633,7 +661,7 @@ public class ProjectService {
             csarPkgDir = new NewCreateCsar().create(projectPath, testConfig, project, chartName, null);
         }
         encryptedService.encryptedFile(csarPkgDir.getCanonicalPath());
-        encryptedService.encryptedCMS(csarPkgDir.getCanonicalPath());
+        encryptedService.encryptedCms(csarPkgDir.getCanonicalPath());
         return CompressFileUtilsJava
             .compressToCsarAndDeleteSrc(csarPkgDir.getCanonicalPath(), projectPath, csarPkgDir.getName());
     }
@@ -881,7 +909,7 @@ public class ProjectService {
                 CapabilityGroup group = new CapabilityGroup();
                 String groupId = UUID.randomUUID().toString();
                 fillCapabilityGroup(serviceDetail, groupId, group);
-                fillCapabilityDetail(serviceDetail, detail, jsonObject, userId, groupId);
+                fillCapabilityDetail(serviceDetail, detail, jsonObject, userId);
                 Either<FormatRespDto, Boolean> resDb = doSomeDbOperation(group, detail, serviceDetail,
                     openCapabilityIds);
                 if (resDb.isLeft()) {
@@ -995,8 +1023,7 @@ public class ProjectService {
         return Either.right(jsonObject);
     }
 
-    private void fillCapabilityDetail(ServiceDetail serviceDetail, Capability detail, JsonObject obj, String userId,
-        String groupId) {
+    private void fillCapabilityDetail(ServiceDetail serviceDetail, Capability detail, JsonObject obj, String userId) {
         detail.setId(UUID.randomUUID().toString());
         detail.setName(serviceDetail.getServiceName());
         detail.setNameEn(serviceDetail.getServiceName());

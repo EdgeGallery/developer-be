@@ -88,12 +88,6 @@ public class ContainerImageServiceImpl implements ContainerImageService {
     @Value("${imagelocation.domainname:}")
     private String devRepoEndpoint;
 
-    @Value("${imagelocation.username:}")
-    private String devRepoUsername;
-
-    @Value("${imagelocation.password:}")
-    private String devRepoPassword;
-
     @Value("${imagelocation.project:}")
     private String devRepoProject;
 
@@ -102,9 +96,6 @@ public class ContainerImageServiceImpl implements ContainerImageService {
 
     @Value("${imagelocation.protocol:}")
     private String protocol;
-
-    @Value("${security.oauth2.resource.jwt.key-uri:}")
-    private String loginUrl;
 
     /**
      * uploadContainerImage.
@@ -179,7 +170,8 @@ public class ContainerImageServiceImpl implements ContainerImageService {
             File partFileDir = new File(partFilePath);
             if (!partFileDir.exists() || !partFileDir.isDirectory()) {
                 LOGGER.error("uploaded part file path not found!");
-                throw new FileFoundFailException("uploaded part file path not found", ResponseConsts.RET_FILE_NOT_FOUND);
+                throw new FileFoundFailException("uploaded part file path not found",
+                    ResponseConsts.RET_FILE_NOT_FOUND);
             }
 
             File[] partFiles = partFileDir.listFiles();
@@ -194,7 +186,7 @@ public class ContainerImageServiceImpl implements ContainerImageService {
                 File partFile = new File(partFilePath, i + ".part");
                 FileUtils.copyFile(partFile, mergedFileStream);
                 boolean res = partFile.delete();
-                if(!res){
+                if (!res) {
                     LOGGER.error("delete part file failed!");
                     throw new FileOperateException("delete part file failed!", ResponseConsts.RET_DELETE_FILE_FAIL);
                 }
@@ -262,8 +254,7 @@ public class ContainerImageServiceImpl implements ContainerImageService {
             throw new DataBaseException(errorMsg, ResponseConsts.RET_CERATE_DATA_FAIL);
         }
         LOGGER.info("create ContainerImage success");
-        ContainerImage queryImage = containerImageMapper.getContainerImage(containerImage.getImageId());
-        return queryImage;
+        return containerImageMapper.getContainerImage(containerImage.getImageId());
     }
 
     /**
@@ -290,7 +281,7 @@ public class ContainerImageServiceImpl implements ContainerImageService {
             pageInfo = new PageInfo<>(containerImageMapper.getAllImageByOrdinaryAuth(containerImageReq));
         }
         LOGGER.info("Get all container image success.");
-        return new Page<ContainerImage>(pageInfo.getList(), containerImageReq.getLimit(), containerImageReq.getOffset(),
+        return new Page<>(pageInfo.getList(), containerImageReq.getLimit(), containerImageReq.getOffset(),
             pageInfo.getTotal());
     }
 
@@ -322,8 +313,8 @@ public class ContainerImageServiceImpl implements ContainerImageService {
             throw new DataBaseException(errorMsg, ResponseConsts.RET_UPDATE_DATA_FAIL);
         }
         LOGGER.info("update ContainerImage type success");
-        ContainerImage queryImage = containerImageMapper.getContainerImage(imageId);
-        return queryImage;
+        return containerImageMapper.getContainerImage(imageId);
+
     }
 
     /**
@@ -544,7 +535,7 @@ public class ContainerImageServiceImpl implements ContainerImageService {
             return false;
         }
         //create container image
-        boolean retContainer = createContainerImage(repoTags, inputImageId, fileName, projectName);
+        boolean retContainer = createImage(repoTags, inputImageId, fileName, projectName);
         if (!retContainer) {
             return false;
         }
@@ -561,7 +552,7 @@ public class ContainerImageServiceImpl implements ContainerImageService {
         return projectName;
     }
 
-    private boolean createContainerImage(String repoTags, String inputImageId, String fileName, String projectName) {
+    private boolean createImage(String repoTags, String inputImageId, String fileName, String projectName) {
         String[] images = repoTags.split(":");
         String imageName = images[0];
         String imageVersion = images[1];

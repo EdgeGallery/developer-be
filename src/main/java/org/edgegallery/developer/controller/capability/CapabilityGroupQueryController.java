@@ -16,8 +16,12 @@
 
 package org.edgegallery.developer.controller.capability;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import java.util.List;
-
 import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.edgegallery.developer.model.capability.CapabilityGroup;
 import org.edgegallery.developer.service.capability.CapabilityGroupService;
@@ -30,29 +34,27 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
-
 @Controller
 @RestSchema(schemaId = "capability-groups-query")
 @RequestMapping("/mec/developer/v2/query/capability-groups")
 @Api(tags = "capability-groups-query")
 public class CapabilityGroupQueryController {
-	@Autowired
-	private CapabilityGroupService capabilityGroupService;
+    @Autowired
+    private CapabilityGroupService capabilityGroupService;
 
-	@ApiOperation(value = "Get CapabilityGroup by type", response = CapabilityGroup.class, responseContainer = "List")
-	@ApiResponses(value = {
-			@ApiResponse(code = 200, message = "OK", response = CapabilityGroup.class, responseContainer = "List") })
-	@GetMapping(value="/type/{type}",produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-	@PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN') || hasRole('DEVELOPER_GUEST')")
-	public ResponseEntity<List<CapabilityGroup>> getCapabilityGroupByType(
-			@ApiParam(value = "type", required = true) @PathVariable(value="type") String type) {
-		List<CapabilityGroup> results = capabilityGroupService.findByType(type);
-		return ResponseEntity.ok(results);
-	}
+    /**
+     * Create one Capabilitygroup by type.
+     */
+    @ApiOperation(value = "Get CapabilityGroup by type", response = CapabilityGroup.class, responseContainer = "List")
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = "OK", response = CapabilityGroup.class, responseContainer = "List")
+    })
+    @GetMapping(value = "/type/{type}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN') || hasRole('DEVELOPER_GUEST')")
+    public ResponseEntity<List<CapabilityGroup>> getCapabilityGroupByType(
+        @ApiParam(value = "type", required = true) @PathVariable(value = "type") String type) {
+        List<CapabilityGroup> results = capabilityGroupService.findByType(type);
+        return ResponseEntity.ok(results);
+    }
 
 }

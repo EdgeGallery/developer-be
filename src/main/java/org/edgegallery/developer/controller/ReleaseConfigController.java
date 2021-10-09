@@ -49,6 +49,11 @@ public class ReleaseConfigController {
     @Autowired
     private ReleaseConfigService releaseService;
 
+    /**
+     * save release config.
+     *
+     * @return
+     */
     @ApiOperation(value = "save release config", response = ReleaseConfig.class)
     @ApiResponses(value = {
         @ApiResponse(code = 200, message = "OK", response = ReleaseConfig.class),
@@ -65,6 +70,11 @@ public class ReleaseConfigController {
         return ResponseDataUtil.buildResponse(either);
     }
 
+    /**
+     * modify release config.
+     *
+     * @return
+     */
     @ApiOperation(value = "modify release config", response = ReleaseConfig.class)
     @ApiResponses(value = {
         @ApiResponse(code = 200, message = "OK", response = ReleaseConfig.class),
@@ -81,6 +91,11 @@ public class ReleaseConfigController {
         return ResponseDataUtil.buildResponse(either);
     }
 
+    /**
+     * get release config.
+     *
+     * @return
+     */
     @ApiOperation(value = "get release config", response = ReleaseConfig.class)
     @ApiResponses(value = {
         @ApiResponse(code = 200, message = "OK", response = ReleaseConfig.class),

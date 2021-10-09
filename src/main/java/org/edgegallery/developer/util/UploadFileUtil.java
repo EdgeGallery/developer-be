@@ -105,17 +105,18 @@ public final class UploadFileUtil {
                 image = image.replace(envStr, harborStr);
             }
             String[] images = image.split("/");
-            if (images != null && images.length != 3) {
+            if (images.length != 3) {
                 LOGGER.error("image {} incorrect format!", image);
                 return false;
-            }
-            String project = images[1];
-            String[] nameVers = images[2].split(":");
-            String imageName = nameVers[0];
-            String imageVersion = nameVers[1];
-            String ret = getHarborImageInfo(project, imageName, imageVersion);
-            if (ret.equals("error")) {
-                return false;
+            } else {
+                String project = images[1];
+                String[] nameVers = images[2].split(":");
+                String imageName = nameVers[0];
+                String imageVersion = nameVers[1];
+                String ret = getHarborImageInfo(project, imageName, imageVersion);
+                if (ret.equals("error")) {
+                    return false;
+                }
             }
         }
 
@@ -146,6 +147,11 @@ public final class UploadFileUtil {
         return "error";
     }
 
+    /**
+     * readFile.
+     *
+     * @return
+     */
     public static String readFile(File fin) {
         String line;
         StringBuilder sb = new StringBuilder();
@@ -161,6 +167,11 @@ public final class UploadFileUtil {
         return sb.toString();
     }
 
+    /**
+     * addNameSpace.
+     *
+     * @return
+     */
     public static String addNameSpace(String content) {
         String[] multiContent = content.split("\r\n");
         List<String> list = new ArrayList<>();
@@ -208,6 +219,11 @@ public final class UploadFileUtil {
         return index;
     }
 
+    /**
+     * replaceContent.
+     *
+     * @return
+     */
     public static String replaceContent(String content) {
         String[] multiContent = content.split("\r\n");
         for (int i = 0; i < multiContent.length; i++) {
