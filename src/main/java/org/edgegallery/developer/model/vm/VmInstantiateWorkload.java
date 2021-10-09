@@ -13,13 +13,23 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package org.edgegallery.developer.service.application.action.impl.container;
 
-import org.edgegallery.developer.service.application.action.impl.QueryInstantiateAppStatusAction;
+package org.edgegallery.developer.model.vm;
 
-public class QueryInstantiateContainerAppStatusAction extends QueryInstantiateAppStatusAction {
-    @Override
-    public boolean execute() {
-        return true;
-    }
+import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
+
+@Getter
+@Setter
+@ToString
+public class VmInstantiateWorkload {
+
+    private  String code;
+
+    private String msg;
+
+    private List<VmInfo> data;
+
 }

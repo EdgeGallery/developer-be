@@ -24,7 +24,7 @@ import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
 import org.edgegallery.developer.mapper.ProjectMapper;
 import org.edgegallery.developer.model.vm.VmCreateConfig;
-import org.edgegallery.developer.model.vm.VmInstantiateInfo;
+import org.edgegallery.developer.model.vm.VmInstantiateWorkload;
 import org.edgegallery.developer.model.workspace.ApplicationProject;
 import org.edgegallery.developer.model.workspace.EnumTestConfigStatus;
 import org.edgegallery.developer.model.resource.MepHost;
@@ -76,12 +76,12 @@ public class VmStageWorkStatus implements VmCreateStage {
         JsonObject jsonObject = new JsonParser().parse(workStatus).getAsJsonObject();
         JsonElement code = jsonObject.get("code");
         if (code.getAsString().equals("200")) {
-            Type vmInfoType = new TypeToken<VmInstantiateInfo>() { }.getType();
-            VmInstantiateInfo vmInstantiateInfo = gson.fromJson(workStatus, vmInfoType);
+            Type vmInfoType = new TypeToken<VmInstantiateWorkload>() { }.getType();
+            VmInstantiateWorkload vmInstantiateWorkload = gson.fromJson(workStatus, vmInfoType);
             processStatus = true;
             instantiateStatus = EnumTestConfigStatus.Success;
             config.setLog("get vm status success");
-            config.setVmInfo(vmInstantiateInfo.getData());
+            config.setVmInfo(vmInstantiateWorkload.getData());
         } else {
             return true;
         }
