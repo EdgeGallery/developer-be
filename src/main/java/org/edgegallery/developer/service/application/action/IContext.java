@@ -20,7 +20,7 @@ import org.edgegallery.developer.model.operation.OperationStatus;
 
 public interface IContext {
 
-    String getLcmToken();
+    String getToken();
 
     void addParameter(String key, Object value);
 

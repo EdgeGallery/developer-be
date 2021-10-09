@@ -46,7 +46,7 @@ public class OperationContext implements IContext {
     }
 
     @Override
-    public String getLcmToken() {
+    public String getToken() {
         return token;
     }
 

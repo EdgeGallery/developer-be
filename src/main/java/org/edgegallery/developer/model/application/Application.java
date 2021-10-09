@@ -70,7 +70,7 @@ public class Application {
 
     private String mepHostId;
 
-    private AppConfiguration appConfiguration;
+    private AppConfiguration appConfiguration = new AppConfiguration();
 
     public String getId() {
         if (this.id == null) {

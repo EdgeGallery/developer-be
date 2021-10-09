@@ -21,9 +21,6 @@ import org.edgegallery.developer.service.application.action.IAction;
 import org.edgegallery.developer.service.application.action.IActionCollection;
 import org.edgegallery.developer.service.application.action.IActionIterator;
 import org.edgegallery.developer.service.application.action.impl.ActionIterator;
-import org.edgegallery.developer.service.application.action.impl.BuildPackageAction;
-import org.edgegallery.developer.service.application.action.impl.DistributePackageAction;
-import org.edgegallery.developer.service.application.action.impl.QueryDistributePackageStatusAction;
 
 public class VMExportImageOperation implements IActionCollection {
     public List<IAction> actions = Arrays.asList(

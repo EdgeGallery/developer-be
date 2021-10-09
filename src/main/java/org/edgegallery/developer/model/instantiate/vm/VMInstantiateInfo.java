@@ -15,6 +15,7 @@
  */
 package org.edgegallery.developer.model.instantiate.vm;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import lombok.Getter;
@@ -28,6 +29,8 @@ public class VMInstantiateInfo {
 
     private String appPackageId;
 
+    private String distributedMecHost;
+
     private String appInstanceId;
 
     private String vmInstanceId;
@@ -40,7 +43,7 @@ public class VMInstantiateInfo {
 
     private String vncUrl;
 
-    private List<PortInstantiateInfo> portInstanceList;
+    private List<PortInstantiateInfo> portInstanceList = new ArrayList<PortInstantiateInfo>(0);
 
 
 }

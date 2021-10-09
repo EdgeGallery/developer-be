@@ -219,11 +219,11 @@ public class MepHostServiceImpl implements MepHostService {
      * @return
      */
     @Override
-    public Either<FormatRespDto, MepHost> getHost(String hostId) {
+    public MepHost getHost(String hostId) {
         MepHost host = mepHostMapper.getHost(hostId);
         if (host != null) {
             LOGGER.info("Get host {} success", hostId);
-            return Either.right(host);
+            return host;
         } else {
             LOGGER.error("Can not find host by {}", hostId);
             throw new EntityNotFoundException("can not find the host!", ResponseConsts.RET_QUERY_DATA_EMPTY);

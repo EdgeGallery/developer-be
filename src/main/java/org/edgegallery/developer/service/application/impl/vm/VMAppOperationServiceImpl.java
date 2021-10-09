@@ -1,5 +1,6 @@
 package org.edgegallery.developer.service.application.impl.vm;
 
+import java.util.List;
 import java.util.UUID;
 import javax.servlet.http.HttpServletRequest;
 import org.edgegallery.developer.common.ResponseConsts;
@@ -16,6 +17,7 @@ import org.edgegallery.developer.model.application.vm.VMApplication;
 import org.edgegallery.developer.model.application.vm.VirtualMachine;
 import org.edgegallery.developer.model.apppackage.AppPackage;
 import org.edgegallery.developer.model.instantiate.vm.ImageExportInfo;
+import org.edgegallery.developer.model.instantiate.vm.PortInstantiateInfo;
 import org.edgegallery.developer.model.instantiate.vm.VMInstantiateInfo;
 import org.edgegallery.developer.model.operation.EnumActionStatus;
 import org.edgegallery.developer.model.operation.EnumOperationObjectType;
@@ -118,7 +120,32 @@ public class VMAppOperationServiceImpl extends AppOperationServiceImpl implement
     }
 
     public VMInstantiateInfo getInstantiateInfo(String vmId) {
-        return vmInstantiateInfoMapper.getVMInstantiateInfo(vmId);
+        VMInstantiateInfo instantiateInfo = vmInstantiateInfoMapper.getVMInstantiateInfo(vmId);
+        List<PortInstantiateInfo> portLst =  vmInstantiateInfoMapper.getPortInstantiateInfoByVMId(vmId);
+        instantiateInfo.setPortInstanceList(portLst);
+        return instantiateInfo;
+    }
+
+    public Boolean updateInstantiateInfo(String vmId, VMInstantiateInfo instantiateInfo){
+        int res = vmInstantiateInfoMapper.modifyVMInstantiateInfo(vmId, instantiateInfo);
+        if(res < 1){
+            LOGGER.error("Update vm instantiate info failed");
+            return false;
+        }
+        //update ports
+        res = vmInstantiateInfoMapper.deleteVMInstantiateInfo(vmId);
+        if(res < 1){
+            LOGGER.error("Update vm instantiate info failed, remove ports failed.");
+            return false;
+        }
+        for(PortInstantiateInfo port: instantiateInfo.getPortInstanceList()){
+            res = vmInstantiateInfoMapper.createPortInstantiateInfo(vmId, port);
+            if(res < 1){
+                LOGGER.error("Update vm instantiate info failed, add port instances failed.");
+                return false;
+            }
+        }
+        return true;
     }
 
     public ImageExportInfo getImageExportInfo(String vmId) {

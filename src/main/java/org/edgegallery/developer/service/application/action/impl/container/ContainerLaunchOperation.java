@@ -24,7 +24,7 @@ import org.edgegallery.developer.service.application.action.IAction;
 import org.edgegallery.developer.service.application.action.IActionCollection;
 import org.edgegallery.developer.service.application.action.IActionIterator;
 import org.edgegallery.developer.service.application.action.impl.ActionIterator;
-import org.edgegallery.developer.service.application.action.impl.BuildPackageAction;
+import org.edgegallery.developer.service.application.action.impl.vm.BuildVMPackageAction;
 import org.edgegallery.developer.service.application.action.impl.DistributePackageAction;
 import org.edgegallery.developer.service.application.action.impl.OperationContext;
 import org.edgegallery.developer.service.application.action.impl.QueryDistributePackageStatusAction;
@@ -47,7 +47,7 @@ public class ContainerLaunchOperation implements IActionCollection {
 
     public ContainerLaunchOperation(String applicationId, String helmChartId, String token, OperationStatus operationStatus) {
 
-        IAction buildPackageAction = new BuildPackageAction();
+        IAction buildPackageAction = new BuildVMPackageAction();
         IAction distributePackageAction = new DistributePackageAction();
         IAction queryDistributePackageStatusAction = new QueryDistributePackageStatusAction();
         IAction instantiateContainerAppAction = new InstantiateContainerAppAction();

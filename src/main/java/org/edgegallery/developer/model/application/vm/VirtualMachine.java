@@ -16,6 +16,7 @@
 
 package org.edgegallery.developer.model.application.vm;
 
+import java.util.ArrayList;
 import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
@@ -40,7 +41,7 @@ public class VirtualMachine {
 
     private String userData;
 
-    private List<VMPort> portList;
+    private List<VMPort> portList = new ArrayList<VMPort>(0);
 
     private String status;
 
