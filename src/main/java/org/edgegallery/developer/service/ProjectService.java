@@ -972,6 +972,7 @@ public class ProjectService {
         String iconPath = getProjectPath(projectId) + project.getIconFileId();
         File icon = new File(iconPath);
         File desIcon = new File(iconPath + File.separator + iconFile.getFileName());
+        LOGGER.info("icon path:{}", iconFile);
 
         try {
             DeveloperFileUtils.deleteAndCreateFile(desIcon);

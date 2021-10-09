@@ -226,27 +226,6 @@
     )
     ;
 
-    CREATE TABLE IF NOT EXISTS "tbl_mep_host" (
-      "host_id" varchar(50) NOT NULL,
-      "name" varchar(100) DEFAULT NULL,
-      "lcm_ip" varchar(20) DEFAULT NULL,
-      "lcm_protocol" varchar(20) DEFAULT NULL,
-      "lcm_port" int4 DEFAULT '-1'::integer,
-      "architecture" varchar(100) DEFAULT NULL,
-      "status" varchar(20) DEFAULT NULL,
-      "mec_host_ip" varchar(20) DEFAULT NULL,
-      "vim_type" varchar(255) DEFAULT NULL,
-      "mec_host_user_name" varchar(50) DEFAULT NULL,
-      "mec_host_password" varchar(50) DEFAULT NULL,
-      "mec_host_port" int4 DEFAULT 22,
-      "user_id" varchar(50) DEFAULT NULL,
-      "config_file_id" varchar(50) DEFAULT NULL,
-      "net_work_parameter" text DEFAULT NULL,
-      "resource" text DEFAULT NULL,
-      "address" varchar(255) DEFAULT NULL
-    )
-    ;
-
     CREATE TABLE IF NOT EXISTS "tbl_host_log" (
       "log_id" varchar(50) NOT NULL,
       "host_ip" varchar(50) NOT NULL,
