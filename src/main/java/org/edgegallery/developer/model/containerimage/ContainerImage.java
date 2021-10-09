@@ -1,8 +1,6 @@
 package org.edgegallery.developer.model.containerimage;
 
-import io.swagger.annotations.ApiModelProperty;
 import java.util.Date;
-import javax.validation.constraints.Pattern;
 import lombok.Getter;
 import lombok.Setter;
 

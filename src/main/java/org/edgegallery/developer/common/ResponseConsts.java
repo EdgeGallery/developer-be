@@ -16,6 +16,10 @@ package org.edgegallery.developer.common;
 
 public class ResponseConsts {
 
+    private ResponseConsts() {
+        throw new IllegalStateException("ResponseConsts class");
+    }
+
     /**
      * request format is error.
      */
@@ -132,85 +136,83 @@ public class ResponseConsts {
     public static final int RET_DOWNLOAD_FILE_EMPTY = 20023;
 
     /**
-     *  file format error.
+     * file format error.
      */
     public static final int RET_FILE_FORMAT_ERROR = 20024;
 
     /**
-     *  sign file fail.
+     * sign file fail.
      */
-    public static final int RET_SIGN_FILE_FAIL= 20025;
+    public static final int RET_SIGN_FILE_FAIL = 20025;
 
     /**
-     *  hash file fail.
+     * hash file fail.
      */
-    public static final int RET_HASH_FILE_FAIL= 20026;
+    public static final int RET_HASH_FILE_FAIL = 20026;
 
     /**
-     *  move file fail.
+     * move file fail.
      */
-    public static final int RET_MOVE_FILE_FAIL= 20027;
+    public static final int RET_MOVE_FILE_FAIL = 20027;
 
     /**
-     *  call lcm interce fail.
+     * call lcm interce fail.
      */
-    public static final int RET_CALL_LCM_FAIL= 20028;
+    public static final int RET_CALL_LCM_FAIL = 20028;
 
     /**
-     *  yaml load fail.
+     * yaml load fail.
      */
-    public static final int RET_LOAD_YAML_FAIL= 20029;
+    public static final int RET_LOAD_YAML_FAIL = 20029;
 
     /**
-     *  decompress file fail.
+     * decompress file fail.
      */
-    public static final int RET_DECOPRESS_FILE_FAIL= 20030;
+    public static final int RET_DECOPRESS_FILE_FAIL = 20030;
 
     /**
-     *  get file structure error.
+     * get file structure error.
      */
-    public static final int RET_FILE_STRUCTURE_FAIL= 20031;
+    public static final int RET_FILE_STRUCTURE_FAIL = 20031;
 
     /**
-     *   file is empty.
+     * file is empty.
      */
-    public static final int RET_FILE_EMPTY= 20032;
+    public static final int RET_FILE_EMPTY = 20032;
 
     /**
-     *   file not readable.
+     * file not readable.
      */
-    public static final int RET_FILE_NOT_READABLE= 20033;
+    public static final int RET_FILE_NOT_READABLE = 20033;
 
     /**
-     *  compress file fail.
+     * compress file fail.
      */
-    public static final int RET_COPRESS_FILE_FAIL= 20034;
+    public static final int RET_COPRESS_FILE_FAIL = 20034;
 
     /**
-     *  build sdk project fail.
+     * build sdk project fail.
      */
-    public static final int RET_BUILD_SDK_FAIL= 20035;
+    public static final int RET_BUILD_SDK_FAIL = 20035;
 
     /**
-     *   read file fail.
+     * read file fail.
      */
-    public static final int RET_READ_FILE_FAIL= 20036;
+    public static final int RET_READ_FILE_FAIL = 20036;
 
     /**
-     *   write file fail.
+     * write file fail.
      */
-    public static final int RET_WRITE_FILE_FAIL= 20037;
-
+    public static final int RET_WRITE_FILE_FAIL = 20037;
 
     /**
-     *   transfer file fail.
+     * transfer file fail.
      */
-    public static final int RET_TRANSFER_FILE_FAIL= 20038;
+    public static final int RET_TRANSFER_FILE_FAIL = 20038;
 
     /**
-     *   restful request fail.
+     * restful request fail.
      */
-    public static final int RET_RESTFUL_REQUEST_FAIL= 20039;
-
+    public static final int RET_RESTFUL_REQUEST_FAIL = 20039;
 
 }

@@ -274,7 +274,7 @@ public class SystemImageMgmtController {
     })
     @RequestMapping(value = "/images/{systemId}/slim", method = RequestMethod.POST)
     @PreAuthorize("hasRole('DEVELOPER_ADMIN')|| hasRole('DEVELOPER_TENANT')")
-    public ResponseEntity<Boolean> imageSlim(@PathVariable("systemId") Integer systemId) throws Exception {
+    public ResponseEntity<Boolean> imageSlim(@PathVariable("systemId") Integer systemId) {
         LOGGER.info("image slim, systemId = {}", systemId);
         Either<FormatRespDto, Boolean> either = systemImageMgmtService.imageSlim(systemId);
         return ResponseDataUtil.buildResponse(either);

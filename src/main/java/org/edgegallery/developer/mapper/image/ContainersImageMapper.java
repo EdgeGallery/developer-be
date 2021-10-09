@@ -17,7 +17,6 @@
 package org.edgegallery.developer.mapper.image;
 
 import java.util.List;
-import java.util.Map;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.edgegallery.developer.model.containerimage.ContainerImage;

@@ -43,7 +43,7 @@ public final class MepHostUtil {
         body.setCity(host.getAddress());
         body.setMechostIp(host.getMecHostIp());
         body.setMechostName(host.getName());
-        if (host.getVimType().equals("OpenStack") || host.getVimType().equals("FusionSphere")) {
+        if (host.getVimType().name().equals("OpenStack") || host.getVimType().name().equals("FusionSphere")) {
             body.setVim("OpenStack");
         } else {
             body.setVim("K8s");
