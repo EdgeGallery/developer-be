@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.UUID;
 import javax.servlet.http.HttpServletRequest;
 import org.edgegallery.developer.common.ResponseConsts;
+import org.edgegallery.developer.config.security.AccessUserUtil;
 import org.edgegallery.developer.exception.DataBaseException;
 import org.edgegallery.developer.exception.DeveloperException;
 import org.edgegallery.developer.exception.EntityNotFoundException;
@@ -71,34 +72,37 @@ public class VMAppOperationServiceImpl extends AppOperationServiceImpl implement
         }
 
         VirtualMachine virtualMachine = vmAppVmServiceImpl.getVm(applicationId, vmId);
-        if (virtualMachine==null || virtualMachine.getVmInstantiateInfo()!=null
+        if (virtualMachine == null || virtualMachine.getVmInstantiateInfo() != null
             || virtualMachine.getImageExportInfo() != null) {
             LOGGER.error("instantiate vm app fail ,vm is not exit or is used,vmId:{}", vmId);
-            throw new EntityNotFoundException("instantiate vm app fail ,vm is not exit or is used.", ResponseConsts.RET_QUERY_DATA_EMPTY);
+            throw new EntityNotFoundException("instantiate vm app fail ,vm is not exit or is used.",
+                ResponseConsts.RET_QUERY_DATA_EMPTY);
         }
 
         // create OperationStatus
         OperationStatus operationStatus = new OperationStatus();
         operationStatus.setId(UUID.randomUUID().toString());
+        operationStatus.setUserName(AccessUserUtil.getUser().getUserName());
         operationStatus.setObjectType(EnumOperationObjectType.APPLICATION_INSTANCE);
         operationStatus.setStatus(EnumActionStatus.ONGOING);
         operationStatus.setProgress(0);
         operationStatus.setObjectId(vmId);
+        operationStatus.setObjectName(virtualMachine.getName());
         operationStatus.setOperationName(OPERATION_NAME);
         int res = operationStatusMapper.createOperationStatus(operationStatus);
         if (res < 1) {
             LOGGER.error("Create operationStatus in db error.");
             throw new DataBaseException("Create operationStatus in db error.", ResponseConsts.RET_CERATE_DATA_FAIL);
         }
-        VMLaunchOperation actionCollection = new VMLaunchOperation(applicationId, vmId, accessToken, operationStatus);
+        VMLaunchOperation actionCollection = new VMLaunchOperation(AccessUserUtil.getUser(), applicationId, vmId,
+            accessToken, operationStatus);
         LOGGER.info("start instantiate vm app");
         new InstantiateVmAppProcessor(actionCollection).start();
         return new OperationInfoRep(operationStatus.getId());
     }
 
     @Override
-    public Boolean uploadFileToVm(String applicationId, String vmId, HttpServletRequest request,
-        Chunk chunk) {
+    public Boolean uploadFileToVm(String applicationId, String vmId, HttpServletRequest request, Chunk chunk) {
         return null;
     }
 
@@ -107,40 +111,39 @@ public class VMAppOperationServiceImpl extends AppOperationServiceImpl implement
         return null;
     }
 
-
     @Override
     public AppPackage generatePackage(String applicationId) {
-        ApplicationDetail detail  = applicationServiceImpl.getApplicationDetail(applicationId);
+        ApplicationDetail detail = applicationServiceImpl.getApplicationDetail(applicationId);
         return generatePackage(detail.getVmApp());
     }
 
     @Override
-    public AppPackage generatePackage(VMApplication application){
+    public AppPackage generatePackage(VMApplication application) {
         return null;
     }
 
     public VMInstantiateInfo getInstantiateInfo(String vmId) {
         VMInstantiateInfo instantiateInfo = vmInstantiateInfoMapper.getVMInstantiateInfo(vmId);
-        List<PortInstantiateInfo> portLst =  vmInstantiateInfoMapper.getPortInstantiateInfoByVMId(vmId);
+        List<PortInstantiateInfo> portLst = vmInstantiateInfoMapper.getPortInstantiateInfoByVMId(vmId);
         instantiateInfo.setPortInstanceList(portLst);
         return instantiateInfo;
     }
 
-    public Boolean updateInstantiateInfo(String vmId, VMInstantiateInfo instantiateInfo){
+    public Boolean updateInstantiateInfo(String vmId, VMInstantiateInfo instantiateInfo) {
         int res = vmInstantiateInfoMapper.modifyVMInstantiateInfo(vmId, instantiateInfo);
-        if(res < 1){
+        if (res < 1) {
             LOGGER.error("Update vm instantiate info failed");
             return false;
         }
         //update ports
         res = vmInstantiateInfoMapper.deleteVMInstantiateInfo(vmId);
-        if(res < 1){
+        if (res < 1) {
             LOGGER.error("Update vm instantiate info failed, remove ports failed.");
             return false;
         }
-        for(PortInstantiateInfo port: instantiateInfo.getPortInstanceList()){
+        for (PortInstantiateInfo port : instantiateInfo.getPortInstanceList()) {
             res = vmInstantiateInfoMapper.createPortInstantiateInfo(vmId, port);
-            if(res < 1){
+            if (res < 1) {
                 LOGGER.error("Update vm instantiate info failed, add port instances failed.");
                 return false;
             }

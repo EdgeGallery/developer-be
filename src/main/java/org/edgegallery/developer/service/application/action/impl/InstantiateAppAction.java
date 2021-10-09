@@ -89,7 +89,7 @@ public class InstantiateAppAction extends AbstractAction {
 
         //Instantiate application.
         LcmLog lcmLog = new LcmLog();
-        String appInstanceId = instantiateApplication(application.getUserId(), mepmPkgId, mepHost, lcmLog);
+        String appInstanceId = instantiateApplication(getContext().getUserId(), mepmPkgId, mepHost, lcmLog);
         if(null == appInstanceId){
             String msg = "Instantiate application failed. The log from lcm is : " + lcmLog.getLog();
             updateActionError(actionStatus, msg);

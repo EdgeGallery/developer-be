@@ -17,6 +17,7 @@
 package org.edgegallery.developer.service.application.action.impl;
 
 import java.util.Map;
+import org.edgegallery.developer.domain.model.user.User;
 import org.edgegallery.developer.model.operation.ActionStatus;
 import org.edgegallery.developer.model.operation.OperationStatus;
 import org.edgegallery.developer.service.application.OperationStatusService;
@@ -26,7 +27,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 public class OperationContext implements IContext {
 
-    //token to lcmcontroller to be used by the thread.
+    //user of the operation
+    private User user;
+
+    //action token from FE, need to be used in rest call to lcm controller.
     private String token;
 
     private OperationStatus operationStatus;
@@ -38,8 +42,9 @@ public class OperationContext implements IContext {
     @Autowired
     private OperationStatusService operationStatusService;
 
-    public OperationContext(String token, OperationStatus operationStatus,
+    public OperationContext(User user, String token, OperationStatus operationStatus,
         Map<String, ActionProgressRange> actionProgressRangeMap) {
+        this.user = user;
         this.token = token;
         this.operationStatus = operationStatus;
         this.actionProgressRangeMap = actionProgressRangeMap;
@@ -48,6 +53,16 @@ public class OperationContext implements IContext {
     @Override
     public String getToken() {
         return token;
+    }
+
+    @Override
+    public String getUserId() {
+        return this.user.getUserId();
+    }
+
+    @Override
+    public String getUserName() {
+        return this.user.getUserName();
     }
 
     @Override
@@ -62,12 +77,14 @@ public class OperationContext implements IContext {
 
     @Override
     public int addActionStatus(ActionStatus status) {
-        return operationStatusService.addActionStatusWithUpdateOperationStatus(operationStatus.getId(), status, actionProgressRangeMap);
+        return operationStatusService.addActionStatusWithUpdateOperationStatus(operationStatus.getId(), status,
+            actionProgressRangeMap);
     }
 
     @Override
     public int updateActionStatus(ActionStatus status) {
-        return operationStatusService.updateActionStatusWithUpdateOperationStatus(operationStatus.getId(), status, actionProgressRangeMap);
+        return operationStatusService.updateActionStatusWithUpdateOperationStatus(operationStatus.getId(), status,
+            actionProgressRangeMap);
     }
 
     @Override

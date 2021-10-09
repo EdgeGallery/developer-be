@@ -19,6 +19,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.edgegallery.developer.domain.model.user.User;
 import org.edgegallery.developer.model.operation.OperationStatus;
 import org.edgegallery.developer.service.application.action.IAction;
 import org.edgegallery.developer.service.application.action.IActionCollection;
@@ -45,7 +46,7 @@ public class ContainerLaunchOperation implements IActionCollection {
         return actions;
     }
 
-    public ContainerLaunchOperation(String applicationId, String helmChartId, String token, OperationStatus operationStatus) {
+    public ContainerLaunchOperation(User user, String applicationId, String helmChartId, String token, OperationStatus operationStatus) {
 
         IAction buildPackageAction = new BuildVMPackageAction();
         IAction distributePackageAction = new DistributePackageAction();
@@ -60,7 +61,7 @@ public class ContainerLaunchOperation implements IActionCollection {
         actionProgressRangeMap.put(instantiateContainerAppAction.getActionName(), new ActionProgressRange(60, 80));
         actionProgressRangeMap.put(queryAppStatusAction.getActionName(), new ActionProgressRange(80, 100));
 
-        OperationContext context = new OperationContext(token, operationStatus, actionProgressRangeMap);
+        OperationContext context = new OperationContext(user, token, operationStatus, actionProgressRangeMap);
         buildPackageAction.setContext(context);
         distributePackageAction.setContext(context);
         queryDistributePackageStatusAction.setContext(context);
