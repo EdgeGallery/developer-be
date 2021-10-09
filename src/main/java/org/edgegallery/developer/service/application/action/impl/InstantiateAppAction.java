@@ -16,17 +16,32 @@
 
 package org.edgegallery.developer.service.application.action.impl;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.google.gson.reflect.TypeToken;
+import java.lang.reflect.Type;
 import java.util.Map;
 import java.util.UUID;
 import org.edgegallery.developer.mapper.HostLogMapper;
 import org.edgegallery.developer.model.LcmLog;
 import org.edgegallery.developer.model.application.Application;
+import org.edgegallery.developer.model.instantiate.vm.EnumVMInstantiateStatus;
+import org.edgegallery.developer.model.instantiate.vm.PortInstantiateInfo;
+import org.edgegallery.developer.model.instantiate.vm.VMInstantiateInfo;
+import org.edgegallery.developer.model.mephost.MepHost;
 import org.edgegallery.developer.model.operation.ActionStatus;
 import org.edgegallery.developer.model.operation.EnumOperationObjectType;
-import org.edgegallery.developer.model.mephost.MepHost;
+import org.edgegallery.developer.model.vm.NetworkInfo;
+import org.edgegallery.developer.model.vm.VmInstantiateWorkload;
+import org.edgegallery.developer.model.workspace.EnumTestConfigStatus;
 import org.edgegallery.developer.service.application.ApplicationService;
 import org.edgegallery.developer.service.application.action.IContext;
+import org.edgegallery.developer.service.application.common.EnumDistributeStatus;
+import org.edgegallery.developer.service.application.common.EnumInstantiateStatus;
 import org.edgegallery.developer.service.application.common.IContextParameter;
+import org.edgegallery.developer.service.application.impl.vm.VMAppOperationServiceImpl;
 import org.edgegallery.developer.service.mephost.MepHostService;
 import org.edgegallery.developer.util.HttpClientUtil;
 import org.edgegallery.developer.util.InputParameterUtil;
@@ -34,8 +49,6 @@ import org.edgegallery.developer.util.IpCalculateUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.util.StringUtils;
 
 public class InstantiateAppAction extends AbstractAction {
 
@@ -45,6 +58,11 @@ public class InstantiateAppAction extends AbstractAction {
 
     private IContext context;
 
+    private static Gson gson = new Gson();
+
+    // time out: 10 min.
+    private static final int TIMEOUT = 10 * 60 * 1000;
+
     @Autowired
     private ApplicationService applicationService;
 
@@ -53,6 +71,9 @@ public class InstantiateAppAction extends AbstractAction {
 
     @Autowired
     private HostLogMapper hostLogMapper;
+
+    @Autowired
+    private VMAppOperationServiceImpl VmAppOperationService;
 
     @Override
     public void setContext(IContext context) {
@@ -90,14 +111,31 @@ public class InstantiateAppAction extends AbstractAction {
         //Instantiate application.
         LcmLog lcmLog = new LcmLog();
         String appInstanceId = instantiateApplication(getContext().getUserId(), mepmPkgId, mepHost, lcmLog);
-        if(null == appInstanceId){
+        if (null == appInstanceId) {
             String msg = "Instantiate application failed. The log from lcm is : " + lcmLog.getLog();
             updateActionError(actionStatus, msg);
         }
-        String msg = "Instantiate application request sent to lcm controller success. application InstanceId is: " + appInstanceId;
-        updateActionProgress(actionStatus, 100, msg);
+        String msg = "Instantiate application request sent to lcm controller success. application InstanceId is: "
+            + appInstanceId;
+        updateActionProgress(actionStatus, 30, msg);
 
-        //update
+        String vmId = (String) getContext().getParameter(IContextParameter.PARAM_VM_ID);
+        VMInstantiateInfo instantiateInfo = VmAppOperationService.getInstantiateInfo(vmId);
+        instantiateInfo.setAppInstanceId(appInstanceId);
+        Boolean updateRes = VmAppOperationService.updateInstantiateInfo(vmId, instantiateInfo);
+        if (!updateRes) {
+            updateActionError(actionStatus, "Update instantiate info for VM failed.");
+            return false;
+        }
+
+        //Query instantiate status.
+        EnumInstantiateStatus status = queryInstantiateStatus(appInstanceId, mepHost, instantiateInfo);
+        if (!EnumInstantiateStatus.INSTANTIATE_STATUS_SUCCESS.equals(status)) {
+            msg = "Query instantiate status failed, the result is: " + status;
+            updateActionError(actionStatus, msg);
+            return false;
+        }
+        updateActionProgress(actionStatus, 100, "Query instantiate status success.");
         return true;
     }
 
@@ -116,7 +154,7 @@ public class InstantiateAppAction extends AbstractAction {
         boolean instantRes = HttpClientUtil.instantiateApplication(basePath, appInstanceId, userId,
             getContext().getToken(), lcmLog, mepmPackageId, mepHost.getMecHostIp(), vmInputParams);
         LOGGER.info("Instantiate application result: {}", instantRes);
-        if(!instantRes){
+        if (!instantRes) {
             return null;
         }
         return appInstanceId;
@@ -141,5 +179,46 @@ public class InstantiateAppAction extends AbstractAction {
             vmInputParams.put("app_internet_gw", IpCalculateUtil.getStartIp(internetRange, 0));
         }
         return vmInputParams;
+    }
+
+    private EnumInstantiateStatus queryInstantiateStatus(String appInstanceId, MepHost mepHost,
+        VMInstantiateInfo vmInstantiateInfo) {
+        int waitingTime = 0;
+        while (waitingTime < TIMEOUT) {
+            String workStatus = HttpClientUtil.getWorkloadStatus(mepHost.getLcmProtocol(), mepHost.getLcmIp(),
+                mepHost.getLcmPort(), appInstanceId, getContext().getUserId(), getContext().getToken());
+            LOGGER.info("get instantiate status: {}", workStatus);
+            if (workStatus == null) {
+                // compare time between now and deployDate
+                return EnumInstantiateStatus.INSTANTIATE_STATUS_ERROR;
+            }
+            JsonObject jsonObject = new JsonParser().parse(workStatus).getAsJsonObject();
+            JsonElement code = jsonObject.get("code");
+            if (code.getAsString().equals("200")) {
+                LOGGER.error("Query instantiate result, lcm return success.", workStatus);
+                Type vmInfoType = new TypeToken<VmInstantiateWorkload>() { }.getType();
+                VmInstantiateWorkload vmInstantiateWorkload = gson.fromJson(workStatus, vmInfoType);
+                vmInstantiateInfo.setLog(workStatus);
+                if (vmInstantiateWorkload.getData().size() > 0) {
+                    vmInstantiateInfo.setVncUrl(vmInstantiateWorkload.getData().get(0).getVncUrl());
+                    vmInstantiateInfo.setVmInstanceId(vmInstantiateWorkload.getData().get(0).getVmId());
+                    for(NetworkInfo info:vmInstantiateWorkload.getData().get(0).getNetworks()){
+                        PortInstantiateInfo port = new PortInstantiateInfo();
+                        port.setIpAddress(info.getIp());
+                        port.setNetworkName(info.getName());
+                        vmInstantiateInfo.getPortInstanceList().add(port);
+                    }
+                }
+                return EnumInstantiateStatus.INSTANTIATE_STATUS_FAILED;
+            }
+            try {
+                Thread.sleep(5000);
+                waitingTime += 5000;
+            } catch (InterruptedException e) {
+                LOGGER.error("Distribute package sleep failed.");
+                return EnumInstantiateStatus.INSTANTIATE_STATUS_ERROR;
+            }
+        }
+        return EnumInstantiateStatus.INSTANTIATE_STATUS_TIMEOUT;
     }
 }

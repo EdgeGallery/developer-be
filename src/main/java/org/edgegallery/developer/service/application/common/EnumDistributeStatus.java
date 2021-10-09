@@ -14,22 +14,24 @@
  *    limitations under the License.
  */
 
-package org.edgegallery.developer.model.vm;
+package org.edgegallery.developer.service.application.common;
 
-import java.util.List;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+public enum EnumDistributeStatus {
+    DISTRIBUTE_PACKAGE_STATUS_TIMEOUT("timeout"),
 
-@Getter
-@Setter
-@ToString
-public class VmInstantiateInfo {
+    DISTRIBUTE_PACKAGE_STATUS_ERROR("error"),
 
-    private  String code;
+    DISTRIBUTE_PACKAGE_STATUS_FAILED("killed"),
 
-    private String msg;
+    DISTRIBUTE_PACKAGE_STATUS_SUCCESS("uploaded");
 
-    private List<VmInfo> data;
+    private String name;
 
+    EnumDistributeStatus(String name) {
+        this.name = name;
+    }
+
+    public String toString() {
+        return name;
+    }
 }

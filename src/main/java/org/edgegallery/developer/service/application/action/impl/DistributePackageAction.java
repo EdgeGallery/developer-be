@@ -31,6 +31,7 @@ import org.edgegallery.developer.model.mephost.MepHost;
 import org.edgegallery.developer.model.operation.ActionStatus;
 import org.edgegallery.developer.model.operation.EnumOperationObjectType;
 import org.edgegallery.developer.service.application.ApplicationService;
+import org.edgegallery.developer.service.application.common.EnumDistributeStatus;
 import org.edgegallery.developer.service.application.common.IContextParameter;
 import org.edgegallery.developer.service.application.impl.AppOperationServiceImpl;
 import org.edgegallery.developer.service.application.impl.vm.VMAppOperationServiceImpl;
@@ -52,14 +53,6 @@ public class DistributePackageAction extends AbstractAction {
 
     // time out: 1 hour.
     private static final int TIMEOUT = 60 * 60 * 1000;
-
-    private static final String DISTRIBUTE_PACKAGE_STATUS_TIMEOUT = "timeout";
-
-    private static final String DISTRIBUTE_PACKAGE_STATUS_ERROR = "error";
-
-    private static final String DISTRIBUTE_PACKAGE_STATUS_FAILED = "killed";
-
-    private static final String DISTRIBUTE_PACKAGE_STATUS_SUCCESS = "uploaded";
 
     @Autowired
     private AppOperationServiceImpl appOperationService;
@@ -118,8 +111,8 @@ public class DistributePackageAction extends AbstractAction {
         updateActionProgress(actionStatus, 50, "Distribute app package to edge host success.");
 
         //Query Distribute Status
-        String distributeStatus = getDistributeStatus(getContext().getUserId(), uploadPkgId, mepHost);
-        if (!DISTRIBUTE_PACKAGE_STATUS_SUCCESS.equals(distributeStatus)) {
+        EnumDistributeStatus distributeStatus = getDistributeStatus(getContext().getUserId(), uploadPkgId, mepHost);
+        if (!EnumDistributeStatus.DISTRIBUTE_PACKAGE_STATUS_SUCCESS.equals(distributeStatus)) {
             String msg = "Query Distribute package status failed, the result is: " + distributeStatus;
             updateActionError(actionStatus, msg);
             return false;
@@ -167,7 +160,7 @@ public class DistributePackageAction extends AbstractAction {
         return true;
     }
 
-    private String getDistributeStatus(String userId, String packageId, MepHost mepHost) {
+    private EnumDistributeStatus getDistributeStatus(String userId, String packageId, MepHost mepHost) {
         String basePath = HttpClientUtil.getUrlPrefix(mepHost.getLcmProtocol(), mepHost.getLcmIp(),
             mepHost.getLcmPort());
         int waitingTime = 0;
@@ -177,31 +170,31 @@ public class DistributePackageAction extends AbstractAction {
             LOGGER.info("Distribute package result: {}", distributeResult);
             if (distributeResult == null) {
                 LOGGER.error("Get distribute package result failed");
-                return DISTRIBUTE_PACKAGE_STATUS_ERROR;
+                return EnumDistributeStatus.DISTRIBUTE_PACKAGE_STATUS_ERROR;
             }
             List<DistributeResponse> list = gson.fromJson(distributeResult,
                 new TypeToken<List<DistributeResponse>>() { }.getType());
             List<MecHostInfo> mecHostInfo = list.get(0).getMecHostInfo();
             if (mecHostInfo == null) {
                 LOGGER.error("Get distribute package status failed, null mec host info.");
-                return DISTRIBUTE_PACKAGE_STATUS_ERROR;
+                return EnumDistributeStatus.DISTRIBUTE_PACKAGE_STATUS_ERROR;
             }
             String status = mecHostInfo.get(0).getStatus();
-            if (DISTRIBUTE_PACKAGE_STATUS_FAILED.equals(distributeResult)) {
+            if (EnumDistributeStatus.DISTRIBUTE_PACKAGE_STATUS_FAILED.toString().equals(distributeResult)) {
                 LOGGER.error("Failed to upload vm image packageId is : {}.", packageId);
-                return DISTRIBUTE_PACKAGE_STATUS_FAILED;
-            } else if (DISTRIBUTE_PACKAGE_STATUS_SUCCESS.equals(distributeResult)) {
+                return EnumDistributeStatus.DISTRIBUTE_PACKAGE_STATUS_FAILED;
+            } else if (EnumDistributeStatus.DISTRIBUTE_PACKAGE_STATUS_SUCCESS.toString().equals(distributeResult)) {
                 LOGGER.info("Distribute package result: {}", distributeResult);
-                return DISTRIBUTE_PACKAGE_STATUS_SUCCESS;
+                return EnumDistributeStatus.DISTRIBUTE_PACKAGE_STATUS_SUCCESS;
             }
             try {
                 Thread.sleep(5000);
                 waitingTime += 5000;
             } catch (InterruptedException e) {
                 LOGGER.error("Distribute package sleep failed.");
-                return DISTRIBUTE_PACKAGE_STATUS_ERROR;
+                return EnumDistributeStatus.DISTRIBUTE_PACKAGE_STATUS_ERROR;
             }
         }
-        return DISTRIBUTE_PACKAGE_STATUS_TIMEOUT;
+        return EnumDistributeStatus.DISTRIBUTE_PACKAGE_STATUS_TIMEOUT;
     }
 }
