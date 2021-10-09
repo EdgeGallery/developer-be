@@ -100,6 +100,7 @@ import org.edgegallery.developer.model.workspace.ApplicationProjectCapability;
 import org.edgegallery.developer.model.workspace.EnumDeployPlatform;
 import org.edgegallery.developer.model.workspace.EnumOpenMepType;
 import org.edgegallery.developer.model.workspace.EnumProjectStatus;
+import org.edgegallery.developer.model.workspace.EnumSystemImageStatus;
 import org.edgegallery.developer.model.workspace.EnumTestConfigDeployStatus;
 import org.edgegallery.developer.model.workspace.EnumTestConfigStatus;
 import org.edgegallery.developer.model.workspace.HelmTemplateYamlPo;
@@ -372,10 +373,10 @@ public class ProjectService {
 
         // move file
         String projectPath = getProjectPath(projectId);
-        File desFile = new File(projectPath + srcId);
+        File desFile = new File(projectPath + file.getFileName());
         try {
             DeveloperFileUtils.moveFile(tempFile, desFile);
-            String filePath = BusinessConfigUtil.getWorkspacePath() + projectId + File.separator + srcId;
+            String filePath = BusinessConfigUtil.getWorkspacePath() + projectId + File.separator + file.getFileName();
             uploadedFileMapper.updateFilePath(srcId, filePath);
         } catch (IOException e) {
             LOGGER.error("move icon file failed {}", e.getMessage());
@@ -971,8 +972,11 @@ public class ProjectService {
         UploadedFile iconFile = uploadedFileMapper.getFileById(iconFileId);
         String iconPath = InitConfigUtil.getWorkSpaceBaseDir() + iconFile.getFilePath();
         File desIcon = new File(iconPath);
-        LOGGER.info("icon path:{}", iconPath);
-
+        if (!desIcon.exists()) {
+            LOGGER.error("icon file path not found:{}!", iconPath);
+            FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "icon file path not found");
+            return Either.left(error);
+        }
         // 2 upload to app store
         Map<String, Object> map = new HashMap<>();
         map.put("file", new FileSystemResource(csar));
