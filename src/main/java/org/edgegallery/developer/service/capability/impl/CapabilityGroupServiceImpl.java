@@ -69,20 +69,6 @@ public class CapabilityGroupServiceImpl implements CapabilityGroupService {
 	}
 
 	@Override
-	public Either<FormatRespDto, CapabilityGroup> updateById(CapabilityGroup capabilityGroup) {
-		try {
-			int ret = capabilityGroupMapper.updateById(capabilityGroup);
-			if (ret <= 0) {
-				LOGGER.error("Update capabilityGroup {} failed!", capabilityGroup.getName());
-				return Either.left(new FormatRespDto(Status.BAD_REQUEST, "Update capability group failed."));
-			}
-			return Either.right(capabilityGroup);
-		} catch (Exception ex) {
-			return Either.left(new FormatRespDto(Status.BAD_REQUEST, ex.getMessage()));
-		}
-	}
-
-	@Override
 	public Either<FormatRespDto, String> deleteById(String groupId) {
 		int ret = capabilityGroupMapper.deleteById(groupId);
 		if (ret <= 0) {
@@ -107,8 +93,4 @@ public class CapabilityGroupServiceImpl implements CapabilityGroupService {
 		return capabilityGroupMapper.selectById(id);
 	}
 
-	@Override
-	public CapabilityGroup findByName(String name) {
-		return capabilityGroupMapper.selectByName(name);
-	}
 }

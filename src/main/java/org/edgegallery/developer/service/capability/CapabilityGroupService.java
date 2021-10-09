@@ -16,27 +16,21 @@
 
 package org.edgegallery.developer.service.capability;
 
+import com.spencerwi.either.Either;
 import java.util.List;
-
 import org.edgegallery.developer.model.capability.CapabilityGroup;
 import org.edgegallery.developer.response.FormatRespDto;
 
-import com.spencerwi.either.Either;
-
 public interface CapabilityGroupService {
-	public Either<FormatRespDto, CapabilityGroup> create(CapabilityGroup capabilityGroup);
+    Either<FormatRespDto, CapabilityGroup> create(CapabilityGroup capabilityGroup);
 
-	public Either<FormatRespDto, CapabilityGroup> updateById(CapabilityGroup capabilityGroup);
+    Either<FormatRespDto, String> deleteById(String id);
 
-	public Either<FormatRespDto, String> deleteById(String id);
+    List<CapabilityGroup> findAll();
 
-	public List<CapabilityGroup> findAll();
-	
-	public List<CapabilityGroup> findByType(String type);
+    List<CapabilityGroup> findByType(String type);
 
-	public CapabilityGroup findById(String id);
-	
-	public CapabilityGroup findByName(String name);
-	
-	public List<CapabilityGroup> findByNameOrNameEn(String name,String nameEn);
+    CapabilityGroup findById(String id);
+
+    List<CapabilityGroup> findByNameOrNameEn(String name, String nameEn);
 }

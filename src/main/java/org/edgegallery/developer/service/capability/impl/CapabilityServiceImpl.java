@@ -194,10 +194,6 @@ public class CapabilityServiceImpl implements CapabilityService {
         uploadedFileMapper.updateFileStatus(capability.getGuideFileIdEn(), true);
 
         String groupId = capability.getGroupId();
-        if (StringUtils.isEmpty(groupId)) {
-            LOGGER.info("Delete capability {} success", capability.getName());
-            return Either.right(capability);
-        }
 
         List<Capability> remainCapabilities = this.findByGroupId(groupId);
         if (remainCapabilities.isEmpty()) {
@@ -236,10 +232,6 @@ public class CapabilityServiceImpl implements CapabilityService {
         return capabilityMapper.selectByProjectId(projectId);
     }
 
-    @Override
-    public Capability findByName(String name) {
-        return capabilityMapper.selectByName(name);
-    }
 
     @Override
     public List<Capability> findByNameWithFuzzy(String name) {
@@ -251,10 +243,6 @@ public class CapabilityServiceImpl implements CapabilityService {
         return capabilityMapper.selectByNameEnWithFuzzy(nameEn);
     }
 
-    @Override
-    public List<Capability> findByNameOrNameEn(String name, String nameEn) {
-        return capabilityMapper.selectByNameOrNameEn(name, nameEn);
-    }
 
     @Override
     public boolean updateSelectCountByIds(List<String> ids) {
