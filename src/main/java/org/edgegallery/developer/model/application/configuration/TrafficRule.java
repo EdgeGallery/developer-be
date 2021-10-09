@@ -17,6 +17,7 @@
 package org.edgegallery.developer.model.application.configuration;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import java.util.ArrayList;
 import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
@@ -34,8 +35,8 @@ public class TrafficRule {
 
     private String filterType;
 
-    private List<TrafficFilter> trafficFilter;
+    private List<TrafficFilter> trafficFilter = new ArrayList<TrafficFilter>(0);
 
-    private List<DstInterface> dstInterface;
+    private List<DstInterface> dstInterface = new ArrayList<DstInterface>(0);
 
 }

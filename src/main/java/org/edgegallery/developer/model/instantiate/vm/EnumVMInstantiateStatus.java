@@ -18,10 +18,13 @@ package org.edgegallery.developer.model.instantiate.vm;
 public enum EnumVMInstantiateStatus {
     PACKAGE_GENERATING("Generating Package"),
     PACKAGE_GENERATE_FAILED("Generate Package Failed"),
+    PACKAGE_GENERATE_SUCCESS("Generate Package Success"),
     PACKAGE_DISTRIBUTING("Distributing Package"),
     PACKAGE_DISTRIBUTE_FAILED("Distribute Package Failed"),
+    PACKAGE_DISTRIBUTE_SUCCESS("Distribute Package Success"),
     INSTANTIATING_VM("Instantiating VM"),
     VM_INSTANTIATE_FAILED("Instantiate VM Failed"),
+    VM_INSTANTIATE_SUCCESS("Instantiate VM Success"),
     SUCCESS("Success");
 
     private String name;

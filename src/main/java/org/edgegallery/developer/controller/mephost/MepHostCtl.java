@@ -144,8 +144,8 @@ public class MepHostCtl {
     @PreAuthorize("hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<MepHost> getHost(@ApiParam(value = "mephostId", required = true) @PathVariable("mephostId")
     @Pattern(regexp = REG_UUID, message = "hostId must be in UUID format") String mephostId) {
-        Either<FormatRespDto, MepHost> either = mepHostService.getHost(mephostId);
-        return ResponseDataUtil.buildResponse(either);
+        MepHost mepHost = mepHostService.getHost(mephostId);
+        return ResponseDataUtil.buildResponse(Either.right(mepHost));
     }
 
     /**

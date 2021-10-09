@@ -24,6 +24,8 @@ public interface IContextParameter {
 
     String PARAM_PACKAGE_ID = "package_id";
 
+    String PARAM_MEPM_PACKAGE_ID = "mepm_package_id";
+
     String PARAM_APP_INSTANCE_ID = "app_instance_id";
 
     String PARAM_IMAGE_INSTANCE_ID = "image_instance_id";

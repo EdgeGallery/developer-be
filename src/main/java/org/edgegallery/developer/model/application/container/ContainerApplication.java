@@ -15,6 +15,7 @@
  */
 package org.edgegallery.developer.model.application.container;
 
+import java.util.ArrayList;
 import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
@@ -27,7 +28,7 @@ import org.edgegallery.developer.model.instantiate.container.ContainerAppInstant
 @ToString
 public class ContainerApplication extends Application {
 
-    private List<HelmChart> helmChartList;
+    private List<HelmChart> helmChartList = new ArrayList<HelmChart>(0);
 
     private ContainerAppInstantiateInfo instantiateInfo;
 

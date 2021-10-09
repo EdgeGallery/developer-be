@@ -72,7 +72,7 @@ public interface MepHostService {
      * @param hostId host id
      * @return
      */
-    Either<FormatRespDto, MepHost> getHost(String hostId);
+    MepHost getHost(String hostId);
 
     /**
      * get one host log by host id.

@@ -13,45 +13,40 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package org.edgegallery.developer.service.application.action.impl;
 
-import java.util.ArrayList;
+package org.edgegallery.developer.service.application.action.impl.vm;
+
 import java.util.UUID;
 import org.edgegallery.developer.model.application.vm.VMApplication;
 import org.edgegallery.developer.model.application.vm.VirtualMachine;
 import org.edgegallery.developer.model.apppackage.AppPackage;
+import org.edgegallery.developer.model.instantiate.vm.EnumVMInstantiateStatus;
+import org.edgegallery.developer.model.instantiate.vm.VMInstantiateInfo;
 import org.edgegallery.developer.model.operation.ActionStatus;
 import org.edgegallery.developer.model.operation.EnumActionStatus;
 import org.edgegallery.developer.model.operation.EnumOperationObjectType;
-import org.edgegallery.developer.model.operation.OperationStatus;
 import org.edgegallery.developer.model.restful.ApplicationDetail;
 import org.edgegallery.developer.service.application.ApplicationService;
 import org.edgegallery.developer.service.application.action.IAction;
 import org.edgegallery.developer.service.application.action.IContext;
+import org.edgegallery.developer.service.application.action.impl.AbstractAction;
 import org.edgegallery.developer.service.application.common.IContextParameter;
 import org.edgegallery.developer.service.application.impl.vm.VMAppOperationServiceImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-public class BuildPackageAction implements IAction {
+public class BuildVMPackageAction extends AbstractAction {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(BuildPackageAction.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(BuildVMPackageAction.class);
 
     public static final String ACTION_NAME = "Build Application Package";
-
-    private IContext context;
 
     @Autowired
     private VMAppOperationServiceImpl VmAppOperationService;
 
     @Autowired
     private ApplicationService applicationService;
-
-    @Override
-    public void setContext(IContext context) {
-        this.context = context;
-    }
 
     @Override
     public String getActionName() {
@@ -61,25 +56,18 @@ public class BuildPackageAction implements IAction {
     @Override
     public boolean execute() {
         //Start action , save action status.
-        String vmId = (String)context.getParameter(IContextParameter.PARAM_VM_ID);
+        String vmId = (String) getContext().getParameter(IContextParameter.PARAM_VM_ID);
         String statusLog = "Start to build the package for vm: " + vmId;
         LOGGER.info(statusLog);
-        ActionStatus actionStatus = new ActionStatus();
-        actionStatus.setId(UUID.randomUUID().toString());
-        actionStatus.setObjectType(EnumOperationObjectType.VM);
-        actionStatus.setObjectId(vmId);
-        actionStatus.setActionName(ACTION_NAME);
-        actionStatus.setProgress(0);
-        actionStatus.setStatus(EnumActionStatus.ONGOING);
-        actionStatus.appendStatusLog(statusLog);
-        context.addActionStatus(actionStatus);
+        ActionStatus actionStatus = initActionStatus(EnumOperationObjectType.VM, vmId, ACTION_NAME, statusLog);
 
         //create new application object with single vm.
-        ApplicationDetail detail = applicationService.getApplicationDetail((String) context.getParameter(IContextParameter.PARAM_APPLICATION_ID));
+        ApplicationDetail detail = applicationService.getApplicationDetail(
+            (String) getContext().getParameter(IContextParameter.PARAM_APPLICATION_ID));
         VMApplication tempApp = detail.getVmApp();
         tempApp.setId(UUID.randomUUID().toString());
-        for(VirtualMachine vm : tempApp.getVmList()){
-            if(vmId.equals(vm.getId())){
+        for (VirtualMachine vm : tempApp.getVmList()) {
+            if (vmId.equals(vm.getId())) {
                 tempApp.getVmList().clear();
                 tempApp.getVmList().add(vm);
                 break;
@@ -87,28 +75,37 @@ public class BuildPackageAction implements IAction {
         }
         statusLog = "Build application for single vm finished.";
         LOGGER.info(statusLog);
-        actionStatus.setProgress(50);
-        actionStatus.appendStatusLog(statusLog);
-        context.updateActionStatus(actionStatus);
+        updateActionProgress(actionStatus, 25, statusLog);
 
         //build application package for launch VM.
         AppPackage appPkg = VmAppOperationService.generatePackage(tempApp);
-        if(appPkg == null){
+        if (appPkg == null) {
             statusLog = "Build package for VM failed.";
             LOGGER.error(statusLog);
-            actionStatus.setStatus(EnumActionStatus.FAILED);
-            actionStatus.setErrorMsg(statusLog);
-            actionStatus.appendStatusLog(statusLog);
-            context.updateActionStatus(actionStatus);
+            updateActionError(actionStatus, statusLog);
             return false;
         }
-        context.addParameter(IContextParameter.PARAM_PACKAGE_ID, appPkg.getId());
+        getContext().addParameter(IContextParameter.PARAM_PACKAGE_ID, appPkg.getId());
         statusLog = "Build package for single vm finished.";
         LOGGER.info(statusLog);
-        actionStatus.setProgress(100);
-        actionStatus.appendStatusLog(statusLog);
-        context.updateActionStatus(actionStatus);
+        updateActionProgress(actionStatus, 50, statusLog);
 
+        //save vm instantiate info.
+        VMInstantiateInfo instantiateInfo = VmAppOperationService.getInstantiateInfo(vmId);
+        if (null == instantiateInfo) {
+            instantiateInfo = new VMInstantiateInfo();
+        }
+        instantiateInfo.setAppPackageId(appPkg.getId());
+        instantiateInfo.setStatus(EnumVMInstantiateStatus.PACKAGE_GENERATE_SUCCESS);
+        Boolean res = VmAppOperationService.updateInstantiateInfo(vmId, instantiateInfo);
+        if (!res) {
+            updateActionError(actionStatus, "Update instantiate info for VM failed.");
+            return false;
+        }
+        statusLog = "Update package info to vm instantiate info finished.";
+        LOGGER.info(statusLog);
+        updateActionProgress(actionStatus, 100, statusLog);
         return true;
     }
+
 }

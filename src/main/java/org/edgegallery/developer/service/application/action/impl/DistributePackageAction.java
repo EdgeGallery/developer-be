@@ -16,19 +16,65 @@
 
 package org.edgegallery.developer.service.application.action.impl;
 
-import org.edgegallery.developer.service.application.action.IAction;
-import org.edgegallery.developer.service.application.action.IContext;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import java.util.List;
+import org.edgegallery.developer.model.LcmLog;
+import org.edgegallery.developer.model.application.Application;
+import org.edgegallery.developer.model.apppackage.AppPackage;
+import org.edgegallery.developer.model.instantiate.vm.EnumVMInstantiateStatus;
+import org.edgegallery.developer.model.instantiate.vm.VMInstantiateInfo;
+import org.edgegallery.developer.model.lcm.DistributeResponse;
+import org.edgegallery.developer.model.lcm.MecHostInfo;
+import org.edgegallery.developer.model.lcm.UploadResponse;
+import org.edgegallery.developer.model.mephost.MepHost;
+import org.edgegallery.developer.model.operation.ActionStatus;
+import org.edgegallery.developer.model.operation.EnumOperationObjectType;
+import org.edgegallery.developer.service.application.ApplicationService;
+import org.edgegallery.developer.service.application.common.IContextParameter;
+import org.edgegallery.developer.service.application.impl.AppOperationServiceImpl;
+import org.edgegallery.developer.service.application.impl.vm.VMAppOperationServiceImpl;
+import org.edgegallery.developer.service.apppackage.AppPackageService;
+import org.edgegallery.developer.service.mephost.MepHostService;
+import org.edgegallery.developer.util.HttpClientUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.StringUtils;
 
-public class DistributePackageAction implements IAction {
+public class DistributePackageAction extends AbstractAction {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(DistributePackageAction.class);
 
     public static final String ACTION_NAME = "Distribute Application Package";
 
-    private IContext context;
+    private static Gson gson = new Gson();
 
-    @Override
-    public void setContext(IContext context) {
-        this.context = context;
-    }
+    // time out: 1 hour.
+    private static final int TIMEOUT = 60 * 60 * 1000;
+
+    private static final String DISTRIBUTE_PACKAGE_STATUS_TIMEOUT = "timeout";
+
+    private static final String DISTRIBUTE_PACKAGE_STATUS_ERROR = "error";
+
+    private static final String DISTRIBUTE_PACKAGE_STATUS_FAILED = "killed";
+
+    private static final String DISTRIBUTE_PACKAGE_STATUS_SUCCESS = "uploaded";
+
+    @Autowired
+    private AppOperationServiceImpl appOperationService;
+
+    @Autowired
+    private ApplicationService applicationService;
+
+    @Autowired
+    private MepHostService mepHostService;
+
+    @Autowired
+    private AppPackageService appPackageService;
+
+    @Autowired
+    private VMAppOperationServiceImpl VmAppOperationService;
 
     @Override
     public String getActionName() {
@@ -37,7 +83,125 @@ public class DistributePackageAction implements IAction {
 
     @Override
     public boolean execute() {
+        //Start action , save action status.
+        String packageId = (String) getContext().getParameter(IContextParameter.PARAM_PACKAGE_ID);
+        String statusLog = "Start to distribute the app package for package Id：" + packageId;
+        LOGGER.info(statusLog);
+        ActionStatus actionStatus = initActionStatus(EnumOperationObjectType.APPLICATION_PACKAGE, packageId,
+            ACTION_NAME, statusLog);
 
+        //get Sandbox info.
+        String applicationId = (String) getContext().getParameter(IContextParameter.PARAM_APPLICATION_ID);
+        Application application = applicationService.getApplication(applicationId);
+        String mepHostId = application.getMepHostId();
+        if (null == mepHostId || "".equals(mepHostId)) {
+            updateActionError(actionStatus, "Sandbox not selected. Failed to distribute package");
+            return false;
+        }
+        MepHost mepHost = mepHostService.getHost(mepHostId);
+        LOGGER.info("Distribute package destination: {}", mepHost.getMecHostIp());
+        //Upload package file to lcm.
+        AppPackage appPkg = appPackageService.getAppPackage(packageId);
+        String uploadPkgId = uploadPackageToLcm(application.getUserId(), appPkg.getPackageFileName(), mepHost);
+        if (null == uploadPkgId) {
+            updateActionError(actionStatus, "Upload app package file to lcm failed.");
+            return false;
+        }
+        updateActionProgress(actionStatus, 25, "Upload app package to lcm success.");
+
+        //Distribute package to edge host.
+        boolean res = distributePackageToEdgeHost(application.getUserId(), uploadPkgId, mepHost);
+        if (!res) {
+            updateActionError(actionStatus, "Distribute app package file to edge host failed.");
+            return false;
+        }
+        updateActionProgress(actionStatus, 50, "Distribute app package to edge host success.");
+
+        //Query Distribute Status
+        String distributeStatus = getDistributeStatus(application.getId(), uploadPkgId, mepHost);
+        if (!DISTRIBUTE_PACKAGE_STATUS_SUCCESS.equals(distributeStatus)) {
+            String msg = "Query Distribute package status failed, the result is: " + distributeStatus;
+            updateActionError(actionStatus, msg);
+            return false;
+        }
+        updateActionProgress(actionStatus, 100, "Query distribute app package status success.");
+        getContext().addParameter(IContextParameter.PARAM_MEPM_PACKAGE_ID, uploadPkgId);
+
+        //save vm instantiate info.
+        String vmId = (String) getContext().getParameter(IContextParameter.PARAM_VM_ID);
+        VMInstantiateInfo instantiateInfo = VmAppOperationService.getInstantiateInfo(vmId);
+        instantiateInfo.setDistributedMecHost(mepHost.getMecHostIp());
+        instantiateInfo.setStatus(EnumVMInstantiateStatus.PACKAGE_DISTRIBUTE_SUCCESS);
+        Boolean updateRes = VmAppOperationService.updateInstantiateInfo(vmId, instantiateInfo);
+        if (!updateRes) {
+            updateActionError(actionStatus, "Update instantiate info for VM failed.");
+            return false;
+        }
         return true;
+    }
+
+    private String uploadPackageToLcm(String userId, String packagePath, MepHost mepHost) {
+        String basePath = HttpClientUtil.getUrlPrefix(mepHost.getLcmProtocol(), mepHost.getLcmIp(),
+            mepHost.getLcmPort());
+        String uploadRes = HttpClientUtil.uploadPkg(basePath, packagePath, userId, getContext().getToken(),
+            new LcmLog());
+        LOGGER.info("Upload package result: {}", uploadRes);
+        if (StringUtils.isEmpty(uploadRes)) {
+            LOGGER.error("Upload package to lcm failed, package:{}  result: {}", packagePath, uploadRes);
+            return null;
+        }
+        UploadResponse uploadResponse = gson.fromJson(uploadRes, UploadResponse.class);
+        return uploadResponse.getPackageId();
+    }
+
+    private boolean distributePackageToEdgeHost(String userId, String packageId, MepHost mepHost) {
+        String basePath = HttpClientUtil.getUrlPrefix(mepHost.getLcmProtocol(), mepHost.getLcmIp(),
+            mepHost.getLcmPort());
+        String distributeRes = HttpClientUtil.distributePkg(basePath, userId, getContext().getToken(), packageId,
+            mepHost.getMecHostIp(), new LcmLog());
+        LOGGER.info("Distribute package result: {}", distributeRes);
+        if (distributeRes == null) {
+            LOGGER.error("Distribute package failed. packageId： {}", packageId);
+            return false;
+        }
+        return true;
+    }
+
+    private String getDistributeStatus(String userId, String packageId, MepHost mepHost) {
+        String basePath = HttpClientUtil.getUrlPrefix(mepHost.getLcmProtocol(), mepHost.getLcmIp(),
+            mepHost.getLcmPort());
+        int waitingTime = 0;
+        while (waitingTime < TIMEOUT) {
+            String distributeResult = HttpClientUtil.getDistributeRes(basePath, userId, getContext().getToken(),
+                packageId);
+            LOGGER.info("Distribute package result: {}", distributeResult);
+            if (distributeResult == null) {
+                LOGGER.error("Get distribute package result failed");
+                return DISTRIBUTE_PACKAGE_STATUS_ERROR;
+            }
+            List<DistributeResponse> list = gson.fromJson(distributeResult,
+                new TypeToken<List<DistributeResponse>>() { }.getType());
+            List<MecHostInfo> mecHostInfo = list.get(0).getMecHostInfo();
+            if (mecHostInfo == null) {
+                LOGGER.error("Get distribute package status failed, null mec host info.");
+                return DISTRIBUTE_PACKAGE_STATUS_ERROR;
+            }
+            String status = mecHostInfo.get(0).getStatus();
+            if (DISTRIBUTE_PACKAGE_STATUS_FAILED.equals(distributeResult)) {
+                LOGGER.error("Failed to upload vm image packageId is : {}.", packageId);
+                return DISTRIBUTE_PACKAGE_STATUS_FAILED;
+            } else if (DISTRIBUTE_PACKAGE_STATUS_SUCCESS.equals(distributeResult)) {
+                LOGGER.info("Distribute package result: {}", distributeResult);
+                return DISTRIBUTE_PACKAGE_STATUS_SUCCESS;
+            }
+            try {
+                Thread.sleep(5000);
+                waitingTime += 5000;
+            } catch (InterruptedException e) {
+                LOGGER.error("Distribute package sleep failed.");
+                return DISTRIBUTE_PACKAGE_STATUS_ERROR;
+            }
+        }
+        return DISTRIBUTE_PACKAGE_STATUS_TIMEOUT;
     }
 }
