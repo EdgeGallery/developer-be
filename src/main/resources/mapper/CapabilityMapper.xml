@@ -103,7 +103,7 @@
         order by a.group_id
     </select>
     
-    <select id="selectByNameOrNameEn" resultMap="Capability">
+    <select id="selectByNameOrNameEn" parameterType="java.lang.String" resultMap="Capability">
         select
         <include refid="AllColumnWithCascade"/>
         from tbl_capability a,tbl_capability_group b

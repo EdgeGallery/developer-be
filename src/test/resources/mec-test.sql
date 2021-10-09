@@ -274,6 +274,23 @@ CREATE TABLE IF NOT EXISTS tbl_project_image (
 )
 ;
 
+CREATE TABLE IF NOT EXISTS tbl_container_image (
+    image_id varchar(255) NOT NULL,
+    image_name varchar(255) NOT NULL,
+    image_version varchar(255) NOT NULL,
+    user_id varchar(255) NOT NULL,
+    user_name varchar(255) NOT NULL,
+    upload_time varchar(255) DEFAULT NULL,
+    create_time varchar(255) DEFAULT NULL,
+    image_status varchar(255) DEFAULT NULL,
+    image_type varchar(255) DEFAULT NULL,
+    image_path text DEFAULT NULL,
+    file_name varchar(255) DEFAULT NULL,
+    CONSTRAINT  tbl_container_image_uniqueName UNIQUE (image_name,image_version,user_name),
+    CONSTRAINT tbl_container_image_pkey PRIMARY KEY (image_id)
+)
+;
+
 
 CREATE TABLE IF NOT EXISTS tbl_project_test_config (
   test_id varchar(50)  NOT NULL DEFAULT NULL,

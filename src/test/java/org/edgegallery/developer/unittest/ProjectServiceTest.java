@@ -219,7 +219,7 @@ public class ProjectServiceTest {
     @WithMockUser(roles = "DEVELOPER_TENANT")
     public void testDeleteProject() throws IOException {
         String userId = "f24ea0a2-d8e6-467c-8039-94f0d29bac43";
-        String projectId = "200dfab1-3c30-4fc7-a6ca-ed6f0620a85e";
+        String projectId = "200dfab1-3c30-4fc7-a6ca-ed6f0620a87e";
         Either<FormatRespDto, Boolean> response = projectService.deleteProject(userId, projectId,"");
         Assert.assertTrue(response.isRight());
     }

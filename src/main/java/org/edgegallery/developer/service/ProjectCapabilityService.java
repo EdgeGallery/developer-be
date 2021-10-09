@@ -16,22 +16,20 @@
 
 package org.edgegallery.developer.service;
 
+import com.spencerwi.either.Either;
 import java.util.List;
-
 import org.apache.ibatis.annotations.Param;
 import org.edgegallery.developer.model.workspace.ApplicationProjectCapability;
 import org.edgegallery.developer.response.FormatRespDto;
 
-import com.spencerwi.either.Either;
-
 public interface ProjectCapabilityService {
-	public Either<FormatRespDto, ApplicationProjectCapability> create(ApplicationProjectCapability projectCapability);
-	
-	public Either<FormatRespDto, List<ApplicationProjectCapability>> create(List<ApplicationProjectCapability> projectCapabilities);
-	
-	public Either<FormatRespDto, Boolean> delete(ApplicationProjectCapability projectCapability);
+	Either<FormatRespDto, ApplicationProjectCapability> create(ApplicationProjectCapability projectCapability);
 
-	public Either<FormatRespDto, Boolean> deleteByProjectId(@Param("projectId") String projectId);
+	Either<FormatRespDto, List<ApplicationProjectCapability>> create(List<ApplicationProjectCapability> projectCapabilities);
 
-	public List<ApplicationProjectCapability> findByProjectId(@Param("projectId") String projectId);
+	Either<FormatRespDto, Boolean> delete(ApplicationProjectCapability projectCapability);
+
+	Either<FormatRespDto, Boolean> deleteByProjectId(@Param("projectId") String projectId);
+
+	List<ApplicationProjectCapability> findByProjectId(@Param("projectId") String projectId);
 }

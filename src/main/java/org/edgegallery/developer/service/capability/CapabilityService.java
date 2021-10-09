@@ -38,13 +38,9 @@ public interface CapabilityService {
 
     List<Capability> findByProjectId(String projectId);
 
-    Capability findByName(String name);
-
     List<Capability> findByNameWithFuzzy(String name);
 
     List<Capability> findByNameEnWithFuzzy(String nameEn);
-
-    List<Capability> findByNameOrNameEn(String name, String nameEn);
 
     boolean updateSelectCountByIds(List<String> ids);
 }
