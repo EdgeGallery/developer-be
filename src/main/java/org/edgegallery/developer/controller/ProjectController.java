@@ -114,7 +114,7 @@ public class ProjectController {
     public ResponseEntity<ApplicationProject> createProject(
         @NotNull @ApiParam(value = "ApplicationProject", required = true) @RequestBody ApplicationProject project,
         @Pattern(regexp = REGEX_UUID, message = "userId must be in UUID format")
-        @ApiParam(value = "userId", required = true) @RequestParam("userId") String userId) throws IOException {
+        @ApiParam(value = "userId", required = true) @RequestParam("userId") String userId) {
 
         Either<FormatRespDto, ApplicationProject> either = projectService.createProject(userId, project);
         return ResponseDataUtil.buildResponse(either);

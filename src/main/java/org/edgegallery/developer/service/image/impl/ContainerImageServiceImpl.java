@@ -193,7 +193,11 @@ public class ContainerImageServiceImpl implements ContainerImageService {
             for (int i = 1; i <= partFiles.length; i++) {
                 File partFile = new File(partFilePath, i + ".part");
                 FileUtils.copyFile(partFile, mergedFileStream);
-                partFile.delete();
+                boolean res = partFile.delete();
+                if(!res){
+                    LOGGER.error("delete part file failed!");
+                    throw new FileOperateException("delete part file failed!", ResponseConsts.RET_DELETE_FILE_FAIL);
+                }
             }
             mergedFileStream.close();
             //push image to created repo by current user id

@@ -20,7 +20,9 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.tomcat.util.http.fileupload.servlet.ServletFileUpload;
 import org.edgegallery.developer.common.Consts;
+import org.edgegallery.developer.common.ResponseConsts;
 import org.edgegallery.developer.config.security.AccessUserUtil;
+import org.edgegallery.developer.exception.FileOperateException;
 import org.edgegallery.developer.mapper.SystemImageMapper;
 import org.edgegallery.developer.model.Chunk;
 import org.edgegallery.developer.model.system.EnumProcessErrorType;
@@ -61,8 +63,6 @@ public class SystemImageMgmtService {
     private static final String FILE_FORMAT_ISO = "iso";
 
     private static final String FILE_SLIM_PATH = "/slim";
-
-    private static final int FILE_SIZE_UNIT = 1024 * 1024;
 
     @Value("${fileserver.address}")
     private String fileServerAddress;
@@ -450,7 +450,11 @@ public class SystemImageMgmtService {
             for (int i = 1; i <= partFiles.length; i++) {
                 File partFile = new File(partFilePath, i + ".part");
                 FileUtils.copyFile(partFile, mergedFileStream);
-                partFile.delete();
+                boolean res = partFile.delete();
+                if(!res){
+                    LOGGER.error("delete part file failed!");
+                    throw new FileOperateException("delete part file failed!", ResponseConsts.RET_DELETE_FILE_FAIL);
+                }
             }
         } catch (Exception ex) {
             LOGGER.error("merge local file failed: {}", ex.getMessage());

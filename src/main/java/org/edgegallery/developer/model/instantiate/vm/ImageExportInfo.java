@@ -33,7 +33,7 @@ public class ImageExportInfo {
 
     private int chunkSize;
 
-    private String CheckSum;
+    private String checkSum;
 
     private EnumImageExportStatus status;
 

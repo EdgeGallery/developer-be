@@ -15,7 +15,6 @@
  */
 package org.edgegallery.developer.model.instantiate.container;
 
-import java.util.Date;
 import java.util.List;
 import lombok.Getter;
 import lombok.Setter;

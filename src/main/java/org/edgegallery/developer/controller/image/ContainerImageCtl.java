@@ -62,7 +62,7 @@ public class ContainerImageCtl {
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity mergeContainerImage(@RequestParam(value = "fileName", required = false) String fileName,
         @RequestParam(value = "guid", required = false) String guid,
-        @ApiParam(value = "imageId", required = true) @PathVariable("imageId") String imageId) throws IOException {
+        @ApiParam(value = "imageId", required = true) @PathVariable("imageId") String imageId) {
         return containerImageService.mergeContainerImage(fileName, guid, imageId);
     }
 

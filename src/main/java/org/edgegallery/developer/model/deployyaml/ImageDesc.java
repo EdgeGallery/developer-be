@@ -17,7 +17,6 @@
 package org.edgegallery.developer.model.deployyaml;
 
 import com.google.gson.annotations.SerializedName;
-import lombok.Builder.Default;
 import lombok.Getter;
 import lombok.Setter;
 

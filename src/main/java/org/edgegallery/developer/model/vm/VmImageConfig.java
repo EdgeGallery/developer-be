@@ -20,7 +20,6 @@ import java.util.Date;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import org.edgegallery.developer.model.workspace.EnumTestConfigDeployStatus;
 
 @Getter
 @Setter

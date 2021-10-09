@@ -19,7 +19,6 @@ package org.edgegallery.developer.mapper;
 import java.util.List;
 import org.edgegallery.developer.model.system.VmSystem;
 import org.edgegallery.developer.model.vm.VmCreateConfig;
-import org.edgegallery.developer.model.vm.VmFlavor;
 import org.edgegallery.developer.model.vm.VmImageConfig;
 import org.edgegallery.developer.model.vm.VmNetwork;
 import org.edgegallery.developer.model.vm.VmPackageConfig;
@@ -35,8 +34,6 @@ public interface VmConfigMapper {
     List<VmNetwork> getVmNetwork();
 
     List<VmUserData> getVmUserData();
-
-    VmNetwork getVmNetworkByType(String networkType);
 
     int saveVmCreateConfig(VmCreateConfig vmCreateConfig);
 

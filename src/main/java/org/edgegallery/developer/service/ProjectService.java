@@ -414,7 +414,7 @@ public class ProjectService {
         EnumDeployPlatform platform = project.getDeployPlatform();
         EnumProjectStatus status = project.getStatus();
         // clean sandbox env
-        if (platform.equals("KUBERNETES") && !status.equals("ONLINE")) {
+        if (platform.name().equals("KUBERNETES") && !status.name().equals("ONLINE")) {
             Either<FormatRespDto, Boolean> ret = cleanTestEnv(userId, projectId, token);
             if (ret == null || ret.isLeft()) {
                 LOGGER.error("clean container project {} failed!", projectId);
@@ -423,7 +423,7 @@ public class ProjectService {
             }
         }
         // clean vm env
-        if (platform.equals("VIRTUALMACHINE") && !status.equals("ONLINE")) {
+        if (platform.name().equals("VIRTUALMACHINE") && !status.name().equals("ONLINE")) {
             Either<FormatRespDto, Boolean> vmRet = vmService.cleanVmDeploy(projectId, token);
             if (vmRet == null || vmRet.isLeft()) {
                 LOGGER.error("clean vm project {} failed!", projectId);
@@ -1432,7 +1432,7 @@ public class ProjectService {
                 if (status.equals(EnumProjectStatus.DEPLOYED)
                     || status.equals(EnumProjectStatus.DEPLOYED_FAILED) && StringUtils.isNotEmpty(accessToken)
                     && timeDiff.intValue() >= 24) {
-                    if (project.getDeployPlatform().equals("KUBERNETES")) {
+                    if (project.getDeployPlatform().name().equals("KUBERNETES")) {
                         cleanTestEnv(project.getUserId(), project.getId(), accessToken);
                     } else {
                         vmService.cleanVmDeploy(project.getId(), accessToken);

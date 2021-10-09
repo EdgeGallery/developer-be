@@ -132,7 +132,7 @@ public class IpCalculateUtil {
             if(i == 3){
                 startIpArray[i] = startIpArray[i] - 1;
             }
-            if("" == endIp.toString()||endIp.length()==0){
+            if("".equals(endIp.toString()) ||endIp.length()==0){
                 endIp.append(startIpArray[i]);
             }else{
                 endIp.append("." + startIpArray[i]);

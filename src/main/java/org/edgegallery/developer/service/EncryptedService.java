@@ -41,15 +41,14 @@ public class EncryptedService {
             reader = new BufferedReader(br);
             String tempString = null;
             String sha256String = null;
-            StringBuffer bf = new StringBuffer();
+            StringBuilder bf = new StringBuilder();
             while ((tempString = reader.readLine()) != null) {
-                tempString.trim();
+                tempString = tempString.trim();
                 if (tempString.startsWith("Source")) {
-                    String tempPath = tempString.substring(8);
-                    tempPath.trim();
+                    String tempPath = tempString.substring(8).trim();
                     String path = filePath + File.separator + tempPath;
                     String encryptedFilePath = path.replace("\\", File.separator).replace("/", File.separator);
-                    encryptedFilePath.replace(" ", "");
+                    encryptedFilePath = encryptedFilePath.replace(" ", "");
                     File file = new File(encryptedFilePath);
                     sha256String = getFileSHA1(file);
                     bf.append(tempString).append("\r\n");
@@ -88,12 +87,11 @@ public class EncryptedService {
             BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(mfFile), "utf-8"));
             reader = new BufferedReader(br);
             String tempString = null;
-            StringBuffer bf = new StringBuffer();
+            StringBuilder bf = new StringBuilder();
             while ((tempString = reader.readLine()) != null) {
                 bf.append(tempString).append("\r\n");
             }
             br.close();
-
             String encrypted = signPackage(mfFile.getCanonicalPath(), keyPasswd);
             BufferedWriter out = new BufferedWriter(new FileWriter(mfFile));
             out.write(bf.toString());
@@ -125,11 +123,13 @@ public class EncryptedService {
         File file = new File(filePath);
         File mfFile = null;
         File[] fileList = file.listFiles();
-        for (int i = 0; i < fileList.length; i++) {
-            files.add(fileList[i].toString());
-            String fileName = fileList[i].getName();
-            if (fileName.contains(".mf")) {
-                mfFile = fileList[i];
+        if (fileList != null && fileList.length > 0) {
+            for (int i = 0; i < fileList.length; i++) {
+                files.add(fileList[i].toString());
+                String fileName = fileList[i].getName();
+                if (fileName.contains(".mf")) {
+                    mfFile = fileList[i];
+                }
             }
         }
         return mfFile;
