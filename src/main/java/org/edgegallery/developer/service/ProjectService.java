@@ -969,20 +969,9 @@ public class ProjectService {
         }
         String iconFileId = project.getIconFileId();
         UploadedFile iconFile = uploadedFileMapper.getFileById(iconFileId);
-        String iconPath = getProjectPath(projectId) + project.getIconFileId();
-        File icon = new File(iconPath);
-        File desIcon = new File(iconPath + File.separator + iconFile.getFileName());
+        File desIcon = new File(iconFile.getFilePath());
         LOGGER.info("icon path:{}", iconFile);
 
-        try {
-            DeveloperFileUtils.deleteAndCreateFile(desIcon);
-            DeveloperFileUtils.copyFile(icon, desIcon);
-        } catch (IOException e) {
-            // logger
-            LOGGER.error("Create app icon file failed {}", e.getMessage());
-            FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "Create app icon file failed");
-            return Either.left(error);
-        }
         // 2 upload to app store
         Map<String, Object> map = new HashMap<>();
         map.put("file", new FileSystemResource(csar));
