@@ -127,7 +127,7 @@
         ON CONFLICT(file_id) do nothing;
 
         INSERT INTO tbl_uploaded_file (file_id, file_name, is_temp, user_id, upload_date, file_path) VALUES
-        ('71f887cf-b316-4ffe-800f-b680b4006107', 'UpstreamCompressionDoc.md', false, 'admin', '2020-01-01 00:00:00.000000', '/mep_capability/UpstreamCompressionDoc.md')
+        ('71f887cf-b316-4ffe-800f-b680b4006107', 'UpstreamCompressionDoc.yaml', false, 'admin', '2020-01-01 00:00:00.000000', '/mep_capability/UpstreamCompressionDoc.yaml')
         ON CONFLICT(file_id) do nothing;
         INSERT INTO tbl_uploaded_file (file_id, file_name, is_temp, user_id, upload_date, file_path) VALUES
         ('ffb4c1dd-cb29-4bc7-aed1-b3cff8aa7891', 'UpstreamCompressionDoc.md', false, 'admin', '2020-01-01 00:00:00.000000', '/mep_capability/UpstreamCompressionDoc.md')

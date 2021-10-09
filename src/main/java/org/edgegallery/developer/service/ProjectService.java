@@ -1012,7 +1012,7 @@ public class ProjectService {
             DeveloperFileUtils.copyFile(icon, desIcon);
         } catch (IOException e) {
             // logger
-            LOGGER.error("Create app icon file failed ", e.getMessage());
+            LOGGER.error("Create app icon file failed {}", e.getMessage());
             FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "Create app icon file failed");
             return Either.left(error);
         }
