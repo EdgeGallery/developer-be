@@ -969,8 +969,9 @@ public class ProjectService {
         }
         String iconFileId = project.getIconFileId();
         UploadedFile iconFile = uploadedFileMapper.getFileById(iconFileId);
-        File desIcon = new File(iconFile.getFilePath());
-        LOGGER.info("icon path:{}", iconFile);
+        String iconPath = InitConfigUtil.getWorkSpaceBaseDir() + iconFile.getFilePath();
+        File desIcon = new File(iconPath);
+        LOGGER.info("icon path:{}", iconPath);
 
         // 2 upload to app store
         Map<String, Object> map = new HashMap<>();
