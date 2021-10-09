@@ -647,12 +647,15 @@
 
     CREATE TABLE IF NOT EXISTS "tbl_operation_status" (
     "id" varchar(255) NOT NULL,
+    "user_name" varchar(255) NOT NULL,
     "object_type" varchar(255) DEFAULT NULL,
     "object_id" varchar(255) DEFAULT NULL,
+    "object_name" varchar(255) DEFAULT NULL,
     "operation_name" varchar(255) DEFAULT NULL,
     "progress" int4 DEFAULT NULL,
     "status" varchar(255) DEFAULT NULL,
     "error_msg" text DEFAULT NULL,
+    "create_time" timestamptz(6) DEFAULT NULL,
     "update_time" timestamptz(6)  DEFAULT NULL,
     CONSTRAINT "tbl_operation_status_pkey" PRIMARY KEY ("id")
     );

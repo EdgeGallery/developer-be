@@ -19,6 +19,7 @@ package org.edgegallery.developer.service.application.impl.container;
 import java.util.UUID;
 import org.apache.commons.lang3.StringUtils;
 import org.edgegallery.developer.common.ResponseConsts;
+import org.edgegallery.developer.config.security.AccessUserUtil;
 import org.edgegallery.developer.exception.DataBaseException;
 import org.edgegallery.developer.exception.EntityNotFoundException;
 import org.edgegallery.developer.mapper.application.ApplicationMapper;
@@ -76,17 +77,19 @@ public class ContainerAppOperationServiceImpl extends AppOperationServiceImpl im
         // create OperationStatus
         OperationStatus operationStatus = new OperationStatus();
         operationStatus.setId(UUID.randomUUID().toString());
-        operationStatus.setObjectType(EnumOperationObjectType.APPLICATION_INSTANCE);
+        operationStatus.setUserName(AccessUserUtil.getUser().getUserName());
+        operationStatus.setObjectType(EnumOperationObjectType.APPLICATION);
+        operationStatus.setObjectId(applicationId);
+        operationStatus.setObjectName(application.getName());
         operationStatus.setStatus(EnumActionStatus.ONGOING);
         operationStatus.setProgress(0);
-        operationStatus.setObjectId(helmChartId);
         operationStatus.setOperationName(OPERATION_NAME);
         int res = operationStatusMapper.createOperationStatus(operationStatus);
         if (res < 1) {
             LOGGER.error("Create operationStatus in db error.");
             throw new DataBaseException("Create operationStatus in db error.", ResponseConsts.RET_CERATE_DATA_FAIL);
         }
-        ContainerLaunchOperation actionCollection = new ContainerLaunchOperation(applicationId, helmChartId,
+        ContainerLaunchOperation actionCollection = new ContainerLaunchOperation(AccessUserUtil.getUser(), applicationId, helmChartId,
             accessToken, operationStatus);
         LOGGER.info("start instantiate container app");
         new InstantiateContainerAppProcessor(actionCollection).start();

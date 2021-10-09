@@ -28,9 +28,13 @@ public class OperationStatus {
 
     private String id;
 
+    private String userName;
+
     private EnumOperationObjectType objectType;
 
     private String objectId;
+
+    private String objectName;
 
     private String operationName;
 
@@ -42,4 +46,8 @@ public class OperationStatus {
     private String errorMsg;
 
     private List<ActionStatus> actionStatusList;
+
+    private String createTime;
+
+    private String updateTime;
 }

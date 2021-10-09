@@ -22,6 +22,10 @@ public interface IContext {
 
     String getToken();
 
+    String getUserId();
+
+    String getUserName();
+
     void addParameter(String key, Object value);
 
     Object getParameter(String key);

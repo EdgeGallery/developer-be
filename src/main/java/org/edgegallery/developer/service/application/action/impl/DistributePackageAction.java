@@ -102,7 +102,7 @@ public class DistributePackageAction extends AbstractAction {
         LOGGER.info("Distribute package destination: {}", mepHost.getMecHostIp());
         //Upload package file to lcm.
         AppPackage appPkg = appPackageService.getAppPackage(packageId);
-        String uploadPkgId = uploadPackageToLcm(application.getUserId(), appPkg.getPackageFileName(), mepHost);
+        String uploadPkgId = uploadPackageToLcm(getContext().getUserId(), appPkg.getPackageFileName(), mepHost);
         if (null == uploadPkgId) {
             updateActionError(actionStatus, "Upload app package file to lcm failed.");
             return false;
@@ -110,7 +110,7 @@ public class DistributePackageAction extends AbstractAction {
         updateActionProgress(actionStatus, 25, "Upload app package to lcm success.");
 
         //Distribute package to edge host.
-        boolean res = distributePackageToEdgeHost(application.getUserId(), uploadPkgId, mepHost);
+        boolean res = distributePackageToEdgeHost(getContext().getUserId(), uploadPkgId, mepHost);
         if (!res) {
             updateActionError(actionStatus, "Distribute app package file to edge host failed.");
             return false;
@@ -118,7 +118,7 @@ public class DistributePackageAction extends AbstractAction {
         updateActionProgress(actionStatus, 50, "Distribute app package to edge host success.");
 
         //Query Distribute Status
-        String distributeStatus = getDistributeStatus(application.getId(), uploadPkgId, mepHost);
+        String distributeStatus = getDistributeStatus(getContext().getUserId(), uploadPkgId, mepHost);
         if (!DISTRIBUTE_PACKAGE_STATUS_SUCCESS.equals(distributeStatus)) {
             String msg = "Query Distribute package status failed, the result is: " + distributeStatus;
             updateActionError(actionStatus, msg);
