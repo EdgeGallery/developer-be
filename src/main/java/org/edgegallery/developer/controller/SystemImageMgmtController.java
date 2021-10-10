@@ -171,7 +171,7 @@ public class SystemImageMgmtController {
     })
     @RequestMapping(value = "/images/{systemId}/reset", method = RequestMethod.PUT)
     @PreAuthorize("hasRole('DEVELOPER_ADMIN')|| hasRole('DEVELOPER_TENANT')")
-    public ResponseEntity<Boolean> resetImageStatus(@PathVariable("systemId") Integer systemId) throws Exception {
+    public ResponseEntity<Boolean> resetImageStatus(@PathVariable("systemId") Integer systemId) {
         LOGGER.info("reset system image status, systemId = {}", systemId);
         Either<FormatRespDto, Boolean> either = systemImageMgmtService.resetImageStatus(systemId);
         return ResponseDataUtil.buildResponse(either);

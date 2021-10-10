@@ -15,6 +15,10 @@ import org.springframework.stereotype.Component;
 @Component
 public class SystemImageUtil {
 
+    private SystemImageUtil() {
+        throw new IllegalStateException("SystemImageUtil class");
+    }
+
     public static final Logger LOGGER = LoggerFactory.getLogger(SystemImageUtil.class);
 
     /**
