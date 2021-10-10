@@ -13,34 +13,21 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
+
 package org.edgegallery.developer.model.instantiate.vm;
 
-import java.util.Date;
-import java.util.List;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+public enum EnumVmInstantiateStatus {
+    PACKAGE_GENERATING("Generating Package"),
+    PACKAGE_GENERATE_FAILED("Generate Package Failed"),
+    PACKAGE_DISTRIBUTING("Distributing Package"),
+    PACKAGE_DISTRIBUTE_FAILED("Distribute Package Failed"),
+    INSTANTIATING_VM("Instantiating VM"),
+    VM_INSTANTIATE_FAILED("Instantiate VM Failed"),
+    SUCCESS("Success");
 
-@Getter
-@Setter
-@ToString
-public class VMInstantiateInfo {
+    private String name;
 
-    private String appPackageId;
-
-    private String appInstanceId;
-
-    private String vmInstanceId;
-
-    private EnumVMInstantiateStatus status;
-
-    private Date instantiateTime;
-
-    private String log;
-
-    private String vncUrl;
-
-    private List<PortInstantiateInfo> portInstanceList;
-
-
+    EnumVmInstantiateStatus(String name) {
+        this.name = name;
+    }
 }

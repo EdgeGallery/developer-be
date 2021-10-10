@@ -16,13 +16,11 @@
 
 package org.edgegallery.developer.service.virtual.create;
 
-import java.io.File;
 import java.util.Date;
 import org.edgegallery.developer.mapper.ProjectMapper;
 import org.edgegallery.developer.model.vm.VmCreateConfig;
 import org.edgegallery.developer.model.workspace.ApplicationProject;
 import org.edgegallery.developer.model.workspace.EnumTestConfigStatus;
-import org.edgegallery.developer.service.ProjectService;
 import org.edgegallery.developer.service.virtual.VmService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,9 +34,6 @@ public class VmStageInstantiate implements VmCreateStage {
 
     @Autowired
     private ProjectMapper projectMapper;
-
-    @Autowired
-    private ProjectService projectService;
 
     @Autowired
     private VmService vmService;

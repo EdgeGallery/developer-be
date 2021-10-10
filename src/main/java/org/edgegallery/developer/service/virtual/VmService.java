@@ -58,6 +58,7 @@ import org.edgegallery.developer.model.deployyaml.ImageDesc;
 import org.edgegallery.developer.model.lcm.DistributeResponse;
 import org.edgegallery.developer.model.lcm.MecHostInfo;
 import org.edgegallery.developer.model.lcm.UploadResponse;
+import org.edgegallery.developer.model.resource.MepHost;
 import org.edgegallery.developer.model.system.VmSystem;
 import org.edgegallery.developer.model.vm.EnumVmCreateStatus;
 import org.edgegallery.developer.model.vm.EnumVmImportStatus;
@@ -77,7 +78,6 @@ import org.edgegallery.developer.model.vm.VmUserData;
 import org.edgegallery.developer.model.workspace.ApplicationProject;
 import org.edgegallery.developer.model.workspace.EnumProjectStatus;
 import org.edgegallery.developer.model.workspace.EnumTestConfigStatus;
-import org.edgegallery.developer.model.resource.MepHost;
 import org.edgegallery.developer.response.FormatRespDto;
 import org.edgegallery.developer.service.EncryptedService;
 import org.edgegallery.developer.service.ProjectService;
@@ -127,7 +127,7 @@ public class VmService {
     /**
      * the max time for wait workStatus.
      */
-    private static final Long MAX_SECONDS = 30*1000L;
+    private static final Long MAX_SECONDS = 30 * 1000L;
 
     @Autowired
     private VmConfigMapper vmConfigMapper;
@@ -176,7 +176,7 @@ public class VmService {
      *
      * @return
      */
-    public Either<FormatRespDto, VmCreateConfig> createVm(String userId, String projectId, String token) {
+    public Either<FormatRespDto, VmCreateConfig> createVm(String projectId, String token) {
 
         VmPackageConfig vmPackageConfig = vmConfigMapper.getVmPackageConfig(projectId);
         if (vmPackageConfig == null) {
@@ -198,7 +198,7 @@ public class VmService {
             VmCreateStageStatus stageStatus = new VmCreateStageStatus();
             newVmCreateConfig.setStageStatus(stageStatus);
             vmConfigMapper.saveVmCreateConfig(newVmCreateConfig);
-        }else {
+        } else {
             vmCreateConfig.setAppInstanceId(vmPackageConfig.getAppInstanceId());
             vmCreateConfig.setVmName(vmPackageConfig.getVmName());
             vmCreateConfig.setLcmToken(token);
@@ -305,14 +305,15 @@ public class VmService {
      *
      * @return
      */
-    public String distributeVmToAppLcm(File csar, ApplicationProject project, VmCreateConfig config, String userId, String lcmToken) {
+    public String distributeVmToAppLcm(File csar, ApplicationProject project, VmCreateConfig config, String userId,
+        String lcmToken) {
         MepHost host = gson.fromJson(gson.toJson(config.getHost()), new TypeToken<MepHost>() { }.getType());
 
         String basePath = HttpClientUtil.getUrlPrefix(host.getProtocol(), host.getLcmIp(), host.getPort());
         if (StringUtils.isEmpty(config.getPackageId())) {
             // upload pkg
-            String packageId = uploadPackageToLcm(basePath,csar.getPath(), userId, lcmToken);
-            if (packageId==null) {
+            String packageId = uploadPackageToLcm(basePath, csar.getPath(), userId, lcmToken);
+            if (packageId == null) {
                 config.setLog("upload package fail");
                 return null;
             }
@@ -320,8 +321,9 @@ public class VmService {
             config.setCreateTime(new Date());
             config.setLog("upload package success");
             vmConfigMapper.updateVmCreateConfig(config);
-            String distributeRes = HttpClientUtil.distributePkg(basePath, userId, lcmToken, config.getPackageId(), host.getMecHost(), new LcmLog());
-            if (distributeRes==null) {
+            String distributeRes = HttpClientUtil
+                .distributePkg(basePath, userId, lcmToken, config.getPackageId(), host.getMecHost(), new LcmLog());
+            if (distributeRes == null) {
                 config.setLog("distribute package fail");
                 return null;
             }
@@ -334,13 +336,14 @@ public class VmService {
     private String getDistributeStatus(String basePath, String userId, String lcmToken, String packageId) {
         String distributeResult = HttpClientUtil.getDistributeRes(basePath, userId, lcmToken, packageId);
         LOGGER.info("distribute package result: {}", distributeResult);
-        if (distributeResult==null) {
+        if (distributeResult == null) {
             LOGGER.error("get distribute package status fail");
             return null;
         }
-        List<DistributeResponse> list = gson.fromJson(distributeResult, new TypeToken<List<DistributeResponse>>() { }.getType());
+        List<DistributeResponse> list = gson
+            .fromJson(distributeResult, new TypeToken<List<DistributeResponse>>() { }.getType());
         List<MecHostInfo> mecHostInfo = list.get(0).getMecHostInfo();
-        if (mecHostInfo==null) {
+        if (mecHostInfo == null) {
             LOGGER.error("get distribute package status fail");
             return null;
         }
@@ -357,7 +360,7 @@ public class VmService {
             return null;
         }
         UploadResponse uploadResponse = gson.fromJson(uploadRes, UploadResponse.class);
-        return  uploadResponse.getPackageId();
+        return uploadResponse.getPackageId();
     }
 
     /**
@@ -374,14 +377,14 @@ public class VmService {
         Map<String, String> vmInputParams;
         try {
             vmInputParams = getInputParams(host.getParameter(), host.getMecHost());
-        }catch (Exception e) {
+        } catch (Exception e) {
             LOGGER.error("network params error");
             return false;
         }
         String appInstanceId = vmConfig.getAppInstanceId();
         boolean instantRes = HttpClientUtil
-            .instantiateApplication(basePath, appInstanceId, userId, lcmToken, lcmLog, vmConfig.getPackageId(), host.getMecHost(),
-                vmInputParams);
+            .instantiateApplication(basePath, appInstanceId, userId, lcmToken, lcmLog, vmConfig.getPackageId(),
+                host.getMecHost(), vmInputParams);
         LOGGER.info("distribute package result: {}", instantRes);
         if (!instantRes) {
             vmConfig.setLog(lcmLog.getLog());
@@ -396,17 +399,17 @@ public class VmService {
         String n6Range = vmInputParams.get("app_n6_ip");
         String mepRange = vmInputParams.get("app_mp1_ip");
         String internetRange = vmInputParams.get("app_internet_ip");
-        vmInputParams.put("app_n6_ip",IpCalculateUtil.getStartIp(n6Range, count));
-        vmInputParams.put("app_mp1_ip",IpCalculateUtil.getStartIp(mepRange, count));
-        vmInputParams.put("app_internet_ip",IpCalculateUtil.getStartIp(internetRange, count));
-        if (vmInputParams.getOrDefault("app_n6_gw",null)==null) {
-            vmInputParams.put("app_n6_gw",IpCalculateUtil.getStartIp(n6Range, 0));
+        vmInputParams.put("app_n6_ip", IpCalculateUtil.getStartIp(n6Range, count));
+        vmInputParams.put("app_mp1_ip", IpCalculateUtil.getStartIp(mepRange, count));
+        vmInputParams.put("app_internet_ip", IpCalculateUtil.getStartIp(internetRange, count));
+        if (vmInputParams.getOrDefault("app_n6_gw", null) == null) {
+            vmInputParams.put("app_n6_gw", IpCalculateUtil.getStartIp(n6Range, 0));
         }
-        if (vmInputParams.getOrDefault("app_mp1_gw",null)==null) {
-            vmInputParams.put("app_mp1_gw",IpCalculateUtil.getStartIp(mepRange, 0));
+        if (vmInputParams.getOrDefault("app_mp1_gw", null) == null) {
+            vmInputParams.put("app_mp1_gw", IpCalculateUtil.getStartIp(mepRange, 0));
         }
-        if (vmInputParams.getOrDefault("app_internet_gw",null)==null) {
-            vmInputParams.put("app_internet_gw",IpCalculateUtil.getStartIp(internetRange, 0));
+        if (vmInputParams.getOrDefault("app_internet_gw", null) == null) {
+            vmInputParams.put("app_internet_gw", IpCalculateUtil.getStartIp(internetRange, 0));
         }
         return vmInputParams;
     }
@@ -924,7 +927,7 @@ public class VmService {
         csarPkgDir = new NewCreateVmCsar().create(projectPath, config, project);
         // sign package
         encryptedService.encryptedFile(csarPkgDir.getCanonicalPath());
-        encryptedService.encryptedCMS(csarPkgDir.getCanonicalPath());
+        encryptedService.encryptedCms(csarPkgDir.getCanonicalPath());
         return CompressFileUtilsJava
             .compressToCsarAndDeleteSrc(csarPkgDir.getCanonicalPath(), projectPath, csarPkgDir.getName());
     }
@@ -1150,6 +1153,11 @@ public class VmService {
         }
     }
 
+    /**
+     * cleanVmDeploy.
+     *
+     * @return
+     */
     public Either<FormatRespDto, Boolean> cleanVmDeploy(String projectId, String token) {
         ApplicationProject project = projectMapper.getProjectById(projectId);
         if (project == null) {
@@ -1169,7 +1177,7 @@ public class VmService {
             vmImageConfig.initialVmImageConfig();
             vmConfigMapper.updateVmImageConfig(vmImageConfig);
         }
-        if(vmImageConfig != null && !vmImageConfig.getImageId().isEmpty()) {
+        if (vmImageConfig != null && !vmImageConfig.getImageId().isEmpty()) {
             deleteVmImageToLcm(vmCreateConfig, vmImageConfig, project.getUserId());
         }
 
@@ -1191,10 +1199,15 @@ public class VmService {
         return Either.right(true);
     }
 
+    /**
+     * runOverTime.
+     *
+     * @param createTime createTime
+     * @return
+     */
     public boolean runOverTime(Date createTime) {
         long time = System.currentTimeMillis() - createTime.getTime();
-        LOGGER.info("over time:{}, wait max time:{}, start time:{}", time, MAX_SECONDS,
-            createTime.getTime());
+        LOGGER.info("over time:{}, wait max time:{}, start time:{}", time, MAX_SECONDS, createTime.getTime());
         if (time > MAX_SECONDS * 20) {
             String message = "get status after wait {} seconds";
             LOGGER.error(message, MAX_SECONDS);

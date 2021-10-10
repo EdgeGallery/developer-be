@@ -13,8 +13,6 @@ public interface CapabilityMapper {
 
     int deleteById(@Param("id") String id);
 
-	int deleteByGroupId(@Param("groupId") String groupId);
-
     List<Capability> selectAll();
 
     List<Capability> selectByType(@Param("type") String type);
@@ -26,8 +24,6 @@ public interface CapabilityMapper {
     List<Capability> selectByNameWithFuzzy(@Param("name") String name);
 
     List<Capability> selectByNameEnWithFuzzy(@Param("nameEn") String nameEn);
-
-    Capability selectByName(@Param("name") String name);
 
     List<Capability> selectByApiFileId(@Param("apiFileId") String apiFileId);
 

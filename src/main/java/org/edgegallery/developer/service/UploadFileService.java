@@ -16,11 +16,6 @@
 
 package org.edgegallery.developer.service;
 
-import com.github.dockerjava.api.DockerClient;
-import com.github.dockerjava.api.exception.DockerClientException;
-import com.github.dockerjava.core.DefaultDockerClientConfig;
-import com.github.dockerjava.core.DockerClientBuilder;
-import com.github.dockerjava.core.DockerClientConfig;
 import com.google.common.collect.Lists;
 import com.google.gson.Gson;
 import com.spencerwi.either.Either;
@@ -29,7 +24,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
@@ -51,7 +45,6 @@ import org.edgegallery.developer.common.Consts;
 import org.edgegallery.developer.mapper.HelmTemplateYamlMapper;
 import org.edgegallery.developer.mapper.HostMapper;
 import org.edgegallery.developer.mapper.ProjectImageMapper;
-import org.edgegallery.developer.mapper.ProjectMapper;
 import org.edgegallery.developer.mapper.UploadedFileMapper;
 import org.edgegallery.developer.mapper.capability.CapabilityMapper;
 import org.edgegallery.developer.model.GeneralConfig;
@@ -93,11 +86,11 @@ import org.yaml.snakeyaml.constructor.SafeConstructor;
 @Service("uploadFileService")
 public class UploadFileService {
 
-    public static final String REGEX_START = Pattern.quote("{{");
+    private static final String REGEX_START = Pattern.quote("{{");
 
-    public static final String REGEX_END = Pattern.quote("}}");
+    private static final String REGEX_END = Pattern.quote("}}");
 
-    public static final Pattern REPLACE_PATTERN = Pattern.compile(REGEX_START + "(.*?)" + REGEX_END);
+    private static final Pattern REPLACE_PATTERN = Pattern.compile(REGEX_START + "(.*?)" + REGEX_END);
 
     private static final Logger LOGGER = LoggerFactory.getLogger(UploadFileService.class);
 
@@ -137,26 +130,11 @@ public class UploadFileService {
     @Autowired
     private ProjectImageMapper projectImageMapper;
 
-    @Autowired
-    private ProjectMapper projectMapper;
-
     @Value("${imagelocation.domainname:}")
     private String devRepoEndpoint;
 
-    @Value("${imagelocation.username:}")
-    private String devRepoUsername;
-
-    @Value("${imagelocation.password:}")
-    private String devRepoPassword;
-
     @Value("${imagelocation.project:}")
     private String devRepoProject;
-
-    @Value("${imagelocation.port:}")
-    private String port;
-
-    @Value("${imagelocation.protocol:}")
-    private String protocol;
 
     /**
      * getFile.
@@ -644,27 +622,7 @@ public class UploadFileService {
 
     private String encodeUserAndPwd() {
         String user = harborUsername + ":" + harborPassword;
-        String base64encodedString = "";
-        try {
-            base64encodedString = Base64.getEncoder().encodeToString(user.getBytes("utf-8"));
-        } catch (UnsupportedEncodingException e) {
-            LOGGER.error("encode user and pwd failed!");
-            return "";
-        }
-        return base64encodedString;
-    }
-
-    private DockerClient getDockerClient(String repo, String userName, String password) {
-        try {
-            DockerClientConfig config = DefaultDockerClientConfig.createDefaultConfigBuilder().withDockerTlsVerify(true)
-                .withDockerCertPath("/usr/app/ssl").withRegistryUrl("https://" + repo).withRegistryUsername(userName)
-                .withRegistryPassword(password).build();
-            LOGGER.warn("docker register url: {}", config.getRegistryUrl());
-            return DockerClientBuilder.getInstance(config).build();
-        } catch (DockerClientException e) {
-            LOGGER.error("get docker instance occur {}", e.getMessage());
-            return null;
-        }
+        return Base64.getEncoder().encodeToString(user.getBytes(StandardCharsets.UTF_8));
     }
 
     private static List<String> readFileByLine(File fin) {
@@ -975,19 +933,6 @@ public class UploadFileService {
             return Either.left(new FormatRespDto(Status.BAD_REQUEST, "get sample code file failed "));
         }
 
-    }
-
-    public Either<FormatRespDto, UploadedFile> uploadMdFile(String userId, MultipartFile uploadFile) {
-        /*
-        todo 文件格式和名称校验
-         */
-        LOGGER.info("Start uploading file");
-
-        /*
-        todo 文件保存
-         */
-
-        return Either.right(null);
     }
 
     private UploadedFile saveFileToLocal(MultipartFile uploadFile, String userId) {

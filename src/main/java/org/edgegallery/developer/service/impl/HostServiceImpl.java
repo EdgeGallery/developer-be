@@ -73,7 +73,7 @@ public class HostServiceImpl implements HostService {
         PageHelper.offsetPage(offset, limit);
         PageInfo<MepHost> pageInfo = new PageInfo<>(hostMapper.getHostsByCondition(userId, name, ip));
         LOGGER.info("Get all hosts success.");
-        return new Page<MepHost>(pageInfo.getList(), limit, offset, pageInfo.getTotal());
+        return new Page<>(pageInfo.getList(), limit, offset, pageInfo.getTotal());
     }
 
     /**
@@ -86,7 +86,7 @@ public class HostServiceImpl implements HostService {
         PageHelper.offsetPage(offset, limit);
         PageInfo<MepHost> pageInfo = new PageInfo<>(hostMapper.selectHostsByCondition(os, architecture));
         LOGGER.info("Get all hosts success.");
-        return new Page<MepHost>(pageInfo.getList(), limit, offset, pageInfo.getTotal());
+        return new Page<>(pageInfo.getList(), limit, offset, pageInfo.getTotal());
     }
 
     /**

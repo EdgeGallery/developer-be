@@ -30,12 +30,9 @@ import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.edgegallery.developer.exception.DomainException;
@@ -80,26 +77,23 @@ public class NewCreateVmCsar {
         File projectDir = new File(projectPath);
 
         String vmName = config.getVmName();
-        String templateName = config.getVmName() + "_" + project.getPlatform().get(0) + "_" + config.getVmSystem()
-            .getOperateSystem();
-
         // copy template files to the new project path
         File csar = DeveloperFileUtils
             .copyDirAndReName(new File(WORKSPACE_CSAR_PATH), projectDir, config.getAppInstanceId());
         // modify the mf files and fill in the data
-        Boolean modifyMfFileResult = modifyMfFile(csar.getCanonicalPath(), project, vmName);
+        boolean modifyMfFileResult = modifyMfFile(csar.getCanonicalPath(), project, vmName);
         if (!modifyMfFileResult) {
             LOGGER.error("modify mf file is error");
         }
 
         // modify the csar  APPD/TOSCA_VNFD.meta file
-        Boolean modifyMetaFileResult = modifyMetaFile(csar.getCanonicalPath(), vmName);
+        boolean modifyMetaFileResult = modifyMetaFile(csar.getCanonicalPath(), vmName);
         if (!modifyMetaFileResult) {
             LOGGER.error("modify meta file is error");
         }
 
-        Boolean modifyAPPDFileResult = modifyAPPDFile(csar.getCanonicalPath(), config, project);
-        if (!modifyAPPDFileResult) {
+        boolean modifyAppdFileResult = modifyAppdFile(csar.getCanonicalPath(), config, project);
+        if (!modifyAppdFileResult) {
             LOGGER.error("modify meta file is error");
         }
 
@@ -134,7 +128,7 @@ public class NewCreateVmCsar {
         writeFile(imageJson, gson.toJson(imageDescs));
     }
 
-    private Boolean modifyAPPDFile(String canonicalPath, VmPackageConfig config, ApplicationProject project) {
+    private boolean modifyAppdFile(String canonicalPath, VmPackageConfig config, ApplicationProject project) {
         String templateName = config.getVmName() + "_" + config.getVmSystem().getOperateSystem();
         String imageName = config.getVmSystem().getSystemName();
         try {
@@ -198,7 +192,7 @@ public class NewCreateVmCsar {
 
     }
 
-    private Boolean modifyMetaFile(String canonicalPath, String vmName) {
+    private boolean modifyMetaFile(String canonicalPath, String vmName) {
         // modify the csar  TOSCA_VNFD.meta  file
         try {
             File vnfValue = new File(canonicalPath + TEMPLATE_TOSCA_VNFD__PATH);
@@ -207,7 +201,7 @@ public class NewCreateVmCsar {
                 StandardCharsets.UTF_8, false);
         } catch (IOException e) {
             LOGGER.error("modify TOSCA_VNFD.meta file is error");
-           return false;
+            return false;
         }
         // modify the csar  TOSCA-Metadata/TOSCA.meta file
         try {
@@ -223,7 +217,7 @@ public class NewCreateVmCsar {
         return true;
     }
 
-    private Boolean modifyMfFile(String packagePath, ApplicationProject project, String vmName) {
+    private boolean modifyMfFile(String packagePath, ApplicationProject project, String vmName) {
         String deployType = (project.getDeployPlatform() == EnumDeployPlatform.KUBERNETES) ? "container" : "vm";
         String projectName = project.getName();
         SimpleDateFormat time = new SimpleDateFormat("yyyy-MM-dd HH:mm");
@@ -234,9 +228,9 @@ public class NewCreateVmCsar {
             FileUtils.writeStringToFile(csarValue,
                 FileUtils.readFileToString(csarValue, StandardCharsets.UTF_8).replace("{name}", projectName)
                     .replace("{time}", timeStamp).replace("{description}", project.getDescription())
-                    .replace("{class}", deployType)
-                    .replace("{provider}", project.getProvider()).replace("{version}", project.getVersion())
-                    .replace("{appd-name}", vmName), StandardCharsets.UTF_8, false);
+                    .replace("{class}", deployType).replace("{provider}", project.getProvider())
+                    .replace("{version}", project.getVersion()).replace("{appd-name}", vmName), StandardCharsets.UTF_8,
+                false);
             boolean isSuccess = csarValue.renameTo(new File(packagePath + "/" + vmName + ".mf"));
             if (!isSuccess) {
                 LOGGER.error("rename mf file failed!");
@@ -405,20 +399,6 @@ public class NewCreateVmCsar {
         } catch (IOException e) {
             LOGGER.error("write data into SwImageDesc.json failed, {}", e.getMessage());
         }
-    }
-
-    /**
-     * getObjectFromMap.
-     */
-    public static LinkedHashMap<String, Object> getObjectFromMap(Map<String, Object> loaded, String... keys) {
-        LinkedHashMap<String, Object> result = null;
-        for (String key : keys) {
-            result = (LinkedHashMap<String, Object>) loaded.get(key);
-            if (result != null) {
-                loaded = result;
-            }
-        }
-        return result;
     }
 
 }

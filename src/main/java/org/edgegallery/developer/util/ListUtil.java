@@ -5,6 +5,11 @@ import java.util.Collections;
 import java.util.List;
 
 public class ListUtil {
+
+    private ListUtil() {
+        throw new IllegalStateException("ListUtil class");
+    }
+
     /**
      * judge two list is equal.
      *
@@ -16,9 +21,7 @@ public class ListUtil {
     public static <T extends Comparable<T>> boolean isEquals(List<T> list1, List<T> list2) {
         if (list1 == null && list2 == null) {
             return true;
-        }
-        //Only one of them is null
-        else if (list1 == null || list2 == null) {
+        } else if (list1 == null || list2 == null) {
             return false;
         } else if (list1.size() != list2.size()) {
             return false;

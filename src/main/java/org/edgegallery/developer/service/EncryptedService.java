@@ -30,6 +30,9 @@ public class EncryptedService {
     @Value("${signature.key-password:}")
     private String keyPasswd;
 
+    /**
+     * encryptedFile.
+     */
     public void encryptedFile(String filePath) {
         try {
             BufferedReader reader = null;
@@ -50,7 +53,7 @@ public class EncryptedService {
                     String encryptedFilePath = path.replace("\\", File.separator).replace("/", File.separator);
                     encryptedFilePath = encryptedFilePath.replace(" ", "");
                     File file = new File(encryptedFilePath);
-                    sha256String = getFileSHA1(file);
+                    sha256String = getFileSha1(file);
                     bf.append(tempString).append("\r\n");
                     continue;
                 }
@@ -77,7 +80,10 @@ public class EncryptedService {
         }
     }
 
-    public void encryptedCMS(String filePath) {
+    /**
+     * encryptedCMS.
+     */
+    public void encryptedCms(String filePath) {
         try {
             BufferedReader reader = null;
             if (filePath == null) {
@@ -108,7 +114,7 @@ public class EncryptedService {
         }
     }
 
-    private static String getFileSHA1(File file) {
+    private static String getFileSha1(File file) {
         String str = "";
         try {
             str = getHash(file, "SHA-256");
@@ -137,7 +143,7 @@ public class EncryptedService {
 
     private static String getHash(File file, String hashType) throws Exception {
         InputStream fis = new FileInputStream(file);
-        byte buffer[] = new byte[1024];
+        byte[] buffer = new byte[1024];
         MessageDigest md5 = MessageDigest.getInstance(hashType);
         for (int numRead = 0; (numRead = fis.read(buffer)) > 0; ) {
             md5.update(buffer, 0, numRead);
@@ -146,10 +152,10 @@ public class EncryptedService {
         return toHexString(md5.digest());
     }
 
-    private static String toHexString(byte b[]) {
+    private static String toHexString(byte[] b) {
         StringBuilder sb = new StringBuilder();
-        for (byte aB : b) {
-            sb.append(Integer.toHexString(aB & 0xFF));
+        for (byte a : b) {
+            sb.append(Integer.toHexString(a & 0xFF));
         }
         return sb.toString();
     }
@@ -198,8 +204,6 @@ public class EncryptedService {
              BufferedReader bufferedReader = new BufferedReader(inputStreamReader)) {
             lineIterator = new LineIterator(bufferedReader);
             String line;
-            LineIterator lineIterator1 = FileUtils.lineIterator(new File(filePath), "UTF-8");
-
             while (lineIterator.hasNext()) {
                 line = lineIterator.next();
                 if (line == null || "".equals(line) || canLineMatch(line, rules)) {

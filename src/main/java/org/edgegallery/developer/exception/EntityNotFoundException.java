@@ -17,11 +17,12 @@
 package org.edgegallery.developer.exception;
 
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import org.edgegallery.developer.domain.shared.Entity;
 
-public class EntityNotFoundException extends RuntimeException {
+public class EntityNotFoundException extends RuntimeException implements Serializable {
 
     private static final long serialVersionUID = 5224743617068936039L;
 

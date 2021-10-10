@@ -1,7 +1,26 @@
 package org.edgegallery.developer.service;
 
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
+import java.security.Provider;
+import java.security.Security;
+import java.security.UnrecoverableKeyException;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import org.bouncycastle.cert.jcajce.JcaCertStore;
-import org.bouncycastle.cms.*;
+import org.bouncycastle.cms.CMSException;
+import org.bouncycastle.cms.CMSProcessableByteArray;
+import org.bouncycastle.cms.CMSSignedData;
+import org.bouncycastle.cms.CMSSignedDataGenerator;
+import org.bouncycastle.cms.CMSTypedData;
 import org.bouncycastle.cms.jcajce.JcaSignerInfoGeneratorBuilder;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.operator.ContentSigner;
@@ -11,18 +30,8 @@ import org.bouncycastle.operator.jcajce.JcaDigestCalculatorProviderBuilder;
 import org.bouncycastle.util.Store;
 import org.bouncycastle.util.encoders.Base64;
 
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.security.*;
-import java.security.cert.Certificate;
-import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-
-public class Signature {
-    public Optional<byte[]> signMessage(String srcMsg, String charSet, String certPath, String certPwd) {
+class Signature {
+    Optional<byte[]> signMessage(String srcMsg, String charSet, String certPath, String certPwd) {
         String privateKeyName = null;
         char[] passphrase = certPwd.toCharArray();
         String ksType = "PKCS12";
@@ -44,26 +53,26 @@ public class Signature {
                     CMSTypedData msg = new CMSProcessableByteArray(srcMsg.getBytes(charSet));
                     Store certs = new JcaCertStore(certList);
                     CMSSignedDataGenerator cmsSignedDataGenerator = new CMSSignedDataGenerator();
-                    ContentSigner sha1Signer = (new JcaContentSignerBuilder("SHA256withRSA").setProvider("BC").build(privateKey));
-                    cmsSignedDataGenerator.addSignerInfoGenerator((new JcaSignerInfoGeneratorBuilder((new JcaDigestCalculatorProviderBuilder()).setProvider("BC").build())).build(sha1Signer, cerx509));
+                    ContentSigner sha1Signer = new JcaContentSignerBuilder("SHA256withRSA").setProvider("BC")
+                        .build(privateKey);
+                    cmsSignedDataGenerator.addSignerInfoGenerator(new JcaSignerInfoGeneratorBuilder(
+                        new JcaDigestCalculatorProviderBuilder().setProvider("BC").build())
+                        .build(sha1Signer, cerx509));
                     cmsSignedDataGenerator.addCertificates(certs);
-                    CMSSignedData sigData = cmsSignedDataGenerator.generate(msg,true);
+                    CMSSignedData sigData = cmsSignedDataGenerator.generate(msg, true);
                     fileInputStream.close();
                     return Optional.of(Base64.encode(sigData.getEncoded()));
                 }
             }
             return Optional.empty();
-        } catch (KeyStoreException
-                | UnrecoverableKeyException
-                | NoSuchAlgorithmException
-                | IOException
-                | CertificateException
-                | OperatorCreationException
-                | CMSException e) {
+        } catch (KeyStoreException | UnrecoverableKeyException
+            | NoSuchAlgorithmException | IOException
+            | CertificateException | OperatorCreationException | CMSException e) {
             return Optional.empty();
         }
     }
-    public Signature(){
+
+    Signature() {
         Security.addProvider(new BouncyCastleProvider());
     }
 }

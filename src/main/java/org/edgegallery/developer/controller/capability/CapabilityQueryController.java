@@ -16,10 +16,15 @@
 
 package org.edgegallery.developer.controller.capability;
 
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import java.util.List;
-
 import javax.validation.constraints.Min;
-
 import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.edgegallery.developer.domain.shared.Page;
 import org.edgegallery.developer.model.capability.Capability;
@@ -35,83 +40,95 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import com.github.pagehelper.PageHelper;
-import com.github.pagehelper.PageInfo;
-
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
-
 @Controller
 @RestSchema(schemaId = "capability-query")
 @RequestMapping("/mec/developer/v2/query/capabilities")
 @Api(tags = "capability-query")
 public class CapabilityQueryController {
-	@Autowired
-	private CapabilityService capabilityService;
+    @Autowired
+    private CapabilityService capabilityService;
 
-	@ApiOperation(value = "get Capability by groupId", response = Capability.class, responseContainer = "List")
-	@ApiResponses(value = {
-			@ApiResponse(code = 200, message = "OK", response = Capability.class, responseContainer = "List"),
-			@ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class) })
-	@GetMapping(value = "/group-id/{groupId}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-	@PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN') || hasRole('DEVELOPER_GUEST')")
-	public ResponseEntity<List<Capability>> getCapabilityByGroupId(
-			@ApiParam(value = "groupId", required = true) @PathVariable(value = "groupId") String groupId) {
-		return ResponseEntity.ok(capabilityService.findByGroupId(groupId));
-	}
+    /**
+     * get Capability by groupId.
+     */
+    @ApiOperation(value = "get Capability by groupId", response = Capability.class, responseContainer = "List")
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = "OK", response = Capability.class, responseContainer = "List"),
+        @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
+    })
+    @GetMapping(value = "/group-id/{groupId}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN') || hasRole('DEVELOPER_GUEST')")
+    public ResponseEntity<List<Capability>> getCapabilityByGroupId(
+        @ApiParam(value = "groupId", required = true) @PathVariable(value = "groupId") String groupId) {
+        return ResponseEntity.ok(capabilityService.findByGroupId(groupId));
+    }
 
-	@ApiOperation(value = "get Capability by projectId", response = Capability.class, responseContainer = "List")
-	@ApiResponses(value = {
-			@ApiResponse(code = 200, message = "OK", response = Capability.class, responseContainer = "List"),
-			@ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class) })
-	@GetMapping(value = "/project-id/{projectId}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-	@PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN') || hasRole('DEVELOPER_GUEST')")
-	public ResponseEntity<List<Capability>> getCapabilityByProjectId(
-			@ApiParam(value = "projectId", required = true) @PathVariable(value = "projectId") String projectId) {
-		return ResponseEntity.ok(capabilityService.findByProjectId(projectId));
-	}
+    /**
+     * get Capability by projectId.
+     */
+    @ApiOperation(value = "get Capability by projectId", response = Capability.class, responseContainer = "List")
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = "OK", response = Capability.class, responseContainer = "List"),
+        @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
+    })
+    @GetMapping(value = "/project-id/{projectId}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN') || hasRole('DEVELOPER_GUEST')")
+    public ResponseEntity<List<Capability>> getCapabilityByProjectId(
+        @ApiParam(value = "projectId", required = true) @PathVariable(value = "projectId") String projectId) {
+        return ResponseEntity.ok(capabilityService.findByProjectId(projectId));
+    }
 
-	@ApiOperation(value = "get Capability by name with fuzzy", response = Capability.class, responseContainer = "List")
-	@ApiResponses(value = {
-			@ApiResponse(code = 200, message = "OK", response = Capability.class, responseContainer = "List"),
-			@ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class) })
-	@GetMapping(value = { "/name" }, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-	@PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN') || hasRole('DEVELOPER_GUEST')")
-	public ResponseEntity<Page<Capability>> getCapabilityByNameWithFuzzy(
-			@ApiParam(value = "name", required = false) @RequestParam(value = "name", required = false) String name,
-			@ApiParam(value = "the max count of one page", required = true) @Min(1) @RequestParam("limit") int limit,
-			@ApiParam(value = "start index of the page", required = true) @Min(0) @RequestParam("offset") int offset) {
-		PageHelper.offsetPage(offset, limit);
-		PageInfo<Capability> pageInfo = new PageInfo<>(capabilityService.findByNameWithFuzzy(name));
-		return ResponseEntity.ok(new Page<Capability>(pageInfo.getList(), limit, offset, pageInfo.getTotal()));
-	}
+    /**
+     * get Capability by name with fuzzy.
+     */
+    @ApiOperation(value = "get Capability by name with fuzzy", response = Capability.class, responseContainer = "List")
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = "OK", response = Capability.class, responseContainer = "List"),
+        @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
+    })
+    @GetMapping(value = {"/name"}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN') || hasRole('DEVELOPER_GUEST')")
+    public ResponseEntity<Page<Capability>> getCapabilityByNameWithFuzzy(
+        @ApiParam(value = "name", required = false) @RequestParam(value = "name", required = false) String name,
+        @ApiParam(value = "the max count of one page", required = true) @Min(1) @RequestParam("limit") int limit,
+        @ApiParam(value = "start index of the page", required = true) @Min(0) @RequestParam("offset") int offset) {
+        PageHelper.offsetPage(offset, limit);
+        PageInfo<Capability> pageInfo = new PageInfo<>(capabilityService.findByNameWithFuzzy(name));
+        return ResponseEntity.ok(new Page<Capability>(pageInfo.getList(), limit, offset, pageInfo.getTotal()));
+    }
 
-	@ApiOperation(value = "get Capability by nameEn with fuzzy", response = Capability.class, responseContainer = "List")
-	@ApiResponses(value = {
-			@ApiResponse(code = 200, message = "OK", response = Capability.class, responseContainer = "List"),
-			@ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class) })
-	@GetMapping(value = { "/name-en" }, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-	@PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN') || hasRole('DEVELOPER_GUEST')")
-	public ResponseEntity<Page<Capability>> getCapabilityByNameEnWithFuzzy(
-			@ApiParam(value = "nameEn", required = false) @RequestParam(value = "nameEn", required = false) String nameEn,
-			@ApiParam(value = "the max count of one page", required = true) @Min(1) @RequestParam("limit") int limit,
-			@ApiParam(value = "start index of the page", required = true) @Min(0) @RequestParam("offset") int offset) {
-		PageHelper.offsetPage(offset, limit);
-		PageInfo<Capability> pageInfo = new PageInfo<>(capabilityService.findByNameEnWithFuzzy(nameEn));
-		return ResponseEntity.ok(new Page<Capability>(pageInfo.getList(), limit, offset, pageInfo.getTotal()));
-	}
+    /**
+     * get Capability by name-en with fuzzy.
+     */
+    @ApiOperation(value = "get Capability by nameEn with fuzzy", response = Capability.class,
+        responseContainer = "List")
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = "OK", response = Capability.class, responseContainer = "List"),
+        @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
+    })
+    @GetMapping(value = {"/name-en"}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN') || hasRole('DEVELOPER_GUEST')")
+    public ResponseEntity<Page<Capability>> getCapabilityByNameEnWithFuzzy(
+        @ApiParam(value = "nameEn", required = false) @RequestParam(value = "nameEn", required = false) String nameEn,
+        @ApiParam(value = "the max count of one page", required = true) @Min(1) @RequestParam("limit") int limit,
+        @ApiParam(value = "start index of the page", required = true) @Min(0) @RequestParam("offset") int offset) {
+        PageHelper.offsetPage(offset, limit);
+        PageInfo<Capability> pageInfo = new PageInfo<>(capabilityService.findByNameEnWithFuzzy(nameEn));
+        return ResponseEntity.ok(new Page<Capability>(pageInfo.getList(), limit, offset, pageInfo.getTotal()));
+    }
 
-	@ApiOperation(value = "get Capability by type", response = Capability.class, responseContainer = "List")
-	@ApiResponses(value = {
-			@ApiResponse(code = 200, message = "OK", response = Capability.class, responseContainer = "List"),
-			@ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class) })
-	@GetMapping(value = "/type/{type}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-	@PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN') || hasRole('DEVELOPER_GUEST')")
-	public ResponseEntity<List<Capability>> getCapabilityByType(
-			@ApiParam(value = "type", required = true) @PathVariable(value = "type") String type) {
-		return ResponseEntity.ok(capabilityService.findByType(type));
-	}
+    /**
+     * get Capability by type.
+     */
+    @ApiOperation(value = "get Capability by type", response = Capability.class, responseContainer = "List")
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = "OK", response = Capability.class, responseContainer = "List"),
+        @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
+    })
+    @GetMapping(value = "/type/{type}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN') || hasRole('DEVELOPER_GUEST')")
+    public ResponseEntity<List<Capability>> getCapabilityByType(
+        @ApiParam(value = "type", required = true) @PathVariable(value = "type") String type) {
+        return ResponseEntity.ok(capabilityService.findByType(type));
+    }
 }

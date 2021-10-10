@@ -24,9 +24,9 @@ import org.edgegallery.developer.model.system.VmSystem;
 
 public interface SystemImageMapper {
 
-    Integer getSystemImagesCount(Map map);
+    Integer getSystemImagesCount(Map<String,Object> map);
 
-    List<VmSystem> getSystemImagesByCondition(Map map);
+    List<VmSystem> getSystemImagesByCondition(Map<String,Object> map);
 
     VmSystem getVmImage(Integer systemId);
 

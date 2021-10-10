@@ -1,9 +1,10 @@
 package org.edgegallery.developer.exception;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class IllegalRequestException extends IllegalArgumentException {
+public class IllegalRequestException extends IllegalArgumentException implements Serializable {
 
     private static final long serialVersionUID = 1311109258952411150L;
 

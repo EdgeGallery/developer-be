@@ -20,7 +20,7 @@ public class encryptedServiceTest {
     @Test
     public void testEncryptedFile() {
         encryptedService.encryptedFile("src/test/resources/testdata/vm_package");
-        encryptedService.encryptedCMS("src/test/resources/testdata/vm_package");
+        encryptedService.encryptedCms("src/test/resources/testdata/vm_package");
         Assert.assertTrue(true);
 
 
@@ -28,7 +28,7 @@ public class encryptedServiceTest {
     @Test
     public void testEncryptedContainer() {
         encryptedService.encryptedFile("src/test/resources/testdata/container_package");
-        encryptedService.encryptedCMS("src/test/resources/testdata/container_package");
+        encryptedService.encryptedCms("src/test/resources/testdata/container_package");
         Assert.assertTrue(true);
 
 

@@ -22,8 +22,6 @@ import org.edgegallery.developer.mapper.ProjectCapabilityMapper;
 import org.edgegallery.developer.mapper.ProjectMapper;
 import org.edgegallery.developer.mapper.UploadedFileMapper;
 import org.edgegallery.developer.mapper.VmConfigMapper;
-import org.edgegallery.developer.mapper.capability.CapabilityGroupMapper;
-import org.edgegallery.developer.mapper.capability.CapabilityMapper;
 import org.edgegallery.developer.model.workspace.ApplicationProject;
 import org.edgegallery.developer.model.workspace.ProjectTestConfig;
 import org.edgegallery.developer.response.FormatRespDto;
@@ -107,7 +105,7 @@ public class ProjectDao {
         }
 
         int capabilityRes = projectCapabilityMapper.deleteByProjectId(projectId);
-        if (capabilityRes < 1 ) {
+        if (capabilityRes < 1) {
             LOGGER.warn("Delete open mep capability {} failed.", openCapabilityId);
         }
         return Either.right(true);
