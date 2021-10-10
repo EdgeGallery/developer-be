@@ -51,7 +51,7 @@ public class MepHost {
 
     private String protocol;
 
-    @Range(min = 30000, max = 30400)
+    @Range(min = 30000, max = 32000)
     private int port;
 
     private String os;
@@ -64,6 +64,7 @@ public class MepHost {
 
     private String configId;
 
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String userName;
 
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
