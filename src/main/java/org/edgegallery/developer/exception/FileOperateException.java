@@ -16,6 +16,9 @@
 
 package org.edgegallery.developer.exception;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
 public class FileOperateException extends DomainException implements Serializable {
@@ -45,5 +48,13 @@ public class FileOperateException extends DomainException implements Serializabl
      */
     public ErrorMessage getErrMsg() {
         return errMsg;
+    }
+
+    private void writeObject(ObjectOutputStream outputStream) throws IOException {
+        outputStream.defaultWriteObject();
+    }
+
+    private void readObject(ObjectInputStream inputStream) throws IOException, ClassNotFoundException {
+        inputStream.defaultReadObject();
     }
 }

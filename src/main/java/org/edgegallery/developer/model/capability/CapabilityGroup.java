@@ -18,8 +18,6 @@ package org.edgegallery.developer.model.capability;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 @Getter
 @Setter
@@ -61,26 +59,5 @@ public class CapabilityGroup {
             parent = new CapabilityGroup();
         }
         parent.setId(parentId);
-    }
-
-    @Override
-    public int hashCode() {
-        HashCodeBuilder builder = new HashCodeBuilder().append(id);
-        return builder.build();
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (!(obj instanceof CapabilityGroup)) {
-            return false;
-        }
-        CapabilityGroup another = (CapabilityGroup) obj;
-        EqualsBuilder builder = new EqualsBuilder().append(id, another.getId());
-        return builder.build();
-    }
-
-    @Override
-    public String toString() {
-        return "CapabilityGroup [id=" + id + ", name=" + name + ", type=" + type + "]";
     }
 }

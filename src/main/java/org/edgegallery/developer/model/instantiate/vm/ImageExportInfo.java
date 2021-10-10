@@ -42,4 +42,30 @@ public class ImageExportInfo {
 
     private String log;
 
+    /**
+     * getCreateTime.
+     *
+     * @return
+     */
+    public Date getCreateTime() {
+        if (this.createTime != null) {
+            return new Date(this.createTime.getTime());
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * setCreateTime.
+     *
+     * @param createTime createTime
+     */
+    public void setCreateTime(Date createTime) {
+        if (createTime != null) {
+            this.createTime = (Date) createTime.clone();
+        } else {
+            this.createTime = null;
+        }
+    }
+
 }

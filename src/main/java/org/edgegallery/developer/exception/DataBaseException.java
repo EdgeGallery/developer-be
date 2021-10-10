@@ -16,6 +16,9 @@
 
 package org.edgegallery.developer.exception;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,7 +29,6 @@ public class DataBaseException extends RuntimeException implements Serializable 
 
     private ErrorMessage errMsg;
 
-
     /**
      * Constructor to create DeveloperException with message.
      *
@@ -35,7 +37,6 @@ public class DataBaseException extends RuntimeException implements Serializable 
     public DataBaseException(String message) {
         super(message);
     }
-
 
     /**
      * Constructor to create DeveloperException with message.
@@ -62,16 +63,22 @@ public class DataBaseException extends RuntimeException implements Serializable 
         for (int i = 0; i < length; i++) {
             params.add(args[i].toString());
         }
-        ErrorMessage errorMessage = new ErrorMessage(ret,params);
+        ErrorMessage errorMessage = new ErrorMessage(ret, params);
         errMsg = errorMessage;
     }
 
     /**
      * get error message.
-     *
      */
     public ErrorMessage getErrMsg() {
         return errMsg;
     }
 
+    private void writeObject(ObjectOutputStream outputStream) throws IOException {
+        outputStream.defaultWriteObject();
+    }
+
+    private void readObject(ObjectInputStream inputStream) throws IOException, ClassNotFoundException {
+        inputStream.defaultReadObject();
+    }
 }

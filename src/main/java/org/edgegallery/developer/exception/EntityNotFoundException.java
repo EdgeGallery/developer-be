@@ -16,7 +16,9 @@
 
 package org.edgegallery.developer.exception;
 
-
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -49,7 +51,6 @@ public class EntityNotFoundException extends RuntimeException implements Seriali
 
     /**
      * get error message.
-     *
      */
     public ErrorMessage getErrMsg() {
         return errMsg;
@@ -70,5 +71,13 @@ public class EntityNotFoundException extends RuntimeException implements Seriali
         }
         ErrorMessage errorMessage = new ErrorMessage(ret, params);
         errMsg = errorMessage;
+    }
+
+    private void writeObject(ObjectOutputStream outputStream) throws IOException {
+        outputStream.defaultWriteObject();
+    }
+
+    private void readObject(ObjectInputStream inputStream) throws IOException, ClassNotFoundException {
+        inputStream.defaultReadObject();
     }
 }
