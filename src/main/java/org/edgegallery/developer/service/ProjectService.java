@@ -98,7 +98,6 @@ import org.edgegallery.developer.model.vm.VmPackageConfig;
 import org.edgegallery.developer.model.workspace.ApplicationProject;
 import org.edgegallery.developer.model.workspace.ApplicationProjectCapability;
 import org.edgegallery.developer.model.workspace.EnumDeployPlatform;
-import org.edgegallery.developer.model.workspace.EnumOpenMepType;
 import org.edgegallery.developer.model.workspace.EnumProjectStatus;
 import org.edgegallery.developer.model.workspace.EnumTestConfigDeployStatus;
 import org.edgegallery.developer.model.workspace.EnumTestConfigStatus;
@@ -906,12 +905,13 @@ public class ProjectService {
             List<String> openCapabilityIds = new ArrayList<>();
             for (ServiceDetail serviceDetail : capabilitiesDetail.getServiceDetails()) {
                 Capability detail = new Capability();
-                CapabilityGroup group = new CapabilityGroup();
-                String groupId = UUID.randomUUID().toString();
-                fillCapabilityGroup(serviceDetail, groupId, group);
-                fillCapabilityDetail(serviceDetail, detail, jsonObject, userId);
-                Either<FormatRespDto, Boolean> resDb = doSomeDbOperation(group, detail, serviceDetail,
-                    openCapabilityIds);
+                CapabilityGroup group = capabilityGroupMapper.selectByName(serviceDetail.getOneLevelName());
+                if (group == null) {
+                    LOGGER.error("Can not get group {}.", serviceDetail.getOneLevelName());
+                    return Either.left(new FormatRespDto(Status.BAD_REQUEST, "Can not find selected group"));
+                }
+                fillCapabilityDetail(serviceDetail, detail, jsonObject, userId, group);
+                Either<FormatRespDto, Boolean> resDb = doSomeDbOperation(detail, serviceDetail, openCapabilityIds);
                 if (resDb.isLeft()) {
                     return Either.left(resDb.getLeft());
                 }
@@ -934,13 +934,13 @@ public class ProjectService {
         return Either.right(true);
     }
 
-    private Either<FormatRespDto, Boolean> doSomeDbOperation(CapabilityGroup group, Capability detail,
-        ServiceDetail serviceDetail, List<String> openCapabilityIds) {
-        int resGroup = capabilityGroupMapper.insert(group);
-        if (resGroup < 1) {
-            LOGGER.error("store db to tbl_capability_group fail!");
-            FormatRespDto error = new FormatRespDto(Status.INTERNAL_SERVER_ERROR, "save capability group db fail!");
-            return Either.left(error);
+    private Either<FormatRespDto, Boolean> doSomeDbOperation(Capability detail, ServiceDetail serviceDetail,
+        List<String> openCapabilityIds) {
+        List<Capability> findedCapabilities = capabilityMapper
+            .selectByNameOrNameEn(detail.getName(), detail.getNameEn());
+        if (!CollectionUtils.isEmpty(findedCapabilities)) {
+            LOGGER.error("The capability name {} has exist.", detail.getName());
+            return Either.left(new FormatRespDto(Status.BAD_REQUEST, "The capability is exist"));
         }
         int res = capabilityMapper.insert(detail);
         if (res < 1) {
@@ -1026,13 +1026,15 @@ public class ProjectService {
         return Either.right(jsonObject);
     }
 
-    private void fillCapabilityDetail(ServiceDetail serviceDetail, Capability detail, JsonObject obj, String userId) {
+    private void fillCapabilityDetail(ServiceDetail serviceDetail, Capability detail, JsonObject obj, String userId,
+        CapabilityGroup group) {
         detail.setId(UUID.randomUUID().toString());
-        detail.setName(serviceDetail.getServiceName());
-        detail.setNameEn(serviceDetail.getServiceName());
+        detail.setGroupId(group.getId());
+        detail.setName(serviceDetail.getTwoLevelName());
+        detail.setNameEn(serviceDetail.getTwoLevelName());
         detail.setVersion(serviceDetail.getVersion());
-        detail.setDescription("");
-        detail.setDescriptionEn("");
+        detail.setDescription(serviceDetail.getDescription());
+        detail.setDescriptionEn(serviceDetail.getDescription());
         JsonElement provider = obj.get("provider");
         if (provider != null) {
             detail.setProvider(provider.getAsString());
@@ -1053,19 +1055,6 @@ public class ProjectService {
         detail.setIconFileId(serviceDetail.getIconFileId());
         detail.setAuthor(serviceDetail.getAuthor());
         detail.setExperienceUrl(serviceDetail.getExperienceUrl());
-    }
-
-    private void fillCapabilityGroup(ServiceDetail serviceDetail, String groupId, CapabilityGroup group) {
-        group.setId(groupId);
-        group.setName(serviceDetail.getOneLevelName());
-        group.setNameEn(serviceDetail.getOneLevelNameEn());
-        group.setDescription(serviceDetail.getDescription());
-        group.setDescriptionEn(serviceDetail.getDescription());
-        group.setType(EnumOpenMepType.OPENMEP.toString());
-        group.setIconFileId(serviceDetail.getIconFileId());
-        group.setCreateTime(new Date().getTime());
-        group.setUpdateTime(new Date().getTime());
-        group.setAuthor(serviceDetail.getAuthor());
     }
 
     /**
