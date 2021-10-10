@@ -30,7 +30,6 @@ import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.edgegallery.developer.common.Consts;
 import org.edgegallery.developer.domain.shared.Page;
 import org.edgegallery.developer.model.resource.MepHost;
-import org.edgegallery.developer.model.workspace.MepCreateHost;
 import org.edgegallery.developer.model.workspace.MepHostLog;
 import org.edgegallery.developer.response.ErrorRespDto;
 import org.edgegallery.developer.response.FormatRespDto;
@@ -132,7 +131,7 @@ public class HostController {
     @PostMapping(consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<Boolean> createHost(
-        @ApiParam(value = "MepHost", required = true) @Validated @RequestBody MepCreateHost host,
+        @ApiParam(value = "MepHost", required = true) @Validated @RequestBody MepHost host,
         HttpServletRequest request) {
         String token = request.getHeader(Consts.ACCESS_TOKEN_STR);
         Either<FormatRespDto, Boolean> either = hostService.createHost(host, token);
@@ -163,9 +162,9 @@ public class HostController {
      *
      * @return
      */
-    @ApiOperation(value = "update one server by hostId", response = MepCreateHost.class)
+    @ApiOperation(value = "update one server by hostId", response = MepHost.class)
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "OK", response = MepCreateHost.class),
+        @ApiResponse(code = 200, message = "OK", response = MepHost.class),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
     @RequestMapping(value = "/{hostId}", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_UTF8_VALUE,
@@ -173,7 +172,7 @@ public class HostController {
     @PreAuthorize("hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<Boolean> modifyHost(
         @PathVariable("hostId") @Pattern(regexp = REG_UUID, message = "hostId must be in UUID format") String hostId,
-        @Validated @RequestBody MepCreateHost host, HttpServletRequest request) {
+        @Validated @RequestBody MepHost host, HttpServletRequest request) {
         String token = request.getHeader(Consts.ACCESS_TOKEN_STR);
         Either<FormatRespDto, Boolean> either = hostService.updateHost(hostId, host, token);
         return ResponseDataUtil.buildResponse(either);

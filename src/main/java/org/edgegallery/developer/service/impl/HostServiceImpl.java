@@ -20,7 +20,6 @@ import org.edgegallery.developer.mapper.HostMapper;
 import org.edgegallery.developer.mapper.UploadedFileMapper;
 import org.edgegallery.developer.model.lcm.MecHostBody;
 import org.edgegallery.developer.model.resource.MepHost;
-import org.edgegallery.developer.model.workspace.MepCreateHost;
 import org.edgegallery.developer.model.workspace.MepHostLog;
 import org.edgegallery.developer.model.workspace.UploadedFile;
 import org.edgegallery.developer.response.FormatRespDto;
@@ -101,7 +100,7 @@ public class HostServiceImpl implements HostService {
      */
     @Transactional
     @Override
-    public Either<FormatRespDto, Boolean> createHost(MepCreateHost host, String token) {
+    public Either<FormatRespDto, Boolean> createHost(MepHost host, String token) {
         MepHost mepHost = hostMapper.getHostsByMecHost(host.getMecHost());
         if (mepHost != null) {
             LOGGER.info("mecHost have exit:{}", host.getMecHost());
@@ -189,7 +188,7 @@ public class HostServiceImpl implements HostService {
      */
     @Override
     @Transactional
-    public Either<FormatRespDto, Boolean> updateHost(String hostId, MepCreateHost host, String token) {
+    public Either<FormatRespDto, Boolean> updateHost(String hostId, MepHost host, String token) {
         // health check
         String healRes = HttpClientUtil.getHealth(host.getProtocol(), host.getLcmIp(), host.getPort());
         if (healRes == null) {
@@ -273,7 +272,7 @@ public class HostServiceImpl implements HostService {
         return !StringUtils.isEmpty(currUserAuth) && currUserAuth.contains(Consts.ROLE_DEVELOPER_ADMIN);
     }
 
-    private boolean addMecHostToLcm(MepCreateHost host) {
+    private boolean addMecHostToLcm(MepHost host) {
         MecHostBody body = new MecHostBody();
         body.setAffinity(host.getArchitecture());
         body.setCity(host.getAddress());

@@ -20,13 +20,12 @@ import java.util.List;
 import org.apache.ibatis.annotations.Param;
 import org.edgegallery.developer.model.resource.MepHost;
 import org.edgegallery.developer.model.workspace.EnumHostStatus;
-import org.edgegallery.developer.model.workspace.MepCreateHost;
 
 public interface HostMapper {
 
-    int createHost(MepCreateHost mepCreateHost);
+    int createHost(MepHost mepCreateHost);
 
-    int updateHostSelected(MepCreateHost host);
+    int updateHostSelected(MepHost host);
 
     int deleteHost(String hostId);
 
