@@ -25,6 +25,7 @@ import org.edgegallery.developer.model.workspace.MepHostLog;
 import org.edgegallery.developer.model.workspace.UploadedFile;
 import org.edgegallery.developer.response.FormatRespDto;
 import org.edgegallery.developer.service.HostService;
+import org.edgegallery.developer.util.AesUtil;
 import org.edgegallery.developer.util.CustomResponseErrorHandler;
 import org.edgegallery.developer.util.HttpClientUtil;
 import org.edgegallery.developer.util.InitConfigUtil;
@@ -32,6 +33,7 @@ import org.edgegallery.developer.util.InputParameterUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -62,6 +64,9 @@ public class HostServiceImpl implements HostService {
 
     @Autowired
     private UploadedFileMapper uploadedFileMapper;
+
+    @Value("${client.client-id:}")
+    private String clientId;
 
     /**
      * getALlHosts.
@@ -145,6 +150,11 @@ public class HostServiceImpl implements HostService {
         }
         host.setHostId(UUID.randomUUID().toString()); // no need to set hostId by user
         host.setVncPort(VNC_PORT);
+        // AES加密
+        String userNameEncode = AesUtil.encode(clientId, host.getUserName());
+        String passwordEncode = AesUtil.encode(clientId, host.getPassword());
+        host.setUserName(userNameEncode);
+        host.setPassword(passwordEncode);
         int ret = hostMapper.createHost(host);
         if (ret > 0) {
             LOGGER.info("Crete host {} success ", host.getHostId());

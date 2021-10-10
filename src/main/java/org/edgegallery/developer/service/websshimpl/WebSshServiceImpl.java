@@ -51,6 +51,7 @@ import org.edgegallery.developer.model.workspace.ApplicationProject;
 import org.edgegallery.developer.model.workspace.EnumDeployPlatform;
 import org.edgegallery.developer.model.workspace.ProjectTestConfig;
 import org.edgegallery.developer.service.WebSshService;
+import org.edgegallery.developer.util.AesUtil;
 import org.edgegallery.developer.util.InputParameterUtil;
 import org.edgegallery.developer.util.webssh.constant.ConstantPool;
 import org.slf4j.Logger;
@@ -78,6 +79,9 @@ public class WebSshServiceImpl implements WebSshService {
 
     @Value("${vm.port:}")
     private String vmPort;
+
+    @Value("${client.client-id:}")
+    private String clientId;
 
     private int port;
 
@@ -207,8 +211,8 @@ public class WebSshServiceImpl implements WebSshService {
             MepHost host = hostMapper.getHost(hosts.get(0).getHostId());
             this.port = host.getVncPort();
             this.ip = host.getLcmIp();
-            this.username = host.getUserName();
-            this.password = host.getPassword();
+            this.username = AesUtil.decode(clientId, host.getUserName());
+            this.password = AesUtil.decode(clientId, host.getPassword());
         } else {
             VmCreateConfig vmCreateConfig = vmConfigMapper.getVmCreateConfigs(projectId);
             if (vmCreateConfig == null) {
