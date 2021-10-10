@@ -70,7 +70,7 @@ public class SystemImageMgmtService {
     /**
      * the max time for wait workStatus.
      */
-    private static final Long MAX_SECONDS = 30*1000L;
+    private static final Long MAX_SECONDS = 30 * 1000L;
 
     @Value("${fileserver.address}")
     private String fileServerAddress;
@@ -694,17 +694,20 @@ public class SystemImageMgmtService {
             String systemPath = systemImageMapper.getSystemImagesPath(systemId);
             String url = systemPath.substring(0, systemPath.length() - 16) + FILE_SLIM_PATH;
             long startTime = System.currentTimeMillis();
-            while (System.currentTimeMillis()-startTime < MAX_SECONDS * 20) {
+            while (System.currentTimeMillis() - startTime < MAX_SECONDS * 20) {
                 String slimResult = HttpClientUtil.getImageSlim(url);
                 LOGGER.info("image slim result: {}", slimResult);
                 JsonObject jsonObject = new JsonParser().parse(slimResult).getAsJsonObject();
                 JsonElement slimStatus = jsonObject.get("slimStatus");
-                if(slimStatus.getAsString().equals("0")) {
-                    systemImageMapper.updateSystemImageSlimStatus(systemId, EnumSystemImageSlimStatus.SLIM_SUCCEED.toString());
+                if (slimStatus.getAsString().equals("0")) {
+                    systemImageMapper
+                        .updateSystemImageSlimStatus(systemId, EnumSystemImageSlimStatus.SLIM_SUCCEED.toString());
                 } else if (slimStatus.getAsString().equals("4")) {
-                    systemImageMapper.updateSystemImageSlimStatus(systemId, EnumSystemImageSlimStatus.SLIMMING.toString());
-                }else {
-                    systemImageMapper.updateSystemImageSlimStatus(systemId, EnumSystemImageSlimStatus.SLIM_FAILED.toString());
+                    systemImageMapper
+                        .updateSystemImageSlimStatus(systemId, EnumSystemImageSlimStatus.SLIMMING.toString());
+                } else {
+                    systemImageMapper
+                        .updateSystemImageSlimStatus(systemId, EnumSystemImageSlimStatus.SLIM_FAILED.toString());
                 }
             }
 
