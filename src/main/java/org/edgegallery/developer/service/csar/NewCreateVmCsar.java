@@ -203,11 +203,11 @@ public class NewCreateVmCsar {
             FileUtils.writeStringToFile(toscaValue,
                 FileUtils.readFileToString(toscaValue, StandardCharsets.UTF_8).replace("{appdFile}", vmName),
                 StandardCharsets.UTF_8, false);
+            return true;
         } catch (IOException e) {
             LOGGER.error("modify TOSCA_VNFD.meta or TOSCA.meta file is error {}", e.getMessage());
             return false;
         }
-        return true;
     }
 
     private boolean modifyMfFile(String packagePath, ApplicationProject project, String vmName) {

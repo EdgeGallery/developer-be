@@ -814,6 +814,9 @@ public final class HttpClientUtil {
         return false;
     }
 
+    /**
+     * getImageSlim.
+     */
     public static String getImageSlim(String url) {
         HttpHeaders headers = new HttpHeaders();
         HttpEntity<String> requestEntity = new HttpEntity<>(headers);
