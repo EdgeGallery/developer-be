@@ -1,6 +1,9 @@
 package org.edgegallery.developer.service;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.spencerwi.either.Either;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -62,7 +65,12 @@ public class SystemImageMgmtService {
 
     private static final String FILE_FORMAT_ISO = "iso";
 
-    private static final String FILE_SLIM_PATH = "/slim";
+    private static final String FILE_SLIM_PATH = "action/slim";
+
+    /**
+     * the max time for wait workStatus.
+     */
+    private static final Long MAX_SECONDS = 30*1000L;
 
     @Value("${fileserver.address}")
     private String fileServerAddress;
@@ -529,7 +537,8 @@ public class SystemImageMgmtService {
         }
 
         LOGGER.info("update image status to upload_wait.");
-        systemImageMapper.updateSystemImageSlimStatus(systemId, EnumSystemImageSlimStatus.SLIM_SUCCEED.toString());
+        systemImageMapper.updateSystemImageSlimStatus(systemId, EnumSystemImageSlimStatus.SLIMMING.toString());
+        new GetVmImageSlimProcessor(systemId).start();
         return Either.right(true);
     }
 
@@ -670,5 +679,35 @@ public class SystemImageMgmtService {
             return false;
         }
         return true;
+    }
+
+    public class GetVmImageSlimProcessor extends Thread {
+
+        Integer systemId;
+
+        public GetVmImageSlimProcessor(Integer systemId) {
+            this.systemId = systemId;
+        }
+
+        @Override
+        public void run() {
+            String systemPath = systemImageMapper.getSystemImagesPath(systemId);
+            String url = systemPath.substring(0, systemPath.length() - 16) + FILE_SLIM_PATH;
+            long startTime = System.currentTimeMillis();
+            while (System.currentTimeMillis()-startTime < MAX_SECONDS * 20) {
+                String slimResult = HttpClientUtil.getImageSlim(url);
+                LOGGER.info("image slim result: {}", slimResult);
+                JsonObject jsonObject = new JsonParser().parse(slimResult).getAsJsonObject();
+                JsonElement slimStatus = jsonObject.get("slimStatus");
+                if(slimStatus.getAsString().equals("0")) {
+                    systemImageMapper.updateSystemImageSlimStatus(systemId, EnumSystemImageSlimStatus.SLIM_SUCCEED.toString());
+                } else if (slimStatus.getAsString().equals("4")) {
+                    systemImageMapper.updateSystemImageSlimStatus(systemId, EnumSystemImageSlimStatus.SLIMMING.toString());
+                }else {
+                    systemImageMapper.updateSystemImageSlimStatus(systemId, EnumSystemImageSlimStatus.SLIM_FAILED.toString());
+                }
+            }
+
+        }
     }
 }

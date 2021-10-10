@@ -70,7 +70,7 @@ security:
         key-uri: ${AUTH_SERVER_ADDRESS:http://user-mgmt-svc:8067}/oauth/token_key
 
 client:
-  client-id: ${CLIENT_ID:}
+  client-id: ${CLIENT_ID:developer-fe}
   client-secret: ${CLIENT_SECRET:}
 
 
@@ -90,7 +90,6 @@ vm:
 upload:
   path: /usr/app/images
   tempPath: /usr/app/tmp
-
 signature:
    encrypted-key-path: /usr/app/keys/public.p12
    key-password: ${EDGE_CERT_PASSWORD:Test12345_}
