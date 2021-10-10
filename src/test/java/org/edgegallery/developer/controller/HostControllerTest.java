@@ -24,7 +24,6 @@ import java.util.UUID;
 
 import org.edgegallery.developer.DeveloperApplicationTests;
 import org.edgegallery.developer.model.workspace.EnumHostStatus;
-import org.edgegallery.developer.model.workspace.MepCreateHost;
 import org.edgegallery.developer.model.resource.MepHost;
 import org.edgegallery.developer.model.workspace.MepHostLog;
 import org.edgegallery.developer.response.FormatRespDto;
@@ -91,7 +90,7 @@ public class HostControllerTest {
 	@Test
 	@WithMockUser(roles = "DEVELOPER_ADMIN")
 	public void testCreateHost() throws Exception {
-		MepCreateHost host = new MepCreateHost();
+		MepHost host = new MepHost();
 		host.setHostId(UUID.randomUUID().toString());
 		host.setName("onlineever");
 		host.setAddress("address");
@@ -121,7 +120,7 @@ public class HostControllerTest {
 	@Test
 	@WithMockUser(roles = "DEVELOPER_ADMIN")
 	public void testModifyHost() throws Exception {
-		MepCreateHost host = new MepCreateHost();
+		MepHost host = new MepHost();
 		host.setHostId(UUID.randomUUID().toString());
 		host.setName("onlineever");
 		host.setAddress("address");
