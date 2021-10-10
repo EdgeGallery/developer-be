@@ -16,68 +16,24 @@
 
 package org.edgegallery.developer.exception;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
 import org.edgegallery.developer.domain.shared.Entity;
 
-public class EntityNotFoundException extends RuntimeException implements Serializable {
-
-    private static final long serialVersionUID = 5224743617068936039L;
+public class EntityNotFoundException extends CommonException {
+    public EntityNotFoundException(String message, int ret) {
+        super(message, ret);
+    }
 
     public EntityNotFoundException(String message) {
         super(message);
+    }
+
+    public EntityNotFoundException(String message, int ret, Object... args) {
+        super(message, ret, args);
+
     }
 
     public <T extends Entity> EntityNotFoundException(Class<T> entityClass, String id) {
         super("cannot find the " + entityClass.getSimpleName().toLowerCase() + " with id " + id);
     }
 
-    private ErrorMessage errMsg;
-
-    /**
-     * Constructor to create EntityNotFoundException with retCode and params.
-     *
-     * @param ret retCode
-     */
-    public EntityNotFoundException(String msg, int ret) {
-        super(msg);
-        ErrorMessage errorMessage = new ErrorMessage(ret, null);
-        errMsg = errorMessage;
-    }
-
-    /**
-     * get error message.
-     */
-    public ErrorMessage getErrMsg() {
-        return errMsg;
-    }
-
-    /**
-     * Constructor to create EntityNotFoundException with retCode and params.
-     *
-     * @param ret retCode
-     * @param args params of error message
-     */
-    public EntityNotFoundException(String msg, int ret, Object... args) {
-        super(msg);
-        List<String> params = new ArrayList<>();
-        int length = args == null ? 0 : args.length;
-        for (int i = 0; i < length; i++) {
-            params.add(args[i].toString());
-        }
-        ErrorMessage errorMessage = new ErrorMessage(ret, params);
-        errMsg = errorMessage;
-    }
-
-    private void writeObject(ObjectOutputStream outputStream) throws IOException {
-        outputStream.defaultWriteObject();
-    }
-
-    private void readObject(ObjectInputStream inputStream) throws IOException, ClassNotFoundException {
-        inputStream.defaultReadObject();
-    }
 }
