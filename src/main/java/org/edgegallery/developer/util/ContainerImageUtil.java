@@ -302,8 +302,11 @@ public final class ContainerImageUtil {
                 LOGGER.error("failed to push image {}", e.getMessage());
                 return false;
             }
+            return true;
+        } else {
+            LOGGER.error("imageId is null");
+            return false;
         }
-        return true;
     }
 
     /**

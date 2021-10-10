@@ -199,19 +199,12 @@ public class NewCreateVmCsar {
             FileUtils.writeStringToFile(vnfValue,
                 FileUtils.readFileToString(vnfValue, StandardCharsets.UTF_8).replace("{VNFD}", vmName + ".yaml"),
                 StandardCharsets.UTF_8, false);
-        } catch (IOException e) {
-            LOGGER.error("modify TOSCA_VNFD.meta file is error");
-            return false;
-        }
-        // modify the csar  TOSCA-Metadata/TOSCA.meta file
-        try {
             File toscaValue = new File(canonicalPath + TEMPLATE_TOSCA_METADATA_PATH);
-
             FileUtils.writeStringToFile(toscaValue,
                 FileUtils.readFileToString(toscaValue, StandardCharsets.UTF_8).replace("{appdFile}", vmName),
                 StandardCharsets.UTF_8, false);
         } catch (IOException e) {
-            LOGGER.error("modify TOSCA.meta file is error");
+            LOGGER.error("modify TOSCA_VNFD.meta or TOSCA.meta file is error {}", e.getMessage());
             return false;
         }
         return true;
