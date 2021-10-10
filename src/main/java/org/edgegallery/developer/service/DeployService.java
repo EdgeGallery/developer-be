@@ -40,7 +40,6 @@ import org.edgegallery.developer.model.deployyaml.DeployYaml;
 import org.edgegallery.developer.model.deployyaml.Environment;
 import org.edgegallery.developer.model.deployyaml.PodImage;
 import org.edgegallery.developer.model.deployyaml.SecretKeyRef;
-import org.edgegallery.developer.model.deployyaml.ServicePorts;
 import org.edgegallery.developer.model.deployyaml.ValueFrom;
 import org.edgegallery.developer.model.deployyaml.VolumeMounts;
 import org.edgegallery.developer.model.deployyaml.Volumes;
@@ -109,7 +108,6 @@ public class DeployService {
         List<Capability> list = capabilityMapper.selectByProjectId(projectId);
         //save service
         StringBuilder sb = new StringBuilder();
-        List<String> podName = new ArrayList<>();
         List<String> podImages = new ArrayList<>();
         for (int h = 0; h < sbPod.size(); h++) {
             //get podName and image
@@ -118,7 +116,6 @@ public class DeployService {
             if (!CollectionUtils.isEmpty(list) && h == 0) {
                 jsonPod = addMepAgent(deployYaml);
             }
-            podName.add(deployYaml.getMetadata().getName());
             PodImage podIm = new PodImage();
             podIm.setPodName(deployYaml.getMetadata().getName());
             Containers[] containers = deployYaml.getSpec().getContainers();
@@ -138,18 +135,7 @@ public class DeployService {
             sb.append(jsonAsYaml);
         }
         StringBuilder sbs = new StringBuilder();
-        List<String> svcType = new ArrayList<>();
-        List<String> svcPort = new ArrayList<>();
-        List<String> svcNodePort = new ArrayList<>();
         for (String svc : sbService) {
-            //get svcType/svcPort/svcNodePort
-            DeployYaml deployYaml = new Gson().fromJson(svc.substring(1), DeployYaml.class);
-            ServicePorts[] ports = deployYaml.getSpec().getPorts();
-            svcType.add(deployYaml.getSpec().getType());
-            for (ServicePorts servicePorts : ports) {
-                svcNodePort.add(String.valueOf(servicePorts.getNodePort()));
-                svcPort.add(String.valueOf(servicePorts.getPort()));
-            }
             //convert svc to yaml
             JsonNode jsonNodeTree = new ObjectMapper().readTree(svc.substring(1));
             // save it as YAML

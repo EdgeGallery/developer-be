@@ -43,4 +43,29 @@ public class VmInstantiateInfo {
 
     private List<PortInstantiateInfo> portInstanceList;
 
+    /**
+     * getInstantiateTime.
+     *
+     * @return
+     */
+    public Date getInstantiateTime() {
+        if (this.instantiateTime != null) {
+            return new Date(this.instantiateTime.getTime());
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * setInstantiateTime.
+     *
+     * @param instantiateTime instantiateTime
+     */
+    public void setInstantiateTime(Date instantiateTime) {
+        if (instantiateTime != null) {
+            this.instantiateTime = (Date) instantiateTime.clone();
+        } else {
+            this.instantiateTime = null;
+        }
+    }
 }
