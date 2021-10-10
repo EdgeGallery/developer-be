@@ -53,10 +53,10 @@ class Signature {
                     CMSTypedData msg = new CMSProcessableByteArray(srcMsg.getBytes(charSet));
                     Store certs = new JcaCertStore(certList);
                     CMSSignedDataGenerator cmsSignedDataGenerator = new CMSSignedDataGenerator();
-                    ContentSigner sha1Signer = (new JcaContentSignerBuilder("SHA256withRSA").setProvider("BC")
-                        .build(privateKey));
-                    cmsSignedDataGenerator.addSignerInfoGenerator((new JcaSignerInfoGeneratorBuilder(
-                        (new JcaDigestCalculatorProviderBuilder()).setProvider("BC").build()))
+                    ContentSigner sha1Signer = new JcaContentSignerBuilder("SHA256withRSA").setProvider("BC")
+                        .build(privateKey);
+                    cmsSignedDataGenerator.addSignerInfoGenerator(new JcaSignerInfoGeneratorBuilder(
+                        new JcaDigestCalculatorProviderBuilder().setProvider("BC").build())
                         .build(sha1Signer, cerx509));
                     cmsSignedDataGenerator.addCertificates(certs);
                     CMSSignedData sigData = cmsSignedDataGenerator.generate(msg, true);

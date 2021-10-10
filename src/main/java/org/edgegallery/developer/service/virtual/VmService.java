@@ -18,7 +18,6 @@ package org.edgegallery.developer.service.virtual;
 
 import static org.edgegallery.developer.util.AtpUtil.getProjectPath;
 
-
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
