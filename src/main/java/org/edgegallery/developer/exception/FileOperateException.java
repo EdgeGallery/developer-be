@@ -16,45 +16,9 @@
 
 package org.edgegallery.developer.exception;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.Serializable;
-
-public class FileOperateException extends DomainException implements Serializable {
-
-    private static final long serialVersionUID = 1311109258952411151L;
-
-    private ErrorMessage errMsg;
-
-    public FileOperateException(String message) {
-        super(message);
+public class FileOperateException extends CommonException {
+    public FileOperateException(String message, int ret) {
+        super(message, ret);
     }
 
-    /**
-     * Constructor to create FileOperateException with retCode and params.
-     *
-     * @param ret retCode
-     */
-    public FileOperateException(String msg, int ret) {
-        super(msg);
-        ErrorMessage errorMessage = new ErrorMessage(ret, null);
-        errMsg = errorMessage;
-    }
-
-    /**
-     * get error message.
-     *
-     */
-    public ErrorMessage getErrMsg() {
-        return errMsg;
-    }
-
-    private void writeObject(ObjectOutputStream outputStream) throws IOException {
-        outputStream.defaultWriteObject();
-    }
-
-    private void readObject(ObjectInputStream inputStream) throws IOException, ClassNotFoundException {
-        inputStream.defaultReadObject();
-    }
 }
