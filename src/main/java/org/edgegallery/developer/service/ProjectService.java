@@ -424,11 +424,6 @@ public class ProjectService {
 
         // delete capabilityGroup and CapabilityDetail
         projectCapabilityMapper.deleteByProjectId(projectId);
-        // delete the project from db
-        Either<FormatRespDto, Boolean> delResult = projectDto.deleteProject(userId, projectId);
-        if (delResult.isLeft()) {
-            return delResult;
-        }
         // delete files of project
         String projectPath = getProjectPath(projectId);
         DeveloperFileUtils.deleteDir(projectPath);
@@ -453,6 +448,11 @@ public class ProjectService {
                 FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "clean vm project env failed!");
                 return Either.left(error);
             }
+        }
+        // delete the project from db
+        Either<FormatRespDto, Boolean> delResult = projectDto.deleteProject(userId, projectId);
+        if (delResult.isLeft()) {
+            return delResult;
         }
         return Either.right(true);
     }

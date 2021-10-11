@@ -726,10 +726,10 @@ public class SystemImageMgmtService {
                 } else if (slimStatus==1) {
                     systemImageMapper
                         .updateSystemImageSlimStatus(systemId, EnumSystemImageSlimStatus.SLIMMING.toString());
-                    break;
                 } else if(slimStatus==3){
                     systemImageMapper
                         .updateSystemImageSlimStatus(systemId, EnumSystemImageSlimStatus.SLIM_FAILED.toString());
+                    break;
                 }
             }
 
