@@ -1,3 +1,19 @@
+/*
+ *    Copyright 2020-2021 Huawei Technologies Co., Ltd.
+ *
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
+ */
+
 package org.edgegallery.developer.util;
 
 import java.io.BufferedReader;
@@ -12,25 +28,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.edgegallery.developer.common.Consts;
 import org.edgegallery.developer.response.HelmTemplateYamlRespDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.util.CollectionUtils;
-import org.springframework.web.client.RestClientException;
-import org.springframework.web.client.RestTemplate;
 
 public final class UploadFileUtil {
     private static final Logger LOGGER = LoggerFactory.getLogger(UploadFileUtil.class);
-
-    private static final RestTemplate REST_TEMPLATE = new RestTemplate();
-
-    private static final String HARBOR_PROTOCOL = "https";
 
     private UploadFileUtil() {
     }
@@ -62,89 +65,6 @@ public final class UploadFileUtil {
                 }
             }
         }
-    }
-
-    /**
-     * read file by line.
-     */
-    public static List<String> readFileByLine(File fin) {
-        String line;
-        List<String> sb = new ArrayList<>();
-        try (FileInputStream fis = new FileInputStream(fin);
-             BufferedReader br = new BufferedReader(new InputStreamReader(fis, StandardCharsets.UTF_8))) {
-            while ((line = br.readLine()) != null) {
-                sb.add(line + "\r\n");
-            }
-        } catch (IOException e) {
-            return Collections.emptyList();
-        }
-        return sb;
-    }
-
-    /**
-     * judge image exist or not.
-     *
-     * @return
-     */
-    public static boolean isExist(List<String> imageList) {
-        if (CollectionUtils.isEmpty(imageList)) {
-            LOGGER.error("deploy yaml has no any image info");
-            return false;
-        }
-        for (String image : imageList) {
-            LOGGER.info("deploy yaml image: {}", image);
-            //judge image in format
-            if (!image.contains(":") || image.endsWith(":")) {
-                LOGGER.error("image {} must be in xxx:xxx format!", image);
-                return false;
-            }
-            String envStr = "{{.Values.imagelocation.domainname}}/{{.Values.imagelocation.project}}";
-            ImageConfig imageConfig = (ImageConfig) SpringContextUtil.getBean(ImageConfig.class);
-            String harborStr = imageConfig.getDomainname() + "/" + imageConfig.getProject();
-            if (image.contains(envStr)) {
-                image = image.replace(envStr, harborStr);
-            }
-            String[] images = image.split("/");
-            if (images.length != 3) {
-                LOGGER.error("image {} incorrect format!", image);
-                return false;
-            } else {
-                String project = images[1];
-                String[] nameVers = images[2].split(":");
-                String imageName = nameVers[0];
-                String imageVersion = nameVers[1];
-                String ret = getHarborImageInfo(project, imageName, imageVersion);
-                if (ret.equals("error")) {
-                    return false;
-                }
-            }
-        }
-
-        return true;
-    }
-
-    private static String getHarborImageInfo(String project, String name, String version) {
-        HttpHeaders headers = new HttpHeaders();
-        ImageConfig imageConfig = (ImageConfig) SpringContextUtil.getBean(ImageConfig.class);
-        headers.set("Authorization",
-            "Basic " + ContainerImageUtil.encodeUserAndPwd(imageConfig.getUsername(), imageConfig.getPassword()));
-        HttpEntity requestEntity = new HttpEntity<>(headers);
-        ResponseEntity<String> response;
-        try {
-            String url = String
-                .format(Consts.HARBOR_IMAGE_DELETE_URL, HARBOR_PROTOCOL, imageConfig.getDomainname(), project, name,
-                    version);
-            response = REST_TEMPLATE.exchange(url, HttpMethod.GET, requestEntity, String.class);
-            LOGGER.warn("get harbor image log:{}", response);
-        } catch (RestClientException e) {
-            LOGGER.error("Failed get harbor image {} occur {}", name, e.getMessage());
-            return "error";
-        }
-        if (response.getStatusCode() == HttpStatus.OK || response.getStatusCode() == HttpStatus.CREATED) {
-            return "ok";
-        }
-        LOGGER.error("Failed get harbor image!");
-        return "error";
     }
 
     /**
@@ -243,5 +163,25 @@ public final class UploadFileUtil {
         }
         return sb.toString();
     }
+
+    /**
+     * readFileByLine.
+     *
+     * @return
+     */
+    public static List<String> readFileByLine(File fin) {
+        String line;
+        List<String> sb = new ArrayList<>();
+        try (FileInputStream fis = new FileInputStream(fin);
+             BufferedReader br = new BufferedReader(new InputStreamReader(fis, StandardCharsets.UTF_8))) {
+            while ((line = br.readLine()) != null) {
+                sb.add(line + "\r\n");
+            }
+        } catch (IOException e) {
+            return Collections.emptyList();
+        }
+        return sb;
+    }
+
 }
 

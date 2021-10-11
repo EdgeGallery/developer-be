@@ -16,9 +16,6 @@
 
 package org.edgegallery.developer.apitest;
 
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-
-
 import com.google.gson.Gson;
 import com.spencerwi.either.Either;
 import java.io.File;
@@ -27,11 +24,9 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import javax.ws.rs.core.Response.Status;
-import org.apache.commons.io.FileUtils;
 import org.apache.http.entity.ContentType;
 import org.apache.ibatis.io.Resources;
 import org.edgegallery.developer.controller.UploadedFilesController;
-import org.edgegallery.developer.interfaces.plugin.facade.dto.PluginDto;
 import org.edgegallery.developer.model.workspace.UploadedFile;
 import org.edgegallery.developer.response.FormatRespDto;
 import org.edgegallery.developer.response.HelmTemplateYamlRespDto;
@@ -45,7 +40,6 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -59,7 +53,6 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.util.NestedServletException;
 
@@ -147,7 +140,7 @@ public class UploadFileTest {
         HelmTemplateYamlRespDto helmTemplateYamlRespDto = new HelmTemplateYamlRespDto();
         mvc.perform(MockMvcRequestBuilders.multipart("/mec/developer/v1/files/helm-template-yaml")
             .file("file", logoMultiFile.getBytes()).param("userId", "e111f3e7-90d8-4a39-9874-ea6ea6752ef4")
-            .param("projectId", "e111f3e7-90d8-4a39-9874-ea6ea6752ef5").param("configType","upload"))
+            .param("projectId", "e111f3e7-90d8-4a39-9874-ea6ea6752ef5").param("configType", "upload"))
             .andExpect(MockMvcResultMatchers.status().isOk());
     }
 
@@ -156,7 +149,7 @@ public class UploadFileTest {
     public void testGetSampleCode() throws Exception {
         List<String> list = new ArrayList<>();
         list.add("ad66d1b6-5d29-487b-9769-be48b62aec2e");
-        Either<FormatRespDto, ResponseEntity<byte[]>> either= Either.right(new ResponseEntity<>(HttpStatus.OK));
+        Either<FormatRespDto, ResponseEntity<byte[]>> either = Either.right(new ResponseEntity<>(HttpStatus.OK));
         Mockito.when(uploadFileService.downloadSampleCode(Mockito.any())).thenReturn(either);
         mvc.perform(
             MockMvcRequestBuilders.post("/mec/developer/v1/files/samplecode").content(gson.toJson(list).getBytes())
@@ -168,9 +161,8 @@ public class UploadFileTest {
     @WithMockUser(roles = "DEVELOPER_TENANT")
     public void testGetApiInfo() throws Exception {
         Either<FormatRespDto, UploadedFile> response = Either.right(new UploadedFile());
-        Mockito.when(uploadFileService.getApiFile(Mockito.anyString(),Mockito.anyString()))
-            .thenReturn(response);
-        String url = String.format("/mec/developer/v1/files/api-info/%s?userId=%s","aa","bb");
+        Mockito.when(uploadFileService.getApiFile(Mockito.anyString(), Mockito.anyString())).thenReturn(response);
+        String url = String.format("/mec/developer/v1/files/api-info/%s?userId=%s", "aa", "bb");
         MockHttpServletRequestBuilder request = MockMvcRequestBuilders.get(url);
         request.accept(MediaType.APPLICATION_JSON);
         request.contentType(MediaType.APPLICATION_JSON);
@@ -180,11 +172,13 @@ public class UploadFileTest {
     @Test
     @WithMockUser(roles = "DEVELOPER_TENANT")
     public void testUploadFile() throws Exception {
-        Either<FormatRespDto, UploadedFile> either= Either.right(new UploadedFile());
-        Mockito.when(uploadFileService.uploadFile(Mockito.anyString(),Mockito.any())).thenReturn(either);
+        Either<FormatRespDto, UploadedFile> either = Either.right(new UploadedFile());
+        Mockito.when(uploadFileService.uploadFile(Mockito.anyString(), Mockito.any())).thenReturn(either);
         File iconFile = Resources.getResourceAsFile("testdata/face.png");
-        ResultActions resultActions = mvc.perform(MockMvcRequestBuilders.multipart("/mec/developer/v1/files?userId=aaaa").file(
-            new MockMultipartFile("file", "face.png", "text/plain", Resources.getResourceAsStream("testdata/face.png"))));
+        ResultActions resultActions = mvc.perform(
+            MockMvcRequestBuilders.multipart("/mec/developer/v1/files?userId=aaaa").file(
+                new MockMultipartFile("file", "face.png", "text/plain",
+                    Resources.getResourceAsStream("testdata/face.png"))));
         MvcResult mvcResult = resultActions.andDo(MockMvcResultHandlers.print())
             .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
         String result = mvcResult.getResponse().getContentAsString();
@@ -194,25 +188,13 @@ public class UploadFileTest {
 
     @Test
     @WithMockUser(roles = "DEVELOPER_TENANT")
-    public void testGetHelmList() throws Exception {
-        Either<FormatRespDto, List<HelmTemplateYamlRespDto>> either= Either.right(new ArrayList<>());
-        Mockito.when(uploadFileService.getHelmTemplateYamlList(Mockito.anyString(),Mockito.any())).thenReturn(either);
-        String url = String.format("/mec/developer/v1/files/helm-template-yaml?userId=aa&projectId=bb");
-        ResultActions resultActions = mvc.perform(MockMvcRequestBuilders.get(url));
-        MvcResult mvcResult = resultActions.andDo(MockMvcResultHandlers.print())
-            .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
-        Assert.assertEquals(mvcResult.getResponse().getStatus(),200);
-    }
-
-    @Test
-    @WithMockUser(roles = "DEVELOPER_TENANT")
     public void testGetSdkProject() throws Exception {
-        Either<FormatRespDto, ResponseEntity<byte[]>> either= Either.right(new ResponseEntity<>(HttpStatus.OK));
-        Mockito.when(uploadFileService.getSdkProject(Mockito.anyString(),Mockito.any())).thenReturn(either);
-        String url = String.format("/mec/developer/v1/files/sdk/%s/download/%s","a","b");
+        Either<FormatRespDto, ResponseEntity<byte[]>> either = Either.right(new ResponseEntity<>(HttpStatus.OK));
+        Mockito.when(uploadFileService.getSdkProject(Mockito.anyString(), Mockito.any())).thenReturn(either);
+        String url = String.format("/mec/developer/v1/files/sdk/%s/download/%s", "a", "b");
         ResultActions resultActions = mvc.perform(MockMvcRequestBuilders.get(url));
         MvcResult mvcResult = resultActions.andDo(MockMvcResultHandlers.print())
             .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
-        Assert.assertEquals(mvcResult.getResponse().getStatus(),200);
+        Assert.assertEquals(mvcResult.getResponse().getStatus(), 200);
     }
 }
