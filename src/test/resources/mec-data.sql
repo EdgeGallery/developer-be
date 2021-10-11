@@ -27,6 +27,9 @@ VALUES ('c8aac2b2-4162-40fe-9d99-0630e3245cf9', 'f24ea0a2-d8e6-467c-8039-94f0d29
 MERGE INTO tbl_service_host(host_id, user_id, name, address, architecture, status, protocol,lcm_ip, mec_host, os, port_range_min, port_range_max,port, user_name, password,delete, parameter, vnc_port,resource) KEY(host_id)
 VALUES ('c8aac2b2-4162-40fe-9d99-0630e3245cdd', 'e111f3e7-90d8-4a39-9874-ea6ea6752eaa','host-1','xian','ARM','NORMAL','https','10.1.12.1','10.1.12.1','linux',30000,300001,30000,'root','123456',null,null,22,null);
 
+MERGE INTO tbl_service_host(host_id, user_id, name, address, architecture, status, protocol,lcm_ip, mec_host, os, port_range_min, port_range_max,port, user_name, password,delete, parameter, vnc_port,resource) KEY(host_id)
+VALUES ('c8aac2b2-4162-40fe-9d99-0630e3245ct5', 'e111f3e7-90d8-4a39-9874-ea6ea6752eaa','host-1','xian','X86','NORMAL','https','10.1.12.1','10.1.12.1','K8S',30000,300001,30000,'root','123456',null,null,22,null);
+
 -- ----------------------------
 -- Records of tbl_vm_system
 -- ----------------------------
@@ -79,7 +82,10 @@ guide_file_id_en, port, host, upload_time, user_id, experience_url,select_count)
 -- Records of tbl_uploaded_file
 -- ----------------------------
 MERGE INTO tbl_uploaded_file (file_id, file_name,is_temp, user_id, upload_date, file_path)  KEY(file_id) values
-( 'e111f3e7-90d8-4a39-9874-ea6ea6752ef5','pet.json', false, 'e111f3e7-90d8-4a39-9874-ea6ea6752ef6', '2019-10-23 03:27:36', '/workspace/200dfab1-3c30-4fc7-a6ca-ed6f0620a85e\ad66d1b6-5d29-487b-9769-be48b62aec2e');
+( 'e111f3e7-90d8-4a39-9874-ea6ea6752ef5','pet.json', false, 'e111f3e7-90d8-4a39-9874-ea6ea6752ef6', '2019-10-23 03:27:36', '/configs/mep_capability/7c544903-aa4f-40e0-bd8c-cf6e17c37c12');
+
+MERGE INTO tbl_uploaded_file (file_id, file_name,is_temp, user_id, upload_date, file_path)  KEY(file_id) values
+( 'e111f3e7-90d8-4a39-9874-ea6ea6752eab','pet.json', false, 'e111f3e7-90d8-4a39-9874-ea6ea6752ef6', '2019-10-23 03:27:36', '/configs/mep_capability/8fe31309-9e28-40f7-a593-a87e9a73ba5e');
 
 MERGE INTO tbl_uploaded_file (file_id, file_name,is_temp, user_id, upload_date, file_path)  KEY(file_id) values
 ( 'e111f3e7-90d8-4a39-9874-ea6ea6752e90','idea.png', false, 'e111f3e7-90d8-4a39-9874-ea6ea6752ef6', '2019-10-23 03:27:38', '/workspace/200dfab1-3c30-4fc7-a6ca-ed6f0620a85e\ad66d1b6-5d29-487b-9769-be48b62aec2e');
@@ -171,6 +177,7 @@ MERGE INTO tbl_release_config  KEY(release_id) VALUES ('00006', '200dfab1-3c30-4
 -- ----------------------------
 MERGE INTO tbl_helm_template_yaml  KEY(file_id) VALUES ('ad66d1b6-5d29-487b-9769-be48b62aec2e', 'demo.yaml', 'f24ea0a2-d8e6-467c-8039-94f0d29bac43', '200dfab1-3c30-4fc7-a6ca-ed6f0620a85e','aa',null,'upload');
 MERGE INTO tbl_helm_template_yaml  KEY(file_id) VALUES ('ad66d1b6-5d29-487b-9769-be48b62aec2h', 'demo.yaml', 'f24ea0a2-d8e6-467c-8039-94f0d29bac43', '200dfab1-3c30-4fc7-a6ca-ed6f0620a85e','---aa---bb',null,'upload');
+MERGE INTO tbl_helm_template_yaml  KEY(file_id) VALUES ('ad66d1b6-5d29-487b-9769-be48b62aec2g', 'demo.yaml', 'f24ea0a2-d8e6-467c-8039-94f0d29bac43', '200dfab1-3c30-4fc7-a6ca-ed6f0620a8oo','---aa---bb',null,'upload');
 
 
 -- ----------------------------

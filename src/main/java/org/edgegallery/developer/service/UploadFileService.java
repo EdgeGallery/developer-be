@@ -19,24 +19,14 @@ package org.edgegallery.developer.service;
 import com.google.common.collect.Lists;
 import com.google.gson.Gson;
 import com.spencerwi.either.Either;
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Base64;
-import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
-import java.util.regex.Pattern;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import org.apache.commons.io.FileUtils;
@@ -60,10 +50,12 @@ import org.edgegallery.developer.response.FormatRespDto;
 import org.edgegallery.developer.response.HelmTemplateYamlRespDto;
 import org.edgegallery.developer.util.BusinessConfigUtil;
 import org.edgegallery.developer.util.CompressFileUtils;
+import org.edgegallery.developer.util.ContainerImageUtil;
 import org.edgegallery.developer.util.DeveloperFileUtils;
 import org.edgegallery.developer.util.FileUtil;
 import org.edgegallery.developer.util.InitConfigUtil;
 import org.edgegallery.developer.util.RuntimeUtil;
+import org.edgegallery.developer.util.UploadFileUtil;
 import org.edgegallery.developer.util.samplecode.SampleCodeServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -86,17 +78,13 @@ import org.yaml.snakeyaml.constructor.SafeConstructor;
 @Service("uploadFileService")
 public class UploadFileService {
 
-    private static final String REGEX_START = Pattern.quote("{{");
-
-    private static final String REGEX_END = Pattern.quote("}}");
-
-    private static final Pattern REPLACE_PATTERN = Pattern.compile(REGEX_START + "(.*?)" + REGEX_END);
-
     private static final Logger LOGGER = LoggerFactory.getLogger(UploadFileService.class);
 
     private static final String REGEX_UUID = "[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}";
 
     private static final RestTemplate REST_TEMPLATE = new RestTemplate();
+
+    private static final String HARBOR_PROTOCOL = "https";
 
     private String sampleCodePath;
 
@@ -105,12 +93,6 @@ public class UploadFileService {
 
     @Value("${imagelocation.password:}")
     private String harborPassword;
-
-    @Value("${security.oauth2.resource.jwt.key-uri:}")
-    private String loginUrl;
-
-    @Value("${imagelocation.domainname:}")
-    private String imageDomainName;
 
     @Autowired
     private UploadedFileMapper uploadedFileMapper;
@@ -424,7 +406,7 @@ public class UploadFileService {
         try {
             tempFile = File.createTempFile(UUID.randomUUID().toString(), null);
             helmTemplateYaml.transferTo(tempFile);
-            content = readFile(tempFile);
+            content = UploadFileUtil.readFile(tempFile);
         } catch (IOException e) {
             String errorMsg = "Failed to read content of helm template yaml, userId: {}, projectId: {},exception: {}";
             LOGGER.error(errorMsg, userId, projectId, e.getMessage());
@@ -437,10 +419,10 @@ public class UploadFileService {
         }
         //Verify whether there exists a configuration namespace
         if (!content.contains("namespace")) {
-            content = addNameSpace(content);
+            content = UploadFileUtil.addNameSpace(content);
         } else {
             //replace namespace content
-            content = replaceContent(content);
+            content = UploadFileUtil.replaceContent(content);
         }
         //The image format isname:tag(nameDoes not contain delimiter)
         HelmTemplateYamlRespDto helmTemplateYamlRespDto = new HelmTemplateYamlRespDto();
@@ -472,7 +454,7 @@ public class UploadFileService {
         }
         List<String> requiredItems = Lists.newArrayList("image", "service", "mep-agent");
         // verify service,image,mep-agent
-        verifyHelmTemplate(mapList, requiredItems, helmTemplateYamlRespDto);
+        UploadFileUtil.verifyHelmTemplate(mapList, requiredItems, helmTemplateYamlRespDto);
 
         if (!requiredItems.isEmpty() && requiredItems.size() >= 2) {
             LOGGER.error("Failed to verify helm template yaml, userId: {}, projectId: {},exception: verify: {} failed",
@@ -524,7 +506,7 @@ public class UploadFileService {
 
     private boolean saveImage(File helmYaml, String projectId) {
         //yamlRead aslist
-        List<String> list = readFileByLine(helmYaml);
+        List<String> list = UploadFileUtil.readFileByLine(helmYaml);
         List<String> podImages = new ArrayList<>();
         //query image and save
         for (String str : list) {
@@ -563,164 +545,6 @@ public class UploadFileService {
         return true;
     }
 
-    private boolean isExist(List<String> imageList) {
-        if (CollectionUtils.isEmpty(imageList)) {
-            LOGGER.error("deploy yaml has no any image info");
-            return false;
-        }
-        for (String image : imageList) {
-            LOGGER.info("deploy yaml image: {}", image);
-            //judge image in format
-            if (!image.contains(":") || image.endsWith(":")) {
-                LOGGER.error("image {} must be in xxx:xxx format!", image);
-                return false;
-            }
-            String envStr = "{{.Values.imagelocation.domainname}}/{{.Values.imagelocation.project}}";
-            String harborStr = devRepoEndpoint + "/" + devRepoProject;
-            if (image.contains(envStr)) {
-                image = image.replace(envStr, harborStr);
-            }
-            String[] images = image.split("/");
-            if (images != null && images.length != 3) {
-                LOGGER.error("image {} incorrect format!", image);
-                return false;
-            }
-            String project = images[1];
-            String[] nameVers = images[2].split(":");
-            String imageName = nameVers[0];
-            String imageVersion = nameVers[1];
-            String ret = getHarborImageInfo(project, imageName, imageVersion);
-            if (ret.equals("error")) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    private String getHarborImageInfo(String project, String name, String version) {
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("Authorization", "Basic " + encodeUserAndPwd());
-        HttpEntity requestEntity = new HttpEntity<>(headers);
-        ResponseEntity<String> response;
-        try {
-            URL getUrl = new URL(loginUrl);
-            String url = String
-                .format(Consts.HARBOR_IMAGE_DELETE_URL, getUrl.getProtocol(), imageDomainName, project, name, version);
-            response = REST_TEMPLATE.exchange(url, HttpMethod.GET, requestEntity, String.class);
-            LOGGER.warn("get harbor image log:{}", response);
-        } catch (RestClientException | MalformedURLException e) {
-            LOGGER.error("Failed get harbor image {} occur {}", name, e.getMessage());
-            return "error";
-        }
-        if (response.getStatusCode() == HttpStatus.OK || response.getStatusCode() == HttpStatus.CREATED) {
-            return "ok";
-        }
-        LOGGER.error("Failed get harbor image!");
-        return "error";
-    }
-
-    private String encodeUserAndPwd() {
-        String user = harborUsername + ":" + harborPassword;
-        return Base64.getEncoder().encodeToString(user.getBytes(StandardCharsets.UTF_8));
-    }
-
-    private static List<String> readFileByLine(File fin) {
-        String line;
-        List<String> sb = new ArrayList<>();
-        try (FileInputStream fis = new FileInputStream(fin);
-             BufferedReader br = new BufferedReader(new InputStreamReader(fis, StandardCharsets.UTF_8))) {
-            while ((line = br.readLine()) != null) {
-                sb.add(line + "\r\n");
-            }
-        } catch (IOException e) {
-            return Collections.emptyList();
-        }
-        return sb;
-    }
-
-    private String readFile(File fin) {
-        String line;
-        StringBuilder sb = new StringBuilder();
-        try (FileInputStream fis = new FileInputStream(fin);
-             BufferedReader br = new BufferedReader(new InputStreamReader(fis, StandardCharsets.UTF_8))) {
-            while ((line = br.readLine()) != null) {
-                sb.append(line + "\r\n");
-            }
-        } catch (IOException e) {
-            LOGGER.error("read file by line occur {}", e.getMessage());
-            return null;
-        }
-        return sb.toString();
-    }
-
-    private String replaceContent(String content) {
-        String[] multiContent = content.split("\r\n");
-        for (int i = 0; i < multiContent.length; i++) {
-            if (multiContent[i].contains("namespace")) {
-                multiContent[i] = "namespace: '{{ .Values.appconfig.appnamespace }}'";
-            }
-        }
-        StringBuilder sb = new StringBuilder();
-        for (String newStr : multiContent) {
-            if (newStr.contains("namespace")) {
-                sb.append("  " + newStr + "\r\n");
-            } else if (newStr.contains("{{- if .Values.global.mepagent.enabled }}") || newStr.contains("{{- end }}")) {
-                sb.append(newStr.replace(newStr, ""));
-            } else {
-                sb.append(newStr + "\r\n");
-            }
-        }
-        return sb.toString();
-    }
-
-    private String addNameSpace(String content) {
-        String[] multiContent = content.split("\r\n");
-        List<String> list = new ArrayList<>();
-        List<Integer> nums = new ArrayList<>();
-        for (int i = 0; i < multiContent.length; i++) {
-            list.add(multiContent[i]);
-        }
-        String in = getIndexOfSameObject(list);
-        String[] indexes = in.split(",");
-        for (String index : indexes) {
-            nums.add(Integer.parseInt(index));
-        }
-        for (int i = 0; i < nums.size(); i++) {
-            list.add(nums.get(i) + i, "namespace: '{{ .Values.appconfig.appnamespace }}'");
-        }
-        StringBuilder sb = new StringBuilder();
-        for (String newStr : list) {
-            if (newStr.contains("namespace")) {
-                sb.append("  " + newStr + "\r\n");
-            } else {
-                sb.append(newStr + "\r\n");
-            }
-        }
-        return sb.toString();
-    }
-
-    private String getIndexOfSameObject(List<String> list) {
-        Map<String, String> map = new HashMap<>();
-        for (int i = 0; i < list.size(); i++) {
-            String key = list.get(i);
-            String old = map.get(key);
-            if (old != null) {
-                map.put(key, old + "," + (i + 1));
-            } else {
-                map.put(key, "" + (i + 1));
-            }
-        }
-        Set<Map.Entry<String, String>> sets = map.entrySet();
-        String index = "";
-        for (Map.Entry<String, String> entry : sets) {
-            if (entry.getKey().startsWith("metadata")) {
-                index = entry.getValue();
-            }
-        }
-        return index;
-    }
-
     private Either<FormatRespDto, HelmTemplateYamlRespDto> getSuccessResult(MultipartFile helmTemplateYaml,
         String userId, String projectId, String content, HelmTemplateYamlRespDto helmTemplateYamlRespDto,
         String configType, File tempFile) {
@@ -756,89 +580,6 @@ public class UploadFileService {
         LOGGER.info("Succeed to save helm template yaml with file id : {}", fileId);
         return Either.right(helmTemplateYamlRespDto);
 
-    }
-
-    private void verifyHelmTemplate(List<Map<String, Object>> mapList, List<String> requiredItems,
-        HelmTemplateYamlRespDto helmTemplateYamlRespDto) {
-        for (Map<String, Object> stringMap : mapList) {
-            for (Map.Entry<String, Object> entry : stringMap.entrySet()) {
-                if ("kind".equals(entry.getKey())) {
-                    if ("Service".equalsIgnoreCase(stringMap.get(entry.getKey()).toString())) {
-                        requiredItems.remove("service");
-                        helmTemplateYamlRespDto.setServiceSuccess(true);
-                        continue;
-                    }
-                    if (stringMap.get("spec") != null) {
-                        String specContent = stringMap.get("spec").toString();
-                        if (specContent.contains("image")) {
-                            requiredItems.remove("image");
-                            helmTemplateYamlRespDto.setImageSuccess(true);
-                        }
-                        if (specContent.contains("mep-agent")) {
-                            helmTemplateYamlRespDto.setMepAgentSuccess(true);
-                            requiredItems.remove("mep-agent");
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    /**
-     * getHelmTemplateYamlList.
-     *
-     * @return
-     */
-    public Either<FormatRespDto, List<HelmTemplateYamlRespDto>> getHelmTemplateYamlList(String userId,
-        String projectId) {
-        List<HelmTemplateYamlPo> templateYamlPoList = helmTemplateYamlMapper
-            .queryTemplateYamlByProjectId(userId, projectId);
-        List<HelmTemplateYamlRespDto> helmTemplateYamlRespDtoList = new ArrayList<>();
-        templateYamlPoList.forEach(helmTemplateYamlPo -> {
-            HelmTemplateYamlRespDto helmTemplateYamlRespDto = new HelmTemplateYamlRespDto();
-            helmTemplateYamlRespDto.setResponse(helmTemplateYamlPo);
-            String content = helmTemplateYamlPo.getContent().replaceAll("\r", "");
-            content = content.replaceAll(REPLACE_PATTERN.toString(), "");
-            // verify yaml scheme
-            String[] multiContent = content.split("---");
-            List<Map<String, Object>> mapList = new ArrayList<>();
-            try {
-                for (String str : multiContent) {
-                    if (StringUtils.isBlank(str)) {
-                        continue;
-                    }
-                    Yaml yaml = new Yaml(new SafeConstructor());
-                    Map<String, Object> loaded = yaml.load(str);
-                    mapList.add(loaded);
-                }
-                helmTemplateYamlRespDto.setFormatSuccess(true);
-            } catch (Exception e) {
-                LOGGER
-                    .error("Failed to validate yaml scheme, userId: {}, projectId: {},exception: {}", userId, projectId,
-                        e.getMessage());
-                helmTemplateYamlRespDto.setFormatSuccess(false);
-                helmTemplateYamlRespDto.setMepAgentSuccess(null);
-                helmTemplateYamlRespDto.setServiceSuccess(null);
-                helmTemplateYamlRespDto.setImageSuccess(null);
-            }
-            List<String> requiredItems = Lists.newArrayList("image", "service", "mep-agent");
-            // verify service,image,mep-agent
-            verifyHelmTemplate(mapList, requiredItems, helmTemplateYamlRespDto);
-
-            if (!requiredItems.isEmpty() && requiredItems.size() >= 2) {
-                LOGGER.error(
-                    "Failed to verify helm template yaml, userId: {}, projectId: {},exception: verify: {} failed",
-                    userId, projectId, String.join(",", requiredItems));
-            } else if (!requiredItems.isEmpty() && requiredItems.size() == 1 && requiredItems.get(0)
-                .equals("mep-agent")) {
-                helmTemplateYamlRespDto.setImageSuccess(true);
-                helmTemplateYamlRespDto.setServiceSuccess(true);
-                helmTemplateYamlRespDto.setMepAgentSuccess(false);
-            }
-            helmTemplateYamlRespDtoList.add(helmTemplateYamlRespDto);
-        });
-        LOGGER.info("Succeed to query helm template yaml with user id : {}, project id : {}", userId, projectId);
-        return Either.right(helmTemplateYamlRespDtoList);
     }
 
     /**
@@ -936,6 +677,10 @@ public class UploadFileService {
     }
 
     private UploadedFile saveFileToLocal(MultipartFile uploadFile, String userId) {
+        if (uploadFile == null || StringUtils.isEmpty(userId)) {
+            LOGGER.error("uploadFile or userId is null.");
+            return null;
+        }
         UploadedFile result = new UploadedFile();
         String fileName = uploadFile.getOriginalFilename();
         String fileId = UUID.randomUUID().toString();
@@ -968,5 +713,60 @@ public class UploadFileService {
         //upload success
         result.setFilePath("");
         return result;
+    }
+
+    private boolean isExist(List<String> imageList) {
+        if (CollectionUtils.isEmpty(imageList)) {
+            LOGGER.error("deploy yaml has no any image info");
+            return false;
+        }
+        for (String image : imageList) {
+            LOGGER.info("deploy yaml image: {}", image);
+            //judge image in format
+            if (!image.contains(":") || image.endsWith(":")) {
+                LOGGER.error("image {} must be in xxx:xxx format!", image);
+                return false;
+            }
+            String envStr = "{{.Values.imagelocation.domainname}}/{{.Values.imagelocation.project}}";
+            String harborStr = devRepoEndpoint + "/" + devRepoProject;
+            if (image.contains(envStr)) {
+                image = image.replace(envStr, harborStr);
+            }
+            String[] images = image.split("/");
+            if (images != null && images.length != 3) {
+                LOGGER.error("image {} incorrect format!", image);
+                return false;
+            }
+            String project = images[1];
+            String[] nameVers = images[2].split(":");
+            String imageName = nameVers[0];
+            String imageVersion = nameVers[1];
+            String ret = getHarborImageInfo(project, imageName, imageVersion);
+            if (ret.equals("error")) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private String getHarborImageInfo(String project, String name, String version) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", "Basic " + ContainerImageUtil.encodeUserAndPwd(harborUsername, harborPassword));
+        HttpEntity requestEntity = new HttpEntity<>(headers);
+        ResponseEntity<String> response;
+        try {
+            String url = String
+                .format(Consts.HARBOR_IMAGE_DELETE_URL, HARBOR_PROTOCOL, devRepoEndpoint, project, name, version);
+            response = REST_TEMPLATE.exchange(url, HttpMethod.GET, requestEntity, String.class);
+            LOGGER.warn("get harbor image log:{}", response);
+        } catch (RestClientException e) {
+            LOGGER.error("Failed get harbor image {} occur {}", name, e.getMessage());
+            return "error";
+        }
+        if (response.getStatusCode() == HttpStatus.OK || response.getStatusCode() == HttpStatus.CREATED) {
+            return "ok";
+        }
+        LOGGER.error("Failed get harbor image!");
+        return "error";
     }
 }
