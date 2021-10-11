@@ -75,6 +75,21 @@ public class ReleaseConfigServiceTest {
 
     @Test
     @WithMockUser(roles = "DEVELOPER_TENANT")
+    public void testCreateRelConfigSuccess1() {
+        ReleaseConfig releaseConfig = new ReleaseConfig();
+        Either<FormatRespDto, ReleaseConfig> stru = releaseConfigService.saveConfig("200dfab1-3c30-4fc7-a6ca-ad6f0620a85e", releaseConfig);
+        if (stru.isLeft()) {
+            Assert.assertEquals(400, stru.getLeft().getErrorRespDto().getCode());
+            Assert.assertEquals("releaseConfig have exit!", stru.getLeft().getErrorRespDto().getDetail());
+        } else {
+            Assert.assertTrue(stru.isRight());
+        }
+
+    }
+
+
+    @Test
+    @WithMockUser(roles = "DEVELOPER_TENANT")
     public void testCreateRelConfigWithProjectError() {
         Either<FormatRespDto, ReleaseConfig> stru = releaseConfigService.saveConfig("", new ReleaseConfig());
         Assert.assertTrue(stru.isLeft());
@@ -117,6 +132,15 @@ public class ReleaseConfigServiceTest {
         AccessUserUtil.setUser("f24ea0a2-d8e6-467c-8039-94f0d29bac43", "test-user");
         Either<FormatRespDto, ReleaseConfig> stru = releaseConfigService
             .getConfigById("200dfab1-3c30-4fc7-a6ca-ed6f0620a85d", "");
+        Assert.assertTrue(stru.isLeft());
+    }
+
+    @Test
+    @WithMockUser(roles = "DEVELOPER_TENANT")
+    public void testGetRelConfigByProjectNull() {
+        AccessUserUtil.setUser("f24ea0a2-d8e6-467c-8539-96f0d29bac43", "test-user");
+        Either<FormatRespDto, ReleaseConfig> stru = releaseConfigService
+            .getConfigById("200dfab1-3c30-48c7-a6ca-ed6f0620a85d", "");
         Assert.assertTrue(stru.isLeft());
     }
 

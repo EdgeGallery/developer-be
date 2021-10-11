@@ -168,7 +168,7 @@ public class ReleaseConfigService {
         List<Capability> capabilities = capabilityService.findByProjectId(projectId);
 
         ApplicationProject applicationProject = projectMapper.getProjectById(projectId);
-        if (!CollectionUtils.isEmpty(capabilities) || !CapabilitiesDetail.isEmpty(config.getCapabilitiesDetail())
+        if (!CollectionUtils.isEmpty(capabilities) || (config.getCapabilitiesDetail()!=null)
             || !StringUtils.isEmpty(config.getGuideFileId())) {
             if (applicationProject.getDeployPlatform() == EnumDeployPlatform.KUBERNETES) {
                 Either<FormatRespDto, Boolean> rebuildRes = rebuildCsar(projectId, config);

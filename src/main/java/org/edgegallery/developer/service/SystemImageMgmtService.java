@@ -1,9 +1,7 @@
 package org.edgegallery.developer.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import com.spencerwi.either.Either;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -34,6 +32,7 @@ import org.edgegallery.developer.model.system.MepGetSystemImageRes;
 import org.edgegallery.developer.model.system.MepSystemQueryCtrl;
 import org.edgegallery.developer.model.system.UploadFileInfo;
 import org.edgegallery.developer.model.system.VmSystem;
+import org.edgegallery.developer.model.system.FileSystemResponse;
 import org.edgegallery.developer.model.workspace.EnumSystemImageSlimStatus;
 import org.edgegallery.developer.model.workspace.EnumSystemImageStatus;
 import org.edgegallery.developer.response.FormatRespDto;
@@ -65,7 +64,9 @@ public class SystemImageMgmtService {
 
     private static final String FILE_FORMAT_ISO = "iso";
 
-    private static final String FILE_SLIM_PATH = "action/slim";
+    private static final String FILE_SLIM_PATH = "/action/slim";
+
+    private static Gson gson = new Gson();
 
     /**
      * the max time for wait workStatus.
@@ -160,7 +161,6 @@ public class SystemImageMgmtService {
             }
             vmImage.setUserId(AccessUserUtil.getUser().getUserId());
             vmImage.setUserName(AccessUserUtil.getUser().getUserName());
-            vmImage.setStatus(EnumSystemImageStatus.UPLOAD_WAIT);
             int ret = systemImageMapper.createSystemImage(vmImage);
             if (ret > 0) {
                 LOGGER.info("Crete SystemImage {} success ", vmImage.getUserId());
@@ -506,6 +506,7 @@ public class SystemImageMgmtService {
             ? EnumSystemImageStatus.PUBLISHED
             : EnumSystemImageStatus.UPLOAD_SUCCEED, uploadedSystemPath);
         systemImageMapper.updateSystemImageUploadInfo(uploadFileInfo);
+        systemImageMapper.updateSystemImageSlimStatus(systemId, EnumSystemImageSlimStatus.SLIM_WAIT.toString());
         return ResponseEntity.ok().build();
     }
 
@@ -536,7 +537,7 @@ public class SystemImageMgmtService {
             return Either.left(new FormatRespDto(Response.Status.FORBIDDEN, "image slim fail."));
         }
 
-        LOGGER.info("update image status to upload_wait.");
+        LOGGER.info("update image status to SLIMMING.");
         systemImageMapper.updateSystemImageSlimStatus(systemId, EnumSystemImageSlimStatus.SLIMMING.toString());
         new GetVmImageSlimProcessor(systemId).start();
         return Either.right(true);
@@ -642,7 +643,7 @@ public class SystemImageMgmtService {
             while (entries.hasMoreElements()) {
                 ZipEntry entry = entries.nextElement();
                 String name = entry.getName();
-                fileSize = entry.getCompressedSize();
+                fileSize = entry.getSize();
                 fileFormat = name.substring(name.lastIndexOf(".") + 1, name.length());
                 if (fileFormat.equalsIgnoreCase(FILE_FORMAT_QCOW2) || fileFormat.equalsIgnoreCase(FILE_FORMAT_ISO)) {
                     fileMd5 = FileHashCode.md5HashCode32(zipFile.getInputStream(entry));
@@ -692,20 +693,41 @@ public class SystemImageMgmtService {
         @Override
         public void run() {
             String systemPath = systemImageMapper.getSystemImagesPath(systemId);
-            String url = systemPath.substring(0, systemPath.length() - 16) + FILE_SLIM_PATH;
+            String url = systemPath.substring(0, systemPath.length() - 16);
             long startTime = System.currentTimeMillis();
-            while (System.currentTimeMillis() - startTime < MAX_SECONDS * 20) {
+            while (System.currentTimeMillis() - startTime < MAX_SECONDS * 60) {
+                try {
+                    Thread.sleep(10000);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    LOGGER.error("sleep fail! {}", e.getMessage());
+                }
                 String slimResult = HttpClientUtil.getImageSlim(url);
+                if (slimResult==null) {
+                    systemImageMapper
+                        .updateSystemImageSlimStatus(systemId, EnumSystemImageSlimStatus.SLIM_FAILED.toString());
+                }
+//                fileSystemResponse imageResult = gson.fromJson(slimResult, new TypeToken<fileSystemResponse>() { }.getType());
+                FileSystemResponse imageResult;
+                try {
+                    imageResult = new ObjectMapper().readValue(slimResult.getBytes(), FileSystemResponse.class);
+                } catch (Exception e) {
+                    break;
+                }
                 LOGGER.info("image slim result: {}", slimResult);
-                JsonObject jsonObject = new JsonParser().parse(slimResult).getAsJsonObject();
-                JsonElement slimStatus = jsonObject.get("slimStatus");
-                if (slimStatus.getAsString().equals("0")) {
+                int slimStatus = imageResult.getSlimStatus();
+                if (slimStatus==2) {
                     systemImageMapper
                         .updateSystemImageSlimStatus(systemId, EnumSystemImageSlimStatus.SLIM_SUCCEED.toString());
-                } else if (slimStatus.getAsString().equals("4")) {
+                    Long imageSize = Long.parseLong(imageResult.getCheckStatusResponse().getCheckInfo().getImageInfo().getImageSize());
+                    String checkSum = imageResult.getCheckStatusResponse().getCheckInfo().getChecksum();
+                    systemImageMapper.updateSystemImageInfo(systemId, imageSize, checkSum);
+                    break;
+                } else if (slimStatus==1) {
                     systemImageMapper
                         .updateSystemImageSlimStatus(systemId, EnumSystemImageSlimStatus.SLIMMING.toString());
-                } else {
+                    break;
+                } else if(slimStatus==3){
                     systemImageMapper
                         .updateSystemImageSlimStatus(systemId, EnumSystemImageSlimStatus.SLIM_FAILED.toString());
                 }
