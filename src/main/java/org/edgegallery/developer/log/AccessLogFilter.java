@@ -60,6 +60,8 @@ public class AccessLogFilter implements HttpServerFilter {
         traceLog.setTime(LocalDateTime.now().toString());
         traceLog.setParameterMap(new Gson().toJson(httpServletRequestEx.getParameterMap()));
 
+        httpServletRequestEx.setHeader("Connection", "Upgrade");
+
         // Need to check whether sensitive data needs to be filtered
         traceLog.setRequestBody(httpServletRequestEx.getBodyBuffer().toString());
         Enumeration<String> headerNames = httpServletRequestEx.getHeaderNames();
@@ -83,6 +85,7 @@ public class AccessLogFilter implements HttpServerFilter {
         responseLog.setStatus(responseEx.getStatus());
         responseLog.setTime(LocalDateTime.now().toString());
         String body = responseEx.getBodyBuffer().toString();
+        responseEx.setHeader("Connection", "Upgrade");
         if (body.length() > MAX_RESPONSE_BODY) {
             responseLog.setBody(body.substring(0, MAX_RESPONSE_BODY) + "...");
         } else {
