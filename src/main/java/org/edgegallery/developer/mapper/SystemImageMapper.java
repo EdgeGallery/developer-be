@@ -50,4 +50,6 @@ public interface SystemImageMapper {
     void updateSystemImageUploadInfo(UploadFileInfo uploadFileInfo);
 
     void updateSystemImageSlimStatus(@Param("systemId")Integer systemId, @Param("slimStatus")String slimStatus);
+
+    int updateSystemImageInfo(@Param("systemId") Integer systemId, @Param("fileSize") Long fileSize, @Param("fileMd5") String fileMd5);
 }

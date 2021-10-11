@@ -191,4 +191,10 @@
             system_size=#{fileSize}
         WHERE system_id = #{systemId}
     </update>
+
+    <update id="updateSystemImageInfo">
+        UPDATE tbl_vm_system
+        SET file_md5=#{fileMd5}, system_size=#{fileSize}
+        WHERE system_id = #{systemId}
+    </update>
 </mapper>
