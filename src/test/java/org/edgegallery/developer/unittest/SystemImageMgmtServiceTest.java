@@ -1,8 +1,27 @@
+/*
+ * Copyright 2021 Huawei Technologies Co., Ltd.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
+ */
+
 package org.edgegallery.developer.unittest;
 
 import com.spencerwi.either.Either;
+import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
+import javax.servlet.http.HttpServletRequest;
 import org.edgegallery.developer.DeveloperApplicationTests;
 import org.edgegallery.developer.config.security.AccessUserUtil;
+import org.edgegallery.developer.model.Chunk;
 import org.edgegallery.developer.model.system.MepGetSystemImageReq;
 import org.edgegallery.developer.model.system.MepGetSystemImageRes;
 import org.edgegallery.developer.model.system.MepSystemQueryCtrl;
@@ -16,6 +35,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -43,8 +63,7 @@ public class SystemImageMgmtServiceTest {
         MepGetSystemImageReq mepGetSystemImageReq = new MepGetSystemImageReq();
         MepSystemQueryCtrl queryCtrl = new MepSystemQueryCtrl();
         mepGetSystemImageReq.setQueryCtrl(queryCtrl);
-        Either<FormatRespDto, MepGetSystemImageRes> res = systemImageMgmtService
-                .getSystemImages(mepGetSystemImageReq);
+        Either<FormatRespDto, MepGetSystemImageRes> res = systemImageMgmtService.getSystemImages(mepGetSystemImageReq);
         Assert.assertTrue(res.isRight());
     }
 
@@ -74,7 +93,8 @@ public class SystemImageMgmtServiceTest {
         vmSystem.setOperateSystem("ubuntu");
         vmSystem.setVersion("16");
         Either<FormatRespDto, Boolean> res = systemImageMgmtService.createSystemImage(vmSystem);
-        Assert.assertTrue(res.getLeft().getErrorRespDto().getDetail().equalsIgnoreCase("Can not create a SystemImage."));
+        Assert
+            .assertTrue(res.getLeft().getErrorRespDto().getDetail().equalsIgnoreCase("Can not create a SystemImage."));
     }
 
     @Test
@@ -89,7 +109,8 @@ public class SystemImageMgmtServiceTest {
         vmSystem.setSystemName("testImage");
         vmSystem.setVersion("16");
         Either<FormatRespDto, Boolean> res = systemImageMgmtService.createSystemImage(vmSystem);
-        Assert.assertTrue(res.getLeft().getErrorRespDto().getDetail().equalsIgnoreCase("SystemName can not duplicate."));
+        Assert
+            .assertTrue(res.getLeft().getErrorRespDto().getDetail().equalsIgnoreCase("SystemName can not duplicate."));
     }
 
     @Test
@@ -103,7 +124,7 @@ public class SystemImageMgmtServiceTest {
         vmSystem.setOperateSystem("ubuntu");
         vmSystem.setSystemName("testImage");
         vmSystem.setVersion("14");
-        Either<FormatRespDto, Boolean> res = systemImageMgmtService.updateSystemImage(vmSystem,12345);
+        Either<FormatRespDto, Boolean> res = systemImageMgmtService.updateSystemImage(vmSystem, 12345);
         Assert.assertTrue(res.isLeft());
     }
 
@@ -118,8 +139,10 @@ public class SystemImageMgmtServiceTest {
         vmSystem.setOperateSystem("ubuntu");
         vmSystem.setSystemName("testImage01");
         vmSystem.setVersion("16");
-        Either<FormatRespDto, Boolean> res = systemImageMgmtService.updateSystemImage(vmSystem,12345);
-        Assert.assertTrue(res.getLeft().getErrorRespDto().getDetail().equalsIgnoreCase("SystemName can not duplicate."));;
+        Either<FormatRespDto, Boolean> res = systemImageMgmtService.updateSystemImage(vmSystem, 12345);
+        Assert
+            .assertTrue(res.getLeft().getErrorRespDto().getDetail().equalsIgnoreCase("SystemName can not duplicate."));
+        ;
     }
 
     @Test
@@ -144,5 +167,51 @@ public class SystemImageMgmtServiceTest {
         AccessUserUtil.setUser("e111f3e7-90d8-4a39-9874-ea6ea6752ee5", "tenant");
         Either<FormatRespDto, Boolean> res = systemImageMgmtService.deleteSystemImage(32145);
         Assert.assertTrue(res.isLeft());
+    }
+
+    @Test
+    @WithMockUser(roles = "DEVELOPER_TENANT")
+    public void testUploadSystemImageERROR(){
+        try {
+            AccessUserUtil.setUser("e111f3e7-90d8-4a39-9874-ea6ea6752ee5", "tenant");
+            HttpServletRequest request = null;
+            Chunk chunk = new Chunk();
+            Integer systemId = 12345;
+            ResponseEntity res = systemImageMgmtService.uploadSystemImage(request, chunk, systemId);
+        } catch (Exception e) {
+            Assert.assertThrows( NullPointerException.class, null);
+        }
+
+    }
+
+    @Test
+    @WithMockUser(roles = "DEVELOPER_TENANT")
+    public void testCheckUploadedChunksERROR() {
+        AccessUserUtil.setUser("e111f3e7-90d8-4a39-9874-ea6ea6752ee5", "tenant");
+        Integer systemId = 12345;
+        String identifier = "test";
+        List<Integer> res = systemImageMgmtService.checkUploadedChunks(systemId, identifier);
+        Assert.assertEquals(res, Collections.emptyList());
+    }
+
+    @Test
+    @WithMockUser(roles = "DEVELOPER_TENANT")
+    public void testCancelUploadSystemImageSuccess() {
+        AccessUserUtil.setUser("e111f3e7-90d8-4a39-9874-ea6ea6752ee5", "tenant");
+        Integer systemId = 12345;
+        String identifier = "test";
+        ResponseEntity res = systemImageMgmtService.cancelUploadSystemImage(systemId, identifier);
+        Assert.assertEquals(res.getStatusCode().value(), 200);
+    }
+
+    @Test
+    @WithMockUser(roles = "DEVELOPER_TENANT")
+    public void testMergeSystemImageERROR() throws IOException {
+        AccessUserUtil.setUser("e111f3e7-90d8-4a39-9874-ea6ea6752ee5", "tenant");
+        Integer systemId = 12345;
+        String identifier = "test";
+        String fileName = "test";
+        ResponseEntity res = systemImageMgmtService.mergeSystemImage(fileName, identifier, systemId);
+        Assert.assertEquals(res.getStatusCode().value(), 500);
     }
 }
