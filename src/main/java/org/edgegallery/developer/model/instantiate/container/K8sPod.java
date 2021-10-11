@@ -15,6 +15,7 @@
  */
 package org.edgegallery.developer.model.instantiate.container;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import lombok.Getter;
@@ -32,5 +33,5 @@ public class K8sPod {
 
     private String eventsInfo;
 
-    private List<Container> containerList;
+    private List<Container> containerList = new ArrayList<Container>(0);
 }

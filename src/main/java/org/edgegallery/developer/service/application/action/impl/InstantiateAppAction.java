@@ -16,41 +16,29 @@
 
 package org.edgegallery.developer.service.application.action.impl;
 
-import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.google.gson.reflect.TypeToken;
-import java.lang.reflect.Type;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import org.edgegallery.developer.mapper.HostLogMapper;
 import org.edgegallery.developer.model.LcmLog;
 import org.edgegallery.developer.model.application.Application;
-import org.edgegallery.developer.model.instantiate.vm.EnumVMInstantiateStatus;
-import org.edgegallery.developer.model.instantiate.vm.PortInstantiateInfo;
-import org.edgegallery.developer.model.instantiate.vm.VMInstantiateInfo;
 import org.edgegallery.developer.model.mephost.MepHost;
 import org.edgegallery.developer.model.operation.ActionStatus;
 import org.edgegallery.developer.model.operation.EnumOperationObjectType;
-import org.edgegallery.developer.model.vm.NetworkInfo;
-import org.edgegallery.developer.model.vm.VmInstantiateWorkload;
-import org.edgegallery.developer.model.workspace.EnumTestConfigStatus;
 import org.edgegallery.developer.service.application.ApplicationService;
 import org.edgegallery.developer.service.application.action.IContext;
-import org.edgegallery.developer.service.application.common.EnumDistributeStatus;
 import org.edgegallery.developer.service.application.common.EnumInstantiateStatus;
 import org.edgegallery.developer.service.application.common.IContextParameter;
-import org.edgegallery.developer.service.application.impl.vm.VMAppOperationServiceImpl;
 import org.edgegallery.developer.service.mephost.MepHostService;
 import org.edgegallery.developer.util.HttpClientUtil;
-import org.edgegallery.developer.util.InputParameterUtil;
-import org.edgegallery.developer.util.IpCalculateUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-public class InstantiateAppAction extends AbstractAction {
+public abstract class InstantiateAppAction extends AbstractAction {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DistributePackageAction.class);
 
@@ -58,22 +46,17 @@ public class InstantiateAppAction extends AbstractAction {
 
     private IContext context;
 
-    private static Gson gson = new Gson();
-
     // time out: 10 min.
     private static final int TIMEOUT = 10 * 60 * 1000;
+
+    //interval of the query, 5s.
+    private static final int INTERVAL = 5000;
 
     @Autowired
     private ApplicationService applicationService;
 
     @Autowired
     private MepHostService mepHostService;
-
-    @Autowired
-    private HostLogMapper hostLogMapper;
-
-    @Autowired
-    private VMAppOperationServiceImpl VmAppOperationService;
 
     @Override
     public void setContext(IContext context) {
@@ -103,7 +86,7 @@ public class InstantiateAppAction extends AbstractAction {
             ACTION_NAME, statusLog);
         String mepHostId = application.getMepHostId();
         if (null == mepHostId || "".equals(mepHostId)) {
-            updateActionError(actionStatus, "Sandbox not selected. Failed to distribute package");
+            updateActionError(actionStatus, "Sandbox not selected. Failed to instantiate package");
             return false;
         }
         MepHost mepHost = mepHostService.getHost(mepHostId);
@@ -119,17 +102,15 @@ public class InstantiateAppAction extends AbstractAction {
             + appInstanceId;
         updateActionProgress(actionStatus, 30, msg);
 
-        String vmId = (String) getContext().getParameter(IContextParameter.PARAM_VM_ID);
-        VMInstantiateInfo instantiateInfo = VmAppOperationService.getInstantiateInfo(vmId);
-        instantiateInfo.setAppInstanceId(appInstanceId);
-        Boolean updateRes = VmAppOperationService.updateInstantiateInfo(vmId, instantiateInfo);
+        //Save app instanceId to instantiate info.
+        Boolean updateRes = saveInstanceIdToInstantiateInfo(appInstanceId);
         if (!updateRes) {
-            updateActionError(actionStatus, "Update instantiate info for VM failed.");
+            updateActionError(actionStatus, "Update instantiate info for app instance id failed.");
             return false;
         }
 
         //Query instantiate status.
-        EnumInstantiateStatus status = queryInstantiateStatus(appInstanceId, mepHost, instantiateInfo);
+        EnumInstantiateStatus status = queryInstantiateStatus(appInstanceId, mepHost);
         if (!EnumInstantiateStatus.INSTANTIATE_STATUS_SUCCESS.equals(status)) {
             msg = "Query instantiate status failed, the result is: " + status;
             updateActionError(actionStatus, msg);
@@ -139,20 +120,28 @@ public class InstantiateAppAction extends AbstractAction {
         return true;
     }
 
+    public boolean saveInstanceIdToInstantiateInfo(String appInstanceId) {
+        return true;
+    }
+
+    public boolean saveWorkloadToInstantiateInfo(String respBody) {
+        return true;
+    }
+
     public String instantiateApplication(String userId, String mepmPackageId, MepHost mepHost, LcmLog lcmLog) {
         String basePath = HttpClientUtil.getUrlPrefix(mepHost.getLcmProtocol(), mepHost.getLcmIp(),
             mepHost.getLcmPort());
         // instantiate application
-        Map<String, String> vmInputParams;
+        Map<String, String> inputParams;
         try {
-            vmInputParams = getInputParams(mepHost.getNetworkParameter(), mepHost.getMecHostIp());
+            inputParams = getInputParams(mepHost);
         } catch (Exception e) {
             LOGGER.error("Get input params error");
             return null;
         }
         String appInstanceId = UUID.randomUUID().toString();
         boolean instantRes = HttpClientUtil.instantiateApplication(basePath, appInstanceId, userId,
-            getContext().getToken(), lcmLog, mepmPackageId, mepHost.getMecHostIp(), vmInputParams);
+            getContext().getToken(), lcmLog, mepmPackageId, mepHost.getMecHostIp(), inputParams);
         LOGGER.info("Instantiate application result: {}", instantRes);
         if (!instantRes) {
             return null;
@@ -160,29 +149,11 @@ public class InstantiateAppAction extends AbstractAction {
         return appInstanceId;
     }
 
-    private Map<String, String> getInputParams(String parameter, String mecHost) {
-        int count = hostLogMapper.getHostLogCount(mecHost);
-        Map<String, String> vmInputParams = InputParameterUtil.getParams(parameter);
-        String n6Range = vmInputParams.get("app_n6_ip");
-        String mepRange = vmInputParams.get("app_mp1_ip");
-        String internetRange = vmInputParams.get("app_internet_ip");
-        vmInputParams.put("app_n6_ip", IpCalculateUtil.getStartIp(n6Range, count));
-        vmInputParams.put("app_mp1_ip", IpCalculateUtil.getStartIp(mepRange, count));
-        vmInputParams.put("app_internet_ip", IpCalculateUtil.getStartIp(internetRange, count));
-        if (vmInputParams.getOrDefault("app_n6_gw", null) == null) {
-            vmInputParams.put("app_n6_gw", IpCalculateUtil.getStartIp(n6Range, 0));
-        }
-        if (vmInputParams.getOrDefault("app_mp1_gw", null) == null) {
-            vmInputParams.put("app_mp1_gw", IpCalculateUtil.getStartIp(mepRange, 0));
-        }
-        if (vmInputParams.getOrDefault("app_internet_gw", null) == null) {
-            vmInputParams.put("app_internet_gw", IpCalculateUtil.getStartIp(internetRange, 0));
-        }
-        return vmInputParams;
+    public Map<String, String> getInputParams(MepHost mepHost) {
+        return new HashMap<String, String>();
     }
 
-    private EnumInstantiateStatus queryInstantiateStatus(String appInstanceId, MepHost mepHost,
-        VMInstantiateInfo vmInstantiateInfo) {
+    private EnumInstantiateStatus queryInstantiateStatus(String appInstanceId, MepHost mepHost) {
         int waitingTime = 0;
         while (waitingTime < TIMEOUT) {
             String workStatus = HttpClientUtil.getWorkloadStatus(mepHost.getLcmProtocol(), mepHost.getLcmIp(),
@@ -195,25 +166,13 @@ public class InstantiateAppAction extends AbstractAction {
             JsonObject jsonObject = new JsonParser().parse(workStatus).getAsJsonObject();
             JsonElement code = jsonObject.get("code");
             if (code.getAsString().equals("200")) {
-                LOGGER.error("Query instantiate result, lcm return success.", workStatus);
-                Type vmInfoType = new TypeToken<VmInstantiateWorkload>() { }.getType();
-                VmInstantiateWorkload vmInstantiateWorkload = gson.fromJson(workStatus, vmInfoType);
-                vmInstantiateInfo.setLog(workStatus);
-                if (vmInstantiateWorkload.getData().size() > 0) {
-                    vmInstantiateInfo.setVncUrl(vmInstantiateWorkload.getData().get(0).getVncUrl());
-                    vmInstantiateInfo.setVmInstanceId(vmInstantiateWorkload.getData().get(0).getVmId());
-                    for(NetworkInfo info:vmInstantiateWorkload.getData().get(0).getNetworks()){
-                        PortInstantiateInfo port = new PortInstantiateInfo();
-                        port.setIpAddress(info.getIp());
-                        port.setNetworkName(info.getName());
-                        vmInstantiateInfo.getPortInstanceList().add(port);
-                    }
-                }
-                return EnumInstantiateStatus.INSTANTIATE_STATUS_FAILED;
+                LOGGER.info("Query instantiate result, lcm return success. workload: ", workStatus);
+                this.saveWorkloadToInstantiateInfo(workStatus);
+                return EnumInstantiateStatus.INSTANTIATE_STATUS_SUCCESS;
             }
             try {
-                Thread.sleep(5000);
-                waitingTime += 5000;
+                Thread.sleep(INTERVAL);
+                waitingTime += INTERVAL;
             } catch (InterruptedException e) {
                 LOGGER.error("Distribute package sleep failed.");
                 return EnumInstantiateStatus.INSTANTIATE_STATUS_ERROR;

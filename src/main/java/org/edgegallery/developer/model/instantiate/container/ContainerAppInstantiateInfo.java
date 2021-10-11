@@ -15,6 +15,7 @@
  */
 package org.edgegallery.developer.model.instantiate.container;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import lombok.Getter;
@@ -28,6 +29,8 @@ public class ContainerAppInstantiateInfo {
 
     private String appPackageId;
 
+    private String distributedMecHost;
+
     private String appInstanceId;
 
     private EnumContainerAppInstantiateStatus status;
@@ -36,9 +39,9 @@ public class ContainerAppInstantiateInfo {
 
     private Date instantiateTime;
 
-    private List<K8sPod> pods;
+    private List<K8sPod> pods = new ArrayList<K8sPod>(0);
 
-    private List<K8sService> serviceList;
+    private List<K8sService> serviceList = new ArrayList<K8sService>(0);
 
 
 }

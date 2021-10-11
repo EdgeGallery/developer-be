@@ -18,10 +18,13 @@ package org.edgegallery.developer.model.instantiate.container;
 public enum EnumContainerAppInstantiateStatus {
     PACKAGE_GENERATING("Generating Package"),
     PACKAGE_GENERATE_FAILED("Generate Package Failed"),
+    PACKAGE_GENERATE_SUCCESS("Generate Package Success"),
     PACKAGE_DISTRIBUTING("Distributing Package"),
     PACKAGE_DISTRIBUTE_FAILED("Distribute Package Failed"),
+    PACKAGE_DISTRIBUTE_SUCCESS("Distribute Package Success"),
     INSTANTIATING_APP("Instantiating Application"),
     APP_INSTANTIATE_FAILED("Instantiate Application Failed"),
+    APP_INSTANTIATE_SUCCESS("Instantiate Application Success"),
     SUCCESS("Success");
 
     private String name;
