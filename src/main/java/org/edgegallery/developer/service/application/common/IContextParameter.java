@@ -20,7 +20,7 @@ public interface IContextParameter {
 
     String PARAM_VM_ID = "vm_id";
 
-    String PARAM_CONTAINER_ID = "container_id";
+    String PARAM_HELMCHART_ID = "helmchart_id";
 
     String PARAM_PACKAGE_ID = "package_id";
 

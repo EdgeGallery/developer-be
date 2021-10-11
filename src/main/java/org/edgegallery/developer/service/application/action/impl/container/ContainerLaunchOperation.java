@@ -26,8 +26,6 @@ import org.edgegallery.developer.service.application.action.IAction;
 import org.edgegallery.developer.service.application.action.IActionCollection;
 import org.edgegallery.developer.service.application.action.IActionIterator;
 import org.edgegallery.developer.service.application.action.impl.ActionIterator;
-import org.edgegallery.developer.service.application.action.impl.vm.BuildVMPackageAction;
-import org.edgegallery.developer.service.application.action.impl.DistributePackageAction;
 import org.edgegallery.developer.service.application.action.impl.OperationContext;
 import org.edgegallery.developer.service.application.common.ActionProgressRange;
 import org.edgegallery.developer.service.application.common.IContextParameter;
@@ -49,8 +47,8 @@ public class ContainerLaunchOperation implements IActionCollection {
     public ContainerLaunchOperation(User user, String applicationId, String helmChartId, String token,
         OperationStatus operationStatus) {
 
-        IAction buildPackageAction = new BuildVMPackageAction();
-        IAction distributePackageAction = new DistributePackageAction();
+        IAction buildPackageAction = new BuildContainerPackageAction();
+        IAction distributePackageAction = new DistributeContainerPackageAction();
         IAction instantiateContainerAppAction = new InstantiateContainerAppAction();
 
         Map<String, ActionProgressRange> actionProgressRangeMap = new HashMap<String, ActionProgressRange>();
@@ -63,7 +61,7 @@ public class ContainerLaunchOperation implements IActionCollection {
         distributePackageAction.setContext(context);
         instantiateContainerAppAction.setContext(context);
         context.addParameter(IContextParameter.PARAM_APPLICATION_ID, applicationId);
-        context.addParameter(IContextParameter.PARAM_CONTAINER_ID, helmChartId);
+        context.addParameter(IContextParameter.PARAM_HELMCHART_ID, helmChartId);
 
         actions = Arrays.asList(buildPackageAction, distributePackageAction, instantiateContainerAppAction);
     }

@@ -19,6 +19,7 @@
 <mapper namespace="org.edgegallery.developer.mapper.application.container.ContainerAppInstantiateInfoMapper">
   <resultMap id="ContainerAppInstantiateInfoMap" type="org.edgegallery.developer.model.instantiate.container.ContainerAppInstantiateInfo">
     <result property="appPackageId" column="app_package_id"/>
+    <result property="distributedMecHost" column="distributed_mec_host"/>
     <result property="appInstanceId" column="app_instance_id"/>
     <result property="status" column="status"/>
     <result property="log" column="log"/>
@@ -64,7 +65,7 @@
 <!--  </resultMap>-->
 
   <sql id="ContainerAppInstantiateInfoAllColumn">
-    app_id, app_package_id, app_instance_id, status, log, instantiate_time
+    app_id, app_package_id, distributed_mec_host, app_instance_id, status, log, instantiate_time
   </sql>
 
   <sql id="K8sPodAllColumn">
@@ -84,9 +85,9 @@
   </sql>
 
   <insert id="createContainerAppInstantiateInfo">
-    insert into tbl_container_app_instantiate_info (app_id, app_package_id, app_instance_id, status, log, instantiate_time)
+    insert into tbl_container_app_instantiate_info (app_id, app_package_id, distributed_mec_host, app_instance_id, status, log, instantiate_time)
     values
-    ( #{applicationId}, #{containerAppInstantiateInfo.appPackageId}, #{containerAppInstantiateInfo.appInstanceId},
+    ( #{applicationId}, #{containerAppInstantiateInfo.appPackageId}, #{containerAppInstantiateInfo.distributedMecHost}, #{containerAppInstantiateInfo.appInstanceId},
     #{containerAppInstantiateInfo.status}, #{containerAppInstantiateInfo.log}, #{containerAppInstantiateInfo.instantiateTime})
   </insert>
 
@@ -94,7 +95,7 @@
     UPDATE
     tbl_container_app_instantiate_info
     SET
-    app_package_id = #{containerAppInstantiateInfo.appPackageId}, app_instance_id = #{containerAppInstantiateInfo.appInstanceId},
+    app_package_id = #{containerAppInstantiateInfo.appPackageId}, distributed_mec_host = #{containerAppInstantiateInfo.distributedMecHost}, app_instance_id = #{containerAppInstantiateInfo.appInstanceId},
     status = #{containerAppInstantiateInfo.status}, log = #{containerAppInstantiateInfo.log},
     instantiate_time = #{containerAppInstantiateInfo.instantiateTime}
     WHERE

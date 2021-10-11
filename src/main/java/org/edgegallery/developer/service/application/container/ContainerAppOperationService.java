@@ -15,12 +15,14 @@
  */
 package org.edgegallery.developer.service.application.container;
 
+import org.edgegallery.developer.model.instantiate.container.ContainerAppInstantiateInfo;
 import org.edgegallery.developer.model.restful.OperationInfoRep;
-import org.edgegallery.developer.response.FormatRespDto;
-import com.spencerwi.either.Either;
-import org.edgegallery.developer.service.application.AppOperationService;
 
 public interface ContainerAppOperationService{
 
     OperationInfoRep instantiateContainerApp(String applicationId,String helmChartId,String accessToken);
+
+    ContainerAppInstantiateInfo getInstantiateInfo(String applicationId);
+
+    Boolean updateInstantiateInfo(String applicationId, ContainerAppInstantiateInfo instantiateInfo);
 }

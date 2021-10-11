@@ -16,31 +16,24 @@
 
 package org.edgegallery.developer.service.application.action.impl.container;
 
-import java.util.Map;
 import org.edgegallery.developer.model.instantiate.container.ContainerAppInstantiateInfo;
+import org.edgegallery.developer.model.instantiate.container.EnumContainerAppInstantiateStatus;
 import org.edgegallery.developer.model.mephost.MepHost;
-import org.edgegallery.developer.service.application.action.impl.InstantiateAppAction;
+import org.edgegallery.developer.service.application.action.impl.DistributePackageAction;
 import org.edgegallery.developer.service.application.common.IContextParameter;
 import org.edgegallery.developer.service.application.impl.container.ContainerAppOperationServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 
-public class InstantiateContainerAppAction extends InstantiateAppAction {
+public class DistributeContainerPackageAction extends DistributePackageAction {
 
     @Autowired
     private ContainerAppOperationServiceImpl containerAppOperationService;
 
-    public boolean saveInstanceIdToInstantiateInfo(String appInstanceId) {
+    public boolean saveDistributeSuccessInstantiateInfo(MepHost mepHost) {
         String applicationId = (String) getContext().getParameter(IContextParameter.PARAM_APPLICATION_ID);
         ContainerAppInstantiateInfo instantiateInfo = containerAppOperationService.getInstantiateInfo(applicationId);
-        instantiateInfo.setAppInstanceId(appInstanceId);
-        return containerAppOperationService.updateInstantiateInfo(appInstanceId, instantiateInfo);
-    }
-
-    public boolean saveWorkloadToInstantiateInfo(String respBody) {
-        return true;
-    }
-
-    public Map<String, String> getInputParams(MepHost mepHost) {
-        return null;
+        instantiateInfo.setDistributedMecHost(mepHost.getMecHostIp());
+        instantiateInfo.setStatus(EnumContainerAppInstantiateStatus.PACKAGE_DISTRIBUTE_SUCCESS);
+        return containerAppOperationService.updateInstantiateInfo(applicationId, instantiateInfo);
     }
 }

@@ -16,6 +16,8 @@
 
 package org.edgegallery.developer.model.operation;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -44,8 +46,11 @@ public class ActionStatus {
 
     private String updateTime;
 
-    public void appendStatusLog(String log){
-        this.statusLog = statusLog + log + System.getProperty("line.separator");
+    public void appendStatusLog(String log) {
+        SimpleDateFormat sdf = new SimpleDateFormat();
+        sdf.applyPattern("yyyy-MM-dd HH:mm:ss");
+        Date date = new Date();
+        this.statusLog = statusLog + sdf.format(date) + "： " + log + System.getProperty("line.separator");
     }
 
 }

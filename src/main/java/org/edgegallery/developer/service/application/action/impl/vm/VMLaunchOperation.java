@@ -25,10 +25,9 @@ import org.edgegallery.developer.model.operation.OperationStatus;
 import org.edgegallery.developer.service.application.action.IAction;
 import org.edgegallery.developer.service.application.action.IActionCollection;
 import org.edgegallery.developer.service.application.action.IActionIterator;
-import org.edgegallery.developer.service.application.common.ActionProgressRange;
 import org.edgegallery.developer.service.application.action.impl.ActionIterator;
-import org.edgegallery.developer.service.application.action.impl.DistributePackageAction;
 import org.edgegallery.developer.service.application.action.impl.OperationContext;
+import org.edgegallery.developer.service.application.common.ActionProgressRange;
 import org.edgegallery.developer.service.application.common.IContextParameter;
 
 public class VMLaunchOperation implements IActionCollection {
@@ -40,7 +39,7 @@ public class VMLaunchOperation implements IActionCollection {
     public VMLaunchOperation(User user, String applicationId, String vmId, String token, OperationStatus operationStatus) {
 
         IAction buildPackageAction = new BuildVMPackageAction();
-        IAction distributePackageAction = new DistributePackageAction();
+        IAction distributePackageAction = new DistributeVMPackageAction();
         IAction instantiateVMAppAction = new InstantiateVMAppAction();
 
         Map<String, ActionProgressRange> actionProgressRangeMap = new HashMap<String, ActionProgressRange>();

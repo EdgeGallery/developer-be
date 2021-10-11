@@ -22,8 +22,6 @@ import java.util.List;
 import org.edgegallery.developer.model.LcmLog;
 import org.edgegallery.developer.model.application.Application;
 import org.edgegallery.developer.model.apppackage.AppPackage;
-import org.edgegallery.developer.model.instantiate.vm.EnumVMInstantiateStatus;
-import org.edgegallery.developer.model.instantiate.vm.VMInstantiateInfo;
 import org.edgegallery.developer.model.lcm.DistributeResponse;
 import org.edgegallery.developer.model.lcm.MecHostInfo;
 import org.edgegallery.developer.model.lcm.UploadResponse;
@@ -34,7 +32,6 @@ import org.edgegallery.developer.service.application.ApplicationService;
 import org.edgegallery.developer.service.application.common.EnumDistributeStatus;
 import org.edgegallery.developer.service.application.common.IContextParameter;
 import org.edgegallery.developer.service.application.impl.AppOperationServiceImpl;
-import org.edgegallery.developer.service.application.impl.vm.VMAppOperationServiceImpl;
 import org.edgegallery.developer.service.apppackage.AppPackageService;
 import org.edgegallery.developer.service.mephost.MepHostService;
 import org.edgegallery.developer.util.HttpClientUtil;
@@ -43,7 +40,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 
-public class DistributePackageAction extends AbstractAction {
+public abstract class DistributePackageAction extends AbstractAction {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DistributePackageAction.class);
 
@@ -53,6 +50,9 @@ public class DistributePackageAction extends AbstractAction {
 
     // time out: 1 hour.
     private static final int TIMEOUT = 60 * 60 * 1000;
+
+    //interval of the query, 5s.
+    private static final int INTERVAL = 5000;
 
     @Autowired
     private AppOperationServiceImpl appOperationService;
@@ -65,9 +65,6 @@ public class DistributePackageAction extends AbstractAction {
 
     @Autowired
     private AppPackageService appPackageService;
-
-    @Autowired
-    private VMAppOperationServiceImpl VmAppOperationService;
 
     @Override
     public String getActionName() {
@@ -117,19 +114,20 @@ public class DistributePackageAction extends AbstractAction {
             updateActionError(actionStatus, msg);
             return false;
         }
-        updateActionProgress(actionStatus, 100, "Query distribute app package status success.");
-        getContext().addParameter(IContextParameter.PARAM_MEPM_PACKAGE_ID, uploadPkgId);
 
         //save vm instantiate info.
-        String vmId = (String) getContext().getParameter(IContextParameter.PARAM_VM_ID);
-        VMInstantiateInfo instantiateInfo = VmAppOperationService.getInstantiateInfo(vmId);
-        instantiateInfo.setDistributedMecHost(mepHost.getMecHostIp());
-        instantiateInfo.setStatus(EnumVMInstantiateStatus.PACKAGE_DISTRIBUTE_SUCCESS);
-        Boolean updateRes = VmAppOperationService.updateInstantiateInfo(vmId, instantiateInfo);
+        Boolean updateRes = saveDistributeSuccessInstantiateInfo(mepHost);
         if (!updateRes) {
             updateActionError(actionStatus, "Update instantiate info for VM failed.");
             return false;
         }
+        getContext().addParameter(IContextParameter.PARAM_MEPM_PACKAGE_ID, uploadPkgId);
+        updateActionProgress(actionStatus, 100, "Query distribute app package status success.");
+        LOGGER.info("Distribute package action finished.");
+        return true;
+    }
+
+    public boolean saveDistributeSuccessInstantiateInfo(MepHost mepHost){
         return true;
     }
 
@@ -188,8 +186,8 @@ public class DistributePackageAction extends AbstractAction {
                 return EnumDistributeStatus.DISTRIBUTE_PACKAGE_STATUS_SUCCESS;
             }
             try {
-                Thread.sleep(5000);
-                waitingTime += 5000;
+                Thread.sleep(INTERVAL);
+                waitingTime += INTERVAL;
             } catch (InterruptedException e) {
                 LOGGER.error("Distribute package sleep failed.");
                 return EnumDistributeStatus.DISTRIBUTE_PACKAGE_STATUS_ERROR;

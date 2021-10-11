@@ -14,36 +14,36 @@
  *    limitations under the License.
  */
 
-package org.edgegallery.developer.service.application.action.impl.vm;
+package org.edgegallery.developer.service.application.action.impl.container;
 
 import java.util.UUID;
 import org.edgegallery.developer.model.application.vm.VMApplication;
 import org.edgegallery.developer.model.application.vm.VirtualMachine;
 import org.edgegallery.developer.model.apppackage.AppPackage;
+import org.edgegallery.developer.model.instantiate.container.ContainerAppInstantiateInfo;
+import org.edgegallery.developer.model.instantiate.container.EnumContainerAppInstantiateStatus;
 import org.edgegallery.developer.model.instantiate.vm.EnumVMInstantiateStatus;
 import org.edgegallery.developer.model.instantiate.vm.VMInstantiateInfo;
 import org.edgegallery.developer.model.operation.ActionStatus;
-import org.edgegallery.developer.model.operation.EnumActionStatus;
 import org.edgegallery.developer.model.operation.EnumOperationObjectType;
 import org.edgegallery.developer.model.restful.ApplicationDetail;
 import org.edgegallery.developer.service.application.ApplicationService;
-import org.edgegallery.developer.service.application.action.IAction;
-import org.edgegallery.developer.service.application.action.IContext;
 import org.edgegallery.developer.service.application.action.impl.AbstractAction;
 import org.edgegallery.developer.service.application.common.IContextParameter;
+import org.edgegallery.developer.service.application.impl.container.ContainerAppOperationServiceImpl;
 import org.edgegallery.developer.service.application.impl.vm.VMAppOperationServiceImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-public class BuildVMPackageAction extends AbstractAction {
+public class BuildContainerPackageAction extends AbstractAction {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(BuildVMPackageAction.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(BuildContainerPackageAction.class);
 
     public static final String ACTION_NAME = "Build Application Package";
 
     @Autowired
-    private VMAppOperationServiceImpl VmAppOperationService;
+    private ContainerAppOperationServiceImpl containerAppOperationService;
 
     @Autowired
     private ApplicationService applicationService;
@@ -56,55 +56,39 @@ public class BuildVMPackageAction extends AbstractAction {
     @Override
     public boolean execute() {
         //Start action , save action status.
-        String vmId = (String) getContext().getParameter(IContextParameter.PARAM_VM_ID);
-        String statusLog = "Start to build the package for vm: " + vmId;
+        String applicationId = (String) getContext().getParameter(IContextParameter.PARAM_APPLICATION_ID);
+        String statusLog = "Start to build the package for application: " + applicationId;
         LOGGER.info(statusLog);
-        ActionStatus actionStatus = initActionStatus(EnumOperationObjectType.VM, vmId, ACTION_NAME, statusLog);
+        ActionStatus actionStatus = initActionStatus(EnumOperationObjectType.APPLICATION, applicationId, ACTION_NAME, statusLog);
 
-        //create new application object with single vm.
-        ApplicationDetail detail = applicationService.getApplicationDetail(
-            (String) getContext().getParameter(IContextParameter.PARAM_APPLICATION_ID));
-        VMApplication tempApp = detail.getVmApp();
-        tempApp.setId(UUID.randomUUID().toString());
-        for (VirtualMachine vm : tempApp.getVmList()) {
-            if (vmId.equals(vm.getId())) {
-                tempApp.getVmList().clear();
-                tempApp.getVmList().add(vm);
-                break;
-            }
-        }
-        statusLog = "Build application for single vm finished.";
-        LOGGER.info(statusLog);
-        updateActionProgress(actionStatus, 25, statusLog);
-
-        //build application package for launch VM.
-        AppPackage appPkg = VmAppOperationService.generatePackage(tempApp);
+        //build application package for container app
+        AppPackage appPkg = containerAppOperationService.generatePackage(applicationId);
         if (appPkg == null) {
-            statusLog = "Build package for VM failed.";
+            statusLog = "Build package for application failed.";
             LOGGER.error(statusLog);
             updateActionError(actionStatus, statusLog);
             return false;
         }
         getContext().addParameter(IContextParameter.PARAM_PACKAGE_ID, appPkg.getId());
-        statusLog = "Build package for single vm finished.";
+        statusLog = "Build package for container application finished.";
         LOGGER.info(statusLog);
         updateActionProgress(actionStatus, 50, statusLog);
 
         //save vm instantiate info.
-        VMInstantiateInfo instantiateInfo = VmAppOperationService.getInstantiateInfo(vmId);
+        ContainerAppInstantiateInfo instantiateInfo = containerAppOperationService.getInstantiateInfo(applicationId);
         if (null == instantiateInfo) {
-            instantiateInfo = new VMInstantiateInfo();
+            instantiateInfo = new ContainerAppInstantiateInfo();
         }
         instantiateInfo.setAppPackageId(appPkg.getId());
-        instantiateInfo.setStatus(EnumVMInstantiateStatus.PACKAGE_GENERATE_SUCCESS);
-        Boolean res = VmAppOperationService.updateInstantiateInfo(vmId, instantiateInfo);
+        instantiateInfo.setStatus(EnumContainerAppInstantiateStatus.PACKAGE_GENERATE_SUCCESS);
+        Boolean res = containerAppOperationService.updateInstantiateInfo(applicationId, instantiateInfo);
         if (!res) {
-            updateActionError(actionStatus, "Update instantiate info for VM failed.");
+            updateActionError(actionStatus, "Update instantiate info for container application failed.");
             return false;
         }
-        statusLog = "Update package info to vm instantiate info finished.";
+        statusLog = "Update package info to container application instantiate info finished.";
+        LOGGER.info(statusLog);
         updateActionProgress(actionStatus, 100, statusLog);
-        LOGGER.info("Build VM package action finished.");
         return true;
     }
 
