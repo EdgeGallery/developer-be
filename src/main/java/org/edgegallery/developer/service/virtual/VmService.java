@@ -18,6 +18,7 @@ package org.edgegallery.developer.service.virtual;
 
 import static org.edgegallery.developer.util.AtpUtil.getProjectPath;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -59,6 +60,7 @@ import org.edgegallery.developer.model.lcm.DistributeResponse;
 import org.edgegallery.developer.model.lcm.MecHostInfo;
 import org.edgegallery.developer.model.lcm.UploadResponse;
 import org.edgegallery.developer.model.resource.MepHost;
+import org.edgegallery.developer.model.system.FileSystemResponse;
 import org.edgegallery.developer.model.system.VmSystem;
 import org.edgegallery.developer.model.vm.EnumVmCreateStatus;
 import org.edgegallery.developer.model.vm.EnumVmImportStatus;
@@ -77,6 +79,7 @@ import org.edgegallery.developer.model.vm.VmResource;
 import org.edgegallery.developer.model.vm.VmUserData;
 import org.edgegallery.developer.model.workspace.ApplicationProject;
 import org.edgegallery.developer.model.workspace.EnumProjectStatus;
+import org.edgegallery.developer.model.workspace.EnumSystemImageSlimStatus;
 import org.edgegallery.developer.model.workspace.EnumTestConfigStatus;
 import org.edgegallery.developer.response.FormatRespDto;
 import org.edgegallery.developer.service.EncryptedService;
@@ -123,6 +126,8 @@ public class VmService {
     private static Gson gson = new Gson();
 
     private static final String TEMPLATE_TOSCA_IMAGE_DESC_PATH = "/SwImageDesc.json";
+
+    private static final String IMAGE_PATH = "/action/download";
 
     /**
      * the max time for wait workStatus.
@@ -963,78 +968,29 @@ public class VmService {
     /**
      * downloadImageResult.
      */
-    public boolean downloadImageResult(MepHost host, VmImageConfig config, String userId) {
+    public boolean downloadImageResult(VmImageConfig config) {
 
         String imagePath = projectService.getProjectPath(config.getProjectId()) + config.getAppInstanceId() + "/Image";
-        LOGGER.info(imagePath);
-        String basePath = HttpClientUtil.getUrlPrefix(host.getProtocol(), host.getLcmIp(), host.getPort());
-        int chunkNum;
-        for (chunkNum = 0; chunkNum < config.getSumChunkNum(); chunkNum++) {
-            LOGGER.info("download image chunkNum:{}", chunkNum);
-            boolean res = HttpClientUtil
-                .downloadVmImage(basePath, userId, imagePath, config.getAppInstanceId(), config.getImageId(),
-                    config.getImageName(), Integer.toString(chunkNum), config.getLcmToken());
-            if (chunkNum < (config.getSumChunkNum() - 10) && !res) {
-                LOGGER.info("download image chunkNum:{} fail", chunkNum);
-                config.setLog("no more data");
-                return false;
-            }
-            if (chunkNum % 10 == 0) {
-                config.setLog("download image file:" + chunkNum + "/" + config.getSumChunkNum());
-                vmConfigMapper.updateVmImageConfig(config);
-            }
-        }
-
-        // merge image file
-        config.setLog("start merge image file");
-        vmConfigMapper.updateVmImageConfig(config);
-        String mergePath = imagePath + File.separator + config.getImageName();
-        LOGGER.info("image file path:{}", mergePath);
-        try {
-            File file = new File(mergePath);
-            if (file.isDirectory()) {
-                File[] files = file.listFiles();
-                if (files != null && files.length > 0) {
-                    File partFile = new File(mergePath + File.separator + config.getImageName() + ".qcow2");
-                    for (int i = 0; i < files.length; i++) {
-                        File s = new File(mergePath, "temp_" + i);
-                        FileOutputStream destTempfos = new FileOutputStream(partFile, true);
-                        FileUtils.copyFile(s, destTempfos);
-                        destTempfos.close();
-                        FileUtils.deleteQuietly(s);
-                    }
-                }
-                CompressFileUtilsJava.compressToZip(mergePath, imagePath, config.getImageName());
-                FileUtils.deleteDirectory(new File(mergePath));
-            }
-
-        } catch (IOException e) {
-            LOGGER.error("image generate failed: occur IOException {}.", e.getMessage());
-            config.setLog("merge image file fail");
-            vmConfigMapper.updateVmImageConfig(config);
-            return false;
-        }
-
-        // upload image to image management
-        config.setLog("start upload image to file management");
-        vmConfigMapper.updateVmImageConfig(config);
-        File mergedFile = new File(imagePath + File.separator + config.getImageName() + ".zip");
-        String downloadSystemPath = pushSystemImage(mergedFile);
-        if (StringUtils.isEmpty(downloadSystemPath)) {
-            LOGGER.error("push system image file failed!");
-            config.setLog("upload image to file management fail");
-            vmConfigMapper.updateVmImageConfig(config);
-            return false;
-        }
         // modify image file
+        String url = config.getChecksum();
+        String slimResult = HttpClientUtil.getImageSlim(url);
+        FileSystemResponse imageResult;
+        if (slimResult==null) {
+            return false;
+        }
+        try {
+            imageResult = new ObjectMapper().readValue(slimResult.getBytes(), FileSystemResponse.class);
+        } catch (Exception e) {
+            return false;
+        }
+        String checkSum = imageResult.getCheckStatusResponse().getCheckInfo().getChecksum();
         File swImageDesc = new File(imagePath + TEMPLATE_TOSCA_IMAGE_DESC_PATH);
         try {
             List<ImageDesc> swImgDescs = getSwImageDescrInfo(
                 FileUtils.readFileToString(swImageDesc, StandardCharsets.UTF_8));
-
-            swImgDescs.get(0).setSwImage(downloadSystemPath);
+            swImgDescs.get(0).setSwImage(url + IMAGE_PATH);
             swImgDescs.get(0).setId(config.getImageId());
-            swImgDescs.get(0).setChecksum(config.getChecksum());
+            swImgDescs.get(0).setChecksum(checkSum);
             writeFile(swImageDesc, gson.toJson(swImgDescs));
         } catch (IOException e) {
             LOGGER.error("modify image file fail: occur IOException {}.", e.getMessage());
