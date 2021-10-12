@@ -24,7 +24,7 @@ public class VmStageDistribute implements VmCreateStage {
     /**
      * image package upload  workStatus:success.
      */
-    private static final String PACKAGE_SUCCESS = "uploaded";
+    private static final String PACKAGE_SUCCESS = "Distributed";
 
     @Autowired
     private ProjectMapper projectMapper;
