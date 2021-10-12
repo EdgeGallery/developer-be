@@ -27,6 +27,7 @@ import org.edgegallery.developer.model.vm.VmImageConfig;
 import org.edgegallery.developer.model.workspace.ApplicationProject;
 import org.edgegallery.developer.model.workspace.EnumTestConfigStatus;
 import org.edgegallery.developer.service.virtual.VmService;
+import org.edgegallery.developer.util.HttpClientUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,13 +55,9 @@ public class VmImageDownload implements VmImageStage {
         EnumTestConfigStatus status = EnumTestConfigStatus.Failed;
 
         ApplicationProject project = projectMapper.getProjectById(config.getProjectId());
-        String userId = project.getUserId();
-        VmCreateConfig vmCreateConfig = vmConfigMapper.getVmCreateConfig(config.getProjectId(), config.getVmId());
-        Type type = new TypeToken<MepHost>() { }.getType();
-        MepHost host = gson.fromJson(gson.toJson(vmCreateConfig.getHost()), type);
         // download image
         try {
-            downloadImageResult = vmService.downloadImageResult(host, config, userId);
+            downloadImageResult = vmService.downloadImageResult(config);
             if (!downloadImageResult) {
                 LOGGER.error("Failed to download image which appInstanceId is : {}.", config.getAppInstanceId());
             } else {

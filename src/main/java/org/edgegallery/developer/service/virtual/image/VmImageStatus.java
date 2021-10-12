@@ -83,7 +83,7 @@ public class VmImageStatus implements VmImageStage {
             long time = System.currentTimeMillis() - config.getCreateTime().getTime();
             LOGGER.info("over time:{}, wait max time:{}, start time:{}", time, MAX_SECONDS,
                 config.getCreateTime().getTime());
-            if (config.getCreateTime() == null || time > MAX_SECONDS * 2000) {
+            if (config.getCreateTime() == null || time > MAX_SECONDS * 8000) {
                 config.setLog("Failed to get vm image result ");
                 String message = "Failed to get vm image result after wait {} seconds which appInstanceId is : {}";
                 LOGGER.error(message, MAX_SECONDS, config.getAppInstanceId());
@@ -98,18 +98,18 @@ public class VmImageStatus implements VmImageStage {
                 status = EnumTestConfigStatus.Success;
                 config.setLog("get vm status success");
                 config.setImageName(vmImageInfo.getImageName());
-                config.setSumChunkNum(vmImageInfo.getSumChunkNum());
-                config.setChunkSize(vmImageInfo.getChunkSize());
-                config.setChecksum(vmImageInfo.getChecksum());
+                config.setImageId(vmImageInfo.getImageId());
+                config.setChecksum(vmImageInfo.getUrl());
                 // get config
                 LOGGER.info("update config result:{}", config.getStatus());
+            } else if(vmImageInfo.getStatus().equals("killed")) {
+                LOGGER.error("Failed to get vm image result: killed");
             } else {
                 return true;
             }
-
         }
         vmService.updateVmImageResult(config, project, "imageStatus", status);
-        return processStatus == true ? vmImageStage.execute(config) : processStatus;
+        return processStatus ? vmImageStage.execute(config) : processStatus;
     }
 
     @Override
