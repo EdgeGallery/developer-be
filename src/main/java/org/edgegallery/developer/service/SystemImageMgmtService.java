@@ -576,8 +576,6 @@ public class SystemImageMgmtService {
                 LOGGER.error("merge on remote file server failed.");
                 return null;
             }
-
-            Gson gson = new Gson();
             Map<String, String> uploadResultModel = gson.fromJson(uploadResult, Map.class);
             return fileServerAddress + String
                 .format(Consts.SYSTEM_IMAGE_DOWNLOAD_URL, uploadResultModel.get("imageId"));
@@ -695,6 +693,7 @@ public class SystemImageMgmtService {
             String systemPath = systemImageMapper.getSystemImagesPath(systemId);
             String url = systemPath.substring(0, systemPath.length() - 16);
             long startTime = System.currentTimeMillis();
+            FileSystemResponse imageResult = null;
             while (System.currentTimeMillis() - startTime < MAX_SECONDS * 60) {
                 try {
                     Thread.sleep(10000);
@@ -706,9 +705,8 @@ public class SystemImageMgmtService {
                 if (slimResult==null) {
                     systemImageMapper
                         .updateSystemImageSlimStatus(systemId, EnumSystemImageSlimStatus.SLIM_FAILED.toString());
+                    break;
                 }
-//                fileSystemResponse imageResult = gson.fromJson(slimResult, new TypeToken<fileSystemResponse>() { }.getType());
-                FileSystemResponse imageResult;
                 try {
                     imageResult = new ObjectMapper().readValue(slimResult.getBytes(), FileSystemResponse.class);
                 } catch (Exception e) {
@@ -716,6 +714,7 @@ public class SystemImageMgmtService {
                 }
                 LOGGER.info("image slim result: {}", slimResult);
                 int slimStatus = imageResult.getSlimStatus();
+
                 if (slimStatus==2) {
                     systemImageMapper
                         .updateSystemImageSlimStatus(systemId, EnumSystemImageSlimStatus.SLIM_SUCCEED.toString());
@@ -731,7 +730,10 @@ public class SystemImageMgmtService {
                         .updateSystemImageSlimStatus(systemId, EnumSystemImageSlimStatus.SLIM_FAILED.toString());
                     break;
                 }
+
+
             }
+
 
         }
     }

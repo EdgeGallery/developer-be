@@ -10,8 +10,13 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import sun.misc.BASE64Decoder;
 import sun.misc.BASE64Encoder;
+import org.edgegallery.developer.service.virtual.image.VmImageCreate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class AesUtil {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(AesUtil.class);
 
     /**
      * AES encryption.
@@ -29,7 +34,7 @@ public class AesUtil {
             byte[] result = cipher.doFinal(data.getBytes(StandardCharsets.UTF_8));
             return new BASE64Encoder().encode(result);
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.error("AES encryption fail:{}", e.getMessage());
         }
         return null;
     }
@@ -49,7 +54,7 @@ public class AesUtil {
             byte[] result = cipher.doFinal(new BASE64Decoder().decodeBuffer(data));
             return new String(result, StandardCharsets.UTF_8);
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.error("AES encryption fail:{}", e.getMessage());
         }
         return null;
     }
@@ -67,7 +72,7 @@ public class AesUtil {
             byte[] byteKey = secretKey.getEncoded();
             return new BASE64Encoder().encode(byteKey);
         } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
+            LOGGER.error("AES encryption fail:{}", e.getMessage());
         }
         return null;
     }
