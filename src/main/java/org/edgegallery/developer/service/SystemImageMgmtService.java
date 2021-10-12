@@ -690,51 +690,55 @@ public class SystemImageMgmtService {
 
         @Override
         public void run() {
-            String systemPath = systemImageMapper.getSystemImagesPath(systemId);
-            String url = systemPath.substring(0, systemPath.length() - 16);
-            long startTime = System.currentTimeMillis();
-            FileSystemResponse imageResult = null;
-            while (System.currentTimeMillis() - startTime < MAX_SECONDS * 60) {
-                try {
-                    Thread.sleep(10000);
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                    LOGGER.error("sleep fail! {}", e.getMessage());
-                }
-                String slimResult = HttpClientUtil.getImageSlim(url);
-                if (slimResult==null) {
-                    systemImageMapper
-                        .updateSystemImageSlimStatus(systemId, EnumSystemImageSlimStatus.SLIM_FAILED.toString());
-                    break;
-                }
-                try {
-                    imageResult = new ObjectMapper().readValue(slimResult.getBytes(), FileSystemResponse.class);
-                } catch (Exception e) {
-                    break;
-                }
-                LOGGER.info("image slim result: {}", slimResult);
-                int slimStatus = imageResult.getSlimStatus();
-
-                if (slimStatus==2) {
-                    systemImageMapper
-                        .updateSystemImageSlimStatus(systemId, EnumSystemImageSlimStatus.SLIM_SUCCEED.toString());
-                    Long imageSize = Long.parseLong(imageResult.getCheckStatusResponse().getCheckInfo().getImageInfo().getImageSize());
-                    String checkSum = imageResult.getCheckStatusResponse().getCheckInfo().getChecksum();
-                    systemImageMapper.updateSystemImageInfo(systemId, imageSize, checkSum);
-                    break;
-                } else if (slimStatus==1) {
-                    systemImageMapper
-                        .updateSystemImageSlimStatus(systemId, EnumSystemImageSlimStatus.SLIMMING.toString());
-                } else if(slimStatus==3){
-                    systemImageMapper
-                        .updateSystemImageSlimStatus(systemId, EnumSystemImageSlimStatus.SLIM_FAILED.toString());
-                    break;
-                }
-
-
+            Boolean res = getImageFileInfo(systemId);
+            if(res) {
+                LOGGER.info("slim image success");
             }
-
-
         }
+    }
+
+    private Boolean getImageFileInfo(int systemId) {
+        String systemPath = systemImageMapper.getSystemImagesPath(systemId);
+        String url = systemPath.substring(0, systemPath.length() - 16);
+        long startTime = System.currentTimeMillis();
+        FileSystemResponse imageResult;
+        while (System.currentTimeMillis() - startTime < MAX_SECONDS * 60) {
+            try {
+                Thread.sleep(10000);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                LOGGER.error("sleep fail! {}", e.getMessage());
+            }
+            String slimResult = HttpClientUtil.getImageSlim(url);
+            if (slimResult==null) {
+                systemImageMapper
+                    .updateSystemImageSlimStatus(systemId, EnumSystemImageSlimStatus.SLIM_FAILED.toString());
+                return false;
+            }
+            try {
+                imageResult = new ObjectMapper().readValue(slimResult.getBytes(), FileSystemResponse.class);
+            } catch (Exception e) {
+                return false;
+            }
+            LOGGER.info("image slim result: {}", slimResult);
+            int slimStatus = imageResult.getSlimStatus();
+
+            if (slimStatus==2) {
+                systemImageMapper
+                    .updateSystemImageSlimStatus(systemId, EnumSystemImageSlimStatus.SLIM_SUCCEED.toString());
+                Long imageSize = Long.parseLong(imageResult.getCheckStatusResponse().getCheckInfo().getImageInfo().getImageSize());
+                String checkSum = imageResult.getCheckStatusResponse().getCheckInfo().getChecksum();
+                systemImageMapper.updateSystemImageInfo(systemId, imageSize, checkSum);
+                return true;
+            } else if (slimStatus==1) {
+                systemImageMapper
+                    .updateSystemImageSlimStatus(systemId, EnumSystemImageSlimStatus.SLIMMING.toString());
+            } else {
+                systemImageMapper
+                    .updateSystemImageSlimStatus(systemId, EnumSystemImageSlimStatus.SLIM_FAILED.toString());
+                return false;
+            }
+        }
+        return false;
     }
 }
