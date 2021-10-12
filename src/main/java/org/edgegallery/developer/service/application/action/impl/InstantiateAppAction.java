@@ -40,17 +40,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 public abstract class InstantiateAppAction extends AbstractAction {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(DistributePackageAction.class);
+    public static final Logger LOGGER = LoggerFactory.getLogger(DistributePackageAction.class);
 
     public static final String ACTION_NAME = "Instantiate Application";
 
     private IContext context;
 
     // time out: 10 min.
-    private static final int TIMEOUT = 10 * 60 * 1000;
+    public static final int TIMEOUT = 10 * 60 * 1000;
 
     //interval of the query, 5s.
-    private static final int INTERVAL = 5000;
+    public static final int INTERVAL = 5000;
 
     @Autowired
     private ApplicationService applicationService;
@@ -124,10 +124,6 @@ public abstract class InstantiateAppAction extends AbstractAction {
         return true;
     }
 
-    public boolean saveWorkloadToInstantiateInfo(String respBody) {
-        return true;
-    }
-
     public String instantiateApplication(String userId, String mepmPackageId, MepHost mepHost, LcmLog lcmLog) {
         String basePath = HttpClientUtil.getUrlPrefix(mepHost.getLcmProtocol(), mepHost.getLcmIp(),
             mepHost.getLcmPort());
@@ -153,31 +149,7 @@ public abstract class InstantiateAppAction extends AbstractAction {
         return new HashMap<String, String>();
     }
 
-    private EnumInstantiateStatus queryInstantiateStatus(String appInstanceId, MepHost mepHost) {
-        int waitingTime = 0;
-        while (waitingTime < TIMEOUT) {
-            String workStatus = HttpClientUtil.getWorkloadStatus(mepHost.getLcmProtocol(), mepHost.getLcmIp(),
-                mepHost.getLcmPort(), appInstanceId, getContext().getUserId(), getContext().getToken());
-            LOGGER.info("get instantiate status: {}", workStatus);
-            if (workStatus == null) {
-                // compare time between now and deployDate
-                return EnumInstantiateStatus.INSTANTIATE_STATUS_ERROR;
-            }
-            JsonObject jsonObject = new JsonParser().parse(workStatus).getAsJsonObject();
-            JsonElement code = jsonObject.get("code");
-            if (code.getAsString().equals("200")) {
-                LOGGER.info("Query instantiate result, lcm return success. workload: ", workStatus);
-                this.saveWorkloadToInstantiateInfo(workStatus);
-                return EnumInstantiateStatus.INSTANTIATE_STATUS_SUCCESS;
-            }
-            try {
-                Thread.sleep(INTERVAL);
-                waitingTime += INTERVAL;
-            } catch (InterruptedException e) {
-                LOGGER.error("Distribute package sleep failed.");
-                return EnumInstantiateStatus.INSTANTIATE_STATUS_ERROR;
-            }
-        }
-        return EnumInstantiateStatus.INSTANTIATE_STATUS_TIMEOUT;
+    public EnumInstantiateStatus queryInstantiateStatus(String appInstanceId, MepHost mepHost) {
+        return EnumInstantiateStatus.INSTANTIATE_STATUS_SUCCESS;
     }
 }

@@ -17,6 +17,9 @@
 package org.edgegallery.developer.service.application.action.impl.vm;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
 import java.util.Map;
@@ -27,8 +30,10 @@ import org.edgegallery.developer.model.mephost.MepHost;
 import org.edgegallery.developer.model.vm.NetworkInfo;
 import org.edgegallery.developer.model.vm.VmInstantiateWorkload;
 import org.edgegallery.developer.service.application.action.impl.InstantiateAppAction;
+import org.edgegallery.developer.service.application.common.EnumInstantiateStatus;
 import org.edgegallery.developer.service.application.common.IContextParameter;
 import org.edgegallery.developer.service.application.impl.vm.VMAppOperationServiceImpl;
+import org.edgegallery.developer.util.HttpClientUtil;
 import org.edgegallery.developer.util.InputParameterUtil;
 import org.edgegallery.developer.util.IpCalculateUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -90,5 +95,33 @@ public class InstantiateVMAppAction extends InstantiateAppAction {
             }
         }
         return VmAppOperationService.updateInstantiateInfo(vmId, vmInstantiateInfo);
+    }
+
+    public EnumInstantiateStatus queryInstantiateStatus(String appInstanceId, MepHost mepHost) {
+        int waitingTime = 0;
+        while (waitingTime < TIMEOUT) {
+            String workStatus = HttpClientUtil.getWorkloadStatus(mepHost.getLcmProtocol(), mepHost.getLcmIp(),
+                mepHost.getLcmPort(), appInstanceId, getContext().getUserId(), getContext().getToken());
+            LOGGER.info("get instantiate status: {}", workStatus);
+            if (workStatus == null) {
+                // compare time between now and deployDate
+                return EnumInstantiateStatus.INSTANTIATE_STATUS_ERROR;
+            }
+            JsonObject jsonObject = new JsonParser().parse(workStatus).getAsJsonObject();
+            JsonElement code = jsonObject.get("code");
+            if (code.getAsString().equals("200")) {
+                LOGGER.info("Query instantiate result, lcm return success. workload: ", workStatus);
+                saveWorkloadToInstantiateInfo(workStatus);
+                return EnumInstantiateStatus.INSTANTIATE_STATUS_SUCCESS;
+            }
+            try {
+                Thread.sleep(INTERVAL);
+                waitingTime += INTERVAL;
+            } catch (InterruptedException e) {
+                LOGGER.error("Distribute package sleep failed.");
+                return EnumInstantiateStatus.INSTANTIATE_STATUS_ERROR;
+            }
+        }
+        return EnumInstantiateStatus.INSTANTIATE_STATUS_TIMEOUT;
     }
 }
