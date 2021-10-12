@@ -16,17 +16,18 @@
 
 package org.edgegallery.developer.model.resource;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 import org.edgegallery.developer.model.workspace.EnumHostStatus;
 import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.Range;
 
 @Getter
 @Setter
+@ToString
 public class MepHost {
 
     private String hostId;
@@ -64,10 +65,8 @@ public class MepHost {
 
     private String configId;
 
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String userName;
 
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
 
     private int vncPort;
