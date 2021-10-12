@@ -576,8 +576,6 @@ public class SystemImageMgmtService {
                 LOGGER.error("merge on remote file server failed.");
                 return null;
             }
-
-            Gson gson = new Gson();
             Map<String, String> uploadResultModel = gson.fromJson(uploadResult, Map.class);
             return fileServerAddress + String
                 .format(Consts.SYSTEM_IMAGE_DOWNLOAD_URL, uploadResultModel.get("imageId"));
@@ -692,9 +690,19 @@ public class SystemImageMgmtService {
 
         @Override
         public void run() {
+            Boolean res = getImageFileInfo(systemId);
+            if(res) {
+                LOGGER.info("slim image success");
+            }else {
+                LOGGER.info("slim image fail");
+            }
+        }
+
+        private Boolean getImageFileInfo(int systemId) {
             String systemPath = systemImageMapper.getSystemImagesPath(systemId);
             String url = systemPath.substring(0, systemPath.length() - 16);
             long startTime = System.currentTimeMillis();
+            FileSystemResponse imageResult;
             while (System.currentTimeMillis() - startTime < MAX_SECONDS * 60) {
                 try {
                     Thread.sleep(10000);
@@ -706,33 +714,35 @@ public class SystemImageMgmtService {
                 if (slimResult==null) {
                     systemImageMapper
                         .updateSystemImageSlimStatus(systemId, EnumSystemImageSlimStatus.SLIM_FAILED.toString());
+                    return false;
                 }
-//                fileSystemResponse imageResult = gson.fromJson(slimResult, new TypeToken<fileSystemResponse>() { }.getType());
-                FileSystemResponse imageResult;
                 try {
                     imageResult = new ObjectMapper().readValue(slimResult.getBytes(), FileSystemResponse.class);
                 } catch (Exception e) {
-                    break;
+                    return false;
                 }
                 LOGGER.info("image slim result: {}", slimResult);
                 int slimStatus = imageResult.getSlimStatus();
+
                 if (slimStatus==2) {
                     systemImageMapper
                         .updateSystemImageSlimStatus(systemId, EnumSystemImageSlimStatus.SLIM_SUCCEED.toString());
                     Long imageSize = Long.parseLong(imageResult.getCheckStatusResponse().getCheckInfo().getImageInfo().getImageSize());
                     String checkSum = imageResult.getCheckStatusResponse().getCheckInfo().getChecksum();
                     systemImageMapper.updateSystemImageInfo(systemId, imageSize, checkSum);
-                    break;
+                    return true;
                 } else if (slimStatus==1) {
                     systemImageMapper
                         .updateSystemImageSlimStatus(systemId, EnumSystemImageSlimStatus.SLIMMING.toString());
-                } else if(slimStatus==3){
+                } else {
                     systemImageMapper
                         .updateSystemImageSlimStatus(systemId, EnumSystemImageSlimStatus.SLIM_FAILED.toString());
-                    break;
+                    return false;
                 }
             }
-
+            return false;
         }
     }
+
+
 }
