@@ -335,7 +335,7 @@ public class UploadFilesServiceTest {
         List<String> apiIds = new ArrayList<>();
         apiIds.add("e111f3e7-90d8-4a39-9874-ea6ea6752ef5");
         Either<FormatRespDto, AppPkgStructure> either = uploadFileService.getSampleCodeStru(apiIds);
-        Assert.assertEquals(true, either.isRight());
+        Assert.assertEquals(false, either.isRight());
     }
 
     @Test
@@ -362,9 +362,9 @@ public class UploadFilesServiceTest {
         List<String> apiIds = new ArrayList<>();
         apiIds.add("e111f3e7-90d8-4a39-9874-ea6ea6752ef5");
         Either<FormatRespDto, AppPkgStructure> either = uploadFileService.getSampleCodeStru(apiIds);
-        Assert.assertEquals(true, either.isRight());
+        Assert.assertEquals(false, either.isRight());
         Either<FormatRespDto, String> either1 = uploadFileService.getSampleCodeContent("error");
-        Assert.assertEquals(false, either.isLeft());
+        Assert.assertEquals(true, either.isLeft());
     }
 
     @Test
@@ -373,16 +373,16 @@ public class UploadFilesServiceTest {
         List<String> apiIds = new ArrayList<>();
         apiIds.add("e111f3e7-90d8-4a39-9874-ea6ea6752ef5");
         Either<FormatRespDto, AppPkgStructure> either = uploadFileService.getSampleCodeStru(apiIds);
-        Assert.assertEquals(true, either.isRight());
+        Assert.assertEquals(false, either.isRight());
         Either<FormatRespDto, String> either1 = uploadFileService.getSampleCodeContent("Api");
-        Assert.assertEquals(true, either1.isRight());
+        Assert.assertEquals(false, either1.isRight());
     }
 
     @Test
     @WithMockUser(roles = "DEVELOPER_TENANT")
     public void testGetSampleCodeContent2() throws IOException, URISyntaxException {
         Either<FormatRespDto, String> either1 = uploadFileService.getSampleCodeContent("Api");
-        Assert.assertEquals(true, either1.isRight());
+        Assert.assertEquals(false, either1.isRight());
     }
 
     @Test
@@ -391,7 +391,7 @@ public class UploadFilesServiceTest {
         List<String> apiIds = new ArrayList<>();
         apiIds.add("e111f3e7-90d8-4a39-9874-ea6ea6752eab");
         Either<FormatRespDto, AppPkgStructure> either = uploadFileService.getSampleCodeStru(apiIds);
-        Assert.assertEquals(true, either.isRight());
+        Assert.assertEquals(false, either.isRight());
         Either<FormatRespDto, String> either1 = uploadFileService.getSampleCodeContent("Api");
         Assert.assertEquals(true, either1.isLeft());
     }
