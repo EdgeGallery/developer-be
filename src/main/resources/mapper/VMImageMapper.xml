@@ -197,4 +197,10 @@
     image_size=#{imageSize}
     WHERE id = #{imageId}
   </update>
+
+  <update id="updateVmImageInfo">
+    UPDATE tbl_vm_image
+    SET file_md5=#{fileMd5}, image_size=#{imageSize}
+    WHERE id = #{imageId}
+  </update>
 </mapper>
