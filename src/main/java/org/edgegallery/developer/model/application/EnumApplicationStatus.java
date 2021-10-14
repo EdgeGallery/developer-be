@@ -18,7 +18,7 @@ public enum EnumApplicationStatus {
     ONLINE("Online"),
     DEPLOYING("Deploying"),
     DEPLOYED("Deployed"),
-    DEPLOYED_FAILED("DeployFailed"),
+    DEPLOY_FAILED("DeployFailed"),
     TESTING("Testing"),
     TESTED("Tested"),
     RELEASED("Released");

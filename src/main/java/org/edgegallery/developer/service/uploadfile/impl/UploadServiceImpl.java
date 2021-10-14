@@ -424,10 +424,10 @@ public class UploadServiceImpl implements UploadService {
             throw new FileFoundFailException("Can not find file", ResponseConsts.RET_FILE_NOT_FOUND);
         }
         // move file
-        File desFile = new File(DeveloperFileUtils.getAbsolutePath(applicationId) + srcId);
+        File desFile = new File(DeveloperFileUtils.getAbsolutePath(applicationId) + file.getFileName());
         try {
             DeveloperFileUtils.moveFile(tempFile, desFile);
-            String filePath = BusinessConfigUtil.getWorkspacePath() + applicationId + File.separator + srcId;
+            String filePath = BusinessConfigUtil.getWorkspacePath() + applicationId + File.separator + file.getFileName();
             uploadedFileMapper.updateFilePath(srcId, filePath);
         } catch (IOException e) {
             LOGGER.error("move icon file failed {}", e.getMessage());

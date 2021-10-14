@@ -41,6 +41,7 @@ import org.edgegallery.developer.exception.RestfulRequestException;
 import org.edgegallery.developer.exception.UnauthorizedException;
 import org.edgegallery.developer.mapper.image.VMImageMapper;
 import org.edgegallery.developer.model.Chunk;
+import org.edgegallery.developer.model.filesystem.FileSystemResponse;
 import org.edgegallery.developer.model.restful.VMImageQuery;
 import org.edgegallery.developer.model.restful.VMImageReq;
 import org.edgegallery.developer.model.restful.VMImageRes;
@@ -49,7 +50,7 @@ import org.edgegallery.developer.model.vmimage.EnumVmImageSlimStatus;
 import org.edgegallery.developer.model.vmimage.EnumVmImageStatus;
 import org.edgegallery.developer.model.vmimage.UploadFileInfo;
 import org.edgegallery.developer.model.vmimage.VMImage;
-import org.edgegallery.developer.response.FormatRespDto;
+import org.edgegallery.developer.model.workspace.EnumSystemImageSlimStatus;
 import org.edgegallery.developer.service.image.VMImageService;
 import org.edgegallery.developer.util.BusinessConfigUtil;
 import org.edgegallery.developer.util.FileHashCode;
@@ -67,21 +68,27 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import org.springframework.web.multipart.MultipartFile;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 
 @Service("VMImageService")
 public class VMImageServiceImpl implements VMImageService {
     private static final Logger LOGGER = LoggerFactory.getLogger(VMImageServiceImpl.class);
 
-    private static final String SUBDIR_VMIMAGE = "VMImage";
+    private static final String SUBDIR_VMIMAGE = "SystemImage";
 
     private static final String FILE_FORMAT_QCOW2 = "qcow2";
 
     private static final String FILE_FORMAT_ISO = "iso";
 
-    private static final String FILE_SLIM_PATH = "/slim";
+    private static final String FILE_SLIM_PATH = "/action/slim";
 
-    private static final int FILE_SIZE_UNIT = 1024 * 1024;
+    private static Gson gson = new Gson();
+
+    /**
+     * the max time for wait workStatus.
+     */
+    private static final Long MAX_SECONDS = 30 * 1000L;
 
     @Value("${fileserver.address}")
     private String fileServerAddress;
@@ -454,6 +461,7 @@ public class VMImageServiceImpl implements VMImageService {
             ? EnumVmImageStatus.PUBLISHED
             : EnumVmImageStatus.UPLOAD_SUCCEED, uploadedSystemPath);
         vmImageMapper.updateVmImageUploadInfo(uploadFileInfo);
+        vmImageMapper.updateVmImageSlimStatus(imageId, EnumSystemImageSlimStatus.SLIM_WAIT.toString());
         return ResponseEntity.ok().build();
     }
 
@@ -483,10 +491,10 @@ public class VMImageServiceImpl implements VMImageService {
 
     @Override
     public Boolean imageSlim(Integer imageId) {
-        LOGGER.info("Reset vm image status, systemId = {}", imageId);
+        LOGGER.info("slim vm image status, imageId = {}", imageId);
         VMImage vmImage = vmImageMapper.getVmImage(imageId);
         if (vmImage == null) {
-            LOGGER.error("vm image not found, systemId = {}", imageId);
+            LOGGER.error("vm image not found, imageId = {}", imageId);
             throw new IllegalRequestException("vm image not found", ResponseConsts.RET_QUERY_DATA_FAIL);
         }
 
@@ -495,7 +503,7 @@ public class VMImageServiceImpl implements VMImageService {
             throw new UnauthorizedException("forbidden slim the image", ResponseConsts.RET_REQUEST_UNAUTHORIZED);
         }
 
-        LOGGER.info("clean uploaded file.");
+        LOGGER.info("slim image by filesystem.");
         boolean slimResult = imageSlimByFileServer(imageId);
         if (!slimResult) {
             LOGGER.error("image slim fail.");
@@ -503,9 +511,11 @@ public class VMImageServiceImpl implements VMImageService {
             throw new RestfulRequestException("image slim fail.", ResponseConsts.RET_RESTFUL_REQUEST_FAIL);
         }
 
-        LOGGER.info("update image status to upload_wait.");
-        vmImageMapper.updateVmImageSlimStatus(imageId, EnumVmImageSlimStatus.SLIM_SUCCEED.toString());
+        LOGGER.info("update image status to SLIMMING.");
+        vmImageMapper.updateVmImageSlimStatus(imageId, EnumSystemImageSlimStatus.SLIMMING.toString());
+        new GetVmImageSlimProcessor(imageId).start();
         return true;
+
     }
 
     private boolean isAdminUser() {
@@ -559,8 +569,6 @@ public class VMImageServiceImpl implements VMImageService {
                 LOGGER.error("merge on remote file server failed.");
                 return null;
             }
-
-            Gson gson = new Gson();
             Map<String, String> uploadResultModel = gson.fromJson(uploadResult, Map.class);
             return fileServerAddress + String
                 .format(Consts.SYSTEM_IMAGE_DOWNLOAD_URL, uploadResultModel.get("imageId"));
@@ -621,13 +629,77 @@ public class VMImageServiceImpl implements VMImageService {
             String url = imagePath.substring(0, imagePath.length() - 16) + FILE_SLIM_PATH;
             boolean slimResult = HttpClientUtil.imageSlim(url);
             if (!slimResult) {
-                LOGGER.error("merge on remote file server failed.");
+                LOGGER.error("image slim by file server failed.");
                 return false;
             }
         } catch (Exception e) {
-            LOGGER.error("merge on remote file server failed. {}", e.getMessage());
+            LOGGER.error("image slim by file server failed. {}", e.getMessage());
             return false;
         }
         return true;
+    }
+
+    public class GetVmImageSlimProcessor extends Thread {
+
+        Integer systemId;
+
+        public GetVmImageSlimProcessor(Integer systemId) {
+            this.systemId = systemId;
+        }
+
+        @Override
+        public void run() {
+            Boolean res = getImageFileInfo(systemId);
+            if(res) {
+                LOGGER.info("slim image success");
+            }else {
+                LOGGER.info("slim image fail");
+            }
+        }
+
+        private Boolean getImageFileInfo(int systemId) {
+            String systemPath = vmImageMapper.getVmImagesPath(systemId);
+            String url = systemPath.substring(0, systemPath.length() - 16);
+            long startTime = System.currentTimeMillis();
+            FileSystemResponse imageResult;
+            while (System.currentTimeMillis() - startTime < MAX_SECONDS * 60) {
+                try {
+                    Thread.sleep(10000);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    LOGGER.error("sleep fail! {}", e.getMessage());
+                }
+                String slimResult = HttpClientUtil.getImageSlim(url);
+                if (slimResult==null) {
+                    vmImageMapper
+                        .updateVmImageSlimStatus(systemId, EnumSystemImageSlimStatus.SLIM_FAILED.toString());
+                    return false;
+                }
+                try {
+                    imageResult = new ObjectMapper().readValue(slimResult.getBytes(), FileSystemResponse.class);
+                } catch (Exception e) {
+                    return false;
+                }
+                LOGGER.info("image slim result: {}", slimResult);
+                int slimStatus = imageResult.getSlimStatus();
+
+                if (slimStatus==2) {
+                    vmImageMapper
+                        .updateVmImageSlimStatus(systemId, EnumSystemImageSlimStatus.SLIM_SUCCEED.toString());
+                    Long imageSize = Long.parseLong(imageResult.getCheckStatusResponse().getCheckInfo().getImageInfo().getImageSize());
+                    String checkSum = imageResult.getCheckStatusResponse().getCheckInfo().getChecksum();
+                    vmImageMapper.updateVmImageInfo(systemId, imageSize, checkSum);
+                    return true;
+                } else if (slimStatus==1) {
+                    vmImageMapper
+                        .updateVmImageSlimStatus(systemId, EnumSystemImageSlimStatus.SLIMMING.toString());
+                } else {
+                    vmImageMapper
+                        .updateVmImageSlimStatus(systemId, EnumSystemImageSlimStatus.SLIM_FAILED.toString());
+                    return false;
+                }
+            }
+            return false;
+        }
     }
 }

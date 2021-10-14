@@ -41,12 +41,14 @@ import org.edgegallery.developer.model.workspace.UploadedFile;
 import org.edgegallery.developer.response.FormatRespDto;
 import org.edgegallery.developer.service.mephost.MepHostService;
 import org.edgegallery.developer.service.uploadfile.impl.UploadServiceImpl;
+import org.edgegallery.developer.util.AesUtil;
 import org.edgegallery.developer.util.HttpClientUtil;
 import org.edgegallery.developer.util.InputParameterUtil;
 import org.edgegallery.developer.util.MepHostUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
@@ -72,6 +74,9 @@ public class MepHostServiceImpl implements MepHostService {
 
     @Autowired
     private UploadServiceImpl uploadService;
+
+    @Value("${client.client-id:}")
+    private String clientId;
 
     /**
      * getALlHosts.
@@ -138,6 +143,11 @@ public class MepHostServiceImpl implements MepHostService {
         }
         host.setId(UUID.randomUUID().toString()); // no need to set hostId by user
         host.setMecHostPort(VNC_PORT);
+        // AES加密
+        String userNameEncode = AesUtil.encode(clientId, host.getMecHostUserName());
+        String passwordEncode = AesUtil.encode(clientId, host.getMecHostPassword());
+        host.setMecHostUserName(userNameEncode);
+        host.setMecHostPassword(passwordEncode);
         int ret = mepHostMapper.createHost(host);
         if (ret > 0) {
             LOGGER.info("Crete host {} success ", host.getId());

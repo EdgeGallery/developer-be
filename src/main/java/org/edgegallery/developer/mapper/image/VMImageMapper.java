@@ -46,6 +46,8 @@ public interface VMImageMapper {
 
     void updateVmImageUploadInfo(UploadFileInfo uploadFileInfo);
 
-    void updateVmImageSlimStatus(@Param("imageId")Integer imageId, @Param("slimStatus")String slimStatus);
+    void updateVmImageSlimStatus(@Param("imageId")Integer imageId, @Param("imageSlimStatus")String imageSlimStatus);
+
+    int updateVmImageInfo(@Param("systemId") Integer systemId, @Param("imageSize") Long imageSize, @Param("fileMd5") String fileMd5);
 
 }
