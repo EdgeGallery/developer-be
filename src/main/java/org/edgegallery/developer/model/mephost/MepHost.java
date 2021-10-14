@@ -36,7 +36,7 @@ public class MepHost {
     @NotBlank
     private String lcmProtocol;
 
-    @Range(min = 30000, max = 30400)
+    @Range(min = 30000, max = 32000)
     private int lcmPort;
 
     @NotBlank
@@ -48,7 +48,7 @@ public class MepHost {
     @NotBlank
     private String mecHostIp;
 
-    @NotBlank
+    @NotNull
     private EnumVimType vimType;
 
     private String mecHostUserName;

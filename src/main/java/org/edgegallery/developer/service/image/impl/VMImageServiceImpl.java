@@ -641,15 +641,15 @@ public class VMImageServiceImpl implements VMImageService {
 
     public class GetVmImageSlimProcessor extends Thread {
 
-        Integer systemId;
+        Integer imageId;
 
-        public GetVmImageSlimProcessor(Integer systemId) {
-            this.systemId = systemId;
+        public GetVmImageSlimProcessor(Integer imageId) {
+            this.imageId = imageId;
         }
 
         @Override
         public void run() {
-            Boolean res = getImageFileInfo(systemId);
+            Boolean res = getImageFileInfo(imageId);
             if(res) {
                 LOGGER.info("slim image success");
             }else {
@@ -657,9 +657,9 @@ public class VMImageServiceImpl implements VMImageService {
             }
         }
 
-        private Boolean getImageFileInfo(int systemId) {
-            String systemPath = vmImageMapper.getVmImagesPath(systemId);
-            String url = systemPath.substring(0, systemPath.length() - 16);
+        private Boolean getImageFileInfo(int imageId) {
+            String imagePath = vmImageMapper.getVmImagesPath(imageId);
+            String url = imagePath.substring(0, imagePath.length() - 16);
             long startTime = System.currentTimeMillis();
             FileSystemResponse imageResult;
             while (System.currentTimeMillis() - startTime < MAX_SECONDS * 60) {
@@ -672,7 +672,7 @@ public class VMImageServiceImpl implements VMImageService {
                 String slimResult = HttpClientUtil.getImageSlim(url);
                 if (slimResult==null) {
                     vmImageMapper
-                        .updateVmImageSlimStatus(systemId, EnumSystemImageSlimStatus.SLIM_FAILED.toString());
+                        .updateVmImageSlimStatus(imageId, EnumSystemImageSlimStatus.SLIM_FAILED.toString());
                     return false;
                 }
                 try {
@@ -685,17 +685,17 @@ public class VMImageServiceImpl implements VMImageService {
 
                 if (slimStatus==2) {
                     vmImageMapper
-                        .updateVmImageSlimStatus(systemId, EnumSystemImageSlimStatus.SLIM_SUCCEED.toString());
+                        .updateVmImageSlimStatus(imageId, EnumSystemImageSlimStatus.SLIM_SUCCEED.toString());
                     Long imageSize = Long.parseLong(imageResult.getCheckStatusResponse().getCheckInfo().getImageInfo().getImageSize());
                     String checkSum = imageResult.getCheckStatusResponse().getCheckInfo().getChecksum();
-                    vmImageMapper.updateVmImageInfo(systemId, imageSize, checkSum);
+                    vmImageMapper.updateVmImageInfo(imageId, imageSize, checkSum);
                     return true;
                 } else if (slimStatus==1) {
                     vmImageMapper
-                        .updateVmImageSlimStatus(systemId, EnumSystemImageSlimStatus.SLIMMING.toString());
+                        .updateVmImageSlimStatus(imageId, EnumSystemImageSlimStatus.SLIMMING.toString());
                 } else {
                     vmImageMapper
-                        .updateVmImageSlimStatus(systemId, EnumSystemImageSlimStatus.SLIM_FAILED.toString());
+                        .updateVmImageSlimStatus(imageId, EnumSystemImageSlimStatus.SLIM_FAILED.toString());
                     return false;
                 }
             }

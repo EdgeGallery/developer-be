@@ -29,7 +29,7 @@ public interface VMImageMapper {
 
     String getVmImagesPath(Integer imageId);
 
-    Integer getVmNameCount(@Param("name") String systemName, @Param("imageId") Integer imageId,
+    Integer getVmNameCount(@Param("name") String name, @Param("imageId") Integer imageId,
         @Param("userId") String userId);
 
     int createVmImage(VMImage vmSystem);
@@ -48,6 +48,6 @@ public interface VMImageMapper {
 
     void updateVmImageSlimStatus(@Param("imageId")Integer imageId, @Param("imageSlimStatus")String imageSlimStatus);
 
-    int updateVmImageInfo(@Param("systemId") Integer systemId, @Param("imageSize") Long imageSize, @Param("fileMd5") String fileMd5);
+    int updateVmImageInfo(@Param("imageId") Integer imageId, @Param("imageSize") Long imageSize, @Param("fileMd5") String fileMd5);
 
 }
