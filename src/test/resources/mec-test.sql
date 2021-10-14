@@ -14,7 +14,6 @@
 
  Date: 30/12/2019 14:40:23
 */
-DROP TABLE IF  EXISTS tbl_appfunction;
 DROP TABLE IF  EXISTS tbl_downloadrecord;
 DROP TABLE IF  EXISTS  tbl_plugin;
 DROP TABLE IF  EXISTS tbl_subtaskstatus;
@@ -37,18 +36,6 @@ DROP TABLE  IF  EXISTS tbl_vm_network;
 DROP TABLE  IF  EXISTS tbl_vm_system;
 DROP TABLE  IF  EXISTS tbl_project_vm_create_config;
 DROP TABLE  IF  EXISTS tbl_project_vm_image_config;
-
--- ----------------------------
--- Table structure for tbl_appfunction
--- ----------------------------
-CREATE TABLE IF NOT EXISTS tbl_appfunction (
-  functionid varchar(255)  NOT NULL DEFAULT NULL,
-  funcname varchar(255)  NOT NULL DEFAULT NULL,
-  funcdesc varchar(255)  NOT NULL DEFAULT NULL,
-  addtime varchar(244)  NOT NULL DEFAULT NULL,
-  CONSTRAINT tbl_appfunction_pkey PRIMARY KEY (functionid)
-)
-;
 
 -- ----------------------------
 -- Table structure for tbl_downloadrecord
@@ -479,15 +466,6 @@ CREATE TABLE IF NOT EXISTS  tbl_vm_regulation  (
     )
     ;
 -- workspace table end -----------------
-
-
--- ----------------------------
--- Records of tbl_appfunction
--- ----------------------------
-MERGE INTO tbl_appfunction  KEY(functionid) VALUES ('53fc40e9a1f048e4b4310e8ac30856b3', 'CPU', '处理速度', '2019-10-23 03:27:36'),
-('343d42a3b59c46f9afda063b8be4cc8f', 'GPU', '处理图片', '2019-10-23 03:27:54'),
-('526f86afd6b841ae9df56e30d37f0574', 'Memory Disk', '存储优先', '2019-11-02 10:48:33'),
-('8167fc046c2d4e42997c612fdfbd7c8f', 'AI', '存储', '2019-10-23 05:37:46');
 
 -- workspace mep capability init --
 MERGE INTO tbl_openmep_capability (group_id, one_level_name, one_level_name_en, two_level_name, two_level_name_en, type, description, description_en) KEY(group_id) VALUES ('c0db376b-ae50-48fc-b9f7-58a609e3ee12', 'Platform basic services', 'Platform basic services', 'Traffic', 'Traffic', 'OPENMEP', 'L3/L4规则API,L7规则API', 'L3/L4规则API,L7规则API'),

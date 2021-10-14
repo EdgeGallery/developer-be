@@ -14,7 +14,6 @@
 
 package org.edgegallery.developer.controller.mephost;
 
-import com.spencerwi.either.Either;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -31,9 +30,7 @@ import org.edgegallery.developer.model.mephost.MepHost;
 import org.edgegallery.developer.model.mephost.MepHostLog;
 import org.edgegallery.developer.model.workspace.UploadedFile;
 import org.edgegallery.developer.response.ErrorRespDto;
-import org.edgegallery.developer.response.FormatRespDto;
 import org.edgegallery.developer.service.mephost.MepHostService;
-import org.edgegallery.developer.util.ResponseDataUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -97,8 +94,7 @@ public class MepHostCtl {
         @ApiParam(value = "MepHost", required = true) @Validated @RequestBody MepHost host,
         HttpServletRequest request) {
         String token = request.getHeader(Consts.ACCESS_TOKEN_STR);
-        Either<FormatRespDto, Boolean> either = mepHostService.createHost(host, token);
-        return ResponseDataUtil.buildResponse(either);
+        return ResponseEntity.ok(mepHostService.createHost(host, token));
     }
 
     /**
@@ -120,8 +116,7 @@ public class MepHostCtl {
     @Pattern(regexp = REG_UUID, message = "hostId must be in UUID format") String mephostId,
         @Validated @RequestBody MepHost host, HttpServletRequest request) {
         String token = request.getHeader(Consts.ACCESS_TOKEN_STR);
-        Either<FormatRespDto, Boolean> either = mepHostService.updateHost(mephostId, host, token);
-        return ResponseDataUtil.buildResponse(either);
+        return ResponseEntity.ok(mepHostService.updateHost(mephostId, host, token));
     }
 
     /**
@@ -139,8 +134,7 @@ public class MepHostCtl {
     @PreAuthorize("hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<Boolean> deleteHost(@ApiParam(value = "mephostId", required = true) @PathVariable("mephostId")
     @Pattern(regexp = REG_UUID, message = "hostId must be in UUID format") String mephostId) {
-        Either<FormatRespDto, Boolean> either = mepHostService.deleteHost(mephostId);
-        return ResponseDataUtil.buildResponse(either);
+        return ResponseEntity.ok(mepHostService.deleteHost(mephostId));
     }
 
     /**
@@ -158,8 +152,7 @@ public class MepHostCtl {
     @PreAuthorize("hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<MepHost> getHost(@ApiParam(value = "mephostId", required = true) @PathVariable("mephostId")
     @Pattern(regexp = REG_UUID, message = "hostId must be in UUID format") String mephostId) {
-        MepHost mepHost = mepHostService.getHost(mephostId);
-        return ResponseDataUtil.buildResponse(Either.right(mepHost));
+        return ResponseEntity.ok(mepHostService.getHost(mephostId));
     }
 
     /**
@@ -177,8 +170,7 @@ public class MepHostCtl {
     @PreAuthorize("hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<List<MepHostLog>> getHostLogByHostId(
         @ApiParam(value = "mephostId", required = true) @PathVariable String mephostId) {
-        Either<FormatRespDto, List<MepHostLog>> either = mepHostService.getHostLogByHostId(mephostId);
-        return ResponseDataUtil.buildResponse(either);
+        return ResponseEntity.ok(mepHostService.getHostLogByHostId(mephostId));
     }
 
     /**
@@ -194,9 +186,7 @@ public class MepHostCtl {
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<UploadedFile> uploadFile(
         @ApiParam(value = "file", required = true) @RequestPart("file") MultipartFile uploadFile) {
-        Either<FormatRespDto, UploadedFile> either = mepHostService.uploadConfigFile(uploadFile);
-        return ResponseDataUtil.buildResponse(either);
+        return ResponseEntity.ok(mepHostService.uploadConfigFile(uploadFile));
 
     }
-
 }

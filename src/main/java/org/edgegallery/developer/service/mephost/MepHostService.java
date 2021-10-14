@@ -16,13 +16,11 @@
 
 package org.edgegallery.developer.service.mephost;
 
-import com.spencerwi.either.Either;
 import java.util.List;
 import org.edgegallery.developer.domain.shared.Page;
 import org.edgegallery.developer.model.mephost.MepHost;
 import org.edgegallery.developer.model.mephost.MepHostLog;
 import org.edgegallery.developer.model.workspace.UploadedFile;
-import org.edgegallery.developer.response.FormatRespDto;
 import org.springframework.web.multipart.MultipartFile;
 
 public interface MepHostService {
@@ -46,7 +44,7 @@ public interface MepHostService {
      * @param token access token
      * @return
      */
-    Either<FormatRespDto, Boolean> createHost(MepHost host, String token);
+    boolean createHost(MepHost host, String token);
 
     /**
      * delete host by host id.
@@ -54,7 +52,7 @@ public interface MepHostService {
      * @param hostId host id
      * @return
      */
-    Either<FormatRespDto, Boolean> deleteHost(String hostId);
+    boolean deleteHost(String hostId);
 
     /**
      * update host by host id and token.
@@ -64,7 +62,7 @@ public interface MepHostService {
      * @param token access token
      * @return
      */
-    Either<FormatRespDto, Boolean> updateHost(String hostId, MepHost host, String token);
+    boolean updateHost(String hostId, MepHost host, String token);
 
     /**
      * get one host by host id.
@@ -80,7 +78,7 @@ public interface MepHostService {
      * @param hostId host id
      * @return
      */
-    Either<FormatRespDto, List<MepHostLog>> getHostLogByHostId(String hostId);
+    List<MepHostLog> getHostLogByHostId(String hostId);
 
     /**
      * upload host config file.
@@ -88,6 +86,6 @@ public interface MepHostService {
      * @param uploadFile config file
      * @return
      */
-    Either<FormatRespDto, UploadedFile> uploadConfigFile(MultipartFile uploadFile);
+    UploadedFile uploadConfigFile(MultipartFile uploadFile);
 
 }
