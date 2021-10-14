@@ -104,7 +104,7 @@ public class MepHostServiceImpl implements MepHostService {
             LOGGER.error("mecHost have exit:{}", host.getMecHostIp());
             throw new EntityNotFoundException("mecHost have exit!", ResponseConsts.RET_QUERY_DATA_EMPTY);
         }
-        if (StringUtils.isBlank(host.getUserId()) || !isAdminUser()) {
+        if (!isAdminUser()) {
             LOGGER.error("Create host failed, userId is empty or not admin");
             throw new UnauthorizedException("userId is empty or not admin!", ResponseConsts.RET_REQUEST_UNAUTHORIZED);
         }
@@ -142,7 +142,7 @@ public class MepHostServiceImpl implements MepHostService {
             }
         }
         host.setId(UUID.randomUUID().toString()); // no need to set hostId by user
-        host.setMecHostPort(VNC_PORT);
+        host.setUserId(AccessUserUtil.getUser().getUserId());
         // AES加密
         String userNameEncode = AesUtil.encode(clientId, host.getMecHostUserName());
         String passwordEncode = AesUtil.encode(clientId, host.getMecHostPassword());
