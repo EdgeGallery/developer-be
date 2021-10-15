@@ -18,7 +18,6 @@ package org.edgegallery.developer.service.mephost.impl;
 
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import com.spencerwi.either.Either;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -38,7 +37,6 @@ import org.edgegallery.developer.mapper.mephost.MepHostMapper;
 import org.edgegallery.developer.model.mephost.MepHost;
 import org.edgegallery.developer.model.mephost.MepHostLog;
 import org.edgegallery.developer.model.workspace.UploadedFile;
-import org.edgegallery.developer.response.FormatRespDto;
 import org.edgegallery.developer.service.mephost.MepHostService;
 import org.edgegallery.developer.service.uploadfile.impl.UploadServiceImpl;
 import org.edgegallery.developer.util.AesUtil;
@@ -51,17 +49,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
 @Service("mepHostService")
 public class MepHostServiceImpl implements MepHostService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MepHostServiceImpl.class);
-
-    private static final RestTemplate REST_TEMPLATE = new RestTemplate();
-
-    private static int VNC_PORT = 22;
 
     @Autowired
     private MepHostMapper mepHostMapper;
@@ -88,7 +81,7 @@ public class MepHostServiceImpl implements MepHostService {
         PageHelper.offsetPage(offset, limit);
         PageInfo<MepHost> pageInfo = new PageInfo<>(mepHostMapper.getHostsByCondition(name, vimType, architecture));
         LOGGER.info("Get all hosts success.");
-        return new Page<MepHost>(pageInfo.getList(), limit, offset, pageInfo.getTotal());
+        return new Page<>(pageInfo.getList(), limit, offset, pageInfo.getTotal());
     }
 
     /**
@@ -98,7 +91,7 @@ public class MepHostServiceImpl implements MepHostService {
      */
     @Transactional
     @Override
-    public Either<FormatRespDto, Boolean> createHost(MepHost host, String token) {
+    public boolean createHost(MepHost host, String token) {
         MepHost mepHost = mepHostMapper.getHostsByMecHostIp(host.getMecHostIp());
         if (mepHost != null) {
             LOGGER.error("mecHost have exit:{}", host.getMecHostIp());
@@ -113,7 +106,8 @@ public class MepHostServiceImpl implements MepHostService {
             if (!getParams.containsKey("app_mp1_ip") || !getParams.containsKey("app_n6_ip") || !getParams
                 .containsKey("app_internet_ip")) {
                 LOGGER.error("Network params config error");
-                throw new IllegalRequestException("Network params config error!", ResponseConsts.RET_REQUEST_PARAM_ERROR);
+                throw new IllegalRequestException("Network params config error!",
+                    ResponseConsts.RET_REQUEST_PARAM_ERROR);
             }
         }
         // health check
@@ -143,7 +137,7 @@ public class MepHostServiceImpl implements MepHostService {
         }
         host.setId(UUID.randomUUID().toString()); // no need to set hostId by user
         host.setUserId(AccessUserUtil.getUser().getUserId());
-        // AES加密
+        // AES encryption
         String userNameEncode = AesUtil.encode(clientId, host.getMecHostUserName());
         String passwordEncode = AesUtil.encode(clientId, host.getMecHostPassword());
         host.setMecHostUserName(userNameEncode);
@@ -151,7 +145,7 @@ public class MepHostServiceImpl implements MepHostService {
         int ret = mepHostMapper.createHost(host);
         if (ret > 0) {
             LOGGER.info("Crete host {} success ", host.getId());
-            return Either.right(true);
+            return true;
         }
         LOGGER.error("Create host failed!");
         throw new DataBaseException("Create host failed!", ResponseConsts.RET_CERATE_DATA_FAIL);
@@ -164,14 +158,14 @@ public class MepHostServiceImpl implements MepHostService {
      */
     @Transactional
     @Override
-    public Either<FormatRespDto, Boolean> deleteHost(String hostId) {
+    public boolean deleteHost(String hostId) {
         int res = mepHostMapper.deleteHost(hostId);
         if (res < 1) {
             LOGGER.error("Delete host {} failed", hostId);
             throw new DataBaseException("delete host failed!", ResponseConsts.RET_DELETE_DATA_FAIL);
         }
         LOGGER.info("Delete host {} success", hostId);
-        return Either.right(true);
+        return true;
     }
 
     /**
@@ -181,7 +175,7 @@ public class MepHostServiceImpl implements MepHostService {
      */
     @Override
     @Transactional
-    public Either<FormatRespDto, Boolean> updateHost(String hostId, MepHost host, String token) {
+    public boolean updateHost(String hostId, MepHost host, String token) {
         // health check
         String healRes = HttpClientUtil.getHealth(host.getLcmProtocol(), host.getLcmIp(), host.getLcmPort());
         if (healRes == null) {
@@ -217,7 +211,7 @@ public class MepHostServiceImpl implements MepHostService {
         int ret = mepHostMapper.updateHostSelected(host);
         if (ret > 0) {
             LOGGER.info("Update host {} success", hostId);
-            return Either.right(true);
+            return true;
         }
         LOGGER.error("Update host {} failed", hostId);
         throw new DataBaseException("update host failed!", ResponseConsts.RET_UPDATE_DATA_FAIL);
@@ -247,10 +241,10 @@ public class MepHostServiceImpl implements MepHostService {
      * @return
      */
     @Override
-    public Either<FormatRespDto, List<MepHostLog>> getHostLogByHostId(String hostId) {
+    public List<MepHostLog> getHostLogByHostId(String hostId) {
         List<MepHostLog> hostLogList = hostLogMapper.getHostLogByHostId(hostId);
         LOGGER.info("Get host logs success.");
-        return Either.right(hostLogList);
+        return hostLogList;
     }
 
     /**
@@ -260,9 +254,9 @@ public class MepHostServiceImpl implements MepHostService {
      * @return
      */
     @Override
-    public Either<FormatRespDto, UploadedFile> uploadConfigFile(MultipartFile uploadFile) {
+    public UploadedFile uploadConfigFile(MultipartFile uploadFile) {
         LOGGER.info("Start uploading file");
-        String userId = AccessUserUtil.getUser().getUserId();
+        String userId = "AccessUserUtil.getUser().getUserId()";
         UploadedFile result = uploadService.saveFileToLocal(uploadFile, userId);
         if (result == null) {
             LOGGER.error("save config file failed!");
@@ -273,7 +267,7 @@ public class MepHostServiceImpl implements MepHostService {
             LOGGER.error("update config file status failed!!");
             throw new DataBaseException("update config file status failed!", ResponseConsts.RET_UPDATE_DATA_FAIL);
         }
-        return Either.right(result);
+        return result;
     }
 
     private boolean isAdminUser() {
@@ -281,5 +275,4 @@ public class MepHostServiceImpl implements MepHostService {
         LOGGER.info("user auth:{}", currUserAuth);
         return !StringUtils.isEmpty(currUserAuth) && currUserAuth.contains(Consts.ROLE_DEVELOPER_ADMIN);
     }
-
 }
