@@ -14,13 +14,35 @@
  *    limitations under the License.
  */
 
-package org.edgegallery.developer.mapper;
+package org.edgegallery.developer.model.vmimage;
 
-import java.util.List;
-import org.apache.ibatis.annotations.Mapper;
+import lombok.Getter;
 
-@Mapper
-public interface AppFunctionMapper {
+@Getter
+/**
+ *  task status
+ */
+public enum EnumProcessErrorType {
+    /**
+     * upload to file system failed.
+     */
+    FILESYSTEM_UPLOAD_FAILED("failedOnUploadToFS"),
+    /**
+     * format mistake.
+     */
+    FORMAT_MISTAKE("formatMistake"),
+    /**
+     * zip open failed.
+     */
+    OPEN_FAILED("zipFileOpenFailed"),
+    /**
+     * file system merge failed.
+     */
+    FILESYSTEM_MERGE_FAILED("fileSystemMergeFailed");
 
-    List<String> getAppTagList();
+    private String errorType;
+
+    EnumProcessErrorType(String errorType) {
+        this.errorType = errorType;
+    }
 }

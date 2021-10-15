@@ -16,6 +16,7 @@
 
 package org.edgegallery.developer.model.application.configuration;
 
+import java.util.ArrayList;
 import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
@@ -30,7 +31,7 @@ public class AppServiceProduced {
 
     private String version;
 
-    private List<String> dnsRuleIdList;
+    private List<String> dnsRuleIdList = new ArrayList<String>(0);
 
-    private List<String> trafficRuleIdList;
+    private List<String> trafficRuleIdList = new ArrayList<String>(0);
 }

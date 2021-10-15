@@ -13,13 +13,20 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package org.edgegallery.developer.service.application.action.impl.vm;
+package org.edgegallery.developer.service.application.common;
 
-import org.edgegallery.developer.service.application.action.impl.QueryInstantiateAppStatusAction;
+public interface IContextParameter {
+    String PARAM_APPLICATION_ID = "application_id";
 
-public class QueryInstantiateVMAppStatusAction extends QueryInstantiateAppStatusAction {
-    @Override
-    public boolean execute() {
-        return true;
-    }
+    String PARAM_VM_ID = "vm_id";
+
+    String PARAM_HELMCHART_ID = "helmchart_id";
+
+    String PARAM_PACKAGE_ID = "package_id";
+
+    String PARAM_MEPM_PACKAGE_ID = "mepm_package_id";
+
+    String PARAM_APP_INSTANCE_ID = "app_instance_id";
+
+    String PARAM_IMAGE_INSTANCE_ID = "image_instance_id";
 }

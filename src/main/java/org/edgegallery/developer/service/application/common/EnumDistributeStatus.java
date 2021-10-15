@@ -13,28 +13,25 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package org.edgegallery.developer.service.application.action.impl;
 
-import org.edgegallery.developer.service.application.action.IAction;
-import org.edgegallery.developer.service.application.action.IContext;
+package org.edgegallery.developer.service.application.common;
 
-public class QueryDistributePackageStatusAction implements IAction {
-    public static final String ACTION_NAME = "Query Distribute Application Package Status";
+public enum EnumDistributeStatus {
+    DISTRIBUTE_PACKAGE_STATUS_TIMEOUT("timeout"),
 
-    private IContext context;
+    DISTRIBUTE_PACKAGE_STATUS_ERROR("error"),
 
-    @Override
-    public void setContext(IContext context) {
-        this.context = context;
+    DISTRIBUTE_PACKAGE_STATUS_FAILED("killed"),
+
+    DISTRIBUTE_PACKAGE_STATUS_SUCCESS("uploaded");
+
+    private String name;
+
+    EnumDistributeStatus(String name) {
+        this.name = name;
     }
 
-    @Override
-    public String getActionName() {
-        return ACTION_NAME;
-    }
-
-    @Override
-    public boolean execute() {
-        return true;
+    public String toString() {
+        return name;
     }
 }

@@ -20,16 +20,15 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.edgegallery.developer.domain.model.user.User;
 import org.edgegallery.developer.model.operation.OperationStatus;
 import org.edgegallery.developer.service.application.action.IAction;
 import org.edgegallery.developer.service.application.action.IActionCollection;
 import org.edgegallery.developer.service.application.action.IActionIterator;
-import org.edgegallery.developer.service.application.common.ActionProgressRange;
 import org.edgegallery.developer.service.application.action.impl.ActionIterator;
-import org.edgegallery.developer.service.application.action.impl.BuildPackageAction;
-import org.edgegallery.developer.service.application.action.impl.DistributePackageAction;
 import org.edgegallery.developer.service.application.action.impl.OperationContext;
-import org.edgegallery.developer.service.application.action.impl.QueryDistributePackageStatusAction;
+import org.edgegallery.developer.service.application.common.ActionProgressRange;
+import org.edgegallery.developer.service.application.common.IContextParameter;
 
 public class VMLaunchOperation implements IActionCollection {
 
@@ -37,30 +36,25 @@ public class VMLaunchOperation implements IActionCollection {
 
     public List<IAction> actions;
 
-    public VMLaunchOperation(String lcmController, OperationStatus operationStatus) {
+    public VMLaunchOperation(User user, String applicationId, String vmId, String token, OperationStatus operationStatus) {
 
-        IAction buildPackageAction = new BuildPackageAction();
-        IAction distributePackageAction = new DistributePackageAction();
-        IAction queryDistributePackageStatusAction = new QueryDistributePackageStatusAction();
+        IAction buildPackageAction = new BuildVMPackageAction();
+        IAction distributePackageAction = new DistributeVMPackageAction();
         IAction instantiateVMAppAction = new InstantiateVMAppAction();
-        IAction queryInstantiateVMAppStatusAction = new QueryInstantiateVMAppStatusAction();
 
         Map<String, ActionProgressRange> actionProgressRangeMap = new HashMap<String, ActionProgressRange>();
         actionProgressRangeMap.put(buildPackageAction.getActionName(), new ActionProgressRange(0, 20));
-        actionProgressRangeMap.put(distributePackageAction.getActionName(), new ActionProgressRange(20, 40));
-        actionProgressRangeMap.put(queryDistributePackageStatusAction.getActionName(), new ActionProgressRange(40, 60));
-        actionProgressRangeMap.put(instantiateVMAppAction.getActionName(), new ActionProgressRange(60, 80));
-        actionProgressRangeMap.put(queryInstantiateVMAppStatusAction.getActionName(), new ActionProgressRange(80, 100));
+        actionProgressRangeMap.put(distributePackageAction.getActionName(), new ActionProgressRange(20, 50));
+        actionProgressRangeMap.put(instantiateVMAppAction.getActionName(), new ActionProgressRange(50, 100));
 
-        OperationContext context = new OperationContext(lcmController, operationStatus, actionProgressRangeMap);
+        this.context = new OperationContext(user, token, operationStatus, actionProgressRangeMap);
         buildPackageAction.setContext(context);
         distributePackageAction.setContext(context);
-        queryDistributePackageStatusAction.setContext(context);
         instantiateVMAppAction.setContext(context);
-        queryInstantiateVMAppStatusAction.setContext(context);
+        context.addParameter(IContextParameter.PARAM_APPLICATION_ID, applicationId);
+        context.addParameter(IContextParameter.PARAM_VM_ID, vmId);
 
-        actions = Arrays.asList(buildPackageAction, distributePackageAction, queryDistributePackageStatusAction,
-            instantiateVMAppAction, queryInstantiateVMAppStatusAction);
+        actions = Arrays.asList(buildPackageAction, distributePackageAction, instantiateVMAppAction);
     }
 
     @Override

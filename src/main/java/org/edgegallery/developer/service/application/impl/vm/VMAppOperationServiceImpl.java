@@ -1,8 +1,24 @@
+/*
+ * Copyright 2021 Huawei Technologies Co., Ltd.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
+ */
+
 package org.edgegallery.developer.service.application.impl.vm;
 
+import java.util.List;
 import java.util.UUID;
 import javax.servlet.http.HttpServletRequest;
 import org.edgegallery.developer.common.ResponseConsts;
+import org.edgegallery.developer.config.security.AccessUserUtil;
 import org.edgegallery.developer.exception.DataBaseException;
 import org.edgegallery.developer.exception.DeveloperException;
 import org.edgegallery.developer.exception.EntityNotFoundException;
@@ -12,12 +28,16 @@ import org.edgegallery.developer.mapper.application.vm.VMMapper;
 import org.edgegallery.developer.mapper.operation.OperationStatusMapper;
 import org.edgegallery.developer.model.Chunk;
 import org.edgegallery.developer.model.application.Application;
+import org.edgegallery.developer.model.application.vm.VMApplication;
 import org.edgegallery.developer.model.application.vm.VirtualMachine;
+import org.edgegallery.developer.model.apppackage.AppPackage;
 import org.edgegallery.developer.model.instantiate.vm.ImageExportInfo;
+import org.edgegallery.developer.model.instantiate.vm.PortInstantiateInfo;
 import org.edgegallery.developer.model.instantiate.vm.VMInstantiateInfo;
 import org.edgegallery.developer.model.operation.EnumActionStatus;
 import org.edgegallery.developer.model.operation.EnumOperationObjectType;
 import org.edgegallery.developer.model.operation.OperationStatus;
+import org.edgegallery.developer.model.restful.ApplicationDetail;
 import org.edgegallery.developer.model.restful.OperationInfoRep;
 import org.edgegallery.developer.service.application.action.IAction;
 import org.edgegallery.developer.service.application.action.IActionIterator;
@@ -57,7 +77,7 @@ public class VMAppOperationServiceImpl extends AppOperationServiceImpl implement
     VMMapper vmMapper;
 
     @Override
-    public OperationInfoRep instantiateVmApp(String applicationId, String vmId, String accessToken) {
+    public OperationInfoRep instantiateVM(String applicationId, String vmId, String accessToken) {
 
         Application application = applicationServiceImpl.getApplication(applicationId);
         if (application == null) {
@@ -66,34 +86,37 @@ public class VMAppOperationServiceImpl extends AppOperationServiceImpl implement
         }
 
         VirtualMachine virtualMachine = vmAppVmServiceImpl.getVm(applicationId, vmId);
-        if (virtualMachine==null || virtualMachine.getVmInstantiateInfo()!=null
+        if (virtualMachine == null || virtualMachine.getVmInstantiateInfo() != null
             || virtualMachine.getImageExportInfo() != null) {
             LOGGER.error("instantiate vm app fail ,vm is not exit or is used,vmId:{}", vmId);
-            throw new EntityNotFoundException("instantiate vm app fail ,vm is not exit or is used.", ResponseConsts.RET_QUERY_DATA_EMPTY);
+            throw new EntityNotFoundException("instantiate vm app fail ,vm is not exit or is used.",
+                ResponseConsts.RET_QUERY_DATA_EMPTY);
         }
 
         // create OperationStatus
         OperationStatus operationStatus = new OperationStatus();
         operationStatus.setId(UUID.randomUUID().toString());
+        operationStatus.setUserName(AccessUserUtil.getUser().getUserName());
         operationStatus.setObjectType(EnumOperationObjectType.APPLICATION_INSTANCE);
         operationStatus.setStatus(EnumActionStatus.ONGOING);
         operationStatus.setProgress(0);
         operationStatus.setObjectId(vmId);
+        operationStatus.setObjectName(virtualMachine.getName());
         operationStatus.setOperationName(OPERATION_NAME);
         int res = operationStatusMapper.createOperationStatus(operationStatus);
         if (res < 1) {
             LOGGER.error("Create operationStatus in db error.");
             throw new DataBaseException("Create operationStatus in db error.", ResponseConsts.RET_CERATE_DATA_FAIL);
         }
-        VMLaunchOperation actionCollection = new VMLaunchOperation(accessToken, operationStatus);
+        VMLaunchOperation actionCollection = new VMLaunchOperation(AccessUserUtil.getUser(), applicationId, vmId,
+            accessToken, operationStatus);
         LOGGER.info("start instantiate vm app");
         new InstantiateVmAppProcessor(actionCollection).start();
         return new OperationInfoRep(operationStatus.getId());
     }
 
     @Override
-    public Boolean uploadFileToVm(String applicationId, String vmId, HttpServletRequest request,
-        Chunk chunk) {
+    public Boolean uploadFileToVm(String applicationId, String vmId, HttpServletRequest request, Chunk chunk) {
         return null;
     }
 
@@ -102,14 +125,44 @@ public class VMAppOperationServiceImpl extends AppOperationServiceImpl implement
         return null;
     }
 
+    @Override
+    public AppPackage generatePackage(String applicationId) {
+        ApplicationDetail detail = applicationServiceImpl.getApplicationDetail(applicationId);
+        return generatePackage(detail.getVmApp());
+    }
 
     @Override
-    public Boolean generatePackage(String applicationId) {
+    public AppPackage generatePackage(VMApplication application) {
         return null;
     }
 
     public VMInstantiateInfo getInstantiateInfo(String vmId) {
-        return vmInstantiateInfoMapper.getVMInstantiateInfo(vmId);
+        VMInstantiateInfo instantiateInfo = vmInstantiateInfoMapper.getVMInstantiateInfo(vmId);
+        List<PortInstantiateInfo> portLst = vmInstantiateInfoMapper.getPortInstantiateInfoByVMId(vmId);
+        instantiateInfo.setPortInstanceList(portLst);
+        return instantiateInfo;
+    }
+
+    public Boolean updateInstantiateInfo(String vmId, VMInstantiateInfo instantiateInfo) {
+        int res = vmInstantiateInfoMapper.modifyVMInstantiateInfo(vmId, instantiateInfo);
+        if (res < 1) {
+            LOGGER.error("Update vm instantiate info failed");
+            return false;
+        }
+        //update ports
+        res = vmInstantiateInfoMapper.deleteVMInstantiateInfo(vmId);
+        if (res < 1) {
+            LOGGER.error("Update vm instantiate info failed, remove ports failed.");
+            return false;
+        }
+        for (PortInstantiateInfo port : instantiateInfo.getPortInstanceList()) {
+            res = vmInstantiateInfoMapper.createPortInstantiateInfo(vmId, port);
+            if (res < 1) {
+                LOGGER.error("Update vm instantiate info failed, add port instances failed.");
+                return false;
+            }
+        }
+        return true;
     }
 
     public ImageExportInfo getImageExportInfo(String vmId) {

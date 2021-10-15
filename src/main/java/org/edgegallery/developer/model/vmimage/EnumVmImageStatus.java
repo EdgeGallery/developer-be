@@ -1,5 +1,5 @@
 /*
- *    Copyright 2021 Huawei Technologies Co., Ltd.
+ *    Copyright 2020 Huawei Technologies Co., Ltd.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -14,22 +14,14 @@
  *    limitations under the License.
  */
 
-package org.edgegallery.developer.model.vm;
+package org.edgegallery.developer.model.vmimage;
 
-import java.util.List;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
-
-@Getter
-@Setter
-@ToString
-public class VmInstantiateInfo {
-
-    private  String code;
-
-    private String msg;
-
-    private List<VmInfo> data;
-
+public enum EnumVmImageStatus {
+    UPLOAD_WAIT,
+    UPLOADING,
+    UPLOADING_MERGING,
+    UPLOAD_SUCCEED,
+    UPLOAD_FAILED,
+    UPLOAD_CANCELLED,
+    PUBLISHED
 }

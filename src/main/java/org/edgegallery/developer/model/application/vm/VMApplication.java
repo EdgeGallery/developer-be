@@ -15,6 +15,8 @@
  */
 package org.edgegallery.developer.model.application.vm;
 
+import java.sql.Array;
+import java.util.ArrayList;
 import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
@@ -28,9 +30,9 @@ import org.edgegallery.developer.model.application.vm.VirtualMachine;
 @ToString
 public class VMApplication extends Application {
 
-    private List<VirtualMachine> vmList;
+    private List<VirtualMachine> vmList = new ArrayList<VirtualMachine>(0);
 
-    private List<Network>  networkList;
+    private List<Network>  networkList = new ArrayList<Network>(0);
 
     public VMApplication(){
         super();

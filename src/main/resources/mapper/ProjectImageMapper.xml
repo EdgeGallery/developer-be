@@ -20,22 +20,16 @@
 
     <resultMap id="ImageMap" type="org.edgegallery.developer.model.workspace.ProjectImageConfig">
         <id property="id" column="id"/>
-        <result property="podName" column="pod_name"/>
-        <result property="podContainers" column="pod_containers"/>
+        <result property="imageInfo" column="image_info"/>
         <result property="projectId" column="project_id"/>
-        <result property="svcType" column="svc_type"/>
-        <result property="svcPort" column="svc_port"/>
-        <result property="svcNodePort" column="svc_node_port"/>
         <result property="helmChartFileId" column="helm_chart_file_id"/>
     </resultMap>
 
     <insert id="saveImage" parameterType="org.edgegallery.developer.model.workspace.ProjectImageConfig">
         insert into
-        tbl_project_image (id, pod_name, pod_containers, project_id, svc_type, svc_port,
-        svc_node_port,helm_chart_file_id)
+        tbl_project_image (id, image_info, project_id, helm_chart_file_id)
         values
-        ( #{id}, #{podName}, #{podContainers}, #{projectId}, #{svcType},
-        #{svcPort},#{svcNodePort},#{helmChartFileId})
+        ( #{id},#{imageInfo},#{projectId},#{helmChartFileId})
     </insert>
 
     <delete id="deleteImage" parameterType="java.lang.String">
@@ -43,13 +37,8 @@
         tbl_project_image where project_id = #{projectId}
     </delete>
 
-    <delete id="deleteImageByHelmId" parameterType="java.lang.String">
-        delete from
-        tbl_project_image where project_id = #{projectId} and helm_chart_file_id=#{helmChartFileId}
-    </delete>
-
     <select id="getAllImage" parameterType="java.lang.String" resultMap="ImageMap">
-        select id, pod_name, pod_containers, project_id, svc_type, svc_port, svc_node_port, helm_chart_file_id from
+        select id, image_info, project_id, helm_chart_file_id from
         tbl_project_image where project_id = #{projectId}
     </select>
 </mapper>

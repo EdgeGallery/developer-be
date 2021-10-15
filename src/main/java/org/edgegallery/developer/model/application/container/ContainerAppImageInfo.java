@@ -13,8 +13,31 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package org.edgegallery.developer.mapper.image;
+package org.edgegallery.developer.model.application.container;
 
-public interface VmImageMapper {
+import java.util.UUID;
+import lombok.Getter;
+import lombok.Setter;
 
+@Getter
+@Setter
+public class ContainerAppImageInfo {
+
+    private String id;
+
+    private String imageInfo;
+
+    private String applicationId;
+
+    private String helmChartFileId;
+
+    /**
+     * getId.
+     */
+    public String getId() {
+        if (id == null) {
+            this.id = UUID.randomUUID().toString();
+        }
+        return this.id;
+    }
 }

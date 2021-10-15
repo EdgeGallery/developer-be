@@ -17,6 +17,8 @@ package org.edgegallery.developer.service.application.vm;
 
 import javax.servlet.http.HttpServletRequest;
 import org.edgegallery.developer.model.Chunk;
+import org.edgegallery.developer.model.application.vm.VMApplication;
+import org.edgegallery.developer.model.apppackage.AppPackage;
 import org.edgegallery.developer.model.instantiate.vm.ImageExportInfo;
 import org.edgegallery.developer.model.instantiate.vm.VMInstantiateInfo;
 import org.edgegallery.developer.model.restful.OperationInfoRep;
@@ -27,7 +29,7 @@ import com.spencerwi.either.Either;
 
 public interface VMAppOperationService {
 
-    OperationInfoRep instantiateVmApp(String applicationId, String vmId, String accessToken);
+    OperationInfoRep instantiateVM(String applicationId, String vmId, String accessToken);
 
     Boolean uploadFileToVm(String applicationId, String vmId, HttpServletRequest request, Chunk chunk);
 
@@ -36,5 +38,9 @@ public interface VMAppOperationService {
     ImageExportInfo getImageExportInfo(String vmId);
 
     VMInstantiateInfo getInstantiateInfo(String vmId);
+
+    Boolean updateInstantiateInfo(String vmId, VMInstantiateInfo instantiateInfo);
+
+    AppPackage generatePackage(VMApplication application);
 
 }

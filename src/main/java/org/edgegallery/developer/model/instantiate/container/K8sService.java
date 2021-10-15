@@ -15,6 +15,7 @@
  */
 package org.edgegallery.developer.model.instantiate.container;
 
+import java.util.ArrayList;
 import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
@@ -29,5 +30,5 @@ public class K8sService {
 
     private String type;
 
-    private List<K8sServicePort> servicePortList;
+    private List<K8sServicePort> servicePortList = new ArrayList<K8sServicePort>(0);
 }

@@ -15,13 +15,14 @@
  */
 package org.edgegallery.developer.service.application;
 
+import org.edgegallery.developer.model.apppackage.AppPackage;
 import org.edgegallery.developer.model.restful.SelectMepHostReq;
 
 public interface AppOperationService {
 
     Boolean cleanEnv(String applicationId);
 
-    Boolean generatePackage(String applicationId);
+    AppPackage generatePackage(String applicationId);
 
     Boolean commitTest(String applicationId);
 

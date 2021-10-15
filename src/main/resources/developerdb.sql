@@ -1,31 +1,6 @@
     -- ----------------------------
     -- plugin and app-test table start -----------------
     -- ----------------------------
-    -- Table structure for tbl_appfunction
-    -- ----------------------------
-    CREATE TABLE IF NOT EXISTS  "tbl_appfunction"(
-      "functionid" varchar(255) NOT NULL DEFAULT NULL,
-      "funcname" varchar(255) DEFAULT NULL,
-      "funcdesc" varchar(255) DEFAULT NULL,
-      "addtime" varchar(244) DEFAULT NULL,
-      CONSTRAINT "tbl_appfunction_pkey" PRIMARY KEY ("functionid")
-    )
-    ;
-
-    -- ----------------------------
-    -- Records of tbl_appfunction
-    -- ----------------------------
-    INSERT INTO  "tbl_appfunction" VALUES ('53fc40e9a1f048e4b4310e8ac30856b3', 'CPU', '处理速度', '2019-10-23 03:27:36')
-    ON CONFLICT(functionid) do nothing;
-    INSERT INTO  "tbl_appfunction" VALUES ('343d42a3b59c46f9afda063b8be4cc8f', 'GPU', '处理图片', '2019-10-23 03:27:54')
-    ON CONFLICT(functionid) do nothing;
-    INSERT INTO  "tbl_appfunction" VALUES ('526f86afd6b841ae9df56e30d37f0574', 'Memory Disk', '存储优先', '2019-11-02 10:48:33')
-    ON CONFLICT(functionid) do nothing;
-    INSERT INTO  "tbl_appfunction" VALUES ('8167fc046c2d4e42997c612fdfbd7c8f', 'AI', '存储', '2019-10-23 05:37:46')
-    ON CONFLICT(functionid) do nothing;
-
-
-    -- ----------------------------
     -- Table structure for tbl_downloadrecord
     -- ----------------------------
     CREATE TABLE IF NOT EXISTS "tbl_downloadrecord"(
@@ -95,46 +70,6 @@
       CONSTRAINT "tbl_app_project_capability_pkey" PRIMARY KEY ("project_id","capability_id")
     )
     ;
-
-    CREATE TABLE IF NOT EXISTS "tbl_openmep_capability" (
-      "group_id" varchar(50) NOT NULL,
-      "one_level_name" varchar(255)  DEFAULT NULL,
-      "one_level_name_en" varchar(255) DEFAULT NULL,
-      "two_level_name" varchar(255) DEFAULT NULL,
-      "two_level_name_en" varchar(255) DEFAULT NULL,
-      "type" varchar(20) DEFAULT NULL,
-      "description" text DEFAULT NULL,
-      "description_en" text DEFAULT NULL,
-      "icon_file_id" varchar(50) DEFAULT NULL,
-      "author" varchar(50) DEFAULT NULL,
-      "select_count" int4 NOT NULL DEFAULT 0,
-      "upload_time" timestamptz(6) DEFAULT NULL,
-      CONSTRAINT "tbl_openmep_capability_pkey" PRIMARY KEY ("group_id")
-    )
-    ;
-
-    CREATE TABLE IF NOT EXISTS "tbl_openmep_capability_detail" (
-      "detail_id" varchar(50) NOT NULL,
-      "service" varchar(100) DEFAULT NULL,
-      "service_en" varchar(100) DEFAULT NULL,
-      "version" varchar(100) DEFAULT NULL,
-      "description" text DEFAULT NULL,
-      "description_en" text DEFAULT NULL,
-      "provider" varchar(100) DEFAULT NULL,
-      "group_id" varchar(50) DEFAULT NULL,
-      "api_file_id" varchar(255) DEFAULT NULL,
-      "guide_file_id" varchar(255) DEFAULT NULL,
-      "guide_file_id_en" varchar(255) DEFAULT NULL,
-      "upload_time" varchar(50) NOT NULL,
-      "host" varchar(50) DEFAULT NULL,
-      "port" int4 DEFAULT NULL,
-      "protocol" varchar(20) DEFAULT NULL,
-      "app_id" varchar(255) DEFAULT NULL,
-      "package_id" varchar(255) DEFAULT NULL,
-      "user_id" varchar(255) DEFAULT NULL,
-      CONSTRAINT "tbl_openmep_capability_detail_pkey" PRIMARY KEY ("detail_id")
-    )
-    ;
     
     CREATE TABLE IF NOT EXISTS "tbl_capability_group" (
       "id" varchar(50) NOT NULL,
@@ -180,16 +115,21 @@
 
     CREATE TABLE IF NOT EXISTS "tbl_project_image" (
       "id"  varchar(255) NOT NULL,
-      "pod_name" varchar(255) DEFAULT NULL,
-      "pod_containers" text  DEFAULT NULL,
+      "image_info" text  DEFAULT NULL,
       "project_id" varchar(255) DEFAULT NULL,
-      "svc_type" varchar(255)  DEFAULT NULL,
-      "svc_port" varchar(255)  DEFAULT NULL,
-      "svc_node_port" varchar(255)  DEFAULT NULL,
       "helm_chart_file_id" varchar(255) DEFAULT NULL,
       CONSTRAINT "tbl_project_image_pkey" PRIMARY KEY ("id")
     )
     ;
+
+     CREATE TABLE IF NOT EXISTS "tbl_container_app_image_info" (
+       "id"  varchar(255) NOT NULL,
+       "image_info" text  DEFAULT NULL,
+       "application_id" varchar(255) DEFAULT NULL,
+       "helm_chart_file_id" varchar(255) DEFAULT NULL,
+       CONSTRAINT "tbl_container_app_image_info_pkey" PRIMARY KEY ("id")
+     )
+     ;
 
     CREATE TABLE IF NOT EXISTS "tbl_project_test_config" (
       "test_id" varchar(50) NOT NULL,
@@ -581,7 +521,7 @@
     );
 
     CREATE TABLE IF NOT EXISTS "tbl_vm_image" (
-    "id" varchar(255) NOT NULL,
+    "id" SERIAL,
     "name" varchar(255) NOT NULL,
     "visible_type" varchar(255) DEFAULT NULL,
     "os_type" varchar(255) DEFAULT NULL,
@@ -592,18 +532,24 @@
     "image_format" varchar(255) DEFAULT NULL,
     "down_load_url" varchar(255) DEFAULT NULL,
     "file_md5" varchar(255) DEFAULT NULL,
+    "image_size" bigint DEFAULT NULL,
+    "image_slim_status" varchar(50) DEFAULT NULL,
     "status" varchar(255) DEFAULT NULL,
     "create_time" timestamptz(6)  DEFAULT NULL,
     "modify_time" timestamptz(6)  DEFAULT NULL,
     "upload_time" timestamptz(6)  DEFAULT NULL,
     "user_id" varchar(255) DEFAULT NULL,
     "user_name" varchar(255) DEFAULT NULL,
+    "file_identifier" varchar(128) DEFAULT NULL,
+    "error_type" varchar(32) DEFAULT NULL,
+    CONSTRAINT "tbl_vm_image_uniqueName" UNIQUE ("name","user_id"),
     CONSTRAINT "tbl_vm_image_pkey" PRIMARY KEY ("id")
     );
 
     CREATE TABLE IF NOT EXISTS "tbl_vm_instantiate_info" (
     "vm_id" varchar(255) NOT NULL,
     "app_package_id" varchar(255) DEFAULT NULL,
+    "distributed_mec_host" varchar(255) DEFAULT NULL,
     "app_instance_id" varchar(255) DEFAULT NULL,
     "vm_instance_id" varchar(255) DEFAULT NULL,
     "status" varchar(255) DEFAULT NULL,
@@ -636,6 +582,7 @@
     CREATE TABLE IF NOT EXISTS "tbl_container_app_instantiate_info" (
     "app_id" varchar(255) NOT NULL,
     "app_package_id" varchar(255) DEFAULT NULL,
+    "distributed_mec_host" varchar(255) DEFAULT NULL,
     "app_instance_id" varchar(255) DEFAULT NULL,
     "status" varchar(255) DEFAULT NULL,
     "log" text DEFAULT NULL,
@@ -677,12 +624,15 @@
 
     CREATE TABLE IF NOT EXISTS "tbl_operation_status" (
     "id" varchar(255) NOT NULL,
+    "user_name" varchar(255) NOT NULL,
     "object_type" varchar(255) DEFAULT NULL,
     "object_id" varchar(255) DEFAULT NULL,
+    "object_name" varchar(255) DEFAULT NULL,
     "operation_name" varchar(255) DEFAULT NULL,
     "progress" int4 DEFAULT NULL,
     "status" varchar(255) DEFAULT NULL,
     "error_msg" text DEFAULT NULL,
+    "create_time" timestamptz(6) DEFAULT NULL,
     "update_time" timestamptz(6)  DEFAULT NULL,
     CONSTRAINT "tbl_operation_status_pkey" PRIMARY KEY ("id")
     );

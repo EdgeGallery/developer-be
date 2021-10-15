@@ -13,11 +13,15 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package org.edgegallery.developer.service.image;
 
-import org.springframework.stereotype.Service;
+package org.edgegallery.developer.mapper.application.container;
 
-@Service("vmImageService")
-public class VmImageService {
+import org.apache.ibatis.annotations.Mapper;
+import org.edgegallery.developer.model.application.container.ContainerAppImageInfo;
+
+@Mapper
+public interface ContainerAppImageInfoMapper {
+
+    int saveImageInfo(ContainerAppImageInfo appImageInfo);
 
 }

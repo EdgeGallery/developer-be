@@ -16,6 +16,7 @@
 
 package org.edgegallery.developer.model.application.configuration;
 
+import java.util.ArrayList;
 import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
@@ -30,14 +31,14 @@ import com.spencerwi.either.Either;
 @ToString
 public class AppConfiguration {
 
-    private AppCertificate appCertificate;
+    private AppCertificate appCertificate = new AppCertificate();
 
-    private List<AppServiceProduced> appServiceProducedList;
+    private List<AppServiceProduced> appServiceProducedList = new ArrayList<AppServiceProduced>(0);
 
-    private List<AppServiceRequired> appServiceRequiredList;
+    private List<AppServiceRequired> appServiceRequiredList = new ArrayList<AppServiceRequired>(0);
 
-    private List<TrafficRule> trafficRuleList;
+    private List<TrafficRule> trafficRuleList = new ArrayList<TrafficRule>(0);
 
-    private List<DnsRule> dnsRuleList;
+    private List<DnsRule> dnsRuleList = new ArrayList<DnsRule>(0);
 
 }

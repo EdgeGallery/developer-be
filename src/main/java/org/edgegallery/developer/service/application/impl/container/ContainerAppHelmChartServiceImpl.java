@@ -33,8 +33,10 @@ import org.edgegallery.developer.exception.IllegalRequestException;
 import org.edgegallery.developer.mapper.ProjectImageMapper;
 import org.edgegallery.developer.mapper.UploadedFileMapper;
 import org.edgegallery.developer.mapper.application.ApplicationMapper;
+import org.edgegallery.developer.mapper.application.container.ContainerAppImageInfoMapper;
 import org.edgegallery.developer.mapper.application.container.HelmChartMapper;
 import org.edgegallery.developer.model.application.Application;
+import org.edgegallery.developer.model.application.container.ContainerAppImageInfo;
 import org.edgegallery.developer.model.application.container.HelmChart;
 import org.edgegallery.developer.model.workspace.ProjectImageConfig;
 import org.edgegallery.developer.model.workspace.UploadedFile;
@@ -56,7 +58,7 @@ public class ContainerAppHelmChartServiceImpl implements ContainerAppHelmChartSe
     private static final Logger LOGGER = LoggerFactory.getLogger(ContainerAppHelmChartServiceImpl.class);
 
     @Autowired
-    private ProjectImageMapper projectImageMapper;
+    private ContainerAppImageInfoMapper containerAppImageInfoMapper;
 
     @Autowired
     private ApplicationMapper applicationMapper;
@@ -117,6 +119,10 @@ public class ContainerAppHelmChartServiceImpl implements ContainerAppHelmChartSe
         if (!StringUtils.isEmpty(id)) {
             throw new IllegalRequestException("helm chart id is empty", ResponseConsts.RET_REQUEST_PARAM_EMPTY);
         }
+        Application application = applicationMapper.getApplicationById(applicationId);
+        if (application == null) {
+            throw new EntityNotFoundException("the query Application is empty", ResponseConsts.RET_QUERY_DATA_EMPTY);
+        }
         HelmChart chart = helmChartMapper.getHelmChartById(id);
         if (chart == null) {
             throw new EntityNotFoundException("the query HelmChart is empty", ResponseConsts.RET_QUERY_DATA_EMPTY);
@@ -132,21 +138,18 @@ public class ContainerAppHelmChartServiceImpl implements ContainerAppHelmChartSe
         if (!StringUtils.isEmpty(id)) {
             throw new IllegalRequestException("helm chart id is empty!", ResponseConsts.RET_REQUEST_PARAM_EMPTY);
         }
+        Application application = applicationMapper.getApplicationById(applicationId);
+        if (application == null) {
+            throw new EntityNotFoundException("the query Application is empty", ResponseConsts.RET_QUERY_DATA_EMPTY);
+        }
         HelmChart helmChart = helmChartMapper.getHelmChartById(id);
         if (helmChart == null) {
             throw new EntityNotFoundException("query HelmChart is empty!", ResponseConsts.RET_QUERY_DATA_EMPTY);
         }
-        int ret = uploadedFileMapper.deleteFile(helmChart.getHelmChartFileId());
+        //delete data
+        int ret = helmChartMapper.deleteFileAndImage(id, helmChart.getHelmChartFileId(), applicationId);
         if (ret < 1) {
-            throw new DataBaseException("delete uploadfile failed!", ResponseConsts.RET_DELETE_DATA_FAIL);
-        }
-        int res = helmChartMapper.deleteHelmChart(id);
-        if (res < 1) {
-            throw new DataBaseException("delete HelmChart record failed!", ResponseConsts.RET_DELETE_DATA_FAIL);
-        }
-        int del = projectImageMapper.deleteImageByHelmId(applicationId, helmChart.getHelmChartFileId());
-        if (del < 1) {
-            throw new DataBaseException("delete image of uploadfile failed!", ResponseConsts.RET_DELETE_DATA_FAIL);
+            throw new DataBaseException("delete helm chart file failed!", ResponseConsts.RET_DELETE_DATA_FAIL);
         }
         return true;
     }
@@ -209,14 +212,12 @@ public class ContainerAppHelmChartServiceImpl implements ContainerAppHelmChartSe
             LOGGER.error("the image configuration in the yaml file is incorrect");
             return false;
         }
-        Application project = applicationMapper.getApplicationById(applicationId);
-        ProjectImageConfig config = new ProjectImageConfig();
-        config.setId(UUID.randomUUID().toString());
-        config.setPodName(project.getName());
-        config.setPodContainers(podImages.toString());
-        config.setProjectId(applicationId);
-        config.setHelmChartFileId(newFileId);
-        int res = projectImageMapper.saveImage(config);
+        ContainerAppImageInfo imageInfo = new ContainerAppImageInfo();
+        imageInfo.setId(UUID.randomUUID().toString());
+        imageInfo.setImageInfo(podImages.toString());
+        imageInfo.setApplicationId(applicationId);
+        imageInfo.setHelmChartFileId(newFileId);
+        int res = containerAppImageInfoMapper.saveImageInfo(imageInfo);
         if (res <= 0) {
             return false;
         }

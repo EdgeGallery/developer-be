@@ -32,9 +32,6 @@ import org.edgegallery.developer.exception.FileFoundFailException;
 import org.edgegallery.developer.exception.FileOperateException;
 import org.edgegallery.developer.exception.IllegalRequestException;
 import org.edgegallery.developer.mapper.application.ApplicationMapper;
-import org.edgegallery.developer.mapper.application.container.HelmChartMapper;
-import org.edgegallery.developer.mapper.application.vm.NetworkMapper;
-import org.edgegallery.developer.mapper.application.vm.VMMapper;
 import org.edgegallery.developer.model.application.Application;
 import org.edgegallery.developer.model.application.EnumAppClass;
 import org.edgegallery.developer.model.application.EnumApplicationStatus;
@@ -47,6 +44,9 @@ import org.edgegallery.developer.model.workspace.UploadedFile;
 import org.edgegallery.developer.response.FormatRespDto;
 import org.edgegallery.developer.service.application.AppConfigurationService;
 import org.edgegallery.developer.service.application.ApplicationService;
+import org.edgegallery.developer.service.application.container.ContainerAppHelmChartService;
+import org.edgegallery.developer.service.application.vm.VMAppNetworkService;
+import org.edgegallery.developer.service.application.vm.VMAppVmService;
 import org.edgegallery.developer.service.uploadfile.UploadService;
 import org.edgegallery.developer.util.DeveloperFileUtils;
 import org.slf4j.Logger;
@@ -66,13 +66,13 @@ public class ApplicationServiceImpl implements ApplicationService {
     private ApplicationMapper applicationMapper;
 
     @Autowired
-    private NetworkMapper networkMapper;
+    private VMAppNetworkService networkService;
 
     @Autowired
-    private VMMapper vmMapper;
+    private VMAppVmService vmService;
 
     @Autowired
-    private HelmChartMapper helmChartMapper;
+    private ContainerAppHelmChartService helmChartService;
 
     @Autowired
     AppConfigurationService appConfigurationService;
@@ -111,14 +111,10 @@ public class ApplicationServiceImpl implements ApplicationService {
     }
 
     private void initNetwork(String applicationId) {
-        List<Network> networks = networkMapper.getNetworkByAppId("init-application");
+        List<Network> networks = networkService.getAllNetwork("init-application");;
         for (Network network : networks) {
             network.setId(UUID.randomUUID().toString());
-            int res = networkMapper.createNetwork(applicationId, network);
-            if (res < 1) {
-                LOGGER.error("Create network in db error.");
-                throw new DataBaseException("Create network  in db error.", ResponseConsts.RET_CERATE_DATA_FAIL);
-            }
+            networkService.createNetwork(applicationId, network);
         }
     }
 
@@ -178,14 +174,13 @@ public class ApplicationServiceImpl implements ApplicationService {
         if (application.getAppClass() == EnumAppClass.VM) {
             VMApplication vmApplication = new VMApplication(application);
 
-            vmApplication.setNetworkList(networkMapper.getNetworkByAppId(applicationId));
-            vmApplication.setVmList(vmMapper.getAllVMsByAppId(applicationId));
-
+            vmApplication.setNetworkList(networkService.getAllNetwork(applicationId));
+            vmApplication.setVmList(vmService.getAllVm(applicationId));
             vmApplication.setAppConfiguration(appConfigurationService.getAppConfiguration(applicationId));
             applicationDetail.setVmApp(vmApplication);
         } else {
             ContainerApplication containerApplication = new ContainerApplication(application);
-            containerApplication.setHelmChartList(helmChartMapper.getHelmChartsByAppId(applicationId));
+            containerApplication.setHelmChartList(helmChartService.getHelmChartList(applicationId));
             containerApplication.setAppConfiguration(appConfigurationService.getAppConfiguration(applicationId));
             applicationDetail.setContainerApp(containerApplication);
         }
@@ -204,10 +199,10 @@ public class ApplicationServiceImpl implements ApplicationService {
             appConfigurationService
                 .modifyAppConfiguration(applicationId, applicationDetail.getVmApp().getAppConfiguration());
             for (Network network : applicationDetail.getVmApp().getNetworkList()) {
-                networkMapper.modifyNetwork(network);
+                networkService.modifyNetwork(applicationId, network.getId(), network);
             }
             for (VirtualMachine virtualMachine : applicationDetail.getVmApp().getVmList()) {
-                vmMapper.modifyVM(virtualMachine);
+                vmService.modifyVm(applicationId, virtualMachine.getId(), virtualMachine);
             }
         } else {
             applicationMapper.modifyApplication(applicationDetail.getContainerApp());

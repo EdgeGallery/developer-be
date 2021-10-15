@@ -13,26 +13,26 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
+
 package org.edgegallery.developer.service.application.action.impl.container;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import org.edgegallery.developer.domain.model.user.User;
+import org.edgegallery.developer.model.operation.OperationStatus;
 import org.edgegallery.developer.service.application.action.IAction;
 import org.edgegallery.developer.service.application.action.IActionCollection;
 import org.edgegallery.developer.service.application.action.IActionIterator;
-import org.edgegallery.developer.service.application.action.impl.BuildPackageAction;
-import org.edgegallery.developer.service.application.action.impl.DistributePackageAction;
-import org.edgegallery.developer.service.application.action.impl.QueryDistributePackageStatusAction;
 import org.edgegallery.developer.service.application.action.impl.ActionIterator;
+import org.edgegallery.developer.service.application.action.impl.OperationContext;
+import org.edgegallery.developer.service.application.common.ActionProgressRange;
+import org.edgegallery.developer.service.application.common.IContextParameter;
 
 public class ContainerLaunchOperation implements IActionCollection {
 
-    public List<IAction> actions = Arrays.asList(
-        new BuildPackageAction(),
-        new DistributePackageAction(),
-        new QueryDistributePackageStatusAction(),
-        new InstantiateContainerAppAction(),
-        new QueryInstantiateContainerAppStatusAction());
+    public List<IAction> actions;
 
     @Override
     public IActionIterator getActionIterator() {
@@ -42,5 +42,27 @@ public class ContainerLaunchOperation implements IActionCollection {
     @Override
     public List<IAction> getActionList() {
         return actions;
+    }
+
+    public ContainerLaunchOperation(User user, String applicationId, String helmChartId, String token,
+        OperationStatus operationStatus) {
+
+        IAction buildPackageAction = new BuildContainerPackageAction();
+        IAction distributePackageAction = new DistributeContainerPackageAction();
+        IAction instantiateContainerAppAction = new InstantiateContainerAppAction();
+
+        Map<String, ActionProgressRange> actionProgressRangeMap = new HashMap<String, ActionProgressRange>();
+        actionProgressRangeMap.put(buildPackageAction.getActionName(), new ActionProgressRange(0, 20));
+        actionProgressRangeMap.put(distributePackageAction.getActionName(), new ActionProgressRange(20, 50));
+        actionProgressRangeMap.put(instantiateContainerAppAction.getActionName(), new ActionProgressRange(50, 100));
+
+        OperationContext context = new OperationContext(user, token, operationStatus, actionProgressRangeMap);
+        buildPackageAction.setContext(context);
+        distributePackageAction.setContext(context);
+        instantiateContainerAppAction.setContext(context);
+        context.addParameter(IContextParameter.PARAM_APPLICATION_ID, applicationId);
+        context.addParameter(IContextParameter.PARAM_HELMCHART_ID, helmChartId);
+
+        actions = Arrays.asList(buildPackageAction, distributePackageAction, instantiateContainerAppAction);
     }
 }

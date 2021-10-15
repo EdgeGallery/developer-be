@@ -19,6 +19,7 @@
 <mapper namespace="org.edgegallery.developer.mapper.application.vm.VMInstantiateInfoMapper">
   <resultMap id="VMInstantiateInfoMap" type="org.edgegallery.developer.model.instantiate.vm.VMInstantiateInfo">
     <result property="appPackageId" column="app_package_id"/>
+    <result property="distributedMecHost" column="distributed_mec_host"/>
     <result property="appInstanceId" column="app_instance_id"/>
     <result property="vmInstanceId" column="vm_instance_id"/>
     <result property="status" column="status"/>
@@ -33,14 +34,14 @@
   </resultMap>
 
   <sql id="VMInstantiateInfoColumn">
-    vm_id, app_package_id, app_instance_id, vm_instance_id, status, log, vnc_url, instantiate_time
+    vm_id, distributed_mec_host, app_package_id, app_instance_id, vm_instance_id, status, log, vnc_url, instantiate_time
   </sql>
 
 
   <insert id="createVMInstantiateInfo">
-    insert into tbl_vm_instantiate_info (vm_id, app_package_id, app_instance_id, vm_instance_id, status, log, vnc_url, instantiate_time)
+    insert into tbl_vm_instantiate_info (vm_id, app_package_id, distributed_mec_host, app_instance_id, vm_instance_id, status, log, vnc_url, instantiate_time)
     values
-    ( #{vmId}, #{vmInstantiateInfo.appPackageId}, #{vmInstantiateInfo.appInstanceId}, #{vmInstantiateInfo.vmInstanceId},
+    ( #{vmId}, #{vmInstantiateInfo.appPackageId}, #{vmInstantiateInfo.distributedMecHost}, #{vmInstantiateInfo.appInstanceId}, #{vmInstantiateInfo.vmInstanceId},
     #{vmInstantiateInfo.status}, #{vmInstantiateInfo.log}, #{vmInstantiateInfo.vncUrl},  #{vmInstantiateInfo.instantiateTime})
   </insert>
 
@@ -48,7 +49,7 @@
     UPDATE
     tbl_vm_instantiate_info
     SET
-    app_package_id = #{vmInstantiateInfo.appPackageId}, app_instance_id = #{vmInstantiateInfo.appInstanceId},
+    app_package_id = #{vmInstantiateInfo.appPackageId}, distributed_mec_host = #{vmInstantiateInfo.distributedMecHost}, app_instance_id = #{vmInstantiateInfo.appInstanceId},
     vm_instance_id = #{vmInstantiateInfo.vmInstanceId}, status = #{vmInstantiateInfo.status}, log = #{vmInstantiateInfo.log},
     vnc_url = #{vmInstantiateInfo.vncUrl}, instantiate_time = #{vmInstantiateInfo.instantiateTime}
     WHERE
