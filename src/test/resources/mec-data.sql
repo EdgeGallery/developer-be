@@ -27,6 +27,8 @@ VALUES ('c8aac2b2-4162-40fe-9d99-0630e3245cf9', 'f24ea0a2-d8e6-467c-8039-94f0d29
 MERGE INTO tbl_service_host(host_id, user_id, name, address, architecture, status, protocol,lcm_ip, mec_host, os, port_range_min, port_range_max,port, user_name, password,delete, parameter, vnc_port,resource) KEY(host_id)
 VALUES ('c8aac2b2-4162-40fe-9d99-0630e3245cdd', 'e111f3e7-90d8-4a39-9874-ea6ea6752eaa','host-1','xian','ARM','NORMAL','https','10.1.12.1','10.1.12.1','linux',30000,300001,30000,'root','123456',null,null,22,null);
 
+MERGE INTO tbl_service_host(host_id, user_id, name, address, architecture, status, protocol,lcm_ip, mec_host, os, port_range_min, port_range_max,port, user_name, password,delete, parameter, vnc_port,resource) KEY(host_id)
+VALUES ('c8aac2b2-4162-40fe-9d99-0630e3245ct5', 'e111f3e7-90d8-4a39-9874-ea6ea6752eaa','host-1','xian','X86','NORMAL','https','10.1.12.1','10.1.12.1','K8S',30000,300001,30000,'root','123456',null,null,22,null);
 -- ----------------------------
 -- Records of tbl_vm_system
 -- ----------------------------
@@ -36,19 +38,43 @@ MERGE INTO tbl_vm_system(system_id,system_name,type,operate_system,version,syste
 -- ----------------------------
 -- Records of tbl_openmep_capability   tbl_openmep_capability_detail
 -- ----------------------------
-MERGE INTO tbl_openmep_capability (group_id, one_level_name, one_level_name_en, two_level_name, two_level_name_en, type,description, description_en)  KEY(group_id) values ('e111f3e7-90d8-4a39-9874-ea6ea6752ef3','group-1', 'group-1', 'group-2', 'group-2-en','OPENMEP','group1', 'group1');
-MERGE INTO tbl_openmep_capability_detail (detail_id,group_id, service, service_en, version, description, description_en, api_file_id, provider, guide_file_id, guide_file_id_en, port, host, upload_time, user_id)  KEY(detail_id) values
-( 'e111f3e7-90d8-4a39-9874-ea6ea6752ef4', 'e111f3e7-90d8-4a39-9874-ea6ea6752ef3', 'Face Reg', 'Face Reg', '1.0.0', 'face-recognition-plus', 'Face Reg','e111f3e7-90d8-4a39-9874-ea6ea6752ef5', 'huawei',
-'b8b5d055-1024-4ea8-8439-64de19875834', 'b8b5d055-1024-4ea8-8439-64de19875834', 9999, 'face-recognition-plus', '2020-11-20 00:00:00.000000', 'admin');
-MERGE INTO tbl_openmep_capability (group_id, one_level_name, one_level_name_en, two_level_name, two_level_name_en, type,description, description_en)  KEY(group_id) values ('e111f3e7-90d8-4a39-9874-ea6ea6752ed6','group-1', 'group-1', 'group-2', 'group-2-en','OPENMEP','group1', 'group1');
-MERGE INTO tbl_openmep_capability_detail (detail_id,group_id, service, service_en, version, description, description_en, api_file_id, provider, guide_file_id, guide_file_id_en, port, host, upload_time, user_id)  KEY(detail_id) values
-( 'e111f3e7-90d8-4a39-9874-ea6ea6752ef0', 'e111f3e7-90d8-4a39-9874-ea6ea6752ed6', 'Face Reg', 'Face Reg', '1.0.0', 'face-recognition-plus', 'Face Reg','e111f3e7-90d8-4a39-9874-ea6ea6752ef5', 'huawei',
-'b8b5d055-1024-4ea8-8439-64de19875834', 'b8b5d055-1024-4ea8-8439-64de19875834', 9999, 'face-recognition-plus', '2020-11-20 00:00:00.000000', 'admin');
-MERGE INTO tbl_openmep_capability (group_id, one_level_name, one_level_name_en, two_level_name, two_level_name_en, type,description, description_en)  KEY(group_id) values ('e111f3e7-90d8-4a39-9874-ea6ea6752eb2','group-3', 'group-3', 'group-3', 'group-3-en','OPENMEP','group3', 'group3');
-MERGE INTO tbl_openmep_capability_detail (detail_id,group_id, service, service_en, version, description, description_en, api_file_id, provider, guide_file_id, guide_file_id_en, port, host, upload_time, user_id)  KEY(detail_id) values
-( 'e111f3e7-90d8-4a39-9874-ea6ea6752efgd', 'e111f3e7-90d8-4a39-9874-ea6ea6752eb2', 'Face Reg', 'Face Reg', '1.0.0', 'face-recognition-plus', 'Face Reg','e111f3e7-90d8-4a39-9874-ea6ea6752ef5', 'huawei',
-'b8b5d055-1024-4ea8-8439-64de19875834', 'b8b5d055-1024-4ea8-8439-64de19875834', 9999, 'face-recognition-plus', '2020-11-20 00:00:00.000000', 'admin');
+--MERGE INTO tbl_openmep_capability (group_id, one_level_name, one_level_name_en, two_level_name, two_level_name_en, type,description, description_en)  KEY(group_id) values ('e111f3e7-90d8-4a39-9874-ea6ea6752ef3','group-1', 'group-1', 'group-2', 'group-2-en','OPENMEP','group1', 'group1');
+--MERGE INTO tbl_openmep_capability_detail (detail_id,group_id, service, service_en, version, description, description_en, api_file_id, provider, guide_file_id, guide_file_id_en, port, host, upload_time, user_id)  KEY(detail_id) values
+--( 'e111f3e7-90d8-4a39-9874-ea6ea6752ef4', 'e111f3e7-90d8-4a39-9874-ea6ea6752ef3', 'Face Reg', 'Face Reg', '1.0.0', 'face-recognition-plus', 'Face Reg','e111f3e7-90d8-4a39-9874-ea6ea6752ef5', 'huawei',
+--'b8b5d055-1024-4ea8-8439-64de19875834', 'b8b5d055-1024-4ea8-8439-64de19875834', 9999, 'face-recognition-plus', '2020-11-20 00:00:00.000000', 'admin');
+--MERGE INTO tbl_openmep_capability (group_id, one_level_name, one_level_name_en, two_level_name, two_level_name_en, type,description, description_en)  KEY(group_id) values ('e111f3e7-90d8-4a39-9874-ea6ea6752ed6','group-1', 'group-1', 'group-2', 'group-2-en','OPENMEP','group1', 'group1');
+--MERGE INTO tbl_openmep_capability_detail (detail_id,group_id, service, service_en, version, description, description_en, api_file_id, provider, guide_file_id, guide_file_id_en, port, host, upload_time, user_id)  KEY(detail_id) values
+--( 'e111f3e7-90d8-4a39-9874-ea6ea6752ef0', 'e111f3e7-90d8-4a39-9874-ea6ea6752ed6', 'Face Reg', 'Face Reg', '1.0.0', 'face-recognition-plus', 'Face Reg','e111f3e7-90d8-4a39-9874-ea6ea6752ef5', 'huawei',
+--'b8b5d055-1024-4ea8-8439-64de19875834', 'b8b5d055-1024-4ea8-8439-64de19875834', 9999, 'face-recognition-plus', '2020-11-20 00:00:00.000000', 'admin');
+--MERGE INTO tbl_openmep_capability (group_id, one_level_name, one_level_name_en, two_level_name, two_level_name_en, type,description, description_en)  KEY(group_id) values ('e111f3e7-90d8-4a39-9874-ea6ea6752eb2','group-3', 'group-3', 'group-3', 'group-3-en','OPENMEP','group3', 'group3');
+--MERGE INTO tbl_openmep_capability_detail (detail_id,group_id, service, service_en, version, description, description_en, api_file_id, provider, guide_file_id, guide_file_id_en, port, host, upload_time, user_id)  KEY(detail_id) values
+--( 'e111f3e7-90d8-4a39-9874-ea6ea6752efgd', 'e111f3e7-90d8-4a39-9874-ea6ea6752eb2', 'Face Reg', 'Face Reg', '1.0.0', 'face-recognition-plus', 'Face Reg','e111f3e7-90d8-4a39-9874-ea6ea6752ef5', 'huawei',
+--'b8b5d055-1024-4ea8-8439-64de19875834', 'b8b5d055-1024-4ea8-8439-64de19875834', 9999, 'face-recognition-plus', '2020-11-20 00:00:00.000000', 'admin');
 -- ----------------------------
+MERGE INTO tbl_capability_group (id, name, name_en, type,description, description_en,icon_file_id,author,create_time,update_time)KEY(id)
+values ('e111f3e7-90d8-4a39-9874-ea6ea6752et4','group-1', 'group-1', 'OPENMEP','group1', 'group1','e111f3e7-90d8-4a39-9874-ea6ea6752e90','admin',1633689974911,1633689974911);
+
+MERGE INTO tbl_capability (id,group_id, name, name_en,version, description, description_en, api_file_id, provider, guide_file_id, guide_file_id_en,
+port, host, upload_time, user_id, experience_url,select_count)  KEY(id) values
+( 'e111f3e7-90d8-4a39-9874-ea6ea6752ef0', 'e111f3e7-90d8-4a39-9874-ea6ea6752et4', 'Face Reg', 'Face Reg', '1.0.0', 'face-recognition-plus', 'Face Reg','e111f3e7-90d8-4a39-9874-ea6ea6752ef5', 'huawei',
+'b8b5d055-1024-4ea8-8439-64de19875834', 'b8b5d055-1024-4ea8-8439-64de19875834', 9999, 'face-recognition-plus', 0, 'admin','',0);
+
+
+MERGE INTO tbl_capability_group (id, name, name_en, type,description, description_en,icon_file_id,author,create_time,update_time)KEY(id)
+values ('e111f3e7-90d8-4a39-9874-ea6ea6752et5','group-2', 'group-2', 'OPENMEP','group2', 'group2','e111f3e7-90d8-4a39-9874-ea6ea6752e90','admin',1633690318869,1633690318869);
+
+MERGE INTO tbl_capability (id,group_id, name, name_en, version, description, description_en, api_file_id, provider, guide_file_id, guide_file_id_en, port,
+host, upload_time, user_id, experience_url,select_count)  KEY(id) values
+( 'e111f3e7-90d8-4a39-9874-ea6ea6752ef4', 'e111f3e7-90d8-4a39-9874-ea6ea6752et5', 'Face Reg', 'Face Reg', '1.0.0', 'face-recognition-plus', 'Face Reg','e111f3e7-90d8-4a39-9874-ea6ea6752ef5', 'huawei',
+'b8b5d055-1024-4ea8-8439-64de19875834', 'b8b5d055-1024-4ea8-8439-64de19875834', 9999, 'face-recognition-plus', 0, 'admin','',0);
+
+MERGE INTO tbl_capability_group (id, name, name_en, type,description, description_en,icon_file_id,author,create_time,update_time)KEY(id)
+values ('e111f3e7-90d8-4a39-9874-ea6ea6752et6','group-3', 'group-3', 'OPENMEP','group3', 'group3','e111f3e7-90d8-4a39-9874-ea6ea6752e90','admin',1633690987061,1633690987061);
+
+MERGE INTO tbl_capability (id,group_id, name, name_en, version, description, description_en, api_file_id, provider, guide_file_id,
+guide_file_id_en, port, host, upload_time, user_id, experience_url,select_count)  KEY(id) values
+( 'e111f3e7-90d8-4a39-9874-ea6ea6752efgd', 'e111f3e7-90d8-4a39-9874-ea6ea6752et6', 'Face Reg', 'Face Reg', '1.0.0', 'face-recognition-plus', 'Face Reg','e111f3e7-90d8-4a39-9874-ea6ea6752ef5', 'huawei',
+'b8b5d055-1024-4ea8-8439-64de19875834', 'b8b5d055-1024-4ea8-8439-64de19875834', 9999, 'face-recognition-plus', 0, 'admin','',0);
 -- Records of tbl_openmep_capability   tbl_openmep_capability_detail
 -- ----------------------------
 MERGE INTO tbl_capability_group (id, name, name_en, type,description, description_en)KEY(id) 
@@ -73,6 +99,11 @@ MERGE INTO tbl_capability (id,group_id, name, name_en, version, description, des
 MERGE INTO tbl_uploaded_file (file_id, file_name,is_temp, user_id, upload_date, file_path)  KEY(file_id) values
 ( 'e111f3e7-90d8-4a39-9874-ea6ea6752ef5','pet.json', false, 'e111f3e7-90d8-4a39-9874-ea6ea6752ef6', '2019-10-23 03:27:36', '/workspace/200dfab1-3c30-4fc7-a6ca-ed6f0620a85e\ad66d1b6-5d29-487b-9769-be48b62aec2e');
 
+MERGE INTO tbl_container_image (image_id, image_name, image_version, user_id, user_name)  KEY(image_id) values
+( '6ababcec-2934-43d9-afc8-d3d403ebc782','test1','1.0','c5c7c35a-f85b-441c-9307-5516b951efd2','author');
+
+MERGE INTO tbl_container_image (image_id, image_name, image_version, user_id, user_name, file_name, image_path)  KEY(image_id) values
+( '6ababcec-2934-43d9-afc8-d3d403ebc785','test2','2.0','c5c7c35a-f85b-441c-9307-5516b951efd3','author1','test2.tar','xxxx');
 -- ----------------------------
 -- Records of tbl_app_project
 -- ----------------------------
@@ -87,6 +118,7 @@ MERGE INTO tbl_app_project KEY(id) VALUES ('200dfab1-3c30-4fc7-a6ca-ed6f0620a85l
 MERGE INTO tbl_app_project KEY(id) VALUES ('200dfab1-3c30-4fc7-a6ca-ed6f0620a85y', 'ph-001', 'hw', '["test-plat"]', 'new', 'test', 'TESTED', 'f24ea0a2-d8e6-467c-8039-94f0d29bac43', '2020-03-20 09:37:15.979+08', '00003', '1.0.0', '[{"groupId":"7503ed60-ace4-41c7-b8d8-36dc1fc1e238","name":"group-001","type":"OPENMEP","description":"test","capabilityDetailList":[{"detailId":"998c3255-e654-46a7-87e9-f7d871a10a86","groupId":"7503ed60-ace4-41c7-b8d8-36dc1fc1e238","service":"face reg","version":"1.0.0","description":"string","provider":"hw","apiFileId":"7690bfbb-6865-4c08-8807-92a95d899334"}]}]', '["test industry1","test industry2"]', 'CREATE_NEW', 'ad66', NULL,'KUBERNETES');
 MERGE INTO tbl_app_project KEY(id) VALUES ('200dfab1-3c30-4fc7-a6ca-ed6f0620a85p', 'p-001', 'hw', '["test-plat"]', 'new', 'test', 'ONLINE', 'f24ea0a2-d8e6-467c-8039-94f0d29bac43', '2020-03-20 09:37:15.979+08', NULL, '1.0.0', '[{"groupId":"7503ed60-ace4-41c7-b8d8-36dc1fc1e238","name":"group-001","type":"OPENMEP","description":"test","capabilityDetailList":[{"detailId":"998c3255-e654-46a7-87e9-f7d871a10a86","groupId":"7503ed60-ace4-41c7-b8d8-36dc1fc1e238","service":"face reg","version":"1.0.0","description":"string","provider":"hw","apiFileId":"7690bfbb-6865-4c08-8807-92a95d899334"}]}]', '["test industry1","test industry2"]', 'CREATE_NEW', 'ad66d1b6-5d29-487b-9769-be48b62aec2e', '[e111f3e7-90d8-4a39-9874-ea6ea6752ef0,e111f3e7-90d8-4a39-9874-ea6ea6752efgd]','KUBERNETES');
 MERGE INTO tbl_app_project KEY(id) VALUES ('200dfab1-3c30-4fc7-a6ca-ed6f0620a86s', 'p-001', 'hw', '["test-plat"]', 'new', 'test', 'ONLINE', 'f24ea0a2-d8e6-467c-8039-94f0d29bac43', '2020-03-20 09:37:15.979+08', NULL, '1.0.0', NULL, '["test industry1","test industry2"]', 'CREATE_NEW', 'ad66d1b6-5d29-487b-9769-be48b62aec2e', '[e111f3e7-90d8-4a39-9874-ea6ea6752ef0,e111f3e7-90d8-4a39-9874-ea6ea6752efgd]','KUBERNETES');
+MERGE INTO tbl_app_project KEY(id) VALUES ('200dfab1-3c30-4fc7-a6ca-ed6f0620a87e', 'p-001', 'hw', '["test-plat"]', 'new', 'test', 'ONLINE', 'f24ea0a2-d8e6-467c-8039-94f0d29bac43', '2020-03-20 09:37:15.979+08', NULL, '1.0.0', '[{"groupId":"7503ed60-ace4-41c7-b8d8-36dc1fc1e238","name":"group-001","type":"OPENMEP","description":"test","capabilityDetailList":[{"detailId":"998c3255-e654-46a7-87e9-f7d871a10a86","groupId":"7503ed60-ace4-41c7-b8d8-36dc1fc1e238","service":"face reg","version":"1.0.0","description":"string","provider":"hw","apiFileId":"7690bfbb-6865-4c08-8807-92a95d899334"}]}]', '["test industry1","test industry2"]', 'CREATE_NEW', 'ad66d1b6-5d29-487b-9769-be48b62aec2e', NULL,'KUBERNETES');
 MERGE INTO tbl_app_project KEY(id) VALUES ('200dfab1-3c30-4fc7-a6ca-ed6f0620a87e', 'p-001', 'hw', '["test-plat"]', 'new', 'test', 'ONLINE', 'f24ea0a2-d8e6-467c-8039-94f0d29bac43', '2020-03-20 09:37:15.979+08', NULL, '1.0.0', '[{"groupId":"7503ed60-ace4-41c7-b8d8-36dc1fc1e238","name":"group-001","type":"OPENMEP","description":"test","capabilityDetailList":[{"detailId":"998c3255-e654-46a7-87e9-f7d871a10a86","groupId":"7503ed60-ace4-41c7-b8d8-36dc1fc1e238","service":"face reg","version":"1.0.0","description":"string","provider":"hw","apiFileId":"7690bfbb-6865-4c08-8807-92a95d899334"}]}]', '["test industry1","test industry2"]', 'CREATE_NEW', 'ad66d1b6-5d29-487b-9769-be48b62aec2e', NULL,'KUBERNETES');
 
 

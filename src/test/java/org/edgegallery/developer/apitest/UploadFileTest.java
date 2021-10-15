@@ -194,18 +194,6 @@ public class UploadFileTest {
 
     @Test
     @WithMockUser(roles = "DEVELOPER_TENANT")
-    public void testGetHelmList() throws Exception {
-        Either<FormatRespDto, List<HelmTemplateYamlRespDto>> either= Either.right(new ArrayList<>());
-        Mockito.when(uploadFileService.getHelmTemplateYamlList(Mockito.anyString(),Mockito.any())).thenReturn(either);
-        String url = String.format("/mec/developer/v1/files/helm-template-yaml?userId=aa&projectId=bb");
-        ResultActions resultActions = mvc.perform(MockMvcRequestBuilders.get(url));
-        MvcResult mvcResult = resultActions.andDo(MockMvcResultHandlers.print())
-            .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
-        Assert.assertEquals(mvcResult.getResponse().getStatus(),200);
-    }
-
-    @Test
-    @WithMockUser(roles = "DEVELOPER_TENANT")
     public void testGetSdkProject() throws Exception {
         Either<FormatRespDto, ResponseEntity<byte[]>> either= Either.right(new ResponseEntity<>(HttpStatus.OK));
         Mockito.when(uploadFileService.getSdkProject(Mockito.anyString(),Mockito.any())).thenReturn(either);

@@ -81,24 +81,6 @@ public class ContainerImageCtl {
     }
 
     /**
-     * createContainerImage.
-     *
-     * @return
-     */
-    @ApiOperation(value = "create ContainerImage", response = Boolean.class)
-    @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "OK", response = Boolean.class)
-    })
-    @RequestMapping(value = "/", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_UTF8_VALUE,
-        produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    @PreAuthorize("hasRole('DEVELOPER_ADMIN')|| hasRole('DEVELOPER_TENANT')")
-    public ResponseEntity<ContainerImage> createContainerImage(
-        @ApiParam(value = "ContainerImage", required = true) @RequestBody ContainerImage containerImage) {
-        ContainerImage createImage = containerImageService.createContainerImage(containerImage);
-        return ResponseEntity.ok(createImage);
-    }
-
-    /**
      * getAllContainerImage.
      *
      * @return
