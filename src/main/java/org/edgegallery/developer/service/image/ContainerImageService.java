@@ -51,15 +51,6 @@ public interface ContainerImageService {
     ContainerImage createContainerImage(ContainerImage containerImage);
 
     /**
-     * get all container image record.
-     *
-     * @param containerImageReq containerImageReq
-     * @return
-     */
-    @Transactional
-    Page<ContainerImage> getAllImage(ContainerImageReq containerImageReq);
-
-    /**
      * update container image record.
      *
      * @param imageId imageId
@@ -68,6 +59,15 @@ public interface ContainerImageService {
      */
     @Transactional
     ContainerImage updateContainerImage(String imageId, ContainerImage containerImage);
+
+    /**
+     * get all container image record.
+     *
+     * @param containerImageReq containerImageReq
+     * @return
+     */
+    @Transactional
+    Page<ContainerImage> getAllImage(ContainerImageReq containerImageReq);
 
     /**
      * delete container image record and delete imgae of harbor repo.

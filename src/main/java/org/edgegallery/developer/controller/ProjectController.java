@@ -341,28 +341,6 @@ public class ProjectController {
     }
 
     /**
-     * open this project to mec eco.
-     */
-    @ApiOperation(value = "open this project to mec eco", response = OpenMepCapabilityGroup.class)
-    @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "OK", response = OpenMepCapabilityGroup.class),
-        @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
-    })
-    @RequestMapping(value = "/{projectId}/action/open-api", method = RequestMethod.POST,
-        consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
-    public ResponseEntity<OpenMepCapabilityGroup> openToMecEco(
-        @Pattern(regexp = REGEX_UUID, message = "projectId must be in UUID format")
-        @ApiParam(value = "projectId", required = true) @PathVariable("projectId") String projectId,
-        @Pattern(regexp = REGEX_UUID, message = "userId must be in UUID format")
-        @ApiParam(value = "userId", required = true) @RequestParam("userId") String userId,
-        @NotNull @ApiParam(value = "AbilityOpenConfig", required = true) @RequestBody
-            OpenMepCapability abilityOpenConfig) {
-        Either<FormatRespDto, OpenMepCapabilityGroup> either = projectService.openToMecEco(userId, projectId);
-        return ResponseDataUtil.buildResponse(either);
-    }
-
-    /**
      * createATPTestTask.
      */
     @ApiOperation(value = "create atp test task.", response = Boolean.class)

@@ -24,6 +24,7 @@ DROP TABLE  IF  EXISTS tbl_app_project;
 DROP TABLE  IF  EXISTS tbl_openmep_capability;
 DROP TABLE  IF  EXISTS tbl_openmep_capability_detail;
 DROP TABLE  IF  EXISTS tbl_project_image;
+DROP TABLE  IF  EXISTS tbl_container_image;
 DROP TABLE  IF  EXISTS tbl_project_test_config;
 DROP TABLE  IF  EXISTS tbl_uploaded_file;
 DROP TABLE  IF  EXISTS tbl_helm_template_yaml;
@@ -258,6 +259,23 @@ CREATE TABLE IF NOT EXISTS tbl_project_image (
   project_id varchar(50)  DEFAULT NULL,
   helm_chart_file_id varchar(255)  DEFAULT NULL,
   CONSTRAINT tbl_project_image_pkey PRIMARY KEY (id)
+)
+;
+
+CREATE TABLE IF NOT EXISTS tbl_container_image (
+    image_id varchar(255) NOT NULL,
+    image_name varchar(255) NOT NULL,
+    image_version varchar(255) NOT NULL,
+    user_id varchar(255) NOT NULL,
+    user_name varchar(255) NOT NULL,
+    upload_time varchar(255) DEFAULT NULL,
+    create_time varchar(255) DEFAULT NULL,
+    image_status varchar(255) DEFAULT NULL,
+    image_type varchar(255) DEFAULT NULL,
+    image_path text DEFAULT NULL,
+    file_name varchar(255) DEFAULT NULL,
+    CONSTRAINT  tbl_container_image_uniqueName UNIQUE (image_name,image_version,user_name),
+    CONSTRAINT tbl_container_image_pkey PRIMARY KEY (image_id)
 )
 ;
 
