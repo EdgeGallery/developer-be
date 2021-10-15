@@ -19,6 +19,7 @@ package org.edgegallery.developer.service.dao;
 import com.spencerwi.either.Either;
 import javax.ws.rs.core.Response;
 import org.edgegallery.developer.mapper.OpenMepCapabilityMapper;
+import org.edgegallery.developer.mapper.ProjectCapabilityMapper;
 import org.edgegallery.developer.mapper.ProjectMapper;
 import org.edgegallery.developer.mapper.UploadedFileMapper;
 import org.edgegallery.developer.mapper.VmConfigMapper;
@@ -43,7 +44,7 @@ public class ProjectDao {
     private UploadedFileMapper uploadedFileMapper;
 
     @Autowired
-    private OpenMepCapabilityMapper openMepCapabilityMapper;
+    private ProjectCapabilityMapper projectCapabilityMapper;
 
     @Autowired
     private VmConfigMapper vmConfigMapper;
@@ -103,7 +104,7 @@ public class ProjectDao {
         if (openCapabilityId == null) {
             return Either.right(true);
         }
-        int capabilityRes = openMepCapabilityMapper.deleteGroup(openCapabilityId);
+        int capabilityRes = projectCapabilityMapper.deleteByProjectId(projectId);
         if (capabilityRes < 1) {
             LOGGER.warn("Delete open mep capability {} failed.", openCapabilityId);
         }

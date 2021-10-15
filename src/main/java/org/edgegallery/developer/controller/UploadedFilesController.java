@@ -122,26 +122,6 @@ public class UploadedFilesController {
     }
 
     /**
-     * upload md file.
-     */
-    @ApiOperation(value = "upload file", response = UploadedFile.class)
-    @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "OK", response = UploadedFile.class),
-        @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
-    })
-    @RequestMapping(value = "/md", method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
-        produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
-    public ResponseEntity<UploadedFile> uploadMdFile(
-        @ApiParam(value = "file", required = true) @RequestPart("file") MultipartFile uploadFile,
-        @Pattern(regexp = REGEX_UUID, message = "userId must be in UUID format")
-        @ApiParam(value = "userId", required = true) @RequestParam("userId") String userId) {
-        Either<FormatRespDto, UploadedFile> either = uploadFileService.uploadMdFile(userId, uploadFile);
-        return ResponseDataUtil.buildResponse(either);
-
-    }
-
-    /**
      * upload helm template yaml.
      */
     @ApiOperation(value = "upload helm template yaml", response = HelmTemplateYamlRespDto.class)
@@ -162,27 +142,6 @@ public class UploadedFilesController {
         throws IOException {
         Either<FormatRespDto, HelmTemplateYamlRespDto> either = uploadFileService
             .uploadHelmTemplateYaml(helmTemplateYaml, userId, projectId, configType);
-        return ResponseDataUtil.buildResponse(either);
-    }
-
-    /**
-     * get helm template yaml list.
-     */
-    @ApiOperation(value = "get helm template yaml list", response = List.class)
-    @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "OK", response = List.class),
-        @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
-    })
-    @RequestMapping(value = "/helm-template-yaml", method = RequestMethod.GET,
-        produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
-    public ResponseEntity<List<HelmTemplateYamlRespDto>> getHelmTemplateYamlList(
-        @Pattern(regexp = REGEX_UUID, message = "userId must be in UUID format")
-        @ApiParam(value = "userId", required = true) @RequestParam("userId") String userId,
-        @Pattern(regexp = REGEX_UUID, message = "projectId must be in UUID format")
-        @ApiParam(value = "projectId", required = true) @RequestParam("projectId") String projectId) {
-        Either<FormatRespDto, List<HelmTemplateYamlRespDto>> either = uploadFileService
-            .getHelmTemplateYamlList(userId, projectId);
         return ResponseDataUtil.buildResponse(either);
     }
 

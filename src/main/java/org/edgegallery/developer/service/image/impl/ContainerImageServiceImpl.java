@@ -258,8 +258,7 @@ public class ContainerImageServiceImpl implements ContainerImageService {
             throw new DataBaseException(errorMsg, ResponseConsts.RET_CERATE_DATA_FAIL);
         }
         LOGGER.info("create ContainerImage success");
-        ContainerImage queryImage = containerImageMapper.getContainerImage(containerImage.getImageId());
-        return queryImage;
+        return containerImageMapper.getContainerImage(containerImage.getImageId());
     }
 
     /**
@@ -288,38 +287,6 @@ public class ContainerImageServiceImpl implements ContainerImageService {
         LOGGER.info("Get all container image success.");
         return new Page<ContainerImage>(pageInfo.getList(), containerImageReq.getLimit(), containerImageReq.getOffset(),
             pageInfo.getTotal());
-    }
-
-    /**
-     * updateContainerImage.
-     *
-     * @param imageId imageId
-     * @param containerImage containerImage
-     * @return
-     */
-    @Override
-    public ContainerImage updateContainerImage(String imageId, ContainerImage containerImage) {
-        String loginUserId = AccessUserUtil.getUser().getUserId();
-        ContainerImage oldImage = containerImageMapper.getContainerImage(imageId);
-        String oldUserId = oldImage.getUserId();
-        if (StringUtils.isNotEmpty(oldUserId) && !loginUserId.equals(oldImage.getUserId())) {
-            String errorMsg = "Cannot modify data created by others";
-            LOGGER.error(errorMsg);
-            throw new ForbiddenException(errorMsg, ResponseConsts.RET_REQUEST_FORBIDDEN);
-        }
-        String type = containerImage.getImageType();
-        int retCode = 0;
-        if (StringUtils.isNotEmpty(oldUserId) && StringUtils.isNotEmpty(type)) {
-            retCode = containerImageMapper.updateContainerImageType(imageId, oldUserId, type);
-        }
-        if (retCode < 1) {
-            String errorMsg = "update ContainerImage type failed.";
-            LOGGER.error(errorMsg);
-            throw new DataBaseException(errorMsg, ResponseConsts.RET_UPDATE_DATA_FAIL);
-        }
-        LOGGER.info("update ContainerImage type success");
-        ContainerImage queryImage = containerImageMapper.getContainerImage(imageId);
-        return queryImage;
     }
 
     /**
@@ -420,6 +387,38 @@ public class ContainerImageServiceImpl implements ContainerImageService {
         String rootDir = getUploadSysImageRootDir(imageId);
         SystemImageUtil.cleanWorkDir(new File(rootDir));
         return ResponseEntity.ok().build();
+    }
+
+    /**
+     * updateContainerImage.
+     *
+     * @param imageId imageId
+     * @param containerImage containerImage
+     * @return
+     */
+    @Override
+    public ContainerImage updateContainerImage(String imageId, ContainerImage containerImage) {
+        String loginUserId = AccessUserUtil.getUser().getUserId();
+        ContainerImage oldImage = containerImageMapper.getContainerImage(imageId);
+        String oldUserId = oldImage.getUserId();
+        if (StringUtils.isNotEmpty(oldUserId) && !loginUserId.equals(oldImage.getUserId())) {
+            String errorMsg = "Cannot modify data created by others";
+            LOGGER.error(errorMsg);
+            throw new ForbiddenException(errorMsg, ResponseConsts.RET_REQUEST_FORBIDDEN);
+        }
+        String type = containerImage.getImageType();
+        int retCode = 0;
+        if (StringUtils.isNotEmpty(oldUserId) && StringUtils.isNotEmpty(type)) {
+            retCode = containerImageMapper.updateContainerImageType(imageId, oldUserId, type);
+        }
+        if (retCode < 1) {
+            String errorMsg = "update ContainerImage type failed.";
+            LOGGER.error(errorMsg);
+            throw new DataBaseException(errorMsg, ResponseConsts.RET_UPDATE_DATA_FAIL);
+        }
+        LOGGER.info("update ContainerImage type success");
+        ContainerImage queryImage = containerImageMapper.getContainerImage(imageId);
+        return queryImage;
     }
 
     /**
@@ -540,7 +539,7 @@ public class ContainerImageServiceImpl implements ContainerImageService {
             return false;
         }
         //create container image
-        boolean retContainer = createContainerImage(repoTags, inputImageId, fileName, projectName);
+        boolean retContainer = createImage(repoTags, inputImageId, fileName, projectName);
         if (!retContainer) {
             return false;
         }
@@ -557,7 +556,7 @@ public class ContainerImageServiceImpl implements ContainerImageService {
         return projectName;
     }
 
-    private boolean createContainerImage(String repoTags, String inputImageId, String fileName, String projectName) {
+    private boolean createImage(String repoTags, String inputImageId, String fileName, String projectName) {
         String[] images = repoTags.split(":");
         String imageName = images[0];
         String imageVersion = images[1];

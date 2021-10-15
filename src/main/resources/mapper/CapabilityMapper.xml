@@ -73,6 +73,13 @@
         order by a.group_id
     </select>
 
+    <select id="selectByApiFileId" parameterType="String" resultMap="Capability">
+        select
+        <include refid="AllColumnWithCascade"/>
+        from tbl_capability a,tbl_capability_group b
+        where a.group_id = b.id and a.api_file_id=#{apiFileId}
+    </select>
+
     <select id="selectById" parameterType="String" resultMap="Capability">
         select
         <include refid="AllColumnWithCascade"/>

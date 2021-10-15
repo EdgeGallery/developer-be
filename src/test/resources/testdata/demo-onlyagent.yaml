@@ -1,18 +1,18 @@
 ---
-apiVersion: v1              # pod信息
+apiVersion: v1
 kind: Pod
 metadata:
-  name: positioning-service    # pod名
+  name: positioning-service
   namespace: '{{ .Values.appconfig.appnamespace }}'
   labels:
     app: positioning-service
 spec:
   containers:
-    - name: positioning    # 容器名
-      image: swr.ap-southeast-1.myhuaweicloud.com/edgegallery/positioning_service:1.0  # 镜像信息
-      imagePullPolicy: IfNotPresent   # 镜像拉取策略
+    - name: positioning
+      image: swr.ap-southeast-1.myhuaweicloud.com/edgegallery/positioning_service:1.0
+      imagePullPolicy: IfNotPresent
       ports:
-        - containerPort: 9997         # 内部端口
+        - containerPort: 9997
     - name: mep-agent
       image: swr.ap-southeast-1.myhuaweicloud.com/edgegallery/mep-agent:latest
       imagePullPolicy: Always
