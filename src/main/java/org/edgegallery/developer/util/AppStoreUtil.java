@@ -17,9 +17,11 @@
 package org.edgegallery.developer.util;
 
 import java.util.Map;
+import org.edgegallery.developer.model.workspace.PublishAppReqDto;
 import org.edgegallery.developer.service.UtilsService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -78,7 +80,8 @@ public class AppStoreUtil {
     /**
      * publish app to appstore.
      */
-    public static ResponseEntity<String> publishToAppStore(String appId, String pkgId, String token) {
+    public static ResponseEntity<String> publishToAppStore(String appId, String pkgId, String token,
+        PublishAppReqDto pubAppReqDto) {
         SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
         requestFactory.setConnectTimeout(600000);// 设置超时
         requestFactory.setReadTimeout(600000);
@@ -88,10 +91,14 @@ public class AppStoreUtil {
         headers.setContentType(MediaType.APPLICATION_JSON);
         String url = String.format("%s/mec/appstore/v1/apps/%s/packages/%s/action/publish",
             InitConfigUtil.getProperties(APPSTORE_ADDRESS), appId, pkgId);
+
+        MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
+        body.add("isFree", pubAppReqDto.isFree());
+        body.add("price", pubAppReqDto.getPrice());
         LOGGER.info("url: {}", url);
         try {
             ResponseEntity<String> responses = restTemplate
-                .exchange(url, HttpMethod.POST, new HttpEntity<>(headers), String.class);
+                .exchange(url, HttpMethod.POST, new HttpEntity<>(body, headers), String.class);
             LOGGER.info("res: {}", responses);
             if (HttpStatus.OK.equals(responses.getStatusCode()) || HttpStatus.ACCEPTED
                 .equals(responses.getStatusCode())) {

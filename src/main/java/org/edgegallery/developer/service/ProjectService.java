@@ -108,6 +108,7 @@ import org.edgegallery.developer.model.workspace.OpenMepCapability;
 import org.edgegallery.developer.model.workspace.OpenMepCapabilityGroup;
 import org.edgegallery.developer.model.workspace.ProjectTestConfig;
 import org.edgegallery.developer.model.workspace.ProjectTestConfigStageStatus;
+import org.edgegallery.developer.model.workspace.PublishAppReqDto;
 import org.edgegallery.developer.model.workspace.UploadedFile;
 import org.edgegallery.developer.response.FormatRespDto;
 import org.edgegallery.developer.service.capability.CapabilityService;
@@ -833,7 +834,7 @@ public class ProjectService {
      * @return
      */
     public Either<FormatRespDto, Boolean> uploadToAppStore(String userId, String projectId, String userName,
-        String token) {
+        String token, PublishAppReqDto pubAppReqDto) {
         // 0 check data. must be tested, and deployed status must be ok, can not be
         // error.
         ApplicationProject project = projectMapper.getProject(userId, projectId);
@@ -867,7 +868,7 @@ public class ProjectService {
             LOGGER.error("sleep fail! {}", e.getMessage());
             Thread.currentThread().interrupt();
         }
-        Either<FormatRespDto, Boolean> pubRes = publishApp(jsonObject, token);
+        Either<FormatRespDto, Boolean> pubRes = publishApp(jsonObject, token, pubAppReqDto);
         LOGGER.warn("publish result true or false:{}", pubRes.isRight() ? pubRes.getRight() : pubRes.getLeft());
         if (pubRes.isLeft()) {
             return Either.left(pubRes.getLeft());
@@ -936,13 +937,14 @@ public class ProjectService {
         return Either.right(true);
     }
 
-    private Either<FormatRespDto, Boolean> publishApp(JsonObject jsonObject, String token) {
+    private Either<FormatRespDto, Boolean> publishApp(JsonObject jsonObject, String token,
+        PublishAppReqDto pubAppReqDto) {
         // publish app to appstore
         JsonElement appId = jsonObject.get("appId");
         JsonElement packageId = jsonObject.get("packageId");
         if (appId != null && packageId != null) {
             ResponseEntity<String> publishRes = AppStoreUtil
-                .publishToAppStore(appId.getAsString(), packageId.getAsString(), token);
+                .publishToAppStore(appId.getAsString(), packageId.getAsString(), token, pubAppReqDto);
             if (publishRes == null) {
                 LOGGER.error("publish app to appstore fail!");
                 FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "publish app to appstore fail!");
