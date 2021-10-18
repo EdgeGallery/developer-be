@@ -27,9 +27,13 @@ import org.edgegallery.developer.model.deployyaml.PodEvents;
 import org.edgegallery.developer.model.deployyaml.PodEventsRes;
 import org.edgegallery.developer.model.deployyaml.PodStatusInfo;
 import org.edgegallery.developer.model.deployyaml.PodStatusInfos;
+import org.edgegallery.developer.model.deployyaml.ServiceInfo;
+import org.edgegallery.developer.model.deployyaml.ServicePort;
 import org.edgegallery.developer.model.instantiate.container.Container;
 import org.edgegallery.developer.model.instantiate.container.ContainerAppInstantiateInfo;
 import org.edgegallery.developer.model.instantiate.container.K8sPod;
+import org.edgegallery.developer.model.instantiate.container.K8sService;
+import org.edgegallery.developer.model.instantiate.container.K8sServicePort;
 import org.edgegallery.developer.model.mephost.MepHost;
 import org.edgegallery.developer.service.application.action.impl.InstantiateAppAction;
 import org.edgegallery.developer.service.application.common.EnumInstantiateStatus;
@@ -75,7 +79,19 @@ public class InstantiateContainerAppAction extends InstantiateAppAction {
                     }
                     pod.getContainerList().add(container);
                 }
-
+            }
+            //TODO make ServiceInfo/PodStatusInfo and K8sService/K8sPod same model etc.
+            List<ServiceInfo> serviceInfoLst = status.getServices();
+            for(ServiceInfo service: serviceInfoLst){
+                K8sService k8sService = new K8sService();
+                k8sService.setName(service.getServiceName());
+                k8sService.setType(service.getType());
+                for(ServicePort port: service.getPorts()){
+                    K8sServicePort k8sServicePort = new K8sServicePort();
+                    k8sServicePort.setPort(port.getPort());
+                    k8sServicePort.setNodePort(port.getNodePort());
+                    k8sServicePort.setTargetPort(port.getTargetPort());
+                }
             }
         }
         if (!CollectionUtils.isEmpty(events.getPods())) {
