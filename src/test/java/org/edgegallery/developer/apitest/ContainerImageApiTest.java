@@ -94,18 +94,6 @@ public class ContainerImageApiTest {
 
     @Test
     @WithMockUser(roles = "DEVELOPER_TENANT")
-    public void testCreateImageSuccess() throws Exception {
-        ContainerImage containerImage = new ContainerImage();
-        String url = String.format("/mec/developer/v2/containerimages/");
-        Mockito.when(containerImageService.createContainerImage(Mockito.any())).thenReturn(containerImage);
-        ResultActions actions = mvc.perform(MockMvcRequestBuilders.post(url).with(csrf())
-            .content(new Gson().toJson(containerImage)).contentType(MediaType.APPLICATION_JSON_UTF8))
-            .andExpect(MockMvcResultMatchers.status().isOk());
-        Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
-    }
-
-    @Test
-    @WithMockUser(roles = "DEVELOPER_TENANT")
     public void testGetAllImageSuccess() throws Exception {
         ContainerImageReq containerImage = new ContainerImageReq();
         List<ContainerImage> list = new ArrayList<>();
