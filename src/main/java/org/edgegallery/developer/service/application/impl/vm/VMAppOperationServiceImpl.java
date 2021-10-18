@@ -14,7 +14,6 @@
 
 package org.edgegallery.developer.service.application.impl.vm;
 
-import java.io.File;
 import java.util.List;
 import java.util.UUID;
 import javax.servlet.http.HttpServletRequest;
@@ -40,12 +39,12 @@ import org.edgegallery.developer.model.operation.EnumOperationObjectType;
 import org.edgegallery.developer.model.operation.OperationStatus;
 import org.edgegallery.developer.model.restful.ApplicationDetail;
 import org.edgegallery.developer.model.restful.OperationInfoRep;
+import org.edgegallery.developer.service.application.ApplicationService;
 import org.edgegallery.developer.service.application.action.IAction;
 import org.edgegallery.developer.service.application.action.IActionIterator;
 import org.edgegallery.developer.service.application.action.impl.vm.VMExportImageOperation;
 import org.edgegallery.developer.service.application.action.impl.vm.VMLaunchOperation;
 import org.edgegallery.developer.service.application.impl.AppOperationServiceImpl;
-import org.edgegallery.developer.service.application.impl.ApplicationServiceImpl;
 import org.edgegallery.developer.service.application.vm.VMAppOperationService;
 import org.edgegallery.developer.service.apppackage.scar.VMPackageFileCreator;
 import org.slf4j.Logger;
@@ -73,7 +72,7 @@ public class VMAppOperationServiceImpl extends AppOperationServiceImpl implement
     OperationStatusMapper operationStatusMapper;
 
     @Autowired
-    ApplicationServiceImpl applicationServiceImpl;
+    ApplicationService applicationService;
 
     @Autowired
     VMAppVmServiceImpl vmAppVmServiceImpl;
@@ -84,7 +83,7 @@ public class VMAppOperationServiceImpl extends AppOperationServiceImpl implement
     @Override
     public OperationInfoRep instantiateVM(String applicationId, String vmId, String accessToken) {
 
-        Application application = applicationServiceImpl.getApplication(applicationId);
+        Application application = applicationService.getApplication(applicationId);
         if (application == null) {
             LOGGER.error("application is not exited,id:{}", applicationId);
             throw new EntityNotFoundException("application is not exited.", ResponseConsts.RET_QUERY_DATA_EMPTY);
@@ -132,7 +131,7 @@ public class VMAppOperationServiceImpl extends AppOperationServiceImpl implement
 
     @Override
     public OperationInfoRep createImageExport(String applicationId, String vmId, String accessToken) {
-        Application application = applicationServiceImpl.getApplication(applicationId);
+        Application application = applicationService.getApplication(applicationId);
         if (application == null) {
             LOGGER.error("application is not exited,id:{}", applicationId);
             throw new EntityNotFoundException("application is not exited.", ResponseConsts.RET_QUERY_DATA_EMPTY);
@@ -170,7 +169,7 @@ public class VMAppOperationServiceImpl extends AppOperationServiceImpl implement
 
     @Override
     public AppPackage generatePackage(String applicationId) {
-        ApplicationDetail detail = applicationServiceImpl.getApplicationDetail(applicationId);
+        ApplicationDetail detail = applicationService.getApplicationDetail(applicationId);
         return generatePackage(detail.getVmApp());
     }
 

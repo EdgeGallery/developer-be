@@ -28,7 +28,9 @@ import org.edgegallery.developer.mapper.application.container.ContainerAppInstan
 import org.edgegallery.developer.mapper.application.container.HelmChartMapper;
 import org.edgegallery.developer.mapper.operation.OperationStatusMapper;
 import org.edgegallery.developer.model.application.Application;
+import org.edgegallery.developer.model.application.container.ContainerApplication;
 import org.edgegallery.developer.model.application.container.HelmChart;
+import org.edgegallery.developer.model.apppackage.AppPackage;
 import org.edgegallery.developer.model.instantiate.container.Container;
 import org.edgegallery.developer.model.instantiate.container.ContainerAppInstantiateInfo;
 import org.edgegallery.developer.model.instantiate.container.K8sPod;
@@ -37,18 +39,17 @@ import org.edgegallery.developer.model.instantiate.container.K8sServicePort;
 import org.edgegallery.developer.model.operation.EnumActionStatus;
 import org.edgegallery.developer.model.operation.EnumOperationObjectType;
 import org.edgegallery.developer.model.operation.OperationStatus;
+import org.edgegallery.developer.model.restful.ApplicationDetail;
 import org.edgegallery.developer.model.restful.OperationInfoRep;
+import org.edgegallery.developer.service.application.ApplicationService;
 import org.edgegallery.developer.service.application.action.IAction;
 import org.edgegallery.developer.service.application.action.IActionIterator;
 import org.edgegallery.developer.service.application.action.impl.container.ContainerLaunchOperation;
-import org.edgegallery.developer.service.application.action.impl.vm.VMLaunchOperation;
 import org.edgegallery.developer.service.application.container.ContainerAppOperationService;
 import org.edgegallery.developer.service.application.impl.AppOperationServiceImpl;
-import org.edgegallery.developer.service.application.impl.vm.VMAppOperationServiceImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 
 @Service("containerAppActionService")
@@ -59,7 +60,9 @@ public class ContainerAppOperationServiceImpl extends AppOperationServiceImpl im
     private static final String OPERATION_NAME = "ContainerApp launch";
 
     @Autowired
-    private ApplicationMapper applicationMapper;
+    ApplicationService applicationService;
+
+    @Autowired    private ApplicationMapper applicationMapper;
 
     @Autowired
     private HelmChartMapper helmChartMapper;
@@ -70,6 +73,14 @@ public class ContainerAppOperationServiceImpl extends AppOperationServiceImpl im
     @Autowired
     private ContainerAppInstantiateInfoMapper containerAppInstantiateInfoMapper;
 
+    public AppPackage generatePackage(String applicationId) {
+        ApplicationDetail detail = applicationService.getApplicationDetail(applicationId);
+        return generatePackage(detail.getContainerApp());
+    }
+
+    public AppPackage generatePackage(ContainerApplication application) {
+        return null;
+    }
     @Override
     public OperationInfoRep instantiateContainerApp(String applicationId, String helmChartId, String accessToken) {
         Application application = applicationMapper.getApplicationById(applicationId);
