@@ -1,0 +1,256 @@
+tosca_definitions_version: tosca_simple_profile_yaml_1_2
+description: EG MEC VM
+imports:
+  - nfv_vnfd_types_v1_0_20190924.yaml
+
+metadata:
+  template_name: EDGEGALLERY-MEC-VM
+  template_author: EdgeGallery
+  template_version: 1.0.0
+  vnfm_type: MEPM
+  vnfd_id: <vnfd_id>
+  vnfd_version: v1.2
+  vnfd_name: <vnfd_name>
+  vnfd_description: EG sample for gvnfm
+
+topology_template:
+  inputs:
+    DC_ID:
+      type: string
+      default: FS_M:Manager_VPC
+      description: DC_ID
+    az_dc:
+      type: string
+      default: nova
+      description: AZ.DZ
+    ak:
+      type: string
+      default: abdc
+      description: AK
+    sk:
+      type: password
+      default: 1234
+      description: SK
+    mep_certificate:
+      type: text
+      default: YHXGFTWU!@$%@&%#(DH(122479+_)
+      description: MEP Certificate
+    app_mp1_ip:
+      type: string
+      default:
+      description: app_mp1_ip
+    app_mp1_mask:
+      type: string
+      default: 255.255.255.0
+      description: app_mp1_mask
+    app_mp1_gw:
+      type: string
+      default:
+      description: app_mp1_gw
+    app_n6_ip:
+      type: string
+      default:
+      description: app_n6_ip
+    app_n6_mask:
+      type: string
+      default: 255.255.255.0
+      description: app_n6_mask
+    app_n6_gw:
+      type: string
+      default:
+      description: app_n6_gw
+    app_internet_ip:
+      type: string
+      default:
+      description: app_internet_ip
+    app_internet_mask:
+      type: string
+      default: 255.255.255.0
+      description: app_internet_mask
+    app_internet_gw:
+      type: string
+      default:
+      description: app_internet_gw
+    mep_ip:
+      type: string
+      default: 127.0.0.1
+      description: mep_ip
+    mep_port:
+      type: string
+      default: 8443
+      description: mep_port
+
+    network_name_mep:
+      type: string
+      default: mec_network_mep
+      description: network_name_mep
+    network_mep_physnet:
+      type: string
+      default: physnet2
+      description: network_mep_physnet
+    network_mep_vlanid:
+      type: string
+      default: 2664
+      description: network_mep_vlanid
+    network_name_n6:
+      type: string
+      default: mec_network_n6
+      description: network_name_n6
+    network_n6_physnet:
+      type: string
+      default: physnet2
+      description: network_n6_physnet
+    network_n6_vlanid:
+      type: string
+      default: 2663
+      description: network_n6_vlanid
+    network_name_internet:
+      type: string
+      default: mec_network_internet
+      description: network_name_internet
+    network_internet_physnet:
+      type: string
+      default: physnet2
+      description: network_internet_physnet
+    network_internet_vlanid:
+      type: string
+      default: 2662
+      description: network_internet_vlanid
+    ue_ip_segment:
+      type: string
+      default: 0.0.0.0/0
+      description: ue_ip_segment
+
+  node_templates:
+    Simple_VNF:
+      type: tosca.nodes.nfv.VNF
+      properties:
+        vnfd_id: edgegallery_template
+        vnfd_version: v1.2
+        provider: edgegallery
+        product_name: edgegallery_app
+        software_version: v1.0
+        product_info_name: EG_MEC_APP
+        product_info_description: EdgeGallery MEC APP
+        flavour_id: default
+        flavour_description: default flavor
+        ve_vnfm_vnf_enable: false
+        ve_vnfm_em_enable: false
+
+    EMS_VDU1:
+      type: tosca.nodes.nfv.Vdu.Compute
+      capabilities:
+        virtual_compute:
+          properties:
+            virtual_memory:
+              virtual_mem_size: 4096
+            virtual_cpu:
+              num_virtual_cpu: 4
+              cpu_architecture: X86
+            virtual_local_storage:
+              size_of_storage: 40
+      properties:
+        name: edgegallery_app
+        description: EMS_VDU1 node
+        nfvi_constraints: {get_input: az_dc}
+        vdu_profile:
+          min_number_of_instances: 1
+          max_number_of_instances: 1
+          initial_number_of_instances: 1
+          flavor_extra_specs:
+        sw_image_data:
+          name: edgegallery_image
+        bootdata:
+          config_drive: true
+          user_data:
+            contents: |
+            params:
+    EMS_VDU1_CP0:
+      type: tosca.nodes.nfv.VduCp
+      properties:
+        description: to mep
+        vnic_name: eth0
+        order: 0
+        vnic_type: normal
+        port_security_enabled: true
+      requirements:
+        - virtual_binding: EMS_VDU1
+        - virtual_link: MEC_APP_MP1
+
+    EMS_VDU1_CP1:
+      type: tosca.nodes.nfv.VduCp
+      properties:
+        description: internal
+        vnic_name: eth1
+        order: 1
+        vnic_type: normal
+        port_security_enabled: true
+      attributes:
+        ipv4_address: {get_input: app_internet_ip}
+        ipv6_address: 00::00
+        mac: 00::00::00::00::00::00
+        ipv4_vip_address: 0.0.0.0
+        ipv6_vip_address: 00::00
+      requirements:
+        - virtual_binding: EMS_VDU1
+        - virtual_link: MEC_APP_INTERNET
+
+    EMS_VDU1_CP2:
+      type: tosca.nodes.nfv.VduCp
+      properties:
+        description: to UFP&OM
+        vnic_name: eth2
+        order: 2
+        vnic_type: normal
+        port_security_enabled: true
+      requirements:
+        - virtual_binding: EMS_VDU1
+        - virtual_link: MEC_APP_N6
+
+    MEC_APP_N6:
+      type: tosca.nodes.nfv.VnfVirtualLink
+      properties:
+        vl_profile:
+          network_name: {get_input: network_name_n6}
+          network_type: vlan
+          physical_network: {get_input: network_n6_physnet}
+          provider_segmentation_id: {get_input: network_n6_vlanid}
+
+    MEC_APP_MP1:
+      type: tosca.nodes.nfv.VnfVirtualLink
+      properties:
+        vl_profile:
+          network_name: {get_input: network_name_mep}
+          network_type: vlan
+          physical_network: {get_input: network_mep_physnet}
+          provider_segmentation_id: {get_input: network_mep_vlanid}
+
+    MEC_APP_INTERNET:
+      type: tosca.nodes.nfv.VnfVirtualLink
+      properties:
+        vl_profile:
+          network_name: {get_input: network_name_internet}
+          network_type: vlan
+          physical_network: {get_input: network_internet_physnet}
+          provider_segmentation_id: {get_input: network_internet_vlanid}
+
+    app_configuration:
+      type: tosca.nodes.nfv.app.configuration
+      properties:
+        certification_info:
+          access_key_id: {get_input: ak}
+          secret_key: {get_input: sk}
+
+  groups:
+    AntiAffinityGroup:
+      type: tosca.groups.nfv.PlacementGroup
+      properties:
+        description: antiaffinity group
+      members: [EMS_VDU1]
+  policies:
+    - antiaffinity_policy:
+        type: tosca.policies.nfv.AntiAffinityRule
+        targets: [AntiAffinityGroup]
+        properties:
+          scope: nfvi_node
+          enforced: true

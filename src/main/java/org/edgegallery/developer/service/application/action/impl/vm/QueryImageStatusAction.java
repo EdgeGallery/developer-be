@@ -15,14 +15,40 @@
  */
 package org.edgegallery.developer.service.application.action.impl.vm;
 
+import org.edgegallery.developer.model.LcmLog;
+import org.edgegallery.developer.model.application.Application;
+import org.edgegallery.developer.model.mephost.MepHost;
+import org.edgegallery.developer.model.operation.ActionStatus;
+import org.edgegallery.developer.model.operation.EnumOperationObjectType;
+import org.edgegallery.developer.service.application.ApplicationService;
 import org.edgegallery.developer.service.application.action.IAction;
 import org.edgegallery.developer.service.application.action.IContext;
+import org.edgegallery.developer.service.application.action.impl.AbstractAction;
+import org.edgegallery.developer.service.application.common.EnumDistributeStatus;
+import org.edgegallery.developer.service.application.common.EnumExportImageStatus;
+import org.edgegallery.developer.service.application.common.IContextParameter;
+import org.edgegallery.developer.service.mephost.MepHostService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
-public class QueryImageStatusAction implements IAction {
+public class QueryImageStatusAction extends AbstractAction {
+
+    public static final Logger LOGGER = LoggerFactory.getLogger(CreateImageAction.class);
 
     public static final String ACTION_NAME = "Query Image Status";
+    
+    @Autowired
+    private ApplicationService applicationService;
+
+    @Autowired
+    private MepHostService mepHostService;
 
     private IContext context;
+
+    public IContext getContext() {
+        return this.context;
+    }
 
     @Override
     public void setContext(IContext context) {
@@ -36,6 +62,35 @@ public class QueryImageStatusAction implements IAction {
 
     @Override
     public boolean execute() {
+        String packageId = (String) getContext().getParameter(IContextParameter.PARAM_PACKAGE_ID);
+        String applicationId = (String) getContext().getParameter(IContextParameter.PARAM_APPLICATION_ID);
+        Application application = applicationService.getApplication(applicationId);
+        String statusLog = "Start to create vm image for package Id：" + packageId;
+        LOGGER.info(statusLog);
+        ActionStatus actionStatus = initActionStatus(EnumOperationObjectType.VM_IMAGE_INSTANCE, packageId,
+            ACTION_NAME, statusLog);
+        String mepHostId = application.getMepHostId();
+        if (null == mepHostId || "".equals(mepHostId)) {
+            updateActionError(actionStatus, "Sandbox not selected. Failed to instantiate package");
+            return false;
+        }
+        MepHost mepHost = mepHostService.getHost(mepHostId);
+
+        //create image.
+        updateActionProgress(actionStatus, 0, statusLog);
+        LcmLog lcmLog = new LcmLog();
+        EnumExportImageStatus exportImageStatus = queryImageStatus(mepHost, lcmLog);
+        if (!EnumExportImageStatus.EXPORT_IMAGE_STATUS_SUCCESS.equals(exportImageStatus)) {
+            String msg = "Query export image status failed, the result is: " + exportImageStatus;
+            updateActionError(actionStatus, msg);
+            return false;
+        }
+        updateActionProgress(actionStatus, 100, "Query export image status success.");
+        LOGGER.info("Distribute package action finished.");
         return true;
+    }
+
+    private EnumExportImageStatus queryImageStatus(MepHost mepHost, LcmLog lcmLog) {
+        return null;
     }
 }

@@ -15,6 +15,7 @@
  */
 package org.edgegallery.developer.service.application.vm;
 
+import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
 import org.edgegallery.developer.model.Chunk;
 import org.edgegallery.developer.model.application.vm.VMApplication;
@@ -34,6 +35,8 @@ public interface VMAppOperationService {
     Boolean uploadFileToVm(String applicationId, String vmId, HttpServletRequest request, Chunk chunk);
 
     ResponseEntity mergeAppFile(String applicationId, String vmId, String fileName, String identifier);
+
+    OperationInfoRep createImageExport(String applicationId, String vmId, String accessToken);
 
     ImageExportInfo getImageExportInfo(String vmId);
 

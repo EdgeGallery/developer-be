@@ -40,7 +40,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 public abstract class InstantiateAppAction extends AbstractAction {
 
-    public static final Logger LOGGER = LoggerFactory.getLogger(DistributePackageAction.class);
+    public static final Logger LOGGER = LoggerFactory.getLogger(InstantiateAppAction.class);
 
     public static final String ACTION_NAME = "Instantiate Application";
 
