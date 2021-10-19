@@ -26,20 +26,21 @@ import java.util.UUID;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.edgegallery.developer.common.ResponseConsts;
+import org.edgegallery.developer.exception.DataBaseException;
 import org.edgegallery.developer.exception.DeveloperException;
 import org.edgegallery.developer.exception.EntityNotFoundException;
 import org.edgegallery.developer.exception.FileFoundFailException;
 import org.edgegallery.developer.exception.FileOperateException;
 import org.edgegallery.developer.exception.IllegalRequestException;
 import org.edgegallery.developer.mapper.HostMapper;
-import org.edgegallery.developer.mapper.OpenMepCapabilityMapper;
 import org.edgegallery.developer.mapper.UploadedFileMapper;
+import org.edgegallery.developer.mapper.capability.CapabilityMapper;
 import org.edgegallery.developer.model.GeneralConfig;
 import org.edgegallery.developer.model.apppackage.AppPkgStructure;
+import org.edgegallery.developer.model.capability.Capability;
 import org.edgegallery.developer.model.resource.MepHost;
 import org.edgegallery.developer.model.workspace.EnumHostStatus;
 import org.edgegallery.developer.model.workspace.EnumOpenMepType;
-import org.edgegallery.developer.model.workspace.OpenMepCapability;
 import org.edgegallery.developer.model.workspace.UploadedFile;
 import org.edgegallery.developer.service.AppReleaseService;
 import org.edgegallery.developer.service.uploadfile.UploadService;
@@ -57,6 +58,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.SafeConstructor;
@@ -75,7 +77,7 @@ public class UploadServiceImpl implements UploadService {
     private HostMapper hostMapper;
 
     @Autowired
-    private OpenMepCapabilityMapper openMepCapabilityMapper;
+    private CapabilityMapper capabilityMapper;
 
     @Autowired
     private AppReleaseService appReleaseService;
@@ -95,7 +97,6 @@ public class UploadServiceImpl implements UploadService {
             throw new FileFoundFailException("can not find file in repository!", ResponseConsts.RET_FILE_NOT_FOUND);
         }
         String fileName = uploadedFile.getFileName();
-
         try {
             HttpHeaders headers = new HttpHeaders();
             headers.add("Content-Type", "application/octet-stream");
@@ -118,7 +119,7 @@ public class UploadServiceImpl implements UploadService {
             List<MepHost> enabledHosts = hostMapper.getHostsByStatus(EnumHostStatus.NORMAL, "X86", "K8S");
             if (!enabledHosts.isEmpty()) {
                 String host = enabledHosts.get(0).getLcmIp() + ":" + "32119";
-                return FileUtils.readFileToString(file, "UTF-8").replace("{HOST}", host)
+                return FileUtils.readFileToString(file, StandardCharsets.UTF_8).replace("{HOST}", host)
                     .getBytes(StandardCharsets.UTF_8);
             }
         }
@@ -149,10 +150,15 @@ public class UploadServiceImpl implements UploadService {
             LOGGER.error("upload file is not in md format");
             throw new IllegalRequestException("The file is not in md format", ResponseConsts.RET_FILE_FORMAT_ERROR);
         }
-        LOGGER.info("Start uploading file");
+        LOGGER.info("Start uploading md file");
         UploadedFile result = saveFileToLocal(uploadFile, userId);
         if (result == null) {
             throw new FileOperateException("Failed to save md file.!", ResponseConsts.RET_SAVE_FILE_FAIL);
+        }
+        int ret = uploadedFileMapper.updateFileStatus(result.getFileId(), false);
+        if (ret < 1) {
+            LOGGER.error("update md file status failed!!");
+            throw new DataBaseException("update md file status failed!", ResponseConsts.RET_UPDATE_DATA_FAIL);
         }
         return result;
     }
@@ -179,6 +185,11 @@ public class UploadServiceImpl implements UploadService {
         if (result == null) {
             throw new FileOperateException("Failed to save picture file.!", ResponseConsts.RET_SAVE_FILE_FAIL);
         }
+        int ret = uploadedFileMapper.updateFileStatus(result.getFileId(), false);
+        if (ret < 1) {
+            LOGGER.error("update pic file status failed!!");
+            throw new DataBaseException("update pic file status failed!", ResponseConsts.RET_UPDATE_DATA_FAIL);
+        }
         return result;
     }
 
@@ -198,22 +209,10 @@ public class UploadServiceImpl implements UploadService {
         if (result == null) {
             throw new FileOperateException("Failed to save api file.!", ResponseConsts.RET_SAVE_FILE_FAIL);
         }
-        return result;
-    }
-
-    @Override
-    public UploadedFile uploadConfigFile(String userId, MultipartFile uploadFile) {
-        //check format
-        String fileName = uploadFile.getOriginalFilename();
-        if (fileName.contains(".")) {
-            LOGGER.error("upload file should not have suffix");
-            throw new IllegalRequestException("upload file should not have suffix",
-                ResponseConsts.RET_FILE_FORMAT_ERROR);
-        }
-        LOGGER.info("Start uploading file");
-        UploadedFile result = saveFileToLocal(uploadFile, userId);
-        if (result == null) {
-            throw new FileOperateException("Failed to save config file.!", ResponseConsts.RET_SAVE_FILE_FAIL);
+        int ret = uploadedFileMapper.updateFileStatus(result.getFileId(), false);
+        if (ret < 1) {
+            LOGGER.error("update api file status failed!!");
+            throw new DataBaseException("update api file status failed!", ResponseConsts.RET_UPDATE_DATA_FAIL);
         }
         return result;
     }
@@ -309,19 +308,23 @@ public class UploadServiceImpl implements UploadService {
             LOGGER.error("can not find file {} in db", fileId);
             throw new FileFoundFailException("can not find file in db", ResponseConsts.RET_FILE_NOT_FOUND);
         }
-        OpenMepCapability openMepCapabilityDetail = openMepCapabilityMapper.getDetailByApiFileId(fileId);
+        List<Capability> capability = capabilityMapper.selectByApiFileId(fileId);
+        if (CollectionUtils.isEmpty(capability)) {
+            LOGGER.error("can not find capability in db by api file id");
+            throw new EntityNotFoundException("can not find capability in db", ResponseConsts.RET_QUERY_DATA_EMPTY);
+        }
         //generate code
         GeneralConfig config = new GeneralConfig();
         config.setApiPackage("jar");
         config.setArtifactId("org.edgegallery");
         config.setInvokerPackage("edgegallerys");
         config.setModelPackage("edgegallerysdk");
-        config.setArtifactVersion(openMepCapabilityDetail.getVersion());
+        config.setArtifactVersion(capability.get(0).getVersion());
         config.setGroupId("org.edgegallery");
         config.setOutput(InitConfigUtil.getWorkSpaceBaseDir());
-        config.setProjectName(openMepCapabilityDetail.getHost());
+        config.setProjectName(capability.get(0).getHost());
         config.setInputSpec(uploadedFile.getFilePath());
-        String sdkPath = InitConfigUtil.getWorkSpaceBaseDir() + config.getOutput() + openMepCapabilityDetail.getHost();
+        String sdkPath = InitConfigUtil.getWorkSpaceBaseDir() + config.getOutput() + capability.get(0).getHost();
 
         try {
 
@@ -349,7 +352,7 @@ public class UploadServiceImpl implements UploadService {
         try {
             HttpHeaders headers = new HttpHeaders();
             headers.add("Content-Type", MediaType.APPLICATION_OCTET_STREAM_VALUE);
-            headers.add("Content-Disposition", "attachment; filename=" + openMepCapabilityDetail.getHost() + ".tgz");
+            headers.add("Content-Disposition", "attachment; filename=" + capability.get(0).getHost() + ".tgz");
             byte[] fileData = FileUtils.readFileToByteArray(tar);
             LOGGER.info("get sample code file success");
             DeveloperFileUtils.deleteTempFile(tar);
@@ -427,7 +430,8 @@ public class UploadServiceImpl implements UploadService {
         File desFile = new File(DeveloperFileUtils.getAbsolutePath(applicationId) + file.getFileName());
         try {
             DeveloperFileUtils.moveFile(tempFile, desFile);
-            String filePath = BusinessConfigUtil.getWorkspacePath() + applicationId + File.separator + file.getFileName();
+            String filePath = BusinessConfigUtil.getWorkspacePath() + applicationId + File.separator + file
+                .getFileName();
             uploadedFileMapper.updateFilePath(srcId, filePath);
         } catch (IOException e) {
             LOGGER.error("move icon file failed {}", e.getMessage());
@@ -487,8 +491,7 @@ public class UploadServiceImpl implements UploadService {
         }
 
         SampleCodeServer generateCode = new SampleCodeServer();
-        File tar = generateCode.analysis(apiJsonList);
-        return tar;
+        return generateCode.analysis(apiJsonList);
     }
 
 }

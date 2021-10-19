@@ -32,8 +32,6 @@ public interface UploadService {
 
     UploadedFile uploadApiFile(String userId, MultipartFile uploadFile);
 
-    UploadedFile uploadConfigFile(String userId, MultipartFile uploadFile);
-
     ResponseEntity<byte[]> downloadSampleCode(List<String> apiFileIds);
 
     AppPkgStructure getSampleCodeStru(List<String> apiFileIds);

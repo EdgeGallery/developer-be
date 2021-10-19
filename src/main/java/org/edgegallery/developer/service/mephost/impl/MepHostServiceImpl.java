@@ -256,7 +256,17 @@ public class MepHostServiceImpl implements MepHostService {
     @Override
     public UploadedFile uploadConfigFile(MultipartFile uploadFile) {
         LOGGER.info("Start uploading file");
-        String userId = "AccessUserUtil.getUser().getUserId()";
+        //check format
+        String fileName = uploadFile.getOriginalFilename();
+        if (StringUtils.isEmpty(fileName)) {
+            throw new IllegalRequestException("fileName is null", ResponseConsts.RET_FILE_FORMAT_ERROR);
+        }
+        if (StringUtils.isEmpty(fileName) || fileName.contains(".")) {
+            String errMsg = "upload file should not have suffix";
+            LOGGER.error(errMsg);
+            throw new IllegalRequestException(errMsg, ResponseConsts.RET_FILE_FORMAT_ERROR);
+        }
+        String userId = AccessUserUtil.getUser().getUserId();
         UploadedFile result = uploadService.saveFileToLocal(uploadFile, userId);
         if (result == null) {
             LOGGER.error("save config file failed!");
