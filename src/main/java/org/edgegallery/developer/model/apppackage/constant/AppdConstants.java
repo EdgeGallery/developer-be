@@ -12,18 +12,13 @@
  * the License.
  */
 
-package org.edgegallery.developer.util;
+package org.edgegallery.developer.model.apppackage.constant;
 
+public class AppdConstants {
 
-import org.edgegallery.developer.model.apppackage.appd.AppDefinition;
+    public static final String VNF_NODE_NAME = "Simple_VNF";
 
+    public static final int DEFALUT_NETWORK_VLANID = 2000;
 
-public class APPDParserUtil {
-    private static final String APPD_TEMPLATE_PATH = "src/main/resources/template/appd/vm_appd_template.yaml";
-
-    public static AppDefinition parseAppd(String yamlContent){
-        return null;
-    }
-
-
+    public static final String DEFALUT_PHYSNET = "physnet2";
 }

@@ -12,14 +12,14 @@
  * the License.
  */
 
-package org.edgegallery.developer.service.apppackage.scar;
+package org.edgegallery.developer.service.apppackage.csar;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import org.apache.commons.io.FileUtils;
 import org.edgegallery.developer.model.application.vm.VMApplication;
-import org.edgegallery.developer.model.apppackage.appd.APPDDefinition;
+import org.edgegallery.developer.model.apppackage.appd.AppDefinition;
 import org.edgegallery.developer.util.APPDParserUtil;
 import org.edgegallery.developer.util.BusinessConfigUtil;
 import org.edgegallery.developer.util.InitConfigUtil;
@@ -42,30 +42,42 @@ public class VMPackageFileCreator {
 
     }
 
-
-    public void generatePackageFile() {
-
+    public String generateAppPackageFile() {
         String packagePath = getPackageBasePath();
-
-
+        return packagePath;
     }
 
     private File generateAPPDYaml() throws IOException {
         File vmAPPDTemplate = new File(APPD_TEMPLATE_PATH);
         String yamlContent = FileUtils.readFileToString(vmAPPDTemplate, StandardCharsets.UTF_8);
-        APPDDefinition definition = APPDParserUtil.parseAppd(yamlContent);
-
+        AppDefinition definition = APPDParserUtil.parseAppd(yamlContent);
         return new File(getPackageBasePath());
     }
 
-    private File generateImageDesFile()  {
+    AppDefinition convertApplication2AppDefinition(VMApplication application){
+        AppDefinition appDefinition = new AppDefinition();
+        //update metadata
+        appDefinition.getMetadata().setVnfd_id(application.getName());
+        appDefinition.getMetadata().setVnfd_name(application.getName());
+
+        //update
+        return appDefinition;
+    }
+
+    public void updateMetadata(){
+
+    }
+
+
+
+    private File generateImageDesFile() {
 
         return new File(getPackageBasePath());
 
     }
 
     private String getPackageBasePath() {
-        return InitConfigUtil.getWorkSpaceBaseDir() + BusinessConfigUtil.getWorkspacePath() + application.getId() +
-            File.separator + packageId;
+        return InitConfigUtil.getWorkSpaceBaseDir() + BusinessConfigUtil.getWorkspacePath() + application.getId()
+            + File.separator + packageId;
     }
 }

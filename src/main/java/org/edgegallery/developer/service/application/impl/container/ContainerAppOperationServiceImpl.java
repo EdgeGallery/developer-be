@@ -47,6 +47,7 @@ import org.edgegallery.developer.service.application.action.IActionIterator;
 import org.edgegallery.developer.service.application.action.impl.container.ContainerLaunchOperation;
 import org.edgegallery.developer.service.application.container.ContainerAppOperationService;
 import org.edgegallery.developer.service.application.impl.AppOperationServiceImpl;
+import org.edgegallery.developer.service.apppackage.AppPackageService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,7 +63,8 @@ public class ContainerAppOperationServiceImpl extends AppOperationServiceImpl im
     @Autowired
     ApplicationService applicationService;
 
-    @Autowired    private ApplicationMapper applicationMapper;
+    @Autowired
+    private ApplicationMapper applicationMapper;
 
     @Autowired
     private HelmChartMapper helmChartMapper;
@@ -73,14 +75,18 @@ public class ContainerAppOperationServiceImpl extends AppOperationServiceImpl im
     @Autowired
     private ContainerAppInstantiateInfoMapper containerAppInstantiateInfoMapper;
 
+    @Autowired
+    AppPackageService appPackageService;
+
     public AppPackage generatePackage(String applicationId) {
         ApplicationDetail detail = applicationService.getApplicationDetail(applicationId);
         return generatePackage(detail.getContainerApp());
     }
 
     public AppPackage generatePackage(ContainerApplication application) {
-        return null;
+        return appPackageService.generateAppPackage(application);
     }
+
     @Override
     public OperationInfoRep instantiateContainerApp(String applicationId, String helmChartId, String accessToken) {
         Application application = applicationMapper.getApplicationById(applicationId);

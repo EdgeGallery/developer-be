@@ -12,14 +12,10 @@
  * the License.
  */
 
-package org.edgegallery.developer.service.apppackage.scar;
+package org.edgegallery.developer.service.apppackage.csar;
 
 import java.io.File;
-import java.io.IOException;
 import org.edgegallery.developer.model.application.container.ContainerApplication;
-import org.edgegallery.developer.model.application.vm.VMApplication;
-import org.edgegallery.developer.model.workspace.ApplicationProject;
-import org.edgegallery.developer.model.workspace.ProjectTestConfig;
 import org.edgegallery.developer.util.BusinessConfigUtil;
 import org.edgegallery.developer.util.InitConfigUtil;
 

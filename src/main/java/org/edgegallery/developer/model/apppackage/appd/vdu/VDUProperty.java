@@ -12,18 +12,27 @@
  * the License.
  */
 
-package org.edgegallery.developer.util;
+package org.edgegallery.developer.model.apppackage.appd.vdu;
 
+import lombok.Getter;
+import lombok.Setter;
 
-import org.edgegallery.developer.model.apppackage.appd.AppDefinition;
+@Setter
+@Getter
+public class VDUProperty {
+    private String name = "VDU_Name";
 
+    private String description = "VDU_Description";
 
-public class APPDParserUtil {
-    private static final String APPD_TEMPLATE_PATH = "src/main/resources/template/appd/vm_appd_template.yaml";
+    private String nfvi_constraints = "nova";
 
-    public static AppDefinition parseAppd(String yamlContent){
-        return null;
+    private VDUProfile vdu_profile = new VDUProfile();
+
+    private SwImageData sw_image_data = new SwImageData();
+
+    private BootData bootdata  = new BootData();
+
+    public void setNfviConstraintsAsInput(String inputName){
+        this.nfvi_constraints = "{get_Input: " + inputName + "}";
     }
-
-
 }

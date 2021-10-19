@@ -12,18 +12,15 @@
  * the License.
  */
 
-package org.edgegallery.developer.util;
+package org.edgegallery.developer.model.apppackage.appd.vducp;
 
+import lombok.Getter;
+import lombok.Setter;
 
-import org.edgegallery.developer.model.apppackage.appd.AppDefinition;
+@Setter
+@Getter
+public class VirtualBindingRequire {
 
-
-public class APPDParserUtil {
-    private static final String APPD_TEMPLATE_PATH = "src/main/resources/template/appd/vm_appd_template.yaml";
-
-    public static AppDefinition parseAppd(String yamlContent){
-        return null;
-    }
-
+    private String virtual_binding = "VDU";
 
 }
