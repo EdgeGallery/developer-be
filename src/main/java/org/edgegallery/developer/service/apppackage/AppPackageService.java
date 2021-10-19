@@ -16,6 +16,8 @@
 
 package org.edgegallery.developer.service.apppackage;
 
+import org.edgegallery.developer.model.application.container.ContainerApplication;
+import org.edgegallery.developer.model.application.vm.VMApplication;
 import org.edgegallery.developer.model.apppackage.AppPackage;
 import org.edgegallery.developer.model.apppackage.AppPkgStructure;
 
@@ -28,4 +30,8 @@ public interface AppPackageService {
     String getAppPackageFileContent(String packageId, String structureItemId);
 
     boolean updateAppPackageFileContent(String packageId, String structureItemId, String content);
+
+    AppPackage generateAppPackage(VMApplication application);
+
+    AppPackage generateAppPackage(ContainerApplication application);
 }

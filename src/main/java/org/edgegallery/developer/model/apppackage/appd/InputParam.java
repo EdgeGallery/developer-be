@@ -14,6 +14,8 @@
 
 package org.edgegallery.developer.model.apppackage.appd;
 
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import lombok.Getter;
 import lombok.Setter;
 import javax.validation.Valid;
@@ -37,4 +39,19 @@ public class InputParam {
     @Valid
     private String description;
 
+    public InputParam(){
+
+    }
+
+    public InputParam(String type, Object defaultValue, String description){
+        this.type = type;
+        this.defaultValue = defaultValue;
+        this.description = description;
+    }
+
+    public InputParam(LinkedHashMap<String,String> map){
+        this.type = map.get("type");
+        this.defaultValue = map.get("default");
+        this.description = map.get("description");
+    }
 }

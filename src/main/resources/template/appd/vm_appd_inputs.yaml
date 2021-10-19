@@ -1,0 +1,105 @@
+DC_ID:
+  type: string
+  default: FS_M:Manager_VPC
+  description: DC_ID
+az_dc:
+  type: string
+  default: nova
+  description: AZ.DZ
+ak:
+  type: string
+  default: abdc
+  description: AK
+sk:
+  type: password
+  default: 1234
+  description: SK
+mep_certificate:
+  type: text
+  default: YHXGFTWU!@$%@&%#(DH(122479+_)
+  description: MEP Certificate
+app_mp1_ip:
+  type: string
+  default:
+  description: app_mp1_ip
+app_mp1_mask:
+  type: string
+  default: 255.255.255.0
+  description: app_mp1_mask
+app_mp1_gw:
+  type: string
+  default:
+  description: app_mp1_gw
+app_n6_ip:
+  type: string
+  default:
+  description: app_n6_ip
+app_n6_mask:
+  type: string
+  default: 255.255.255.0
+  description: app_n6_mask
+app_n6_gw:
+  type: string
+  default:
+  description: app_n6_gw
+app_internet_ip:
+  type: string
+  default:
+  description: app_internet_ip
+app_internet_mask:
+  type: string
+  default: 255.255.255.0
+  description: app_internet_mask
+app_internet_gw:
+  type: string
+  default:
+  description: app_internet_gw
+mep_ip:
+  type: string
+  default: 127.0.0.1
+  description: mep_ip
+mep_port:
+  type: string
+  default: 8443
+  description: mep_port
+
+network_name_mep:
+  type: string
+  default: mec_network_mep
+  description: network_name_mep
+network_mep_physnet:
+  type: string
+  default: physnet2
+  description: network_mep_physnet
+network_mep_vlanid:
+  type: string
+  default: 2664
+  description: network_mep_vlanid
+network_name_n6:
+  type: string
+  default: mec_network_n6
+  description: network_name_n6
+network_n6_physnet:
+  type: string
+  default: physnet2
+  description: network_n6_physnet
+network_n6_vlanid:
+  type: string
+  default: 2663
+  description: network_n6_vlanid
+network_name_internet:
+  type: string
+  default: mec_network_internet
+  description: network_name_internet
+network_internet_physnet:
+  type: string
+  default: physnet2
+  description: network_internet_physnet
+network_internet_vlanid:
+  type: string
+  default: 2662
+  description: network_internet_vlanid
+ue_ip_segment:
+  type: string
+  default: 0.0.0.0/0
+  description: ue_ip_segment

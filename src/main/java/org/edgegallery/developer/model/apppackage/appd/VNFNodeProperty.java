@@ -14,28 +14,34 @@
 
 package org.edgegallery.developer.model.apppackage.appd;
 
-import java.util.List;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import lombok.Getter;
 import lombok.Setter;
-import javax.validation.Valid;
-import javax.validation.constraints.NotBlank;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
-@Setter
 @Getter
+@Setter
 @JsonPropertyOrder(alphabetic = true)
-public class NodeTemplate {
+public class VNFNodeProperty {
 
-    @Valid
-    @NotBlank
-    private String type;
+    private String vnfd_id;
 
-    private Object capabilities;
+    private String vnfd_version = "v1.2";
 
-    private Object properties;
+    private String provider;
 
-    private Object attributes;
+    private String product_name;
 
-    private List<Object> requirements;
+    private String software_version;
 
+    private String product_info_name = "EG_MEC_APP";
+
+    private String product_info_description = "EdgeGallery MEC APP";
+
+    private String flavour_id = "default";
+
+    private String flavour_description = "default flavor";
+
+    private boolean ve_vnfm_vnf_enable = false;
+
+    private boolean ve_vnfm_em_enable = false;
 }

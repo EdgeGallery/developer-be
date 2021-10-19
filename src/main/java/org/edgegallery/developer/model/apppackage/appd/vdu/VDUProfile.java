@@ -12,18 +12,21 @@
  * the License.
  */
 
-package org.edgegallery.developer.util;
+package org.edgegallery.developer.model.apppackage.appd.vdu;
 
+import java.util.LinkedHashMap;
+import lombok.Getter;
+import lombok.Setter;
 
-import org.edgegallery.developer.model.apppackage.appd.AppDefinition;
+@Setter
+@Getter
+public class VDUProfile {
 
+    private int min_number_of_instances = 1;
 
-public class APPDParserUtil {
-    private static final String APPD_TEMPLATE_PATH = "src/main/resources/template/appd/vm_appd_template.yaml";
+    private int max_number_of_instances = 1;
 
-    public static AppDefinition parseAppd(String yamlContent){
-        return null;
-    }
+    private int initial_number_of_instances = 1;
 
-
+    private LinkedHashMap<String, String> flavor_extra_specs;
 }

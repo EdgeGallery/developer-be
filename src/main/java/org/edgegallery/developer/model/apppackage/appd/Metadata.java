@@ -29,41 +29,41 @@ public class Metadata {
     @Valid
     @NotBlank
     @JsonProperty(value = "template_name")
-    private String templateName;
+    private String template_name = "Custom-MEC-APP";
 
     @Valid
     @NotBlank
     @JsonProperty(value = "template_author")
-    private String templateAuthor;
+    private String template_author = "EdgeGallery";
 
     @Valid
     @NotBlank
     @JsonProperty(value = "template_version")
-    private String templateVersion;
+    private String template_version = "1.0.0";
 
     @Valid
     @NotBlank
     @JsonProperty(value = "vnfm_type")
-    private String vnfmType;
+    private String vnfm_type = "MEPM";
 
     @Valid
     @NotBlank
     @JsonProperty(value = "vnfd_id")
-    private String vnfdId;
+    private String vnfd_id = "Custom VNFD ID";
 
     @Valid
     @NotBlank
     @JsonProperty(value = "vnfd_version")
-    private String vnfdVersion;
+    private String vnfd_version = "v1.2";
 
     @Valid
     @NotBlank
     @JsonProperty(value = "vnfd_name")
-    private String vnfdName;
+    private String vnfd_name ="Custom VNFD Name";
 
     @Valid
     @NotBlank
     @JsonProperty(value = "vnfd_description")
-    private String vnfdDescription;
+    private String vnfd_description="custom VNFD Description";
 
 }

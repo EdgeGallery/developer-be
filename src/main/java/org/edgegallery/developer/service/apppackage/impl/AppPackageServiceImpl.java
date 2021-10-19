@@ -16,14 +16,23 @@
 
 package org.edgegallery.developer.service.apppackage.impl;
 
+import java.util.UUID;
+import org.edgegallery.developer.common.ResponseConsts;
+import org.edgegallery.developer.exception.FileOperateException;
+import org.edgegallery.developer.model.application.container.ContainerApplication;
+import org.edgegallery.developer.model.application.vm.VMApplication;
 import org.edgegallery.developer.model.apppackage.AppPackage;
 import org.edgegallery.developer.model.apppackage.AppPkgStructure;
 import org.edgegallery.developer.service.apppackage.AppPackageService;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.edgegallery.developer.service.apppackage.csar.VMPackageFileCreator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 @Service("AppPackageService")
 public class AppPackageServiceImpl implements AppPackageService {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(AppPackageServiceImpl.class);
 
     @Override
     public AppPackage getAppPackage(String packageId) {
@@ -43,5 +52,27 @@ public class AppPackageServiceImpl implements AppPackageService {
     @Override
     public boolean updateAppPackageFileContent(String packageId, String structureItemId, String content) {
         return false;
+    }
+
+    @Override
+    public AppPackage generateAppPackage(VMApplication application) {
+        AppPackage appPackage = new AppPackage();
+        appPackage.setId(UUID.randomUUID().toString());
+        appPackage.setAppId(application.getId());
+        try {
+            // generation appd
+            VMPackageFileCreator vmPackageFileCreator = new VMPackageFileCreator(application, appPackage.getId());
+            String fileName = vmPackageFileCreator.generateAppPackageFile();
+            // generation scar
+        } catch (Exception e) {
+            LOGGER.error("Generation app package error.");
+            throw new FileOperateException("Generation app package error.", ResponseConsts.RET_CREATE_FILE_FAIL);
+        }
+        return appPackage;
+    }
+
+    @Override
+    public AppPackage generateAppPackage(ContainerApplication application) {
+        return null;
     }
 }

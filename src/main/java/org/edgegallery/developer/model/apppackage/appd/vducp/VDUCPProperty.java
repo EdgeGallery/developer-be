@@ -12,18 +12,22 @@
  * the License.
  */
 
-package org.edgegallery.developer.util;
+package org.edgegallery.developer.model.apppackage.appd.vducp;
 
+import lombok.Getter;
+import lombok.Setter;
 
-import org.edgegallery.developer.model.apppackage.appd.AppDefinition;
+@Setter
+@Getter
+public class VDUCPProperty {
 
+    private String description ="vducp description";
 
-public class APPDParserUtil {
-    private static final String APPD_TEMPLATE_PATH = "src/main/resources/template/appd/vm_appd_template.yaml";
+    private String vnic_name = "eth0";
 
-    public static AppDefinition parseAppd(String yamlContent){
-        return null;
-    }
+    private int order = 0;
 
+    private String vnic_type = "normal";
 
+    private boolean port_security_enabled = true;
 }

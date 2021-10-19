@@ -46,7 +46,8 @@ import org.edgegallery.developer.service.application.action.impl.vm.VMExportImag
 import org.edgegallery.developer.service.application.action.impl.vm.VMLaunchOperation;
 import org.edgegallery.developer.service.application.impl.AppOperationServiceImpl;
 import org.edgegallery.developer.service.application.vm.VMAppOperationService;
-import org.edgegallery.developer.service.apppackage.scar.VMPackageFileCreator;
+import org.edgegallery.developer.service.apppackage.AppPackageService;
+import org.edgegallery.developer.service.apppackage.csar.VMPackageFileCreator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -76,6 +77,9 @@ public class VMAppOperationServiceImpl extends AppOperationServiceImpl implement
 
     @Autowired
     VMAppVmServiceImpl vmAppVmServiceImpl;
+
+    @Autowired
+    AppPackageService appPackageService;
 
     @Autowired
     VMMapper vmMapper;
@@ -175,19 +179,7 @@ public class VMAppOperationServiceImpl extends AppOperationServiceImpl implement
 
     @Override
     public AppPackage generatePackage(VMApplication application) {
-        AppPackage appPackage = new AppPackage();
-        appPackage.setAppId(UUID.randomUUID().toString());
-        try {
-            // generation appd
-            VMPackageFileCreator vmPackageFileCreator = new VMPackageFileCreator(application, appPackage.getId());
-            vmPackageFileCreator.generatePackageFile();
-            // generation scar
-        } catch (Exception e) {
-            LOGGER.error("generation appd error.");
-            throw new FileOperateException("generation appd error.", ResponseConsts.RET_CREATE_FILE_FAIL);
-        }
-
-        return null;
+        return appPackageService.generateAppPackage(application);
     }
 
     public VMInstantiateInfo getInstantiateInfo(String vmId) {

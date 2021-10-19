@@ -12,18 +12,14 @@
  * the License.
  */
 
-package org.edgegallery.developer.util;
+package org.edgegallery.developer.model.apppackage.appd.vl;
 
+import lombok.Getter;
+import lombok.Setter;
 
-import org.edgegallery.developer.model.apppackage.appd.AppDefinition;
+@Setter
+@Getter
+public class VLProperty {
 
-
-public class APPDParserUtil {
-    private static final String APPD_TEMPLATE_PATH = "src/main/resources/template/appd/vm_appd_template.yaml";
-
-    public static AppDefinition parseAppd(String yamlContent){
-        return null;
-    }
-
-
+    private VLProfile vl_profile;
 }

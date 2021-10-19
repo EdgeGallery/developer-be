@@ -12,18 +12,14 @@
  * the License.
  */
 
-package org.edgegallery.developer.util;
+package org.edgegallery.developer.model.apppackage.constant;
 
+public class InputConstant {
+    public static final String TYPE_STRING = "String";
 
-import org.edgegallery.developer.model.apppackage.appd.AppDefinition;
+    public static final String TYPE_PASSWORD = "password";
 
+    public static final String TYPE_TEXT = "text";
 
-public class APPDParserUtil {
-    private static final String APPD_TEMPLATE_PATH = "src/main/resources/template/appd/vm_appd_template.yaml";
-
-    public static AppDefinition parseAppd(String yamlContent){
-        return null;
-    }
-
-
+    public static final String INPUT_NAME_AZ = "az_dc";
 }
