@@ -84,7 +84,6 @@ public class ApplicationServiceImpl implements ApplicationService {
         try {
             DeveloperFileUtils.deleteAndCreateDir(applicationPath);
         } catch (IOException e1) {
-            FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "Create application work path failed.");
             throw new FileOperateException("Create application work path failed.", ResponseConsts.RET_CREATE_FILE_FAIL);
         }
         application.setId(applicationId);

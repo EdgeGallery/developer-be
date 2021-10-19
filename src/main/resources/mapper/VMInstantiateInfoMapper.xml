@@ -33,6 +33,10 @@
     <result property="ipAddress" column="ip_address"/>
   </resultMap>
 
+  <sql id="PortInstantiateInfoColumn">
+    network_name, ip_address
+  </sql>
+
   <sql id="VMInstantiateInfoColumn">
     vm_id, distributed_mec_host, app_package_id, app_instance_id, vm_instance_id, status, log, vnc_url, instantiate_time
   </sql>
@@ -65,7 +69,6 @@
     SELECT
     <include refid="VMInstantiateInfoColumn"/>
     from tbl_vm_instantiate_info where vm_id=#{vmId}
-
   </select>
 
   <insert id="createPortInstantiateInfo">
@@ -77,5 +80,11 @@
   <delete id="deletePortInstantiateInfoByVMId" parameterType="String">
     DELETE FROM tbl_vm_port_instantiate_info WHERE vm_id = #{vmId};
   </delete>
+
+  <select id="getPortInstantiateInfoByVMId" parameterType="String" resultMap="PortInstantiateInfoMap">
+    SELECT
+    <include refid="PortInstantiateInfoColumn"/>
+    from tbl_vm_port_instantiate_info where vm_id=#{vmId}
+  </select>
 
 </mapper>

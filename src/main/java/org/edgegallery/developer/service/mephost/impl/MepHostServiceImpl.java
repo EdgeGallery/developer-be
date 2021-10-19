@@ -34,6 +34,7 @@ import org.edgegallery.developer.exception.UnauthorizedException;
 import org.edgegallery.developer.mapper.UploadedFileMapper;
 import org.edgegallery.developer.mapper.mephost.MepHostLogMapper;
 import org.edgegallery.developer.mapper.mephost.MepHostMapper;
+import org.edgegallery.developer.model.mephost.EnumVimType;
 import org.edgegallery.developer.model.mephost.MepHost;
 import org.edgegallery.developer.model.mephost.MepHostLog;
 import org.edgegallery.developer.model.workspace.UploadedFile;
@@ -95,46 +96,12 @@ public class MepHostServiceImpl implements MepHostService {
         MepHost mepHost = mepHostMapper.getHostsByMecHostIp(host.getMecHostIp());
         if (mepHost != null) {
             LOGGER.error("mecHost have exit:{}", host.getMecHostIp());
-            throw new EntityNotFoundException("mecHost have exit!", ResponseConsts.RET_QUERY_DATA_EMPTY);
+            throw new IllegalRequestException("mecHost have exit!", ResponseConsts.RET_QUERY_DATA_EMPTY);
         }
-        if (!isAdminUser()) {
-            LOGGER.error("Create host failed, userId is empty or not admin");
-            throw new UnauthorizedException("userId is empty or not admin!", ResponseConsts.RET_REQUEST_UNAUTHORIZED);
-        }
-        if ("OpenStack".equals(host.getVimType())) {
-            Map<String, String> getParams = InputParameterUtil.getParams(host.getNetworkParameter());
-            if (!getParams.containsKey("app_mp1_ip") || !getParams.containsKey("app_n6_ip") || !getParams
-                .containsKey("app_internet_ip")) {
-                LOGGER.error("Network params config error");
-                throw new IllegalRequestException("Network params config error!",
-                    ResponseConsts.RET_REQUEST_PARAM_ERROR);
-            }
-        }
-        // health check
-        String healRes = HttpClientUtil.getHealth(host.getLcmProtocol(), host.getLcmIp(), host.getLcmPort());
-        if (healRes == null) {
-            String msg = "health check faild,current ip or port cann't be used!";
-            LOGGER.error(msg);
-            throw new IllegalRequestException(msg, ResponseConsts.RET_REQUEST_PARAM_ERROR);
-        }
-        // add mechost to lcm
-        boolean addMecHostRes = MepHostUtil.addMecHostToLcm(host);
-        if (!addMecHostRes) {
-            LOGGER.error("add mec host to lcm fail");
-            throw new DeveloperException("add mec host to lcm fail!", ResponseConsts.RET_CALL_LCM_FAIL);
-        }
-        // upload config file
-        if (StringUtils.isNotBlank(host.getConfigId())) {
-            // upload file
-            UploadedFile uploadedFile = uploadedFileMapper.getFileById(host.getConfigId());
-            boolean uploadRes = MepHostUtil
-                .uploadFileToLcm(host.getLcmProtocol(), host.getLcmIp(), host.getLcmPort(), uploadedFile.getFilePath(),
-                    host.getMecHostIp(), token);
-            if (!uploadRes) {
-                LOGGER.error("create host failed,upload config file error");
-                throw new DeveloperException("upload config file to lcm error!", ResponseConsts.RET_CALL_LCM_FAIL);
-            }
-        }
+        // check host parameter
+        checkMepHost(host);
+        // config mepHost to lcm
+        configMepHostToLCM(host, token);
         host.setId(UUID.randomUUID().toString()); // no need to set hostId by user
         host.setUserId(AccessUserUtil.getUser().getUserId());
         // AES encryption
@@ -176,30 +143,6 @@ public class MepHostServiceImpl implements MepHostService {
     @Override
     @Transactional
     public boolean updateHost(String hostId, MepHost host, String token) {
-        // health check
-        String healRes = HttpClientUtil.getHealth(host.getLcmProtocol(), host.getLcmIp(), host.getLcmPort());
-        if (healRes == null) {
-            String msg = "health check faild,current ip or port cann't be used!";
-            LOGGER.error(msg);
-            throw new IllegalRequestException(msg, ResponseConsts.RET_REQUEST_PARAM_ERROR);
-        }
-        // add mechost to lcm
-        boolean addMecHostRes = MepHostUtil.addMecHostToLcm(host);
-        if (!addMecHostRes) {
-            LOGGER.error("add mec host to lcm fail");
-            throw new DeveloperException("add mec host to lcm fail!", ResponseConsts.RET_CALL_LCM_FAIL);
-        }
-        if (StringUtils.isNotBlank(host.getConfigId())) {
-            // upload file
-            UploadedFile uploadedFile = uploadedFileMapper.getFileById(host.getConfigId());
-            boolean uploadRes = MepHostUtil
-                .uploadFileToLcm(host.getLcmProtocol(), host.getLcmIp(), host.getLcmPort(), uploadedFile.getFilePath(),
-                    host.getMecHostIp(), token);
-            if (!uploadRes) {
-                LOGGER.error("Create host failed,upload config file error");
-                throw new DeveloperException("upload config file error!", ResponseConsts.RET_CALL_LCM_FAIL);
-            }
-        }
         MepHost currentHost = mepHostMapper.getHost(hostId);
         if (currentHost == null) {
             LOGGER.error("Can not find host by {}", hostId);
@@ -208,6 +151,10 @@ public class MepHostServiceImpl implements MepHostService {
 
         host.setId(hostId); // no need to set hostId by user
         host.setUserId(currentHost.getUserId());
+        // check host parameter
+        checkMepHost(host);
+        // config mepHost to lcm
+        configMepHostToLCM(host, token);
         int ret = mepHostMapper.updateHostSelected(host);
         if (ret > 0) {
             LOGGER.info("Update host {} success", hostId);
@@ -284,5 +231,48 @@ public class MepHostServiceImpl implements MepHostService {
         String currUserAuth = AccessUserUtil.getUser().getUserAuth();
         LOGGER.info("user auth:{}", currUserAuth);
         return !StringUtils.isEmpty(currUserAuth) && currUserAuth.contains(Consts.ROLE_DEVELOPER_ADMIN);
+    }
+
+    private void configMepHostToLCM(MepHost host, String token) {
+        String healRes = HttpClientUtil.getHealth(host.getLcmProtocol(), host.getLcmIp(), host.getLcmPort());
+        if (healRes == null) {
+            String msg = "health check faild,current ip or port cann't be used!";
+            LOGGER.error(msg);
+            throw new IllegalRequestException(msg, ResponseConsts.RET_REQUEST_PARAM_ERROR);
+        }
+        // add mechost to lcm
+        boolean addMecHostRes = MepHostUtil.addMecHostToLcm(host);
+        if (!addMecHostRes) {
+            LOGGER.error("add mec host to lcm fail");
+            throw new DeveloperException("add mec host to lcm fail!", ResponseConsts.RET_CALL_LCM_FAIL);
+        }
+        // upload config file
+        if (StringUtils.isNotBlank(host.getConfigId())) {
+            // upload file
+            UploadedFile uploadedFile = uploadedFileMapper.getFileById(host.getConfigId());
+            boolean uploadRes = MepHostUtil
+                .uploadFileToLcm(host.getLcmProtocol(), host.getLcmIp(), host.getLcmPort(), uploadedFile.getFilePath(),
+                    host.getMecHostIp(), token);
+            if (!uploadRes) {
+                LOGGER.error("create host failed,upload config file error");
+                throw new DeveloperException("upload config file to lcm error!", ResponseConsts.RET_CALL_LCM_FAIL);
+            }
+        }
+    }
+
+    private void checkMepHost(MepHost host) {
+        if (!isAdminUser()) {
+            LOGGER.error("Create host failed, userId is empty or not admin");
+            throw new UnauthorizedException("userId is empty or not admin!", ResponseConsts.RET_REQUEST_UNAUTHORIZED);
+        }
+        if (!EnumVimType.K8S.equals(host.getVimType())) {
+            Map<String, String> getParams = InputParameterUtil.getParams(host.getNetworkParameter());
+            if (!getParams.containsKey("app_mp1_ip") || !getParams.containsKey("app_n6_ip") || !getParams
+                .containsKey("app_internet_ip")) {
+                LOGGER.error("Network params config error");
+                throw new IllegalRequestException("Network params config error!",
+                    ResponseConsts.RET_REQUEST_PARAM_ERROR);
+            }
+        }
     }
 }

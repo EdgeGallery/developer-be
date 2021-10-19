@@ -23,11 +23,13 @@ import io.swagger.annotations.ApiResponses;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
+import org.edgegallery.developer.mapper.application.ApplicationMapper;
 import org.edgegallery.developer.model.apppackage.AppPackage;
 import org.edgegallery.developer.model.restful.SelectMepHostReq;
 import org.edgegallery.developer.response.ErrorRespDto;
 import org.edgegallery.developer.service.application.AppOperationService;
 import org.edgegallery.developer.service.application.factory.AppOperationServiceFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -46,7 +48,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 public class AppOperationCtl {
     private static final String REGEX_UUID = "[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}";
 
-    private AppOperationServiceFactory appServiceFactory = new AppOperationServiceFactory();
+    @Autowired
+    private AppOperationServiceFactory appServiceFactory;
     /**
      * select  a hostMep.
      */
@@ -55,7 +58,7 @@ public class AppOperationCtl {
         @ApiResponse(code = 200, message = "OK", response = Boolean.class),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
-    @RequestMapping(value = "/{applicationId}/selmephost", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_UTF8_VALUE,
+    @RequestMapping(value = "/{applicationId}/selmephost", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_UTF8_VALUE,
         produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<Boolean> selectMepHost(

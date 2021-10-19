@@ -98,9 +98,8 @@ public class VmImageStatus implements VmImageStage {
                 status = EnumTestConfigStatus.Success;
                 config.setLog("get vm status success");
                 config.setImageName(vmImageInfo.getImageName());
-                config.setSumChunkNum(vmImageInfo.getSumChunkNum());
-                config.setChunkSize(vmImageInfo.getChunkSize());
-                config.setChecksum(vmImageInfo.getChecksum());
+                config.setImageId(vmImageInfo.getImageId());
+                config.setChecksum(vmImageInfo.getUrl());
                 // get config
                 LOGGER.info("update config result:{}", config.getStatus());
             } else {

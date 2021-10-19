@@ -23,6 +23,9 @@ import org.edgegallery.developer.exception.DataBaseException;
 import org.edgegallery.developer.exception.DeveloperException;
 import org.edgegallery.developer.exception.EntityNotFoundException;
 import org.edgegallery.developer.mapper.application.AppConfigurationMapper;
+import org.edgegallery.developer.mapper.application.ApplicationMapper;
+import org.edgegallery.developer.model.application.Application;
+import org.edgegallery.developer.model.application.EnumApplicationType;
 import org.edgegallery.developer.model.application.configuration.AppCertificate;
 import org.edgegallery.developer.model.application.configuration.AppConfiguration;
 import org.edgegallery.developer.model.application.configuration.AppServiceProduced;
@@ -41,6 +44,9 @@ public class AppConfigurationServiceImpl implements AppConfigurationService {
 
     @Autowired
     private AppConfigurationMapper appConfigurationMapper;
+
+    @Autowired
+    private ApplicationMapper applicationMapper;
 
     @Override
     public AppConfiguration getAppConfiguration(String applicationId) {
@@ -84,6 +90,11 @@ public class AppConfigurationServiceImpl implements AppConfigurationService {
 
     @Override
     public TrafficRule createTrafficRules(String applicationId, TrafficRule trafficRule) {
+        Application application = applicationMapper.getApplicationById(applicationId);
+        if(application==null) {
+            LOGGER.error("get application fail by applicationId:{}", applicationId);
+            throw new EntityNotFoundException("application is not exit, create failed", ResponseConsts.RET_CERATE_DATA_FAIL);
+        }
         TrafficRule result = appConfigurationMapper.getTrafficRule(applicationId, trafficRule.getTrafficRuleId());
         if (result != null) {
             LOGGER.error("create trafficRule failed: ruleId have exit");
@@ -116,6 +127,11 @@ public class AppConfigurationServiceImpl implements AppConfigurationService {
 
     @Override
     public DnsRule createDnsRule(String applicationId, DnsRule dnsRule) {
+        Application application = applicationMapper.getApplicationById(applicationId);
+        if(application==null) {
+            LOGGER.error("get application fail by applicationId:{}", applicationId);
+            throw new EntityNotFoundException("application is not exit, create failed", ResponseConsts.RET_CERATE_DATA_FAIL);
+        }
         DnsRule result = appConfigurationMapper.getDnsRule(applicationId, dnsRule.getDnsRuleId());
         if (result != null) {
             LOGGER.error("create DnsRule failed: ruleId have exit");
@@ -157,6 +173,7 @@ public class AppConfigurationServiceImpl implements AppConfigurationService {
 
     @Override
     public AppServiceProduced createServiceProduced(String applicationId, AppServiceProduced serviceProduced) {
+        checkApplicationById(applicationId);
         AppServiceProduced appServiceProduced = appConfigurationMapper.getServiceProduced(applicationId,
             serviceProduced.getSerName());
         if (appServiceProduced != null) {
@@ -194,6 +211,7 @@ public class AppConfigurationServiceImpl implements AppConfigurationService {
 
     @Override
     public AppServiceRequired createServiceRequired(String applicationId, AppServiceRequired serviceRequired) {
+        checkApplicationById(applicationId);
         AppServiceRequired appServiceRequired = appConfigurationMapper.getServiceRequired(applicationId,
             serviceRequired.getSerName());
         if (appServiceRequired != null) {
@@ -231,6 +249,7 @@ public class AppConfigurationServiceImpl implements AppConfigurationService {
 
     @Override
     public AppCertificate createAppCertificate(String applicationId, AppCertificate appCertificate) {
+        checkApplicationById(applicationId);
         int res = appConfigurationMapper.createAppCertificate(applicationId, appCertificate);
         if (res < 1) {
             LOGGER.error("create appCertificate failed");
@@ -253,6 +272,18 @@ public class AppConfigurationServiceImpl implements AppConfigurationService {
     public Boolean deleteAppCertificate(String applicationId) {
         appConfigurationMapper.deleteAppCertificate(applicationId);
         return true;
+    }
+
+    private void checkApplicationById(String applicationId) {
+        Application application = applicationMapper.getApplicationById(applicationId);
+        if(application==null) {
+            LOGGER.error("get application fail by applicationId:{}", applicationId);
+            throw new EntityNotFoundException("application is not exit, create failed", ResponseConsts.RET_CERATE_DATA_FAIL);
+        }
+        if(application.getAppCreateType()== EnumApplicationType.INTEGRATED) {
+            LOGGER.error("application integrated not need app certificate");
+            throw new DeveloperException("application integrated not need app certificate", ResponseConsts.RET_CERATE_DATA_FAIL);
+        }
     }
 
 }

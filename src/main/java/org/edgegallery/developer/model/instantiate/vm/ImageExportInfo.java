@@ -29,13 +29,13 @@ public class ImageExportInfo {
 
     private String imageName;
 
-    private int sumChunkNum;
-
-    private int chunkSize;
+    private String format;
 
     private String CheckSum;
 
     private EnumImageExportStatus status;
+
+    private String downloadUrl;
 
     private Date createTime;
 

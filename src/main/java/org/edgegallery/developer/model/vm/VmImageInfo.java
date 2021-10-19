@@ -31,11 +31,7 @@ public class VmImageInfo {
 
     private String status;
 
-    private Integer sumChunkNum;
-
-    private Integer chunkSize;
-
-    private String checksum;
+    private String url;
 
 
 }
