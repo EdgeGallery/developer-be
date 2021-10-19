@@ -16,7 +16,6 @@
 
 package org.edgegallery.developer.controller.uploadfile;
 
-import com.spencerwi.either.Either;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -30,9 +29,7 @@ import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.edgegallery.developer.model.apppackage.AppPkgStructure;
 import org.edgegallery.developer.model.workspace.UploadedFile;
 import org.edgegallery.developer.response.ErrorRespDto;
-import org.edgegallery.developer.response.FormatRespDto;
 import org.edgegallery.developer.service.uploadfile.UploadService;
-import org.edgegallery.developer.util.ResponseDataUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -91,8 +88,7 @@ public class UploadFileController {
         @ApiParam(value = "fileId", required = true) @PathVariable("fileId") String fileId,
         @Pattern(regexp = REGEX_UUID, message = "userId must be in UUID format") @ApiParam(value = "userId")
         @RequestParam("userId") String userId) {
-        UploadedFile either = uploadFileService.getApiFile(fileId, userId);
-        return ResponseEntity.ok(either);
+        return ResponseEntity.ok(uploadFileService.getApiFile(fileId, userId));
     }
 
     /**
@@ -110,8 +106,7 @@ public class UploadFileController {
         @ApiParam(value = "file", required = true) @RequestPart("file") MultipartFile uploadFile,
         @Pattern(regexp = REGEX_UUID, message = "userId must be in UUID format")
         @ApiParam(value = "userId", required = true) @RequestParam("userId") String userId) {
-        UploadedFile either = uploadFileService.uploadMdFile(userId, uploadFile);
-        return ResponseEntity.ok(either);
+        return ResponseEntity.ok(uploadFileService.uploadMdFile(userId, uploadFile));
 
     }
 
@@ -130,8 +125,7 @@ public class UploadFileController {
         @ApiParam(value = "file", required = true) @RequestPart("file") MultipartFile uploadFile,
         @Pattern(regexp = REGEX_UUID, message = "userId must be in UUID format")
         @ApiParam(value = "userId", required = true) @RequestParam("userId") String userId) {
-        UploadedFile either = uploadFileService.uploadPicFile(userId, uploadFile);
-        return ResponseEntity.ok(either);
+        return ResponseEntity.ok(uploadFileService.uploadPicFile(userId, uploadFile));
     }
 
     /**
@@ -149,27 +143,7 @@ public class UploadFileController {
         @ApiParam(value = "file", required = true) @RequestPart("file") MultipartFile uploadFile,
         @Pattern(regexp = REGEX_UUID, message = "userId must be in UUID format")
         @ApiParam(value = "userId", required = true) @RequestParam("userId") String userId) {
-        UploadedFile either = uploadFileService.uploadApiFile(userId, uploadFile);
-        return ResponseEntity.ok(either);
-    }
-
-    /**
-     * upload host config file.
-     */
-    @ApiOperation(value = "upload pic file", response = UploadedFile.class)
-    @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "OK", response = UploadedFile.class),
-        @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
-    })
-    @RequestMapping(value = "/configuration", method = RequestMethod.POST,
-        consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
-    public ResponseEntity<UploadedFile> uploadConfigFile(
-        @ApiParam(value = "file", required = true) @RequestPart("file") MultipartFile uploadFile,
-        @Pattern(regexp = REGEX_UUID, message = "userId must be in UUID format")
-        @ApiParam(value = "userId", required = true) @RequestParam("userId") String userId) {
-        UploadedFile either = uploadFileService.uploadConfigFile(userId, uploadFile);
-        return ResponseEntity.ok(either);
+        return ResponseEntity.ok(uploadFileService.uploadApiFile(userId, uploadFile));
     }
 
     /**
@@ -204,7 +178,8 @@ public class UploadFileController {
         return ResponseEntity.ok(uploadFileService.getSampleCodeStru(apiFileIds));
     }
 
-    /**+
+    /**
+     * +
      * get sample code content.
      */
     @ApiOperation(value = "get sample code content", response = String.class)
