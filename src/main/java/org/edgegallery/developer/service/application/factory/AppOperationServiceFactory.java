@@ -19,18 +19,21 @@ import org.edgegallery.developer.mapper.application.ApplicationMapper;
 import org.edgegallery.developer.model.application.Application;
 import org.edgegallery.developer.model.application.EnumAppClass;
 import org.edgegallery.developer.service.application.AppOperationService;
+import org.edgegallery.developer.service.application.impl.container.ContainerAppOperationServiceImpl;
+import org.edgegallery.developer.service.application.impl.vm.VMAppOperationServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
-
+import org.springframework.stereotype.Service;
+@Service("AppOperationServiceFactory")
 public class AppOperationServiceFactory {
 
     @Autowired
     private ApplicationMapper appMapper;
 
     @Autowired
-    private AppOperationService VmAppOperationService;
+    private VMAppOperationServiceImpl VmAppOperationService;
 
     @Autowired
-    private AppOperationService containerAppOperationService;
+    private ContainerAppOperationServiceImpl containerAppOperationService;
 
     public AppOperationService getAppOperationService(String applicationId){
         Application app = appMapper.getApplicationById(applicationId);
