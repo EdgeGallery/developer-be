@@ -19,20 +19,14 @@ package org.edgegallery.developer.apitest;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 
 
-import com.github.pagehelper.PageInfo;
 import com.google.gson.Gson;
-import com.spencerwi.either.Either;
 import java.util.ArrayList;
 import java.util.List;
-import javax.ws.rs.core.Response;
 import org.edgegallery.developer.DeveloperApplicationTests;
 import org.edgegallery.developer.domain.shared.Page;
-import org.edgegallery.developer.model.apppackage.AppPkgStructure;
-import org.edgegallery.developer.model.containerimage.ContainerImage;
-import org.edgegallery.developer.model.containerimage.ContainerImageReq;
-import org.edgegallery.developer.response.FormatRespDto;
-import org.edgegallery.developer.service.AppReleaseService;
-import org.edgegallery.developer.service.image.ContainerImageService;
+import org.edgegallery.developer.model.resource.container.ContainerImage;
+import org.edgegallery.developer.model.resource.container.ContainerImageReq;
+import org.edgegallery.developer.service.recource.container.ContainerImageService;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

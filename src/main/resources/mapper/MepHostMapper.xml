@@ -16,9 +16,9 @@
   -->
 
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="org.edgegallery.developer.mapper.mephost.MepHostMapper">
+<mapper namespace="org.edgegallery.developer.mapper.resource.mephost.MepHostMapper">
     <resultMap id="HostMap"
-               type="org.edgegallery.developer.model.mephost.MepHost">
+               type="org.edgegallery.developer.model.resource.mephost.MepHost">
         <id property="id" column="host_id"/>
         <result property="name" column="name"/>
         <result property="lcmIp" column="lcm_ip"/>
@@ -45,7 +45,7 @@
     </sql>
 
     <insert id="createHost"
-            parameterType="org.edgegallery.developer.model.mephost.MepHost">
+            parameterType="org.edgegallery.developer.model.resource.mephost.MepHost">
         insert into
         tbl_mep_host (host_id, name, lcm_ip,lcm_protocol,lcm_port,architecture,status,mec_host_ip,
         vim_type,mec_host_user_name,mec_host_password,mec_host_port,user_id,config_file_id,net_work_parameter,
@@ -70,7 +70,7 @@
         WHERE mec_host_ip = #{mecHost}
     </select>
 
-    <update id="updateHostSelected" parameterType="org.edgegallery.developer.model.mephost.MepHost">
+    <update id="updateHostSelected" parameterType="org.edgegallery.developer.model.resource.mephost.MepHost">
         UPDATE tbl_mep_host
         <set>
             <if test="name != null and name!=''">

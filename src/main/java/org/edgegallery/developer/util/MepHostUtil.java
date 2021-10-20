@@ -22,7 +22,7 @@ import org.apache.servicecomb.provider.springmvc.reference.RestTemplateBuilder;
 import org.edgegallery.developer.common.Consts;
 import org.edgegallery.developer.exception.CustomException;
 import org.edgegallery.developer.model.lcm.MecHostBody;
-import org.edgegallery.developer.model.mephost.MepHost;
+import org.edgegallery.developer.model.resource.mephost.MepHost;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.FileSystemResource;

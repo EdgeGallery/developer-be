@@ -34,7 +34,7 @@ import org.edgegallery.developer.model.instantiate.container.ContainerAppInstant
 import org.edgegallery.developer.model.instantiate.container.K8sPod;
 import org.edgegallery.developer.model.instantiate.container.K8sService;
 import org.edgegallery.developer.model.instantiate.container.K8sServicePort;
-import org.edgegallery.developer.model.mephost.MepHost;
+import org.edgegallery.developer.model.resource.mephost.MepHost;
 import org.edgegallery.developer.service.application.action.impl.InstantiateAppAction;
 import org.edgegallery.developer.service.application.common.EnumInstantiateStatus;
 import org.edgegallery.developer.service.application.common.IContextParameter;

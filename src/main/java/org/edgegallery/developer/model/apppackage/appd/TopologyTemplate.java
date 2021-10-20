@@ -14,7 +14,6 @@
 
 package org.edgegallery.developer.model.apppackage.appd;
 
-import com.google.gson.Gson;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -41,8 +40,7 @@ import org.edgegallery.developer.model.apppackage.constant.AppdConstants;
 import org.edgegallery.developer.model.apppackage.constant.InputConstant;
 import org.edgegallery.developer.model.apppackage.constant.NodeTypeConstant;
 import org.edgegallery.developer.model.resource.vm.Flavor;
-import org.edgegallery.developer.model.resource.vm.Image;
-import org.edgegallery.developer.model.vmimage.VMImage;
+import org.edgegallery.developer.model.resource.vm.VMImage;
 import org.yaml.snakeyaml.Yaml;
 
 @Setter
@@ -146,7 +144,7 @@ public class TopologyTemplate {
     }
 
 
-    public TopologyTemplate updateVMs(List<VirtualMachine> vmLst, Map<String, Flavor> id2FlavorMap, Map<String, Image> id2ImageMap) {
+    public TopologyTemplate updateVMs(List<VirtualMachine> vmLst, Map<String, Flavor> id2FlavorMap, Map<String, VMImage> id2ImageMap) {
         if (null == this.nodeTemplates) {
             this.nodeTemplates = new LinkedHashMap<String, NodeTemplate>();
         }

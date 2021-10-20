@@ -12,17 +12,34 @@
  * the License.
  */
 
-package org.edgegallery.developer.model.restful;
+package org.edgegallery.developer.model.resource.container;
 
-import java.util.List;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
-import org.edgegallery.developer.model.resource.vm.VMImage;
+
 @Getter
 @Setter
-public class VMImageRes {
-    private int totalCount;
+public class HarborImage {
 
-    private List<VMImage> imageList;
+    @JsonProperty(value = "artifact_count")
+    private Integer artifactCount;
+
+    @JsonProperty(value = "creation_time")
+    private String creationTime;
+
+    private Integer id;
+
+    private String name;
+
+    @JsonProperty(value = "project_id")
+    private Integer projectId;
+
+    @JsonProperty(value = "pull_count")
+    private Integer pullCount;
+
+    @JsonProperty(value = "update_time")
+    private String updateTime;
+
 
 }

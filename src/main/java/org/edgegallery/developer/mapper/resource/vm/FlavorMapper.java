@@ -12,17 +12,20 @@
  * the License.
  */
 
-package org.edgegallery.developer.model.restful;
+package org.edgegallery.developer.mapper.resource.vm;
 
 import java.util.List;
-import lombok.Getter;
-import lombok.Setter;
-import org.edgegallery.developer.model.resource.vm.VMImage;
-@Getter
-@Setter
-public class VMImageRes {
-    private int totalCount;
+import org.apache.ibatis.annotations.Param;
+import org.edgegallery.developer.model.resource.vm.Flavor;
 
-    private List<VMImage> imageList;
+public interface FlavorMapper {
+
+    List<Flavor> getAllFavors();
+
+    int createFavor(@Param("flavor") Flavor flavor);
+
+    Flavor getFavorById(String flavorId);
+
+    int deleteFavorById(String flavorId);
 
 }

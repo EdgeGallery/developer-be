@@ -12,17 +12,36 @@
  * the License.
  */
 
-package org.edgegallery.developer.model.restful;
+package org.edgegallery.developer.model.resource.mephost;
 
-import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
-import org.edgegallery.developer.model.resource.vm.VMImage;
+import org.edgegallery.developer.model.workspace.EnumHostStatus;
+
 @Getter
 @Setter
-public class VMImageRes {
-    private int totalCount;
+public class MepHostLog {
 
-    private List<VMImage> imageList;
+    private String logId;
+
+    private String hostIp;
+
+    private String userName;
+
+    private String userId;
+
+    private String projectId;
+
+    private String projectName;
+
+    private String appInstancesId;
+
+    private String deployTime;
+
+    private EnumHostStatus status;
+
+    private String operation;
+
+    private String hostId;
 
 }

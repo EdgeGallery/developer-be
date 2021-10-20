@@ -16,23 +16,19 @@
 
 package org.edgegallery.developer.service.application.action.impl;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-import org.edgegallery.developer.mapper.HostLogMapper;
 import org.edgegallery.developer.model.LcmLog;
 import org.edgegallery.developer.model.application.Application;
-import org.edgegallery.developer.model.mephost.MepHost;
+import org.edgegallery.developer.model.resource.mephost.MepHost;
 import org.edgegallery.developer.model.operation.ActionStatus;
 import org.edgegallery.developer.model.operation.EnumOperationObjectType;
 import org.edgegallery.developer.service.application.ApplicationService;
 import org.edgegallery.developer.service.application.action.IContext;
 import org.edgegallery.developer.service.application.common.EnumInstantiateStatus;
 import org.edgegallery.developer.service.application.common.IContextParameter;
-import org.edgegallery.developer.service.mephost.MepHostService;
+import org.edgegallery.developer.service.recource.mephost.MepHostService;
 import org.edgegallery.developer.util.HttpClientUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright 2021 Huawei Technologies Co., Ltd.
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+  ~ in compliance with the License. You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software distributed under the License
+  ~ is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+  ~ or implied. See the License for the specific language governing permissions and limitations under
+  ~ the License.
+  -->
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.edgegallery.developer.mapper.resource.vm.FlavorMapper">
+  <resultMap id="FlavorMap" type="org.edgegallery.developer.model.resource.vm.Flavor">
+    <id property="id" column="id"/>
+    <result property="name" column="name"/>
+    <result property="description" column="description"/>
+    <result property="architecture" column="architecture"/>
+    <result property="cpu" column="cpu"/>
+    <result property="memory" column="memory"/>
+    <result property="systemDiskSize" column="system_disk_size"/>
+    <result property="dataDiskSize" column="data_disk_size"/>
+    <result property="gpuExtraInfo" column="gpu_extra_info"/>
+    <result property="otherExtraInfo" column="other_extra_info"/>
+  </resultMap>
+
+  <sql id="FlavorAllColumn">
+    id, name, description, architecture, cpu, memory, system_disk_size, data_disk_size, gpu_extra_info, other_extra_info
+  </sql>
+
+  <insert id="createFavor">
+    insert into tbl_vm_flavor (id, name, description, architecture, cpu, memory, system_disk_size,
+    data_disk_size, gpu_extra_info, other_extra_info)
+    values
+    ( #{flavor.id}, #{flavor.name}, #{flavor.description}, #{flavor.architecture}, #{flavor.cpu},
+    #{flavor.memory}, #{flavor.systemDiskSize}, #{flavor.dataDiskSize}, #{flavor.gpuExtraInfo}, #{flavor.otherExtraInfo})
+  </insert>
+
+  <delete id="deleteFavorById" parameterType="String">
+    DELETE FROM tbl_vm_flavor WHERE id = #{flavorId}
+  </delete>
+
+  <select id="getFavorById" parameterType="String" resultMap="FlavorMap">
+    SELECT
+    <include refid="FlavorAllColumn"/>
+    FROM tbl_vm_flavor WHERE id = #{flavorId}
+  </select>
+
+  <select id="getAllFavors" resultMap="FlavorMap">
+    SELECT
+    <include refid="FlavorAllColumn"/>
+    FROM tbl_vm_flavor
+  </select>
+</mapper>

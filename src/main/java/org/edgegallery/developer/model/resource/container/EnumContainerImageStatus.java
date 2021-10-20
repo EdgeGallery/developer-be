@@ -12,17 +12,13 @@
  * the License.
  */
 
-package org.edgegallery.developer.model.restful;
+package org.edgegallery.developer.model.resource.container;
 
-import java.util.List;
-import lombok.Getter;
-import lombok.Setter;
-import org.edgegallery.developer.model.resource.vm.VMImage;
-@Getter
-@Setter
-public class VMImageRes {
-    private int totalCount;
-
-    private List<VMImage> imageList;
-
+public enum EnumContainerImageStatus {
+    UPLOAD_WAIT,
+    UPLOADING,
+    UPLOADING_MERGING,
+    UPLOAD_SUCCEED,
+    UPLOAD_FAILED,
+    UPLOAD_CANCELLED
 }

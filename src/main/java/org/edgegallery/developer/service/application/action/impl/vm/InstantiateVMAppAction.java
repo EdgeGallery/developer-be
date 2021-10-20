@@ -26,7 +26,7 @@ import java.util.Map;
 import org.edgegallery.developer.mapper.HostLogMapper;
 import org.edgegallery.developer.model.instantiate.vm.PortInstantiateInfo;
 import org.edgegallery.developer.model.instantiate.vm.VMInstantiateInfo;
-import org.edgegallery.developer.model.mephost.MepHost;
+import org.edgegallery.developer.model.resource.mephost.MepHost;
 import org.edgegallery.developer.model.vm.NetworkInfo;
 import org.edgegallery.developer.model.vm.VmInstantiateWorkload;
 import org.edgegallery.developer.service.application.action.impl.InstantiateAppAction;

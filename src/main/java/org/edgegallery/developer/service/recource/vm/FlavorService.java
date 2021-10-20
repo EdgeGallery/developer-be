@@ -12,17 +12,18 @@
  * the License.
  */
 
-package org.edgegallery.developer.model.restful;
+package org.edgegallery.developer.service.recource.vm;
 
 import java.util.List;
-import lombok.Getter;
-import lombok.Setter;
-import org.edgegallery.developer.model.resource.vm.VMImage;
-@Getter
-@Setter
-public class VMImageRes {
-    private int totalCount;
+import org.edgegallery.developer.model.resource.vm.Flavor;
 
-    private List<VMImage> imageList;
+public interface FlavorService {
 
+    List<Flavor> getAllFavors();
+
+    Flavor getFavorById(String flavorId);
+
+    Flavor createFavor(Flavor flavor);
+
+    Boolean deleteFavorById(String flavorId);
 }

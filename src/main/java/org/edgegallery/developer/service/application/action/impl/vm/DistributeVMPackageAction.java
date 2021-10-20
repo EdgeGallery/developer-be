@@ -17,7 +17,7 @@ package org.edgegallery.developer.service.application.action.impl.vm;
 
 import org.edgegallery.developer.model.instantiate.vm.EnumVMInstantiateStatus;
 import org.edgegallery.developer.model.instantiate.vm.VMInstantiateInfo;
-import org.edgegallery.developer.model.mephost.MepHost;
+import org.edgegallery.developer.model.resource.mephost.MepHost;
 import org.edgegallery.developer.service.application.action.impl.DistributePackageAction;
 import org.edgegallery.developer.service.application.common.IContextParameter;
 import org.edgegallery.developer.service.application.impl.vm.VMAppOperationServiceImpl;
