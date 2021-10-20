@@ -18,7 +18,7 @@ package org.edgegallery.developer.service.application.action.impl.container;
 
 import org.edgegallery.developer.model.instantiate.container.ContainerAppInstantiateInfo;
 import org.edgegallery.developer.model.instantiate.container.EnumContainerAppInstantiateStatus;
-import org.edgegallery.developer.model.mephost.MepHost;
+import org.edgegallery.developer.model.resource.mephost.MepHost;
 import org.edgegallery.developer.service.application.action.impl.DistributePackageAction;
 import org.edgegallery.developer.service.application.common.IContextParameter;
 import org.edgegallery.developer.service.application.impl.container.ContainerAppOperationServiceImpl;

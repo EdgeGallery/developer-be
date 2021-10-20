@@ -16,13 +16,12 @@
 package org.edgegallery.developer.service.application.action.impl.vm;
 
 import java.lang.reflect.Type;
-import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.edgegallery.developer.mapper.application.vm.ImageExportInfoMapper;
 import org.edgegallery.developer.model.LcmLog;
 import org.edgegallery.developer.model.application.Application;
 import org.edgegallery.developer.model.instantiate.vm.ImageExportInfo;
-import org.edgegallery.developer.model.mephost.MepHost;
+import org.edgegallery.developer.model.resource.mephost.MepHost;
 import org.edgegallery.developer.model.operation.ActionStatus;
 import org.edgegallery.developer.model.operation.EnumActionStatus;
 import org.edgegallery.developer.model.operation.EnumOperationObjectType;
@@ -31,9 +30,8 @@ import org.edgegallery.developer.service.application.ApplicationService;
 import org.edgegallery.developer.service.application.action.IContext;
 import org.edgegallery.developer.service.application.action.impl.AbstractAction;
 import org.edgegallery.developer.service.application.common.EnumExportImageStatus;
-import org.edgegallery.developer.service.application.common.EnumInstantiateStatus;
 import org.edgegallery.developer.service.application.common.IContextParameter;
-import org.edgegallery.developer.service.mephost.MepHostService;
+import org.edgegallery.developer.service.recource.mephost.MepHostService;
 import org.edgegallery.developer.util.HttpClientUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

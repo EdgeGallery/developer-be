@@ -61,7 +61,7 @@ import org.edgegallery.developer.common.Consts;
 import org.edgegallery.developer.common.ResponseConsts;
 import org.edgegallery.developer.config.security.AccessUserUtil;
 import org.edgegallery.developer.exception.HarborException;
-import org.edgegallery.developer.model.containerimage.HarborImage;
+import org.edgegallery.developer.model.resource.container.HarborImage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpEntity;

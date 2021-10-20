@@ -16,10 +16,10 @@
   -->
 
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="org.edgegallery.developer.mapper.image.ContainersImageMapper">
+<mapper namespace="org.edgegallery.developer.mapper.resource.container.ContainersImageMapper">
 
     <resultMap id="ContainerImageMap"
-               type="org.edgegallery.developer.model.containerimage.ContainerImage">
+               type="org.edgegallery.developer.model.resource.container.ContainerImage">
         <id property="imageId" column="image_id"/>
         <result property="imageName" column="image_name"/>
         <result property="imageVersion" column="image_version"/>
@@ -34,7 +34,7 @@
     </resultMap>
 
     <insert id="createContainerImage"
-            parameterType="org.edgegallery.developer.model.containerimage.ContainerImage">
+            parameterType="org.edgegallery.developer.model.resource.container.ContainerImage">
         insert into
         tbl_container_image (image_id, image_name, image_version, user_id, user_name, upload_time,
         create_time,image_status,image_type,image_path,file_name)
@@ -60,7 +60,7 @@
         tbl_container_image
     </select>
 
-    <select id="getAllImageByAdminAuth" parameterType="org.edgegallery.developer.model.containerimage.ContainerImageReq"
+    <select id="getAllImageByAdminAuth" parameterType="org.edgegallery.developer.model.resource.container.ContainerImageReq"
             resultMap="ContainerImageMap">
         SELECT
         image_id,image_name,image_version,user_id,user_name,
@@ -86,7 +86,7 @@
     </select>
 
     <select id="getAllImageByOrdinaryAuth"
-            parameterType="org.edgegallery.developer.model.containerimage.ContainerImageReq"
+            parameterType="org.edgegallery.developer.model.resource.container.ContainerImageReq"
             resultMap="ContainerImageMap">
         select * from (
         SELECT
@@ -128,7 +128,7 @@
         where image_id=#{imageId} and user_id =#{userId}
     </update>
 
-    <update id="updateContainerImage" parameterType="org.edgegallery.developer.model.containerimage.ContainerImage">
+    <update id="updateContainerImage" parameterType="org.edgegallery.developer.model.resource.container.ContainerImage">
         update tbl_container_image
         set image_name=#{imageName},image_version=#{imageVersion},user_id=#{userId},
         user_name=#{userName},upload_time=#{uploadTime},create_time=#{createTime},

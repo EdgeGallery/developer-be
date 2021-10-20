@@ -581,4 +581,53 @@
   ON CONFLICT(id) do nothing;
   INSERT INTO tbl_network (id, app_id, description, name) VALUES
   ('Network_Internet', 'init-application', 'Internet Network', 'mec_network_internet')
-  ON CONFLICT(id) do nothing
+  ON CONFLICT(id) do nothing;
+
+  INSERT INTO tbl_vm_flavor (id, name, description, architecture, cpu, memory, system_disk_size, data_disk_size, gpu_extra_info, other_extra_info) VALUES
+      ('3ef2bea0-5e23-4fab-952d-cc9e6741dbe7', 'General Computing-1', 'Ordinary APP', 'X86', 1, 1, 50, 40, '', '')
+      ON CONFLICT(id) do nothing;
+  INSERT INTO tbl_vm_flavor (id, name, description, architecture, cpu, memory, system_disk_size, data_disk_size, gpu_extra_info, other_extra_info) VALUES
+      ('96f9c44c-4d01-4da6-84dd-9f3564fe2bdb', 'General Computing-2', 'Ordinary APP', 'X86', 4, 8, 50, 100, '', '')
+      ON CONFLICT(id) do nothing;
+  INSERT INTO tbl_vm_flavor (id, name, description, architecture, cpu, memory, system_disk_size, data_disk_size, gpu_extra_info, other_extra_info) VALUES
+      ('a296115a-c209-4ddd-a543-695665a474ce', 'General Computing-4', 'Ordinary APP', 'X86', 4, 16, 50, 100, '', '')
+      ON CONFLICT(id) do nothing;
+  INSERT INTO tbl_vm_flavor (id, name, description, architecture, cpu, memory, system_disk_size, data_disk_size, gpu_extra_info, other_extra_info) VALUES
+      ('3ea301cb-ff5e-4503-818e-64272386cd3d', 'Enhancement Computing-4', 'Enhancement-2 APP', 'X86', 8, 16, 50, 100, '', '')
+      ON CONFLICT(id) do nothing;
+  INSERT INTO tbl_vm_flavor (id, name, description, architecture, cpu, memory, system_disk_size, data_disk_size, gpu_extra_info, other_extra_info) VALUES
+      ('f30c3156-19ea-437c-8745-bf5f3e6600af', 'Enhancement Computing-4', 'Enhancement-4 APP', 'X86', 32, 16, 50, 100, '', '')
+      ON CONFLICT(id) do nothing;
+  INSERT INTO tbl_vm_flavor (id, name, description, architecture, cpu, memory, system_disk_size, data_disk_size, gpu_extra_info, other_extra_info) VALUES
+      ('88c863fc-ff7d-47bb-9cd7-d8086e704cf0', 'High I/O-4', 'High I/O-4 APP', 'X86', 64, 8, 50, 100, '', '')
+      ON CONFLICT(id) do nothing;
+  INSERT INTO tbl_vm_flavor (id, name, description, architecture, cpu, memory, system_disk_size, data_disk_size, gpu_extra_info, other_extra_info) VALUES
+      ('81aebd1a-f2f2-4846-bdb7-1044be319324', 'Large Storage', 'IoT Data Collection', 'X86', 8, 4, 50, 1000, '', '')
+      ON CONFLICT(id) do nothing;
+  INSERT INTO tbl_vm_flavor (id, name, description, architecture, cpu, memory, system_disk_size, data_disk_size, gpu_extra_info, other_extra_info) VALUES
+      ('e886e9ae-2e18-4b76-ac78-acfb7d08efee', 'AI', 'Industrial,Pack Monitoring', 'X86', 8, 4, 50, 100, '', '1*Atlas300C(16G)')
+      ON CONFLICT(id) do nothing;
+  INSERT INTO tbl_vm_flavor (id, name, description, architecture, cpu, memory, system_disk_size, data_disk_size, gpu_extra_info, other_extra_info) VALUES
+      ('92baef52-93c3-43f2-8e4a-37bf3b5cfc83', 'General Computing-1', 'Ordinary APP', 'ARM', 1, 1, 50, 40, '', '')
+      ON CONFLICT(id) do nothing;
+  INSERT INTO tbl_vm_flavor (id, name, description, architecture, cpu, memory, system_disk_size, data_disk_size, gpu_extra_info, other_extra_info) VALUES
+      ('8207d73c-af0b-47c9-8f7c-39583faf59d1', 'General Computing-2', 'Ordinary APP', 'ARM', 4, 8, 50, 100, '', '')
+      ON CONFLICT(id) do nothing;
+  INSERT INTO tbl_vm_flavor (id, name, description, architecture, cpu, memory, system_disk_size, data_disk_size, gpu_extra_info, other_extra_info) VALUES
+      ('a2197d1e-b624-498c-851b-fedb8b50d2b0', 'General Computing-4', 'Ordinary APP', 'ARM', 4, 16, 50, 100, '', '')
+      ON CONFLICT(id) do nothing;
+  INSERT INTO tbl_vm_flavor (id, name, description, architecture, cpu, memory, system_disk_size, data_disk_size, gpu_extra_info, other_extra_info) VALUES
+      ('edbfc0ed-90b6-401b-a6e9-bbd64cb43766', 'Enhancement Computing-4', 'Enhancement-2 APP', 'ARM', 8, 16, 50, 100, '', '')
+      ON CONFLICT(id) do nothing;
+  INSERT INTO tbl_vm_flavor (id, name, description, architecture, cpu, memory, system_disk_size, data_disk_size, gpu_extra_info, other_extra_info) VALUES
+      ('6c45e2f2-9646-4451-aba6-77edac2a815b', 'Enhancement Computing-4', 'Enhancement-4 APP', 'ARM', 32, 16, 50, 100, '', '')
+      ON CONFLICT(id) do nothing;
+  INSERT INTO tbl_vm_flavor (id, name, description, architecture, cpu, memory, system_disk_size, data_disk_size, gpu_extra_info, other_extra_info) VALUES
+      ('fe3c6a45-485f-4bdb-b1f8-e8fee809b63e', 'High I/O-4', 'High I/O-4 APP', 'ARM', 64, 8, 50, 100, '', '')
+      ON CONFLICT(id) do nothing;
+  INSERT INTO tbl_vm_flavor (id, name, description, architecture, cpu, memory, system_disk_size, data_disk_size, gpu_extra_info, other_extra_info) VALUES
+      ('0fa4412e-a735-4ec5-b70c-d24c1eb43d41', 'Large Storage', 'IoT Data Collection', 'ARM', 8, 4, 50, 1000, '', '')
+      ON CONFLICT(id) do nothing;
+  INSERT INTO tbl_vm_flavor (id, name, description, architecture, cpu, memory, system_disk_size, data_disk_size, gpu_extra_info, other_extra_info) VALUES
+      ('9f0eec36-0cee-4697-851d-a5eb6b7fa5aa', 'AI', 'Industrial,Pack Monitoring', 'ARM', 8, 4, 50, 100, '', '1*Atlas300C(16G)')
+      ON CONFLICT(id) do nothing;

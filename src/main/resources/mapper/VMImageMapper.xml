@@ -16,8 +16,8 @@
   -->
 
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="org.edgegallery.developer.mapper.image.VMImageMapper">
-  <resultMap id="VmImageMap" type="org.edgegallery.developer.model.vmimage.VMImage">
+<mapper namespace="org.edgegallery.developer.mapper.resource.vm.VMImageMapper">
+  <resultMap id="VmImageMap" type="org.edgegallery.developer.model.resource.vm.VMImage">
     <id property="id" column="id"/>
     <result property="name" column="name"/>
     <result property="visibleType" column="visible_type"/>
@@ -140,7 +140,7 @@
     SELECT down_load_url FROM tbl_vm_image WHERE id = #{imageId}
   </select>
 
-  <select id="getVmNameCount" resultType="java.lang.Integer" parameterType="org.edgegallery.developer.model.vmimage.VMImage">
+  <select id="getVmNameCount" resultType="java.lang.Integer" parameterType="org.edgegallery.developer.model.resource.vm.VMImage">
     SELECT COUNT(1) FROM tbl_vm_image WHERE name = #{name}
     <if test="userId != null and userId!=''">
       and user_id = #{userId}
@@ -150,13 +150,13 @@
     </if>
   </select>
 
-  <insert id="createVmImage" parameterType="org.edgegallery.developer.model.vmimage.VMImage">
+  <insert id="createVmImage" parameterType="org.edgegallery.developer.model.resource.vm.VMImage">
     insert into tbl_vm_image (name, visible_type, os_type, os_version, os_bit_type, system_disk_size,
     user_id, user_name, create_time, modify_time, status)
     values (#{name}, #{visibleType}, #{osType}, #{osVersion}, #{osBitType}, #{systemDiskSize}, #{userId}, #{userName}, now(), now(), #{status})
   </insert>
 
-  <update id="updateVmImage" parameterType="org.edgegallery.developer.model.vmimage.VMImage">
+  <update id="updateVmImage" parameterType="org.edgegallery.developer.model.resource.vm.VMImage">
     UPDATE tbl_vm_image
     SET name=#{name}, visible_type=#{visibleType},
     os_type=#{osType}, os_version=#{osVersion},
@@ -167,7 +167,7 @@
     </if>
   </update>
 
-  <delete id="deleteVmImage" parameterType="org.edgegallery.developer.model.vmimage.VMImage">
+  <delete id="deleteVmImage" parameterType="org.edgegallery.developer.model.resource.vm.VMImage">
     DELETE FROM tbl_vm_image WHERE id = #{id}
     <if test="userId != null">
       and user_id = #{userId}
@@ -190,7 +190,7 @@
     UPDATE tbl_vm_image SET error_type = #{errorType} WHERE id = #{imageId}
   </update>
 
-  <update id="updateVmImageUploadInfo" parameterType="org.edgegallery.developer.model.vmimage.UploadFileInfo">
+  <update id="updateVmImageUploadInfo" parameterType="org.edgegallery.developer.model.resource.vm.UploadFileInfo">
     UPDATE tbl_vm_image
     SET status = #{status}, down_load_url = #{downLoadUrl}, image_file_name=#{imageFileName},
     file_md5=#{fileMd5}, image_format=#{imageFormat}, upload_time=now(),

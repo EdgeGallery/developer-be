@@ -25,7 +25,7 @@ import org.edgegallery.developer.model.apppackage.AppPackage;
 import org.edgegallery.developer.model.lcm.DistributeResponse;
 import org.edgegallery.developer.model.lcm.MecHostInfo;
 import org.edgegallery.developer.model.lcm.UploadResponse;
-import org.edgegallery.developer.model.mephost.MepHost;
+import org.edgegallery.developer.model.resource.mephost.MepHost;
 import org.edgegallery.developer.model.operation.ActionStatus;
 import org.edgegallery.developer.model.operation.EnumOperationObjectType;
 import org.edgegallery.developer.service.application.ApplicationService;
@@ -33,7 +33,7 @@ import org.edgegallery.developer.service.application.common.EnumDistributeStatus
 import org.edgegallery.developer.service.application.common.IContextParameter;
 import org.edgegallery.developer.service.application.impl.AppOperationServiceImpl;
 import org.edgegallery.developer.service.apppackage.AppPackageService;
-import org.edgegallery.developer.service.mephost.MepHostService;
+import org.edgegallery.developer.service.recource.mephost.MepHostService;
 import org.edgegallery.developer.util.HttpClientUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
