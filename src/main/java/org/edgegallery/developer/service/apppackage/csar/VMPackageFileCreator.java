@@ -51,6 +51,8 @@ public class VMPackageFileCreator {
         File vmAPPDTemplate = new File(APPD_TEMPLATE_PATH);
         String yamlContent = FileUtils.readFileToString(vmAPPDTemplate, StandardCharsets.UTF_8);
         AppDefinition definition = APPDParserUtil.parseAppd(yamlContent);
+        AppDefinition appDefinition = convertApplication2AppDefinition(this.application);
+
         return new File(getPackageBasePath());
     }
 

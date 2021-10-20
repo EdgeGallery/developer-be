@@ -18,7 +18,9 @@ public class AppdConstants {
 
     public static final String VNF_NODE_NAME = "Simple_VNF";
 
-    public static final int DEFALUT_NETWORK_VLANID = 2000;
+    public static final String PORT_VNIC_NAME_PREFIX = "eth";
 
-    public static final String DEFALUT_PHYSNET = "physnet2";
+    public static final String NETWORK_NAME_Public = "MEC_APP_Public";
+
+    public static final String NETWORK_NAME_MP1 = "MEC_APP_MP1";
 }

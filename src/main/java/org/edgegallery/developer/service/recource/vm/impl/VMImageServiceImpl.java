@@ -154,6 +154,11 @@ public class VMImageServiceImpl implements VMImageService {
     }
 
     @Override
+    public VMImage getVmImageById(Integer imageId){
+        return  vmImageMapper.getVmImage(imageId);
+    }
+
+    @Override
     public Boolean createVmImage(VMImage vmImage) {
         try {
             LOGGER.info("Create vm images start");

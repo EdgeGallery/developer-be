@@ -21,5 +21,25 @@ public class InputConstant {
 
     public static final String TYPE_TEXT = "text";
 
+    public static final int DEFALUT_NETWORK_VLANID = 2000;
+
+    public static final String DEFALUT_PHYSNET = "physnet2";
+
     public static final String INPUT_NAME_AZ = "az_dc";
+
+    public static final String INPUT_NETWORK_PREFIX = "APP_Plane0";
+
+    public static final String INPUT_NETWORK_POSTFIX = "_Network";
+
+    public static final String INPUT_PHYSNET_POSTFIX = "_Physnet";
+
+    public static final String INPUT_VLANID_POSTFIX = "_VlanId";
+
+    public static final String INPUT_PORT_IP_POSTFIX = "_IP";
+
+    public static final String INPUT_PORT_MASK_POSTFIX = "_MASK";
+
+    public static final String INPUT_PORT_GW_POSTFIX = "_GW";
+
+    public static final String INPUT_PORT_MASK_DEFAULT = "255.255.255.0";
 }
