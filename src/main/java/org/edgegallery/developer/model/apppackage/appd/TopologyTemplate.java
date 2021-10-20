@@ -14,10 +14,12 @@
 
 package org.edgegallery.developer.model.apppackage.appd;
 
+import com.google.gson.Gson;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,6 +36,9 @@ import org.edgegallery.developer.model.application.vm.VMPort;
 import org.edgegallery.developer.model.application.vm.VirtualMachine;
 import org.edgegallery.developer.model.apppackage.appd.vdu.VDUCapability;
 import org.edgegallery.developer.model.apppackage.appd.vdu.VDUProperty;
+import org.edgegallery.developer.model.apppackage.appd.vducp.VDUCPProperty;
+import org.edgegallery.developer.model.apppackage.appd.vducp.VirtualBindingRequire;
+import org.edgegallery.developer.model.apppackage.appd.vducp.VirtualLinkRequire;
 import org.edgegallery.developer.model.apppackage.appd.vl.VLProfile;
 import org.edgegallery.developer.model.apppackage.appd.vl.VLProperty;
 import org.edgegallery.developer.model.apppackage.constant.AppdConstants;
@@ -68,7 +73,7 @@ public class TopologyTemplate {
         initVnfNode();
     }
 
-    public void initInputs(EnumAppClass appClass) {
+    private void initInputs(EnumAppClass appClass) {
         if (EnumAppClass.VM.equals(appClass)) {
             InputStream inputStream = null;
             try {
@@ -87,7 +92,7 @@ public class TopologyTemplate {
         }
     }
 
-    public void initVnfNode() {
+    private void initVnfNode() {
         NodeTemplate vnfNode = new NodeTemplate();
         vnfNode.setType(NodeTypeConstant.NODE_TYPE_VNF);
         vnfNode.setProperties(new VNFNodeProperty());
@@ -115,14 +120,17 @@ public class TopologyTemplate {
             //generate inputs for network;
             String networkName = networkLst.get(i).getName();
             int index = i + 1;
-            String networkNameInputName = "APP_Plane0" + i + "_Network";
-            String networkPhyNetInputName = "APP_Plane0" + i + "_Physnet";
-            String networkVlanIdInputName = "APP_Plane0" + i + "_VlanId";
+            String networkNameInputName = InputConstant.INPUT_NETWORK_PREFIX + index
+                + InputConstant.INPUT_NETWORK_POSTFIX;
+            String networkPhyNetInputName = InputConstant.INPUT_NETWORK_PREFIX + index
+                + InputConstant.INPUT_PHYSNET_POSTFIX;
+            String networkVlanIdInputName = InputConstant.INPUT_NETWORK_PREFIX + index
+                + InputConstant.INPUT_VLANID_POSTFIX;
             InputParam networkNameInput = new InputParam(InputConstant.TYPE_STRING, networkName,
                 networkLst.get(i).getDescription());
-            InputParam networkPhyNet = new InputParam(InputConstant.TYPE_STRING, AppdConstants.DEFALUT_PHYSNET,
+            InputParam networkPhyNet = new InputParam(InputConstant.TYPE_STRING, InputConstant.DEFALUT_PHYSNET,
                 "physical network of " + networkName);
-            int vlanId = AppdConstants.DEFALUT_NETWORK_VLANID + i;
+            int vlanId = InputConstant.DEFALUT_NETWORK_VLANID + index;
             InputParam networkVlanId = new InputParam(InputConstant.TYPE_STRING, String.valueOf(vlanId),
                 "vlan id of " + networkName);
             this.inputs.put(networkNameInputName, networkNameInput);
@@ -143,8 +151,8 @@ public class TopologyTemplate {
         return this;
     }
 
-
-    public TopologyTemplate updateVMs(List<VirtualMachine> vmLst, Map<String, Flavor> id2FlavorMap, Map<String, VMImage> id2ImageMap) {
+    public TopologyTemplate updateVMs(List<Network> networkLst, List<VirtualMachine> vmLst,
+        Map<String, Flavor> id2FlavorMap, Map<String, VMImage> id2ImageMap) {
         if (null == this.nodeTemplates) {
             this.nodeTemplates = new LinkedHashMap<String, NodeTemplate>();
         }
@@ -166,7 +174,6 @@ public class TopologyTemplate {
             VDUCapability capability = new VDUCapability(flavor.getMemory(), flavor.getCpu(), flavor.getArchitecture(),
                 flavor.getSystemDiskSize());
             vduNode.setCapabilities(capability);
-
             VDUProperty property = new VDUProperty();
             property.setName(vm.getName());
             property.setNfviConstraintsAsInput(azInputName);
@@ -177,32 +184,70 @@ public class TopologyTemplate {
             property.getBootdata().getUser_data().setParams(new LinkedHashMap<String, String>());
             vduNode.setProperties(property);
             this.nodeTemplates.put(vduName, vduNode);
-            updateVMPorts(vduName, vm.getPortList());
+            updateVMPorts(vduName, vm.getPortList(), networkLst);
         }
         return this;
     }
 
     private LinkedHashMap<String, String> analyzeVMFlavorExtraSpecs(String flavorExtraSpecsStr) {
-        //TODO change the flavorExtraSpes to Map.
         return new LinkedHashMap<String, String>();
     }
 
-    private void updateVMPorts(String vduName, List<VMPort> ports) {
-        for (VMPort port: ports){
+    private void updateVMPorts(String vduName, List<VMPort> ports, List<Network> networkLst) {
+        for (int i = 0; i < ports.size(); i++) {
             //generate port inputs
-            //String ipInputName =
+            VMPort port = ports.get(i);
+            int networkIndex = getNetworkIndex(networkLst, port.getNetworkName());
+            String portIpInputName = vduName + "_" + InputConstant.INPUT_NETWORK_PREFIX + networkIndex
+                + InputConstant.INPUT_PORT_IP_POSTFIX;
+            String portMaskInputName = vduName + "_" + InputConstant.INPUT_NETWORK_PREFIX + networkIndex
+                + InputConstant.INPUT_PORT_MASK_POSTFIX;
+            String portGWInputName = vduName + "_" + InputConstant.INPUT_NETWORK_PREFIX + networkIndex
+                + InputConstant.INPUT_PORT_GW_POSTFIX;
+            InputParam ipInput = new InputParam(InputConstant.TYPE_STRING, "", portIpInputName);
+            InputParam maskInput = new InputParam(InputConstant.TYPE_STRING, InputConstant.INPUT_PORT_MASK_DEFAULT,
+                portMaskInputName);
+            InputParam gwInput = new InputParam(InputConstant.TYPE_STRING, "", portGWInputName);
+            this.inputs.put(portIpInputName, ipInput);
+            this.inputs.put(portMaskInputName, maskInput);
+            this.inputs.put(portGWInputName, gwInput);
+            //generate CP node
+            NodeTemplate cpNode = new NodeTemplate();
+            cpNode.setType(NodeTypeConstant.NODE_TYPE_VDUCP);
+            VDUCPProperty property = new VDUCPProperty();
+            property.setDescription(getNetworkDescription(networkLst,port.getNetworkName()));
+            property.setVnic_name(AppdConstants.PORT_VNIC_NAME_PREFIX + i);
+            property.setOrder(i);
+            cpNode.setProperties(property);
+            VirtualBindingRequire virtualBinding = new VirtualBindingRequire();
+            virtualBinding.setVirtual_binding(vduName);
+            VirtualLinkRequire vlRequire = new VirtualLinkRequire();
+            vlRequire.setVirtual_link(port.getNetworkName());
+            List<Object> requirements = new ArrayList<>();
+            requirements.add(virtualBinding);
+            requirements.add(vlRequire);
+            cpNode.setRequirements(requirements);
+            String cpNodeName = vduName + "_CP" + i;
+            this.nodeTemplates.put(cpNodeName, cpNode);
         }
     }
 
-    private Flavor getFlavor(List<Flavor> flavors, String flavorId) {
-        for (Flavor flavor : flavors) {
-            if (flavor.getId().equals(flavorId)) {
-                return flavor;
+    private String getNetworkDescription(List<Network> networkLst, String networkName) {
+        for (int i = 0; i < networkLst.size(); i++) {
+            if (networkLst.get(i).getName().equals(networkName)) {
+                return networkLst.get(i).getDescription();
             }
         }
-        return null;
+        return "";
     }
 
-
+    private int getNetworkIndex(List<Network> networkLst, String networkName) {
+        for (int i = 0; i < networkLst.size(); i++) {
+            if (networkLst.get(i).getName().equals(networkName)) {
+                return i + 1;
+            }
+        }
+        return -1;
+    }
 
 }

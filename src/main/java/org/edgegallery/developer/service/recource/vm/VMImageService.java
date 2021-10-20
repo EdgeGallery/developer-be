@@ -26,6 +26,8 @@ public interface VMImageService {
 
     VMImageRes getVmImages(VMImageReq vmImageReq);
 
+    VMImage getVmImageById(Integer imageId);
+
     Boolean createVmImage(VMImage vmImage);
 
     Boolean updateVmImage(VMImage vmImage, Integer imageId);
