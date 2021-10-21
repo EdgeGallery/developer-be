@@ -17,6 +17,7 @@ package org.edgegallery.developer.mapper.operation;
 
 import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 import org.edgegallery.developer.model.operation.ActionStatus;
 import org.edgegallery.developer.model.operation.OperationStatus;
 
@@ -31,7 +32,7 @@ public interface OperationStatusMapper {
 
     OperationStatus getOperationStatusById(String id);
 
-    int createActionStatus(String operationId, ActionStatus operationStatus);
+    int createActionStatus(@Param("operationId")String operationId, @Param("action")ActionStatus action);
 
     int modifyActionStatus(ActionStatus operationStatus);
 

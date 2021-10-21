@@ -35,7 +35,7 @@ public class VirtualMachine {
 
     private String flavorId;
 
-    private String imageId;
+    private Integer imageId;
 
     private VMCertificate vmCertificate;
 

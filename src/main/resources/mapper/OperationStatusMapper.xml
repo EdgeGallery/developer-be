@@ -42,48 +42,17 @@
     <result property="updateTime" column="update_time"/>
   </resultMap>
 
-  <resultMap id="OperationStatusDetailMap" type="org.edgegallery.developer.model.operation.OperationStatus">
-    <id property="id" column="id"/>
-    <id property="userName" column="user_name"/>
-    <result property="objectType" column="object_type"/>
-    <result property="objectId" column="object_id"/>
-    <result property="objectName" column="object_name"/>
-    <result property="operationName" column="operation_name"/>
-    <result property="progress" column="progress"/>
-    <result property="status" column="status"/>
-    <result property="errorMsg" column="error_msg"/>
-    <result property="createTime" column="create_time"/>
-    <result property="updateTime" column="update_time"/>
-    <collection property="actionStatusList"
-      ofType="org.edgegallery.developer.model.operation.ActionStatus">
-      <id property="id" column="id"/>
-      <result property="objectType" column="object_type"/>
-      <result property="objectId" column="object_id"/>
-      <result property="actionName" column="action_name"/>
-      <result property="progress" column="progress"/>
-      <result property="status" column="status"/>
-      <result property="errorMsg" column="error_msg"/>
-      <result property="statusLog" column="status_log"/>
-      <result property="updateTime" column="update_time"/>
-    </collection>
-  </resultMap>
-
-  <sql id="OperationStatusAllColumn">
-    a.id, a.user_name, a.operation_id, a.object_type, a.object_id, a.object_name, a.action_name, a.progress, a.status, a.error_msg, a.status_log,
-    to_char(a.create_time, 'YYYY-MM-DD HH24:MI:SS') as a.create_time, to_char(a.update_time, 'YYYY-MM-DD HH24:MI:SS') as a.update_time,
-    b.id, b.object_type, b.action_name, b.progress, b.status, b.error_msg, b.status_log,  to_char(b.update_time, 'YYYY-MM-DD HH24:MI:SS') as b.update_time,
-  </sql>
   <sql id="ActionStatusAllColumn">
     id, object_type, object_id, action_name, progress, status, error_msg, status_log
   </sql>
 
-  <insert id="createOperationStatus">
+  <insert id="createOperationStatus" parameterType="org.edgegallery.developer.model.operation.OperationStatus">
     insert into tbl_operation_status (id, user_name, object_type, object_id, object_name, operation_name, progress, status, error_msg, create_time, update_time)
     values
-    ( #{id}, #{userName}, #{objectType}, #{objectId}, #{objectName} #{operationName}, #{progress}, #{status}, #{errorMsg}), now(), now()
+    ( #{id}, #{userName}, #{objectType}, #{objectId}, #{objectName}, #{operationName}, #{progress}, #{status}, #{errorMsg}, now(), now())
   </insert>
 
-  <update id="modifyOperationStatus">
+  <update id="modifyOperationStatus" parameterType="org.edgegallery.developer.model.operation.OperationStatus">
     UPDATE
     tbl_operation_status
     SET
@@ -97,21 +66,22 @@
     DELETE FROM tbl_operation_status WHERE id = #{id};
   </delete>
 
-  <select id="getOperationStatusById" parameterType="String" resultMap="OperationStatusDetailMap">
+  <select id="getOperationStatusById" parameterType="String" resultMap="OperationStatusMap">
     SELECT
-    <include refid="OperationStatusAllColumn"/>
-    from tbl_operation_status a, tbl_action_status b
-    where a.id=#{id} and b.operation_id=#{id}
+    id, user_name, object_type, object_id, object_name, operation_name, progress, status, error_msg,
+    to_char(create_time, 'YYYY-MM-DD HH24:MI:SS') as create_time, to_char(update_time, 'YYYY-MM-DD HH24:MI:SS') as update_time
+    from tbl_operation_status
+    where id=#{id}
   </select>
 
   <insert id="createActionStatus">
     insert into tbl_action_status (id, operation_id, object_type, object_id, action_name, progress, status, error_msg, status_log, update_time)
     values
-    ( #{action.id}, #{operationId}, #{action.objectType}, #{action.objectId}, #{action.operationName},
-    #{action.progress}, #{action.status}, #{action.errorMsg}, now())
+    ( #{action.id}, #{operationId}, #{action.objectType}, #{action.objectId}, #{action.actionName},
+    #{action.progress}, #{action.status}, #{action.errorMsg}, #{action.statusLog}, now())
   </insert>
 
-  <update id="modifyActionStatus">
+  <update id="modifyActionStatus" parameterType="org.edgegallery.developer.model.operation.ActionStatus">
     UPDATE
     tbl_action_status
     SET
@@ -127,13 +97,13 @@
 
   <select id="getActionStatusById" parameterType="String" resultMap="ActionStatusMap">
     SELECT
-    id, operation_id, object_type, object_id, action_name, progress, status, error_msg, status_log, to_char(update_time, 'YYYY-MM-DD HH24:MI:SS') as update_time,
+    id, operation_id, object_type, object_id, action_name, progress, status, error_msg, status_log, to_char(update_time, 'YYYY-MM-DD HH24:MI:SS') as update_time
     FROM tbl_action_status WHERE id = #{id}
   </select>
 
   <select id="getActionStatusByOperationId" parameterType="String" resultMap="ActionStatusMap">
     SELECT
-    id, operation_id, object_type, object_id, action_name, progress, status, error_msg, status_log, to_char(update_time, 'YYYY-MM-DD HH24:MI:SS') as update_time,
+    id, operation_id, object_type, object_id, action_name, progress, status, error_msg, status_log, to_char(update_time, 'YYYY-MM-DD HH24:MI:SS') as update_time
     FROM tbl_action_status WHERE operation_id = #{operationId} order by update_time
   </select>
 </mapper>

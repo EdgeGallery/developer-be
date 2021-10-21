@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-@Service("OperationService")
+@Service
 public class OperationStatusServiceImpl implements OperationStatusService {
 
     @Autowired
@@ -70,7 +70,7 @@ public class OperationStatusServiceImpl implements OperationStatusService {
         int actionProgressLength = actionProgressRange.getEnd() - actionProgressRange.getStart();
         int progress = actionProgressRangeMap.get(actionStatus.getActionName()).getStart()
             + actionProgressLength * actionStatus.getProgress();
-        OperationStatus operationStatus = operationStatusMapper.getOperationStatusById(operationId);
+        OperationStatus operationStatus = getOperationStatusById(operationId);
         operationStatus.setProgress(progress);
         if (EnumActionStatus.FAILED.equals(actionStatus.getStatus())) {
             operationStatus.setStatus(EnumActionStatus.FAILED);

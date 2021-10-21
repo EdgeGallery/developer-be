@@ -16,14 +16,16 @@
 
 package org.edgegallery.developer.service.application.action.impl;
 
+import java.util.HashMap;
 import java.util.Map;
 import org.edgegallery.developer.domain.model.user.User;
 import org.edgegallery.developer.model.operation.ActionStatus;
 import org.edgegallery.developer.model.operation.OperationStatus;
-import org.edgegallery.developer.service.application.OperationStatusService;
 import org.edgegallery.developer.service.application.action.IContext;
 import org.edgegallery.developer.service.application.common.ActionProgressRange;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.edgegallery.developer.service.application.impl.OperationStatusServiceImpl;
+import org.edgegallery.developer.util.SpringContextUtil;
+
 
 public class OperationContext implements IContext {
 
@@ -35,12 +37,11 @@ public class OperationContext implements IContext {
 
     private OperationStatus operationStatus;
 
-    Map<String, Object> contextMap;
+    Map<String, Object> contextMap = new HashMap<>();
 
     private Map<String, ActionProgressRange> actionProgressRangeMap;
 
-    @Autowired
-    private OperationStatusService operationStatusService;
+    private OperationStatusServiceImpl operationStatusService = (OperationStatusServiceImpl)SpringContextUtil.getBean(OperationStatusServiceImpl.class);
 
     public OperationContext(User user, String token, OperationStatus operationStatus,
         Map<String, ActionProgressRange> actionProgressRangeMap) {
