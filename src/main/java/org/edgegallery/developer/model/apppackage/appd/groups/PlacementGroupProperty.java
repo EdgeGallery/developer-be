@@ -12,18 +12,21 @@
  * the License.
  */
 
-package org.edgegallery.developer.util;
+package org.edgegallery.developer.model.apppackage.appd.groups;
 
+import lombok.Getter;
+import lombok.Setter;
+import javax.validation.Valid;
+import javax.validation.constraints.NotEmpty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
-import org.edgegallery.developer.model.apppackage.appd.AppDefinition;
+@Setter
+@Getter
+@JsonPropertyOrder(alphabetic = true)
+public class PlacementGroupProperty {
 
-
-public class APPDParserUtil {
-    private static final String APPD_TEMPLATE_PATH = "src/main/resources/template/appd/vm_appd_template.yaml";
-
-    public static AppDefinition parseAppd(String yamlContent){
-        return null;
-    }
-
+    @Valid
+    @NotEmpty
+    private String description = "antiaffinity group";
 
 }

@@ -12,21 +12,25 @@
  * the License.
  */
 
-package org.edgegallery.developer.model.apppackage.appd;
+package org.edgegallery.developer.model.apppackage.appd.policies;
 
 import lombok.Getter;
 import lombok.Setter;
 import javax.validation.Valid;
-import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotBlank;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 @Setter
 @Getter
 @JsonPropertyOrder(alphabetic = true)
-public class PlacementGroupProperty {
+public class AntiAffinityRuleProperty {
 
     @Valid
-    @NotEmpty
-    private String description;
+    @NotBlank
+    private String scope = "nfvi_node";
+
+    @Valid
+    @NotBlank
+    private boolean enforced = true;
 
 }

@@ -14,7 +14,6 @@
 
 package org.edgegallery.developer.model.apppackage.appd;
 
-import com.google.gson.Gson;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -34,6 +33,8 @@ import org.edgegallery.developer.model.application.vm.Network;
 import org.edgegallery.developer.model.application.vm.VMApplication;
 import org.edgegallery.developer.model.application.vm.VMPort;
 import org.edgegallery.developer.model.application.vm.VirtualMachine;
+import org.edgegallery.developer.model.apppackage.appd.groups.PlacementGroup;
+import org.edgegallery.developer.model.apppackage.appd.policies.AntiAffinityRule;
 import org.edgegallery.developer.model.apppackage.appd.vdu.VDUCapability;
 import org.edgegallery.developer.model.apppackage.appd.vdu.VDUProperty;
 import org.edgegallery.developer.model.apppackage.appd.vducp.VDUCPProperty;
@@ -102,7 +103,42 @@ public class TopologyTemplate {
         this.nodeTemplates.put(AppdConstants.VNF_NODE_NAME, vnfNode);
     }
 
-    public TopologyTemplate updateVnfNode(VMApplication application) {
+    public void updateNodeTemplates(VMApplication application, Map<String, Flavor> id2FlavorMap,
+        Map<Integer, VMImage> id2ImageMap) {
+        updateVnfNode(application);
+        updateVMs(application.getNetworkList(), application.getVmList(), id2FlavorMap, id2ImageMap);
+        updateVLs(application.getNetworkList());
+    }
+
+    public void updateGroupsAndPolicies() {
+        //update groups
+        if (null == groups) {
+            groups = new LinkedHashMap<>();
+        }
+        PlacementGroup group = new PlacementGroup();
+        List<String> members = new ArrayList<>();
+        for (Map.Entry<String, NodeTemplate> entry : nodeTemplates.entrySet()) {
+            if (entry.getValue().getType().equals(NodeTypeConstant.NODE_TYPE_VDU)) {
+                members.add(entry.getKey());
+            }
+        }
+        group.setMembers(members);
+        groups.put(AppdConstants.GROUPS_NODE_NAME, group);
+        //update policies;
+        if (null == policies) {
+            policies = new ArrayList<>();
+        }
+        LinkedHashMap<String, AntiAffinityRule> policyMap = new LinkedHashMap<>();
+        AntiAffinityRule rule = new AntiAffinityRule();
+        List<String> groupLst = new ArrayList<>();
+        groupLst.add(AppdConstants.GROUPS_NODE_NAME);
+        rule.setTargets(groupLst);
+        policyMap.put(AppdConstants.POLICY_NODE_NAME, rule);
+        policies.add(policyMap);
+
+    }
+
+    private TopologyTemplate updateVnfNode(VMApplication application) {
         NodeTemplate vnfNode = this.nodeTemplates.get(AppdConstants.VNF_NODE_NAME);
         VNFNodeProperty vnfNodeProperty = (VNFNodeProperty) vnfNode.getProperties();
         vnfNodeProperty.setVnfd_id(application.getName());
@@ -112,7 +148,7 @@ public class TopologyTemplate {
         return this;
     }
 
-    public TopologyTemplate updateVLs(List<Network> networkLst) {
+    private void updateVLs(List<Network> networkLst) {
         if (null == this.nodeTemplates) {
             this.nodeTemplates = new LinkedHashMap<String, NodeTemplate>();
         }
@@ -148,11 +184,10 @@ public class TopologyTemplate {
             vlNode.setProperties(property);
             this.nodeTemplates.put(networkName, vlNode);
         }
-        return this;
     }
 
-    public TopologyTemplate updateVMs(List<Network> networkLst, List<VirtualMachine> vmLst,
-        Map<String, Flavor> id2FlavorMap, Map<String, VMImage> id2ImageMap) {
+    private void updateVMs(List<Network> networkLst, List<VirtualMachine> vmLst, Map<String, Flavor> id2FlavorMap,
+        Map<Integer, VMImage> id2ImageMap) {
         if (null == this.nodeTemplates) {
             this.nodeTemplates = new LinkedHashMap<String, NodeTemplate>();
         }
@@ -178,7 +213,7 @@ public class TopologyTemplate {
             property.setName(vm.getName());
             property.setNfviConstraintsAsInput(azInputName);
             property.getVdu_profile().setFlavor_extra_specs(analyzeVMFlavorExtraSpecs(vm.getFlavorExtraSpecs()));
-            property.getSw_image_data().setName(id2ImageMap.get(vm.getImageId()).getName());
+            property.getSw_image_data().setName(id2ImageMap.get(Integer.valueOf(vm.getImageId())).getName());
             property.getBootdata().getUser_data().setContents(vm.getUserData());
             //TODO, params for vdu.
             property.getBootdata().getUser_data().setParams(new LinkedHashMap<String, String>());
@@ -186,7 +221,6 @@ public class TopologyTemplate {
             this.nodeTemplates.put(vduName, vduNode);
             updateVMPorts(vduName, vm.getPortList(), networkLst);
         }
-        return this;
     }
 
     private LinkedHashMap<String, String> analyzeVMFlavorExtraSpecs(String flavorExtraSpecsStr) {
@@ -215,7 +249,7 @@ public class TopologyTemplate {
             NodeTemplate cpNode = new NodeTemplate();
             cpNode.setType(NodeTypeConstant.NODE_TYPE_VDUCP);
             VDUCPProperty property = new VDUCPProperty();
-            property.setDescription(getNetworkDescription(networkLst,port.getNetworkName()));
+            property.setDescription(getNetworkDescription(networkLst, port.getNetworkName()));
             property.setVnic_name(AppdConstants.PORT_VNIC_NAME_PREFIX + i);
             property.setOrder(i);
             cpNode.setProperties(property);

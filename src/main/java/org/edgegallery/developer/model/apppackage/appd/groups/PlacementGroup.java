@@ -12,25 +12,32 @@
  * the License.
  */
 
-package org.edgegallery.developer.model.apppackage.appd;
+package org.edgegallery.developer.model.apppackage.appd.groups;
 
+import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import org.edgegallery.developer.model.apppackage.constant.NodeTypeConstant;
 
 @Setter
 @Getter
 @JsonPropertyOrder(alphabetic = true)
-public class AntiAffinityRuleProperty {
+public class PlacementGroup {
 
     @Valid
     @NotBlank
-    private String scope;
+    private String type = NodeTypeConstant.NODE_TYPE_PLACEMENTGROUP;
 
     @Valid
-    @NotBlank
-    private Object enforced;
+    @NotNull
+    private PlacementGroupProperty properties = new PlacementGroupProperty();
+
+    @Valid
+    @NotNull
+    private List<String> members;
 
 }
