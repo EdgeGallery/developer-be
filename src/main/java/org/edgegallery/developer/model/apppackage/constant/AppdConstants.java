@@ -23,4 +23,8 @@ public class AppdConstants {
     public static final String NETWORK_NAME_Public = "MEC_APP_Public";
 
     public static final String NETWORK_NAME_MP1 = "MEC_APP_MP1";
+
+    public static final String GROUPS_NODE_NAME = "AntiAffinityGroup";
+
+    public static final String POLICY_NODE_NAME = "antiaffinity_policy";
 }

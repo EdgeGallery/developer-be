@@ -12,7 +12,7 @@
  * the License.
  */
 
-package org.edgegallery.developer.model.apppackage.appd;
+package org.edgegallery.developer.model.apppackage.appd.policies;
 
 import java.util.List;
 import lombok.Getter;
@@ -22,6 +22,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import org.edgegallery.developer.model.apppackage.constant.NodeTypeConstant;
 
 @Setter
 @Getter
@@ -30,7 +31,7 @@ public class AntiAffinityRule {
 
     @Valid
     @NotBlank
-    private String type;
+    private String type = NodeTypeConstant.NODE_TYPE_AFFINITYRULE;
 
     @Valid
     @NotEmpty
@@ -38,6 +39,6 @@ public class AntiAffinityRule {
 
     @Valid
     @NotNull
-    private AntiAffinityRuleProperty properties;
+    private AntiAffinityRuleProperty properties = new AntiAffinityRuleProperty();
 
 }

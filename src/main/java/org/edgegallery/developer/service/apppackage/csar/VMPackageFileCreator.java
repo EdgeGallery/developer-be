@@ -15,26 +15,25 @@
 package org.edgegallery.developer.service.apppackage.csar;
 
 import java.io.File;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import org.apache.commons.io.FileUtils;
 import org.edgegallery.developer.model.application.vm.VMApplication;
 import org.edgegallery.developer.model.apppackage.appd.AppDefinition;
-import org.edgegallery.developer.util.APPDParserUtil;
+import org.edgegallery.developer.service.apppackage.converter.AppDefinitionConverter;
 import org.edgegallery.developer.util.BusinessConfigUtil;
 import org.edgegallery.developer.util.InitConfigUtil;
 
-
 public class VMPackageFileCreator {
-
-    private static final String APPD_TEMPLATE_PATH = "template/appd/vm_appd_template.yaml";
-
-    private static final String PACKAGE_BASE_PATH = "APPD";
-
 
     private VMApplication application;
 
     private String packageId;
+
+    private static final String APPD_BASE_PATH = "/APPD/Definition/";
+
+    private static final String APPD_FILE_TYPE = ".yaml";
+
+    public String getAppdFilePath() {
+        return getPackageBasePath() + APPD_BASE_PATH + application.getName() + APPD_FILE_TYPE;
+    }
 
     public VMPackageFileCreator(VMApplication application, String packageId) {
         this.application = application;
@@ -44,33 +43,17 @@ public class VMPackageFileCreator {
 
     public String generateAppPackageFile() {
         String packagePath = getPackageBasePath();
+        generateAPPDYaml();
+        generateImageDesFile();
         return packagePath;
     }
 
-    private File generateAPPDYaml() throws IOException {
-        File vmAPPDTemplate = new File(APPD_TEMPLATE_PATH);
-        String yamlContent = FileUtils.readFileToString(vmAPPDTemplate, StandardCharsets.UTF_8);
-        AppDefinition definition = APPDParserUtil.parseAppd(yamlContent);
-        AppDefinition appDefinition = convertApplication2AppDefinition(this.application);
-
-        return new File(getPackageBasePath());
+    private boolean generateAPPDYaml() {
+        String appdFilePath = getAppdFilePath();
+        AppDefinitionConverter converter = new AppDefinitionConverter();
+        AppDefinition appDefinition = converter.convertApplication2Appd(appdFilePath, this.application);
+        return converter.saveAppdYaml(appdFilePath, appDefinition);
     }
-
-    AppDefinition convertApplication2AppDefinition(VMApplication application){
-        AppDefinition appDefinition = new AppDefinition();
-        //update metadata
-        appDefinition.getMetadata().setVnfd_id(application.getName());
-        appDefinition.getMetadata().setVnfd_name(application.getName());
-
-        //update
-        return appDefinition;
-    }
-
-    public void updateMetadata(){
-
-    }
-
-
 
     private File generateImageDesFile() {
 
