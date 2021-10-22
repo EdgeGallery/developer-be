@@ -85,7 +85,7 @@
     UPDATE
     tbl_action_status
     SET
-    object_type = #{objectType}, object_id = #{objectId}, action_name = #{operationName}, progress = #{progress},
+    object_type = #{objectType}, object_id = #{objectId}, action_name = #{actionName}, progress = #{progress},
     status = #{status}, error_msg = #{errorMsg}, status_log = #{statusLog}, update_time = now()
     WHERE
     id = #{id}

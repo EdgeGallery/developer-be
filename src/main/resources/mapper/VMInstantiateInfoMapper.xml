@@ -49,7 +49,7 @@
     #{vmInstantiateInfo.status}, #{vmInstantiateInfo.log}, #{vmInstantiateInfo.vncUrl},  #{vmInstantiateInfo.instantiateTime})
   </insert>
 
-  <update id="modifyVMInstantiateInfoByVMId">
+  <update id="modifyVMInstantiateInfo">
     UPDATE
     tbl_vm_instantiate_info
     SET
@@ -60,7 +60,7 @@
     vm_id = #{vmId}
   </update>
 
-  <delete id="deleteVMInstantiateInfoByVMId" parameterType="String">
+  <delete id="deleteVMInstantiateInfo" parameterType="String">
     DELETE FROM tbl_vm_instantiate_info WHERE vm_id = #{vmId};
     DELETE FROM tbl_vm_port_instantiate_info WHERE vm_id = #{vmId};
   </delete>
@@ -77,11 +77,11 @@
     ( #{vmId}, #{portInstantiateInfo.networkName}, #{portInstantiateInfo.ipAddress})
   </insert>
 
-  <delete id="deletePortInstantiateInfoByVMId" parameterType="String">
+  <delete id="deletePortInstantiateInfo" parameterType="String">
     DELETE FROM tbl_vm_port_instantiate_info WHERE vm_id = #{vmId};
   </delete>
 
-  <select id="getPortInstantiateInfoByVMId" parameterType="String" resultMap="PortInstantiateInfoMap">
+  <select id="getPortInstantiateInfo" parameterType="String" resultMap="PortInstantiateInfoMap">
     SELECT
     <include refid="PortInstantiateInfoColumn"/>
     from tbl_vm_port_instantiate_info where vm_id=#{vmId}

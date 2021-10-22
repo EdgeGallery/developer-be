@@ -28,10 +28,11 @@ public class DistributeVMPackageAction extends DistributePackageAction {
     @Autowired
     private VMAppOperationServiceImpl VmAppOperationService;
 
-    public boolean saveDistributeSuccessInstantiateInfo(MepHost mepHost){
+    public boolean saveDistributeSuccessInstantiateInfo(MepHost mepHost, String uploadPkgId){
         String vmId = (String) getContext().getParameter(IContextParameter.PARAM_VM_ID);
         VMInstantiateInfo instantiateInfo = VmAppOperationService.getInstantiateInfo(vmId);
         instantiateInfo.setDistributedMecHost(mepHost.getMecHostIp());
+        instantiateInfo.setAppPackageId(uploadPkgId);
         instantiateInfo.setStatus(EnumVMInstantiateStatus.PACKAGE_DISTRIBUTE_SUCCESS);
         return  VmAppOperationService.updateInstantiateInfo(vmId, instantiateInfo);
     }

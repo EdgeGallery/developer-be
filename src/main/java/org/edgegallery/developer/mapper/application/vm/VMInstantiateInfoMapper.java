@@ -34,7 +34,7 @@ public interface VMInstantiateInfoMapper {
 
     int createPortInstantiateInfo(@Param("vmId")String vmId, @Param("portInstantiateInfo")PortInstantiateInfo portInstantiateInfo);
 
-    int deletePortInstantiateInfoByVMId(String vmId);
+    int deletePortInstantiateInfo(String vmId);
 
-    List<PortInstantiateInfo> getPortInstantiateInfoByVMId(String vmId);
+    List<PortInstantiateInfo> getPortInstantiateInfo(String vmId);
 }

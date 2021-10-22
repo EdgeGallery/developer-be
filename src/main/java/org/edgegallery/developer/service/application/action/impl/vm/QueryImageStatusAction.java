@@ -26,6 +26,7 @@ import org.edgegallery.developer.service.application.action.impl.AbstractAction;
 import org.edgegallery.developer.service.application.common.EnumExportImageStatus;
 import org.edgegallery.developer.service.application.common.IContextParameter;
 import org.edgegallery.developer.service.recource.mephost.MepHostService;
+import org.edgegallery.developer.util.SpringContextUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,12 +36,10 @@ public class QueryImageStatusAction extends AbstractAction {
     public static final Logger LOGGER = LoggerFactory.getLogger(CreateImageAction.class);
 
     public static final String ACTION_NAME = "Query Image Status";
-    
-    @Autowired
-    private ApplicationService applicationService;
 
-    @Autowired
-    private MepHostService mepHostService;
+    ApplicationService applicationService = (ApplicationService) SpringContextUtil.getBean(ApplicationService.class);
+
+    MepHostService mepHostService = (MepHostService) SpringContextUtil.getBean(MepHostService.class);
 
     private IContext context;
 

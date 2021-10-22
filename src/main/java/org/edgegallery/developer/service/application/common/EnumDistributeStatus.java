@@ -23,7 +23,7 @@ public enum EnumDistributeStatus {
 
     DISTRIBUTE_PACKAGE_STATUS_FAILED("killed"),
 
-    DISTRIBUTE_PACKAGE_STATUS_SUCCESS("uploaded");
+    DISTRIBUTE_PACKAGE_STATUS_SUCCESS("Distributed");
 
     private String name;
 

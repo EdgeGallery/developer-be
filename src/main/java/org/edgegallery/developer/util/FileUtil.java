@@ -117,4 +117,8 @@ public final class FileUtil {
         }
         return true;
     }
+    public static String getApplicationPath(String applicationId) {
+        return InitConfigUtil.getWorkSpaceBaseDir() + BusinessConfigUtil.getWorkspacePath() + applicationId
+            + File.separator;
+    }
 }
