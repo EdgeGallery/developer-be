@@ -53,8 +53,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
-@Service("vmAppOperationService")
+@Service
 public class VMAppOperationServiceImpl extends AppOperationServiceImpl implements VMAppOperationService {
 
     public static final String OPERATION_LAUNCH_NAME = "VirtualMachine launch";
@@ -185,10 +186,20 @@ public class VMAppOperationServiceImpl extends AppOperationServiceImpl implement
     public VMInstantiateInfo getInstantiateInfo(String vmId) {
         VMInstantiateInfo instantiateInfo = vmInstantiateInfoMapper.getVMInstantiateInfo(vmId);
         if (instantiateInfo != null) {
-            List<PortInstantiateInfo> portLst = vmInstantiateInfoMapper.getPortInstantiateInfoByVMId(vmId);
+            List<PortInstantiateInfo> portLst = vmInstantiateInfoMapper.getPortInstantiateInfo(vmId);
             instantiateInfo.setPortInstanceList(portLst);
         }
         return instantiateInfo;
+    }
+
+    @Override
+    public Boolean createInstantiateInfo(String vmId, VMInstantiateInfo instantiateInfo) {
+        int res = vmInstantiateInfoMapper.createVMInstantiateInfo(vmId, instantiateInfo);
+        if (res < 1) {
+            LOGGER.error("create vm instantiate info failed");
+            return false;
+        }
+        return true;
     }
 
     public Boolean updateInstantiateInfo(String vmId, VMInstantiateInfo instantiateInfo) {
@@ -198,10 +209,9 @@ public class VMAppOperationServiceImpl extends AppOperationServiceImpl implement
             return false;
         }
         //update ports
-        res = vmInstantiateInfoMapper.deleteVMInstantiateInfo(vmId);
-        if (res < 1) {
-            LOGGER.error("Update vm instantiate info failed, remove ports failed.");
-            return false;
+        vmInstantiateInfoMapper.deleteVMInstantiateInfo(vmId);
+        if (CollectionUtils.isEmpty(instantiateInfo.getPortInstanceList())) {
+            return true;
         }
         for (PortInstantiateInfo port : instantiateInfo.getPortInstanceList()) {
             res = vmInstantiateInfoMapper.createPortInstantiateInfo(vmId, port);

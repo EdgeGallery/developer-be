@@ -42,6 +42,8 @@ public interface VMAppOperationService {
 
     VMInstantiateInfo getInstantiateInfo(String vmId);
 
+    Boolean createInstantiateInfo(String vmId, VMInstantiateInfo instantiateInfo);
+
     Boolean updateInstantiateInfo(String vmId, VMInstantiateInfo instantiateInfo);
 
     AppPackage generatePackage(VMApplication application);

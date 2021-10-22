@@ -19,6 +19,7 @@ package org.edgegallery.developer.service.apppackage.impl;
 import java.util.UUID;
 import org.edgegallery.developer.common.ResponseConsts;
 import org.edgegallery.developer.exception.FileOperateException;
+import org.edgegallery.developer.mapper.apppackage.AppPackageMapper;
 import org.edgegallery.developer.model.application.container.ContainerApplication;
 import org.edgegallery.developer.model.application.vm.VMApplication;
 import org.edgegallery.developer.model.apppackage.AppPackage;
@@ -27,16 +28,20 @@ import org.edgegallery.developer.service.apppackage.AppPackageService;
 import org.edgegallery.developer.service.apppackage.csar.VMPackageFileCreator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-@Service("AppPackageService")
+@Service
 public class AppPackageServiceImpl implements AppPackageService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AppPackageServiceImpl.class);
 
+    @Autowired
+    AppPackageMapper appPackageMapper;
+
     @Override
     public AppPackage getAppPackage(String packageId) {
-        return null;
+        return appPackageMapper.getAppPackage(packageId);
     }
 
     @Override

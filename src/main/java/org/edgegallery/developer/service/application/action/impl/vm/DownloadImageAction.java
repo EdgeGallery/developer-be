@@ -27,7 +27,9 @@ import org.edgegallery.developer.service.application.ApplicationService;
 import org.edgegallery.developer.service.application.action.IContext;
 import org.edgegallery.developer.service.application.action.impl.AbstractAction;
 import org.edgegallery.developer.service.application.common.IContextParameter;
+import org.edgegallery.developer.service.recource.mephost.MepHostService;
 import org.edgegallery.developer.util.HttpClientUtil;
+import org.edgegallery.developer.util.SpringContextUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,11 +49,11 @@ public class DownloadImageAction extends AbstractAction {
     //interval of the query, 5s.
     public static final int INTERVAL = 5000;
 
-    @Autowired
-    private ApplicationService applicationService;
+    ApplicationService applicationService = (ApplicationService) SpringContextUtil.getBean(ApplicationService.class);
 
-    @Autowired
-    ImageExportInfoMapper imageExportInfoMapper;
+    MepHostService mepHostService = (MepHostService) SpringContextUtil.getBean(MepHostService.class);
+
+    ImageExportInfoMapper imageExportInfoMapper = (ImageExportInfoMapper) SpringContextUtil.getBean(ImageExportInfoMapper.class);
 
     private IContext context;
 

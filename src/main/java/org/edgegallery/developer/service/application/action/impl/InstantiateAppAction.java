@@ -30,6 +30,7 @@ import org.edgegallery.developer.service.application.common.EnumInstantiateStatu
 import org.edgegallery.developer.service.application.common.IContextParameter;
 import org.edgegallery.developer.service.recource.mephost.MepHostService;
 import org.edgegallery.developer.util.HttpClientUtil;
+import org.edgegallery.developer.util.SpringContextUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,11 +49,9 @@ public abstract class InstantiateAppAction extends AbstractAction {
     //interval of the query, 5s.
     public static final int INTERVAL = 5000;
 
-    @Autowired
-    private ApplicationService applicationService;
+    ApplicationService applicationService = (ApplicationService) SpringContextUtil.getBean(ApplicationService.class);
 
-    @Autowired
-    private MepHostService mepHostService;
+    MepHostService mepHostService = (MepHostService) SpringContextUtil.getBean(MepHostService.class);
 
     @Override
     public void setContext(IContext context) {
