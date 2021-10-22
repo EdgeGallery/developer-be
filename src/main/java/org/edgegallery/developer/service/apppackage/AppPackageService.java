@@ -27,9 +27,9 @@ public interface AppPackageService {
 
     AppPkgStructure getAppPackageStructure(String packageId);
 
-    String getAppPackageFileContent(String packageId, String structureItemId);
+    String getAppPackageFileContent(String packageId, String fileName);
 
-    boolean updateAppPackageFileContent(String packageId, String structureItemId, String content);
+    boolean updateAppPackageFileContent(String packageId, String fileName, String content);
 
     AppPackage generateAppPackage(VMApplication application);
 
