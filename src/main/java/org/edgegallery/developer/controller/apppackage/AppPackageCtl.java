@@ -56,7 +56,7 @@ public class AppPackageCtl {
     private AppPackageService appPackageService;
 
     /**
-     * get an operation.
+     * get an package.
      */
     @ApiOperation(value = "Get app package by packageId.", response = AppPackage.class)
     @ApiResponses(value = {

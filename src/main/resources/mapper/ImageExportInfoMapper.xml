@@ -21,24 +21,25 @@
   <resultMap id="ImageExportInfoMap" type="org.edgegallery.developer.model.instantiate.vm.ImageExportInfo">
     <id property="imageInstanceId" column="image_instance_id"/>
     <result property="imageName" column="image_name"/>
-    <result property="sumChunkNum" column="sum_chunk_num"/>
-    <result property="chunkSize" column="chunk_size"/>
+    <result property="format" column="format"/>
+    <result property="downloadUrl" column="download_url"/>
     <result property="checkSum" column="check_sum"/>
+    <result property="imageSize" column="image_size"/>
     <result property="log" column="log"/>
     <result property="status" column="status"/>
     <result property="createTime" column="create_time"/>
   </resultMap>
 
   <sql id="ImageExportInfoAllColumn">
-    image_instance_id, image_name, sum_chunk_num, chunk_size, check_sum, log, status, create_time
+    image_instance_id, image_name, format, download_url, check_sum, image_size, log, status, create_time
   </sql>
 
   <insert id="createImageExportInfoInfo">
-    insert into tbl_vm_image_export_info (vm_id, image_instance_id, image_name, sum_chunk_num, chunk_size, check_sum, log, status, create_time)
+    insert into tbl_vm_image_export_info (vm_id, image_instance_id, image_name, format, download_url, check_sum, image_size, log, status, create_time)
     values
-    ( #{vmId}, #{imageExportInfo.imageInstanceId}, #{imageExportInfo.imageName}, #{imageExportInfo.sumChunkNum},
-    #{imageExportInfo.chunkSize}, #{imageExportInfo.checkSum}, #{imageExportInfo.log},  #{imageExportInfo.status},
-    #{imageExportInfo.createTime})
+    ( #{vmId}, #{imageExportInfo.imageInstanceId}, #{imageExportInfo.imageName}, #{imageExportInfo.format},
+    #{imageExportInfo.downloadUrl}, #{imageExportInfo.checkSum}, #{imageExportInfo.imageSize},
+    #{imageExportInfo.log},  #{imageExportInfo.status}, now())
   </insert>
 
   <update id="modifyImageExportInfoInfoByVMId">
@@ -46,8 +47,9 @@
     tbl_vm_image_export_info
     SET
     image_instance_id = #{imageExportInfo.imageInstanceId}, image_name = #{imageExportInfo.imageName},
-    sum_chunk_num = #{imageExportInfo.sumChunkNum}, chunk_size = #{imageExportInfo.chunkSize}, check_sum = #{imageExportInfo.checkSum},
-    log = #{imageExportInfo.log}, status = #{imageExportInfo.status}, create_time = #{imageExportInfo.createTime}
+    format = #{imageExportInfo.format}, download_url = #{imageExportInfo.downloadUrl},
+    check_sum = #{imageExportInfo.checkSum}, image_size = #{imageExportInfo.imageSize},
+    log = #{imageExportInfo.log}, status = #{imageExportInfo.status}
     WHERE
     vm_id = #{vmId}
   </update>

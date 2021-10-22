@@ -37,6 +37,8 @@ public class ImageExportInfo {
 
     private String downloadUrl;
 
+    private String imageSize;
+
     private Date createTime;
 
     private String log;

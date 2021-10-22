@@ -17,24 +17,24 @@ package org.edgegallery.developer.service.application.action.impl.vm;
 
 import org.edgegallery.developer.model.instantiate.vm.EnumVMInstantiateStatus;
 import org.edgegallery.developer.model.instantiate.vm.VMInstantiateInfo;
-import org.edgegallery.developer.model.resource.mephost.MepHost;
 import org.edgegallery.developer.service.application.action.impl.DistributePackageAction;
 import org.edgegallery.developer.service.application.common.IContextParameter;
 import org.edgegallery.developer.service.application.impl.vm.VMAppOperationServiceImpl;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.edgegallery.developer.util.SpringContextUtil;
 
 public class DistributeVMPackageAction extends DistributePackageAction {
 
-    @Autowired
-    private VMAppOperationServiceImpl VmAppOperationService;
+    VMAppOperationServiceImpl VmAppOperationService = (VMAppOperationServiceImpl) SpringContextUtil.getBean(VMAppOperationServiceImpl.class);
 
-    public boolean saveDistributeSuccessInstantiateInfo(MepHost mepHost, String uploadPkgId){
+    public boolean saveDistributeInstantiateInfo(String mecHostIp, String mepmPkgId, EnumVMInstantiateStatus status){
         String vmId = (String) getContext().getParameter(IContextParameter.PARAM_VM_ID);
         VMInstantiateInfo instantiateInfo = VmAppOperationService.getInstantiateInfo(vmId);
-        instantiateInfo.setDistributedMecHost(mepHost.getMecHostIp());
-        instantiateInfo.setAppPackageId(uploadPkgId);
-        instantiateInfo.setStatus(EnumVMInstantiateStatus.PACKAGE_DISTRIBUTE_SUCCESS);
+        instantiateInfo.setDistributedMecHost(mecHostIp);
+        instantiateInfo.setMepmPackageId(mepmPkgId);
+        instantiateInfo.setStatus(status);
         return  VmAppOperationService.updateInstantiateInfo(vmId, instantiateInfo);
     }
+
+
 
 }

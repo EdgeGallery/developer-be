@@ -76,6 +76,9 @@ public class OperationStatusServiceImpl implements OperationStatusService {
             operationStatus.setStatus(EnumActionStatus.FAILED);
             operationStatus.setErrorMsg(actionStatus.getErrorMsg());
         }
+        if (progress==100) {
+            operationStatus.setStatus(EnumActionStatus.SUCCESS);
+        }
         operationStatusMapper.modifyOperationStatus(operationStatus);
     }
 }

@@ -31,6 +31,8 @@ public class VMInstantiateInfo {
 
     private String distributedMecHost;
 
+    private String mepmPackageId;
+
     private String appInstanceId;
 
     private String vmInstanceId;

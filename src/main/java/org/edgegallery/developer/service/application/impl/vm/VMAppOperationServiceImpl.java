@@ -31,6 +31,7 @@ import org.edgegallery.developer.model.application.Application;
 import org.edgegallery.developer.model.application.vm.VMApplication;
 import org.edgegallery.developer.model.application.vm.VirtualMachine;
 import org.edgegallery.developer.model.apppackage.AppPackage;
+import org.edgegallery.developer.model.instantiate.vm.EnumVMInstantiateStatus;
 import org.edgegallery.developer.model.instantiate.vm.ImageExportInfo;
 import org.edgegallery.developer.model.instantiate.vm.PortInstantiateInfo;
 import org.edgegallery.developer.model.instantiate.vm.VMInstantiateInfo;
@@ -143,12 +144,13 @@ public class VMAppOperationServiceImpl extends AppOperationServiceImpl implement
         }
 
         VirtualMachine virtualMachine = vmAppVmServiceImpl.getVm(applicationId, vmId);
-        if (virtualMachine == null || virtualMachine.getVmInstantiateInfo() == null
-            || virtualMachine.getImageExportInfo() != null) {
+        if (virtualMachine == null || virtualMachine.getVmInstantiateInfo().getStatus().equals(EnumVMInstantiateStatus.SUCCESS)) {
             LOGGER.error("instantiate vm app fail ,vm is not exit or is used,vmId:{}", vmId);
             throw new EntityNotFoundException("instantiate vm app fail ,vm is not exit or is used.",
                 ResponseConsts.RET_QUERY_DATA_EMPTY);
         }
+        String appInstanceId = virtualMachine.getVmInstantiateInfo().getAppInstanceId();
+        String vmInstanceId = virtualMachine.getVmInstantiateInfo().getVmInstanceId();
 
         // create OperationStatus
         OperationStatus operationStatus = new OperationStatus();
@@ -166,7 +168,7 @@ public class VMAppOperationServiceImpl extends AppOperationServiceImpl implement
             throw new DataBaseException("Create export image operationStatus in db error.", ResponseConsts.RET_CERATE_DATA_FAIL);
         }
         VMExportImageOperation actionCollection = new VMExportImageOperation(AccessUserUtil.getUser(), applicationId, vmId,
-            accessToken, operationStatus);
+            accessToken, operationStatus, appInstanceId, vmInstanceId);
         LOGGER.info("start instantiate vm app");
         new ExportVmImageProcessor(actionCollection).start();
         return new OperationInfoRep(operationStatus.getId());
@@ -201,7 +203,7 @@ public class VMAppOperationServiceImpl extends AppOperationServiceImpl implement
         }
         return true;
     }
-
+    @Override
     public Boolean updateInstantiateInfo(String vmId, VMInstantiateInfo instantiateInfo) {
         int res = vmInstantiateInfoMapper.modifyVMInstantiateInfo(vmId, instantiateInfo);
         if (res < 1) {
@@ -209,7 +211,7 @@ public class VMAppOperationServiceImpl extends AppOperationServiceImpl implement
             return false;
         }
         //update ports
-        vmInstantiateInfoMapper.deleteVMInstantiateInfo(vmId);
+        vmInstantiateInfoMapper.deletePortInstantiateInfo(vmId);
         if (CollectionUtils.isEmpty(instantiateInfo.getPortInstanceList())) {
             return true;
         }
@@ -222,6 +224,7 @@ public class VMAppOperationServiceImpl extends AppOperationServiceImpl implement
         }
         return true;
     }
+
 
     public ImageExportInfo getImageExportInfo(String vmId) {
         return imageExportInfoMapper.getImageExportInfoInfoByVMId(vmId);

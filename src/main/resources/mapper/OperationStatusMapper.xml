@@ -106,4 +106,10 @@
     id, operation_id, object_type, object_id, action_name, progress, status, error_msg, status_log, to_char(update_time, 'YYYY-MM-DD HH24:MI:SS') as update_time
     FROM tbl_action_status WHERE operation_id = #{operationId} order by update_time
   </select>
+
+  <select id="getOperationCountByObjectType" parameterType="String" resultType="java.lang.Integer">
+    SELECT
+    count(1) FROM tbl_operation_status
+    WHERE object_type = #{objectType}
+  </select>
 </mapper>

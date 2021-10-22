@@ -22,7 +22,7 @@ import java.util.List;
 import org.edgegallery.developer.model.LcmLog;
 import org.edgegallery.developer.model.application.Application;
 import org.edgegallery.developer.model.apppackage.AppPackage;
-import org.edgegallery.developer.model.instantiate.vm.VMInstantiateInfo;
+import org.edgegallery.developer.model.instantiate.vm.EnumVMInstantiateStatus;
 import org.edgegallery.developer.model.lcm.DistributeResponse;
 import org.edgegallery.developer.model.lcm.MecHostInfo;
 import org.edgegallery.developer.model.lcm.UploadResponse;
@@ -30,11 +30,8 @@ import org.edgegallery.developer.model.resource.mephost.MepHost;
 import org.edgegallery.developer.model.operation.ActionStatus;
 import org.edgegallery.developer.model.operation.EnumOperationObjectType;
 import org.edgegallery.developer.service.application.ApplicationService;
-import org.edgegallery.developer.service.application.action.impl.vm.DistributeVMPackageAction;
 import org.edgegallery.developer.service.application.common.EnumDistributeStatus;
 import org.edgegallery.developer.service.application.common.IContextParameter;
-import org.edgegallery.developer.service.application.impl.AppOperationServiceImpl;
-import org.edgegallery.developer.service.application.vm.VMAppOperationService;
 import org.edgegallery.developer.service.apppackage.AppPackageService;
 import org.edgegallery.developer.service.recource.mephost.MepHostService;
 import org.edgegallery.developer.util.FileUtil;
@@ -42,8 +39,6 @@ import org.edgegallery.developer.util.HttpClientUtil;
 import org.edgegallery.developer.util.SpringContextUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 public abstract class DistributePackageAction extends AbstractAction {
@@ -66,8 +61,6 @@ public abstract class DistributePackageAction extends AbstractAction {
 
     AppPackageService appPackageService = (AppPackageService) SpringContextUtil.getBean(AppPackageService.class);
 
-    VMAppOperationService vmAppOperationService = (VMAppOperationService) SpringContextUtil.getBean(VMAppOperationService.class);
-
     @Override
     public String getActionName() {
         return ACTION_NAME;
@@ -88,6 +81,7 @@ public abstract class DistributePackageAction extends AbstractAction {
         String mepHostId = application.getMepHostId();
         if (StringUtils.isEmpty(mepHostId)) {
             updateActionError(actionStatus, "Sandbox not selected. Failed to distribute package");
+            saveDistributeInstantiateInfo("", "", EnumVMInstantiateStatus.PACKAGE_DISTRIBUTE_FAILED);
             return false;
         }
         MepHost mepHost = mepHostService.getHost(mepHostId);
@@ -95,23 +89,25 @@ public abstract class DistributePackageAction extends AbstractAction {
         //Upload package file to lcm.
         AppPackage appPkg = appPackageService.getAppPackage(packageId);
         String appPkgPath = FileUtil.getApplicationPath(applicationId) + appPkg.getPackageFileName();
-        String uploadPkgId = uploadPackageToLcm(getContext().getUserId(), appPkgPath, mepHost);
-        if (null == uploadPkgId) {
+        String mepmPkgId = uploadPackageToLcm(getContext().getUserId(), appPkgPath, mepHost);
+        if (null == mepmPkgId) {
             updateActionError(actionStatus, "Upload app package file to lcm failed.");
+            saveDistributeInstantiateInfo(mepHost.getMecHostIp(), "", EnumVMInstantiateStatus.PACKAGE_DISTRIBUTE_FAILED);
             return false;
         }
         updateActionProgress(actionStatus, 25, "Upload app package to lcm success.");
 
         //Distribute package to edge host.
-        boolean res = distributePackageToEdgeHost(getContext().getUserId(), uploadPkgId, mepHost);
+        boolean res = distributePackageToEdgeHost(getContext().getUserId(), mepmPkgId, mepHost);
         if (!res) {
+            saveDistributeInstantiateInfo(mepHost.getMecHostIp(), mepmPkgId, EnumVMInstantiateStatus.PACKAGE_DISTRIBUTE_FAILED);
             updateActionError(actionStatus, "Distribute app package file to edge host failed.");
             return false;
         }
         updateActionProgress(actionStatus, 50, "Distribute app package to edge host success.");
 
         //Query Distribute Status
-        EnumDistributeStatus distributeStatus = getDistributeStatus(getContext().getUserId(), uploadPkgId, mepHost);
+        EnumDistributeStatus distributeStatus = getDistributeStatus(getContext().getUserId(), mepmPkgId, mepHost);
         if (!EnumDistributeStatus.DISTRIBUTE_PACKAGE_STATUS_SUCCESS.equals(distributeStatus)) {
             String msg = "Query Distribute package status failed, the result is: " + distributeStatus;
             updateActionError(actionStatus, msg);
@@ -119,18 +115,19 @@ public abstract class DistributePackageAction extends AbstractAction {
         }
 
         //save vm instantiate info.
-        boolean updateRes = saveDistributeSuccessInstantiateInfo(mepHost,uploadPkgId);
+        boolean updateRes = saveDistributeInstantiateInfo(mepHost.getMecHostIp(), mepmPkgId, EnumVMInstantiateStatus.PACKAGE_DISTRIBUTE_SUCCESS);
         if (!updateRes) {
             updateActionError(actionStatus, "Update instantiate info for VM failed.");
             return false;
         }
-        getContext().addParameter(IContextParameter.PARAM_MEPM_PACKAGE_ID, uploadPkgId);
+        getContext().addParameter(IContextParameter.PARAM_MEPM_PACKAGE_ID, mepmPkgId);
         updateActionProgress(actionStatus, 100, "Query distribute app package status success.");
         LOGGER.info("Distribute package action finished.");
         return true;
     }
 
-    private boolean saveDistributeSuccessInstantiateInfo(MepHost mepHost, String uploadPkgId) {
+
+    public boolean saveDistributeInstantiateInfo(String mecHostIp, String mepmPkgId, EnumVMInstantiateStatus status) {
         return true;
     }
 
