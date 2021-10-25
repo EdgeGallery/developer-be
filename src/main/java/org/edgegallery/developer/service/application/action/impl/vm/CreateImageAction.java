@@ -86,7 +86,7 @@ public class CreateImageAction extends AbstractAction {
 
         //create image.
         LcmLog lcmLog = new LcmLog();
-        String imageId = createImageByLcm(mepHost, lcmLog);
+        String imageId = sentCreateImageRequestToLcm(mepHost, lcmLog);
         if (null == imageId) {
             String msg = "create vm  image  failed. The log from lcm is : " + lcmLog.getLog();
             updateActionError(actionStatus, msg);
@@ -144,7 +144,7 @@ public class CreateImageAction extends AbstractAction {
         return true;
     }
 
-    private String createImageByLcm(MepHost mepHost, LcmLog lcmLog) {
+    private String sentCreateImageRequestToLcm(MepHost mepHost, LcmLog lcmLog) {
         String vmInstanceId = (String) getContext().getParameter(IContextParameter.PARAM_VM_INSTANCE_ID);
         String appInstanceId = (String) getContext().getParameter(IContextParameter.PARAM_APP_INSTANCE_ID);
         String basePath = HttpClientUtil.getUrlPrefix(mepHost.getLcmProtocol(), mepHost.getLcmIp(), mepHost.getLcmPort());
