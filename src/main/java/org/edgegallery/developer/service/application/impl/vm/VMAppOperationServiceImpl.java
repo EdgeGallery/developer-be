@@ -136,7 +136,7 @@ public class VMAppOperationServiceImpl extends AppOperationServiceImpl implement
     }
 
     @Override
-    public OperationInfoRep createImageExport(String applicationId, String vmId, String accessToken) {
+    public OperationInfoRep createVmImage(String applicationId, String vmId, String accessToken) {
         Application application = applicationService.getApplication(applicationId);
         if (application == null) {
             LOGGER.error("application is not exited,id:{}", applicationId);

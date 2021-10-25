@@ -50,6 +50,9 @@ public class ActionStatus {
         SimpleDateFormat sdf = new SimpleDateFormat();
         sdf.applyPattern("yyyy-MM-dd HH:mm:ss");
         Date date = new Date();
+        if (statusLog == null) {
+            statusLog = "";
+        }
         this.statusLog = statusLog + sdf.format(date) + "： " + log + System.getProperty("line.separator");
     }
 

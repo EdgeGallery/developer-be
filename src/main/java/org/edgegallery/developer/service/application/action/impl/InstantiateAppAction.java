@@ -65,7 +65,7 @@ public abstract class InstantiateAppAction extends AbstractAction {
         String statusLog = "Start to instantiate the app for package Id：" + packageId + ", mepm package id:"
             + mepmPkgId;
         LOGGER.info(statusLog);
-        ActionStatus actionStatus = initActionStatus(EnumOperationObjectType.APPLICATION_INSTANCE, packageId,
+        ActionStatus actionStatus = initActionStatus(EnumOperationObjectType.APPLICATION_PACKAGE, packageId,
             ACTION_NAME, statusLog);
         String mepHostId = application.getMepHostId();
         if (null == mepHostId || "".equals(mepHostId)) {
