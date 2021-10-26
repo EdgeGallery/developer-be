@@ -67,6 +67,26 @@ public class VMAppOperationCtl {
         return ResponseEntity.ok(result);
     }
 
+    /**
+     * export a vm image.
+     */
+    @ApiOperation(value = "export a vm image.", response = OperationInfoRep.class)
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = "OK", response = OperationInfoRep.class),
+        @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
+    })
+    @RequestMapping(value = "/{applicationId}/vms/{vmId}/exportimage", method = RequestMethod.POST,
+        produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
+    public ResponseEntity<OperationInfoRep> createVmImage(
+        @Pattern(regexp = REGEX_UUID, message = "applicationId must be in UUID format")
+        @ApiParam(value = "applicationId", required = true) @PathVariable("applicationId") String applicationId,
+        @ApiParam(value = "vmId", required = true) @PathVariable("vmId") String vmId, HttpServletRequest request) {
+        String accessToken = request.getHeader(Consts.ACCESS_TOKEN_STR);
+        OperationInfoRep result = VmAppOperationService.createVmImage(applicationId, vmId, accessToken);
+        return ResponseEntity.ok(result);
+    }
+
 
     /**
      * upload file.

@@ -41,4 +41,6 @@ public interface OperationStatusMapper {
     ActionStatus getActionStatusById(String id);
 
     List<ActionStatus> getActionStatusByOperationId(String operationId);
+
+    int getOperationCountByObjectType(String objectType);
 }

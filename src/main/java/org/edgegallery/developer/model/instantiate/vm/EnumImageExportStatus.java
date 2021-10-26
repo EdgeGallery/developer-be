@@ -19,7 +19,8 @@ public enum EnumImageExportStatus {
     IMAGE_CREATING("Creating Image"),
     IMAGE_QUERYING("Querying Image Status"),
     IMAGE_DOWNLOADING("Downloading Image"),
-    SUCCESS("Success");
+    SUCCESS("Success"),
+    FAILED("Failed");
 
     private String name;
 

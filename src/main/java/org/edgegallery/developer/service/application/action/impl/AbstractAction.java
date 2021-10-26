@@ -56,6 +56,9 @@ public abstract class AbstractAction implements IAction {
         actionStatus.setProgress(progress);
         actionStatus.appendStatusLog(statusLog);
         getContext().updateActionStatus(actionStatus);
+        if (progress==100) {
+            actionStatus.setStatus(EnumActionStatus.SUCCESS);
+        }
     }
 
     public void updateActionError(ActionStatus actionStatus, String errorMsg){

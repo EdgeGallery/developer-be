@@ -23,16 +23,13 @@ import org.edgegallery.developer.model.instantiate.vm.EnumImageExportStatus;
 import org.edgegallery.developer.model.instantiate.vm.ImageExportInfo;
 import org.edgegallery.developer.model.operation.ActionStatus;
 import org.edgegallery.developer.model.operation.EnumOperationObjectType;
-import org.edgegallery.developer.service.application.ApplicationService;
 import org.edgegallery.developer.service.application.action.IContext;
 import org.edgegallery.developer.service.application.action.impl.AbstractAction;
 import org.edgegallery.developer.service.application.common.IContextParameter;
-import org.edgegallery.developer.service.recource.mephost.MepHostService;
 import org.edgegallery.developer.util.HttpClientUtil;
 import org.edgegallery.developer.util.SpringContextUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 
@@ -48,10 +45,6 @@ public class DownloadImageAction extends AbstractAction {
     public static final int TIMEOUT = 10 * 60 * 1000;
     //interval of the query, 5s.
     public static final int INTERVAL = 5000;
-
-    ApplicationService applicationService = (ApplicationService) SpringContextUtil.getBean(ApplicationService.class);
-
-    MepHostService mepHostService = (MepHostService) SpringContextUtil.getBean(MepHostService.class);
 
     ImageExportInfoMapper imageExportInfoMapper = (ImageExportInfoMapper) SpringContextUtil.getBean(ImageExportInfoMapper.class);
 
@@ -77,7 +70,7 @@ public class DownloadImageAction extends AbstractAction {
         String packageId = (String) getContext().getParameter(IContextParameter.PARAM_PACKAGE_ID);
         String statusLog = "Start to create vm image for package Id：" + packageId;
         LOGGER.info(statusLog);
-        ActionStatus actionStatus = initActionStatus(EnumOperationObjectType.VM_IMAGE_DOWNLOAD, packageId,
+        ActionStatus actionStatus = initActionStatus(EnumOperationObjectType.VM_IMAGE_INSTANCE, packageId,
             ACTION_NAME, statusLog);
         //create image.
         updateActionProgress(actionStatus, 30, "start to query image info");
@@ -86,15 +79,17 @@ public class DownloadImageAction extends AbstractAction {
         if (!result) {
             String msg = "query vm  image info from fileSystem failed. The log is : " + lcmLog.getLog();
             updateActionError(actionStatus, msg);
+            modifyImageExportInfo(EnumImageExportStatus.FAILED, msg);
         }
         String msg = "query vm  image info from fileSystem success";
         updateActionProgress(actionStatus, 100, msg);
+        modifyImageExportInfo(EnumImageExportStatus.SUCCESS, msg);
         return true;
     }
 
     private boolean queryImageInfoFromFileSystem() {
         String vmId = (String) getContext().getParameter(IContextParameter.PARAM_VM_ID);
-        ImageExportInfo imageExportInfo = new ImageExportInfo();
+        ImageExportInfo imageExportInfo = imageExportInfoMapper.getImageExportInfoInfoByVMId(vmId);
         int waitingTime = 0;
         String url = (String) getContext().getParameter(IContextParameter.PARAM_IMAGE_DOWNLOAD_URL);
         while (waitingTime < TIMEOUT) {
@@ -112,6 +107,7 @@ public class DownloadImageAction extends AbstractAction {
                     imageExportInfo.setImageName(imageResult.getFileName());
                     imageExportInfo.setStatus(EnumImageExportStatus.SUCCESS);
                     imageExportInfo.setFormat(imageResult.getCheckStatusResponse().getCheckInfo().getImageInfo().getFormat());
+                    imageExportInfo.setImageSize(imageResult.getCheckStatusResponse().getCheckInfo().getImageInfo().getImageSize());
                     imageExportInfo.setDownloadUrl(url + "action/download");
                     imageExportInfoMapper.modifyImageExportInfoInfoByVMId(vmId, imageExportInfo);
                     return true;
@@ -126,5 +122,17 @@ public class DownloadImageAction extends AbstractAction {
             }
         }
         return false;
+    }
+    private Boolean modifyImageExportInfo(EnumImageExportStatus status, String log) {
+        String vmId = (String) getContext().getParameter(IContextParameter.PARAM_VM_ID);
+        ImageExportInfo imageExportInfo = imageExportInfoMapper.getImageExportInfoInfoByVMId(vmId);
+        imageExportInfo.setStatus(status);
+        imageExportInfo.setLog(log);
+        int res = imageExportInfoMapper.modifyImageExportInfoInfoByVMId(vmId, imageExportInfo);
+        if (res < 1) {
+            LOGGER.warn("create image export info baseDate fail");
+            return false;
+        }
+        return true;
     }
 }

@@ -36,7 +36,7 @@ public interface VMAppOperationService {
 
     ResponseEntity mergeAppFile(String applicationId, String vmId, String fileName, String identifier);
 
-    OperationInfoRep createImageExport(String applicationId, String vmId, String accessToken);
+    OperationInfoRep createVmImage(String applicationId, String vmId, String accessToken);
 
     ImageExportInfo getImageExportInfo(String vmId);
 

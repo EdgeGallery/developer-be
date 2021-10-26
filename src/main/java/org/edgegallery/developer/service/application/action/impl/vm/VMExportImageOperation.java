@@ -34,7 +34,8 @@ public class VMExportImageOperation implements IActionCollection {
 
     public List<IAction> actions;
 
-    public VMExportImageOperation(User user, String applicationId, String vmId, String token, OperationStatus operationStatus) {
+    public VMExportImageOperation(User user, String applicationId, String vmId, String token,
+        OperationStatus operationStatus, String appInstanceId, String vmInstanceId) {
         IAction createImageAction = new CreateImageAction();
         IAction DownloadImageAction = new DownloadImageAction();
 
@@ -47,7 +48,8 @@ public class VMExportImageOperation implements IActionCollection {
         DownloadImageAction.setContext(context);
         context.addParameter(IContextParameter.PARAM_APPLICATION_ID, applicationId);
         context.addParameter(IContextParameter.PARAM_VM_ID, vmId);
-
+        context.addParameter(IContextParameter.PARAM_APP_INSTANCE_ID, appInstanceId);
+        context.addParameter(IContextParameter.PARAM_VM_INSTANCE_ID, vmInstanceId);
         actions = Arrays.asList(createImageAction, DownloadImageAction);
     }
 

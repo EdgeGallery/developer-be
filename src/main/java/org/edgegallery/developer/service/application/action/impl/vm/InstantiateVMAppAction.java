@@ -23,42 +23,43 @@ import com.google.gson.JsonParser;
 import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
 import java.util.Map;
-import org.edgegallery.developer.mapper.HostLogMapper;
+import org.edgegallery.developer.mapper.operation.OperationStatusMapper;
+import org.edgegallery.developer.model.instantiate.vm.EnumVMInstantiateStatus;
 import org.edgegallery.developer.model.instantiate.vm.PortInstantiateInfo;
 import org.edgegallery.developer.model.instantiate.vm.VMInstantiateInfo;
+import org.edgegallery.developer.model.operation.EnumOperationObjectType;
 import org.edgegallery.developer.model.resource.mephost.MepHost;
 import org.edgegallery.developer.model.vm.NetworkInfo;
 import org.edgegallery.developer.model.vm.VmInstantiateWorkload;
 import org.edgegallery.developer.service.application.action.impl.InstantiateAppAction;
 import org.edgegallery.developer.service.application.common.EnumInstantiateStatus;
 import org.edgegallery.developer.service.application.common.IContextParameter;
-import org.edgegallery.developer.service.application.impl.vm.VMAppOperationServiceImpl;
+import org.edgegallery.developer.service.application.vm.VMAppOperationService;
 import org.edgegallery.developer.util.HttpClientUtil;
 import org.edgegallery.developer.util.InputParameterUtil;
 import org.edgegallery.developer.util.IpCalculateUtil;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.edgegallery.developer.util.SpringContextUtil;
 
 public class InstantiateVMAppAction extends InstantiateAppAction {
 
     private static Gson gson = new Gson();
 
-    @Autowired
-    private VMAppOperationServiceImpl VmAppOperationService;
+    VMAppOperationService vmAppOperationService = (VMAppOperationService) SpringContextUtil.getBean(VMAppOperationService.class);
 
-    @Autowired
-    private HostLogMapper hostLogMapper;
+    OperationStatusMapper operationStatusMapper = (OperationStatusMapper) SpringContextUtil.getBean(
+        OperationStatusMapper.class);
 
-    public boolean saveInstanceIdToInstantiateInfo(String appInstanceId) {
+    public boolean saveInstanceIdToInstantiateInfo(String appInstanceId, EnumVMInstantiateStatus status) {
         String vmId = (String) getContext().getParameter(IContextParameter.PARAM_VM_ID);
-        VMInstantiateInfo instantiateInfo = VmAppOperationService.getInstantiateInfo(vmId);
+        VMInstantiateInfo instantiateInfo = vmAppOperationService.getInstantiateInfo(vmId);
         instantiateInfo.setAppInstanceId(appInstanceId);
-        return VmAppOperationService.updateInstantiateInfo(vmId, instantiateInfo);
+        instantiateInfo.setStatus(status);
+        return vmAppOperationService.updateInstantiateInfo(vmId, instantiateInfo);
     }
 
     public Map<String, String> getInputParams(MepHost mepHost) {
         String parameter = mepHost.getNetworkParameter();
-        String mecHost = mepHost.getMecHostIp();
-        int count = hostLogMapper.getHostLogCount(mecHost);
+        int count = operationStatusMapper.getOperationCountByObjectType(EnumOperationObjectType.APPLICATION_INSTANCE.toString());
         Map<String, String> vmInputParams = InputParameterUtil.getParams(parameter);
         String n6Range = vmInputParams.get("app_n6_ip");
         String mepRange = vmInputParams.get("app_mp1_ip");
@@ -80,7 +81,7 @@ public class InstantiateVMAppAction extends InstantiateAppAction {
 
     public boolean saveWorkloadToInstantiateInfo(String respBody) {
         String vmId = (String) getContext().getParameter(IContextParameter.PARAM_VM_ID);
-        VMInstantiateInfo vmInstantiateInfo = VmAppOperationService.getInstantiateInfo(vmId);
+        VMInstantiateInfo vmInstantiateInfo = vmAppOperationService.getInstantiateInfo(vmId);
         Type vmInfoType = new TypeToken<VmInstantiateWorkload>() { }.getType();
         VmInstantiateWorkload vmInstantiateWorkload = gson.fromJson(respBody, vmInfoType);
         vmInstantiateInfo.setLog(respBody);
@@ -94,7 +95,7 @@ public class InstantiateVMAppAction extends InstantiateAppAction {
                 vmInstantiateInfo.getPortInstanceList().add(port);
             }
         }
-        return VmAppOperationService.updateInstantiateInfo(vmId, vmInstantiateInfo);
+        return vmAppOperationService.updateInstantiateInfo(vmId, vmInstantiateInfo);
     }
 
     public EnumInstantiateStatus queryInstantiateStatus(String appInstanceId, MepHost mepHost) {
