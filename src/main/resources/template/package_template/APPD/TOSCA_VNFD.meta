@@ -1,0 +1,10 @@
+VNFD-Meta-File-Version: 1.0
+CSAR-Version: 3.25
+Created-by: Onboarding portal
+Entry-Definitions: Definition/vm_container.yaml
+
+Name: Definition/vm_container
+Content-Type: VNFD
+
+Name: Definition/nfv_vnfd_types_v1_0.yaml
+Content-Type: VNFD
