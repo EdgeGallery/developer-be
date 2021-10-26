@@ -136,6 +136,13 @@
     FROM tbl_vm_image WHERE id = #{imageId}
   </select>
 
+  <select id="getAvailableVmImages" resultMap="VmImageMap" parameterType="java.lang.String">
+    SELECT
+    <include refid="AllColumn"/>
+    FROM tbl_vm_image
+    WHERE status = 'PUBLISHED' and (type = 'public' or user_id = #{userId})
+  </select>
+
   <select id="getVmImagesPath" resultType="java.lang.String" parameterType="java.lang.Integer">
     SELECT down_load_url FROM tbl_vm_image WHERE id = #{imageId}
   </select>

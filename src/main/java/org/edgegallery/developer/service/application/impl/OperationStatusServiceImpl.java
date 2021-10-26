@@ -69,7 +69,7 @@ public class OperationStatusServiceImpl implements OperationStatusService {
         ActionProgressRange actionProgressRange = actionProgressRangeMap.get(actionStatus.getActionName());
         int actionProgressLength = actionProgressRange.getEnd() - actionProgressRange.getStart();
         int progress = actionProgressRangeMap.get(actionStatus.getActionName()).getStart()
-            + actionProgressLength * actionStatus.getProgress();
+            + actionProgressLength * actionStatus.getProgress()/100;
         OperationStatus operationStatus = getOperationStatusById(operationId);
         operationStatus.setProgress(progress);
         if (EnumActionStatus.FAILED.equals(actionStatus.getStatus())) {

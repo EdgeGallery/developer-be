@@ -49,4 +49,6 @@ public interface VMImageService {
     ResponseEntity<byte[]> downloadVmImage(Integer imageId);
 
     Boolean imageSlim(Integer imageId);
+
+    VMImageRes getAvailableVmImages();
 }
