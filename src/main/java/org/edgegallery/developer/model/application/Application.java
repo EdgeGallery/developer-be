@@ -60,7 +60,7 @@ public class Application {
     //appCreateType can be INTEGRATE/DEVELOP
     private EnumApplicationType appCreateType;
 
-    private Date createTime;
+    private String createTime;
 
     private EnumApplicationStatus status;
 

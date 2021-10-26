@@ -15,13 +15,14 @@
 package org.edgegallery.developer.service.apppackage.csar;
 
 import java.io.File;
+import java.io.IOException;
 import org.edgegallery.developer.model.application.vm.VMApplication;
 import org.edgegallery.developer.model.apppackage.appd.AppDefinition;
 import org.edgegallery.developer.service.apppackage.converter.AppDefinitionConverter;
 import org.edgegallery.developer.util.BusinessConfigUtil;
 import org.edgegallery.developer.util.InitConfigUtil;
 
-public class VMPackageFileCreator {
+public class VMPackageFileCreator extends PackageFileCreator {
 
     private VMApplication application;
 
@@ -35,7 +36,8 @@ public class VMPackageFileCreator {
         return getPackageBasePath() + APPD_BASE_PATH + application.getName() + APPD_FILE_TYPE;
     }
 
-    public VMPackageFileCreator(VMApplication application, String packageId) {
+    public VMPackageFileCreator(VMApplication application, String packageId) throws IOException {
+        super(application, packageId);
         this.application = application;
         this.packageId = packageId;
 
@@ -61,8 +63,4 @@ public class VMPackageFileCreator {
 
     }
 
-    private String getPackageBasePath() {
-        return InitConfigUtil.getWorkSpaceBaseDir() + BusinessConfigUtil.getWorkspacePath() + application.getId()
-            + File.separator + packageId;
-    }
 }
