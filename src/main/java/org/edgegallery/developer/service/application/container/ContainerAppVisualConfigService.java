@@ -14,17 +14,18 @@
  *    limitations under the License.
  */
 
-package org.edgegallery.developer.mapper.application.container;
+package org.edgegallery.developer.service.application.container;
 
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Param;
-import org.edgegallery.developer.model.application.container.ContainerAppImageInfo;
+import java.util.List;
+import org.edgegallery.developer.model.application.container.HelmChart;
 
-@Mapper
-public interface ContainerAppImageInfoMapper {
+public interface ContainerAppVisualConfigService {
 
-    int saveImageInfo(ContainerAppImageInfo appImageInfo);
+    HelmChart saveDeployYaml(String configJsonData, String applicationId, String configType);
 
-    int updateImageInfo(@Param("imageInfo") String imageInfo, @Param("yamlFileId") String yamlFileId);
+    String updateDeployYaml(String yamlFileId, String yamlContent);
 
+    String getDeployYaml(String yamlFileId);
+
+    List<String> getDeployYamlAsList(String yamlFileId);
 }

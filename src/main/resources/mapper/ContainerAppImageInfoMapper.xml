@@ -25,11 +25,18 @@
         <result property="helmChartFileId" column="helm_chart_file_id"/>
     </resultMap>
 
-    <insert id="saveImageInfo" parameterType="org.edgegallery.developer.model.application.container.ContainerAppImageInfo">
+    <insert id="saveImageInfo"
+            parameterType="org.edgegallery.developer.model.application.container.ContainerAppImageInfo">
         insert into
         tbl_container_app_image_info (id, image_info, application_id, helm_chart_file_id)
         values
         ( #{id},#{imageInfo},#{applicationId},#{helmChartFileId})
     </insert>
+
+    <update id="updateImageInfo" parameterType="java.lang.String">
+        update
+        tbl_container_app_image_info set image_info = #{imageInfo}
+        where helm_chart_file_id=#{yamlFileId}
+    </update>
 
 </mapper>
