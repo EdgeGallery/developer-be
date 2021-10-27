@@ -17,9 +17,11 @@
 package org.edgegallery.developer.mapper.application.container;
 
 import java.util.List;
+import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.edgegallery.developer.model.application.container.HelmChart;
 
+@Mapper
 public interface HelmChartMapper {
 
     int createHelmChart(@Param("applicationId") String applicationId, @Param("helmChart") HelmChart helmChart);
@@ -27,6 +29,8 @@ public interface HelmChartMapper {
     List<HelmChart> getHelmChartsByAppId(String applicationId);
 
     HelmChart getHelmChartById(String id);
+
+    HelmChart getHelmChartByFileId(@Param("fileId") String fileId);
 
     int deleteFileAndImage(@Param("id") String id, @Param("helmChartId") String helmChartId,
         @Param("applicationId") String applicationId);

@@ -31,7 +31,7 @@
   <insert id="createHelmChart">
     insert into tbl_container_helm_chart (id, app_id, name, helm_chart_file_id)
     values
-    ( #{helmChart.id}, #{applicationId}, #{helmChart.name}, #{helmChart.helmChartFileId},
+    (#{helmChart.id}, #{applicationId}, #{helmChart.name}, #{helmChart.helmChartFileId})
     </insert>
 
   <delete id="deleteFileAndImage" parameterType="String">
@@ -45,6 +45,12 @@
     SELECT
     <include refid="HelmChartAllColumn"/>
     FROM tbl_container_helm_chart where id = #{id}
+  </select>
+
+  <select id="getHelmChartByFileId" parameterType="String" resultMap="HelmChartMap">
+    SELECT
+    <include refid="HelmChartAllColumn"/>
+    FROM tbl_container_helm_chart where helm_chart_file_id = #{fileId}
   </select>
 
   <select id="getHelmChartsByAppId" parameterType="String" resultMap="HelmChartMap">

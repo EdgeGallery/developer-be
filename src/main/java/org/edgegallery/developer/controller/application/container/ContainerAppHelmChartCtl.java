@@ -33,9 +33,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -64,7 +64,7 @@ public class ContainerAppHelmChartCtl {
     public ResponseEntity<Boolean> uploadHelmChartYaml(
         @ApiParam(value = "file", required = true) @RequestPart("file") MultipartFile helmTemplateYaml,
         @Pattern(regexp = REGEX_UUID, message = "projectId must be in UUID format")
-        @ApiParam(value = "applicationId", required = true) @RequestParam("applicationId") String applicationId) {
+        @ApiParam(value = "applicationId", required = true) @PathVariable("applicationId") String applicationId) {
         return ResponseEntity.ok(containerAppHelmChartService.uploadHelmChartYaml(helmTemplateYaml, applicationId));
     }
 
@@ -81,7 +81,7 @@ public class ContainerAppHelmChartCtl {
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<List<HelmChart>> getHelmChartList(
         @Pattern(regexp = REGEX_UUID, message = "applicationId must be in UUID format")
-        @ApiParam(value = "applicationId", required = true) @RequestParam("applicationId") String applicationId) {
+        @ApiParam(value = "applicationId", required = true) @PathVariable("applicationId") String applicationId) {
         return ResponseEntity.ok(containerAppHelmChartService.getHelmChartList(applicationId));
     }
 
@@ -98,8 +98,8 @@ public class ContainerAppHelmChartCtl {
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<HelmChart> getHelmChartById(
         @Pattern(regexp = REGEX_UUID, message = "applicationId must be in UUID format")
-        @ApiParam(value = "applicationId", required = true) @RequestParam("applicationId") String applicationId,
-        @ApiParam(value = "id", required = true) @RequestParam("id") String id) {
+        @ApiParam(value = "applicationId", required = true) @PathVariable("applicationId") String applicationId,
+        @ApiParam(value = "id", required = true) @PathVariable("id") String id) {
         return ResponseEntity.ok(containerAppHelmChartService.getHelmChartById(applicationId, id));
     }
 
@@ -116,10 +116,9 @@ public class ContainerAppHelmChartCtl {
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<Boolean> deleteHelmChartById(
         @Pattern(regexp = REGEX_UUID, message = "applicationId must be in UUID format")
-        @ApiParam(value = "applicationId", required = true) @RequestParam("applicationId") String applicationId,
+        @ApiParam(value = "applicationId", required = true) @PathVariable("applicationId") String applicationId,
         @Pattern(regexp = REGEX_UUID, message = "fileId must be in UUID format")
-        @ApiParam(value = "id", required = true) @RequestParam("id") String id) {
+        @ApiParam(value = "id", required = true) @PathVariable("id") String id) {
         return ResponseEntity.ok(containerAppHelmChartService.deleteHelmChartById(applicationId, id));
     }
-
 }

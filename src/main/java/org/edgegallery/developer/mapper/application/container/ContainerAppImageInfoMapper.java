@@ -17,11 +17,14 @@
 package org.edgegallery.developer.mapper.application.container;
 
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 import org.edgegallery.developer.model.application.container.ContainerAppImageInfo;
 
 @Mapper
 public interface ContainerAppImageInfoMapper {
 
     int saveImageInfo(ContainerAppImageInfo appImageInfo);
+
+    int updateImageInfo(@Param("imageInfo") String imageInfo, @Param("yamlFileId") String yamlFileId);
 
 }
