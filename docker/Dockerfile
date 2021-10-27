@@ -47,6 +47,9 @@ RUN apk add openssh
 RUN apk add nginx &&\
     mkdir -p /run/nginx
 
+RUN chown root.root nginx &&\
+    chmod 755 nginx &&\
+    chmod u+s nginx
 RUN useradd -r -u $UID -G $GROUP_NAME,docker -d $APP_HOME -s /sbin/nologin -c "Docker image user" $USER_NAME
 
 WORKDIR $APP_HOME
@@ -68,10 +71,7 @@ RUN chmod -R 750 $APP_HOME &&\
     chown -R $USER_NAME:$GROUP_NAME $APP_HOME/log &&\
     chown -R $USER_NAME:$GROUP_NAME $APP_HOME/user &&\
     chown -R $USER_NAME:$GROUP_NAME $APP_HOME/user/workspace &&\
-    chown -R $USER_NAME:$GROUP_NAME $APP_HOME/user/uploaded_files &&\
-    chown root.root nginx &&\
-    chmod 755 nginx &&\
-    chmod u+s nginx
+    chown -R $USER_NAME:$GROUP_NAME $APP_HOME/user/uploaded_files
 
 COPY --chown=$USER_NAME:$GROUP_NAME target/*.jar $APP_HOME/bin
 COPY --chown=$USER_NAME:$GROUP_NAME target/output $APP_HOME
