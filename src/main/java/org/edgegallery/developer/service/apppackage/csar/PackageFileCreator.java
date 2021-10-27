@@ -16,7 +16,6 @@ import org.apache.ibatis.io.Resources;
 import org.edgegallery.developer.common.ResponseConsts;
 import org.edgegallery.developer.exception.EntityNotFoundException;
 import org.edgegallery.developer.model.application.Application;
-import org.edgegallery.developer.model.application.EnumAppClass;
 import org.edgegallery.developer.model.apppackage.IToscaContentEnum;
 import org.edgegallery.developer.model.apppackage.basicContext.ManifestFiledataContent;
 import org.edgegallery.developer.model.apppackage.basicContext.ManifestMetadataContent;
@@ -44,8 +43,6 @@ public class PackageFileCreator {
 
     private static final String TEMPLATE_PACKAGE_METADATA_PATH = "/TOSCA-Metadata/TOSCA.meta";
 
-    private static final String TEMPLATE_PACKAGE_HELM_CHART_PATH = "/Artifacts/Deployment/Charts/";
-
     private static final String TEMPLATE_APPD = "APPD/";
 
     private static final String TEMPLATE_PATH = "temp";
@@ -55,8 +52,6 @@ public class PackageFileCreator {
     private Application application;
 
     private String packageId;
-
-    private String helmChartName;
 
     public String getPackagePath() {
         return applicationUtil.getPackageBasePath(application.getId(), packageId);
@@ -73,17 +68,6 @@ public class PackageFileCreator {
         }
         this.application = application;
         this.packageId = packageId;
-    }
-
-    public PackageFileCreator(Application application, String packageId, String helmChartName) {
-        if (application == null || StringUtils.isEmpty(packageId) || StringUtils.isEmpty(helmChartName)) {
-            LOGGER.error("application or packageIde or helmChartName is null");
-            throw new EntityNotFoundException("application or packageIde or helmChartName is null",
-                ResponseConsts.RET_FILE_NOT_FOUND);
-        }
-        this.application = application;
-        this.packageId = packageId;
-        this.helmChartName = helmChartName;
     }
 
     public boolean copyPackageTemplateFile() {
