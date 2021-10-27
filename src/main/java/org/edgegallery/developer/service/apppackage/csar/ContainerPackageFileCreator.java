@@ -71,7 +71,7 @@ public class ContainerPackageFileCreator extends PackageFileCreator{
         return InitConfigUtil.getWorkSpaceBaseDir() + BusinessConfigUtil.getWorkspacePath() + application.getId() + File.separator;
     }
 
-    public boolean compressHemChartFile() {
+    public boolean compressDeploymentFile() {
         String tempPackagePath = getPackagePath() + TEMPLATE_PATH;
         try {
             String helmChartPath = tempPackagePath + TEMPLATE_PACKAGE_HELM_CHART_PATH + getHelmChartName();

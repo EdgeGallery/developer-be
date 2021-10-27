@@ -182,7 +182,7 @@ public class PackageFileCreator {
             String appdDir = tempPackagePath + File.separator + "APPD";
             CompressFileUtils.fileToZip(appdDir, appdName(""));
             // compress helm chart
-            compressHemChartFile();
+            compressDeploymentFile();
             encryptedService.encryptedFile(tempPackagePath);
             encryptedService.encryptedCMS(tempPackagePath);
             // compress package
@@ -196,7 +196,7 @@ public class PackageFileCreator {
         return getPackagePath() + ".zip";
     }
 
-    public boolean compressHemChartFile() {
+    public boolean compressDeploymentFile() {
         return true;
     }
 
