@@ -69,8 +69,9 @@ RUN chmod -R 750 $APP_HOME &&\
     chown -R $USER_NAME:$GROUP_NAME $APP_HOME/user &&\
     chown -R $USER_NAME:$GROUP_NAME $APP_HOME/user/workspace &&\
     chown -R $USER_NAME:$GROUP_NAME $APP_HOME/user/uploaded_files &&\
-    chown -R $USER_NAME:$GROUP_NAME /var/lib/nginx &&\
-    chown -R $USER_NAME:$GROUP_NAME /run/nginx
+    chown root.root nginx
+    chmod 755 nginx
+    chmod u+s nginx
 
 COPY --chown=$USER_NAME:$GROUP_NAME target/*.jar $APP_HOME/bin
 COPY --chown=$USER_NAME:$GROUP_NAME target/output $APP_HOME
