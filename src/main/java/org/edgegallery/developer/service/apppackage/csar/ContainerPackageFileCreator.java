@@ -22,7 +22,7 @@ import org.edgegallery.developer.util.BusinessConfigUtil;
 import org.edgegallery.developer.util.CompressFileUtils;
 import org.edgegallery.developer.util.InitConfigUtil;
 
-public class ContainerPackageFileCreator extends PackageFileCreator{
+public class ContainerPackageFileCreator extends PackageFileCreator {
 
     private static final String TEMPLATE_PACKAGE_HELM_CHART_PATH = "/Artifacts/Deployment/Charts/";
 
@@ -45,19 +45,19 @@ public class ContainerPackageFileCreator extends PackageFileCreator{
 
     }
 
-    private File generateAPPDYaml()  {
+    private File generateAPPDYaml() {
 
         return new File(getPackageBasePath());
 
     }
 
-    private File generateHelmChart()  {
+    private File generateHelmChart() {
 
         return new File(getPackageBasePath());
 
     }
 
-    private File generateImageDesFile()  {
+    private File generateImageDesFile() {
 
         return new File(getPackageBasePath());
 
@@ -68,7 +68,8 @@ public class ContainerPackageFileCreator extends PackageFileCreator{
     }
 
     private String getPackageBasePath() {
-        return InitConfigUtil.getWorkSpaceBaseDir() + BusinessConfigUtil.getWorkspacePath() + application.getId() + File.separator;
+        return InitConfigUtil.getWorkSpaceBaseDir() + BusinessConfigUtil.getWorkspacePath() + application.getId()
+            + File.separator;
     }
 
     public boolean compressDeploymentFile() {
