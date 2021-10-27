@@ -44,6 +44,9 @@ RUN apk add docker
 
 RUN apk add openssh
 
+RUN apk add nginx &&\
+    mkdir -p /run/nginx
+
 RUN useradd -r -u $UID -G $GROUP_NAME,docker -d $APP_HOME -s /sbin/nologin -c "Docker image user" $USER_NAME
 
 WORKDIR $APP_HOME
@@ -80,4 +83,4 @@ USER $USER_NAME
 
 # Execute script & application
 ENTRYPOINT ["sh", "-c"]
-CMD ["exec java -jar ./bin/$APP_FILE"]
+CMD ["nginx && exec java -jar ./bin/$APP_FILE"]
