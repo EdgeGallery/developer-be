@@ -79,7 +79,7 @@ import org.edgegallery.developer.model.workspace.EnumProjectStatus;
 import org.edgegallery.developer.model.workspace.EnumTestConfigStatus;
 import org.edgegallery.developer.model.resource.MepHost;
 import org.edgegallery.developer.response.FormatRespDto;
-import org.edgegallery.developer.service.EncryptedService;
+import org.edgegallery.developer.service.apppackage.signature.EncryptedService;
 import org.edgegallery.developer.service.ProjectService;
 import org.edgegallery.developer.service.csar.NewCreateVmCsar;
 import org.edgegallery.developer.service.virtual.create.VmCreateStage;

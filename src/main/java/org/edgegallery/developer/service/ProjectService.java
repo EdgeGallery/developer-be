@@ -111,6 +111,7 @@ import org.edgegallery.developer.model.workspace.ProjectTestConfigStageStatus;
 import org.edgegallery.developer.model.workspace.PublishAppReqDto;
 import org.edgegallery.developer.model.workspace.UploadedFile;
 import org.edgegallery.developer.response.FormatRespDto;
+import org.edgegallery.developer.service.apppackage.signature.EncryptedService;
 import org.edgegallery.developer.service.capability.CapabilityService;
 import org.edgegallery.developer.service.csar.NewCreateCsar;
 import org.edgegallery.developer.service.dao.ProjectDao;

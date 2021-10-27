@@ -12,7 +12,7 @@
  * the License.
  */
 
-package org.edgegallery.developer.service;
+package org.edgegallery.developer.service.apppackage.signature;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -35,7 +35,7 @@ import org.edgegallery.developer.exception.FileOperateException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-@Service("encryptedService")
+@Service
 public class EncryptedService {
 
     @Value("${signature.encrypted-key-path:}")
