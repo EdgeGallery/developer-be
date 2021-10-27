@@ -182,21 +182,7 @@ public class PackageFileCreator {
             String appdDir = tempPackagePath + File.separator + "APPD";
             CompressFileUtils.fileToZip(appdDir, appdName(""));
             // compress helm chart
-            if (application.getAppClass() == EnumAppClass.CONTAINER) {
-                String helmChartPath = tempPackagePath + TEMPLATE_PACKAGE_HELM_CHART_PATH + helmChartName;
-                File chartFileDir = new File(helmChartPath);
-                if (!chartFileDir.exists() || !chartFileDir.isDirectory()) {
-                    LOGGER.error("helm chart file is not exited, file name is:{}", helmChartName);
-                    return null;
-                }
-                File tgz = CompressFileUtils
-                    .compressToTgzAndDeleteSrc(helmChartPath,
-                        tempPackagePath + TEMPLATE_PACKAGE_HELM_CHART_PATH, helmChartName);
-                if (!tgz.exists()) {
-                    LOGGER.error("Create tgz exception, file name is:{}", helmChartName);
-                    return null;
-                }
-            }
+            compressHemChartFile();
             encryptedService.encryptedFile(tempPackagePath);
             encryptedService.encryptedCMS(tempPackagePath);
             // compress package
@@ -208,6 +194,10 @@ public class PackageFileCreator {
         }
 
         return getPackagePath() + ".zip";
+    }
+
+    public boolean compressHemChartFile() {
+        return true;
     }
 
     private String appdName(String format) {
