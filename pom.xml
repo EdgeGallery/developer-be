@@ -846,7 +846,7 @@
                     <failOnViolation>false</failOnViolation>
                     <violationSeverity>warning</violationSeverity>
                     <configLocation>
-                        https://raw.githubusercontent.com/EdgeGallery/docs/master/code-check-configs/edgegallery_checks.xml
+                        https://gitee.com/edgegallery/docs/raw/master/code-check-configs/edgegallery_checks.xml
                     </configLocation>
                 </configuration>
                 <executions>
@@ -943,7 +943,7 @@
                     <failOnViolation>true</failOnViolation>
                     <violationSeverity>warning</violationSeverity>
                     <configLocation>
-                        https://raw.githubusercontent.com/EdgeGallery/docs/master/code-check-configs/edgegallery_checks.xml
+                        https://gitee.com/edgegallery/docs/raw/master/code-check-configs/edgegallery_checks.xml
                     </configLocation>
                 </configuration>
             </plugin>
