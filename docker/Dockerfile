@@ -77,6 +77,7 @@ COPY --chown=$USER_NAME:$GROUP_NAME configs/mep_capability/images $APP_HOME/mep_
 COPY --chown=$USER_NAME:$GROUP_NAME lib/*.jar  $APP_HOME/lib/
 
 EXPOSE 9080
+EXPOSE 30111-30120
 
 # Change to the app user.
 USER $USER_NAME
