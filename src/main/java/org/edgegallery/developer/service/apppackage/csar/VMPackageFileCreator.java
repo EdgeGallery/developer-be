@@ -21,6 +21,7 @@ import org.edgegallery.developer.model.apppackage.appd.AppDefinition;
 import org.edgegallery.developer.service.apppackage.converter.AppDefinitionConverter;
 import org.edgegallery.developer.util.BusinessConfigUtil;
 import org.edgegallery.developer.util.InitConfigUtil;
+import org.edgegallery.developer.util.applicationUtil;
 
 public class VMPackageFileCreator extends PackageFileCreator {
 
@@ -33,10 +34,11 @@ public class VMPackageFileCreator extends PackageFileCreator {
     private static final String APPD_FILE_TYPE = ".yaml";
 
     public String getAppdFilePath() {
-        return getPackageBasePath() + APPD_BASE_PATH + application.getName() + APPD_FILE_TYPE;
+        return getPackagePath() + APPD_BASE_PATH + application.getName() + APPD_FILE_TYPE;
     }
 
-    public VMPackageFileCreator(VMApplication application, String packageId) throws IOException {
+
+    public VMPackageFileCreator(VMApplication application, String packageId) {
         super(application, packageId);
         this.application = application;
         this.packageId = packageId;
@@ -44,10 +46,23 @@ public class VMPackageFileCreator extends PackageFileCreator {
     }
 
     public String generateAppPackageFile() {
-        String packagePath = getPackageBasePath();
+        String packagePath = getPackagePath();
+        boolean res = copyPackageTemplateFile();
+        if (!res) {
+            LOGGER.error("copy package template file fail, package dir:{}", packagePath);
+            return null;
+        }
+        configMfFile();
+        configMetaFile();
+        configVnfdMeta();
         generateAPPDYaml();
         generateImageDesFile();
-        return packagePath;
+        String compressPath = PackageFileCompress();
+        if (compressPath == null) {
+            LOGGER.error("package compress fail");
+            return null;
+        }
+        return compressPath;
     }
 
     private boolean generateAPPDYaml() {
@@ -59,7 +74,7 @@ public class VMPackageFileCreator extends PackageFileCreator {
 
     private File generateImageDesFile() {
 
-        return new File(getPackageBasePath());
+        return new File(getPackagePath());
 
     }
 

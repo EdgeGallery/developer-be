@@ -15,17 +15,31 @@
 package org.edgegallery.developer.service.apppackage.csar;
 
 import java.io.File;
+import java.io.IOException;
+import org.edgegallery.developer.model.application.EnumAppClass;
 import org.edgegallery.developer.model.application.container.ContainerApplication;
 import org.edgegallery.developer.util.BusinessConfigUtil;
+import org.edgegallery.developer.util.CompressFileUtils;
 import org.edgegallery.developer.util.InitConfigUtil;
 
-public class ContainerPackageFileCreator {
+public class ContainerPackageFileCreator extends PackageFileCreator{
+
+    private static final String TEMPLATE_PACKAGE_HELM_CHART_PATH = "/Artifacts/Deployment/Charts/";
+
+    private static final String TEMPLATE_APPD = "APPD/";
+
+    private static final String TEMPLATE_PATH = "temp";
 
     private ContainerApplication application;
 
     private String packageId;
 
+    private String getHelmChartName() {
+        return null;
+    }
+
     public ContainerPackageFileCreator(ContainerApplication application, String packageId) {
+        super(application, packageId);
         this.application = application;
         this.packageId = packageId;
 
@@ -55,6 +69,29 @@ public class ContainerPackageFileCreator {
 
     private String getPackageBasePath() {
         return InitConfigUtil.getWorkSpaceBaseDir() + BusinessConfigUtil.getWorkspacePath() + application.getId() + File.separator;
+    }
+
+    public boolean compressDeploymentFile() {
+        String tempPackagePath = getPackagePath() + TEMPLATE_PATH;
+        try {
+            String helmChartPath = tempPackagePath + TEMPLATE_PACKAGE_HELM_CHART_PATH + getHelmChartName();
+            File chartFileDir = new File(helmChartPath);
+            if (!chartFileDir.exists() || !chartFileDir.isDirectory()) {
+                LOGGER.error("helm chart file is not exited, file name is:{}", getHelmChartName());
+                return false;
+            }
+            File tgz = CompressFileUtils
+                .compressToTgzAndDeleteSrc(helmChartPath,
+                    tempPackagePath + TEMPLATE_PACKAGE_HELM_CHART_PATH, getHelmChartName());
+            if (!tgz.exists()) {
+                LOGGER.error("Create tgz exception, file name is:{}", getHelmChartName());
+                return false;
+            }
+        } catch (IOException e) {
+            LOGGER.error("helm chart file  compress fail, file name is:{}", getHelmChartName());
+            return false;
+        }
+        return true;
     }
 
 

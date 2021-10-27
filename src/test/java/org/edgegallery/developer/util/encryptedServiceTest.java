@@ -1,7 +1,7 @@
 package org.edgegallery.developer.util;
 
 import org.edgegallery.developer.DeveloperApplicationTests;
-import org.edgegallery.developer.service.EncryptedService;
+import org.edgegallery.developer.service.apppackage.signature.EncryptedService;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;

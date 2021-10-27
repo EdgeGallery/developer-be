@@ -74,6 +74,24 @@ public final class DeveloperFileUtils {
     }
 
     /**
+     * copy template to des dir and rename the dir name.
+     *
+     * @param srcDir src
+     * @param desDir des
+     * @param name new name
+     * @return new file
+     * @throws IOException io exception
+     */
+    public static File copyDirectory(File srcDir, File desDir, String name) throws IOException {
+        File res = new File(desDir, name);
+        if (res.exists() && res.isDirectory()) {
+            FileUtils.deleteDirectory(res);
+        }
+        FileUtils.copyDirectory(srcDir, res);
+        return res;
+    }
+
+    /**
      * delteTempFile.
      */
     public static void deleteTempFile(File file) {

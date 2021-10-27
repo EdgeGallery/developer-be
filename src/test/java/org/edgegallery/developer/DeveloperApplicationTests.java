@@ -21,6 +21,7 @@ import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.apache.servicecomb.springboot2.starter.EnableServiceComb;
 import org.edgegallery.developer.util.SpringContextUtil;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
@@ -31,13 +32,16 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-@SpringBootApplication(scanBasePackages = "org.edgegallery.developer", exclude = {SecurityAutoConfiguration.class})
-@MapperScan(basePackages = {"org.edgegallery.developer.mapper","org.edgegallery.developer.infrastructure.persistence"})
+@SpringBootApplication(exclude = {SecurityAutoConfiguration.class}, scanBasePackages = "org.edgegallery.developer")
+@MapperScan(basePackages = {"org.edgegallery.developer.mapper", "org.edgegallery.developer.mapper.capability",
+    "org.edgegallery.developer.infrastructure.persistence"})
 @EnableScheduling
+@EnableServiceComb
 public class DeveloperApplicationTests {
 
     public static void main(String[] args) throws Exception {
-        SpringApplication.run(DeveloperApplication.class, args);
+        ApplicationContext applicationContext = SpringApplication.run(DeveloperApplicationTests.class, args);
+        SpringContextUtil.setApplicationContext(applicationContext);
     }
 
     @Bean
@@ -45,7 +49,7 @@ public class DeveloperApplicationTests {
         return new OncePerRequestFilter() {
             @Override
             protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
-                                            FilterChain filterChain) throws ServletException, IOException {
+                FilterChain filterChain) throws ServletException, IOException {
                 filterChain.doFilter(request, response);
             }
         };
