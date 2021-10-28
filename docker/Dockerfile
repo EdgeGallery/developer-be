@@ -45,7 +45,15 @@ RUN apk add docker
 RUN apk add openssh
 
 RUN apk add nginx &&\
-    mkdir -p /run/nginx
+    mkdir -p /run/nginx &&\
+    rm -f /etc/nginx/conf.d/default.conf &&\
+    mkdir -p /var/log/nginx &&\
+    mkdir -p /var/tmp/nginx &&\
+    chmod -R 777 /var/tmp/nginx &&\
+    chmod -R 777 /etc/nginx &&\
+    chmod -R 777 /var/log/nginx &&\
+    chmod -R 777 /var/lib/nginx &&\
+    chmod -R 777 /run/nginx
 
 RUN useradd -r -u $UID -G $GROUP_NAME,docker -d $APP_HOME -s /sbin/nologin -c "Docker image user" $USER_NAME
 
