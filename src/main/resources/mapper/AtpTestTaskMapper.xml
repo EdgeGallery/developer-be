@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~    Copyright 2021 Huawei Technologies Co., Ltd.
+  ~
+  ~    Licensed under the Apache License, Version 2.0 (the "License");
+  ~    you may not use this file except in compliance with the License.
+  ~    You may obtain a copy of the License at
+  ~
+  ~        http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~    Unless required by applicable law or agreed to in writing, software
+  ~    distributed under the License is distributed on an "AS IS" BASIS,
+  ~    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~    See the License for the specific language governing permissions and
+  ~    limitations under the License.
+  -->
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.edgegallery.developer.mapper.AtpTestTaskMapper">
+    <resultMap id="AtpTestTaskMap" type="org.edgegallery.developer.model.atpTestTask.AtpTest">
+        <result property="id" column="id"/>
+        <result property="appName" column="app_name"/>
+        <result property="status" column="status"/>
+        <result property="createTime" column="create_time"/>
+    </resultMap>
+
+    <sql id="AtpTestTaskColumn">
+        id, app_id, app_name, status, create_time
+    </sql>
+
+    <insert id="createAtpTest" parameterType="org.edgegallery.developer.model.atpTestTask.AtpTest">
+        insert into tbl_atp_test_task (id, app_id, app_name, status,
+        create_time)
+        values
+        ( #{atpTestTask.id}, #{applicationId}, #{atpTestTask.appName},
+        #{atpTestTask.status}, #{atpTestTask.createTime})
+    </insert>
+
+
+    <select id="getAtpTests" parameterType="String"
+            resultMap="AtpTestTaskMap">
+        SELECT
+        <include refid="AtpTestTaskColumn"/>
+        from tbl_atp_test_task where app_id=#{applicationId}
+    </select>
+
+
+    <select id="getAtpTestById" parameterType="String"
+            resultMap="AtpTestTaskMap">
+        SELECT
+        <include refid="AtpTestTaskColumn"/>
+        from tbl_atp_test_task where id=#{id}
+    </select>
+
+    <update id="updateAtpTestStatus" parameterType="org.edgegallery.developer.model.atpTestTask.AtpTest">
+        UPDATE tbl_atp_test_task
+        SET status = #{status}
+        WHERE id = #{id}
+    </update>
+</mapper>

@@ -14,21 +14,21 @@
  *    limitations under the License.
  */
 
-package org.edgegallery.developer.model.atpTestTask;
+package org.edgegallery.developer.mapper;
 
-import lombok.Getter;
-import lombok.Setter;
+import java.util.List;
+import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
+import org.edgegallery.developer.model.atpTestTask.AtpTest;
 
-@Getter
-@Setter
-public class AtpTestTask {
+@Mapper
+public interface AtpTestTaskMapper {
 
-    String id;
+    int createAtpTest(@Param("applicationId") String applicationId, @Param("atpTestTask") AtpTest task);
 
-    String appName;
+    List<AtpTest> getAtpTests(String applicationId);
 
-    String status;
+    AtpTest getAtpTestById(String id);
 
-    String createTime;
-
+    int updateAtpTestStatus(AtpTest task);
 }

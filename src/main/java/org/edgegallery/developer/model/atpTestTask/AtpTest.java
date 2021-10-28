@@ -1,5 +1,5 @@
 /*
- *    Copyright 2020 Huawei Technologies Co., Ltd.
+ *    Copyright 2021 Huawei Technologies Co., Ltd.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -14,32 +14,21 @@
  *    limitations under the License.
  */
 
-package org.edgegallery.developer.model.apppackage;
+package org.edgegallery.developer.model.atpTestTask;
 
 import lombok.Getter;
 import lombok.Setter;
-import lombok.ToString;
-import org.edgegallery.developer.util.BusinessConfigUtil;
-import org.edgegallery.developer.util.InitConfigUtil;
 
-@ToString
 @Getter
 @Setter
-public class AppPackage {
+public class AtpTest {
 
-    private String id;
+    String id;
 
-    private String appId;
+    String appName;
 
-    private String packageFileName;
+    String status;
 
-    /**
-     * get package path.
-     *
-     * @return package path
-     */
-    public String getPkgPath() {
-        return InitConfigUtil.getWorkSpaceBaseDir().concat(BusinessConfigUtil.getWorkspacePath()).concat(appId)
-            .concat("/").concat(packageFileName);
-    }
+    String createTime;
+
 }
