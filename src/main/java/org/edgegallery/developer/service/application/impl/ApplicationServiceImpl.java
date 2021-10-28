@@ -107,7 +107,6 @@ public class ApplicationServiceImpl implements ApplicationService {
 
     private void initNetwork(String applicationId) {
         List<Network> networks = networkService.getAllNetwork("init-application");
-        ;
         for (Network network : networks) {
             network.setId(UUID.randomUUID().toString());
             networkService.createNetwork(applicationId, network);
