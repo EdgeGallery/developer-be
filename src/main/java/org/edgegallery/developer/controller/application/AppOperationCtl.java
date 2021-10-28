@@ -27,11 +27,8 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.edgegallery.developer.common.Consts;
-import org.edgegallery.developer.mapper.AtpTestTaskMapper;
-import org.edgegallery.developer.mapper.application.ApplicationMapper;
 import org.edgegallery.developer.model.apppackage.AppPackage;
-import org.edgegallery.developer.model.atpTestTask.AtpTestTask;
-import org.edgegallery.developer.model.operation.OperationStatus;
+import org.edgegallery.developer.model.atpTestTask.AtpTest;
 import org.edgegallery.developer.model.restful.SelectMepHostReq;
 import org.edgegallery.developer.response.ErrorRespDto;
 import org.edgegallery.developer.service.application.AppOperationService;
@@ -114,13 +111,13 @@ public class AppOperationCtl {
     }
 
     /**
-     * create atp test tasks.
+     * create atp tests.
      *
      * @param applicationId applicationId
      * @param request request
      * @return true
      */
-    @ApiOperation(value = "commit test.", response = Boolean.class)
+    @ApiOperation(value = "create atp test.", response = Boolean.class)
     @ApiResponses(value = {
         @ApiResponse(code = 200, message = "OK", response = Boolean.class),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
@@ -128,56 +125,56 @@ public class AppOperationCtl {
     @RequestMapping(value = "/{applicationId}/atpTests", method = RequestMethod.POST,
         consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
-    public ResponseEntity<Boolean> commitTest(
+    public ResponseEntity<Boolean> createAtpTest(
         @Pattern(regexp = REGEX_UUID, message = "applicationId must be in UUID format")
         @ApiParam(value = "applicationId", required = true) @PathVariable("applicationId") String applicationId,
         HttpServletRequest request) {
         String accessToken = request.getHeader(Consts.ACCESS_TOKEN_STR);
-        Boolean result = getAppOperationService(applicationId).commitTest(applicationId, accessToken);
+        Boolean result = getAppOperationService(applicationId).createAtpTest(applicationId, accessToken);
         return ResponseEntity.ok(result);
     }
 
     /**
-     * get atp test tasks by application id.
+     * get atp tests by application id.
      *
      * @param applicationId application id
-     * @return test tasks list
+     * @return atp tests list
      */
-    @ApiOperation(value = "Get atp test tasks by applicationId.", response = AtpTestTask.class)
+    @ApiOperation(value = "Get atp test tasks by applicationId.", response = AtpTest.class)
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "OK", response = AtpTestTask.class),
+        @ApiResponse(code = 200, message = "OK", response = AtpTest.class),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
     @RequestMapping(value = "/{applicationId}/atpTests", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
-    public ResponseEntity<List<AtpTestTask>> getAtpTasks(
+    public ResponseEntity<List<AtpTest>> getAtpTests(
         @Pattern(regexp = REGEX_UUID, message = "applicationId must be in UUID format")
         @ApiParam(value = "applicationId", required = true) @PathVariable("applicationId") String applicationId) {
-        return ResponseEntity.ok(getAppOperationService(applicationId).selectAtpTasks(applicationId));
+        return ResponseEntity.ok(getAppOperationService(applicationId).getAtpTests(applicationId));
     }
 
     /**
-     * get atp test task by atpTestId.
+     * get atp test by atpTestId.
      *
      * @param applicationId applicationId
      * @param atpTestId atpTestId
      * @return true
      */
-    @ApiOperation(value = "Get atp test task by atpTestId.", response = AtpTestTask.class)
+    @ApiOperation(value = "Get atp test by atpTestId.", response = AtpTest.class)
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "OK", response = AtpTestTask.class),
+        @ApiResponse(code = 200, message = "OK", response = AtpTest.class),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
     @RequestMapping(value = "/{applicationId}/atpTests/{atpTestId}", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
-    public ResponseEntity<AtpTestTask> getAtpTasksById(
+    public ResponseEntity<AtpTest> getAtpTestById(
         @Pattern(regexp = REGEX_UUID, message = "applicationId must be in UUID format")
         @ApiParam(value = "applicationId", required = true) @PathVariable("applicationId") String applicationId,
         @Pattern(regexp = REGEX_UUID, message = "atpTestId must be in UUID format")
         @ApiParam(value = "atpTestId", required = true) @PathVariable("atpTestId") String atpTestId) {
-        return ResponseEntity.ok(getAppOperationService(applicationId).selectAtpTasksById(atpTestId));
+        return ResponseEntity.ok(getAppOperationService(applicationId).getAtpTestById(atpTestId));
     }
 
     private AppOperationService getAppOperationService(String applicationId) {

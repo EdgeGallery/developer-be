@@ -21,7 +21,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class AtpTestTask {
+public class AtpTest {
 
     String id;
 

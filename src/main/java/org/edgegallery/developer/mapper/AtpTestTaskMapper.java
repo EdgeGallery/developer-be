@@ -19,19 +19,16 @@ package org.edgegallery.developer.mapper;
 import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
-import org.edgegallery.developer.model.application.vm.VMCertificate;
-import org.edgegallery.developer.model.application.vm.VMPort;
-import org.edgegallery.developer.model.application.vm.VirtualMachine;
-import org.edgegallery.developer.model.atpTestTask.AtpTestTask;
+import org.edgegallery.developer.model.atpTestTask.AtpTest;
 
 @Mapper
 public interface AtpTestTaskMapper {
 
-    int createAtpTestTask(@Param("applicationId") String applicationId, @Param("atpTestTask") AtpTestTask task);
+    int createAtpTest(@Param("applicationId") String applicationId, @Param("atpTestTask") AtpTest task);
 
-    List<AtpTestTask> getTestTasksByAppId(String applicationId);
+    List<AtpTest> getAtpTests(String applicationId);
 
-    AtpTestTask getTestTaskById(String id);
+    AtpTest getAtpTestById(String id);
 
-    int updateAtpTaskStatus(AtpTestTask task);
+    int updateAtpTestStatus(AtpTest task);
 }

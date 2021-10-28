@@ -16,24 +16,18 @@
 
 package org.edgegallery.developer.service.application.impl;
 
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.spencerwi.either.Either;
 import java.util.List;
-import javax.ws.rs.core.Response;
 import org.edgegallery.developer.common.ResponseConsts;
 import org.edgegallery.developer.exception.DataBaseException;
-import org.edgegallery.developer.exception.DeveloperException;
 import org.edgegallery.developer.exception.EntityNotFoundException;
 import org.edgegallery.developer.mapper.AtpTestTaskMapper;
 import org.edgegallery.developer.mapper.application.ApplicationMapper;
 import org.edgegallery.developer.model.application.Application;
 import org.edgegallery.developer.model.apppackage.AppPackage;
-import org.edgegallery.developer.model.atp.AtpResultInfo;
-import org.edgegallery.developer.model.atpTestTask.AtpTestTask;
+import org.edgegallery.developer.model.atpTestTask.AtpTest;
 import org.edgegallery.developer.model.restful.SelectMepHostReq;
-import org.edgegallery.developer.response.FormatRespDto;
 import org.edgegallery.developer.service.application.AppOperationService;
 import org.edgegallery.developer.util.AtpUtil;
 import org.slf4j.Logger;
@@ -41,7 +35,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
 
 @Service("AppOperationService")
 public class AppOperationServiceImpl implements AppOperationService {
@@ -69,7 +62,7 @@ public class AppOperationServiceImpl implements AppOperationService {
     }
 
     @Override
-    public Boolean commitTest(String applicationId, String accessToken) {
+    public Boolean createAtpTest(String applicationId, String accessToken) {
         Application app = applicationMapper.getApplicationById(applicationId);
         checkParamNull(app, "application is empty. applicationId: ".concat(applicationId));
 
@@ -80,14 +73,13 @@ public class AppOperationServiceImpl implements AppOperationService {
         ResponseEntity<String> response = AtpUtil.sendCreatTask2Atp(filePath, accessToken);
         JsonObject jsonObject = new JsonParser().parse(response.getBody()).getAsJsonObject();
 
-        AtpTestTask atpTestTask = new AtpTestTask();
-        atpTestTask.setId(jsonObject.get("id").getAsString());
-        atpTestTask.setAppName(null != jsonObject.get("appName") ? jsonObject.get("appName").getAsString() : null);
-        atpTestTask.setStatus(null != jsonObject.get("status") ? jsonObject.get("status").getAsString() : null);
-        atpTestTask
-            .setCreateTime(null != jsonObject.get("createTime") ? jsonObject.get("createTime").getAsString() : null);
-        atpTestTaskMapper.createAtpTestTask(applicationId, atpTestTask);
-        LOGGER.info("atp status:{}", atpTestTask.getStatus());
+        AtpTest atpTest = new AtpTest();
+        atpTest.setId(jsonObject.get("id").getAsString());
+        atpTest.setAppName(null != jsonObject.get("appName") ? jsonObject.get("appName").getAsString() : null);
+        atpTest.setStatus(null != jsonObject.get("status") ? jsonObject.get("status").getAsString() : null);
+        atpTest.setCreateTime(null != jsonObject.get("createTime") ? jsonObject.get("createTime").getAsString() : null);
+        atpTestTaskMapper.createAtpTest(applicationId, atpTest);
+        LOGGER.info("atp status:{}", atpTest.getStatus());
         return true;
     }
 
@@ -102,24 +94,24 @@ public class AppOperationServiceImpl implements AppOperationService {
     }
 
     @Override
-    public List<AtpTestTask> selectAtpTasks(String applicationId) {
-        List<AtpTestTask> atpTestTasks = atpTestTaskMapper.getTestTasksByAppId(applicationId);
-        checkParamNull(atpTestTasks, "atpTestTasks do not exit. applicationId: ".concat(applicationId));
-        atpTestTasks.stream().filter(atpTestTask -> TEST_TASK_STATUS_WAITING.equalsIgnoreCase(atpTestTask.getStatus())
+    public List<AtpTest> getAtpTests(String applicationId) {
+        List<AtpTest> atpTests = atpTestTaskMapper.getAtpTests(applicationId);
+        checkParamNull(atpTests, "atpTests do not exit. applicationId: ".concat(applicationId));
+        atpTests.stream().filter(atpTestTask -> TEST_TASK_STATUS_WAITING.equalsIgnoreCase(atpTestTask.getStatus())
             || TEST_TASK_STATUS_RUNNING.equalsIgnoreCase(atpTestTask.getStatus()))
             .forEach(task -> queryAndUpdateTestStatus(task));
-        return atpTestTasks;
+        return atpTests;
     }
 
     @Override
-    public AtpTestTask selectAtpTasksById(String atpTestId) {
-        AtpTestTask atpTestTask = atpTestTaskMapper.getTestTaskById(atpTestId);
-        checkParamNull(atpTestTask, "atpTestTask does not exit. atpTestId: ".concat(atpTestId));
-        if (TEST_TASK_STATUS_WAITING.equalsIgnoreCase(atpTestTask.getStatus()) || TEST_TASK_STATUS_RUNNING
-            .equalsIgnoreCase(atpTestTask.getStatus())) {
-            queryAndUpdateTestStatus(atpTestTask);
+    public AtpTest getAtpTestById(String atpTestId) {
+        AtpTest atpTest = atpTestTaskMapper.getAtpTestById(atpTestId);
+        checkParamNull(atpTest, "atpTest does not exit. atpTestId: ".concat(atpTestId));
+        if (TEST_TASK_STATUS_WAITING.equalsIgnoreCase(atpTest.getStatus()) || TEST_TASK_STATUS_RUNNING
+            .equalsIgnoreCase(atpTest.getStatus())) {
+            queryAndUpdateTestStatus(atpTest);
         }
-        return atpTestTask;
+        return atpTest;
     }
 
     private <T> void checkParamNull(T param, String msg) {
@@ -129,11 +121,11 @@ public class AppOperationServiceImpl implements AppOperationService {
         }
     }
 
-    private void queryAndUpdateTestStatus(AtpTestTask task) {
+    private void queryAndUpdateTestStatus(AtpTest task) {
         String newStatus = AtpUtil.getTaskStatusFromAtp(task.getId());
         if (!task.getStatus().equalsIgnoreCase(newStatus)) {
             task.setStatus(newStatus);
-            atpTestTaskMapper.updateAtpTaskStatus(task);
+            atpTestTaskMapper.updateAtpTestStatus(task);
         }
     }
 }

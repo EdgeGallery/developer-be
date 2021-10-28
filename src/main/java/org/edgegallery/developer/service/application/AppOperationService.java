@@ -18,7 +18,7 @@ package org.edgegallery.developer.service.application;
 
 import java.util.List;
 import org.edgegallery.developer.model.apppackage.AppPackage;
-import org.edgegallery.developer.model.atpTestTask.AtpTestTask;
+import org.edgegallery.developer.model.atpTestTask.AtpTest;
 import org.edgegallery.developer.model.restful.SelectMepHostReq;
 
 public interface AppOperationService {
@@ -27,11 +27,11 @@ public interface AppOperationService {
 
     AppPackage generatePackage(String applicationId);
 
-    Boolean commitTest(String applicationId, String accessToken);
+    Boolean createAtpTest(String applicationId, String accessToken);
 
     Boolean selectMepHost(String applicationId, SelectMepHostReq selectMepHostReq);
 
-    List<AtpTestTask> selectAtpTasks(String applicationId);
+    List<AtpTest> getAtpTests(String applicationId);
 
-    AtpTestTask selectAtpTasksById(String atpTestId);
+    AtpTest getAtpTestById(String atpTestId);
 }
