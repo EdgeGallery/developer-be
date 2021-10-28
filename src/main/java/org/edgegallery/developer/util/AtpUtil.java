@@ -84,12 +84,10 @@ public class AtpUtil {
      * get task status by taskId from atp.
      *
      * @param taskId taskId
-     * @param token token
      * @return task status
      */
-    public static String getTaskStatusFromAtp(String taskId, String token) {
+    public static String getTaskStatusFromAtp(String taskId) {
         HttpHeaders headers = new HttpHeaders();
-        headers.set(Consts.ACCESS_TOKEN_STR, token);
         HttpEntity<String> request = new HttpEntity<>(headers);
 
         String url = InitConfigUtil.getProperties(ATP_ADDRESS).concat(String.format(Consts.GET_TASK_FROM_ATP, taskId));

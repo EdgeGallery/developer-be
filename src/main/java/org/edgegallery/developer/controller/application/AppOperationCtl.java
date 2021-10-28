@@ -13,6 +13,7 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
+
 package org.edgegallery.developer.controller.application;
 
 import io.swagger.annotations.Api;
@@ -20,11 +21,17 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import java.util.List;
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
+import org.edgegallery.developer.common.Consts;
+import org.edgegallery.developer.mapper.AtpTestTaskMapper;
 import org.edgegallery.developer.mapper.application.ApplicationMapper;
 import org.edgegallery.developer.model.apppackage.AppPackage;
+import org.edgegallery.developer.model.atpTestTask.AtpTestTask;
+import org.edgegallery.developer.model.operation.OperationStatus;
 import org.edgegallery.developer.model.restful.SelectMepHostReq;
 import org.edgegallery.developer.response.ErrorRespDto;
 import org.edgegallery.developer.service.application.AppOperationService;
@@ -50,6 +57,7 @@ public class AppOperationCtl {
 
     @Autowired
     private AppOperationServiceFactory appServiceFactory;
+
     /**
      * select  a hostMep.
      */
@@ -58,8 +66,8 @@ public class AppOperationCtl {
         @ApiResponse(code = 200, message = "OK", response = Boolean.class),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
-    @RequestMapping(value = "/{applicationId}/selmephost", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_UTF8_VALUE,
-        produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @RequestMapping(value = "/{applicationId}/selmephost", method = RequestMethod.PUT,
+        consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<Boolean> selectMepHost(
         @Pattern(regexp = REGEX_UUID, message = "applicationId must be in UUID format")
@@ -77,8 +85,8 @@ public class AppOperationCtl {
         @ApiResponse(code = 200, message = "OK", response = Boolean.class),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
-    @RequestMapping(value = "/{applicationId}/cleanenv", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_UTF8_VALUE,
-        produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @RequestMapping(value = "/{applicationId}/cleanenv", method = RequestMethod.POST,
+        consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<Boolean> cleanEnv(
         @Pattern(regexp = REGEX_UUID, message = "applicationId must be in UUID format")
@@ -95,8 +103,8 @@ public class AppOperationCtl {
         @ApiResponse(code = 200, message = "OK", response = AppPackage.class),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
-    @RequestMapping(value = "/{applicationId}/generatepackage", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_UTF8_VALUE,
-        produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @RequestMapping(value = "/{applicationId}/generatepackage", method = RequestMethod.POST,
+        consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<AppPackage> generatePackage(
         @Pattern(regexp = REGEX_UUID, message = "applicationId must be in UUID format")
@@ -106,26 +114,74 @@ public class AppOperationCtl {
     }
 
     /**
-     * commit test
+     * create atp test tasks.
+     *
+     * @param applicationId applicationId
+     * @param request request
+     * @return true
      */
     @ApiOperation(value = "commit test.", response = Boolean.class)
     @ApiResponses(value = {
         @ApiResponse(code = 200, message = "OK", response = Boolean.class),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
-    @RequestMapping(value = "/{applicationId}/committest", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_UTF8_VALUE,
-        produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @RequestMapping(value = "/{applicationId}/atpTests", method = RequestMethod.POST,
+        consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<Boolean> commitTest(
         @Pattern(regexp = REGEX_UUID, message = "applicationId must be in UUID format")
-        @ApiParam(value = "applicationId", required = true) @PathVariable("applicationId") String applicationId) {
-        Boolean result = getAppOperationService(applicationId).commitTest(applicationId);
+        @ApiParam(value = "applicationId", required = true) @PathVariable("applicationId") String applicationId,
+        HttpServletRequest request) {
+        String accessToken = request.getHeader(Consts.ACCESS_TOKEN_STR);
+        Boolean result = getAppOperationService(applicationId).commitTest(applicationId, accessToken);
         return ResponseEntity.ok(result);
     }
 
-    private AppOperationService getAppOperationService(String applicationId){
-        return appServiceFactory.getAppOperationService(applicationId);
+    /**
+     * get atp test tasks by application id.
+     *
+     * @param applicationId application id
+     * @return test tasks list
+     */
+    @ApiOperation(value = "Get atp test tasks by applicationId.", response = AtpTestTask.class)
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = "OK", response = AtpTestTask.class),
+        @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
+    })
+    @RequestMapping(value = "/{applicationId}/atpTests", method = RequestMethod.GET,
+        produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
+    public ResponseEntity<List<AtpTestTask>> getAtpTasks(
+        @Pattern(regexp = REGEX_UUID, message = "applicationId must be in UUID format")
+        @ApiParam(value = "applicationId", required = true) @PathVariable("applicationId") String applicationId) {
+        return ResponseEntity.ok(getAppOperationService(applicationId).selectAtpTasks(applicationId));
     }
 
+    /**
+     * get atp test task by atpTestId.
+     *
+     * @param applicationId applicationId
+     * @param atpTestId atpTestId
+     * @return true
+     */
+    @ApiOperation(value = "Get atp test task by atpTestId.", response = AtpTestTask.class)
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = "OK", response = AtpTestTask.class),
+        @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
+    })
+    @RequestMapping(value = "/{applicationId}/atpTests/{atpTestId}", method = RequestMethod.GET,
+        produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
+    public ResponseEntity<AtpTestTask> getAtpTasksById(
+        @Pattern(regexp = REGEX_UUID, message = "applicationId must be in UUID format")
+        @ApiParam(value = "applicationId", required = true) @PathVariable("applicationId") String applicationId,
+        @Pattern(regexp = REGEX_UUID, message = "atpTestId must be in UUID format")
+        @ApiParam(value = "atpTestId", required = true) @PathVariable("atpTestId") String atpTestId) {
+        return ResponseEntity.ok(getAppOperationService(applicationId).selectAtpTasksById(atpTestId));
+    }
+
+    private AppOperationService getAppOperationService(String applicationId) {
+        return appServiceFactory.getAppOperationService(applicationId);
+    }
 
 }

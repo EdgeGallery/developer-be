@@ -14,24 +14,24 @@
  *    limitations under the License.
  */
 
-package org.edgegallery.developer.service.application;
+package org.edgegallery.developer.mapper;
 
 import java.util.List;
-import org.edgegallery.developer.model.apppackage.AppPackage;
+import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
+import org.edgegallery.developer.model.application.vm.VMCertificate;
+import org.edgegallery.developer.model.application.vm.VMPort;
+import org.edgegallery.developer.model.application.vm.VirtualMachine;
 import org.edgegallery.developer.model.atpTestTask.AtpTestTask;
-import org.edgegallery.developer.model.restful.SelectMepHostReq;
 
-public interface AppOperationService {
+@Mapper
+public interface AtpTestTaskMapper {
 
-    Boolean cleanEnv(String applicationId);
+    int createAtpTestTask(@Param("applicationId") String applicationId, @Param("atpTestTask") AtpTestTask task);
 
-    AppPackage generatePackage(String applicationId);
+    List<AtpTestTask> getTestTasksByAppId(String applicationId);
 
-    Boolean commitTest(String applicationId, String accessToken);
+    AtpTestTask getTestTaskById(String id);
 
-    Boolean selectMepHost(String applicationId, SelectMepHostReq selectMepHostReq);
-
-    List<AtpTestTask> selectAtpTasks(String applicationId);
-
-    AtpTestTask selectAtpTasksById(String atpTestId);
+    int updateAtpTaskStatus(AtpTestTask task);
 }

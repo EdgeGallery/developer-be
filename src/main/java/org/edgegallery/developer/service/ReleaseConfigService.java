@@ -137,7 +137,7 @@ public class ReleaseConfigService {
             return Either.left(dto);
         }
         String guideFileId = config.getGuideFileId();
-        if(StringUtils.isNotEmpty(guideFileId)){
+        if (StringUtils.isNotEmpty(guideFileId)) {
             int guideId = uploadedFileMapper.updateFileStatus(guideFileId, false);
             if (guideId <= 0) {
                 String msg = "update guide md file status occur db error";
@@ -169,8 +169,8 @@ public class ReleaseConfigService {
         List<Capability> capabilities = capabilityService.findByProjectId(projectId);
 
         ApplicationProject applicationProject = projectMapper.getProjectById(projectId);
-        if (!CollectionUtils.isEmpty(capabilities) || !CapabilitiesDetail
-            .isEmpty(config.getCapabilitiesDetail()) || !StringUtils.isEmpty(config.getGuideFileId())) {
+        if (!CollectionUtils.isEmpty(capabilities) || !CapabilitiesDetail.isEmpty(config.getCapabilitiesDetail())
+            || !StringUtils.isEmpty(config.getGuideFileId())) {
             if (applicationProject.getDeployPlatform() == EnumDeployPlatform.KUBERNETES) {
                 Either<FormatRespDto, Boolean> rebuildRes = rebuildCsar(projectId, config);
                 if (rebuildRes.isLeft()) {
@@ -216,7 +216,7 @@ public class ReleaseConfigService {
             return Either.left(dto);
         }
         String guideFileId = config.getGuideFileId();
-        if(StringUtils.isNotEmpty(guideFileId)){
+        if (StringUtils.isNotEmpty(guideFileId)) {
             int guideId = uploadedFileMapper.updateFileStatus(guideFileId, false);
             if (guideId <= 0) {
                 String msg = "update guide md file status occur db error";
@@ -247,8 +247,8 @@ public class ReleaseConfigService {
 
         ApplicationProject applicationProject = projectMapper.getProjectById(projectId);
         List<Capability> capabilities = capabilityService.findByProjectId(projectId);
-        if (!CollectionUtils.isEmpty(capabilities) || !CapabilitiesDetail
-            .isEmpty(config.getCapabilitiesDetail()) || !StringUtils.isEmpty(config.getGuideFileId())) {
+        if (!CollectionUtils.isEmpty(capabilities) || !CapabilitiesDetail.isEmpty(config.getCapabilitiesDetail())
+            || !StringUtils.isEmpty(config.getGuideFileId())) {
             if (applicationProject.getDeployPlatform() == EnumDeployPlatform.KUBERNETES) {
                 Either<FormatRespDto, Boolean> rebuildRes = rebuildCsar(projectId, config);
                 if (rebuildRes.isLeft()) {
@@ -289,13 +289,13 @@ public class ReleaseConfigService {
             FormatRespDto dto = new FormatRespDto(Response.Status.BAD_REQUEST, "token is null");
             return Either.left(dto);
         }
-        if (oldConfig==null || oldConfig.getAtpTest()==null || oldConfig.getAtpTest().getId().equals("")) {
+        if (oldConfig == null || oldConfig.getAtpTest() == null || oldConfig.getAtpTest().getId().equals("")) {
             return Either.right(oldConfig);
         }
 
         AtpResultInfo atpResultInfo = oldConfig.getAtpTest();
         String taskId = atpResultInfo.getId();
-        atpResultInfo.setStatus(AtpUtil.getTaskStatusFromAtp(taskId, token));
+        atpResultInfo.setStatus(AtpUtil.getTaskStatusFromAtp(taskId));
         LOGGER.info("after status update: {}", oldConfig.getAtpTest().getStatus());
         //update project status
         if (oldConfig.getAtpTest().getStatus().equals("success")) {
@@ -324,8 +324,8 @@ public class ReleaseConfigService {
         ProjectTestConfig config = testConfigs.get(0);
         String projectPath = projectService.getProjectPath(config.getProjectId());
         String csarFilePath = projectPath + config.getAppInstanceId();
-        String namespace = project.getName().replaceAll(Consts.PATTERN, "").toLowerCase()
-            + config.getAppInstanceId().substring(0, 8);
+        String namespace = project.getName().replaceAll(Consts.PATTERN, "").toLowerCase() + config.getAppInstanceId()
+            .substring(0, 8);
         // modify md file
         if (!StringUtils.isEmpty(releaseConfig.getGuideFileId())) {
             try {
@@ -564,7 +564,7 @@ public class ReleaseConfigService {
         List<Capability> requiredCapabilities = capabilityService.findByProjectId(project.getId());
         if (!CollectionUtils.isEmpty(requiredCapabilities)) {
             List<AppConfigurationModel.ServiceRequired> requiredList = new ArrayList<>();
-            for (Capability capability:requiredCapabilities) {
+            for (Capability capability : requiredCapabilities) {
                 AppConfigurationModel.ServiceRequired required = new AppConfigurationModel.ServiceRequired();
                 required.setSerName(capability.getHost());
                 required.setAppId(capability.getAppId());

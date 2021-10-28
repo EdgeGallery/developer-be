@@ -19,6 +19,8 @@ package org.edgegallery.developer.model.apppackage;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import org.edgegallery.developer.util.BusinessConfigUtil;
+import org.edgegallery.developer.util.InitConfigUtil;
 
 @ToString
 @Getter
@@ -31,4 +33,13 @@ public class AppPackage {
 
     private String packageFileName;
 
+    /**
+     * get package path.
+     *
+     * @return package path
+     */
+    public String getPkgPath() {
+        return InitConfigUtil.getWorkSpaceBaseDir().concat(BusinessConfigUtil.getWorkspacePath()).concat(appId)
+            .concat("/").concat(packageFileName);
+    }
 }

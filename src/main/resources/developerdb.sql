@@ -659,3 +659,13 @@
     "package_file_name" varchar(255) DEFAULT NULL,
     CONSTRAINT "tbl_app_package_pkey" PRIMARY KEY ("id")
     );
+
+    CREATE TABLE IF NOT EXISTS "tbl_atp_test_task" (
+    "id" varchar(255) NOT NULL,
+    "app_id" varchar(255) NOT NULL,
+    "app_name" varchar(255) DEFAULT NULL,
+    "status" varchar(255) DEFAULT NULL,
+    "create_time" varchar(255)  DEFAULT NULL,
+    CONSTRAINT "tbl_atp_test_task_pkey" PRIMARY KEY ("id")
+    );
+
