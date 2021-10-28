@@ -36,4 +36,6 @@ public interface ApplicationMapper {
     Application getApplicationById(String id);
 
     int modifyMepHostById(@Param("applicationId")String applicationId, @Param("hostMepId")String hostMepId);
+
+    int updateApplicationStatus(@Param("applicationId")String applicationId, @Param("status")String status);
 }

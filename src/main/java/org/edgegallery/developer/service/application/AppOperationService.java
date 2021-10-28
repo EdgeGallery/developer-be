@@ -23,7 +23,7 @@ import org.edgegallery.developer.model.restful.SelectMepHostReq;
 
 public interface AppOperationService {
 
-    Boolean cleanEnv(String applicationId);
+    Boolean cleanEnv(String applicationId, String accessToken);
 
     AppPackage generatePackage(String applicationId);
 

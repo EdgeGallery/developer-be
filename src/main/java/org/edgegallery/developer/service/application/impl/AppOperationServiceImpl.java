@@ -19,7 +19,9 @@ package org.edgegallery.developer.service.application.impl;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import java.util.List;
+import org.apache.commons.lang.StringUtils;
 import org.edgegallery.developer.common.ResponseConsts;
+import org.edgegallery.developer.config.security.AccessUserUtil;
 import org.edgegallery.developer.exception.DataBaseException;
 import org.edgegallery.developer.exception.EntityNotFoundException;
 import org.edgegallery.developer.mapper.AtpTestTaskMapper;
@@ -30,6 +32,7 @@ import org.edgegallery.developer.model.atpTestTask.AtpTest;
 import org.edgegallery.developer.model.restful.SelectMepHostReq;
 import org.edgegallery.developer.service.application.AppOperationService;
 import org.edgegallery.developer.util.AtpUtil;
+import org.edgegallery.developer.util.HttpClientUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,8 +55,8 @@ public class AppOperationServiceImpl implements AppOperationService {
     private AtpTestTaskMapper atpTestTaskMapper;
 
     @Override
-    public Boolean cleanEnv(String applicationId) {
-        return null;
+    public Boolean cleanEnv(String applicationId, String accessToken) {
+        return true;
     }
 
     @Override
@@ -112,6 +115,21 @@ public class AppOperationServiceImpl implements AppOperationService {
             queryAndUpdateTestStatus(atpTest);
         }
         return atpTest;
+    }
+
+    public void sentTerminateRequestToLcm(String basePath, String accessToken, String appInstanceId,
+        String mepmPackageId, String mecHostIp) {
+        String userId = AccessUserUtil.getUserId();
+        // delete Instance
+        if (StringUtils.isNotEmpty(appInstanceId)) {
+            HttpClientUtil.terminateAppInstance(basePath, appInstanceId, AccessUserUtil.getUserId(), accessToken);
+        }
+        if (StringUtils.isNotEmpty(mepmPackageId)) {
+            // delete hosts
+            HttpClientUtil.deleteHost(basePath, userId, accessToken, mepmPackageId, mecHostIp);
+            // delete package
+            HttpClientUtil.deletePkg(basePath, userId, accessToken, mepmPackageId);
+        }
     }
 
     private <T> void checkParamNull(T param, String msg) {
