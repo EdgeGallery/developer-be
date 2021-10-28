@@ -13,14 +13,13 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
+
 package org.edgegallery.developer.service.application;
 
 import org.edgegallery.developer.domain.shared.Page;
 import org.edgegallery.developer.model.application.Application;
 import org.edgegallery.developer.model.restful.ApplicationDetail;
-import org.edgegallery.developer.model.workspace.UploadedFile;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
 public interface ApplicationService {
 
@@ -53,6 +52,7 @@ public interface ApplicationService {
 
     /**
      * get a application
+     *
      * @return
      */
     @Transactional
@@ -71,5 +71,4 @@ public interface ApplicationService {
 
     Boolean modifyApplicationDetail(String applicationId, ApplicationDetail applicationDetail);
 
-    UploadedFile uploadIconFile(MultipartFile uploadFile);
 }

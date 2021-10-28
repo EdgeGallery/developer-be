@@ -37,7 +37,6 @@ import org.edgegallery.developer.model.application.vm.Network;
 import org.edgegallery.developer.model.application.vm.VMApplication;
 import org.edgegallery.developer.model.application.vm.VirtualMachine;
 import org.edgegallery.developer.model.restful.ApplicationDetail;
-import org.edgegallery.developer.model.workspace.UploadedFile;
 import org.edgegallery.developer.service.application.AppConfigurationService;
 import org.edgegallery.developer.service.application.ApplicationService;
 import org.edgegallery.developer.service.application.container.ContainerAppHelmChartService;
@@ -49,7 +48,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
 @Service("applicationService")
 public class ApplicationServiceImpl implements ApplicationService {
@@ -207,13 +205,6 @@ public class ApplicationServiceImpl implements ApplicationService {
         }
         return true;
 
-    }
-
-    @Override
-    public UploadedFile uploadIconFile(MultipartFile uploadFile) {
-        LOGGER.info("Start uploading file");
-        String userId = AccessUserUtil.getUser().getUserId();
-        return uploadService.uploadPicFile(userId, uploadFile);
     }
 
 }

@@ -19,12 +19,14 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.edgegallery.developer.common.ResponseConsts;
+import org.edgegallery.developer.config.security.AccessUserUtil;
 import org.edgegallery.developer.exception.DeveloperException;
 import org.edgegallery.developer.exception.EntityNotFoundException;
 import org.edgegallery.developer.exception.FileFoundFailException;
@@ -67,6 +69,8 @@ public class UploadServiceImpl implements UploadService {
     private static final Logger LOGGER = LoggerFactory.getLogger(UploadServiceImpl.class);
 
     private static final String REGEX_UUID = "[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}";
+
+    private static final List<String> FILE_TYPE_LIST = Arrays.asList("icon", "api", "md");
 
     @Autowired
     private UploadedFileMapper uploadedFileMapper;
@@ -139,58 +143,34 @@ public class UploadServiceImpl implements UploadService {
     }
 
     @Override
-    public UploadedFile uploadMdFile(String userId, MultipartFile uploadFile) {
-        //check format
-        LOGGER.info("Start uploading md file");
-        String fileName = uploadFile.getOriginalFilename();
-        boolean typeRes = FileUtil.checkMdType(fileName);
-        if (!typeRes) {
-            LOGGER.error("md file type is error.");
-            throw new IllegalRequestException("md type is error.", ResponseConsts.RET_REQUEST_FORMAT_ERROR);
-        }
-        UploadedFile result = saveFileToLocal(uploadFile, userId);
-        if (result == null) {
-            throw new FileOperateException("Failed to save md file.!", ResponseConsts.RET_SAVE_FILE_FAIL);
-        }
-        return result;
-    }
-
-    @Override
-    public UploadedFile uploadPicFile(String userId, MultipartFile uploadFile) {
+    public UploadedFile uploadFile(String fileType, MultipartFile uploadFile) {
         //check format
         LOGGER.info("Start uploading icon file");
         String fileName = uploadFile.getOriginalFilename();
-        boolean typeRes = FileUtil.checkIconType(fileName);
+        if (!FILE_TYPE_LIST.contains(fileType)) {
+            String msg = "fileType is error,must be one of [icon,md,api]";
+            LOGGER.error(msg);
+            throw new IllegalRequestException(msg, ResponseConsts.RET_REQUEST_FORMAT_ERROR);
+        }
+        boolean typeRes = FileUtil.checkFileType(fileName, fileType);
         if (!typeRes) {
-            LOGGER.error("icon type is error.");
-            throw new IllegalRequestException("icon type is error.", ResponseConsts.RET_REQUEST_FORMAT_ERROR);
+            LOGGER.error("file suffix is error.");
+            throw new IllegalRequestException("file suffix is error.", ResponseConsts.RET_REQUEST_FORMAT_ERROR);
         }
-        boolean sizeRes = FileUtil.checkFileSize(uploadFile.getSize(), 2, "M");
-        if (!sizeRes) {
-            LOGGER.error("file size can not be greater than 2m");
-            throw new IllegalRequestException("file size can not be greater than 2m",
-                ResponseConsts.RET_FILE_FORMAT_ERROR);
-        }
-        UploadedFile result = saveFileToLocal(uploadFile, userId);
-        if (result == null) {
-            throw new FileOperateException("Failed to save picture file.!", ResponseConsts.RET_SAVE_FILE_FAIL);
-        }
-        return result;
-    }
+        if (fileType.equals("icon")) {
+            boolean sizeRes = FileUtil.checkFileSize(uploadFile.getSize(), 2, "M");
+            if (!sizeRes) {
+                String errorMsg = "icon file size can not be greater than 2m";
+                LOGGER.error(errorMsg);
+                throw new IllegalRequestException(errorMsg, ResponseConsts.RET_FILE_FORMAT_ERROR);
+            }
 
-    @Override
-    public UploadedFile uploadApiFile(String userId, MultipartFile uploadFile) {
-        //check format
-        LOGGER.info("Start uploading api file");
-        String fileName = uploadFile.getOriginalFilename();
-        boolean typeRes = FileUtil.checkApiType(fileName);
-        if (!typeRes) {
-            LOGGER.error("api file type is error.");
-            throw new IllegalRequestException("api file type is error.", ResponseConsts.RET_REQUEST_FORMAT_ERROR);
         }
+        String userId = AccessUserUtil.getUserId();
         UploadedFile result = saveFileToLocal(uploadFile, userId);
         if (result == null) {
-            throw new FileOperateException("Failed to save api file.!", ResponseConsts.RET_SAVE_FILE_FAIL);
+            LOGGER.error("Failed to save icon file!");
+            throw new FileOperateException("Failed to save picture file.", ResponseConsts.RET_SAVE_FILE_FAIL);
         }
         return result;
     }

@@ -22,8 +22,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.edgegallery.developer.domain.shared.FileChecker;
@@ -32,6 +35,20 @@ import org.slf4j.LoggerFactory;
 
 public final class FileUtil {
     private static final Logger LOGGER = LoggerFactory.getLogger(FileUtil.class);
+
+    private static final List<String> ICON_LIST = Arrays.asList("png", "jpg");
+
+    private static final List<String> MD_LIST = Arrays.asList("md","MD");
+
+    private static final List<String> API_LIST = Arrays.asList("yaml", "yml", "json");
+
+    private static final Map<String, List<String>> FILE_TYPE_MAP = new HashMap();
+
+    static {
+        FILE_TYPE_MAP.put("icon", ICON_LIST);
+        FILE_TYPE_MAP.put("md", MD_LIST);
+        FILE_TYPE_MAP.put("api", API_LIST);
+    }
 
     private FileUtil() {
 
@@ -118,71 +135,30 @@ public final class FileUtil {
     }
 
     /**
-     * check icon file type.
+     * check file type.
      *
      * @param fileName fileName
      * @return
      */
-    public static boolean checkIconType(String fileName) {
+    public static boolean checkFileType(String fileName, String fileType) {
         if (!FileChecker.isValid(fileName)) {
             LOGGER.error("icon fileName is invalid.");
             return false;
         }
-        String fileType = "";
+        String fileNameSuffix = "";
         int i = fileName.lastIndexOf('.');
         if (i > 0) {
-            fileType = fileName.substring(i + 1);
+            fileNameSuffix = fileName.substring(i + 1);
         }
-        if (!"jpg".equalsIgnoreCase(fileType) && !"png".equalsIgnoreCase(fileType)) {
-            LOGGER.error("icon type is error.");
-            return false;
-        }
-        return true;
-    }
-
-    /**
-     * check md file type.
-     *
-     * @param fileName fileName
-     * @return
-     */
-    public static boolean checkMdType(String fileName) {
-        if (!FileChecker.isValid(fileName)) {
-            LOGGER.error("md FileName is invalid.");
-            return false;
-        }
-        String fileType = "";
-        int i = fileName.lastIndexOf('.');
-        if (i > 0) {
-            fileType = fileName.substring(i + 1);
-        }
-        if (!"md".equalsIgnoreCase(fileType)) {
-            LOGGER.error("md type is error.");
-            return false;
-        }
-        return true;
-    }
-
-    /**
-     * check api file type.
-     *
-     * @param fileName fileName
-     * @return
-     */
-    public static boolean checkApiType(String fileName) {
-        if (!FileChecker.isValid(fileName)) {
-            LOGGER.error("api fileName is invalid.");
-            return false;
-        }
-        String fileType = "";
-        int i = fileName.lastIndexOf('.');
-        if (i > 0) {
-            fileType = fileName.substring(i + 1);
-        }
-        if (!"yaml".equalsIgnoreCase(fileType) && !"yml".equalsIgnoreCase(fileType) && !"json"
-            .equalsIgnoreCase(fileType)) {
-            LOGGER.error("api type is error.");
-            return false;
+        for (Map.Entry<String, List<String>> entry : FILE_TYPE_MAP.entrySet()) {
+            String key = entry.getKey();
+            if (key.equals(fileType)) {
+                List<String> iconList = entry.getValue();
+                if (!iconList.contains(fileNameSuffix)) {
+                    LOGGER.error("file type is error.");
+                    return false;
+                }
+            }
         }
         return true;
     }
