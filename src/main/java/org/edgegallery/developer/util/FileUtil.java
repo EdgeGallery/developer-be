@@ -32,13 +32,14 @@ import java.util.stream.Stream;
 import org.edgegallery.developer.domain.shared.FileChecker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.CollectionUtils;
 
 public final class FileUtil {
     private static final Logger LOGGER = LoggerFactory.getLogger(FileUtil.class);
 
     private static final List<String> ICON_LIST = Arrays.asList("png", "jpg");
 
-    private static final List<String> MD_LIST = Arrays.asList("md","MD");
+    private static final List<String> MD_LIST = Arrays.asList("md", "MD");
 
     private static final List<String> API_LIST = Arrays.asList("yaml", "yml", "json");
 
@@ -138,6 +139,7 @@ public final class FileUtil {
      * check file type.
      *
      * @param fileName fileName
+     * @param fileType fileType
      * @return
      */
     public static boolean checkFileType(String fileName, String fileType) {
@@ -150,15 +152,14 @@ public final class FileUtil {
         if (i > 0) {
             fileNameSuffix = fileName.substring(i + 1);
         }
-        for (Map.Entry<String, List<String>> entry : FILE_TYPE_MAP.entrySet()) {
-            String key = entry.getKey();
-            if (key.equals(fileType)) {
-                List<String> iconList = entry.getValue();
-                if (!iconList.contains(fileNameSuffix)) {
-                    LOGGER.error("file type is error.");
-                    return false;
-                }
-            }
+        List<String> fileSuffixList = FILE_TYPE_MAP.get(fileType);
+        if (CollectionUtils.isEmpty(fileSuffixList)) {
+            LOGGER.error("fileSuffixList is empty.");
+            return false;
+        }
+        if (!fileSuffixList.contains(fileNameSuffix)) {
+            LOGGER.error("file type is error.");
+            return false;
         }
         return true;
     }
