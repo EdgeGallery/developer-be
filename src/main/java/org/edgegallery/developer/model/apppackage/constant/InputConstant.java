@@ -27,6 +27,8 @@ public class InputConstant {
 
     public static final String INPUT_NAME_AZ = "az_dc";
 
+    public static final String VDU_NAME_PREFIX = "VDU";
+
     public static final String INPUT_NETWORK_PREFIX = "APP_Plane0";
 
     public static final String INPUT_NETWORK_POSTFIX = "_Network";

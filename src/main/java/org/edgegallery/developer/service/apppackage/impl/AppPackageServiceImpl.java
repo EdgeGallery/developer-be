@@ -178,11 +178,13 @@ public class AppPackageServiceImpl implements AppPackageService {
             // generation appd
             VMPackageFileCreator vmPackageFileCreator = new VMPackageFileCreator(application, appPackage.getId());
             String fileName = vmPackageFileCreator.generateAppPackageFile();
+            appPackage.setPackageFileName(fileName);
             // generation scar
         } catch (Exception e) {
             LOGGER.error("Generation app package error.");
             throw new FileOperateException("Generation app package error.", ResponseConsts.RET_CREATE_FILE_FAIL);
         }
+        appPackageMapper.createAppPackage(appPackage);
         return appPackage;
     }
 

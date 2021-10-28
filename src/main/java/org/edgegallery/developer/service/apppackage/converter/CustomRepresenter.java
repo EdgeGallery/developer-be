@@ -18,6 +18,13 @@ import java.lang.reflect.Field;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import org.edgegallery.developer.model.apppackage.appd.VNFNodeProperty;
+import org.edgegallery.developer.model.apppackage.appd.policies.AntiAffinityRule;
+import org.edgegallery.developer.model.apppackage.appd.vdu.VDUCapability;
+import org.edgegallery.developer.model.apppackage.appd.vdu.VDUProperty;
+import org.edgegallery.developer.model.apppackage.appd.vducp.VDUCPProperty;
+import org.edgegallery.developer.model.apppackage.appd.vducp.VirtualBindingRequire;
+import org.edgegallery.developer.model.apppackage.appd.vducp.VirtualLinkRequire;
+import org.edgegallery.developer.model.apppackage.appd.vl.VLProperty;
 import org.yaml.snakeyaml.introspector.BeanAccess;
 import org.yaml.snakeyaml.introspector.Property;
 import org.yaml.snakeyaml.introspector.PropertyUtils;
@@ -49,6 +56,13 @@ public class CustomRepresenter extends Representer {
         setPropertyUtils(propertyUtils);
 
         this.addClassTag(VNFNodeProperty.class, Tag.MAP);
+        this.addClassTag(VDUCapability.class, Tag.MAP);
+        this.addClassTag(VDUProperty.class, Tag.MAP);
+        this.addClassTag(VDUCPProperty.class, Tag.MAP);
+        this.addClassTag(VirtualBindingRequire.class, Tag.MAP);
+        this.addClassTag(VirtualLinkRequire.class, Tag.MAP);
+        this.addClassTag(VLProperty.class, Tag.MAP);
+        this.addClassTag(AntiAffinityRule.class, Tag.MAP);
     }
 
     protected NodeTuple representJavaBeanProperty(Object javaBean, Property property, Object propertyValue,

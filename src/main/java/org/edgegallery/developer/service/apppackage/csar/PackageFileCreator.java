@@ -107,9 +107,9 @@ public class PackageFileCreator {
         IContentParseHandler contentSource = mfFileHandler
             .getContentByTypeAndValue(ManifestFiledataContent.SOURCE, TEMPLATE_APPD);
         Map<IToscaContentEnum, String> contentSourceMap = contentSource.getParams();
-        contentSourceMap.put(ManifestFiledataContent.SOURCE, TEMPLATE_APPD + appdName(".zip"));
+        contentSourceMap.put(ManifestFiledataContent.SOURCE, TEMPLATE_APPD + getAppFileName(".zip"));
         writeFile(mfFile, mfFileHandler.toString());
-        mfFile.renameTo(new File(getPackagePath() + "/" + appdName(".mf")));
+        mfFile.renameTo(new File(getPackagePath() + "/" + getAppFileName(".mf")));
     }
 
     /**
@@ -123,12 +123,12 @@ public class PackageFileCreator {
         IContentParseHandler content = metaFileHandler
             .getContentByTypeAndValue(ToscaMetadataContent.TOSCA_META_FILE_VERSION, "");
         Map<IToscaContentEnum, String> contentMap = content.getParams();
-        contentMap.put(ToscaMetadataContent.ENTRY_DEFINITIONS, TEMPLATE_APPD + appdName(".zip"));
+        contentMap.put(ToscaMetadataContent.ENTRY_DEFINITIONS, TEMPLATE_APPD + getAppFileName(".zip"));
 
         IContentParseHandler contentName = metaFileHandler
             .getContentByTypeAndValue(ToscaSourceContent.NAME, application.getAppClass().toString().toLowerCase());
         Map<IToscaContentEnum, String> contentNameMap = contentName.getParams();
-        contentNameMap.put(ToscaSourceContent.NAME, TEMPLATE_APPD + appdName(".zip"));
+        contentNameMap.put(ToscaSourceContent.NAME, TEMPLATE_APPD + getAppFileName(".zip"));
         writeFile(metaFile, metaFileHandler.toString());
     }
 
@@ -143,12 +143,12 @@ public class PackageFileCreator {
         IContentParseHandler content = metaFileHandler
             .getContentByTypeAndValue(VnfdToscaMetaContent.VNFD_META_FILE_VERSION, "");
         Map<IToscaContentEnum, String> contentMap = content.getParams();
-        contentMap.put(VnfdToscaMetaContent.ENTRY_DEFINITIONS, "Definition/" + appdName(".yaml"));
+        contentMap.put(VnfdToscaMetaContent.ENTRY_DEFINITIONS, "Definition/" + getAppFileName(".yaml"));
 
         IContentParseHandler contentName = metaFileHandler.getContentByTypeAndValue(ToscaSourceContent.NAME,
             application.getAppClass().toString().toLowerCase());
         Map<IToscaContentEnum, String> contentNameMap = contentName.getParams();
-        contentNameMap.put(ToscaSourceContent.NAME, "Definition/" + appdName(".yaml"));
+        contentNameMap.put(ToscaSourceContent.NAME, "Definition/" + getAppFileName(".yaml"));
         writeFile(metaFile, metaFileHandler.toString());
     }
 
@@ -164,7 +164,7 @@ public class PackageFileCreator {
             DeveloperFileUtils.copyDirectory(packageFileDir, new File(getApplicationPath()), tempPackageName);
             // compress appd
             String appdDir = tempPackagePath + File.separator + "APPD";
-            CompressFileUtils.fileToZip(appdDir, appdName(""));
+            CompressFileUtils.fileToZip(appdDir, getAppFileName(""));
             // compress helm chart
             compressDeploymentFile();
             encryptedService.encryptedFile(tempPackagePath);
@@ -184,7 +184,7 @@ public class PackageFileCreator {
         return true;
     }
 
-    private String appdName(String format) {
+    protected String getAppFileName(String format) {
         return application.getName() + "_" + application.getProvider() + "_" + application.getVersion()
             + "_" + application.getArchitecture() + "_" + application.getAppClass().toString().toLowerCase() + format;
     }

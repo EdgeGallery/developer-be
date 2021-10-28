@@ -22,5 +22,5 @@ import lombok.Setter;
 public class BootData {
     private boolean config_drive = true;
 
-    private UserData user_data;
+    private UserData user_data = new UserData();
 }
