@@ -16,6 +16,7 @@
 
 package org.edgegallery.developer.model.application;
 
+import java.util.List;
 import java.util.UUID;
 import lombok.Getter;
 import lombok.Setter;
@@ -23,6 +24,8 @@ import lombok.ToString;
 import java.util.Date;
 import javax.validation.constraints.Pattern;
 import org.edgegallery.developer.model.application.configuration.AppConfiguration;
+import org.edgegallery.developer.model.apppackage.AppPackage;
+import org.edgegallery.developer.model.atpTestTask.AtpTestTask;
 
 @Getter
 @Setter
@@ -69,6 +72,10 @@ public class Application {
     private String userName;
 
     private String mepHostId;
+
+    private AppPackage appPackage = new AppPackage();
+
+    private List<AtpTestTask> atpTestTaskList;
 
     private AppConfiguration appConfiguration = new AppConfiguration();
 
