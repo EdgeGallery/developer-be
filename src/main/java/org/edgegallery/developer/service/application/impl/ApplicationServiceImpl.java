@@ -21,16 +21,13 @@ import com.github.pagehelper.PageInfo;
 import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
-import javax.ws.rs.core.Response.Status;
 import org.edgegallery.developer.common.ResponseConsts;
 import org.edgegallery.developer.config.security.AccessUserUtil;
-import org.edgegallery.developer.domain.shared.FileChecker;
 import org.edgegallery.developer.domain.shared.Page;
 import org.edgegallery.developer.exception.DataBaseException;
 import org.edgegallery.developer.exception.EntityNotFoundException;
 import org.edgegallery.developer.exception.FileFoundFailException;
 import org.edgegallery.developer.exception.FileOperateException;
-import org.edgegallery.developer.exception.IllegalRequestException;
 import org.edgegallery.developer.mapper.application.ApplicationMapper;
 import org.edgegallery.developer.model.application.Application;
 import org.edgegallery.developer.model.application.EnumAppClass;
@@ -41,7 +38,6 @@ import org.edgegallery.developer.model.application.vm.VMApplication;
 import org.edgegallery.developer.model.application.vm.VirtualMachine;
 import org.edgegallery.developer.model.restful.ApplicationDetail;
 import org.edgegallery.developer.model.workspace.UploadedFile;
-import org.edgegallery.developer.response.FormatRespDto;
 import org.edgegallery.developer.service.application.AppConfigurationService;
 import org.edgegallery.developer.service.application.ApplicationService;
 import org.edgegallery.developer.service.application.container.ContainerAppHelmChartService;
@@ -110,7 +106,8 @@ public class ApplicationServiceImpl implements ApplicationService {
     }
 
     private void initNetwork(String applicationId) {
-        List<Network> networks = networkService.getAllNetwork("init-application");;
+        List<Network> networks = networkService.getAllNetwork("init-application");
+        ;
         for (Network network : networks) {
             network.setId(UUID.randomUUID().toString());
             networkService.createNetwork(applicationId, network);
@@ -216,37 +213,8 @@ public class ApplicationServiceImpl implements ApplicationService {
     @Override
     public UploadedFile uploadIconFile(MultipartFile uploadFile) {
         LOGGER.info("Start uploading file");
-        String fileName = uploadFile.getOriginalFilename();
         String userId = AccessUserUtil.getUser().getUserId();
-        Boolean iconTypeCheck = iconTypeCheck(fileName);
-        if (!iconTypeCheck) {
-            LOGGER.error("File type is error.");
-            throw new IllegalRequestException("File type is error.", ResponseConsts.RET_REQUEST_FORMAT_ERROR);
-        }
-
-        UploadedFile result = uploadService.saveFileToLocal(uploadFile, userId);
-        if (result == null) {
-            LOGGER.error("File save to db fail.");
-            throw new FileOperateException("File save to db fail.", ResponseConsts.RET_SAVE_FILE_FAIL);
-        }
-        return result;
-    }
-
-    private Boolean iconTypeCheck(String fileName) {
-        if (!FileChecker.isValid(fileName)) {
-            LOGGER.error("File Name is invalid.");
-            return false;
-        }
-        String fileType = "";
-        int i = fileName.lastIndexOf('.');
-        if (i > 0) {
-            fileType = fileName.substring(i + 1);
-        }
-        if (!"jpg".equals(fileType) && !"png".equals(fileType)) {
-            LOGGER.error("File type is error.");
-            return false;
-        }
-        return true;
+        return uploadService.uploadPicFile(userId, uploadFile);
     }
 
 }

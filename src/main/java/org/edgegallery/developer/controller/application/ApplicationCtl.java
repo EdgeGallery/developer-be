@@ -188,8 +188,7 @@ public class ApplicationCtl {
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<UploadedFile> uploadFile(
         @ApiParam(value = "file", required = true) @RequestPart("file") MultipartFile uploadFile) {
-        UploadedFile result = applicationService.uploadIconFile(uploadFile);
-        return ResponseEntity.ok(result);
+        return ResponseEntity.ok(applicationService.uploadIconFile(uploadFile));
 
     }
 

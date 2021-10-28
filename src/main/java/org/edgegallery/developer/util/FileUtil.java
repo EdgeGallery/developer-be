@@ -26,6 +26,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.edgegallery.developer.domain.shared.FileChecker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -80,19 +81,6 @@ public final class FileUtil {
         return listLocal;
     }
 
-    public static boolean deleteDir(File dir) {
-        if (dir.isDirectory()) {
-            String[] children = dir.list();
-            for (int i = 0; i < children.length; i++) {
-                boolean success = deleteDir(new File(dir, children[i]));
-                if (!success) {
-                    return false;
-                }
-            }
-        }
-        return dir.delete();
-    }
-
     /**
      * checkFileSize.
      *
@@ -117,8 +105,85 @@ public final class FileUtil {
         }
         return true;
     }
+
+    /**
+     * get application path.
+     *
+     * @param applicationId applicationId
+     * @return
+     */
     public static String getApplicationPath(String applicationId) {
         return InitConfigUtil.getWorkSpaceBaseDir() + BusinessConfigUtil.getWorkspacePath() + applicationId
             + File.separator;
+    }
+
+    /**
+     * check icon file type.
+     *
+     * @param fileName fileName
+     * @return
+     */
+    public static boolean checkIconType(String fileName) {
+        if (!FileChecker.isValid(fileName)) {
+            LOGGER.error("icon fileName is invalid.");
+            return false;
+        }
+        String fileType = "";
+        int i = fileName.lastIndexOf('.');
+        if (i > 0) {
+            fileType = fileName.substring(i + 1);
+        }
+        if (!"jpg".equalsIgnoreCase(fileType) && !"png".equalsIgnoreCase(fileType)) {
+            LOGGER.error("icon type is error.");
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * check md file type.
+     *
+     * @param fileName fileName
+     * @return
+     */
+    public static boolean checkMdType(String fileName) {
+        if (!FileChecker.isValid(fileName)) {
+            LOGGER.error("md FileName is invalid.");
+            return false;
+        }
+        String fileType = "";
+        int i = fileName.lastIndexOf('.');
+        if (i > 0) {
+            fileType = fileName.substring(i + 1);
+        }
+        if (!"md".equalsIgnoreCase(fileType)) {
+            LOGGER.error("md type is error.");
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * check api file type.
+     *
+     * @param fileName fileName
+     * @return
+     */
+    public static boolean checkApiType(String fileName) {
+        if (!FileChecker.isValid(fileName)) {
+            LOGGER.error("api fileName is invalid.");
+            return false;
+        }
+        String fileType = "";
+        int i = fileName.lastIndexOf('.');
+        if (i > 0) {
+            fileType = fileName.substring(i + 1);
+        }
+        if (!"yaml".equalsIgnoreCase(fileType) && !"yml".equalsIgnoreCase(fileType) && !"json"
+            .equalsIgnoreCase(fileType)) {
+            LOGGER.error("api type is error.");
+            return false;
+        }
+        return true;
     }
 }
