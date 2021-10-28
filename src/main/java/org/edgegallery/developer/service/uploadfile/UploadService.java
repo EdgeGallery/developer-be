@@ -26,11 +26,7 @@ public interface UploadService {
 
     UploadedFile getApiFile(String fileId, String userId);
 
-    UploadedFile uploadMdFile(String userId, MultipartFile uploadFile);
-
-    UploadedFile uploadPicFile(String userId, MultipartFile uploadFile);
-
-    UploadedFile uploadApiFile(String userId, MultipartFile uploadFile);
+    UploadedFile uploadFile(String fileType, MultipartFile uploadFile);
 
     ResponseEntity<byte[]> downloadSampleCode(List<String> apiFileIds);
 

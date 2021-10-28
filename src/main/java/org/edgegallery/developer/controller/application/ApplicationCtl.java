@@ -13,6 +13,7 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
+
 package org.edgegallery.developer.controller.application;
 
 import io.swagger.annotations.Api;
@@ -27,7 +28,6 @@ import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.edgegallery.developer.domain.shared.Page;
 import org.edgegallery.developer.model.application.Application;
 import org.edgegallery.developer.model.restful.ApplicationDetail;
-import org.edgegallery.developer.model.workspace.UploadedFile;
 import org.edgegallery.developer.response.ErrorRespDto;
 import org.edgegallery.developer.service.application.ApplicationService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,8 +41,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RequestPart;
-import org.springframework.web.multipart.MultipartFile;
 
 @Controller
 @RestSchema(schemaId = "application")
@@ -54,6 +52,7 @@ public class ApplicationCtl {
 
     @Autowired
     private ApplicationService applicationService;
+
     /**
      * create a application.
      */
@@ -66,7 +65,7 @@ public class ApplicationCtl {
         produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<Application> createApplication(
-        @NotNull @ApiParam(value = "Application", required = true) @RequestBody Application application){
+        @NotNull @ApiParam(value = "Application", required = true) @RequestBody Application application) {
         return ResponseEntity.ok(applicationService.createApplication(application));
     }
 
@@ -78,11 +77,12 @@ public class ApplicationCtl {
         @ApiResponse(code = 200, message = "OK", response = Application.class),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
-    @RequestMapping(value = "/{applicationId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @RequestMapping(value = "/{applicationId}", method = RequestMethod.GET,
+        produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<Application> getApplication(
         @Pattern(regexp = REGEX_UUID, message = "applicationId must be in UUID format")
-        @ApiParam(value = "applicationId", required = true) @PathVariable("applicationId") String applicationId){
+        @ApiParam(value = "applicationId", required = true) @PathVariable("applicationId") String applicationId) {
         return ResponseEntity.ok(applicationService.getApplication(applicationId));
     }
 
@@ -94,13 +94,13 @@ public class ApplicationCtl {
         @ApiResponse(code = 200, message = "OK", response = Boolean.class),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
-    @RequestMapping(value = "/{applicationId}", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_UTF8_VALUE,
-        produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @RequestMapping(value = "/{applicationId}", method = RequestMethod.PUT,
+        consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<Boolean> modifyApplication(
         @Pattern(regexp = REGEX_UUID, message = "applicationId must be in UUID format")
         @ApiParam(value = "applicationId", required = true) @PathVariable("applicationId") String applicationId,
-        @NotNull @ApiParam(value = "Application", required = true) @RequestBody Application application){
+        @NotNull @ApiParam(value = "Application", required = true) @RequestBody Application application) {
         Boolean result = applicationService.modifyApplication(applicationId, application);
         return ResponseEntity.ok(result);
     }
@@ -116,8 +116,7 @@ public class ApplicationCtl {
     @RequestMapping(value = "/", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<Page<Application>> getAllApplication(
-        @ApiParam(value = "name", required = false) @RequestParam(value = "name", required = false)
-            String name,
+        @ApiParam(value = "name", required = false) @RequestParam(value = "name", required = false) String name,
         @ApiParam(value = "the max count of one page", required = true) @Min(1) @RequestParam("limit") int limit,
         @ApiParam(value = "start index of the page", required = true) @Min(0) @RequestParam("offset") int offset) {
         return ResponseEntity.ok(applicationService.getApplicationByNameWithFuzzy(name, limit, offset));
@@ -131,11 +130,12 @@ public class ApplicationCtl {
         @ApiResponse(code = 200, message = "OK", response = Boolean.class),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
-    @RequestMapping(value = "/{applicationId}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @RequestMapping(value = "/{applicationId}", method = RequestMethod.DELETE,
+        produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<Boolean> deleteApplication(
         @Pattern(regexp = REGEX_UUID, message = "applicationId must be in UUID format")
-        @ApiParam(value = "applicationId", required = true) @PathVariable("applicationId") String applicationId){
+        @ApiParam(value = "applicationId", required = true) @PathVariable("applicationId") String applicationId) {
         Boolean result = applicationService.deleteApplication(applicationId);
         return ResponseEntity.ok(result);
     }
@@ -148,7 +148,8 @@ public class ApplicationCtl {
         @ApiResponse(code = 200, message = "OK", response = ApplicationDetail.class),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
-    @RequestMapping(value = "/{applicationId}/detail", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @RequestMapping(value = "/{applicationId}/detail", method = RequestMethod.GET,
+        produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<ApplicationDetail> getApplicationDetail(
         @Pattern(regexp = REGEX_UUID, message = "applicationId must be in UUID format")
@@ -164,34 +165,16 @@ public class ApplicationCtl {
         @ApiResponse(code = 200, message = "OK", response = Boolean.class),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
-    @RequestMapping(value = "/{applicationId}/detail", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_UTF8_VALUE,
-        produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @RequestMapping(value = "/{applicationId}/detail", method = RequestMethod.PUT,
+        consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<Boolean> modifyApplicationDetail(
         @Pattern(regexp = REGEX_UUID, message = "applicationId must be in UUID format")
         @ApiParam(value = "applicationId", required = true) @PathVariable("applicationId") String applicationId,
-        @NotNull @ApiParam(value = "ApplicationDetail", required = true) @RequestBody ApplicationDetail applicationDetail) {
+        @NotNull @ApiParam(value = "ApplicationDetail", required = true) @RequestBody
+            ApplicationDetail applicationDetail) {
         Boolean result = applicationService.modifyApplicationDetail(applicationId, applicationDetail);
         return ResponseEntity.ok(result);
     }
-
-    /**
-     * upload application icon file.
-     */
-    @ApiOperation(value = "upload application icon file.", response = UploadedFile.class)
-    @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "OK", response = UploadedFile.class),
-        @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
-    })
-    @RequestMapping(value = "/file/icon", method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
-        produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
-    public ResponseEntity<UploadedFile> uploadFile(
-        @ApiParam(value = "file", required = true) @RequestPart("file") MultipartFile uploadFile) {
-        UploadedFile result = applicationService.uploadIconFile(uploadFile);
-        return ResponseEntity.ok(result);
-
-    }
-
 
 }

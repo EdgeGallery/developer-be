@@ -80,7 +80,7 @@ public class UploadFileController {
         @ApiResponse(code = 200, message = "OK", response = File.class),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
-    @RequestMapping(value = "/api-info/{fileId}", method = RequestMethod.GET,
+    @RequestMapping(value = "/{fileId}/api-info", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN') || hasRole('DEVELOPER_GUEST')")
     public ResponseEntity<UploadedFile> getApiFile(
@@ -92,58 +92,21 @@ public class UploadFileController {
     }
 
     /**
-     * upload md file.
-     */
-    @ApiOperation(value = "upload md file", response = UploadedFile.class)
-    @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "OK", response = UploadedFile.class),
-        @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
-    })
-    @RequestMapping(value = "/md", method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
-        produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
-    public ResponseEntity<UploadedFile> uploadMdFile(
-        @ApiParam(value = "file", required = true) @RequestPart("file") MultipartFile uploadFile,
-        @Pattern(regexp = REGEX_UUID, message = "userId must be in UUID format")
-        @ApiParam(value = "userId", required = true) @RequestParam("userId") String userId) {
-        return ResponseEntity.ok(uploadFileService.uploadMdFile(userId, uploadFile));
-
-    }
-
-    /**
-     * upload pic file.
+     * upload file.
      */
     @ApiOperation(value = "upload pic file", response = UploadedFile.class)
     @ApiResponses(value = {
         @ApiResponse(code = 200, message = "OK", response = UploadedFile.class),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
-    @RequestMapping(value = "/pic", method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
+    @RequestMapping(value = "/", method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
         produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<UploadedFile> uploadPicture(
         @ApiParam(value = "file", required = true) @RequestPart("file") MultipartFile uploadFile,
         @Pattern(regexp = REGEX_UUID, message = "userId must be in UUID format")
-        @ApiParam(value = "userId", required = true) @RequestParam("userId") String userId) {
-        return ResponseEntity.ok(uploadFileService.uploadPicFile(userId, uploadFile));
-    }
-
-    /**
-     * upload api file.
-     */
-    @ApiOperation(value = "upload pic file", response = UploadedFile.class)
-    @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "OK", response = UploadedFile.class),
-        @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
-    })
-    @RequestMapping(value = "/api", method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
-        produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
-    public ResponseEntity<UploadedFile> uploadApiFile(
-        @ApiParam(value = "file", required = true) @RequestPart("file") MultipartFile uploadFile,
-        @Pattern(regexp = REGEX_UUID, message = "userId must be in UUID format")
-        @ApiParam(value = "userId", required = true) @RequestParam("userId") String userId) {
-        return ResponseEntity.ok(uploadFileService.uploadApiFile(userId, uploadFile));
+        @ApiParam(value = "fileType", required = true) @RequestParam("fileType") String fileType) {
+        return ResponseEntity.ok(uploadFileService.uploadFile(fileType, uploadFile));
     }
 
     /**

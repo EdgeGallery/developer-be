@@ -26,7 +26,7 @@ import java.util.UUID;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.edgegallery.developer.common.ResponseConsts;
-import org.edgegallery.developer.exception.DataBaseException;
+import org.edgegallery.developer.config.security.AccessUserUtil;
 import org.edgegallery.developer.exception.DeveloperException;
 import org.edgegallery.developer.exception.EntityNotFoundException;
 import org.edgegallery.developer.exception.FileFoundFailException;
@@ -69,6 +69,8 @@ public class UploadServiceImpl implements UploadService {
     private static final Logger LOGGER = LoggerFactory.getLogger(UploadServiceImpl.class);
 
     private static final String REGEX_UUID = "[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}";
+
+    private static final List<String> FILE_TYPE_LIST = Arrays.asList("icon", "api", "md");
 
     @Autowired
     private UploadedFileMapper uploadedFileMapper;
@@ -141,78 +143,34 @@ public class UploadServiceImpl implements UploadService {
     }
 
     @Override
-    public UploadedFile uploadMdFile(String userId, MultipartFile uploadFile) {
+    public UploadedFile uploadFile(String fileType, MultipartFile uploadFile) {
         //check format
+        LOGGER.info("Start uploading icon file");
         String fileName = uploadFile.getOriginalFilename();
-        String[] nameSuffixes = {"md", "MD"};
-        String suffix = fileName.substring(fileName.lastIndexOf(".") + 1);
-        if (!Arrays.asList(nameSuffixes).contains(suffix)) {
-            LOGGER.error("upload file is not in md format");
-            throw new IllegalRequestException("The file is not in md format", ResponseConsts.RET_FILE_FORMAT_ERROR);
+        if (!FILE_TYPE_LIST.contains(fileType)) {
+            String msg = "fileType is error,must be one of [icon,md,api]";
+            LOGGER.error(msg);
+            throw new IllegalRequestException(msg, ResponseConsts.RET_REQUEST_FORMAT_ERROR);
         }
-        LOGGER.info("Start uploading md file");
-        UploadedFile result = saveFileToLocal(uploadFile, userId);
-        if (result == null) {
-            throw new FileOperateException("Failed to save md file.!", ResponseConsts.RET_SAVE_FILE_FAIL);
+        boolean typeRes = FileUtil.checkFileType(fileName, fileType);
+        if (!typeRes) {
+            LOGGER.error("file suffix is error.");
+            throw new IllegalRequestException("file suffix is error.", ResponseConsts.RET_REQUEST_FORMAT_ERROR);
         }
-        int ret = uploadedFileMapper.updateFileStatus(result.getFileId(), false);
-        if (ret < 1) {
-            LOGGER.error("update md file status failed!!");
-            throw new DataBaseException("update md file status failed!", ResponseConsts.RET_UPDATE_DATA_FAIL);
-        }
-        return result;
-    }
+        if (fileType.equals("icon")) {
+            boolean sizeRes = FileUtil.checkFileSize(uploadFile.getSize(), 2, "M");
+            if (!sizeRes) {
+                String errorMsg = "icon file size can not be greater than 2m";
+                LOGGER.error(errorMsg);
+                throw new IllegalRequestException(errorMsg, ResponseConsts.RET_FILE_FORMAT_ERROR);
+            }
 
-    @Override
-    public UploadedFile uploadPicFile(String userId, MultipartFile uploadFile) {
-        //check format
-        String fileName = uploadFile.getOriginalFilename();
-        String[] nameSuffixes = {"png", "jpg", "PNG", "JPG"};
-        String suffix = fileName.substring(fileName.lastIndexOf(".") + 1);
-        if (!Arrays.asList(nameSuffixes).contains(suffix)) {
-            LOGGER.error("upload file is not in jpg or png format");
-            throw new IllegalRequestException("The file is not in jpg or png format",
-                ResponseConsts.RET_FILE_FORMAT_ERROR);
         }
-        boolean res = FileUtil.checkFileSize(uploadFile.getSize(), 2, "M");
-        if (!res) {
-            LOGGER.error("file size can not be greater than 2m");
-            throw new IllegalRequestException("file size can not be greater than 2m",
-                ResponseConsts.RET_FILE_FORMAT_ERROR);
-        }
-        LOGGER.info("Start uploading file");
+        String userId = AccessUserUtil.getUserId();
         UploadedFile result = saveFileToLocal(uploadFile, userId);
         if (result == null) {
-            throw new FileOperateException("Failed to save picture file.!", ResponseConsts.RET_SAVE_FILE_FAIL);
-        }
-        int ret = uploadedFileMapper.updateFileStatus(result.getFileId(), false);
-        if (ret < 1) {
-            LOGGER.error("update pic file status failed!!");
-            throw new DataBaseException("update pic file status failed!", ResponseConsts.RET_UPDATE_DATA_FAIL);
-        }
-        return result;
-    }
-
-    @Override
-    public UploadedFile uploadApiFile(String userId, MultipartFile uploadFile) {
-        //check format
-        String fileName = uploadFile.getOriginalFilename();
-        String[] nameSuffixes = {"yaml", "yml", "YAML", "YML", "json", "JSON"};
-        String suffix = fileName.substring(fileName.lastIndexOf(".") + 1);
-        if (!Arrays.asList(nameSuffixes).contains(suffix)) {
-            LOGGER.error("upload file is not in yaml or json format");
-            throw new IllegalRequestException("The file is not in yaml or json format",
-                ResponseConsts.RET_FILE_FORMAT_ERROR);
-        }
-        LOGGER.info("Start uploading file");
-        UploadedFile result = saveFileToLocal(uploadFile, userId);
-        if (result == null) {
-            throw new FileOperateException("Failed to save api file.!", ResponseConsts.RET_SAVE_FILE_FAIL);
-        }
-        int ret = uploadedFileMapper.updateFileStatus(result.getFileId(), false);
-        if (ret < 1) {
-            LOGGER.error("update api file status failed!!");
-            throw new DataBaseException("update api file status failed!", ResponseConsts.RET_UPDATE_DATA_FAIL);
+            LOGGER.error("Failed to save icon file!");
+            throw new FileOperateException("Failed to save picture file.", ResponseConsts.RET_SAVE_FILE_FAIL);
         }
         return result;
     }
@@ -393,7 +351,7 @@ public class UploadServiceImpl implements UploadService {
             result.setFileId(fileId);
             result.setUserId(userId);
             result.setUploadDate(new Date());
-            result.setTemp(true);
+            result.setTemp(false);
             result.setFilePath(BusinessConfigUtil.getUploadfilesPath() + fileId);
             uploadedFileMapper.saveFile(result);
         } catch (IOException e) {
@@ -401,8 +359,6 @@ public class UploadServiceImpl implements UploadService {
             return null;
         }
         LOGGER.info("upload file success {}", fileName);
-        //upload success
-        result.setFilePath("");
         return result;
     }
 
