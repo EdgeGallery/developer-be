@@ -32,11 +32,13 @@ import org.edgegallery.developer.model.apppackage.AppPackage;
 import org.edgegallery.developer.model.apppackage.appd.AppDefinition;
 import org.edgegallery.developer.model.resource.vm.Flavor;
 import org.edgegallery.developer.model.resource.vm.VMImage;
+import org.edgegallery.developer.service.apppackage.signature.EncryptedService;
 import org.edgegallery.developer.service.recource.vm.FlavorService;
 import org.edgegallery.developer.service.recource.vm.VMImageService;
 import org.edgegallery.developer.util.BusinessConfigUtil;
 import org.edgegallery.developer.util.FileUtil;
 import org.edgegallery.developer.util.InitConfigUtil;
+import org.edgegallery.developer.util.SpringContextUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,11 +47,9 @@ import org.yaml.snakeyaml.Yaml;
 
 public class AppDefinitionConverter {
 
-    @Autowired
-    private VMImageService vmImageService;
+    private VMImageService vmImageService = (VMImageService) SpringContextUtil.getBean(VMImageService.class);
 
-    @Autowired
-    private FlavorService flavorService;
+    private FlavorService flavorService = (FlavorService) SpringContextUtil.getBean(FlavorService.class);
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AppDefinitionConverter.class);
 
@@ -76,7 +76,7 @@ public class AppDefinitionConverter {
     }
 
     public AppDefinition loadAppdYaml(String appdFilePath) {
-        AppDefinition appDefinition = new AppDefinition();
+        AppDefinition appDefinition = null;
         File file = new File(appdFilePath);
         if (file.exists()) {
             try {

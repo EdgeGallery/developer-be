@@ -96,8 +96,10 @@ public class ApplicationServiceImpl implements ApplicationService {
             throw new FileFoundFailException("icon file is null", ResponseConsts.RET_FILE_NOT_FOUND);
         }
         uploadService.moveFileToWorkSpaceById(iconFileId, applicationId);
-        // init network
-        initNetwork(applicationId);
+        if(application.getAppClass().equals(EnumAppClass.VM)){
+            // init VM application default networks
+            initNetwork(applicationId);
+        }
 
         // save application to DB
         int res = applicationMapper.createApplication(application);
@@ -106,7 +108,9 @@ public class ApplicationServiceImpl implements ApplicationService {
             throw new DataBaseException("Create application in db error.", ResponseConsts.RET_CERATE_DATA_FAIL);
         }
         LOGGER.info("Create application success.");
-        return application;
+        //query db to get model with default values.
+        Application app = applicationMapper.getApplicationById(applicationId);
+        return app;
     }
 
     private void initNetwork(String applicationId) {

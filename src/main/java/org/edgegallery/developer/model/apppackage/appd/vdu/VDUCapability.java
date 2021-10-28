@@ -23,7 +23,7 @@ import lombok.Setter;
 @Setter
 public class VDUCapability {
 
-    Map<String, Object> virtual_compute;
+    LinkedHashMap<String, Object> virtual_compute = new LinkedHashMap<>();
 
     public VDUCapability(int memSize, int cpuNum, String cpuArc, int diskSize) {
         Map<String, Object> memory = new LinkedHashMap<>();

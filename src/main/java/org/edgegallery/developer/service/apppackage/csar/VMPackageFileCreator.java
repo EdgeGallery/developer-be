@@ -34,9 +34,8 @@ public class VMPackageFileCreator extends PackageFileCreator {
     private static final String APPD_FILE_TYPE = ".yaml";
 
     public String getAppdFilePath() {
-        return getPackagePath() + APPD_BASE_PATH + application.getName() + APPD_FILE_TYPE;
+        return getPackagePath() + APPD_BASE_PATH + getAppFileName(APPD_FILE_TYPE);
     }
-
 
     public VMPackageFileCreator(VMApplication application, String packageId) {
         super(application, packageId);

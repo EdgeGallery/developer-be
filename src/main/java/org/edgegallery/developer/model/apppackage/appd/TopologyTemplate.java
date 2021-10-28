@@ -17,6 +17,7 @@ package org.edgegallery.developer.model.apppackage.appd;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -28,6 +29,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import org.apache.ibatis.io.Resources;
 import org.edgegallery.developer.model.application.EnumAppClass;
 import org.edgegallery.developer.model.application.vm.Network;
 import org.edgegallery.developer.model.application.vm.VMApplication;
@@ -78,8 +80,8 @@ public class TopologyTemplate {
         if (EnumAppClass.VM.equals(appClass)) {
             InputStream inputStream = null;
             try {
-                inputStream = new FileInputStream(new File("template/appd/vm_appd_inputs.yaml"));
-            } catch (FileNotFoundException e) {
+                inputStream = new FileInputStream(Resources.getResourceAsFile("template/appd/vm_appd_inputs.yaml"));
+            } catch (IOException e) {
                 e.printStackTrace();
             }
             Yaml yaml = new Yaml();
@@ -194,7 +196,7 @@ public class TopologyTemplate {
         for (int i = 0; i < vmLst.size(); i++) {
             VirtualMachine vm = vmLst.get(i);
             int vduIndex = i + 1;
-            String vduName = "EMD_VDU" + vduIndex;
+            String vduName = InputConstant.VDU_NAME_PREFIX + vduIndex;
             //generate input for VDU
             String azInputName = InputConstant.INPUT_NAME_AZ;
             if (!this.inputs.containsKey(azInputName)) {
