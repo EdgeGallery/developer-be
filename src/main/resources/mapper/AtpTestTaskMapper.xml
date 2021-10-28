@@ -41,7 +41,7 @@
             resultMap="AtpTestTaskMap">
         SELECT
         <include refid="AtpTestTaskColumn"/>
-        from tbl_atp_test_task where app_id=#{applicationId}
+        from tbl_atp_test_task where app_id=#{applicationId} order by create_time desc
     </select>
 
 
