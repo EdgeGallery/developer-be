@@ -39,7 +39,7 @@ public class AppPackage {
      *
      * @return package path
      */
-    public String getPkgPath() {
+    public String computePkgPath() {
         return InitConfigUtil.getWorkSpaceBaseDir().concat(BusinessConfigUtil.getWorkspacePath()).concat(appId)
             .concat(File.separator).concat(packageFileName);
     }
