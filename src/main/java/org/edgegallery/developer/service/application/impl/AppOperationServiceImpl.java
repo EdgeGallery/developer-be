@@ -89,7 +89,7 @@ public class AppOperationServiceImpl implements AppOperationService {
         AppPackage appPkg = app.getAppPackage();
         checkParamNull(appPkg.getId(), "app package content is empty. applicationId: ".concat(applicationId));
 
-        String filePath = appPkg.getPkgPath();
+        String filePath = appPkg.queryPkgPath();
         ResponseEntity<String> response = AtpUtil.sendCreatTask2Atp(filePath, token);
         JsonObject jsonObject = new JsonParser().parse(response.getBody()).getAsJsonObject();
 
@@ -159,7 +159,7 @@ public class AppOperationServiceImpl implements AppOperationService {
         checkAtpTestStatus(app.getAtpTestTaskList());
 
         Map<String, Object> map = new HashMap<>();
-        map.put("file", new FileSystemResource(new File(appPkg.getPkgPath())));
+        map.put("file", new FileSystemResource(new File(appPkg.queryPkgPath())));
         map.put("icon", new FileSystemResource(new File(iconFile.getFilePath())));
         map.put("type", app.getType());
         map.put("shortDesc", app.getDescription());

@@ -37,8 +37,10 @@ import org.edgegallery.developer.model.apppackage.AppPkgStructure;
 import org.edgegallery.developer.service.apppackage.AppPackageService;
 import org.edgegallery.developer.service.apppackage.csar.VMPackageFileCreator;
 import org.edgegallery.developer.util.BusinessConfigUtil;
+import org.edgegallery.developer.util.DeveloperFileUtils;
 import org.edgegallery.developer.util.FileUtil;
 import org.edgegallery.developer.util.InitConfigUtil;
+import org.edgegallery.developer.util.ApplicationUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -174,23 +176,40 @@ public class AppPackageServiceImpl implements AppPackageService {
         AppPackage appPackage = new AppPackage();
         appPackage.setId(UUID.randomUUID().toString());
         appPackage.setAppId(application.getId());
-        try {
-            // generation appd
-            VMPackageFileCreator vmPackageFileCreator = new VMPackageFileCreator(application, appPackage.getId());
-            String fileName = vmPackageFileCreator.generateAppPackageFile();
-            appPackage.setPackageFileName(fileName);
-            // generation scar
-        } catch (Exception e) {
+
+        // generation appd
+        VMPackageFileCreator vmPackageFileCreator = new VMPackageFileCreator(application, appPackage.getId());
+        String fileName = vmPackageFileCreator.generateAppPackageFile();
+        if (StringUtils.isEmpty(fileName)) {
             LOGGER.error("Generation app package error.");
+            deletePackage(appPackage);
             throw new FileOperateException("Generation app package error.", ResponseConsts.RET_CREATE_FILE_FAIL);
         }
+        appPackage.setPackageFileName(fileName);
         appPackageMapper.createAppPackage(appPackage);
+        // generation scar
+
         return appPackage;
     }
 
     @Override
     public AppPackage generateAppPackage(ContainerApplication application) {
         return null;
+    }
+
+    @Override
+    public boolean deletePackage(String packageId) {
+        AppPackage appPackage = appPackageMapper.getAppPackage(packageId);
+        return deletePackage(appPackage);
+
+    }
+
+    public boolean deletePackage(AppPackage appPackage) {
+        // delete package file
+        String packagePath = ApplicationUtil.getApplicationBasePath(appPackage.getAppId());
+        DeveloperFileUtils.deleteDir(packagePath);
+        appPackageMapper.deleteAppPackage(appPackage.getId());
+        return true;
     }
 
     private String getProjectPath(String projectId) {

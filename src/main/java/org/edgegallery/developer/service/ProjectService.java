@@ -856,8 +856,7 @@ public class ProjectService {
             FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "can not upload appstore");
             return Either.left(error);
         }
-        Either<FormatRespDto, JsonObject> resCsar = getCsarAndUpload(projectId, project, releaseConfig, userId,
-            userName, token);
+        Either<FormatRespDto, JsonObject> resCsar = getCsarAndUpload(projectId, project, releaseConfig, token);
         LOGGER.warn("upload result true or false:{}", resCsar.isRight() ? resCsar.getRight() : resCsar.getLeft());
         if (resCsar.isLeft()) {
             return Either.left(resCsar.getLeft());
@@ -957,7 +956,7 @@ public class ProjectService {
     }
 
     private Either<FormatRespDto, JsonObject> getCsarAndUpload(String projectId, ApplicationProject project,
-        ReleaseConfig releaseConfig, String userId, String userName, String token) {
+        ReleaseConfig releaseConfig, String token) {
         // 1 get CSAR package
         String fileName = getFileName(projectId);
         if (StringUtils.isEmpty(fileName)) {
@@ -996,7 +995,7 @@ public class ProjectService {
         map.put("industry", StringUtils.join(project.getIndustry().toArray(), ","));
         // add Field testTaskId
         map.put("testTaskId", releaseConfig.getAtpTest().getId());
-        ResponseEntity<String> uploadReslut = AppStoreUtil.storeToAppStore(map, userId, userName, token);
+        ResponseEntity<String> uploadReslut = AppStoreUtil.storeToAppStore(map, token);
         if (uploadReslut == null) {
             LOGGER.error("upload app to appstore fail!");
             FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "upload app to appstore fail!");

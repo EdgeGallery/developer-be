@@ -20,6 +20,7 @@ import java.util.List;
 import org.edgegallery.developer.model.apppackage.AppPackage;
 import org.edgegallery.developer.model.atpTestTask.AtpTest;
 import org.edgegallery.developer.model.restful.SelectMepHostReq;
+import org.edgegallery.developer.model.workspace.PublishAppReqDto;
 
 public interface AppOperationService {
 
@@ -27,11 +28,13 @@ public interface AppOperationService {
 
     AppPackage generatePackage(String applicationId);
 
-    Boolean createAtpTest(String applicationId, String accessToken);
+    Boolean createAtpTest(String applicationId, String token);
 
     Boolean selectMepHost(String applicationId, SelectMepHostReq selectMepHostReq);
 
     List<AtpTest> getAtpTests(String applicationId);
 
     AtpTest getAtpTestById(String atpTestId);
+
+    Boolean releaseApp(String applicationId, String token,PublishAppReqDto publishAppDto);
 }

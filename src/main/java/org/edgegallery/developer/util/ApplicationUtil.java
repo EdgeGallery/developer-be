@@ -7,9 +7,9 @@ import org.edgegallery.developer.config.security.AccessUserUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class applicationUtil {
+public class ApplicationUtil {
 
-    public static final Logger LOGGER = LoggerFactory.getLogger(applicationUtil.class);
+    public static final Logger LOGGER = LoggerFactory.getLogger(ApplicationUtil.class);
 
     public static String getPackageBasePath(String applicationId, String packageId) {
         return InitConfigUtil.getWorkSpaceBaseDir() + BusinessConfigUtil.getWorkspacePath() + applicationId

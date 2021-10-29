@@ -144,15 +144,15 @@ public class VMAppOperationServiceImpl extends AppOperationServiceImpl implement
     public OperationInfoRep createVmImage(String applicationId, String vmId, String accessToken) {
         Application application = applicationService.getApplication(applicationId);
         if (application == null) {
-            LOGGER.error("application is not exited,id:{}", applicationId);
-            throw new EntityNotFoundException("application is not exited.", ResponseConsts.RET_QUERY_DATA_EMPTY);
+            LOGGER.error("application does not exist, id:{}", applicationId);
+            throw new EntityNotFoundException("application does not exist.", ResponseConsts.RET_QUERY_DATA_EMPTY);
         }
 
         VirtualMachine virtualMachine = vmAppVmServiceImpl.getVm(applicationId, vmId);
         if (virtualMachine == null || virtualMachine.getVmInstantiateInfo().getStatus()
             .equals(EnumVMInstantiateStatus.SUCCESS)) {
-            LOGGER.error("instantiate vm app fail ,vm is not exit or is used,vmId:{}", vmId);
-            throw new EntityNotFoundException("instantiate vm app fail ,vm is not exit or is used.",
+            LOGGER.error("instantiate vm app fail ,vm does not exist , vmId:{}", vmId);
+            throw new EntityNotFoundException("instantiate vm app fail ,vm does not exist.",
                 ResponseConsts.RET_QUERY_DATA_EMPTY);
         }
         String appInstanceId = virtualMachine.getVmInstantiateInfo().getAppInstanceId();
@@ -186,13 +186,13 @@ public class VMAppOperationServiceImpl extends AppOperationServiceImpl implement
     public Boolean cleanEnv(String applicationId, String accessToken) {
         Application application = applicationService.getApplication(applicationId);
         if (application == null) {
-            LOGGER.error("application is not exited,id:{}", applicationId);
-            throw new EntityNotFoundException("application is not exited.", ResponseConsts.RET_QUERY_DATA_EMPTY);
+            LOGGER.error("application does not exist ,id:{}", applicationId);
+            throw new EntityNotFoundException("application does not exist.", ResponseConsts.RET_QUERY_DATA_EMPTY);
         }
         List<VirtualMachine> vms = vmAppVmServiceImpl.getAllVm(applicationId);
         if (CollectionUtils.isEmpty(vms)) {
-            LOGGER.error("vm is not exit in application, applicationId:{}", applicationId);
-            throw new EntityNotFoundException("vm is not exit in application", ResponseConsts.RET_QUERY_DATA_EMPTY);
+            LOGGER.error("vm does not exist in application, applicationId:{}", applicationId);
+            throw new EntityNotFoundException("vm does not exist in application", ResponseConsts.RET_QUERY_DATA_EMPTY);
         }
         for (VirtualMachine vm : vms) {
             boolean res = cleanVmLaunchInfo(application.getMepHostId(), vm, accessToken);
@@ -317,17 +317,19 @@ public class VMAppOperationServiceImpl extends AppOperationServiceImpl implement
             int res = imageExportInfoMapper.deleteImageExportInfoInfoByVMId(vm.getId());
             if (res < 1) {
                 LOGGER.error("delete imageExportInfo fail, vmId:{}", vm.getId());
-                return false;
             }
         }
         if (vm.getVmInstantiateInfo() != null) {
             VMInstantiateInfo vmInstantiateInfo = vm.getVmInstantiateInfo();
             sentTerminateRequestToLcm(basePath, accessToken, vmInstantiateInfo.getAppInstanceId(),
                 vmInstantiateInfo.getMepmPackageId(), mepHost.getMecHostIp());
+            boolean deleteRes = appPackageService.deletePackage(vmInstantiateInfo.getAppPackageId());
+            if (!deleteRes) {
+                LOGGER.error("delete InstantiateInfo fail, vmId:{}", vm.getId());
+            }
             int res = vmInstantiateInfoMapper.deleteVMInstantiateInfo(vm.getId());
             if (res < 1) {
                 LOGGER.error("delete InstantiateInfo fail, vmId:{}", vm.getId());
-                return false;
             }
         }
         return true;
