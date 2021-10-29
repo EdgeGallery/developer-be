@@ -30,6 +30,7 @@ import org.edgegallery.developer.common.Consts;
 import org.edgegallery.developer.model.apppackage.AppPackage;
 import org.edgegallery.developer.model.atpTestTask.AtpTest;
 import org.edgegallery.developer.model.restful.SelectMepHostReq;
+import org.edgegallery.developer.model.workspace.PublishAppReqDto;
 import org.edgegallery.developer.response.ErrorRespDto;
 import org.edgegallery.developer.service.application.AppOperationService;
 import org.edgegallery.developer.service.application.factory.AppOperationServiceFactory;
@@ -130,8 +131,7 @@ public class AppOperationCtl {
         @ApiParam(value = "applicationId", required = true) @PathVariable("applicationId") String applicationId,
         HttpServletRequest request) {
         String accessToken = request.getHeader(Consts.ACCESS_TOKEN_STR);
-        Boolean result = getAppOperationService(applicationId).createAtpTest(applicationId, accessToken);
-        return ResponseEntity.ok(result);
+        return ResponseEntity.ok(getAppOperationService(applicationId).createAtpTest(applicationId, accessToken));
     }
 
     /**
@@ -175,6 +175,30 @@ public class AppOperationCtl {
         @Pattern(regexp = REGEX_UUID, message = "atpTestId must be in UUID format")
         @ApiParam(value = "atpTestId", required = true) @PathVariable("atpTestId") String atpTestId) {
         return ResponseEntity.ok(getAppOperationService(applicationId).getAtpTestById(atpTestId));
+    }
+
+    /**
+     * release app.
+     *
+     * @param applicationId applicationId
+     * @param request request
+     * @return true
+     */
+    @ApiOperation(value = "release app.", response = Boolean.class)
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = "OK", response = Boolean.class),
+        @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
+    })
+    @RequestMapping(value = "/{applicationId}/release", method = RequestMethod.POST,
+        consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
+    public ResponseEntity<Boolean> releaseApp(
+        @Pattern(regexp = REGEX_UUID, message = "applicationId must be in UUID format")
+        @ApiParam(value = "applicationId", required = true) @PathVariable("applicationId") String applicationId,
+        HttpServletRequest request,
+        @ApiParam(value = "publishAppDto", required = true) @RequestBody PublishAppReqDto publishAppDto) {
+        String token = request.getHeader(Consts.ACCESS_TOKEN_STR);
+        return ResponseEntity.ok(getAppOperationService(applicationId).releaseApp(applicationId, token, publishAppDto));
     }
 
     private AppOperationService getAppOperationService(String applicationId) {

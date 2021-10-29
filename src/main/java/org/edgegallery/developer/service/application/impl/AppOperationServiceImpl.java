@@ -16,23 +16,40 @@
 
 package org.edgegallery.developer.service.application.impl;
 
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.spencerwi.either.Either;
+import java.io.File;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import javax.ws.rs.core.Response;
+import org.apache.commons.lang3.StringUtils;
 import org.edgegallery.developer.common.ResponseConsts;
+import org.edgegallery.developer.config.security.AccessUserUtil;
 import org.edgegallery.developer.exception.DataBaseException;
 import org.edgegallery.developer.exception.EntityNotFoundException;
+import org.edgegallery.developer.exception.IllegalRequestException;
 import org.edgegallery.developer.mapper.AtpTestTaskMapper;
 import org.edgegallery.developer.mapper.application.ApplicationMapper;
+import org.edgegallery.developer.mapper.uploadfile.UploadMapper;
 import org.edgegallery.developer.model.application.Application;
 import org.edgegallery.developer.model.apppackage.AppPackage;
 import org.edgegallery.developer.model.atpTestTask.AtpTest;
 import org.edgegallery.developer.model.restful.SelectMepHostReq;
+import org.edgegallery.developer.model.workspace.PublishAppReqDto;
+import org.edgegallery.developer.model.workspace.UploadedFile;
+import org.edgegallery.developer.response.FormatRespDto;
 import org.edgegallery.developer.service.application.AppOperationService;
+import org.edgegallery.developer.util.AppStoreUtil;
 import org.edgegallery.developer.util.AtpUtil;
+import org.edgegallery.developer.util.BusinessConfigUtil;
+import org.edgegallery.developer.util.InitConfigUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -45,11 +62,16 @@ public class AppOperationServiceImpl implements AppOperationService {
 
     private static final String TEST_TASK_STATUS_RUNNING = "running";
 
+    private static final String TEST_TASK_STATUS_SUCCESS = "success";
+
     @Autowired
     private ApplicationMapper applicationMapper;
 
     @Autowired
     private AtpTestTaskMapper atpTestTaskMapper;
+
+    @Autowired
+    private UploadMapper uploadMapper;
 
     @Override
     public Boolean cleanEnv(String applicationId) {
@@ -62,7 +84,7 @@ public class AppOperationServiceImpl implements AppOperationService {
     }
 
     @Override
-    public Boolean createAtpTest(String applicationId, String accessToken) {
+    public Boolean createAtpTest(String applicationId, String token) {
         Application app = applicationMapper.getApplicationById(applicationId);
         checkParamNull(app, "application is empty. applicationId: ".concat(applicationId));
 
@@ -70,7 +92,7 @@ public class AppOperationServiceImpl implements AppOperationService {
         checkParamNull(appPkg.getId(), "app package content is empty. applicationId: ".concat(applicationId));
 
         String filePath = appPkg.getPkgPath();
-        ResponseEntity<String> response = AtpUtil.sendCreatTask2Atp(filePath, accessToken);
+        ResponseEntity<String> response = AtpUtil.sendCreatTask2Atp(filePath, token);
         JsonObject jsonObject = new JsonParser().parse(response.getBody()).getAsJsonObject();
 
         AtpTest atpTest = new AtpTest();
@@ -112,6 +134,59 @@ public class AppOperationServiceImpl implements AppOperationService {
             queryAndUpdateTestStatus(atpTest);
         }
         return atpTest;
+    }
+
+    @Override
+    public Boolean releaseApp(String applicationId, String token, PublishAppReqDto publishAppDto) {
+        Application app = applicationMapper.getApplicationById(applicationId);
+        checkParamNull(app, "application is empty. applicationId: ".concat(applicationId));
+        AppPackage appPkg = app.getAppPackage();
+        checkParamNull(appPkg.getId(), "app package content is empty. applicationId: ".concat(applicationId));
+        UploadedFile iconFile = uploadMapper.getFileById(app.getIconFileId());
+        checkParamNull(iconFile, "file icon is empty. iconFileId: ".concat(app.getIconFileId()));
+        checkAtpTestStatus(app.getAtpTestTaskList());
+
+        Map<String, Object> map = new HashMap<>();
+        map.put("file", new FileSystemResource(new File(appPkg.getPkgPath())));
+        map.put("icon", new FileSystemResource(new File(iconFile.getFilePath())));
+        map.put("type", app.getType());
+        map.put("shortDesc", app.getDescription());
+        map.put("affinity", app.getArchitecture());
+        map.put("industry", app.getIndustry());
+        map.put("testTaskId", app.getAtpTestTaskList().get(0));
+        ResponseEntity<String> uploadReslut = AppStoreUtil.storeToAppStore(map, token);
+        checkInnerParamNull(uploadReslut, "upload app to appstore fail!");
+
+        LOGGER.info("upload appstore result:{}", uploadReslut);
+        JsonObject jsonObject = new JsonParser().parse(uploadReslut.getBody()).getAsJsonObject();
+        JsonElement appStoreAppId = jsonObject.get("appId");
+        JsonElement appStorePackageId = jsonObject.get("packageId");
+
+        checkInnerParamNull(appStoreAppId, "response from upload to appstore does not contain appId");
+        checkInnerParamNull(appStorePackageId, "response from upload to appstore does not contain packageId");
+
+        ResponseEntity<String> publishRes = AppStoreUtil
+            .publishToAppStore(appStoreAppId.getAsString(), appStorePackageId.getAsString(), token, publishAppDto);
+        checkInnerParamNull(publishRes, "publish app to appstore fail!");
+
+        return true;
+    }
+
+    private void checkAtpTestStatus(List<AtpTest> atpTests) {
+        checkParamNull(atpTests, "atpTest field is null in application.");
+        AtpTest atpTest = atpTests.get(0);
+        if (!TEST_TASK_STATUS_SUCCESS.equalsIgnoreCase(atpTest.getStatus())) {
+            String msg = "atp test status is ".concat(atpTest.getStatus()).concat(", can not be released.");
+            LOGGER.error(msg);
+            throw new IllegalRequestException(msg, ResponseConsts.RET_REQUEST_PARAM_EMPTY);
+        }
+    }
+
+    private <T> void checkInnerParamNull(T innerParam, String msg) {
+        if (null == innerParam) {
+            LOGGER.error(msg);
+            throw new IllegalRequestException(msg, ResponseConsts.RET_REQUEST_PARAM_EMPTY);
+        }
     }
 
     private <T> void checkParamNull(T param, String msg) {
