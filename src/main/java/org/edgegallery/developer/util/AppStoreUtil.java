@@ -17,6 +17,7 @@
 package org.edgegallery.developer.util;
 
 import java.util.Map;
+import org.edgegallery.developer.config.security.AccessUserUtil;
 import org.edgegallery.developer.model.workspace.PublishAppReqDto;
 import org.edgegallery.developer.service.UtilsService;
 import org.slf4j.Logger;
@@ -46,8 +47,7 @@ public class AppStoreUtil {
     /**
      * upload app to appstore.
      */
-    public static ResponseEntity<String> storeToAppStore(Map<String, Object> params, String userId, String userName,
-        String token) {
+    public static ResponseEntity<String> storeToAppStore(Map<String, Object> params, String token) {
         SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
         requestFactory.setConnectTimeout(600000);// 设置超时
         requestFactory.setReadTimeout(600000);
@@ -59,7 +59,7 @@ public class AppStoreUtil {
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);
         String url = String
             .format("%s/mec/appstore/v1/apps?userId=%s&userName=%s", InitConfigUtil.getProperties(APPSTORE_ADDRESS),
-                userId, userName);
+                AccessUserUtil.getUser().getUserId(), AccessUserUtil.getUser().getUserName());
         LOGGER.warn(url);
         try {
             ResponseEntity<String> responses = restTemplate
