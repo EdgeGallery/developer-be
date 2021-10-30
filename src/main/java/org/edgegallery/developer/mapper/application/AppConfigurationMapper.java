@@ -28,49 +28,61 @@ public interface AppConfigurationMapper {
 
     List<TrafficRule> getAllTrafficRules(String applicationId);
 
-    TrafficRule getTrafficRule(@Param("applicationId")String applicationId, @Param("ruleId")String ruleId);
+    TrafficRule getTrafficRule(@Param("applicationId") String applicationId, @Param("ruleId") String ruleId);
 
-    int createTrafficRule(@Param("applicationId")String applicationId, @Param("trafficRule")TrafficRule trafficRule);
+    int createTrafficRule(@Param("applicationId") String applicationId, @Param("trafficRule") TrafficRule trafficRule);
 
-    int modifyTrafficRule(@Param("applicationId")String applicationId, @Param("trafficRule")TrafficRule trafficRule);
+    int modifyTrafficRule(@Param("applicationId") String applicationId, @Param("trafficRule") TrafficRule trafficRule);
 
-    int deleteTrafficRule(@Param("applicationId")String applicationId, @Param("ruleId")String ruleId);
+    int deleteTrafficRule(@Param("applicationId") String applicationId, @Param("ruleId") String ruleId);
 
     List<DnsRule> getAllDnsRules(String applicationId);
 
-    DnsRule getDnsRule(@Param("applicationId")String applicationId, @Param("ruleId")String ruleId);
+    DnsRule getDnsRule(@Param("applicationId") String applicationId, @Param("ruleId") String ruleId);
 
-    int createDnsRule(@Param("applicationId")String applicationId,  @Param("dnsRule")DnsRule dnsRule);
+    int createDnsRule(@Param("applicationId") String applicationId, @Param("dnsRule") DnsRule dnsRule);
 
-    int modifyDnsRule(@Param("applicationId")String applicationId,  @Param("dnsRule")DnsRule dnsRule);
+    int modifyDnsRule(@Param("applicationId") String applicationId, @Param("dnsRule") DnsRule dnsRule);
 
-    int deleteDnsRule(@Param("applicationId")String applicationId, @Param("ruleId")String ruleId);
+    int deleteDnsRule(@Param("applicationId") String applicationId, @Param("ruleId") String ruleId);
 
     List<AppServiceProduced> getAllServiceProduced(String applicationId);
 
-    AppServiceProduced getServiceProduced(@Param("applicationId")String applicationId, @Param("serName")String serName);
+    AppServiceProduced getServiceProduced(@Param("applicationId") String applicationId,
+        @Param("appServiceProducedId") String appServiceProducedId);
 
-    int createServiceProduced(@Param("applicationId")String applicationId, @Param("serviceProduced")AppServiceProduced serviceProduced);
+    AppServiceProduced getServiceProducedBySerName(@Param("applicationId") String applicationId,
+        @Param("serviceName") String serviceName);
 
-    int modifyServiceProduced(@Param("applicationId")String applicationId, @Param("serviceProduced")AppServiceProduced serviceProduced);
+    int createServiceProduced(@Param("applicationId") String applicationId,
+        @Param("serviceProduced") AppServiceProduced serviceProduced);
 
-    int deleteServiceProduced(@Param("applicationId")String applicationId, @Param("serName")String serName);
+    int modifyServiceProduced(@Param("applicationId") String applicationId,
+        @Param("serviceProduced") AppServiceProduced serviceProduced);
+
+    int deleteServiceProduced(@Param("applicationId") String applicationId,
+        @Param("appServiceProducedId") String appServiceProducedId);
 
     List<AppServiceRequired> getAllServiceRequired(String applicationId);
 
-    AppServiceRequired getServiceRequired(@Param("applicationId")String applicationId, @Param("serName")String serName);
+    AppServiceRequired getServiceRequired(@Param("applicationId") String applicationId,
+        @Param("serName") String serName);
 
-    int createServiceRequired(@Param("applicationId")String applicationId, @Param("serviceRequired")AppServiceRequired serviceRequired);
+    int createServiceRequired(@Param("applicationId") String applicationId,
+        @Param("serviceRequired") AppServiceRequired serviceRequired);
 
-    int modifyServiceRequired(@Param("applicationId")String applicationId, @Param("serviceRequired")AppServiceRequired serviceRequired);
+    int modifyServiceRequired(@Param("applicationId") String applicationId,
+        @Param("serviceRequired") AppServiceRequired serviceRequired);
 
-    int deleteServiceRequired(@Param("applicationId")String applicationId, @Param("serName")String serName);
+    int deleteServiceRequired(@Param("applicationId") String applicationId, @Param("serName") String serName);
 
     AppCertificate getAppCertificate(String applicationId);
 
-    int createAppCertificate(@Param("applicationId")String applicationId, @Param("appCertificate")AppCertificate appCertificate);
+    int createAppCertificate(@Param("applicationId") String applicationId,
+        @Param("appCertificate") AppCertificate appCertificate);
 
-    int modifyAppCertificate(@Param("applicationId")String applicationId, @Param("appCertificate")AppCertificate appCertificate);
+    int modifyAppCertificate(@Param("applicationId") String applicationId,
+        @Param("appCertificate") AppCertificate appCertificate);
 
     int deleteAppCertificate(String applicationId);
 

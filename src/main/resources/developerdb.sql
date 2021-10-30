@@ -414,12 +414,24 @@
     );
 
     CREATE TABLE IF NOT EXISTS "tbl_app_service_produced" (
-    "app_id" varchar(255) NOT NULL,
-    "ser_name" varchar(255) NOT NULL,
-    "version" varchar(255) DEFAULT NULL,
+    "app_id" varchar(50) NOT NULL,
+    "app_service_produced_id" varchar(50) NOT NULL,
+    "one_level_name" varchar(100) NOT NULL,
+    "one_level_name_en" varchar(100) NOT NULL,
+    "two_level_name" varchar(100) NOT NULL,
+    "description" varchar(500) NOT NULL,
+    "api_file_id" varchar(50) NOT NULL,
+    "guide_file_id" varchar(50) NOT NULL,
+    "icon_file_id" varchar(50) NOT NULL,
+    "service_name" varchar(50) NOT NULL,
+    "internal_port" int4 NOT NULL,
+    "version" varchar(30) NOT NULL,
+    "protocol" varchar(30) NOT NULL,
+    "author" varchar(50) NOT NULL,
+    "experience_url" varchar(500) DEFAULT NULL,
     "dns_rule_id_list" text DEFAULT NULL,
     "traffic_rule_id_list" text DEFAULT NULL,
-    CONSTRAINT  "tbl_app_service_produced_unique_id_name" UNIQUE ("app_id","ser_name")
+    CONSTRAINT  "tbl_app_service_produced_unique_id_name" UNIQUE ("app_id","service_name")
     );
 
     CREATE TABLE IF NOT EXISTS "tbl_app_service_required" (
