@@ -759,7 +759,8 @@ public class VmService {
         Type type = new TypeToken<MepHost>() { }.getType();
         MepHost host = gson.fromJson(gson.toJson(vmCreateConfig.getHost()), type);
         if (!StringUtils.isEmpty(vmImageConfig.getImageId())) {
-            HttpClientUtil.deleteVmImage(host.getProtocol(), host.getLcmIp(), host.getPort(), userId,
+            String basePath = HttpClientUtil.getUrlPrefix(host.getProtocol(), host.getLcmIp(), host.getPort());
+            HttpClientUtil.deleteVmImage(basePath, userId,
                 vmImageConfig.getAppInstanceId(), vmImageConfig.getImageId(), vmImageConfig.getLcmToken());
         }
     }
@@ -808,7 +809,8 @@ public class VmService {
         Type type = new TypeToken<MepHost>() { }.getType();
         MepHost host = gson.fromJson(gson.toJson(vmCreateConfig.getHost()), type);
         if (!StringUtils.isEmpty(vmImageConfig.getImageId())) {
-            HttpClientUtil.deleteVmImage(host.getProtocol(), host.getLcmIp(), host.getPort(), userId,
+            String basePath = HttpClientUtil.getUrlPrefix(host.getProtocol(), host.getLcmIp(), host.getPort());
+            HttpClientUtil.deleteVmImage(basePath, userId,
                 vmImageConfig.getAppInstanceId(), vmImageConfig.getImageId(), token);
         }
 

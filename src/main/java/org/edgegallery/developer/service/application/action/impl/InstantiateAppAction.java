@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.UUID;
 import org.edgegallery.developer.model.LcmLog;
 import org.edgegallery.developer.model.application.Application;
+import org.edgegallery.developer.model.application.EnumApplicationStatus;
 import org.edgegallery.developer.model.instantiate.vm.EnumVMInstantiateStatus;
 import org.edgegallery.developer.model.resource.mephost.MepHost;
 import org.edgegallery.developer.model.operation.ActionStatus;
@@ -100,6 +101,7 @@ public abstract class InstantiateAppAction extends AbstractAction {
         }
         saveInstanceIdToInstantiateInfo(appInstanceId, EnumVMInstantiateStatus.SUCCESS);
         updateActionProgress(actionStatus, 100, "Query instantiate status success.");
+        applicationService.updateApplicationStatus(applicationId, EnumApplicationStatus.DEPLOYED);
         return true;
     }
 

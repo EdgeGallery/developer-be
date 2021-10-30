@@ -24,7 +24,6 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.StringUtils;
 import org.edgegallery.developer.common.ResponseConsts;
 import org.edgegallery.developer.config.security.AccessUserUtil;
@@ -44,8 +43,7 @@ import org.edgegallery.developer.response.FormatRespDto;
 import org.edgegallery.developer.service.application.AppOperationService;
 import org.edgegallery.developer.util.AppStoreUtil;
 import org.edgegallery.developer.util.AtpUtil;
-import org.edgegallery.developer.util.BusinessConfigUtil;
-import org.edgegallery.developer.util.InitConfigUtil;
+import org.edgegallery.developer.util.HttpClientUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -74,8 +72,8 @@ public class AppOperationServiceImpl implements AppOperationService {
     private UploadMapper uploadMapper;
 
     @Override
-    public Boolean cleanEnv(String applicationId) {
-        return null;
+    public Boolean cleanEnv(String applicationId, String accessToken) {
+        return true;
     }
 
     @Override
@@ -91,7 +89,7 @@ public class AppOperationServiceImpl implements AppOperationService {
         AppPackage appPkg = app.getAppPackage();
         checkParamNull(appPkg.getId(), "app package content is empty. applicationId: ".concat(applicationId));
 
-        String filePath = appPkg.getPkgPath();
+        String filePath = appPkg.queryPkgPath();
         ResponseEntity<String> response = AtpUtil.sendCreatTask2Atp(filePath, token);
         JsonObject jsonObject = new JsonParser().parse(response.getBody()).getAsJsonObject();
 
@@ -136,6 +134,20 @@ public class AppOperationServiceImpl implements AppOperationService {
         return atpTest;
     }
 
+    public void sentTerminateRequestToLcm(String basePath, String accessToken, String appInstanceId,
+        String mepmPackageId, String mecHostIp) {
+        String userId = AccessUserUtil.getUserId();
+        // delete Instance
+        if (StringUtils.isNotEmpty(appInstanceId)) {
+            HttpClientUtil.terminateAppInstance(basePath, appInstanceId, AccessUserUtil.getUserId(), accessToken);
+        }
+        if (StringUtils.isNotEmpty(mepmPackageId)) {
+            // delete hosts
+            HttpClientUtil.deleteHost(basePath, userId, accessToken, mepmPackageId, mecHostIp);
+            // delete package
+            HttpClientUtil.deletePkg(basePath, userId, accessToken, mepmPackageId);
+        }
+    }
     @Override
     public Boolean releaseApp(String applicationId, String token, PublishAppReqDto publishAppDto) {
         Application app = applicationMapper.getApplicationById(applicationId);
@@ -147,7 +159,7 @@ public class AppOperationServiceImpl implements AppOperationService {
         checkAtpTestStatus(app.getAtpTestTaskList());
 
         Map<String, Object> map = new HashMap<>();
-        map.put("file", new FileSystemResource(new File(appPkg.getPkgPath())));
+        map.put("file", new FileSystemResource(new File(appPkg.queryPkgPath())));
         map.put("icon", new FileSystemResource(new File(iconFile.getFilePath())));
         map.put("type", app.getType());
         map.put("shortDesc", app.getDescription());

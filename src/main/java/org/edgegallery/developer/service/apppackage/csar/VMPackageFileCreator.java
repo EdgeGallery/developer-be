@@ -15,13 +15,9 @@
 package org.edgegallery.developer.service.apppackage.csar;
 
 import java.io.File;
-import java.io.IOException;
 import org.edgegallery.developer.model.application.vm.VMApplication;
 import org.edgegallery.developer.model.apppackage.appd.AppDefinition;
 import org.edgegallery.developer.service.apppackage.converter.AppDefinitionConverter;
-import org.edgegallery.developer.util.BusinessConfigUtil;
-import org.edgegallery.developer.util.InitConfigUtil;
-import org.edgegallery.developer.util.applicationUtil;
 
 public class VMPackageFileCreator extends PackageFileCreator {
 

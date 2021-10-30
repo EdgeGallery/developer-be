@@ -34,4 +34,6 @@ public interface AppPackageService {
     AppPackage generateAppPackage(VMApplication application);
 
     AppPackage generateAppPackage(ContainerApplication application);
+
+    boolean deletePackage(String packageId);
 }

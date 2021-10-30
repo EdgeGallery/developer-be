@@ -51,6 +51,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 @Api(tags = "AppOperation")
 @Validated
 public class AppOperationCtl {
+
     private static final String REGEX_UUID = "[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}";
 
     @Autowired
@@ -84,12 +85,14 @@ public class AppOperationCtl {
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
     @RequestMapping(value = "/{applicationId}/cleanenv", method = RequestMethod.POST,
-        consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+        produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<Boolean> cleanEnv(
         @Pattern(regexp = REGEX_UUID, message = "applicationId must be in UUID format")
-        @ApiParam(value = "applicationId", required = true) @PathVariable("applicationId") String applicationId) {
-        Boolean result = getAppOperationService(applicationId).cleanEnv(applicationId);
+        @ApiParam(value = "applicationId", required = true) @PathVariable("applicationId") String applicationId,
+        HttpServletRequest request) {
+        String accessToken = request.getHeader(Consts.ACCESS_TOKEN_STR);
+        Boolean result = getAppOperationService(applicationId).cleanEnv(applicationId, accessToken);
         return ResponseEntity.ok(result);
     }
 
@@ -102,7 +105,7 @@ public class AppOperationCtl {
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
     @RequestMapping(value = "/{applicationId}/generatepackage", method = RequestMethod.POST,
-        consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+        produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<AppPackage> generatePackage(
         @Pattern(regexp = REGEX_UUID, message = "applicationId must be in UUID format")
@@ -115,7 +118,7 @@ public class AppOperationCtl {
      * create atp tests.
      *
      * @param applicationId applicationId
-     * @param request request
+     * @param request       request
      * @return true
      */
     @ApiOperation(value = "create atp test.", response = Boolean.class)
@@ -124,7 +127,7 @@ public class AppOperationCtl {
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
     @RequestMapping(value = "/{applicationId}/atpTests", method = RequestMethod.POST,
-        consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+        produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<Boolean> createAtpTest(
         @Pattern(regexp = REGEX_UUID, message = "applicationId must be in UUID format")
@@ -158,7 +161,7 @@ public class AppOperationCtl {
      * get atp test by atpTestId.
      *
      * @param applicationId applicationId
-     * @param atpTestId atpTestId
+     * @param atpTestId     atpTestId
      * @return true
      */
     @ApiOperation(value = "Get atp test by atpTestId.", response = AtpTest.class)

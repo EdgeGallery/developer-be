@@ -18,6 +18,7 @@ package org.edgegallery.developer.service.application;
 
 import org.edgegallery.developer.domain.shared.Page;
 import org.edgegallery.developer.model.application.Application;
+import org.edgegallery.developer.model.application.EnumApplicationStatus;
 import org.edgegallery.developer.model.restful.ApplicationDetail;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -70,5 +71,7 @@ public interface ApplicationService {
     ApplicationDetail getApplicationDetail(String applicationId);
 
     Boolean modifyApplicationDetail(String applicationId, ApplicationDetail applicationDetail);
+
+    Boolean updateApplicationStatus(String applicationId, EnumApplicationStatus status);
 
 }
