@@ -18,10 +18,12 @@ package org.edgegallery.developer.service.application.impl;
 
 import java.util.List;
 import java.util.UUID;
+import org.apache.commons.lang3.StringUtils;
 import org.edgegallery.developer.common.ResponseConsts;
 import org.edgegallery.developer.exception.DataBaseException;
 import org.edgegallery.developer.exception.DeveloperException;
 import org.edgegallery.developer.exception.EntityNotFoundException;
+import org.edgegallery.developer.exception.IllegalRequestException;
 import org.edgegallery.developer.mapper.application.AppConfigurationMapper;
 import org.edgegallery.developer.mapper.application.ApplicationMapper;
 import org.edgegallery.developer.model.application.Application;
@@ -91,9 +93,10 @@ public class AppConfigurationServiceImpl implements AppConfigurationService {
     @Override
     public TrafficRule createTrafficRules(String applicationId, TrafficRule trafficRule) {
         Application application = applicationMapper.getApplicationById(applicationId);
-        if(application==null) {
+        if (application == null) {
             LOGGER.error("get application fail by applicationId:{}", applicationId);
-            throw new EntityNotFoundException("application is not exit, create failed", ResponseConsts.RET_CERATE_DATA_FAIL);
+            throw new EntityNotFoundException("application is not exit, create failed",
+                ResponseConsts.RET_CERATE_DATA_FAIL);
         }
         TrafficRule result = appConfigurationMapper.getTrafficRule(applicationId, trafficRule.getTrafficRuleId());
         if (result != null) {
@@ -128,14 +131,16 @@ public class AppConfigurationServiceImpl implements AppConfigurationService {
     @Override
     public DnsRule createDnsRule(String applicationId, DnsRule dnsRule) {
         Application application = applicationMapper.getApplicationById(applicationId);
-        if(application==null) {
+        if (application == null) {
             LOGGER.error("get application fail by applicationId:{}", applicationId);
-            throw new EntityNotFoundException("application is not exit, create failed", ResponseConsts.RET_CERATE_DATA_FAIL);
+            throw new EntityNotFoundException("application is not exit, create failed",
+                ResponseConsts.RET_CERATE_DATA_FAIL);
         }
         DnsRule result = appConfigurationMapper.getDnsRule(applicationId, dnsRule.getDnsRuleId());
         if (result != null) {
             LOGGER.error("create DnsRule failed: ruleId have exit");
-            throw new EntityNotFoundException("create DnsRule failed: ruleId have exit", ResponseConsts.RET_QUERY_DATA_EMPTY);
+            throw new EntityNotFoundException("create DnsRule failed: ruleId have exit",
+                ResponseConsts.RET_QUERY_DATA_EMPTY);
         }
         int res = appConfigurationMapper.createDnsRule(applicationId, dnsRule);
         if (res < 1) {
@@ -174,12 +179,14 @@ public class AppConfigurationServiceImpl implements AppConfigurationService {
     @Override
     public AppServiceProduced createServiceProduced(String applicationId, AppServiceProduced serviceProduced) {
         checkApplicationById(applicationId);
-        AppServiceProduced appServiceProduced = appConfigurationMapper.getServiceProduced(applicationId,
-            serviceProduced.getSerName());
+        AppServiceProduced appServiceProduced = appConfigurationMapper
+            .getServiceProducedBySerName(applicationId, serviceProduced.getServiceName());
         if (appServiceProduced != null) {
             LOGGER.error("create serviceProduced failed: serName have exit");
-            throw new EntityNotFoundException("create serviceProduced failed", ResponseConsts.RET_QUERY_DATA_EMPTY);
+            throw new EntityNotFoundException("create serviceProduced failed,serviceName have exit",
+                ResponseConsts.RET_QUERY_DATA_FAIL);
         }
+        serviceProduced.setAppServiceProducedId(UUID.randomUUID().toString());
         int res = appConfigurationMapper.createServiceProduced(applicationId, serviceProduced);
         if (res < 1) {
             LOGGER.error("create serviceProduced failed");
@@ -189,13 +196,25 @@ public class AppConfigurationServiceImpl implements AppConfigurationService {
     }
 
     @Override
-    public Boolean deleteServiceProduced(String applicationId, String serName) {
-        appConfigurationMapper.deleteServiceProduced(applicationId, serName);
+    public Boolean deleteServiceProduced(String applicationId, String appServiceProducedId) {
+        appConfigurationMapper.deleteServiceProduced(applicationId, appServiceProducedId);
         return true;
     }
 
     @Override
-    public Boolean modifyServiceProduced(String applicationId, AppServiceProduced serviceProduced) {
+    public Boolean modifyServiceProduced(String applicationId, String appServiceProducedId,
+        AppServiceProduced serviceProduced) {
+        AppServiceProduced appServiceProduced = appConfigurationMapper
+            .getServiceProduced(applicationId, appServiceProducedId);
+        if (appServiceProduced == null) {
+            LOGGER.error("param appServiceProducedId is incorrect!");
+            throw new IllegalRequestException("appServiceProducedId is incorrect!",
+                ResponseConsts.RET_REQUEST_PARAM_ERROR);
+        }
+        String serviceProducedId = serviceProduced.getAppServiceProducedId();
+        if (StringUtils.isEmpty(serviceProducedId) || !serviceProducedId.equals(appServiceProducedId)) {
+            serviceProduced.setAppServiceProducedId(appServiceProducedId);
+        }
         int res = appConfigurationMapper.modifyServiceProduced(applicationId, serviceProduced);
         if (res < 1) {
             LOGGER.error("modify AppServiceProduced failed");
@@ -212,13 +231,13 @@ public class AppConfigurationServiceImpl implements AppConfigurationService {
     @Override
     public AppServiceRequired createServiceRequired(String applicationId, AppServiceRequired serviceRequired) {
         checkApplicationById(applicationId);
-        AppServiceRequired appServiceRequired = appConfigurationMapper.getServiceRequired(applicationId,
-            serviceRequired.getSerName());
+        AppServiceRequired appServiceRequired = appConfigurationMapper
+            .getServiceRequired(applicationId, serviceRequired.getSerName());
         if (appServiceRequired != null) {
             LOGGER.error("create serviceRequired failed: serName have exit");
             throw new DeveloperException("create serviceRequired failed: serName have exit",
                 ResponseConsts.RET_CERATE_DATA_FAIL);
-       }
+        }
         int res = appConfigurationMapper.createServiceRequired(applicationId, serviceRequired);
         if (res < 1) {
             LOGGER.error("create serviceRequired failed");
@@ -276,13 +295,15 @@ public class AppConfigurationServiceImpl implements AppConfigurationService {
 
     private void checkApplicationById(String applicationId) {
         Application application = applicationMapper.getApplicationById(applicationId);
-        if(application==null) {
+        if (application == null) {
             LOGGER.error("get application fail by applicationId:{}", applicationId);
-            throw new EntityNotFoundException("application is not exit, create failed", ResponseConsts.RET_CERATE_DATA_FAIL);
+            throw new EntityNotFoundException("application is not exit, create failed",
+                ResponseConsts.RET_CERATE_DATA_FAIL);
         }
-        if(application.getAppCreateType()== EnumApplicationType.INTEGRATED) {
+        if (application.getAppCreateType() == EnumApplicationType.INTEGRATED) {
             LOGGER.error("application integrated not need app certificate");
-            throw new DeveloperException("application integrated not need app certificate", ResponseConsts.RET_CERATE_DATA_FAIL);
+            throw new DeveloperException("application integrated not need app certificate",
+                ResponseConsts.RET_CERATE_DATA_FAIL);
         }
     }
 

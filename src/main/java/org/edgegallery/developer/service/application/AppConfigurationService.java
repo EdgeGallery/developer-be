@@ -13,6 +13,7 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
+
 package org.edgegallery.developer.service.application;
 
 import java.util.List;
@@ -34,6 +35,7 @@ public interface AppConfigurationService {
      */
     @Transactional
     public AppConfiguration getAppConfiguration(String applicationId);
+
     /**
      * modify AppConfiguration
      *
@@ -42,6 +44,7 @@ public interface AppConfigurationService {
      */
     @Transactional
     Boolean modifyAppConfiguration(String applicationId, AppConfiguration appConfiguration);
+
     /**
      * get AppConfiguration TrafficRules
      *
@@ -59,7 +62,6 @@ public interface AppConfigurationService {
      */
     @Transactional
     TrafficRule createTrafficRules(String applicationId, TrafficRule trafficRule);
-
 
     /**
      * modify a AppConfiguration TrafficRule
@@ -95,7 +97,7 @@ public interface AppConfigurationService {
      * @return
      */
     @Transactional
-   List<DnsRule> getAllDnsRules(String applicationId);
+    List<DnsRule> getAllDnsRules(String applicationId);
 
     /**
      * delete a  AppConfiguration DnsRule
@@ -140,7 +142,7 @@ public interface AppConfigurationService {
      * @return
      */
     @Transactional
-    Boolean deleteServiceProduced(String applicationId, String id);
+    Boolean deleteServiceProduced(String applicationId, String appServiceProducedId);
 
     /**
      * modify a  AppConfiguration ServiceProduced
@@ -149,7 +151,8 @@ public interface AppConfigurationService {
      * @return
      */
     @Transactional
-    Boolean modifyServiceProduced(String applicationId, AppServiceProduced serviceProduced);
+    Boolean modifyServiceProduced(String applicationId, String appServiceProducedId,
+        AppServiceProduced serviceProduced);
 
     /**
      * get all  AppConfiguration ServiceRequired
