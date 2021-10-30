@@ -181,7 +181,7 @@ public class PackageFileCreator {
             return null;
         }
 
-        return tempPackageName + ".csar";
+        return packageId + ".csar";
     }
 
     public boolean compressDeploymentFile() {
