@@ -87,8 +87,8 @@ vm:
   password: ${VNC_PASSWORD:}
   port: ${VNC_PORT:22}
 
-ngnix:
-  url: ${NGNIX_URL:}
+developer:
+  ip: ${DEVELOPER_IP:}
 
 upload:
   path: /usr/app/images
