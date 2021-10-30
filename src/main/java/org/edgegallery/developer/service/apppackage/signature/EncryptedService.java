@@ -230,15 +230,13 @@ public class EncryptedService {
     }
 
     private static String readMatchLineContent(String fileName, List<String> rules) {
-        LineIterator lineIterator;
         StringBuilder result = new StringBuilder();
         String filePath = fileName.replace("\\", File.separator).replace("/", File.separator);
         try (InputStream inputStream = FileUtils.openInputStream(FileUtils.getFile(filePath));
              InputStreamReader inputStreamReader = new InputStreamReader(inputStream, StandardCharsets.UTF_8);
-             BufferedReader bufferedReader = new BufferedReader(inputStreamReader)) {
-            lineIterator = new LineIterator(bufferedReader);
+             BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+            LineIterator lineIterator = new LineIterator(bufferedReader)) {
             String line;
-            LineIterator lineIterator1 = FileUtils.lineIterator(new File(filePath), "UTF-8");
 
             while (lineIterator.hasNext()) {
                 line = lineIterator.next();

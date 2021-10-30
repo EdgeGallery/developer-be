@@ -184,6 +184,10 @@ public class PackageFileCreator {
         return packageId + ".csar";
     }
 
+    public void generateImageDesFile() {
+
+    }
+
     public boolean compressDeploymentFile() {
         return true;
     }
@@ -213,7 +217,7 @@ public class PackageFileCreator {
      * @param file    file.
      * @param content content.
      */
-    private void writeFile(File file, String content) {
+    public void writeFile(File file, String content) {
         try (Writer fw = new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8);
             BufferedWriter bw = new BufferedWriter(fw)) {
             bw.write(content);
@@ -221,5 +225,6 @@ public class PackageFileCreator {
             LOGGER.error("write data into SwImageDesc.json failed, {}", e.getMessage());
         }
     }
+
 
 }
