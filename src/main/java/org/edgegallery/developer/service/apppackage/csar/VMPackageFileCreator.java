@@ -37,7 +37,7 @@ public class VMPackageFileCreator extends PackageFileCreator {
 
     private static final String APPD_BASE_PATH = "/APPD/Definition/";
 
-    private static final String APPD_IMAGE_DES_PATH = "/Image/SwImageDesc.json/";
+    private static final String APPD_IMAGE_DES_PATH = "/Image/SwImageDesc.json";
 
     private static final String APPD_FILE_TYPE = ".yaml";
 
