@@ -300,11 +300,6 @@ public class AppConfigurationServiceImpl implements AppConfigurationService {
             throw new EntityNotFoundException("application is not exit, create failed",
                 ResponseConsts.RET_CERATE_DATA_FAIL);
         }
-        if (application.getAppCreateType() == EnumApplicationType.INTEGRATED) {
-            LOGGER.error("application integrated not need app certificate");
-            throw new DeveloperException("application integrated not need app certificate",
-                ResponseConsts.RET_CERATE_DATA_FAIL);
-        }
     }
 
 }

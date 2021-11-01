@@ -27,6 +27,16 @@ public class InputConstant {
 
     public static final String INPUT_NAME_AZ = "az_dc";
 
+    public static final String INPUT_NAME_MAP_CERTIFICATE = "mep_certificate";
+
+    public static final String INPUT_NAME_UE_IP_SEGMENT = "ue_ip_segment";
+
+    public static final String INPUT_NAME_MEP_IP = "mep_ip";
+
+    public static final String INPUT_NAME_MEP_PORT = "mep_port";
+
+    public static final String USER_DATA_PARAM_CERTIFICATE_INFO = "certificate_info";
+
     public static final String VDU_NAME_PREFIX = "VDU";
 
     public static final String INPUT_NETWORK_PREFIX = "APP_Plane0";
@@ -37,6 +47,12 @@ public class InputConstant {
 
     public static final String INPUT_VLANID_POSTFIX = "_VlanId";
 
+    public static final String NETWORK_INTERNET = "MEC_APP_Public";
+
+    public static final String NETWORK_N6 = "MEC_APP_N6";
+
+    public static final String NETWORK_MP1=  "MEC_APP_Private";
+
     public static final String INPUT_PORT_IP_POSTFIX = "_IP";
 
     public static final String INPUT_PORT_MASK_POSTFIX = "_MASK";
@@ -44,4 +60,8 @@ public class InputConstant {
     public static final String INPUT_PORT_GW_POSTFIX = "_GW";
 
     public static final String INPUT_PORT_MASK_DEFAULT = "255.255.255.0";
+
+    public static final String GET_INPUT_PREFIX = "{get_input: ";
+
+    public static final String GET_INPUT_POSTFIX = "}";
 }

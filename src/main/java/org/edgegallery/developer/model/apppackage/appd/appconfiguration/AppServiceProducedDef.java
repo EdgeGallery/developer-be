@@ -12,21 +12,27 @@
  * the License.
  */
 
-package org.edgegallery.developer.model.apppackage.constant;
+package org.edgegallery.developer.model.apppackage.appd.appconfiguration;
 
-public class AppdConstants {
+import java.util.ArrayList;
+import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 
-    public static final String VNF_NODE_NAME = "Simple_VNF";
+/**
+ * Instead of AppServiceProduced without api infos， Define this class to generate the appd.
+ */
+@Getter
+@Setter
+@ToString
+public class AppServiceProducedDef {
 
-    public static final String APP_CONFIGURATION_NODE_NAME = "app_configuration";
+    private String serName;
 
-    public static final String PORT_VNIC_NAME_PREFIX = "eth";
+    private String version;
 
-    public static final String NETWORK_NAME_Public = "MEC_APP_Public";
+    private List<String> dnsRuleIdList = new ArrayList<String>(0);
 
-    public static final String NETWORK_NAME_MP1 = "MEC_APP_MP1";
-
-    public static final String GROUPS_NODE_NAME = "AntiAffinityGroup";
-
-    public static final String POLICY_NODE_NAME = "antiaffinity_policy";
+    private List<String> trafficRuleIdList = new ArrayList<String>(0);
 }

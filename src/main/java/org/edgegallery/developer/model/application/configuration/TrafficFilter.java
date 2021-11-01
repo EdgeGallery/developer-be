@@ -21,29 +21,19 @@ import lombok.Getter;
 import lombok.Setter;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
+@Getter
+@Setter
 public class TrafficFilter {
-
-    private String[] protocal;
 
     private String[] srcAddress;
 
-    @Getter
-    @Setter
-    private Integer qCI;
+    private String[] dstAddress;
 
     private String[] srcPort;
 
-    @Getter
-    @Setter
-    private Integer dSCP;
-
-    private String[] dstAddress;
-
-    @Getter
-    @Setter
-    private Integer tC;
-
     private String[] dstPort;
+
+    private String[] protocol;
 
     private String[] tag;
 
@@ -55,14 +45,20 @@ public class TrafficFilter {
 
     private String[] dstTunnelPort;
 
+    private Integer qCI;
+
+    private Integer dSCP;
+
+    private Integer tC;
+
     /**
      * getProtocal.
      *
      * @return
      */
     public String[] getProtocal() {
-        if (this.protocal != null) {
-            return this.protocal.clone();
+        if (this.protocol != null) {
+            return this.protocol.clone();
         } else {
             return new String[0];
         }
@@ -73,11 +69,11 @@ public class TrafficFilter {
      *
      * @param protocal protocal
      */
-    public void setProtocal(String[] protocal) {
+    public void setProtocol(String[] protocal) {
         if (protocal != null) {
-            this.protocal = protocal.clone();
+            this.protocol = protocal.clone();
         } else {
-            this.protocal = null;
+            this.protocol = null;
         }
     }
 
