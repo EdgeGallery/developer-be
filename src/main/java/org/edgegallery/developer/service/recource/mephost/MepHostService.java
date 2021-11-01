@@ -41,10 +41,9 @@ public interface MepHostService {
      * create host.
      *
      * @param host request body
-     * @param token access token
      * @return
      */
-    boolean createHost(MepHost host, String token);
+    boolean createHost(MepHost host);
 
     /**
      * delete host by host id.
@@ -59,10 +58,9 @@ public interface MepHostService {
      *
      * @param hostId host id
      * @param host request body
-     * @param token access token
      * @return
      */
-    boolean updateHost(String hostId, MepHost host, String token);
+    boolean updateHost(String hostId, MepHost host);
 
     /**
      * get one host by host id.

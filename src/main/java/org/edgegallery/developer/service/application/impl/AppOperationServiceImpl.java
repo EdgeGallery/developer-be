@@ -89,7 +89,7 @@ public class AppOperationServiceImpl implements AppOperationService {
     private CapabilityMapper capabilityMapper;
 
     @Override
-    public Boolean cleanEnv(String applicationId, String accessToken) {
+    public Boolean cleanEnv(String applicationId) {
         return true;
     }
 
@@ -99,7 +99,7 @@ public class AppOperationServiceImpl implements AppOperationService {
     }
 
     @Override
-    public Boolean createAtpTest(String applicationId, String token) {
+    public Boolean createAtpTest(String applicationId) {
         Application app = applicationMapper.getApplicationById(applicationId);
         checkParamNull(app, "application is empty. applicationId: ".concat(applicationId));
 
@@ -107,7 +107,7 @@ public class AppOperationServiceImpl implements AppOperationService {
         checkParamNull(appPkg.getId(), "app package content is empty. applicationId: ".concat(applicationId));
 
         String filePath = appPkg.queryPkgPath();
-        ResponseEntity<String> response = AtpUtil.sendCreatTask2Atp(filePath, token);
+        ResponseEntity<String> response = AtpUtil.sendCreatTask2Atp(filePath, AccessUserUtil.getToken());
         JsonObject jsonObject = new JsonParser().parse(response.getBody()).getAsJsonObject();
 
         AtpTest atpTest = new AtpTest();

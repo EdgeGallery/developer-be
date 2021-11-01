@@ -24,11 +24,11 @@ import org.edgegallery.developer.model.workspace.PublishAppReqDto;
 
 public interface AppOperationService {
 
-    Boolean cleanEnv(String applicationId, String accessToken);
+    Boolean cleanEnv(String applicationId);
 
     AppPackage generatePackage(String applicationId);
 
-    Boolean createAtpTest(String applicationId, String token);
+    Boolean createAtpTest(String applicationId);
 
     Boolean selectMepHost(String applicationId, SelectMepHostReq selectMepHostReq);
 

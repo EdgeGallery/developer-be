@@ -20,9 +20,9 @@ import org.edgegallery.developer.model.apppackage.AppPackage;
 import org.edgegallery.developer.model.instantiate.container.ContainerAppInstantiateInfo;
 import org.edgegallery.developer.model.restful.OperationInfoRep;
 
-public interface ContainerAppOperationService{
+public interface ContainerAppOperationService {
 
-    OperationInfoRep instantiateContainerApp(String applicationId,String helmChartId,String accessToken);
+    OperationInfoRep instantiateContainerApp(String applicationId, String helmChartId);
 
     ContainerAppInstantiateInfo getInstantiateInfo(String applicationId);
 

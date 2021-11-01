@@ -20,6 +20,7 @@ import org.edgegallery.developer.domain.model.user.User;
 
 
 public final class AccessUserUtil {
+
     private static final ThreadLocal<User> user = new ThreadLocal<>();
 
     public static void setUser(String userId, String userName) {
@@ -30,6 +31,10 @@ public final class AccessUserUtil {
         user.set(new User(userId, userName, userAuth));
     }
 
+    public static void setUser(String userId, String userName, String userAuth, String token) {
+        user.set(new User(userId, userName, userAuth, token));
+    }
+
     public static User getUser() {
         return user.get();
     }
@@ -38,7 +43,11 @@ public final class AccessUserUtil {
         return user.get() == null ? null : user.get().getUserId();
     }
 
-    public void unload() {
+    public static String getToken() {
+        return user.get() == null ? null : user.get().getToken();
+    }
+
+    public static void unload() {
         user.remove();
     }
 }

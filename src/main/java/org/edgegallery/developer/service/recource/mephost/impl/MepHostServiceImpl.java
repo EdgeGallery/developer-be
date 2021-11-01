@@ -92,7 +92,7 @@ public class MepHostServiceImpl implements MepHostService {
      */
     @Transactional
     @Override
-    public boolean createHost(MepHost host, String token) {
+    public boolean createHost(MepHost host) {
         MepHost mepHost = mepHostMapper.getHostsByMecHostIp(host.getMecHostIp());
         if (mepHost != null) {
             LOGGER.error("mecHost have exit:{}", host.getMecHostIp());
@@ -101,7 +101,7 @@ public class MepHostServiceImpl implements MepHostService {
         // check host parameter
         checkMepHost(host);
         // config mepHost to lcm
-        configMepHostToLCM(host, token);
+        configMepHostToLCM(host, AccessUserUtil.getToken());
         host.setId(UUID.randomUUID().toString()); // no need to set hostId by user
         host.setUserId(AccessUserUtil.getUser().getUserId());
         // AES encryption
@@ -142,7 +142,7 @@ public class MepHostServiceImpl implements MepHostService {
      */
     @Override
     @Transactional
-    public boolean updateHost(String hostId, MepHost host, String token) {
+    public boolean updateHost(String hostId, MepHost host) {
         MepHost currentHost = mepHostMapper.getHost(hostId);
         if (currentHost == null) {
             LOGGER.error("Can not find host by {}", hostId);
@@ -154,7 +154,7 @@ public class MepHostServiceImpl implements MepHostService {
         // check host parameter
         checkMepHost(host);
         // config mepHost to lcm
-        configMepHostToLCM(host, token);
+        configMepHostToLCM(host, AccessUserUtil.getToken());
         int ret = mepHostMapper.updateHostSelected(host);
         if (ret > 0) {
             LOGGER.info("Update host {} success", hostId);

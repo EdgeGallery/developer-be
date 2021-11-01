@@ -91,7 +91,7 @@ public class VMAppOperationServiceImpl extends AppOperationServiceImpl implement
     MepHostMapper mepHostMapper;
 
     @Override
-    public OperationInfoRep instantiateVM(String applicationId, String vmId, String accessToken) {
+    public OperationInfoRep instantiateVM(String applicationId, String vmId) {
 
         Application application = applicationService.getApplication(applicationId);
         if (application == null) {
@@ -124,7 +124,7 @@ public class VMAppOperationServiceImpl extends AppOperationServiceImpl implement
                 ResponseConsts.RET_CERATE_DATA_FAIL);
         }
         VMLaunchOperation actionCollection = new VMLaunchOperation(AccessUserUtil.getUser(), applicationId, vmId,
-            accessToken, operationStatus);
+            AccessUserUtil.getToken(), operationStatus);
         LOGGER.info("start instantiate vm app");
         new InstantiateVmAppProcessor(actionCollection).start();
         return new OperationInfoRep(operationStatus.getId());
@@ -141,7 +141,7 @@ public class VMAppOperationServiceImpl extends AppOperationServiceImpl implement
     }
 
     @Override
-    public OperationInfoRep createVmImage(String applicationId, String vmId, String accessToken) {
+    public OperationInfoRep createVmImage(String applicationId, String vmId) {
         Application application = applicationService.getApplication(applicationId);
         if (application == null) {
             LOGGER.error("application does not exist, id:{}", applicationId);
@@ -176,14 +176,14 @@ public class VMAppOperationServiceImpl extends AppOperationServiceImpl implement
         }
         VMExportImageOperation actionCollection = new VMExportImageOperation(AccessUserUtil.getUser(), applicationId,
             vmId,
-            accessToken, operationStatus, appInstanceId, vmInstanceId);
+            AccessUserUtil.getToken(), operationStatus, appInstanceId, vmInstanceId);
         LOGGER.info("start instantiate vm app");
         new ExportVmImageProcessor(actionCollection).start();
         return new OperationInfoRep(operationStatus.getId());
     }
 
     @Override
-    public Boolean cleanEnv(String applicationId, String accessToken) {
+    public Boolean cleanEnv(String applicationId) {
         Application application = applicationService.getApplication(applicationId);
         if (application == null) {
             LOGGER.error("application does not exist ,id:{}", applicationId);
@@ -195,7 +195,7 @@ public class VMAppOperationServiceImpl extends AppOperationServiceImpl implement
             throw new EntityNotFoundException("vm does not exist in application", ResponseConsts.RET_QUERY_DATA_EMPTY);
         }
         for (VirtualMachine vm : vms) {
-            boolean res = cleanVmLaunchInfo(application.getMepHostId(), vm, accessToken);
+            boolean res = cleanVmLaunchInfo(application.getMepHostId(), vm, AccessUserUtil.getToken());
             if (!res) {
                 LOGGER.error("clean env fail, vmId:{}", vm.getId());
             }

@@ -23,7 +23,6 @@ import io.swagger.annotations.ApiResponses;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.Pattern;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
-import org.edgegallery.developer.common.Consts;
 import org.edgegallery.developer.model.Chunk;
 import org.edgegallery.developer.model.restful.OperationInfoRep;
 import org.edgegallery.developer.response.ErrorRespDto;
@@ -61,9 +60,8 @@ public class VMAppOperationCtl {
     public ResponseEntity<OperationInfoRep> instantiateVm(
         @Pattern(regexp = REGEX_UUID, message = "applicationId must be in UUID format")
         @ApiParam(value = "applicationId", required = true) @PathVariable("applicationId") String applicationId,
-        @ApiParam(value = "vmId", required = true) @PathVariable("vmId") String vmId, HttpServletRequest request) {
-        String accessToken = request.getHeader(Consts.ACCESS_TOKEN_STR);
-        OperationInfoRep result = VmAppOperationService.instantiateVM(applicationId, vmId, accessToken);
+        @ApiParam(value = "vmId", required = true) @PathVariable("vmId") String vmId) {
+        OperationInfoRep result = VmAppOperationService.instantiateVM(applicationId, vmId);
         return ResponseEntity.ok(result);
     }
 
@@ -81,9 +79,8 @@ public class VMAppOperationCtl {
     public ResponseEntity<OperationInfoRep> createVmImage(
         @Pattern(regexp = REGEX_UUID, message = "applicationId must be in UUID format")
         @ApiParam(value = "applicationId", required = true) @PathVariable("applicationId") String applicationId,
-        @ApiParam(value = "vmId", required = true) @PathVariable("vmId") String vmId, HttpServletRequest request) {
-        String accessToken = request.getHeader(Consts.ACCESS_TOKEN_STR);
-        OperationInfoRep result = VmAppOperationService.createVmImage(applicationId, vmId, accessToken);
+        @ApiParam(value = "vmId", required = true) @PathVariable("vmId") String vmId) {
+        OperationInfoRep result = VmAppOperationService.createVmImage(applicationId, vmId);
         return ResponseEntity.ok(result);
     }
 

@@ -89,10 +89,8 @@ public class AppOperationCtl {
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<Boolean> cleanEnv(
         @Pattern(regexp = REGEX_UUID, message = "applicationId must be in UUID format")
-        @ApiParam(value = "applicationId", required = true) @PathVariable("applicationId") String applicationId,
-        HttpServletRequest request) {
-        String accessToken = request.getHeader(Consts.ACCESS_TOKEN_STR);
-        Boolean result = getAppOperationService(applicationId).cleanEnv(applicationId, accessToken);
+        @ApiParam(value = "applicationId", required = true) @PathVariable("applicationId") String applicationId) {
+        Boolean result = getAppOperationService(applicationId).cleanEnv(applicationId);
         return ResponseEntity.ok(result);
     }
 
@@ -118,7 +116,6 @@ public class AppOperationCtl {
      * create atp tests.
      *
      * @param applicationId applicationId
-     * @param request       request
      * @return true
      */
     @ApiOperation(value = "create atp test.", response = Boolean.class)
@@ -131,10 +128,8 @@ public class AppOperationCtl {
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<Boolean> createAtpTest(
         @Pattern(regexp = REGEX_UUID, message = "applicationId must be in UUID format")
-        @ApiParam(value = "applicationId", required = true) @PathVariable("applicationId") String applicationId,
-        HttpServletRequest request) {
-        String accessToken = request.getHeader(Consts.ACCESS_TOKEN_STR);
-        return ResponseEntity.ok(getAppOperationService(applicationId).createAtpTest(applicationId, accessToken));
+        @ApiParam(value = "applicationId", required = true) @PathVariable("applicationId") String applicationId) {
+        return ResponseEntity.ok(getAppOperationService(applicationId).createAtpTest(applicationId));
     }
 
     /**
@@ -184,7 +179,7 @@ public class AppOperationCtl {
      * release app.
      *
      * @param applicationId applicationId
-     * @param request request
+     * @param request       request
      * @return true
      */
     @ApiOperation(value = "release app.", response = Boolean.class)

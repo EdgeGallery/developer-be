@@ -20,11 +20,9 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import java.util.List;
-import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.Pattern;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
-import org.edgegallery.developer.common.Consts;
 import org.edgegallery.developer.domain.shared.Page;
 import org.edgegallery.developer.model.resource.mephost.MepHost;
 import org.edgegallery.developer.model.resource.mephost.MepHostLog;
@@ -91,10 +89,8 @@ public class MepHostCtl {
     @PostMapping(consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<Boolean> createHost(
-        @ApiParam(value = "MepHost", required = true) @Validated @RequestBody MepHost host,
-        HttpServletRequest request) {
-        String token = request.getHeader(Consts.ACCESS_TOKEN_STR);
-        return ResponseEntity.ok(mepHostService.createHost(host, token));
+        @ApiParam(value = "MepHost", required = true) @Validated @RequestBody MepHost host) {
+        return ResponseEntity.ok(mepHostService.createHost(host));
     }
 
     /**
@@ -114,9 +110,8 @@ public class MepHostCtl {
     @PreAuthorize("hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<Boolean> modifyHost(@PathVariable("mephostId")
     @Pattern(regexp = REG_UUID, message = "hostId must be in UUID format") String mephostId,
-        @Validated @RequestBody MepHost host, HttpServletRequest request) {
-        String token = request.getHeader(Consts.ACCESS_TOKEN_STR);
-        return ResponseEntity.ok(mepHostService.updateHost(mephostId, host, token));
+        @Validated @RequestBody MepHost host) {
+        return ResponseEntity.ok(mepHostService.updateHost(mephostId, host));
     }
 
     /**

@@ -88,7 +88,7 @@ public class ContainerAppOperationServiceImpl extends AppOperationServiceImpl im
     }
 
     @Override
-    public OperationInfoRep instantiateContainerApp(String applicationId, String helmChartId, String accessToken) {
+    public OperationInfoRep instantiateContainerApp(String applicationId, String helmChartId) {
         Application application = applicationMapper.getApplicationById(applicationId);
         if (application == null) {
             LOGGER.error("application is not exited,id:{}", applicationId);
@@ -118,7 +118,7 @@ public class ContainerAppOperationServiceImpl extends AppOperationServiceImpl im
             throw new DataBaseException("Create operationStatus in db error.", ResponseConsts.RET_CERATE_DATA_FAIL);
         }
         ContainerLaunchOperation actionCollection = new ContainerLaunchOperation(AccessUserUtil.getUser(),
-            applicationId, helmChartId, accessToken, operationStatus);
+            applicationId, helmChartId, AccessUserUtil.getToken(), operationStatus);
         LOGGER.info("start instantiate container app");
         new InstantiateContainerAppProcessor(actionCollection).start();
         return new OperationInfoRep(operationStatus.getId());

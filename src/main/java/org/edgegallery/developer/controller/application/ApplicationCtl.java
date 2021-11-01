@@ -48,6 +48,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 @Api(tags = "application")
 @Validated
 public class ApplicationCtl {
+
     private static final String REGEX_UUID = "[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}";
 
     @Autowired

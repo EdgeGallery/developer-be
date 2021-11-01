@@ -30,13 +30,13 @@ import com.spencerwi.either.Either;
 
 public interface VMAppOperationService {
 
-    OperationInfoRep instantiateVM(String applicationId, String vmId, String accessToken);
+    OperationInfoRep instantiateVM(String applicationId, String vmId);
 
     Boolean uploadFileToVm(String applicationId, String vmId, HttpServletRequest request, Chunk chunk);
 
     ResponseEntity mergeAppFile(String applicationId, String vmId, String fileName, String identifier);
 
-    OperationInfoRep createVmImage(String applicationId, String vmId, String accessToken);
+    OperationInfoRep createVmImage(String applicationId, String vmId);
 
     ImageExportInfo getImageExportInfo(String vmId);
 
