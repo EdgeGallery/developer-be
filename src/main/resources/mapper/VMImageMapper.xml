@@ -136,13 +136,6 @@
     FROM tbl_vm_image WHERE id = #{imageId}
   </select>
 
-  <select id="getAvailableVmImages" resultMap="VmImageMap" parameterType="java.lang.String">
-    SELECT
-    <include refid="AllColumn"/>
-    FROM tbl_vm_image
-    WHERE status = 'PUBLISHED' and (type = 'public' or user_id = #{userId})
-  </select>
-
   <select id="getVmImagesPath" resultType="java.lang.String" parameterType="java.lang.Integer">
     SELECT down_load_url FROM tbl_vm_image WHERE id = #{imageId}
   </select>
@@ -199,10 +192,10 @@
 
   <update id="updateVmImageUploadInfo" parameterType="org.edgegallery.developer.model.resource.vm.UploadFileInfo">
     UPDATE tbl_vm_image
-    SET status = #{status}, down_load_url = #{downLoadUrl}, image_file_name=#{imageFileName},
-    file_md5=#{fileMd5}, image_format=#{imageFormat}, upload_time=now(),
-    image_size=#{imageSize}
-    WHERE id = #{imageId}
+    SET status = #{status}, down_load_url = #{downLoadUrl}, image_file_name=#{fileName},
+    file_md5=#{fileMd5}, image_format=#{fileFormat}, upload_time=now(),
+    image_size=#{fileSize}
+    WHERE id = #{fileId}
   </update>
 
   <update id="updateVmImageInfo">

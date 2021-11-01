@@ -28,7 +28,7 @@ public class UploadFileInfo {
 
     private String errorType = null;
 
-    private Integer systemId;
+    private Integer fileId;
 
     private String fileName;
 
@@ -40,7 +40,7 @@ public class UploadFileInfo {
 
     private String status;
 
-    private String systemPath;
+    private String downloadUrl;
 
     /**
      * constructor.
@@ -87,13 +87,13 @@ public class UploadFileInfo {
     /**
      * assign value.
      *
-     * @param systemId system id
+     * @param fileId file id
      * @param status status
-     * @param systemPath system path
+     * @param downloadUrl system path
      */
-    public void assign(int systemId, EnumVmImageStatus status, String systemPath) {
-        setSystemId(systemId);
+    public void assign(int fileId, EnumVmImageStatus status, String downloadUrl) {
+        setFileId(fileId);
         setStatus(status.toString());
-        setSystemPath(systemPath);
+        setDownloadUrl(downloadUrl);
     }
 }

@@ -16,7 +16,6 @@ package org.edgegallery.developer.service.apppackage.csar;
 
 import java.io.File;
 import java.io.IOException;
-import org.edgegallery.developer.model.application.EnumAppClass;
 import org.edgegallery.developer.model.application.container.ContainerApplication;
 import org.edgegallery.developer.util.BusinessConfigUtil;
 import org.edgegallery.developer.util.CompressFileUtils;
@@ -57,9 +56,7 @@ public class ContainerPackageFileCreator extends PackageFileCreator {
 
     }
 
-    private File generateImageDesFile() {
-
-        return new File(getPackageBasePath());
+    public void generateImageDesFile() {
 
     }
 

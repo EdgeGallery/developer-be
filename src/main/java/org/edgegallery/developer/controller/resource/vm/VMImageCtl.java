@@ -112,23 +112,6 @@ public class VMImageCtl {
     }
 
     /**
-     * get available vm image by userId and type.
-     *
-     * @return
-     */
-    @ApiOperation(value = "get available vm image)", response = VMImageRes.class, responseContainer = "List")
-    @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "OK", response = VMImageRes.class, responseContainer = "List"),
-        @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
-    })
-    @RequestMapping(value = "/list", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    @PreAuthorize("hasRole('DEVELOPER_ADMIN')|| hasRole('DEVELOPER_TENANT')")
-    public ResponseEntity<VMImageRes> getAvailableVmImages() {
-        VMImageRes either = vmImageService.getAvailableVmImages();
-        return ResponseEntity.ok(either);
-    }
-
-    /**
      * delete vm image.
      *
      * @return
