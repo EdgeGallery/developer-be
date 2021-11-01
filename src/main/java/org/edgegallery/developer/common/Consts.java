@@ -113,6 +113,10 @@ public final class Consts {
 
     public static final String HARBOR_PRO_IS_EXIST_URL = "%s://%s/api/v2.0/projects?name=%s";
 
+    public static final int DEFAULT_OPENSTACK_VNC_PORT = 6080;
+
+    public static final String HTTP_STATUS_SUCCESS_STR = "200";
+
     private Consts() {
     }
 }
