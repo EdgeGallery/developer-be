@@ -27,11 +27,12 @@ public class DstInterface {
 
     private String interfaceType;
 
+    private TunnelInfo tunnelInfo;
+
     private String srcMacAddress;
 
     private String dstMacAddress;
 
     private String dstIpAddress;
 
-    private TunnelInfo tunnelInfo;
 }

@@ -29,13 +29,13 @@ public class TrafficRule {
 
     private String trafficRuleId;
 
-    private String action;
-
-    private String priority;
-
     private String filterType;
 
+    private Integer priority;
+
     private List<TrafficFilter> trafficFilter = new ArrayList<TrafficFilter>(0);
+
+    private String action;
 
     private List<DstInterface> dstInterface = new ArrayList<DstInterface>(0);
 

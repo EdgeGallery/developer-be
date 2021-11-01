@@ -396,7 +396,7 @@
     "app_id" varchar(255) NOT NULL,
     "traffic_rule_id" varchar(255) NOT NULL,
     "action" varchar(255) DEFAULT NULL,
-    "priority" varchar(255) DEFAULT NULL,
+    "priority" int4 DEFAULT NULL,
     "filter_type" varchar(255) DEFAULT NULL,
     "traffic_filter" text DEFAULT NULL,
     "dst_interface" text DEFAULT NULL,
