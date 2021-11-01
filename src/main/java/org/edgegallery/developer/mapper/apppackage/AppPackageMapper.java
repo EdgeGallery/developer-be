@@ -27,6 +27,8 @@ public interface AppPackageMapper {
 
     int deleteAppPackageByAppId(String appId);
 
+    int modifyAppPackage(AppPackage pkg);
+
     AppPackage getAppPackage(String id);
 
     AppPackage getAppPackageByAppId(String appId);

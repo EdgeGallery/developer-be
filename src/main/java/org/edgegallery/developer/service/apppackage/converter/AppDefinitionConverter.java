@@ -92,11 +92,7 @@ public class AppDefinitionConverter {
 
     public AppDefinition convertApplication2Appd(String appdFilePath, VMApplication application) {
         //if the yaml file already exists, read from file as default.
-        AppDefinition appDefinition = loadAppdYaml(appdFilePath);
-        if (null == appDefinition) {
-            LOGGER.info("The appd file does not exist, create new appd file");
-            appDefinition = new AppDefinition();
-        }
+        AppDefinition appDefinition =  new AppDefinition();
         //update metadata
         appDefinition.getMetadata().setVnfd_id(application.getName());
         appDefinition.getMetadata().setVnfd_name(application.getName());

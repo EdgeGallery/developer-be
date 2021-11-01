@@ -173,9 +173,13 @@ public class AppPackageServiceImpl implements AppPackageService {
 
     @Override
     public AppPackage generateAppPackage(VMApplication application) {
-        AppPackage appPackage = new AppPackage();
-        appPackage.setId(UUID.randomUUID().toString());
-        appPackage.setAppId(application.getId());
+        AppPackage appPackage = appPackageMapper.getAppPackageByAppId(application.getId());
+        if(null == appPackage){
+            appPackage = new AppPackage();
+            appPackage.setId(UUID.randomUUID().toString());
+            appPackage.setAppId(application.getId());
+            appPackageMapper.createAppPackage(appPackage);
+        }
 
         // generation appd
         VMPackageFileCreator vmPackageFileCreator = new VMPackageFileCreator(application, appPackage.getId());
@@ -186,9 +190,7 @@ public class AppPackageServiceImpl implements AppPackageService {
             throw new FileOperateException("Generation app package error.", ResponseConsts.RET_CREATE_FILE_FAIL);
         }
         appPackage.setPackageFileName(fileName);
-        appPackageMapper.createAppPackage(appPackage);
-        // generation scar
-
+        appPackageMapper.modifyAppPackage(appPackage);
         return appPackage;
     }
 
