@@ -14,22 +14,19 @@
 
 package org.edgegallery.developer.model.apppackage.appd;
 
-import java.io.File;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
-import lombok.Getter;
-import lombok.Setter;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.io.Resources;
 import org.edgegallery.developer.model.application.Application;
@@ -285,7 +282,42 @@ public class TopologyTemplate {
     }
 
     private LinkedHashMap<String, String> analyzeVMFlavorExtraSpecs(String flavorExtraSpecsStr) {
-        return new LinkedHashMap<String, String>();
+        if (StringUtils.isEmpty(flavorExtraSpecsStr)) {
+            return null;
+        }
+        //generate Inputs for FlavorExtraSpecs
+        int inputIndex = 0;
+        while (true) {
+            inputIndex = flavorExtraSpecsStr.indexOf(InputConstant.GET_INPUT_PREFIX.trim(), inputIndex + 1);
+            if (inputIndex != -1) {
+                int inputNameEndIndex = flavorExtraSpecsStr.indexOf(AppdConstants.CLOSING_BRACE_MARK, inputIndex);
+                String inputName = flavorExtraSpecsStr.substring(inputIndex + InputConstant.GET_INPUT_PREFIX.trim().length(),
+                    inputNameEndIndex).trim();
+                InputParam inputParam = new InputParam(InputConstant.TYPE_STRING, "", inputName);
+                this.inputs.put(inputName, inputParam);
+            } else {
+                break;
+            }
+        }
+        //generate the definition for FlavorExtraSpecs
+        LinkedHashMap<String, String> mapSpecs = new LinkedHashMap<>();
+        String[] specs = flavorExtraSpecsStr.split(AppdConstants.REGEX_LINE_SEPARATOR);
+        for (String spec : specs) {
+            String lineStr = spec.trim();
+            int keyIndex = lineStr.indexOf(AppdConstants.QUOTATION_MARK, 1);
+            String key = lineStr.substring(1, keyIndex);
+            int valueIndex = lineStr.indexOf(AppdConstants.COLON_MARK, keyIndex);
+            String value = lineStr.substring(valueIndex + 1, lineStr.length()).trim();
+            if (value.startsWith(AppdConstants.QUOTATION_MARK) || value.startsWith(
+                AppdConstants.SINGLE_QUOTATION_MARK)) {
+                value = value.substring(1, value.length());
+            }
+            if (value.endsWith(AppdConstants.QUOTATION_MARK) || value.endsWith(AppdConstants.SINGLE_QUOTATION_MARK)) {
+                value = value.substring(0, value.length() - 1);
+            }
+            mapSpecs.put(key, value);
+        }
+        return mapSpecs;
     }
 
     private void updateVMPorts(String vduName, List<VMPort> ports, List<Network> networkLst) {

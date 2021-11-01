@@ -29,4 +29,14 @@ public class AppdConstants {
     public static final String GROUPS_NODE_NAME = "AntiAffinityGroup";
 
     public static final String POLICY_NODE_NAME = "antiaffinity_policy";
+
+    public static final String QUOTATION_MARK = "\"";
+
+    public static final String SINGLE_QUOTATION_MARK = "'";
+
+    public static final String COLON_MARK = ":";
+
+    public static final String CLOSING_BRACE_MARK = "}";
+
+    public static final String REGEX_LINE_SEPARATOR = "\r\n|\n";
 }
