@@ -52,11 +52,11 @@ public class TrafficFilter {
     private Integer tC;
 
     /**
-     * getProtocal.
+     * get protocol.
      *
      * @return
      */
-    public String[] getProtocal() {
+    public String[] getProtocol() {
         if (this.protocol != null) {
             return this.protocol.clone();
         } else {
@@ -65,13 +65,13 @@ public class TrafficFilter {
     }
 
     /**
-     * setProtocal.
+     * set protocol.
      *
-     * @param protocal protocal
+     * @param protocol protocol
      */
-    public void setProtocol(String[] protocal) {
-        if (protocal != null) {
-            this.protocol = protocal.clone();
+    public void setProtocol(String[] protocol) {
+        if (protocol != null) {
+            this.protocol = protocol.clone();
         } else {
             this.protocol = null;
         }

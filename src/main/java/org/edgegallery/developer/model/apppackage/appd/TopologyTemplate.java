@@ -348,9 +348,11 @@ public class TopologyTemplate {
     private void updateAppConfiguration(Application app) {
         //if no configuration, skip this node
         AppConfiguration appConfiguration = app.getAppConfiguration();
-        if (appConfiguration.getAppServiceProducedList().isEmpty() && appConfiguration.getAppServiceRequiredList()
-            .isEmpty() && appConfiguration.getTrafficRuleList().isEmpty() && appConfiguration.getDnsRuleList()
-            .isEmpty()) {
+        if ((null == appConfiguration.getAppServiceProducedList() || appConfiguration.getAppServiceProducedList()
+            .isEmpty()) && (null == appConfiguration.getAppServiceRequiredList()
+            || appConfiguration.getAppServiceRequiredList().isEmpty()) && (null == appConfiguration.getTrafficRuleList()
+            || appConfiguration.getTrafficRuleList().isEmpty()) && (null == appConfiguration.getDnsRuleList()
+            || appConfiguration.getDnsRuleList().isEmpty())) {
             return;
         }
         NodeTemplate appConfigurationNode = new NodeTemplate();
@@ -358,13 +360,15 @@ public class TopologyTemplate {
         ConfigurationProperty property = new ConfigurationProperty();
         property.setAppCertificate(appConfiguration.getAppCertificate());
         property.setAppServiceRequired(appConfiguration.getAppServiceRequiredList());
-        for (AppServiceProduced serviceProduced : appConfiguration.getAppServiceProducedList()) {
-            AppServiceProducedDef def = new AppServiceProducedDef();
-            def.setSerName(serviceProduced.getServiceName());
-            def.setVersion(serviceProduced.getVersion());
-            def.setTrafficRuleIdList(serviceProduced.getTrafficRuleIdList());
-            def.setDnsRuleIdList(serviceProduced.getDnsRuleIdList());
-            property.getAppServiceProduced().add(def);
+        if (null != appConfiguration.getAppServiceProducedList()) {
+            for (AppServiceProduced serviceProduced : appConfiguration.getAppServiceProducedList()) {
+                AppServiceProducedDef def = new AppServiceProducedDef();
+                def.setSerName(serviceProduced.getServiceName());
+                def.setVersion(serviceProduced.getVersion());
+                def.setTrafficRuleIdList(serviceProduced.getTrafficRuleIdList());
+                def.setDnsRuleIdList(serviceProduced.getDnsRuleIdList());
+                property.getAppServiceProduced().add(def);
+            }
         }
         boolean isNoMp1Call = appConfiguration.getAppServiceProducedList().isEmpty()
             && appConfiguration.getAppServiceRequiredList().isEmpty();
