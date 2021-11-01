@@ -19,7 +19,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.StringWriter;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -28,22 +27,19 @@ import java.util.Set;
 import org.apache.commons.io.FileUtils;
 import org.edgegallery.developer.model.application.vm.VMApplication;
 import org.edgegallery.developer.model.application.vm.VirtualMachine;
-import org.edgegallery.developer.model.apppackage.AppPackage;
 import org.edgegallery.developer.model.apppackage.appd.AppDefinition;
 import org.edgegallery.developer.model.resource.vm.Flavor;
 import org.edgegallery.developer.model.resource.vm.VMImage;
-import org.edgegallery.developer.service.apppackage.signature.EncryptedService;
 import org.edgegallery.developer.service.recource.vm.FlavorService;
 import org.edgegallery.developer.service.recource.vm.VMImageService;
 import org.edgegallery.developer.util.BusinessConfigUtil;
-import org.edgegallery.developer.util.FileUtil;
 import org.edgegallery.developer.util.InitConfigUtil;
 import org.edgegallery.developer.util.SpringContextUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.nodes.Tag;
 
 public class AppDefinitionConverter {
 
@@ -64,7 +60,7 @@ public class AppDefinitionConverter {
         StringWriter writer = new StringWriter();
         CustomRepresenter representer = new CustomRepresenter();
         Yaml yaml = new Yaml(representer, new DumperOptions());
-        String yamlContents = yaml.dumpAsMap(appDefinition);
+        String yamlContents = yaml.dumpAs(appDefinition, Tag.MAP, DumperOptions.FlowStyle.BLOCK);
         File file = new File(appdFilePath);
         try {
             FileUtils.writeStringToFile(file, yamlContents, StandardCharsets.UTF_8);
