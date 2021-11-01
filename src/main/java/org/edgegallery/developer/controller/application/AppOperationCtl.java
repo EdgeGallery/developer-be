@@ -27,6 +27,8 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.edgegallery.developer.common.Consts;
+import org.edgegallery.developer.config.security.AccessUserUtil;
+import org.edgegallery.developer.domain.model.user.User;
 import org.edgegallery.developer.model.apppackage.AppPackage;
 import org.edgegallery.developer.model.atpTestTask.AtpTest;
 import org.edgegallery.developer.model.restful.SelectMepHostReq;
@@ -90,7 +92,8 @@ public class AppOperationCtl {
     public ResponseEntity<Boolean> cleanEnv(
         @Pattern(regexp = REGEX_UUID, message = "applicationId must be in UUID format")
         @ApiParam(value = "applicationId", required = true) @PathVariable("applicationId") String applicationId) {
-        Boolean result = getAppOperationService(applicationId).cleanEnv(applicationId);
+        User user = AccessUserUtil.getUser();
+        Boolean result = getAppOperationService(applicationId).cleanEnv(applicationId, user);
         return ResponseEntity.ok(result);
     }
 
@@ -129,7 +132,8 @@ public class AppOperationCtl {
     public ResponseEntity<Boolean> createAtpTest(
         @Pattern(regexp = REGEX_UUID, message = "applicationId must be in UUID format")
         @ApiParam(value = "applicationId", required = true) @PathVariable("applicationId") String applicationId) {
-        return ResponseEntity.ok(getAppOperationService(applicationId).createAtpTest(applicationId));
+        User user = AccessUserUtil.getUser();
+        return ResponseEntity.ok(getAppOperationService(applicationId).createAtpTest(applicationId, user));
     }
 
     /**
@@ -195,8 +199,8 @@ public class AppOperationCtl {
         @ApiParam(value = "applicationId", required = true) @PathVariable("applicationId") String applicationId,
         HttpServletRequest request,
         @ApiParam(value = "publishAppDto", required = true) @RequestBody PublishAppReqDto publishAppDto) {
-        String token = request.getHeader(Consts.ACCESS_TOKEN_STR);
-        return ResponseEntity.ok(getAppOperationService(applicationId).releaseApp(applicationId, token, publishAppDto));
+        User user = AccessUserUtil.getUser();
+        return ResponseEntity.ok(getAppOperationService(applicationId).releaseApp(applicationId, user, publishAppDto));
     }
 
     private AppOperationService getAppOperationService(String applicationId) {

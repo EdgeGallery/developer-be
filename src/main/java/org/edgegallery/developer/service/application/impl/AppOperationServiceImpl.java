@@ -28,6 +28,7 @@ import java.util.UUID;
 import org.apache.commons.lang3.StringUtils;
 import org.edgegallery.developer.common.ResponseConsts;
 import org.edgegallery.developer.config.security.AccessUserUtil;
+import org.edgegallery.developer.domain.model.user.User;
 import org.edgegallery.developer.exception.DataBaseException;
 import org.edgegallery.developer.exception.EntityNotFoundException;
 import org.edgegallery.developer.exception.IllegalRequestException;
@@ -89,7 +90,7 @@ public class AppOperationServiceImpl implements AppOperationService {
     private CapabilityMapper capabilityMapper;
 
     @Override
-    public Boolean cleanEnv(String applicationId) {
+    public Boolean cleanEnv(String applicationId, User user) {
         return true;
     }
 
@@ -99,7 +100,7 @@ public class AppOperationServiceImpl implements AppOperationService {
     }
 
     @Override
-    public Boolean createAtpTest(String applicationId) {
+    public Boolean createAtpTest(String applicationId, User user) {
         Application app = applicationMapper.getApplicationById(applicationId);
         checkParamNull(app, "application is empty. applicationId: ".concat(applicationId));
 
@@ -107,7 +108,7 @@ public class AppOperationServiceImpl implements AppOperationService {
         checkParamNull(appPkg.getId(), "app package content is empty. applicationId: ".concat(applicationId));
 
         String filePath = appPkg.queryPkgPath();
-        ResponseEntity<String> response = AtpUtil.sendCreatTask2Atp(filePath, AccessUserUtil.getToken());
+        ResponseEntity<String> response = AtpUtil.sendCreatTask2Atp(filePath, user.getToken());
         JsonObject jsonObject = new JsonParser().parse(response.getBody()).getAsJsonObject();
 
         AtpTest atpTest = new AtpTest();
@@ -151,12 +152,11 @@ public class AppOperationServiceImpl implements AppOperationService {
         return atpTest;
     }
 
-    public void sentTerminateRequestToLcm(String basePath, String accessToken, String appInstanceId,
+    public void sentTerminateRequestToLcm(String basePath, String userId, String accessToken, String appInstanceId,
         String mepmPackageId, String mecHostIp) {
-        String userId = AccessUserUtil.getUserId();
         // delete Instance
         if (StringUtils.isNotEmpty(appInstanceId)) {
-            HttpClientUtil.terminateAppInstance(basePath, appInstanceId, AccessUserUtil.getUserId(), accessToken);
+            HttpClientUtil.terminateAppInstance(basePath, appInstanceId, userId, accessToken);
         }
         if (StringUtils.isNotEmpty(mepmPackageId)) {
             // delete hosts
@@ -167,7 +167,7 @@ public class AppOperationServiceImpl implements AppOperationService {
     }
 
     @Override
-    public Boolean releaseApp(String applicationId, String token, PublishAppReqDto publishAppDto) {
+    public Boolean releaseApp(String applicationId, User user, PublishAppReqDto publishAppDto) {
         Application app = applicationMapper.getApplicationById(applicationId);
         checkParamNull(app, "application is empty. applicationId: ".concat(applicationId));
         AppPackage appPkg = app.getAppPackage();
@@ -184,7 +184,7 @@ public class AppOperationServiceImpl implements AppOperationService {
         map.put("affinity", app.getArchitecture());
         map.put("industry", app.getIndustry());
         map.put("testTaskId", app.getAtpTestTaskList().get(0));
-        ResponseEntity<String> uploadReslut = AppStoreUtil.storeToAppStore(map, token);
+        ResponseEntity<String> uploadReslut = AppStoreUtil.storeToAppStore(map, user);
         checkInnerParamNull(uploadReslut, "upload app to appstore fail!");
 
         LOGGER.info("upload appstore result:{}", uploadReslut);
@@ -196,7 +196,7 @@ public class AppOperationServiceImpl implements AppOperationService {
         checkInnerParamNull(appStorePackageId, "response from upload to appstore does not contain packageId");
 
         ResponseEntity<String> publishRes = AppStoreUtil
-            .publishToAppStore(appStoreAppId.getAsString(), appStorePackageId.getAsString(), token, publishAppDto);
+            .publishToAppStore(appStoreAppId.getAsString(), appStorePackageId.getAsString(), user.getToken(), publishAppDto);
         checkInnerParamNull(publishRes, "publish app to appstore fail!");
         //release service
         releaseServiceProduced(applicationId, jsonObject);

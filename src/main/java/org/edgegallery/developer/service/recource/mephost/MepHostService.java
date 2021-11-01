@@ -17,6 +17,7 @@
 package org.edgegallery.developer.service.recource.mephost;
 
 import java.util.List;
+import org.edgegallery.developer.domain.model.user.User;
 import org.edgegallery.developer.domain.shared.Page;
 import org.edgegallery.developer.model.resource.mephost.MepHost;
 import org.edgegallery.developer.model.resource.mephost.MepHostLog;
@@ -43,7 +44,7 @@ public interface MepHostService {
      * @param host request body
      * @return
      */
-    boolean createHost(MepHost host);
+    boolean createHost(MepHost host, User user);
 
     /**
      * delete host by host id.
@@ -60,7 +61,7 @@ public interface MepHostService {
      * @param host request body
      * @return
      */
-    boolean updateHost(String hostId, MepHost host);
+    boolean updateHost(String hostId, MepHost host, User user);
 
     /**
      * get one host by host id.

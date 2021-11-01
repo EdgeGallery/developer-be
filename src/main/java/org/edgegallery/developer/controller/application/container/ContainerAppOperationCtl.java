@@ -22,6 +22,8 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import javax.validation.constraints.Pattern;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
+import org.edgegallery.developer.config.security.AccessUserUtil;
+import org.edgegallery.developer.domain.model.user.User;
 import org.edgegallery.developer.model.restful.OperationInfoRep;
 import org.edgegallery.developer.response.ErrorRespDto;
 import org.edgegallery.developer.service.application.container.ContainerAppOperationService;
@@ -62,7 +64,8 @@ public class ContainerAppOperationCtl {
         @ApiParam(value = "applicationId", required = true) @PathVariable("applicationId") String applicationId,
         @Pattern(regexp = REGEX_UUID, message = "helmChartId must be in UUID format")
         @ApiParam(value = "helmChartId", required = true) @PathVariable("helmChartId") String helmChartId) {
-        OperationInfoRep result = containerAppOperationService.instantiateContainerApp(applicationId, helmChartId);
+        User user = AccessUserUtil.getUser();
+        OperationInfoRep result = containerAppOperationService.instantiateContainerApp(applicationId, helmChartId, user);
         return ResponseEntity.ok(result);
     }
 

@@ -15,6 +15,7 @@
  */
 package org.edgegallery.developer.service.application.container;
 
+import org.edgegallery.developer.domain.model.user.User;
 import org.edgegallery.developer.model.application.container.ContainerApplication;
 import org.edgegallery.developer.model.apppackage.AppPackage;
 import org.edgegallery.developer.model.instantiate.container.ContainerAppInstantiateInfo;
@@ -22,7 +23,7 @@ import org.edgegallery.developer.model.restful.OperationInfoRep;
 
 public interface ContainerAppOperationService {
 
-    OperationInfoRep instantiateContainerApp(String applicationId, String helmChartId);
+    OperationInfoRep instantiateContainerApp(String applicationId, String helmChartId, User user);
 
     ContainerAppInstantiateInfo getInstantiateInfo(String applicationId);
 

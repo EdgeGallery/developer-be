@@ -36,7 +36,7 @@ public class VMLaunchOperation implements IActionCollection {
 
     public List<IAction> actions;
 
-    public VMLaunchOperation(User user, String applicationId, String vmId, String token, OperationStatus operationStatus) {
+    public VMLaunchOperation(User user, String applicationId, String vmId, OperationStatus operationStatus) {
 
         IAction buildPackageAction = new BuildVMPackageAction();
         IAction distributePackageAction = new DistributeVMPackageAction();
@@ -47,7 +47,7 @@ public class VMLaunchOperation implements IActionCollection {
         actionProgressRangeMap.put(distributePackageAction.getActionName(), new ActionProgressRange(20, 50));
         actionProgressRangeMap.put(instantiateVMAppAction.getActionName(), new ActionProgressRange(50, 100));
 
-        this.context = new OperationContext(user, token, operationStatus, actionProgressRangeMap);
+        this.context = new OperationContext(user, operationStatus, actionProgressRangeMap);
         buildPackageAction.setContext(context);
         distributePackageAction.setContext(context);
         instantiateVMAppAction.setContext(context);

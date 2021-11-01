@@ -23,6 +23,8 @@ import java.util.List;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.Pattern;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
+import org.edgegallery.developer.config.security.AccessUserUtil;
+import org.edgegallery.developer.domain.model.user.User;
 import org.edgegallery.developer.domain.shared.Page;
 import org.edgegallery.developer.model.resource.mephost.MepHost;
 import org.edgegallery.developer.model.resource.mephost.MepHostLog;
@@ -90,7 +92,8 @@ public class MepHostCtl {
     @PreAuthorize("hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<Boolean> createHost(
         @ApiParam(value = "MepHost", required = true) @Validated @RequestBody MepHost host) {
-        return ResponseEntity.ok(mepHostService.createHost(host));
+        User user = AccessUserUtil.getUser();
+        return ResponseEntity.ok(mepHostService.createHost(host, user));
     }
 
     /**
@@ -111,7 +114,8 @@ public class MepHostCtl {
     public ResponseEntity<Boolean> modifyHost(@PathVariable("mephostId")
     @Pattern(regexp = REG_UUID, message = "hostId must be in UUID format") String mephostId,
         @Validated @RequestBody MepHost host) {
-        return ResponseEntity.ok(mepHostService.updateHost(mephostId, host));
+        User user = AccessUserUtil.getUser();
+        return ResponseEntity.ok(mepHostService.updateHost(mephostId, host, user));
     }
 
     /**

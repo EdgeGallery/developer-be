@@ -23,9 +23,14 @@ import io.swagger.annotations.ApiResponses;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.Pattern;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
+import org.edgegallery.developer.common.Consts;
+import org.edgegallery.developer.config.security.AccessUserUtil;
+import org.edgegallery.developer.domain.model.user.User;
 import org.edgegallery.developer.model.Chunk;
 import org.edgegallery.developer.model.restful.OperationInfoRep;
+import org.edgegallery.developer.model.restful.VncUrlRep;
 import org.edgegallery.developer.response.ErrorRespDto;
+import org.edgegallery.developer.service.ReverseProxyService;
 import org.edgegallery.developer.service.application.vm.VMAppOperationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -37,15 +42,20 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+
 @Controller
 @RestSchema(schemaId = "VmAppOperation")
 @RequestMapping("/mec/developer/v2/applications")
 @Api(tags = "VmAppOperation")
 @Validated
 public class VMAppOperationCtl {
+
     private static final String REGEX_UUID = "[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}";
     @Autowired
     private VMAppOperationService VmAppOperationService;
+    @Autowired
+    private ReverseProxyService reverseProxyService;
+
     /**
      * instantiate a vm .
      */
@@ -61,7 +71,8 @@ public class VMAppOperationCtl {
         @Pattern(regexp = REGEX_UUID, message = "applicationId must be in UUID format")
         @ApiParam(value = "applicationId", required = true) @PathVariable("applicationId") String applicationId,
         @ApiParam(value = "vmId", required = true) @PathVariable("vmId") String vmId) {
-        OperationInfoRep result = VmAppOperationService.instantiateVM(applicationId, vmId);
+        User user = AccessUserUtil.getUser();
+        OperationInfoRep result = VmAppOperationService.instantiateVM(applicationId, vmId, user);
         return ResponseEntity.ok(result);
     }
 
@@ -80,7 +91,8 @@ public class VMAppOperationCtl {
         @Pattern(regexp = REGEX_UUID, message = "applicationId must be in UUID format")
         @ApiParam(value = "applicationId", required = true) @PathVariable("applicationId") String applicationId,
         @ApiParam(value = "vmId", required = true) @PathVariable("vmId") String vmId) {
-        OperationInfoRep result = VmAppOperationService.createVmImage(applicationId, vmId);
+        User user = AccessUserUtil.getUser();
+        OperationInfoRep result = VmAppOperationService.createVmImage(applicationId, vmId, user);
         return ResponseEntity.ok(result);
     }
 
@@ -122,5 +134,25 @@ public class VMAppOperationCtl {
         return VmAppOperationService.mergeAppFile(applicationId, vmId, fileName, identifier);
     }
 
+    /**
+     * get vnc url.
+     */
+    @ApiOperation(value = "get vnc url", response = ResponseEntity.class)
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = "OK", response = ResponseEntity.class),
+        @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
+    })
+    @RequestMapping(value = "/{applicationId}/vms/{vmId}/vnc", method = RequestMethod.GET)
+    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
+    public ResponseEntity getVncUrl(@ApiParam(value = "applicationId", required = true)
+    @PathVariable("applicationId") String applicationId,
+        @Pattern(regexp = REGEX_UUID, message = "vmId must be in UUID format")
+        @ApiParam(value = "vmId", required = true) @PathVariable("vmId") String vmId,
+        HttpServletRequest request) {
 
+        String accessToken = request.getHeader(Consts.ACCESS_TOKEN_STR);
+        String vncUrl = reverseProxyService.getVmConsoleUrl(applicationId, vmId,
+            AccessUserUtil.getUserId(), accessToken);
+        return ResponseEntity.ok(new VncUrlRep(vncUrl));
+    }
 }

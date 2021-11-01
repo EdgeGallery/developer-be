@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~    Copyright 2021 Huawei Technologies Co., Ltd.
+  ~
+  ~    Licensed under the Apache License, Version 2.0 (the "License");
+  ~    you may not use this file except in compliance with the License.
+  ~    You may obtain a copy of the License at
+  ~
+  ~        http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~    Unless required by applicable law or agreed to in writing, software
+  ~    distributed under the License is distributed on an "AS IS" BASIS,
+  ~    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~    See the License for the specific language governing permissions and
+  ~    limitations under the License.
+  -->
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.edgegallery.developer.mapper.reverseproxy.ReverseProxyMapper">
+  <resultMap id="ReverseProxyMap" type="org.edgegallery.developer.model.reverseproxy.ReverseProxy">
+    <id property="id" column="id"/>
+    <result property="destHostId" column="dest_host_id"/>
+    <result property="destHostPort" column="dest_host_port"/>
+    <result property="proxyPort" column="proxy_port"/>
+    <result property="type" column="type"/>
+  </resultMap>
+
+  <insert id="createReverseProxy">
+    insert into tbl_reverse_proxy (id, dest_host_id, dest_host_port, proxy_port, type)
+    values
+    ( #{id}, #{destHostId}, #{destHostPort}, #{proxyPort}, #{type})
+  </insert>
+
+  <delete id="deleteProxyByDestHostId" parameterType="String">
+    DELETE FROM tbl_reverse_proxy WHERE destHostId = #{destHostId};
+  </delete>
+
+  <select id="getProxiesByDestHostId" parameterType="String" resultMap="ReverseProxyMap">
+    SELECT
+    id, dest_host_id, dest_host_port, proxy_port, type
+    FROM tbl_reverse_proxy
+    WHERE dest_host_id=#{destHostId}
+  </select>
+
+  <select id="getAllVncProxyPorts" resultType="java.lang.Integer">
+    SELECT
+    proxy_port
+    FROM tbl_reverse_proxy
+    WHERE type=1
+  </select>
+
+
+</mapper>

@@ -115,6 +115,10 @@ public class CompressFileUtilsJava {
     public static File compressToCsarAndDeleteSrc(String sourcePath, String outPutPath, String fileName)
         throws IOException {
         File res = compressToCsar(sourcePath, outPutPath, fileName);
+        File sourceFile = new File(sourcePath);
+        if (sourceFile.exists() && sourceFile.isDirectory()) {
+            FileUtils.deleteDirectory(sourceFile);
+        }
         return res;
     }
 

@@ -681,3 +681,11 @@
     CONSTRAINT "tbl_atp_test_task_pkey" PRIMARY KEY ("id")
     );
 
+    CREATE TABLE IF NOT EXISTS "tbl_reverse_proxy" (
+    "id" varchar(255) NOT NULL,
+    "dest_host_id" varchar(255) NOT NULL,
+    "dest_host_port" int4 NOT NULL,
+    "proxy_port" int4 NOT NULL,
+    "type" int4 NOT NULL,
+    CONSTRAINT "tbl_reverse_proxy_pkey" PRIMARY KEY ("id")
+    );
