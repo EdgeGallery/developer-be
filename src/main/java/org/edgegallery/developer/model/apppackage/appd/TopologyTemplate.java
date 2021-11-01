@@ -360,7 +360,7 @@ public class TopologyTemplate {
         property.setAppServiceRequired(appConfiguration.getAppServiceRequiredList());
         for (AppServiceProduced serviceProduced : appConfiguration.getAppServiceProducedList()) {
             AppServiceProducedDef def = new AppServiceProducedDef();
-            def.setSerName(serviceProduced.getSerName());
+            def.setSerName(serviceProduced.getServiceName());
             def.setVersion(serviceProduced.getVersion());
             def.setTrafficRuleIdList(serviceProduced.getTrafficRuleIdList());
             def.setDnsRuleIdList(serviceProduced.getDnsRuleIdList());
