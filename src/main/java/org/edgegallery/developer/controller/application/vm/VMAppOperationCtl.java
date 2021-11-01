@@ -133,7 +133,7 @@ public class VMAppOperationCtl {
     /**
      * get vnc url.
      */
-    @ApiOperation(value = "merge app file", response = ResponseEntity.class)
+    @ApiOperation(value = "get vnc url", response = ResponseEntity.class)
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "OK", response = ResponseEntity.class),
             @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
