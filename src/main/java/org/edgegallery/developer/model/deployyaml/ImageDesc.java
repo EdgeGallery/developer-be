@@ -69,7 +69,7 @@ public class ImageDesc {
     public ImageDesc(VMImage vmImage) {
         String url = vmImage.getDownLoadUrl();
         setSize(vmImage.getImageSize());
-        setId(url.substring(url.length() - 52, url.length() - 16));
+        setId(String.valueOf(vmImage.getId()));
         setName(vmImage.getName());
         setVersion(vmImage.getOsVersion());
         setChecksum(vmImage.getFileMd5());
