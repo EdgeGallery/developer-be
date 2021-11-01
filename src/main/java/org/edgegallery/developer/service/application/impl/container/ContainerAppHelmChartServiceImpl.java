@@ -105,7 +105,7 @@ public class ContainerAppHelmChartServiceImpl implements ContainerAppHelmChartSe
 
     @Override
     public List<HelmChart> getHelmChartList(String applicationId) {
-        if (!StringUtils.isEmpty(applicationId)) {
+        if (StringUtils.isEmpty(applicationId)) {
             throw new IllegalRequestException("applicationId is empty", ResponseConsts.RET_REQUEST_PARAM_EMPTY);
         }
         return helmChartMapper.getHelmChartsByAppId(applicationId);
@@ -113,10 +113,10 @@ public class ContainerAppHelmChartServiceImpl implements ContainerAppHelmChartSe
 
     @Override
     public HelmChart getHelmChartById(String applicationId, String id) {
-        if (!StringUtils.isEmpty(applicationId)) {
+        if (StringUtils.isEmpty(applicationId)) {
             throw new IllegalRequestException("applicationId is empty", ResponseConsts.RET_REQUEST_PARAM_EMPTY);
         }
-        if (!StringUtils.isEmpty(id)) {
+        if (StringUtils.isEmpty(id)) {
             throw new IllegalRequestException("helm chart id is empty", ResponseConsts.RET_REQUEST_PARAM_EMPTY);
         }
         Application application = applicationMapper.getApplicationById(applicationId);
@@ -132,10 +132,10 @@ public class ContainerAppHelmChartServiceImpl implements ContainerAppHelmChartSe
 
     @Override
     public Boolean deleteHelmChartById(String applicationId, String id) {
-        if (!StringUtils.isEmpty(applicationId)) {
+        if (StringUtils.isEmpty(applicationId)) {
             throw new IllegalRequestException("applicationId is empty!", ResponseConsts.RET_REQUEST_PARAM_EMPTY);
         }
-        if (!StringUtils.isEmpty(id)) {
+        if (StringUtils.isEmpty(id)) {
             throw new IllegalRequestException("helm chart id is empty!", ResponseConsts.RET_REQUEST_PARAM_EMPTY);
         }
         Application application = applicationMapper.getApplicationById(applicationId);
