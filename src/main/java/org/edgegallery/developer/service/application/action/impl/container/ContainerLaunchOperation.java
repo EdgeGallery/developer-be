@@ -44,7 +44,7 @@ public class ContainerLaunchOperation implements IActionCollection {
         return actions;
     }
 
-    public ContainerLaunchOperation(User user, String applicationId, String helmChartId, String token,
+    public ContainerLaunchOperation(User user, String applicationId, String helmChartId,
         OperationStatus operationStatus) {
 
         IAction buildPackageAction = new BuildContainerPackageAction();
@@ -56,7 +56,7 @@ public class ContainerLaunchOperation implements IActionCollection {
         actionProgressRangeMap.put(distributePackageAction.getActionName(), new ActionProgressRange(20, 50));
         actionProgressRangeMap.put(instantiateContainerAppAction.getActionName(), new ActionProgressRange(50, 100));
 
-        OperationContext context = new OperationContext(user, token, operationStatus, actionProgressRangeMap);
+        OperationContext context = new OperationContext(user, operationStatus, actionProgressRangeMap);
         buildPackageAction.setContext(context);
         distributePackageAction.setContext(context);
         instantiateContainerAppAction.setContext(context);

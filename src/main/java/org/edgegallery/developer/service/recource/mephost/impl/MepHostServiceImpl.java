@@ -25,6 +25,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.edgegallery.developer.common.Consts;
 import org.edgegallery.developer.common.ResponseConsts;
 import org.edgegallery.developer.config.security.AccessUserUtil;
+import org.edgegallery.developer.domain.model.user.User;
 import org.edgegallery.developer.domain.shared.Page;
 import org.edgegallery.developer.exception.DataBaseException;
 import org.edgegallery.developer.exception.DeveloperException;
@@ -92,7 +93,7 @@ public class MepHostServiceImpl implements MepHostService {
      */
     @Transactional
     @Override
-    public boolean createHost(MepHost host, String token) {
+    public boolean createHost(MepHost host, User user) {
         MepHost mepHost = mepHostMapper.getHostsByMecHostIp(host.getMecHostIp());
         if (mepHost != null) {
             LOGGER.error("mecHost have exit:{}", host.getMecHostIp());
@@ -101,9 +102,9 @@ public class MepHostServiceImpl implements MepHostService {
         // check host parameter
         checkMepHost(host);
         // config mepHost to lcm
-        configMepHostToLCM(host, token);
+        configMepHostToLCM(host, user.getToken());
         host.setId(UUID.randomUUID().toString()); // no need to set hostId by user
-        host.setUserId(AccessUserUtil.getUser().getUserId());
+        host.setUserId(user.getUserId());
         // AES encryption
         String userNameEncode = AesUtil.encode(clientId, host.getMecHostUserName());
         String passwordEncode = AesUtil.encode(clientId, host.getMecHostPassword());
@@ -142,7 +143,7 @@ public class MepHostServiceImpl implements MepHostService {
      */
     @Override
     @Transactional
-    public boolean updateHost(String hostId, MepHost host, String token) {
+    public boolean updateHost(String hostId, MepHost host, User user) {
         MepHost currentHost = mepHostMapper.getHost(hostId);
         if (currentHost == null) {
             LOGGER.error("Can not find host by {}", hostId);
@@ -154,7 +155,7 @@ public class MepHostServiceImpl implements MepHostService {
         // check host parameter
         checkMepHost(host);
         // config mepHost to lcm
-        configMepHostToLCM(host, token);
+        configMepHostToLCM(host, user.getToken());
         int ret = mepHostMapper.updateHostSelected(host);
         if (ret > 0) {
             LOGGER.info("Update host {} success", hostId);

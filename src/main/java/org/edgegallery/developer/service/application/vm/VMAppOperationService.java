@@ -17,6 +17,7 @@ package org.edgegallery.developer.service.application.vm;
 
 import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
+import org.edgegallery.developer.domain.model.user.User;
 import org.edgegallery.developer.model.Chunk;
 import org.edgegallery.developer.model.application.vm.VMApplication;
 import org.edgegallery.developer.model.apppackage.AppPackage;
@@ -30,13 +31,13 @@ import com.spencerwi.either.Either;
 
 public interface VMAppOperationService {
 
-    OperationInfoRep instantiateVM(String applicationId, String vmId, String accessToken);
+    OperationInfoRep instantiateVM(String applicationId, String vmId, User user);
 
     Boolean uploadFileToVm(String applicationId, String vmId, HttpServletRequest request, Chunk chunk);
 
     ResponseEntity mergeAppFile(String applicationId, String vmId, String fileName, String identifier);
 
-    OperationInfoRep createVmImage(String applicationId, String vmId, String accessToken);
+    OperationInfoRep createVmImage(String applicationId, String vmId, User user);
 
     ImageExportInfo getImageExportInfo(String vmId);
 

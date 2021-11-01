@@ -38,8 +38,10 @@ import org.edgegallery.developer.model.application.vm.VMApplication;
 import org.edgegallery.developer.model.application.vm.VirtualMachine;
 import org.edgegallery.developer.model.restful.ApplicationDetail;
 import org.edgegallery.developer.service.application.AppConfigurationService;
+import org.edgegallery.developer.service.application.AppOperationService;
 import org.edgegallery.developer.service.application.ApplicationService;
 import org.edgegallery.developer.service.application.container.ContainerAppHelmChartService;
+import org.edgegallery.developer.service.application.factory.AppOperationServiceFactory;
 import org.edgegallery.developer.service.application.vm.VMAppNetworkService;
 import org.edgegallery.developer.service.application.vm.VMAppVmService;
 import org.edgegallery.developer.service.uploadfile.UploadService;
@@ -70,6 +72,9 @@ public class ApplicationServiceImpl implements ApplicationService {
 
     @Autowired
     AppConfigurationService appConfigurationService;
+
+    @Autowired
+    private AppOperationServiceFactory appServiceFactory;
 
     @Override
     public Application createApplication(Application application) {
@@ -147,6 +152,8 @@ public class ApplicationServiceImpl implements ApplicationService {
             LOGGER.error("Can not find application by applicationId:{}.", applicationId);
             throw new EntityNotFoundException("Application does not exist.", ResponseConsts.RET_QUERY_DATA_EMPTY);
         }
+        // clean env
+
         // delete the application from db
         int delResult = applicationMapper.deleteApplication(applicationId);
         if (delResult < 1) {

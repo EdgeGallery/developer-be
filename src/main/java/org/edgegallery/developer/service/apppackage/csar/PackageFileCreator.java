@@ -194,7 +194,7 @@ public class PackageFileCreator {
 
     protected String getAppFileName(String format) {
         return application.getName() + "_" + application.getProvider() + "_" + application.getVersion()
-            + "_" + application.getArchitecture() + "_" + application.getAppClass().toString().toLowerCase() + format;
+            + "_" + application.getArchitecture() + "_" + format;
     }
 
 

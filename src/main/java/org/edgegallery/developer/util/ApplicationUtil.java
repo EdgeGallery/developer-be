@@ -19,14 +19,5 @@ public class ApplicationUtil {
     public static String getApplicationBasePath(String applicationId) {
         return InitConfigUtil.getWorkSpaceBaseDir() + BusinessConfigUtil.getWorkspacePath() + applicationId;
     }
-    /**
-     * isAdminUser.
-     *
-     * @return boolean
-     */
-    public static boolean isAdminUser() {
-        String currUserAuth = AccessUserUtil.getUser().getUserAuth();
-        return !StringUtils.isEmpty(currUserAuth) && currUserAuth.contains(Consts.ROLE_DEVELOPER_ADMIN);
-    }
 
 }
