@@ -24,9 +24,12 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.Pattern;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.edgegallery.developer.common.Consts;
+import org.edgegallery.developer.config.security.AccessUserUtil;
 import org.edgegallery.developer.model.Chunk;
 import org.edgegallery.developer.model.restful.OperationInfoRep;
+import org.edgegallery.developer.model.restful.VncUrlRep;
 import org.edgegallery.developer.response.ErrorRespDto;
+import org.edgegallery.developer.service.ReverseProxyService;
 import org.edgegallery.developer.service.application.vm.VMAppOperationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -47,6 +50,8 @@ public class VMAppOperationCtl {
     private static final String REGEX_UUID = "[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}";
     @Autowired
     private VMAppOperationService VmAppOperationService;
+    @Autowired
+    private ReverseProxyService reverseProxyService;
     /**
      * instantiate a vm .
      */
@@ -125,5 +130,25 @@ public class VMAppOperationCtl {
         return VmAppOperationService.mergeAppFile(applicationId, vmId, fileName, identifier);
     }
 
+    /**
+     * get vnc url.
+     */
+    @ApiOperation(value = "merge app file", response = ResponseEntity.class)
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK", response = ResponseEntity.class),
+            @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
+    })
+    @RequestMapping(value = "/{applicationId}/vms/{vmId}/vnc", method = RequestMethod.GET)
+    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
+    public ResponseEntity getVncUrl(@ApiParam(value = "applicationId", required = true)
+                                    @PathVariable("applicationId") String applicationId,
+                                    @Pattern(regexp = REGEX_UUID, message = "vmId must be in UUID format")
+                                    @ApiParam(value = "vmId", required = true) @PathVariable("vmId") String vmId,
+                                    HttpServletRequest request) {
 
+        String accessToken = request.getHeader(Consts.ACCESS_TOKEN_STR);
+        String vncUrl = reverseProxyService.getVmConsoleUrl(applicationId, vmId,
+                AccessUserUtil.getUserId(), accessToken);
+        return ResponseEntity.ok(new VncUrlRep(vncUrl));
+    }
 }
