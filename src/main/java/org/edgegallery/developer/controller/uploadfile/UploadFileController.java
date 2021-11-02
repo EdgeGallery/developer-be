@@ -75,9 +75,9 @@ public class UploadFileController {
     /**
      * get file Echo use.
      */
-    @ApiOperation(value = "get a file", response = File.class)
+    @ApiOperation(value = "get a file", response = UploadedFile.class)
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "OK", response = File.class),
+        @ApiResponse(code = 200, message = "OK", response = UploadedFile.class),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
     @RequestMapping(value = "/{fileId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
@@ -97,10 +97,10 @@ public class UploadFileController {
         @ApiResponse(code = 200, message = "OK", response = UploadedFile.class),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
-    @RequestMapping(value = "/", method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
+    @RequestMapping(value = "", method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
         produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
-    public ResponseEntity<UploadedFile> uploadPicture(
+    public ResponseEntity<UploadedFile> uploadFile(
         @ApiParam(value = "file", required = true) @RequestPart("file") MultipartFile uploadFile,
         @Pattern(regexp = REGEX_UUID, message = "userId must be in UUID format")
         @ApiParam(value = "fileType", required = true) @RequestParam("fileType") String fileType) {
@@ -111,7 +111,7 @@ public class UploadFileController {
     /**
      * download sample code.
      */
-    @ApiOperation(value = "get sample code", response = File.class)
+    @ApiOperation(value = "download sample code", response = File.class)
     @ApiResponses(value = {
         @ApiResponse(code = 200, message = "OK", response = File.class),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
