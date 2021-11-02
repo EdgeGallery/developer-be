@@ -18,17 +18,16 @@ import java.util.List;
 import java.util.UUID;
 import javax.servlet.http.HttpServletRequest;
 import org.edgegallery.developer.common.ResponseConsts;
-import org.edgegallery.developer.config.security.AccessUserUtil;
 import org.edgegallery.developer.domain.model.user.User;
 import org.edgegallery.developer.exception.DataBaseException;
 import org.edgegallery.developer.exception.EntityNotFoundException;
 import org.edgegallery.developer.mapper.application.vm.ImageExportInfoMapper;
 import org.edgegallery.developer.mapper.application.vm.VMInstantiateInfoMapper;
-import org.edgegallery.developer.mapper.application.vm.VMMapper;
 import org.edgegallery.developer.mapper.operation.OperationStatusMapper;
 import org.edgegallery.developer.mapper.resource.mephost.MepHostMapper;
 import org.edgegallery.developer.model.Chunk;
 import org.edgegallery.developer.model.application.Application;
+import org.edgegallery.developer.model.application.EnumApplicationStatus;
 import org.edgegallery.developer.model.application.vm.VMApplication;
 import org.edgegallery.developer.model.application.vm.VirtualMachine;
 import org.edgegallery.developer.model.apppackage.AppPackage;
@@ -86,9 +85,6 @@ public class VMAppOperationServiceImpl extends AppOperationServiceImpl implement
     AppPackageService appPackageService;
 
     @Autowired
-    VMMapper vmMapper;
-
-    @Autowired
     MepHostMapper mepHostMapper;
 
     @Override
@@ -96,8 +92,8 @@ public class VMAppOperationServiceImpl extends AppOperationServiceImpl implement
 
         Application application = applicationService.getApplication(applicationId);
         if (application == null) {
-            LOGGER.error("application is not exited,id:{}", applicationId);
-            throw new EntityNotFoundException("application is not exited.", ResponseConsts.RET_QUERY_DATA_EMPTY);
+            LOGGER.error("application does not exist,id:{}", applicationId);
+            throw new EntityNotFoundException("application does not exist.", ResponseConsts.RET_QUERY_DATA_EMPTY);
         }
 
         VirtualMachine virtualMachine = vmAppVmServiceImpl.getVm(applicationId, vmId);
@@ -177,6 +173,7 @@ public class VMAppOperationServiceImpl extends AppOperationServiceImpl implement
         VMExportImageOperation actionCollection = new VMExportImageOperation(user, applicationId,
             vmId, operationStatus, appInstanceId, vmInstanceId);
         LOGGER.info("start instantiate vm app");
+        applicationService.updateApplicationStatus(applicationId, EnumApplicationStatus.DEPLOYED);
         new ExportVmImageProcessor(actionCollection).start();
         return new OperationInfoRep(operationStatus.getId());
     }
@@ -191,7 +188,8 @@ public class VMAppOperationServiceImpl extends AppOperationServiceImpl implement
         List<VirtualMachine> vms = vmAppVmServiceImpl.getAllVm(applicationId);
         if (CollectionUtils.isEmpty(vms)) {
             LOGGER.error("vm does not exist in application, applicationId:{}", applicationId);
-            throw new EntityNotFoundException("vm does not exist in application", ResponseConsts.RET_QUERY_DATA_EMPTY);
+            applicationService.updateApplicationStatus(applicationId, EnumApplicationStatus.CREATED);
+            return true;
         }
         for (VirtualMachine vm : vms) {
             boolean res = cleanVmLaunchInfo(application.getMepHostId(), vm, user);
@@ -199,6 +197,7 @@ public class VMAppOperationServiceImpl extends AppOperationServiceImpl implement
                 LOGGER.error("clean env fail, vmId:{}", vm.getId());
             }
         }
+        applicationService.updateApplicationStatus(applicationId, EnumApplicationStatus.CONFIGURED);
         return true;
     }
 
@@ -297,6 +296,7 @@ public class VMAppOperationServiceImpl extends AppOperationServiceImpl implement
                 IAction action = iterator.nextAction();
                 boolean result = action.execute();
                 if (!result) {
+
                     break;
                 }
             }
@@ -304,7 +304,7 @@ public class VMAppOperationServiceImpl extends AppOperationServiceImpl implement
     }
 
 
-    private boolean cleanVmLaunchInfo(String mepHostId, VirtualMachine vm,  User user) {
+    private boolean cleanVmLaunchInfo(String mepHostId, VirtualMachine vm, User user) {
         MepHost mepHost = mepHostMapper.getHost(mepHostId);
         String basePath = HttpClientUtil
             .getUrlPrefix(mepHost.getLcmProtocol(), mepHost.getLcmIp(), mepHost.getLcmPort());

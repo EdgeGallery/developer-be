@@ -91,7 +91,7 @@ public class Application {
      * initialProject.
      */
     public void initialProject() {
-        this.status = EnumApplicationStatus.ONLINE;
+        this.status = EnumApplicationStatus.CONFIGURED;
     }
 
     public Application() {

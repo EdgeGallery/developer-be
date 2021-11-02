@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.UUID;
 import org.edgegallery.developer.common.ResponseConsts;
 import org.edgegallery.developer.config.security.AccessUserUtil;
+import org.edgegallery.developer.domain.model.user.User;
 import org.edgegallery.developer.domain.shared.Page;
 import org.edgegallery.developer.exception.DataBaseException;
 import org.edgegallery.developer.exception.EntityNotFoundException;
@@ -38,7 +39,6 @@ import org.edgegallery.developer.model.application.vm.VMApplication;
 import org.edgegallery.developer.model.application.vm.VirtualMachine;
 import org.edgegallery.developer.model.restful.ApplicationDetail;
 import org.edgegallery.developer.service.application.AppConfigurationService;
-import org.edgegallery.developer.service.application.AppOperationService;
 import org.edgegallery.developer.service.application.ApplicationService;
 import org.edgegallery.developer.service.application.container.ContainerAppHelmChartService;
 import org.edgegallery.developer.service.application.factory.AppOperationServiceFactory;
@@ -89,7 +89,7 @@ public class ApplicationServiceImpl implements ApplicationService {
         application.setUserId(AccessUserUtil.getUser().getUserId());
         application.setUserName(AccessUserUtil.getUser().getUserName());
         String iconFileId = application.getIconFileId();
-        application.setStatus(EnumApplicationStatus.ONLINE);
+        application.setStatus(EnumApplicationStatus.CREATED);
         if (iconFileId == null) {
             LOGGER.error("icon file is null");
             throw new FileFoundFailException("icon file is null", ResponseConsts.RET_FILE_NOT_FOUND);
@@ -146,13 +146,14 @@ public class ApplicationServiceImpl implements ApplicationService {
     }
 
     @Override
-    public Boolean deleteApplication(String applicationId) {
+    public Boolean deleteApplication(String applicationId, User user) {
         Application application = applicationMapper.getApplicationById(applicationId);
         if (application == null) {
             LOGGER.error("Can not find application by applicationId:{}.", applicationId);
             throw new EntityNotFoundException("Application does not exist.", ResponseConsts.RET_QUERY_DATA_EMPTY);
         }
         // clean env
+        appServiceFactory.getAppOperationService(applicationId).cleanEnv(applicationId, user);
 
         // delete the application from db
         int delResult = applicationMapper.deleteApplication(applicationId);

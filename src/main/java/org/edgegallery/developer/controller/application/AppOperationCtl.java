@@ -26,7 +26,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
-import org.edgegallery.developer.common.Consts;
 import org.edgegallery.developer.config.security.AccessUserUtil;
 import org.edgegallery.developer.domain.model.user.User;
 import org.edgegallery.developer.model.apppackage.AppPackage;
@@ -67,7 +66,7 @@ public class AppOperationCtl {
         @ApiResponse(code = 200, message = "OK", response = Boolean.class),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
-    @RequestMapping(value = "/{applicationId}/selmephost", method = RequestMethod.PUT,
+    @RequestMapping(value = "/{applicationId}/action/sel-mephost", method = RequestMethod.PUT,
         consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<Boolean> selectMepHost(
@@ -86,7 +85,7 @@ public class AppOperationCtl {
         @ApiResponse(code = 200, message = "OK", response = Boolean.class),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
-    @RequestMapping(value = "/{applicationId}/cleanenv", method = RequestMethod.POST,
+    @RequestMapping(value = "/{applicationId}/action/clean-env", method = RequestMethod.POST,
         produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<Boolean> cleanEnv(
@@ -98,14 +97,14 @@ public class AppOperationCtl {
     }
 
     /**
-     * generate a package:下载镜像.
+     * generate a package
      */
     @ApiOperation(value = "generate a package.", response = AppPackage.class)
     @ApiResponses(value = {
         @ApiResponse(code = 200, message = "OK", response = AppPackage.class),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
-    @RequestMapping(value = "/{applicationId}/generatepackage", method = RequestMethod.POST,
+    @RequestMapping(value = "/{applicationId}/action/generate-package", method = RequestMethod.POST,
         produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<AppPackage> generatePackage(
@@ -126,7 +125,7 @@ public class AppOperationCtl {
         @ApiResponse(code = 200, message = "OK", response = Boolean.class),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
-    @RequestMapping(value = "/{applicationId}/atpTests", method = RequestMethod.POST,
+    @RequestMapping(value = "/{applicationId}/action/atp-tests", method = RequestMethod.POST,
         produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<Boolean> createAtpTest(
@@ -147,7 +146,7 @@ public class AppOperationCtl {
         @ApiResponse(code = 200, message = "OK", response = AtpTest.class),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
-    @RequestMapping(value = "/{applicationId}/atpTests", method = RequestMethod.GET,
+    @RequestMapping(value = "/{applicationId}/atp-tests", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<List<AtpTest>> getAtpTests(
@@ -191,7 +190,7 @@ public class AppOperationCtl {
         @ApiResponse(code = 200, message = "OK", response = Boolean.class),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
-    @RequestMapping(value = "/{applicationId}/release", method = RequestMethod.POST,
+    @RequestMapping(value = "/{applicationId}/action/release", method = RequestMethod.POST,
         consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<Boolean> releaseApp(

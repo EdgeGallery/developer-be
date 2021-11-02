@@ -93,7 +93,7 @@ public class AppPackageCtl {
         @ApiResponse(code = 200, message = "OK", response = String.class),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
-    @RequestMapping(value = "/{packageId}/filecontent", method = RequestMethod.GET,
+    @RequestMapping(value = "/{packageId}/file-content", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<String> getAppPackageFileContent(
@@ -111,7 +111,7 @@ public class AppPackageCtl {
         @ApiResponse(code = 200, message = "OK", response = String.class),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
-    @RequestMapping(value = "/{packageId}/filecontent", method = RequestMethod.PUT,
+    @RequestMapping(value = "/{packageId}/file-content", method = RequestMethod.PUT,
         produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<Boolean> updateAppPackageFileContent(

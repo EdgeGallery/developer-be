@@ -156,7 +156,7 @@ public class PackageFileCreator {
     public String PackageFileCompress() {
         File packageFileDir = new File(getPackagePath());
         if (!packageFileDir.exists() || !packageFileDir.isDirectory()) {
-            LOGGER.error("package file is not exited");
+            LOGGER.error("package file does not exist");
             return null;
         }
         String tempPackagePath = getPackagePath() + TEMPLATE_PATH;
