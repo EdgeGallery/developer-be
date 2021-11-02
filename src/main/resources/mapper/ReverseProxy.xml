@@ -32,7 +32,7 @@
   </insert>
 
   <delete id="deleteProxyByDestHostId" parameterType="String">
-    DELETE FROM tbl_reverse_proxy WHERE destHostId = #{destHostId};
+    DELETE FROM tbl_reverse_proxy WHERE dest_host_id = #{destHostId};
   </delete>
 
   <select id="getProxiesByDestHostId" parameterType="String" resultMap="ReverseProxyMap">
