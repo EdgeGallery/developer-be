@@ -22,11 +22,11 @@ import org.springframework.web.multipart.MultipartFile;
 
 public interface UploadService {
 
-    ResponseEntity<byte[]> getFile(String fileId, String userId, String type);
+    ResponseEntity<byte[]> getFileStream(String fileId, String userId, String type);
 
-    UploadedFile getApiFile(String fileId, String userId);
+    UploadedFile getFile(String fileId, String userId);
 
-    UploadedFile uploadFile(String fileType, MultipartFile uploadFile);
+    UploadedFile uploadFile(String userId, String fileType, MultipartFile uploadFile);
 
     ResponseEntity<byte[]> downloadSampleCode(List<String> apiFileIds);
 

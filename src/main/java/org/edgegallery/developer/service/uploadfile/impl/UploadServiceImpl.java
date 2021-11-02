@@ -87,10 +87,10 @@ public class UploadServiceImpl implements UploadService {
     private String sampleCodePath;
 
     @Override
-    public ResponseEntity<byte[]> getFile(String fileId, String userId, String type) {
+    public ResponseEntity<byte[]> getFileStream(String fileId, String userId, String type) {
         UploadedFile uploadedFile = uploadedFileMapper.getFileById(fileId);
         if (uploadedFile == null) {
-            LOGGER.error("can not find file {} in db", fileId);
+            LOGGER.error("can not find file {} in db.", fileId);
             throw new EntityNotFoundException("can not find file in db!", ResponseConsts.RET_QUERY_DATA_EMPTY);
         }
         File file = new File(InitConfigUtil.getWorkSpaceBaseDir() + uploadedFile.getFilePath());
@@ -130,7 +130,7 @@ public class UploadServiceImpl implements UploadService {
     }
 
     @Override
-    public UploadedFile getApiFile(String fileId, String userId) {
+    public UploadedFile getFile(String fileId, String userId) {
         UploadedFile uploadedFile = uploadedFileMapper.getFileById(fileId);
         if (uploadedFile != null) {
             File file = new File(InitConfigUtil.getWorkSpaceBaseDir() + uploadedFile.getFilePath());
@@ -143,7 +143,7 @@ public class UploadServiceImpl implements UploadService {
     }
 
     @Override
-    public UploadedFile uploadFile(String fileType, MultipartFile uploadFile) {
+    public UploadedFile uploadFile(String userId, String fileType, MultipartFile uploadFile) {
         //check format
         LOGGER.info("Start uploading icon file");
         String fileName = uploadFile.getOriginalFilename();
@@ -166,7 +166,6 @@ public class UploadServiceImpl implements UploadService {
             }
 
         }
-        String userId = AccessUserUtil.getUserId();
         UploadedFile result = saveFileToLocal(uploadFile, userId);
         if (result == null) {
             LOGGER.error("Failed to save icon file!");
