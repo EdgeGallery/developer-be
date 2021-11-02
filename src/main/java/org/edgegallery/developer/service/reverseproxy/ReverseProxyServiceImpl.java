@@ -205,7 +205,7 @@ public class ReverseProxyServiceImpl implements ReverseProxyService {
 
     private void deleteReverseProxyConfigFile(int proxyPort) {
         File file = new File(NGINX_CONFIG_DIR + proxyPort + NGINX_CONFIG_FILE_SUFFIX);
-        if (!file.delete()) {
+        if (file.exists() && !file.delete()) {
             LOGGER.error("failed to delete reverse config file {}.", file.getName());
             throw new DeveloperException("failed to delete config file.");
         }

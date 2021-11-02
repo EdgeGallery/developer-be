@@ -20,6 +20,9 @@ import java.io.FileNotFoundException;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Response;
 import org.apache.servicecomb.swagger.invocation.exception.InvocationException;
+import org.edgegallery.developer.controller.application.vm.VMAppOperationCtl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingMatrixVariableException;
@@ -30,6 +33,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 @ControllerAdvice
 public class GlobalExceptionConvert {
+    
+    private static final Logger LOGGER = LoggerFactory.getLogger(GlobalExceptionConvert.class);
 
     /**
      * Handle Exception.
@@ -41,14 +46,17 @@ public class GlobalExceptionConvert {
     public RestReturn defaultException(HttpServletRequest request, Exception e) {
         if (e instanceof MissingMatrixVariableException || e instanceof HttpMessageNotReadableException
             || e instanceof MethodArgumentNotValidException || e instanceof MissingPathVariableException) {
+            LOGGER.error("http request exception", e);
             return badRequestResponse(request, e);
         }
+        LOGGER.error("http request exception", e);
         return RestReturn.builder().code(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode())
             .error(Response.Status.INTERNAL_SERVER_ERROR.getReasonPhrase()).message(e.getMessage())
             .path(request.getRequestURI()).build();
     }
 
     private RestReturn badRequestResponse(HttpServletRequest request, Exception e) {
+        LOGGER.error("http request exception", e);
         return RestReturn.builder().code(Response.Status.BAD_REQUEST.getStatusCode())
             .error(Response.Status.BAD_REQUEST.getReasonPhrase()).message(e.getMessage()).path(request.getRequestURI())
             .build();
@@ -62,6 +70,7 @@ public class GlobalExceptionConvert {
     @ExceptionHandler(IllegalArgumentException.class)
     @ResponseBody
     public RestReturn illegalArgumentException(HttpServletRequest request, IllegalArgumentException e) {
+        LOGGER.error("http request exception", e);
         return badRequestResponse(request, e);
     }
 
@@ -73,6 +82,7 @@ public class GlobalExceptionConvert {
     @ExceptionHandler(value = EntityNotFoundException.class)
     @ResponseBody
     public RestReturn entityNotFoundException(HttpServletRequest request, EntityNotFoundException e) {
+        LOGGER.error("http request exception", e);
         return RestReturn.builder().code(Response.Status.NOT_FOUND.getStatusCode())
             .error(Response.Status.NOT_FOUND.getReasonPhrase()).message(e.getMessage()).path(request.getRequestURI())
             .retCode(e.getErrMsg().getRetCode()).params(e.getErrMsg().getParams()).build();
@@ -86,6 +96,7 @@ public class GlobalExceptionConvert {
     @ExceptionHandler(value = FileNotFoundException.class)
     @ResponseBody
     public RestReturn fileNotFoundException(HttpServletRequest request, FileNotFoundException e) {
+        LOGGER.error("http request exception", e);
         return RestReturn.builder().code(Response.Status.NOT_FOUND.getStatusCode())
             .error(Response.Status.NOT_FOUND.getReasonPhrase()).message(e.getMessage()).path(request.getRequestURI())
             .build();
@@ -100,6 +111,7 @@ public class GlobalExceptionConvert {
     @ExceptionHandler(value = FileFoundFailException.class)
     @ResponseBody
     public RestReturn fileFoundFailException(HttpServletRequest request, FileFoundFailException e) {
+        LOGGER.error("http request exception", e);
         return RestReturn.builder().code(Response.Status.NOT_FOUND.getStatusCode())
             .error(Response.Status.NOT_FOUND.getReasonPhrase()).message(e.getMessage()).path(request.getRequestURI())
             .retCode(e.getErrMsg().getRetCode()).params(e.getErrMsg().getParams()).build();
@@ -114,6 +126,7 @@ public class GlobalExceptionConvert {
     @ExceptionHandler(value = InvocationException.class)
     @ResponseBody
     public RestReturn invocationException(HttpServletRequest request, InvocationException e) {
+        LOGGER.error("http request exception", e);
         return RestReturn.builder().code(e.getStatusCode()).error(e.getReasonPhrase())
             .message(e.getErrorData().toString()).path(request.getRequestURI()).build();
     }
@@ -124,6 +137,7 @@ public class GlobalExceptionConvert {
     @ExceptionHandler(value = IllegalRequestException.class)
     @ResponseBody
     public RestReturn illegalRequestException(HttpServletRequest request, IllegalRequestException e) {
+        LOGGER.error("http request exception", e);
         return RestReturn.builder().code(Response.Status.BAD_REQUEST.getStatusCode())
             .error(Response.Status.BAD_REQUEST.getReasonPhrase()).message(e.getMessage()).path(request.getRequestURI())
             .retCode(e.getErrMsg().getRetCode()).params(e.getErrMsg().getParams()).build();
@@ -135,6 +149,7 @@ public class GlobalExceptionConvert {
     @ExceptionHandler(value = DataBaseException.class)
     @ResponseBody
     public RestReturn dataBaseException(HttpServletRequest request, DataBaseException e) {
+        LOGGER.error("http request exception", e);
         return RestReturn.builder().code(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode())
             .error(Response.Status.INTERNAL_SERVER_ERROR.getReasonPhrase()).message(e.getMessage())
             .path(request.getRequestURI()).retCode(e.getErrMsg().getRetCode()).params(e.getErrMsg().getParams())
@@ -147,6 +162,7 @@ public class GlobalExceptionConvert {
     @ExceptionHandler(value = FileOperateException.class)
     @ResponseBody
     public RestReturn fileOperateException(HttpServletRequest request, FileOperateException e) {
+        LOGGER.error("http request exception", e);
         return RestReturn.builder().code(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode())
             .error(Response.Status.INTERNAL_SERVER_ERROR.getReasonPhrase()).message(e.getMessage())
             .path(request.getRequestURI()).retCode(e.getErrMsg().getRetCode()).params(e.getErrMsg().getParams())
@@ -159,6 +175,7 @@ public class GlobalExceptionConvert {
     @ExceptionHandler(value = HarborException.class)
     @ResponseBody
     public RestReturn fileOperateException(HttpServletRequest request, HarborException e) {
+        LOGGER.error("http request exception", e);
         return RestReturn.builder().code(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode())
             .error(Response.Status.INTERNAL_SERVER_ERROR.getReasonPhrase()).message(e.getMessage())
             .path(request.getRequestURI()).retCode(e.getErrMsg().getRetCode()).params(e.getErrMsg().getParams())
@@ -171,6 +188,7 @@ public class GlobalExceptionConvert {
     @ExceptionHandler(value = UnauthorizedException.class)
     @ResponseBody
     public RestReturn unauthorizedException(HttpServletRequest request, UnauthorizedException e) {
+        LOGGER.error("http request exception", e);
         return RestReturn.builder().code(Response.Status.UNAUTHORIZED.getStatusCode())
             .error(Response.Status.UNAUTHORIZED.getReasonPhrase()).message(e.getMessage())
             .path(request.getRequestURI()).retCode(e.getErrMsg().getRetCode()).params(e.getErrMsg().getParams())
@@ -183,6 +201,7 @@ public class GlobalExceptionConvert {
     @ExceptionHandler(value = ForbiddenException.class)
     @ResponseBody
     public RestReturn unauthorizedException(HttpServletRequest request, ForbiddenException e) {
+        LOGGER.error("http request exception", e);
         return RestReturn.builder().code(Response.Status.FORBIDDEN.getStatusCode())
             .error(Response.Status.FORBIDDEN.getReasonPhrase()).message(e.getMessage())
             .path(request.getRequestURI()).retCode(e.getErrMsg().getRetCode()).params(e.getErrMsg().getParams())
@@ -195,6 +214,7 @@ public class GlobalExceptionConvert {
     @ExceptionHandler(value = DeveloperException.class)
     @ResponseBody
     public RestReturn unauthorizedException(HttpServletRequest request, DeveloperException e) {
+        LOGGER.error("http request exception", e);
         return RestReturn.builder().code(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode())
             .error(Response.Status.INTERNAL_SERVER_ERROR.getReasonPhrase()).message(e.getMessage())
             .path(request.getRequestURI()).retCode(e.getErrMsg().getRetCode()).params(e.getErrMsg().getParams())
@@ -207,6 +227,7 @@ public class GlobalExceptionConvert {
     @ExceptionHandler(value = RestfulRequestException.class)
     @ResponseBody
     public RestReturn restfulRequestException(HttpServletRequest request, RestfulRequestException e) {
+        LOGGER.error("http request exception", e);
         return RestReturn.builder().code(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode())
             .error(Response.Status.INTERNAL_SERVER_ERROR.getReasonPhrase()).message(e.getMessage())
             .path(request.getRequestURI()).retCode(e.getErrMsg().getRetCode()).params(e.getErrMsg().getParams())
