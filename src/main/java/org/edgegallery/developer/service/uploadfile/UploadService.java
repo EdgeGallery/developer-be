@@ -16,25 +16,25 @@ package org.edgegallery.developer.service.uploadfile;
 
 import java.util.List;
 import org.edgegallery.developer.model.apppackage.AppPkgStructure;
+import org.edgegallery.developer.model.capability.Capability;
 import org.edgegallery.developer.model.workspace.UploadedFile;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.multipart.MultipartFile;
 
 public interface UploadService {
 
-    ResponseEntity<byte[]> getFileStream(String fileId, String userId, String type);
+    byte[] getFileStream(UploadedFile uploadedFile, String userId, String type);
 
     UploadedFile getFile(String fileId, String userId);
 
     UploadedFile uploadFile(String userId, String fileType, MultipartFile uploadFile);
 
-    ResponseEntity<byte[]> downloadSampleCode(List<String> apiFileIds);
+    byte[] downloadSampleCode(List<String> apiFileIds);
 
     AppPkgStructure getSampleCodeStru(List<String> apiFileIds);
 
     String getSampleCodeContent(String fileName);
 
-    ResponseEntity<byte[]> getSdkProject(String fileId, String lan);
+    byte[] getSdkProject(String fileId, String lan, List<Capability> capabilities);
 
     UploadedFile saveFileToLocal(MultipartFile uploadFile, String userId);
 

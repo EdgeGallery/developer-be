@@ -25,16 +25,26 @@ import java.io.File;
 import java.util.List;
 import javax.validation.constraints.Pattern;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
+import org.edgegallery.developer.common.ResponseConsts;
 import org.edgegallery.developer.config.security.AccessUserUtil;
+import org.edgegallery.developer.exception.EntityNotFoundException;
+import org.edgegallery.developer.mapper.UploadedFileMapper;
+import org.edgegallery.developer.mapper.capability.CapabilityMapper;
 import org.edgegallery.developer.model.apppackage.AppPkgStructure;
+import org.edgegallery.developer.model.capability.Capability;
 import org.edgegallery.developer.model.workspace.UploadedFile;
 import org.edgegallery.developer.response.ErrorRespDto;
 import org.edgegallery.developer.service.uploadfile.UploadService;
+import org.edgegallery.developer.service.uploadfile.impl.UploadServiceImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -49,10 +59,18 @@ import org.springframework.web.multipart.MultipartFile;
 @Api(tags = "Filev2")
 public class UploadFileController {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(UploadServiceImpl.class);
+
     private static final String REGEX_UUID = "[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}";
 
     @Autowired
     private UploadService uploadFileService;
+
+    @Autowired
+    private UploadedFileMapper uploadedFileMapper;
+
+    @Autowired
+    private CapabilityMapper capabilityMapper;
 
     /**
      * get file stream.
@@ -69,7 +87,16 @@ public class UploadFileController {
     @ApiParam(value = "fileId", required = true) @PathVariable("fileId") String fileId,
         @ApiParam(value = "type") @RequestParam("type") String type) {
         String userId = AccessUserUtil.getUserId();
-        return uploadFileService.getFileStream(fileId, userId, type);
+        UploadedFile uploadedFile = uploadedFileMapper.getFileById(fileId);
+        if (uploadedFile == null) {
+            LOGGER.error("can not find file {} in db.", fileId);
+            throw new EntityNotFoundException("can not find file in db!", ResponseConsts.RET_QUERY_DATA_EMPTY);
+        }
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Type", "application/octet-stream");
+        headers.add("Content-Disposition", "attachment; filename=" + uploadedFile.getFileName());
+        byte[] fileData = uploadFileService.getFileStream(uploadedFile, userId, type);
+        return ResponseEntity.ok().headers(headers).body(fileData);
     }
 
     /**
@@ -121,7 +148,11 @@ public class UploadFileController {
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN') || hasRole('DEVELOPER_GUEST')")
     public ResponseEntity<byte[]> getSampleCode(
         @ApiParam(value = "apiFileIds", required = true) @RequestBody List<String> apiFileIds) {
-        return uploadFileService.downloadSampleCode(apiFileIds);
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Type", MediaType.APPLICATION_OCTET_STREAM_VALUE);
+        headers.add("Content-Disposition", "attachment; filename=SampleCode.tgz");
+        byte[] fileData = uploadFileService.downloadSampleCode(apiFileIds);
+        return ResponseEntity.ok().headers(headers).body(fileData);
     }
 
     /**
@@ -171,7 +202,16 @@ public class UploadFileController {
     @ApiParam(value = "fileId", required = true) @PathVariable("fileId") String fileId,
         @Pattern(regexp = REGEX_UUID, message = "lan must be in UUID format") @ApiParam(value = "lan", required = true)
         @RequestParam("lan") String lan) {
-        return uploadFileService.getSdkProject(fileId, lan);
+        List<Capability> capabilities = capabilityMapper.selectByApiFileId(fileId);
+        if (CollectionUtils.isEmpty(capabilities)) {
+            LOGGER.error("can not find capability in db by api file id");
+            throw new EntityNotFoundException("can not find capability in db", ResponseConsts.RET_QUERY_DATA_EMPTY);
+        }
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Type", MediaType.APPLICATION_OCTET_STREAM_VALUE);
+        headers.add("Content-Disposition", "attachment; filename=" + capabilities.get(0).getHost() + ".tgz");
+        byte[] fileData = uploadFileService.getSdkProject(fileId, lan, capabilities);
+        return ResponseEntity.ok().headers(headers).body(fileData);
     }
 
 }
