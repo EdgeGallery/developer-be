@@ -85,7 +85,7 @@ public class ApplicationServiceTest {
         //upload icon
         MultipartFile uploadFile = new MockMultipartFile("test-icon.png", "test-icon.png", null,
             ApplicationServiceTest.class.getClassLoader().getResourceAsStream("testdata/test-icon.png"));
-        UploadedFile result = uploadFileService.uploadFile("userId","icon", uploadFile);
+        UploadedFile result = uploadFileService.uploadFile("icon", uploadFile);
         Assert.assertNotNull(result);
         //create application
         AccessUserUtil.setUser("b27d72b5-93a6-4db4-8268-7ec502331ade", "admin");
@@ -110,7 +110,7 @@ public class ApplicationServiceTest {
         //upload icon
         MultipartFile uploadFile = new MockMultipartFile("test-icon.png", "test-icon.png", null,
             ApplicationServiceTest.class.getClassLoader().getResourceAsStream("testdata/test-icon.png"));
-        UploadedFile result = uploadFileService.uploadFile("userId","icon", uploadFile);
+        UploadedFile result = uploadFileService.uploadFile("icon", uploadFile);
         Assert.assertNotNull(result);
         //create application
         AccessUserUtil.setUser("b27d72b5-93a6-4db4-8268-7ec502331ade", "admin");
@@ -253,7 +253,7 @@ public class ApplicationServiceTest {
         vmApplication.setNetworkList(networkList);
         //vm app set VirtualMachine list
         VirtualMachine vm = new VirtualMachine();
-       // id, app_id, name, flavor_id, image_id, user_data, status, area_zone, flavor_extra_specs
+        // id, app_id, name, flavor_id, image_id, user_data, status, area_zone, flavor_extra_specs
         List<VirtualMachine> vmList = new ArrayList<>();
         vm.setId("068fa7b9-e1bd-4eee-a7e8-2532889910a2");
         vm.setName("test-vm");
