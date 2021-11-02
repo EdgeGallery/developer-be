@@ -26,7 +26,6 @@ import java.util.UUID;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.edgegallery.developer.common.ResponseConsts;
-import org.edgegallery.developer.config.security.AccessUserUtil;
 import org.edgegallery.developer.exception.DeveloperException;
 import org.edgegallery.developer.exception.EntityNotFoundException;
 import org.edgegallery.developer.exception.FileFoundFailException;
@@ -54,11 +53,7 @@ import org.edgegallery.developer.util.samplecode.SampleCodeServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.SafeConstructor;
@@ -87,25 +82,15 @@ public class UploadServiceImpl implements UploadService {
     private String sampleCodePath;
 
     @Override
-    public ResponseEntity<byte[]> getFile(String fileId, String userId, String type) {
-        UploadedFile uploadedFile = uploadedFileMapper.getFileById(fileId);
-        if (uploadedFile == null) {
-            LOGGER.error("can not find file {} in db", fileId);
-            throw new EntityNotFoundException("can not find file in db!", ResponseConsts.RET_QUERY_DATA_EMPTY);
-        }
+    public byte[] getFileStream(UploadedFile uploadedFile, String userId, String type) {
         File file = new File(InitConfigUtil.getWorkSpaceBaseDir() + uploadedFile.getFilePath());
         if (!file.exists()) {
-            LOGGER.error("can not find file {} in repository", fileId);
+            LOGGER.error("can not find file {} in repository", uploadedFile.getFileId());
             throw new FileFoundFailException("can not find file in repository!", ResponseConsts.RET_FILE_NOT_FOUND);
         }
         String fileName = uploadedFile.getFileName();
         try {
-            HttpHeaders headers = new HttpHeaders();
-            headers.add("Content-Type", "application/octet-stream");
-            headers.add("Content-Disposition", "attachment; filename=" + file.getName());
-            LOGGER.info("get file success {}", fileId);
-            byte[] fileData = getFileByteArray(file, userId, type, fileName);
-            return ResponseEntity.ok().headers(headers).body(fileData);
+            return getFileByteArray(file, userId, type, fileName);
         } catch (IOException e) {
             LOGGER.error("Failed to get file stream: {}", e.getMessage());
             throw new FileFoundFailException("can not find file in repository!", ResponseConsts.RET_FILE_NOT_FOUND);
@@ -130,7 +115,7 @@ public class UploadServiceImpl implements UploadService {
     }
 
     @Override
-    public UploadedFile getApiFile(String fileId, String userId) {
+    public UploadedFile getFile(String fileId, String userId) {
         UploadedFile uploadedFile = uploadedFileMapper.getFileById(fileId);
         if (uploadedFile != null) {
             File file = new File(InitConfigUtil.getWorkSpaceBaseDir() + uploadedFile.getFilePath());
@@ -143,7 +128,7 @@ public class UploadServiceImpl implements UploadService {
     }
 
     @Override
-    public UploadedFile uploadFile(String fileType, MultipartFile uploadFile) {
+    public UploadedFile uploadFile(String userId, String fileType, MultipartFile uploadFile) {
         //check format
         LOGGER.info("Start uploading icon file");
         String fileName = uploadFile.getOriginalFilename();
@@ -166,7 +151,6 @@ public class UploadServiceImpl implements UploadService {
             }
 
         }
-        String userId = AccessUserUtil.getUserId();
         UploadedFile result = saveFileToLocal(uploadFile, userId);
         if (result == null) {
             LOGGER.error("Failed to save icon file!");
@@ -176,19 +160,16 @@ public class UploadServiceImpl implements UploadService {
     }
 
     @Override
-    public ResponseEntity<byte[]> downloadSampleCode(List<String> apiFileIds) {
+    public byte[] downloadSampleCode(List<String> apiFileIds) {
         File res = generateTgz(apiFileIds);
         if (res == null) {
             throw new FileOperateException("generate samplecode file failed!", ResponseConsts.RET_SAVE_FILE_FAIL);
         }
         try {
-            HttpHeaders headers = new HttpHeaders();
-            headers.add("Content-Type", MediaType.APPLICATION_OCTET_STREAM_VALUE);
-            headers.add("Content-Disposition", "attachment; filename=SampleCode.tgz");
             byte[] fileData = FileUtils.readFileToByteArray(res);
             LOGGER.info("get sample code file success");
             DeveloperFileUtils.deleteTempFile(res);
-            return ResponseEntity.ok().headers(headers).body(fileData);
+            return fileData;
         } catch (IOException e) {
             LOGGER.error("get sample code file failed : {}", e.getMessage());
             throw new FileOperateException("get samplecode file failed!", ResponseConsts.RET_DOWNLOAD_FILE_FAIL);
@@ -260,16 +241,11 @@ public class UploadServiceImpl implements UploadService {
     }
 
     @Override
-    public ResponseEntity<byte[]> getSdkProject(String fileId, String lan) {
+    public byte[] getSdkProject(String fileId, String lan, List<Capability> capabilities) {
         UploadedFile uploadedFile = uploadedFileMapper.getFileById(fileId);
         if (uploadedFile == null) {
             LOGGER.error("can not find file {} in db", fileId);
             throw new FileFoundFailException("can not find file in db", ResponseConsts.RET_FILE_NOT_FOUND);
-        }
-        List<Capability> capability = capabilityMapper.selectByApiFileId(fileId);
-        if (CollectionUtils.isEmpty(capability)) {
-            LOGGER.error("can not find capability in db by api file id");
-            throw new EntityNotFoundException("can not find capability in db", ResponseConsts.RET_QUERY_DATA_EMPTY);
         }
         //generate code
         GeneralConfig config = new GeneralConfig();
@@ -277,12 +253,12 @@ public class UploadServiceImpl implements UploadService {
         config.setArtifactId("org.edgegallery");
         config.setInvokerPackage("edgegallerys");
         config.setModelPackage("edgegallerysdk");
-        config.setArtifactVersion(capability.get(0).getVersion());
+        config.setArtifactVersion(capabilities.get(0).getVersion());
         config.setGroupId("org.edgegallery");
         config.setOutput(InitConfigUtil.getWorkSpaceBaseDir());
-        config.setProjectName(capability.get(0).getHost());
+        config.setProjectName(capabilities.get(0).getHost());
         config.setInputSpec(uploadedFile.getFilePath());
-        String sdkPath = InitConfigUtil.getWorkSpaceBaseDir() + config.getOutput() + capability.get(0).getHost();
+        String sdkPath = InitConfigUtil.getWorkSpaceBaseDir() + config.getOutput() + capabilities.get(0).getHost();
 
         try {
 
@@ -308,13 +284,10 @@ public class UploadServiceImpl implements UploadService {
         File tar = new File(sdkPath + ".tgz");
 
         try {
-            HttpHeaders headers = new HttpHeaders();
-            headers.add("Content-Type", MediaType.APPLICATION_OCTET_STREAM_VALUE);
-            headers.add("Content-Disposition", "attachment; filename=" + capability.get(0).getHost() + ".tgz");
             byte[] fileData = FileUtils.readFileToByteArray(tar);
             LOGGER.info("get sample code file success");
             DeveloperFileUtils.deleteTempFile(tar);
-            return ResponseEntity.ok().headers(headers).body(fileData);
+            return fileData;
         } catch (IOException e) {
             LOGGER.error("get sample code file failed : {}", e.getMessage());
             throw new FileOperateException("Failed to get sample code file ", ResponseConsts.RET_DOWNLOAD_FILE_FAIL);
