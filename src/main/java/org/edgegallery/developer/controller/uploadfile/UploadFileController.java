@@ -84,8 +84,7 @@ public class UploadFileController {
         produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN') || hasRole('DEVELOPER_GUEST')")
     public ResponseEntity<byte[]> getFile(@Pattern(regexp = REGEX_UUID, message = "fileId must be in UUID format")
-    @ApiParam(value = "fileId", required = true) @PathVariable("fileId") String fileId,
-        @ApiParam(value = "type") @RequestParam("type") String type) {
+    @ApiParam(value = "fileId", required = true) @PathVariable("fileId") String fileId) {
         String userId = AccessUserUtil.getUserId();
         UploadedFile uploadedFile = uploadedFileMapper.getFileById(fileId);
         if (uploadedFile == null) {
@@ -95,7 +94,7 @@ public class UploadFileController {
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Type", "application/octet-stream");
         headers.add("Content-Disposition", "attachment; filename=" + uploadedFile.getFileName());
-        byte[] fileData = uploadFileService.getFileStream(uploadedFile, userId, type);
+        byte[] fileData = uploadFileService.getFileStream(uploadedFile, userId);
         return ResponseEntity.ok().headers(headers).body(fileData);
     }
 
