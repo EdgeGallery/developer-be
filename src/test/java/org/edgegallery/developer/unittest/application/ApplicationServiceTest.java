@@ -85,7 +85,7 @@ public class ApplicationServiceTest {
         //upload icon
         MultipartFile uploadFile = new MockMultipartFile("test-icon.png", "test-icon.png", null,
             ApplicationServiceTest.class.getClassLoader().getResourceAsStream("testdata/test-icon.png"));
-        UploadedFile result = uploadFileService.uploadFile("icon", uploadFile);
+        UploadedFile result = uploadFileService.uploadFile("userId","icon", uploadFile);
         Assert.assertNotNull(result);
         //create application
         AccessUserUtil.setUser("b27d72b5-93a6-4db4-8268-7ec502331ade", "admin");
@@ -110,7 +110,7 @@ public class ApplicationServiceTest {
         //upload icon
         MultipartFile uploadFile = new MockMultipartFile("test-icon.png", "test-icon.png", null,
             ApplicationServiceTest.class.getClassLoader().getResourceAsStream("testdata/test-icon.png"));
-        UploadedFile result = uploadFileService.uploadFile("icon", uploadFile);
+        UploadedFile result = uploadFileService.uploadFile("userId","icon", uploadFile);
         Assert.assertNotNull(result);
         //create application
         AccessUserUtil.setUser("b27d72b5-93a6-4db4-8268-7ec502331ade", "admin");
