@@ -22,7 +22,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 public interface UploadService {
 
-    byte[] getFileStream(UploadedFile uploadedFile, String userId, String type);
+    byte[] getFileStream(UploadedFile uploadedFile, String userId);
 
     UploadedFile getFile(String fileId, String userId);
 

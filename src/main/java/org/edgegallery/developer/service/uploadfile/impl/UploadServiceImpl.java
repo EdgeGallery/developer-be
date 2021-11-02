@@ -82,7 +82,7 @@ public class UploadServiceImpl implements UploadService {
     private String sampleCodePath;
 
     @Override
-    public byte[] getFileStream(UploadedFile uploadedFile, String userId, String type) {
+    public byte[] getFileStream(UploadedFile uploadedFile, String userId) {
         File file = new File(InitConfigUtil.getWorkSpaceBaseDir() + uploadedFile.getFilePath());
         if (!file.exists()) {
             LOGGER.error("can not find file {} in repository", uploadedFile.getFileId());
@@ -90,16 +90,16 @@ public class UploadServiceImpl implements UploadService {
         }
         String fileName = uploadedFile.getFileName();
         try {
-            return getFileByteArray(file, userId, type, fileName);
+            return getFileByteArray(file, userId, fileName);
         } catch (IOException e) {
             LOGGER.error("Failed to get file stream: {}", e.getMessage());
             throw new FileFoundFailException("can not find file in repository!", ResponseConsts.RET_FILE_NOT_FOUND);
         }
     }
 
-    private byte[] getFileByteArray(File file, String userId, String type, String fileName) throws IOException {
+    private byte[] getFileByteArray(File file, String userId, String fileName) throws IOException {
         String fileFormat = fileName.substring(fileName.lastIndexOf("."));
-        if (userId == null || !EnumOpenMepType.OPENMEP.name().equals(type)) {
+        if (userId == null) {
             return FileUtils.readFileToByteArray(file);
         }
         if (fileFormat.equals(".yaml") || fileFormat.equals(".json")) {
@@ -110,7 +110,6 @@ public class UploadServiceImpl implements UploadService {
                     .getBytes(StandardCharsets.UTF_8);
             }
         }
-
         return FileUtils.readFileToByteArray(file);
     }
 
