@@ -30,13 +30,19 @@ import java.util.List;
 import java.util.Optional;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.LineIterator;
+import org.apache.commons.lang3.StringUtils;
 import org.edgegallery.developer.common.ResponseConsts;
 import org.edgegallery.developer.exception.FileOperateException;
+import org.edgegallery.developer.service.apppackage.impl.AppPackageServiceImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 @Service
 public class EncryptedService {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(EncryptedService.class);
 
     @Value("${signature.encrypted-key-path:}")
     private String keyPath;
@@ -44,11 +50,12 @@ public class EncryptedService {
     @Value("${signature.key-password:}")
     private String keyPasswd;
 
-    public void encryptedFile(String filePath) {
+    public boolean encryptedFile(String filePath) {
         try {
             BufferedReader reader = null;
             if (filePath == null) {
-                throw new IOException("Failed to encrypted code.");
+                LOGGER.error("Failed to encrypted code.");
+                return false;
             }
             File mfFile = getMfFile(filePath);
             BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(mfFile), "utf-8"));
@@ -88,11 +95,18 @@ public class EncryptedService {
             out.close();
 
         } catch (IOException e) {
-            throw new FileOperateException("Hash package failed.", ResponseConsts.RET_HASH_FILE_FAIL);
+            LOGGER.error("Hash package failed.");
+            return false;
         }
+        return true;
     }
 
-    public void encryptedCMS(String filePath) {
+    public boolean encryptedCMS(String filePath) {
+        boolean encryptedFile = encryptedFile(filePath);
+        if (!encryptedFile) {
+            LOGGER.error("Hash package failed.");
+            return false;
+        }
         try {
             BufferedReader reader = null;
             if (filePath == null) {
@@ -118,10 +132,16 @@ public class EncryptedService {
             out.write("-----END CMS-----");
             out.flush();
             out.close();
+            if (StringUtils.isEmpty(encrypted)) {
+                LOGGER.error("sign package failed");
+                return false;
+            }
 
         } catch (IOException e) {
-            throw new FileOperateException("Failed to encrypted code.", ResponseConsts.RET_SIGN_FILE_FAIL);
+            LOGGER.error("Failed to encrypted code.");
+            return false;
         }
+        return true;
     }
 
     private static String getFileSHA1(File file) {
@@ -176,19 +196,25 @@ public class EncryptedService {
                 rules.add("[Aa]lgorithm\\s*:");
                 rules.add("[Hh]ash\\s*:");
                 String in = readMatchLineContent(filePath, rules);
+                if (StringUtils.isEmpty(in)) {
+                    return "";
+                }
                 Signature signature = new Signature();
                 Optional<byte[]> signBytes = signature
                     .signMessage(in.trim(), StandardCharsets.UTF_8.toString(), keyPath, keyPasswd);
                 if (signBytes.isPresent()) {
                     return new String(signBytes.get(), StandardCharsets.UTF_8);
                 } else {
-                    throw new FileOperateException("sign package failed.", ResponseConsts.RET_SIGN_FILE_FAIL);
+                    LOGGER.error("sign package failed");
+                    return "";
                 }
             } else {
-                throw new FileOperateException("sign package failed.", ResponseConsts.RET_SIGN_FILE_FAIL);
+                LOGGER.error("sign package failed");
+                return "";
             }
         } else {
-            throw new FileOperateException("sign package failed.", ResponseConsts.RET_SIGN_FILE_FAIL);
+            LOGGER.error("sign package failed");
+            return "";
         }
     }
 
@@ -204,15 +230,13 @@ public class EncryptedService {
     }
 
     private static String readMatchLineContent(String fileName, List<String> rules) {
-        LineIterator lineIterator;
         StringBuilder result = new StringBuilder();
         String filePath = fileName.replace("\\", File.separator).replace("/", File.separator);
         try (InputStream inputStream = FileUtils.openInputStream(FileUtils.getFile(filePath));
              InputStreamReader inputStreamReader = new InputStreamReader(inputStream, StandardCharsets.UTF_8);
-             BufferedReader bufferedReader = new BufferedReader(inputStreamReader)) {
-            lineIterator = new LineIterator(bufferedReader);
+             BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+            LineIterator lineIterator = new LineIterator(bufferedReader)) {
             String line;
-            LineIterator lineIterator1 = FileUtils.lineIterator(new File(filePath), "UTF-8");
 
             while (lineIterator.hasNext()) {
                 line = lineIterator.next();
@@ -222,7 +246,8 @@ public class EncryptedService {
                 }
             }
         } catch (IOException e) {
-            throw new FileOperateException("sign package failed.", ResponseConsts.RET_SIGN_FILE_FAIL);
+            LOGGER.error("sign package failed");
+            return null;
         }
         return result.toString().trim();
     }

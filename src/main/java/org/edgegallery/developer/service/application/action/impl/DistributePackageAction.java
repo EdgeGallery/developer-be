@@ -34,6 +34,7 @@ import org.edgegallery.developer.service.application.common.EnumDistributeStatus
 import org.edgegallery.developer.service.application.common.IContextParameter;
 import org.edgegallery.developer.service.apppackage.AppPackageService;
 import org.edgegallery.developer.service.recource.mephost.MepHostService;
+import org.edgegallery.developer.util.ApplicationUtil;
 import org.edgegallery.developer.util.FileUtil;
 import org.edgegallery.developer.util.HttpClientUtil;
 import org.edgegallery.developer.util.SpringContextUtil;
@@ -68,14 +69,14 @@ public abstract class DistributePackageAction extends AbstractAction {
 
     @Override
     public boolean execute() {
-        //Start action , save action status.
+        // Start action , save action status.
         String packageId = (String) getContext().getParameter(IContextParameter.PARAM_PACKAGE_ID);
         String statusLog = "Start to distribute the app package for package Id：" + packageId;
         LOGGER.info(statusLog);
         ActionStatus actionStatus = initActionStatus(EnumOperationObjectType.APPLICATION_PACKAGE, packageId,
             ACTION_NAME, statusLog);
 
-        //get Sandbox info.
+        // get Sandbox info.
         String applicationId = (String) getContext().getParameter(IContextParameter.PARAM_APPLICATION_ID);
         Application application = applicationService.getApplication(applicationId);
         String mepHostId = application.getMepHostId();
@@ -86,9 +87,9 @@ public abstract class DistributePackageAction extends AbstractAction {
         }
         MepHost mepHost = mepHostService.getHost(mepHostId);
         LOGGER.info("Distribute package destination: {}", mepHost.getMecHostIp());
-        //Upload package file to lcm.
+        // Upload package file to lcm.
         AppPackage appPkg = appPackageService.getAppPackage(packageId);
-        String appPkgPath = FileUtil.getApplicationPath(applicationId) + appPkg.getPackageFileName();
+        String appPkgPath = ApplicationUtil.getApplicationBasePath(appPkg.getAppId()) + appPkg.getPackageFileName();
         String mepmPkgId = uploadPackageToLcm(getContext().getUserId(), appPkgPath, mepHost);
         if (null == mepmPkgId) {
             updateActionError(actionStatus, "Upload app package file to lcm failed.");
@@ -100,7 +101,8 @@ public abstract class DistributePackageAction extends AbstractAction {
         //Distribute package to edge host.
         boolean res = distributePackageToEdgeHost(getContext().getUserId(), mepmPkgId, mepHost);
         if (!res) {
-            saveDistributeInstantiateInfo(mepHost.getMecHostIp(), mepmPkgId, EnumVMInstantiateStatus.PACKAGE_DISTRIBUTE_FAILED);
+            saveDistributeInstantiateInfo(mepHost.getMecHostIp(), mepmPkgId,
+                EnumVMInstantiateStatus.PACKAGE_DISTRIBUTE_FAILED);
             updateActionError(actionStatus, "Distribute app package file to edge host failed.");
             return false;
         }
@@ -115,7 +117,8 @@ public abstract class DistributePackageAction extends AbstractAction {
         }
 
         //save vm instantiate info.
-        boolean updateRes = saveDistributeInstantiateInfo(mepHost.getMecHostIp(), mepmPkgId, EnumVMInstantiateStatus.PACKAGE_DISTRIBUTE_SUCCESS);
+        boolean updateRes = saveDistributeInstantiateInfo(mepHost.getMecHostIp(), mepmPkgId,
+            EnumVMInstantiateStatus.PACKAGE_DISTRIBUTE_SUCCESS);
         if (!updateRes) {
             updateActionError(actionStatus, "Update instantiate info for VM failed.");
             return false;
@@ -171,7 +174,8 @@ public abstract class DistributePackageAction extends AbstractAction {
                 return EnumDistributeStatus.DISTRIBUTE_PACKAGE_STATUS_ERROR;
             }
             List<DistributeResponse> list = gson.fromJson(distributeResult,
-                new TypeToken<List<DistributeResponse>>() { }.getType());
+                new TypeToken<List<DistributeResponse>>() {
+                }.getType());
             List<MecHostInfo> mecHostInfo = list.get(0).getMecHostInfo();
             if (mecHostInfo == null) {
                 LOGGER.error("Get distribute package status failed, null mec host info.");
@@ -179,7 +183,7 @@ public abstract class DistributePackageAction extends AbstractAction {
             }
             String status = mecHostInfo.get(0).getStatus();
             if (EnumDistributeStatus.DISTRIBUTE_PACKAGE_STATUS_FAILED.toString().equals(status) ||
-            EnumDistributeStatus.DISTRIBUTE_PACKAGE_STATUS_ERROR.toString().equals(status)) {
+                EnumDistributeStatus.DISTRIBUTE_PACKAGE_STATUS_ERROR.toString().equals(status)) {
                 LOGGER.error("Failed to upload vm image packageId is : {}.", packageId);
                 return EnumDistributeStatus.DISTRIBUTE_PACKAGE_STATUS_FAILED;
             } else if (EnumDistributeStatus.DISTRIBUTE_PACKAGE_STATUS_SUCCESS.toString().equals(status)) {

@@ -27,9 +27,33 @@ import lombok.ToString;
 @ToString
 public class AppServiceProduced {
 
-    private String serName;
+    private String appServiceProducedId;
+
+    private String oneLevelName;
+
+    private String oneLevelNameEn;
+
+    private String twoLevelName;
+
+    private String description;
+
+    private String apiFileId;
+
+    private String guideFileId;
+
+    private String iconFileId;
+
+    private String serviceName;
+
+    private Integer internalPort;
 
     private String version;
+
+    private String protocol;
+
+    private String author;
+
+    private String experienceUrl;
 
     private List<String> dnsRuleIdList = new ArrayList<String>(0);
 

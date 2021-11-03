@@ -112,23 +112,6 @@ public class VMImageCtl {
     }
 
     /**
-     * get available vm image by userId and type.
-     *
-     * @return
-     */
-    @ApiOperation(value = "get available vm image)", response = VMImageRes.class, responseContainer = "List")
-    @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "OK", response = VMImageRes.class, responseContainer = "List"),
-        @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
-    })
-    @RequestMapping(value = "/list", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    @PreAuthorize("hasRole('DEVELOPER_ADMIN')|| hasRole('DEVELOPER_TENANT')")
-    public ResponseEntity<VMImageRes> getAvailableVmImages() {
-        VMImageRes either = vmImageService.getAvailableVmImages();
-        return ResponseEntity.ok(either);
-    }
-
-    /**
      * delete vm image.
      *
      * @return
@@ -174,9 +157,9 @@ public class VMImageCtl {
         @ApiResponse(code = 200, message = "OK", response = Boolean.class),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
-    @RequestMapping(value = "/{imageId}/reset", method = RequestMethod.PUT)
+    @RequestMapping(value = "/{imageId}/action/reset", method = RequestMethod.PUT)
     @PreAuthorize("hasRole('DEVELOPER_ADMIN')|| hasRole('DEVELOPER_TENANT')")
-    public ResponseEntity<Boolean> resetImageStatus(@PathVariable("imageId") Integer imageId) throws Exception {
+    public ResponseEntity<Boolean> resetImageStatus(@PathVariable("imageId") Integer imageId) {
         LOGGER.info("reset vm image status, imageId = {}", imageId);
         return ResponseEntity.ok(vmImageService.resetImageStatus(imageId));
     }
@@ -189,7 +172,7 @@ public class VMImageCtl {
         @ApiResponse(code = 200, message = "OK", response = ResponseEntity.class),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
-    @RequestMapping(value = "/{imageId}/upload", method = RequestMethod.POST)
+    @RequestMapping(value = "/{imageId}/action/upload", method = RequestMethod.POST)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity uploadVmImage(HttpServletRequest request, Chunk chunk,
         @ApiParam(value = "imageId", required = true) @PathVariable("imageId") Integer imageId) {
@@ -205,7 +188,7 @@ public class VMImageCtl {
         @ApiResponse(code = 200, message = "OK", response = ResponseEntity.class),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
-    @RequestMapping(value = "/{imageId}/upload", method = RequestMethod.GET)
+    @RequestMapping(value = "/{imageId}/action/upload", method = RequestMethod.GET)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity checkChunkForUploadVmImage(
         @RequestParam(value = "identifier", required = false) String identifier,
@@ -222,11 +205,11 @@ public class VMImageCtl {
         @ApiResponse(code = 200, message = "OK", response = ResponseEntity.class),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
-    @RequestMapping(value = "/{imageId}/upload", method = RequestMethod.DELETE)
+    @RequestMapping(value = "/{imageId}/action/upload", method = RequestMethod.DELETE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity cancelUploadVmImage(
         @RequestParam(value = "identifier", required = false) String identifier,
-        @ApiParam(value = "imageId", required = true) @PathVariable("imageId") Integer imageId) throws IOException {
+        @ApiParam(value = "imageId", required = true) @PathVariable("imageId") Integer imageId) {
         LOGGER.info("cancel upload vm image file, imageId = {}", imageId);
         return vmImageService.cancelUploadVmImage(imageId, identifier);
     }
@@ -239,11 +222,11 @@ public class VMImageCtl {
         @ApiResponse(code = 200, message = "OK", response = ResponseEntity.class),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
-    @RequestMapping(value = "/{imageId}/merge", method = RequestMethod.GET)
+    @RequestMapping(value = "/{imageId}/action/merge", method = RequestMethod.GET)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity mergeVmImage(@RequestParam(value = "fileName", required = false) String fileName,
         @RequestParam(value = "identifier", required = false) String identifier,
-        @ApiParam(value = "imageId", required = true) @PathVariable("imageId") Integer imageId) throws IOException {
+        @ApiParam(value = "imageId", required = true) @PathVariable("imageId") Integer imageId) {
         LOGGER.info("merge vm image file, imageId = {}, fileName = {}, identifier = {}", imageId, fileName,
             identifier);
         return vmImageService.mergeVmImage(fileName, identifier, imageId);
@@ -257,7 +240,7 @@ public class VMImageCtl {
         @ApiResponse(code = 200, message = "OK", response = File.class),
         @ApiResponse(code = 400, message = "Bad Request", response = File.class)
     })
-    @RequestMapping(value = "/{imageId}/download", method = RequestMethod.GET,
+    @RequestMapping(value = "/{imageId}/action/download", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<byte[]> downloadVmImage(
@@ -276,7 +259,7 @@ public class VMImageCtl {
         @ApiResponse(code = 200, message = "OK", response = Boolean.class),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
-    @RequestMapping(value = "/{imageId}/slim", method = RequestMethod.POST)
+    @RequestMapping(value = "/{imageId}/action/slim", method = RequestMethod.POST)
     @PreAuthorize("hasRole('DEVELOPER_ADMIN')|| hasRole('DEVELOPER_TENANT')")
     public ResponseEntity<Boolean> imageSlim(@PathVariable("imageId") Integer imageId) {
         LOGGER.info("image slim, imageId = {}", imageId);

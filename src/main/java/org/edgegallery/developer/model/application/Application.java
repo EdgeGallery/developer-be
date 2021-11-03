@@ -16,6 +16,7 @@
 
 package org.edgegallery.developer.model.application;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import lombok.Getter;
@@ -23,6 +24,7 @@ import lombok.Setter;
 import lombok.ToString;
 import javax.validation.constraints.Pattern;
 import org.edgegallery.developer.model.application.configuration.AppConfiguration;
+import org.edgegallery.developer.model.application.vm.Network;
 import org.edgegallery.developer.model.apppackage.AppPackage;
 import org.edgegallery.developer.model.atpTestTask.AtpTest;
 
@@ -74,7 +76,7 @@ public class Application {
 
     private AppPackage appPackage = new AppPackage();
 
-    private List<AtpTest> atpTestTaskList;
+    private List<AtpTest> atpTestTaskList = new ArrayList<AtpTest>(0);
 
     private AppConfiguration appConfiguration = new AppConfiguration();
 
@@ -89,7 +91,7 @@ public class Application {
      * initialProject.
      */
     public void initialProject() {
-        this.status = EnumApplicationStatus.ONLINE;
+        this.status = EnumApplicationStatus.CONFIGURED;
     }
 
     public Application() {
@@ -114,6 +116,8 @@ public class Application {
         this.userName = app.userName;
         this.mepHostId = app.mepHostId;
         this.appConfiguration = app.appConfiguration;
+        this.appPackage = app.appPackage;
+        this.atpTestTaskList = app.atpTestTaskList;
     }
 
 }

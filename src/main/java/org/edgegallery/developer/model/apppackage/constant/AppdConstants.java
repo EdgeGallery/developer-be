@@ -18,6 +18,8 @@ public class AppdConstants {
 
     public static final String VNF_NODE_NAME = "Simple_VNF";
 
+    public static final String APP_CONFIGURATION_NODE_NAME = "app_configuration";
+
     public static final String PORT_VNIC_NAME_PREFIX = "eth";
 
     public static final String NETWORK_NAME_Public = "MEC_APP_Public";
@@ -27,4 +29,14 @@ public class AppdConstants {
     public static final String GROUPS_NODE_NAME = "AntiAffinityGroup";
 
     public static final String POLICY_NODE_NAME = "antiaffinity_policy";
+
+    public static final String QUOTATION_MARK = "\"";
+
+    public static final String SINGLE_QUOTATION_MARK = "'";
+
+    public static final String COLON_MARK = ":";
+
+    public static final String CLOSING_BRACE_MARK = "}";
+
+    public static final String REGEX_LINE_SEPARATOR = "\r\n|\n";
 }

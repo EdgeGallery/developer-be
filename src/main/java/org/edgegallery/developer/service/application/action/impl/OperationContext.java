@@ -32,9 +32,6 @@ public class OperationContext implements IContext {
     //user of the operation
     private User user;
 
-    //action token from FE, need to be used in rest call to lcm controller.
-    private String token;
-
     private OperationStatus operationStatus;
 
     Map<String, Object> contextMap = new HashMap<>();
@@ -43,17 +40,16 @@ public class OperationContext implements IContext {
 
     private OperationStatusServiceImpl operationStatusService = (OperationStatusServiceImpl)SpringContextUtil.getBean(OperationStatusServiceImpl.class);
 
-    public OperationContext(User user, String token, OperationStatus operationStatus,
+    public OperationContext(User user, OperationStatus operationStatus,
         Map<String, ActionProgressRange> actionProgressRangeMap) {
         this.user = user;
-        this.token = token;
         this.operationStatus = operationStatus;
         this.actionProgressRangeMap = actionProgressRangeMap;
     }
 
     @Override
     public String getToken() {
-        return token;
+        return this.user.getToken();
     }
 
     @Override

@@ -21,6 +21,7 @@ import java.util.UUID;
 import org.apache.commons.lang3.StringUtils;
 import org.edgegallery.developer.common.ResponseConsts;
 import org.edgegallery.developer.config.security.AccessUserUtil;
+import org.edgegallery.developer.domain.model.user.User;
 import org.edgegallery.developer.exception.DataBaseException;
 import org.edgegallery.developer.exception.EntityNotFoundException;
 import org.edgegallery.developer.mapper.application.ApplicationMapper;
@@ -88,11 +89,11 @@ public class ContainerAppOperationServiceImpl extends AppOperationServiceImpl im
     }
 
     @Override
-    public OperationInfoRep instantiateContainerApp(String applicationId, String helmChartId, String accessToken) {
+    public OperationInfoRep instantiateContainerApp(String applicationId, String helmChartId, User user) {
         Application application = applicationMapper.getApplicationById(applicationId);
         if (application == null) {
-            LOGGER.error("application is not exited,id:{}", applicationId);
-            throw new EntityNotFoundException("application is not exited.", ResponseConsts.RET_QUERY_DATA_EMPTY);
+            LOGGER.error("application does not exist,id:{}", applicationId);
+            throw new EntityNotFoundException("application does not exist.", ResponseConsts.RET_QUERY_DATA_EMPTY);
         }
 
         HelmChart helmChart = helmChartMapper.getHelmChartById(helmChartId);
@@ -105,7 +106,7 @@ public class ContainerAppOperationServiceImpl extends AppOperationServiceImpl im
         // create OperationStatus
         OperationStatus operationStatus = new OperationStatus();
         operationStatus.setId(UUID.randomUUID().toString());
-        operationStatus.setUserName(AccessUserUtil.getUser().getUserName());
+        operationStatus.setUserName(user.getUserName());
         operationStatus.setObjectType(EnumOperationObjectType.APPLICATION);
         operationStatus.setObjectId(applicationId);
         operationStatus.setObjectName(application.getName());
@@ -117,8 +118,8 @@ public class ContainerAppOperationServiceImpl extends AppOperationServiceImpl im
             LOGGER.error("Create operationStatus in db error.");
             throw new DataBaseException("Create operationStatus in db error.", ResponseConsts.RET_CERATE_DATA_FAIL);
         }
-        ContainerLaunchOperation actionCollection = new ContainerLaunchOperation(AccessUserUtil.getUser(),
-            applicationId, helmChartId, accessToken, operationStatus);
+        ContainerLaunchOperation actionCollection = new ContainerLaunchOperation(user,
+            applicationId, helmChartId, operationStatus);
         LOGGER.info("start instantiate container app");
         new InstantiateContainerAppProcessor(actionCollection).start();
         return new OperationInfoRep(operationStatus.getId());

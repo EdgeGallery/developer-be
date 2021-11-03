@@ -17,9 +17,9 @@
 package org.edgegallery.developer.model.deployyaml;
 
 import com.google.gson.annotations.SerializedName;
-import lombok.Builder.Default;
 import lombok.Getter;
 import lombok.Setter;
+import org.edgegallery.developer.model.resource.vm.VMImage;
 
 @Getter
 @Setter
@@ -43,7 +43,7 @@ public class ImageDesc {
 
     private String architecture;
 
-    private int size = 688390;
+    private long size;
 
     private String swImage;
 
@@ -56,5 +56,27 @@ public class ImageDesc {
     private String operatingSystem;
 
     private String supportedVirtualisationEnvironment = "linux";
+
+    public ImageDesc() {
+
+    }
+
+    /**
+     * constructor.
+     *
+     * @param vmImage vmImage
+     */
+    public ImageDesc(VMImage vmImage) {
+        String url = vmImage.getDownLoadUrl();
+        setSize(vmImage.getImageSize());
+        setId(String.valueOf(vmImage.getId()));
+        setName(vmImage.getName());
+        setVersion(vmImage.getOsVersion());
+        setChecksum(vmImage.getFileMd5());
+        setDiskFormat(vmImage.getImageFormat());
+        setMinDisk(vmImage.getSystemDiskSize());
+        setSwImage(url);
+        setOperatingSystem(vmImage.getOsType());
+    }
 
 }

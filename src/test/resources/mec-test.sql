@@ -19,7 +19,17 @@ DROP TABLE IF  EXISTS  tbl_plugin;
 DROP TABLE IF  EXISTS tbl_subtaskstatus;
 DROP TABLE IF  EXISTS tbl_testCase;
 DROP TABLE  IF  EXISTS tbl_testapp;
-DROP TABLE  IF  EXISTS  tbl_testtask;
+DROP TABLE  IF  EXISTS tbl_testtask;
+DROP TABLE  IF  EXISTS tbl_application;
+DROP TABLE  IF  EXISTS tbl_network;
+DROP TABLE  IF  EXISTS tbl_container_helm_chart;
+DROP TABLE  IF  EXISTS tbl_app_certificate;
+DROP TABLE  IF  EXISTS tbl_app_service_produced;
+DROP TABLE  IF  EXISTS tbl_app_service_required;
+DROP TABLE  IF  EXISTS tbl_app_traffic_rule;
+DROP TABLE  IF  EXISTS tbl_app_dns_rule;
+DROP TABLE  IF  EXISTS tbl_vm;
+DROP TABLE  IF  EXISTS tbl_vm_certificate;
 DROP TABLE  IF  EXISTS tbl_app_project;
 DROP TABLE  IF  EXISTS tbl_openmep_capability;
 DROP TABLE  IF  EXISTS tbl_openmep_capability_detail;
@@ -164,6 +174,122 @@ CREATE TABLE IF NOT EXISTS tbl_app_project (
 )
 ;
 
+CREATE TABLE IF NOT EXISTS tbl_application (
+  id varchar(255) NOT NULL,
+  name varchar(255) NOT NULL,
+  description varchar(255) DEFAULT NULL,
+  version varchar(255) NOT NULL,
+  provider varchar(255) NOT NULL,
+  architecture varchar(255) DEFAULT NULL,
+  app_class varchar(255) DEFAULT NULL,
+  type varchar(255) DEFAULT NULL,
+  industry varchar(255) DEFAULT NULL,
+  icon_file_id varchar(255) DEFAULT NULL,
+  app_create_type varchar(255) DEFAULT NULL,
+  create_time varchar(200)  DEFAULT NULL,
+  status varchar(255) DEFAULT NULL,
+  user_id varchar(255) DEFAULT NULL,
+  user_name varchar(255) DEFAULT NULL,
+  mep_host_id varchar(255) DEFAULT NULL,
+  CONSTRAINT tbl_application_unique_name_version UNIQUE (name,version),
+  CONSTRAINT tbl_application_pkey PRIMARY KEY (id)
+);
+
+CREATE TABLE IF NOT EXISTS tbl_network (
+   id varchar(255) NOT NULL,
+   app_id varchar(255) DEFAULT NULL,
+   name varchar(255) NOT NULL,
+   description varchar(255) DEFAULT NULL,
+   CONSTRAINT tbl_network_pkey PRIMARY KEY (id)
+);
+
+CREATE TABLE IF NOT EXISTS tbl_container_helm_chart (
+  id varchar(255) NOT NULL,
+  app_id varchar(255) NOT NULL,
+  name varchar(255) DEFAULT NULL,
+  helm_chart_file_id text DEFAULT NULL,
+  CONSTRAINT tbl_container_helm_chart_pkey PRIMARY KEY (id)
+);
+
+CREATE TABLE IF NOT EXISTS tbl_app_certificate (
+  app_id varchar(255) NOT NULL,
+  ak text DEFAULT NULL,
+  sk text DEFAULT NULL,
+  CONSTRAINT tbl_app_certificate_pkey PRIMARY KEY (app_id)
+);
+
+CREATE TABLE IF NOT EXISTS tbl_app_service_produced (
+  app_id varchar(50) NOT NULL,
+  app_service_produced_id varchar(50) NOT NULL,
+  one_level_name varchar(100) NOT NULL,
+  one_level_name_en varchar(100) NOT NULL,
+  two_level_name varchar(100) NOT NULL,
+  description varchar(500) NOT NULL,
+  api_file_id varchar(50) NOT NULL,
+  guide_file_id varchar(50) NOT NULL,
+  icon_file_id varchar(50) NOT NULL,
+  service_name varchar(50) NOT NULL,
+  internal_port int4 NOT NULL,
+  version varchar(30) NOT NULL,
+  protocol varchar(30) NOT NULL,
+  author varchar(50) NOT NULL,
+  experience_url varchar(500) DEFAULT NULL,
+  dns_rule_id_list text DEFAULT NULL,
+  traffic_rule_id_list text DEFAULT NULL,
+  CONSTRAINT  tbl_app_service_produced_unique_id_name UNIQUE (app_id,service_name)
+);
+
+CREATE TABLE IF NOT EXISTS tbl_app_service_required (
+  app_id varchar(255) NOT NULL,
+  ser_name varchar(255) NOT NULL,
+  version varchar(255) DEFAULT NULL,
+  requested_permissions bool DEFAULT NULL,
+  ser_app_id varchar(255) DEFAULT NULL,
+  package_id varchar(255) DEFAULT NULL,
+   CONSTRAINT  tbl_app_service_required_unique_id_name UNIQUE (app_id,ser_name)
+);
+
+CREATE TABLE IF NOT EXISTS tbl_app_traffic_rule (
+  app_id varchar(255) NOT NULL,
+  traffic_rule_id varchar(255) NOT NULL,
+  action varchar(255) DEFAULT NULL,
+  priority varchar(255) DEFAULT NULL,
+  filter_type varchar(255) DEFAULT NULL,
+  traffic_filter text DEFAULT NULL,
+  dst_interface text DEFAULT NULL,
+  CONSTRAINT tbl_app_traffic_rule_unique_id_traffic_rule UNIQUE (app_id,traffic_rule_id)
+);
+
+ CREATE TABLE IF NOT EXISTS tbl_app_dns_rule (
+   app_id varchar(255) NOT NULL,
+   dns_rule_id varchar(255) NOT NULL,
+   domain_name varchar(255) DEFAULT NULL,
+   ip_address_type varchar(255) DEFAULT NULL,
+   ip_address varchar(255) DEFAULT NULL,
+   ttl varchar(255) DEFAULT NULL,
+   CONSTRAINT tbl_app_dns_rule_unique_id_dns_rule UNIQUE (app_id,dns_rule_id)
+);
+
+CREATE TABLE IF NOT EXISTS tbl_vm (
+  id varchar(255) NOT NULL,
+  app_id varchar(255) DEFAULT NULL,
+  name varchar(255) NOT NULL,
+  flavor_id varchar(255) DEFAULT NULL,
+  image_id int4 DEFAULT NULL,
+  user_data text DEFAULT NULL,
+  status varchar(255) DEFAULT NULL,
+  area_zone varchar(255) DEFAULT NULL,
+  flavor_extra_specs  text DEFAULT NULL,
+  CONSTRAINT tbl_vm_pkey PRIMARY KEY (id)
+);
+
+CREATE TABLE IF NOT EXISTS tbl_vm_certificate (
+  vm_id varchar(255) DEFAULT NULL,
+  certificate_type varchar(255) NOT NULL,
+  pwd_certificate text DEFAULT NULL,
+  key_pair_certificate text DEFAULT NULL,
+  CONSTRAINT tbl_vm_certificate_pkey PRIMARY KEY (vm_id)
+);
 
 CREATE TABLE IF NOT EXISTS tbl_openmep_capability (
   group_id varchar(50)  NOT NULL DEFAULT NULL,

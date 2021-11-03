@@ -16,6 +16,9 @@
 
 package org.edgegallery.developer.domain.model.user;
 
+import lombok.Getter;
+
+@Getter
 public class User {
 
     private final String userId;
@@ -23,6 +26,8 @@ public class User {
     private final String userName;
 
     private final String userAuth;
+
+    private final String token;
 
     /**
      * User.
@@ -34,6 +39,7 @@ public class User {
         this.userId = userId;
         this.userName = userName;
         this.userAuth = "";
+        this.token = "";
     }
 
     /**
@@ -47,17 +53,21 @@ public class User {
         this.userId = userId;
         this.userName = userName;
         this.userAuth = userAuth;
+        this.token = "";
     }
 
-    public String getUserId() {
-        return userId;
-    }
-
-    public String getUserName() {
-        return userName;
-    }
-
-    public String getUserAuth() {
-        return userAuth;
+    /**
+     * User.
+     *
+     * @param userId userId
+     * @param userName userName
+     * @param userAuth userAuth
+     * @param token token
+     */
+    public User(String userId, String userName, String userAuth, String token) {
+        this.userId = userId;
+        this.userName = userName;
+        this.userAuth = userAuth;
+        this.token = token;
     }
 }

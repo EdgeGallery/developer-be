@@ -66,6 +66,7 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.ssl.SSLContextBuilder;
 import org.edgegallery.developer.common.Consts;
 import org.edgegallery.developer.config.security.AccessUserUtil;
+import org.edgegallery.developer.domain.model.user.User;
 import org.edgegallery.developer.domain.shared.Page;
 import org.edgegallery.developer.exception.DeveloperException;
 import org.edgegallery.developer.mapper.HelmTemplateYamlMapper;
@@ -834,11 +835,10 @@ public class ProjectService {
      *
      * @return
      */
-    public Either<FormatRespDto, Boolean> uploadToAppStore(String userId, String projectId, String userName,
-        String token, PublishAppReqDto pubAppReqDto) {
+    public Either<FormatRespDto, Boolean> uploadToAppStore(String projectId, User user, PublishAppReqDto pubAppReqDto) {
         // 0 check data. must be tested, and deployed status must be ok, can not be
         // error.
-        ApplicationProject project = projectMapper.getProject(userId, projectId);
+        ApplicationProject project = projectMapper.getProject(user.getUserId(), projectId);
         if (project == null) {
             LOGGER.error("Can not get project by inputs of userId and projectId.");
             String message = "Can not get project, userId or projectId is error.";
@@ -856,7 +856,7 @@ public class ProjectService {
             FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "can not upload appstore");
             return Either.left(error);
         }
-        Either<FormatRespDto, JsonObject> resCsar = getCsarAndUpload(projectId, project, releaseConfig, token);
+        Either<FormatRespDto, JsonObject> resCsar = getCsarAndUpload(projectId, project, releaseConfig, user);
         LOGGER.warn("upload result true or false:{}", resCsar.isRight() ? resCsar.getRight() : resCsar.getLeft());
         if (resCsar.isLeft()) {
             return Either.left(resCsar.getLeft());
@@ -868,7 +868,7 @@ public class ProjectService {
             LOGGER.error("sleep fail! {}", e.getMessage());
             Thread.currentThread().interrupt();
         }
-        Either<FormatRespDto, Boolean> pubRes = publishApp(jsonObject, token, pubAppReqDto);
+        Either<FormatRespDto, Boolean> pubRes = publishApp(jsonObject, user.getToken(), pubAppReqDto);
         LOGGER.warn("publish result true or false:{}", pubRes.isRight() ? pubRes.getRight() : pubRes.getLeft());
         if (pubRes.isLeft()) {
             return Either.left(pubRes.getLeft());
@@ -884,7 +884,7 @@ public class ProjectService {
                     LOGGER.error("Can not get group {}.", serviceDetail.getOneLevelName());
                     return Either.left(new FormatRespDto(Status.BAD_REQUEST, "Can not find selected group"));
                 }
-                fillCapabilityDetail(serviceDetail, detail, jsonObject, userId, group);
+                fillCapabilityDetail(serviceDetail, detail, jsonObject, user.getUserId(), group);
                 Either<FormatRespDto, Boolean> resDb = doSomeDbOperation(detail, serviceDetail, openCapabilityIds);
                 if (resDb.isLeft()) {
                     return Either.left(resDb.getLeft());
@@ -956,7 +956,7 @@ public class ProjectService {
     }
 
     private Either<FormatRespDto, JsonObject> getCsarAndUpload(String projectId, ApplicationProject project,
-        ReleaseConfig releaseConfig, String token) {
+        ReleaseConfig releaseConfig, User user) {
         // 1 get CSAR package
         String fileName = getFileName(projectId);
         if (StringUtils.isEmpty(fileName)) {
@@ -995,7 +995,7 @@ public class ProjectService {
         map.put("industry", StringUtils.join(project.getIndustry().toArray(), ","));
         // add Field testTaskId
         map.put("testTaskId", releaseConfig.getAtpTest().getId());
-        ResponseEntity<String> uploadReslut = AppStoreUtil.storeToAppStore(map, token);
+        ResponseEntity<String> uploadReslut = AppStoreUtil.storeToAppStore(map, user);
         if (uploadReslut == null) {
             LOGGER.error("upload app to appstore fail!");
             FormatRespDto error = new FormatRespDto(Status.BAD_REQUEST, "upload app to appstore fail!");

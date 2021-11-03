@@ -31,9 +31,11 @@ public interface ApplicationMapper {
 
     List<Application> getAllApplications();
 
-    List<Application> getAllApplicationsByUserId(@Param("userId")String userId,@Param("name") String name);
+    List<Application> getAllApplicationsByUserId(@Param("userId") String userId, @Param("name") String name);
 
     Application getApplicationById(String id);
 
-    int modifyMepHostById(@Param("applicationId")String applicationId, @Param("hostMepId")String hostMepId);
+    int modifyMepHostById(@Param("applicationId") String applicationId, @Param("hostMepId") String hostMepId);
+
+    int updateApplicationStatus(@Param("applicationId") String applicationId, @Param("status") String status);
 }

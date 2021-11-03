@@ -16,7 +16,6 @@ package org.edgegallery.developer.service.apppackage.csar;
 
 import java.io.File;
 import java.io.IOException;
-import org.edgegallery.developer.model.application.EnumAppClass;
 import org.edgegallery.developer.model.application.container.ContainerApplication;
 import org.edgegallery.developer.util.BusinessConfigUtil;
 import org.edgegallery.developer.util.CompressFileUtils;
@@ -57,9 +56,7 @@ public class ContainerPackageFileCreator extends PackageFileCreator {
 
     }
 
-    private File generateImageDesFile() {
-
-        return new File(getPackageBasePath());
+    public void generateImageDesFile() {
 
     }
 
@@ -78,7 +75,7 @@ public class ContainerPackageFileCreator extends PackageFileCreator {
             String helmChartPath = tempPackagePath + TEMPLATE_PACKAGE_HELM_CHART_PATH + getHelmChartName();
             File chartFileDir = new File(helmChartPath);
             if (!chartFileDir.exists() || !chartFileDir.isDirectory()) {
-                LOGGER.error("helm chart file is not exited, file name is:{}", getHelmChartName());
+                LOGGER.error("helm chart file does not exist, file name is:{}", getHelmChartName());
                 return false;
             }
             File tgz = CompressFileUtils
@@ -94,6 +91,4 @@ public class ContainerPackageFileCreator extends PackageFileCreator {
         }
         return true;
     }
-
-
 }

@@ -19,39 +19,46 @@ package org.edgegallery.developer.service.application.impl;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.spencerwi.either.Either;
 import java.io.File;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import javax.ws.rs.core.Response;
+import java.util.UUID;
 import org.apache.commons.lang3.StringUtils;
 import org.edgegallery.developer.common.ResponseConsts;
 import org.edgegallery.developer.config.security.AccessUserUtil;
+import org.edgegallery.developer.domain.model.user.User;
 import org.edgegallery.developer.exception.DataBaseException;
 import org.edgegallery.developer.exception.EntityNotFoundException;
 import org.edgegallery.developer.exception.IllegalRequestException;
 import org.edgegallery.developer.mapper.AtpTestTaskMapper;
+import org.edgegallery.developer.mapper.application.AppConfigurationMapper;
 import org.edgegallery.developer.mapper.application.ApplicationMapper;
+import org.edgegallery.developer.mapper.capability.CapabilityGroupMapper;
+import org.edgegallery.developer.mapper.capability.CapabilityMapper;
 import org.edgegallery.developer.mapper.uploadfile.UploadMapper;
 import org.edgegallery.developer.model.application.Application;
+import org.edgegallery.developer.model.application.EnumApplicationStatus;
+import org.edgegallery.developer.model.application.configuration.AppServiceProduced;
 import org.edgegallery.developer.model.apppackage.AppPackage;
 import org.edgegallery.developer.model.atpTestTask.AtpTest;
+import org.edgegallery.developer.model.capability.Capability;
+import org.edgegallery.developer.model.capability.CapabilityGroup;
 import org.edgegallery.developer.model.restful.SelectMepHostReq;
 import org.edgegallery.developer.model.workspace.PublishAppReqDto;
 import org.edgegallery.developer.model.workspace.UploadedFile;
-import org.edgegallery.developer.response.FormatRespDto;
 import org.edgegallery.developer.service.application.AppOperationService;
 import org.edgegallery.developer.util.AppStoreUtil;
 import org.edgegallery.developer.util.AtpUtil;
-import org.edgegallery.developer.util.BusinessConfigUtil;
-import org.edgegallery.developer.util.InitConfigUtil;
+import org.edgegallery.developer.util.HttpClientUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 @Service("AppOperationService")
 public class AppOperationServiceImpl implements AppOperationService {
@@ -73,9 +80,18 @@ public class AppOperationServiceImpl implements AppOperationService {
     @Autowired
     private UploadMapper uploadMapper;
 
+    @Autowired
+    private AppConfigurationMapper appConfigurationMapper;
+
+    @Autowired
+    private CapabilityGroupMapper capabilityGroupMapper;
+
+    @Autowired
+    private CapabilityMapper capabilityMapper;
+
     @Override
-    public Boolean cleanEnv(String applicationId) {
-        return null;
+    public Boolean cleanEnv(String applicationId, User user) {
+        return true;
     }
 
     @Override
@@ -84,15 +100,15 @@ public class AppOperationServiceImpl implements AppOperationService {
     }
 
     @Override
-    public Boolean createAtpTest(String applicationId, String token) {
+    public Boolean createAtpTest(String applicationId, User user) {
         Application app = applicationMapper.getApplicationById(applicationId);
         checkParamNull(app, "application is empty. applicationId: ".concat(applicationId));
 
         AppPackage appPkg = app.getAppPackage();
         checkParamNull(appPkg.getId(), "app package content is empty. applicationId: ".concat(applicationId));
 
-        String filePath = appPkg.getPkgPath();
-        ResponseEntity<String> response = AtpUtil.sendCreatTask2Atp(filePath, token);
+        String filePath = appPkg.queryPkgPath();
+        ResponseEntity<String> response = AtpUtil.sendCreatTask2Atp(filePath, user.getToken());
         JsonObject jsonObject = new JsonParser().parse(response.getBody()).getAsJsonObject();
 
         AtpTest atpTest = new AtpTest();
@@ -101,6 +117,7 @@ public class AppOperationServiceImpl implements AppOperationService {
         atpTest.setStatus(null != jsonObject.get("status") ? jsonObject.get("status").getAsString() : null);
         atpTest.setCreateTime(null != jsonObject.get("createTime") ? jsonObject.get("createTime").getAsString() : null);
         atpTestTaskMapper.createAtpTest(applicationId, atpTest);
+        applicationMapper.updateApplicationStatus(applicationId, EnumApplicationStatus.TESTED.toString());
         LOGGER.info("atp status:{}", atpTest.getStatus());
         return true;
     }
@@ -136,8 +153,22 @@ public class AppOperationServiceImpl implements AppOperationService {
         return atpTest;
     }
 
+    public void sentTerminateRequestToLcm(String basePath, String userId, String accessToken, String appInstanceId,
+        String mepmPackageId, String mecHostIp) {
+        // delete Instance
+        if (StringUtils.isNotEmpty(appInstanceId)) {
+            HttpClientUtil.terminateAppInstance(basePath, appInstanceId, userId, accessToken);
+        }
+        if (StringUtils.isNotEmpty(mepmPackageId)) {
+            // delete hosts
+            HttpClientUtil.deleteHost(basePath, userId, accessToken, mepmPackageId, mecHostIp);
+            // delete package
+            HttpClientUtil.deletePkg(basePath, userId, accessToken, mepmPackageId);
+        }
+    }
+
     @Override
-    public Boolean releaseApp(String applicationId, String token, PublishAppReqDto publishAppDto) {
+    public Boolean releaseApp(String applicationId, User user, PublishAppReqDto publishAppDto) {
         Application app = applicationMapper.getApplicationById(applicationId);
         checkParamNull(app, "application is empty. applicationId: ".concat(applicationId));
         AppPackage appPkg = app.getAppPackage();
@@ -147,14 +178,14 @@ public class AppOperationServiceImpl implements AppOperationService {
         checkAtpTestStatus(app.getAtpTestTaskList());
 
         Map<String, Object> map = new HashMap<>();
-        map.put("file", new FileSystemResource(new File(appPkg.getPkgPath())));
+        map.put("file", new FileSystemResource(new File(appPkg.queryPkgPath())));
         map.put("icon", new FileSystemResource(new File(iconFile.getFilePath())));
         map.put("type", app.getType());
         map.put("shortDesc", app.getDescription());
         map.put("affinity", app.getArchitecture());
         map.put("industry", app.getIndustry());
         map.put("testTaskId", app.getAtpTestTaskList().get(0));
-        ResponseEntity<String> uploadReslut = AppStoreUtil.storeToAppStore(map, token);
+        ResponseEntity<String> uploadReslut = AppStoreUtil.storeToAppStore(map, user);
         checkInnerParamNull(uploadReslut, "upload app to appstore fail!");
 
         LOGGER.info("upload appstore result:{}", uploadReslut);
@@ -166,10 +197,83 @@ public class AppOperationServiceImpl implements AppOperationService {
         checkInnerParamNull(appStorePackageId, "response from upload to appstore does not contain packageId");
 
         ResponseEntity<String> publishRes = AppStoreUtil
-            .publishToAppStore(appStoreAppId.getAsString(), appStorePackageId.getAsString(), token, publishAppDto);
+            .publishToAppStore(appStoreAppId.getAsString(), appStorePackageId.getAsString(), user.getToken(), publishAppDto);
         checkInnerParamNull(publishRes, "publish app to appstore fail!");
-
+        //release service
+        releaseServiceProduced(applicationId, jsonObject);
+        applicationMapper.updateApplicationStatus(applicationId, EnumApplicationStatus.RELEASED.toString());
         return true;
+    }
+
+    private boolean releaseServiceProduced(String applicationId, JsonObject jsonObject) {
+        List<AppServiceProduced> serviceProducedList = appConfigurationMapper.getAllServiceProduced(applicationId);
+        if (CollectionUtils.isEmpty(serviceProducedList)) {
+            LOGGER.warn("This project is not configured with any services and does not need to be published!");
+            return true;
+        }
+        for (AppServiceProduced serviceProduced : serviceProducedList) {
+            Capability capability = new Capability();
+            CapabilityGroup group = capabilityGroupMapper.selectByName(serviceProduced.getOneLevelName());
+            if (group == null) {
+                LOGGER.error("Can not get group {}.", serviceProduced.getOneLevelName());
+                throw new DataBaseException("Can not find selected group", ResponseConsts.RET_QUERY_DATA_FAIL);
+            }
+            fillCapability(serviceProduced, capability, jsonObject, group);
+            saveCapability(capability);
+        }
+        int ret = applicationMapper.updateApplicationStatus(applicationId, EnumApplicationStatus.RELEASED.toString());
+        if (ret < 1) {
+            LOGGER.error("update application {} status RELEASE failed.", applicationId);
+            throw new DataBaseException("update application status failed!", ResponseConsts.RET_UPDATE_DATA_FAIL);
+        }
+        return true;
+    }
+
+    private boolean saveCapability(Capability capability) {
+        List<Capability> findedCapabilities = capabilityMapper
+            .selectByNameOrNameEn(capability.getName(), capability.getNameEn());
+        if (!CollectionUtils.isEmpty(findedCapabilities)) {
+            LOGGER.error("The capability name {} has exist.", capability.getName());
+            throw new DataBaseException("The capability is exist", ResponseConsts.RET_QUERY_DATA_FAIL);
+        }
+        int res = capabilityMapper.insert(capability);
+        if (res < 1) {
+            LOGGER.error("store db to tbl_capability fail!");
+            throw new DataBaseException("save capability db fail!", ResponseConsts.RET_CERATE_DATA_FAIL);
+        }
+        return true;
+    }
+
+    private void fillCapability(AppServiceProduced serviceProduced, Capability capability, JsonObject obj,
+        CapabilityGroup group) {
+        capability.setId(UUID.randomUUID().toString());
+        capability.setGroupId(group.getId());
+        capability.setName(serviceProduced.getTwoLevelName());
+        capability.setNameEn(serviceProduced.getTwoLevelName());
+        capability.setVersion(serviceProduced.getVersion());
+        capability.setDescription(serviceProduced.getDescription());
+        capability.setDescriptionEn(serviceProduced.getDescription());
+        JsonElement provider = obj.get("provider");
+        if (provider != null) {
+            capability.setProvider(provider.getAsString());
+        } else {
+            capability.setProvider("");
+        }
+        capability.setProvider("");
+        capability.setApiFileId(serviceProduced.getApiFileId());
+        capability.setGuideFileId(serviceProduced.getGuideFileId());
+        capability.setGuideFileIdEn(serviceProduced.getGuideFileId());
+        capability.setUploadTime(new Date().getTime());
+        capability.setPort(serviceProduced.getInternalPort());
+        capability.setHost(serviceProduced.getServiceName());
+        capability.setProtocol(serviceProduced.getProtocol());
+        capability.setAppId(obj.get("appId").getAsString());
+        capability.setPackageId(obj.get("packageId").getAsString());
+        capability.setUserId(AccessUserUtil.getUserId());
+        capability.setSelectCount(0);
+        capability.setIconFileId(serviceProduced.getIconFileId());
+        capability.setAuthor(serviceProduced.getAuthor());
+        capability.setExperienceUrl(serviceProduced.getExperienceUrl());
     }
 
     private void checkAtpTestStatus(List<AtpTest> atpTests) {

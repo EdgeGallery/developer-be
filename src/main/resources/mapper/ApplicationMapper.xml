@@ -66,6 +66,15 @@
     id = #{applicationId}
   </update>
 
+  <update id="updateApplicationStatus" >
+    UPDATE
+    tbl_application
+    SET
+    status = #{status}
+    WHERE
+    id = #{applicationId}
+  </update>
+
   <delete id="deleteApplication" parameterType="String">
     DELETE FROM tbl_application WHERE id = #{id};
   </delete>

@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.UUID;
 import org.edgegallery.developer.common.ResponseConsts;
 import org.edgegallery.developer.config.security.AccessUserUtil;
+import org.edgegallery.developer.domain.model.user.User;
 import org.edgegallery.developer.domain.shared.Page;
 import org.edgegallery.developer.exception.DataBaseException;
 import org.edgegallery.developer.exception.EntityNotFoundException;
@@ -40,6 +41,7 @@ import org.edgegallery.developer.model.restful.ApplicationDetail;
 import org.edgegallery.developer.service.application.AppConfigurationService;
 import org.edgegallery.developer.service.application.ApplicationService;
 import org.edgegallery.developer.service.application.container.ContainerAppHelmChartService;
+import org.edgegallery.developer.service.application.factory.AppOperationServiceFactory;
 import org.edgegallery.developer.service.application.vm.VMAppNetworkService;
 import org.edgegallery.developer.service.application.vm.VMAppVmService;
 import org.edgegallery.developer.service.uploadfile.UploadService;
@@ -71,6 +73,9 @@ public class ApplicationServiceImpl implements ApplicationService {
     @Autowired
     AppConfigurationService appConfigurationService;
 
+    @Autowired
+    private AppOperationServiceFactory appServiceFactory;
+
     @Override
     public Application createApplication(Application application) {
         String applicationId = UUID.randomUUID().toString();
@@ -84,7 +89,7 @@ public class ApplicationServiceImpl implements ApplicationService {
         application.setUserId(AccessUserUtil.getUser().getUserId());
         application.setUserName(AccessUserUtil.getUser().getUserName());
         String iconFileId = application.getIconFileId();
-        application.setStatus(EnumApplicationStatus.ONLINE);
+        application.setStatus(EnumApplicationStatus.CREATED);
         if (iconFileId == null) {
             LOGGER.error("icon file is null");
             throw new FileFoundFailException("icon file is null", ResponseConsts.RET_FILE_NOT_FOUND);
@@ -141,12 +146,15 @@ public class ApplicationServiceImpl implements ApplicationService {
     }
 
     @Override
-    public Boolean deleteApplication(String applicationId) {
+    public Boolean deleteApplication(String applicationId, User user) {
         Application application = applicationMapper.getApplicationById(applicationId);
         if (application == null) {
             LOGGER.error("Can not find application by applicationId:{}.", applicationId);
             throw new EntityNotFoundException("Application does not exist.", ResponseConsts.RET_QUERY_DATA_EMPTY);
         }
+        // clean env
+        appServiceFactory.getAppOperationService(applicationId).cleanEnv(applicationId, user);
+
         // delete the application from db
         int delResult = applicationMapper.deleteApplication(applicationId);
         if (delResult < 1) {
@@ -209,6 +217,16 @@ public class ApplicationServiceImpl implements ApplicationService {
         }
         return true;
 
+    }
+
+    @Override
+    public Boolean updateApplicationStatus(String applicationId, EnumApplicationStatus status) {
+        int res = applicationMapper.updateApplicationStatus(applicationId, status.toString());
+        if (res < 1) {
+            LOGGER.error("update application status by applicationId:{} failed.", applicationId);
+            throw new DataBaseException("update application status failed.", ResponseConsts.RET_DELETE_DATA_FAIL);
+        }
+        return true;
     }
 
 }

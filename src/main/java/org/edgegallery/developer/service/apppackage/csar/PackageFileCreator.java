@@ -28,7 +28,7 @@ import org.edgegallery.developer.util.CompressFileUtils;
 import org.edgegallery.developer.util.CompressFileUtilsJava;
 import org.edgegallery.developer.util.DeveloperFileUtils;
 import org.edgegallery.developer.util.SpringContextUtil;
-import org.edgegallery.developer.util.applicationUtil;
+import org.edgegallery.developer.util.ApplicationUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.google.common.io.Files;
@@ -47,6 +47,7 @@ public class PackageFileCreator {
 
     private static final String TEMPLATE_PATH = "temp";
 
+
     EncryptedService encryptedService = (EncryptedService) SpringContextUtil.getBean(EncryptedService.class);
 
     private Application application;
@@ -54,11 +55,11 @@ public class PackageFileCreator {
     private String packageId;
 
     public String getPackagePath() {
-        return applicationUtil.getPackageBasePath(application.getId(), packageId);
+        return ApplicationUtil.getPackageBasePath(application.getId(), packageId);
     }
 
     public String getApplicationPath() {
-        return applicationUtil.getApplicationBasePath(application.getId());
+        return ApplicationUtil.getApplicationBasePath(application.getId());
     }
 
     public PackageFileCreator(Application application, String packageId) {
@@ -155,7 +156,7 @@ public class PackageFileCreator {
     public String PackageFileCompress() {
         File packageFileDir = new File(getPackagePath());
         if (!packageFileDir.exists() || !packageFileDir.isDirectory()) {
-            LOGGER.error("package file is not exited");
+            LOGGER.error("package file does not exist");
             return null;
         }
         String tempPackagePath = getPackagePath() + TEMPLATE_PATH;
@@ -167,8 +168,11 @@ public class PackageFileCreator {
             CompressFileUtils.fileToZip(appdDir, getAppFileName(""));
             // compress helm chart
             compressDeploymentFile();
-            encryptedService.encryptedFile(tempPackagePath);
-            encryptedService.encryptedCMS(tempPackagePath);
+            boolean encryptedResult = encryptedService.encryptedCMS(tempPackagePath);
+            if (!encryptedResult) {
+                LOGGER.error("sign package failed");
+                return null;
+            }
             // compress package
             CompressFileUtilsJava
                 .compressToCsarAndDeleteSrc(tempPackagePath, getApplicationPath(), packageId);
@@ -177,7 +181,11 @@ public class PackageFileCreator {
             return null;
         }
 
-        return getPackagePath() + ".zip";
+        return packageId + ".csar";
+    }
+
+    public void generateImageDesFile() {
+
     }
 
     public boolean compressDeploymentFile() {
@@ -186,7 +194,7 @@ public class PackageFileCreator {
 
     protected String getAppFileName(String format) {
         return application.getName() + "_" + application.getProvider() + "_" + application.getVersion()
-            + "_" + application.getArchitecture() + "_" + application.getAppClass().toString().toLowerCase() + format;
+            + "_" + application.getArchitecture() + "_" + format;
     }
 
 
@@ -209,7 +217,7 @@ public class PackageFileCreator {
      * @param file    file.
      * @param content content.
      */
-    private void writeFile(File file, String content) {
+    public void writeFile(File file, String content) {
         try (Writer fw = new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8);
             BufferedWriter bw = new BufferedWriter(fw)) {
             bw.write(content);
@@ -217,5 +225,6 @@ public class PackageFileCreator {
             LOGGER.error("write data into SwImageDesc.json failed, {}", e.getMessage());
         }
     }
+
 
 }

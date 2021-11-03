@@ -15,9 +15,13 @@
 package org.edgegallery.developer.service.apppackage.converter;
 
 import java.lang.reflect.Field;
+import java.util.Collection;
 import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Set;
+import org.edgegallery.developer.model.apppackage.appd.InputParam;
 import org.edgegallery.developer.model.apppackage.appd.VNFNodeProperty;
+import org.edgegallery.developer.model.apppackage.appd.appconfiguration.ConfigurationProperty;
 import org.edgegallery.developer.model.apppackage.appd.policies.AntiAffinityRule;
 import org.edgegallery.developer.model.apppackage.appd.vdu.VDUCapability;
 import org.edgegallery.developer.model.apppackage.appd.vdu.VDUProperty;
@@ -25,6 +29,7 @@ import org.edgegallery.developer.model.apppackage.appd.vducp.VDUCPProperty;
 import org.edgegallery.developer.model.apppackage.appd.vducp.VirtualBindingRequire;
 import org.edgegallery.developer.model.apppackage.appd.vducp.VirtualLinkRequire;
 import org.edgegallery.developer.model.apppackage.appd.vl.VLProperty;
+import org.yaml.snakeyaml.TypeDescription;
 import org.yaml.snakeyaml.introspector.BeanAccess;
 import org.yaml.snakeyaml.introspector.Property;
 import org.yaml.snakeyaml.introspector.PropertyUtils;
@@ -63,11 +68,22 @@ public class CustomRepresenter extends Representer {
         this.addClassTag(VirtualLinkRequire.class, Tag.MAP);
         this.addClassTag(VLProperty.class, Tag.MAP);
         this.addClassTag(AntiAffinityRule.class, Tag.MAP);
+        this.addClassTag(ConfigurationProperty.class, Tag.MAP);
+
+        //change defaultValue as default field in tosca yaml.
+        TypeDescription typeDescription = new TypeDescription(InputParam.class);
+        typeDescription.substituteProperty("default", InputParam.class, "getDefaultValue", "setDefaultValue");
+        typeDescription.setExcludes("defaultValue");
+        this.addTypeDescription(typeDescription);
     }
 
     protected NodeTuple representJavaBeanProperty(Object javaBean, Property property, Object propertyValue,
         Tag customTag) {
         if (null == propertyValue) {
+            return null;
+        } else if ((propertyValue instanceof Collection) && ((Collection<?>) propertyValue).isEmpty()) {
+            return null;
+        } else if ((propertyValue instanceof Map) && ((Map<?, ?>) propertyValue).isEmpty()) {
             return null;
         } else {
             return super.representJavaBeanProperty(javaBean, property, propertyValue, customTag);

@@ -60,7 +60,7 @@ public class VMImage {
     @Length(max = 128)
     private String downLoadUrl;
 
-    private String imageSize;
+    private Long imageSize;
 
     private EnumVmImageStatus status;
 

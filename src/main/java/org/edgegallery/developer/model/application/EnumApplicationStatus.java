@@ -15,11 +15,9 @@
 package org.edgegallery.developer.model.application;
 
 public enum EnumApplicationStatus {
-    ONLINE("Online"),
-    DEPLOYING("Deploying"),
+    CREATED("Created"),
+    CONFIGURED("Configured"),
     DEPLOYED("Deployed"),
-    DEPLOY_FAILED("DeployFailed"),
-    TESTING("Testing"),
     TESTED("Tested"),
     RELEASED("Released");
 

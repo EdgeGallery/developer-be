@@ -50,9 +50,9 @@ public class AccessTokenFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
-            throws ServletException, IOException {
+        throws ServletException, IOException {
         if (request.getRequestURI() == null || !(request.getRequestURI().equals("/health") || request.getRequestURI()
-                .equals("/webssh"))) {
+            .equals("/webssh"))) {
             String accessTokenStr = request.getHeader(Consts.ACCESS_TOKEN_STR);
             if (StringUtils.isEmpty(accessTokenStr)) {
                 LOGGER.error("Access token is empty");
@@ -80,7 +80,7 @@ public class AccessTokenFilter extends OncePerRequestFilter {
             String userIdFromToken = additionalInfoMap.get("userId").toString();
             String userNameFromToken = additionalInfoMap.get("userName").toString();
             String userAuthFromToken = additionalInfoMap.get("authorities").toString();
-            AccessUserUtil.setUser(userIdFromToken, userNameFromToken, userAuthFromToken);
+            AccessUserUtil.setUser(userIdFromToken, userNameFromToken, userAuthFromToken, accessTokenStr);
             String userIdFromRequest = request.getParameter("userId");
             if (!StringUtils.isEmpty(userIdFromRequest) && !userIdFromRequest.equals(userIdFromToken)) {
                 LOGGER.error("Illegal userId");
@@ -103,6 +103,11 @@ public class AccessTokenFilter extends OncePerRequestFilter {
             }
             SecurityContextHolder.getContext().setAuthentication(auth);
         }
-        filterChain.doFilter(request, response);
+
+        try {
+            filterChain.doFilter(request, response);
+        } finally {
+            AccessUserUtil.unload();
+        }
     }
 }

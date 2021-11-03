@@ -519,10 +519,10 @@ public final class HttpClientUtil {
     /**
      * deleteVmImage.
      */
-    public static boolean deleteVmImage(String protocol, String ip, int port, String userId, String appInstanceId,
+    public static boolean deleteVmImage(String basePath, String userId, String appInstanceId,
         String imageId, String token) {
 
-        String url = getUrlPrefix(protocol, ip, port) + Consts.APP_LCM_GET_IMAGE_DELETE_URL
+        String url = basePath + Consts.APP_LCM_GET_IMAGE_DELETE_URL
             .replaceAll("appInstanceId", appInstanceId).replaceAll("tenantId", userId).replaceAll("imageId", imageId);
         LOGGER.info("url is {}", url);
         HttpHeaders headers = new HttpHeaders();

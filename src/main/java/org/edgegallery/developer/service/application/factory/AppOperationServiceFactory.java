@@ -23,6 +23,7 @@ import org.edgegallery.developer.service.application.impl.container.ContainerApp
 import org.edgegallery.developer.service.application.impl.vm.VMAppOperationServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 @Service("AppOperationServiceFactory")
 public class AppOperationServiceFactory {
 
@@ -35,16 +36,17 @@ public class AppOperationServiceFactory {
     @Autowired
     private ContainerAppOperationServiceImpl containerAppOperationService;
 
-    public AppOperationService getAppOperationService(String applicationId){
+    public AppOperationService getAppOperationService(String applicationId) {
         Application app = appMapper.getApplicationById(applicationId);
         return getAppOperationService(app.getAppClass());
     }
 
-    public AppOperationService getAppOperationService(EnumAppClass appClass){
-        if(EnumAppClass.CONTAINER.equals(appClass)){
+    private AppOperationService getAppOperationService(EnumAppClass appClass) {
+        if (EnumAppClass.CONTAINER.equals(appClass)) {
             return containerAppOperationService;
-        }else{
+        } else if (EnumAppClass.VM.equals(appClass)) {
             return VmAppOperationService;
         }
+        return null;
     }
 }

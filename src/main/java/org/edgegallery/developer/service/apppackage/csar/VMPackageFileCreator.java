@@ -15,21 +15,30 @@
 package org.edgegallery.developer.service.apppackage.csar;
 
 import java.io.File;
-import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import org.edgegallery.developer.model.application.vm.VMApplication;
+import org.edgegallery.developer.model.application.vm.VirtualMachine;
 import org.edgegallery.developer.model.apppackage.appd.AppDefinition;
+import org.edgegallery.developer.model.deployyaml.ImageDesc;
+import org.edgegallery.developer.model.resource.vm.VMImage;
 import org.edgegallery.developer.service.apppackage.converter.AppDefinitionConverter;
-import org.edgegallery.developer.util.BusinessConfigUtil;
-import org.edgegallery.developer.util.InitConfigUtil;
-import org.edgegallery.developer.util.applicationUtil;
+import org.edgegallery.developer.service.recource.vm.VMImageService;
+import org.edgegallery.developer.util.SpringContextUtil;
+import org.springframework.util.CollectionUtils;
+import com.google.gson.Gson;
 
 public class VMPackageFileCreator extends PackageFileCreator {
+
+    private VMImageService vmImageService = (VMImageService) SpringContextUtil.getBean(VMImageService.class);
 
     private VMApplication application;
 
     private String packageId;
 
     private static final String APPD_BASE_PATH = "/APPD/Definition/";
+
+    private static final String APPD_IMAGE_DES_PATH = "/Image/SwImageDesc.json";
 
     private static final String APPD_FILE_TYPE = ".yaml";
 
@@ -46,8 +55,7 @@ public class VMPackageFileCreator extends PackageFileCreator {
 
     public String generateAppPackageFile() {
         String packagePath = getPackagePath();
-        boolean res = copyPackageTemplateFile();
-        if (!res) {
+        if (!copyPackageTemplateFile()) {
             LOGGER.error("copy package template file fail, package dir:{}", packagePath);
             return null;
         }
@@ -71,10 +79,41 @@ public class VMPackageFileCreator extends PackageFileCreator {
         return converter.saveAppdYaml(appdFilePath, appDefinition);
     }
 
-    private File generateImageDesFile() {
+    public void generateImageDesFile() {
+        List<ImageDesc> imageDescs = new ArrayList<>();
+        for (VirtualMachine vm : application.getVmList()) {
+            int imageId = vm.getImageId();
+            boolean res = findImageDesByImageId(imageDescs, String.valueOf(imageId));
+            if (!res) {
+                continue;
+            }
+            VMImage vmImage = vmImageService.getVmImageById(imageId);
+            ImageDesc imageDesc = new ImageDesc(vmImage);
+            if (application.getArchitecture().equals("X86")) {
+                imageDesc.setArchitecture("x86_64");
+            } else if (application.getArchitecture().equals("ARM64")) {
+                imageDesc.setArchitecture("aarch64");
+            } else {
+                imageDesc.setArchitecture("aarch32");
+            }
+            imageDescs.add(imageDesc);
+        }
+        // write data into imageJson file
+        Gson gson = new Gson();
+        File imageJson = new File(getPackagePath() + APPD_IMAGE_DES_PATH);
+        writeFile(imageJson, gson.toJson(imageDescs));
+    }
 
-        return new File(getPackagePath());
-
+    private boolean findImageDesByImageId(List<ImageDesc> imageDescs, String imageId) {
+        if(CollectionUtils.isEmpty(imageDescs)) {
+            return true;
+        }
+        for(ImageDesc imageDesc:imageDescs) {
+            if (imageDesc.getId().equals(imageId)) {
+                return false;
+            }
+        }
+        return true;
     }
 
 }

@@ -25,6 +25,8 @@ import javax.validation.constraints.Pattern;
 
 import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.edgegallery.developer.common.Consts;
+import org.edgegallery.developer.config.security.AccessUserUtil;
+import org.edgegallery.developer.domain.model.user.User;
 import org.edgegallery.developer.domain.shared.Page;
 import org.edgegallery.developer.model.workspace.ApplicationProject;
 import org.edgegallery.developer.model.workspace.OpenMepCapability;
@@ -333,10 +335,10 @@ public class ProjectController {
         @Pattern(regexp = REGEX_UUID, message = "userId must be in UUID format")
         @ApiParam(value = "userId", required = true) @RequestParam("userId") String userId,
         @ApiParam(value = "userName", required = true) @RequestParam(value = "userName", required = true)
-            String userName, HttpServletRequest request,
+            String userName,
         @ApiParam(value = "PublishAppDto", required = true) @RequestBody PublishAppReqDto publishAppDto) {
-        String token = request.getHeader(Consts.ACCESS_TOKEN_STR);
-        Either<FormatRespDto, Boolean> either = projectService.uploadToAppStore(userId, projectId, userName, token, publishAppDto);
+        User user = AccessUserUtil.getUser();
+        Either<FormatRespDto, Boolean> either = projectService.uploadToAppStore(projectId, user, publishAppDto);
         return ResponseDataUtil.buildResponse(either);
     }
 

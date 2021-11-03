@@ -574,13 +574,13 @@
   insert into tbl_capability(id, name, name_en, version, description, description_en, provider,group_id, api_file_id, guide_file_id, guide_file_id_en, upload_time,host, port, protocol, user_id, select_count, icon_file_id)values('92abcaf8-e891-45f5-878a-b969bb31347a','超分辨率(TFL)','Super Resolution(TFL)','v1.0','基于Tensorflow Lite的超分辨率','Super resolution based on tensorflow Lite','Huawei','ab88bc3a-e1c0-4d0d-a4e5-242902f39b12','d25966ba-5c2c-4a5f-b1fb-98c5a0d13bb6','3b563e43-d2c5-4d62-bd46-9754c1edb579','3b563e43-d2c5-4d62-bd46-9754c1edb579',1631689098055,'tensorflowlite-be-service',33333,'http','admin',0,'6c5e9142-0a05-4ab6-929c-967010315121')ON CONFLICT(id) do nothing;
 
    INSERT INTO tbl_network (id, app_id, description, name) VALUES
-  ('Network_N6', 'init-application', 'N6 network, when end-side devices access edge applications, they need to access through this network', 'mec_network_n6')
+  ('Network_N6', 'init-application', 'N6 network, when end-side devices access edge applications, they need to access through this network', 'MEC_APP_N6')
   ON CONFLICT(id) do nothing;
   INSERT INTO tbl_network (id, app_id, description, name)
-  VALUES ('Network_MEP', 'init-application', 'The network with the edge computing platform, when the application has service dependency or needs to publish the service, the network is needed', 'mec_network_mep')
+  VALUES ('Network_MEP', 'init-application', 'The network with the edge computing platform, when the application has service dependency or needs to publish the service, the network is needed', 'MEC_APP_Private')
   ON CONFLICT(id) do nothing;
   INSERT INTO tbl_network (id, app_id, description, name) VALUES
-  ('Network_Internet', 'init-application', 'Internet Network', 'mec_network_internet')
+  ('Network_Internet', 'init-application', 'Internet Network', 'MEC_APP_Public')
   ON CONFLICT(id) do nothing;
 
   INSERT INTO tbl_vm_flavor (id, name, description, architecture, cpu, memory, system_disk_size, data_disk_size, gpu_extra_info, other_extra_info) VALUES

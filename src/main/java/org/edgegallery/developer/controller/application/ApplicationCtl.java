@@ -25,6 +25,8 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
+import org.edgegallery.developer.config.security.AccessUserUtil;
+import org.edgegallery.developer.domain.model.user.User;
 import org.edgegallery.developer.domain.shared.Page;
 import org.edgegallery.developer.model.application.Application;
 import org.edgegallery.developer.model.restful.ApplicationDetail;
@@ -48,6 +50,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 @Api(tags = "application")
 @Validated
 public class ApplicationCtl {
+
     private static final String REGEX_UUID = "[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}";
 
     @Autowired
@@ -136,7 +139,8 @@ public class ApplicationCtl {
     public ResponseEntity<Boolean> deleteApplication(
         @Pattern(regexp = REGEX_UUID, message = "applicationId must be in UUID format")
         @ApiParam(value = "applicationId", required = true) @PathVariable("applicationId") String applicationId) {
-        Boolean result = applicationService.deleteApplication(applicationId);
+        User user = AccessUserUtil.getUser();
+        Boolean result = applicationService.deleteApplication(applicationId, user);
         return ResponseEntity.ok(result);
     }
 
