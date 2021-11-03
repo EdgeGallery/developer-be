@@ -28,6 +28,8 @@ public interface UploadService {
 
     UploadedFile uploadFile(String userId, String fileType, MultipartFile uploadFile);
 
+    boolean deleteFile(String fileId);
+
     byte[] downloadSampleCode(List<String> apiFileIds);
 
     AppPkgStructure getSampleCodeStru(List<String> apiFileIds);
