@@ -57,7 +57,7 @@ public class ContainerImageCtl {
         @ApiResponse(code = 200, message = "OK", response = ResponseEntity.class),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
-    @RequestMapping(value = "/{imageId}/upload", method = RequestMethod.POST)
+    @RequestMapping(value = "/{imageId}/action/upload", method = RequestMethod.POST)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity uploadContainerImage(HttpServletRequest request, Chunk chunk,
         @ApiParam(value = "imageId", required = true) @PathVariable("imageId") String imageId) {
@@ -72,7 +72,7 @@ public class ContainerImageCtl {
         @ApiResponse(code = 200, message = "OK", response = ResponseEntity.class),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
-    @RequestMapping(value = "/{imageId}/merge", method = RequestMethod.GET)
+    @RequestMapping(value = "/{imageId}/action/merge", method = RequestMethod.GET)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity mergeContainerImage(@RequestParam(value = "fileName", required = false) String fileName,
         @RequestParam(value = "guid", required = false) String guid,
@@ -142,7 +142,7 @@ public class ContainerImageCtl {
     @ApiResponses(value = {
         @ApiResponse(code = 200, message = "OK", response = File.class)
     })
-    @RequestMapping(value = "/{imageId}/download", method = RequestMethod.GET)
+    @RequestMapping(value = "/{imageId}/action/download", method = RequestMethod.GET)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<InputStreamResource> downloadSystemImage(
         @ApiParam(value = "imageId", required = true) @PathVariable("imageId") String imageId) {
@@ -156,7 +156,7 @@ public class ContainerImageCtl {
     @ApiResponses(value = {
         @ApiResponse(code = 200, message = "OK", response = ResponseEntity.class)
     })
-    @RequestMapping(value = "/{imageId}/upload", method = RequestMethod.DELETE)
+    @RequestMapping(value = "/{imageId}/action/upload", method = RequestMethod.DELETE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity cancelUploadHarborImage(
         @ApiParam(value = "imageId", required = true) @PathVariable("imageId") String imageId) {
@@ -170,7 +170,7 @@ public class ContainerImageCtl {
     @ApiResponses(value = {
         @ApiResponse(code = 200, message = "OK", response = ResponseEntity.class)
     })
-    @RequestMapping(value = "/synchronize", method = RequestMethod.GET)
+    @RequestMapping(value = "/action/synchronize", method = RequestMethod.GET)
     @PreAuthorize("hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity synchronizeHarborImage() {
         return containerImageService.synchronizeHarborImage();
