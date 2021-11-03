@@ -161,13 +161,12 @@ public class UploadServiceImpl implements UploadService {
     public boolean deleteFile(String fileId) {
         if (StringUtils.isEmpty(fileId)) {
             LOGGER.error("fileId is empty!");
-            throw new IllegalRequestException("", ResponseConsts.RET_REQUEST_PARAM_EMPTY);
+            throw new IllegalRequestException("fileId does not exist.", ResponseConsts.RET_REQUEST_PARAM_EMPTY);
         }
         UploadedFile uploadedFile = uploadedFileMapper.getFileById(fileId);
         if (uploadedFile == null) {
             LOGGER.error("the queried Object(UploadedFile) is null!");
-            throw new EntityNotFoundException("the queried Object(UploadedFile) is null!",
-                ResponseConsts.RET_QUERY_DATA_EMPTY);
+            return true;
         }
         String filePath = uploadedFile.getFilePath();
         File file = new File(InitConfigUtil.getWorkSpaceBaseDir() + filePath);
