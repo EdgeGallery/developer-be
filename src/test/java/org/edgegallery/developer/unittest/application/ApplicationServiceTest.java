@@ -256,7 +256,7 @@ public class ApplicationServiceTest {
         vmApplication.setNetworkList(networkList);
         //vm app set VirtualMachine list
         VirtualMachine vm = new VirtualMachine();
-       // id, app_id, name, flavor_id, image_id, user_data, status, area_zone, flavor_extra_specs
+        // id, app_id, name, flavor_id, image_id, user_data, status, area_zone, flavor_extra_specs
         List<VirtualMachine> vmList = new ArrayList<>();
         vm.setId("068fa7b9-e1bd-4eee-a7e8-2532889910a2");
         vm.setName("test-vm");

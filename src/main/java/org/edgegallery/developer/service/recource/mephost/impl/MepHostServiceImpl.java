@@ -39,6 +39,7 @@ import org.edgegallery.developer.model.resource.mephost.EnumVimType;
 import org.edgegallery.developer.model.resource.mephost.MepHost;
 import org.edgegallery.developer.model.resource.mephost.MepHostLog;
 import org.edgegallery.developer.model.workspace.UploadedFile;
+import org.edgegallery.developer.service.ReverseProxyService;
 import org.edgegallery.developer.service.recource.mephost.MepHostService;
 import org.edgegallery.developer.service.uploadfile.impl.UploadServiceImpl;
 import org.edgegallery.developer.util.AesUtil;
@@ -69,6 +70,9 @@ public class MepHostServiceImpl implements MepHostService {
 
     @Autowired
     private UploadServiceImpl uploadService;
+
+    @Autowired
+    private ReverseProxyService reverseProxyService;
 
     @Value("${client.client-id:}")
     private String clientId;
@@ -113,6 +117,7 @@ public class MepHostServiceImpl implements MepHostService {
         int ret = mepHostMapper.createHost(host);
         if (ret > 0) {
             LOGGER.info("Crete host {} success ", host.getId());
+            reverseProxyService.addReverseProxy(host.getId(), Consts.DEFAULT_OPENSTACK_VNC_PORT);
             return true;
         }
         LOGGER.error("Create host failed!");
@@ -127,6 +132,7 @@ public class MepHostServiceImpl implements MepHostService {
     @Transactional
     @Override
     public boolean deleteHost(String hostId) {
+        reverseProxyService.deleteReverseProxy(hostId);
         int res = mepHostMapper.deleteHost(hostId);
         if (res < 1) {
             LOGGER.error("Delete host {} failed", hostId);
