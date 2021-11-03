@@ -21,7 +21,7 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.edgegallery.developer.response.ErrorRespDto;
-import org.edgegallery.developer.service.recource.vm.UserDateService;
+import org.edgegallery.developer.service.recource.vm.UserDataService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -32,19 +32,19 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
-@RestSchema(schemaId = "userdate")
-@RequestMapping("/mec/developer/v2/user-date")
-@Api(tags = "userdate")
+@RestSchema(schemaId = "userdata")
+@RequestMapping("/mec/developer/v2/user-data")
+@Api(tags = "userdata")
 public class UserDateCtl {
 
     @Autowired
-    UserDateService userDateService;
+    UserDataService userDataService;
     /**
-     * get a user-date by os type.
+     * get a user-data by os type.
      *
      * @return
      */
-    @ApiOperation(value = "get a user-date by os type", response = String.class)
+    @ApiOperation(value = "get a user-data by os type", response = String.class)
     @ApiResponses(value = {
         @ApiResponse(code = 200, message = "OK", response = String.class),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
@@ -52,9 +52,9 @@ public class UserDateCtl {
     @RequestMapping(value = "", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
-    public ResponseEntity<String> getUserDate(
+    public ResponseEntity<String> getUserdata(
         @ApiParam(value = "osType", required = true) @RequestParam("osType") String osType)  {
-        return ResponseEntity.ok(userDateService.getUserDate(osType));
+        return ResponseEntity.ok(userDataService.getUserData(osType));
     }
 
 }

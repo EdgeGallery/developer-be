@@ -67,7 +67,7 @@ public class TopologyTemplate {
     @Valid
     @NotNull
     @JsonProperty(value = "node_templates")
-    private LinkedHashMap<String, NodeTemplate> nodeTemplates;
+    private LinkedHashMap<String, NodeTemplate> node_templates;
 
     @Valid
     private LinkedHashMap<String, PlacementGroup> groups;
@@ -103,10 +103,10 @@ public class TopologyTemplate {
         NodeTemplate vnfNode = new NodeTemplate();
         vnfNode.setType(NodeTypeConstant.NODE_TYPE_VNF);
         vnfNode.setProperties(new VNFNodeProperty());
-        if (null == this.nodeTemplates) {
-            this.nodeTemplates = new LinkedHashMap<String, NodeTemplate>();
+        if (null == this.node_templates) {
+            this.node_templates = new LinkedHashMap<String, NodeTemplate>();
         }
-        this.nodeTemplates.put(AppdConstants.VNF_NODE_NAME, vnfNode);
+        this.node_templates.put(AppdConstants.VNF_NODE_NAME, vnfNode);
     }
 
     public void updateNodeTemplates(VMApplication application, Map<String, Flavor> id2FlavorMap,
@@ -124,7 +124,7 @@ public class TopologyTemplate {
         }
         PlacementGroup group = new PlacementGroup();
         List<String> members = new ArrayList<>();
-        for (Map.Entry<String, NodeTemplate> entry : nodeTemplates.entrySet()) {
+        for (Map.Entry<String, NodeTemplate> entry : node_templates.entrySet()) {
             if (entry.getValue().getType().equals(NodeTypeConstant.NODE_TYPE_VDU)) {
                 members.add(entry.getKey());
             }
@@ -146,7 +146,7 @@ public class TopologyTemplate {
     }
 
     private TopologyTemplate updateVnfNode(VMApplication application) {
-        NodeTemplate vnfNode = this.nodeTemplates.get(AppdConstants.VNF_NODE_NAME);
+        NodeTemplate vnfNode = this.node_templates.get(AppdConstants.VNF_NODE_NAME);
         VNFNodeProperty vnfNodeProperty = (VNFNodeProperty) vnfNode.getProperties();
         vnfNodeProperty.setVnfd_id(application.getName());
         vnfNodeProperty.setProvider(application.getProvider());
@@ -156,8 +156,8 @@ public class TopologyTemplate {
     }
 
     private void updateVLs(List<Network> networkLst) {
-        if (null == this.nodeTemplates) {
-            this.nodeTemplates = new LinkedHashMap<String, NodeTemplate>();
+        if (null == this.node_templates) {
+            this.node_templates = new LinkedHashMap<String, NodeTemplate>();
         }
         for (int i = 0; i < networkLst.size(); i++) {
             //generate inputs for network;
@@ -189,14 +189,14 @@ public class TopologyTemplate {
             vlProfile.setProviderSegmentationNameAsInput(networkVlanIdInputName);
             property.setVl_profile(vlProfile);
             vlNode.setProperties(property);
-            this.nodeTemplates.put(networkName, vlNode);
+            this.node_templates.put(networkName, vlNode);
         }
     }
 
     private void updateVMs(List<Network> networkLst, List<VirtualMachine> vmLst, Map<String, Flavor> id2FlavorMap,
         Map<Integer, VMImage> id2ImageMap) {
-        if (null == this.nodeTemplates) {
-            this.nodeTemplates = new LinkedHashMap<String, NodeTemplate>();
+        if (null == this.node_templates) {
+            this.node_templates = new LinkedHashMap<String, NodeTemplate>();
         }
         for (int i = 0; i < vmLst.size(); i++) {
             VirtualMachine vm = vmLst.get(i);
@@ -233,7 +233,7 @@ public class TopologyTemplate {
             }
 
             vduNode.setProperties(property);
-            this.nodeTemplates.put(vduName, vduNode);
+            this.node_templates.put(vduName, vduNode);
             updateVMPorts(vduName, vm.getPortList(), networkLst);
         }
     }
@@ -355,7 +355,7 @@ public class TopologyTemplate {
             requirements.add(vlRequire);
             cpNode.setRequirements(requirements);
             String cpNodeName = vduName + "_CP" + i;
-            this.nodeTemplates.put(cpNodeName, cpNode);
+            this.node_templates.put(cpNodeName, cpNode);
         }
     }
 
@@ -409,6 +409,6 @@ public class TopologyTemplate {
         property.setAppTrafficRule(appConfiguration.getTrafficRuleList());
         property.setAppDNSRule(appConfiguration.getDnsRuleList());
         appConfigurationNode.setProperties(property);
-        this.nodeTemplates.put(AppdConstants.APP_CONFIGURATION_NODE_NAME, appConfigurationNode);
+        this.node_templates.put(AppdConstants.APP_CONFIGURATION_NODE_NAME, appConfigurationNode);
     }
 }

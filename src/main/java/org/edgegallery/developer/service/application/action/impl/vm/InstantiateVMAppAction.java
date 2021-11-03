@@ -61,20 +61,20 @@ public class InstantiateVMAppAction extends InstantiateAppAction {
         String parameter = mepHost.getNetworkParameter();
         int count = operationStatusMapper.getOperationCountByObjectType(EnumOperationObjectType.APPLICATION_INSTANCE.toString());
         Map<String, String> vmInputParams = InputParameterUtil.getParams(parameter);
-        String n6Range = vmInputParams.get("app_n6_ip");
-        String mepRange = vmInputParams.get("app_mp1_ip");
-        String internetRange = vmInputParams.get("app_internet_ip");
-        vmInputParams.put("app_n6_ip", IpCalculateUtil.getStartIp(n6Range, count));
-        vmInputParams.put("app_mp1_ip", IpCalculateUtil.getStartIp(mepRange, count));
-        vmInputParams.put("app_internet_ip", IpCalculateUtil.getStartIp(internetRange, count));
-        if (vmInputParams.getOrDefault("app_n6_gw", null) == null) {
-            vmInputParams.put("app_n6_gw", IpCalculateUtil.getStartIp(n6Range, 0));
+        String n6Range = vmInputParams.get("VDU1_APP_Plane03_IP");
+        String mepRange = vmInputParams.get("VDU1_APP_Plane01_IP");
+        String internetRange = vmInputParams.get("VDU1_APP_Plane02_IP");
+        vmInputParams.put("VDU1_APP_Plane03_IP", IpCalculateUtil.getStartIp(n6Range, count));
+        vmInputParams.put("VDU1_APP_Plane01_IP", IpCalculateUtil.getStartIp(mepRange, count));
+        vmInputParams.put("VDU1_APP_Plane02_IP", IpCalculateUtil.getStartIp(internetRange, count));
+        if (vmInputParams.getOrDefault("VDU1_APP_Plane03_GW", null) == null) {
+            vmInputParams.put("VDU1_APP_Plane03_GW", IpCalculateUtil.getStartIp(n6Range, 0));
         }
-        if (vmInputParams.getOrDefault("app_mp1_gw", null) == null) {
-            vmInputParams.put("app_mp1_gw", IpCalculateUtil.getStartIp(mepRange, 0));
+        if (vmInputParams.getOrDefault("VDU1_APP_Plane01_GW", null) == null) {
+            vmInputParams.put("VDU1_APP_Plane01_GW", IpCalculateUtil.getStartIp(mepRange, 0));
         }
-        if (vmInputParams.getOrDefault("app_internet_gw", null) == null) {
-            vmInputParams.put("app_internet_gw", IpCalculateUtil.getStartIp(internetRange, 0));
+        if (vmInputParams.getOrDefault("VDU1_APP_Plane02_GW", null) == null) {
+            vmInputParams.put("VDU1_APP_Plane02_GW", IpCalculateUtil.getStartIp(internetRange, 0));
         }
         return vmInputParams;
     }

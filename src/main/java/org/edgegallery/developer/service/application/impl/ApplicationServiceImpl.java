@@ -155,6 +155,11 @@ public class ApplicationServiceImpl implements ApplicationService {
         // clean env
         appServiceFactory.getAppOperationService(applicationId).cleanEnv(applicationId, user);
 
+        if(application.getAppClass().equals(EnumAppClass.VM)){
+            // init VM application default networks
+            networkService.deleteNetworkByAppId(applicationId);
+        }
+
         // delete the application from db
         int delResult = applicationMapper.deleteApplication(applicationId);
         if (delResult < 1) {
