@@ -234,8 +234,8 @@ public class AppConfigurationServiceImpl implements AppConfigurationService {
         AppServiceRequired appServiceRequired = appConfigurationMapper
             .getServiceRequired(applicationId, serviceRequired.getSerName());
         if (appServiceRequired != null) {
-            LOGGER.error("create serviceRequired failed: serName have exit");
-            throw new EntityNotFoundException("create serviceRequired failed: serName have exit",
+            LOGGER.error("create serviceRequired failed: serName does exit");
+            throw new EntityNotFoundException("create serviceRequired failed: serName does exit",
                 ResponseConsts.RET_QUERY_DATA_FAIL);
         }
         int res = appConfigurationMapper.createServiceRequired(applicationId, serviceRequired);
