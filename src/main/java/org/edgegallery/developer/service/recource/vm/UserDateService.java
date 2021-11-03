@@ -12,18 +12,9 @@
  * the License.
  */
 
-package org.edgegallery.developer.model.application;
+package org.edgegallery.developer.service.recource.vm;
 
-public enum EnumApplicationStatus {
-    CREATED("Created"),
-    CONFIGURED("Configured"),
-    DEPLOYED("Deployed"),
-    TESTED("Tested"),
-    RELEASED("Released");
+public interface UserDateService {
 
-    private String name;
-
-    EnumApplicationStatus(String name) {
-        this.name = name;
-    }
+    String getUserDate(String osType);
 }

@@ -69,14 +69,14 @@ public abstract class DistributePackageAction extends AbstractAction {
 
     @Override
     public boolean execute() {
-        //Start action , save action status.
+        // Start action , save action status.
         String packageId = (String) getContext().getParameter(IContextParameter.PARAM_PACKAGE_ID);
         String statusLog = "Start to distribute the app package for package Id：" + packageId;
         LOGGER.info(statusLog);
         ActionStatus actionStatus = initActionStatus(EnumOperationObjectType.APPLICATION_PACKAGE, packageId,
             ACTION_NAME, statusLog);
 
-        //get Sandbox info.
+        // get Sandbox info.
         String applicationId = (String) getContext().getParameter(IContextParameter.PARAM_APPLICATION_ID);
         Application application = applicationService.getApplication(applicationId);
         String mepHostId = application.getMepHostId();
@@ -87,7 +87,7 @@ public abstract class DistributePackageAction extends AbstractAction {
         }
         MepHost mepHost = mepHostService.getHost(mepHostId);
         LOGGER.info("Distribute package destination: {}", mepHost.getMecHostIp());
-        //Upload package file to lcm.
+        // Upload package file to lcm.
         AppPackage appPkg = appPackageService.getAppPackage(packageId);
         String appPkgPath = ApplicationUtil.getApplicationBasePath(appPkg.getAppId()) + appPkg.getPackageFileName();
         String mepmPkgId = uploadPackageToLcm(getContext().getUserId(), appPkgPath, mepHost);

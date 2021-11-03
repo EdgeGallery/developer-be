@@ -75,7 +75,7 @@ public class ContainerPackageFileCreator extends PackageFileCreator {
             String helmChartPath = tempPackagePath + TEMPLATE_PACKAGE_HELM_CHART_PATH + getHelmChartName();
             File chartFileDir = new File(helmChartPath);
             if (!chartFileDir.exists() || !chartFileDir.isDirectory()) {
-                LOGGER.error("helm chart file is not exited, file name is:{}", getHelmChartName());
+                LOGGER.error("helm chart file does not exist, file name is:{}", getHelmChartName());
                 return false;
             }
             File tgz = CompressFileUtils
@@ -91,6 +91,4 @@ public class ContainerPackageFileCreator extends PackageFileCreator {
         }
         return true;
     }
-
-
 }

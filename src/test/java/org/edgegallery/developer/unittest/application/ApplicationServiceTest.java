@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.UUID;
 import org.edgegallery.developer.DeveloperApplicationTests;
 import org.edgegallery.developer.config.security.AccessUserUtil;
+import org.edgegallery.developer.domain.model.user.User;
 import org.edgegallery.developer.domain.shared.Page;
 import org.edgegallery.developer.exception.EntityNotFoundException;
 import org.edgegallery.developer.exception.FileFoundFailException;
@@ -85,7 +86,7 @@ public class ApplicationServiceTest {
         //upload icon
         MultipartFile uploadFile = new MockMultipartFile("test-icon.png", "test-icon.png", null,
             ApplicationServiceTest.class.getClassLoader().getResourceAsStream("testdata/test-icon.png"));
-        UploadedFile result = uploadFileService.uploadFile("icon", uploadFile);
+        UploadedFile result = uploadFileService.uploadFile("b27d72b5-93a6-4db4-8268-7ec502331ade","icon", uploadFile);
         Assert.assertNotNull(result);
         //create application
         AccessUserUtil.setUser("b27d72b5-93a6-4db4-8268-7ec502331ade", "admin");
@@ -110,7 +111,7 @@ public class ApplicationServiceTest {
         //upload icon
         MultipartFile uploadFile = new MockMultipartFile("test-icon.png", "test-icon.png", null,
             ApplicationServiceTest.class.getClassLoader().getResourceAsStream("testdata/test-icon.png"));
-        UploadedFile result = uploadFileService.uploadFile("icon", uploadFile);
+        UploadedFile result = uploadFileService.uploadFile("b27d72b5-93a6-4db4-8268-7ec502331ade","icon", uploadFile);
         Assert.assertNotNull(result);
         //create application
         AccessUserUtil.setUser("b27d72b5-93a6-4db4-8268-7ec502331ade", "admin");
@@ -178,7 +179,8 @@ public class ApplicationServiceTest {
     @Test
     public void testDeleteAppBadWithErrId() {
         try {
-            applicationService.deleteApplication("appId");
+            AccessUserUtil.setUser("b27d72b5-93a6-4db4-8268-7ec502331ade", "admin");
+            applicationService.deleteApplication("appId", AccessUserUtil.getUser());
         } catch (EntityNotFoundException e) {
             Assert.assertEquals("Application does not exist.", e.getMessage());
         }
@@ -186,7 +188,8 @@ public class ApplicationServiceTest {
 
     @Test
     public void testDeleteAppSuccess() {
-        boolean res = applicationService.deleteApplication("4cbbab9d-c48f-4adb-ae82-d1816d8edd7b");
+        AccessUserUtil.setUser("b27d72b5-93a6-4db4-8268-7ec502331ade", "admin");
+        boolean res = applicationService.deleteApplication("4cbbab9d-c48f-4adb-ae82-d1816d8edd7b", AccessUserUtil.getUser());
         Assert.assertEquals(res, true);
     }
 
