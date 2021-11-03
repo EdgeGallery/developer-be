@@ -300,7 +300,7 @@ public class ApplicationConfigServiceTest {
             AppServiceRequired appServiceRequired = createNewAppServiceRequired();
             configurationService.createServiceRequired("6a75a2bd-9811-432f-bbe8-2813aa97d365", appServiceRequired);
         } catch (EntityNotFoundException e) {
-            Assert.assertEquals("create serviceRequired failed: serName does exit", e.getMessage());
+            Assert.assertEquals("create serviceRequired failed: serName does exist", e.getMessage());
         }
     }
 
