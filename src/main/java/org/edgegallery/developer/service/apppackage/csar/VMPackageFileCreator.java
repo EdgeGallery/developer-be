@@ -25,6 +25,7 @@ import org.edgegallery.developer.model.resource.vm.VMImage;
 import org.edgegallery.developer.service.apppackage.converter.AppDefinitionConverter;
 import org.edgegallery.developer.service.recource.vm.VMImageService;
 import org.edgegallery.developer.util.SpringContextUtil;
+import org.springframework.util.CollectionUtils;
 import com.google.gson.Gson;
 
 public class VMPackageFileCreator extends PackageFileCreator {
@@ -54,8 +55,7 @@ public class VMPackageFileCreator extends PackageFileCreator {
 
     public String generateAppPackageFile() {
         String packagePath = getPackagePath();
-        boolean res = copyPackageTemplateFile();
-        if (!res) {
+        if (!copyPackageTemplateFile()) {
             LOGGER.error("copy package template file fail, package dir:{}", packagePath);
             return null;
         }
@@ -83,6 +83,10 @@ public class VMPackageFileCreator extends PackageFileCreator {
         List<ImageDesc> imageDescs = new ArrayList<>();
         for (VirtualMachine vm : application.getVmList()) {
             int imageId = vm.getImageId();
+            boolean res = findImageDesByImageId(imageDescs, String.valueOf(imageId));
+            if (!res) {
+                continue;
+            }
             VMImage vmImage = vmImageService.getVmImageById(imageId);
             ImageDesc imageDesc = new ImageDesc(vmImage);
             if (application.getArchitecture().equals("X86")) {
@@ -98,8 +102,18 @@ public class VMPackageFileCreator extends PackageFileCreator {
         Gson gson = new Gson();
         File imageJson = new File(getPackagePath() + APPD_IMAGE_DES_PATH);
         writeFile(imageJson, gson.toJson(imageDescs));
+    }
 
-
+    private boolean findImageDesByImageId(List<ImageDesc> imageDescs, String imageId) {
+        if(CollectionUtils.isEmpty(imageDescs)) {
+            return true;
+        }
+        for(ImageDesc imageDesc:imageDescs) {
+            if (imageDesc.getId().equals(imageId)) {
+                return false;
+            }
+        }
+        return true;
     }
 
 }

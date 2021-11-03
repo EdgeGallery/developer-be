@@ -17,6 +17,7 @@
 package org.edgegallery.developer.service.application.action.impl.vm;
 
 import java.util.UUID;
+import org.edgegallery.developer.model.application.EnumApplicationStatus;
 import org.edgegallery.developer.model.application.vm.VMApplication;
 import org.edgegallery.developer.model.application.vm.VirtualMachine;
 import org.edgegallery.developer.model.apppackage.AppPackage;
@@ -53,13 +54,13 @@ public class BuildVMPackageAction extends AbstractAction {
     public boolean execute() {
         //Start action , save action status.
         String vmId = (String) getContext().getParameter(IContextParameter.PARAM_VM_ID);
+        String applicationId = (String) getContext().getParameter(IContextParameter.PARAM_APPLICATION_ID);
         String statusLog = "Start to build the package for vm: " + vmId;
         LOGGER.info(statusLog);
         ActionStatus actionStatus = initActionStatus(EnumOperationObjectType.VM, vmId, ACTION_NAME, statusLog);
 
         //create new application object with single vm.
-        ApplicationDetail detail = applicationService.getApplicationDetail(
-            (String) getContext().getParameter(IContextParameter.PARAM_APPLICATION_ID));
+        ApplicationDetail detail = applicationService.getApplicationDetail(applicationId);
         VMApplication tempApp = detail.getVmApp();
         tempApp.setId(UUID.randomUUID().toString());
         for (VirtualMachine vm : tempApp.getVmList()) {

@@ -92,8 +92,8 @@ public class ContainerAppOperationServiceImpl extends AppOperationServiceImpl im
     public OperationInfoRep instantiateContainerApp(String applicationId, String helmChartId, User user) {
         Application application = applicationMapper.getApplicationById(applicationId);
         if (application == null) {
-            LOGGER.error("application is not exited,id:{}", applicationId);
-            throw new EntityNotFoundException("application is not exited.", ResponseConsts.RET_QUERY_DATA_EMPTY);
+            LOGGER.error("application does not exist,id:{}", applicationId);
+            throw new EntityNotFoundException("application does not exist.", ResponseConsts.RET_QUERY_DATA_EMPTY);
         }
 
         HelmChart helmChart = helmChartMapper.getHelmChartById(helmChartId);
