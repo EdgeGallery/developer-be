@@ -64,7 +64,7 @@ public class VMAppOperationCtl {
         @ApiResponse(code = 200, message = "OK", response = OperationInfoRep.class),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
-    @RequestMapping(value = "/{applicationId}/vms/{vmId}/launch", method = RequestMethod.POST,
+    @RequestMapping(value = "/{applicationId}/vms/{vmId}/action/launch", method = RequestMethod.POST,
         produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<OperationInfoRep> instantiateVm(
@@ -84,7 +84,7 @@ public class VMAppOperationCtl {
         @ApiResponse(code = 200, message = "OK", response = OperationInfoRep.class),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
-    @RequestMapping(value = "/{applicationId}/vms/{vmId}/exportimage", method = RequestMethod.POST,
+    @RequestMapping(value = "/{applicationId}/vms/{vmId}/action/export-image", method = RequestMethod.POST,
         produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<OperationInfoRep> createVmImage(
@@ -105,7 +105,7 @@ public class VMAppOperationCtl {
         @ApiResponse(code = 200, message = "OK", response = Boolean.class),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
-    @RequestMapping(value = "/{applicationId}/vms/{vmId}/file/upload", method = RequestMethod.POST)
+    @RequestMapping(value = "/{applicationId}/vms/{vmId}/action/upload-file", method = RequestMethod.POST)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<Boolean> uploadFile(HttpServletRequest request, Chunk chunk,
         @ApiParam(value = "applicationId", required = true) @PathVariable("applicationId") String applicationId,
@@ -123,7 +123,7 @@ public class VMAppOperationCtl {
         @ApiResponse(code = 200, message = "OK", response = ResponseEntity.class),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
-    @RequestMapping(value = "/{applicationId}/vms/{vmId}/file/merge", method = RequestMethod.GET)
+    @RequestMapping(value = "/{applicationId}/vms/{vmId}/action/merge-file", method = RequestMethod.GET)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity mergeAppFile(@RequestParam(value = "fileName", required = false) String fileName,
         @RequestParam(value = "identifier", required = false) String identifier,

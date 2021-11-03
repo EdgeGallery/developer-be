@@ -117,9 +117,9 @@ MERGE INTO tbl_network KEY(id) VALUES('776be50f-f6eb-4aed-b562-e9e5b914dc61','in
 -- ----------------------------
 -- Records of tbl_application
 -- ----------------------------
-MERGE INTO tbl_application KEY(id) VALUES('6a75a2bd-9811-432f-bbe8-2813aa97d364','container-app','container app desc','v1.0','edgegallery','X86','CONTAINER','Video Application','Smart Park','db22dc00-8f44-408c-a106-402e60c643de','DEVELOP','1635738228272','ONLINE','b27d72b5-93a6-4db4-8268-7ec502331ade','admin',null);
-MERGE INTO tbl_application KEY(id) VALUES('4cbbab9d-c48f-4adb-ae82-d1816d8edd7b','vm-app','vm app desc','v1.0','edgegallery','X86','VM','Video Application','Smart Park','db22dc00-8f44-408c-a106-402e60c643de','DEVELOP','1635738228272','ONLINE','b27d72b5-93a6-4db4-8268-7ec502331ade','admin',null);
-MERGE INTO tbl_application KEY(id) VALUES('3f11715f-b59e-4c23-965b-b7f9c34c20d1','vm-app-01','vm app desc','v2.0','edgegallery','X86','VM','Video Application','Smart Park','db22dc00-8f44-408c-a106-402e60c643de','DEVELOP','1635738228272','ONLINE','b27d72b5-93a6-4db4-8268-7ec502331ade','admin',null);
+MERGE INTO tbl_application KEY(id) VALUES('6a75a2bd-9811-432f-bbe8-2813aa97d364','container-app','container app desc','v1.0','edgegallery','X86','CONTAINER','Video Application','Smart Park','db22dc00-8f44-408c-a106-402e60c643de','DEVELOP','1635738228272','CREATED','b27d72b5-93a6-4db4-8268-7ec502331ade','admin',null);
+MERGE INTO tbl_application KEY(id) VALUES('4cbbab9d-c48f-4adb-ae82-d1816d8edd7b','vm-app','vm app desc','v1.0','edgegallery','X86','VM','Video Application','Smart Park','db22dc00-8f44-408c-a106-402e60c643de','DEVELOP','1635738228272','CREATED','b27d72b5-93a6-4db4-8268-7ec502331ade','admin',null);
+MERGE INTO tbl_application KEY(id) VALUES('3f11715f-b59e-4c23-965b-b7f9c34c20d1','vm-app-01','vm app desc','v2.0','edgegallery','X86','VM','Video Application','Smart Park','db22dc00-8f44-408c-a106-402e60c643de','DEVELOP','1635738228272','CREATED','b27d72b5-93a6-4db4-8268-7ec502331ade','admin',null);
 
 -- ----------------------------
 -- Records of tbl_application

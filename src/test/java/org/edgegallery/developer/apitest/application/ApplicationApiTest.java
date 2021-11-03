@@ -114,7 +114,7 @@ public class ApplicationApiTest {
     @WithMockUser(roles = "DEVELOPER_ADMIN")
     public void testDeleteOneApplicationSuccess() throws Exception {
         String url = String.format("/mec/developer/v2/applications/%s", UUID.randomUUID().toString());
-        Mockito.when(applicationService.deleteApplication(Mockito.anyString()))
+        Mockito.when(applicationService.deleteApplication(Mockito.anyString(),Mockito.any()))
             .thenReturn(true);
         ResultActions actions = mvc
             .perform(MockMvcRequestBuilders.delete(url).with((csrf())).contentType(MediaType.APPLICATION_JSON_UTF8))
