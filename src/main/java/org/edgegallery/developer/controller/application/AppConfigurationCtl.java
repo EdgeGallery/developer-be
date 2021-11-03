@@ -384,9 +384,9 @@ public class AppConfigurationCtl {
     }
 
     /**
-     * delete a app service produced.
+     * delete a app service required.
      */
-    @ApiOperation(value = "delete  app service produced.", response = Boolean.class)
+    @ApiOperation(value = "delete  app service required.", response = Boolean.class)
     @ApiResponses(value = {
         @ApiResponse(code = 200, message = "OK", response = Boolean.class),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)

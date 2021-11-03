@@ -117,13 +117,44 @@ MERGE INTO tbl_network KEY(id) VALUES('776be50f-f6eb-4aed-b562-e9e5b914dc61','in
 -- ----------------------------
 -- Records of tbl_application
 -- ----------------------------
-MERGE INTO tbl_application KEY(id) VALUES('6a75a2bd-9811-432f-bbe8-2813aa97d364','container-app','container app desc','v1.0','edgegallery','X86','CONTAINER','Video Application','Smart Park','db22dc00-8f44-408c-a106-402e60c643de','DEVELOP','1635738228272','CREATED','b27d72b5-93a6-4db4-8268-7ec502331ade','admin',null);
-MERGE INTO tbl_application KEY(id) VALUES('4cbbab9d-c48f-4adb-ae82-d1816d8edd7b','vm-app','vm app desc','v1.0','edgegallery','X86','VM','Video Application','Smart Park','db22dc00-8f44-408c-a106-402e60c643de','DEVELOP','1635738228272','CREATED','b27d72b5-93a6-4db4-8268-7ec502331ade','admin',null);
-MERGE INTO tbl_application KEY(id) VALUES('3f11715f-b59e-4c23-965b-b7f9c34c20d1','vm-app-01','vm app desc','v2.0','edgegallery','X86','VM','Video Application','Smart Park','db22dc00-8f44-408c-a106-402e60c643de','DEVELOP','1635738228272','CREATED','b27d72b5-93a6-4db4-8268-7ec502331ade','admin',null);
+MERGE INTO tbl_application KEY(id) VALUES('6a75a2bd-9811-432f-bbe8-2813aa97d364','container-app','container app desc','v1.0','edgegallery','X86','CONTAINER','Video Application','Smart Park','db22dc00-8f44-408c-a106-402e60c643de','DEVELOP','1635738228272','ONLINE','b27d72b5-93a6-4db4-8268-7ec502331ade','admin',null);
+MERGE INTO tbl_application KEY(id) VALUES('4cbbab9d-c48f-4adb-ae82-d1816d8edd7b','vm-app','vm app desc','v1.0','edgegallery','X86','VM','Video Application','Smart Park','db22dc00-8f44-408c-a106-402e60c643de','DEVELOP','1635738228272','ONLINE','b27d72b5-93a6-4db4-8268-7ec502331ade','admin',null);
+MERGE INTO tbl_application KEY(id) VALUES('3f11715f-b59e-4c23-965b-b7f9c34c20d1','vm-app-01','vm app desc','v2.0','edgegallery','X86','VM','Video Application','Smart Park','db22dc00-8f44-408c-a106-402e60c643de','DEVELOP','1635738228272','ONLINE','b27d72b5-93a6-4db4-8268-7ec502331ade','admin',null);
+MERGE INTO tbl_application KEY(id) VALUES('6a75a2bd-9811-432f-bbe8-2813aa97d365','container-app-01','container app desc','v1.1','edgegallery','X86','CONTAINER','Video Application','Smart Park','db22dc00-8f44-408c-a106-402e60c643de','DEVELOP','1635738228272','ONLINE','b27d72b5-93a6-4db4-8268-7ec502331ade','admin',null);
+MERGE INTO tbl_application KEY(id) VALUES('6a75a2bd-9811-432f-bbe8-2813aa97d366','container-app-02','container app desc','v1.2','edgegallery','X86','CONTAINER','Video Application','Smart Park','db22dc00-8f44-408c-a106-402e60c643de','DEVELOP','1635738228272','ONLINE','b27d72b5-93a6-4db4-8268-7ec502331ade','admin',null);
+-- ----------------------------
+-- Records of tbl_app_dns_rule
+-- ----------------------------
+MERGE INTO tbl_app_traffic_rule KEY(traffic_rule_id) VALUES('6a75a2bd-9811-432f-bbe8-2813aa97d365','e7bb85d1-a461-465a-b335-7189d1e527d4','action','1','filter_type',null,null);
+MERGE INTO tbl_app_traffic_rule KEY(traffic_rule_id) VALUES('6a75a2bd-9811-432f-bbe8-2813aa97d366','e7bb85d1-a461-465a-b335-7189d1e527d5','action','1','filter_type',null,null);
 
 -- ----------------------------
--- Records of tbl_application
+-- Records of tbl_app_dns_rule
 -- ----------------------------
+MERGE INTO tbl_app_dns_rule KEY(dns_rule_id) VALUES('6a75a2bd-9811-432f-bbe8-2813aa97d365','aeeb627d-a377-42bb-acb9-1f076682b205','domain','ip-type','1.1.1.1','ttl');
+MERGE INTO tbl_app_dns_rule KEY(dns_rule_id) VALUES('6a75a2bd-9811-432f-bbe8-2813aa97d366','aeeb627d-a377-42bb-acb9-1f076682b206','domain','ip-type','1.1.1.1','ttl');
+
+-- ----------------------------
+-- Records of tbl_app_service_produced
+-- ----------------------------
+MERGE INTO tbl_app_service_produced KEY(app_service_produced_id) VALUES('6a75a2bd-9811-432f-bbe8-2813aa97d365','2e334f90-53ca-4d4c-a644-e90a44fa73c8',
+'one-level','one-level-en','two-level','desc','api_file_id','guide_file_id','icon-file-id','serviceName-000',22222,'v1.0','https','admin',null,null,null);
+
+MERGE INTO tbl_app_service_produced KEY(app_service_produced_id) VALUES('6a75a2bd-9811-432f-bbe8-2813aa97d366','2e334f90-53ca-4d4c-a644-e90a44fa73c9',
+'one-level','one-level-en','two-level','desc','api_file_id','guide_file_id','icon-file-id','serviceName-001',22222,'v1.0','https','admin',null,null,null);
+
+-- ----------------------------
+-- Records of tbl_app_service_required
+-- ----------------------------
+MERGE INTO tbl_app_service_required KEY(app_id) VALUES('6a75a2bd-9811-432f-bbe8-2813aa97d365','serName-test','v1.0',true,null,null);
+MERGE INTO tbl_app_service_required KEY(app_id) VALUES('6a75a2bd-9811-432f-bbe8-2813aa97d366','serName-test-001','v1.0',true,null,null);
+
+-- ----------------------------
+-- Records of tbl_app_certificate
+-- ----------------------------
+MERGE INTO tbl_app_certificate KEY(app_id) VALUES('6a75a2bd-9811-432f-bbe8-2813aa97d365','ak','sk');
+MERGE INTO tbl_app_certificate KEY(app_id) VALUES('6a75a2bd-9811-432f-bbe8-2813aa97d366','ak','sk');
+
 -- ----------------------------
 -- Records of tbl_plugin
 -- ----------------------------
