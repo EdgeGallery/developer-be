@@ -66,7 +66,7 @@ public class ContainerImageApiTest {
     @WithMockUser(roles = "DEVELOPER_TENANT")
     public void testUploadImageSuccess() throws Exception {
         ResponseEntity response = ResponseEntity.ok().build();
-        String url = String.format("/mec/developer/v2/containerimages/%s/upload",
+        String url = String.format("/mec/developer/v2/containerimages/%s/action/upload",
             "4c22f069-e489-47cd-9c3c-e21741c857df");
         Mockito.when(containerImageService.uploadContainerImage(Mockito.any(), Mockito.any(),Mockito.anyString())).thenReturn(response);
         ResultActions actions = mvc.perform(MockMvcRequestBuilders.post(url).with((csrf())))
@@ -78,7 +78,7 @@ public class ContainerImageApiTest {
     @WithMockUser(roles = "DEVELOPER_TENANT")
     public void testMergeImageSuccess() throws Exception {
         ResponseEntity response = ResponseEntity.ok().build();
-        String url = String.format("/mec/developer/v2/containerimages/%s/merge",
+        String url = String.format("/mec/developer/v2/containerimages/%s/action/merge",
             "4c22f069-e489-47cd-9c3c-e21741c857df");
         Mockito.when(containerImageService.mergeContainerImage(Mockito.anyString(), Mockito.any(),Mockito.anyString())).thenReturn(response);
         ResultActions actions = mvc.perform(MockMvcRequestBuilders.get(url))
@@ -127,7 +127,7 @@ public class ContainerImageApiTest {
     @WithMockUser(roles = "DEVELOPER_TENANT")
     public void testDownloadImageSuccess() throws Exception {
         ResponseEntity response = ResponseEntity.ok().build();
-        String url = String.format("/mec/developer/v2/containerimages/%s/download","4c22f069-e489-47cd-9c3c-e21741c857do");
+        String url = String.format("/mec/developer/v2/containerimages/%s/action/download","4c22f069-e489-47cd-9c3c-e21741c857do");
         Mockito.when(containerImageService.downloadHarborImage(Mockito.anyString())).thenReturn(response);
         ResultActions actions = mvc.perform(MockMvcRequestBuilders.get(url)
             .contentType(MediaType.APPLICATION_JSON_UTF8))
@@ -139,7 +139,7 @@ public class ContainerImageApiTest {
     @WithMockUser(roles = "DEVELOPER_TENANT")
     public void testCancelUploadImageSuccess() throws Exception {
         ResponseEntity response = ResponseEntity.ok().build();
-        String url = String.format("/mec/developer/v2/containerimages/%s/upload","4c22f069-e489-47cd-9c3c-e21741c857do");
+        String url = String.format("/mec/developer/v2/containerimages/%s/action/upload","4c22f069-e489-47cd-9c3c-e21741c857do");
         Mockito.when(containerImageService.cancelUploadHarborImage(Mockito.anyString())).thenReturn(response);
         ResultActions actions = mvc.perform(MockMvcRequestBuilders.delete(url).with(csrf())
             .contentType(MediaType.APPLICATION_JSON_UTF8))
@@ -151,7 +151,7 @@ public class ContainerImageApiTest {
     @WithMockUser(roles = "DEVELOPER_ADMIN")
     public void testSynchronizeImageSuccess() throws Exception {
         ResponseEntity response = ResponseEntity.ok("synchronized successfully!");
-        String url = String.format("/mec/developer/v2/containerimages/synchronize");
+        String url = String.format("/mec/developer/v2/containerimages/action/synchronize");
         Mockito.when(containerImageService.synchronizeHarborImage()).thenReturn(response);
         ResultActions actions = mvc.perform(MockMvcRequestBuilders.get(url))
             .andExpect(MockMvcResultMatchers.status().isOk());
