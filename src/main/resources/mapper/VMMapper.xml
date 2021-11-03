@@ -115,7 +115,7 @@
   </delete>
 
   <delete id="deleteAllVMPortsByVMId" parameterType="String">
-    DELETE FROM tbl_vm_port WHERE where vm_id = #{vmId}
+    DELETE FROM tbl_vm_port WHERE vm_id = #{vmId}
   </delete>
 
   <select id="getAllVMPorts" resultMap="VMPortMap">

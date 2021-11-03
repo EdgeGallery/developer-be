@@ -203,6 +203,46 @@ CREATE TABLE IF NOT EXISTS tbl_network (
    CONSTRAINT tbl_network_pkey PRIMARY KEY (id)
 );
 
+CREATE TABLE IF NOT EXISTS tbl_vm_flavor (
+   id varchar(255) NOT NULL,
+   name varchar(255) NOT NULL,
+   description varchar(255) DEFAULT NULL,
+   architecture varchar(255) DEFAULT NULL,
+   cpu text DEFAULT NULL,
+   memory varchar(255) DEFAULT NULL,
+   system_disk_size int4 DEFAULT NULL,
+   data_disk_size  int4 DEFAULT NULL,
+   gpu_extra_info text DEFAULT NULL,
+   other_extra_info text DEFAULT NULL,
+   CONSTRAINT tbl_vm_flavor_pkey PRIMARY KEY (id)
+);
+
+CREATE TABLE IF NOT EXISTS tbl_vm_image (
+   id SERIAL,
+   name varchar(255) NOT NULL,
+   visible_type varchar(255) DEFAULT NULL,
+   os_type varchar(255) DEFAULT NULL,
+   os_version varchar(255) DEFAULT NULL,
+   os_bit_type varchar(255) DEFAULT NULL,
+   system_disk_size int4 DEFAULT NULL,
+   image_file_name varchar(255) DEFAULT NULL,
+   image_format varchar(255) DEFAULT NULL,
+   down_load_url varchar(255) DEFAULT NULL,
+   file_md5 varchar(255) DEFAULT NULL,
+   image_size bigint DEFAULT NULL,
+   image_slim_status varchar(50) DEFAULT NULL,
+   status varchar(255) DEFAULT NULL,
+   create_time varchar(200)  DEFAULT NULL,
+   modify_time varchar(200)  DEFAULT NULL,
+   upload_time varchar(200)  DEFAULT NULL,
+   user_id varchar(255) DEFAULT NULL,
+   user_name varchar(255) DEFAULT NULL,
+   file_identifier varchar(128) DEFAULT NULL,
+   error_type varchar(32) DEFAULT NULL,
+   CONSTRAINT tbl_vm_image_uniqueName UNIQUE (name,user_id),
+   CONSTRAINT tbl_vm_image_pkey PRIMARY KEY (id)
+);
+
 CREATE TABLE IF NOT EXISTS tbl_container_helm_chart (
   id varchar(255) NOT NULL,
   app_id varchar(255) NOT NULL,
@@ -289,6 +329,50 @@ CREATE TABLE IF NOT EXISTS tbl_vm_certificate (
   pwd_certificate text DEFAULT NULL,
   key_pair_certificate text DEFAULT NULL,
   CONSTRAINT tbl_vm_certificate_pkey PRIMARY KEY (vm_id)
+);
+
+CREATE TABLE IF NOT EXISTS tbl_vm_port (
+   id varchar(255) NOT NULL,
+   vm_id varchar(255) DEFAULT NULL,
+   name varchar(255) NOT NULL,
+   description varchar(255) DEFAULT NULL,
+   network_name varchar(255) DEFAULT NULL,
+   CONSTRAINT tbl_vm_port_pkey PRIMARY KEY (id)
+);
+
+CREATE TABLE IF NOT EXISTS tbl_vm_instantiate_info (
+   vm_id varchar(255) NOT NULL,
+   app_package_id varchar(255) DEFAULT NULL,
+   distributed_mec_host varchar(255) DEFAULT NULL,
+   mepm_package_id varchar(255) DEFAULT NULL,
+   app_instance_id varchar(255) DEFAULT NULL,
+   vm_instance_id varchar(255) DEFAULT NULL,
+   status varchar(255) DEFAULT NULL,
+   vnc_url varchar(255) DEFAULT NULL,
+   log text DEFAULT NULL,
+   instantiate_time varchar(255)  DEFAULT NULL,
+   CONSTRAINT tbl_vm_instantiate_info_pkey PRIMARY KEY (vm_id)
+);
+
+CREATE TABLE IF NOT EXISTS tbl_vm_port_instantiate_info (
+   vm_id varchar(255) NOT NULL,
+   network_name varchar(255) NOT NULL,
+   ip_address varchar(255) DEFAULT NULL,
+   CONSTRAINT  tbl_vm_port_instantiate_info_unique_id_name UNIQUE (vm_id,network_name)
+);
+
+CREATE TABLE IF NOT EXISTS tbl_vm_image_export_info (
+   vm_id varchar(255) NOT NULL,
+   image_instance_id varchar(255) NOT NULL,
+   image_name varchar(255) DEFAULT NULL,
+   format varchar(255) DEFAULT NULL,
+   download_url varchar(255) DEFAULT NULL,
+   check_sum varchar(255) DEFAULT NULL,
+   image_size varchar(255) DEFAULT NULL,
+   status varchar(255) DEFAULT NULL,
+   log text DEFAULT NULL,
+   create_time varchar(255)  DEFAULT NULL,
+   CONSTRAINT tbl_vm_image_export_info_pkey PRIMARY KEY (vm_id)
 );
 
 CREATE TABLE IF NOT EXISTS tbl_openmep_capability (

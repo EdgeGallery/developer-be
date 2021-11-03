@@ -128,10 +128,25 @@ public class UploadFileController {
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<UploadedFile> uploadFile(
         @ApiParam(value = "file", required = true) @RequestPart("file") MultipartFile uploadFile,
-        @Pattern(regexp = REGEX_UUID, message = "userId must be in UUID format")
         @ApiParam(value = "fileType", required = true) @RequestParam("fileType") String fileType) {
         String userId = AccessUserUtil.getUserId();
         return ResponseEntity.ok(uploadFileService.uploadFile(userId, fileType, uploadFile));
+    }
+
+    /**
+     * delete file.
+     */
+    @ApiOperation(value = "delete file", response = Boolean.class)
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = "OK", response = Boolean.class),
+        @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
+    })
+    @RequestMapping(value = "/{fileId}", method = RequestMethod.DELETE,
+        produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
+    public ResponseEntity<Boolean> deleteFile(@Pattern(regexp = REGEX_UUID, message = "fileId must be in UUID format")
+    @ApiParam(value = "fileId", required = true) @PathVariable("fileId") String fileId) {
+        return ResponseEntity.ok(uploadFileService.deleteFile(fileId));
     }
 
     /**

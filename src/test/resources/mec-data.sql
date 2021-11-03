@@ -113,6 +113,15 @@ MERGE INTO tbl_app_project KEY(id) VALUES ('200dfab1-3c30-4fc7-a6ca-ed6f0620a87e
 MERGE INTO tbl_network KEY(id) VALUES('776be50f-f6eb-4aed-b562-e9e5b914dc59','init-application','Network_N6','N6网络，端侧设备在访问边缘应用时，需要通过该网络进行访问');
 MERGE INTO tbl_network KEY(id) VALUES('776be50f-f6eb-4aed-b562-e9e5b914dc60','init-application','Network_MEP','与边缘计算平台之间的网络，当应用存在服务依赖或需要发布服务时，需要该网络');
 MERGE INTO tbl_network KEY(id) VALUES('776be50f-f6eb-4aed-b562-e9e5b914dc61','init-application','Network_Internet','Internet网络');
+-- ----------------------------
+-- Records of tbl_vm_flavor
+-- ----------------------------
+MERGE INTO tbl_vm_flavor KEY(id) VALUES('3ef2bea0-5e23-4fab-952d-cc9e6741dbe7', 'General Computing-1', 'Ordinary APP', 'X86', 1, 1, 50, 40, '', '');
+MERGE INTO tbl_vm_flavor KEY(id) VALUES('96f9c44c-4d01-4da6-84dd-9f3564fe2bdb', 'General Computing-2', 'Ordinary APP', 'X86', 4, 8, 50, 100, '', '');
+-- ----------------------------
+-- Records of tbl_vm_image
+-- ----------------------------
+MERGE INTO tbl_vm_image KEY(id) VALUES(1, 'Ubuntu18.04', 'public', 'ubuntu', '18.04', '64', 40, 'Ubuntu18.04.qcow2', 'qcow2', null, null, 1024000, null, 'UPLOAD_WAIT', '2020-03-18 16:19:36.127+08', '2020-03-18 16:19:36.127+08', null, '39937079-99fe-4cd8-881f-04ca8c4fe09d', 'admin', null, null);
 
 -- ----------------------------
 -- Records of tbl_application
@@ -122,6 +131,18 @@ MERGE INTO tbl_application KEY(id) VALUES('4cbbab9d-c48f-4adb-ae82-d1816d8edd7b'
 MERGE INTO tbl_application KEY(id) VALUES('3f11715f-b59e-4c23-965b-b7f9c34c20d1','vm-app-01','vm app desc','v2.0','edgegallery','X86','VM','Video Application','Smart Park','db22dc00-8f44-408c-a106-402e60c643de','DEVELOP','1635738228272','CREATED','b27d72b5-93a6-4db4-8268-7ec502331ade','admin',null);
 MERGE INTO tbl_application KEY(id) VALUES('6a75a2bd-9811-432f-bbe8-2813aa97d365','container-app-01','container app desc','v1.1','edgegallery','X86','CONTAINER','Video Application','Smart Park','db22dc00-8f44-408c-a106-402e60c643de','DEVELOP','1635738228272','CREATED','b27d72b5-93a6-4db4-8268-7ec502331ade','admin',null);
 MERGE INTO tbl_application KEY(id) VALUES('6a75a2bd-9811-432f-bbe8-2813aa97d366','container-app-02','container app desc','v1.2','edgegallery','X86','CONTAINER','Video Application','Smart Park','db22dc00-8f44-408c-a106-402e60c643de','DEVELOP','1635738228272','CREATED','b27d72b5-93a6-4db4-8268-7ec502331ade','admin',null);
+
+-- ----------------------------
+-- Records of tbl_vm
+-- ----------------------------
+MERGE INTO tbl_vm KEY(id) VALUES('6a75a2bd-9811-432f-bbe8-2813aa97d757','6a75a2bd-9811-432f-bbe8-2813aa97d364','appvm1','3ef2bea0-5e23-4fab-952d-cc9e6741dbe7',1,'',null,'','');
+MERGE INTO tbl_vm KEY(id) VALUES('6a75a2bd-9811-432f-bbe8-2813aa97d758','6a75a2bd-9811-432f-bbe8-2813aa97d364','appvm2','3ef2bea0-5e23-4fab-952d-cc9e6741dbe7',1,'',null,'','');
+-- ----------------------------
+-- Records of tbl_vm_port
+-- ----------------------------
+MERGE INTO tbl_vm_port KEY(id) VALUES('6a75a2bd-9811-432f-bbe8-2813aa97d661','6a75a2bd-9811-432f-bbe8-2813aa97d757','port1','vm port 1', 'MEC_APP_Public');
+MERGE INTO tbl_vm_port KEY(id) VALUES('6a75a2bd-9811-432f-bbe8-2813aa97d662','6a75a2bd-9811-432f-bbe8-2813aa97d757','port2','vm port 2', 'MEC_APP_Private');
+
 -- ----------------------------
 -- Records of tbl_app_dns_rule
 -- ----------------------------

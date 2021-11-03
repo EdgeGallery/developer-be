@@ -26,6 +26,7 @@ import java.util.UUID;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.edgegallery.developer.common.ResponseConsts;
+import org.edgegallery.developer.exception.DataBaseException;
 import org.edgegallery.developer.exception.DeveloperException;
 import org.edgegallery.developer.exception.EntityNotFoundException;
 import org.edgegallery.developer.exception.FileFoundFailException;
@@ -39,7 +40,6 @@ import org.edgegallery.developer.model.apppackage.AppPkgStructure;
 import org.edgegallery.developer.model.capability.Capability;
 import org.edgegallery.developer.model.resource.MepHost;
 import org.edgegallery.developer.model.workspace.EnumHostStatus;
-import org.edgegallery.developer.model.workspace.EnumOpenMepType;
 import org.edgegallery.developer.model.workspace.UploadedFile;
 import org.edgegallery.developer.service.AppReleaseService;
 import org.edgegallery.developer.service.uploadfile.UploadService;
@@ -129,7 +129,7 @@ public class UploadServiceImpl implements UploadService {
     @Override
     public UploadedFile uploadFile(String userId, String fileType, MultipartFile uploadFile) {
         //check format
-        LOGGER.info("Start uploading icon file");
+        LOGGER.info("Start uploading file");
         String fileName = uploadFile.getOriginalFilename();
         if (!FILE_TYPE_LIST.contains(fileType)) {
             String msg = "fileType is error,must be one of [icon,md,api]";
@@ -148,7 +148,6 @@ public class UploadServiceImpl implements UploadService {
                 LOGGER.error(errorMsg);
                 throw new IllegalRequestException(errorMsg, ResponseConsts.RET_FILE_FORMAT_ERROR);
             }
-
         }
         UploadedFile result = saveFileToLocal(uploadFile, userId);
         if (result == null) {
@@ -156,6 +155,38 @@ public class UploadServiceImpl implements UploadService {
             throw new FileOperateException("Failed to save picture file.", ResponseConsts.RET_SAVE_FILE_FAIL);
         }
         return result;
+    }
+
+    @Override
+    public boolean deleteFile(String fileId) {
+        if (StringUtils.isEmpty(fileId)) {
+            LOGGER.error("fileId is empty!");
+            throw new IllegalRequestException("fileId does not exist.", ResponseConsts.RET_REQUEST_PARAM_EMPTY);
+        }
+        UploadedFile uploadedFile = uploadedFileMapper.getFileById(fileId);
+        if (uploadedFile == null) {
+            LOGGER.error("the queried Object(UploadedFile) is null!");
+            return true;
+        }
+        String filePath = uploadedFile.getFilePath();
+        File file = new File(InitConfigUtil.getWorkSpaceBaseDir() + filePath);
+        if (!file.exists()) {
+            LOGGER.warn("the queried file may be deleted or moved!");
+            return true;
+        }
+        try {
+            FileUtils.forceDelete(file);
+        } catch (IOException e) {
+            LOGGER.error("delete file occur {}", e.getMessage());
+            return false;
+        }
+        //delete db record
+        int ret = uploadedFileMapper.deleteFile(fileId);
+        if (ret < 1) {
+            LOGGER.error("delete file failed!");
+            throw new DataBaseException("delete file failed!", ResponseConsts.RET_DELETE_DATA_FAIL);
+        }
+        return true;
     }
 
     @Override
