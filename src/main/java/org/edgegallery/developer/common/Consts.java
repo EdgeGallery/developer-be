@@ -117,6 +117,14 @@ public final class Consts {
 
     public static final String HTTP_STATUS_SUCCESS_STR = "200";
 
+    public static final String FILE_FORMAT_MF = ".mf";
+
+    public static final String FILE_FORMAT_ZIP = ".zip";
+
+    public static final String FILE_FORMAT_YAML = ".yaml";
+
+    public static final String FILE_FORMAT_CSAR = ".csar";
+
     private Consts() {
     }
 }
