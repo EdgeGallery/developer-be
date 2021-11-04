@@ -77,4 +77,14 @@ public class VMAppNetworkServiceImpl implements VMAppNetworkService {
         }
         return true;
     }
+
+    @Override
+    public boolean deleteNetworkByAppId(String applicationId) {
+        int res = networkMapper.deleteNetworksByAppId(applicationId);
+        if (res < 1) {
+            LOGGER.error("delete network in db error.");
+            throw new DataBaseException("delete network in db error.", ResponseConsts.RET_DELETE_DATA_FAIL);
+        }
+        return true;
+    }
 }

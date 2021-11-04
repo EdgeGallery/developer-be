@@ -202,6 +202,10 @@ public class AppPackageServiceImpl implements AppPackageService {
     @Override
     public boolean deletePackage(String packageId) {
         AppPackage appPackage = appPackageMapper.getAppPackage(packageId);
+        if (appPackage == null) {
+            LOGGER.error("package does not exist");
+            return true;
+        }
         return deletePackage(appPackage);
 
     }

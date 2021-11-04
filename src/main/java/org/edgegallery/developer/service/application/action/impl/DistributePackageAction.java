@@ -89,8 +89,7 @@ public abstract class DistributePackageAction extends AbstractAction {
         LOGGER.info("Distribute package destination: {}", mepHost.getMecHostIp());
         // Upload package file to lcm.
         AppPackage appPkg = appPackageService.getAppPackage(packageId);
-        String appPkgPath = ApplicationUtil.getApplicationBasePath(appPkg.getAppId()) + appPkg.getPackageFileName();
-        String mepmPkgId = uploadPackageToLcm(getContext().getUserId(), appPkgPath, mepHost);
+        String mepmPkgId = uploadPackageToLcm(getContext().getUserId(), appPkg.queryPkgPath(), mepHost);
         if (null == mepmPkgId) {
             updateActionError(actionStatus, "Upload app package file to lcm failed.");
             saveDistributeInstantiateInfo("", "", EnumVMInstantiateStatus.PACKAGE_DISTRIBUTE_FAILED);

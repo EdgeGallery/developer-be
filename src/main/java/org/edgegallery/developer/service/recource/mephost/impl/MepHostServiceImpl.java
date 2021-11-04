@@ -274,8 +274,8 @@ public class MepHostServiceImpl implements MepHostService {
         }
         if (!EnumVimType.K8S.equals(host.getVimType())) {
             Map<String, String> getParams = InputParameterUtil.getParams(host.getNetworkParameter());
-            if (!getParams.containsKey("app_mp1_ip") || !getParams.containsKey("app_n6_ip") || !getParams
-                .containsKey("app_internet_ip")) {
+            if (!getParams.containsKey("VDU1_APP_Plane03_IP") || !getParams.containsKey("VDU1_APP_Plane02_IP") || !getParams
+                .containsKey("VDU1_APP_Plane01_IP")) {
                 LOGGER.error("Network params config error");
                 throw new IllegalRequestException("Network params config error!",
                     ResponseConsts.RET_REQUEST_PARAM_ERROR);

@@ -15,7 +15,7 @@
 package org.edgegallery.developer.model.apppackage.constant;
 
 public class InputConstant {
-    public static final String TYPE_STRING = "String";
+    public static final String TYPE_STRING = "string";
 
     public static final String TYPE_PASSWORD = "password";
 

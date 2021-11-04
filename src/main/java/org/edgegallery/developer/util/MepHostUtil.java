@@ -22,6 +22,7 @@ import org.apache.servicecomb.provider.springmvc.reference.RestTemplateBuilder;
 import org.edgegallery.developer.common.Consts;
 import org.edgegallery.developer.exception.CustomException;
 import org.edgegallery.developer.model.lcm.MecHostBody;
+import org.edgegallery.developer.model.resource.mephost.EnumVimType;
 import org.edgegallery.developer.model.resource.mephost.MepHost;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,7 +58,7 @@ public final class MepHostUtil {
         body.setCity(host.getAddress());
         body.setMechostIp(host.getMecHostIp());
         body.setMechostName(host.getName());
-        if (host.getVimType().equals("OpenStack") || host.getVimType().equals("FusionSphere")) {
+        if (host.getVimType().equals(EnumVimType.OpenStack) || host.getVimType().equals(EnumVimType.FusionSphere)) {
             body.setVim("OpenStack");
         } else {
             body.setVim("K8s");

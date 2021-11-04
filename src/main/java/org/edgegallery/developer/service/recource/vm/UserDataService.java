@@ -14,7 +14,7 @@
 
 package org.edgegallery.developer.service.recource.vm;
 
-public interface UserDateService {
+public interface UserDataService {
 
-    String getUserDate(String osType);
+    String getUserData(String osType);
 }

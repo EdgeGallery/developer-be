@@ -31,4 +31,6 @@ public interface VMAppNetworkService {
     Boolean modifyNetwork(String applicationId, String networkId, Network network);
 
     Boolean deleteNetwork(String applicationId, String networkId);
+
+    boolean deleteNetworkByAppId(String applicationId);
 }
