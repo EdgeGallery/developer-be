@@ -12,23 +12,22 @@
  * the License.
  */
 
-package org.edgegallery.developer.model.apppackage.appd.vdu;
+package org.edgegallery.developer.model.apppackage.appd.vducp;
 
 import lombok.Getter;
 import lombok.Setter;
 
 @Setter
 @Getter
-public class VDUProperty {
-    private String name = "VDU_Name";
+public class VDUCPAttributes {
 
-    private String description = "VDU_Description";
+    private String ipv4_address;
 
-    private String nfvi_constraints = "nova";
+    private String ipv6_address = "00::00";
 
-    private VDUProfile vdu_profile = new VDUProfile();
+    private String mac = "00::00::00::00::00::00";
 
-    private SwImageData sw_image_data = new SwImageData();
+    private String ipv4_vip_address = "0.0.0.0";
 
-    private BootData bootdata  = new BootData();
+    private String ipv6_vip_address = "00:00";
 }

@@ -49,6 +49,10 @@ public class AppDefinitionConverter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AppDefinitionConverter.class);
 
+    private static final String REGEX_INPUT_RAMA_QUOTES_REMOVE = "('\\s*\\{\\s*get_input\\s*:\\s+)(((?!\\s*}).)+)(\\s*}\\s*')";
+
+    private static final String INPUT_PARAM_REPLACEMENT = "{get_input: $2}";
+
     private static final String TEMPLATE_CSAR_BASE_PATH = "/APPD/Definition/app-name.yaml";
 
     public String getAppdPath(String applicationId, String appPackageId) {
@@ -61,9 +65,11 @@ public class AppDefinitionConverter {
         CustomRepresenter representer = new CustomRepresenter();
         Yaml yaml = new Yaml(representer, new DumperOptions());
         String yamlContents = yaml.dumpAs(appDefinition, Tag.MAP, DumperOptions.FlowStyle.BLOCK);
+        //get_input function string is a feature not supported by snakeyaml, need to remove the quotes.
+        String outPutContent = yamlContents.replaceAll(REGEX_INPUT_RAMA_QUOTES_REMOVE, INPUT_PARAM_REPLACEMENT);
         File file = new File(appdFilePath);
         try {
-            FileUtils.writeStringToFile(file, yamlContents, StandardCharsets.UTF_8);
+            FileUtils.writeStringToFile(file, outPutContent, StandardCharsets.UTF_8);
         } catch (IOException e) {
             LOGGER.error("Write appd yaml to file failed. app yaml content:\n {}", yaml);
             return false;
