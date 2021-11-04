@@ -100,8 +100,8 @@ public class MepHostServiceImpl implements MepHostService {
     public boolean createHost(MepHost host, User user) {
         MepHost mepHost = mepHostMapper.getHostsByMecHostIp(host.getMecHostIp());
         if (mepHost != null) {
-            LOGGER.error("mecHost have exit:{}", host.getMecHostIp());
-            throw new IllegalRequestException("mecHost have exit!", ResponseConsts.RET_QUERY_DATA_EMPTY);
+            LOGGER.error("mecHost already exists:{}", host.getMecHostIp());
+            throw new IllegalRequestException("mecHost already exists!", ResponseConsts.RET_QUERY_DATA_EMPTY);
         }
         // check host parameter
         checkMepHost(host);
