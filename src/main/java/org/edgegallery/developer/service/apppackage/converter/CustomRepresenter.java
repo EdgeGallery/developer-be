@@ -25,6 +25,7 @@ import org.edgegallery.developer.model.apppackage.appd.appconfiguration.Configur
 import org.edgegallery.developer.model.apppackage.appd.policies.AntiAffinityRule;
 import org.edgegallery.developer.model.apppackage.appd.vdu.VDUCapability;
 import org.edgegallery.developer.model.apppackage.appd.vdu.VDUProperty;
+import org.edgegallery.developer.model.apppackage.appd.vducp.VDUCPAttributes;
 import org.edgegallery.developer.model.apppackage.appd.vducp.VDUCPProperty;
 import org.edgegallery.developer.model.apppackage.appd.vducp.VirtualBindingRequire;
 import org.edgegallery.developer.model.apppackage.appd.vducp.VirtualLinkRequire;
@@ -64,6 +65,7 @@ public class CustomRepresenter extends Representer {
         this.addClassTag(VDUCapability.class, Tag.MAP);
         this.addClassTag(VDUProperty.class, Tag.MAP);
         this.addClassTag(VDUCPProperty.class, Tag.MAP);
+        this.addClassTag(VDUCPAttributes.class, Tag.MAP);
         this.addClassTag(VirtualBindingRequire.class, Tag.MAP);
         this.addClassTag(VirtualLinkRequire.class, Tag.MAP);
         this.addClassTag(VLProperty.class, Tag.MAP);
