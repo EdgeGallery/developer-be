@@ -30,6 +30,8 @@ DROP TABLE  IF  EXISTS tbl_app_traffic_rule;
 DROP TABLE  IF  EXISTS tbl_app_dns_rule;
 DROP TABLE  IF  EXISTS tbl_vm;
 DROP TABLE  IF  EXISTS tbl_vm_certificate;
+DROP TABLE  IF  EXISTS tbl_mep_host;
+DROP TABLE  IF  EXISTS tbl_reverse_proxy;
 DROP TABLE  IF  EXISTS tbl_app_project;
 DROP TABLE  IF  EXISTS tbl_openmep_capability;
 DROP TABLE  IF  EXISTS tbl_openmep_capability_detail;
@@ -375,6 +377,35 @@ CREATE TABLE IF NOT EXISTS tbl_vm_image_export_info (
    CONSTRAINT tbl_vm_image_export_info_pkey PRIMARY KEY (vm_id)
 );
 
+CREATE TABLE IF NOT EXISTS tbl_mep_host (
+  host_id varchar(50) NOT NULL,
+  name varchar(100) DEFAULT NULL,
+  lcm_ip varchar(20) DEFAULT NULL,
+  lcm_protocol varchar(20) DEFAULT NULL,
+  lcm_port int4 DEFAULT '-1'::integer,
+  architecture varchar(100) DEFAULT NULL,
+  status varchar(20) DEFAULT NULL,
+  mec_host_ip varchar(20) DEFAULT NULL,
+  vim_type varchar(255) DEFAULT NULL,
+  mec_host_user_name varchar(50) DEFAULT NULL,
+  mec_host_password varchar(50) DEFAULT NULL,
+  mec_host_port int4 DEFAULT 22,
+  user_id varchar(50) DEFAULT NULL,
+  config_file_id varchar(50) DEFAULT NULL,
+  net_work_parameter text DEFAULT NULL,
+  resource text DEFAULT NULL,
+  address varchar(255) DEFAULT NULL
+);
+
+CREATE TABLE IF NOT EXISTS tbl_reverse_proxy (
+  id varchar(255) NOT NULL,
+  dest_host_id varchar(255) NOT NULL,
+  dest_host_port int4 NOT NULL,
+  proxy_port int4 NOT NULL,
+  type int4 NOT NULL,
+  CONSTRAINT tbl_reverse_proxy_pkey PRIMARY KEY (id)
+);
+
 CREATE TABLE IF NOT EXISTS tbl_openmep_capability (
   group_id varchar(50)  NOT NULL DEFAULT NULL,
   one_level_name varchar(255)  DEFAULT NULL,
@@ -597,6 +628,8 @@ CREATE TABLE IF NOT EXISTS tbl_host_log (
   host_id varchar(50) DEFAULT NULL
 )
 ;
+
+
 CREATE TABLE IF NOT EXISTS  tbl_host_log  (
        log_id  varchar(50) NOT NULL,
        host_ip  varchar(50) NOT NULL,

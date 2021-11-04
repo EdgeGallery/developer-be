@@ -113,6 +113,7 @@ MERGE INTO tbl_app_project KEY(id) VALUES ('200dfab1-3c30-4fc7-a6ca-ed6f0620a87e
 MERGE INTO tbl_network KEY(id) VALUES('776be50f-f6eb-4aed-b562-e9e5b914dc59','init-application','Network_N6','N6网络，端侧设备在访问边缘应用时，需要通过该网络进行访问');
 MERGE INTO tbl_network KEY(id) VALUES('776be50f-f6eb-4aed-b562-e9e5b914dc60','init-application','Network_MEP','与边缘计算平台之间的网络，当应用存在服务依赖或需要发布服务时，需要该网络');
 MERGE INTO tbl_network KEY(id) VALUES('776be50f-f6eb-4aed-b562-e9e5b914dc61','init-application','Network_Internet','Internet网络');
+MERGE INTO tbl_network KEY(id) VALUES('560e554c-7ef4-4f21-b2b5-e33fa64aa069','4cbbab9d-c48f-4adb-ae82-d1816d8edd7b','Network_Internet','Internet网络');
 -- ----------------------------
 -- Records of tbl_vm_flavor
 -- ----------------------------
@@ -176,6 +177,15 @@ MERGE INTO tbl_app_service_required KEY(app_id) VALUES('6a75a2bd-9811-432f-bbe8-
 MERGE INTO tbl_app_certificate KEY(app_id) VALUES('6a75a2bd-9811-432f-bbe8-2813aa97d365','ak','sk');
 MERGE INTO tbl_app_certificate KEY(app_id) VALUES('6a75a2bd-9811-432f-bbe8-2813aa97d366','ak','sk');
 
+-- ----------------------------
+-- Records of tbl_mep_host
+-- ----------------------------
+MERGE INTO tbl_mep_host KEY(host_id) VALUES('fe934a92-1cfc-42fe-919d-422e2e3bd1f9','k8s-sandbox','localhost','http',31252,'X86','NORMAL','localhost','K8S','test','test',20000,
+'5ce78873-d73d-4e7d-84a4-ab75ac95400f',null,null,null,'xian');
+MERGE INTO tbl_mep_host KEY(host_id) VALUES('fe934a92-1cfc-42fe-919d-422e2e3bd1f8','k8s-sandbox','1.1.1.3','https',30100,'X86','NORMAL','1.1.1.3','K8S','test','test',20000,
+'5ce78873-d73d-4e7d-84a4-ab75ac95400f',null,null,null,'xian');
+MERGE INTO tbl_mep_host KEY(host_id) VALUES('fe934a92-1cfc-42fe-919d-422e2e3bd1f7','k8s-sandbox','1.1.1.1','https',30100,'X86','NORMAL','1.1.1.1','K8S','test','test',20000,
+'5ce78873-d73d-4e7d-84a4-ab75ac95400f',null,null,null,'xian');
 -- ----------------------------
 -- Records of tbl_plugin
 -- ----------------------------
