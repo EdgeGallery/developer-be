@@ -104,6 +104,11 @@ public class ContainerAppHelmChartServiceImpl implements ContainerAppHelmChartSe
     }
 
     @Override
+    public Boolean createHelmCharts(MultipartFile helmChartFile, String applicationId) {
+        return null;
+    }
+
+    @Override
     public List<HelmChart> getHelmChartList(String applicationId) {
         if (StringUtils.isEmpty(applicationId)) {
             throw new IllegalRequestException("applicationId is empty", ResponseConsts.RET_REQUEST_PARAM_EMPTY);

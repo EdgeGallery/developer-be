@@ -62,7 +62,7 @@ public class ContainerAppHelmChartCtl {
         consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<Boolean> uploadHelmChartYaml(
-        @ApiParam(value = "file", required = true) @RequestPart("file") MultipartFile helmTemplateYaml,
+        @ApiParam(value = "file", required = true) @RequestPart(value = "file") MultipartFile helmTemplateYaml,
         @Pattern(regexp = REGEX_UUID, message = "projectId must be in UUID format")
         @ApiParam(value = "applicationId", required = true) @PathVariable("applicationId") String applicationId) {
         return ResponseEntity.ok(containerAppHelmChartService.uploadHelmChartYaml(helmTemplateYaml, applicationId));
