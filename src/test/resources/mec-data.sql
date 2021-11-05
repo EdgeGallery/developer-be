@@ -110,10 +110,13 @@ MERGE INTO tbl_app_project KEY(id) VALUES ('200dfab1-3c30-4fc7-a6ca-ed6f0620a87e
 -- ----------------------------
 -- Records of tbl_network
 -- ----------------------------
-MERGE INTO tbl_network KEY(id) VALUES('776be50f-f6eb-4aed-b562-e9e5b914dc59','init-application','Network_N6','N6网络，端侧设备在访问边缘应用时，需要通过该网络进行访问');
-MERGE INTO tbl_network KEY(id) VALUES('776be50f-f6eb-4aed-b562-e9e5b914dc60','init-application','Network_MEP','与边缘计算平台之间的网络，当应用存在服务依赖或需要发布服务时，需要该网络');
-MERGE INTO tbl_network KEY(id) VALUES('776be50f-f6eb-4aed-b562-e9e5b914dc61','init-application','Network_Internet','Internet网络');
-MERGE INTO tbl_network KEY(id) VALUES('560e554c-7ef4-4f21-b2b5-e33fa64aa069','4cbbab9d-c48f-4adb-ae82-d1816d8edd7b','Network_Internet','Internet网络');
+MERGE INTO tbl_network KEY(id) VALUES('776be50f-f6eb-4aed-b562-e9e5b914dc59','init-application','MEC_APP_N6','N6网络，端侧设备在访问边缘应用时，需要通过该网络进行访问');
+MERGE INTO tbl_network KEY(id) VALUES('776be50f-f6eb-4aed-b562-e9e5b914dc60','init-application','MEC_APP_Private','与边缘计算平台之间的网络，当应用存在服务依赖或需要发布服务时，需要该网络');
+MERGE INTO tbl_network KEY(id) VALUES('776be50f-f6eb-4aed-b562-e9e5b914dc61','init-application','MEC_APP_Public','Internet网络');
+MERGE INTO tbl_network KEY(id) VALUES('560e554c-7ef4-4f21-b2b5-e33fa64aa069','4cbbab9d-c48f-4adb-ae82-d1816d8edd7b','MEC_APP_Public','Internet网络');
+MERGE INTO tbl_network KEY(id) VALUES('560e554c-7ef4-4f21-b2b5-e33fa64aa068','4cbbab9d-c48f-4adb-ae82-d1816d8edd7b','MEC_APP_N6','N6网络');
+MERGE INTO tbl_network KEY(id) VALUES('560e554c-7ef4-4f21-b2b5-e33fa64aa070','3f11715f-b59e-4c23-965b-b7f9c34c20d1','MEC_APP_Public','Internet网络');
+MERGE INTO tbl_network KEY(id) VALUES('560e554c-7ef4-4f21-b2b5-e33fa64aa071','3f11715f-b59e-4c23-965b-b7f9c34c20d1','MEC_APP_Private','MEP网络');
 -- ----------------------------
 -- Records of tbl_vm_flavor
 -- ----------------------------
@@ -136,8 +139,8 @@ MERGE INTO tbl_application KEY(id) VALUES('6a75a2bd-9811-432f-bbe8-2813aa97d366'
 -- ----------------------------
 -- Records of tbl_vm
 -- ----------------------------
-MERGE INTO tbl_vm KEY(id) VALUES('6a75a2bd-9811-432f-bbe8-2813aa97d757','6a75a2bd-9811-432f-bbe8-2813aa97d364','appvm1','3ef2bea0-5e23-4fab-952d-cc9e6741dbe7',1,'',null,'','');
-MERGE INTO tbl_vm KEY(id) VALUES('6a75a2bd-9811-432f-bbe8-2813aa97d758','6a75a2bd-9811-432f-bbe8-2813aa97d364','appvm2','3ef2bea0-5e23-4fab-952d-cc9e6741dbe7',1,'',null,'','');
+MERGE INTO tbl_vm KEY(id) VALUES('6a75a2bd-9811-432f-bbe8-2813aa97d757','4cbbab9d-c48f-4adb-ae82-d1816d8edd7b','appvm1','3ef2bea0-5e23-4fab-952d-cc9e6741dbe7',1,'',null,'','');
+MERGE INTO tbl_vm KEY(id) VALUES('6a75a2bd-9811-432f-bbe8-2813aa97d758','4cbbab9d-c48f-4adb-ae82-d1816d8edd7b','appvm2','3ef2bea0-5e23-4fab-952d-cc9e6741dbe7',1,'',null,'','');
 -- ----------------------------
 -- Records of tbl_vm_port
 -- ----------------------------

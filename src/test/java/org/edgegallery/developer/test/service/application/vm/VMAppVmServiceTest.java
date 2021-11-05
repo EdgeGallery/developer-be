@@ -21,7 +21,6 @@ import org.edgegallery.developer.model.application.vm.PwdCertificate;
 import org.edgegallery.developer.model.application.vm.VMCertificate;
 import org.edgegallery.developer.model.application.vm.VMPort;
 import org.edgegallery.developer.model.application.vm.VirtualMachine;
-import org.edgegallery.developer.service.application.ApplicationService;
 import org.edgegallery.developer.service.application.vm.VMAppVmService;
 import org.edgegallery.developer.test.DeveloperApplicationTests;
 import org.junit.Assert;
@@ -37,7 +36,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 @RunWith(SpringRunner.class)
 public class VMAppVmServiceTest {
 
-    private final String PRESET_APPLICATION_ID = "6a75a2bd-9811-432f-bbe8-2813aa97d364";
+    private final String PRESET_APPLICATION_ID = "4cbbab9d-c48f-4adb-ae82-d1816d8edd7b";
 
     private final String PRESET_VM1_ID = "6a75a2bd-9811-432f-bbe8-2813aa97d757";
 
@@ -48,9 +47,6 @@ public class VMAppVmServiceTest {
     private final long PRESET_VM_PORT_SIZE = 2;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(VMAppVmServiceTest.class);
-
-    @Autowired
-    private ApplicationService applicationService;
 
     @Autowired
     private VMAppVmService vmAppVmService;
