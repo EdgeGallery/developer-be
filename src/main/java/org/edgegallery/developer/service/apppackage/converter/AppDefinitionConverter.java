@@ -39,6 +39,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.constructor.SafeConstructor;
 import org.yaml.snakeyaml.nodes.Tag;
 
 public class AppDefinitionConverter {
@@ -82,7 +83,7 @@ public class AppDefinitionConverter {
         File file = new File(appdFilePath);
         if (file.exists()) {
             try {
-                Yaml yaml = new Yaml();
+                Yaml yaml = new Yaml(new SafeConstructor());
                 appDefinition = yaml.loadAs(new FileInputStream(file), AppDefinition.class);
             } catch (FileNotFoundException e) {
                 LOGGER.error("Appd {} exists, but read failed, will create default APPD file.", appdFilePath);
