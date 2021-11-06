@@ -60,6 +60,11 @@ public class AppPackageServiceImpl implements AppPackageService {
     }
 
     @Override
+    public AppPackage getAppPackageByAppId(String applicationId) {
+        return appPackageMapper.getAppPackageByAppId(applicationId);
+    }
+
+    @Override
     public AppPkgStructure getAppPackageStructure(String packageId) {
         if (StringUtils.isEmpty(packageId)) {
             LOGGER.error("packageId is empty.");

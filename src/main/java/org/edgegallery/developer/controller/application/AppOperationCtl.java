@@ -146,7 +146,7 @@ public class AppOperationCtl {
         @ApiResponse(code = 200, message = "OK", response = AtpTest.class),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
-    @RequestMapping(value = "/{applicationId}/atp-tests", method = RequestMethod.GET,
+    @RequestMapping(value = "/{applicationId}/action/atp-tests", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<List<AtpTest>> getAtpTests(

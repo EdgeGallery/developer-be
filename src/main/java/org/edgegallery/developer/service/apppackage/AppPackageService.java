@@ -25,6 +25,8 @@ public interface AppPackageService {
 
     AppPackage getAppPackage(String packageId);
 
+    AppPackage getAppPackageByAppId(String applicationId);
+
     AppPkgStructure getAppPackageStructure(String packageId);
 
     String getAppPackageFileContent(String packageId, String fileName);

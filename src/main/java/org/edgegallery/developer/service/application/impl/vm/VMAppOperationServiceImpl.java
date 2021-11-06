@@ -14,13 +14,24 @@
 
 package org.edgegallery.developer.service.application.impl.vm;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.lang.reflect.Type;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.core.Response.Status;
+import org.apache.commons.io.FileUtils;
+import org.apache.tomcat.util.http.fileupload.servlet.ServletFileUpload;
 import org.edgegallery.developer.common.ResponseConsts;
 import org.edgegallery.developer.domain.model.user.User;
 import org.edgegallery.developer.exception.DataBaseException;
 import org.edgegallery.developer.exception.EntityNotFoundException;
+import org.edgegallery.developer.exception.FileOperateException;
+import org.edgegallery.developer.exception.IllegalRequestException;
 import org.edgegallery.developer.mapper.application.vm.ImageExportInfoMapper;
 import org.edgegallery.developer.mapper.application.vm.VMInstantiateInfoMapper;
 import org.edgegallery.developer.mapper.operation.OperationStatusMapper;
@@ -41,6 +52,12 @@ import org.edgegallery.developer.model.operation.OperationStatus;
 import org.edgegallery.developer.model.resource.mephost.MepHost;
 import org.edgegallery.developer.model.restful.ApplicationDetail;
 import org.edgegallery.developer.model.restful.OperationInfoRep;
+import org.edgegallery.developer.model.vm.FileUploadEntity;
+import org.edgegallery.developer.model.vm.NetworkInfo;
+import org.edgegallery.developer.model.vm.ScpConnectEntity;
+import org.edgegallery.developer.model.vm.VmCreateConfig;
+import org.edgegallery.developer.model.vm.VmInfo;
+import org.edgegallery.developer.response.FormatRespDto;
 import org.edgegallery.developer.service.application.ApplicationService;
 import org.edgegallery.developer.service.application.action.IAction;
 import org.edgegallery.developer.service.application.action.IActionIterator;
@@ -50,12 +67,15 @@ import org.edgegallery.developer.service.application.impl.AppOperationServiceImp
 import org.edgegallery.developer.service.application.vm.VMAppOperationService;
 import org.edgegallery.developer.service.apppackage.AppPackageService;
 import org.edgegallery.developer.util.HttpClientUtil;
+import org.edgegallery.developer.util.ShhFileUploadUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 public class VMAppOperationServiceImpl extends AppOperationServiceImpl implements VMAppOperationService {
@@ -65,6 +85,11 @@ public class VMAppOperationServiceImpl extends AppOperationServiceImpl implement
     public static final String OPERATION_EXPORT_IMAGE_NAME = "VirtualMachine Export Image";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(VMAppOperationServiceImpl.class);
+
+    @Value("${upload.tempPath}")
+    private String tempUploadPath;
+
+    private static final String SUBDIR_FILE = "uploadFile";
 
     @Autowired
     VMInstantiateInfoMapper vmInstantiateInfoMapper;
@@ -128,12 +153,78 @@ public class VMAppOperationServiceImpl extends AppOperationServiceImpl implement
 
     @Override
     public Boolean uploadFileToVm(String applicationId, String vmId, HttpServletRequest request, Chunk chunk) {
-        return null;
+        LOGGER.info("upload system image file, fileName = {}, identifier = {}, chunkNum = {}", chunk.getFilename(),
+            chunk.getIdentifier(), chunk.getChunkNumber());
+        boolean isMultipart = ServletFileUpload.isMultipartContent(request);
+        if (!isMultipart) {
+            LOGGER.error("upload request is invalid.");
+            throw new IllegalRequestException("upload request is invalid.", ResponseConsts.RET_UPLOAD_FILE_FAIL);
+        }
+
+        MultipartFile file = chunk.getFile();
+        if (file == null) {
+            LOGGER.error("can not find any needed file");
+            throw new IllegalRequestException("can not find any needed file.", ResponseConsts.RET_UPLOAD_FILE_FAIL);
+        }
+
+        File tmpUploadDir = new File(getUploadFileRootDir());
+        if (!tmpUploadDir.exists()) {
+            boolean isMk = tmpUploadDir.mkdirs();
+            if (!isMk) {
+                LOGGER.error("create temporary upload path failed");
+                throw new FileOperateException("create temporary upload path failed", ResponseConsts.RET_CREATE_FILE_FAIL);
+            }
+        }
+
+        Integer chunkNumber = chunk.getChunkNumber();
+        if (chunkNumber == null) {
+            chunkNumber = 0;
+        }
+        File outFile = new File(getUploadFileRootDir() + chunk.getIdentifier(), chunkNumber + ".part");
+        try {
+            InputStream inputStream = file.getInputStream();
+            FileUtils.copyInputStreamToFile(inputStream, outFile);
+        } catch (IOException e) {
+            LOGGER.error("save temporary file failed");
+            throw new FileOperateException("save temporary file failed", ResponseConsts.RET_CREATE_FILE_FAIL);
+        }
+
+        return true;
     }
 
     @Override
     public ResponseEntity mergeAppFile(String applicationId, String vmId, String fileName, String identifier) {
-        return null;
+        String partFilePath = getUploadFileRootDir() + identifier;
+        File partFileDir = new File(partFilePath);
+        File[] partFiles = partFileDir.listFiles();
+        if (partFiles == null || partFiles.length == 0) {
+            LOGGER.error("uploaded part file not found!");
+            return ResponseEntity.badRequest().build();
+        }
+
+        File mergedFile = new File(getUploadFileRootDir() + File.separator + fileName);
+        try {
+            FileOutputStream destTempfos = new FileOutputStream(mergedFile, true);
+            for (int i = 1; i <= partFiles.length; i++) {
+                File partFile = new File(partFilePath, i + ".part");
+                FileUtils.copyFile(partFile, destTempfos);
+            }
+            destTempfos.close();
+            FileUtils.deleteDirectory(partFileDir);
+
+        } catch (IOException e) {
+            LOGGER.error("merge file failed");
+            throw new FileOperateException("merge file failed", ResponseConsts.RET_CREATE_FILE_FAIL);
+        }
+
+        Boolean pushFileToVmRes = pushFileToVm(mergedFile, applicationId, vmId);
+        FileUtils.deleteQuietly(new File(getUploadFileRootDir()));
+
+        if (!pushFileToVmRes) {
+            LOGGER.error("push app file failed!");
+            return ResponseEntity.badRequest().build();
+        }
+        return ResponseEntity.ok().build();
     }
 
     @Override
@@ -332,6 +423,44 @@ public class VMAppOperationServiceImpl extends AppOperationServiceImpl implement
             }
         }
         return true;
+    }
+
+    private Boolean pushFileToVm(File appFile, String applicationId, String vmId) {
+        VirtualMachine vm = vmAppVmServiceImpl.getVm(applicationId, vmId);
+        VMInstantiateInfo vmInstantiateInfo = vm.getVmInstantiateInfo();
+        String username = vm.getVmCertificate().getPwdCertificate().getUsername();
+        String password = vm.getVmCertificate().getPwdCertificate().getPassword();
+        List<PortInstantiateInfo> portInstantiateInfos = vmInstantiateInfo.getPortInstanceList();
+        String networkName = "MEC_APP_N6";
+        String networkIp = "";
+        for (PortInstantiateInfo portInstantiateInfo : portInstantiateInfos) {
+            if (portInstantiateInfo.getNetworkName().equals(networkName)) {
+                networkIp = portInstantiateInfo.getIpAddress();
+            }
+        }
+        LOGGER.info("network Ip, username is {},{}", networkIp, username);
+        // ssh upload file
+        String targetPath = "";
+        ScpConnectEntity scpConnectEntity = new ScpConnectEntity();
+        scpConnectEntity.setTargetPath(targetPath);
+        scpConnectEntity.setUrl(networkIp);
+        scpConnectEntity.setPassWord(password);
+        scpConnectEntity.setUserName(username);
+        String remoteFileName = appFile.getName();
+        LOGGER.info("path:{}", targetPath);
+        ShhFileUploadUtil sshFileUploadUtil = new ShhFileUploadUtil();
+        FileUploadEntity fileUploadEntity = sshFileUploadUtil.uploadFile(appFile, remoteFileName, scpConnectEntity);
+        if (fileUploadEntity.getCode().equals("ok")) {
+            return true;
+        } else {
+            LOGGER.warn("upload fail, ip:{}", networkIp);
+            return false;
+        }
+
+    }
+
+    private String getUploadFileRootDir() {
+        return tempUploadPath + File.separator + SUBDIR_FILE + File.separator;
     }
 
 }
