@@ -81,6 +81,7 @@ public class PackageFileCreator {
         if (!packageFileDir.exists() || !packageFileDir.isDirectory()) {
             File applicationDir = new File(getApplicationPath());
             try {
+                LOGGER.error("temp path:{}",Resources.getResourceURL(PACKAGE_TEMPLATE_PATH).getFile());
                 DeveloperFileUtils
                     .copyDirectory(Resources.getResourceAsFile(PACKAGE_TEMPLATE_PATH), applicationDir, packageId);
             } catch (IOException e) {
