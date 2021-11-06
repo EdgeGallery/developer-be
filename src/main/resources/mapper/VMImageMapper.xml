@@ -203,4 +203,11 @@
     SET file_md5=#{fileMd5}, image_size=#{imageSize}
     WHERE id = #{imageId}
   </update>
+
+  <insert id="createVmImageAllInfo" parameterType="org.edgegallery.developer.model.resource.vm.VMImage">
+    insert into tbl_vm_image (name, visible_type, os_type, os_version, os_bit_type, system_disk_size,
+    user_id, user_name, create_time, modify_time, status, down_load_url, image_file_name, file_md5, image_format, image_size, image_slim_status)
+    values (#{name}, #{visibleType}, #{osType}, #{osVersion}, #{osBitType}, #{systemDiskSize}, #{userId}, #{userName}, now(), now(), #{status},
+    #{downLoadUrl}, #{imageFileName}, #{fileMd5}, #{imageFormat}, #{imageSize}, #{imageSlimStatus})
+  </insert>
 </mapper>

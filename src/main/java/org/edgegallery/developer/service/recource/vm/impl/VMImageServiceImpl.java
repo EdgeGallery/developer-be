@@ -523,6 +523,16 @@ public class VMImageServiceImpl implements VMImageService {
 
     }
 
+    @Override
+    public VMImage createVmImageAllInfo(VMImage vmImage) {
+        return vmImageMapper.createVmImageAllInfo(vmImage);
+    }
+
+    @Override
+    public VMImage getVmImagesById(Integer imageId) {
+        return vmImageMapper.getVmImage(imageId);
+    }
+
     private boolean isAdminUser() {
         String currUserAuth = AccessUserUtil.getUser().getUserAuth();
         return !StringUtils.isEmpty(currUserAuth) && currUserAuth.contains(Consts.ROLE_DEVELOPER_ADMIN);

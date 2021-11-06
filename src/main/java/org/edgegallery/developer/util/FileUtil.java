@@ -125,17 +125,6 @@ public final class FileUtil {
     }
 
     /**
-     * get application path.
-     *
-     * @param applicationId applicationId
-     * @return
-     */
-    public static String getApplicationPath(String applicationId) {
-        return InitConfigUtil.getWorkSpaceBaseDir() + BusinessConfigUtil.getWorkspacePath() + applicationId
-            + File.separator;
-    }
-
-    /**
      * check file type.
      *
      * @param fileName fileName

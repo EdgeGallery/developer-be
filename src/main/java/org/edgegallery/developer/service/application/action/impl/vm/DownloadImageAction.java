@@ -18,14 +18,23 @@ package org.edgegallery.developer.service.application.action.impl.vm;
 import org.apache.commons.lang3.StringUtils;
 import org.edgegallery.developer.mapper.application.vm.ImageExportInfoMapper;
 import org.edgegallery.developer.model.LcmLog;
+import org.edgegallery.developer.model.application.Application;
+import org.edgegallery.developer.model.application.vm.VirtualMachine;
 import org.edgegallery.developer.model.filesystem.FileSystemResponse;
 import org.edgegallery.developer.model.instantiate.vm.EnumImageExportStatus;
 import org.edgegallery.developer.model.instantiate.vm.ImageExportInfo;
 import org.edgegallery.developer.model.operation.ActionStatus;
 import org.edgegallery.developer.model.operation.EnumOperationObjectType;
+import org.edgegallery.developer.model.resource.vm.EnumVmImageSlimStatus;
+import org.edgegallery.developer.model.resource.vm.EnumVmImageStatus;
+import org.edgegallery.developer.model.resource.vm.VMImage;
+import org.edgegallery.developer.model.restful.ApplicationDetail;
+import org.edgegallery.developer.service.application.ApplicationService;
 import org.edgegallery.developer.service.application.action.IContext;
 import org.edgegallery.developer.service.application.action.impl.AbstractAction;
 import org.edgegallery.developer.service.application.common.IContextParameter;
+import org.edgegallery.developer.service.application.vm.VMAppVmService;
+import org.edgegallery.developer.service.recource.vm.VMImageService;
 import org.edgegallery.developer.util.HttpClientUtil;
 import org.edgegallery.developer.util.SpringContextUtil;
 import org.slf4j.Logger;
@@ -48,6 +57,11 @@ public class DownloadImageAction extends AbstractAction {
 
     ImageExportInfoMapper imageExportInfoMapper = (ImageExportInfoMapper) SpringContextUtil.getBean(ImageExportInfoMapper.class);
 
+    VMImageService vmImageService = (VMImageService) SpringContextUtil.getBean(VMImageService.class);
+
+    VMAppVmService vmAppVmService = (VMAppVmService) SpringContextUtil.getBean(VMAppVmService.class);
+
+
     private IContext context;
 
     public IContext getContext() {
@@ -68,7 +82,7 @@ public class DownloadImageAction extends AbstractAction {
     public boolean execute() {
         //Start action , save action status.
         String packageId = (String) getContext().getParameter(IContextParameter.PARAM_PACKAGE_ID);
-        String statusLog = "Start to create vm image for package Id：" + packageId;
+        String statusLog = "Start to download vm image for package Id：" + packageId;
         LOGGER.info(statusLog);
         ActionStatus actionStatus = initActionStatus(EnumOperationObjectType.VM_IMAGE_INSTANCE, packageId,
             ACTION_NAME, statusLog);
@@ -82,9 +96,36 @@ public class DownloadImageAction extends AbstractAction {
             modifyImageExportInfo(EnumImageExportStatus.FAILED, msg);
         }
         String msg = "query vm  image info from fileSystem success";
-        updateActionProgress(actionStatus, 100, msg);
+        updateActionProgress(actionStatus, 60, msg);
         modifyImageExportInfo(EnumImageExportStatus.SUCCESS, msg);
+        // save to image mgmt
+        boolean saveResult = saveImageToImageMgmt();
+        if(!saveResult) {
+            updateActionError(actionStatus, "save vm  image info to imageMgmt fail.");
+        }
+        updateActionProgress(actionStatus, 100, "download image success");
         return true;
+    }
+
+    private boolean saveImageToImageMgmt() {
+        String applicationId = (String) getContext().getParameter(IContextParameter.PARAM_APPLICATION_ID);
+        String vmId = (String) getContext().getParameter(IContextParameter.PARAM_VM_ID);
+        VirtualMachine vm = vmAppVmService.getVm(applicationId, vmId);
+        VMImage vmImage = vmImageService.getVmImageById(vm.getImageId());
+        vmImage.setName(vm.getImageExportInfo().getImageName());
+        vmImage.setDownLoadUrl(vm.getImageExportInfo().getDownloadUrl());
+        vmImage.setFileMd5(vm.getImageExportInfo().getCheckSum());
+        vmImage.setImageFileName(vm.getImageExportInfo().getImageName());
+        vmImage.setImageSize(Long.valueOf(vm.getImageExportInfo().getImageSize()));
+        vmImage.setImageFormat(vm.getImageExportInfo().getFormat());
+        vmImage.setImageSlimStatus(EnumVmImageSlimStatus.SLIM_SUCCEED);
+        vmImage.setStatus(EnumVmImageStatus.PUBLISHED);
+        vmImage.setVisibleType("private");
+        VMImage vmImageInfo = vmImageService.createVmImageAllInfo(vmImage);
+        vm.setImageId(vmImageInfo.getId());
+        vmAppVmService.modifyVm(applicationId, vmId, vm);
+        return true;
+
     }
 
     private boolean queryImageInfoFromFileSystem() {
