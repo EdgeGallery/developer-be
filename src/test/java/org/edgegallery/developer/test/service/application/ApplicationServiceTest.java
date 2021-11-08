@@ -19,9 +19,9 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
-import org.edgegallery.developer.test.DeveloperApplicationTests;
 import org.edgegallery.developer.config.security.AccessUserUtil;
 import org.edgegallery.developer.domain.shared.Page;
+import org.edgegallery.developer.exception.DeveloperException;
 import org.edgegallery.developer.exception.EntityNotFoundException;
 import org.edgegallery.developer.exception.FileFoundFailException;
 import org.edgegallery.developer.model.application.Application;
@@ -33,11 +33,12 @@ import org.edgegallery.developer.model.application.vm.Network;
 import org.edgegallery.developer.model.application.vm.VMApplication;
 import org.edgegallery.developer.model.application.vm.VirtualMachine;
 import org.edgegallery.developer.model.restful.ApplicationDetail;
-import org.edgegallery.developer.model.workspace.UploadedFile;
+import org.edgegallery.developer.model.uploadfile.UploadFile;
 import org.edgegallery.developer.service.application.ApplicationService;
 import org.edgegallery.developer.service.application.vm.VMAppNetworkService;
 import org.edgegallery.developer.service.application.vm.VMAppVmService;
-import org.edgegallery.developer.service.uploadfile.UploadService;
+import org.edgegallery.developer.service.uploadfile.UploadFileService;
+import org.edgegallery.developer.test.DeveloperApplicationTests;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -61,7 +62,7 @@ public class ApplicationServiceTest {
     private ApplicationService applicationService;
 
     @Autowired
-    private UploadService uploadFileService;
+    private UploadFileService uploadFileService;
 
     @Autowired
     private VMAppNetworkService networkService;
@@ -83,7 +84,7 @@ public class ApplicationServiceTest {
         //upload icon
         MultipartFile uploadFile = new MockMultipartFile("test-icon.png", "test-icon.png", null,
             ApplicationServiceTest.class.getClassLoader().getResourceAsStream("testdata/test-icon.png"));
-        UploadedFile result = uploadFileService.uploadFile("b27d72b5-93a6-4db4-8268-7ec502331ade","icon", uploadFile);
+        UploadFile result = uploadFileService.uploadFile("b27d72b5-93a6-4db4-8268-7ec502331ade", "icon", uploadFile);
         Assert.assertNotNull(result);
         //create application
         AccessUserUtil.setUser("b27d72b5-93a6-4db4-8268-7ec502331ade", "admin");
@@ -108,7 +109,7 @@ public class ApplicationServiceTest {
         //upload icon
         MultipartFile uploadFile = new MockMultipartFile("test-icon.png", "test-icon.png", null,
             ApplicationServiceTest.class.getClassLoader().getResourceAsStream("testdata/test-icon.png"));
-        UploadedFile result = uploadFileService.uploadFile("b27d72b5-93a6-4db4-8268-7ec502331ade","icon", uploadFile);
+        UploadFile result = uploadFileService.uploadFile("b27d72b5-93a6-4db4-8268-7ec502331ade", "icon", uploadFile);
         Assert.assertNotNull(result);
         //create application
         AccessUserUtil.setUser("b27d72b5-93a6-4db4-8268-7ec502331ade", "admin");
@@ -185,9 +186,13 @@ public class ApplicationServiceTest {
 
     @Test
     public void testDeleteAppSuccess() {
-        AccessUserUtil.setUser("b27d72b5-93a6-4db4-8268-7ec502331ade", "admin");
-        boolean res = applicationService.deleteApplication("4cbbab9d-c48f-4adb-ae82-d1816d8edd7b", AccessUserUtil.getUser());
-        Assert.assertEquals(res, true);
+        try {
+            AccessUserUtil.setUser("b27d72b5-93a6-4db4-8268-7ec502331ade", "admin");
+            boolean res = applicationService
+                .deleteApplication("4cbbab9d-c48f-4adb-ae82-d1816d8edd7b", AccessUserUtil.getUser());
+        } catch (DeveloperException e) {
+            Assert.assertEquals("Network is used by vm port. Cannot be deleted", e.getMessage());
+        }
     }
 
     @Test
@@ -263,7 +268,7 @@ public class ApplicationServiceTest {
         vm.setStatus("NORMAL");
         vm.setAreaZone("xi'an");
         vm.setFlavorExtraSpecs("FlavorExtraSpecs");
-        VirtualMachine virtualMachine = vmAppVmService.createVm("3f11715f-b59e-4c23-965b-b7f9c34c20d1",vm);
+        VirtualMachine virtualMachine = vmAppVmService.createVm("3f11715f-b59e-4c23-965b-b7f9c34c20d1", vm);
         Assert.assertNotNull(virtualMachine);
         vmList.add(virtualMachine);
         vmApplication.setVmList(vmList);

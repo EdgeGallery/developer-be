@@ -38,6 +38,8 @@ DROP TABLE  IF  EXISTS tbl_vm_image_export_info;
 DROP TABLE  IF  EXISTS tbl_vm_port_instantiate_info;
 DROP TABLE  IF  EXISTS tbl_mep_host;
 DROP TABLE  IF  EXISTS tbl_reverse_proxy;
+DROP TABLE  IF  EXISTS tbl_app_package;
+DROP TABLE  IF  EXISTS tbl_atp_test_task;
 DROP TABLE  IF  EXISTS tbl_app_project;
 DROP TABLE  IF  EXISTS tbl_openmep_capability;
 DROP TABLE  IF  EXISTS tbl_openmep_capability_detail;
@@ -410,6 +412,22 @@ CREATE TABLE IF NOT EXISTS tbl_reverse_proxy (
   proxy_port int4 NOT NULL,
   type int4 NOT NULL,
   CONSTRAINT tbl_reverse_proxy_pkey PRIMARY KEY (id)
+);
+
+CREATE TABLE IF NOT EXISTS tbl_app_package (
+  id varchar(255) NOT NULL,
+  app_id varchar(255) NOT NULL,
+  package_file_name varchar(255) DEFAULT NULL,
+  CONSTRAINT tbl_app_package_pkey PRIMARY KEY (id)
+);
+
+CREATE TABLE IF NOT EXISTS tbl_atp_test_task (
+  id varchar(255) NOT NULL,
+  app_id varchar(255) NOT NULL,
+  app_name varchar(255) DEFAULT NULL,
+  status varchar(255) DEFAULT NULL,
+  create_time varchar(255)  DEFAULT NULL,
+  CONSTRAINT tbl_atp_test_task_pkey PRIMARY KEY (id)
 );
 
 CREATE TABLE IF NOT EXISTS tbl_openmep_capability (

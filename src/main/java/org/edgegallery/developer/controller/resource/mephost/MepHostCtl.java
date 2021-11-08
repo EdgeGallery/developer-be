@@ -28,6 +28,7 @@ import org.edgegallery.developer.domain.model.user.User;
 import org.edgegallery.developer.domain.shared.Page;
 import org.edgegallery.developer.model.resource.mephost.MepHost;
 import org.edgegallery.developer.model.resource.mephost.MepHostLog;
+import org.edgegallery.developer.model.uploadfile.UploadFile;
 import org.edgegallery.developer.model.workspace.UploadedFile;
 import org.edgegallery.developer.response.ErrorRespDto;
 import org.edgegallery.developer.service.recource.mephost.MepHostService;
@@ -175,15 +176,15 @@ public class MepHostCtl {
     /**
      * upload config file.
      */
-    @ApiOperation(value = "upload file", response = UploadedFile.class)
+    @ApiOperation(value = "upload file", response = UploadFile.class)
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "OK", response = UploadedFile.class),
+        @ApiResponse(code = 200, message = "OK", response = UploadFile.class),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
     @RequestMapping(value = "/action/upload-config-file", method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
         produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
-    public ResponseEntity<UploadedFile> uploadFile(
+    public ResponseEntity<UploadFile> uploadFile(
         @ApiParam(value = "file", required = true) @RequestPart("file") MultipartFile uploadFile) {
         return ResponseEntity.ok(mepHostService.uploadConfigFile(uploadFile));
 

@@ -18,13 +18,11 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.Type;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.core.Response.Status;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.tomcat.util.http.fileupload.servlet.ServletFileUpload;
 import org.edgegallery.developer.common.ResponseConsts;
 import org.edgegallery.developer.domain.model.user.User;
@@ -53,11 +51,7 @@ import org.edgegallery.developer.model.resource.mephost.MepHost;
 import org.edgegallery.developer.model.restful.ApplicationDetail;
 import org.edgegallery.developer.model.restful.OperationInfoRep;
 import org.edgegallery.developer.model.vm.FileUploadEntity;
-import org.edgegallery.developer.model.vm.NetworkInfo;
 import org.edgegallery.developer.model.vm.ScpConnectEntity;
-import org.edgegallery.developer.model.vm.VmCreateConfig;
-import org.edgegallery.developer.model.vm.VmInfo;
-import org.edgegallery.developer.response.FormatRespDto;
 import org.edgegallery.developer.service.application.ApplicationService;
 import org.edgegallery.developer.service.application.action.IAction;
 import org.edgegallery.developer.service.application.action.IActionIterator;
@@ -172,7 +166,8 @@ public class VMAppOperationServiceImpl extends AppOperationServiceImpl implement
             boolean isMk = tmpUploadDir.mkdirs();
             if (!isMk) {
                 LOGGER.error("create temporary upload path failed");
-                throw new FileOperateException("create temporary upload path failed", ResponseConsts.RET_CREATE_FILE_FAIL);
+                throw new FileOperateException("create temporary upload path failed",
+                    ResponseConsts.RET_CREATE_FILE_FAIL);
             }
         }
 
@@ -261,8 +256,8 @@ public class VMAppOperationServiceImpl extends AppOperationServiceImpl implement
             throw new DataBaseException("Create export image operationStatus in db error.",
                 ResponseConsts.RET_CERATE_DATA_FAIL);
         }
-        VMExportImageOperation actionCollection = new VMExportImageOperation(user, applicationId,
-            vmId, operationStatus, appInstanceId, vmInstanceId);
+        VMExportImageOperation actionCollection = new VMExportImageOperation(user, applicationId, vmId, operationStatus,
+            appInstanceId, vmInstanceId);
         LOGGER.info("start instantiate vm app");
         applicationService.updateApplicationStatus(applicationId, EnumApplicationStatus.DEPLOYED);
         new ExportVmImageProcessor(actionCollection).start();
@@ -291,7 +286,6 @@ public class VMAppOperationServiceImpl extends AppOperationServiceImpl implement
         applicationService.updateApplicationStatus(applicationId, EnumApplicationStatus.CONFIGURED);
         return true;
     }
-
 
     @Override
     public AppPackage generatePackage(String applicationId) {
@@ -345,7 +339,6 @@ public class VMAppOperationServiceImpl extends AppOperationServiceImpl implement
         return true;
     }
 
-
     public ImageExportInfo getImageExportInfo(String vmId) {
         return imageExportInfoMapper.getImageExportInfoInfoByVMId(vmId);
     }
@@ -394,8 +387,11 @@ public class VMAppOperationServiceImpl extends AppOperationServiceImpl implement
         }
     }
 
-
     private boolean cleanVmLaunchInfo(String mepHostId, VirtualMachine vm, User user) {
+        if (StringUtils.isEmpty(mepHostId)) {
+            LOGGER.error("The virtual machine is not running!");
+            return true;
+        }
         MepHost mepHost = mepHostMapper.getHost(mepHostId);
         String basePath = HttpClientUtil
             .getUrlPrefix(mepHost.getLcmProtocol(), mepHost.getLcmIp(), mepHost.getLcmPort());

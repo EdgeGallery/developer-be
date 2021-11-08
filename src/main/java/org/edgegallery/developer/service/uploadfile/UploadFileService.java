@@ -17,16 +17,16 @@ package org.edgegallery.developer.service.uploadfile;
 import java.util.List;
 import org.edgegallery.developer.model.apppackage.AppPkgStructure;
 import org.edgegallery.developer.model.capability.Capability;
-import org.edgegallery.developer.model.workspace.UploadedFile;
+import org.edgegallery.developer.model.uploadfile.UploadFile;
 import org.springframework.web.multipart.MultipartFile;
 
-public interface UploadService {
+public interface UploadFileService {
 
-    byte[] getFileStream(UploadedFile uploadedFile, String userId);
+    byte[] getFileStream(UploadFile uploadedFile, String userId);
 
-    UploadedFile getFile(String fileId, String userId);
+    UploadFile getFile(String fileId);
 
-    UploadedFile uploadFile(String userId, String fileType, MultipartFile uploadFile);
+    UploadFile uploadFile(String userId, String fileType, MultipartFile uploadFile);
 
     boolean deleteFile(String fileId);
 
@@ -38,7 +38,7 @@ public interface UploadService {
 
     byte[] getSdkProject(String fileId, String lan, List<Capability> capabilities);
 
-    UploadedFile saveFileToLocal(MultipartFile uploadFile, String userId);
+    UploadFile saveFileToLocal(MultipartFile uploadFile, String userId);
 
     void moveFileToWorkSpaceById(String srcId, String applicationId);
 }

@@ -24,8 +24,9 @@ import org.edgegallery.developer.exception.IllegalRequestException;
 import org.edgegallery.developer.mapper.capability.CapabilityMapper;
 import org.edgegallery.developer.model.apppackage.AppPkgStructure;
 import org.edgegallery.developer.model.capability.Capability;
+import org.edgegallery.developer.model.uploadfile.UploadFile;
 import org.edgegallery.developer.model.workspace.UploadedFile;
-import org.edgegallery.developer.service.uploadfile.UploadService;
+import org.edgegallery.developer.service.uploadfile.UploadFileService;
 import org.edgegallery.developer.test.DeveloperApplicationTests;
 import org.junit.Assert;
 import org.junit.Test;
@@ -47,7 +48,7 @@ public class UploadServiceTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(UploadServiceTest.class);
 
     @Autowired
-    private UploadService uploadService;
+    private UploadFileService uploadFileService;
 
     @Autowired
     private CapabilityMapper capabilityMapper;
@@ -57,7 +58,7 @@ public class UploadServiceTest {
         try {
             MultipartFile uploadFile = new MockMultipartFile("test-icon.png", "test-icon.png", null,
                 UploadServiceTest.class.getClassLoader().getResourceAsStream("testdata/test-icon.png"));
-            uploadService.uploadFile(null, "text", uploadFile);
+            uploadFileService.uploadFile(null, "text", uploadFile);
         } catch (IllegalRequestException e) {
             Assert.assertEquals("fileType is error,must be one of [icon,md,api]", e.getMessage());
         }
@@ -68,7 +69,7 @@ public class UploadServiceTest {
         try {
             MultipartFile uploadFile = new MockMultipartFile("config", "config", null,
                 UploadServiceTest.class.getClassLoader().getResourceAsStream("testdata/config"));
-            uploadService.uploadFile(null, "icon", uploadFile);
+            uploadFileService.uploadFile(null, "icon", uploadFile);
         } catch (IllegalRequestException e) {
             Assert.assertEquals("file suffix is error.", e.getMessage());
         }
@@ -80,7 +81,7 @@ public class UploadServiceTest {
             MultipartFile uploadFile = new MockMultipartFile("scenery.jpg", "scenery.jpg", null,
                 UploadServiceTest.class.getClassLoader().getResourceAsStream("testdata/scenery.jpg"));
             System.out.println(uploadFile.getSize());
-            uploadService.uploadFile(null, "icon", uploadFile);
+            uploadFileService.uploadFile(null, "icon", uploadFile);
         } catch (IllegalRequestException e) {
             Assert.assertEquals("icon file size can not be greater than 2m", e.getMessage());
         }
@@ -90,15 +91,15 @@ public class UploadServiceTest {
     public void testUploadFileSuccess() throws Exception {
         MultipartFile uploadFile = new MockMultipartFile("test-icon.png", "test-icon.png", null,
             UploadServiceTest.class.getClassLoader().getResourceAsStream("testdata/test-icon.png"));
-        UploadedFile file = uploadService.uploadFile("f1127092-ecc7-4e94-9247-b5f74d168754", "icon", uploadFile);
+        UploadFile file = uploadFileService.uploadFile("f1127092-ecc7-4e94-9247-b5f74d168754", "icon", uploadFile);
         Assert.assertNotNull(file);
     }
 
     @Test
     public void testGetFileStreamBadWithNullFile() throws Exception {
         try {
-            UploadedFile uploadedFile = new UploadedFile();
-            uploadService.getFileStream(uploadedFile, "f1127092-ecc7-4e94-9247-b5f74d168754");
+            UploadFile uploadFile = new UploadFile();
+            uploadFileService.getFileStream(uploadFile, "f1127092-ecc7-4e94-9247-b5f74d168754");
         } catch (FileFoundFailException e) {
             Assert.assertEquals("can not find file in repository!", e.getMessage());
         }
@@ -108,9 +109,9 @@ public class UploadServiceTest {
     public void testGetFileStreamSuccess() throws Exception {
         MultipartFile uploadFile = new MockMultipartFile("test-icon.png", "test-icon.png", null,
             UploadServiceTest.class.getClassLoader().getResourceAsStream("testdata/test-icon.png"));
-        UploadedFile file = uploadService.uploadFile("f1127092-ecc7-4e94-9247-b5f74d168754", "icon", uploadFile);
+        UploadFile file = uploadFileService.uploadFile("f1127092-ecc7-4e94-9247-b5f74d168754", "icon", uploadFile);
         Assert.assertNotNull(file);
-        byte[] bytes = uploadService.getFileStream(file, "f1127092-ecc7-4e94-9247-b5f74d168754");
+        byte[] bytes = uploadFileService.getFileStream(file, "f1127092-ecc7-4e94-9247-b5f74d168754");
         Assert.assertNotNull(bytes);
     }
 
@@ -118,16 +119,16 @@ public class UploadServiceTest {
     public void testGetFileStreamSuccessWithNullUserId() throws Exception {
         MultipartFile uploadFile = new MockMultipartFile("test-icon.png", "test-icon.png", null,
             UploadServiceTest.class.getClassLoader().getResourceAsStream("testdata/test-icon.png"));
-        UploadedFile file = uploadService.uploadFile("f1127092-ecc7-4e94-9247-b5f74d168754", "icon", uploadFile);
+        UploadFile file = uploadFileService.uploadFile("f1127092-ecc7-4e94-9247-b5f74d168754", "icon", uploadFile);
         Assert.assertNotNull(file);
-        byte[] bytes = uploadService.getFileStream(file, "");
+        byte[] bytes = uploadFileService.getFileStream(file, "");
         Assert.assertNotNull(bytes);
     }
 
     @Test
     public void testGetFileBadWithErrId() throws Exception {
         try {
-            uploadService.getFile("file", "userId");
+            uploadFileService.getFile("file");
         } catch (FileFoundFailException e) {
             Assert.assertEquals("file does not exist!", e.getMessage());
         }
@@ -137,16 +138,16 @@ public class UploadServiceTest {
     public void testGetFileSuccess() throws Exception {
         MultipartFile uploadFile = new MockMultipartFile("test-icon.png", "test-icon.png", null,
             UploadServiceTest.class.getClassLoader().getResourceAsStream("testdata/test-icon.png"));
-        UploadedFile file = uploadService.uploadFile("f1127092-ecc7-4e94-9247-b5f74d168754", "icon", uploadFile);
+        UploadFile file = uploadFileService.uploadFile("f1127092-ecc7-4e94-9247-b5f74d168754", "icon", uploadFile);
         Assert.assertNotNull(file);
-        UploadedFile bytes = uploadService.getFile(file.getFileId(), "f1127092-ecc7-4e94-9247-b5f74d168754");
+        UploadFile bytes = uploadFileService.getFile(file.getFileId());
         Assert.assertNotNull(bytes);
     }
 
     @Test
     public void testDeleteFileBadWithEmptyId() throws Exception {
         try {
-            uploadService.deleteFile("");
+            uploadFileService.deleteFile("");
         } catch (IllegalRequestException e) {
             Assert.assertEquals("fileId does not exist.", e.getMessage());
         }
@@ -154,13 +155,13 @@ public class UploadServiceTest {
 
     @Test
     public void testDeleteFileBadWithErrId() throws Exception {
-        boolean res = uploadService.deleteFile("text");
+        boolean res = uploadFileService.deleteFile("text");
         Assert.assertEquals(true, res);
     }
 
     @Test
     public void testDeleteFileBadWithExistId() throws Exception {
-        boolean res = uploadService.deleteFile("e111f3e7-90d8-4a39-9874-ea6ea6752ef5");
+        boolean res = uploadFileService.deleteFile("e111f3e7-90d8-4a39-9874-ea6ea6752ef5");
         Assert.assertEquals(true, res);
     }
 
@@ -168,9 +169,9 @@ public class UploadServiceTest {
     public void testDeleteFileSuccess() throws Exception {
         MultipartFile uploadFile = new MockMultipartFile("face.png", "face.png", null,
             UploadServiceTest.class.getClassLoader().getResourceAsStream("testdata/face.png"));
-        UploadedFile file = uploadService.uploadFile("f1127092-ecc7-4e94-9247-b5f74d168755", "icon", uploadFile);
+        UploadFile file = uploadFileService.uploadFile("f1127092-ecc7-4e94-9247-b5f74d168755", "icon", uploadFile);
         Assert.assertNotNull(file);
-        boolean res = uploadService.deleteFile(file.getFileId());
+        boolean res = uploadFileService.deleteFile(file.getFileId());
         Assert.assertEquals(true, res);
     }
 
@@ -180,10 +181,10 @@ public class UploadServiceTest {
             List<String> apis = new ArrayList<>();
             MultipartFile uploadFile = new MockMultipartFile("health.yaml", "health.yaml", null,
                 UploadServiceTest.class.getClassLoader().getResourceAsStream("testdata/health.yaml"));
-            UploadedFile file = uploadService.uploadFile("f1127092-ecc7-4e94-9247-b5f74d168755", "api", uploadFile);
+            UploadFile file = uploadFileService.uploadFile("f1127092-ecc7-4e94-9247-b5f74d168755", "api", uploadFile);
             Assert.assertNotNull(file);
             apis.add(file.getFileId());
-            uploadService.downloadSampleCode(apis);
+            uploadFileService.downloadSampleCode(apis);
         } catch (DeveloperException e) {
             Assert.assertEquals("Yaml deserialization failed.", e.getMessage());
         }
@@ -194,7 +195,7 @@ public class UploadServiceTest {
         try {
             List<String> apis = new ArrayList<>();
             apis.add("file.getFileId()");
-            uploadService.downloadSampleCode(apis);
+            uploadFileService.downloadSampleCode(apis);
         } catch (IllegalRequestException e) {
             Assert.assertEquals("The input is not in UUID format.", e.getMessage());
         }
@@ -205,7 +206,7 @@ public class UploadServiceTest {
         try {
             List<String> apis = new ArrayList<>();
             apis.add(UUID.randomUUID().toString());
-            uploadService.downloadSampleCode(apis);
+            uploadFileService.downloadSampleCode(apis);
         } catch (FileFoundFailException e) {
             Assert.assertEquals("can not find api file.", e.getMessage());
         }
@@ -216,10 +217,10 @@ public class UploadServiceTest {
         List<String> apis = new ArrayList<>();
         MultipartFile uploadFile = new MockMultipartFile("test.json", "test.json", null,
             UploadServiceTest.class.getClassLoader().getResourceAsStream("testdata/test.json"));
-        UploadedFile file = uploadService.uploadFile("f1127092-ecc7-4e94-9247-b5f74d168755", "api", uploadFile);
+        UploadFile file = uploadFileService.uploadFile("f1127092-ecc7-4e94-9247-b5f74d168755", "api", uploadFile);
         Assert.assertNotNull(file);
         apis.add(file.getFileId());
-        byte[] bytes = uploadService.downloadSampleCode(apis);
+        byte[] bytes = uploadFileService.downloadSampleCode(apis);
         Assert.assertNotNull(bytes.length);
     }
 
@@ -228,10 +229,10 @@ public class UploadServiceTest {
         List<String> apis = new ArrayList<>();
         MultipartFile uploadFile = new MockMultipartFile("test.json", "test.json", null,
             UploadServiceTest.class.getClassLoader().getResourceAsStream("testdata/test.json"));
-        UploadedFile file = uploadService.uploadFile("f1127092-ecc7-4e94-9247-b5f74d168755", "api", uploadFile);
+        UploadFile file = uploadFileService.uploadFile("f1127092-ecc7-4e94-9247-b5f74d168755", "api", uploadFile);
         Assert.assertNotNull(file);
         apis.add(file.getFileId());
-        AppPkgStructure appPkgStructure = uploadService.getSampleCodeStru(apis);
+        AppPkgStructure appPkgStructure = uploadFileService.getSampleCodeStru(apis);
         Assert.assertNotNull(appPkgStructure);
     }
 
@@ -241,12 +242,12 @@ public class UploadServiceTest {
             List<String> apis = new ArrayList<>();
             MultipartFile uploadFile = new MockMultipartFile("test.json", "test.json", null,
                 UploadServiceTest.class.getClassLoader().getResourceAsStream("testdata/test.json"));
-            UploadedFile file = uploadService.uploadFile("f1127092-ecc7-4e94-9247-b5f74d168755", "api", uploadFile);
+            UploadFile file = uploadFileService.uploadFile("f1127092-ecc7-4e94-9247-b5f74d168755", "api", uploadFile);
             Assert.assertNotNull(file);
             apis.add(file.getFileId());
-            AppPkgStructure appPkgStructure = uploadService.getSampleCodeStru(apis);
+            AppPkgStructure appPkgStructure = uploadFileService.getSampleCodeStru(apis);
             Assert.assertNotNull(appPkgStructure);
-            uploadService.getSampleCodeContent("test");
+            uploadFileService.getSampleCodeContent("test");
         } catch (IllegalRequestException e) {
             Assert.assertEquals("file has not any content!", e.getMessage());
         }
@@ -257,19 +258,19 @@ public class UploadServiceTest {
         List<String> apis = new ArrayList<>();
         MultipartFile uploadFile = new MockMultipartFile("test.json", "test.json", null,
             UploadServiceTest.class.getClassLoader().getResourceAsStream("testdata/test.json"));
-        UploadedFile file = uploadService.uploadFile("f1127092-ecc7-4e94-9247-b5f74d168755", "api", uploadFile);
+        UploadFile file = uploadFileService.uploadFile("f1127092-ecc7-4e94-9247-b5f74d168755", "api", uploadFile);
         Assert.assertNotNull(file);
         apis.add(file.getFileId());
-        AppPkgStructure appPkgStructure = uploadService.getSampleCodeStru(apis);
+        AppPkgStructure appPkgStructure = uploadFileService.getSampleCodeStru(apis);
         Assert.assertNotNull(appPkgStructure);
-        String content = uploadService.getSampleCodeContent("ApiSampleCode001.java");
+        String content = uploadFileService.getSampleCodeContent("ApiSampleCode001.java");
         Assert.assertNotNull(content);
     }
 
     @Test
     public void testGetSdkProjectBadWithErrId() throws Exception {
         try {
-            uploadService.getSdkProject("fileId", "lan", null);
+            uploadFileService.getSdkProject("fileId", "lan", null);
         } catch (FileFoundFailException e) {
             Assert.assertEquals("can not find file in db", e.getMessage());
         }
@@ -280,13 +281,13 @@ public class UploadServiceTest {
         try {
             MultipartFile uploadFile = new MockMultipartFile("test.json", "test.json", null,
                 UploadServiceTest.class.getClassLoader().getResourceAsStream("testdata/test.json"));
-            UploadedFile file = uploadService.uploadFile("f1127092-ecc7-4e94-9247-b5f74d168755", "api", uploadFile);
+            UploadFile file = uploadFileService.uploadFile("f1127092-ecc7-4e94-9247-b5f74d168755", "api", uploadFile);
             Assert.assertNotNull(file);
             Capability capability = capabilityMapper.selectById("e111f3e7-90d8-4a39-9874-ea6ea6752efgd");
             Assert.assertNotNull(capability);
             List<Capability> capabilities = new ArrayList<>();
             capabilities.add(capability);
-            uploadService.getSdkProject(file.getFileId(), "java", capabilities);
+            uploadFileService.getSdkProject(file.getFileId(), "java", capabilities);
         }catch (FileOperateException e){
             Assert.assertEquals("Failed to compress project", e.getMessage());
         }

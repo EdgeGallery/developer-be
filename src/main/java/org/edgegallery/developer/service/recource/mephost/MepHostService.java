@@ -21,6 +21,7 @@ import org.edgegallery.developer.domain.model.user.User;
 import org.edgegallery.developer.domain.shared.Page;
 import org.edgegallery.developer.model.resource.mephost.MepHost;
 import org.edgegallery.developer.model.resource.mephost.MepHostLog;
+import org.edgegallery.developer.model.uploadfile.UploadFile;
 import org.edgegallery.developer.model.workspace.UploadedFile;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -85,6 +86,6 @@ public interface MepHostService {
      * @param uploadFile config file
      * @return
      */
-    UploadedFile uploadConfigFile(MultipartFile uploadFile);
+    UploadFile uploadConfigFile(MultipartFile uploadFile);
 
 }

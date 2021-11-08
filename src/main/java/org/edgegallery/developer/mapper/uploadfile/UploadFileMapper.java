@@ -16,15 +16,15 @@ package org.edgegallery.developer.mapper.uploadfile;
 
 import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
-import org.edgegallery.developer.model.workspace.UploadedFile;
+import org.edgegallery.developer.model.uploadfile.UploadFile;
 
 @Mapper
 public interface UploadFileMapper {
-    UploadedFile getFileById(String fileId);
+    UploadFile getFileById(String fileId);
 
-    int saveFile(UploadedFile file);
+    int saveFile(UploadFile file);
 
-    int updateFile(UploadedFile file);
+    int updateFile(UploadFile file);
 
     int updateFileStatus(String fileId, boolean isTemp);
 

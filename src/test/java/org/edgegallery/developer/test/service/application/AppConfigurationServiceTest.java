@@ -30,7 +30,7 @@ import org.edgegallery.developer.model.application.configuration.TrafficRule;
 import org.edgegallery.developer.service.application.AppConfigurationService;
 import org.edgegallery.developer.service.application.vm.VMAppNetworkService;
 import org.edgegallery.developer.service.application.vm.VMAppVmService;
-import org.edgegallery.developer.service.uploadfile.UploadService;
+import org.edgegallery.developer.service.uploadfile.UploadFileService;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -52,7 +52,7 @@ public class AppConfigurationServiceTest {
     private AppConfigurationService configurationService;
 
     @Autowired
-    private UploadService uploadFileService;
+    private UploadFileService uploadFileService;
 
     @Autowired
     private VMAppNetworkService networkService;

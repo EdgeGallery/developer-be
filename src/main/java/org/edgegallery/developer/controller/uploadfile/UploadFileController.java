@@ -28,15 +28,15 @@ import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.edgegallery.developer.common.ResponseConsts;
 import org.edgegallery.developer.config.security.AccessUserUtil;
 import org.edgegallery.developer.exception.EntityNotFoundException;
-import org.edgegallery.developer.mapper.UploadedFileMapper;
 import org.edgegallery.developer.mapper.capability.CapabilityMapper;
 import org.edgegallery.developer.mapper.uploadfile.UploadFileMapper;
 import org.edgegallery.developer.model.apppackage.AppPkgStructure;
 import org.edgegallery.developer.model.capability.Capability;
+import org.edgegallery.developer.model.uploadfile.UploadFile;
 import org.edgegallery.developer.model.workspace.UploadedFile;
 import org.edgegallery.developer.response.ErrorRespDto;
-import org.edgegallery.developer.service.uploadfile.UploadService;
-import org.edgegallery.developer.service.uploadfile.impl.UploadServiceImpl;
+import org.edgegallery.developer.service.uploadfile.UploadFileService;
+import org.edgegallery.developer.service.uploadfile.impl.UploadFileServiceImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,20 +55,20 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.multipart.MultipartFile;
 
 @Controller
-@RestSchema(schemaId = "filesv2")
-@RequestMapping("/mec/developer/v2/files")
-@Api(tags = "Filev2")
+@RestSchema(schemaId = "upload-file")
+@RequestMapping("/mec/developer/v2/upload-file")
+@Api(tags = "upload-file")
 public class UploadFileController {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(UploadServiceImpl.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(UploadFileServiceImpl.class);
 
     private static final String REGEX_UUID = "[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}";
 
     @Autowired
-    private UploadService uploadFileService;
+    private UploadFileService uploadFileService;
 
     @Autowired
-    private UploadFileMapper uploadedFileMapper;
+    private UploadFileMapper uploadFileMapper;
 
     @Autowired
     private CapabilityMapper capabilityMapper;
@@ -87,47 +87,46 @@ public class UploadFileController {
     public ResponseEntity<byte[]> getFileStream(@Pattern(regexp = REGEX_UUID, message = "fileId must be in UUID format")
     @ApiParam(value = "fileId", required = true) @PathVariable("fileId") String fileId) {
         String userId = AccessUserUtil.getUserId();
-        UploadedFile uploadedFile = uploadedFileMapper.getFileById(fileId);
-        if (uploadedFile == null) {
+        UploadFile uploadFile = uploadFileService.getFile(fileId);
+        if (uploadFile == null) {
             LOGGER.error("can not find file {} in db.", fileId);
             throw new EntityNotFoundException("can not find file in db!", ResponseConsts.RET_QUERY_DATA_EMPTY);
         }
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Type", "application/octet-stream");
-        headers.add("Content-Disposition", "attachment; filename=" + uploadedFile.getFileName());
-        byte[] fileData = uploadFileService.getFileStream(uploadedFile, userId);
+        headers.add("Content-Disposition", "attachment; filename=" + uploadFile.getFileName());
+        byte[] fileData = uploadFileService.getFileStream(uploadFile, userId);
         return ResponseEntity.ok().headers(headers).body(fileData);
     }
 
     /**
      * get file Echo use.
      */
-    @ApiOperation(value = "get a file", response = UploadedFile.class)
+    @ApiOperation(value = "get a file", response = UploadFile.class)
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "OK", response = UploadedFile.class),
+        @ApiResponse(code = 200, message = "OK", response = UploadFile.class),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
     @RequestMapping(value = "/{fileId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN') || hasRole('DEVELOPER_GUEST')")
-    public ResponseEntity<UploadedFile> getFile(
+    public ResponseEntity<UploadFile> getFile(
         @Pattern(regexp = REGEX_UUID, message = "fileId must be in UUID format")
         @ApiParam(value = "fileId", required = true) @PathVariable("fileId") String fileId) {
-        String userId = AccessUserUtil.getUserId();
-        return ResponseEntity.ok(uploadFileService.getFile(fileId, userId));
+        return ResponseEntity.ok(uploadFileService.getFile(fileId));
     }
 
     /**
      * upload file.
      */
-    @ApiOperation(value = "upload file", response = UploadedFile.class)
+    @ApiOperation(value = "upload file", response = UploadFile.class)
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "OK", response = UploadedFile.class),
+        @ApiResponse(code = 200, message = "OK", response = UploadFile.class),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
     @RequestMapping(value = "", method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
         produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
-    public ResponseEntity<UploadedFile> uploadFile(
+    public ResponseEntity<UploadFile> uploadFile(
         @ApiParam(value = "file", required = true) @RequestPart("file") MultipartFile uploadFile,
         @ApiParam(value = "fileType", required = true) @RequestParam("fileType") String fileType) {
         String userId = AccessUserUtil.getUserId();

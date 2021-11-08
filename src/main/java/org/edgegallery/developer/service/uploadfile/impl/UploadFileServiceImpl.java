@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.UUID;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
+import org.edgegallery.developer.common.Consts;
 import org.edgegallery.developer.common.ResponseConsts;
 import org.edgegallery.developer.exception.DataBaseException;
 import org.edgegallery.developer.exception.DeveloperException;
@@ -33,17 +34,17 @@ import org.edgegallery.developer.exception.FileFoundFailException;
 import org.edgegallery.developer.exception.FileOperateException;
 import org.edgegallery.developer.exception.IllegalRequestException;
 import org.edgegallery.developer.mapper.HostMapper;
-import org.edgegallery.developer.mapper.UploadedFileMapper;
 import org.edgegallery.developer.mapper.capability.CapabilityMapper;
 import org.edgegallery.developer.mapper.uploadfile.UploadFileMapper;
 import org.edgegallery.developer.model.GeneralConfig;
 import org.edgegallery.developer.model.apppackage.AppPkgStructure;
 import org.edgegallery.developer.model.capability.Capability;
 import org.edgegallery.developer.model.resource.MepHost;
+import org.edgegallery.developer.model.uploadfile.UploadFile;
 import org.edgegallery.developer.model.workspace.EnumHostStatus;
 import org.edgegallery.developer.model.workspace.UploadedFile;
 import org.edgegallery.developer.service.AppReleaseService;
-import org.edgegallery.developer.service.uploadfile.UploadService;
+import org.edgegallery.developer.service.uploadfile.UploadFileService;
 import org.edgegallery.developer.util.BusinessConfigUtil;
 import org.edgegallery.developer.util.CompressFileUtils;
 import org.edgegallery.developer.util.DeveloperFileUtils;
@@ -59,17 +60,17 @@ import org.springframework.web.multipart.MultipartFile;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.SafeConstructor;
 
-@Service("uploadService")
-public class UploadServiceImpl implements UploadService {
+@Service("uploadFileService-v2")
+public class UploadFileServiceImpl implements UploadFileService {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(UploadServiceImpl.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(UploadFileServiceImpl.class);
 
     private static final String REGEX_UUID = "[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}";
 
     private static final List<String> FILE_TYPE_LIST = Arrays.asList("icon", "api", "md");
 
     @Autowired
-    private UploadFileMapper uploadedFileMapper;
+    private UploadFileMapper uploadFileMapper;
 
     @Autowired
     private HostMapper hostMapper;
@@ -83,13 +84,13 @@ public class UploadServiceImpl implements UploadService {
     private String sampleCodePath;
 
     @Override
-    public byte[] getFileStream(UploadedFile uploadedFile, String userId) {
-        File file = new File(InitConfigUtil.getWorkSpaceBaseDir() + uploadedFile.getFilePath());
+    public byte[] getFileStream(UploadFile uploadFile, String userId) {
+        File file = new File(InitConfigUtil.getWorkSpaceBaseDir() + uploadFile.getFilePath());
         if (!file.exists()) {
-            LOGGER.error("can not find file {} in repository", uploadedFile.getFileId());
+            LOGGER.error("can not find file {} in repository", uploadFile.getFileId());
             throw new FileFoundFailException("can not find file in repository!", ResponseConsts.RET_FILE_NOT_FOUND);
         }
-        String fileName = uploadedFile.getFileName();
+        String fileName = uploadFile.getFileName();
         try {
             return getFileByteArray(file, userId, fileName);
         } catch (IOException e) {
@@ -115,20 +116,20 @@ public class UploadServiceImpl implements UploadService {
     }
 
     @Override
-    public UploadedFile getFile(String fileId, String userId) {
-        UploadedFile uploadedFile = uploadedFileMapper.getFileById(fileId);
-        if (uploadedFile != null) {
-            File file = new File(InitConfigUtil.getWorkSpaceBaseDir() + uploadedFile.getFilePath());
+    public UploadFile getFile(String fileId) {
+        UploadFile uploadFile = uploadFileMapper.getFileById(fileId);
+        if (uploadFile != null) {
+            File file = new File(InitConfigUtil.getWorkSpaceBaseDir() + uploadFile.getFilePath());
             if (!file.exists()) {
                 LOGGER.error("can not find file {} in repository", fileId);
                 throw new FileFoundFailException("file does not exist!", ResponseConsts.RET_FILE_NOT_FOUND);
             }
         }
-        return uploadedFile;
+        return uploadFile;
     }
 
     @Override
-    public UploadedFile uploadFile(String userId, String fileType, MultipartFile uploadFile) {
+    public UploadFile uploadFile(String userId, String fileType, MultipartFile uploadFile) {
         //check format
         LOGGER.info("Start uploading file");
         String fileName = uploadFile.getOriginalFilename();
@@ -150,7 +151,7 @@ public class UploadServiceImpl implements UploadService {
                 throw new IllegalRequestException(errorMsg, ResponseConsts.RET_FILE_FORMAT_ERROR);
             }
         }
-        UploadedFile result = saveFileToLocal(uploadFile, userId);
+        UploadFile result = saveFileToLocal(uploadFile, userId);
         if (result == null) {
             LOGGER.error("Failed to save icon file!");
             throw new FileOperateException("Failed to save picture file.", ResponseConsts.RET_SAVE_FILE_FAIL);
@@ -164,12 +165,12 @@ public class UploadServiceImpl implements UploadService {
             LOGGER.error("fileId is empty!");
             throw new IllegalRequestException("fileId does not exist.", ResponseConsts.RET_REQUEST_PARAM_EMPTY);
         }
-        UploadedFile uploadedFile = uploadedFileMapper.getFileById(fileId);
-        if (uploadedFile == null) {
+        UploadFile uploadFile = uploadFileMapper.getFileById(fileId);
+        if (uploadFile == null) {
             LOGGER.error("the queried Object(UploadedFile) is null!");
             return true;
         }
-        String filePath = uploadedFile.getFilePath();
+        String filePath = uploadFile.getFilePath();
         File file = new File(InitConfigUtil.getWorkSpaceBaseDir() + filePath);
         if (!file.exists()) {
             LOGGER.warn("the queried file may be deleted or moved!");
@@ -182,7 +183,7 @@ public class UploadServiceImpl implements UploadService {
             return false;
         }
         //delete db record
-        int ret = uploadedFileMapper.deleteFile(fileId);
+        int ret = uploadFileMapper.deleteFile(fileId);
         if (ret < 1) {
             LOGGER.error("delete file failed!");
             throw new DataBaseException("delete file failed!", ResponseConsts.RET_DELETE_DATA_FAIL);
@@ -273,8 +274,8 @@ public class UploadServiceImpl implements UploadService {
 
     @Override
     public byte[] getSdkProject(String fileId, String lan, List<Capability> capabilities) {
-        UploadedFile uploadedFile = uploadedFileMapper.getFileById(fileId);
-        if (uploadedFile == null) {
+        UploadFile uploadFile = uploadFileMapper.getFileById(fileId);
+        if (uploadFile == null) {
             LOGGER.error("can not find file {} in db", fileId);
             throw new FileFoundFailException("can not find file in db", ResponseConsts.RET_FILE_NOT_FOUND);
         }
@@ -288,7 +289,7 @@ public class UploadServiceImpl implements UploadService {
         config.setGroupId("org.edgegallery");
         config.setOutput(InitConfigUtil.getWorkSpaceBaseDir());
         config.setProjectName(capabilities.get(0).getHost());
-        config.setInputSpec(uploadedFile.getFilePath());
+        config.setInputSpec(uploadFile.getFilePath());
         String sdkPath = InitConfigUtil.getWorkSpaceBaseDir() + config.getOutput() + capabilities.get(0).getHost();
 
         try {
@@ -333,8 +334,8 @@ public class UploadServiceImpl implements UploadService {
      * @return
      */
     @Override
-    public UploadedFile saveFileToLocal(MultipartFile uploadFile, String userId) {
-        UploadedFile result = new UploadedFile();
+    public UploadFile saveFileToLocal(MultipartFile uploadFile, String userId) {
+        UploadFile result = new UploadFile();
         String fileName = uploadFile.getOriginalFilename();
         String fileId = UUID.randomUUID().toString();
         String upLoadDir = InitConfigUtil.getWorkSpaceBaseDir() + BusinessConfigUtil.getUploadfilesPath();
@@ -357,7 +358,7 @@ public class UploadServiceImpl implements UploadService {
             result.setUploadDate(new Date());
             result.setTemp(false);
             result.setFilePath(BusinessConfigUtil.getUploadfilesPath() + fileId);
-            uploadedFileMapper.saveFile(result);
+            uploadFileMapper.saveFile(result);
         } catch (IOException e) {
             LOGGER.error("Failed to save file.");
             return null;
@@ -370,11 +371,11 @@ public class UploadServiceImpl implements UploadService {
      * moveFileToWorkSpaceById.
      */
     public void moveFileToWorkSpaceById(String srcId, String applicationId) {
-        uploadedFileMapper.updateFileStatus(srcId, false);
+        uploadFileMapper.updateFileStatus(srcId, false);
         // to confirm, whether the status is updated
-        UploadedFile file = uploadedFileMapper.getFileById(srcId);
+        UploadFile file = uploadFileMapper.getFileById(srcId);
         if (file == null || file.isTemp()) {
-            uploadedFileMapper.updateFileStatus(srcId, true);
+            uploadFileMapper.updateFileStatus(srcId, true);
             LOGGER.error("Can not find file, please upload again.");
             throw new EntityNotFoundException("Can not find file", ResponseConsts.RET_QUERY_DATA_EMPTY);
         }
@@ -382,7 +383,7 @@ public class UploadServiceImpl implements UploadService {
         String tempFilePath = InitConfigUtil.getWorkSpaceBaseDir() + BusinessConfigUtil.getUploadfilesPath() + srcId;
         File tempFile = new File(tempFilePath);
         if (!tempFile.exists() || tempFile.isDirectory()) {
-            uploadedFileMapper.updateFileStatus(srcId, true);
+            uploadFileMapper.updateFileStatus(srcId, true);
             LOGGER.error("Can not find file, please upload again.");
             throw new FileFoundFailException("Can not find file", ResponseConsts.RET_FILE_NOT_FOUND);
         }
@@ -392,10 +393,10 @@ public class UploadServiceImpl implements UploadService {
             DeveloperFileUtils.moveFile(tempFile, desFile);
             String filePath = BusinessConfigUtil.getWorkspacePath() + applicationId + File.separator + file
                 .getFileName();
-            uploadedFileMapper.updateFilePath(srcId, filePath);
+            uploadFileMapper.updateFilePath(srcId, filePath);
         } catch (IOException e) {
             LOGGER.error("move icon file failed {}", e.getMessage());
-            uploadedFileMapper.updateFileStatus(srcId, true);
+            uploadFileMapper.updateFileStatus(srcId, true);
             throw new FileOperateException("Move icon file failed.", ResponseConsts.RET_MOVE_FILE_FAIL);
         }
     }
@@ -422,12 +423,12 @@ public class UploadServiceImpl implements UploadService {
         // add sample api file
         List<String> apiJsonList = new ArrayList<>();
         for (String apiFileId : apiFileIds) {
-            UploadedFile apifile = uploadedFileMapper.getFileById(apiFileId);
-            if (apifile == null) {
+            UploadFile apiFile = uploadFileMapper.getFileById(apiFileId);
+            if (apiFile == null) {
                 LOGGER.error("can not find file {} in db", apiFileId);
                 throw new FileFoundFailException("can not find api file.", ResponseConsts.RET_FILE_NOT_FOUND);
             }
-            String fileRealPath = InitConfigUtil.getWorkSpaceBaseDir() + apifile.getFilePath();
+            String fileRealPath = InitConfigUtil.getWorkSpaceBaseDir() + apiFile.getFilePath();
             String apiJson;
             try {
                 apiJson = DeveloperFileUtils.readFileToString(new File(fileRealPath));
@@ -438,7 +439,7 @@ public class UploadServiceImpl implements UploadService {
             if (StringUtils.isEmpty(apiJson)) {
                 continue;
             }
-            if (apifile.getFileName().endsWith(".yaml") || apifile.getFileName().endsWith(".yml")) {
+            if (apiFile.getFileName().endsWith(".yaml") || apiFile.getFileName().endsWith(".yml")) {
                 Yaml yaml = new Yaml(new SafeConstructor());
                 try {
                     apiJson = new Gson().toJson(yaml.load(apiJson));
@@ -452,6 +453,33 @@ public class UploadServiceImpl implements UploadService {
 
         SampleCodeServer generateCode = new SampleCodeServer();
         return generateCode.analysis(apiJsonList);
+    }
+
+    /**
+     * delete template files. If uploaded files have not been used over 30min, should be deleted.
+     */
+    public void deleteTempFile() {
+        LOGGER.info("Begin delete temp file.");
+        Date now = new Date();
+        List<String> tempIds = uploadFileMapper.getAllTempFiles();
+        if (tempIds == null) {
+            return;
+        }
+        for (String tempId : tempIds) {
+            UploadFile tempFile = uploadFileMapper.getFileById(tempId);
+            Date uploadDate = tempFile.getUploadDate();
+            if ((int) ((now.getTime() - uploadDate.getTime()) / Consts.MINUTE) < Consts.TEMP_FILE_TIMEOUT) {
+                continue;
+            }
+
+            String realPath = InitConfigUtil.getWorkSpaceBaseDir() + tempFile.getFilePath();
+            File temp = new File(realPath);
+            if (temp.exists()) {
+                DeveloperFileUtils.deleteTempFile(temp);
+                uploadFileMapper.deleteFile(tempId);
+                LOGGER.info("Delete temp file {} success.", tempFile.getFileName());
+            }
+        }
     }
 
 }
