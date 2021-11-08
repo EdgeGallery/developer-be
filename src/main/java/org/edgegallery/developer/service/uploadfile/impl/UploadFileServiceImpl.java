@@ -367,40 +367,6 @@ public class UploadFileServiceImpl implements UploadFileService {
         return result;
     }
 
-    /**
-     * moveFileToWorkSpaceById.
-     */
-    public void moveFileToWorkSpaceById(String srcId, String applicationId) {
-        uploadFileMapper.updateFileStatus(srcId, false);
-        // to confirm, whether the status is updated
-        UploadFile file = uploadFileMapper.getFileById(srcId);
-        if (file == null || file.isTemp()) {
-            uploadFileMapper.updateFileStatus(srcId, true);
-            LOGGER.error("Can not find file, please upload again.");
-            throw new EntityNotFoundException("Can not find file", ResponseConsts.RET_QUERY_DATA_EMPTY);
-        }
-        // get temp file
-        String tempFilePath = InitConfigUtil.getWorkSpaceBaseDir() + BusinessConfigUtil.getUploadfilesPath() + srcId;
-        File tempFile = new File(tempFilePath);
-        if (!tempFile.exists() || tempFile.isDirectory()) {
-            uploadFileMapper.updateFileStatus(srcId, true);
-            LOGGER.error("Can not find file, please upload again.");
-            throw new FileFoundFailException("Can not find file", ResponseConsts.RET_FILE_NOT_FOUND);
-        }
-        // move file
-        File desFile = new File(DeveloperFileUtils.getAbsolutePath(applicationId) + file.getFileName());
-        try {
-            DeveloperFileUtils.moveFile(tempFile, desFile);
-            String filePath = BusinessConfigUtil.getWorkspacePath() + applicationId + File.separator + file
-                .getFileName();
-            uploadFileMapper.updateFilePath(srcId, filePath);
-        } catch (IOException e) {
-            LOGGER.error("move icon file failed {}", e.getMessage());
-            uploadFileMapper.updateFileStatus(srcId, true);
-            throw new FileOperateException("Move icon file failed.", ResponseConsts.RET_MOVE_FILE_FAIL);
-        }
-    }
-
     private File generateTgz(List<String> apiFileIds) {
         File tempDir = DeveloperFileUtils.createTempDir("mec_sample_code");
         // add sample resources code

@@ -1,5 +1,6 @@
 package org.edgegallery.developer.service.apppackage.csar;
 
+import com.google.common.io.Files;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -12,7 +13,6 @@ import java.util.Locale;
 import java.util.Map;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.ibatis.io.Resources;
 import org.edgegallery.developer.common.Consts;
 import org.edgegallery.developer.common.ResponseConsts;
 import org.edgegallery.developer.exception.EntityNotFoundException;
@@ -23,26 +23,30 @@ import org.edgegallery.developer.model.apppackage.basicContext.ManifestMetadataC
 import org.edgegallery.developer.model.apppackage.basicContext.ToscaMetadataContent;
 import org.edgegallery.developer.model.apppackage.basicContext.ToscaSourceContent;
 import org.edgegallery.developer.model.apppackage.basicContext.VnfdToscaMetaContent;
+import org.edgegallery.developer.model.uploadfile.UploadFile;
 import org.edgegallery.developer.service.apppackage.csar.impl.TocsarFileHandlerFactory;
 import org.edgegallery.developer.service.apppackage.signature.EncryptedService;
+import org.edgegallery.developer.service.uploadfile.UploadFileService;
+import org.edgegallery.developer.util.ApplicationUtil;
 import org.edgegallery.developer.util.CompressFileUtils;
 import org.edgegallery.developer.util.CompressFileUtilsJava;
 import org.edgegallery.developer.util.DeveloperFileUtils;
+import org.edgegallery.developer.util.InitConfigUtil;
 import org.edgegallery.developer.util.SpringContextUtil;
-import org.edgegallery.developer.util.ApplicationUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.google.common.io.Files;
 
 public class PackageFileCreator {
 
     public static final Logger LOGGER = LoggerFactory.getLogger(PackageFileCreator.class);
 
-    private static final String PACKAGE_TEMPLATE_PATH = "template/package_template";
+    private static final String PACKAGE_TEMPLATE_PATH = "./configs/template/package_template";
 
     private static final String TEMPLATE_PACKAGE_VNFD__PATH = "/APPD/TOSCA_VNFD.meta";
 
     private static final String TEMPLATE_PACKAGE_METADATA_PATH = "/TOSCA-Metadata/TOSCA.meta";
+
+    private static final String TEMPLATE_PACKAGE_DOCS_PATH = "/Artifacts/Docs/";
 
     private static final String TEMPLATE_APPD = "APPD/";
 
@@ -50,10 +54,9 @@ public class PackageFileCreator {
 
     private static final String TEMPLATE_DEFINITION = "Definition/";
 
-
-
-
     EncryptedService encryptedService = (EncryptedService) SpringContextUtil.getBean(EncryptedService.class);
+
+    UploadFileService uploadService = (UploadFileService) SpringContextUtil.getBean(UploadFileService.class);
 
     private Application application;
 
@@ -81,11 +84,9 @@ public class PackageFileCreator {
         if (!packageFileDir.exists() || !packageFileDir.isDirectory()) {
             File applicationDir = new File(getApplicationPath());
             try {
-                LOGGER.error("temp path:{}",Resources.getResourceURL(PACKAGE_TEMPLATE_PATH).getFile());
-                DeveloperFileUtils
-                    .copyDirectory(Resources.getResourceAsFile(PACKAGE_TEMPLATE_PATH), applicationDir, packageId);
+                DeveloperFileUtils.copyDirectory(new File(PACKAGE_TEMPLATE_PATH), applicationDir, packageId);
             } catch (IOException e) {
-                LOGGER.error("copy package template file fail, package dir:{}", getPackagePath());
+                LOGGER.error("copy package template file fail, package dir:{}", e.getMessage());
                 return false;
             }
 
@@ -147,12 +148,34 @@ public class PackageFileCreator {
         metaFileHandler.load(metaFile);
         IContentParseHandler content = metaFileHandler.getParamsHandlerList().get(0);
         Map<IToscaContentEnum, String> contentMap = content.getParams();
-        contentMap.put(VnfdToscaMetaContent.ENTRY_DEFINITIONS, TEMPLATE_DEFINITION + getAppFileName(Consts.FILE_FORMAT_YAML));
+        contentMap
+            .put(VnfdToscaMetaContent.ENTRY_DEFINITIONS, TEMPLATE_DEFINITION + getAppFileName(Consts.FILE_FORMAT_YAML));
 
         IContentParseHandler contentName = metaFileHandler.getParamsHandlerList().get(1);
         Map<IToscaContentEnum, String> contentNameMap = contentName.getParams();
         contentNameMap.put(ToscaSourceContent.NAME, TEMPLATE_DEFINITION + getAppFileName(Consts.FILE_FORMAT_YAML));
         writeFile(metaFile, metaFileHandler.toString());
+    }
+
+    /**
+     * copy md and icon file: /Artifacts/Docs.
+     */
+    public void configMdAndIcon() {
+        // move icon file to package
+        UploadFile file = uploadService.getFile(application.getIconFileId());
+        if (file == null || file.isTemp()) {
+            LOGGER.warn("Can not find file, please upload again.");
+            return;
+        }
+        // get icon file
+        File iconFile = new File(InitConfigUtil.getWorkSpaceBaseDir() + file.getFilePath());
+        File desFile = new File(getPackagePath() + TEMPLATE_PACKAGE_DOCS_PATH + file.getFileName());
+        try {
+            DeveloperFileUtils.copyFile(iconFile, desFile);
+        } catch (IOException e) {
+            LOGGER.warn("copy icon file fail:{}", e.getMessage());
+        }
+        // move des md file to package
     }
 
     public String PackageFileCompress() {
@@ -176,8 +199,7 @@ public class PackageFileCreator {
                 return null;
             }
             // compress package
-            CompressFileUtilsJava
-                .compressToCsarAndDeleteSrc(tempPackagePath, getApplicationPath(), packageId);
+            CompressFileUtilsJava.compressToCsarAndDeleteSrc(tempPackagePath, getApplicationPath(), packageId);
         } catch (IOException e) {
             LOGGER.error("package compress fail, package path:{}", tempPackagePath);
             return null;
@@ -195,10 +217,9 @@ public class PackageFileCreator {
     }
 
     protected String getAppFileName(String format) {
-        return application.getName() + "_" + application.getProvider() + "_" + application.getVersion()
-            + "_" + application.getArchitecture() + format;
+        return application.getName() + "_" + application.getProvider() + "_" + application.getVersion() + "_"
+            + application.getArchitecture() + format;
     }
-
 
     /**
      * get file by parent directory and file extension.
@@ -216,17 +237,16 @@ public class PackageFileCreator {
     /**
      * write json file.
      *
-     * @param file    file.
+     * @param file file.
      * @param content content.
      */
     public void writeFile(File file, String content) {
         try (Writer fw = new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8);
-            BufferedWriter bw = new BufferedWriter(fw)) {
+             BufferedWriter bw = new BufferedWriter(fw)) {
             bw.write(content);
         } catch (IOException e) {
             LOGGER.error("write data into SwImageDesc.json failed, {}", e.getMessage());
         }
     }
-
 
 }

@@ -40,5 +40,4 @@ public interface UploadFileService {
 
     UploadFile saveFileToLocal(MultipartFile uploadFile, String userId);
 
-    void moveFileToWorkSpaceById(String srcId, String applicationId);
 }

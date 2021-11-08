@@ -102,7 +102,6 @@ public class ApplicationServiceImpl implements ApplicationService {
             LOGGER.error("icon file is null");
             throw new FileFoundFailException("icon file is null", ResponseConsts.RET_FILE_NOT_FOUND);
         }
-        uploadService.moveFileToWorkSpaceById(iconFileId, applicationId);
         if(application.getAppClass().equals(EnumAppClass.VM)){
             // init VM application default networks
             initNetwork(applicationId);
@@ -167,6 +166,8 @@ public class ApplicationServiceImpl implements ApplicationService {
             // init VM application default networks
             networkService.deleteNetworkByAppId(applicationId);
         }
+        // delete icon
+        uploadService.deleteFile(application.getIconFileId());
 
         // delete the application from db
         int delResult = applicationMapper.deleteApplication(applicationId);
