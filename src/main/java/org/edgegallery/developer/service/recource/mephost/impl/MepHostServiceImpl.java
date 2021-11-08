@@ -100,8 +100,8 @@ public class MepHostServiceImpl implements MepHostService {
     public boolean createHost(MepHost host, User user) {
         MepHost mepHost = mepHostMapper.getHostsByMecHostIp(host.getMecHostIp());
         if (mepHost != null) {
-            LOGGER.error("mecHost have exit:{}", host.getMecHostIp());
-            throw new IllegalRequestException("mecHost have exit!", ResponseConsts.RET_QUERY_DATA_EMPTY);
+            LOGGER.error("mecHost already exists:{}", host.getMecHostIp());
+            throw new IllegalRequestException("mecHost already exists!", ResponseConsts.RET_QUERY_DATA_EMPTY);
         }
         // check host parameter
         checkMepHost(host);
@@ -274,8 +274,8 @@ public class MepHostServiceImpl implements MepHostService {
         }
         if (!EnumVimType.K8S.equals(host.getVimType())) {
             Map<String, String> getParams = InputParameterUtil.getParams(host.getNetworkParameter());
-            if (!getParams.containsKey("app_mp1_ip") || !getParams.containsKey("app_n6_ip") || !getParams
-                .containsKey("app_internet_ip")) {
+            if (!getParams.containsKey("VDU1_APP_Plane03_IP") || !getParams.containsKey("VDU1_APP_Plane02_IP") || !getParams
+                .containsKey("VDU1_APP_Plane01_IP")) {
                 LOGGER.error("Network params config error");
                 throw new IllegalRequestException("Network params config error!",
                     ResponseConsts.RET_REQUEST_PARAM_ERROR);

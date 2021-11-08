@@ -43,6 +43,7 @@ import org.edgegallery.developer.model.apppackage.appd.groups.PlacementGroup;
 import org.edgegallery.developer.model.apppackage.appd.policies.AntiAffinityRule;
 import org.edgegallery.developer.model.apppackage.appd.vdu.VDUCapability;
 import org.edgegallery.developer.model.apppackage.appd.vdu.VDUProperty;
+import org.edgegallery.developer.model.apppackage.appd.vducp.VDUCPAttributes;
 import org.edgegallery.developer.model.apppackage.appd.vducp.VDUCPProperty;
 import org.edgegallery.developer.model.apppackage.appd.vducp.VirtualBindingRequire;
 import org.edgegallery.developer.model.apppackage.appd.vducp.VirtualLinkRequire;
@@ -67,7 +68,7 @@ public class TopologyTemplate {
     @Valid
     @NotNull
     @JsonProperty(value = "node_templates")
-    private LinkedHashMap<String, NodeTemplate> nodeTemplates;
+    private LinkedHashMap<String, NodeTemplate> node_templates;
 
     @Valid
     private LinkedHashMap<String, PlacementGroup> groups;
@@ -103,10 +104,10 @@ public class TopologyTemplate {
         NodeTemplate vnfNode = new NodeTemplate();
         vnfNode.setType(NodeTypeConstant.NODE_TYPE_VNF);
         vnfNode.setProperties(new VNFNodeProperty());
-        if (null == this.nodeTemplates) {
-            this.nodeTemplates = new LinkedHashMap<String, NodeTemplate>();
+        if (null == this.node_templates) {
+            this.node_templates = new LinkedHashMap<String, NodeTemplate>();
         }
-        this.nodeTemplates.put(AppdConstants.VNF_NODE_NAME, vnfNode);
+        this.node_templates.put(AppdConstants.VNF_NODE_NAME, vnfNode);
     }
 
     public void updateNodeTemplates(VMApplication application, Map<String, Flavor> id2FlavorMap,
@@ -124,7 +125,7 @@ public class TopologyTemplate {
         }
         PlacementGroup group = new PlacementGroup();
         List<String> members = new ArrayList<>();
-        for (Map.Entry<String, NodeTemplate> entry : nodeTemplates.entrySet()) {
+        for (Map.Entry<String, NodeTemplate> entry : node_templates.entrySet()) {
             if (entry.getValue().getType().equals(NodeTypeConstant.NODE_TYPE_VDU)) {
                 members.add(entry.getKey());
             }
@@ -146,7 +147,7 @@ public class TopologyTemplate {
     }
 
     private TopologyTemplate updateVnfNode(VMApplication application) {
-        NodeTemplate vnfNode = this.nodeTemplates.get(AppdConstants.VNF_NODE_NAME);
+        NodeTemplate vnfNode = this.node_templates.get(AppdConstants.VNF_NODE_NAME);
         VNFNodeProperty vnfNodeProperty = (VNFNodeProperty) vnfNode.getProperties();
         vnfNodeProperty.setVnfd_id(application.getName());
         vnfNodeProperty.setProvider(application.getProvider());
@@ -156,8 +157,8 @@ public class TopologyTemplate {
     }
 
     private void updateVLs(List<Network> networkLst) {
-        if (null == this.nodeTemplates) {
-            this.nodeTemplates = new LinkedHashMap<String, NodeTemplate>();
+        if (null == this.node_templates) {
+            this.node_templates = new LinkedHashMap<String, NodeTemplate>();
         }
         for (int i = 0; i < networkLst.size(); i++) {
             //generate inputs for network;
@@ -184,19 +185,19 @@ public class TopologyTemplate {
             vlNode.setType(NodeTypeConstant.NODE_TYPE_VL);
             VLProperty property = new VLProperty();
             VLProfile vlProfile = new VLProfile();
-            vlProfile.setNetworkNameAsInput(networkNameInputName);
-            vlProfile.setPhysicalNameAsInput(networkPhyNetInputName);
-            vlProfile.setProviderSegmentationNameAsInput(networkVlanIdInputName);
+            vlProfile.setNetwork_name(getInputStr(networkNameInputName));
+            vlProfile.setPhysical_network(getInputStr(networkPhyNetInputName));
+            vlProfile.setProvider_segmentation_id(getInputStr(networkVlanIdInputName));
             property.setVl_profile(vlProfile);
             vlNode.setProperties(property);
-            this.nodeTemplates.put(networkName, vlNode);
+            this.node_templates.put(networkName, vlNode);
         }
     }
 
     private void updateVMs(List<Network> networkLst, List<VirtualMachine> vmLst, Map<String, Flavor> id2FlavorMap,
         Map<Integer, VMImage> id2ImageMap) {
-        if (null == this.nodeTemplates) {
-            this.nodeTemplates = new LinkedHashMap<String, NodeTemplate>();
+        if (null == this.node_templates) {
+            this.node_templates = new LinkedHashMap<String, NodeTemplate>();
         }
         for (int i = 0; i < vmLst.size(); i++) {
             VirtualMachine vm = vmLst.get(i);
@@ -218,7 +219,7 @@ public class TopologyTemplate {
             vduNode.setCapabilities(capability);
             VDUProperty property = new VDUProperty();
             property.setName(vm.getName());
-            property.setNfviConstraintsAsInput(azInputName);
+            property.setNfvi_constraints(getInputStr(azInputName));
             property.getVdu_profile().setFlavor_extra_specs(analyzeVMFlavorExtraSpecs(vm.getFlavorExtraSpecs()));
             property.getSw_image_data().setName(id2ImageMap.get(Integer.valueOf(vm.getImageId())).getName());
             if (StringUtils.isEmpty(vm.getUserData())) {
@@ -233,7 +234,7 @@ public class TopologyTemplate {
             }
 
             vduNode.setProperties(property);
-            this.nodeTemplates.put(vduName, vduNode);
+            this.node_templates.put(vduName, vduNode);
             updateVMPorts(vduName, vm.getPortList(), networkLst);
         }
     }
@@ -291,8 +292,8 @@ public class TopologyTemplate {
             inputIndex = flavorExtraSpecsStr.indexOf(InputConstant.GET_INPUT_PREFIX.trim(), inputIndex + 1);
             if (inputIndex != -1) {
                 int inputNameEndIndex = flavorExtraSpecsStr.indexOf(AppdConstants.CLOSING_BRACE_MARK, inputIndex);
-                String inputName = flavorExtraSpecsStr.substring(inputIndex + InputConstant.GET_INPUT_PREFIX.trim().length(),
-                    inputNameEndIndex).trim();
+                String inputName = flavorExtraSpecsStr.substring(
+                    inputIndex + InputConstant.GET_INPUT_PREFIX.trim().length(), inputNameEndIndex).trim();
                 InputParam inputParam = new InputParam(InputConstant.TYPE_STRING, "", inputName);
                 this.inputs.put(inputName, inputParam);
             } else {
@@ -346,6 +347,9 @@ public class TopologyTemplate {
             property.setVnic_name(AppdConstants.PORT_VNIC_NAME_PREFIX + i);
             property.setOrder(i);
             cpNode.setProperties(property);
+            VDUCPAttributes attributes = new VDUCPAttributes();
+            attributes.setIpv4_address(getInputStr(portIpInputName));
+            cpNode.setAttributes(attributes);
             VirtualBindingRequire virtualBinding = new VirtualBindingRequire();
             virtualBinding.setVirtual_binding(vduName);
             VirtualLinkRequire vlRequire = new VirtualLinkRequire();
@@ -355,7 +359,7 @@ public class TopologyTemplate {
             requirements.add(vlRequire);
             cpNode.setRequirements(requirements);
             String cpNodeName = vduName + "_CP" + i;
-            this.nodeTemplates.put(cpNodeName, cpNode);
+            this.node_templates.put(cpNodeName, cpNode);
         }
     }
 
@@ -409,6 +413,6 @@ public class TopologyTemplate {
         property.setAppTrafficRule(appConfiguration.getTrafficRuleList());
         property.setAppDNSRule(appConfiguration.getDnsRuleList());
         appConfigurationNode.setProperties(property);
-        this.nodeTemplates.put(AppdConstants.APP_CONFIGURATION_NODE_NAME, appConfigurationNode);
+        this.node_templates.put(AppdConstants.APP_CONFIGURATION_NODE_NAME, appConfigurationNode);
     }
 }

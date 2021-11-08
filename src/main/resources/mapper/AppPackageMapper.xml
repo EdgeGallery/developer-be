@@ -55,7 +55,7 @@
     UPDATE
     tbl_app_package
     SET
-    app_id = #{id}, package_file_name = #{packageFileName}
+    app_id = #{appId}, package_file_name = #{packageFileName}
     WHERE
     id = #{id}
   </update>

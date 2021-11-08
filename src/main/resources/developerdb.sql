@@ -504,7 +504,7 @@
     CREATE TABLE IF NOT EXISTS "tbl_vm_port" (
     "id" varchar(255) NOT NULL,
     "vm_id" varchar(255) DEFAULT NULL,
-    "name" varchar(255) NOT NULL,
+    "name" varchar(255) DEFAULT NULL,
     "description" varchar(255) DEFAULT NULL,
     "network_name" varchar(255) DEFAULT NULL,
     CONSTRAINT "tbl_vm_port_pkey" PRIMARY KEY ("id")

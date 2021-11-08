@@ -23,7 +23,10 @@ import org.edgegallery.developer.exception.DataBaseException;
 import org.edgegallery.developer.exception.DeveloperException;
 import org.edgegallery.developer.mapper.application.vm.NetworkMapper;
 import org.edgegallery.developer.model.application.vm.Network;
+import org.edgegallery.developer.model.application.vm.VMPort;
+import org.edgegallery.developer.model.application.vm.VirtualMachine;
 import org.edgegallery.developer.service.application.vm.VMAppNetworkService;
+import org.edgegallery.developer.service.application.vm.VMAppVmService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +38,9 @@ public class VMAppNetworkServiceImpl implements VMAppNetworkService {
 
     @Autowired
     NetworkMapper networkMapper;
+
+    @Autowired
+    VMAppVmService vmAppVmService;
 
     @Override
     public Network createNetwork(String applicationId, Network network) {
@@ -70,11 +76,48 @@ public class VMAppNetworkServiceImpl implements VMAppNetworkService {
 
     @Override
     public Boolean deleteNetwork(String applicationId, String networkId) {
+        //check network used by port
+        Network network = networkMapper.getNetworkById(networkId);
+        List<VirtualMachine> vms = vmAppVmService.getAllVm(applicationId);
+        if (isNetworkUsedByVMPorts(network, vms)) {
+            throw new DeveloperException("Network is used by vm port. Cannot be deleted",
+                ResponseConsts.RET_DELETE_DATA_FAIL);
+        }
         int res = networkMapper.deleteNetwork(networkId);
         if (res < 1) {
             LOGGER.error("delete network in db error.");
             throw new DataBaseException("delete network in db error.", ResponseConsts.RET_DELETE_DATA_FAIL);
         }
         return true;
+    }
+
+    @Override
+    public boolean deleteNetworkByAppId(String applicationId) {
+        //check network used by port
+        List<Network> networks = networkMapper.getNetworkByAppId(applicationId);
+        List<VirtualMachine> vms = vmAppVmService.getAllVm(applicationId);
+        for (Network network : networks) {
+            if (isNetworkUsedByVMPorts(network, vms)) {
+                throw new DeveloperException("Network is used by vm port. Cannot be deleted",
+                    ResponseConsts.RET_DELETE_DATA_FAIL);
+            }
+        }
+        int res = networkMapper.deleteNetworksByAppId(applicationId);
+        if (res < 1) {
+            LOGGER.error("delete network in db error.");
+            throw new DataBaseException("delete network in db error.", ResponseConsts.RET_DELETE_DATA_FAIL);
+        }
+        return true;
+    }
+
+    private boolean isNetworkUsedByVMPorts(Network network, List<VirtualMachine> vms) {
+        for (VirtualMachine vm : vms) {
+            for (VMPort port : vm.getPortList()) {
+                if (network.getName().equals(port.getNetworkName())) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }

@@ -39,6 +39,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.constructor.SafeConstructor;
 import org.yaml.snakeyaml.nodes.Tag;
 
 public class AppDefinitionConverter {
@@ -48,6 +49,10 @@ public class AppDefinitionConverter {
     private FlavorService flavorService = (FlavorService) SpringContextUtil.getBean(FlavorService.class);
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AppDefinitionConverter.class);
+
+    private static final String REGEX_INPUT_RAMA_QUOTES_REMOVE = "('\\s*\\{\\s*get_input\\s*:\\s+)(((?!\\s*}).)+)(\\s*}\\s*')";
+
+    private static final String INPUT_PARAM_REPLACEMENT = "{get_input: $2}";
 
     private static final String TEMPLATE_CSAR_BASE_PATH = "/APPD/Definition/app-name.yaml";
 
@@ -61,9 +66,11 @@ public class AppDefinitionConverter {
         CustomRepresenter representer = new CustomRepresenter();
         Yaml yaml = new Yaml(representer, new DumperOptions());
         String yamlContents = yaml.dumpAs(appDefinition, Tag.MAP, DumperOptions.FlowStyle.BLOCK);
+        //get_input function string is a feature not supported by snakeyaml, need to remove the quotes.
+        String outPutContent = yamlContents.replaceAll(REGEX_INPUT_RAMA_QUOTES_REMOVE, INPUT_PARAM_REPLACEMENT);
         File file = new File(appdFilePath);
         try {
-            FileUtils.writeStringToFile(file, yamlContents, StandardCharsets.UTF_8);
+            FileUtils.writeStringToFile(file, outPutContent, StandardCharsets.UTF_8);
         } catch (IOException e) {
             LOGGER.error("Write appd yaml to file failed. app yaml content:\n {}", yaml);
             return false;
@@ -76,7 +83,7 @@ public class AppDefinitionConverter {
         File file = new File(appdFilePath);
         if (file.exists()) {
             try {
-                Yaml yaml = new Yaml();
+                Yaml yaml = new Yaml(new SafeConstructor());
                 appDefinition = yaml.loadAs(new FileInputStream(file), AppDefinition.class);
             } catch (FileNotFoundException e) {
                 LOGGER.error("Appd {} exists, but read failed, will create default APPD file.", appdFilePath);

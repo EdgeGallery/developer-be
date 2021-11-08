@@ -86,7 +86,7 @@ public class IpCalculateUtil {
                 }
                 ipArray[i] = ipArray[i] & netMaskArray[i];
                 if(i==3){
-                    startIp.append(ipArray[i] + range%250 + 3);
+                    startIp.append(ipArray[i] + range%250 + 1);
                 }else{
                     startIp.append(ipArray[i]+".");
                 }

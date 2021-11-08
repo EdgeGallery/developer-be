@@ -74,6 +74,24 @@ public class VMImageCtl {
     }
 
     /**
+     * get vm image by id.
+     *
+     * @return
+     */
+    @ApiOperation(value = "get vm image by id.)", response = VMImage.class)
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = "OK", response = VMImage.class),
+        @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
+    })
+    @RequestMapping(value = "/{imageId}", method = RequestMethod.GET,
+        produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @PreAuthorize("hasRole('DEVELOPER_ADMIN')|| hasRole('DEVELOPER_TENANT')")
+    public ResponseEntity<VMImage> getVmImagesById(
+        @PathVariable("imageId") Integer imageId) {
+        return ResponseEntity.ok(vmImageService.getVmImagesById(imageId));
+    }
+
+    /**
      * create vm image.
      *
      * @return

@@ -13,6 +13,7 @@ import java.util.Map;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.io.Resources;
+import org.edgegallery.developer.common.Consts;
 import org.edgegallery.developer.common.ResponseConsts;
 import org.edgegallery.developer.exception.EntityNotFoundException;
 import org.edgegallery.developer.model.application.Application;
@@ -47,6 +48,10 @@ public class PackageFileCreator {
 
     private static final String TEMPLATE_PATH = "temp";
 
+    private static final String TEMPLATE_DEFINITION = "Definition/";
+
+
+
 
     EncryptedService encryptedService = (EncryptedService) SpringContextUtil.getBean(EncryptedService.class);
 
@@ -76,6 +81,7 @@ public class PackageFileCreator {
         if (!packageFileDir.exists() || !packageFileDir.isDirectory()) {
             File applicationDir = new File(getApplicationPath());
             try {
+                LOGGER.error("temp path:{}",Resources.getResourceURL(PACKAGE_TEMPLATE_PATH).getFile());
                 DeveloperFileUtils
                     .copyDirectory(Resources.getResourceAsFile(PACKAGE_TEMPLATE_PATH), applicationDir, packageId);
             } catch (IOException e) {
@@ -108,9 +114,9 @@ public class PackageFileCreator {
         IContentParseHandler contentSource = mfFileHandler
             .getContentByTypeAndValue(ManifestFiledataContent.SOURCE, TEMPLATE_APPD);
         Map<IToscaContentEnum, String> contentSourceMap = contentSource.getParams();
-        contentSourceMap.put(ManifestFiledataContent.SOURCE, TEMPLATE_APPD + getAppFileName(".zip"));
+        contentSourceMap.put(ManifestFiledataContent.SOURCE, TEMPLATE_APPD + getAppFileName(Consts.FILE_FORMAT_ZIP));
         writeFile(mfFile, mfFileHandler.toString());
-        mfFile.renameTo(new File(getPackagePath() + "/" + getAppFileName(".mf")));
+        mfFile.renameTo(new File(getPackagePath() + File.separator + getAppFileName(Consts.FILE_FORMAT_MF)));
     }
 
     /**
@@ -121,15 +127,13 @@ public class PackageFileCreator {
         IACsarFile metaFileHandler = TocsarFileHandlerFactory
             .createFileHandler(TocsarFileHandlerFactory.TOSCA_META_FILE);
         metaFileHandler.load(metaFile);
-        IContentParseHandler content = metaFileHandler
-            .getContentByTypeAndValue(ToscaMetadataContent.TOSCA_META_FILE_VERSION, "");
+        IContentParseHandler content = metaFileHandler.getParamsHandlerList().get(0);
         Map<IToscaContentEnum, String> contentMap = content.getParams();
-        contentMap.put(ToscaMetadataContent.ENTRY_DEFINITIONS, TEMPLATE_APPD + getAppFileName(".zip"));
+        contentMap.put(ToscaMetadataContent.ENTRY_DEFINITIONS, TEMPLATE_APPD + getAppFileName(Consts.FILE_FORMAT_ZIP));
 
-        IContentParseHandler contentName = metaFileHandler
-            .getContentByTypeAndValue(ToscaSourceContent.NAME, application.getAppClass().toString().toLowerCase());
+        IContentParseHandler contentName = metaFileHandler.getParamsHandlerList().get(1);
         Map<IToscaContentEnum, String> contentNameMap = contentName.getParams();
-        contentNameMap.put(ToscaSourceContent.NAME, TEMPLATE_APPD + getAppFileName(".zip"));
+        contentNameMap.put(ToscaSourceContent.NAME, TEMPLATE_APPD + getAppFileName(Consts.FILE_FORMAT_ZIP));
         writeFile(metaFile, metaFileHandler.toString());
     }
 
@@ -141,15 +145,13 @@ public class PackageFileCreator {
         IACsarFile metaFileHandler = TocsarFileHandlerFactory
             .createFileHandler(TocsarFileHandlerFactory.VNFD_META_FILE);
         metaFileHandler.load(metaFile);
-        IContentParseHandler content = metaFileHandler
-            .getContentByTypeAndValue(VnfdToscaMetaContent.VNFD_META_FILE_VERSION, "");
+        IContentParseHandler content = metaFileHandler.getParamsHandlerList().get(0);
         Map<IToscaContentEnum, String> contentMap = content.getParams();
-        contentMap.put(VnfdToscaMetaContent.ENTRY_DEFINITIONS, "Definition/" + getAppFileName(".yaml"));
+        contentMap.put(VnfdToscaMetaContent.ENTRY_DEFINITIONS, TEMPLATE_DEFINITION + getAppFileName(Consts.FILE_FORMAT_YAML));
 
-        IContentParseHandler contentName = metaFileHandler.getContentByTypeAndValue(ToscaSourceContent.NAME,
-            application.getAppClass().toString().toLowerCase());
+        IContentParseHandler contentName = metaFileHandler.getParamsHandlerList().get(1);
         Map<IToscaContentEnum, String> contentNameMap = contentName.getParams();
-        contentNameMap.put(ToscaSourceContent.NAME, "Definition/" + getAppFileName(".yaml"));
+        contentNameMap.put(ToscaSourceContent.NAME, TEMPLATE_DEFINITION + getAppFileName(Consts.FILE_FORMAT_YAML));
         writeFile(metaFile, metaFileHandler.toString());
     }
 
@@ -181,7 +183,7 @@ public class PackageFileCreator {
             return null;
         }
 
-        return packageId + ".csar";
+        return packageId + Consts.FILE_FORMAT_CSAR;
     }
 
     public void generateImageDesFile() {
@@ -194,7 +196,7 @@ public class PackageFileCreator {
 
     protected String getAppFileName(String format) {
         return application.getName() + "_" + application.getProvider() + "_" + application.getVersion()
-            + "_" + application.getArchitecture() + "_" + format;
+            + "_" + application.getArchitecture() + format;
     }
 
 

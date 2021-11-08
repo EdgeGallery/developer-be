@@ -39,11 +39,14 @@ import org.edgegallery.developer.model.application.vm.VMApplication;
 import org.edgegallery.developer.model.application.vm.VirtualMachine;
 import org.edgegallery.developer.model.restful.ApplicationDetail;
 import org.edgegallery.developer.service.application.AppConfigurationService;
+import org.edgegallery.developer.service.application.AppOperationService;
 import org.edgegallery.developer.service.application.ApplicationService;
 import org.edgegallery.developer.service.application.container.ContainerAppHelmChartService;
 import org.edgegallery.developer.service.application.factory.AppOperationServiceFactory;
+import org.edgegallery.developer.service.application.impl.vm.VMAppOperationServiceImpl;
 import org.edgegallery.developer.service.application.vm.VMAppNetworkService;
 import org.edgegallery.developer.service.application.vm.VMAppVmService;
+import org.edgegallery.developer.service.apppackage.AppPackageService;
 import org.edgegallery.developer.service.uploadfile.UploadService;
 import org.edgegallery.developer.util.DeveloperFileUtils;
 import org.slf4j.Logger;
@@ -71,10 +74,16 @@ public class ApplicationServiceImpl implements ApplicationService {
     private ContainerAppHelmChartService helmChartService;
 
     @Autowired
-    AppConfigurationService appConfigurationService;
+    private AppConfigurationService appConfigurationService;
 
     @Autowired
     private AppOperationServiceFactory appServiceFactory;
+
+    @Autowired
+    private AppPackageService appPackageService;
+
+    @Autowired
+    private VMAppOperationServiceImpl vmApOperationServiceImpl;
 
     @Override
     public Application createApplication(Application application) {
@@ -155,6 +164,11 @@ public class ApplicationServiceImpl implements ApplicationService {
         // clean env
         appServiceFactory.getAppOperationService(applicationId).cleanEnv(applicationId, user);
 
+        if(application.getAppClass().equals(EnumAppClass.VM)){
+            // init VM application default networks
+            networkService.deleteNetworkByAppId(applicationId);
+        }
+
         // delete the application from db
         int delResult = applicationMapper.deleteApplication(applicationId);
         if (delResult < 1) {
@@ -182,6 +196,8 @@ public class ApplicationServiceImpl implements ApplicationService {
             vmApplication.setNetworkList(networkService.getAllNetwork(applicationId));
             vmApplication.setVmList(vmService.getAllVm(applicationId));
             vmApplication.setAppConfiguration(appConfigurationService.getAppConfiguration(applicationId));
+            vmApplication.setAppPackage(appPackageService.getAppPackageByAppId(applicationId));
+            vmApplication.setAtpTestTaskList(vmApOperationServiceImpl.getAtpTests(applicationId));
             applicationDetail.setVmApp(vmApplication);
         } else {
             ContainerApplication containerApplication = new ContainerApplication(application);

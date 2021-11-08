@@ -101,8 +101,10 @@ public class VMAppVmServiceImpl implements VMAppVmService {
             throw new DataBaseException("modify vm in db error.", ResponseConsts.RET_UPDATE_DATA_FAIL);
         }
         vmMapper.modifyVMCertificate(vmId, virtualMachine.getVmCertificate());
+        //delete the port list and create the port list to modify ports.
+        vmMapper.deleteAllVMPortsByVMId(vmId);
         for (VMPort vmPort : virtualMachine.getPortList()) {
-            vmMapper.modifyVMPort(vmPort);
+            vmMapper.createVMPort(vmId, vmPort);
         }
         return true;
     }

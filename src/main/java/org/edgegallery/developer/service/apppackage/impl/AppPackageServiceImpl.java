@@ -60,6 +60,11 @@ public class AppPackageServiceImpl implements AppPackageService {
     }
 
     @Override
+    public AppPackage getAppPackageByAppId(String applicationId) {
+        return appPackageMapper.getAppPackageByAppId(applicationId);
+    }
+
+    @Override
     public AppPkgStructure getAppPackageStructure(String packageId) {
         if (StringUtils.isEmpty(packageId)) {
             LOGGER.error("packageId is empty.");
@@ -202,6 +207,10 @@ public class AppPackageServiceImpl implements AppPackageService {
     @Override
     public boolean deletePackage(String packageId) {
         AppPackage appPackage = appPackageMapper.getAppPackage(packageId);
+        if (appPackage == null) {
+            LOGGER.error("package does not exist");
+            return true;
+        }
         return deletePackage(appPackage);
 
     }

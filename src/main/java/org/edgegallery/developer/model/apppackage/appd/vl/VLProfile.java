@@ -29,15 +29,4 @@ public class VLProfile {
 
     private String provider_segmentation_id = "{get_input: provider_segmentation_id}";
 
-    public void setNetworkNameAsInput(String inputName){
-        this.network_name = "{get_Input: " + inputName + "}";
-    }
-
-    public void setPhysicalNameAsInput(String inputName){
-        this.physical_network = "{get_Input: " + inputName + "}";
-    }
-
-    public void setProviderSegmentationNameAsInput(String inputName){
-        this.provider_segmentation_id = "{get_Input: " + inputName + "}";
-    }
 }
