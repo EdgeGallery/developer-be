@@ -16,6 +16,7 @@ package org.edgegallery.developer.model.apppackage.appd;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -61,6 +62,8 @@ import org.yaml.snakeyaml.Yaml;
 @JsonPropertyOrder(alphabetic = true)
 public class TopologyTemplate {
 
+    private static final String PACKAGE_TEMPLATE_INPUT_PATH = "./configs/template/appd/vm_appd_inputs.yaml";
+
     @Valid
     @NotNull
     private LinkedHashMap<String, InputParam> inputs;
@@ -85,7 +88,7 @@ public class TopologyTemplate {
         if (EnumAppClass.VM.equals(appClass)) {
             InputStream inputStream = null;
             try {
-                inputStream = new FileInputStream(Resources.getResourceAsFile("template/appd/vm_appd_inputs.yaml"));
+                inputStream = new FileInputStream(new File(PACKAGE_TEMPLATE_INPUT_PATH));
             } catch (IOException e) {
                 e.printStackTrace();
             }

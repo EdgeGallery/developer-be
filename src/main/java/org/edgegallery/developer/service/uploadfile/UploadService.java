@@ -39,6 +39,4 @@ public interface UploadService {
     byte[] getSdkProject(String fileId, String lan, List<Capability> capabilities);
 
     UploadedFile saveFileToLocal(MultipartFile uploadFile, String userId);
-
-    void moveFileToWorkSpaceById(String srcId, String applicationId);
 }

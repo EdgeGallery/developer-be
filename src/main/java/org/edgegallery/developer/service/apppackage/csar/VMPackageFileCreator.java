@@ -64,6 +64,7 @@ public class VMPackageFileCreator extends PackageFileCreator {
         configVnfdMeta();
         generateAPPDYaml();
         generateImageDesFile();
+        configMdAndIcon();
         String compressPath = PackageFileCompress();
         if (compressPath == null) {
             LOGGER.error("package compress fail");
