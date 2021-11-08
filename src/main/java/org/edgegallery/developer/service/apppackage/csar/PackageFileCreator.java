@@ -1,5 +1,6 @@
 package org.edgegallery.developer.service.apppackage.csar;
 
+import com.google.common.io.Files;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -15,8 +16,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.edgegallery.developer.common.Consts;
 import org.edgegallery.developer.common.ResponseConsts;
 import org.edgegallery.developer.exception.EntityNotFoundException;
-import org.edgegallery.developer.exception.FileFoundFailException;
-import org.edgegallery.developer.exception.FileOperateException;
 import org.edgegallery.developer.model.application.Application;
 import org.edgegallery.developer.model.apppackage.IToscaContentEnum;
 import org.edgegallery.developer.model.apppackage.basicContext.ManifestFiledataContent;
@@ -24,20 +23,18 @@ import org.edgegallery.developer.model.apppackage.basicContext.ManifestMetadataC
 import org.edgegallery.developer.model.apppackage.basicContext.ToscaMetadataContent;
 import org.edgegallery.developer.model.apppackage.basicContext.ToscaSourceContent;
 import org.edgegallery.developer.model.apppackage.basicContext.VnfdToscaMetaContent;
-import org.edgegallery.developer.model.workspace.UploadedFile;
+import org.edgegallery.developer.model.uploadfile.UploadFile;
 import org.edgegallery.developer.service.apppackage.csar.impl.TocsarFileHandlerFactory;
 import org.edgegallery.developer.service.apppackage.signature.EncryptedService;
-import org.edgegallery.developer.service.uploadfile.UploadService;
-import org.edgegallery.developer.util.BusinessConfigUtil;
+import org.edgegallery.developer.service.uploadfile.UploadFileService;
+import org.edgegallery.developer.util.ApplicationUtil;
 import org.edgegallery.developer.util.CompressFileUtils;
 import org.edgegallery.developer.util.CompressFileUtilsJava;
 import org.edgegallery.developer.util.DeveloperFileUtils;
 import org.edgegallery.developer.util.InitConfigUtil;
 import org.edgegallery.developer.util.SpringContextUtil;
-import org.edgegallery.developer.util.ApplicationUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.google.common.io.Files;
 
 public class PackageFileCreator {
 
@@ -59,7 +56,8 @@ public class PackageFileCreator {
 
     EncryptedService encryptedService = (EncryptedService) SpringContextUtil.getBean(EncryptedService.class);
 
-    UploadService uploadService = (UploadService) SpringContextUtil.getBean(UploadService.class);
+    UploadFileService uploadService = (UploadFileService) SpringContextUtil.getBean(UploadFileService.class);
+
     private Application application;
 
     private String packageId;
@@ -86,8 +84,7 @@ public class PackageFileCreator {
         if (!packageFileDir.exists() || !packageFileDir.isDirectory()) {
             File applicationDir = new File(getApplicationPath());
             try {
-                DeveloperFileUtils
-                    .copyDirectory(new File(PACKAGE_TEMPLATE_PATH), applicationDir, packageId);
+                DeveloperFileUtils.copyDirectory(new File(PACKAGE_TEMPLATE_PATH), applicationDir, packageId);
             } catch (IOException e) {
                 LOGGER.error("copy package template file fail, package dir:{}", e.getMessage());
                 return false;
@@ -165,7 +162,7 @@ public class PackageFileCreator {
      */
     public void configMdAndIcon() {
         // move icon file to package
-        UploadedFile file = uploadService.getFile(application.getIconFileId(), application.getUserId());
+        UploadFile file = uploadService.getFile(application.getIconFileId());
         if (file == null || file.isTemp()) {
             LOGGER.warn("Can not find file, please upload again.");
             return;
@@ -180,7 +177,6 @@ public class PackageFileCreator {
         }
         // move des md file to package
     }
-
 
     public String PackageFileCompress() {
         File packageFileDir = new File(getPackagePath());
@@ -203,8 +199,7 @@ public class PackageFileCreator {
                 return null;
             }
             // compress package
-            CompressFileUtilsJava
-                .compressToCsarAndDeleteSrc(tempPackagePath, getApplicationPath(), packageId);
+            CompressFileUtilsJava.compressToCsarAndDeleteSrc(tempPackagePath, getApplicationPath(), packageId);
         } catch (IOException e) {
             LOGGER.error("package compress fail, package path:{}", tempPackagePath);
             return null;
@@ -222,10 +217,9 @@ public class PackageFileCreator {
     }
 
     protected String getAppFileName(String format) {
-        return application.getName() + "_" + application.getProvider() + "_" + application.getVersion()
-            + "_" + application.getArchitecture() + format;
+        return application.getName() + "_" + application.getProvider() + "_" + application.getVersion() + "_"
+            + application.getArchitecture() + format;
     }
-
 
     /**
      * get file by parent directory and file extension.
@@ -243,17 +237,16 @@ public class PackageFileCreator {
     /**
      * write json file.
      *
-     * @param file    file.
+     * @param file file.
      * @param content content.
      */
     public void writeFile(File file, String content) {
         try (Writer fw = new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8);
-            BufferedWriter bw = new BufferedWriter(fw)) {
+             BufferedWriter bw = new BufferedWriter(fw)) {
             bw.write(content);
         } catch (IOException e) {
             LOGGER.error("write data into SwImageDesc.json failed, {}", e.getMessage());
         }
     }
-
 
 }

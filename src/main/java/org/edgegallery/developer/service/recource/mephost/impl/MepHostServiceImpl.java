@@ -35,13 +35,15 @@ import org.edgegallery.developer.exception.UnauthorizedException;
 import org.edgegallery.developer.mapper.UploadedFileMapper;
 import org.edgegallery.developer.mapper.resource.mephost.MepHostLogMapper;
 import org.edgegallery.developer.mapper.resource.mephost.MepHostMapper;
+import org.edgegallery.developer.mapper.uploadfile.UploadFileMapper;
 import org.edgegallery.developer.model.resource.mephost.EnumVimType;
 import org.edgegallery.developer.model.resource.mephost.MepHost;
 import org.edgegallery.developer.model.resource.mephost.MepHostLog;
+import org.edgegallery.developer.model.uploadfile.UploadFile;
 import org.edgegallery.developer.model.workspace.UploadedFile;
 import org.edgegallery.developer.service.ReverseProxyService;
 import org.edgegallery.developer.service.recource.mephost.MepHostService;
-import org.edgegallery.developer.service.uploadfile.impl.UploadServiceImpl;
+import org.edgegallery.developer.service.uploadfile.impl.UploadFileServiceImpl;
 import org.edgegallery.developer.util.AesUtil;
 import org.edgegallery.developer.util.HttpClientUtil;
 import org.edgegallery.developer.util.InputParameterUtil;
@@ -66,10 +68,10 @@ public class MepHostServiceImpl implements MepHostService {
     private MepHostLogMapper hostLogMapper;
 
     @Autowired
-    private UploadedFileMapper uploadedFileMapper;
+    private UploadFileMapper uploadFileMapper;
 
     @Autowired
-    private UploadServiceImpl uploadService;
+    private UploadFileServiceImpl uploadService;
 
     @Autowired
     private ReverseProxyService reverseProxyService;
@@ -208,7 +210,7 @@ public class MepHostServiceImpl implements MepHostService {
      * @return
      */
     @Override
-    public UploadedFile uploadConfigFile(MultipartFile uploadFile) {
+    public UploadFile uploadConfigFile(MultipartFile uploadFile) {
         LOGGER.info("Start uploading file");
         //check format
         String fileName = uploadFile.getOriginalFilename();
@@ -221,12 +223,12 @@ public class MepHostServiceImpl implements MepHostService {
             throw new IllegalRequestException(errMsg, ResponseConsts.RET_FILE_FORMAT_ERROR);
         }
         String userId = AccessUserUtil.getUser().getUserId();
-        UploadedFile result = uploadService.saveFileToLocal(uploadFile, userId);
+        UploadFile result = uploadService.saveFileToLocal(uploadFile, userId);
         if (result == null) {
             LOGGER.error("save config file failed!");
             throw new DataBaseException("Failed to save file!", ResponseConsts.RET_CERATE_DATA_FAIL);
         }
-        int ret = uploadedFileMapper.updateFileStatus(result.getFileId(), false);
+        int ret = uploadFileMapper.updateFileStatus(result.getFileId(), false);
         if (ret < 1) {
             LOGGER.error("update config file status failed!!");
             throw new DataBaseException("update config file status failed!", ResponseConsts.RET_UPDATE_DATA_FAIL);
@@ -256,7 +258,7 @@ public class MepHostServiceImpl implements MepHostService {
         // upload config file
         if (StringUtils.isNotBlank(host.getConfigId())) {
             // upload file
-            UploadedFile uploadedFile = uploadedFileMapper.getFileById(host.getConfigId());
+            UploadFile uploadedFile = uploadFileMapper.getFileById(host.getConfigId());
             boolean uploadRes = MepHostUtil
                 .uploadFileToLcm(host.getLcmProtocol(), host.getLcmIp(), host.getLcmPort(), uploadedFile.getFilePath(),
                     host.getMecHostIp(), token);

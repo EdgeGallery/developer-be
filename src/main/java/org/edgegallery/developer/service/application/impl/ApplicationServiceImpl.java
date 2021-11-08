@@ -39,7 +39,6 @@ import org.edgegallery.developer.model.application.vm.VMApplication;
 import org.edgegallery.developer.model.application.vm.VirtualMachine;
 import org.edgegallery.developer.model.restful.ApplicationDetail;
 import org.edgegallery.developer.service.application.AppConfigurationService;
-import org.edgegallery.developer.service.application.AppOperationService;
 import org.edgegallery.developer.service.application.ApplicationService;
 import org.edgegallery.developer.service.application.container.ContainerAppHelmChartService;
 import org.edgegallery.developer.service.application.factory.AppOperationServiceFactory;
@@ -47,7 +46,7 @@ import org.edgegallery.developer.service.application.impl.vm.VMAppOperationServi
 import org.edgegallery.developer.service.application.vm.VMAppNetworkService;
 import org.edgegallery.developer.service.application.vm.VMAppVmService;
 import org.edgegallery.developer.service.apppackage.AppPackageService;
-import org.edgegallery.developer.service.uploadfile.UploadService;
+import org.edgegallery.developer.service.uploadfile.UploadFileService;
 import org.edgegallery.developer.util.DeveloperFileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,7 +58,7 @@ public class ApplicationServiceImpl implements ApplicationService {
     private static final Logger LOGGER = LoggerFactory.getLogger(ApplicationServiceImpl.class);
 
     @Autowired
-    private UploadService uploadService;
+    private UploadFileService uploadService;
 
     @Autowired
     private ApplicationMapper applicationMapper;

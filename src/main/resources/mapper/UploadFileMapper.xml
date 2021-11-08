@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~    Copyright 2020 Huawei Technologies Co., Ltd.
+  ~
+  ~    Licensed under the Apache License, Version 2.0 (the "License");
+  ~    you may not use this file except in compliance with the License.
+  ~    You may obtain a copy of the License at
+  ~
+  ~        http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~    Unless required by applicable law or agreed to in writing, software
+  ~    distributed under the License is distributed on an "AS IS" BASIS,
+  ~    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~    See the License for the specific language governing permissions and
+  ~    limitations under the License.
+  -->
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.edgegallery.developer.mapper.uploadfile.UploadFileMapper">
+    <resultMap id="UploadedFileMap" type="org.edgegallery.developer.model.uploadfile.UploadFile">
+        <id property="fileId" column="file_id"/>
+        <result property="fileName" column="file_name"/>
+        <result property="userId" column="user_id"/>
+        <result property="isTemp" column="is_temp"/>
+        <result property="uploadDate" column="upload_date"/>
+        <result property="filePath" column="file_path"/>
+    </resultMap>
+
+    <sql id="AllColumn">
+    file_id, file_name, is_temp, user_id, upload_date, file_path
+    </sql>
+    
+    <insert id="saveFile" parameterType="org.edgegallery.developer.model.workspace.UploadedFile">
+        insert into tbl_uploaded_file (file_id, file_name, is_temp, user_id, upload_date, file_path)
+        values ( #{fileId}, #{fileName}, #{isTemp}, #{userId}, #{uploadDate}, #{filePath})
+    </insert>
+
+    <update id="updateFile" parameterType="org.edgegallery.developer.model.workspace.UploadedFile">
+        update tbl_uploaded_file
+        set file_name=#{fileName}, is_temp=#{isTemp}, user_id=#{userId}, upload_date=#{uploadDate},
+        file_path=#{filePath} where file_id=#{fileId}
+    </update>
+
+    <select id="getFileById" resultMap="UploadedFileMap">
+        SELECT
+        <include refid="AllColumn"/>
+        FROM tbl_uploaded_file
+        where file_id = #{fileId}
+    </select>
+
+    <update id="updateFileStatus">
+        UPDATE tbl_uploaded_file
+        SET is_temp=#{param2}
+        WHERE file_id = #{param1}
+    </update>
+
+    <update id="updateFilePath" parameterType="java.lang.String">
+        UPDATE tbl_uploaded_file
+        SET file_path=#{param2}
+        WHERE file_id = #{param1}
+    </update>
+
+    <delete id="deleteFile" parameterType="java.lang.String">
+        DELETE FROM tbl_uploaded_file WHERE file_id = #{fileId}
+    </delete>
+
+    <select id="getAllTempFiles" resultType="java.lang.String">
+        SELECT file_id FROM tbl_uploaded_file WHERE is_temp = true;
+    </select>
+</mapper>

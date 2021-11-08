@@ -34,6 +34,7 @@ import org.edgegallery.developer.model.resource.mephost.EnumMepHostStatus;
 import org.edgegallery.developer.model.resource.mephost.EnumVimType;
 import org.edgegallery.developer.model.resource.mephost.MepHost;
 import org.edgegallery.developer.model.resource.mephost.MepHostLog;
+import org.edgegallery.developer.model.uploadfile.UploadFile;
 import org.edgegallery.developer.model.workspace.UploadedFile;
 import org.edgegallery.developer.service.recource.mephost.MepHostService;
 import org.edgegallery.developer.test.DeveloperApplicationTests;
@@ -212,7 +213,7 @@ public class MepHostServiceTest {
         AccessUserUtil.setUser("5ce78873-d73d-4e7d-84a4-ab75ac95400f", "admin", Consts.ROLE_DEVELOPER_ADMIN);
         MultipartFile uploadFile = new MockMultipartFile("config", "config", null,
             MepHostServiceTest.class.getClassLoader().getResourceAsStream("testdata/config"));
-        UploadedFile uploadedFile = mepHostService.uploadConfigFile(uploadFile);
+        UploadFile uploadedFile = mepHostService.uploadConfigFile(uploadFile);
         Assert.assertNotNull(uploadedFile);
     }
 

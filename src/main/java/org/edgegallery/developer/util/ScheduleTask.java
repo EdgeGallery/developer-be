@@ -17,7 +17,8 @@
 package org.edgegallery.developer.util;
 
 import org.edgegallery.developer.service.ProjectService;
-import org.edgegallery.developer.service.UploadFileService;
+import org.edgegallery.developer.service.uploadfile.UploadFileService;
+import org.edgegallery.developer.service.uploadfile.impl.UploadFileServiceImpl;
 import org.edgegallery.developer.service.virtual.VmService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
@@ -29,7 +30,7 @@ import org.springframework.stereotype.Component;
 public class ScheduleTask {
 
     @Autowired
-    private UploadFileService uploadFileService;
+    private UploadFileServiceImpl uploadFileService;
 
     @Autowired
     private ProjectService projectService;

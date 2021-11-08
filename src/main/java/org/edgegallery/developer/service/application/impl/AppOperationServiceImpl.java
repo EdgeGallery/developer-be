@@ -37,7 +37,7 @@ import org.edgegallery.developer.mapper.application.AppConfigurationMapper;
 import org.edgegallery.developer.mapper.application.ApplicationMapper;
 import org.edgegallery.developer.mapper.capability.CapabilityGroupMapper;
 import org.edgegallery.developer.mapper.capability.CapabilityMapper;
-import org.edgegallery.developer.mapper.uploadfile.UploadMapper;
+import org.edgegallery.developer.mapper.uploadfile.UploadFileMapper;
 import org.edgegallery.developer.model.application.Application;
 import org.edgegallery.developer.model.application.EnumApplicationStatus;
 import org.edgegallery.developer.model.application.configuration.AppServiceProduced;
@@ -46,6 +46,7 @@ import org.edgegallery.developer.model.atpTestTask.AtpTest;
 import org.edgegallery.developer.model.capability.Capability;
 import org.edgegallery.developer.model.capability.CapabilityGroup;
 import org.edgegallery.developer.model.restful.SelectMepHostReq;
+import org.edgegallery.developer.model.uploadfile.UploadFile;
 import org.edgegallery.developer.model.workspace.PublishAppReqDto;
 import org.edgegallery.developer.model.workspace.UploadedFile;
 import org.edgegallery.developer.service.application.AppOperationService;
@@ -78,7 +79,7 @@ public class AppOperationServiceImpl implements AppOperationService {
     private AtpTestTaskMapper atpTestTaskMapper;
 
     @Autowired
-    private UploadMapper uploadMapper;
+    private UploadFileMapper uploadMapper;
 
     @Autowired
     private AppConfigurationMapper appConfigurationMapper;
@@ -173,7 +174,7 @@ public class AppOperationServiceImpl implements AppOperationService {
         checkParamNull(app, "application is empty. applicationId: ".concat(applicationId));
         AppPackage appPkg = app.getAppPackage();
         checkParamNull(appPkg.getId(), "app package content is empty. applicationId: ".concat(applicationId));
-        UploadedFile iconFile = uploadMapper.getFileById(app.getIconFileId());
+        UploadFile iconFile = uploadMapper.getFileById(app.getIconFileId());
         checkParamNull(iconFile, "file icon is empty. iconFileId: ".concat(app.getIconFileId()));
         checkAtpTestStatus(app.getAtpTestTaskList());
 
