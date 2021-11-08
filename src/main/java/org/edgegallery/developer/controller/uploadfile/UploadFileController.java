@@ -28,13 +28,11 @@ import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.edgegallery.developer.common.ResponseConsts;
 import org.edgegallery.developer.config.security.AccessUserUtil;
 import org.edgegallery.developer.exception.EntityNotFoundException;
-import org.edgegallery.developer.mapper.capability.CapabilityMapper;
-import org.edgegallery.developer.mapper.uploadfile.UploadFileMapper;
 import org.edgegallery.developer.model.apppackage.AppPkgStructure;
 import org.edgegallery.developer.model.capability.Capability;
 import org.edgegallery.developer.model.uploadfile.UploadFile;
-import org.edgegallery.developer.model.workspace.UploadedFile;
 import org.edgegallery.developer.response.ErrorRespDto;
+import org.edgegallery.developer.service.capability.CapabilityService;
 import org.edgegallery.developer.service.uploadfile.UploadFileService;
 import org.edgegallery.developer.service.uploadfile.impl.UploadFileServiceImpl;
 import org.slf4j.Logger;
@@ -68,10 +66,7 @@ public class UploadFileController {
     private UploadFileService uploadFileService;
 
     @Autowired
-    private UploadFileMapper uploadFileMapper;
-
-    @Autowired
-    private CapabilityMapper capabilityMapper;
+    private CapabilityService capabilityService;
 
     /**
      * get file stream.
@@ -109,9 +104,8 @@ public class UploadFileController {
     })
     @RequestMapping(value = "/{fileId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN') || hasRole('DEVELOPER_GUEST')")
-    public ResponseEntity<UploadFile> getFile(
-        @Pattern(regexp = REGEX_UUID, message = "fileId must be in UUID format")
-        @ApiParam(value = "fileId", required = true) @PathVariable("fileId") String fileId) {
+    public ResponseEntity<UploadFile> getFile(@Pattern(regexp = REGEX_UUID, message = "fileId must be in UUID format")
+    @ApiParam(value = "fileId", required = true) @PathVariable("fileId") String fileId) {
         return ResponseEntity.ok(uploadFileService.getFile(fileId));
     }
 
@@ -216,7 +210,7 @@ public class UploadFileController {
     @ApiParam(value = "fileId", required = true) @PathVariable("fileId") String fileId,
         @Pattern(regexp = REGEX_UUID, message = "lan must be in UUID format") @ApiParam(value = "lan", required = true)
         @RequestParam("lan") String lan) {
-        List<Capability> capabilities = capabilityMapper.selectByApiFileId(fileId);
+        List<Capability> capabilities = capabilityService.findByApiFileId(fileId);
         if (CollectionUtils.isEmpty(capabilities)) {
             LOGGER.error("can not find capability in db by api file id");
             throw new EntityNotFoundException("can not find capability in db", ResponseConsts.RET_QUERY_DATA_EMPTY);

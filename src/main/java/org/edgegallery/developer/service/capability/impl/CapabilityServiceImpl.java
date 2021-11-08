@@ -242,6 +242,11 @@ public class CapabilityServiceImpl implements CapabilityService {
     }
 
     @Override
+    public List<Capability> findByApiFileId(String apiFileId) {
+        return capabilityMapper.selectByApiFileId(apiFileId);
+    }
+
+    @Override
     public List<Capability> findByNameWithFuzzy(String name) {
         return capabilityMapper.selectByNameWithFuzzy(name);
     }
