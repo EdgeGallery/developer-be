@@ -35,6 +35,7 @@ import org.edgegallery.developer.exception.IllegalRequestException;
 import org.edgegallery.developer.mapper.HostMapper;
 import org.edgegallery.developer.mapper.UploadedFileMapper;
 import org.edgegallery.developer.mapper.capability.CapabilityMapper;
+import org.edgegallery.developer.mapper.uploadfile.UploadFileMapper;
 import org.edgegallery.developer.model.GeneralConfig;
 import org.edgegallery.developer.model.apppackage.AppPkgStructure;
 import org.edgegallery.developer.model.capability.Capability;
@@ -68,7 +69,7 @@ public class UploadServiceImpl implements UploadService {
     private static final List<String> FILE_TYPE_LIST = Arrays.asList("icon", "api", "md");
 
     @Autowired
-    private UploadedFileMapper uploadedFileMapper;
+    private UploadFileMapper uploadedFileMapper;
 
     @Autowired
     private HostMapper hostMapper;
@@ -120,7 +121,7 @@ public class UploadServiceImpl implements UploadService {
             File file = new File(InitConfigUtil.getWorkSpaceBaseDir() + uploadedFile.getFilePath());
             if (!file.exists()) {
                 LOGGER.error("can not find file {} in repository", fileId);
-                throw new FileFoundFailException("api file not exist!", ResponseConsts.RET_FILE_NOT_FOUND);
+                throw new FileFoundFailException("file does not exist!", ResponseConsts.RET_FILE_NOT_FOUND);
             }
         }
         return uploadedFile;

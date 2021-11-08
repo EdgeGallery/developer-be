@@ -30,6 +30,7 @@ import org.edgegallery.developer.config.security.AccessUserUtil;
 import org.edgegallery.developer.exception.EntityNotFoundException;
 import org.edgegallery.developer.mapper.UploadedFileMapper;
 import org.edgegallery.developer.mapper.capability.CapabilityMapper;
+import org.edgegallery.developer.mapper.uploadfile.UploadFileMapper;
 import org.edgegallery.developer.model.apppackage.AppPkgStructure;
 import org.edgegallery.developer.model.capability.Capability;
 import org.edgegallery.developer.model.workspace.UploadedFile;
@@ -67,7 +68,7 @@ public class UploadFileController {
     private UploadService uploadFileService;
 
     @Autowired
-    private UploadedFileMapper uploadedFileMapper;
+    private UploadFileMapper uploadedFileMapper;
 
     @Autowired
     private CapabilityMapper capabilityMapper;
@@ -83,7 +84,7 @@ public class UploadFileController {
     @RequestMapping(value = "/{fileId}/action/get-file-stream", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN') || hasRole('DEVELOPER_GUEST')")
-    public ResponseEntity<byte[]> getFile(@Pattern(regexp = REGEX_UUID, message = "fileId must be in UUID format")
+    public ResponseEntity<byte[]> getFileStream(@Pattern(regexp = REGEX_UUID, message = "fileId must be in UUID format")
     @ApiParam(value = "fileId", required = true) @PathVariable("fileId") String fileId) {
         String userId = AccessUserUtil.getUserId();
         UploadedFile uploadedFile = uploadedFileMapper.getFileById(fileId);
@@ -108,7 +109,7 @@ public class UploadFileController {
     })
     @RequestMapping(value = "/{fileId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN') || hasRole('DEVELOPER_GUEST')")
-    public ResponseEntity<UploadedFile> getApiFile(
+    public ResponseEntity<UploadedFile> getFile(
         @Pattern(regexp = REGEX_UUID, message = "fileId must be in UUID format")
         @ApiParam(value = "fileId", required = true) @PathVariable("fileId") String fileId) {
         String userId = AccessUserUtil.getUserId();
