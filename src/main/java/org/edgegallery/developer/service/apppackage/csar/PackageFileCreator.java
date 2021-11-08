@@ -12,7 +12,6 @@ import java.util.Locale;
 import java.util.Map;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.ibatis.io.Resources;
 import org.edgegallery.developer.common.Consts;
 import org.edgegallery.developer.common.ResponseConsts;
 import org.edgegallery.developer.exception.EntityNotFoundException;
@@ -50,9 +49,6 @@ public class PackageFileCreator {
 
     private static final String TEMPLATE_DEFINITION = "Definition/";
 
-
-
-
     EncryptedService encryptedService = (EncryptedService) SpringContextUtil.getBean(EncryptedService.class);
 
     private Application application;
@@ -81,11 +77,12 @@ public class PackageFileCreator {
         if (!packageFileDir.exists() || !packageFileDir.isDirectory()) {
             File applicationDir = new File(getApplicationPath());
             try {
-                String resourcePath = this.getClass().getResource(PACKAGE_TEMPLATE_PATH).getFile();
+                String resourcePath = PackageFileCreator.class.getResource(PACKAGE_TEMPLATE_PATH).getFile();
                 LOGGER.info("resourcePath:{}",resourcePath);
                 DeveloperFileUtils
                     .copyDirectory(new File(resourcePath), applicationDir, packageId);
             } catch (IOException e) {
+                e.printStackTrace();
                 LOGGER.error("copy package template file fail, package dir:{}", getPackagePath());
                 return false;
             }
