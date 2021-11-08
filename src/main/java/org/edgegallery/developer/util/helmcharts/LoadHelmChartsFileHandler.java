@@ -14,15 +14,45 @@
 
 package org.edgegallery.developer.util.helmcharts;
 
-public class LoadHelmChartsFile implements ILoadContainerFile {
+public class LoadHelmChartsFileHandler implements IContainerFileHandler {
 
     private final String filePath;
 
-    LoadHelmChartsFile(String filePath) {
+    LoadHelmChartsFileHandler(String filePath) {
         this.filePath = filePath;
     }
 
     public void loadHelmCharts(String filePath) {
+
+    }
+
+    @Override
+    public void load(String filePath) {
+
+    }
+
+    @Override
+    public void getCatalog() {
+
+    }
+
+    @Override
+    public String exportHelmCharts(String outPath) {
+        return null;
+    }
+
+    @Override
+    public void SetHashMep(boolean hasMep) {
+
+    }
+
+    @Override
+    public void modifyFileByPath(String filePath, String content) {
+
+    }
+
+    @Override
+    public void addFile(String filePath, String content) {
 
     }
 }

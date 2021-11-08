@@ -16,6 +16,7 @@
 
 package org.edgegallery.developer.util;
 
+import com.google.common.io.Files;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -157,7 +158,26 @@ public final class ContainerAppHelmChartUtil {
             writer.flush();
             writer.close();
         } catch (IOException e) {
-            throw new FileOperateException("wite upload file failed!", ResponseConsts.RET_WRITE_FILE_FAIL);
+            throw new FileOperateException("write upload file failed!", ResponseConsts.RET_WRITE_FILE_FAIL);
+        }
+        return fileId;
+    }
+
+    public static String writeContentToFile(byte[] content) {
+        String fileId = UUID.randomUUID().toString();
+        try {
+            String upLoadDir = InitConfigUtil.getWorkSpaceBaseDir() + BusinessConfigUtil.getUploadfilesPath();
+            String fileRealPath = upLoadDir + fileId;
+            File dir = new File(upLoadDir);
+            if (!dir.isDirectory()) {
+                boolean isSuccess = dir.mkdirs();
+                if (!isSuccess) {
+                    throw new FileOperateException("create upload dir fail!", ResponseConsts.RET_CREATE_FILE_FAIL);
+                }
+            }
+            Files.write(content, new File(fileRealPath));
+        } catch (IOException e) {
+            throw new FileOperateException("write upload file failed!", ResponseConsts.RET_WRITE_FILE_FAIL);
         }
         return fileId;
     }

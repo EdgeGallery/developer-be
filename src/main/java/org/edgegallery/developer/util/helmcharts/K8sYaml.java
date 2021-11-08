@@ -20,11 +20,11 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class LoadK8sYaml implements ILoadContainerFile {
+public class K8sYaml implements IContainerFileHandler {
 
     private final String filePath;
 
-    LoadK8sYaml(String filePath) {
+    K8sYaml(String filePath) {
         this.filePath = filePath;
     }
 
@@ -36,6 +36,36 @@ public class LoadK8sYaml implements ILoadContainerFile {
         }
 
         org.yaml.snakeyaml.Yaml yaml = new org.yaml.snakeyaml.Yaml();
+
+    }
+
+    @Override
+    public void load(String filePath) {
+
+    }
+
+    @Override
+    public void getCatalog() {
+
+    }
+
+    @Override
+    public String exportHelmCharts(String outPath) {
+        return null;
+    }
+
+    @Override
+    public void SetHashMep(boolean hasMep) {
+
+    }
+
+    @Override
+    public void modifyFileByPath(String filePath, String content) {
+
+    }
+
+    @Override
+    public void addFile(String filePath, String content) {
 
     }
 }

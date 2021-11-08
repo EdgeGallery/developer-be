@@ -16,11 +16,11 @@ package org.edgegallery.developer.util.helmcharts;
 
 public class LoadContainerFileFactory {
 
-    public static ILoadContainerFile loadFile(String filePath) {
+    public static IContainerFileHandler createLoader(String filePath) {
         if (filePath.toLowerCase().endsWith(".tgz")) {
-            return new LoadHelmChartsFile(filePath);
-        } else if (filePath.toLowerCase().endsWith(".yaml")) {
-            return new LoadK8sYaml(filePath);
+            return new LoadHelmChartsFileHandler(filePath);
+        } else if (filePath.toLowerCase().endsWith(".yaml") || filePath.toLowerCase().endsWith(".yml")) {
+            return new K8sYaml(filePath);
         } else {
             return null;
         }

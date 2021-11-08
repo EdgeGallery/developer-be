@@ -24,6 +24,8 @@ import com.spencerwi.either.Either;
 
 public interface ContainerAppHelmChartService {
 
+    boolean uploadContainerFile(MultipartFile helmTemplateYaml, String applicationId);
+
     Boolean uploadHelmChartYaml(MultipartFile helmTemplateYaml, String applicationId);
 
     Boolean createHelmCharts(MultipartFile helmChartFile, String applicationId);

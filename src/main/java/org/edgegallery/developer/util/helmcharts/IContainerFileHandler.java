@@ -14,4 +14,19 @@
 
 package org.edgegallery.developer.util.helmcharts;
 
-public interface ILoadContainerFile { }
+public interface IContainerFileHandler {
+
+    // load tgz or yaml file, and parse it. it will auto-create charts.yaml and values.yaml when loading yaml file.
+    void load(String filePath);
+
+    // get catalog from helm-charts file
+    void getCatalog();
+
+    String exportHelmCharts(String outPath);
+
+    void SetHashMep(boolean hasMep);
+
+    void modifyFileByPath(String filePath, String content);
+
+    void addFile(String filePath, String content);
+}
