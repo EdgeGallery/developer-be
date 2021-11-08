@@ -271,6 +271,9 @@ public class VMAppOperationServiceImpl extends AppOperationServiceImpl implement
             LOGGER.error("application does not exist ,id:{}", applicationId);
             throw new EntityNotFoundException("application does not exist.", ResponseConsts.RET_QUERY_DATA_EMPTY);
         }
+        if (StringUtils.isEmpty(application.getMepHostId())) {
+            return true;
+        }
         List<VirtualMachine> vms = vmAppVmServiceImpl.getAllVm(applicationId);
         if (CollectionUtils.isEmpty(vms)) {
             LOGGER.error("vm does not exist in application, applicationId:{}", applicationId);
@@ -388,10 +391,6 @@ public class VMAppOperationServiceImpl extends AppOperationServiceImpl implement
     }
 
     private boolean cleanVmLaunchInfo(String mepHostId, VirtualMachine vm, User user) {
-        if (StringUtils.isEmpty(mepHostId)) {
-            LOGGER.error("The virtual machine is not running!");
-            return true;
-        }
         MepHost mepHost = mepHostMapper.getHost(mepHostId);
         String basePath = HttpClientUtil
             .getUrlPrefix(mepHost.getLcmProtocol(), mepHost.getLcmIp(), mepHost.getLcmPort());
