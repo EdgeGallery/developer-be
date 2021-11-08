@@ -54,7 +54,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 @Controller
 @RestSchema(schemaId = "upload-file")
-@RequestMapping("/mec/developer/v2/upload-file")
+@RequestMapping("/mec/developer/v2/upload-files")
 @Api(tags = "upload-file")
 public class UploadFileController {
 

@@ -34,6 +34,7 @@ import org.edgegallery.developer.model.apppackage.AppPkgStructure;
 import org.edgegallery.developer.model.capability.Capability;
 import org.edgegallery.developer.model.uploadfile.UploadFile;
 import org.edgegallery.developer.model.workspace.UploadedFile;
+import org.edgegallery.developer.service.capability.CapabilityService;
 import org.edgegallery.developer.service.uploadfile.UploadFileService;
 import org.junit.Assert;
 import org.junit.Before;
@@ -67,7 +68,7 @@ public class UploadFileControllerTest {
     private UploadFileMapper uploadedFileMapper;
 
     @Mock
-    private CapabilityMapper capabilityMapper;
+    private CapabilityService capabilityService;
 
     private MockMvc mvc;
 
@@ -80,7 +81,7 @@ public class UploadFileControllerTest {
     @Test
     @WithMockUser(roles = "DEVELOPER_ADMIN")
     public void testGetFileStreamSuccess() throws Exception {
-        String url = String.format("/mec/developer/v2/upload-file/%s/action/get-file-stream", UUID.randomUUID().toString());
+        String url = String.format("/mec/developer/v2/upload-files/%s/action/get-file-stream", UUID.randomUUID().toString());
         byte[] bytes = new byte[1000];
         Mockito.when(uploadService.getFileStream(Mockito.any(), Mockito.anyString())).thenReturn(bytes);
         Mockito.when(uploadService.getFile(Mockito.anyString())).thenReturn(new UploadFile());
@@ -92,7 +93,7 @@ public class UploadFileControllerTest {
     @Test
     @WithMockUser(roles = "DEVELOPER_ADMIN")
     public void testGetFileSuccess() throws Exception {
-        String url = String.format("/mec/developer/v2/upload-file/%s", UUID.randomUUID().toString());
+        String url = String.format("/mec/developer/v2/upload-files/%s", UUID.randomUUID().toString());
         UploadFile uploadedFile = new UploadFile();
         Mockito.when(uploadService.getFile(Mockito.anyString())).thenReturn(uploadedFile);
         ResultActions actions = mvc.perform(MockMvcRequestBuilders.get(url))
@@ -108,14 +109,14 @@ public class UploadFileControllerTest {
         InputStream configInputStream = new FileInputStream(iconFile);
         MultipartFile configMultiFile = new MockMultipartFile(iconFile.getName(), iconFile.getName(),
             ContentType.APPLICATION_OCTET_STREAM.toString(), configInputStream);
-        mvc.perform(MockMvcRequestBuilders.multipart("/mec/developer/v2/upload-file").file("file", configMultiFile.getBytes())
+        mvc.perform(MockMvcRequestBuilders.multipart("/mec/developer/v2/upload-files").file("file", configMultiFile.getBytes())
             .param("fileType", "icon")).andExpect(MockMvcResultMatchers.status().isOk());
     }
 
     @Test
     @WithMockUser(roles = "DEVELOPER_ADMIN")
     public void testDeleteFileSuccess() throws Exception {
-        String url = String.format("/mec/developer/v2/upload-file/%s", UUID.randomUUID().toString());
+        String url = String.format("/mec/developer/v2/upload-files/%s", UUID.randomUUID().toString());
         Mockito.when(uploadService.deleteFile(Mockito.anyString())).thenReturn(true);
         ResultActions actions = mvc.perform(
             MockMvcRequestBuilders.delete(url).with((csrf())).contentType(MediaType.APPLICATION_JSON_UTF8)
@@ -126,7 +127,7 @@ public class UploadFileControllerTest {
     @Test
     @WithMockUser(roles = "DEVELOPER_ADMIN")
     public void testDownloadSampleCodeSuccess() throws Exception {
-        String url = String.format("/mec/developer/v2/upload-file/action/download-sample-code");
+        String url = String.format("/mec/developer/v2/upload-files/action/download-sample-code");
         Mockito.when(uploadService.downloadSampleCode(Mockito.any())).thenReturn(new byte[1000]);
         ResultActions actions = mvc.perform(
             MockMvcRequestBuilders.post(url).with((csrf())).content(new Gson().toJson(new ArrayList<>()))
@@ -137,7 +138,7 @@ public class UploadFileControllerTest {
     @Test
     @WithMockUser(roles = "DEVELOPER_ADMIN")
     public void testGetSampleCodeStructureSuccess() throws Exception {
-        String url = String.format("/mec/developer/v2/upload-file/action/get-sample-code-structure");
+        String url = String.format("/mec/developer/v2/upload-files/action/get-sample-code-structure");
         Mockito.when(uploadService.getSampleCodeStru(Mockito.any())).thenReturn(new AppPkgStructure());
         ResultActions actions = mvc.perform(
             MockMvcRequestBuilders.post(url).with((csrf())).content(new Gson().toJson(new ArrayList<>()))
@@ -148,7 +149,7 @@ public class UploadFileControllerTest {
     @Test
     @WithMockUser(roles = "DEVELOPER_ADMIN")
     public void testGetSampleCodeContentSuccess() throws Exception {
-        String url = String.format("/mec/developer/v2/upload-file/action/get-sample-code-content?fileName=%s", "test");
+        String url = String.format("/mec/developer/v2/upload-files/action/get-sample-code-content?fileName=%s", "test");
         Mockito.when(uploadService.getSampleCodeContent(Mockito.anyString())).thenReturn(new String());
         ResultActions actions = mvc
             .perform(MockMvcRequestBuilders.get(url).contentType(MediaType.APPLICATION_JSON_VALUE))
@@ -161,8 +162,8 @@ public class UploadFileControllerTest {
     public void testGetSdkProjectBad() {
         try {
             String url = String
-                .format("/mec/developer/v2/upload-file/%s/action/download-sdk?lan=%s", UUID.randomUUID().toString(), "java");
-            Mockito.when(capabilityMapper.selectByApiFileId(Mockito.anyString())).thenReturn(null);
+                .format("/mec/developer/v2/upload-files/%s/action/download-sdk?lan=%s", UUID.randomUUID().toString(), "java");
+            Mockito.when(capabilityService.findByApiFileId(Mockito.anyString())).thenReturn(null);
             mvc.perform(MockMvcRequestBuilders.get(url)).andExpect(MockMvcResultMatchers.status().isNotFound());
         } catch (Exception e) {
             Assert.assertNotNull(e.getMessage());
@@ -173,12 +174,12 @@ public class UploadFileControllerTest {
     @WithMockUser(roles = "DEVELOPER_ADMIN")
     public void testGetSdkProjectSuccess() throws Exception {
         String url = String
-            .format("/mec/developer/v2/upload-file/%s/action/download-sdk?lan=%s", UUID.randomUUID().toString(), "java");
+            .format("/mec/developer/v2/upload-files/%s/action/download-sdk?lan=%s", UUID.randomUUID().toString(), "java");
         Mockito.when(uploadService.getSdkProject(Mockito.anyString(), Mockito.anyString(), Mockito.anyList()))
             .thenReturn(new byte[1000]);
         List<Capability> list = new ArrayList<>();
         list.add(new Capability());
-        Mockito.when(capabilityMapper.selectByApiFileId(Mockito.anyString())).thenReturn(list);
+        Mockito.when(capabilityService.findByApiFileId(Mockito.anyString())).thenReturn(list);
 
         mvc.perform(MockMvcRequestBuilders.get(url)).andExpect(MockMvcResultMatchers.status().isOk());
     }
