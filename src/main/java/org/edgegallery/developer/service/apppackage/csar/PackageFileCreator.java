@@ -38,7 +38,7 @@ public class PackageFileCreator {
 
     public static final Logger LOGGER = LoggerFactory.getLogger(PackageFileCreator.class);
 
-    private static final String PACKAGE_TEMPLATE_PATH = "template/package_template";
+    private static final String PACKAGE_TEMPLATE_PATH = "/template/package_template";
 
     private static final String TEMPLATE_PACKAGE_VNFD__PATH = "/APPD/TOSCA_VNFD.meta";
 
@@ -81,9 +81,10 @@ public class PackageFileCreator {
         if (!packageFileDir.exists() || !packageFileDir.isDirectory()) {
             File applicationDir = new File(getApplicationPath());
             try {
-                LOGGER.error("temp path:{}",Resources.getResourceURL(PACKAGE_TEMPLATE_PATH).getFile());
+                String resourcePath = this.getClass().getResource(PACKAGE_TEMPLATE_PATH).getFile();
+                LOGGER.info("resourcePath:{}",resourcePath);
                 DeveloperFileUtils
-                    .copyDirectory(Resources.getResourceAsFile(PACKAGE_TEMPLATE_PATH), applicationDir, packageId);
+                    .copyDirectory(new File(resourcePath), applicationDir, packageId);
             } catch (IOException e) {
                 LOGGER.error("copy package template file fail, package dir:{}", getPackagePath());
                 return false;
