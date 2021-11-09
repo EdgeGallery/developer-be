@@ -16,17 +16,18 @@
 
 package org.edgegallery.developer.controller.capability;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import java.util.List;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.Pattern;
-
 import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.edgegallery.developer.model.capability.Capability;
 import org.edgegallery.developer.response.ErrorRespDto;
-import org.edgegallery.developer.response.FormatRespDto;
 import org.edgegallery.developer.service.capability.CapabilityService;
-import org.edgegallery.developer.util.ResponseDataUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -41,79 +42,76 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import com.spencerwi.either.Either;
-
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
-
 @Controller("v2-capabilityController")
 @RestSchema(schemaId = "capabilities-v2")
 @RequestMapping("/mec/developer/v2/capabilities")
 @Api(tags = "capabilities-v2")
 public class CapabilityController {
-	private static final String REG_UUID = "[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}";
+    private static final String REG_UUID = "[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}";
 
-	@Autowired
-	private CapabilityService capabilityService;
+    @Autowired
+    private CapabilityService capabilityService;
 
-	@ApiOperation(value = "Create one Capability", response = Capability.class)
-	@ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = Capability.class),
-			@ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class) })
-	@PostMapping(consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-	@PreAuthorize("hasRole('DEVELOPER_ADMIN')")
-	public ResponseEntity<Capability> createCapability(
-			@ApiParam(value = "Capability", required = true) @RequestBody Capability capability) {
-		Either<FormatRespDto, Capability> either = capabilityService.create(capability);
-		return ResponseDataUtil.buildResponse(either);
-	}
+    @ApiOperation(value = "Create one Capability", response = Capability.class)
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = "OK", response = Capability.class),
+        @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
+    })
+    @PostMapping(consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @PreAuthorize("hasRole('DEVELOPER_ADMIN')")
+    public ResponseEntity<Capability> createCapability(
+        @ApiParam(value = "Capability", required = true) @RequestBody Capability capability) {
+        return ResponseEntity.ok(capabilityService.create(capability));
+    }
 
-	@ApiOperation(value = "Delete one Capability by id", response = Boolean.class)
-	@ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = Capability.class),
-			@ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class) })
-	@DeleteMapping(value="/{id}",produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-	@PreAuthorize("hasRole('DEVELOPER_ADMIN')")
-	public ResponseEntity<Capability> deleteCapabilityById(
-			@ApiParam(value = "id", required = true) @PathVariable("id") @Pattern(regexp = REG_UUID, message = "id must be in UUID format") String id) {
-		Either<FormatRespDto, Capability> either = capabilityService.deleteById(id);
-		return ResponseDataUtil.buildResponse(either);
-	}
-	
-	@ApiOperation(value = "get Capability by property", response = Capability.class, responseContainer = "List")
-	@ApiResponses(value = {
-			@ApiResponse(code = 200, message = "OK", response = Capability.class, responseContainer = "List"),
-			@ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class) })
-	@GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-	@PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN') || hasRole('DEVELOPER_GUEST')")
-	public ResponseEntity<Capability> getCapabilityById(
-			@ApiParam(value = "id", required = true)  @PathVariable("id") @Pattern(regexp = REG_UUID, message = "id must be in UUID format") String id,
-			HttpServletRequest request) {
-		return ResponseEntity.ok(capabilityService.findById(id));
-	}
+    @ApiOperation(value = "Delete one Capability by id", response = Boolean.class)
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = "OK", response = Boolean.class),
+        @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
+    })
+    @DeleteMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @PreAuthorize("hasRole('DEVELOPER_ADMIN')")
+    public ResponseEntity<Boolean> deleteCapabilityById(@ApiParam(value = "id", required = true) @PathVariable("id")
+    @Pattern(regexp = REG_UUID, message = "id must be in UUID format") String id) {
+        return ResponseEntity.ok(capabilityService.deleteById(id));
+    }
 
-	@ApiOperation(value = "get all Capability", response = Capability.class, responseContainer = "List")
-	@ApiResponses(value = {
-			@ApiResponse(code = 200, message = "OK", response = Capability.class, responseContainer = "List"),
-			@ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class) })
-	@GetMapping(produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-	@PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN') || hasRole('DEVELOPER_GUEST')")
-	public ResponseEntity<List<Capability>> getAllCapability(
-			@ApiParam(value = "filterType", required = false) @RequestParam(value = "filterType", required = false) String filterType,
-			HttpServletRequest request) {
-		return ResponseEntity.ok(capabilityService.findAll());
-	}
+    @ApiOperation(value = "get Capability by property", response = Capability.class, responseContainer = "List")
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = "OK", response = Capability.class, responseContainer = "List"),
+        @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
+    })
+    @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN') || hasRole('DEVELOPER_GUEST')")
+    public ResponseEntity<Capability> getCapabilityById(@ApiParam(value = "id", required = true) @PathVariable("id")
+    @Pattern(regexp = REG_UUID, message = "id must be in UUID format") String id, HttpServletRequest request) {
+        return ResponseEntity.ok(capabilityService.findById(id));
+    }
 
-	@ApiOperation(value = "update one Capability", response = Capability.class)
-	@ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = Capability.class),
-			@ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class) })
-	@PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-	@PreAuthorize("hasRole('DEVELOPER_ADMIN')")
-	public ResponseEntity<Capability> modifyCapabilityById(
-			@ApiParam(value = "id", required = true) @PathVariable @Pattern(regexp = REG_UUID, message = "id must be in UUID format") String id,
-			@ApiParam(value = "Capability", required = true) @RequestBody Capability capability) {
-		Either<FormatRespDto, Capability> either = capabilityService.updateById(capability);
-		return ResponseDataUtil.buildResponse(either);
-	}
+    @ApiOperation(value = "get all Capability", response = Capability.class, responseContainer = "List")
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = "OK", response = Capability.class, responseContainer = "List"),
+        @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
+    })
+    @GetMapping(produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN') || hasRole('DEVELOPER_GUEST')")
+    public ResponseEntity<List<Capability>> getAllCapability(
+        @ApiParam(value = "filterType", required = false) @RequestParam(value = "filterType", required = false)
+            String filterType, HttpServletRequest request) {
+        return ResponseEntity.ok(capabilityService.findAll());
+    }
+
+    @ApiOperation(value = "update one Capability", response = Capability.class)
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = "OK", response = Capability.class),
+        @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
+    })
+    @PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_UTF8_VALUE,
+        produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @PreAuthorize("hasRole('DEVELOPER_ADMIN')")
+    public ResponseEntity<Capability> modifyCapabilityById(@ApiParam(value = "id", required = true) @PathVariable
+    @Pattern(regexp = REG_UUID, message = "id must be in UUID format") String id,
+        @ApiParam(value = "Capability", required = true) @RequestBody Capability capability) {
+        return ResponseEntity.ok(capabilityService.updateById(capability));
+    }
 }

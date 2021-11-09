@@ -62,9 +62,8 @@ public class CapabilityGroupControllerTest {
     @Test
     @WithMockUser(roles = "DEVELOPER_ADMIN")
     public void testCreateCapabilityGroupSuccess() throws Exception {
-        Either<FormatRespDto, CapabilityGroup> either = Either.right(new CapabilityGroup());
         String url = String.format("/mec/developer/v2/capability-groups");
-        Mockito.when(capabilityGroupService.create(Mockito.any())).thenReturn(either);
+        Mockito.when(capabilityGroupService.create(Mockito.any())).thenReturn(new CapabilityGroup());
         ResultActions actions = mvc.perform(
             MockMvcRequestBuilders.post(url).with((csrf())).content(new Gson().toJson(new CapabilityGroup()))
                 .contentType(MediaType.APPLICATION_JSON_UTF8)).andExpect(MockMvcResultMatchers.status().isOk());
@@ -74,9 +73,8 @@ public class CapabilityGroupControllerTest {
     @Test
     @WithMockUser(roles = "DEVELOPER_ADMIN")
     public void testDeleteCapabilityGroupSuccess() throws Exception {
-        Either<FormatRespDto, String> either = Either.right("4c22f069-e489-47cd-9c3c-e21741c857i8");
         String url = String.format("/mec/developer/v2/capability-groups/%s", "4c22f069-e489-47cd-9c3c-e21741c857i8");
-        Mockito.when(capabilityGroupService.deleteById(Mockito.anyString())).thenReturn(either);
+        Mockito.when(capabilityGroupService.deleteById(Mockito.anyString())).thenReturn(true);
         ResultActions actions = mvc
             .perform(MockMvcRequestBuilders.delete(url).with((csrf())).contentType(MediaType.APPLICATION_JSON_UTF8))
             .andExpect(MockMvcResultMatchers.status().isOk());
