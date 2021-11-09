@@ -14,6 +14,8 @@
 
 package org.edgegallery.developer.service.profile;
 
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -24,8 +26,11 @@ import java.util.Map;
 import java.util.UUID;
 import org.apache.commons.io.FileUtils;
 import org.edgegallery.developer.common.ResponseConsts;
+import org.edgegallery.developer.domain.shared.Page;
 import org.edgegallery.developer.domain.shared.PluginChecker;
+import org.edgegallery.developer.exception.DeveloperException;
 import org.edgegallery.developer.exception.DomainException;
+import org.edgegallery.developer.exception.EntityNotFoundException;
 import org.edgegallery.developer.exception.FileOperateException;
 import org.edgegallery.developer.mapper.profile.ProfileMapper;
 import org.edgegallery.developer.model.profile.ProfileInfo;
@@ -44,10 +49,13 @@ import org.yaml.snakeyaml.constructor.SafeConstructor;
 public class ProfileServiceImpl implements ProfileService {
     private static final Logger LOGGER = LoggerFactory.getLogger(ProfileServiceImpl.class);
 
+    private static final String PROFILE_FILE = "profile.yaml";
+
+    private static final String BASE_PAHT = InitConfigUtil.getWorkSpaceBaseDir()
+        .concat(BusinessConfigUtil.getProfileFilePath());
+
     @Autowired
     private ProfileMapper profileMapper;
-
-    private static final String PROFILE_FILE = "profile.yaml";
 
     @Override
     public ProfileInfo createProfile(MultipartFile file) {
@@ -56,8 +64,7 @@ public class ProfileServiceImpl implements ProfileService {
             checker.check(file);
 
             String id = UUID.randomUUID().toString();
-            String baseFilePath = InitConfigUtil.getWorkSpaceBaseDir().concat(BusinessConfigUtil.getProfileFilePath())
-                .concat(id);
+            String baseFilePath = BASE_PAHT.concat(id);
             String zipFilePath = baseFilePath.concat(".zip");
             File zipFile = new File(zipFilePath);
             if (!zipFile.getParentFile().exists()) {
@@ -71,13 +78,89 @@ public class ProfileServiceImpl implements ProfileService {
             ProfileInfo profileInfo = new ProfileInfo();
             profileInfo.setId(id);
             profileInfo.setFilePath(zipFilePath);
+            profileInfo.setCreateTime(new Date());
             analysizeProfile(baseFilePath, profileInfo);
 
-            profileMapper.createProfile(profileInfo);
+            validateDbOptResult(profileMapper.createProfile(profileInfo), "create profile failed.");
+            LOGGER.info("create profile successfully.");
             return profileInfo;
         } catch (IOException e) {
             LOGGER.error("file transfer failed. {}", e);
             throw new FileOperateException("file transfer failed.", ResponseConsts.RET_MERGE_FILE_FAIL);
+        }
+    }
+
+    @Override
+    public ProfileInfo updateProfile(MultipartFile file, String profileId) {
+        try {
+            PluginChecker checker = new PluginChecker();
+            checker.check(file);
+
+            ProfileInfo profileInfo = profileMapper.getProfileById(profileId);
+            checkParamNull(profileInfo, "profile does not exist, profileId: ".concat(profileId));
+
+            String baseFilePath = BASE_PAHT.concat(profileId);
+            FileUtils.deleteQuietly(new File(profileInfo.getFilePath()));
+            FileUtils.deleteQuietly(new File(baseFilePath));
+
+            File zipFile = new File(baseFilePath.concat(".zip"));
+            zipFile.createNewFile();
+            file.transferTo(zipFile);
+            checker.check(zipFile);
+            CompressFileUtils.unZip(zipFile, baseFilePath);
+
+            analysizeProfile(baseFilePath, profileInfo);
+            validateDbOptResult(profileMapper.updateProfile(profileInfo),
+                "update profile failed, profileId: ".concat(profileId));
+            LOGGER.info("update profile successfully.");
+            return profileInfo;
+        } catch (IOException e) {
+            LOGGER.error("file transfer failed. {}", e);
+            throw new FileOperateException("file transfer failed.", ResponseConsts.RET_MERGE_FILE_FAIL);
+        }
+    }
+
+    @Override
+    public Page<ProfileInfo> getAllProfiles(int limit, int offset) {
+        PageHelper.offsetPage(offset, limit);
+        PageInfo<ProfileInfo> pageInfo = new PageInfo<>(profileMapper.getAllProfiles());
+        LOGGER.info("get all profiles successfully.");
+        return new Page<ProfileInfo>(pageInfo.getList(), limit, offset, pageInfo.getTotal());
+    }
+
+    @Override
+    public ProfileInfo getProfileById(String profileId) {
+        ProfileInfo profileInfo = profileMapper.getProfileById(profileId);
+        checkParamNull(profileInfo, "profile does not exist, profileId: ".concat(profileId));
+        LOGGER.info("get profile by id successfully.");
+        return profileInfo;
+    }
+
+    @Override
+    public Boolean deleteProfileById(String profileId) {
+        ProfileInfo profileInfo = profileMapper.getProfileById(profileId);
+        if (null == profileInfo) {
+            LOGGER.info("profile does not exists, profileId: {}", profileId);
+            return true;
+        }
+        validateDbOptResult(profileMapper.deleteProfileById(profileId),
+            "delete profile failed, profileId: ".concat(profileId));
+        FileUtils.deleteQuietly(new File(profileInfo.getFilePath()));
+        FileUtils.deleteQuietly(new File(BASE_PAHT.concat(profileId)));
+        LOGGER.info("delete profile by id successfully.");
+        return true;
+    }
+
+    /**
+     * validate db operation result.
+     *
+     * @param result db operation result
+     * @param msg error message
+     */
+    private void validateDbOptResult(int result, String msg) {
+        if (result < 1) {
+            LOGGER.error(msg);
+            throw new DeveloperException(msg);
         }
     }
 
@@ -97,7 +180,6 @@ public class ProfileServiceImpl implements ProfileService {
             Map<String, Object> loaded = yaml.load(yamlContent);
             HashMap<String, Object> profile = (HashMap<String, Object>) loaded.get("profile");
 
-            profileInfo.setCreateTime(new Date());
             profileInfo.setName((String) profile.get("name"));
             profileInfo.setDescription((String) profile.get("descriptionCh"));
             profileInfo.setDescriptionEn((String) profile.get("descriptionEn"));
@@ -124,4 +206,17 @@ public class ProfileServiceImpl implements ProfileService {
         }
     }
 
+    /**
+     * param is null or not.
+     *
+     * @param param param
+     * @param msg error msg
+     * @param <T> param type
+     */
+    private <T> void checkParamNull(T param, String msg) {
+        if (null == param) {
+            LOGGER.error(msg);
+            throw new EntityNotFoundException(msg, ResponseConsts.RET_QUERY_DATA_EMPTY);
+        }
+    }
 }
