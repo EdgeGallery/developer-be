@@ -436,6 +436,11 @@
 
     CREATE TABLE IF NOT EXISTS "tbl_app_service_required" (
     "app_id" varchar(255) NOT NULL,
+    "id" varchar(255) NOT NULL,
+    "one_level_name" varchar(255) NOT NULL,
+    "one_level_name_en" varchar(255) NOT NULL,
+    "two_level_name" varchar(255) NOT NULL,
+    "two_level_name_en" varchar(255) NOT NULL,
     "ser_name" varchar(255) NOT NULL,
     "version" varchar(255) DEFAULT NULL,
     "requested_permissions" bool DEFAULT NULL,

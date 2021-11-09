@@ -29,7 +29,7 @@ public class ConfigurationProperty {
 
     private AppCertificate appCertificate = new AppCertificate();
 
-    private List<AppServiceRequired> appServiceRequired = new ArrayList<AppServiceRequired>(0);
+    private List<AppServiceRequiredDef> appServiceRequired = new ArrayList<AppServiceRequiredDef>(0);
 
     private List<AppServiceProducedDef> appServiceProduced = new ArrayList<AppServiceProducedDef>(0);
 

@@ -391,14 +391,14 @@ public class AppConfigurationCtl {
         @ApiResponse(code = 200, message = "OK", response = Boolean.class),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
-    @RequestMapping(value = "/{applicationId}/appconfiguration/servicerequireds/{serName}",
+    @RequestMapping(value = "/{applicationId}/appconfiguration/servicerequireds/{serviceRequiredId}",
         method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<Boolean> deleteServiceRequired(
         @Pattern(regexp = REGEX_UUID, message = "applicationId must be in UUID format")
         @ApiParam(value = "applicationId", required = true) @PathVariable("applicationId") String applicationId,
-        @ApiParam(value = "serName", required = true) @PathVariable("serName") String serName) {
-        Boolean result = appConfigurationService.deleteServiceRequired(applicationId, serName);
+        @ApiParam(value = "serviceRequiredId", required = true) @PathVariable("serviceRequiredId") String serviceRequiredId) {
+        Boolean result = appConfigurationService.deleteServiceRequired(applicationId, serviceRequiredId);
         return ResponseEntity.ok(result);
     }
 

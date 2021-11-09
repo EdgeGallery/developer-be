@@ -50,6 +50,7 @@ import org.edgegallery.developer.model.uploadfile.UploadFile;
 import org.edgegallery.developer.model.workspace.PublishAppReqDto;
 import org.edgegallery.developer.model.workspace.UploadedFile;
 import org.edgegallery.developer.service.application.AppOperationService;
+import org.edgegallery.developer.service.apppackage.AppPackageService;
 import org.edgegallery.developer.util.AppStoreUtil;
 import org.edgegallery.developer.util.AtpUtil;
 import org.edgegallery.developer.util.HttpClientUtil;
@@ -90,6 +91,9 @@ public class AppOperationServiceImpl implements AppOperationService {
     @Autowired
     private CapabilityMapper capabilityMapper;
 
+    @Autowired
+    private AppPackageService appPackageService;
+
     @Override
     public Boolean cleanEnv(String applicationId, User user) {
         return true;
@@ -105,7 +109,7 @@ public class AppOperationServiceImpl implements AppOperationService {
         Application app = applicationMapper.getApplicationById(applicationId);
         checkParamNull(app, "application is empty. applicationId: ".concat(applicationId));
 
-        AppPackage appPkg = app.getAppPackage();
+        AppPackage appPkg = appPackageService.getAppPackageByAppId(applicationId);
         checkParamNull(appPkg.getId(), "app package content is empty. applicationId: ".concat(applicationId));
 
         String filePath = appPkg.queryPkgPath();
@@ -130,6 +134,7 @@ public class AppOperationServiceImpl implements AppOperationService {
             LOGGER.error("modify mep host  of application {} fail", applicationId);
             throw new DataBaseException("modify mep host of application fail", ResponseConsts.RET_UPDATE_DATA_FAIL);
         }
+        applicationMapper.updateApplicationStatus(applicationId, EnumApplicationStatus.MEPHOST_SELECTED.toString());
         return true;
     }
 

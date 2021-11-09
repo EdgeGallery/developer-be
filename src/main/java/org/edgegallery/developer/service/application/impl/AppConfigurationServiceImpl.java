@@ -95,6 +95,15 @@ public class AppConfigurationServiceImpl implements AppConfigurationService {
     }
 
     @Override
+    public void deleteAppConfiguration(String applicationId) {
+
+        int res = appConfigurationMapper.deleteAppConfigurationByAppId(applicationId);
+        if (res < 1) {
+            LOGGER.warn("delete appConfiguration fail by applicationId:{}", applicationId);
+        }
+    }
+
+    @Override
     public List<TrafficRule> getAllTrafficRules(String applicationId) {
         List<TrafficRule> trafficRules = appConfigurationMapper.getAllTrafficRules(applicationId);
         if (!CollectionUtils.isEmpty(trafficRules)) {
@@ -272,7 +281,7 @@ public class AppConfigurationServiceImpl implements AppConfigurationService {
     public AppServiceRequired createServiceRequired(String applicationId, AppServiceRequired serviceRequired) {
         checkApplicationById(applicationId);
         AppServiceRequired appServiceRequired = appConfigurationMapper
-            .getServiceRequired(applicationId, serviceRequired.getSerName());
+            .getServiceRequired(applicationId, serviceRequired.getId());
         if (appServiceRequired != null) {
             LOGGER.error("create serviceRequired failed: serName does exist");
             throw new EntityNotFoundException("create serviceRequired failed: serName does exist",
@@ -296,8 +305,8 @@ public class AppConfigurationServiceImpl implements AppConfigurationService {
     }
 
     @Override
-    public Boolean deleteServiceRequired(String applicationId, String serName) {
-        appConfigurationMapper.deleteServiceRequired(applicationId, serName);
+    public Boolean deleteServiceRequired(String applicationId, String serviceRequiredId) {
+        appConfigurationMapper.deleteServiceRequired(applicationId, serviceRequiredId);
         return true;
     }
 
@@ -319,11 +328,12 @@ public class AppConfigurationServiceImpl implements AppConfigurationService {
 
     @Override
     public Boolean modifyAppCertificate(String applicationId, AppCertificate appCertificate) {
+
         int res = appConfigurationMapper.modifyAppCertificate(applicationId, appCertificate);
         if (res < 1) {
-            LOGGER.error("modify appCertificate failed");
-            throw new DataBaseException("modify appCertificate failed", ResponseConsts.RET_UPDATE_DATA_FAIL);
+            LOGGER.warn("no modify appCertificate");
         }
+
         return true;
     }
 

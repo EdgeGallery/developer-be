@@ -66,7 +66,7 @@ public interface AppConfigurationMapper {
     List<AppServiceRequired> getAllServiceRequired(String applicationId);
 
     AppServiceRequired getServiceRequired(@Param("applicationId") String applicationId,
-        @Param("serName") String serName);
+        @Param("id") String id);
 
     int createServiceRequired(@Param("applicationId") String applicationId,
         @Param("serviceRequired") AppServiceRequired serviceRequired);
@@ -74,7 +74,7 @@ public interface AppConfigurationMapper {
     int modifyServiceRequired(@Param("applicationId") String applicationId,
         @Param("serviceRequired") AppServiceRequired serviceRequired);
 
-    int deleteServiceRequired(@Param("applicationId") String applicationId, @Param("serName") String serName);
+    int deleteServiceRequired(@Param("applicationId") String applicationId, @Param("id") String id);
 
     AppCertificate getAppCertificate(String applicationId);
 
@@ -86,4 +86,5 @@ public interface AppConfigurationMapper {
 
     int deleteAppCertificate(String applicationId);
 
+    int deleteAppConfigurationByAppId(String applicationId);
 }

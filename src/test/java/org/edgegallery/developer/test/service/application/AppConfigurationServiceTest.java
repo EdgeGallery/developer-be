@@ -407,6 +407,11 @@ public class AppConfigurationServiceTest {
 
     private AppServiceRequired createNewAppServiceRequired() {
         AppServiceRequired appServiceRequired = new AppServiceRequired();
+        appServiceRequired.setId("143e8608-7304-4932-9d99-4bd6b115dac8");
+        appServiceRequired.setOneLevelName("平台基础服务");
+        appServiceRequired.setOneLevelNameEn("Platform services");
+        appServiceRequired.setTwoLevelName("服务发现");
+        appServiceRequired.setTwoLevelNameEn("service discovery");
         appServiceRequired.setSerName("serName-test");
         appServiceRequired.setVersion("v1.0");
         appServiceRequired.setAppId("6a75a2bd-9811-432f-bbe8-2813aa97d364");
