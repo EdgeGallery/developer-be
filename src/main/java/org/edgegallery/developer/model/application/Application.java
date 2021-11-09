@@ -61,6 +61,8 @@ public class Application {
 
     private String iconFileId;
 
+    private String guideFileId;
+
     //appCreateType can be INTEGRATE/DEVELOP
     private EnumApplicationType appCreateType;
 
@@ -109,6 +111,7 @@ public class Application {
         this.type = app.type;
         this.industry = app.industry;
         this.iconFileId = app.iconFileId;
+        this.guideFileId = app.guideFileId;
         this.appCreateType = app.appCreateType;
         this.createTime = app.createTime;
         this.status = app.status;
