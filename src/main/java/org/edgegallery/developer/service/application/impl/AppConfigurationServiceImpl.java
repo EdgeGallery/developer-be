@@ -16,6 +16,9 @@
 
 package org.edgegallery.developer.service.application.impl;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import java.lang.reflect.Type;
 import java.util.List;
 import java.util.UUID;
 import org.apache.commons.lang3.StringUtils;
@@ -27,18 +30,21 @@ import org.edgegallery.developer.exception.IllegalRequestException;
 import org.edgegallery.developer.mapper.application.AppConfigurationMapper;
 import org.edgegallery.developer.mapper.application.ApplicationMapper;
 import org.edgegallery.developer.model.application.Application;
-import org.edgegallery.developer.model.application.EnumApplicationType;
 import org.edgegallery.developer.model.application.configuration.AppCertificate;
 import org.edgegallery.developer.model.application.configuration.AppConfiguration;
 import org.edgegallery.developer.model.application.configuration.AppServiceProduced;
 import org.edgegallery.developer.model.application.configuration.AppServiceRequired;
 import org.edgegallery.developer.model.application.configuration.DnsRule;
+import org.edgegallery.developer.model.application.configuration.DstInterface;
+import org.edgegallery.developer.model.application.configuration.TrafficFilter;
 import org.edgegallery.developer.model.application.configuration.TrafficRule;
 import org.edgegallery.developer.service.application.AppConfigurationService;
+import org.edgegallery.developer.service.uploadfile.UploadFileService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 @Service("appConfigurationService")
 public class AppConfigurationServiceImpl implements AppConfigurationService {
@@ -49,6 +55,9 @@ public class AppConfigurationServiceImpl implements AppConfigurationService {
 
     @Autowired
     private ApplicationMapper applicationMapper;
+
+    @Autowired
+    private UploadFileService uploadFileService;
 
     @Override
     public AppConfiguration getAppConfiguration(String applicationId) {
@@ -87,7 +96,19 @@ public class AppConfigurationServiceImpl implements AppConfigurationService {
 
     @Override
     public List<TrafficRule> getAllTrafficRules(String applicationId) {
-        return appConfigurationMapper.getAllTrafficRules(applicationId);
+        List<TrafficRule> trafficRules = appConfigurationMapper.getAllTrafficRules(applicationId);
+        if (!CollectionUtils.isEmpty(trafficRules)) {
+            for (TrafficRule trafficRule : trafficRules) {
+                Gson gson = new Gson();
+                Type type = new TypeToken<List<TrafficFilter>>() { }.getType();
+                List<TrafficFilter> trafficFilters = gson.fromJson(gson.toJson(trafficRule.getTrafficFilter()), type);
+                trafficRule.setTrafficFilter(trafficFilters);
+                Type typeDst = new TypeToken<List<DstInterface>>() { }.getType();
+                List<DstInterface> dstInterfaces = gson.fromJson(gson.toJson(trafficRule.getDstInterface()), typeDst);
+                trafficRule.setDstInterface(dstInterfaces);
+            }
+        }
+        return trafficRules;
     }
 
     @Override
@@ -197,7 +218,26 @@ public class AppConfigurationServiceImpl implements AppConfigurationService {
 
     @Override
     public Boolean deleteServiceProduced(String applicationId, String appServiceProducedId) {
-        appConfigurationMapper.deleteServiceProduced(applicationId, appServiceProducedId);
+        //delete file
+        AppServiceProduced appServiceProduced = appConfigurationMapper
+            .getServiceProduced(applicationId, appServiceProducedId);
+        String apiFileId = appServiceProduced.getApiFileId();
+        if (!StringUtils.isEmpty(apiFileId)) {
+            uploadFileService.deleteFile(apiFileId);
+        }
+        String iconFileId = appServiceProduced.getIconFileId();
+        if (!StringUtils.isEmpty(iconFileId)) {
+            uploadFileService.deleteFile(iconFileId);
+        }
+        String guideFileId = appServiceProduced.getGuideFileId();
+        if (!StringUtils.isEmpty(guideFileId)) {
+            uploadFileService.deleteFile(guideFileId);
+        }
+        int res = appConfigurationMapper.deleteServiceProduced(applicationId, appServiceProducedId);
+        if (res < 1) {
+            LOGGER.error("delete service produced {} failed!", appServiceProducedId);
+            throw new DataBaseException("delete service produced failed!", ResponseConsts.RET_DELETE_DATA_FAIL);
+        }
         return true;
     }
 
