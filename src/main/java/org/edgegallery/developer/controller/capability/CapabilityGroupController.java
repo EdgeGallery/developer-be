@@ -63,19 +63,17 @@ public class CapabilityGroupController {
 	@PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
 	public ResponseEntity<CapabilityGroup> createCapabilityGroup(
 			@ApiParam(value = "CapabilityGroup", required = true) @RequestBody CapabilityGroup group) {
-		Either<FormatRespDto, CapabilityGroup> either = capabilityGroupService.create(group);
-		return ResponseDataUtil.buildResponse(either);
+		return ResponseEntity.ok(capabilityGroupService.create(group));
 	}
 
-	@ApiOperation(value = "Delete one CapabilityGroup by id", response = String.class)
-	@ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = String.class),
+	@ApiOperation(value = "Delete one CapabilityGroup by id", response = Boolean.class)
+	@ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = Boolean.class),
 			@ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class) })
 	@DeleteMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
-	public ResponseEntity<String> deleteCapabilityGroupById(
+	public ResponseEntity<Boolean> deleteCapabilityGroupById(
 			@ApiParam(value = "id", required = true) @PathVariable("id") @Pattern(regexp = REG_UUID) String id) {
-		Either<FormatRespDto, String> either = capabilityGroupService.deleteById(id);
-		return ResponseDataUtil.buildResponse(either);
+		return ResponseEntity.ok(capabilityGroupService.deleteById(id));
 
 	}
 
@@ -85,8 +83,7 @@ public class CapabilityGroupController {
 	@GetMapping(produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN') || hasRole('DEVELOPER_GUEST')")
 	public ResponseEntity<List<CapabilityGroup>> getAllCapabilityGroup() {
-		List<CapabilityGroup> result = capabilityGroupService.findAll();
-		return ResponseEntity.ok(result);
+		return ResponseEntity.ok(capabilityGroupService.findAll());
 	}
 
 	@ApiOperation(value = "Get CapabilityGroup by id", response = CapabilityGroup.class)
@@ -96,7 +93,6 @@ public class CapabilityGroupController {
 	@PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN') || hasRole('DEVELOPER_GUEST')")
 	public ResponseEntity<CapabilityGroup> getCapabilityGroupById(
 			@ApiParam(value = "id", required = true) @PathVariable("id") @Pattern(regexp = REG_UUID) String id) {
-		CapabilityGroup group = capabilityGroupService.findById(id);
-		return ResponseEntity.ok(group);
+		return ResponseEntity.ok(capabilityGroupService.findById(id));
 	}
 }

@@ -17,11 +17,11 @@
 package org.edgegallery.developer.service.capability;
 
 import java.util.List;
-
 import org.edgegallery.developer.model.capability.CapabilityGroupStat;
 
 public interface CapabilityGroupStatService {
-	public List<CapabilityGroupStat> findAll();
-	
-	public List<CapabilityGroupStat> findByType(String type);
+
+    List<CapabilityGroupStat> findAll();
+
+    List<CapabilityGroupStat> findByType(String type);
 }

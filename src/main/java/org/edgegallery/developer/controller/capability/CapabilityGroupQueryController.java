@@ -51,8 +51,7 @@ public class CapabilityGroupQueryController {
 	@PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN') || hasRole('DEVELOPER_GUEST')")
 	public ResponseEntity<List<CapabilityGroup>> getCapabilityGroupByType(
 			@ApiParam(value = "type", required = true) @PathVariable(value="type") String type) {
-		List<CapabilityGroup> results = capabilityGroupService.findByType(type);
-		return ResponseEntity.ok(results);
+		return ResponseEntity.ok(capabilityGroupService.findByType(type));
 	}
 
 }

@@ -18,13 +18,11 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 
 
 import com.google.gson.Gson;
-import com.spencerwi.either.Either;
 import java.util.ArrayList;
 import java.util.List;
-import org.edgegallery.developer.test.DeveloperApplicationTests;
 import org.edgegallery.developer.model.capability.Capability;
-import org.edgegallery.developer.response.FormatRespDto;
 import org.edgegallery.developer.service.capability.CapabilityService;
+import org.edgegallery.developer.test.DeveloperApplicationTests;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -62,9 +60,8 @@ public class CapabilityControllerTest {
     @Test
     @WithMockUser(roles = "DEVELOPER_ADMIN")
     public void testCreateCapabilitySuccess() throws Exception {
-        Either<FormatRespDto, Capability> either = Either.right(new Capability());
         String url = String.format("/mec/developer/v2/capabilities");
-        Mockito.when(capabilityService.create(Mockito.any())).thenReturn(either);
+        Mockito.when(capabilityService.create(Mockito.any())).thenReturn(new Capability());
         ResultActions actions = mvc.perform(
             MockMvcRequestBuilders.post(url).with((csrf())).content(new Gson().toJson(new Capability()))
                 .contentType(MediaType.APPLICATION_JSON_UTF8)).andExpect(MockMvcResultMatchers.status().isOk());
@@ -74,12 +71,11 @@ public class CapabilityControllerTest {
     @Test
     @WithMockUser(roles = "DEVELOPER_ADMIN")
     public void testDeleteCapabilitySuccess() throws Exception {
-        Either<FormatRespDto, Capability> either = Either.right(new Capability());
         String url = String.format("/mec/developer/v2/capabilities/%s", "4c22f069-e489-47cd-9c3c-e21741c857dp");
-        Mockito.when(capabilityService.deleteById(Mockito.anyString())).thenReturn(either);
-        ResultActions actions = mvc.perform(
-            MockMvcRequestBuilders.delete(url).with((csrf()))
-                .contentType(MediaType.APPLICATION_JSON_UTF8)).andExpect(MockMvcResultMatchers.status().isOk());
+        Mockito.when(capabilityService.deleteById(Mockito.anyString())).thenReturn(true);
+        ResultActions actions = mvc
+            .perform(MockMvcRequestBuilders.delete(url).with((csrf())).contentType(MediaType.APPLICATION_JSON_UTF8))
+            .andExpect(MockMvcResultMatchers.status().isOk());
         Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
     }
 
@@ -110,9 +106,8 @@ public class CapabilityControllerTest {
     @Test
     @WithMockUser(roles = "DEVELOPER_ADMIN")
     public void testUpdateCapabilitySuccess() throws Exception {
-        Either<FormatRespDto, Capability> either = Either.right(new Capability());
         String url = String.format("/mec/developer/v2/capabilities/%s", "4c22f069-e489-47cd-9c3c-e21741c857o9");
-        Mockito.when(capabilityService.updateById(Mockito.any())).thenReturn(either);
+        Mockito.when(capabilityService.updateById(Mockito.any())).thenReturn(new Capability());
         ResultActions actions = mvc.perform(
             MockMvcRequestBuilders.put(url).with(csrf()).content(new Gson().toJson(new Capability()))
                 .contentType(MediaType.APPLICATION_JSON_UTF8)).andExpect(MockMvcResultMatchers.status().isOk());

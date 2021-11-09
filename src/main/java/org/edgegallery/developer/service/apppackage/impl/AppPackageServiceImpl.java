@@ -136,10 +136,6 @@ public class AppPackageServiceImpl implements AppPackageService {
             LOGGER.error("file is not readable!");
             throw new FileOperateException("file is not readable", ResponseConsts.RET_FILE_NOT_READABLE);
         }
-        if (fileContent.equals("")) {
-            LOGGER.error("can not find file {}!", fileName);
-            throw new FileFoundFailException("the file you find cannot be found", ResponseConsts.RET_FILE_NOT_FOUND);
-        }
         return fileContent;
     }
 
