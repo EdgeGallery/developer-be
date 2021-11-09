@@ -689,3 +689,19 @@
     "type" int4 NOT NULL,
     CONSTRAINT "tbl_reverse_proxy_pkey" PRIMARY KEY ("id")
     );
+
+    CREATE TABLE IF NOT EXISTS "tbl_profile" (
+    "id" varchar(255) NOT NULL,
+    "name" varchar(255) NOT NULL,
+    "description" varchar(255) DEFAULT NULL,
+    "description_en" varchar(255) DEFAULT NULL,
+    "file_path" varchar(255) NOT NULL,
+    "deploy_file_path" TEXT NOT NULL,
+    "config_file_path" varchar(255) DEFAULT NULL,
+    "seq" varchar(255) NOT NULL,
+    "create_time" timestamptz(6)  NOT NULL,
+    "type" varchar(255) NOT NULL,
+    "industry" varchar(255) NOT NULL,
+    "topo_file_path" varchar(255) DEFAULT NULL,
+    CONSTRAINT "tbl_profile_pkey" PRIMARY KEY ("id")
+    );
