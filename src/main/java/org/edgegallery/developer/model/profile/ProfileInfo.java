@@ -91,11 +91,7 @@ public class ProfileInfo {
      * get profile create time.
      */
     public Date getCreateTime() {
-        if (this.createTime != null) {
-            return new Date(this.createTime.getTime());
-        } else {
-            return null;
-        }
+        return this.createTime != null ? new Date(this.createTime.getTime()) : null;
     }
 
     /**
