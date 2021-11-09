@@ -17,6 +17,7 @@
 package org.edgegallery.developer.model.application.configuration;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -45,10 +46,13 @@ public class TrafficFilter {
 
     private String[] dstTunnelPort;
 
+    @JsonProperty(value = "qCI")
     private Integer qCI;
 
+    @JsonProperty(value = "dSCP")
     private Integer dSCP;
 
+    @JsonProperty(value = "tC")
     private Integer tC;
 
     /**
