@@ -147,7 +147,7 @@ public class ProfileServiceImpl implements ProfileService {
             "delete profile failed, profileId: ".concat(profileId));
         FileUtils.deleteQuietly(new File(profileInfo.getFilePath()));
         FileUtils.deleteQuietly(new File(BASE_PAHT.concat(profileId)));
-        return null;
+        return true;
     }
 
     /**
