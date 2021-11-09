@@ -462,6 +462,7 @@
     "type" varchar(255) DEFAULT NULL,
     "industry" varchar(255) DEFAULT NULL,
     "icon_file_id" varchar(255) DEFAULT NULL,
+    "guide_file_id" varchar(255) DEFAULT NULL,
     "app_create_type" varchar(255) DEFAULT NULL,
     "create_time" timestamptz(6)  DEFAULT NULL,
     "status" varchar(255) DEFAULT NULL,

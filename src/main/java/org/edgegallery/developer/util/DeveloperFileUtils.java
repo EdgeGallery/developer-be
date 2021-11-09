@@ -56,7 +56,7 @@ public final class DeveloperFileUtils {
      *
      * @param srcDir src
      * @param desDir des
-     * @param name new name
+     * @param name   new name
      * @return new file
      * @throws IOException io exception
      */
@@ -78,7 +78,7 @@ public final class DeveloperFileUtils {
      *
      * @param srcDir src
      * @param desDir des
-     * @param name new name
+     * @param name   new name
      * @return new file
      * @throws IOException io exception
      */
@@ -140,7 +140,6 @@ public final class DeveloperFileUtils {
 
     /**
      * deleteAndCreateDir.
-     *
      */
     public static void deleteAndCreateDir(String dir) throws IOException {
         Path path = Paths.get(dir);
@@ -155,6 +154,26 @@ public final class DeveloperFileUtils {
         Path path = dir.toPath();
         Files.deleteIfExists(path);
         Files.createDirectories(path);
+    }
+
+    /**
+     * clear all files in one dir.
+     */
+    public static void clearFiles(String workspaceRootPath) {
+        File file = new File(workspaceRootPath);
+        if (file.exists()) {
+            deleteFile(file);
+        }
+    }
+
+    private static void deleteFile(File file) {
+        if (file.isDirectory()) {
+            File[] files = file.listFiles();
+            for (int i = 0; i < files.length; i++) {
+                deleteFile(files[i]);
+            }
+        }
+        file.delete();
     }
 
     /**

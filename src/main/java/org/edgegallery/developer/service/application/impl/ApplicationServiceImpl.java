@@ -21,6 +21,7 @@ import com.github.pagehelper.PageInfo;
 import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
+import org.apache.commons.lang3.StringUtils;
 import org.edgegallery.developer.common.ResponseConsts;
 import org.edgegallery.developer.config.security.AccessUserUtil;
 import org.edgegallery.developer.domain.model.user.User;
@@ -166,8 +167,11 @@ public class ApplicationServiceImpl implements ApplicationService {
             // init VM application default networks
             networkService.deleteNetworkByAppId(applicationId);
         }
-        // delete icon
+        // delete icon and guide file
         uploadService.deleteFile(application.getIconFileId());
+        if (!StringUtils.isEmpty(application.getGuideFileId())) {
+            uploadService.deleteFile(application.getGuideFileId());
+        }
 
         // delete the application from db
         int delResult = applicationMapper.deleteApplication(applicationId);

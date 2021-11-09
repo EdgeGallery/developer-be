@@ -161,21 +161,28 @@ public class PackageFileCreator {
      * copy md and icon file: /Artifacts/Docs.
      */
     public void configMdAndIcon() {
-        // move icon file to package
-        UploadFile file = uploadService.getFile(application.getIconFileId());
-        if (file == null || file.isTemp()) {
-            LOGGER.warn("Can not find file, please upload again.");
-            return;
-        }
-        // get icon file
-        File iconFile = new File(InitConfigUtil.getWorkSpaceBaseDir() + file.getFilePath());
-        File desFile = new File(getPackagePath() + TEMPLATE_PACKAGE_DOCS_PATH + file.getFileName());
+        // move icon file
+        DeveloperFileUtils.clearFiles(getPackagePath() + TEMPLATE_PACKAGE_DOCS_PATH);
         try {
-            DeveloperFileUtils.copyFile(iconFile, desFile);
+
+            // move icon file to package
+            UploadFile iconFile = uploadService.getFile(application.getIconFileId());
+            DeveloperFileUtils.copyFile(new File(InitConfigUtil.getWorkSpaceBaseDir() + iconFile.getFilePath()),
+                new File(getPackagePath() + TEMPLATE_PACKAGE_DOCS_PATH + iconFile.getFileName()));
         } catch (IOException e) {
             LOGGER.warn("copy icon file fail:{}", e.getMessage());
         }
         // move des md file to package
+        if (StringUtils.isEmpty(application.getGuideFileId())) {
+            return;
+        }
+        UploadFile mdFile = uploadService.getFile(application.getGuideFileId());
+        try {
+            DeveloperFileUtils.copyFile(new File(InitConfigUtil.getWorkSpaceBaseDir() + mdFile.getFilePath()),
+                new File(getPackagePath() + TEMPLATE_PACKAGE_DOCS_PATH + mdFile.getFileName()));
+        } catch (IOException e) {
+            LOGGER.warn("copy icon file fail:{}", e.getMessage());
+        }
     }
 
     public String PackageFileCompress() {
