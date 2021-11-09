@@ -34,6 +34,11 @@
         <result property="topoFilePath" column="topo_file_path"/>
     </resultMap>
 
+    <sql id="AllColumn">
+        id, name, description, description_en,
+        file_path, deploy_file_path, config_file_path, seq, create_time,type, industry, topo_file_path
+    </sql>
+
     <insert id="createProfile" parameterType="org.edgegallery.developer.model.profile.ProfileInfo">
         insert into tbl_profile (id, name, description, description_en,
         file_path, deploy_file_path, config_file_path, seq, create_time,type, industry, topo_file_path)
@@ -45,4 +50,34 @@
         #{createTime}, #{type}, #{industry}, #{topoFilePath})
     </insert>
 
+    <select id="getProfileById" parameterType="java.lang.String"
+            resultMap="AllProfileMap">
+        SELECT
+        <include refid="AllColumn"/>
+        FROM tbl_profile WHERE id =#{id}
+    </select>
+
+    <update id="updateProfile">
+        UPDATE
+        tbl_profile
+        SET
+        name = #{name}, description = #{description}, description_en = #{descriptionEn},
+        deploy_file_path =
+        #{deployFilePath, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonTypeHandler},
+        config_file_path = #{configFilePath},
+        seq = #{seq, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonCollectionTypeHandler},
+        type = #{type}, industry = #{industry}, topo_file_path = #{topoFilePath}
+        WHERE
+        id = #{id}
+    </update>
+
+    <select id="getAllProfiles" resultMap="AllProfileMap">
+        SELECT
+        <include refid="AllColumn"/>
+        FROM tbl_profile order by create_time desc
+    </select>
+
+    <delete id="deleteProfileById" parameterType="java.lang.String">
+        DELETE FROM tbl_profile WHERE id = #{id}
+    </delete>
 </mapper>

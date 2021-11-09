@@ -16,10 +16,19 @@
 
 package org.edgegallery.developer.mapper.profile;
 
+import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
 import org.edgegallery.developer.model.profile.ProfileInfo;
 
 @Mapper
 public interface ProfileMapper {
     int createProfile(ProfileInfo profile);
+
+    ProfileInfo getProfileById(String id);
+
+    int updateProfile(ProfileInfo profileInfo);
+
+    List<ProfileInfo> getAllProfiles();
+
+    int deleteProfileById(String id);
 }

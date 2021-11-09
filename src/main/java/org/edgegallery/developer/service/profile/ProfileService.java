@@ -14,10 +14,51 @@
 
 package org.edgegallery.developer.service.profile;
 
+import org.edgegallery.developer.domain.shared.Page;
 import org.edgegallery.developer.model.profile.ProfileInfo;
 import org.springframework.web.multipart.MultipartFile;
 
 public interface ProfileService {
-    ProfileInfo createProfile(MultipartFile zipFile);
+    /**
+     * create profile.
+     *
+     * @param file profile file
+     * @return profile info
+     */
+    ProfileInfo createProfile(MultipartFile file);
+
+    /**
+     * update profile.
+     *
+     * @param file profile file
+     * @param profileId profileId
+     * @return profile info
+     */
+    ProfileInfo updateProfile(MultipartFile file, String profileId);
+
+    /**
+     * get all profiles.
+     *
+     * @param limit limit
+     * @param offset offset
+     * @return profile info list
+     */
+    Page<ProfileInfo> getAllProfiles(int limit, int offset);
+
+    /**
+     * get profile by id.
+     *
+     * @param profileId profile id
+     * @return profile info
+     */
+    ProfileInfo getProfileById(String profileId);
+
+    /**
+     * delete profile by id.
+     *
+     * @param profileId profile id
+     * @return true
+     */
+    Boolean deleteProfileById(String profileId);
 }
 
