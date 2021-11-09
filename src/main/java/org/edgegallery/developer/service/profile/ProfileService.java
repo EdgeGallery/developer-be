@@ -18,6 +18,6 @@ import org.edgegallery.developer.model.profile.ProfileInfo;
 import org.springframework.web.multipart.MultipartFile;
 
 public interface ProfileService {
-    ProfileInfo createProfiles(MultipartFile zipFile);
+    ProfileInfo createProfile(MultipartFile zipFile);
 }
 

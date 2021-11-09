@@ -59,6 +59,6 @@ public class ProfileController {
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<ProfileInfo> createProfile(
         @ApiParam(value = "profile zip file", required = true) @RequestPart("file") MultipartFile file) {
-        return ResponseEntity.ok(profileService.createProfiles(file));
+        return ResponseEntity.ok(profileService.createProfile(file));
     }
 }

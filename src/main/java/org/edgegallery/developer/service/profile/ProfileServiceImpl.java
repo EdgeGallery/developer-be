@@ -50,7 +50,7 @@ public class ProfileServiceImpl implements ProfileService {
     private static final String PROFILE_FILE = "profile.yaml";
 
     @Override
-    public ProfileInfo createProfiles(MultipartFile file) {
+    public ProfileInfo createProfile(MultipartFile file) {
         try {
             PluginChecker checker = new PluginChecker();
             checker.check(file);
