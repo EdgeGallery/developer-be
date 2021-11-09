@@ -171,9 +171,8 @@ MERGE INTO tbl_app_service_produced KEY(app_service_produced_id) VALUES('6a75a2b
 -- ----------------------------
 -- Records of tbl_app_service_required
 -- ----------------------------
-MERGE INTO tbl_app_service_required KEY(app_id) VALUES('6a75a2bd-9811-432f-bbe8-2813aa97d365','serName-test','v1.0',true,null,null);
-MERGE INTO tbl_app_service_required KEY(app_id) VALUES('6a75a2bd-9811-432f-bbe8-2813aa97d366','serName-test-001','v1.0',true,null,null);
-
+MERGE INTO tbl_app_service_required KEY(app_id) VALUES('6a75a2bd-9811-432f-bbe8-2813aa97d365', '143e8608-7304-4932-9d99-4bd6b115dac8', '平台基础服务','Platform services','服务发现','service discovery','serName-test','v1.0',true,null,null);
+MERGE INTO tbl_app_service_required KEY(app_id) VALUES('6a75a2bd-9811-432f-bbe8-2813aa97d366','143e8608-7304-4932-9d99-4bd6b115dac8', '平台基础服务','Platform services','服务发现','service discovery','serName-test-001','v1.0',true,null,null);
 -- ----------------------------
 -- Records of tbl_app_certificate
 -- ----------------------------

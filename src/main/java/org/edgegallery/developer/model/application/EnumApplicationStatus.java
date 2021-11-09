@@ -16,6 +16,7 @@ package org.edgegallery.developer.model.application;
 
 public enum EnumApplicationStatus {
     CREATED("Created"),
+    MEPHOST_SELECTED("Mephost_Selected"),
     CONFIGURED("Configured"),
     DEPLOYED("Deployed"),
     TESTED("Tested"),

@@ -14,7 +14,7 @@
  *    limitations under the License.
  */
 
-package org.edgegallery.developer.model.application.configuration;
+package org.edgegallery.developer.model.apppackage.appd.appconfiguration;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -23,17 +23,7 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString
-public class AppServiceRequired {
-
-    private String id;
-
-    private String oneLevelName;
-
-    private String oneLevelNameEn;
-
-    private String twoLevelName;
-
-    private String twoLevelNameEn;
+public class AppServiceRequiredDef {
 
     private String serName;
 
@@ -44,4 +34,5 @@ public class AppServiceRequired {
     private String appId;
 
     private String packageId;
+
 }

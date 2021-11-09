@@ -60,6 +60,11 @@
     </resultMap>
     <resultMap id="AppServiceRequiredMap"
                type="org.edgegallery.developer.model.application.configuration.AppServiceRequired">
+        <result property="id" column="id"/>
+        <result property="oneLevelName" column="one_level_name"/>
+        <result property="oneLevelNameEn" column="one_level_name_en"/>
+        <result property="twoLevelName" column="two_level_name"/>
+        <result property="twoLevelNameEn" column="two_level_name_en"/>
         <result property="serName" column="ser_name"/>
         <result property="version" column="version"/>
         <result property="requestedPermissions" column="requested_permissions"/>
@@ -87,7 +92,7 @@
     </sql>
 
     <sql id="AppServiceRequiredAllColumn">
-        ser_name, version, requested_permissions, ser_app_id, package_id
+        id, one_level_name, one_level_name_en, two_level_name, two_level_name_en, ser_name, version, requested_permissions, ser_app_id, package_id
     </sql>
 
     <sql id="AppCertificateAllColumn">
@@ -227,9 +232,11 @@
 
 
     <insert id="createServiceRequired">
-        insert into tbl_app_service_required (app_id, ser_name, version, requested_permissions, ser_app_id, package_id)
+        insert into tbl_app_service_required (app_id, id, one_level_name, one_level_name_en, two_level_name,
+        two_level_name_en, ser_name, version, requested_permissions, ser_app_id, package_id)
         values
-        ( #{applicationId}, #{serviceRequired.serName}, #{serviceRequired.version},
+        ( #{applicationId}, #{serviceRequired.id}, #{serviceRequired.oneLevelName}, #{serviceRequired.oneLevelNameEn},
+        #{serviceRequired.twoLevelName}, #{serviceRequired.twoLevelNameEn}, #{serviceRequired.serName}, #{serviceRequired.version},
         #{serviceRequired.requestedPermissions}, #{serviceRequired.appId}, #{serviceRequired.packageId})
     </insert>
 
@@ -240,11 +247,11 @@
         version = #{serviceRequired.version}, requested_permissions = #{serviceRequired.requestedPermissions},
         ser_app_id = #{serviceRequired.appId}, package_id = #{serviceRequired.packageId}
         WHERE
-        app_id = #{applicationId} and ser_name = #{serviceRequired.serName}
+        app_id = #{applicationId} and id = #{serviceRequired.id}
     </update>
 
     <delete id="deleteServiceRequired">
-        DELETE FROM tbl_app_service_required WHERE app_id = #{applicationId} and ser_name = #{serName}
+        DELETE FROM tbl_app_service_required WHERE app_id = #{applicationId} and id = #{id}
     </delete>
 
     <select id="getAllServiceRequired" parameterType="String" resultMap="AppServiceRequiredMap">
@@ -256,7 +263,7 @@
     <select id="getServiceRequired" resultMap="AppServiceRequiredMap">
         SELECT
         <include refid="AppServiceRequiredAllColumn"/>
-        FROM tbl_app_service_required where app_id = #{applicationId} and ser_name = #{serName}
+        FROM tbl_app_service_required where app_id = #{applicationId} and id = #{id}
     </select>
 
     <insert id="createAppCertificate">
@@ -283,5 +290,12 @@
         <include refid="AppCertificateAllColumn"/>
         FROM tbl_app_certificate where app_id = #{applicationId}
     </select>
+    <delete id="deleteAppConfigurationByAppId" parameterType="String">
+        DELETE FROM tbl_app_certificate WHERE app_id = #{applicationId};
+        DELETE FROM tbl_app_service_required WHERE app_id = #{applicationId};
+        DELETE FROM tbl_app_service_produced WHERE app_id = #{applicationId};
+        DELETE FROM tbl_app_dns_rule WHERE app_id = #{applicationId};
+        DELETE FROM tbl_app_traffic_rule WHERE app_id = #{applicationId};
+    </delete>
 
 </mapper>

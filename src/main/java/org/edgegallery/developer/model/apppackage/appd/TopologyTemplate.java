@@ -34,11 +34,13 @@ import org.edgegallery.developer.model.application.Application;
 import org.edgegallery.developer.model.application.EnumAppClass;
 import org.edgegallery.developer.model.application.configuration.AppConfiguration;
 import org.edgegallery.developer.model.application.configuration.AppServiceProduced;
+import org.edgegallery.developer.model.application.configuration.AppServiceRequired;
 import org.edgegallery.developer.model.application.vm.Network;
 import org.edgegallery.developer.model.application.vm.VMApplication;
 import org.edgegallery.developer.model.application.vm.VMPort;
 import org.edgegallery.developer.model.application.vm.VirtualMachine;
 import org.edgegallery.developer.model.apppackage.appd.appconfiguration.AppServiceProducedDef;
+import org.edgegallery.developer.model.apppackage.appd.appconfiguration.AppServiceRequiredDef;
 import org.edgegallery.developer.model.apppackage.appd.appconfiguration.ConfigurationProperty;
 import org.edgegallery.developer.model.apppackage.appd.groups.PlacementGroup;
 import org.edgegallery.developer.model.apppackage.appd.policies.AntiAffinityRule;
@@ -55,6 +57,7 @@ import org.edgegallery.developer.model.apppackage.constant.InputConstant;
 import org.edgegallery.developer.model.apppackage.constant.NodeTypeConstant;
 import org.edgegallery.developer.model.resource.vm.Flavor;
 import org.edgegallery.developer.model.resource.vm.VMImage;
+import org.springframework.util.CollectionUtils;
 import org.yaml.snakeyaml.Yaml;
 
 @Setter
@@ -398,8 +401,18 @@ public class TopologyTemplate {
         appConfigurationNode.setType(NodeTypeConstant.NODE_TYPE_APP_CONFIGURATIOIN);
         ConfigurationProperty property = new ConfigurationProperty();
         property.setAppCertificate(appConfiguration.getAppCertificate());
-        property.setAppServiceRequired(appConfiguration.getAppServiceRequiredList());
-        if (null != appConfiguration.getAppServiceProducedList()) {
+        if (!CollectionUtils.isEmpty(appConfiguration.getAppServiceRequiredList())) {
+            for (AppServiceRequired appServiceRequired: appConfiguration.getAppServiceRequiredList()) {
+                AppServiceRequiredDef def = new AppServiceRequiredDef();
+                def.setSerName(appServiceRequired.getSerName());
+                def.setAppId(appServiceRequired.getAppId());
+                def.setPackageId(appServiceRequired.getPackageId());
+                def.setVersion(appServiceRequired.getVersion());
+                def.setRequestedPermissions(appServiceRequired.isRequestedPermissions());
+                property.getAppServiceRequired().add(def);
+            }
+        }
+        if (!CollectionUtils.isEmpty(appConfiguration.getAppServiceProducedList())) {
             for (AppServiceProduced serviceProduced : appConfiguration.getAppServiceProducedList()) {
                 AppServiceProducedDef def = new AppServiceProducedDef();
                 def.setSerName(serviceProduced.getServiceName());

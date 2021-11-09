@@ -46,6 +46,15 @@ public interface AppConfigurationService {
     Boolean modifyAppConfiguration(String applicationId, AppConfiguration appConfiguration);
 
     /**
+     * modify AppConfiguration
+     *
+     * @param applicationId applicationId
+     * @return
+     */
+    @Transactional
+    void deleteAppConfiguration(String applicationId);
+
+    /**
      * get AppConfiguration TrafficRules
      *
      * @param applicationId applicationId
@@ -188,7 +197,7 @@ public interface AppConfigurationService {
      * @return
      */
     @Transactional
-    Boolean deleteServiceRequired(String applicationId, String serName);
+    Boolean deleteServiceRequired(String applicationId, String serviceRequiredId);
 
     AppCertificate getAppCertificate(String applicationId);
 
