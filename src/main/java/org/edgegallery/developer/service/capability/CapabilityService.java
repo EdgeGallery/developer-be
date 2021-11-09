@@ -16,17 +16,15 @@
 
 package org.edgegallery.developer.service.capability;
 
-import com.spencerwi.either.Either;
 import java.util.List;
 import org.edgegallery.developer.model.capability.Capability;
-import org.edgegallery.developer.response.FormatRespDto;
 
 public interface CapabilityService {
-    Either<FormatRespDto, Capability> create(Capability capability);
+    Capability create(Capability capability);
 
-    Either<FormatRespDto, Capability> deleteById(String id);
+    boolean deleteById(String id);
 
-    Either<FormatRespDto, Capability> updateById(Capability capability);
+    Capability updateById(Capability capability);
 
     List<Capability> findAll();
 

@@ -48,7 +48,6 @@ public class CapabilityGroupStatController {
 	@GetMapping(produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN') || hasRole('DEVELOPER_GUEST')")
 	public ResponseEntity<List<CapabilityGroupStat>> getCapabilityGroupStat() {
-		List<CapabilityGroupStat> result = capabilityGroupStatService.findAll();
-		return ResponseEntity.ok(result);
+		return ResponseEntity.ok(capabilityGroupStatService.findAll());
 	}
 }

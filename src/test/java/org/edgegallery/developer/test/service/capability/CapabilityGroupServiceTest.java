@@ -17,6 +17,7 @@ package org.edgegallery.developer.test.service.capability;
 import com.spencerwi.either.Either;
 import java.io.IOException;
 import java.util.List;
+import org.edgegallery.developer.exception.DataBaseException;
 import org.edgegallery.developer.test.DeveloperApplicationTests;
 import org.edgegallery.developer.model.capability.CapabilityGroup;
 import org.edgegallery.developer.response.FormatRespDto;
@@ -44,20 +45,23 @@ public class CapabilityGroupServiceTest {
         CapabilityGroup group = new CapabilityGroup();
         group.setName("test-123");
         group.setDescription("desc");
-        Either<FormatRespDto, CapabilityGroup> response = groupService.create(group);
-        Assert.assertEquals(true, response.isRight());
+        CapabilityGroup response = groupService.create(group);
+        Assert.assertNotNull(response);
     }
 
     @Test
     public void testDeleteCapabilityGroupSuccess() throws IOException {
-        Either<FormatRespDto, String> response = groupService.deleteById("e111f3e7-90d8-4a39-9874-ea6ea6752et6");
-        Assert.assertEquals(true, response.isRight());
+          boolean response = groupService.deleteById("e111f3e7-90d8-4a39-9874-ea6ea6752et6");
+          Assert.assertEquals(true, response);
     }
 
     @Test
     public void testDeleteCapabilityGroupBad() throws IOException {
-        Either<FormatRespDto, String> response = groupService.deleteById("e111f3e7-90d8-4a39-9874-ea6ea6752et9");
-        Assert.assertEquals(true, response.isLeft());
+        try {
+            groupService.deleteById("e111f3e7-90d8-4a39-9874-ea6ea6752et9");
+        }catch (DataBaseException e){
+            Assert.assertEquals("Delete capability group failed.", e.getMessage());
+        }
     }
 
     @Test
