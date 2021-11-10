@@ -120,10 +120,10 @@ public class CreateImageAction extends AbstractAction {
 
     private Boolean saveImageIdToImageExportInfo(String imageId) {
         String vmId = (String) getContext().getParameter(IContextParameter.PARAM_VM_ID);
-        ImageExportInfo imageExportInfo = new ImageExportInfo();
+        ImageExportInfo imageExportInfo = imageExportInfoMapper.getImageExportInfoInfoByVMId(vmId);
         imageExportInfo.setImageInstanceId(imageId);
         imageExportInfo.setStatus(EnumImageExportStatus.IMAGE_CREATING);
-        int res = imageExportInfoMapper.createImageExportInfoInfo(vmId, imageExportInfo);
+        int res = imageExportInfoMapper.modifyImageExportInfoInfoByVMId(vmId, imageExportInfo);
         if (res < 1) {
             LOGGER.warn("create image export info baseDate fail");
             return false;

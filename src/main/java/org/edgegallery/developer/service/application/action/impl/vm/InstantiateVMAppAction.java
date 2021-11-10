@@ -115,6 +115,10 @@ public class InstantiateVMAppAction extends InstantiateAppAction {
                 saveWorkloadToInstantiateInfo(workStatus);
                 return EnumInstantiateStatus.INSTANTIATE_STATUS_SUCCESS;
             }
+            if (jsonObject.get("data").getAsString().equals("Failure")) {
+                LOGGER.error("Query instantiate failed:{}", jsonObject.get("msg").getAsString());
+                return EnumInstantiateStatus.INSTANTIATE_STATUS_FAILED;
+            }
             try {
                 Thread.sleep(INTERVAL);
                 waitingTime += INTERVAL;

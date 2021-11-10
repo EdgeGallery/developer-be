@@ -27,6 +27,8 @@ import lombok.ToString;
 @ToString
 public class VMInstantiateInfo {
 
+    private String operationId;
+
     private String appPackageId;
 
     private String distributedMecHost;

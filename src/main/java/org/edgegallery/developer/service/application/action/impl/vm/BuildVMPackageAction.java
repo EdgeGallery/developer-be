@@ -17,7 +17,6 @@
 package org.edgegallery.developer.service.application.action.impl.vm;
 
 import java.util.UUID;
-import org.edgegallery.developer.model.application.EnumApplicationStatus;
 import org.edgegallery.developer.model.application.vm.VMApplication;
 import org.edgegallery.developer.model.application.vm.VirtualMachine;
 import org.edgegallery.developer.model.apppackage.AppPackage;
@@ -86,11 +85,8 @@ public class BuildVMPackageAction extends AbstractAction {
         statusLog = "Build package for single vm finished.";
         LOGGER.info(statusLog);
         updateActionProgress(actionStatus, 50, statusLog);
-
-        VMInstantiateInfo instantiateInfo = new VMInstantiateInfo();
-        instantiateInfo.setAppPackageId(appPkg.getId());
-        instantiateInfo.setStatus(EnumVMInstantiateStatus.PACKAGE_GENERATE_SUCCESS);
-        Boolean res = VmAppOperationService.createInstantiateInfo(vmId, instantiateInfo);
+        
+        boolean res = saveBuildVmPackageInfo(vmId, appPkg.getId());
         if (!res) {
             updateActionError(actionStatus, "Update instantiate info for VM failed.");
             return false;
@@ -99,6 +95,13 @@ public class BuildVMPackageAction extends AbstractAction {
         updateActionProgress(actionStatus, 100, statusLog);
         LOGGER.info("Build VM package action finished.");
         return true;
+    }
+
+    private boolean saveBuildVmPackageInfo(String vmId, String id) {
+        VMInstantiateInfo instantiateInfo = VmAppOperationService.getInstantiateInfo(vmId);
+        instantiateInfo.setAppPackageId(id);;
+        instantiateInfo.setStatus(EnumVMInstantiateStatus.PACKAGE_GENERATE_SUCCESS);
+        return  VmAppOperationService.updateInstantiateInfo(vmId, instantiateInfo);
     }
 
 }

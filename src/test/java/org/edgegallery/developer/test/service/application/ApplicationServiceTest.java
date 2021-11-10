@@ -29,6 +29,7 @@ import org.edgegallery.developer.model.application.EnumAppClass;
 import org.edgegallery.developer.model.application.EnumApplicationType;
 import org.edgegallery.developer.model.application.configuration.AppConfiguration;
 import org.edgegallery.developer.model.application.container.ContainerApplication;
+import org.edgegallery.developer.model.application.vm.EnumVMStatus;
 import org.edgegallery.developer.model.application.vm.Network;
 import org.edgegallery.developer.model.application.vm.VMApplication;
 import org.edgegallery.developer.model.application.vm.VirtualMachine;
@@ -265,7 +266,7 @@ public class ApplicationServiceTest {
         vm.setFlavorId(UUID.randomUUID().toString());
         vm.setImageId(1);
         vm.setUserData("user data");
-        vm.setStatus("NORMAL");
+        vm.setStatus(EnumVMStatus.NOT_DEPLOY);
         vm.setAreaZone("xi'an");
         vm.setFlavorExtraSpecs("FlavorExtraSpecs");
         VirtualMachine virtualMachine = vmAppVmService.createVm("3f11715f-b59e-4c23-965b-b7f9c34c20d1", vm);

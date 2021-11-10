@@ -43,7 +43,7 @@ public class VirtualMachine {
 
     private List<VMPort> portList = new ArrayList<VMPort>(0);
 
-    private String status;
+    private EnumVMStatus status;
 
     private String areaZone;
 
