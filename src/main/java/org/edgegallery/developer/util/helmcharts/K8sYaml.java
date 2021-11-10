@@ -19,10 +19,17 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import lombok.Setter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class K8sYaml implements IContainerFileHandler {
+    private static final Logger LOGGER = LoggerFactory.getLogger(K8sYaml.class);
 
     private final String filePath;
+
+    @Setter
+    private boolean hasMep = true;
 
     K8sYaml(String filePath) {
         this.filePath = filePath;
@@ -41,7 +48,12 @@ public class K8sYaml implements IContainerFileHandler {
 
     @Override
     public void load(String filePath) {
+        if (!verify(filePath)) {
+            return;
+        }
+        EgValuesYaml defaultValues = EgValuesYaml.createDefaultEgValues();
 
+        String content = defaultValues.getContent();
     }
 
     @Override
@@ -55,11 +67,6 @@ public class K8sYaml implements IContainerFileHandler {
     }
 
     @Override
-    public void SetHashMep(boolean hasMep) {
-
-    }
-
-    @Override
     public void modifyFileByPath(String filePath, String content) {
 
     }
@@ -67,5 +74,18 @@ public class K8sYaml implements IContainerFileHandler {
     @Override
     public void addFile(String filePath, String content) {
 
+    }
+
+    boolean verify(String filePath) {
+        try {
+            List v1Service = (ArrayList) Yaml.loadAll(filePath);
+            for (Object service : v1Service) {
+                System.out.println(service.getClass());
+            }
+            return true;
+        } catch (IOException e) {
+            LOGGER.error("Can not parse this yaml to k8s configs. filePath:{}, msg:{}", filePath, e.getMessage());
+        }
+        return false;
     }
 }

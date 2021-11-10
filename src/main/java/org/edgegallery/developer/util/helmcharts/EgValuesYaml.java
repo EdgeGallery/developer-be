@@ -14,20 +14,48 @@
 
 package org.edgegallery.developer.util.helmcharts;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.gson.Gson;
+import com.google.gson.annotations.SerializedName;
 import java.util.List;
+import java.util.UUID;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
+import org.edgegallery.developer.service.apppackage.converter.CustomRepresenter;
+import org.yaml.snakeyaml.DumperOptions;
+import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.constructor.SafeConstructor;
+import org.yaml.snakeyaml.nodes.Tag;
 
+@Setter
+@Getter
 public class EgValuesYaml {
 
     private Global global;
 
+    @SerializedName("appconfig")
     private AppConfig appConfig;
 
     private List<ServiceConfig> serviceConfig;
 
     private ImageLocation imageLocation;
+
+    public static EgValuesYaml createDefaultEgValues() {
+        EgValuesYaml defaultValues = new EgValuesYaml();
+        Global global = Global.builder().mepAgent(
+            Global.MepAgent.builder().enabled(true).configMapName("mepagent-" + UUID.randomUUID().toString()).build())
+            .nameSpace(Global.NameSpace.builder().enabled(true).build()).build();
+        defaultValues.setGlobal(global);
+        defaultValues.setAppConfig(AppConfig.builder().appNameSpace("").aksk(new AppConfig.AkSk()).build());
+        defaultValues.setImageLocation(ImageLocation.builder().domainName("192.168.1.1").project("project").build());
+        return defaultValues;
+    }
+
+    public String getContent() {
+        Yaml yaml = new Yaml(new SafeConstructor(), new CustomRepresenter());
+        return yaml.dumpAs(this, Tag.MAP, DumperOptions.FlowStyle.BLOCK);
+    }
 
     @Getter
     @Setter

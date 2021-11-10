@@ -39,6 +39,7 @@ import org.edgegallery.developer.model.application.Application;
 import org.edgegallery.developer.model.application.container.ContainerAppImageInfo;
 import org.edgegallery.developer.model.application.container.HelmChart;
 import org.edgegallery.developer.model.workspace.UploadedFile;
+import org.edgegallery.developer.service.application.AppConfigurationService;
 import org.edgegallery.developer.service.application.container.ContainerAppHelmChartService;
 import org.edgegallery.developer.util.BusinessConfigUtil;
 import org.edgegallery.developer.util.ContainerAppHelmChartUtil;
@@ -70,6 +71,9 @@ public class ContainerAppHelmChartServiceImpl implements ContainerAppHelmChartSe
     @Autowired
     private UploadedFileMapper uploadedFileMapper;
 
+    @Autowired
+    private AppConfigurationService appConfigurationService;
+
     public boolean uploadContainerFile(MultipartFile helmTemplateYaml, String applicationId) {
         try {
             String filePath = saveLoadedFileToTempDir(helmTemplateYaml);
@@ -77,10 +81,14 @@ public class ContainerAppHelmChartServiceImpl implements ContainerAppHelmChartSe
             assert containerFileHandler != null;
             containerFileHandler.load(filePath);
 
+            // default dependency mep service.
+            containerFileHandler.setHasMep(true);
+
             // create charts-file(.tgz) and export it to the outPath.
             String helmCharts = containerFileHandler.exportHelmCharts("");
 
-            String fileId = ContainerAppHelmChartUtil.writeContentToFile(Files.readAllBytes(new File(helmCharts).toPath()));
+            String fileId = ContainerAppHelmChartUtil
+                .writeContentToFile(Files.readAllBytes(new File(helmCharts).toPath()));
 
             // create a file id, and update
             HelmChart helmChart = new HelmChart();

@@ -14,45 +14,31 @@
 
 package org.edgegallery.developer.util.helmcharts;
 
+import java.util.UUID;
+import lombok.Getter;
 import lombok.Setter;
 
-public class LoadHelmChartsFileHandler implements IContainerFileHandler {
+@Getter
+@Setter
+public class EgChartsYaml {
+    private String apiVersion;
 
-    private final String filePath;
+    private String appVersion;
 
-    @Setter
-    private boolean hasMep;
+    private String description;
 
-    LoadHelmChartsFileHandler(String filePath) {
-        this.filePath = filePath;
-    }
+    private String name;
 
-    public void loadHelmCharts(String filePath) {
+    private String version;
 
-    }
+    public static EgChartsYaml createDefaultCharts() {
+        EgChartsYaml defaultCharts = new EgChartsYaml();
+        defaultCharts.setApiVersion("v1");
+        defaultCharts.setAppVersion("1.0");
+        defaultCharts.setVersion("1.0");
+        defaultCharts.setName(UUID.randomUUID().toString());
+        defaultCharts.setDescription("A Helm chart for Kubernetes");
 
-    @Override
-    public void load(String filePath) {
-
-    }
-
-    @Override
-    public void getCatalog() {
-
-    }
-
-    @Override
-    public String exportHelmCharts(String outPath) {
-        return null;
-    }
-
-    @Override
-    public void modifyFileByPath(String filePath, String content) {
-
-    }
-
-    @Override
-    public void addFile(String filePath, String content) {
-
+        return defaultCharts;
     }
 }

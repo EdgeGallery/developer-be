@@ -24,7 +24,7 @@ public interface IContainerFileHandler {
 
     String exportHelmCharts(String outPath);
 
-    void SetHashMep(boolean hasMep);
+    void setHasMep(boolean hasMep);
 
     void modifyFileByPath(String filePath, String content);
 
