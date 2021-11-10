@@ -67,6 +67,9 @@ public class TopologyTemplate {
 
     private static final String PACKAGE_TEMPLATE_INPUT_PATH = "./configs/template/appd/vm_appd_inputs.yaml";
 
+    // memory unit is Mib
+    private static final int MEMORY_SIZE_UNIT = 1024;
+
     @Valid
     @NotNull
     private LinkedHashMap<String, InputParam> inputs;
@@ -220,7 +223,8 @@ public class TopologyTemplate {
             NodeTemplate vduNode = new NodeTemplate();
             vduNode.setType(NodeTypeConstant.NODE_TYPE_VDU);
             Flavor flavor = id2FlavorMap.get(vm.getFlavorId());
-            VDUCapability capability = new VDUCapability(flavor.getMemory(), flavor.getCpu(), flavor.getArchitecture(),
+            VDUCapability capability = new VDUCapability(flavor.getMemory() * MEMORY_SIZE_UNIT, flavor.getCpu(),
+                flavor.getArchitecture(),
                 flavor.getSystemDiskSize());
             vduNode.setCapabilities(capability);
             VDUProperty property = new VDUProperty();
@@ -402,7 +406,7 @@ public class TopologyTemplate {
         ConfigurationProperty property = new ConfigurationProperty();
         property.setAppCertificate(appConfiguration.getAppCertificate());
         if (!CollectionUtils.isEmpty(appConfiguration.getAppServiceRequiredList())) {
-            for (AppServiceRequired appServiceRequired: appConfiguration.getAppServiceRequiredList()) {
+            for (AppServiceRequired appServiceRequired : appConfiguration.getAppServiceRequiredList()) {
                 AppServiceRequiredDef def = new AppServiceRequiredDef();
                 def.setSerName(appServiceRequired.getSerName());
                 def.setAppId(appServiceRequired.getAppId());

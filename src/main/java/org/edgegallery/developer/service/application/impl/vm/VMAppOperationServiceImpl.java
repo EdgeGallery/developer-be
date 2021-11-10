@@ -40,6 +40,7 @@ import org.edgegallery.developer.model.application.EnumApplicationStatus;
 import org.edgegallery.developer.model.application.vm.VMApplication;
 import org.edgegallery.developer.model.application.vm.VirtualMachine;
 import org.edgegallery.developer.model.apppackage.AppPackage;
+import org.edgegallery.developer.model.instantiate.vm.EnumImageExportStatus;
 import org.edgegallery.developer.model.instantiate.vm.EnumVMInstantiateStatus;
 import org.edgegallery.developer.model.instantiate.vm.ImageExportInfo;
 import org.edgegallery.developer.model.instantiate.vm.PortInstantiateInfo;
@@ -57,6 +58,7 @@ import org.edgegallery.developer.service.application.action.IAction;
 import org.edgegallery.developer.service.application.action.IActionIterator;
 import org.edgegallery.developer.service.application.action.impl.vm.VMExportImageOperation;
 import org.edgegallery.developer.service.application.action.impl.vm.VMLaunchOperation;
+import org.edgegallery.developer.service.application.common.IContextParameter;
 import org.edgegallery.developer.service.application.impl.AppOperationServiceImpl;
 import org.edgegallery.developer.service.application.vm.VMAppOperationService;
 import org.edgegallery.developer.service.apppackage.AppPackageService;
@@ -140,6 +142,10 @@ public class VMAppOperationServiceImpl extends AppOperationServiceImpl implement
                 ResponseConsts.RET_CERATE_DATA_FAIL);
         }
         VMLaunchOperation actionCollection = new VMLaunchOperation(user, applicationId, vmId, operationStatus);
+        VMInstantiateInfo instantiateInfo = new VMInstantiateInfo();
+        instantiateInfo.setOperationId(operationStatus.getId());
+        vmInstantiateInfoMapper.createVMInstantiateInfo(vmId, instantiateInfo);
+        applicationService.updateApplicationStatus(applicationId, EnumApplicationStatus.DEPLOYED);
         LOGGER.info("start instantiate vm app");
         new InstantiateVmAppProcessor(actionCollection).start();
         return new OperationInfoRep(operationStatus.getId());
@@ -258,8 +264,8 @@ public class VMAppOperationServiceImpl extends AppOperationServiceImpl implement
         }
         VMExportImageOperation actionCollection = new VMExportImageOperation(user, applicationId, vmId, operationStatus,
             appInstanceId, vmInstanceId);
-        LOGGER.info("start instantiate vm app");
-        applicationService.updateApplicationStatus(applicationId, EnumApplicationStatus.DEPLOYED);
+        createImageExportInfo(vmId, operationStatus.getId());
+        LOGGER.info("start export vm image");
         new ExportVmImageProcessor(actionCollection).start();
         return new OperationInfoRep(operationStatus.getId());
     }
@@ -344,6 +350,18 @@ public class VMAppOperationServiceImpl extends AppOperationServiceImpl implement
 
     public ImageExportInfo getImageExportInfo(String vmId) {
         return imageExportInfoMapper.getImageExportInfoInfoByVMId(vmId);
+    }
+
+    private Boolean createImageExportInfo(String vmId, String operationId) {
+        ImageExportInfo imageExportInfo = new ImageExportInfo();
+        imageExportInfo.setOperationId(operationId);
+        imageExportInfo.setStatus(EnumImageExportStatus.IMAGE_CREATING);
+        int res = imageExportInfoMapper.createImageExportInfoInfo(vmId, imageExportInfo);
+        if (res < 1) {
+            LOGGER.warn("create image export info baseDate fail");
+            return false;
+        }
+        return true;
     }
 
     public static class InstantiateVmAppProcessor extends Thread {

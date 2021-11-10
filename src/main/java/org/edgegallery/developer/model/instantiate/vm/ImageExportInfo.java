@@ -25,6 +25,8 @@ import lombok.ToString;
 @ToString
 public class ImageExportInfo {
 
+    private String operationId;
+
     private String imageInstanceId;
 
     private String imageName;

@@ -566,6 +566,7 @@
 
     CREATE TABLE IF NOT EXISTS "tbl_vm_instantiate_info" (
     "vm_id" varchar(255) NOT NULL,
+    "operation_id" varchar(255) DEFAULT NULL,
     "app_package_id" varchar(255) DEFAULT NULL,
     "distributed_mec_host" varchar(255) DEFAULT NULL,
     "mepm_package_id" varchar(255) DEFAULT NULL,
@@ -587,6 +588,7 @@
 
     CREATE TABLE IF NOT EXISTS "tbl_vm_image_export_info" (
     "vm_id" varchar(255) NOT NULL,
+    "operation_id" varchar(255) DEFAULT NULL,
     "image_instance_id" varchar(255) NOT NULL,
     "image_name" varchar(255) DEFAULT NULL,
     "format" varchar(255) DEFAULT NULL,

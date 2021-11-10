@@ -19,7 +19,8 @@
 <mapper namespace="org.edgegallery.developer.mapper.application.vm.ImageExportInfoMapper">
 
   <resultMap id="ImageExportInfoMap" type="org.edgegallery.developer.model.instantiate.vm.ImageExportInfo">
-    <id property="imageInstanceId" column="image_instance_id"/>
+    <result property="imageInstanceId" column="image_instance_id"/>
+    <result property="operationId" column="operation_id"/>
     <result property="imageName" column="image_name"/>
     <result property="format" column="format"/>
     <result property="downloadUrl" column="download_url"/>
@@ -31,13 +32,13 @@
   </resultMap>
 
   <sql id="ImageExportInfoAllColumn">
-    image_instance_id, image_name, format, download_url, check_sum, image_size, log, status, create_time
+    image_instance_id, operation_id, image_name, format, download_url, check_sum, image_size, log, status, create_time
   </sql>
 
   <insert id="createImageExportInfoInfo">
-    insert into tbl_vm_image_export_info (vm_id, image_instance_id, image_name, format, download_url, check_sum, image_size, log, status, create_time)
+    insert into tbl_vm_image_export_info (vm_id, image_instance_id, operation_id, image_name, format, download_url, check_sum, image_size, log, status, create_time)
     values
-    ( #{vmId}, #{imageExportInfo.imageInstanceId}, #{imageExportInfo.imageName}, #{imageExportInfo.format},
+    ( #{vmId}, #{imageExportInfo.imageInstanceId}, #{imageExportInfo.operationId}, #{imageExportInfo.imageName}, #{imageExportInfo.format},
     #{imageExportInfo.downloadUrl}, #{imageExportInfo.checkSum}, #{imageExportInfo.imageSize},
     #{imageExportInfo.log},  #{imageExportInfo.status}, now())
   </insert>
