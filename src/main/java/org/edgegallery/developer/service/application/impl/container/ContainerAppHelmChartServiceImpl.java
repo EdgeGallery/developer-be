@@ -74,7 +74,7 @@ public class ContainerAppHelmChartServiceImpl implements ContainerAppHelmChartSe
     @Autowired
     private AppConfigurationService appConfigurationService;
 
-    public boolean uploadContainerFile(MultipartFile helmTemplateYaml, String applicationId) {
+    public HelmChart uploadContainerFile(MultipartFile helmTemplateYaml, String applicationId) {
         try {
             String filePath = saveLoadedFileToTempDir(helmTemplateYaml);
             IContainerFileHandler containerFileHandler = LoadContainerFileFactory.createLoader(filePath);
@@ -95,16 +95,17 @@ public class ContainerAppHelmChartServiceImpl implements ContainerAppHelmChartSe
             helmChart.setId(UUID.randomUUID().toString());
             helmChart.setHelmChartFileId(fileId);
             helmChart.setName(helmTemplateYaml.getName());
+            helmChart.setApplicationId(applicationId);
+            helmChart.setFilesList(containerFileHandler.getCatalog());
             int res = helmChartMapper.createHelmChart(applicationId, helmChart);
             if (res < 1) {
                 LOGGER.error("Failed to save helm chart!");
                 throw new DataBaseException("Failed to save helm chart!", ResponseConsts.RET_CERATE_DATA_FAIL);
             }
-
+            return helmChart;
         } catch (IOException e) {
-            return false;
+            return null;
         }
-        return true;
     }
 
     private String saveLoadedFileToTempDir(MultipartFile helmTemplateYaml) throws IOException {
@@ -204,6 +205,21 @@ public class ContainerAppHelmChartServiceImpl implements ContainerAppHelmChartSe
             throw new DataBaseException("delete helm chart file failed!", ResponseConsts.RET_DELETE_DATA_FAIL);
         }
         return true;
+    }
+
+    @Override
+    public byte[] downloadHelmChart(String applicationId, String id) {
+        return new byte[0];
+    }
+
+    @Override
+    public String getFileContentByFilePath(String application, String id, String filePath) {
+        return null;
+    }
+
+    @Override
+    public Boolean modifyFileContentByFilePath(String application, String id, String filePath, String content) {
+        return null;
     }
 
     private void saveFileRecord(String fileId, String fileName) {

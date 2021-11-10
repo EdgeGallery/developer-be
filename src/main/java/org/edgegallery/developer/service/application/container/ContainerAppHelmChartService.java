@@ -13,18 +13,16 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
+
 package org.edgegallery.developer.service.application.container;
 
 import java.util.List;
 import org.edgegallery.developer.model.application.container.HelmChart;
-import org.edgegallery.developer.response.FormatRespDto;
-import org.edgegallery.developer.response.HelmTemplateYamlRespDto;
 import org.springframework.web.multipart.MultipartFile;
-import com.spencerwi.either.Either;
 
 public interface ContainerAppHelmChartService {
 
-    boolean uploadContainerFile(MultipartFile helmTemplateYaml, String applicationId);
+    HelmChart uploadContainerFile(MultipartFile helmTemplateYaml, String applicationId);
 
     Boolean uploadHelmChartYaml(MultipartFile helmTemplateYaml, String applicationId);
 
@@ -35,4 +33,10 @@ public interface ContainerAppHelmChartService {
     HelmChart getHelmChartById(String applicationId, String id);
 
     Boolean deleteHelmChartById(String applicationId, String id);
+
+    byte[] downloadHelmChart(String applicationId, String id);
+
+    String getFileContentByFilePath(String application, String id, String filePath);
+
+    Boolean modifyFileContentByFilePath(String application, String id, String filePath, String content);
 }
