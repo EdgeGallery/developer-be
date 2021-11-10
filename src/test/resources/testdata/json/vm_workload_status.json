@@ -1,0 +1,24 @@
+{
+  "code": "200",
+  "msg": "ok",
+  "data": [
+    {
+      "vmId": "d21ba089-6935-45db-af86-cf00cee6auuu",
+      "vncUrl": "http://1.1.1.3:6080/vnc_lite.html?path=%3Ftoken%3Dfe934a92-1cfc-42fe-919d-422e2e3bd1f8",
+      "networks": [
+        {
+          "name": "MEC_APP_N6",
+          "ip": "192.168.226.14"
+        },
+        {
+          "name": "MEC_APP_Public",
+          "ip": "192.168.227.14"
+        },
+        {
+          "name": "MEC_APP_Private",
+          "ip": "192.168.225.14"
+        }
+      ]
+    }
+  ]
+}

@@ -147,7 +147,7 @@ public class VMAppOperationServiceImpl extends AppOperationServiceImpl implement
         vmInstantiateInfoMapper.createVMInstantiateInfo(vmId, instantiateInfo);
         applicationService.updateApplicationStatus(applicationId, EnumApplicationStatus.DEPLOYED);
         LOGGER.info("start instantiate vm app");
-        new InstantiateVmAppProcessor(actionCollection).start();
+        new InstantiateVmAppProcessor(operationStatusMapper, operationStatus, actionCollection).start();
         return new OperationInfoRep(operationStatus.getId());
     }
 
@@ -266,7 +266,7 @@ public class VMAppOperationServiceImpl extends AppOperationServiceImpl implement
             appInstanceId, vmInstanceId);
         createImageExportInfo(vmId, operationStatus.getId());
         LOGGER.info("start export vm image");
-        new ExportVmImageProcessor(actionCollection).start();
+        new ExportVmImageProcessor(operationStatusMapper, operationStatus, actionCollection).start();
         return new OperationInfoRep(operationStatus.getId());
     }
 
@@ -366,44 +366,73 @@ public class VMAppOperationServiceImpl extends AppOperationServiceImpl implement
 
     public static class InstantiateVmAppProcessor extends Thread {
 
+        OperationStatusMapper operationStatusMapper;
+
+        OperationStatus operationStatus;
+
         VMLaunchOperation actionCollection;
 
-        public InstantiateVmAppProcessor(VMLaunchOperation actionCollection) {
+        public InstantiateVmAppProcessor(OperationStatusMapper operationStatusMapper, OperationStatus operationStatus,
+            VMLaunchOperation actionCollection) {
+            this.operationStatusMapper = operationStatusMapper;
+            this.operationStatus = operationStatus;
             this.actionCollection = actionCollection;
         }
 
         @Override
         public void run() {
-            IActionIterator iterator = actionCollection.getActionIterator();
-            while (iterator.hasNext()) {
-                IAction action = iterator.nextAction();
-                boolean result = action.execute();
-                if (!result) {
-                    break;
+            try {
+                IActionIterator iterator = actionCollection.getActionIterator();
+                while (iterator.hasNext()) {
+                    IAction action = iterator.nextAction();
+                    boolean result = action.execute();
+                    if (!result) {
+                        break;
+                    }
                 }
+            } catch (Exception e) {
+                LOGGER.error("InstantiateVmAppProcessor Exception.", e);
+                operationStatus.setStatus(EnumActionStatus.FAILED);
+                operationStatus.setErrorMsg("Exception happens when instantiate VM: " + e.getStackTrace().toString());
+                operationStatusMapper.modifyOperationStatus(operationStatus);
             }
+
         }
 
     }
 
     public static class ExportVmImageProcessor extends Thread {
 
+        OperationStatusMapper operationStatusMapper;
+
+        OperationStatus operationStatus;
+
         VMExportImageOperation actionCollection;
 
-        public ExportVmImageProcessor(VMExportImageOperation actionCollection) {
+        public ExportVmImageProcessor(OperationStatusMapper operationStatusMapper, OperationStatus operationStatus,
+            VMExportImageOperation actionCollection) {
+            this.operationStatusMapper = operationStatusMapper;
+            this.operationStatus = operationStatus;
             this.actionCollection = actionCollection;
         }
 
         @Override
         public void run() {
-            IActionIterator iterator = actionCollection.getActionIterator();
-            while (iterator.hasNext()) {
-                IAction action = iterator.nextAction();
-                boolean result = action.execute();
-                if (!result) {
+            try {
+                IActionIterator iterator = actionCollection.getActionIterator();
+                while (iterator.hasNext()) {
+                    IAction action = iterator.nextAction();
+                    boolean result = action.execute();
+                    if (!result) {
 
-                    break;
+                        break;
+                    }
                 }
+            } catch (Exception e) {
+                LOGGER.error("InstantiateVmAppProcessor Exception.", e);
+                operationStatus.setStatus(EnumActionStatus.FAILED);
+                operationStatus.setErrorMsg("Exception happens when export image: " + e.getStackTrace().toString());
+                operationStatusMapper.modifyOperationStatus(operationStatus);
             }
         }
     }

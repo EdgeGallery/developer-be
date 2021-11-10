@@ -36,6 +36,9 @@ DROP TABLE  IF  EXISTS tbl_vm_port;
 DROP TABLE  IF  EXISTS tbl_vm_instantiate_info;
 DROP TABLE  IF  EXISTS tbl_vm_image_export_info;
 DROP TABLE  IF  EXISTS tbl_vm_port_instantiate_info;
+DROP TABLE  IF  EXISTS tbl_operation_status;
+DROP TABLE  IF  EXISTS tbl_action_status;
+DROP TABLE  IF  EXISTS tbl_atp_test_task;
 DROP TABLE  IF  EXISTS tbl_mep_host;
 DROP TABLE  IF  EXISTS tbl_reverse_proxy;
 DROP TABLE  IF  EXISTS tbl_app_package;
@@ -391,6 +394,43 @@ CREATE TABLE IF NOT EXISTS tbl_vm_image_export_info (
    CONSTRAINT tbl_vm_image_export_info_pkey PRIMARY KEY (vm_id)
 );
 
+CREATE TABLE IF NOT EXISTS tbl_operation_status (
+   id varchar(255) NOT NULL,
+   user_name varchar(255) NOT NULL,
+   object_type varchar(255) DEFAULT NULL,
+   object_id varchar(255) DEFAULT NULL,
+   object_name varchar(255) DEFAULT NULL,
+   operation_name varchar(255) DEFAULT NULL,
+   progress int4 DEFAULT NULL,
+   status varchar(255) DEFAULT NULL,
+   error_msg text DEFAULT NULL,
+   create_time varchar(255) DEFAULT NULL,
+   update_time varchar(255)  DEFAULT NULL,
+   CONSTRAINT tbl_operation_status_pkey PRIMARY KEY (id)
+);
+
+CREATE TABLE IF NOT EXISTS tbl_action_status (
+   id varchar(255) NOT NULL,
+   operation_id varchar(255) NOT NULL,
+   object_type varchar(255) DEFAULT NULL,
+   object_id varchar(255) DEFAULT NULL,
+   action_name varchar(255) DEFAULT NULL,
+   progress int4 DEFAULT NULL,
+   status varchar(255) DEFAULT NULL,
+   error_msg text DEFAULT NULL,
+   status_log text DEFAULT NULL,
+   update_time varchar(255)  DEFAULT NULL,
+   CONSTRAINT tbl_action_status_pkey PRIMARY KEY (id)
+);
+
+CREATE TABLE IF NOT EXISTS tbl_atp_test_task (
+   id varchar(255) NOT NULL,
+   app_id varchar(255) NOT NULL,
+   app_name varchar(255) DEFAULT NULL,
+   status varchar(255) DEFAULT NULL,
+   create_time varchar(255)  DEFAULT NULL,
+   CONSTRAINT tbl_atp_test_task_pkey PRIMARY KEY (id)
+);
 CREATE TABLE IF NOT EXISTS tbl_mep_host (
   host_id varchar(50) NOT NULL,
   name varchar(100) DEFAULT NULL,
