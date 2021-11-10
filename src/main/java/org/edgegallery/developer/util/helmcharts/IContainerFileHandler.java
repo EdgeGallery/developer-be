@@ -14,13 +14,16 @@
 
 package org.edgegallery.developer.util.helmcharts;
 
+import java.io.IOException;
+import java.util.List;
+
 public interface IContainerFileHandler {
 
     // load tgz or yaml file, and parse it. it will auto-create charts.yaml and values.yaml when loading yaml file.
-    void load(String filePath);
+    void load(String filePath) throws IOException;
 
     // get catalog from helm-charts file
-    void getCatalog();
+    List<HelmChartFile> getCatalog();
 
     String exportHelmCharts(String outPath);
 
@@ -28,5 +31,6 @@ public interface IContainerFileHandler {
 
     void modifyFileByPath(String filePath, String content);
 
+    //
     void addFile(String filePath, String content);
 }

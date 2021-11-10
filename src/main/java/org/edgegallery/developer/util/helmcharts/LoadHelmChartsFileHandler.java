@@ -14,21 +14,15 @@
 
 package org.edgegallery.developer.util.helmcharts;
 
+import java.util.List;
 import lombok.Setter;
 
 public class LoadHelmChartsFileHandler implements IContainerFileHandler {
 
-    private final String filePath;
-
     @Setter
     private boolean hasMep;
 
-    LoadHelmChartsFileHandler(String filePath) {
-        this.filePath = filePath;
-    }
-
-    public void loadHelmCharts(String filePath) {
-
+    LoadHelmChartsFileHandler() {
     }
 
     @Override
@@ -37,8 +31,8 @@ public class LoadHelmChartsFileHandler implements IContainerFileHandler {
     }
 
     @Override
-    public void getCatalog() {
-
+    public List<HelmChartFile> getCatalog() {
+        return null;
     }
 
     @Override

@@ -17,6 +17,11 @@ package org.edgegallery.developer.util.helmcharts;
 import java.util.UUID;
 import lombok.Getter;
 import lombok.Setter;
+import org.edgegallery.developer.service.apppackage.converter.CustomRepresenter;
+import org.yaml.snakeyaml.DumperOptions;
+import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.constructor.SafeConstructor;
+import org.yaml.snakeyaml.nodes.Tag;
 
 @Getter
 @Setter
@@ -40,5 +45,10 @@ public class EgChartsYaml {
         defaultCharts.setDescription("A Helm chart for Kubernetes");
 
         return defaultCharts;
+    }
+
+    public String getContent() {
+        Yaml yaml = new Yaml(new SafeConstructor(), new CustomRepresenter());
+        return yaml.dumpAs(this, Tag.MAP, DumperOptions.FlowStyle.BLOCK);
     }
 }

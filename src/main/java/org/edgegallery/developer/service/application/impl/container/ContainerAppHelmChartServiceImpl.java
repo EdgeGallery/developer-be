@@ -92,8 +92,8 @@ public class ContainerAppHelmChartServiceImpl implements ContainerAppHelmChartSe
 
             // create a file id, and update
             HelmChart helmChart = new HelmChart();
-            helmChart.setHelmChartFileId(fileId);
             helmChart.setId(UUID.randomUUID().toString());
+            helmChart.setHelmChartFileId(fileId);
             helmChart.setName(helmTemplateYaml.getName());
             int res = helmChartMapper.createHelmChart(applicationId, helmChart);
             if (res < 1) {

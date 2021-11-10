@@ -14,15 +14,21 @@
 
 package org.edgegallery.developer.util.helmcharts;
 
-public class LoadContainerFileFactory {
+import java.util.List;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.Setter;
 
-    public static IContainerFileHandler createLoader(String filePath) {
-        if (filePath.toLowerCase().endsWith(".tgz")) {
-            return new LoadHelmChartsFileHandler();
-        } else if (filePath.toLowerCase().endsWith(".yaml") || filePath.toLowerCase().endsWith(".yml")) {
-            return new K8sYaml();
-        } else {
-            return null;
-        }
-    }
+@Getter
+@Setter
+@Builder
+public class HelmChartFile {
+
+    private int index;
+
+    private String name;
+
+    private String path;
+
+    private List<HelmChartFile> children;
 }

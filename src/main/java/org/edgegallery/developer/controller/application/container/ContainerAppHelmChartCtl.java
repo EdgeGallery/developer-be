@@ -65,7 +65,7 @@ public class ContainerAppHelmChartCtl {
         @ApiParam(value = "file", required = true) @RequestPart(value = "file") MultipartFile helmTemplateYaml,
         @Pattern(regexp = REGEX_UUID, message = "projectId must be in UUID format")
         @ApiParam(value = "applicationId", required = true) @PathVariable("applicationId") String applicationId) {
-        return ResponseEntity.ok(containerAppHelmChartService.uploadHelmChartYaml(helmTemplateYaml, applicationId));
+        return ResponseEntity.ok(containerAppHelmChartService.uploadContainerFile(helmTemplateYaml, applicationId));
     }
 
     /**
