@@ -1,0 +1,313 @@
+/*
+ * Copyright 2021 Huawei Technologies Co., Ltd.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
+ */
+
+package org.edgegallery.developer.test.service.apppackage;
+
+import java.io.File;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.UUID;
+import org.edgegallery.developer.config.security.AccessUserUtil;
+import org.edgegallery.developer.exception.DataBaseException;
+import org.edgegallery.developer.exception.FileFoundFailException;
+import org.edgegallery.developer.exception.IllegalRequestException;
+import org.edgegallery.developer.model.application.EnumAppClass;
+import org.edgegallery.developer.model.application.EnumApplicationType;
+import org.edgegallery.developer.model.application.vm.EnumVMStatus;
+import org.edgegallery.developer.model.application.vm.Network;
+import org.edgegallery.developer.model.application.vm.VMApplication;
+import org.edgegallery.developer.model.application.vm.VirtualMachine;
+import org.edgegallery.developer.model.apppackage.AppPackage;
+import org.edgegallery.developer.model.apppackage.AppPkgStructure;
+import org.edgegallery.developer.model.uploadfile.UploadFile;
+import org.edgegallery.developer.service.application.ApplicationService;
+import org.edgegallery.developer.service.application.vm.VMAppNetworkService;
+import org.edgegallery.developer.service.application.vm.VMAppVmService;
+import org.edgegallery.developer.service.apppackage.AppPackageService;
+import org.edgegallery.developer.service.uploadfile.UploadFileService;
+import org.edgegallery.developer.test.DeveloperApplicationTests;
+import org.edgegallery.developer.test.service.UploadFileServiceTest;
+import org.edgegallery.developer.test.service.application.ApplicationServiceTest;
+import org.edgegallery.developer.util.FileUtil;
+import org.edgegallery.developer.util.SpringContextUtil;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.test.context.junit4.AbstractJUnit4SpringContextTests;
+import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.web.multipart.MultipartFile;
+
+@SpringBootTest(classes = DeveloperApplicationTests.class)
+@RunWith(SpringRunner.class)
+public class AppPackageServiceTest extends AbstractJUnit4SpringContextTests {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(AppPackageServiceTest.class);
+
+    @Autowired
+    private AppPackageService appPackageService;
+
+    @Autowired
+    private VMAppNetworkService networkService;
+
+    @Autowired
+    private VMAppVmService vmAppVmService;
+
+    @Autowired
+    private ApplicationService applicationService;
+
+    @Autowired
+    private UploadFileService uploadFileService;
+
+    private MockHttpServletRequest request;
+
+    @Before
+    public void setUp() {
+        request = new MockHttpServletRequest();
+        request.setCharacterEncoding("UTF-8");
+        SpringContextUtil.setApplicationContext(applicationContext);
+    }
+
+    @Test
+    public void testGetAppPackageSuccess() throws IOException {
+        AppPackage appPackage = appPackageService.getAppPackage("f2759fcb-bb4b-42f5-bc6c-8e1635348fda");
+        Assert.assertNotNull(appPackage);
+    }
+
+    @Test
+    public void testGetAppPackageByAppIdSuccess() throws IOException {
+        AppPackage appPackage = appPackageService.getAppPackageByAppId("6a75a2bd-9811-432f-bbe8-2813aa97d365");
+        Assert.assertNotNull(appPackage);
+    }
+
+    @Test
+    public void testGetAppPackageStructureBadWithEmptyId() throws IOException {
+        try {
+            appPackageService.getAppPackageStructure("");
+        } catch (IllegalRequestException e) {
+            Assert.assertEquals("packageId is empty!", e.getMessage());
+        }
+    }
+
+    @Test
+    public void testGetAppPackageStructureBadWithErrId() throws IOException {
+        try {
+            appPackageService.getAppPackageStructure("err-id");
+        } catch (DataBaseException e) {
+            Assert.assertEquals("query object(AppPackage) is null!", e.getMessage());
+        }
+    }
+
+    @Test
+    public void testGetAppPackageStructureBadWithErrFileName() throws IOException {
+        try {
+            appPackageService.getAppPackageStructure("f2759fcb-bb4b-42f5-bc6c-8e1635348fdc");
+        } catch (DataBaseException e) {
+            Assert.assertEquals("fileName of app pkg is empty!", e.getMessage());
+        }
+    }
+
+    @Test
+    public void testGetAppPackageStructureBadWithErrReturn() throws IOException {
+        AppPkgStructure appPkgStructure = appPackageService
+            .getAppPackageStructure("f2759fcb-bb4b-42f5-bc6c-8e1635348fda");
+        Assert.assertNull(appPkgStructure);
+    }
+
+    @Test
+    public void testGetAppPackageFileContentBadWithNullPkgId() throws IOException {
+        try {
+            appPackageService.getAppPackageFileContent("", "f2759fcb-bb4b-42f5-bc6c-8e1635348fda");
+        } catch (IllegalRequestException e) {
+            Assert.assertEquals("packageId or fileName is empty", e.getMessage());
+        }
+    }
+
+    @Test
+    public void testGetAppPackageFileContentBadWithNullFileName() throws IOException {
+        try {
+            appPackageService.getAppPackageFileContent("f2759fcb-bb4b-42f5-bc6c-8e1635348fda", "");
+        } catch (IllegalRequestException e) {
+            Assert.assertEquals("packageId or fileName is empty", e.getMessage());
+        }
+    }
+
+    @Test
+    public void testGetAppPackageFileContentBadWithErrPkgId() throws IOException {
+        try {
+            appPackageService.getAppPackageFileContent("f2759fcb-bb4b-42f5-bc6c-8e1635348fdf", "fileName");
+        } catch (DataBaseException e) {
+            Assert.assertEquals("query object(AppPackage) is null!", e.getMessage());
+        }
+    }
+
+    @Test
+    public void testGetAppPackageFileContentBadWithNullPkgName() throws IOException {
+        try {
+            appPackageService.getAppPackageFileContent("f2759fcb-bb4b-42f5-bc6c-8e1635348fdc", "fileName");
+        } catch (DataBaseException e) {
+            Assert.assertEquals("fileName of app pkg is empty!", e.getMessage());
+        }
+    }
+
+    @Test
+    public void testGetAppPackageFileContentBadWithErrPkgName() throws IOException {
+        try {
+            appPackageService.getAppPackageFileContent("f2759fcb-bb4b-42f5-bc6c-8e1635348fda", "fileName");
+        } catch (FileFoundFailException e) {
+            Assert.assertEquals("can not find any file in app pkg folder!", e.getMessage());
+        }
+    }
+
+    @Test
+    public void testGetAllFilePathSuccess() throws URISyntaxException {
+        File sourceFile = new File(
+            UploadFileServiceTest.class.getClassLoader().getResource("testdata/vm_package").toURI());
+        List<String> paths = FileUtil.getAllFilePath(sourceFile);
+        Assert.assertNotNull(paths);
+    }
+
+    @Test
+    public void testUpdateAppPackageFileContentBadWithNullPkgId() throws IOException {
+        try {
+            appPackageService.updateAppPackageFileContent("", "fileName", "content");
+        } catch (IllegalRequestException e) {
+            Assert.assertEquals("packageId or fileName or content is empty", e.getMessage());
+        }
+    }
+
+    @Test
+    public void testUpdateAppPackageFileContentBadWithNullFileName() throws IOException {
+        try {
+            appPackageService.updateAppPackageFileContent("f2759fcb-bb4b-42f5-bc6c-8e1635348fda", "", "content");
+        } catch (IllegalRequestException e) {
+            Assert.assertEquals("packageId or fileName or content is empty", e.getMessage());
+        }
+    }
+
+    @Test
+    public void testUpdateAppPackageFileContentBadWithNullFileContent() throws IOException {
+        try {
+            appPackageService.updateAppPackageFileContent("f2759fcb-bb4b-42f5-bc6c-8e1635348fda", "fileName", "");
+        } catch (IllegalRequestException e) {
+            Assert.assertEquals("packageId or fileName or content is empty", e.getMessage());
+        }
+    }
+
+    @Test
+    public void testUpdateAppPackageFileContentBadWithErrPkgId() throws IOException {
+        try {
+            appPackageService.updateAppPackageFileContent("err-id", "fileName", "content");
+        } catch (DataBaseException e) {
+            Assert.assertEquals("query object(AppPackage) is null!", e.getMessage());
+        }
+    }
+
+    @Test
+    public void testUpdateAppPackageFileContentBadWithErrPkgName() throws IOException {
+        try {
+            appPackageService
+                .updateAppPackageFileContent("f2759fcb-bb4b-42f5-bc6c-8e1635348fdc", "fileName", "content");
+        } catch (DataBaseException e) {
+            Assert.assertEquals("fileName of app pkg is empty!", e.getMessage());
+        }
+    }
+
+    @Test
+    public void testUpdateAppPackageFileContentBadWithErrReturn() throws IOException {
+        try {
+            appPackageService
+                .updateAppPackageFileContent("f2759fcb-bb4b-42f5-bc6c-8e1635348fda", "fileName", "content");
+        } catch (FileFoundFailException e) {
+            Assert.assertEquals("the file you update cannot be found!", e.getMessage());
+        }
+    }
+
+    @Test
+    public void testGenerateAppPackageBadWithNullReturn() throws IOException {
+        try {
+            VMApplication vmApplication = createVmApp();
+            Assert.assertEquals("vmApp", vmApplication.getName());
+            appPackageService.generateAppPackage(vmApplication);
+        } catch (NullPointerException e) {
+            Assert.assertNull(e.getMessage());
+        }
+    }
+
+    @Test
+    public void testDeletePackageBadWithErrId() throws IOException {
+        boolean res = appPackageService.deletePackage("vmApplication");
+        Assert.assertEquals(true, res);
+    }
+
+    @Test
+    public void testDeletePackageSuccess() throws IOException {
+        boolean res = appPackageService.deletePackage("f2759fcb-bb4b-42f5-bc6c-8e1635348fdb");
+        Assert.assertEquals(true, res);
+    }
+
+    private VMApplication createVmApp() throws IOException {
+        AccessUserUtil.setUser("d59d459c-f07e-4a44-a4e6-989752038c06", "admin");
+        VMApplication application = new VMApplication();
+        application.setId("328c4fcf-1581-40d1-afc1-6ae280489e8f");
+        application.setName("vmApp");
+        application.setDescription("test create vm app");
+        application.setVersion("v1.0");
+        application.setProvider("edgegallery");
+        application.setArchitecture("X86");
+        application.setAppClass(EnumAppClass.VM);
+        application.setType("Video Application");
+        application.setIndustry("Smart Park");
+        MultipartFile uploadFile = new MockMultipartFile("test-icon.png", "test-icon.png", null,
+            ApplicationServiceTest.class.getClassLoader().getResourceAsStream("testdata/test-icon.png"));
+        UploadFile result = uploadFileService.uploadFile("b27d72b5-93a6-4db4-8268-7ec502331ade", "icon", uploadFile);
+        application.setIconFileId(result.getFileId());
+        application.setAppCreateType(EnumApplicationType.DEVELOP);
+        application.setCreateTime(String.valueOf(new Date().getTime()));
+        //vm app set network list
+        List<Network> networkList = new ArrayList<>();
+        Network network = new Network();
+        network.setId("85818e6e-9cbc-4c04-ac6f-300df0fee295");
+        network.setName("Network_MEP");
+        network.setDescription(
+            "The network with the edge computing platform is required when the application has service dependency or needs to publish services");
+        networkList.add(network);
+        application.setNetworkList(networkList);
+        //vm app set VirtualMachine list
+        VirtualMachine vm = new VirtualMachine();
+        // id, app_id, name, flavor_id, image_id, user_data, status, area_zone, flavor_extra_specs
+        List<VirtualMachine> vmList = new ArrayList<>();
+        vm.setId("068fa7b9-e1bd-4eee-a7e8-2532889910a3");
+        vm.setName("test-vm");
+        vm.setFlavorId(UUID.randomUUID().toString());
+        vm.setImageId(1);
+        vm.setUserData("user data");
+        vm.setStatus(EnumVMStatus.NOT_DEPLOY);
+        vm.setAreaZone("xi'an");
+        vm.setFlavorExtraSpecs("FlavorExtraSpecs");
+        vmList.add(vm);
+        application.setVmList(vmList);
+        return application;
+    }
+
+}

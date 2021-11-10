@@ -181,6 +181,12 @@ MERGE INTO tbl_app_certificate KEY(app_id) VALUES('6a75a2bd-9811-432f-bbe8-2813a
 MERGE INTO tbl_app_certificate KEY(app_id) VALUES('6a75a2bd-9811-432f-bbe8-2813aa97d366','ak','sk');
 
 -- ----------------------------
+-- Records of tbl_app_package
+-- ----------------------------
+MERGE INTO tbl_app_package KEY(id) VALUES('f2759fcb-bb4b-42f5-bc6c-8e1635348fda','6a75a2bd-9811-432f-bbe8-2813aa97d365','a.csar');
+MERGE INTO tbl_app_package KEY(id) VALUES('f2759fcb-bb4b-42f5-bc6c-8e1635348fdb','6a75a2bd-9811-432f-bbe8-2813aa97d366','b.csar');
+MERGE INTO tbl_app_package KEY(id) VALUES('f2759fcb-bb4b-42f5-bc6c-8e1635348fdc','test-path','');
+-- ----------------------------
 -- Records of tbl_mep_host
 -- ----------------------------
 MERGE INTO tbl_mep_host KEY(host_id) VALUES('fe934a92-1cfc-42fe-919d-422e2e3bd1f9','k8s-sandbox','localhost','http',31252,'X86','NORMAL','localhost','K8S','test','test',20000,

@@ -36,11 +36,11 @@ import org.edgegallery.developer.model.apppackage.AppPackage;
 import org.edgegallery.developer.model.apppackage.AppPkgStructure;
 import org.edgegallery.developer.service.apppackage.AppPackageService;
 import org.edgegallery.developer.service.apppackage.csar.VMPackageFileCreator;
+import org.edgegallery.developer.util.ApplicationUtil;
 import org.edgegallery.developer.util.BusinessConfigUtil;
 import org.edgegallery.developer.util.DeveloperFileUtils;
 import org.edgegallery.developer.util.FileUtil;
 import org.edgegallery.developer.util.InitConfigUtil;
-import org.edgegallery.developer.util.ApplicationUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -76,10 +76,6 @@ public class AppPackageServiceImpl implements AppPackageService {
             throw new DataBaseException("query object(AppPackage) is null!", ResponseConsts.RET_QUERY_DATA_EMPTY);
         }
         String projectPath = getProjectPath(appPackage.getAppId());
-        if (StringUtils.isEmpty(projectPath)) {
-            LOGGER.error("project path not exist.");
-            throw new FileFoundFailException("project path not exist!", ResponseConsts.RET_FILE_NOT_FOUND);
-        }
         // get csar pkg structure
         AppPkgStructure structure;
         String fileName = appPackage.getPackageFileName();
@@ -109,17 +105,13 @@ public class AppPackageServiceImpl implements AppPackageService {
             LOGGER.error("query object(AppPackage) is null.");
             throw new DataBaseException("query object(AppPackage) is null!", ResponseConsts.RET_QUERY_DATA_EMPTY);
         }
-        String projectPath = getProjectPath(appPackage.getAppId());
-        if (StringUtils.isEmpty(projectPath)) {
-            LOGGER.error("project path not exist.");
-            throw new FileFoundFailException("project path not exist!", ResponseConsts.RET_FILE_NOT_FOUND);
-        }
         String pkgName = appPackage.getPackageFileName();
         if (StringUtils.isEmpty(pkgName)) {
             LOGGER.error("fileName of app pkg is empty.");
             throw new DataBaseException("fileName of app pkg is empty!", ResponseConsts.RET_QUERY_DATA_EMPTY);
         }
         String pkgFolderName = pkgName.substring(0, pkgName.lastIndexOf("."));
+        String projectPath = getProjectPath(appPackage.getAppId());
         File file = new File(projectPath + pkgFolderName + File.separator);
         List<String> paths = FileUtil.getAllFilePath(file);
         if (paths.isEmpty()) {
@@ -159,12 +151,12 @@ public class AppPackageServiceImpl implements AppPackageService {
         String projectPath = getProjectPath(appPackage.getAppId());
         String pkgFolderName = pkgName.substring(0, pkgName.lastIndexOf("."));
         File file = new File(projectPath + pkgFolderName + File.separator + fileName);
-        if(!file.exists()){
+        if (!file.exists()) {
             LOGGER.error("can not find file {}!", fileName);
             throw new FileFoundFailException("the file you update cannot be found!", ResponseConsts.RET_FILE_NOT_FOUND);
         }
         try {
-            FileUtils.writeStringToFile(file,content, StandardCharsets.UTF_8);
+            FileUtils.writeStringToFile(file, content, StandardCharsets.UTF_8);
         } catch (IOException e) {
             LOGGER.error("write content to file occur {}!", e.getMessage());
             return false;
@@ -175,7 +167,7 @@ public class AppPackageServiceImpl implements AppPackageService {
     @Override
     public AppPackage generateAppPackage(VMApplication application) {
         AppPackage appPackage = appPackageMapper.getAppPackageByAppId(application.getId());
-        if(null == appPackage){
+        if (null == appPackage) {
             appPackage = new AppPackage();
             appPackage.setId(UUID.randomUUID().toString());
             appPackage.setAppId(application.getId());
@@ -187,7 +179,7 @@ public class AppPackageServiceImpl implements AppPackageService {
         String fileName = vmPackageFileCreator.generateAppPackageFile();
         if (StringUtils.isEmpty(fileName)) {
             LOGGER.error("Generation app package error.");
-            deletePackage(appPackage);
+            deletePkg(appPackage);
             throw new FileOperateException("Generation app package error.", ResponseConsts.RET_CREATE_FILE_FAIL);
         }
         appPackage.setPackageFileName(fileName);
@@ -207,11 +199,11 @@ public class AppPackageServiceImpl implements AppPackageService {
             LOGGER.error("package does not exist");
             return true;
         }
-        return deletePackage(appPackage);
+        return deletePkg(appPackage);
 
     }
 
-    public boolean deletePackage(AppPackage appPackage) {
+    private boolean deletePkg(AppPackage appPackage) {
         // delete package file
         String packagePath = ApplicationUtil.getApplicationBasePath(appPackage.getAppId());
         DeveloperFileUtils.deleteDir(packagePath);
