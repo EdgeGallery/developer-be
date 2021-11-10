@@ -179,7 +179,7 @@ public class AppPackageServiceImpl implements AppPackageService {
         String fileName = vmPackageFileCreator.generateAppPackageFile();
         if (StringUtils.isEmpty(fileName)) {
             LOGGER.error("Generation app package error.");
-            deletePkg(appPackage);
+            deletePackage(appPackage);
             throw new FileOperateException("Generation app package error.", ResponseConsts.RET_CREATE_FILE_FAIL);
         }
         appPackage.setPackageFileName(fileName);
@@ -199,11 +199,11 @@ public class AppPackageServiceImpl implements AppPackageService {
             LOGGER.error("package does not exist");
             return true;
         }
-        return deletePkg(appPackage);
+        return deletePackage(appPackage);
 
     }
 
-    private boolean deletePkg(AppPackage appPackage) {
+    private boolean deletePackage(AppPackage appPackage) {
         // delete package file
         String packagePath = ApplicationUtil.getApplicationBasePath(appPackage.getAppId());
         DeveloperFileUtils.deleteDir(packagePath);
