@@ -83,6 +83,7 @@ public abstract class InstantiateAppAction extends AbstractAction {
             String msg = "Instantiate application failed. The log from lcm is : " + lcmLog.getLog();
             updateActionError(actionStatus, msg);
             saveInstanceIdToInstantiateInfo("", EnumVMInstantiateStatus.VM_INSTANTIATE_FAILED);
+            return false;
         }
         String msg = "Instantiate application request sent to lcm controller success. application InstanceId is: "
             + appInstanceId;

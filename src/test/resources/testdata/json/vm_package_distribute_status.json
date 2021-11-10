@@ -1,0 +1,15 @@
+[
+  {
+    "appPkgName": "vm-app-package",
+    "appPkgVersion": "v1.0",
+    "appProvider": "EdgeGallery",
+    "appPackageDesc": "test package",
+    "mecHostInfo": [
+      {
+        "hostIp": "1.1.1.3",
+        "status": "Distributed",
+        "error": ""
+      }
+    ]
+  }
+]
