@@ -30,12 +30,12 @@
     file_id, file_name, is_temp, user_id, upload_date, file_path
     </sql>
     
-    <insert id="saveFile" parameterType="org.edgegallery.developer.model.workspace.UploadedFile">
+    <insert id="saveFile" parameterType="org.edgegallery.developer.model.uploadfile.UploadFile">
         insert into tbl_uploaded_file (file_id, file_name, is_temp, user_id, upload_date, file_path)
         values ( #{fileId}, #{fileName}, #{isTemp}, #{userId}, #{uploadDate}, #{filePath})
     </insert>
 
-    <update id="updateFile" parameterType="org.edgegallery.developer.model.workspace.UploadedFile">
+    <update id="updateFile" parameterType="org.edgegallery.developer.model.uploadfile.UploadFile">
         update tbl_uploaded_file
         set file_name=#{fileName}, is_temp=#{isTemp}, user_id=#{userId}, upload_date=#{uploadDate},
         file_path=#{filePath} where file_id=#{fileId}
