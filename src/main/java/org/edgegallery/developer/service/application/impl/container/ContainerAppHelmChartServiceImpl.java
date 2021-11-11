@@ -74,7 +74,7 @@ public class ContainerAppHelmChartServiceImpl implements ContainerAppHelmChartSe
     @Autowired
     private AppConfigurationService appConfigurationService;
 
-    public HelmChart uploadContainerFile(MultipartFile helmTemplateYaml, String applicationId) {
+    public HelmChart uploadHelmChartFile(String applicationId, MultipartFile helmTemplateYaml) {
         try {
             String filePath = saveLoadedFileToTempDir(helmTemplateYaml);
             IContainerFileHandler containerFileHandler = LoadContainerFileFactory.createLoader(filePath);

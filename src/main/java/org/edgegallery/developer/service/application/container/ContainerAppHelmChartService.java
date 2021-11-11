@@ -22,7 +22,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 public interface ContainerAppHelmChartService {
 
-    HelmChart uploadContainerFile(MultipartFile helmTemplateYaml, String applicationId);
+    HelmChart uploadHelmChartFile(String applicationId, MultipartFile helmTemplateYaml);
 
     Boolean uploadHelmChartYaml(MultipartFile helmTemplateYaml, String applicationId);
 

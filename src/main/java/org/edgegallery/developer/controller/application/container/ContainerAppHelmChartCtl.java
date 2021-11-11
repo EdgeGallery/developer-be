@@ -62,11 +62,11 @@ public class ContainerAppHelmChartCtl {
     @RequestMapping(value = "/{applicationId}/helmcharts", method = RequestMethod.POST,
         consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
-    public ResponseEntity<HelmChart> uploadHelmChartYaml(
-        @ApiParam(value = "file", required = true) @RequestPart(value = "file") MultipartFile helmTemplateYaml,
-        @Pattern(regexp = REGEX_UUID, message = "projectId must be in UUID format")
+    public ResponseEntity<HelmChart> uploadHelmChartFile(
+        @ApiParam(value = "file", required = true) @RequestPart(value = "file") MultipartFile helmChartFile,
+        @Pattern(regexp = REGEX_UUID, message = "applicationId must be in UUID format")
         @ApiParam(value = "applicationId", required = true) @PathVariable("applicationId") String applicationId) {
-        return ResponseEntity.ok(containerAppHelmChartService.uploadContainerFile(helmTemplateYaml, applicationId));
+        return ResponseEntity.ok(containerAppHelmChartService.uploadHelmChartFile(applicationId, helmChartFile));
     }
 
     /**
