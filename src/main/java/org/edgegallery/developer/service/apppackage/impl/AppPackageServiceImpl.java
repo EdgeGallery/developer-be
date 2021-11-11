@@ -75,7 +75,7 @@ public class AppPackageServiceImpl implements AppPackageService {
             LOGGER.error("query object(AppPackage) is null.");
             throw new DataBaseException("query object(AppPackage) is null!", ResponseConsts.RET_QUERY_DATA_EMPTY);
         }
-        String projectPath = getProjectPath(appPackage.getAppId());
+        String applicationPath = getApplicationPath(appPackage.getAppId());
         // get csar pkg structure
         AppPkgStructure structure;
         String fileName = appPackage.getPackageFileName();
@@ -86,7 +86,7 @@ public class AppPackageServiceImpl implements AppPackageService {
         try {
             String pkgFolderName = fileName.substring(0, fileName.lastIndexOf("."));
             LOGGER.warn("pkgFolderName:{}", pkgFolderName);
-            structure = getFiles(projectPath + pkgFolderName + File.separator, new AppPkgStructure());
+            structure = getFiles(applicationPath + pkgFolderName + File.separator, new AppPkgStructure());
         } catch (IOException e) {
             LOGGER.error("get app pkg occur {}", e.getMessage());
             return null;
@@ -111,8 +111,8 @@ public class AppPackageServiceImpl implements AppPackageService {
             throw new DataBaseException("fileName of app pkg is empty!", ResponseConsts.RET_QUERY_DATA_EMPTY);
         }
         String pkgFolderName = pkgName.substring(0, pkgName.lastIndexOf("."));
-        String projectPath = getProjectPath(appPackage.getAppId());
-        File file = new File(projectPath + pkgFolderName + File.separator);
+        String applicationPath = getApplicationPath(appPackage.getAppId());
+        File file = new File(applicationPath + pkgFolderName + File.separator);
         List<String> paths = FileUtil.getAllFilePath(file);
         if (paths.isEmpty()) {
             String errMsg = "can not find any file in app pkg folder!";
@@ -148,9 +148,9 @@ public class AppPackageServiceImpl implements AppPackageService {
             LOGGER.error("fileName of app pkg is empty.");
             throw new DataBaseException("fileName of app pkg is empty!", ResponseConsts.RET_QUERY_DATA_EMPTY);
         }
-        String projectPath = getProjectPath(appPackage.getAppId());
+        String applicationPath = getApplicationPath(appPackage.getAppId());
         String pkgFolderName = pkgName.substring(0, pkgName.lastIndexOf("."));
-        File file = new File(projectPath + pkgFolderName + File.separator + fileName);
+        File file = new File(applicationPath + pkgFolderName + File.separator + fileName);
         if (!file.exists()) {
             LOGGER.error("can not find file {}!", fileName);
             throw new FileFoundFailException("the file you update cannot be found!", ResponseConsts.RET_FILE_NOT_FOUND);
@@ -211,8 +211,8 @@ public class AppPackageServiceImpl implements AppPackageService {
         return true;
     }
 
-    private String getProjectPath(String projectId) {
-        return InitConfigUtil.getWorkSpaceBaseDir() + BusinessConfigUtil.getWorkspacePath() + projectId
+    private String getApplicationPath(String applicationId) {
+        return InitConfigUtil.getWorkSpaceBaseDir() + BusinessConfigUtil.getWorkspacePath() + applicationId
             + File.separator;
     }
 
