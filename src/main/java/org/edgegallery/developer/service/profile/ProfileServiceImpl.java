@@ -26,20 +26,32 @@ import java.util.Map;
 import java.util.UUID;
 import org.apache.commons.io.FileUtils;
 import org.edgegallery.developer.common.ResponseConsts;
+import org.edgegallery.developer.config.security.AccessUserUtil;
+import org.edgegallery.developer.domain.shared.IconChecker;
 import org.edgegallery.developer.domain.shared.Page;
 import org.edgegallery.developer.domain.shared.PluginChecker;
 import org.edgegallery.developer.exception.DeveloperException;
 import org.edgegallery.developer.exception.DomainException;
 import org.edgegallery.developer.exception.EntityNotFoundException;
 import org.edgegallery.developer.exception.FileOperateException;
+import org.edgegallery.developer.exception.IllegalRequestException;
+import org.edgegallery.developer.mapper.application.ApplicationMapper;
 import org.edgegallery.developer.mapper.profile.ProfileMapper;
+import org.edgegallery.developer.model.application.Application;
+import org.edgegallery.developer.model.application.EnumAppClass;
+import org.edgegallery.developer.model.application.EnumApplicationType;
 import org.edgegallery.developer.model.profile.ProfileInfo;
+import org.edgegallery.developer.model.workspace.UploadedFile;
+import org.edgegallery.developer.service.UploadFileService;
+import org.edgegallery.developer.service.application.ApplicationService;
 import org.edgegallery.developer.util.BusinessConfigUtil;
 import org.edgegallery.developer.util.CompressFileUtils;
 import org.edgegallery.developer.util.InitConfigUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.yaml.snakeyaml.Yaml;
@@ -51,11 +63,28 @@ public class ProfileServiceImpl implements ProfileService {
 
     private static final String PROFILE_FILE = "profile.yaml";
 
+    private static final String FIELD_PROFILE = "profile";
+
+    private static final String FIELD_APP = "app";
+
+    private static final String FIELD_NAME = "name";
+
+    private static final String FIELD_DESCRIPTION_CH = "descriptionCh";
+
     private static final String BASE_PAHT = InitConfigUtil.getWorkSpaceBaseDir()
         .concat(BusinessConfigUtil.getProfileFilePath());
 
     @Autowired
     private ProfileMapper profileMapper;
+
+    @Autowired
+    private ApplicationService applicationService;
+
+    @Autowired
+    private UploadFileService uploadFileService;
+
+    @Autowired
+    private ApplicationMapper applicationMapper;
 
     @Override
     public ProfileInfo createProfile(MultipartFile file) {
@@ -151,6 +180,53 @@ public class ProfileServiceImpl implements ProfileService {
         return true;
     }
 
+    @Override
+    public ResponseEntity<byte[]> downloadProfileById(String profileId) {
+        ProfileInfo profileInfo = profileMapper.getProfileById(profileId);
+        checkParamNull(profileInfo, "profile does not exist, profileId: ".concat(profileId));
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.add("Content-Type", "application/octet-stream");
+            headers.add("Content-Disposition", "attachment; filename=".concat(profileInfo.getName()));
+            byte[] fileContent = FileUtils.readFileToByteArray(new File(profileInfo.getFilePath()));
+            LOGGER.info("download profile by id successfully.");
+            return ResponseEntity.ok().headers(headers).body(fileContent);
+        } catch (IOException e) {
+            LOGGER.error("read file to byte array failed. {}", e);
+            throw new FileOperateException("read file to byte array failed.", ResponseConsts.RET_MERGE_FILE_FAIL);
+        }
+    }
+
+    @Override
+    public Application createAppByProfileId(String profileId, MultipartFile iconFile) {
+        ProfileInfo profileInfo = profileMapper.getProfileById(profileId);
+        checkParamNull(profileInfo, "profile does not exist, profileId: ".concat(profileId));
+        new IconChecker().check(iconFile);
+        Application application = new Application();
+        try {
+            UploadedFile uploadedFile = uploadFileService.uploadFile(AccessUserUtil.getUser().getUserId(), iconFile)
+                .getRight();
+            checkParamNull(uploadedFile, "upload file failed.");
+            application.setIconFileId(uploadedFile.getFileId());
+
+            String profileFilePath = profileInfo.getFilePath().replace(".zip", "").concat(File.separator)
+                .concat(PROFILE_FILE);
+            File profileFile = new File(profileFilePath);
+            constructApp(FileUtils.readFileToString(profileFile, StandardCharsets.UTF_8), application);
+        } catch (IOException e) {
+            LOGGER.error("read file to string failed. {}", e);
+            throw new FileOperateException("read file to string failed.", ResponseConsts.RET_MERGE_FILE_FAIL);
+        }
+
+        if (null != applicationMapper.getApplicationByNameAndVersion(application.getName(), application.getVersion())) {
+            String msg = "application with name: ".concat(application.getName()).concat(" and version: ")
+                .concat(application.getVersion()).concat(" already exists.");
+            LOGGER.error(msg);
+            throw new IllegalRequestException(msg, ResponseConsts.RET_REQUEST_PARAM_EMPTY);
+        }
+        return applicationService.createApplication(application);
+    }
+
     /**
      * validate db operation result.
      *
@@ -162,6 +238,34 @@ public class ProfileServiceImpl implements ProfileService {
             LOGGER.error(msg);
             throw new DeveloperException(msg);
         }
+    }
+
+    /**
+     * construct application according to profile file.
+     *
+     * @param content profile file content
+     * @param application application info
+     */
+    private void constructApp(String content, Application application) {
+        Yaml yaml = new Yaml(new SafeConstructor());
+        Map<String, Object> loaded = yaml.load(content);
+        HashMap<String, Object> profile = (HashMap<String, Object>) loaded.get(FIELD_PROFILE);
+        application.setName((String) profile.get(FIELD_NAME));
+        application.setDescription((String) profile.get(FIELD_DESCRIPTION_CH));
+
+        HashMap<String, Map<String, String>> appList = (HashMap<String, Map<String, String>>) profile.get(FIELD_APP);
+        //field according to the first app is ok, we just create one project.
+        Map<String, String> appInfo = appList.values().stream().findFirst().get();
+        application.setVersion(appInfo.get("version"));
+        application.setProvider(appInfo.get("provider"));
+        application.setAppCreateType(
+            EnumApplicationType.INTEGRATED.toString().equalsIgnoreCase(appInfo.get("createType"))
+                ? EnumApplicationType.INTEGRATED
+                : EnumApplicationType.DEVELOP);
+        application.setAppClass(EnumAppClass.VM.toString().equalsIgnoreCase(appInfo.get("appClass"))
+            ? EnumAppClass.VM
+            : EnumAppClass.CONTAINER);
+        application.setArchitecture(appInfo.get("architecture"));
     }
 
     /**
@@ -178,18 +282,20 @@ public class ProfileServiceImpl implements ProfileService {
             String yamlContent = FileUtils.readFileToString(profileFile, StandardCharsets.UTF_8);
             Yaml yaml = new Yaml(new SafeConstructor());
             Map<String, Object> loaded = yaml.load(yamlContent);
-            HashMap<String, Object> profile = (HashMap<String, Object>) loaded.get("profile");
+            HashMap<String, Object> profile = (HashMap<String, Object>) loaded.get(FIELD_PROFILE);
 
-            profileInfo.setName((String) profile.get("name"));
-            profileInfo.setDescription((String) profile.get("descriptionCh"));
+            profileInfo.setName((String) profile.get(FIELD_NAME));
+            profileInfo.setDescription((String) profile.get(FIELD_DESCRIPTION_CH));
             profileInfo.setDescriptionEn((String) profile.get("descriptionEn"));
             profileInfo.setType((String) profile.get("type"));
             profileInfo.setIndustry((String) profile.get("industry"));
             profileInfo.setConfigFilePath(baseFilePath.concat(File.separator).concat((String) profile.get("config")));
-            HashMap<String, Map<String, String>> appList = (HashMap<String, Map<String, String>>) profile.get("app");
             String seq = (String) profile.get("seq");
             profileInfo.setSeq(Arrays.asList(seq.split(",")));
 
+            HashMap<String, Map<String, String>> appList = (HashMap<String, Map<String, String>>) profile
+                .get(FIELD_APP);
+            checkParamNull(appList, "there is no app field in profile file.");
             Map<String, String> deployFilePath = new HashMap<>();
             appList.keySet().stream().forEach(key -> {
                 Map<String, String> appInfo = appList.get(key);

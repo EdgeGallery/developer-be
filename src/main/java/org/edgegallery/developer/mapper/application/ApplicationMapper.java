@@ -13,6 +13,7 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
+
 package org.edgegallery.developer.mapper.application;
 
 import java.util.List;
@@ -38,4 +39,6 @@ public interface ApplicationMapper {
     int modifyMepHostById(@Param("applicationId") String applicationId, @Param("hostMepId") String hostMepId);
 
     int updateApplicationStatus(@Param("applicationId") String applicationId, @Param("status") String status);
+
+    Application getApplicationByNameAndVersion(@Param("name") String name, @Param("version") String version);
 }
