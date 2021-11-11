@@ -109,4 +109,10 @@
     FROM tbl_application where id = #{id}
   </select>
 
+  <select id="getApplicationByNameAndVersion" parameterType="String" resultMap="ApplicationMap">
+    SELECT
+    <include refid="ApplicationAllColumn"/>
+    FROM tbl_application where name = #{name} and version = #{version}
+  </select>
+
 </mapper>

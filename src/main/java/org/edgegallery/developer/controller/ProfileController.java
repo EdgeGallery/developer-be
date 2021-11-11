@@ -21,11 +21,13 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import java.io.File;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.Pattern;
 import javax.ws.rs.QueryParam;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.edgegallery.developer.domain.shared.Page;
+import org.edgegallery.developer.model.application.Application;
 import org.edgegallery.developer.model.profile.ProfileInfo;
 import org.edgegallery.developer.response.ErrorRespDto;
 import org.edgegallery.developer.service.profile.ProfileService;
@@ -148,5 +150,47 @@ public class ProfileController {
         @Pattern(regexp = REGEX_UUID, message = "profileId must be in UUID format")
         @ApiParam(value = "profileId", required = true) @PathVariable("profileId") String profileId) {
         return ResponseEntity.ok(profileService.deleteProfileById(profileId));
+    }
+
+    /**
+     * download profile by id.
+     *
+     * @param profileId profile id
+     * @return file content
+     */
+    @ApiOperation(value = "download profile by id.", response = File.class)
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = "OK", response = File.class),
+        @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
+    })
+    @RequestMapping(value = "/{profileId}/action/download", method = RequestMethod.GET,
+        produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
+    public ResponseEntity<byte[]> downloadProfileById(
+        @Pattern(regexp = REGEX_UUID, message = "profileId must be in UUID format")
+        @ApiParam(value = "profileId", required = true) @PathVariable("profileId") String profileId) {
+        return profileService.downloadProfileById(profileId);
+    }
+
+    /**
+     * create application by profile id.
+     *
+     * @param profileId profile id
+     * @param iconFile icon file
+     * @return application info
+     */
+    @ApiOperation(value = "create application by profile id.", response = Application.class)
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = "OK", response = Application.class),
+        @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
+    })
+    @RequestMapping(value = "/{profileId}/create-application", method = RequestMethod.POST,
+        produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
+    public ResponseEntity<Application> createAppByProfileId(
+        @Pattern(regexp = REGEX_UUID, message = "profileId must be in UUID format")
+        @ApiParam(value = "profileId", required = true) @PathVariable("profileId") String profileId,
+        @ApiParam(value = "icon file", required = true) @RequestPart("iconFile") MultipartFile iconFile) {
+        return ResponseEntity.ok(profileService.createAppByProfileId(profileId, iconFile));
     }
 }
