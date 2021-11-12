@@ -237,10 +237,10 @@ public class VMAppOperationServiceImpl extends AppOperationServiceImpl implement
         }
 
         VirtualMachine virtualMachine = vmAppVmServiceImpl.getVm(applicationId, vmId);
-        if (virtualMachine == null || virtualMachine.getVmInstantiateInfo().getStatus()
+        if (virtualMachine == null || !virtualMachine.getVmInstantiateInfo().getStatus()
             .equals(EnumVMInstantiateStatus.SUCCESS)) {
-            LOGGER.error("instantiate vm app fail ,vm does not exist , vmId:{}", vmId);
-            throw new EntityNotFoundException("instantiate vm app fail ,vm does not exist.",
+            LOGGER.error("instantiate vm app not success  or vm does not exist , vmId:{}", vmId);
+            throw new EntityNotFoundException("instantiate vm app not success  or vm does not exist.",
                 ResponseConsts.RET_QUERY_DATA_EMPTY);
         }
         String appInstanceId = virtualMachine.getVmInstantiateInfo().getAppInstanceId();
@@ -353,6 +353,9 @@ public class VMAppOperationServiceImpl extends AppOperationServiceImpl implement
     }
 
     private Boolean createImageExportInfo(String vmId, String operationId) {
+        if (imageExportInfoMapper.getImageExportInfoInfoByVMId(vmId) != null) {
+            imageExportInfoMapper.deleteImageExportInfoInfoByVMId(vmId);
+        }
         ImageExportInfo imageExportInfo = new ImageExportInfo();
         imageExportInfo.setOperationId(operationId);
         imageExportInfo.setStatus(EnumImageExportStatus.IMAGE_CREATING);

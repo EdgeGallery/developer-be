@@ -41,7 +41,6 @@ public class VMLaunchOperation implements IActionCollection {
         IAction buildPackageAction = new BuildVMPackageAction();
         IAction distributePackageAction = new DistributeVMPackageAction();
         IAction instantiateVMAppAction = new InstantiateVMAppAction();
-
         Map<String, ActionProgressRange> actionProgressRangeMap = new HashMap<String, ActionProgressRange>();
         actionProgressRangeMap.put(buildPackageAction.getActionName(), new ActionProgressRange(0, 20));
         actionProgressRangeMap.put(distributePackageAction.getActionName(), new ActionProgressRange(20, 50));
