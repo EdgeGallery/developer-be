@@ -17,10 +17,12 @@ package org.edgegallery.developer.util.helmcharts;
 import io.kubernetes.client.util.Yaml;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.UUID;
 import lombok.Setter;
 import org.apache.commons.io.FileUtils;
 import org.edgegallery.developer.exception.DeveloperException;
@@ -32,6 +34,8 @@ public class K8sYaml implements IContainerFileHandler {
 
     private String workspace;
 
+    private String helmChartsDir;
+
     @Setter
     private boolean hasMep = true;
 
@@ -42,28 +46,26 @@ public class K8sYaml implements IContainerFileHandler {
         }
         try {
             // create helm-charts temp dir
-            File tempDir = File.createTempFile(UUID.randomUUID().toString(), "eg-helmcharts-");
-            if (!tempDir.isDirectory()) {
-                tempDir.mkdirs();
-            }
-            workspace = tempDir.getCanonicalPath();
+            Path tempDir = Files.createTempDirectory("eg-helmcharts-");
+            workspace = tempDir.toString();
+            Path helmChartPath = Files.createDirectory(Paths.get(workspace, "helm_charts"));
+            helmChartsDir = helmChartPath.toString();
 
             // create template dir and copy k8s yaml to template
-            File templatesDir = new File(workspace + File.separator + "templates");
-            templatesDir.mkdirs();
+            Files.createDirectory(Paths.get(helmChartsDir, "templates"));
             File orgFile = new File(filePath);
-            FileUtils.copyFile(orgFile,
-                new File(workspace + File.separator + "templates" + File.separator + orgFile.getName()));
+            Path k8sYaml = Files.createFile(Paths.get(helmChartsDir, "templates", orgFile.getName()));
+            FileUtils.copyFile(orgFile, k8sYaml.toFile());
 
             // create values.yaml
             EgValuesYaml defaultValues = EgValuesYaml.createDefaultEgValues();
-            FileUtils.writeByteArrayToFile(new File(workspace + File.separator + "values.yaml"),
-                defaultValues.getContent().getBytes(), false);
+            Path valuesYaml = Files.createFile(Paths.get(helmChartsDir, "values.yaml"));
+            FileUtils.writeByteArrayToFile(valuesYaml.toFile(), defaultValues.getContent().getBytes(), false);
 
             // create charts.yaml
             EgChartsYaml defaultCharts = EgChartsYaml.createDefaultCharts();
-            FileUtils.writeByteArrayToFile(new File(workspace + File.separator + "charts.yaml"),
-                defaultCharts.getContent().getBytes(), false);
+            Path chartsYaml = Files.createFile(Paths.get(helmChartsDir, "charts.yaml"));
+            FileUtils.writeByteArrayToFile(chartsYaml.toFile(), defaultCharts.getContent().getBytes(), false);
 
         } catch (IOException e) {
             FileUtils.deleteDirectory(new File(workspace));
@@ -74,25 +76,26 @@ public class K8sYaml implements IContainerFileHandler {
 
     @Override
     public List<HelmChartFile> getCatalog() {
-        if (workspace == null) {
+        if (helmChartsDir == null) {
             return null;
         }
-        File root = new File(workspace);
+        File root = new File(helmChartsDir);
         return deepReadDir(new ArrayList<>(), root);
     }
 
     private List<HelmChartFile> deepReadDir(List<HelmChartFile> files, File root) {
         if (root.isFile()) {
             HelmChartFile file = HelmChartFile.builder().name(root.getName())
-                .path(root.getPath().replaceFirst(workspace, "")).index(files.size() + 1).build();
+                .path(root.getPath().replace(helmChartsDir, "")).index(files.size() + 1).build();
             files.add(file);
         }
 
         if (root.isDirectory()) {
             HelmChartFile file = HelmChartFile.builder().name(root.getName())
-                .path(root.getPath().replaceFirst(workspace, "")).index(files.size() + 1).build();
+                .path(root.getPath().replace(helmChartsDir, "")).index(files.size() + 1).build();
             List<HelmChartFile> children = new ArrayList<>();
             file.setChildren(children);
+            files.add(file);
             for (File childrenFile : Objects.requireNonNull(root.listFiles())) {
                 deepReadDir(children, childrenFile);
             }
