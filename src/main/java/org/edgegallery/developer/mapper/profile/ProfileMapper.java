@@ -22,6 +22,7 @@ import org.edgegallery.developer.model.profile.ProfileInfo;
 
 @Mapper
 public interface ProfileMapper {
+
     int createProfile(ProfileInfo profile);
 
     ProfileInfo getProfileById(String id);

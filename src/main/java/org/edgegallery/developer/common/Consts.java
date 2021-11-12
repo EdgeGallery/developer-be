@@ -135,6 +135,12 @@ public final class Consts {
 
     public static final String FILE_TYPE_SCRIPT = "script";
 
+    public static final String PROFILE_FILE_TYPE_PROFILE = "profileFile";
+
+    public static final String PROFILE_FILE_TYPE_DEPLOY = "deployFile";
+
+    public static final String PROFILE_FILE_TYPE_CONFIG = "configFile";
+
     private Consts() {
     }
 }

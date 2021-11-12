@@ -21,6 +21,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.multipart.MultipartFile;
 
 public interface ProfileService {
+
     /**
      * create profile.
      *
@@ -64,12 +65,14 @@ public interface ProfileService {
     Boolean deleteProfileById(String profileId);
 
     /**
-     * download profile by id.
+     * download file by profile id.
      *
      * @param profileId profile id
+     * @param type file type
+     * @param name file name
      * @return profile content
      */
-    ResponseEntity<byte[]> downloadProfileById(String profileId);
+    ResponseEntity<byte[]> downloadFileById(String profileId, String type, String name);
 
     /**
      * create application by profile id.

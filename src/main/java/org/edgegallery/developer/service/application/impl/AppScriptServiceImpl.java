@@ -33,6 +33,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 @Service("AppScriptService")
 public class AppScriptServiceImpl implements AppScriptService {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(AppScriptServiceImpl.class);
 
     @Autowired

@@ -23,6 +23,7 @@ import org.edgegallery.developer.model.application.Script;
 
 @Mapper
 public interface AppScriptMapper {
+
     int createAppScript(@Param("applicationId") String applicationId, @Param("script") Script script);
 
     List<Script> getScriptsByAppId(String applicationId);
