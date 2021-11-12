@@ -30,6 +30,7 @@ import org.edgegallery.developer.exception.DataBaseException;
 import org.edgegallery.developer.exception.EntityNotFoundException;
 import org.edgegallery.developer.exception.FileFoundFailException;
 import org.edgegallery.developer.exception.FileOperateException;
+import org.edgegallery.developer.mapper.application.AppScriptMapper;
 import org.edgegallery.developer.mapper.application.ApplicationMapper;
 import org.edgegallery.developer.model.application.Application;
 import org.edgegallery.developer.model.application.EnumAppClass;
@@ -85,6 +86,9 @@ public class ApplicationServiceImpl implements ApplicationService {
     @Autowired
     private VMAppOperationServiceImpl vmApOperationServiceImpl;
 
+    @Autowired
+    private AppScriptMapper appScriptMapper;
+
     @Override
     public Application createApplication(Application application) {
         String applicationId = UUID.randomUUID().toString();
@@ -103,7 +107,7 @@ public class ApplicationServiceImpl implements ApplicationService {
             LOGGER.error("icon file is null");
             throw new FileFoundFailException("icon file is null", ResponseConsts.RET_FILE_NOT_FOUND);
         }
-        if(application.getAppClass().equals(EnumAppClass.VM)){
+        if (application.getAppClass().equals(EnumAppClass.VM)) {
             // init VM application default networks
             initNetwork(applicationId);
         }
@@ -163,7 +167,7 @@ public class ApplicationServiceImpl implements ApplicationService {
         // clean env
         appServiceFactory.getAppOperationService(applicationId).cleanEnv(applicationId, user);
 
-        if(application.getAppClass().equals(EnumAppClass.VM)){
+        if (application.getAppClass().equals(EnumAppClass.VM)) {
             // init VM application default networks
             networkService.deleteNetworkByAppId(applicationId);
         }
@@ -194,6 +198,8 @@ public class ApplicationServiceImpl implements ApplicationService {
             LOGGER.error("Can not find application by applicationId:{}.", applicationId);
             throw new EntityNotFoundException("Application does not exist.", ResponseConsts.RET_QUERY_DATA_EMPTY);
         }
+        application.setScriptList(appScriptMapper.getScriptsByAppId(applicationId));
+
         if (application.getAppClass() == EnumAppClass.VM) {
             VMApplication vmApplication = new VMApplication(application);
 

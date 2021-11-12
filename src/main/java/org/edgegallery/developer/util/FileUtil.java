@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.edgegallery.developer.common.Consts;
 import org.edgegallery.developer.domain.shared.FileChecker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,12 +44,15 @@ public final class FileUtil {
 
     private static final List<String> API_LIST = Arrays.asList("yaml", "yml", "json");
 
+    private static final List<String> SCRIPT_LIST = Arrays.asList("sh");
+
     private static final Map<String, List<String>> FILE_TYPE_MAP = new HashMap();
 
     static {
         FILE_TYPE_MAP.put("icon", ICON_LIST);
         FILE_TYPE_MAP.put("md", MD_LIST);
         FILE_TYPE_MAP.put("api", API_LIST);
+        FILE_TYPE_MAP.put(Consts.FILE_TYPE_SCRIPT, SCRIPT_LIST);
     }
 
     private FileUtil() {

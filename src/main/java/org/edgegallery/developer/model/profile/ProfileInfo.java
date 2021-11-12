@@ -20,8 +20,10 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import javax.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
+import org.edgegallery.developer.common.Consts;
 
 @Getter
 @Setter
@@ -35,16 +37,19 @@ public class ProfileInfo {
     /**
      * profile name.
      */
+    @Size(max = Consts.LENGTH_64, message = "profile name can not more than 64.")
     private String name;
 
     /**
      * profile chinese description.
      */
+    @Size(max = Consts.LENGTH_255, message = "profile description can not more than 255.")
     private String description;
 
     /**
      * profile english description.
      */
+    @Size(max = Consts.LENGTH_255, message = "profile description can not more than 255.")
     private String descriptionEn;
 
     /**
@@ -65,6 +70,7 @@ public class ProfileInfo {
     /**
      * app deploy sequence.
      */
+    @Size(max = Consts.LENGTH_255, message = "profile app deploy seq can not more than 255.")
     private List<String> seq;
 
     /**
@@ -75,11 +81,13 @@ public class ProfileInfo {
     /**
      * profile type.
      */
+    @Size(max = Consts.LENGTH_64, message = "profile type can not more than 64.")
     private String type;
 
     /**
      * profile industry.
      */
+    @Size(max = Consts.LENGTH_64, message = "profile industry can not more than 64.")
     private String industry;
 
     /**

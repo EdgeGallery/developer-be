@@ -14,22 +14,19 @@
  *    limitations under the License.
  */
 
-package org.edgegallery.developer.mapper.profile;
+package org.edgegallery.developer.service.application;
 
-import java.util.List;
-import org.apache.ibatis.annotations.Mapper;
-import org.edgegallery.developer.model.profile.ProfileInfo;
+import org.edgegallery.developer.model.application.Script;
+import org.springframework.web.multipart.MultipartFile;
 
-@Mapper
-public interface ProfileMapper {
+public interface AppScriptService {
 
-    int createProfile(ProfileInfo profile);
-
-    ProfileInfo getProfileById(String id);
-
-    int updateProfile(ProfileInfo profileInfo);
-
-    List<ProfileInfo> getAllProfiles();
-
-    int deleteProfileById(String id);
+    /**
+     * upload app script file.
+     *
+     * @param applicationId application id
+     * @param scriptFile script file
+     * @return script info
+     */
+    Script uploadScriptFile(String applicationId, MultipartFile scriptFile);
 }
