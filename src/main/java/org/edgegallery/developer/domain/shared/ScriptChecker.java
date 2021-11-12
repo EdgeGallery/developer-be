@@ -14,22 +14,21 @@
  *    limitations under the License.
  */
 
-package org.edgegallery.developer.mapper.profile;
+package org.edgegallery.developer.domain.shared;
 
+import java.util.Arrays;
 import java.util.List;
-import org.apache.ibatis.annotations.Mapper;
-import org.edgegallery.developer.model.profile.ProfileInfo;
 
-@Mapper
-public interface ProfileMapper {
+public class ScriptChecker extends FileChecker {
 
-    int createProfile(ProfileInfo profile);
+    @Override
+    protected long getMaxFileSize() {
+        return 10485760;
+    }
 
-    ProfileInfo getProfileById(String id);
+    @Override
+    protected List<String> getFileExtensions() {
+        return Arrays.asList("sh");
+    }
 
-    int updateProfile(ProfileInfo profileInfo);
-
-    List<ProfileInfo> getAllProfiles();
-
-    int deleteProfileById(String id);
 }

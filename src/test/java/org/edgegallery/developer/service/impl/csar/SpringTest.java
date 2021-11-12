@@ -14,7 +14,7 @@
 
 package org.edgegallery.developer.service.impl.csar;
 
-import org.edgegallery.developer.DeveloperApplicationTests;
+import org.edgegallery.developer.test.DeveloperApplicationTests;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationContext;

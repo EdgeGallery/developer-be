@@ -20,18 +20,20 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import java.io.File;
-import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
+import org.edgegallery.developer.common.ResponseConsts;
+import org.edgegallery.developer.exception.EntityNotFoundException;
 import org.edgegallery.developer.model.Chunk;
+import org.edgegallery.developer.model.resource.vm.VMImage;
 import org.edgegallery.developer.model.restful.VMImageReq;
 import org.edgegallery.developer.model.restful.VMImageRes;
-import org.edgegallery.developer.model.resource.vm.VMImage;
 import org.edgegallery.developer.response.ErrorRespDto;
 import org.edgegallery.developer.service.recource.vm.VMImageService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -64,8 +66,8 @@ public class VMImageCtl {
         @ApiResponse(code = 200, message = "OK", response = VMImageRes.class),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
-    @RequestMapping(value = "/list", method = RequestMethod.POST,
-        consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @RequestMapping(value = "/action/get-list", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_UTF8_VALUE,
+        produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_ADMIN')|| hasRole('DEVELOPER_TENANT')")
     public ResponseEntity<VMImageRes> getVmImages(
         @ApiParam(value = "VmImageReq", required = true) @RequestBody VMImageReq vmImageReq) {
@@ -78,17 +80,15 @@ public class VMImageCtl {
      *
      * @return
      */
-    @ApiOperation(value = "get vm image by id.)", response = VMImage.class)
+    @ApiOperation(value = "get vm image by id.", response = VMImage.class)
     @ApiResponses(value = {
         @ApiResponse(code = 200, message = "OK", response = VMImage.class),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
-    @RequestMapping(value = "/{imageId}", method = RequestMethod.GET,
-        produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @RequestMapping(value = "/{imageId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_ADMIN')|| hasRole('DEVELOPER_TENANT')")
-    public ResponseEntity<VMImage> getVmImagesById(
-        @PathVariable("imageId") Integer imageId) {
-        return ResponseEntity.ok(vmImageService.getVmImagesById(imageId));
+    public ResponseEntity<VMImage> getVmImagesById(@PathVariable("imageId") Integer imageId) {
+        return ResponseEntity.ok(vmImageService.getVmImageById(imageId));
     }
 
     /**
@@ -120,8 +120,8 @@ public class VMImageCtl {
         @ApiResponse(code = 200, message = "OK", response = Boolean.class),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
-    @RequestMapping(value = "/{imageId}", method = RequestMethod.PUT,
-        consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @RequestMapping(value = "/{imageId}", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_UTF8_VALUE,
+        produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_ADMIN')|| hasRole('DEVELOPER_TENANT')")
     public ResponseEntity<Boolean> modifyVmImage(@PathVariable("imageId") Integer imageId,
         @Validated @RequestBody VMImage vmImage) {
@@ -157,13 +157,12 @@ public class VMImageCtl {
         @ApiResponse(code = 200, message = "OK", response = Boolean.class),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
-    @RequestMapping(value = "/{imageId}/publish", method = RequestMethod.PUT)
+    @RequestMapping(value = "/{imageId}/action/publish", method = RequestMethod.PUT)
     @PreAuthorize("hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<Boolean> publishVmImage(@PathVariable("imageId") Integer imageId) {
         LOGGER.info("publish vm image file, imageId = {}", imageId);
         return ResponseEntity.ok(vmImageService.publishVmImage(imageId));
     }
-
 
     /**
      * reset image status.
@@ -225,8 +224,7 @@ public class VMImageCtl {
     })
     @RequestMapping(value = "/{imageId}/action/upload", method = RequestMethod.DELETE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
-    public ResponseEntity cancelUploadVmImage(
-        @RequestParam(value = "identifier", required = false) String identifier,
+    public ResponseEntity cancelUploadVmImage(@RequestParam(value = "identifier", required = false) String identifier,
         @ApiParam(value = "imageId", required = true) @PathVariable("imageId") Integer imageId) {
         LOGGER.info("cancel upload vm image file, imageId = {}", imageId);
         return vmImageService.cancelUploadVmImage(imageId, identifier);
@@ -245,8 +243,7 @@ public class VMImageCtl {
     public ResponseEntity mergeVmImage(@RequestParam(value = "fileName", required = false) String fileName,
         @RequestParam(value = "identifier", required = false) String identifier,
         @ApiParam(value = "imageId", required = true) @PathVariable("imageId") Integer imageId) {
-        LOGGER.info("merge vm image file, imageId = {}, fileName = {}, identifier = {}", imageId, fileName,
-            identifier);
+        LOGGER.info("merge vm image file, imageId = {}, fileName = {}, identifier = {}", imageId, fileName, identifier);
         return vmImageService.mergeVmImage(fileName, identifier, imageId);
     }
 
@@ -264,11 +261,20 @@ public class VMImageCtl {
     public ResponseEntity<byte[]> downloadVmImage(
         @ApiParam(value = "imageId", required = true) @PathVariable("imageId") Integer imageId) {
         LOGGER.info("download vm image file, systemId = {}", imageId);
-        return vmImageService.downloadVmImage(imageId);
+        VMImage vmImage = vmImageService.getVmImageById(imageId);
+        if (vmImage == null) {
+            LOGGER.error("can not find vm image {} in db.", imageId);
+            throw new EntityNotFoundException("can not find vm image in db!", ResponseConsts.RET_QUERY_DATA_EMPTY);
+        }
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Type", "application/octet-stream");
+        headers.add("Content-Disposition", "attachment; filename=" + vmImage.getImageFileName());
+        byte[] fileData = vmImageService.downloadVmImage(imageId);
+        return ResponseEntity.ok().headers(headers).body(fileData);
     }
 
     /**
-     *  image slim.
+     * image slim.
      *
      * @return
      */

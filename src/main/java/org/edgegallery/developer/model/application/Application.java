@@ -19,12 +19,11 @@ package org.edgegallery.developer.model.application;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import javax.validation.constraints.Pattern;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import javax.validation.constraints.Pattern;
 import org.edgegallery.developer.model.application.configuration.AppConfiguration;
-import org.edgegallery.developer.model.application.vm.Network;
 import org.edgegallery.developer.model.apppackage.AppPackage;
 import org.edgegallery.developer.model.atpTestTask.AtpTest;
 
@@ -82,6 +81,8 @@ public class Application {
 
     private AppConfiguration appConfiguration = new AppConfiguration();
 
+    private List<Script> scriptList = new ArrayList<Script>(0);
+
     public String getId() {
         if (this.id == null) {
             this.id = UUID.randomUUID().toString();
@@ -121,6 +122,7 @@ public class Application {
         this.appConfiguration = app.appConfiguration;
         this.appPackage = app.appPackage;
         this.atpTestTaskList = app.atpTestTaskList;
+        this.scriptList = app.scriptList;
     }
 
 }

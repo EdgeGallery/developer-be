@@ -24,8 +24,10 @@ import io.swagger.annotations.ApiResponses;
 import java.io.File;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Size;
 import javax.ws.rs.QueryParam;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
+import org.edgegallery.developer.common.Consts;
 import org.edgegallery.developer.domain.shared.Page;
 import org.edgegallery.developer.model.application.Application;
 import org.edgegallery.developer.model.profile.ProfileInfo;
@@ -153,7 +155,7 @@ public class ProfileController {
     }
 
     /**
-     * download profile by id.
+     * download file by profile id.
      *
      * @param profileId profile id
      * @return file content
@@ -166,10 +168,13 @@ public class ProfileController {
     @RequestMapping(value = "/{profileId}/action/download", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
-    public ResponseEntity<byte[]> downloadProfileById(
+    public ResponseEntity<byte[]> downloadFileById(
         @Pattern(regexp = REGEX_UUID, message = "profileId must be in UUID format")
-        @ApiParam(value = "profileId", required = true) @PathVariable("profileId") String profileId) {
-        return profileService.downloadProfileById(profileId);
+        @ApiParam(value = "profileId", required = true) @PathVariable("profileId") String profileId,
+        @ApiParam(value = "file type", required = false) @Size(max = Consts.LENGTH_64) @QueryParam("type") String type,
+        @ApiParam(value = "file name", required = false) @Size(max = Consts.LENGTH_64) @QueryParam("name")
+            String name) {
+        return profileService.downloadFileById(profileId, type, name);
     }
 
     /**

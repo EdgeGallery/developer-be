@@ -14,22 +14,17 @@
  *    limitations under the License.
  */
 
-package org.edgegallery.developer.mapper.profile;
+package org.edgegallery.developer.mapper.application;
 
 import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
-import org.edgegallery.developer.model.profile.ProfileInfo;
+import org.apache.ibatis.annotations.Param;
+import org.edgegallery.developer.model.application.Script;
 
 @Mapper
-public interface ProfileMapper {
+public interface AppScriptMapper {
 
-    int createProfile(ProfileInfo profile);
+    int createAppScript(@Param("applicationId") String applicationId, @Param("script") Script script);
 
-    ProfileInfo getProfileById(String id);
-
-    int updateProfile(ProfileInfo profileInfo);
-
-    List<ProfileInfo> getAllProfiles();
-
-    int deleteProfileById(String id);
+    List<Script> getScriptsByAppId(String applicationId);
 }

@@ -14,6 +14,8 @@
 
 package org.edgegallery.developer.service.recource.vm.impl;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -42,14 +44,14 @@ import org.edgegallery.developer.exception.UnauthorizedException;
 import org.edgegallery.developer.mapper.resource.vm.VMImageMapper;
 import org.edgegallery.developer.model.Chunk;
 import org.edgegallery.developer.model.filesystem.FileSystemResponse;
-import org.edgegallery.developer.model.restful.VMImageQuery;
-import org.edgegallery.developer.model.restful.VMImageReq;
-import org.edgegallery.developer.model.restful.VMImageRes;
 import org.edgegallery.developer.model.resource.vm.EnumProcessErrorType;
 import org.edgegallery.developer.model.resource.vm.EnumVmImageSlimStatus;
 import org.edgegallery.developer.model.resource.vm.EnumVmImageStatus;
 import org.edgegallery.developer.model.resource.vm.UploadFileInfo;
 import org.edgegallery.developer.model.resource.vm.VMImage;
+import org.edgegallery.developer.model.restful.VMImageQuery;
+import org.edgegallery.developer.model.restful.VMImageReq;
+import org.edgegallery.developer.model.restful.VMImageRes;
 import org.edgegallery.developer.model.workspace.EnumSystemImageSlimStatus;
 import org.edgegallery.developer.service.recource.vm.VMImageService;
 import org.edgegallery.developer.util.BusinessConfigUtil;
@@ -61,15 +63,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import org.springframework.web.multipart.MultipartFile;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.gson.Gson;
 
 @Service("VMImageService")
 public class VMImageServiceImpl implements VMImageService {
@@ -98,127 +96,111 @@ public class VMImageServiceImpl implements VMImageService {
 
     @Override
     public VMImageRes getVmImages(VMImageReq vmImageReq) {
-        try {
-            LOGGER.info("Query vm image start");
-            String userId = AccessUserUtil.getUser().getUserId();
-            if (!isAdminUser()) {
-                vmImageReq.setUserId(userId);
-            }
-            VMImageQuery queryCtrl = vmImageReq.getQueryCtrl();
-            if (queryCtrl.getSortBy() == null || queryCtrl.getSortBy().equalsIgnoreCase("uploadTime")) {
-                queryCtrl.setSortBy("upload_time");
-            } else if (queryCtrl.getSortBy().equalsIgnoreCase("userName")) {
-                queryCtrl.setSortBy("user_name");
-            }
-            if (queryCtrl.getSortOrder() == null) {
-                queryCtrl.setSortOrder("DESC");
-            }
-            String uploadTimeBegin = vmImageReq.getUploadTimeBegin();
-            String uploadTimeEnd = vmImageReq.getUploadTimeEnd();
-            if (!StringUtils.isBlank(uploadTimeBegin)) {
-                vmImageReq.setUploadTimeBegin(uploadTimeBegin + " 00:00:00");
-            }
-            if (!StringUtils.isBlank(uploadTimeEnd)) {
-                vmImageReq.setUploadTimeEnd(uploadTimeEnd + " 23:59:59");
-            }
-            vmImageReq.setQueryCtrl(queryCtrl);
-            VMImageRes vmImageRes = new VMImageRes();
-            Map map = new HashMap<>();
-            map.put("name", vmImageReq.getName());
-            if (StringUtils.isNotEmpty(vmImageReq.getVisibleType())) {
-                map.put("visibleTypes", SystemImageUtil.splitParam(vmImageReq.getVisibleType()));
-            } else {
-                map.put("visibleTypes", null);
-            }
-            map.put("userId", vmImageReq.getUserId());
-            if (StringUtils.isNotEmpty(vmImageReq.getOsType())) {
-                map.put("osTypes", SystemImageUtil.splitParam(vmImageReq.getOsType()));
-            } else {
-                map.put("osTypes", null);
-            }
-            if (StringUtils.isNotEmpty(vmImageReq.getStatus())) {
-                map.put("statusList", SystemImageUtil.splitParam(vmImageReq.getStatus()));
-            } else {
-                map.put("statusList", null);
-            }
-            map.put("uploadTimeBegin", vmImageReq.getUploadTimeBegin());
-            map.put("uploadTimeEnd", vmImageReq.getUploadTimeEnd());
-            map.put("queryCtrl", vmImageReq.getQueryCtrl());
-            vmImageRes.setTotalCount(vmImageMapper.getVmImagesCount(map));
-            vmImageRes.setImageList(vmImageMapper.getVmImagesByCondition(map));
-            return vmImageRes;
-        } catch (Exception e) {
-            LOGGER.error("Query vm images failed {}", e.getMessage());
-            throw new DataBaseException("Query vm images failed", ResponseConsts.RET_QUERY_DATA_EMPTY);
+        LOGGER.info("Query vm image start");
+        String userId = AccessUserUtil.getUser().getUserId();
+        if (!isAdminUser()) {
+            vmImageReq.setUserId(userId);
         }
+        VMImageQuery queryCtrl = vmImageReq.getQueryCtrl();
+        if (queryCtrl.getSortBy() == null || queryCtrl.getSortBy().equalsIgnoreCase("uploadTime")) {
+            queryCtrl.setSortBy("upload_time");
+        } else if (queryCtrl.getSortBy().equalsIgnoreCase("userName")) {
+            queryCtrl.setSortBy("user_name");
+        }
+        if (queryCtrl.getSortOrder() == null) {
+            queryCtrl.setSortOrder("DESC");
+        }
+        String uploadTimeBegin = vmImageReq.getUploadTimeBegin();
+        String uploadTimeEnd = vmImageReq.getUploadTimeEnd();
+        if (!StringUtils.isBlank(uploadTimeBegin)) {
+            vmImageReq.setUploadTimeBegin(uploadTimeBegin + " 00:00:00");
+        }
+        if (!StringUtils.isBlank(uploadTimeEnd)) {
+            vmImageReq.setUploadTimeEnd(uploadTimeEnd + " 23:59:59");
+        }
+        vmImageReq.setQueryCtrl(queryCtrl);
+        VMImageRes vmImageRes = new VMImageRes();
+        Map map = new HashMap<>();
+        map.put("name", vmImageReq.getName());
+        if (StringUtils.isNotEmpty(vmImageReq.getVisibleType())) {
+            map.put("visibleTypes", SystemImageUtil.splitParam(vmImageReq.getVisibleType()));
+        } else {
+            map.put("visibleTypes", null);
+        }
+        map.put("userId", vmImageReq.getUserId());
+        if (StringUtils.isNotEmpty(vmImageReq.getOsType())) {
+            map.put("osTypes", SystemImageUtil.splitParam(vmImageReq.getOsType()));
+        } else {
+            map.put("osTypes", null);
+        }
+        if (StringUtils.isNotEmpty(vmImageReq.getStatus())) {
+            map.put("statusList", SystemImageUtil.splitParam(vmImageReq.getStatus()));
+        } else {
+            map.put("statusList", null);
+        }
+        map.put("uploadTimeBegin", vmImageReq.getUploadTimeBegin());
+        map.put("uploadTimeEnd", vmImageReq.getUploadTimeEnd());
+        map.put("queryCtrl", vmImageReq.getQueryCtrl());
+        vmImageRes.setTotalCount(vmImageMapper.getVmImagesCount(map));
+        vmImageRes.setImageList(vmImageMapper.getVmImagesByCondition(map));
+        return vmImageRes;
     }
 
     @Override
-    public VMImage getVmImageById(Integer imageId){
-        return  vmImageMapper.getVmImage(imageId);
+    public VMImage getVmImageById(Integer imageId) {
+        return vmImageMapper.getVmImage(imageId);
     }
 
     @Override
     public Boolean createVmImage(VMImage vmImage) {
-        try {
-            LOGGER.info("Create vm images start");
-            String userId = AccessUserUtil.getUser().getUserId();
-            if (StringUtils.isBlank(vmImage.getName())) {
-                LOGGER.error("Create vm images failed");
-                throw new IllegalRequestException("Create vm images failed", ResponseConsts.RET_CERATE_DATA_FAIL);
-            }
-            vmImage.setUserId(userId);
-            if (vmImageMapper.getVmNameCount(vmImage.getName(), null, userId) > 0) {
-                LOGGER.error("image Name can not duplicate.");
-                throw new IllegalRequestException("image Name can not duplicate.", ResponseConsts.RET_CERATE_DATA_FAIL);
-            }
-            vmImage.setUserId(AccessUserUtil.getUser().getUserId());
-            vmImage.setUserName(AccessUserUtil.getUser().getUserName());
-            vmImage.setStatus(EnumVmImageStatus.UPLOAD_WAIT);
-            int ret = vmImageMapper.createVmImage(vmImage);
-            if (ret > 0) {
-                LOGGER.info("Create vm image {} success ", vmImage.getUserId());
-                return true;
-            }
-            LOGGER.error("Create vm image failed.");
-            throw new DataBaseException("Create vm image failed", ResponseConsts.RET_CERATE_DATA_FAIL);
-        } catch (Exception e) {
-            LOGGER.error("Create vm image failed {}", e.getMessage());
-            throw new DataBaseException("Create vm image failed", ResponseConsts.RET_CERATE_DATA_FAIL);
+        LOGGER.info("Create vm images start");
+        String userId = AccessUserUtil.getUser().getUserId();
+        if (StringUtils.isBlank(vmImage.getName())) {
+            LOGGER.error("VMImage name is empty!");
+            throw new IllegalRequestException("VmImage name is empty.", ResponseConsts.RET_REQUEST_PARAM_EMPTY);
         }
+        vmImage.setUserId(userId);
+        if (vmImageMapper.getVmNameCount(vmImage.getName(), null, userId) > 0) {
+            LOGGER.error("image Name can not duplicate.");
+            throw new IllegalRequestException("image Name can not duplicate.", ResponseConsts.RET_REQUEST_PARAM_ERROR);
+        }
+        vmImage.setUserId(AccessUserUtil.getUser().getUserId());
+        vmImage.setUserName(AccessUserUtil.getUser().getUserName());
+        vmImage.setStatus(EnumVmImageStatus.UPLOAD_WAIT);
+        int ret = vmImageMapper.createVmImage(vmImage);
+        if (ret > 0) {
+            LOGGER.info("Create vm image {} success ", vmImage.getUserId());
+            return true;
+        }
+        LOGGER.error("Create vm image failed.");
+        throw new DataBaseException("Create vm image failed", ResponseConsts.RET_CERATE_DATA_FAIL);
     }
 
     @Override
     public Boolean updateVmImage(VMImage vmImage, Integer imageId) {
-        try {
-            LOGGER.info("Update vm image start");
-            String userId = AccessUserUtil.getUser().getUserId();
-            if (!isAdminUser()) {
-                vmImage.setUserId(userId);
-            }
-            VMImage oldVmImage = vmImageMapper.getVmImage(imageId);
-            if (StringUtils.isAnyBlank(vmImage.getName(), oldVmImage.getUserId())) {
-                LOGGER.error("Update vm image failed");
-                throw new IllegalRequestException("Update vm image failed", ResponseConsts.RET_UPDATE_DATA_FAIL);
-            }
-            if (vmImageMapper.getVmNameCount(vmImage.getName(), imageId, oldVmImage.getUserId())
-                > 0) {
-                LOGGER.error("name can not duplicate.");
-                throw new IllegalRequestException("name can not duplicate.", ResponseConsts.RET_UPDATE_DATA_FAIL);
-            }
-            vmImage.setId(imageId);
-
-            int ret = vmImageMapper.updateVmImage(vmImage);
-            if (ret > 0) {
-                LOGGER.info("Update vm image success imageId = {}, userId = {}", imageId, userId);
-                return true;
-            }
-            LOGGER.error("Update vm image failed ");
-            throw new DataBaseException("Update vm image failed", ResponseConsts.RET_UPDATE_DATA_FAIL);
-        } catch (Exception e) {
-            LOGGER.error("Update vm image failed {}", e.getMessage());
-            throw new DataBaseException("Update vm image failed", ResponseConsts.RET_UPDATE_DATA_FAIL);
+        LOGGER.info("Update vm image start");
+        String userId = AccessUserUtil.getUser().getUserId();
+        if (!isAdminUser()) {
+            vmImage.setUserId(userId);
         }
+        VMImage oldVmImage = vmImageMapper.getVmImage(imageId);
+        if (StringUtils.isAnyBlank(vmImage.getName(), oldVmImage.getUserId())) {
+            LOGGER.error("vmImage name or queried userId is empty!");
+            throw new IllegalRequestException("vmImage name or queried userId is empty.",
+                ResponseConsts.RET_REQUEST_PARAM_EMPTY);
+        }
+        if (vmImageMapper.getVmNameCount(vmImage.getName(), imageId, oldVmImage.getUserId()) > 0) {
+            LOGGER.error("name can not duplicate.");
+            throw new IllegalRequestException("name can not duplicate.", ResponseConsts.RET_REQUEST_PARAM_ERROR);
+        }
+        vmImage.setId(imageId);
+        int ret = vmImageMapper.updateVmImage(vmImage);
+        if (ret > 0) {
+            LOGGER.info("Update vm image success imageId = {}, userId = {}", imageId, userId);
+            return true;
+        }
+        LOGGER.error("Update vm image failed ");
+        throw new DataBaseException("Update vm image failed", ResponseConsts.RET_UPDATE_DATA_FAIL);
     }
 
     @Override
@@ -234,7 +216,8 @@ public class VMImageServiceImpl implements VMImageService {
         LOGGER.info("delete vm image on remote server.");
         if (!deleteImageFileOnRemote(imageId)) {
             LOGGER.error("delete vm image on remote server failed.");
-            throw new RestfulRequestException("delete vm image on remote server failed.", ResponseConsts.RET_RESTFUL_REQUEST_FAIL);
+            throw new RestfulRequestException("delete vm image on remote server failed.",
+                ResponseConsts.RET_RESTFUL_REQUEST_FAIL);
         }
 
         LOGGER.info("delete vm image record in database.");
@@ -332,16 +315,15 @@ public class VMImageServiceImpl implements VMImageService {
             InputStream inputStream = file.getInputStream();
             FileUtils.copyInputStreamToFile(inputStream, outFile);
         } catch (Exception e) {
-            throw new FileOperateException("get file stream fail  when upload vm image", ResponseConsts.RET_UPLOAD_FILE_FAIL);
+            throw new FileOperateException("get file stream fail  when upload vm image",
+                ResponseConsts.RET_UPLOAD_FILE_FAIL);
         }
-
 
         LOGGER.info("upload to remote file server.");
         if (!HttpClientUtil.sliceUploadFile(fileServerAddress, chunk, outFile.getAbsolutePath())) {
             LOGGER.error("upload to remote file server failed.");
             vmImageMapper.updateVmImageStatus(imageId, EnumVmImageStatus.UPLOAD_FAILED.toString());
-            vmImageMapper
-                .updateVmImageErrorType(imageId, EnumProcessErrorType.FILESYSTEM_UPLOAD_FAILED.getErrorType());
+            vmImageMapper.updateVmImageErrorType(imageId, EnumProcessErrorType.FILESYSTEM_UPLOAD_FAILED.getErrorType());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
 
@@ -400,8 +382,7 @@ public class VMImageServiceImpl implements VMImageService {
 
     @Override
     public ResponseEntity mergeVmImage(String fileName, String identifier, Integer imageId) {
-        LOGGER.info("merge vm image file, imageId = {}, fileName = {}, identifier = {}", imageId, fileName,
-            identifier);
+        LOGGER.info("merge vm image file, imageId = {}, fileName = {}, identifier = {}", imageId, fileName, identifier);
         vmImageMapper.updateVmImageStatus(imageId, EnumVmImageStatus.UPLOADING_MERGING.toString());
 
         String rootDir = getUploadVmImageRootDir(imageId);
@@ -456,8 +437,7 @@ public class VMImageServiceImpl implements VMImageService {
         if (StringUtils.isEmpty(uploadedSystemPath)) {
             LOGGER.error("merge failed on remote file server!");
             vmImageMapper.updateVmImageStatus(imageId, EnumVmImageStatus.UPLOAD_FAILED.toString());
-            vmImageMapper
-                .updateVmImageErrorType(imageId, EnumProcessErrorType.FILESYSTEM_MERGE_FAILED.getErrorType());
+            vmImageMapper.updateVmImageErrorType(imageId, EnumProcessErrorType.FILESYSTEM_MERGE_FAILED.getErrorType());
             return ResponseEntity.status(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode()).build();
         }
 
@@ -471,7 +451,7 @@ public class VMImageServiceImpl implements VMImageService {
     }
 
     @Override
-    public ResponseEntity<byte[]> downloadVmImage(Integer imageId) {
+    public byte[] downloadVmImage(Integer imageId) {
         Assert.notNull(vmImageMapper.getVmImagesPath(imageId), "vm image path is null");
         try {
             String systemPath = vmImageMapper.getVmImagesPath(imageId);
@@ -482,12 +462,7 @@ public class VMImageServiceImpl implements VMImageService {
                 return null;
             }
             LOGGER.info("download vm image succeed!");
-            HttpHeaders headers = new HttpHeaders();
-            headers.add("Content-Type", MediaType.APPLICATION_OCTET_STREAM_VALUE);
-            VMImage vmImage = vmImageMapper.getVmImage(imageId);
-            String fileName = vmImage.getImageFileName();
-            headers.add("Content-Disposition", "attachment; filename=" + fileName);
-            return ResponseEntity.ok().headers(headers).body(dataStream);
+            return dataStream;
         } catch (Exception e) {
             LOGGER.error("download vm image failed!");
             return null;
@@ -576,6 +551,7 @@ public class VMImageServiceImpl implements VMImageService {
         String rootDir = getUploadVmImageRootDir(imageId);
         cleanWorkDir(new File(rootDir));
     }
+
     private boolean cancelOnRemoteFileServer(String identifier) {
         return HttpClientUtil.cancelSliceUpload(fileServerAddress, identifier);
     }
@@ -669,9 +645,9 @@ public class VMImageServiceImpl implements VMImageService {
         @Override
         public void run() {
             Boolean res = getImageFileInfo(imageId);
-            if(res) {
+            if (res) {
                 LOGGER.info("slim image success");
-            }else {
+            } else {
                 LOGGER.info("slim image fail");
             }
         }
@@ -689,9 +665,8 @@ public class VMImageServiceImpl implements VMImageService {
                     LOGGER.error("sleep fail! {}", e.getMessage());
                 }
                 String slimResult = HttpClientUtil.getImageSlim(url);
-                if (slimResult==null) {
-                    vmImageMapper
-                        .updateVmImageSlimStatus(imageId, EnumSystemImageSlimStatus.SLIM_FAILED.toString());
+                if (slimResult == null) {
+                    vmImageMapper.updateVmImageSlimStatus(imageId, EnumSystemImageSlimStatus.SLIM_FAILED.toString());
                     return false;
                 }
                 try {
@@ -702,19 +677,17 @@ public class VMImageServiceImpl implements VMImageService {
                 LOGGER.info("image slim result: {}", slimResult);
                 int slimStatus = imageResult.getSlimStatus();
 
-                if (slimStatus==2) {
-                    vmImageMapper
-                        .updateVmImageSlimStatus(imageId, EnumSystemImageSlimStatus.SLIM_SUCCEED.toString());
-                    Long imageSize = Long.parseLong(imageResult.getCheckStatusResponse().getCheckInfo().getImageInfo().getImageSize());
+                if (slimStatus == 2) {
+                    vmImageMapper.updateVmImageSlimStatus(imageId, EnumSystemImageSlimStatus.SLIM_SUCCEED.toString());
+                    Long imageSize = Long
+                        .parseLong(imageResult.getCheckStatusResponse().getCheckInfo().getImageInfo().getImageSize());
                     String checkSum = imageResult.getCheckStatusResponse().getCheckInfo().getChecksum();
                     vmImageMapper.updateVmImageInfo(imageId, imageSize, checkSum);
                     return true;
-                } else if (slimStatus==1) {
-                    vmImageMapper
-                        .updateVmImageSlimStatus(imageId, EnumSystemImageSlimStatus.SLIMMING.toString());
+                } else if (slimStatus == 1) {
+                    vmImageMapper.updateVmImageSlimStatus(imageId, EnumSystemImageSlimStatus.SLIMMING.toString());
                 } else {
-                    vmImageMapper
-                        .updateVmImageSlimStatus(imageId, EnumSystemImageSlimStatus.SLIM_FAILED.toString());
+                    vmImageMapper.updateVmImageSlimStatus(imageId, EnumSystemImageSlimStatus.SLIM_FAILED.toString());
                     return false;
                 }
             }

@@ -29,7 +29,7 @@ public class UserDataServiceImpl implements UserDataService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(UserDataServiceImpl.class);
 
-    private static final String USER_DATE_TEMPLATE = "./configs/template/user_date/";
+    private static final String USER_DATE_TEMPLATE = "./configs/template/user_data/";
 
     private static final String FILE_SUFFIX = ".yaml";
 
