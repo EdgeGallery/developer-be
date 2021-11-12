@@ -29,7 +29,6 @@ import org.edgegallery.developer.common.Consts;
 import org.edgegallery.developer.common.ResponseConsts;
 import org.edgegallery.developer.exception.DataBaseException;
 import org.edgegallery.developer.exception.DeveloperException;
-import org.edgegallery.developer.exception.EntityNotFoundException;
 import org.edgegallery.developer.exception.FileFoundFailException;
 import org.edgegallery.developer.exception.FileOperateException;
 import org.edgegallery.developer.exception.IllegalRequestException;
@@ -42,7 +41,6 @@ import org.edgegallery.developer.model.capability.Capability;
 import org.edgegallery.developer.model.resource.MepHost;
 import org.edgegallery.developer.model.uploadfile.UploadFile;
 import org.edgegallery.developer.model.workspace.EnumHostStatus;
-import org.edgegallery.developer.model.workspace.UploadedFile;
 import org.edgegallery.developer.service.AppReleaseService;
 import org.edgegallery.developer.service.uploadfile.UploadFileService;
 import org.edgegallery.developer.util.BusinessConfigUtil;
@@ -67,7 +65,7 @@ public class UploadFileServiceImpl implements UploadFileService {
 
     private static final String REGEX_UUID = "[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}";
 
-    private static final List<String> FILE_TYPE_LIST = Arrays.asList("icon", "api", "md");
+    private static final List<String> FILE_TYPE_LIST = Arrays.asList("icon", "api", "md", Consts.FILE_TYPE_SCRIPT);
 
     @Autowired
     private UploadFileMapper uploadFileMapper;

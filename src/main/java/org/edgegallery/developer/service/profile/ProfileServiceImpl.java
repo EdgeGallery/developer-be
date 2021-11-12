@@ -17,14 +17,17 @@ package org.edgegallery.developer.service.profile;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.edgegallery.developer.common.ResponseConsts;
 import org.edgegallery.developer.config.security.AccessUserUtil;
 import org.edgegallery.developer.domain.shared.IconChecker;
@@ -37,13 +40,16 @@ import org.edgegallery.developer.exception.FileOperateException;
 import org.edgegallery.developer.exception.IllegalRequestException;
 import org.edgegallery.developer.mapper.application.ApplicationMapper;
 import org.edgegallery.developer.mapper.profile.ProfileMapper;
+import org.edgegallery.developer.mapper.uploadfile.UploadFileMapper;
 import org.edgegallery.developer.model.application.Application;
 import org.edgegallery.developer.model.application.EnumAppClass;
 import org.edgegallery.developer.model.application.EnumApplicationType;
 import org.edgegallery.developer.model.profile.ProfileInfo;
-import org.edgegallery.developer.model.workspace.UploadedFile;
-import org.edgegallery.developer.service.UploadFileService;
+import org.edgegallery.developer.model.uploadfile.UploadFile;
+import org.edgegallery.developer.service.application.AppScriptService;
 import org.edgegallery.developer.service.application.ApplicationService;
+import org.edgegallery.developer.service.application.container.ContainerAppHelmChartService;
+import org.edgegallery.developer.service.uploadfile.UploadFileService;
 import org.edgegallery.developer.util.BusinessConfigUtil;
 import org.edgegallery.developer.util.CompressFileUtils;
 import org.edgegallery.developer.util.InitConfigUtil;
@@ -52,6 +58,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.yaml.snakeyaml.Yaml;
@@ -82,6 +89,15 @@ public class ProfileServiceImpl implements ProfileService {
 
     @Autowired
     private UploadFileService uploadFileService;
+
+    @Autowired
+    private ContainerAppHelmChartService containerAppHelmChartService;
+
+    @Autowired
+    private AppScriptService appScriptService;
+
+    @Autowired
+    private UploadFileMapper uploadFileMapper;
 
     @Autowired
     private ApplicationMapper applicationMapper;
@@ -204,10 +220,10 @@ public class ProfileServiceImpl implements ProfileService {
         new IconChecker().check(iconFile);
         Application application = new Application();
         try {
-            UploadedFile uploadedFile = uploadFileService.uploadFile(AccessUserUtil.getUser().getUserId(), iconFile)
-                .getRight();
-            checkParamNull(uploadedFile, "upload file failed.");
-            application.setIconFileId(uploadedFile.getFileId());
+            UploadFile uploadFile = uploadFileService
+                .uploadFile(AccessUserUtil.getUser().getUserId(), "icon", iconFile);
+            checkParamNull(uploadFile, "upload file failed.");
+            application.setIconFileId(uploadFile.getFileId());
 
             String profileFilePath = profileInfo.getFilePath().replace(".zip", "").concat(File.separator)
                 .concat(PROFILE_FILE);
@@ -224,7 +240,50 @@ public class ProfileServiceImpl implements ProfileService {
             LOGGER.error(msg);
             throw new IllegalRequestException(msg, ResponseConsts.RET_REQUEST_PARAM_EMPTY);
         }
-        return applicationService.createApplication(application);
+        applicationService.createApplication(application);
+        createHelmChartAndScript(profileInfo, application.getId());
+
+        return applicationService.getApplication(application.getId());
+    }
+
+    /**
+     * create helm chart and script.
+     *
+     * @param profileInfo profile info
+     * @param applicationId application id
+     */
+    private void createHelmChartAndScript(ProfileInfo profileInfo, String applicationId) {
+        try {
+            profileInfo.getDeployFilePath().keySet().stream().forEach(appName -> {
+                File deployFile = new File(profileInfo.getDeployFilePath().get(appName));
+                containerAppHelmChartService.uploadHelmChartYaml(filePatternTransfer(deployFile), applicationId);
+            });
+            File scriptFile = new File(profileInfo.getConfigFilePath());
+            appScriptService.uploadScriptFile(applicationId, filePatternTransfer(scriptFile));
+        } catch (Exception e) {
+            LOGGER.error("create helm chart or script failed. {}", e);
+            applicationService.deleteApplication(applicationId, AccessUserUtil.getUser());
+            throw new IllegalRequestException("create helm chart or script failed.",
+                ResponseConsts.RET_REQUEST_PARAM_EMPTY);
+        }
+    }
+
+    /**
+     * transfer file to multipart file.
+     *
+     * @param file file
+     * @return multipart file
+     */
+    private MultipartFile filePatternTransfer(File file) {
+        try {
+            FileInputStream input = new FileInputStream(file);
+            MultipartFile multipartFile = new MockMultipartFile("file", file.getName(), "text/plain",
+                IOUtils.toByteArray(input));
+            return multipartFile;
+        } catch (IOException e) {
+            LOGGER.error("file transfer failed. {}", e);
+            throw new FileOperateException("file transfer failed.", ResponseConsts.RET_MERGE_FILE_FAIL);
+        }
     }
 
     /**
@@ -298,6 +357,7 @@ public class ProfileServiceImpl implements ProfileService {
             checkParamNull(appList, "there is no app field in profile file.");
             Map<String, String> deployFilePath = new HashMap<>();
             appList.keySet().stream().forEach(key -> {
+                checkAppNameUniformity(key, profileInfo.getSeq());
                 Map<String, String> appInfo = appList.get(key);
                 String deploymentFile = appInfo.get("deploymentFile");
                 deployFilePath.put(key, baseFilePath.concat(File.separator).concat(deploymentFile));
@@ -309,6 +369,20 @@ public class ProfileServiceImpl implements ProfileService {
         } catch (IOException e) {
             LOGGER.error("read file to string failed. {}", e);
             throw new FileOperateException("read file to string failed", ResponseConsts.RET_MERGE_FILE_FAIL);
+        }
+    }
+
+    /**
+     * app name in seq and app value must uniform.
+     *
+     * @param appName app name
+     * @param seq app deploy seq
+     */
+    private void checkAppNameUniformity(String appName, List<String> seq) {
+        if (!seq.contains(appName)) {
+            String msg = "app seq ".concat(seq.toString()).concat(" not contains app name: ").concat(appName);
+            LOGGER.error(msg);
+            throw new IllegalRequestException(msg, ResponseConsts.RET_REQUEST_PARAM_EMPTY);
         }
     }
 

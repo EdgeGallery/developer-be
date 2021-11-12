@@ -713,3 +713,12 @@
     "topo_file_path" varchar(255) DEFAULT NULL,
     CONSTRAINT "tbl_profile_pkey" PRIMARY KEY ("id")
     );
+
+    CREATE TABLE IF NOT EXISTS "tbl_app_script" (
+    "id" varchar(255) NOT NULL,
+    "app_id" varchar(255) NOT NULL,
+    "name" varchar(255) DEFAULT NULL,
+    "script_file_id" text DEFAULT NULL,
+    "create_time" timestamptz(6)  NOT NULL,
+    CONSTRAINT "tbl_app_script_pkey" PRIMARY KEY ("id")
+    );

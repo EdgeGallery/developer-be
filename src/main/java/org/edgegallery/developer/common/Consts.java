@@ -125,6 +125,16 @@ public final class Consts {
 
     public static final String FILE_FORMAT_CSAR = ".csar";
 
+    public static final int LENGTH_1000 = 1000;
+
+    public static final int LENGTH_64 = 64;
+
+    public static final int LENGTH_255 = 255;
+
+    public static final String REGEX_UUID = "[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}";
+
+    public static final String FILE_TYPE_SCRIPT = "script";
+
     private Consts() {
     }
 }
