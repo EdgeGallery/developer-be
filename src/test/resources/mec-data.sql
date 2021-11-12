@@ -127,6 +127,10 @@ MERGE INTO tbl_vm_flavor KEY(id) VALUES('96f9c44c-4d01-4da6-84dd-9f3564fe2bdb', 
 -- Records of tbl_vm_image
 -- ----------------------------
 MERGE INTO tbl_vm_image KEY(id) VALUES(1, 'Ubuntu18.04', 'public', 'ubuntu', '18.04', '64', 40, 'Ubuntu18.04.qcow2', 'qcow2', null, null, 1024000, null, 'UPLOAD_WAIT', '2020-03-18 16:19:36.127+08', '2020-03-18 16:19:36.127+08', null, '39937079-99fe-4cd8-881f-04ca8c4fe09d', 'admin', null, null);
+MERGE INTO tbl_vm_image KEY(id) VALUES(2, 'Ubuntu16.04', 'public', 'ubuntu', '16.04', '64', 40, 'Ubuntu16.04.qcow2', 'qcow2', 'test', null, 1024000, null, 'UPLOAD_WAIT', '2020-03-18 16:19:36.127+08', '2020-03-18 16:19:36.127+08', null, '39937079-99fe-4cd8-881f-04ca8c4fe09d', 'admin', null, null);
+MERGE INTO tbl_vm_image KEY(id) VALUES(3, 'Ubuntu14.04', 'public', 'ubuntu', '14.04', '64', 40, 'Ubuntu14.04.qcow2', 'qcow2', 'url', null, 1024000, null, 'UPLOAD_WAIT', '2020-03-18 16:19:36.127+08', '2020-03-18 16:19:36.127+08', null, '39937079-99fe-4cd8-881f-04ca8c4fe09d', 'admin', null, null);
+MERGE INTO tbl_vm_image KEY(id) VALUES(4, 'Ubuntu12.04', 'public', 'ubuntu', '12.04', '64', 40, 'Ubuntu12.04.qcow2', 'qcow2', null, null, 1024000, null, 'UPLOAD_WAIT', '2020-03-18 16:19:36.127+08', '2020-03-18 16:19:36.127+08', null, 'd1bb89fe-1a9d-42e9-911e-7b038c3480b9', 'admin', null, null);
+MERGE INTO tbl_vm_image KEY(id) VALUES(5, 'Ubuntu10.04', 'public', 'ubuntu', '10.04', '64', 40, 'Ubuntu10.04.qcow2', 'qcow2', null, null, 1024000, null, 'UPLOADING_MERGING', '2020-03-18 16:19:36.127+08', '2020-03-18 16:19:36.127+08', null, 'd1bb89fe-1a9d-42e9-911e-7b038c3480b9', 'admin', null, null);
 
 -- ----------------------------
 -- Records of tbl_application
