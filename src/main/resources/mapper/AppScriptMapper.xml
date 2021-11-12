@@ -17,10 +17,27 @@
 
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.edgegallery.developer.mapper.application.AppScriptMapper">
+    <resultMap id="AppScriptMap" type="org.edgegallery.developer.model.application.Script">
+        <result property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="scriptFileId" column="script_file_id"/>
+        <result property="createTime" column="create_time"/>
+    </resultMap>
+
+    <sql id="ScriptColumn">
+        id, name, script_file_id, create_time
+    </sql>
+
     <insert id="createAppScript" parameterType="org.edgegallery.developer.model.application.Script">
         insert into tbl_app_script (id, app_id, name, script_file_id, create_time)
         values
         ( #{script.id}, #{applicationId}, #{script.name},
         #{script.scriptFileId}, #{script.createTime})
     </insert>
+
+    <select id="getScriptsByAppId" parameterType="String" resultMap="AppScriptMap">
+        SELECT
+        <include refid="ScriptColumn"/>
+        from tbl_app_script where app_id=#{applicationId}
+    </select>
 </mapper>
