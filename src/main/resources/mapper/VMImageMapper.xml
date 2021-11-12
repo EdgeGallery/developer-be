@@ -136,6 +136,12 @@
     FROM tbl_vm_image WHERE id = #{imageId}
   </select>
 
+  <select id="getVmImageByName" resultMap="VmImageMap">
+    SELECT
+    <include refid="AllColumn"/>
+    from tbl_vm_image where userId=#{userId} and name=#{name}
+  </select>
+
   <select id="getVmImagesPath" resultType="java.lang.String" parameterType="java.lang.Integer">
     SELECT down_load_url FROM tbl_vm_image WHERE id = #{imageId}
   </select>
@@ -206,8 +212,8 @@
 
   <insert id="createVmImageAllInfo" parameterType="org.edgegallery.developer.model.resource.vm.VMImage" useGeneratedKeys="true" keyProperty="id">
     insert into tbl_vm_image (name, visible_type, os_type, os_version, os_bit_type, system_disk_size,
-    user_id, user_name, create_time, modify_time, status, down_load_url, image_file_name, file_md5, image_format, image_size, image_slim_status)
-    values (#{name}, #{visibleType}, #{osType}, #{osVersion}, #{osBitType}, #{systemDiskSize}, #{userId}, #{userName}, now(), now(), #{status},
+    user_id, user_name, create_time, modify_time, upload_time, status, down_load_url, image_file_name, file_md5, image_format, image_size, image_slim_status)
+    values (#{name}, #{visibleType}, #{osType}, #{osVersion}, #{osBitType}, #{systemDiskSize}, #{userId}, #{userName}, now(), now(), now(), #{status},
     #{downLoadUrl}, #{imageFileName}, #{fileMd5}, #{imageFormat}, #{imageSize}, #{imageSlimStatus})
   </insert>
 </mapper>

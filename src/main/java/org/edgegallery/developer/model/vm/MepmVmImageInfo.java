@@ -23,14 +23,17 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString
-public class VmImageInfo {
+public class MepmVmImageInfo {
 
+    // image id from mepm
     private String imageId;
 
     private String imageName;
 
-    private String status;
+    //compressing active killed quened
+    private String status;  //compressing
 
+    // image uri from filesystem
     private String url;
 
 

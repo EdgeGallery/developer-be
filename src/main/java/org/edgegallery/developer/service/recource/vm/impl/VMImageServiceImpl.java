@@ -501,11 +501,15 @@ public class VMImageServiceImpl implements VMImageService {
     @Override
     public VMImage createVmImageAllInfo(VMImage vmImage) {
         int res = vmImageMapper.createVmImageAllInfo(vmImage);
-        if (res > 0) {
-            return vmImageMapper.getVmImage(vmImage.getId());
+        if (res < 1) {
+            LOGGER.error("create image fail.");
+            return null;
         }
-        LOGGER.error("create vm image by all info failed!");
-        return null;
+        return vmImageMapper.getVmImageByName(vmImage.getName(), vmImage.getUserId());
+    }
+    @Override
+    public VMImage getVmImagesById(Integer imageId) {
+        return vmImageMapper.getVmImage(imageId);
     }
 
     private boolean isAdminUser() {

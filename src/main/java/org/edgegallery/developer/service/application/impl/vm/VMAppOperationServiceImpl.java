@@ -58,7 +58,6 @@ import org.edgegallery.developer.service.application.action.IAction;
 import org.edgegallery.developer.service.application.action.IActionIterator;
 import org.edgegallery.developer.service.application.action.impl.vm.VMExportImageOperation;
 import org.edgegallery.developer.service.application.action.impl.vm.VMLaunchOperation;
-import org.edgegallery.developer.service.application.common.IContextParameter;
 import org.edgegallery.developer.service.application.impl.AppOperationServiceImpl;
 import org.edgegallery.developer.service.application.vm.VMAppOperationService;
 import org.edgegallery.developer.service.apppackage.AppPackageService;
@@ -118,8 +117,7 @@ public class VMAppOperationServiceImpl extends AppOperationServiceImpl implement
         }
 
         VirtualMachine virtualMachine = vmAppVmServiceImpl.getVm(applicationId, vmId);
-        if (virtualMachine == null || virtualMachine.getVmInstantiateInfo() != null
-            || virtualMachine.getImageExportInfo() != null) {
+        if (virtualMachine == null || virtualMachine.getVmInstantiateInfo() != null) {
             LOGGER.error("instantiate vm app fail ,vm is not exit or is used,vmId:{}", vmId);
             throw new EntityNotFoundException("instantiate vm app fail ,vm is not exit or is used.",
                 ResponseConsts.RET_QUERY_DATA_EMPTY);
@@ -449,10 +447,6 @@ public class VMAppOperationServiceImpl extends AppOperationServiceImpl implement
             ImageExportInfo imageExportInfo = vm.getImageExportInfo();
             HttpClientUtil.deleteVmImage(basePath, user.getUserId(), vmInstantiateInfo.getAppInstanceId(),
                 imageExportInfo.getImageInstanceId(), user.getToken());
-            int res = imageExportInfoMapper.deleteImageExportInfoInfoByVMId(vm.getId());
-            if (res < 1) {
-                LOGGER.error("delete imageExportInfo fail, vmId:{}", vm.getId());
-            }
         }
         if (vm.getVmInstantiateInfo() != null) {
             VMInstantiateInfo vmInstantiateInfo = vm.getVmInstantiateInfo();

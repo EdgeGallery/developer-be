@@ -52,6 +52,9 @@ public interface VMImageMapper {
 
     int updateVmImageInfo(@Param("imageId") Integer imageId, @Param("imageSize") Long imageSize, @Param("fileMd5") String fileMd5);
 
+    int createVmImageAllInfo(VMImage vmImage);
+
+    VMImage getVmImageByName(@Param("name")String name, @Param("userId")String userId);
     @Options(useGeneratedKeys=true, keyProperty="id")
     int createVmImageAllInfo(VMImage vmImage);
 }

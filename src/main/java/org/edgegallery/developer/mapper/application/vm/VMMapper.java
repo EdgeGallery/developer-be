@@ -30,6 +30,8 @@ public interface VMMapper {
 
     int modifyVM(VirtualMachine vm);
 
+    int updateVmStatus(@Param("vmId")String vmId, @Param("status")String status, @Param("targetImageId")Integer targetImageId);
+
     int deleteVM(String id);
 
     int deleteAllVMsByAppId(String applicationId);
@@ -59,4 +61,5 @@ public interface VMMapper {
     int deleteVMCertificate(String vmId);
 
     VMCertificate getVMCertificate(String vmId);
+
 }

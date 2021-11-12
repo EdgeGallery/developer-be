@@ -17,18 +17,16 @@ package org.edgegallery.developer.service.application.action.impl.vm;
 
 import java.lang.reflect.Type;
 import org.apache.commons.lang3.StringUtils;
-import org.edgegallery.developer.domain.model.user.User;
 import org.edgegallery.developer.mapper.application.vm.ImageExportInfoMapper;
 import org.edgegallery.developer.model.LcmLog;
 import org.edgegallery.developer.model.application.Application;
-import org.edgegallery.developer.model.application.vm.VirtualMachine;
 import org.edgegallery.developer.model.instantiate.vm.EnumImageExportStatus;
 import org.edgegallery.developer.model.instantiate.vm.ImageExportInfo;
 import org.edgegallery.developer.model.resource.mephost.MepHost;
 import org.edgegallery.developer.model.operation.ActionStatus;
 import org.edgegallery.developer.model.operation.EnumActionStatus;
 import org.edgegallery.developer.model.operation.EnumOperationObjectType;
-import org.edgegallery.developer.model.vm.VmImageInfo;
+import org.edgegallery.developer.model.vm.MepmVmImageInfo;
 import org.edgegallery.developer.service.application.ApplicationService;
 import org.edgegallery.developer.service.application.action.impl.AbstractAction;
 import org.edgegallery.developer.service.application.common.EnumExportImageStatus;
@@ -53,7 +51,7 @@ public class CreateImageAction extends AbstractAction {
     public static final String ACTION_NAME = "Create Image";
 
     // time out: 10 min.
-    public static final int TIMEOUT = 10 * 60 * 1000;
+    public static final int TIMEOUT = 60 * 60 * 1000;
     //interval of the query, 5s.
     public static final int INTERVAL = 5000;
 
@@ -71,12 +69,12 @@ public class CreateImageAction extends AbstractAction {
     @Override
     public boolean execute() {
         //Start action , save action status.
-        String packageId = (String) getContext().getParameter(IContextParameter.PARAM_PACKAGE_ID);
+        String vmId = (String) getContext().getParameter(IContextParameter.PARAM_VM_ID);
         String applicationId = (String) getContext().getParameter(IContextParameter.PARAM_APPLICATION_ID);
         Application application = applicationService.getApplication(applicationId);
-        String statusLog = "Start to create vm image for package Id：" + packageId;
+        String statusLog = "Start to create vm image for vm Id：" + vmId;
         LOGGER.info(statusLog);
-        ActionStatus actionStatus = initActionStatus(EnumOperationObjectType.VM_IMAGE_INSTANCE, packageId,
+        ActionStatus actionStatus = initActionStatus(EnumOperationObjectType.VM_IMAGE_INSTANCE, vmId,
             ACTION_NAME, statusLog);
         String mepHostId = application.getMepHostId();
         if (null == mepHostId || "".equals(mepHostId)) {
@@ -174,20 +172,20 @@ public class CreateImageAction extends AbstractAction {
         int waitingTime = 0;
         String basePath = HttpClientUtil.getUrlPrefix(mepHost.getLcmProtocol(), mepHost.getLcmIp(), mepHost.getLcmPort());
         while (waitingTime < TIMEOUT) {
-            String workStatus = HttpClientUtil.getImageStatus(basePath, appInstanceId, getContext().getUserId(), 
+            String workStatus = HttpClientUtil.getImageStatus(basePath, appInstanceId, getContext().getUserId(),
                 imageId, getContext().getToken());
             LOGGER.info("export image result: {}", workStatus);
             if (workStatus == null) {
                 // compare time between now and deployDate
                 return EnumExportImageStatus.EXPORT_IMAGE_STATUS_ERROR;
             }
-            Type vmInfoType = new TypeToken<VmImageInfo>() { }.getType();
-            VmImageInfo vmImageInfo = gson.fromJson(workStatus, vmInfoType);
-            if (vmImageInfo.getStatus().equals(EnumExportImageStatus.EXPORT_IMAGE_STATUS_SUCCESS.toString())) {
-                getContext().addParameter(IContextParameter.PARAM_IMAGE_INSTANCE_ID, imageId);
+            Type vmInfoType = new TypeToken<MepmVmImageInfo>() { }.getType();
+            MepmVmImageInfo mepmVmImageInfo = gson.fromJson(workStatus, vmInfoType);
+            if (mepmVmImageInfo.getStatus().equals(EnumExportImageStatus.EXPORT_IMAGE_STATUS_SUCCESS.toString())) {
+                saveImageNameAndUrl(mepmVmImageInfo.getUrl(), mepmVmImageInfo.getImageName());
                 return EnumExportImageStatus.EXPORT_IMAGE_STATUS_SUCCESS;
             }
-            if (vmImageInfo.getStatus().equals(EnumExportImageStatus.EXPORT_IMAGE_STATUS_FAILED.toString())) {
+            if (mepmVmImageInfo.getStatus().equals(EnumExportImageStatus.EXPORT_IMAGE_STATUS_FAILED.toString())) {
                 return EnumExportImageStatus.EXPORT_IMAGE_STATUS_FAILED;
             }
             try {
@@ -200,6 +198,19 @@ public class CreateImageAction extends AbstractAction {
             
         }
         return EnumExportImageStatus.EXPORT_IMAGE_STATUS_TIMEOUT;
+    }
+
+    private boolean saveImageNameAndUrl(String url, String imageName) {
+        String vmId = (String) getContext().getParameter(IContextParameter.PARAM_VM_ID);
+        ImageExportInfo imageExportInfo = imageExportInfoMapper.getImageExportInfoInfoByVMId(vmId);
+        imageExportInfo.setName(imageName);
+        imageExportInfo.setDownloadUrl(url);
+        int res = imageExportInfoMapper.modifyImageExportInfoInfoByVMId(vmId, imageExportInfo);
+        if (res < 1) {
+            LOGGER.warn("create image export info baseDate fail");
+            return false;
+        }
+        return true;
     }
 
 }

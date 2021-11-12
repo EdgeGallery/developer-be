@@ -32,5 +32,4 @@ public interface IContextParameter {
 
     String PARAM_IMAGE_INSTANCE_ID = "image_instance_id";
 
-    String PARAM_IMAGE_DOWNLOAD_URL = "image_download_url";
 }
