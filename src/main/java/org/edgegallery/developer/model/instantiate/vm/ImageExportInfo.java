@@ -29,7 +29,9 @@ public class ImageExportInfo {
 
     private String imageInstanceId;
 
-    private String imageName;
+    private String name;
+
+    private String imageFileName;
 
     private String format;
 

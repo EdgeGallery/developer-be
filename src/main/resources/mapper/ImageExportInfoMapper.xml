@@ -21,7 +21,8 @@
   <resultMap id="ImageExportInfoMap" type="org.edgegallery.developer.model.instantiate.vm.ImageExportInfo">
     <result property="imageInstanceId" column="image_instance_id"/>
     <result property="operationId" column="operation_id"/>
-    <result property="imageName" column="image_name"/>
+    <result property="name" column="name"/>
+    <result property="imageFileName" column="image_file_name"/>
     <result property="format" column="format"/>
     <result property="downloadUrl" column="download_url"/>
     <result property="checkSum" column="check_sum"/>
@@ -32,13 +33,13 @@
   </resultMap>
 
   <sql id="ImageExportInfoAllColumn">
-    image_instance_id, operation_id, image_name, format, download_url, check_sum, image_size, log, status, create_time
+    image_instance_id, operation_id, name, image_file_name, format, download_url, check_sum, image_size, log, status, create_time
   </sql>
 
   <insert id="createImageExportInfoInfo">
-    insert into tbl_vm_image_export_info (vm_id, image_instance_id, operation_id, image_name, format, download_url, check_sum, image_size, log, status, create_time)
+    insert into tbl_vm_image_export_info (vm_id, image_instance_id, operation_id, name, image_file_name, format, download_url, check_sum, image_size, log, status, create_time)
     values
-    ( #{vmId}, #{imageExportInfo.imageInstanceId}, #{imageExportInfo.operationId}, #{imageExportInfo.imageName}, #{imageExportInfo.format},
+    ( #{vmId}, #{imageExportInfo.imageInstanceId}, #{imageExportInfo.operationId}, #{imageExportInfo.name}, #{imageExportInfo.imageFileName}, #{imageExportInfo.format},
     #{imageExportInfo.downloadUrl}, #{imageExportInfo.checkSum}, #{imageExportInfo.imageSize},
     #{imageExportInfo.log},  #{imageExportInfo.status}, now())
   </insert>
@@ -47,7 +48,7 @@
     UPDATE
     tbl_vm_image_export_info
     SET
-    image_instance_id = #{imageExportInfo.imageInstanceId}, image_name = #{imageExportInfo.imageName},
+    image_instance_id = #{imageExportInfo.imageInstanceId}, name = #{imageExportInfo.name}, image_file_name = #{imageExportInfo.imageFileName},
     format = #{imageExportInfo.format}, download_url = #{imageExportInfo.downloadUrl},
     check_sum = #{imageExportInfo.checkSum}, image_size = #{imageExportInfo.imageSize},
     log = #{imageExportInfo.log}, status = #{imageExportInfo.status}

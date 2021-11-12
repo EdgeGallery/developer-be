@@ -51,7 +51,7 @@ public class DownloadImageAction extends AbstractAction {
     public static final String ACTION_NAME = "Download Image";
 
     // time out: 10 min.
-    public static final int TIMEOUT = 10 * 60 * 1000;
+    public static final int TIMEOUT = 30 * 60 * 1000;
     //interval of the query, 5s.
     public static final int INTERVAL = 5000;
 
@@ -62,17 +62,6 @@ public class DownloadImageAction extends AbstractAction {
     VMAppVmService vmAppVmService = (VMAppVmService) SpringContextUtil.getBean(VMAppVmService.class);
 
 
-    private IContext context;
-
-    public IContext getContext() {
-        return this.context;
-    }
-
-    @Override
-    public void setContext(IContext context) {
-        this.context = context;
-    }
-
     @Override
     public String getActionName() {
         return ACTION_NAME;
@@ -81,10 +70,10 @@ public class DownloadImageAction extends AbstractAction {
     @Override
     public boolean execute() {
         //Start action , save action status.
-        String packageId = (String) getContext().getParameter(IContextParameter.PARAM_PACKAGE_ID);
-        String statusLog = "Start to download vm image for package Id：" + packageId;
+        String vmId = (String) getContext().getParameter(IContextParameter.PARAM_VM_ID);
+        String statusLog = "Start to download vm image for vm Id：" + vmId;
         LOGGER.info(statusLog);
-        ActionStatus actionStatus = initActionStatus(EnumOperationObjectType.VM_IMAGE_INSTANCE, packageId,
+        ActionStatus actionStatus = initActionStatus(EnumOperationObjectType.VM_IMAGE_INSTANCE, vmId,
             ACTION_NAME, statusLog);
         //create image.
         updateActionProgress(actionStatus, 30, "start to query image info");
@@ -112,18 +101,20 @@ public class DownloadImageAction extends AbstractAction {
         String vmId = (String) getContext().getParameter(IContextParameter.PARAM_VM_ID);
         VirtualMachine vm = vmAppVmService.getVm(applicationId, vmId);
         VMImage vmImage = vmImageService.getVmImageById(vm.getImageId());
-        vmImage.setName(vm.getImageExportInfo().getImageName());
+        vmImage.setName(vm.getImageExportInfo().getName());
         vmImage.setDownLoadUrl(vm.getImageExportInfo().getDownloadUrl());
         vmImage.setFileMd5(vm.getImageExportInfo().getCheckSum());
-        vmImage.setImageFileName(vm.getImageExportInfo().getImageName());
+        vmImage.setImageFileName(vm.getImageExportInfo().getImageFileName());
         vmImage.setImageSize(Long.valueOf(vm.getImageExportInfo().getImageSize()));
         vmImage.setImageFormat(vm.getImageExportInfo().getFormat());
         vmImage.setImageSlimStatus(EnumVmImageSlimStatus.SLIM_SUCCEED);
         vmImage.setStatus(EnumVmImageStatus.PUBLISHED);
         vmImage.setVisibleType("private");
-        VMImage vmImageInfo = vmImageService.createVmImageAllInfo(vmImage);
-        vm.setImageId(vmImageInfo.getId());
-        vmAppVmService.modifyVm(applicationId, vmId, vm);
+        boolean res = vmImageService.createVmImageAllInfo(vmImage);
+        if (!res) {
+            LOGGER.error("save image info to imageMgmt fail.");
+            return false;
+        }
         return true;
 
     }
@@ -132,7 +123,7 @@ public class DownloadImageAction extends AbstractAction {
         String vmId = (String) getContext().getParameter(IContextParameter.PARAM_VM_ID);
         ImageExportInfo imageExportInfo = imageExportInfoMapper.getImageExportInfoInfoByVMId(vmId);
         int waitingTime = 0;
-        String url = (String) getContext().getParameter(IContextParameter.PARAM_IMAGE_DOWNLOAD_URL);
+        String url = imageExportInfo.getDownloadUrl();
         while (waitingTime < TIMEOUT) {
             String slimResult = HttpClientUtil.getImageSlim(url);
             FileSystemResponse imageResult;
@@ -145,7 +136,7 @@ public class DownloadImageAction extends AbstractAction {
                 if (!StringUtils.isEmpty(checkSum)) {
                     imageExportInfo.setImageInstanceId(imageResult.getImageId());
                     imageExportInfo.setCheckSum(checkSum);
-                    imageExportInfo.setImageName(imageResult.getFileName());
+                    imageExportInfo.setImageFileName(imageResult.getFileName());
                     imageExportInfo.setStatus(EnumImageExportStatus.SUCCESS);
                     imageExportInfo.setFormat(imageResult.getCheckStatusResponse().getCheckInfo().getImageInfo().getFormat());
                     imageExportInfo.setImageSize(imageResult.getCheckStatusResponse().getCheckInfo().getImageInfo().getImageSize());
