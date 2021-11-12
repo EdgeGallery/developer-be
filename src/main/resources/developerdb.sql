@@ -589,7 +589,7 @@
     CREATE TABLE IF NOT EXISTS "tbl_vm_image_export_info" (
     "vm_id" varchar(255) NOT NULL,
     "operation_id" varchar(255) DEFAULT NULL,
-    "image_instance_id" varchar(255) NOT NULL,
+    "image_instance_id" varchar(255) DEFAULT NULL,
     "image_name" varchar(255) DEFAULT NULL,
     "format" varchar(255) DEFAULT NULL,
     "download_url" varchar(255) DEFAULT NULL,
