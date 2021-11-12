@@ -24,7 +24,7 @@ import org.edgegallery.developer.mapper.ProjectMapper;
 import org.edgegallery.developer.mapper.VmConfigMapper;
 import org.edgegallery.developer.model.vm.VmCreateConfig;
 import org.edgegallery.developer.model.vm.VmImageConfig;
-import org.edgegallery.developer.model.vm.VmImageInfo;
+import org.edgegallery.developer.model.vm.MepmVmImageInfo;
 import org.edgegallery.developer.model.workspace.ApplicationProject;
 import org.edgegallery.developer.model.workspace.EnumTestConfigStatus;
 import org.edgegallery.developer.model.resource.MepHost;
@@ -91,15 +91,15 @@ public class VmImageStatus implements VmImageStage {
                 return true;
             }
         } else {
-            Type vmInfoType = new TypeToken<VmImageInfo>() { }.getType();
-            VmImageInfo vmImageInfo = gson.fromJson(workStatus, vmInfoType);
-            if (vmImageInfo.getStatus().equals("active")) {
+            Type vmInfoType = new TypeToken<MepmVmImageInfo>() { }.getType();
+            MepmVmImageInfo mepmVmImageInfo = gson.fromJson(workStatus, vmInfoType);
+            if (mepmVmImageInfo.getStatus().equals("active")) {
                 processStatus = true;
                 status = EnumTestConfigStatus.Success;
                 config.setLog("get vm status success");
-                config.setImageName(vmImageInfo.getImageName());
-                config.setImageId(vmImageInfo.getImageId());
-                config.setChecksum(vmImageInfo.getUrl());
+                config.setImageName(mepmVmImageInfo.getImageName());
+                config.setImageId(mepmVmImageInfo.getImageId());
+                config.setChecksum(mepmVmImageInfo.getUrl());
                 // get config
                 LOGGER.info("update config result:{}", config.getStatus());
             } else {

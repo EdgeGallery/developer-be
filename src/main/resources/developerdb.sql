@@ -492,6 +492,7 @@
     "name" varchar(255) NOT NULL,
     "flavor_id" varchar(255) DEFAULT NULL,
     "image_id" int4 DEFAULT NULL,
+    "target_image_id" int4 DEFAULT NULL,
     "user_data" text DEFAULT NULL,
     "status" varchar(255) DEFAULT NULL,
     "area_zone" varchar(255) DEFAULT NULL,

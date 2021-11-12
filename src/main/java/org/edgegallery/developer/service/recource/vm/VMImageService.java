@@ -50,7 +50,7 @@ public interface VMImageService {
 
     Boolean imageSlim(Integer imageId);
 
-    boolean createVmImageAllInfo(VMImage vmImage);
+    VMImage createVmImageAllInfo(VMImage vmImage);
 
     VMImage getVmImagesById(Integer imageId);
 }

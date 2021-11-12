@@ -22,6 +22,7 @@
     <result property="name" column="name"/>
     <result property="flavorId" column="flavor_id"/>
     <result property="imageId" column="image_id"/>
+    <result property="targetImageId" column="target_image_id"/>
     <result property="userData" column="user_data"/>
     <result property="status" column="status"/>
     <result property="areaZone" column="area_zone"/>
@@ -42,7 +43,7 @@
   </resultMap>
 
   <sql id="VMColumn">
-    id, name, flavor_id, image_id, user_data, status, area_zone, flavor_extra_specs
+    id, name, flavor_id, image_id, target_image_id, user_data, status, area_zone, flavor_extra_specs
   </sql>
 
   <sql id="VMPortAllColumn">
@@ -54,9 +55,9 @@
   </sql>
 
   <insert id="createVM">
-    insert into tbl_vm (id, app_id, name, flavor_id, image_id, user_data, status, area_zone, flavor_extra_specs)
+    insert into tbl_vm (id, app_id, name, flavor_id, image_id, target_image_id, user_data, status, area_zone, flavor_extra_specs)
     values
-    ( #{vm.id}, #{applicationId}, #{vm.name}, #{vm.flavorId}, #{vm.imageId}, #{vm.userData}, #{vm.status},  #{vm.areaZone},
+    ( #{vm.id}, #{applicationId}, #{vm.name}, #{vm.flavorId}, #{vm.imageId}, #{vm.targetImageId}, #{vm.userData}, #{vm.status},  #{vm.areaZone},
     #{vm.flavorExtraSpecs});
   </insert>
 
@@ -64,10 +65,21 @@
     UPDATE
     tbl_vm
     SET
-    name = #{name}, flavor_id = #{flavorId}, image_id = #{imageId}, user_data = #{userData},
+    name = #{name}, flavor_id = #{flavorId}, image_id = #{imageId}, target_image_id = #{targetImageId},
+    user_data = #{userData},
     status = #{status}, area_zone = #{areaZone}, flavor_extra_specs = #{flavorExtraSpecs}
     WHERE
     id = #{id}
+  </update>
+
+  <update id="updateVmStatus" >
+    UPDATE
+    tbl_vm
+    SET
+    target_image_id = #{targetImageId},
+    status = #{status}
+    WHERE
+    id = #{vmId}
   </update>
 
   <delete id="deleteVM" parameterType="String">
@@ -80,7 +92,12 @@
   </delete>
 
   <delete id="deleteAllVMsByAppId" parameterType="String">
-    DELETE FROM tbl_vm WHERE where app_id = #{applicationId}
+    DELETE FROM tbl_vm WHERE where app_id = #{applicationId};
+    DELETE FROM tbl_vm_instantiate_info WHERE app_id = #{applicationId};
+    DELETE FROM tbl_vm_port_instantiate_info WHERE app_id = #{applicationId};
+    DELETE FROM tbl_vm_image_export_info WHERE app_id = #{applicationId};
+    DELETE FROM tbl_vm_port WHERE app_id = #{applicationId};
+    DELETE FROM tbl_vm_certificate WHERE app_id = #{applicationId};
   </delete>
 
   <select id="getAllVMsByAppId" parameterType="String" resultMap="VMMap">
@@ -148,7 +165,9 @@
     UPDATE
     tbl_vm_certificate
     SET
-    certificate_type = #{certificate.certificateType}, pwd_certificate = #{certificate.pwdCertificate}, key_pair_certificate = #{certificate.keyPairCertificate}
+    certificate_type = #{certificate.certificateType},
+    pwd_certificate = #{certificate.pwdCertificate, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonTypeHandler},
+    key_pair_certificate = #{certificate.keyPairCertificate, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonTypeHandler}
     WHERE
     vm_id = #{vmId}
   </update>

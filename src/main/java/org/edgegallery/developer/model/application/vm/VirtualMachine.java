@@ -35,7 +35,11 @@ public class VirtualMachine {
 
     private String flavorId;
 
+    // base image
     private Integer imageId;
+
+    // target pack image
+    private Integer targetImageId;
 
     private VMCertificate vmCertificate;
 

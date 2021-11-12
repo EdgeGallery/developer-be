@@ -24,6 +24,8 @@ import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
 import java.util.Map;
 import org.edgegallery.developer.mapper.operation.OperationStatusMapper;
+import org.edgegallery.developer.model.application.vm.EnumVMStatus;
+import org.edgegallery.developer.model.application.vm.VirtualMachine;
 import org.edgegallery.developer.model.instantiate.vm.EnumVMInstantiateStatus;
 import org.edgegallery.developer.model.instantiate.vm.PortInstantiateInfo;
 import org.edgegallery.developer.model.instantiate.vm.VMInstantiateInfo;
@@ -35,6 +37,7 @@ import org.edgegallery.developer.service.application.action.impl.InstantiateAppA
 import org.edgegallery.developer.service.application.common.EnumInstantiateStatus;
 import org.edgegallery.developer.service.application.common.IContextParameter;
 import org.edgegallery.developer.service.application.vm.VMAppOperationService;
+import org.edgegallery.developer.service.application.vm.VMAppVmService;
 import org.edgegallery.developer.util.HttpClientUtil;
 import org.edgegallery.developer.util.InputParameterUtil;
 import org.edgegallery.developer.util.IpCalculateUtil;
@@ -49,11 +52,19 @@ public class InstantiateVMAppAction extends InstantiateAppAction {
     OperationStatusMapper operationStatusMapper = (OperationStatusMapper) SpringContextUtil.getBean(
         OperationStatusMapper.class);
 
+    VMAppVmService vmAppVmService = (VMAppVmService) SpringContextUtil.getBean(VMAppVmService.class);
+
     public boolean saveInstanceIdToInstantiateInfo(String appInstanceId, EnumVMInstantiateStatus status) {
+        String applicationId = (String) getContext().getParameter(IContextParameter.PARAM_APPLICATION_ID);
         String vmId = (String) getContext().getParameter(IContextParameter.PARAM_VM_ID);
         VMInstantiateInfo instantiateInfo = vmAppOperationService.getInstantiateInfo(vmId);
         instantiateInfo.setAppInstanceId(appInstanceId);
         instantiateInfo.setStatus(status);
+        if (status.equals(EnumVMInstantiateStatus.SUCCESS)) {
+            VirtualMachine vm = vmAppVmService.getVm(applicationId, vmId);
+            vm.setStatus(EnumVMStatus.DEPLOYED);
+            vmAppVmService.updateVmStatus(vmId, EnumVMStatus.DEPLOYED, null);
+        }
         return vmAppOperationService.updateInstantiateInfo(vmId, instantiateInfo);
     }
 

@@ -17,18 +17,16 @@ package org.edgegallery.developer.service.application.action.impl.vm;
 
 import java.lang.reflect.Type;
 import org.apache.commons.lang3.StringUtils;
-import org.edgegallery.developer.domain.model.user.User;
 import org.edgegallery.developer.mapper.application.vm.ImageExportInfoMapper;
 import org.edgegallery.developer.model.LcmLog;
 import org.edgegallery.developer.model.application.Application;
-import org.edgegallery.developer.model.application.vm.VirtualMachine;
 import org.edgegallery.developer.model.instantiate.vm.EnumImageExportStatus;
 import org.edgegallery.developer.model.instantiate.vm.ImageExportInfo;
 import org.edgegallery.developer.model.resource.mephost.MepHost;
 import org.edgegallery.developer.model.operation.ActionStatus;
 import org.edgegallery.developer.model.operation.EnumActionStatus;
 import org.edgegallery.developer.model.operation.EnumOperationObjectType;
-import org.edgegallery.developer.model.vm.VmImageInfo;
+import org.edgegallery.developer.model.vm.MepmVmImageInfo;
 import org.edgegallery.developer.service.application.ApplicationService;
 import org.edgegallery.developer.service.application.action.impl.AbstractAction;
 import org.edgegallery.developer.service.application.common.EnumExportImageStatus;
@@ -181,13 +179,13 @@ public class CreateImageAction extends AbstractAction {
                 // compare time between now and deployDate
                 return EnumExportImageStatus.EXPORT_IMAGE_STATUS_ERROR;
             }
-            Type vmInfoType = new TypeToken<VmImageInfo>() { }.getType();
-            VmImageInfo vmImageInfo = gson.fromJson(workStatus, vmInfoType);
-            if (vmImageInfo.getStatus().equals(EnumExportImageStatus.EXPORT_IMAGE_STATUS_SUCCESS.toString())) {
-                saveImageNameAndUrl(vmImageInfo.getUrl(), vmImageInfo.getImageName());
+            Type vmInfoType = new TypeToken<MepmVmImageInfo>() { }.getType();
+            MepmVmImageInfo mepmVmImageInfo = gson.fromJson(workStatus, vmInfoType);
+            if (mepmVmImageInfo.getStatus().equals(EnumExportImageStatus.EXPORT_IMAGE_STATUS_SUCCESS.toString())) {
+                saveImageNameAndUrl(mepmVmImageInfo.getUrl(), mepmVmImageInfo.getImageName());
                 return EnumExportImageStatus.EXPORT_IMAGE_STATUS_SUCCESS;
             }
-            if (vmImageInfo.getStatus().equals(EnumExportImageStatus.EXPORT_IMAGE_STATUS_FAILED.toString())) {
+            if (mepmVmImageInfo.getStatus().equals(EnumExportImageStatus.EXPORT_IMAGE_STATUS_FAILED.toString())) {
                 return EnumExportImageStatus.EXPORT_IMAGE_STATUS_FAILED;
             }
             try {

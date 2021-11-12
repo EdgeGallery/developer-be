@@ -524,15 +524,14 @@ public class VMImageServiceImpl implements VMImageService {
     }
 
     @Override
-    public boolean createVmImageAllInfo(VMImage vmImage) {
+    public VMImage createVmImageAllInfo(VMImage vmImage) {
         int res = vmImageMapper.createVmImageAllInfo(vmImage);
         if (res < 1) {
             LOGGER.error("create image fail.");
-            return false;
+            return null;
         }
-        return true;
+        return vmImageMapper.getVmImageByName(vmImage.getName(), vmImage.getUserId());
     }
-
     @Override
     public VMImage getVmImagesById(Integer imageId) {
         return vmImageMapper.getVmImage(imageId);
