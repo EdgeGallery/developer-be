@@ -37,9 +37,9 @@ public class ImageDesc {
 
     private String diskFormat;
 
-    private int minDisk;
+    private int minDisk = 0;
 
-    private int minRam = 6;
+    private int minRam = 0;
 
     private String architecture;
 
@@ -51,7 +51,7 @@ public class ImageDesc {
     private String hwScsiModel = "virtio-scsi";
 
     @SerializedName("hw_disk_bus")
-    private String hwDiskBus = "scsi";
+    private String hwDiskBus = "virtio";
 
     private String operatingSystem;
 

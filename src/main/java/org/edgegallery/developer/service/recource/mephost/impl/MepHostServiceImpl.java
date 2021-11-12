@@ -228,11 +228,6 @@ public class MepHostServiceImpl implements MepHostService {
             LOGGER.error("save config file failed!");
             throw new DataBaseException("Failed to save file!", ResponseConsts.RET_CERATE_DATA_FAIL);
         }
-        int ret = uploadFileMapper.updateFileStatus(result.getFileId(), false);
-        if (ret < 1) {
-            LOGGER.error("update config file status failed!!");
-            throw new DataBaseException("update config file status failed!", ResponseConsts.RET_UPDATE_DATA_FAIL);
-        }
         return result;
     }
 

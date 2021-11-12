@@ -17,9 +17,11 @@ package org.edgegallery.developer.service.application.action.impl.vm;
 
 import java.lang.reflect.Type;
 import org.apache.commons.lang3.StringUtils;
+import org.edgegallery.developer.domain.model.user.User;
 import org.edgegallery.developer.mapper.application.vm.ImageExportInfoMapper;
 import org.edgegallery.developer.model.LcmLog;
 import org.edgegallery.developer.model.application.Application;
+import org.edgegallery.developer.model.application.vm.VirtualMachine;
 import org.edgegallery.developer.model.instantiate.vm.EnumImageExportStatus;
 import org.edgegallery.developer.model.instantiate.vm.ImageExportInfo;
 import org.edgegallery.developer.model.resource.mephost.MepHost;
@@ -108,6 +110,7 @@ public class CreateImageAction extends AbstractAction {
             String imageErrorLog = "Query export image status failed, the result is: " + exportImageStatus;
             updateActionError(actionStatus, imageErrorLog);
             modifyImageExportInfo(EnumImageExportStatus.FAILED, imageErrorLog);
+            sendDeleteVmImageToLcm(mepHost);
             return false;
         }
         actionStatus.setStatus(EnumActionStatus.SUCCESS);
@@ -116,7 +119,7 @@ public class CreateImageAction extends AbstractAction {
 
         return true;
     }
-    
+
 
     private Boolean saveImageIdToImageExportInfo(String imageId) {
         String vmId = (String) getContext().getParameter(IContextParameter.PARAM_VM_ID);
@@ -156,6 +159,14 @@ public class CreateImageAction extends AbstractAction {
         JsonObject jsonObject = new JsonParser().parse(imageResult).getAsJsonObject();
         JsonElement imageId = jsonObject.get("imageId");
         return imageId.getAsString();
+    }
+
+    private void sendDeleteVmImageToLcm(MepHost mepHost) {
+        String imageId = (String) getContext().getParameter(IContextParameter.PARAM_IMAGE_INSTANCE_ID);
+        String appInstanceId = (String) getContext().getParameter(IContextParameter.PARAM_APP_INSTANCE_ID);
+        String basePath = HttpClientUtil.getUrlPrefix(mepHost.getLcmProtocol(), mepHost.getLcmIp(), mepHost.getLcmPort());
+        HttpClientUtil.deleteVmImage(basePath, getContext().getUserId(), appInstanceId,
+            imageId, getContext().getToken());
     }
 
     private EnumExportImageStatus queryImageStatus(MepHost mepHost, String imageId, LcmLog lcmLog) {

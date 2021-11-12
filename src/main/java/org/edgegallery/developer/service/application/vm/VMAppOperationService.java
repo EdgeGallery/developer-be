@@ -15,7 +15,6 @@
  */
 package org.edgegallery.developer.service.application.vm;
 
-import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
 import org.edgegallery.developer.domain.model.user.User;
 import org.edgegallery.developer.model.Chunk;
@@ -24,10 +23,7 @@ import org.edgegallery.developer.model.apppackage.AppPackage;
 import org.edgegallery.developer.model.instantiate.vm.ImageExportInfo;
 import org.edgegallery.developer.model.instantiate.vm.VMInstantiateInfo;
 import org.edgegallery.developer.model.restful.OperationInfoRep;
-import org.edgegallery.developer.response.FormatRespDto;
-import org.edgegallery.developer.service.application.AppOperationService;
 import org.springframework.http.ResponseEntity;
-import com.spencerwi.either.Either;
 
 public interface VMAppOperationService {
 
