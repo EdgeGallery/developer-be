@@ -35,7 +35,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 @RestSchema(schemaId = "userdata")
 @RequestMapping("/mec/developer/v2/user-data")
 @Api(tags = "userdata")
-public class UserDateCtl {
+public class UserDataCtl {
 
     @Autowired
     UserDataService userDataService;

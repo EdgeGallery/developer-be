@@ -16,6 +16,7 @@ package org.edgegallery.developer.mapper.resource.vm;
 
 import java.util.List;
 import java.util.Map;
+import org.apache.ibatis.annotations.Options;
 import org.apache.ibatis.annotations.Param;
 import org.edgegallery.developer.model.resource.vm.UploadFileInfo;
 import org.edgegallery.developer.model.resource.vm.VMImage;
@@ -51,5 +52,6 @@ public interface VMImageMapper {
 
     int updateVmImageInfo(@Param("imageId") Integer imageId, @Param("imageSize") Long imageSize, @Param("fileMd5") String fileMd5);
 
-    VMImage createVmImageAllInfo(VMImage vmImage);
+    @Options(useGeneratedKeys=true, keyProperty="id")
+    int createVmImageAllInfo(VMImage vmImage);
 }

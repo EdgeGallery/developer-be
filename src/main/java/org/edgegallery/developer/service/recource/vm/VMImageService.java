@@ -46,11 +46,10 @@ public interface VMImageService {
 
     ResponseEntity mergeVmImage(String fileName, String identifier, Integer imageId);
 
-    ResponseEntity<byte[]> downloadVmImage(Integer imageId);
+    byte[] downloadVmImage(Integer imageId);
 
     Boolean imageSlim(Integer imageId);
 
     VMImage createVmImageAllInfo(VMImage vmImage);
 
-    VMImage getVmImagesById(Integer imageId);
 }
