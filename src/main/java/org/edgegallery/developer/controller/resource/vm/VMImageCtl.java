@@ -66,7 +66,7 @@ public class VMImageCtl {
         @ApiResponse(code = 200, message = "OK", response = VMImageRes.class),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
-    @RequestMapping(value = "/list", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_UTF8_VALUE,
+    @RequestMapping(value = "/action/get-list", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_UTF8_VALUE,
         produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_ADMIN')|| hasRole('DEVELOPER_TENANT')")
     public ResponseEntity<VMImageRes> getVmImages(
@@ -80,7 +80,7 @@ public class VMImageCtl {
      *
      * @return
      */
-    @ApiOperation(value = "get vm image by id.)", response = VMImage.class)
+    @ApiOperation(value = "get vm image by id.", response = VMImage.class)
     @ApiResponses(value = {
         @ApiResponse(code = 200, message = "OK", response = VMImage.class),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
