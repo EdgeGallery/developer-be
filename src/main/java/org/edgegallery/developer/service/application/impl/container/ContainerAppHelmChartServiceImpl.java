@@ -19,6 +19,7 @@ package org.edgegallery.developer.service.application.impl.container;
 import com.google.common.collect.Lists;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -30,7 +31,6 @@ import org.edgegallery.developer.exception.DataBaseException;
 import org.edgegallery.developer.exception.EntityNotFoundException;
 import org.edgegallery.developer.exception.FileOperateException;
 import org.edgegallery.developer.exception.IllegalRequestException;
-import org.edgegallery.developer.mapper.ProjectImageMapper;
 import org.edgegallery.developer.mapper.UploadedFileMapper;
 import org.edgegallery.developer.mapper.application.ApplicationMapper;
 import org.edgegallery.developer.mapper.application.container.ContainerAppImageInfoMapper;
@@ -38,12 +38,14 @@ import org.edgegallery.developer.mapper.application.container.HelmChartMapper;
 import org.edgegallery.developer.model.application.Application;
 import org.edgegallery.developer.model.application.container.ContainerAppImageInfo;
 import org.edgegallery.developer.model.application.container.HelmChart;
-import org.edgegallery.developer.model.workspace.ProjectImageConfig;
 import org.edgegallery.developer.model.workspace.UploadedFile;
+import org.edgegallery.developer.service.application.AppConfigurationService;
 import org.edgegallery.developer.service.application.container.ContainerAppHelmChartService;
 import org.edgegallery.developer.util.BusinessConfigUtil;
 import org.edgegallery.developer.util.ContainerAppHelmChartUtil;
 import org.edgegallery.developer.util.UploadFileUtil;
+import org.edgegallery.developer.util.helmcharts.IContainerFileHandler;
+import org.edgegallery.developer.util.helmcharts.LoadContainerFileFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -68,6 +70,52 @@ public class ContainerAppHelmChartServiceImpl implements ContainerAppHelmChartSe
 
     @Autowired
     private UploadedFileMapper uploadedFileMapper;
+
+    @Autowired
+    private AppConfigurationService appConfigurationService;
+
+    public HelmChart uploadHelmChartFile(String applicationId, MultipartFile helmTemplateYaml) {
+        try {
+            String filePath = saveLoadedFileToTempDir(helmTemplateYaml);
+            IContainerFileHandler containerFileHandler = LoadContainerFileFactory.createLoader(filePath);
+            assert containerFileHandler != null;
+            containerFileHandler.load(filePath);
+
+            // default dependency mep service.
+            containerFileHandler.setHasMep(true);
+
+            // create charts-file(.tgz) and export it to the outPath.
+            String helmCharts = containerFileHandler.exportHelmCharts("");
+
+            String fileId = ContainerAppHelmChartUtil
+                .writeContentToFile(Files.readAllBytes(new File(helmCharts).toPath()));
+
+            // create a file id, and update
+            HelmChart helmChart = new HelmChart();
+            helmChart.setId(UUID.randomUUID().toString());
+            helmChart.setHelmChartFileId(fileId);
+            helmChart.setName(helmTemplateYaml.getName());
+            helmChart.setApplicationId(applicationId);
+            helmChart.setFilesList(containerFileHandler.getCatalog());
+            int res = helmChartMapper.createHelmChart(applicationId, helmChart);
+            if (res < 1) {
+                LOGGER.error("Failed to save helm chart!");
+                throw new DataBaseException("Failed to save helm chart!", ResponseConsts.RET_CERATE_DATA_FAIL);
+            }
+            return helmChart;
+        } catch (IOException e) {
+            return null;
+        }
+    }
+
+    private String saveLoadedFileToTempDir(MultipartFile helmTemplateYaml) throws IOException {
+        File tempFile = File.createTempFile(UUID.randomUUID().toString(), "eg-dev-");
+        assert tempFile.mkdirs();
+        String path = tempFile.getCanonicalPath();
+        File loadFile = new File(path + File.separator + helmTemplateYaml.getName());
+        helmTemplateYaml.transferTo(loadFile);
+        return loadFile.getCanonicalPath();
+    }
 
     @Override
     public Boolean uploadHelmChartYaml(MultipartFile helmTemplateYaml, String applicationId) {
@@ -101,6 +149,11 @@ public class ContainerAppHelmChartServiceImpl implements ContainerAppHelmChartSe
             return handleImageAndHelmchart(tempFile, applicationId, helmTemplateYaml, fileId);
         }
         return handleImageAndHelmchart(tempFile, applicationId, helmTemplateYaml, fileId);
+    }
+
+    @Override
+    public Boolean createHelmCharts(MultipartFile helmChartFile, String applicationId) {
+        return null;
     }
 
     @Override
@@ -152,6 +205,21 @@ public class ContainerAppHelmChartServiceImpl implements ContainerAppHelmChartSe
             throw new DataBaseException("delete helm chart file failed!", ResponseConsts.RET_DELETE_DATA_FAIL);
         }
         return true;
+    }
+
+    @Override
+    public byte[] downloadHelmChart(String applicationId, String id) {
+        return new byte[0];
+    }
+
+    @Override
+    public String getFileContentByFilePath(String application, String id, String filePath) {
+        return null;
+    }
+
+    @Override
+    public Boolean modifyFileContentByFilePath(String application, String id, String filePath, String content) {
+        return null;
     }
 
     private void saveFileRecord(String fileId, String fileName) {

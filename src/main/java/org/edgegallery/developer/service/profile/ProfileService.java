@@ -15,7 +15,9 @@
 package org.edgegallery.developer.service.profile;
 
 import org.edgegallery.developer.domain.shared.Page;
+import org.edgegallery.developer.model.application.Application;
 import org.edgegallery.developer.model.profile.ProfileInfo;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.multipart.MultipartFile;
 
 public interface ProfileService {
@@ -60,5 +62,22 @@ public interface ProfileService {
      * @return true
      */
     Boolean deleteProfileById(String profileId);
+
+    /**
+     * download profile by id.
+     *
+     * @param profileId profile id
+     * @return profile content
+     */
+    ResponseEntity<byte[]> downloadProfileById(String profileId);
+
+    /**
+     * create application by profile id.
+     *
+     * @param profileId profile id
+     * @param iconFile icon file
+     * @return application info
+     */
+    Application createAppByProfileId(String profileId, MultipartFile iconFile);
 }
 
