@@ -40,7 +40,7 @@ public class UploadFileInfo {
 
     private String status;
 
-    private String downloadUrl;
+    private String downLoadUrl;
 
     /**
      * constructor.
@@ -94,6 +94,6 @@ public class UploadFileInfo {
     public void assign(int fileId, EnumVmImageStatus status, String downloadUrl) {
         setFileId(fileId);
         setStatus(status.toString());
-        setDownloadUrl(downloadUrl);
+        setDownLoadUrl(downloadUrl);
     }
 }
