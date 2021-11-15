@@ -507,10 +507,6 @@ public class VMImageServiceImpl implements VMImageService {
         }
         return vmImageMapper.getVmImageByName(vmImage.getName(), vmImage.getUserId());
     }
-    @Override
-    public VMImage getVmImagesById(Integer imageId) {
-        return vmImageMapper.getVmImage(imageId);
-    }
 
     private boolean isAdminUser() {
         String currUserAuth = AccessUserUtil.getUser().getUserAuth();
