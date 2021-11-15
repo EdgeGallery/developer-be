@@ -14,9 +14,6 @@
 
 package org.edgegallery.developer.util.helmcharts;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.gson.Gson;
-import com.google.gson.annotations.SerializedName;
 import java.util.List;
 import java.util.UUID;
 import lombok.Builder;
@@ -34,7 +31,6 @@ public class EgValuesYaml {
 
     private Global global;
 
-    @SerializedName("appconfig")
     private AppConfig appConfig;
 
     private List<ServiceConfig> serviceConfig;
