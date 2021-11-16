@@ -181,7 +181,8 @@ public class AppOperationServiceImpl implements AppOperationService {
         checkParamNull(appPkg.getId(), "app package content is empty. applicationId: ".concat(applicationId));
         UploadFile iconFile = uploadMapper.getFileById(app.getIconFileId());
         checkParamNull(iconFile, "file icon is empty. iconFileId: ".concat(app.getIconFileId()));
-        checkAtpTestStatus(app.getAtpTestTaskList());
+        List<AtpTest> testList = getAtpTests(applicationId);
+        checkAtpTestStatus(testList);
 
         Map<String, Object> map = new HashMap<>();
         map.put("file", new FileSystemResource(new File(appPkg.queryPkgPath())));
@@ -190,7 +191,7 @@ public class AppOperationServiceImpl implements AppOperationService {
         map.put("shortDesc", app.getDescription());
         map.put("affinity", app.getArchitecture());
         map.put("industry", app.getIndustry());
-        map.put("testTaskId", app.getAtpTestTaskList().get(0));
+        map.put("testTaskId", testList.get(0));
         ResponseEntity<String> uploadReslut = AppStoreUtil.storeToAppStore(map, user);
         checkInnerParamNull(uploadReslut, "upload app to appstore fail!");
 
