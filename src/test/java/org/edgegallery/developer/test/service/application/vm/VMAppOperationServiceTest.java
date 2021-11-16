@@ -14,8 +14,11 @@
 
 package org.edgegallery.developer.test.service.application.vm;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import mockit.Mock;
@@ -23,6 +26,8 @@ import mockit.MockUp;
 import org.apache.commons.io.FileUtils;
 import org.apache.ibatis.io.Resources;
 import org.edgegallery.developer.domain.model.user.User;
+import org.edgegallery.developer.mapper.application.vm.VMInstantiateInfoMapper;
+import org.edgegallery.developer.model.Chunk;
 import org.edgegallery.developer.model.LcmLog;
 import org.edgegallery.developer.model.application.Application;
 import org.edgegallery.developer.model.instantiate.vm.VMInstantiateInfo;
@@ -30,13 +35,16 @@ import org.edgegallery.developer.model.operation.EnumActionStatus;
 import org.edgegallery.developer.model.operation.OperationStatus;
 import org.edgegallery.developer.model.restful.OperationInfoRep;
 import org.edgegallery.developer.model.uploadfile.UploadFile;
+import org.edgegallery.developer.model.vm.FileUploadEntity;
+import org.edgegallery.developer.model.vm.ScpConnectEntity;
 import org.edgegallery.developer.service.application.ApplicationService;
 import org.edgegallery.developer.service.application.OperationStatusService;
-import org.edgegallery.developer.service.application.vm.VMAppOperationService;
+import org.edgegallery.developer.service.application.impl.vm.VMAppOperationServiceImpl;
 import org.edgegallery.developer.service.application.vm.VMAppVmService;
 import org.edgegallery.developer.service.uploadfile.UploadFileService;
 import org.edgegallery.developer.test.DeveloperApplicationTests;
 import org.edgegallery.developer.util.HttpClientUtil;
+import org.edgegallery.developer.util.ShhFileUploadUtil;
 import org.edgegallery.developer.util.SpringContextUtil;
 import org.junit.Assert;
 import org.junit.Before;
@@ -46,9 +54,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.junit4.AbstractJUnit4SpringContextTests;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 @SpringBootTest(classes = DeveloperApplicationTests.class)
@@ -59,15 +69,19 @@ public class VMAppOperationServiceTest extends AbstractJUnit4SpringContextTests 
 
     private final String PRESET_VM_ID = "6a75a2bd-9811-432f-bbe8-2813aa97d757";
 
+    private final String PRESET_VM1_ID = "6a75a2bd-9811-432f-bbe8-2813aa97d758";
+
     private static final Logger LOGGER = LoggerFactory.getLogger(VMAppOperationServiceTest.class);
 
     private static final int MAX_TRY_NUMBER = 5;
+
+    private static final int CHUNK_SIZE = 102400;
 
     @Autowired
     private VMAppVmService vmAppVmService;
 
     @Autowired
-    private VMAppOperationService vmAppOperationService;
+    private VMAppOperationServiceImpl vmAppOperationService;
 
     @Autowired
     private OperationStatusService operationStatusService;
@@ -77,6 +91,9 @@ public class VMAppOperationServiceTest extends AbstractJUnit4SpringContextTests 
 
     @Autowired
     private ApplicationService applicationService;
+
+    @Autowired
+    VMInstantiateInfoMapper vmInstantiateInfoMapper;
 
     private enum LcmReturnMockTypeEnum {
         UPLOAD_PKG_FAILED,
@@ -110,7 +127,8 @@ public class VMAppOperationServiceTest extends AbstractJUnit4SpringContextTests 
             application.setGuideFileId(mdFileInfo.getFileId());
             applicationService.modifyApplication(PRESET_APPLICATION_ID, application);
         } catch (IOException e) {
-            e.printStackTrace();
+            LOGGER.error("Exception happens", e);
+            Assert.fail();
         }
     }
 
@@ -123,11 +141,12 @@ public class VMAppOperationServiceTest extends AbstractJUnit4SpringContextTests 
             Assert.assertEquals(100, status.getProgress());
             //InstantiateInfo created check.
             VMInstantiateInfo instantiateInfo = vmAppOperationService.getInstantiateInfo(PRESET_VM_ID);
-            Assert.assertNotNull(instantiateInfo.getAppInstanceId());
-            Assert.assertNotNull(instantiateInfo.getVmInstanceId());
-            Assert.assertNotNull(instantiateInfo.getVncUrl());
+            Assert.assertFalse(StringUtils.isEmpty(instantiateInfo.getAppInstanceId()));
+            Assert.assertFalse(StringUtils.isEmpty(instantiateInfo.getVmInstanceId()));
+            Assert.assertFalse(StringUtils.isEmpty(instantiateInfo.getVncUrl()));
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.error("Exception happens", e);
+            Assert.fail();
         }
     }
 
@@ -139,12 +158,14 @@ public class VMAppOperationServiceTest extends AbstractJUnit4SpringContextTests 
             Assert.assertEquals(EnumActionStatus.FAILED, status.getStatus());
             //InstantiateInfo created check.
             VMInstantiateInfo instantiateInfo = vmAppOperationService.getInstantiateInfo(PRESET_VM_ID);
-            Assert.assertNotNull(instantiateInfo.getAppPackageId());
-            Assert.assertNull(instantiateInfo.getMepmPackageId());
+            Assert.assertFalse(StringUtils.isEmpty(instantiateInfo.getAppPackageId()));
+            Assert.assertTrue(StringUtils.isEmpty(instantiateInfo.getMepmPackageId()));
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.error("Exception happens", e);
+            Assert.fail();
         }
     }
+
     @Test
     public void testInstantiateVMDistributePkgFailed() {
         mockLcmReturnInfo(LcmReturnMockTypeEnum.DISTRIBUTE_PKG_FAILED);
@@ -153,10 +174,11 @@ public class VMAppOperationServiceTest extends AbstractJUnit4SpringContextTests 
             Assert.assertEquals(EnumActionStatus.FAILED, status.getStatus());
             //InstantiateInfo created check.
             VMInstantiateInfo instantiateInfo = vmAppOperationService.getInstantiateInfo(PRESET_VM_ID);
-            Assert.assertNotNull(instantiateInfo.getMepmPackageId());
-            Assert.assertNull(instantiateInfo.getDistributedMecHost());
+            Assert.assertFalse(StringUtils.isEmpty(instantiateInfo.getMepmPackageId()));
+            Assert.assertTrue(StringUtils.isEmpty(instantiateInfo.getAppInstanceId()));
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.error("Exception happens", e);
+            Assert.fail();
         }
     }
 
@@ -168,10 +190,12 @@ public class VMAppOperationServiceTest extends AbstractJUnit4SpringContextTests 
             Assert.assertEquals(EnumActionStatus.FAILED, status.getStatus());
             //InstantiateInfo created check.
             VMInstantiateInfo instantiateInfo = vmAppOperationService.getInstantiateInfo(PRESET_VM_ID);
-            Assert.assertNotNull(instantiateInfo.getMepmPackageId());
-            Assert.assertNull(instantiateInfo.getDistributedMecHost());
+            Assert.assertFalse(StringUtils.isEmpty(instantiateInfo.getMepmPackageId()));
+            Assert.assertFalse(StringUtils.isEmpty(instantiateInfo.getDistributedMecHost()));
+            Assert.assertTrue(StringUtils.isEmpty(instantiateInfo.getAppInstanceId()));
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.error("Exception happens", e);
+            Assert.fail();
         }
     }
 
@@ -183,10 +207,11 @@ public class VMAppOperationServiceTest extends AbstractJUnit4SpringContextTests 
             Assert.assertEquals(EnumActionStatus.FAILED, status.getStatus());
             //InstantiateInfo created check.
             VMInstantiateInfo instantiateInfo = vmAppOperationService.getInstantiateInfo(PRESET_VM_ID);
-            Assert.assertNotNull(instantiateInfo.getDistributedMecHost());
-            Assert.assertNull(instantiateInfo.getAppInstanceId());
+            Assert.assertFalse(StringUtils.isEmpty(instantiateInfo.getDistributedMecHost()));
+            Assert.assertTrue(StringUtils.isEmpty(instantiateInfo.getAppInstanceId()));
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.error("Exception happens", e);
+            Assert.fail();
         }
     }
 
@@ -202,10 +227,61 @@ public class VMAppOperationServiceTest extends AbstractJUnit4SpringContextTests 
             Assert.assertNull(instantiateInfo.getVmInstanceId());
             Assert.assertNull(instantiateInfo.getVncUrl());
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.error("Exception happens", e);
+            Assert.fail();
         }
     }
+
+    @Test
+    public void testUploadFileToVmSuccess() {
+        new MockUp<ShhFileUploadUtil>(ShhFileUploadUtil.class) {
+            @Mock
+            public FileUploadEntity uploadFile(File file, String remoteFileName, ScpConnectEntity scpConnectEntity) {
+                return new FileUploadEntity("ok", "Success to upload file.", null);
+            }
+        };
+        try {
+            File file = Resources.getResourceAsFile("testdata/IDEAPluginDev.zip");
+            InputStream stream = new FileInputStream(file);
+            int length = stream.available();
+
+            byte[] chunkData = new byte[CHUNK_SIZE];
+            int chunkNumber = 1;
+            int totalSize = length / CHUNK_SIZE;
+            int currentSize = 0;
+            while ((currentSize = stream.read(chunkData, 0, CHUNK_SIZE)) != -1) {
+                MultipartFile chunkMultipart = new MockMultipartFile("IDEAPluginDev.zip", "IDEAPluginDev.zip", null,
+                    new ByteArrayInputStream(chunkData, 0, currentSize));
+                MockHttpServletRequest mockRequest = new MockHttpServletRequest("POST", "uri");
+                mockRequest.setContentType("multipart/form-data");
+                Chunk chunk = new Chunk();
+                chunk.setChunkNumber(chunkNumber);
+                chunk.setChunkSize((long) CHUNK_SIZE);
+                chunk.setFile(chunkMultipart);
+                chunk.setCurrentChunkSize((long) currentSize);
+                chunk.setFilename("IDEAPluginDev.zip");
+                chunk.setId((long) chunkNumber);
+                chunk.setTotalChunks(totalSize);
+                chunk.setIdentifier("IDEAPluginDev");
+                Boolean res = vmAppOperationService.uploadFileToVm(PRESET_APPLICATION_ID, PRESET_VM1_ID, mockRequest,
+                    chunk);
+                Assert.assertTrue(res);
+                chunkNumber++;
+            }
+
+            Boolean mergeResult = vmAppOperationService.mergeAppFile(PRESET_APPLICATION_ID, PRESET_VM1_ID,
+                "IDEAPluginDev.zip", "IDEAPluginDev");
+            Assert.assertTrue(mergeResult);
+        } catch (IOException e) {
+            LOGGER.error("Exception happens", e);
+            Assert.fail();
+        }
+    }
+
     private OperationStatus callInstantiateVM() {
+        //Clean instantiate data in db.
+        vmInstantiateInfoMapper.deleteVMInstantiateInfo(PRESET_VM_ID);
+        //Sent instantiate request.
         User user = new User("testId", "testUser", "testAuth", "testToken");
         OperationInfoRep operationInfo = vmAppOperationService.instantiateVM(PRESET_APPLICATION_ID, PRESET_VM_ID, user);
         OperationStatus status = null;
