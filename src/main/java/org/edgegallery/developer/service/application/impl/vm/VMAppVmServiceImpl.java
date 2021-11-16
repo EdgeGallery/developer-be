@@ -22,9 +22,11 @@ import org.edgegallery.developer.common.ResponseConsts;
 import org.edgegallery.developer.exception.DataBaseException;
 import org.edgegallery.developer.exception.EntityNotFoundException;
 import org.edgegallery.developer.mapper.application.vm.VMMapper;
+import org.edgegallery.developer.model.application.EnumApplicationStatus;
 import org.edgegallery.developer.model.application.vm.EnumVMStatus;
 import org.edgegallery.developer.model.application.vm.VMPort;
 import org.edgegallery.developer.model.application.vm.VirtualMachine;
+import org.edgegallery.developer.service.application.ApplicationService;
 import org.edgegallery.developer.service.application.vm.VMAppOperationService;
 import org.edgegallery.developer.service.application.vm.VMAppVmService;
 import org.slf4j.Logger;
@@ -47,6 +49,9 @@ public class VMAppVmServiceImpl implements VMAppVmService {
     @Autowired
     VMAppOperationService vmAppOperationService;
 
+    @Autowired
+    ApplicationService applicationService;
+
     @Override
     public VirtualMachine createVm(String applicationId, VirtualMachine virtualMachine) {
         virtualMachine.setId(UUID.randomUUID().toString());
@@ -64,6 +69,7 @@ public class VMAppVmServiceImpl implements VMAppVmService {
                 createVmPort(virtualMachine.getId(), port);
             }
         }
+        applicationService.updateApplicationStatus(applicationId, EnumApplicationStatus.CONFIGURED);
         return virtualMachine;
     }
 
