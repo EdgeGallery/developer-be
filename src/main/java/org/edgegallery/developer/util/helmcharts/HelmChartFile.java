@@ -28,7 +28,7 @@ public class HelmChartFile {
 
     private String name;
 
-    private String path;
+    private String innerPath;
 
     private List<HelmChartFile> children;
 }

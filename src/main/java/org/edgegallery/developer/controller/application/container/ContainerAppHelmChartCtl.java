@@ -100,8 +100,8 @@ public class ContainerAppHelmChartCtl {
     public ResponseEntity<HelmChart> getHelmChartById(
         @Pattern(regexp = REGEX_UUID, message = "applicationId must be in UUID format")
         @ApiParam(value = "applicationId", required = true) @PathVariable("applicationId") String applicationId,
-        @ApiParam(value = "helmchartId", required = true) @PathVariable("helmchartId") String id) {
-        return ResponseEntity.ok(containerAppHelmChartService.getHelmChartById(applicationId, id));
+        @ApiParam(value = "helmchartId", required = true) @PathVariable("helmchartId") String helmChartId) {
+        return ResponseEntity.ok(containerAppHelmChartService.getHelmChartById(applicationId, helmChartId));
     }
 
     /**
@@ -119,8 +119,8 @@ public class ContainerAppHelmChartCtl {
         @Pattern(regexp = REGEX_UUID, message = "applicationId must be in UUID format")
         @ApiParam(value = "applicationId", required = true) @PathVariable("applicationId") String applicationId,
         @Pattern(regexp = REGEX_UUID, message = "fileId must be in UUID format")
-        @ApiParam(value = "helmchartId", required = true) @PathVariable("helmchartId") String id) {
-        return ResponseEntity.ok(containerAppHelmChartService.deleteHelmChartById(applicationId, id));
+        @ApiParam(value = "helmchartId", required = true) @PathVariable("helmchartId") String helmChartId) {
+        return ResponseEntity.ok(containerAppHelmChartService.deleteHelmChartById(applicationId, helmChartId));
     }
 
     /**
@@ -138,8 +138,8 @@ public class ContainerAppHelmChartCtl {
         @Pattern(regexp = REGEX_UUID, message = "applicationId must be in UUID format")
         @ApiParam(value = "applicationId", required = true) @PathVariable("applicationId") String applicationId,
         @Pattern(regexp = REGEX_UUID, message = "fileId must be in UUID format")
-        @ApiParam(value = "helmchartId", required = true) @PathVariable("helmchartId") String id) {
-        return ResponseEntity.ok(containerAppHelmChartService.downloadHelmChart(applicationId, id));
+        @ApiParam(value = "helmchartId", required = true) @PathVariable("helmchartId") String helmChartId) {
+        return ResponseEntity.ok(containerAppHelmChartService.downloadHelmChart(applicationId, helmChartId));
     }
 
     /**
@@ -157,8 +157,8 @@ public class ContainerAppHelmChartCtl {
         @Pattern(regexp = REGEX_UUID, message = "applicationId must be in UUID format")
         @ApiParam(value = "applicationId", required = true) @PathVariable("applicationId") String applicationId,
         @Pattern(regexp = REGEX_UUID, message = "fileId must be in UUID format")
-        @ApiParam(value = "helmchartId", required = true) @PathVariable("helmchartId") String id,
+        @ApiParam(value = "helmchartId", required = true) @PathVariable("helmchartId") String helmChartId,
         @ApiParam(value = "filePath", required = true) @RequestParam("filePath") String filePath) {
-        return ResponseEntity.ok(containerAppHelmChartService.getFileContentByFilePath(applicationId, id, filePath));
+        return ResponseEntity.ok(containerAppHelmChartService.getFileContentByFilePath(applicationId, helmChartId, filePath));
     }
 }

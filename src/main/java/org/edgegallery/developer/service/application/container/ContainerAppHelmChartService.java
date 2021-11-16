@@ -30,13 +30,13 @@ public interface ContainerAppHelmChartService {
 
     List<HelmChart> getHelmChartList(String applicationId);
 
-    HelmChart getHelmChartById(String applicationId, String id);
+    HelmChart getHelmChartById(String applicationId, String helmChartId);
 
-    Boolean deleteHelmChartById(String applicationId, String id);
+    Boolean deleteHelmChartById(String applicationId, String helmChartId);
 
-    byte[] downloadHelmChart(String applicationId, String id);
+    byte[] downloadHelmChart(String applicationId, String helmChartId);
 
-    String getFileContentByFilePath(String application, String id, String filePath);
+    String getFileContentByFilePath(String application, String helmChartId, String filePath);
 
-    Boolean modifyFileContentByFilePath(String application, String id, String filePath, String content);
+    Boolean modifyFileContentByFilePath(String application, String helmChartId, String filePath, String content);
 }

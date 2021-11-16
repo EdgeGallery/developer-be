@@ -39,12 +39,9 @@ public class EgValuesYaml {
 
     public static EgValuesYaml createDefaultEgValues() {
         EgValuesYaml defaultValues = new EgValuesYaml();
-        Global global = Global.builder().mepAgent(
-            Global.MepAgent.builder().enabled(true).configMapName("mepagent-" + UUID.randomUUID().toString()).build())
-            .nameSpace(Global.NameSpace.builder().enabled(true).build()).build();
-        defaultValues.setGlobal(global);
-        defaultValues.setAppConfig(AppConfig.builder().appNameSpace("").aksk(new AppConfig.AkSk()).build());
-        defaultValues.setImageLocation(ImageLocation.builder().domainName("192.168.1.1").project("project").build());
+        defaultValues.setGlobal(Global.builder().build());
+        defaultValues.setAppConfig(AppConfig.builder().build());
+        defaultValues.setImageLocation(ImageLocation.builder().build());
         return defaultValues;
     }
 
@@ -57,46 +54,53 @@ public class EgValuesYaml {
     @Setter
     @Builder
     static class Global {
-        private MepAgent mepAgent;
+        @Builder.Default
+        private MepAgent mepAgent = MepAgent.builder().build();
 
-        private NameSpace nameSpace;
+        @Builder.Default
+        private NameSpace nameSpace = NameSpace.builder().build();
 
         @Getter
         @Setter
         @Builder
         static class MepAgent {
-            private boolean enabled;
+            @Builder.Default
+            private boolean enabled = true;
 
-            private String configMapName;
+            @Builder.Default
+            private String configMapName = "mepagent-" + UUID.randomUUID().toString();
         }
 
         @Getter
         @Setter
         @Builder
         static class NameSpace {
-            private boolean enabled;
+            @Builder.Default
+            private boolean enabled = true;
         }
-
     }
 
     @Setter
     @Getter
     @Builder
     static class AppConfig {
-        private String appNameSpace;
+        @Builder.Default
+        private String appNameSpace = "<NAMESPACE>";
 
-        private AkSk aksk;
+        @Builder.Default
+        private AkSk aksk = new AkSk();
 
         @Getter
         @Setter
         static class AkSk {
-            private String secretName = "";
 
-            private String accessKey = "";
+            private String secretName = "<random_value>";
 
-            private String secretKey = "";
+            private String accessKey = "<akvalue>";
 
-            private String appInsId = "";
+            private String secretKey = "<skvalue>";
+
+            private String appInsId = "<idvalue>";
         }
     }
 
@@ -119,9 +123,11 @@ public class EgValuesYaml {
     @Getter
     @Builder
     static class ImageLocation {
-        private String domainName;
+        @Builder.Default
+        private String domainName = "192.168.1.1";
 
-        private String project;
+        @Builder.Default
+        private String project = "project";
     }
 
 }
