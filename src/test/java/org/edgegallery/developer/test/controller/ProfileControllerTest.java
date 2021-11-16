@@ -20,6 +20,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 
 import com.google.gson.Gson;
 import java.io.File;
+import java.util.List;
 import mockit.Mock;
 import mockit.MockUp;
 import org.apache.commons.io.FileUtils;
@@ -28,6 +29,7 @@ import org.edgegallery.developer.config.security.AccessUserUtil;
 import org.edgegallery.developer.domain.model.user.User;
 import org.edgegallery.developer.model.profile.ProfileInfo;
 import org.edgegallery.developer.test.DeveloperApplicationTests;
+import org.edgegallery.developer.util.UploadFileUtil;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -144,6 +146,13 @@ public class ProfileControllerTest {
             @Mock
             public User getUser() {
                 return new User("userId", "userName");
+            }
+        };
+
+        new MockUp<UploadFileUtil>() {
+            @Mock
+            public boolean isExist(List<String> imageList) {
+                return true;
             }
         };
 
