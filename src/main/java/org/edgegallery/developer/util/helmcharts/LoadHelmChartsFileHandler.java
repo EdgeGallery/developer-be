@@ -14,49 +14,49 @@
 
 package org.edgegallery.developer.util.helmcharts;
 
-import java.util.List;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import lombok.Setter;
+import org.apache.commons.io.FileUtils;
+import org.edgegallery.developer.exception.DeveloperException;
+import org.edgegallery.developer.util.CompressFileUtils;
 
-public class LoadHelmChartsFileHandler implements IContainerFileHandler {
+public class LoadHelmChartsFileHandler extends ContainerFileHandlerImp {
 
     @Setter
     private boolean hasMep;
 
-    LoadHelmChartsFileHandler() {
-    }
+    private String filePath;
 
     @Override
-    public void load(String filePath) {
+    public void load(String filePath) throws IOException {
+        try {
+            // create helm-charts temp dir
+            Path tempDir = Files.createTempDirectory("eg-helmcharts-");
+            workspace = tempDir.toString();
 
+            File orgFile = new File(filePath);
+            String fileName = orgFile.getName();
+            Path targetFilePath = Files.createFile(Paths.get(workspace, fileName));
+            FileUtils.copyFile(orgFile, targetFilePath.toFile());
+
+            Path helmChartPath = Files.createDirectory(Paths.get(workspace,
+                fileName.contains(".") ? fileName.substring(0, fileName.lastIndexOf(".")) : fileName));
+
+            // unzip file
+            if (!CompressFileUtils.decompress(targetFilePath.toString(), workspace)) {
+                clean();
+                return;
+            }
+            helmChartsDir = helmChartPath.toString();
+        } catch (IOException e) {
+            FileUtils.deleteDirectory(new File(workspace));
+            workspace = null;
+            throw new DeveloperException("Failed to read k8s config. config:" + filePath);
+        }
     }
 
-    @Override
-    public List<HelmChartFile> getCatalog() {
-        return null;
-    }
-
-    @Override
-    public String exportHelmCharts(String fileName) {
-        return null;
-    }
-
-    @Override
-    public String getContentByInnerPath(String innerPath) {
-        return null;
-    }
-
-    @Override
-    public boolean modifyFileByPath(String filePath, String content) {
-        return false;
-    }
-
-    @Override
-    public void addFile(String filePath, String content) {
-
-    }
-
-    @Override
-    public void clean() {
-
-    }
 }

@@ -58,13 +58,12 @@ public class StageCreateCsar implements IConfigDeployStage {
             csarStatus = EnumTestConfigStatus.Success;
             processSuccess = true;
         } catch (Exception e) {
-            processSuccess = false;
             config.setErrorLog("Deploying on csar failed:" + e.getMessage());
             LOGGER.error("Deploying with test id:{} on csar failed:{}", config.getTestId(), e.getMessage());
         } finally {
             projectService.updateDeployResult(config, project, "csar", csarStatus);
         }
-        return processSuccess == true ? stageService.execute(config) : processSuccess;
+        return processSuccess && stageService.execute(config);
     }
 
     @Override

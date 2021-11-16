@@ -86,7 +86,7 @@ public class ContainerAppHelmChartServiceImpl implements ContainerAppHelmChartSe
             containerFileHandler.setHasMep(true);
 
             // create charts-file(.tgz) and export it to the outPath.
-            String helmCharts = containerFileHandler.exportHelmCharts("test");
+            String helmCharts = containerFileHandler.exportHelmCharts();
 
             String fileId = ContainerAppHelmChartUtil.moveFileToWorkSpace(helmCharts);
 
