@@ -177,7 +177,7 @@ public class AppOperationServiceImpl implements AppOperationService {
     public Boolean releaseApp(String applicationId, User user, PublishAppReqDto publishAppDto) {
         Application app = applicationMapper.getApplicationById(applicationId);
         checkParamNull(app, "application is empty. applicationId: ".concat(applicationId));
-        AppPackage appPkg = app.getAppPackage();
+        AppPackage appPkg = appPackageService.getAppPackageByAppId(applicationId);
         checkParamNull(appPkg.getId(), "app package content is empty. applicationId: ".concat(applicationId));
         UploadFile iconFile = uploadMapper.getFileById(app.getIconFileId());
         checkParamNull(iconFile, "file icon is empty. iconFileId: ".concat(app.getIconFileId()));
