@@ -95,6 +95,7 @@ public abstract class DistributePackageAction extends AbstractAction {
             saveDistributeInstantiateInfo("", "", EnumVMInstantiateStatus.PACKAGE_DISTRIBUTE_FAILED);
             return false;
         }
+        saveDistributeInstantiateInfo("", mepmPkgId, EnumVMInstantiateStatus.PACKAGE_DISTRIBUTE_SUCCESS);
         updateActionProgress(actionStatus, 25, "Upload app package to lcm success.");
 
         //Distribute package to edge host.
@@ -106,7 +107,13 @@ public abstract class DistributePackageAction extends AbstractAction {
             return false;
         }
         updateActionProgress(actionStatus, 50, "Distribute app package to edge host success.");
-
+        //save vm instantiate info.
+        boolean updateRes = saveDistributeInstantiateInfo(mepHost.getMecHostIp(), mepmPkgId,
+            EnumVMInstantiateStatus.PACKAGE_DISTRIBUTE_SUCCESS);
+        if (!updateRes) {
+            updateActionError(actionStatus, "Update instantiate info for VM failed.");
+            return false;
+        }
         //Query Distribute Status
         EnumDistributeStatus distributeStatus = getDistributeStatus(getContext().getUserId(), mepmPkgId, mepHost);
         if (!EnumDistributeStatus.DISTRIBUTE_PACKAGE_STATUS_SUCCESS.equals(distributeStatus)) {
@@ -115,19 +122,11 @@ public abstract class DistributePackageAction extends AbstractAction {
             return false;
         }
 
-        //save vm instantiate info.
-        boolean updateRes = saveDistributeInstantiateInfo(mepHost.getMecHostIp(), mepmPkgId,
-            EnumVMInstantiateStatus.PACKAGE_DISTRIBUTE_SUCCESS);
-        if (!updateRes) {
-            updateActionError(actionStatus, "Update instantiate info for VM failed.");
-            return false;
-        }
         getContext().addParameter(IContextParameter.PARAM_MEPM_PACKAGE_ID, mepmPkgId);
         updateActionProgress(actionStatus, 100, "Query distribute app package status success.");
         LOGGER.info("Distribute package action finished.");
         return true;
     }
-
 
     public boolean saveDistributeInstantiateInfo(String mecHostIp, String mepmPkgId, EnumVMInstantiateStatus status) {
         return true;
@@ -173,16 +172,15 @@ public abstract class DistributePackageAction extends AbstractAction {
                 return EnumDistributeStatus.DISTRIBUTE_PACKAGE_STATUS_ERROR;
             }
             List<DistributeResponse> list = gson.fromJson(distributeResult,
-                new TypeToken<List<DistributeResponse>>() {
-                }.getType());
+                new TypeToken<List<DistributeResponse>>() { }.getType());
             List<MecHostInfo> mecHostInfo = list.get(0).getMecHostInfo();
             if (mecHostInfo == null) {
                 LOGGER.error("Get distribute package status failed, null mec host info.");
                 return EnumDistributeStatus.DISTRIBUTE_PACKAGE_STATUS_ERROR;
             }
             String status = mecHostInfo.get(0).getStatus();
-            if (EnumDistributeStatus.DISTRIBUTE_PACKAGE_STATUS_FAILED.toString().equals(status) ||
-                EnumDistributeStatus.DISTRIBUTE_PACKAGE_STATUS_ERROR.toString().equals(status)) {
+            if (EnumDistributeStatus.DISTRIBUTE_PACKAGE_STATUS_FAILED.toString().equals(status)
+                || EnumDistributeStatus.DISTRIBUTE_PACKAGE_STATUS_ERROR.toString().equals(status)) {
                 LOGGER.error("Failed to upload vm image packageId is : {}.", packageId);
                 return EnumDistributeStatus.DISTRIBUTE_PACKAGE_STATUS_FAILED;
             } else if (EnumDistributeStatus.DISTRIBUTE_PACKAGE_STATUS_SUCCESS.toString().equals(status)) {

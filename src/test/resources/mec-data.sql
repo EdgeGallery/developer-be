@@ -144,14 +144,28 @@ MERGE INTO tbl_application KEY(id) VALUES('6a75a2bd-9811-432f-bbe8-2813aa97d366'
 -- ----------------------------
 -- Records of tbl_vm
 -- ----------------------------
-MERGE INTO tbl_vm KEY(id) VALUES('6a75a2bd-9811-432f-bbe8-2813aa97d757','4cbbab9d-c48f-4adb-ae82-d1816d8edd7b','appvm1','3ef2bea0-5e23-4fab-952d-cc9e6741dbe7',1,'',null,'','');
-MERGE INTO tbl_vm KEY(id) VALUES('6a75a2bd-9811-432f-bbe8-2813aa97d758','4cbbab9d-c48f-4adb-ae82-d1816d8edd7b','appvm2','3ef2bea0-5e23-4fab-952d-cc9e6741dbe7',1,'',null,'','');
+MERGE INTO tbl_vm KEY(id) VALUES('6a75a2bd-9811-432f-bbe8-2813aa97d757','4cbbab9d-c48f-4adb-ae82-d1816d8edd7b','appvm1','3ef2bea0-5e23-4fab-952d-cc9e6741dbe7',1,null,'',null,'','');
+MERGE INTO tbl_vm KEY(id) VALUES('6a75a2bd-9811-432f-bbe8-2813aa97d758','4cbbab9d-c48f-4adb-ae82-d1816d8edd7b','appvm2','3ef2bea0-5e23-4fab-952d-cc9e6741dbe7',1,null,'',null,'','');
 -- ----------------------------
 -- Records of tbl_vm_port
 -- ----------------------------
 MERGE INTO tbl_vm_port KEY(id) VALUES('6a75a2bd-9811-432f-bbe8-2813aa97d661','6a75a2bd-9811-432f-bbe8-2813aa97d757','port1','vm port 1', 'MEC_APP_Public');
 MERGE INTO tbl_vm_port KEY(id) VALUES('6a75a2bd-9811-432f-bbe8-2813aa97d662','6a75a2bd-9811-432f-bbe8-2813aa97d757','port2','vm port 2', 'MEC_APP_Private');
 
+-- ----------------------------
+-- Records of tbl_vm_instantiate_info
+-- ----------------------------
+MERGE INTO tbl_vm_instantiate_info KEY(vm_id) VALUES('6a75a2bd-9811-432f-bbe8-2813aa97d758','4cbbab9d-c48f-4adb-ae82-d1816d8edd7b', '3ef2bea0-5e23-4fab-952d-cc9e6741dbe7',null,null,'',null,'SUCCESS','',null, null);
+
+-- ----------------------------
+-- Records of tbl_vm_port_instantiate_info
+-- ----------------------------
+MERGE INTO tbl_vm_port_instantiate_info KEY(vm_id,network_name) VALUES('6a75a2bd-9811-432f-bbe8-2813aa97d758','MEC_APP_N6', '192.168.1.3');
+
+-- ----------------------------
+-- Records of tbl_vm_certificate
+-- ----------------------------
+MERGE INTO tbl_vm_certificate KEY(vm_id) VALUES('6a75a2bd-9811-432f-bbe8-2813aa97d758','PASSWORD', '{"username":"root","password":"root"}',null);
 -- ----------------------------
 -- Records of tbl_app_dns_rule
 -- ----------------------------

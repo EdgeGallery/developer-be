@@ -31,7 +31,7 @@ public interface VMAppOperationService {
 
     Boolean uploadFileToVm(String applicationId, String vmId, HttpServletRequest request, Chunk chunk);
 
-    ResponseEntity mergeAppFile(String applicationId, String vmId, String fileName, String identifier);
+    Boolean mergeAppFile(String applicationId, String vmId, String fileName, String identifier);
 
     OperationInfoRep createVmImage(String applicationId, String vmId, User user);
 
