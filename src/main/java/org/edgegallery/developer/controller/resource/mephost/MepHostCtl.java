@@ -186,7 +186,8 @@ public class MepHostCtl {
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<UploadFile> uploadFile(
         @ApiParam(value = "file", required = true) @RequestPart("file") MultipartFile uploadFile) {
-        return ResponseEntity.ok(mepHostService.uploadConfigFile(uploadFile));
+        String userId = AccessUserUtil.getUser().getUserId();
+        return ResponseEntity.ok(mepHostService.uploadConfigFile(userId,uploadFile));
 
     }
 }

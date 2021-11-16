@@ -18,6 +18,7 @@ package org.edgegallery.developer.service.application.impl;
 
 import java.util.Date;
 import java.util.UUID;
+import org.edgegallery.developer.common.Consts;
 import org.edgegallery.developer.config.security.AccessUserUtil;
 import org.edgegallery.developer.domain.shared.ScriptChecker;
 import org.edgegallery.developer.mapper.application.AppScriptMapper;
@@ -45,7 +46,8 @@ public class AppScriptServiceImpl implements AppScriptService {
     @Override
     public Script uploadScriptFile(String applicationId, MultipartFile scriptFile) {
         new ScriptChecker().check(scriptFile);
-        UploadFile uploadFile = uploadFileService.uploadFile(AccessUserUtil.getUser().getUserId(), "sh", scriptFile);
+        UploadFile uploadFile = uploadFileService
+            .uploadFile(AccessUserUtil.getUser().getUserId(), Consts.FILE_TYPE_SCRIPT, scriptFile);
         Script script = new Script(UUID.randomUUID().toString(), uploadFile.getFileName(), uploadFile.getFileId(),
             new Date());
         appScriptMapper.createAppScript(applicationId, script);

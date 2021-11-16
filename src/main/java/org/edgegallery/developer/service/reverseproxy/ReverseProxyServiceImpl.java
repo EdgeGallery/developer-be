@@ -120,8 +120,13 @@ public class ReverseProxyServiceImpl implements ReverseProxyService {
         String hostId = application.getMepHostId();
         MepHost mepHost = mepHostMapper.getHost(hostId);
         VMInstantiateInfo instantiateInfo = vmAppOperationService.getInstantiateInfo(vmId);
+        if (instantiateInfo==null) {
+            LOGGER.error("failed to get vnc console url, instantiate info does not exist.");
+            throw new DeveloperException("failed to get vnc console url");
+        }
         String workLoadStatus = HttpClientUtil.getWorkloadStatus(mepHost.getLcmProtocol(), mepHost.getLcmIp(),
                 mepHost.getLcmPort(), instantiateInfo.getAppInstanceId(), userId, token);
+        LOGGER.info("get vm workLoad status:{}", workLoadStatus);
         Type vmInfoType = new TypeToken<VmInstantiateWorkload>() { }.getType();
         VmInstantiateWorkload vmInstantiateWorkload = gson.fromJson(workLoadStatus, vmInfoType);
         if (vmInstantiateWorkload == null || !Consts.HTTP_STATUS_SUCCESS_STR.equals(vmInstantiateWorkload.getCode())) {
@@ -139,7 +144,7 @@ public class ReverseProxyServiceImpl implements ReverseProxyService {
         List<ReverseProxy> reverseProxyList = reverseProxyMapper.getProxiesByDestHostId(hostId);
         if (reverseProxyList == null || reverseProxyList.isEmpty()){
             LOGGER.error("reverse proxy has not been configured. hostId : {}, aplicationId : {}",
-                    hostId, applicationId);
+                hostId, applicationId);
             throw new DeveloperException("reverse proxy has not been configured.");
         }
 

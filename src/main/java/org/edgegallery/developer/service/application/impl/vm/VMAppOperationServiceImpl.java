@@ -62,6 +62,7 @@ import org.edgegallery.developer.service.application.impl.AppOperationServiceImp
 import org.edgegallery.developer.service.application.vm.VMAppOperationService;
 import org.edgegallery.developer.service.apppackage.AppPackageService;
 import org.edgegallery.developer.util.HttpClientUtil;
+import org.edgegallery.developer.util.InitConfigUtil;
 import org.edgegallery.developer.util.ShhFileUploadUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -192,13 +193,13 @@ public class VMAppOperationServiceImpl extends AppOperationServiceImpl implement
     }
 
     @Override
-    public ResponseEntity mergeAppFile(String applicationId, String vmId, String fileName, String identifier) {
+    public Boolean mergeAppFile(String applicationId, String vmId, String fileName, String identifier) {
         String partFilePath = getUploadFileRootDir() + identifier;
         File partFileDir = new File(partFilePath);
         File[] partFiles = partFileDir.listFiles();
         if (partFiles == null || partFiles.length == 0) {
-            LOGGER.error("uploaded part file not found!");
-            return ResponseEntity.badRequest().build();
+            LOGGER.error("Uploaded chunk file can not be found for file {}", fileName);
+            throw new IllegalRequestException("Can not find any chunk file to merge.", ResponseConsts.RET_MERGE_FILE_FAIL);
         }
 
         File mergedFile = new File(getUploadFileRootDir() + File.separator + fileName);
@@ -212,18 +213,18 @@ public class VMAppOperationServiceImpl extends AppOperationServiceImpl implement
             FileUtils.deleteDirectory(partFileDir);
 
         } catch (IOException e) {
-            LOGGER.error("merge file failed");
-            throw new FileOperateException("merge file failed", ResponseConsts.RET_CREATE_FILE_FAIL);
+            LOGGER.error("Merge file failed");
+            throw new FileOperateException("Merge file failed.", ResponseConsts.RET_MERGE_FILE_FAIL);
         }
 
         Boolean pushFileToVmRes = pushFileToVm(mergedFile, applicationId, vmId);
         FileUtils.deleteQuietly(new File(getUploadFileRootDir()));
 
         if (!pushFileToVmRes) {
-            LOGGER.error("push app file failed!");
-            return ResponseEntity.badRequest().build();
+            LOGGER.error("Push file to VM failed!");
+            throw new FileOperateException("Push file to VM failed.", ResponseConsts.RET_CREATE_FILE_FAIL);
         }
-        return ResponseEntity.ok().build();
+        return true;
     }
 
     @Override
@@ -440,8 +441,8 @@ public class VMAppOperationServiceImpl extends AppOperationServiceImpl implement
 
     private boolean cleanVmLaunchInfo(String mepHostId, VirtualMachine vm, User user) {
         MepHost mepHost = mepHostMapper.getHost(mepHostId);
-        String basePath = HttpClientUtil
-            .getUrlPrefix(mepHost.getLcmProtocol(), mepHost.getLcmIp(), mepHost.getLcmPort());
+        String basePath = HttpClientUtil.getUrlPrefix(mepHost.getLcmProtocol(), mepHost.getLcmIp(),
+            mepHost.getLcmPort());
         if (vm.getVmInstantiateInfo() != null && vm.getImageExportInfo() != null) {
             VMInstantiateInfo vmInstantiateInfo = vm.getVmInstantiateInfo();
             ImageExportInfo imageExportInfo = vm.getImageExportInfo();

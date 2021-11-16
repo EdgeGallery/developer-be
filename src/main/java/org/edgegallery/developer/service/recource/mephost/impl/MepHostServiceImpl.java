@@ -210,7 +210,7 @@ public class MepHostServiceImpl implements MepHostService {
      * @return
      */
     @Override
-    public UploadFile uploadConfigFile(MultipartFile uploadFile) {
+    public UploadFile uploadConfigFile(String userId,MultipartFile uploadFile) {
         LOGGER.info("Start uploading file");
         //check format
         String fileName = uploadFile.getOriginalFilename();
@@ -222,7 +222,6 @@ public class MepHostServiceImpl implements MepHostService {
             LOGGER.error(errMsg);
             throw new IllegalRequestException(errMsg, ResponseConsts.RET_FILE_FORMAT_ERROR);
         }
-        String userId = AccessUserUtil.getUser().getUserId();
         UploadFile result = uploadService.saveFileToLocal(uploadFile, userId);
         if (result == null) {
             LOGGER.error("save config file failed!");

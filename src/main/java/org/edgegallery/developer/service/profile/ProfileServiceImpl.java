@@ -281,7 +281,7 @@ public class ProfileServiceImpl implements ProfileService {
      */
     private void createHelmChartAndScript(ProfileInfo profileInfo, String applicationId) {
         try {
-            profileInfo.getDeployFilePath().keySet().stream().forEach(appName -> {
+            profileInfo.getSeq().stream().forEach(appName -> {
                 File deployFile = new File(profileInfo.getDeployFilePath().get(appName));
                 containerAppHelmChartService.uploadHelmChartYaml(filePatternTransfer(deployFile), applicationId);
             });

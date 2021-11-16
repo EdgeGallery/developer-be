@@ -202,7 +202,7 @@ public class MepHostServiceTest {
         try {
             MultipartFile uploadFile = new MockMultipartFile("test-icon.png", "test-icon.png", null,
                 MepHostServiceTest.class.getClassLoader().getResourceAsStream("testdata/test-icon.png"));
-            mepHostService.uploadConfigFile(uploadFile);
+            mepHostService.uploadConfigFile(UUID.randomUUID().toString(),uploadFile);
         } catch (IllegalRequestException e) {
             Assert.assertEquals("upload file should not have suffix", e.getMessage());
         }
@@ -213,7 +213,7 @@ public class MepHostServiceTest {
         AccessUserUtil.setUser("5ce78873-d73d-4e7d-84a4-ab75ac95400f", "admin", Consts.ROLE_DEVELOPER_ADMIN);
         MultipartFile uploadFile = new MockMultipartFile("config", "config", null,
             MepHostServiceTest.class.getClassLoader().getResourceAsStream("testdata/config"));
-        UploadFile uploadedFile = mepHostService.uploadConfigFile(uploadFile);
+        UploadFile uploadedFile = mepHostService.uploadConfigFile(UUID.randomUUID().toString(),uploadFile);
         Assert.assertNotNull(uploadedFile);
     }
 
