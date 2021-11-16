@@ -124,6 +124,7 @@ public class AppOperationServiceImpl implements AppOperationService {
         atpTestTaskMapper.createAtpTest(applicationId, atpTest);
         applicationMapper.updateApplicationStatus(applicationId, EnumApplicationStatus.TESTED.toString());
         LOGGER.info("atp status:{}", atpTest.getStatus());
+        applicationMapper.updateApplicationStatus(applicationId, EnumApplicationStatus.TESTED.toString());
         return true;
     }
 
@@ -134,7 +135,6 @@ public class AppOperationServiceImpl implements AppOperationService {
             LOGGER.error("modify mep host  of application {} fail", applicationId);
             throw new DataBaseException("modify mep host of application fail", ResponseConsts.RET_UPDATE_DATA_FAIL);
         }
-        applicationMapper.updateApplicationStatus(applicationId, EnumApplicationStatus.MEPHOST_SELECTED.toString());
         return true;
     }
 

@@ -102,7 +102,6 @@ public abstract class InstantiateAppAction extends AbstractAction {
         }
         saveInstanceIdToInstantiateInfo(appInstanceId, EnumVMInstantiateStatus.SUCCESS);
         updateActionProgress(actionStatus, 100, "Query instantiate status success.");
-        applicationService.updateApplicationStatus(applicationId, EnumApplicationStatus.DEPLOYED);
         return true;
     }
 

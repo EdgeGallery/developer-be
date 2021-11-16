@@ -144,7 +144,6 @@ public class VMAppOperationServiceImpl extends AppOperationServiceImpl implement
         VMInstantiateInfo instantiateInfo = new VMInstantiateInfo();
         instantiateInfo.setOperationId(operationStatus.getId());
         vmInstantiateInfoMapper.createVMInstantiateInfo(vmId, instantiateInfo);
-        applicationService.updateApplicationStatus(applicationId, EnumApplicationStatus.DEPLOYED);
         LOGGER.info("start instantiate vm app");
         new InstantiateVmAppProcessor(operationStatusMapper, operationStatus, actionCollection).start();
         return new OperationInfoRep(operationStatus.getId());
