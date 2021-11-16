@@ -798,6 +798,41 @@ CREATE TABLE IF NOT EXISTS  tbl_vm_regulation  (
       CONSTRAINT  tbl_vm_image_config_pkey  PRIMARY KEY (vm_id)
     )
     ;
+    CREATE TABLE IF NOT EXISTS tbl_profile (
+    id varchar(255) NOT NULL,
+    name varchar(255) NOT NULL,
+    description varchar(255) DEFAULT NULL,
+    description_en varchar(255) DEFAULT NULL,
+    file_path varchar(255) NOT NULL,
+    deploy_file_path TEXT NOT NULL,
+    config_file_path varchar(255) DEFAULT NULL,
+    seq varchar(255) NOT NULL,
+    create_time varchar(255)  NOT NULL,
+    type varchar(255) NOT NULL,
+    industry varchar(255) NOT NULL,
+    topo_file_path varchar(255) DEFAULT NULL,
+    CONSTRAINT tbl_profile_pkey PRIMARY KEY (id)
+    )
+    ;
+
+    CREATE TABLE IF NOT EXISTS tbl_container_app_image_info (
+      id  varchar(255) NOT NULL,
+      image_info text  DEFAULT NULL,
+      application_id varchar(255) DEFAULT NULL,
+      helm_chart_file_id varchar(255) DEFAULT NULL,
+      CONSTRAINT tbl_container_app_image_info_pkey PRIMARY KEY (id)
+    )
+    ;
+
+     CREATE TABLE IF NOT EXISTS tbl_app_script (
+        id varchar(255) NOT NULL,
+        app_id varchar(255) NOT NULL,
+        name varchar(255) DEFAULT NULL,
+        script_file_id text DEFAULT NULL,
+        create_time  varchar(255)  NOT NULL,
+        CONSTRAINT tbl_app_script_pkey PRIMARY KEY (id)
+     );
+
 -- workspace table end -----------------
 
 -- workspace mep capability init --

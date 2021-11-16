@@ -132,7 +132,7 @@ public class UploadFileServiceImpl implements UploadFileService {
         LOGGER.info("Start uploading file");
         String fileName = uploadFile.getOriginalFilename();
         if (!FILE_TYPE_LIST.contains(fileType)) {
-            String msg = "fileType is error,must be one of [icon,md,api]";
+            String msg = "fileType is error,must be one of [icon,md,api,script]";
             LOGGER.error(msg);
             throw new IllegalRequestException(msg, ResponseConsts.RET_REQUEST_FORMAT_ERROR);
         }
