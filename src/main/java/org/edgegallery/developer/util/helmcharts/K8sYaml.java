@@ -17,6 +17,7 @@ package org.edgegallery.developer.util.helmcharts;
 import io.kubernetes.client.util.Yaml;
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -25,7 +26,9 @@ import java.util.List;
 import java.util.Objects;
 import lombok.Setter;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.edgegallery.developer.exception.DeveloperException;
+import org.edgegallery.developer.util.CompressFileUtilsJava;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -86,13 +89,13 @@ public class K8sYaml implements IContainerFileHandler {
     private List<HelmChartFile> deepReadDir(List<HelmChartFile> files, File root) {
         if (root.isFile()) {
             HelmChartFile file = HelmChartFile.builder().name(root.getName())
-                .path(root.getPath().replace(helmChartsDir, "")).index(files.size() + 1).build();
+                .innerPath(root.getPath().replace(helmChartsDir, "")).index(files.size() + 1).build();
             files.add(file);
         }
 
         if (root.isDirectory()) {
             HelmChartFile file = HelmChartFile.builder().name(root.getName())
-                .path(root.getPath().replace(helmChartsDir, "")).index(files.size() + 1).build();
+                .innerPath(root.getPath().replace(helmChartsDir, "")).index(files.size() + 1).build();
             List<HelmChartFile> children = new ArrayList<>();
             file.setChildren(children);
             files.add(file);
@@ -104,18 +107,59 @@ public class K8sYaml implements IContainerFileHandler {
     }
 
     @Override
-    public String exportHelmCharts(String outPath) {
+    public String exportHelmCharts(String fileName) {
+        try {
+            File file = CompressFileUtilsJava.compressToTgz(helmChartsDir, workspace, "test");
+            assert file != null;
+            if (file.exists()) {
+                return file.getCanonicalPath();
+            }
+        } catch (IOException e) {
+            LOGGER.error("Failed to export helm charts package.");
+        }
         return null;
     }
 
     @Override
-    public void modifyFileByPath(String filePath, String content) {
+    public String getContentByInnerPath(String innerPath) {
+        try {
+            List<String> allLines = Files.readAllLines(Paths.get(helmChartsDir, innerPath));
+            return StringUtils.join(allLines, "\n");
+        } catch (IOException e) {
+            LOGGER.error("Failed to read the inner file. innerPath:{}", innerPath);
+        }
+        return null;
+    }
 
+    @Override
+    public boolean modifyFileByPath(String innerPath, String content) {
+        try {
+            Path realPath = Paths.get(helmChartsDir, innerPath);
+            if (realPath.toFile().exists() && realPath.toFile().isFile()) {
+                Files.write(realPath, content.getBytes(StandardCharsets.UTF_8));
+                return true;
+            }
+            LOGGER.warn("Can not find file by the innerPath: {}", innerPath);
+        } catch (IOException e) {
+            LOGGER.error("Failed to modify the innerFile. innerPath:{}", innerPath);
+        }
+        return false;
     }
 
     @Override
     public void addFile(String filePath, String content) {
 
+    }
+
+    @Override
+    public void clean() {
+        try {
+            if (workspace != null) {
+                FileUtils.deleteDirectory(new File(workspace));
+            }
+        } catch (IOException e) {
+            LOGGER.error("Failed to clean workspace.");
+        }
     }
 
     // try to parse k8s file with kubernetes.client

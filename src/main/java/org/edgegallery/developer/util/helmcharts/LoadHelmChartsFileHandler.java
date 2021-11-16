@@ -36,17 +36,27 @@ public class LoadHelmChartsFileHandler implements IContainerFileHandler {
     }
 
     @Override
-    public String exportHelmCharts(String outPath) {
+    public String exportHelmCharts(String fileName) {
         return null;
     }
 
     @Override
-    public void modifyFileByPath(String filePath, String content) {
+    public String getContentByInnerPath(String innerPath) {
+        return null;
+    }
 
+    @Override
+    public boolean modifyFileByPath(String filePath, String content) {
+        return false;
     }
 
     @Override
     public void addFile(String filePath, String content) {
+
+    }
+
+    @Override
+    public void clean() {
 
     }
 }

@@ -22,15 +22,23 @@ public interface IContainerFileHandler {
     // load tgz or yaml file, and parse it. it will auto-create charts.yaml and values.yaml when loading yaml file.
     void load(String filePath) throws IOException;
 
-    // get catalog from helm-charts file
+    // get catalog from helm-charts file.
     List<HelmChartFile> getCatalog();
 
-    String exportHelmCharts(String outPath);
+    // export tgz package.
+    String exportHelmCharts(String fileName);
 
     void setHasMep(boolean hasMep);
 
-    void modifyFileByPath(String filePath, String content);
+    // innerPath is the path of file in the tgz. Can get innerPath from the object of HelmChartFile.
+    String getContentByInnerPath(String innerPath);
 
-    //
-    void addFile(String filePath, String content);
+    // innerPath is the path of file in the tgz.
+    boolean modifyFileByPath(String innerPath, String content);
+
+    // innerPath is the path of file in the tgz.
+    void addFile(String innerPath, String content);
+
+    // clean the temp dir and data.
+    void clean();
 }

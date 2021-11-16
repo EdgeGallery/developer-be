@@ -163,7 +163,7 @@ public final class ContainerAppHelmChartUtil {
         return fileId;
     }
 
-    public static String writeContentToFile(byte[] content) {
+    public static String moveFileToWorkSpace(String from) {
         String fileId = UUID.randomUUID().toString();
         try {
             String upLoadDir = InitConfigUtil.getWorkSpaceBaseDir() + BusinessConfigUtil.getUploadfilesPath();
@@ -175,11 +175,10 @@ public final class ContainerAppHelmChartUtil {
                     throw new FileOperateException("create upload dir fail!", ResponseConsts.RET_CREATE_FILE_FAIL);
                 }
             }
-            Files.write(content, new File(fileRealPath));
+            Files.move(new File(from), new File(fileRealPath));
         } catch (IOException e) {
             throw new FileOperateException("write upload file failed!", ResponseConsts.RET_WRITE_FILE_FAIL);
         }
         return fileId;
     }
-
 }

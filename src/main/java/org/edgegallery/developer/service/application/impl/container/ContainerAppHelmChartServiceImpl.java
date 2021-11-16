@@ -20,6 +20,7 @@ import com.google.common.collect.Lists;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -85,10 +86,9 @@ public class ContainerAppHelmChartServiceImpl implements ContainerAppHelmChartSe
             containerFileHandler.setHasMep(true);
 
             // create charts-file(.tgz) and export it to the outPath.
-            String helmCharts = containerFileHandler.exportHelmCharts("");
+            String helmCharts = containerFileHandler.exportHelmCharts("test");
 
-            String fileId = ContainerAppHelmChartUtil
-                .writeContentToFile(Files.readAllBytes(new File(helmCharts).toPath()));
+            String fileId = ContainerAppHelmChartUtil.moveFileToWorkSpace(helmCharts);
 
             // create a file id, and update
             HelmChart helmChart = new HelmChart();
@@ -109,9 +109,8 @@ public class ContainerAppHelmChartServiceImpl implements ContainerAppHelmChartSe
     }
 
     private String saveLoadedFileToTempDir(MultipartFile helmTemplateYaml) throws IOException {
-        File tempFile = File.createTempFile(UUID.randomUUID().toString(), "eg-dev-");
-        assert tempFile.mkdirs();
-        String path = tempFile.getCanonicalPath();
+        Path tempDir = Files.createTempDirectory("eg-dev-");
+        String path = tempDir.toString();
         File loadFile = new File(path + File.separator + helmTemplateYaml.getName());
         helmTemplateYaml.transferTo(loadFile);
         return loadFile.getCanonicalPath();
@@ -165,42 +164,39 @@ public class ContainerAppHelmChartServiceImpl implements ContainerAppHelmChartSe
     }
 
     @Override
-    public HelmChart getHelmChartById(String applicationId, String id) {
+    public HelmChart getHelmChartById(String applicationId, String helmChartsId) {
         if (StringUtils.isEmpty(applicationId)) {
             throw new IllegalRequestException("applicationId is empty", ResponseConsts.RET_REQUEST_PARAM_EMPTY);
         }
-        if (StringUtils.isEmpty(id)) {
+        if (StringUtils.isEmpty(helmChartsId)) {
             throw new IllegalRequestException("helm chart id is empty", ResponseConsts.RET_REQUEST_PARAM_EMPTY);
         }
-        Application application = applicationMapper.getApplicationById(applicationId);
-        if (application == null) {
-            throw new EntityNotFoundException("the query Application is empty", ResponseConsts.RET_QUERY_DATA_EMPTY);
-        }
-        HelmChart chart = helmChartMapper.getHelmChartById(id);
-        if (chart == null) {
+        HelmChart chart = helmChartMapper.getHelmChartById(helmChartsId);
+        if (chart == null || !chart.getApplicationId().equals(applicationId)) {
             throw new EntityNotFoundException("the query HelmChart is empty", ResponseConsts.RET_QUERY_DATA_EMPTY);
         }
         return chart;
     }
 
     @Override
-    public Boolean deleteHelmChartById(String applicationId, String id) {
+    public Boolean deleteHelmChartById(String applicationId, String helmChartsId) {
         if (StringUtils.isEmpty(applicationId)) {
             throw new IllegalRequestException("applicationId is empty!", ResponseConsts.RET_REQUEST_PARAM_EMPTY);
         }
-        if (StringUtils.isEmpty(id)) {
+        if (StringUtils.isEmpty(helmChartsId)) {
             throw new IllegalRequestException("helm chart id is empty!", ResponseConsts.RET_REQUEST_PARAM_EMPTY);
         }
         Application application = applicationMapper.getApplicationById(applicationId);
         if (application == null) {
             throw new EntityNotFoundException("the query Application is empty", ResponseConsts.RET_QUERY_DATA_EMPTY);
         }
-        HelmChart helmChart = helmChartMapper.getHelmChartById(id);
+        HelmChart helmChart = helmChartMapper.getHelmChartById(helmChartsId);
         if (helmChart == null) {
             throw new EntityNotFoundException("query HelmChart is empty!", ResponseConsts.RET_QUERY_DATA_EMPTY);
         }
-        //delete data
-        int ret = helmChartMapper.deleteFileAndImage(id, helmChart.getHelmChartFileId(), applicationId);
+        // delete data
+        // TODO: just delete db, not delete image file.
+        int ret = helmChartMapper.deleteFileAndImage(helmChartsId, helmChart.getHelmChartFileId(), applicationId);
         if (ret < 1) {
             throw new DataBaseException("delete helm chart file failed!", ResponseConsts.RET_DELETE_DATA_FAIL);
         }
@@ -208,17 +204,17 @@ public class ContainerAppHelmChartServiceImpl implements ContainerAppHelmChartSe
     }
 
     @Override
-    public byte[] downloadHelmChart(String applicationId, String id) {
+    public byte[] downloadHelmChart(String applicationId, String helmChartsId) {
         return new byte[0];
     }
 
     @Override
-    public String getFileContentByFilePath(String application, String id, String filePath) {
+    public String getFileContentByFilePath(String application, String helmChartsId, String filePath) {
         return null;
     }
 
     @Override
-    public Boolean modifyFileContentByFilePath(String application, String id, String filePath, String content) {
+    public Boolean modifyFileContentByFilePath(String application, String helmChartsId, String filePath, String content) {
         return null;
     }
 
