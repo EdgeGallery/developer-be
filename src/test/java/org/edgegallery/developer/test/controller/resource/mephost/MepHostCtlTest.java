@@ -25,7 +25,8 @@ import java.util.ArrayList;
 import java.util.UUID;
 import org.apache.http.entity.ContentType;
 import org.apache.ibatis.io.Resources;
-import org.edgegallery.developer.controller.UploadFilesController;
+import org.edgegallery.developer.common.Consts;
+import org.edgegallery.developer.config.security.AccessUserUtil;
 import org.edgegallery.developer.controller.resource.mephost.MepHostCtl;
 import org.edgegallery.developer.domain.shared.Page;
 import org.edgegallery.developer.model.resource.mephost.EnumMepHostStatus;
@@ -41,8 +42,6 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -143,12 +142,14 @@ public class MepHostCtlTest {
     @Test
     @WithMockUser(roles = "DEVELOPER_ADMIN")
     public void testUpLoadHostConfigFileSuccess() throws Exception {
+        AccessUserUtil.setUser("7b53626b-135d-4e57-ae00-0111a2b05d74","admin", Consts.ROLE_DEVELOPER_ADMIN);
         File configFile = Resources.getResourceAsFile("testdata/config");
         InputStream configInputStream = new FileInputStream(configFile);
         MultipartFile configMultiFile = new MockMultipartFile(configFile.getName(), configFile.getName(),
             ContentType.APPLICATION_OCTET_STREAM.toString(), configInputStream);
         mvc.perform(MockMvcRequestBuilders.multipart("/mec/developer/v2/mephosts/action/upload-config-file")
-            .file("file", configMultiFile.getBytes())).andExpect(MockMvcResultMatchers.status().isOk());
+            .file("file", configMultiFile.getBytes()).param("userId", AccessUserUtil.getUserId()))
+            .andExpect(MockMvcResultMatchers.status().isOk());
     }
 
     private MepHost createNewHost() {
