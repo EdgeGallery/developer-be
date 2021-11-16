@@ -25,16 +25,6 @@ public abstract class ContainerFileHandlerImp implements IContainerFileHandler {
     @Override
     public abstract void load(String filePath) throws IOException;
 
-    // protected void createTempWorkspace() {
-    //     try {
-    //         // create helm-charts temp dir
-    //         Path tempDir = Files.createTempDirectory("eg-helmcharts-");
-    //         workspace = tempDir.toString();
-    //     } catch (IOException e) {
-    //
-    //     }
-    // }
-
     @Override
     public List<HelmChartFile> getCatalog() {
         if (helmChartsDir == null) {
