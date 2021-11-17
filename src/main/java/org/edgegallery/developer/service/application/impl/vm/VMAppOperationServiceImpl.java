@@ -445,6 +445,9 @@ public class VMAppOperationServiceImpl extends AppOperationServiceImpl implement
             mepHost.getLcmPort());
         VMInstantiateInfo vmInstantiateInfo = vm.getVmInstantiateInfo();
         ImageExportInfo imageExportInfo = vm.getImageExportInfo();
+        if (vmInstantiateInfo == null || imageExportInfo == null) {
+            return true;
+        }
         if (StringUtils.isNotEmpty(imageExportInfo.getImageInstanceId())) {
             HttpClientUtil.deleteVmImage(basePath, user.getUserId(), vmInstantiateInfo.getAppInstanceId(),
                 imageExportInfo.getImageInstanceId(), user.getToken());
