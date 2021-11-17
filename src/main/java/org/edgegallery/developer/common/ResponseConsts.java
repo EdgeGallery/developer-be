@@ -212,5 +212,11 @@ public class ResponseConsts {
      */
     public static final int RET_RESTFUL_REQUEST_FAIL= 20039;
 
+    /**
+     *   copy file fail.
+     */
+    public static final int RET_COPY_FILE_FAIL= 20040;
+
+
 
 }
