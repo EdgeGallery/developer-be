@@ -18,9 +18,9 @@ public class LoadContainerFileFactory {
 
     public static IContainerFileHandler createLoader(String filePath) {
         if (filePath.toLowerCase().endsWith(".tgz")) {
-            return new LoadHelmChartsFileHandler();
+            return new LoadHelmChartsFileHandlerImpl();
         } else if (filePath.toLowerCase().endsWith(".yaml") || filePath.toLowerCase().endsWith(".yml")) {
-            return new K8sYaml();
+            return new LoadK8sYamlHandlerImpl();
         } else {
             return null;
         }

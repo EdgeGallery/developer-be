@@ -14,7 +14,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class K8sYamlTest {
+public class LoadK8SYamlHandlerIpmTest {
 
     private IContainerFileHandler handler;
 

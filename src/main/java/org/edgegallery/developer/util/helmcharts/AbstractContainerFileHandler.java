@@ -15,8 +15,8 @@ import org.edgegallery.developer.util.CompressFileUtilsJava;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class ContainerFileHandlerImp implements IContainerFileHandler {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ContainerFileHandlerImp.class);
+public abstract class AbstractContainerFileHandler implements IContainerFileHandler {
+    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractContainerFileHandler.class);
 
     protected String workspace;
 
