@@ -26,7 +26,7 @@ public interface IContainerFileHandler {
     List<HelmChartFile> getCatalog();
 
     // export tgz package.
-    String exportHelmCharts(String fileName);
+    String exportHelmCharts();
 
     void setHasMep(boolean hasMep);
 

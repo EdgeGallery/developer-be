@@ -2,6 +2,7 @@ package org.edgegallery.developer.test.util.helmcharts;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.io.FileUtils;
 import org.apache.ibatis.io.Resources;
@@ -13,7 +14,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class K8sYamlTest {
+public class LoadK8SYamlHandlerIpmTest {
 
     private IContainerFileHandler handler;
 
@@ -24,7 +25,7 @@ public class K8sYamlTest {
 
     @After
     public void clean() {
-        handler.clean();
+        // handler.clean();
     }
 
     @Test
@@ -34,7 +35,8 @@ public class K8sYamlTest {
         List<HelmChartFile> fileList = handler.getCatalog();
         Assert.assertFalse(fileList.isEmpty());
         Assert.assertEquals(1, fileList.size());
-        Assert.assertEquals("helm_charts", fileList.get(0).getName());
+        // demo is input file name.
+        Assert.assertEquals("demo", fileList.get(0).getName());
         Assert.assertEquals("", fileList.get(0).getInnerPath());
         Assert.assertEquals(3, fileList.get(0).getChildren().size());
 
@@ -58,10 +60,8 @@ public class K8sYamlTest {
     public void should_successfully_when_export_tgz() throws IOException {
         File demo = Resources.getResourceAsFile("testdata/demo.yaml");
         handler.load(demo.getCanonicalPath());
-        String outFile = handler.exportHelmCharts("test");
+        String outFile = handler.exportHelmCharts();
         Assert.assertNotNull(outFile);
-        Assert.assertEquals("test.tgz", new File(outFile).getName());
-        FileUtils.deleteDirectory(new File("./helmCharts"));
     }
 
     @Test
@@ -69,13 +69,20 @@ public class K8sYamlTest {
         File demo = Resources.getResourceAsFile("testdata/demo.yaml");
         handler.load(demo.getCanonicalPath());
         List<HelmChartFile> fileList = handler.getCatalog();
-        String content = handler.getContentByInnerPath("/charts.yaml");
-        Assert.assertNotNull(content);
-        content = handler.getContentByInnerPath("\\templates");
-        Assert.assertNull(content);
-        content = handler.getContentByInnerPath("\\values.yaml");
-        Assert.assertNotNull(content);
-        content = handler.getContentByInnerPath("\\values-no.yaml");
+        List<String> files = new ArrayList<>();
+        List<String> dirs = new ArrayList<>();
+        deep(fileList, files, dirs);
+
+        for (String file : files) {
+            String content = handler.getContentByInnerPath(file);
+            Assert.assertNotNull(content);
+        }
+        for (String dir : dirs) {
+            String content = handler.getContentByInnerPath(dir);
+            Assert.assertNull(content);
+        }
+
+        String content = handler.getContentByInnerPath("/values-no.yaml");
         Assert.assertNull(content);
     }
 
@@ -84,12 +91,23 @@ public class K8sYamlTest {
         File demo = Resources.getResourceAsFile("testdata/demo.yaml");
         handler.load(demo.getCanonicalPath());
 
-        String content = handler.getContentByInnerPath("\\values.yaml");
+        String content = handler.getContentByInnerPath("/values.yaml");
         Assert.assertNotNull(content);
 
-        Assert.assertTrue(handler.modifyFileByPath("\\values.yaml", "modified data."));
-        String modifiedContent = handler.getContentByInnerPath("\\values.yaml");
+        Assert.assertTrue(handler.modifyFileByPath("/values.yaml", "modified data."));
+        String modifiedContent = handler.getContentByInnerPath("/values.yaml");
 
         Assert.assertEquals("modified data.", modifiedContent);
+    }
+
+    private void deep(List<HelmChartFile> root, List<String> files, List<String> dirs) {
+        for (HelmChartFile file : root) {
+            if (file.getChildren() != null) {
+                dirs.add(file.getInnerPath());
+                deep(file.getChildren(), files, dirs);
+            } else {
+                files.add(file.getInnerPath());
+            }
+        }
     }
 }

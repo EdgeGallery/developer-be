@@ -14,7 +14,6 @@
 
 package org.edgegallery.developer.util.helmcharts;
 
-import io.kubernetes.client.util.Yaml;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -24,58 +23,21 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import lombok.Setter;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.edgegallery.developer.exception.DeveloperException;
 import org.edgegallery.developer.util.CompressFileUtilsJava;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class K8sYaml implements IContainerFileHandler {
-    private static final Logger LOGGER = LoggerFactory.getLogger(K8sYaml.class);
+public abstract class AbstractContainerFileHandler implements IContainerFileHandler {
+    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractContainerFileHandler.class);
 
-    private String workspace;
+    protected String workspace;
 
-    private String helmChartsDir;
-
-    @Setter
-    private boolean hasMep = true;
+    protected String helmChartsDir;
 
     @Override
-    public void load(String filePath) throws IOException {
-        if (!verify(filePath)) {
-            return;
-        }
-        try {
-            // create helm-charts temp dir
-            Path tempDir = Files.createTempDirectory("eg-helmcharts-");
-            workspace = tempDir.toString();
-            Path helmChartPath = Files.createDirectory(Paths.get(workspace, "helm_charts"));
-            helmChartsDir = helmChartPath.toString();
-
-            // create template dir and copy k8s yaml to template
-            Files.createDirectory(Paths.get(helmChartsDir, "templates"));
-            File orgFile = new File(filePath);
-            Path k8sYaml = Files.createFile(Paths.get(helmChartsDir, "templates", orgFile.getName()));
-            FileUtils.copyFile(orgFile, k8sYaml.toFile());
-
-            // create values.yaml
-            EgValuesYaml defaultValues = EgValuesYaml.createDefaultEgValues();
-            Path valuesYaml = Files.createFile(Paths.get(helmChartsDir, "values.yaml"));
-            FileUtils.writeByteArrayToFile(valuesYaml.toFile(), defaultValues.getContent().getBytes(), false);
-
-            // create charts.yaml
-            EgChartsYaml defaultCharts = EgChartsYaml.createDefaultCharts();
-            Path chartsYaml = Files.createFile(Paths.get(helmChartsDir, "charts.yaml"));
-            FileUtils.writeByteArrayToFile(chartsYaml.toFile(), defaultCharts.getContent().getBytes(), false);
-
-        } catch (IOException e) {
-            FileUtils.deleteDirectory(new File(workspace));
-            workspace = null;
-            throw new DeveloperException("Failed to read k8s config. config:" + filePath);
-        }
-    }
+    public abstract void load(String filePath) throws IOException;
 
     @Override
     public List<HelmChartFile> getCatalog() {
@@ -107,9 +69,11 @@ public class K8sYaml implements IContainerFileHandler {
     }
 
     @Override
-    public String exportHelmCharts(String fileName) {
+    public String exportHelmCharts() {
         try {
-            File file = CompressFileUtilsJava.compressToTgz(helmChartsDir, workspace, "test");
+            String fileName = new File(helmChartsDir).getName();
+            File file = CompressFileUtilsJava
+                .compressToTgz(helmChartsDir, workspace, fileName + "_" + System.currentTimeMillis());
             assert file != null;
             if (file.exists()) {
                 return file.getCanonicalPath();
@@ -159,17 +123,9 @@ public class K8sYaml implements IContainerFileHandler {
             }
         } catch (IOException e) {
             LOGGER.error("Failed to clean workspace.");
-        }
-    }
-
-    // try to parse k8s file with kubernetes.client
-    boolean verify(String filePath) {
-        try {
-            Yaml.loadAll(filePath);
-            return true;
-        } catch (IOException e) {
-            LOGGER.error("Can not parse this yaml to k8s configs. filePath:{}, msg:{}", filePath, e.getMessage());
-            throw new DeveloperException("Failed to read k8s config. error message:" + e.getMessage());
+        } finally {
+            workspace = null;
+            helmChartsDir = null;
         }
     }
 }
