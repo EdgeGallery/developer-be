@@ -38,4 +38,6 @@ public interface AppPackageService {
     AppPackage generateAppPackage(ContainerApplication application);
 
     boolean deletePackage(String packageId);
+
+    AppPackage zipPackage(String packageId);
 }
