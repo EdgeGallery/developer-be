@@ -448,6 +448,8 @@ public class VMAppOperationServiceImpl extends AppOperationServiceImpl implement
         if (imageExportInfo != null && StringUtils.isNotEmpty(imageExportInfo.getImageInstanceId())) {
             HttpClientUtil.deleteVmImage(basePath, user.getUserId(), vmInstantiateInfo.getAppInstanceId(),
                 imageExportInfo.getImageInstanceId(), user.getToken());
+            imageExportInfoMapper.deleteImageExportInfoInfoByVMId(vm.getId());
+
         }
         if (vmInstantiateInfo == null) {
             return true;
