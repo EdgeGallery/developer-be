@@ -103,7 +103,7 @@ public class AppPackageCtlTest {
             UUID.randomUUID().toString(), "fileName");
         Mockito.when(
             packageService.updateAppPackageFileContent(Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
-            .thenReturn(true);
+            .thenReturn(new String());
         ResultActions actions = mvc.perform(
             MockMvcRequestBuilders.put(url).with((csrf())).content("new Gson().toJson(new String())")
                 .contentType(MediaType.APPLICATION_JSON_UTF8)).andExpect(MockMvcResultMatchers.status().isOk());
