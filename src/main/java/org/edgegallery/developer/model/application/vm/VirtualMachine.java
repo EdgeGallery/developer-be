@@ -53,7 +53,7 @@ public class VirtualMachine {
 
     private String flavorExtraSpecs;
 
-    private VMInstantiateInfo vmInstantiateInfo;
+    private VMInstantiateInfo vmInstantiateInfo = new VMInstantiateInfo();
 
-    private ImageExportInfo imageExportInfo;
+    private ImageExportInfo imageExportInfo = new ImageExportInfo();
 }

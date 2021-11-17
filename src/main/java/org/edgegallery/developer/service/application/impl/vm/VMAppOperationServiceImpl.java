@@ -198,7 +198,8 @@ public class VMAppOperationServiceImpl extends AppOperationServiceImpl implement
         File[] partFiles = partFileDir.listFiles();
         if (partFiles == null || partFiles.length == 0) {
             LOGGER.error("Uploaded chunk file can not be found for file {}", fileName);
-            throw new IllegalRequestException("Can not find any chunk file to merge.", ResponseConsts.RET_MERGE_FILE_FAIL);
+            throw new IllegalRequestException("Can not find any chunk file to merge.",
+                ResponseConsts.RET_MERGE_FILE_FAIL);
         }
 
         File mergedFile = new File(getUploadFileRootDir() + File.separator + fileName);
@@ -442,14 +443,14 @@ public class VMAppOperationServiceImpl extends AppOperationServiceImpl implement
         MepHost mepHost = mepHostMapper.getHost(mepHostId);
         String basePath = HttpClientUtil.getUrlPrefix(mepHost.getLcmProtocol(), mepHost.getLcmIp(),
             mepHost.getLcmPort());
-        if (vm.getVmInstantiateInfo() != null && vm.getImageExportInfo() != null) {
-            VMInstantiateInfo vmInstantiateInfo = vm.getVmInstantiateInfo();
-            ImageExportInfo imageExportInfo = vm.getImageExportInfo();
+        VMInstantiateInfo vmInstantiateInfo = vm.getVmInstantiateInfo();
+        ImageExportInfo imageExportInfo = vm.getImageExportInfo();
+        if (StringUtils.isNotEmpty(imageExportInfo.getImageInstanceId())) {
             HttpClientUtil.deleteVmImage(basePath, user.getUserId(), vmInstantiateInfo.getAppInstanceId(),
                 imageExportInfo.getImageInstanceId(), user.getToken());
         }
-        if (vm.getVmInstantiateInfo() != null) {
-            VMInstantiateInfo vmInstantiateInfo = vm.getVmInstantiateInfo();
+        if (StringUtils.isNotEmpty(vmInstantiateInfo.getMepmPackageId()) || StringUtils
+            .isNotEmpty(vmInstantiateInfo.getAppInstanceId())) {
             sentTerminateRequestToLcm(basePath, user.getUserId(), user.getToken(), vmInstantiateInfo.getAppInstanceId(),
                 vmInstantiateInfo.getMepmPackageId(), mepHost.getMecHostIp());
             boolean deleteRes = appPackageService.deletePackage(vmInstantiateInfo.getAppPackageId());
