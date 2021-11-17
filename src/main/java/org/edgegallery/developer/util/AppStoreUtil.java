@@ -16,6 +16,8 @@
 
 package org.edgegallery.developer.util;
 
+import com.google.gson.Gson;
+import java.util.HashMap;
 import java.util.Map;
 import org.edgegallery.developer.config.security.AccessUserUtil;
 import org.edgegallery.developer.domain.model.user.User;
@@ -93,14 +95,11 @@ public class AppStoreUtil {
         String url = String.format("%s/mec/appstore/v1/apps/%s/packages/%s/action/publish",
             InitConfigUtil.getProperties(APPSTORE_ADDRESS), appId, pkgId);
 
-        MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
-        body.add("isFree", pubAppReqDto.isFree());
-        body.add("price", pubAppReqDto.getPrice());
         LOGGER.info("isFree: {}, price: {}", pubAppReqDto.isFree(),pubAppReqDto.getPrice());
         LOGGER.info("url: {}", url);
         try {
             ResponseEntity<String> responses = restTemplate
-                .exchange(url, HttpMethod.POST, new HttpEntity<>(body, headers), String.class);
+                .exchange(url, HttpMethod.POST, new HttpEntity<>(new Gson().toJson(pubAppReqDto), headers), String.class);
             LOGGER.info("res: {}", responses);
             if (HttpStatus.OK.equals(responses.getStatusCode()) || HttpStatus.ACCEPTED
                 .equals(responses.getStatusCode())) {
