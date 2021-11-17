@@ -34,4 +34,6 @@ public interface VMAppVmService {
     Boolean deleteVm(String applicationId, String vmId);
 
     boolean updateVmStatus(String vmId, EnumVMStatus status, Integer targetImageId);
+
+    void deleteVmByAppId(String applicationId);
 }

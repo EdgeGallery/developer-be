@@ -30,6 +30,7 @@ import org.edgegallery.developer.exception.DataBaseException;
 import org.edgegallery.developer.exception.EntityNotFoundException;
 import org.edgegallery.developer.exception.FileFoundFailException;
 import org.edgegallery.developer.exception.FileOperateException;
+import org.edgegallery.developer.mapper.AtpTestTaskMapper;
 import org.edgegallery.developer.mapper.application.AppScriptMapper;
 import org.edgegallery.developer.mapper.application.ApplicationMapper;
 import org.edgegallery.developer.model.application.Application;
@@ -85,6 +86,9 @@ public class ApplicationServiceImpl implements ApplicationService {
 
     @Autowired
     private VMAppOperationServiceImpl vmApOperationServiceImpl;
+
+    @Autowired
+    AtpTestTaskMapper atpTestTaskMapper;
 
     @Autowired
     private AppScriptMapper appScriptMapper;
@@ -166,8 +170,11 @@ public class ApplicationServiceImpl implements ApplicationService {
         }
         // clean env
         appServiceFactory.getAppOperationService(applicationId).cleanEnv(applicationId, user);
-
+        // clean atp db
+        atpTestTaskMapper.deleteAtpTestByAppId(applicationId);
+        // clean vm db
         if (application.getAppClass().equals(EnumAppClass.VM)) {
+            vmService.deleteVmByAppId(applicationId);
             // init VM application default networks
             networkService.deleteNetworkByAppId(applicationId);
         }
