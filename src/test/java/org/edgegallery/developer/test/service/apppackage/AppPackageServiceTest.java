@@ -239,7 +239,7 @@ public class AppPackageServiceTest extends AbstractJUnit4SpringContextTests {
             appPackageService
                 .updateAppPackageFileContent("f2759fcb-bb4b-42f5-bc6c-8e1635348fda", "fileName", "content");
         } catch (FileFoundFailException e) {
-            Assert.assertEquals("the file you update cannot be found!", e.getMessage());
+            Assert.assertEquals("can not find any file in app pkg folder!", e.getMessage());
         }
     }
 

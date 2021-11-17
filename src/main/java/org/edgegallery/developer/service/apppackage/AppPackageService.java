@@ -31,7 +31,7 @@ public interface AppPackageService {
 
     String getAppPackageFileContent(String packageId, String fileName);
 
-    boolean updateAppPackageFileContent(String packageId, String fileName, String content);
+    String updateAppPackageFileContent(String packageId, String fileName, String content);
 
     AppPackage generateAppPackage(VMApplication application);
 

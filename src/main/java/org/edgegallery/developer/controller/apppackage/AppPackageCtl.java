@@ -114,13 +114,13 @@ public class AppPackageCtl {
     @RequestMapping(value = "/{packageId}/action/update-file-content", method = RequestMethod.PUT,
         produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
-    public ResponseEntity<Boolean> updateAppPackageFileContent(
+    public ResponseEntity<String> updateAppPackageFileContent(
         @Pattern(regexp = REGEX_UUID, message = "packageId must be in UUID format")
         @ApiParam(value = "packageId", required = true) @PathVariable(value = "packageId", required = true)
             String packageId,
         @ApiParam(value = "fileName", required = true) @RequestParam(value = "fileName", required = true)
             String fileName, @NotNull @ApiParam(value = "content", required = true) @RequestBody String content) {
-        Boolean result = appPackageService.updateAppPackageFileContent(packageId, fileName, content);
+        String result = appPackageService.updateAppPackageFileContent(packageId, fileName, content);
         return ResponseEntity.ok(result);
     }
 }

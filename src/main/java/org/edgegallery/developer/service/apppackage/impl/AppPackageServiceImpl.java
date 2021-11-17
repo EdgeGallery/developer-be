@@ -120,7 +120,7 @@ public class AppPackageServiceImpl implements AppPackageService {
         }
         String fileContent = "";
         for (String path : paths) {
-            if (path.contains(fileName)) {
+            if (path.endsWith(fileName)) {
                 fileContent = FileUtil.readFileContent(path);
             }
         }
@@ -132,7 +132,7 @@ public class AppPackageServiceImpl implements AppPackageService {
     }
 
     @Override
-    public boolean updateAppPackageFileContent(String packageId, String fileName, String content) {
+    public String updateAppPackageFileContent(String packageId, String fileName, String content) {
         if (StringUtils.isEmpty(packageId) || StringUtils.isEmpty(fileName) || StringUtils.isEmpty(content)) {
             String message = "packageId or fileName or content is empty";
             LOGGER.error(message);
@@ -161,6 +161,7 @@ public class AppPackageServiceImpl implements AppPackageService {
                 updateFilePath = path;
             }
         }
+        String fileContent ="";
         try {
             File updateFile = new File(updateFilePath);
             LOGGER.info("update file path:{}",updateFile.getCanonicalPath());
@@ -170,11 +171,16 @@ public class AppPackageServiceImpl implements AppPackageService {
                     ResponseConsts.RET_FILE_NOT_FOUND);
             }
             FileUtils.writeStringToFile(updateFile, content, StandardCharsets.UTF_8);
+            fileContent = FileUtil.readFileContent(updateFilePath);
         } catch (IOException e) {
-            LOGGER.error("write content to file occur {}!", e.getMessage());
-            return false;
+            LOGGER.error("write or read file occur {}!", e.getMessage());
+            return null;
         }
-        return true;
+        if (fileContent.equals("error")) {
+            LOGGER.error("file is not readable!");
+            throw new FileOperateException("file is not readable", ResponseConsts.RET_FILE_NOT_READABLE);
+        }
+        return fileContent;
     }
 
     @Override
