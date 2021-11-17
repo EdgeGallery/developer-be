@@ -96,6 +96,7 @@ public class AppStoreUtil {
         MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
         body.add("isFree", pubAppReqDto.isFree());
         body.add("price", pubAppReqDto.getPrice());
+        LOGGER.info("isFree: {}, price: {}", pubAppReqDto.isFree(),pubAppReqDto.getPrice());
         LOGGER.info("url: {}", url);
         try {
             ResponseEntity<String> responses = restTemplate
