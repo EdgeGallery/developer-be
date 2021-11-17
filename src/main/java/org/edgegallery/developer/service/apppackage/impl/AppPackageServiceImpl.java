@@ -30,11 +30,16 @@ import org.edgegallery.developer.exception.FileFoundFailException;
 import org.edgegallery.developer.exception.FileOperateException;
 import org.edgegallery.developer.exception.IllegalRequestException;
 import org.edgegallery.developer.mapper.apppackage.AppPackageMapper;
+import org.edgegallery.developer.model.application.EnumAppClass;
 import org.edgegallery.developer.model.application.container.ContainerApplication;
 import org.edgegallery.developer.model.application.vm.VMApplication;
 import org.edgegallery.developer.model.apppackage.AppPackage;
 import org.edgegallery.developer.model.apppackage.AppPkgStructure;
+import org.edgegallery.developer.model.restful.ApplicationDetail;
+import org.edgegallery.developer.service.application.ApplicationService;
 import org.edgegallery.developer.service.apppackage.AppPackageService;
+import org.edgegallery.developer.service.apppackage.csar.ContainerPackageFileCreator;
+import org.edgegallery.developer.service.apppackage.csar.PackageFileCreator;
 import org.edgegallery.developer.service.apppackage.csar.VMPackageFileCreator;
 import org.edgegallery.developer.util.ApplicationUtil;
 import org.edgegallery.developer.util.BusinessConfigUtil;
@@ -53,6 +58,9 @@ public class AppPackageServiceImpl implements AppPackageService {
 
     @Autowired
     private AppPackageMapper appPackageMapper;
+
+    @Autowired
+    private ApplicationService applicationService;
 
     @Override
     public AppPackage getAppPackage(String packageId) {
@@ -184,6 +192,37 @@ public class AppPackageServiceImpl implements AppPackageService {
         }
         appPackage.setPackageFileName(fileName);
         appPackageMapper.modifyAppPackage(appPackage);
+        return appPackage;
+    }
+
+    @Override
+    public AppPackage zipPackage(String packageId) {
+        AppPackage appPackage = getAppPackage(packageId);
+        if (null == appPackage) {
+            LOGGER.error("package does not exist, packageId:{}.", packageId);
+            throw new FileFoundFailException("package does not exist!", ResponseConsts.RET_FILE_NOT_FOUND);
+        }
+        ApplicationDetail applicationDetail = applicationService.getApplicationDetail(appPackage.getAppId());
+        if (applicationDetail.getVmApp() != null && applicationDetail.getVmApp().getAppClass()
+            .equals(EnumAppClass.VM)) {
+            PackageFileCreator packageFileCreator = new PackageFileCreator(applicationDetail.getVmApp(),
+                appPackage.getId());
+            String fileName = packageFileCreator.PackageFileCompress();
+            if (StringUtils.isEmpty(fileName)) {
+                LOGGER.error("zip package error.");
+                throw new FileOperateException("zip package error.", ResponseConsts.RET_CREATE_FILE_FAIL);
+            }
+        }
+        if (applicationDetail.getContainerApp() != null && applicationDetail.getContainerApp().getAppClass()
+            .equals(EnumAppClass.CONTAINER)) {
+            ContainerPackageFileCreator packageFileCreator = new ContainerPackageFileCreator(
+                applicationDetail.getContainerApp(), appPackage.getId());
+            String fileName = packageFileCreator.PackageFileCompress();
+            if (StringUtils.isEmpty(fileName)) {
+                LOGGER.error("zip package error.");
+                throw new FileOperateException("zip package error.", ResponseConsts.RET_CREATE_FILE_FAIL);
+            }
+        }
         return appPackage;
     }
 

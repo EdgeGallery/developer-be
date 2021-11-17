@@ -38,4 +38,5 @@ public interface AppOperationService {
     AtpTest getAtpTestById(String atpTestId);
 
     Boolean releaseApp(String applicationId, User user, PublishAppReqDto publishAppDto);
+
 }

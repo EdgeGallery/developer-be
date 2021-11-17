@@ -50,6 +50,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 @Api(tags = "AppPackage")
 @Validated
 public class AppPackageCtl {
+
     private static final String REGEX_UUID = "[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}";
 
     @Autowired
@@ -122,5 +123,23 @@ public class AppPackageCtl {
             String fileName, @NotNull @ApiParam(value = "content", required = true) @RequestBody String content) {
         Boolean result = appPackageService.updateAppPackageFileContent(packageId, fileName, content);
         return ResponseEntity.ok(result);
+    }
+
+    /**
+     * zip package
+     */
+    @ApiOperation(value = "zip package.", response = AppPackage.class)
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = "OK", response = AppPackage.class),
+        @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
+    })
+    @RequestMapping(value = "/{packageId}/action/zip-package", method = RequestMethod.POST,
+        produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
+    public ResponseEntity<AppPackage> zipPackage(
+        @Pattern(regexp = REGEX_UUID, message = "packageId must be in UUID format")
+        @ApiParam(value = "packageId", required = true) @PathVariable("packageId") String packageId) {
+        AppPackage appPkg = appPackageService.zipPackage(packageId);
+        return ResponseEntity.ok(appPkg);
     }
 }
