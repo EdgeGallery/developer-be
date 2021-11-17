@@ -14,6 +14,7 @@
 
 package org.edgegallery.developer.model.apppackage.appd.vducp;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -21,5 +22,6 @@ import lombok.Setter;
 @Getter
 public class VirtualLinkRequire {
 
-    private String virtual_link = "VL";
+    @JsonProperty("virtual_link")
+    private String virtualLink = "VL";
 }

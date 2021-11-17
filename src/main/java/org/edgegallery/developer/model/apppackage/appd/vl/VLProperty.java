@@ -14,6 +14,7 @@
 
 package org.edgegallery.developer.model.apppackage.appd.vl;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -21,5 +22,6 @@ import lombok.Setter;
 @Getter
 public class VLProperty {
 
-    private VLProfile vl_profile;
+    @JsonProperty("vl_profile")
+    private VLProfile vlProfile;
 }

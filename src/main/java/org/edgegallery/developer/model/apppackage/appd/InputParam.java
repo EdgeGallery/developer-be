@@ -14,29 +14,28 @@
 
 package org.edgegallery.developer.model.apppackage.appd;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import lombok.Getter;
-import lombok.Setter;
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import lombok.Getter;
+import lombok.Setter;
 
 @Setter
 @Getter
-@JsonPropertyOrder(alphabetic = true)
 public class InputParam {
 
     @Valid
     @NotBlank
+    @JsonProperty("type")
     private String type;
 
     @Valid
-    @JsonProperty(value = "default")
+    @JsonProperty("default")
     private Object defaultValue;
 
     @Valid
+    @JsonProperty("description")
     private String description;
 
     public InputParam(){

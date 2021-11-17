@@ -14,34 +14,44 @@
 
 package org.edgegallery.developer.model.apppackage.appd;
 
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
-@JsonPropertyOrder(alphabetic = true)
 public class VNFNodeProperty {
 
-    private String vnfd_id;
+    @JsonProperty("vnfd_id")
+    private String vnfdId;
 
-    private String vnfd_version = "v1.2";
+    @JsonProperty("vnfd_version")
+    private String vnfdVersion = "v1.2";
 
+    @JsonProperty("provider")
     private String provider;
 
-    private String product_name;
+    @JsonProperty("product_name")
+    private String productName;
 
-    private String software_version;
+    @JsonProperty("software_version")
+    private String softwareVersion;
 
-    private String product_info_name = "EG_MEC_APP";
+    @JsonProperty("product_info_name")
+    private String productInfoName = "EG_MEC_APP";
 
-    private String product_info_description = "EdgeGallery MEC APP";
+    @JsonProperty("product_info_description")
+    private String productInfoDescription = "EdgeGallery MEC APP";
 
-    private String flavour_id = "default";
+    @JsonProperty("flavour_id")
+    private String flavourId = "default";
 
-    private String flavour_description = "default flavor";
+    @JsonProperty("flavour_description")
+    private String flavourDescription = "default flavor";
 
-    private boolean ve_vnfm_vnf_enable = false;
+    @JsonProperty("ve_vnfm_vnf_enable")
+    private boolean veVnfmVnfEnable = false;
 
-    private boolean ve_vnfm_em_enable = false;
+    @JsonProperty("ve_vnfm_em_enable")
+    private boolean veVnfmEmEnable = false;
 }

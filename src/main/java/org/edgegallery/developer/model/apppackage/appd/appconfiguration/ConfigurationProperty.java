@@ -19,7 +19,6 @@ import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 import org.edgegallery.developer.model.application.configuration.AppCertificate;
-import org.edgegallery.developer.model.application.configuration.AppServiceRequired;
 import org.edgegallery.developer.model.application.configuration.DnsRule;
 import org.edgegallery.developer.model.application.configuration.TrafficRule;
 

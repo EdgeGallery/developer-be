@@ -14,21 +14,29 @@
 
 package org.edgegallery.developer.model.apppackage.appd.vdu;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
 
 @Setter
 @Getter
 public class VDUProperty {
+
+    @JsonProperty("name")
     private String name = "VDU_Name";
 
+    @JsonProperty("description")
     private String description = "VDU_Description";
 
-    private String nfvi_constraints = "nova";
+    @JsonProperty("nfvi_constraints")
+    private String nfviConstraints = "nova";
 
-    private VDUProfile vdu_profile = new VDUProfile();
+    @JsonProperty("vdu_profile")
+    private VDUProfile vduProfile = new VDUProfile();
 
-    private SwImageData sw_image_data = new SwImageData();
+    @JsonProperty("sw_image_data")
+    private SwImageData swImageData = new SwImageData();
 
-    private BootData bootdata  = new BootData();
+    @JsonProperty("bootdata")
+    private BootData bootdata = new BootData();
 }

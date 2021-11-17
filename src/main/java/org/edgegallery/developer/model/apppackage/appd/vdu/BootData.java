@@ -14,13 +14,17 @@
 
 package org.edgegallery.developer.model.apppackage.appd.vdu;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
 
 @Setter
 @Getter
 public class BootData {
-    private boolean config_drive = true;
 
-    private UserData user_data = new UserData();
+    @JsonProperty("config_drive")
+    private boolean configDrive = true;
+
+    @JsonProperty("user_data")
+    private UserData userData = new UserData();
 }
