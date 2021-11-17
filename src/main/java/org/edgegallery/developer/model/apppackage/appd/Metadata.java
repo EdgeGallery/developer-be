@@ -14,56 +14,54 @@
 
 package org.edgegallery.developer.model.apppackage.appd;
 
-import lombok.Getter;
-import lombok.Setter;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import lombok.Getter;
+import lombok.Setter;
 
 @Setter
 @Getter
-@JsonPropertyOrder(alphabetic = true)
 public class Metadata {
 
     @Valid
     @NotBlank
-    @JsonProperty(value = "template_name")
-    private String template_name = "Custom-MEC-APP";
+    @JsonProperty("template_name")
+    private String templateName = "Custom-MEC-APP";
 
     @Valid
     @NotBlank
-    @JsonProperty(value = "template_author")
-    private String template_author = "EdgeGallery";
+    @JsonProperty("template_author")
+    private String templateAuthor = "EdgeGallery";
 
     @Valid
     @NotBlank
-    @JsonProperty(value = "template_version")
-    private String template_version = "1.0.0";
+    @JsonProperty("template_version")
+    private String templateVersion = "1.0.0";
 
     @Valid
     @NotBlank
-    @JsonProperty(value = "vnfm_type")
-    private String vnfm_type = "MEPM";
+    @JsonProperty("vnfm_type")
+    private String vnfmType = "MEPM";
 
     @Valid
     @NotBlank
-    @JsonProperty(value = "vnfd_id")
-    private String vnfd_id = "Custom VNFD ID";
+    @JsonProperty("vnfd_id")
+    private String vnfdId = "Custom VNFD ID";
 
     @Valid
     @NotBlank
-    @JsonProperty(value = "vnfd_version")
-    private String vnfd_version = "v1.2";
+    @JsonProperty("vnfd_version")
+    private String vnfdVersion = "v1.2";
 
     @Valid
     @NotBlank
-    @JsonProperty(value = "vnfd_name")
-    private String vnfd_name ="Custom VNFD Name";
+    @JsonProperty("vnfd_name")
+    private String vnfdName ="Custom VNFD Name";
 
     @Valid
     @NotBlank
-    @JsonProperty(value = "vnfd_description")
-    private String vnfd_description="custom VNFD Description";
+    @JsonProperty("vnfd_description")
+    private String vnfdDescription ="custom VNFD Description";
 
 }

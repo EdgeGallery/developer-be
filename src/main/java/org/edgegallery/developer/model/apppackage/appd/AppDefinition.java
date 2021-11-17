@@ -14,37 +14,40 @@
 
 package org.edgegallery.developer.model.apppackage.appd;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.Arrays;
 import java.util.List;
-import lombok.Getter;
-import lombok.Setter;
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import lombok.Getter;
+import lombok.Setter;
 
 @Getter
 @Setter
-@JsonPropertyOrder(alphabetic = true)
 public class AppDefinition {
     @Valid
     @NotBlank
-    private String tosca_definitions_version = "tosca_simple_profile_1_2";
+    @JsonProperty("tosca_definitions_version")
+    private String toscaDefinitionsVersion = "tosca_simple_profile_1_2";
 
+    @JsonProperty("description")
     private String description= "EG MEC App Description";
 
     @Valid
     @NotEmpty
+    @JsonProperty("imports")
     private List<String> imports = Arrays.asList("nfv_vnfd_types_v1_0_20190924.yaml");
 
     @Valid
     @NotNull
+    @JsonProperty("metadata")
     private Metadata metadata = new Metadata();
 
     @Valid
     @NotBlank
-    private TopologyTemplate topology_template = new TopologyTemplate();
+    @JsonProperty("topology_template")
+    private TopologyTemplate topologyTemplate = new TopologyTemplate();
 
 }

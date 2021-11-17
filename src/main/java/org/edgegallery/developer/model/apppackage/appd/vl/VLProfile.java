@@ -14,6 +14,7 @@
 
 package org.edgegallery.developer.model.apppackage.appd.vl;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -21,12 +22,16 @@ import lombok.Setter;
 @Getter
 public class VLProfile {
 
-    private String network_name = "{get_input: network_name}";
+    @JsonProperty("network_name")
+    private String networkName = "{get_input: network_name}";
 
-    private String network_type = "vlan";
+    @JsonProperty("network_type")
+    private String networkType = "vlan";
 
-    private String physical_network = "{get_input: physical_network_input}";
+    @JsonProperty("physical_network")
+    private String physicalNetwork = "{get_input: physical_network_input}";
 
-    private String provider_segmentation_id = "{get_input: provider_segmentation_id}";
+    @JsonProperty("provider_segmentation_id")
+    private String providerSegmentationId = "{get_input: provider_segmentation_id}";
 
 }

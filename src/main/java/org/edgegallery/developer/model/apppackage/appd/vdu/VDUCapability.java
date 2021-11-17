@@ -14,6 +14,7 @@
 
 package org.edgegallery.developer.model.apppackage.appd.vdu;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import lombok.Getter;
@@ -23,7 +24,8 @@ import lombok.Setter;
 @Setter
 public class VDUCapability {
 
-    LinkedHashMap<String, Object> virtual_compute = new LinkedHashMap<>();
+    @JsonProperty("virtual_compute")
+    LinkedHashMap<String, Object> virtualCompute = new LinkedHashMap<>();
 
     public VDUCapability(int memSize, int cpuNum, String cpuArc, int diskSize) {
         Map<String, Object> memory = new LinkedHashMap<>();
@@ -36,12 +38,12 @@ public class VDUCapability {
         Map<String, Object> disk = new LinkedHashMap<>();
         disk.put("size_of_storage", diskSize);
 
-        Map<String, Map<String,Object>> properties = new LinkedHashMap<>();
+        Map<String, Map<String, Object>> properties = new LinkedHashMap<>();
         properties.put("virtual_memory", memory);
         properties.put("virtual_cpu", cpu);
         properties.put("virtual_local_storage", disk);
 
-        virtual_compute.put("properties", properties);
+        virtualCompute.put("properties", properties);
     }
 
 }

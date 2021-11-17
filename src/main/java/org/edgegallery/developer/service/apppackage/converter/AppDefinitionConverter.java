@@ -14,11 +14,17 @@
 
 package org.edgegallery.developer.service.apppackage.converter;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationConfig;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.google.gson.Gson;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -50,7 +56,8 @@ public class AppDefinitionConverter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AppDefinitionConverter.class);
 
-    private static final String REGEX_INPUT_RAMA_QUOTES_REMOVE = "('\\s*\\{\\s*get_input\\s*:\\s+)(((?!\\s*}).)+)(\\s*}\\s*')";
+    private static final String REGEX_INPUT_RAMA_QUOTES_REMOVE
+        = "('\\s*\\{\\s*get_input\\s*:\\s+)(((?!\\s*}).)+)(\\s*}\\s*')";
 
     private static final String INPUT_PARAM_REPLACEMENT = "{get_input: $2}";
 
@@ -62,10 +69,26 @@ public class AppDefinitionConverter {
     }
 
     public boolean saveAppdYaml(String appdFilePath, AppDefinition appDefinition) {
-        StringWriter writer = new StringWriter();
+        //convert to json string first.
+        // Gson gson = new Gson();
+        //  String appdJsonStr = gson.toJson(appDefinition);
+
+        //convert to Map Object. gson will change int to double ,so we use jackson.
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+        TypeReference<Map<String, Object>> typeRef = new TypeReference<Map<String, Object>>() { };
+        Map<String, Object> yamlObject = null;
+        try {
+            String appdJsonStr = mapper.writeValueAsString(appDefinition);
+            yamlObject = mapper.readValue(appdJsonStr, typeRef);
+        } catch (JsonProcessingException e) {
+            LOGGER.error("Convert yaml object failed", e);
+            return false;
+        }
+        //Dump appd object to yaml .
         CustomRepresenter representer = new CustomRepresenter();
         Yaml yaml = new Yaml(representer, new DumperOptions());
-        String yamlContents = yaml.dumpAs(appDefinition, Tag.MAP, DumperOptions.FlowStyle.BLOCK);
+        String yamlContents = yaml.dumpAs(yamlObject, Tag.MAP, DumperOptions.FlowStyle.BLOCK);
         //get_input function string is a feature not supported by snakeyaml, need to remove the quotes.
         String outPutContent = yamlContents.replaceAll(REGEX_INPUT_RAMA_QUOTES_REMOVE, INPUT_PARAM_REPLACEMENT);
         File file = new File(appdFilePath);
@@ -95,14 +118,14 @@ public class AppDefinitionConverter {
 
     public AppDefinition convertApplication2Appd(String appdFilePath, VMApplication application) {
         //if the yaml file already exists, read from file as default.
-        AppDefinition appDefinition =  new AppDefinition();
+        AppDefinition appDefinition = new AppDefinition();
         //update metadata
-        appDefinition.getMetadata().setVnfd_id(application.getName());
-        appDefinition.getMetadata().setVnfd_name(application.getName());
+        appDefinition.getMetadata().setVnfdId(application.getName());
+        appDefinition.getMetadata().setVnfdName(application.getName());
         //update the nodeTemplates
-        appDefinition.getTopology_template()
+        appDefinition.getTopologyTemplate()
             .updateNodeTemplates(application, queryFlavors(application), queryImages(application));
-        appDefinition.getTopology_template().updateGroupsAndPolicies();
+        appDefinition.getTopologyTemplate().updateGroupsAndPolicies();
         return appDefinition;
     }
 

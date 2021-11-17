@@ -14,6 +14,7 @@
 
 package org.edgegallery.developer.model.apppackage.appd.vducp;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -21,6 +22,7 @@ import lombok.Setter;
 @Getter
 public class VirtualBindingRequire {
 
-    private String virtual_binding = "VDU";
+    @JsonProperty("virtual_binding")
+    private String virtualBinding = "VDU";
 
 }

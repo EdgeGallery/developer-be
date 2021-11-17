@@ -14,6 +14,7 @@
 
 package org.edgegallery.developer.model.apppackage.appd.vdu;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.LinkedHashMap;
 import lombok.Getter;
 import lombok.Setter;
@@ -22,11 +23,15 @@ import lombok.Setter;
 @Getter
 public class VDUProfile {
 
-    private int min_number_of_instances = 1;
+    @JsonProperty("min_number_of_instances")
+    private int minNumberOfInstances = 1;
 
-    private int max_number_of_instances = 1;
+    @JsonProperty("max_number_of_instances")
+    private int maxNumberOfInstances = 1;
 
-    private int initial_number_of_instances = 1;
+    @JsonProperty("initial_number_of_instances")
+    private int initialNumberOfInstances = 1;
 
-    private LinkedHashMap<String, String> flavor_extra_specs;
+    @JsonProperty("flavor_extra_specs")
+    private LinkedHashMap<String, String> flavorExtraSpecs;
 }

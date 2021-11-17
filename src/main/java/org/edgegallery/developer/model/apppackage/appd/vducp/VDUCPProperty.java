@@ -14,6 +14,7 @@
 
 package org.edgegallery.developer.model.apppackage.appd.vducp;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -21,13 +22,18 @@ import lombok.Setter;
 @Getter
 public class VDUCPProperty {
 
-    private String description ="vducp description";
+    @JsonProperty("description")
+    private String description = "vducp description";
 
-    private String vnic_name = "eth0";
+    @JsonProperty("vnic_name")
+    private String vnicName = "eth0";
 
+    @JsonProperty("order")
     private int order = 0;
 
-    private String vnic_type = "normal";
+    @JsonProperty("vnic_type")
+    private String vnicType = "normal";
 
-    private boolean port_security_enabled = true;
+    @JsonProperty("port_security_enabled")
+    private boolean portSecurityEnabled = true;
 }

@@ -14,15 +14,13 @@
 
 package org.edgegallery.developer.model.apppackage.appd.policies;
 
-import lombok.Getter;
-import lombok.Setter;
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import lombok.Getter;
+import lombok.Setter;
 
 @Setter
 @Getter
-@JsonPropertyOrder(alphabetic = true)
 public class AntiAffinityRuleProperty {
 
     @Valid

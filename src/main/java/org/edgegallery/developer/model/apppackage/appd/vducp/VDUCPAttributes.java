@@ -14,6 +14,7 @@
 
 package org.edgegallery.developer.model.apppackage.appd.vducp;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -21,13 +22,18 @@ import lombok.Setter;
 @Getter
 public class VDUCPAttributes {
 
-    private String ipv4_address;
+    @JsonProperty("ipv4_address")
+    private String ipv4Address;
 
-    private String ipv6_address = "00::00";
+    @JsonProperty("ipv6_address")
+    private String ipv6Address = "00::00";
 
+    @JsonProperty("mac")
     private String mac = "00::00::00::00::00::00";
 
-    private String ipv4_vip_address = "0.0.0.0";
+    @JsonProperty("ipv4_vip_address")
+    private String ipv4VipAddress = "0.0.0.0";
 
-    private String ipv6_vip_address = "00:00";
+    @JsonProperty("ipv6_vip_address")
+    private String ipv6VipAddress = "00:00";
 }
