@@ -164,21 +164,20 @@ public final class FileUtil {
      * @param source source file
      * @return
      */
-    public static File copyFile(File source) {
+    public static File copyFile(File source, String fileName) {
         if (!source.exists()) {
             LOGGER.error("source file does not exist!");
             return null;
         }
-        File dest = new File(
-            InitConfigUtil.getWorkSpaceBaseDir() + BusinessConfigUtil.getUploadfilesPath() + source.getName());
+        File dest = new File(InitConfigUtil.getWorkSpaceBaseDir() + BusinessConfigUtil.getUploadfilesPath() + fileName);
         if (!dest.exists()) {
             try {
                 boolean ret = dest.createNewFile();
-                if(!ret){
+                if (!ret) {
                     LOGGER.error("create dest file failed!");
                     return null;
                 }
-                FileUtils.copyFile(source,dest);
+                FileUtils.copyFile(source, dest);
             } catch (IOException e) {
                 LOGGER.error("create dest file occur {}", e.getMessage());
                 return null;
