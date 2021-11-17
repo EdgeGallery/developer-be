@@ -31,4 +31,6 @@ public interface AtpTestTaskMapper {
     AtpTest getAtpTestById(String id);
 
     int updateAtpTestStatus(AtpTest task);
+
+    int deleteAtpTestByAppId(String applicationId);
 }

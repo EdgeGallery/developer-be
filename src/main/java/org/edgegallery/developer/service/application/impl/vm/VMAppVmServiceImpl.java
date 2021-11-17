@@ -117,6 +117,18 @@ public class VMAppVmServiceImpl implements VMAppVmService {
     }
 
     @Override
+    public void deleteVmByAppId(String applicationId) {
+
+        List<VirtualMachine> virtualMachines = vmMapper.getAllVMsByAppId(applicationId);
+        if (CollectionUtils.isEmpty(virtualMachines)) {
+            return;
+        }
+        for (VirtualMachine virtualMachine: virtualMachines) {
+            deleteVm(applicationId, virtualMachine.getId());
+        }
+    }
+
+    @Override
     public Boolean deleteVm(String applicationId, String vmId) {
         VirtualMachine getVm = getVm(applicationId, vmId);
         if (getVm == null || getVm.getVmInstantiateInfo() != null || getVm.getImageExportInfo() != null) {
@@ -140,6 +152,7 @@ public class VMAppVmServiceImpl implements VMAppVmService {
         }
         return true;
     }
+
 
     public int createVmPort(String vmId, VMPort port) {
         port.setId(UUID.randomUUID().toString());
