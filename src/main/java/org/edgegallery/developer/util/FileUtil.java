@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.apache.commons.io.FileUtils;
 import org.edgegallery.developer.common.Consts;
 import org.edgegallery.developer.domain.shared.FileChecker;
 import org.slf4j.Logger;
@@ -155,5 +156,34 @@ public final class FileUtil {
             return false;
         }
         return true;
+    }
+
+    /**
+     * copy file and return new file.
+     *
+     * @param source source file
+     * @return
+     */
+    public static File copyFile(File source) {
+        if (!source.exists()) {
+            LOGGER.error("source file does not exist!");
+            return null;
+        }
+        File dest = new File(
+            InitConfigUtil.getWorkSpaceBaseDir() + BusinessConfigUtil.getUploadfilesPath() + source.getName());
+        if (!dest.exists()) {
+            try {
+                boolean ret = dest.createNewFile();
+                if(!ret){
+                    LOGGER.error("create dest file failed!");
+                    return null;
+                }
+                FileUtils.copyFile(source,dest);
+            } catch (IOException e) {
+                LOGGER.error("create dest file occur {}", e.getMessage());
+                return null;
+            }
+        }
+        return dest;
     }
 }

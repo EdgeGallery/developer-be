@@ -31,6 +31,7 @@ import org.edgegallery.developer.config.security.AccessUserUtil;
 import org.edgegallery.developer.domain.model.user.User;
 import org.edgegallery.developer.exception.DataBaseException;
 import org.edgegallery.developer.exception.EntityNotFoundException;
+import org.edgegallery.developer.exception.FileOperateException;
 import org.edgegallery.developer.exception.IllegalRequestException;
 import org.edgegallery.developer.mapper.AtpTestTaskMapper;
 import org.edgegallery.developer.mapper.application.AppConfigurationMapper;
@@ -48,12 +49,13 @@ import org.edgegallery.developer.model.capability.CapabilityGroup;
 import org.edgegallery.developer.model.restful.SelectMepHostReq;
 import org.edgegallery.developer.model.uploadfile.UploadFile;
 import org.edgegallery.developer.model.workspace.PublishAppReqDto;
-import org.edgegallery.developer.model.workspace.UploadedFile;
 import org.edgegallery.developer.service.application.AppOperationService;
 import org.edgegallery.developer.service.apppackage.AppPackageService;
 import org.edgegallery.developer.util.AppStoreUtil;
 import org.edgegallery.developer.util.AtpUtil;
+import org.edgegallery.developer.util.FileUtil;
 import org.edgegallery.developer.util.HttpClientUtil;
+import org.edgegallery.developer.util.InitConfigUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -186,7 +188,11 @@ public class AppOperationServiceImpl implements AppOperationService {
 
         Map<String, Object> map = new HashMap<>();
         map.put("file", new FileSystemResource(new File(appPkg.queryPkgPath())));
-        map.put("icon", new FileSystemResource(new File(iconFile.getFilePath())));
+        File icon = new File(InitConfigUtil.getWorkSpaceBaseDir() + iconFile.getFilePath());
+        File copyIcon = FileUtil.copyFile(icon);
+        LOGGER.info("copy file Name:{}", copyIcon.getName());
+        checkFileNull(copyIcon, "copy file failed!");
+        map.put("icon", new FileSystemResource(copyIcon));
         map.put("type", app.getType());
         map.put("shortDesc", app.getDescription());
         map.put("affinity", app.getArchitecture());
@@ -204,7 +210,8 @@ public class AppOperationServiceImpl implements AppOperationService {
         checkInnerParamNull(appStorePackageId, "response from upload to appstore does not contain packageId");
 
         ResponseEntity<String> publishRes = AppStoreUtil
-            .publishToAppStore(appStoreAppId.getAsString(), appStorePackageId.getAsString(), user.getToken(), publishAppDto);
+            .publishToAppStore(appStoreAppId.getAsString(), appStorePackageId.getAsString(), user.getToken(),
+                publishAppDto);
         checkInnerParamNull(publishRes, "publish app to appstore fail!");
         //release service
         releaseServiceProduced(applicationId, jsonObject);
@@ -304,6 +311,13 @@ public class AppOperationServiceImpl implements AppOperationService {
         if (null == param) {
             LOGGER.error(msg);
             throw new EntityNotFoundException(msg, ResponseConsts.RET_QUERY_DATA_EMPTY);
+        }
+    }
+
+    private <T> void checkFileNull(T param, String msg) {
+        if (null == param) {
+            LOGGER.error(msg);
+            throw new FileOperateException(msg, ResponseConsts.RET_COPY_FILE_FAIL);
         }
     }
 
