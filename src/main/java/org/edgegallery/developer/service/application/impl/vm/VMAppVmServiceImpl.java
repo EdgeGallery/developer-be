@@ -131,15 +131,10 @@ public class VMAppVmServiceImpl implements VMAppVmService {
     @Override
     public Boolean deleteVm(String applicationId, String vmId) {
         VirtualMachine getVm = getVm(applicationId, vmId);
-        if (getVm == null || getVm.getVmInstantiateInfo() != null || getVm.getImageExportInfo() != null) {
-            LOGGER.error("delete vm  fail, vm is not exit or is used,vmId:{}", vmId);
-            throw new EntityNotFoundException("delete vm  fail, vm is not exit or is used.",
-                ResponseConsts.RET_QUERY_DATA_EMPTY);
+        if (getVm == null) {
+            return true;
         }
-        vmMapper.deleteVMCertificate(vmId);
-        vmMapper.deleteVMPort(vmId);
         vmMapper.deleteVM(vmId);
-
         return true;
     }
 
