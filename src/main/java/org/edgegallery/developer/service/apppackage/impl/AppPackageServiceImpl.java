@@ -157,14 +157,27 @@ public class AppPackageServiceImpl implements AppPackageService {
             throw new DataBaseException("fileName of app pkg is empty!", ResponseConsts.RET_QUERY_DATA_EMPTY);
         }
         String applicationPath = getApplicationPath(appPackage.getAppId());
-        String pkgFolderName = pkgName.substring(0, pkgName.lastIndexOf("."));
-        File file = new File(applicationPath + pkgFolderName + File.separator + fileName);
-        if (!file.exists()) {
-            LOGGER.error("can not find file {}!", fileName);
-            throw new FileFoundFailException("the file you update cannot be found!", ResponseConsts.RET_FILE_NOT_FOUND);
+        File fileRootDir = new File(applicationPath + packageId + File.separator);
+        List<String> paths = FileUtil.getAllFilePath(fileRootDir);
+        if (paths.isEmpty()) {
+            String errMsg = "can not find any file in app pkg folder!";
+            throw new FileFoundFailException(errMsg, ResponseConsts.RET_FILE_NOT_FOUND);
+        }
+        String updateFilePath = "";
+        for (String path : paths) {
+            if (path.endsWith(fileName)) {
+                updateFilePath = path;
+            }
         }
         try {
-            FileUtils.writeStringToFile(file, content, StandardCharsets.UTF_8);
+            File updateFile = new File(updateFilePath);
+            LOGGER.info("update file path:{}",updateFile.getCanonicalPath());
+            if (!updateFile.exists()) {
+                LOGGER.error("can not find file {}!", fileName);
+                throw new FileFoundFailException("the file you update cannot be found!",
+                    ResponseConsts.RET_FILE_NOT_FOUND);
+            }
+            FileUtils.writeStringToFile(updateFile, content, StandardCharsets.UTF_8);
         } catch (IOException e) {
             LOGGER.error("write content to file occur {}!", e.getMessage());
             return false;
