@@ -73,6 +73,8 @@ public class AppOperationServiceImpl implements AppOperationService {
 
     private static final String TEST_TASK_STATUS_SUCCESS = "success";
 
+    private static final String TEST_TASK_STATUS_CREATED = "created";
+
     @Autowired
     private ApplicationMapper applicationMapper;
 
@@ -143,7 +145,8 @@ public class AppOperationServiceImpl implements AppOperationService {
         List<AtpTest> atpTests = atpTestTaskMapper.getAtpTests(applicationId);
         checkParamNull(atpTests, "atpTests do not exit. applicationId: ".concat(applicationId));
         atpTests.stream().filter(atpTestTask -> TEST_TASK_STATUS_WAITING.equalsIgnoreCase(atpTestTask.getStatus())
-            || TEST_TASK_STATUS_RUNNING.equalsIgnoreCase(atpTestTask.getStatus()))
+            || TEST_TASK_STATUS_RUNNING.equalsIgnoreCase(atpTestTask.getStatus())
+            || TEST_TASK_STATUS_CREATED.equalsIgnoreCase(atpTestTask.getStatus()))
             .forEach(task -> queryAndUpdateTestStatus(task));
         return atpTests;
     }
@@ -153,7 +156,7 @@ public class AppOperationServiceImpl implements AppOperationService {
         AtpTest atpTest = atpTestTaskMapper.getAtpTestById(atpTestId);
         checkParamNull(atpTest, "atpTest does not exit. atpTestId: ".concat(atpTestId));
         if (TEST_TASK_STATUS_WAITING.equalsIgnoreCase(atpTest.getStatus()) || TEST_TASK_STATUS_RUNNING
-            .equalsIgnoreCase(atpTest.getStatus())) {
+            .equalsIgnoreCase(atpTest.getStatus()) || TEST_TASK_STATUS_CREATED.equalsIgnoreCase(atpTest.getStatus())) {
             queryAndUpdateTestStatus(atpTest);
         }
         return atpTest;
