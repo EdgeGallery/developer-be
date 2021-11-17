@@ -200,7 +200,7 @@ public class AppOperationServiceImpl implements AppOperationService {
         map.put("shortDesc", app.getDescription());
         map.put("affinity", app.getArchitecture());
         map.put("industry", app.getIndustry());
-        map.put("testTaskId", testList.get(0));
+        map.put("testTaskId", testList.get(0).getId());
         ResponseEntity<String> uploadReslut = AppStoreUtil.storeToAppStore(map, user);
         checkInnerParamNull(uploadReslut, "upload app to appstore fail!");
 
