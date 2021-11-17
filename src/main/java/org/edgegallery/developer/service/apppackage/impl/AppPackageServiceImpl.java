@@ -149,16 +149,15 @@ public class AppPackageServiceImpl implements AppPackageService {
             throw new DataBaseException("fileName of app pkg is empty!", ResponseConsts.RET_QUERY_DATA_EMPTY);
         }
         String applicationPath = getApplicationPath(appPackage.getAppId());
-        String pkgFolderName = pkgName.substring(0, pkgName.lastIndexOf("."));
-        File file = new File(applicationPath + pkgFolderName + File.separator);
-        List<String> paths = FileUtil.getAllFilePath(file);
+        File fileRootDir = new File(applicationPath + packageId + File.separator);
+        List<String> paths = FileUtil.getAllFilePath(fileRootDir);
         if (paths.isEmpty()) {
             String errMsg = "can not find any file in app pkg folder!";
             throw new FileFoundFailException(errMsg, ResponseConsts.RET_FILE_NOT_FOUND);
         }
         String updateFilePath = "";
         for (String path : paths) {
-            if (path.contains(fileName)) {
+            if (path.endsWith(fileName)) {
                 updateFilePath = path;
             }
         }
