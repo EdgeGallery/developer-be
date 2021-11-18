@@ -16,8 +16,13 @@
 
 package org.edgegallery.developer.util;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -184,5 +189,19 @@ public final class FileUtil {
             }
         }
         return dest;
+    }
+
+    /**
+     * write file.
+     * @param file file
+     * @param content content
+     */
+    public static void writeFile(File file, String content) {
+        try (Writer fw = new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8);
+             BufferedWriter bw = new BufferedWriter(fw)) {
+            bw.write(content);
+        } catch (IOException e) {
+            LOGGER.error("write data failed, {}", e.getMessage());
+        }
     }
 }

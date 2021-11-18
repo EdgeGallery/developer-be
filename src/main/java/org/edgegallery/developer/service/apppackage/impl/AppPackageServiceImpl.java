@@ -18,11 +18,9 @@ package org.edgegallery.developer.service.apppackage.impl;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.edgegallery.developer.common.ResponseConsts;
 import org.edgegallery.developer.exception.DataBaseException;
@@ -169,16 +167,16 @@ public class AppPackageServiceImpl implements AppPackageService {
                 updateFilePath = path;
             }
         }
-        String fileContent ="";
+        String fileContent = "";
         try {
             File updateFile = new File(updateFilePath);
-            LOGGER.info("update file path:{}",updateFile.getCanonicalPath());
+            LOGGER.info("update file path:{}", updateFile.getCanonicalPath());
             if (!updateFile.exists()) {
                 LOGGER.error("can not find file {}!", fileName);
                 throw new FileFoundFailException("the file you update cannot be found!",
                     ResponseConsts.RET_FILE_NOT_FOUND);
             }
-            FileUtils.writeStringToFile(updateFile, content, StandardCharsets.UTF_8);
+            FileUtil.writeFile(updateFile, content);
             fileContent = FileUtil.readFileContent(updateFilePath);
         } catch (IOException e) {
             LOGGER.error("write or read file occur {}!", e.getMessage());
