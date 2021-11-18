@@ -16,6 +16,7 @@
 
 package org.edgegallery.developer.util;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -30,11 +31,13 @@ import java.io.OutputStream;
 import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import org.edgegallery.developer.common.Consts;
 import org.edgegallery.developer.exception.CustomException;
 import org.edgegallery.developer.exception.DomainException;
 import org.edgegallery.developer.model.Chunk;
 import org.edgegallery.developer.model.LcmLog;
+import org.edgegallery.developer.model.filesystem.FileSystemResponse;
 import org.edgegallery.developer.model.lcm.DistributeBody;
 import org.edgegallery.developer.model.lcm.DistributeResponse;
 import org.edgegallery.developer.model.lcm.InstantRequest;
@@ -813,7 +816,7 @@ public final class HttpClientUtil {
         return false;
     }
 
-    public static String getImageSlim(String url) {
+    public static FileSystemResponse queryImageCheck(String url) {
         HttpHeaders headers = new HttpHeaders();
         HttpEntity<String> requestEntity = new HttpEntity<>(headers);
         ResponseEntity<String> response;
@@ -826,7 +829,14 @@ public final class HttpClientUtil {
         }
         if (response.getStatusCode() == HttpStatus.OK) {
             LOGGER.info("image slim  success, resp = {}", response);
-            return response.getBody();
+            try {
+                return new ObjectMapper().readValue(
+                    Objects.requireNonNull(response.getBody()).getBytes(), FileSystemResponse.class);
+
+            } catch (Exception e) {
+                LOGGER.error("merge on remote file server failed. {}", e.getMessage());
+                return null;
+            }
         }
         LOGGER.error("image slim fail!");
         return null;
