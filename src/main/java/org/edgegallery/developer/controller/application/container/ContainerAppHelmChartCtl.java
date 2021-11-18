@@ -34,6 +34,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -145,9 +146,9 @@ public class ContainerAppHelmChartCtl {
     /**
      * get file content by file-path.
      */
-    @ApiOperation(value = "get file content by file-path.", response = byte[].class)
+    @ApiOperation(value = "get file content by file-path.", response = String.class)
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "OK", response = byte[].class),
+        @ApiResponse(code = 200, message = "OK", response = String.class),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
     @RequestMapping(value = "/{applicationId}/helmcharts/{helmchartId}/action/get-inner-file",
@@ -159,6 +160,28 @@ public class ContainerAppHelmChartCtl {
         @Pattern(regexp = REGEX_UUID, message = "fileId must be in UUID format")
         @ApiParam(value = "helmchartId", required = true) @PathVariable("helmchartId") String helmChartId,
         @ApiParam(value = "filePath", required = true) @RequestParam("filePath") String filePath) {
-        return ResponseEntity.ok(containerAppHelmChartService.getFileContentByFilePath(applicationId, helmChartId, filePath));
+        return ResponseEntity
+            .ok(containerAppHelmChartService.getFileContentByFilePath(applicationId, helmChartId, filePath));
+    }
+
+    /**
+     * modify file content by file-path.
+     */
+    @ApiOperation(value = "modify file content by file-path.", response = Boolean.class)
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = "OK", response = Boolean.class),
+        @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
+    })
+    @RequestMapping(value = "/{applicationId}/helmcharts/{helmchartId}/action/modify-inner-file",
+        method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
+    public ResponseEntity<Boolean> modifyFileContentByFilePath(
+        @Pattern(regexp = REGEX_UUID, message = "applicationId must be in UUID format")
+        @ApiParam(value = "applicationId", required = true) @PathVariable("applicationId") String applicationId,
+        @Pattern(regexp = REGEX_UUID, message = "fileId must be in UUID format")
+        @ApiParam(value = "helmchartId", required = true) @PathVariable("helmchartId") String helmChartId,
+        @RequestBody ModifyFileContentDto content) {
+        return ResponseEntity
+            .ok(containerAppHelmChartService.modifyFileContentByFilePath(applicationId, helmChartId, content));
     }
 }

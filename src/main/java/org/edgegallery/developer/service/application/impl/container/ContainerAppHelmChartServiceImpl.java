@@ -28,6 +28,7 @@ import java.util.Map;
 import java.util.UUID;
 import org.edgegallery.developer.common.ResponseConsts;
 import org.edgegallery.developer.config.security.AccessUserUtil;
+import org.edgegallery.developer.controller.application.container.ModifyFileContentDto;
 import org.edgegallery.developer.exception.DataBaseException;
 import org.edgegallery.developer.exception.EntityNotFoundException;
 import org.edgegallery.developer.exception.FileOperateException;
@@ -214,7 +215,7 @@ public class ContainerAppHelmChartServiceImpl implements ContainerAppHelmChartSe
     }
 
     @Override
-    public Boolean modifyFileContentByFilePath(String application, String helmChartsId, String filePath, String content) {
+    public Boolean modifyFileContentByFilePath(String application, String helmChartsId, ModifyFileContentDto content) {
         return null;
     }
 

@@ -17,6 +17,7 @@
 package org.edgegallery.developer.service.application.container;
 
 import java.util.List;
+import org.edgegallery.developer.controller.application.container.ModifyFileContentDto;
 import org.edgegallery.developer.model.application.container.HelmChart;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -38,5 +39,5 @@ public interface ContainerAppHelmChartService {
 
     String getFileContentByFilePath(String application, String helmChartId, String filePath);
 
-    Boolean modifyFileContentByFilePath(String application, String helmChartId, String filePath, String content);
+    Boolean modifyFileContentByFilePath(String application, String helmChartId, ModifyFileContentDto content);
 }
