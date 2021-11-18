@@ -199,8 +199,6 @@ public class NewCreateCsar {
             imageDesc.setArchitecture(project.getPlatform().get(0));
             imageDesc.setSize(688390);
             imageDesc.setSwImage(image);
-            imageDesc.setHwScsiModel("virtio-scsi");
-            imageDesc.setHwDiskBus("scsi");
             imageDesc.setOperatingSystem("linux");
             imageDesc.setSupportedVirtualisationEnvironment("linux");
             imageDescs.add(imageDesc);
@@ -232,8 +230,6 @@ public class NewCreateCsar {
                 imageDesc.setArchitecture(project.getPlatform().get(0));
                 imageDesc.setSize(688390);
                 imageDesc.setSwImage(pod);
-                imageDesc.setHwScsiModel("virtio-scsi");
-                imageDesc.setHwDiskBus("scsi");
                 imageDesc.setOperatingSystem("linux");
                 imageDescs.add(imageDesc);
             }

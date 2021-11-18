@@ -1,20 +1,14 @@
 package org.edgegallery.developer.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.gson.Gson;
-import com.spencerwi.either.Either;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Response;
 import org.apache.commons.io.FileUtils;
@@ -27,17 +21,16 @@ import org.edgegallery.developer.exception.FileOperateException;
 import org.edgegallery.developer.mapper.SystemImageMapper;
 import org.edgegallery.developer.model.Chunk;
 import org.edgegallery.developer.model.system.EnumProcessErrorType;
+import org.edgegallery.developer.model.system.FileSystemResponse;
 import org.edgegallery.developer.model.system.MepGetSystemImageReq;
 import org.edgegallery.developer.model.system.MepGetSystemImageRes;
 import org.edgegallery.developer.model.system.MepSystemQueryCtrl;
 import org.edgegallery.developer.model.system.UploadFileInfo;
 import org.edgegallery.developer.model.system.VmSystem;
-import org.edgegallery.developer.model.system.FileSystemResponse;
 import org.edgegallery.developer.model.workspace.EnumSystemImageSlimStatus;
 import org.edgegallery.developer.model.workspace.EnumSystemImageStatus;
 import org.edgegallery.developer.response.FormatRespDto;
 import org.edgegallery.developer.util.BusinessConfigUtil;
-import org.edgegallery.developer.util.FileHashCode;
 import org.edgegallery.developer.util.HttpClientUtil;
 import org.edgegallery.developer.util.InitConfigUtil;
 import org.edgegallery.developer.util.SystemImageUtil;
@@ -52,6 +45,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import org.springframework.web.multipart.MultipartFile;
+import com.google.gson.Gson;
+import com.spencerwi.either.Either;
 
 @Service("systemImageMgmtService")
 public class SystemImageMgmtService {
@@ -65,6 +60,11 @@ public class SystemImageMgmtService {
     private static final String FILE_FORMAT_ISO = "iso";
 
     private static final String FILE_SLIM_PATH = "/action/slim";
+
+    // time out: 10 min.
+    public static final int TIMEOUT = 10 * 60 * 1000;
+    //interval of the query, 5s.
+    public static final int INTERVAL = 5000;
 
     private static Gson gson = new Gson();
 
@@ -291,8 +291,8 @@ public class SystemImageMgmtService {
     /**
      * upload system image.
      *
-     * @param request HTTP Servlet Request
-     * @param chunk File Chunk
+     * @param request  HTTP Servlet Request
+     * @param chunk    File Chunk
      * @param systemId System Image ID
      * @return Resposne
      * @throws IOException IOException
@@ -392,7 +392,7 @@ public class SystemImageMgmtService {
     /**
      * cancel upload system image.
      *
-     * @param systemId System Image ID
+     * @param systemId   System Image ID
      * @param identifier File Identifier
      * @return Resposne
      */
@@ -429,9 +429,9 @@ public class SystemImageMgmtService {
     /**
      * merge system image.
      *
-     * @param fileName Merged File Name
+     * @param fileName   Merged File Name
      * @param identifier File Identifier
-     * @param systemId System Image ID
+     * @param systemId   System Image ID
      * @return Resposne
      * @throws IOException IOException
      */
@@ -478,23 +478,28 @@ public class SystemImageMgmtService {
             return ResponseEntity.status(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode()).build();
         }
 
-        LOGGER.info("process merged file.");
-        UploadFileInfo uploadFileInfo = processMergedFile(mergedFile);
-        if (!uploadFileInfo.isSucceeded()) {
-            LOGGER.error("process merged file failed!");
-            cancelOnRemoteFileServer(identifier);
-            systemImageMapper.updateSystemImageStatus(systemId, EnumSystemImageStatus.UPLOAD_FAILED.toString());
-            systemImageMapper.updateSystemImageErrorType(systemId, uploadFileInfo.getErrorType());
-            return ResponseEntity.status(uploadFileInfo.getRespStatusCode()).build();
-        }
-
         LOGGER.info("delete old system image on remote server.");
         deleteImageFileOnRemote(systemId);
 
         LOGGER.info("merge on remote file server.");
-        String uploadedSystemPath = mergeOnRemoteFileServer(identifier, fileName);
-        if (StringUtils.isEmpty(uploadedSystemPath)) {
+        String filesystemImageId = mergeOnRemoteFileServer(identifier, fileName);
+        if (StringUtils.isEmpty(filesystemImageId)) {
             LOGGER.error("merge failed on remote file server!");
+            systemImageMapper.updateSystemImageStatus(systemId, EnumSystemImageStatus.UPLOAD_FAILED.toString());
+            systemImageMapper
+                .updateSystemImageErrorType(systemId, EnumProcessErrorType.FILESYSTEM_MERGE_FAILED.getErrorType());
+            return ResponseEntity.status(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode()).build();
+        }
+
+        LOGGER.info("get image info.");
+        String uploadedSystemPath =
+            fileServerAddress + String.format(Consts.SYSTEM_IMAGE_DOWNLOAD_URL, filesystemImageId);
+
+        UploadFileInfo uploadFileInfo = queryImageCheckFromFileSystem(filesystemImageId);
+        if (uploadFileInfo == null) {
+            // delete file system image
+            LOGGER.error("query image info failed on file server!");
+            HttpClientUtil.deleteSystemImage(uploadedSystemPath);
             systemImageMapper.updateSystemImageStatus(systemId, EnumSystemImageStatus.UPLOAD_FAILED.toString());
             systemImageMapper
                 .updateSystemImageErrorType(systemId, EnumProcessErrorType.FILESYSTEM_MERGE_FAILED.getErrorType());
@@ -508,6 +513,36 @@ public class SystemImageMgmtService {
         systemImageMapper.updateSystemImageUploadInfo(uploadFileInfo);
         systemImageMapper.updateSystemImageSlimStatus(systemId, EnumSystemImageSlimStatus.SLIM_WAIT.toString());
         return ResponseEntity.ok().build();
+    }
+
+    private UploadFileInfo queryImageCheckFromFileSystem(String filesystemImageId) {
+
+        String filesystemUrl = fileServerAddress + String.format(Consts.SYSTEM_IMAGE_GET_URL, filesystemImageId);
+        int waitingTime = 0;
+        while (waitingTime < TIMEOUT) {
+
+            FileSystemResponse imageCheckResult = HttpClientUtil.queryImageCheck(filesystemUrl);
+            if (imageCheckResult == null) {
+                return null;
+            }
+            String checkSum = imageCheckResult.getCheckStatusResponse().getCheckInfo().getChecksum();
+            if (!StringUtils.isEmpty(checkSum)) {
+                String imageName = imageCheckResult.getFileName();
+                String imageFormat = imageCheckResult.getCheckStatusResponse().getCheckInfo().getImageInfo()
+                    .getFormat();
+                String imageSize = imageCheckResult.getCheckStatusResponse().getCheckInfo().getImageInfo()
+                    .getImageSize();
+                return new UploadFileInfo(imageName, checkSum, imageFormat, Long.parseLong(imageSize));
+            }
+            try {
+                Thread.sleep(INTERVAL);
+                waitingTime += INTERVAL;
+            } catch (Exception e) {
+                return null;
+            }
+        }
+        return null;
+
     }
 
     /**
@@ -632,34 +667,6 @@ public class SystemImageMgmtService {
         }
     }
 
-    private UploadFileInfo processMergedFile(File mergedFile) {
-        try (ZipFile zipFile = new ZipFile(mergedFile)) {
-            String fileMd5 = null;
-            String fileFormat = null;
-            Long fileSize = 0L;
-            Enumeration<? extends ZipEntry> entries = zipFile.entries();
-            while (entries.hasMoreElements()) {
-                ZipEntry entry = entries.nextElement();
-                String name = entry.getName();
-                fileSize = entry.getSize();
-                fileFormat = name.substring(name.lastIndexOf(".") + 1, name.length());
-                if (fileFormat.equalsIgnoreCase(FILE_FORMAT_QCOW2) || fileFormat.equalsIgnoreCase(FILE_FORMAT_ISO)) {
-                    fileMd5 = FileHashCode.md5HashCode32(zipFile.getInputStream(entry));
-                    return new UploadFileInfo(mergedFile.getName(), fileMd5, fileFormat, fileSize);
-                }
-            }
-            LOGGER.error("zipFile format is mistake!");
-            return new UploadFileInfo(Response.Status.BAD_REQUEST.getStatusCode(),
-                EnumProcessErrorType.FORMAT_MISTAKE.getErrorType());
-        } catch (Exception e) {
-            LOGGER.error("process merged zip file failed, {}", e.getMessage());
-            return new UploadFileInfo(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(),
-                EnumProcessErrorType.OPEN_FAILED.getErrorType());
-        } finally {
-            cleanWorkDir(mergedFile.getParentFile());
-        }
-    }
-
     private boolean imageSlimByFileServer(Integer systemId) {
         String systemPath = systemImageMapper.getSystemImagesPath(systemId);
         if (StringUtils.isEmpty(systemPath)) {
@@ -691,9 +698,9 @@ public class SystemImageMgmtService {
         @Override
         public void run() {
             Boolean res = getImageFileInfo(systemId);
-            if(res) {
+            if (res) {
                 LOGGER.info("slim image success");
-            }else {
+            } else {
                 LOGGER.info("slim image fail");
             }
         }
@@ -702,7 +709,6 @@ public class SystemImageMgmtService {
             String systemPath = systemImageMapper.getSystemImagesPath(systemId);
             String url = systemPath.substring(0, systemPath.length() - 16);
             long startTime = System.currentTimeMillis();
-            FileSystemResponse imageResult;
             while (System.currentTimeMillis() - startTime < MAX_SECONDS * 60) {
                 try {
                     Thread.sleep(10000);
@@ -710,28 +716,24 @@ public class SystemImageMgmtService {
                     Thread.currentThread().interrupt();
                     LOGGER.error("sleep fail! {}", e.getMessage());
                 }
-                String slimResult = HttpClientUtil.getImageSlim(url);
-                if (slimResult==null) {
+                FileSystemResponse slimResult = HttpClientUtil.queryImageCheck(url);
+                if (slimResult == null) {
                     systemImageMapper
                         .updateSystemImageSlimStatus(systemId, EnumSystemImageSlimStatus.SLIM_FAILED.toString());
                     return false;
                 }
-                try {
-                    imageResult = new ObjectMapper().readValue(slimResult.getBytes(), FileSystemResponse.class);
-                } catch (Exception e) {
-                    return false;
-                }
                 LOGGER.info("image slim result: {}", slimResult);
-                int slimStatus = imageResult.getSlimStatus();
+                int slimStatus = slimResult.getSlimStatus();
 
-                if (slimStatus==2) {
+                if (slimStatus == 2) {
                     systemImageMapper
                         .updateSystemImageSlimStatus(systemId, EnumSystemImageSlimStatus.SLIM_SUCCEED.toString());
-                    Long imageSize = Long.parseLong(imageResult.getCheckStatusResponse().getCheckInfo().getImageInfo().getImageSize());
-                    String checkSum = imageResult.getCheckStatusResponse().getCheckInfo().getChecksum();
+                    Long imageSize = Long
+                        .parseLong(slimResult.getCheckStatusResponse().getCheckInfo().getImageInfo().getImageSize());
+                    String checkSum = slimResult.getCheckStatusResponse().getCheckInfo().getChecksum();
                     systemImageMapper.updateSystemImageInfo(systemId, imageSize, checkSum);
                     return true;
-                } else if (slimStatus==1) {
+                } else if (slimStatus == 1) {
                     systemImageMapper
                         .updateSystemImageSlimStatus(systemId, EnumSystemImageSlimStatus.SLIMMING.toString());
                 } else {
