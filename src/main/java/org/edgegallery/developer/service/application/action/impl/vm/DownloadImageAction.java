@@ -124,13 +124,11 @@ public class DownloadImageAction extends AbstractAction {
         int waitingTime = 0;
         String url = imageExportInfo.getDownloadUrl();
         while (waitingTime < TIMEOUT) {
-            String slimResult = HttpClientUtil.getImageSlim(url);
-            FileSystemResponse imageResult;
-            if (slimResult == null) {
+            FileSystemResponse imageResult = HttpClientUtil.queryImageCheck(url);
+            if (imageResult == null) {
                 return false;
             }
             try {
-                imageResult = new ObjectMapper().readValue(slimResult.getBytes(), FileSystemResponse.class);
                 String checkSum = imageResult.getCheckStatusResponse().getCheckInfo().getChecksum();
                 if (!StringUtils.isEmpty(checkSum)) {
                     imageExportInfo.setCheckSum(checkSum);
