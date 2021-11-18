@@ -50,7 +50,7 @@ public class ImageDesc {
     private String hwScsiModel = "virtio-scsi";
 
     @SerializedName("hw_disk_bus")
-    private String hwDiskBus = "scsi";
+    private String hwDiskBus = "virtio";
 
     private String operatingSystem;
 
