@@ -138,7 +138,7 @@ public class DownloadImageAction extends AbstractAction {
                         .setFormat(imageResult.getCheckStatusResponse().getCheckInfo().getImageInfo().getFormat());
                     imageExportInfo.setImageSize(
                         imageResult.getCheckStatusResponse().getCheckInfo().getImageInfo().getImageSize());
-                    imageExportInfo.setDownloadUrl(url + "action/download");
+                    imageExportInfo.setDownloadUrl(url + "/action/download");
                     imageExportInfoMapper.modifyImageExportInfoInfoByVMId(vmId, imageExportInfo);
                     return true;
                 }

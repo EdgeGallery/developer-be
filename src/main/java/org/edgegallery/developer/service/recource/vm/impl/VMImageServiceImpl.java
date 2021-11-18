@@ -420,8 +420,6 @@ public class VMImageServiceImpl implements VMImageService {
             return ResponseEntity.status(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode()).build();
         }
 
-        LOGGER.info("process merged file.");
-
         LOGGER.info("delete old vm image on remote server.");
         deleteImageFileOnRemote(imageId);
 
@@ -490,8 +488,7 @@ public class VMImageServiceImpl implements VMImageService {
         Assert.notNull(vmImageMapper.getVmImagesPath(imageId), "vm image path is null");
         try {
             String systemPath = vmImageMapper.getVmImagesPath(imageId);
-            String url = systemPath + "?isZip=true";
-            byte[] dataStream = HttpClientUtil.downloadSystemImage(url);
+            byte[] dataStream = HttpClientUtil.downloadSystemImage(systemPath);
             if (dataStream == null) {
                 LOGGER.error("download vm image failed!");
                 return null;
