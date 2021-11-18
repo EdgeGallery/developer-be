@@ -441,6 +441,9 @@ public class VMAppOperationServiceImpl extends AppOperationServiceImpl implement
 
     private boolean cleanVmLaunchInfo(String mepHostId, VirtualMachine vm, User user) {
         MepHost mepHost = mepHostMapper.getHost(mepHostId);
+        if (mepHost == null) {
+            return true;
+        }
         String basePath = HttpClientUtil.getUrlPrefix(mepHost.getLcmProtocol(), mepHost.getLcmIp(),
             mepHost.getLcmPort());
         VMInstantiateInfo vmInstantiateInfo = vm.getVmInstantiateInfo();
