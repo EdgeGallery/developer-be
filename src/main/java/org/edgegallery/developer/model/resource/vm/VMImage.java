@@ -40,7 +40,7 @@ public class VMImage {
     @Length(max = 50)
     private String osBitType;
 
-    @Range(min = 10, max = 9999)
+    @Range(min = 1, max = 9999)
     private Integer systemDiskSize;
 
     @Length(max = 128)

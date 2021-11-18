@@ -84,6 +84,9 @@
 
   <delete id="deleteVM" parameterType="String">
     DELETE FROM tbl_vm WHERE id = #{id};
+    DELETE FROM tbl_vm_instantiate_info WHERE vm_id = #{id};
+    DELETE FROM tbl_vm_port_instantiate_info WHERE vm_id = #{id};
+    DELETE FROM tbl_vm_image_export_info WHERE vm_id = #{id};
     DELETE FROM tbl_vm_port WHERE vm_id = #{id};
     DELETE FROM tbl_vm_certificate WHERE vm_id = #{id};
   </delete>
