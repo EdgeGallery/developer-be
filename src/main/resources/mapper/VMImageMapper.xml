@@ -139,7 +139,7 @@
   <select id="getVmImageByName" resultMap="VmImageMap">
     SELECT
     <include refid="AllColumn"/>
-    from tbl_vm_image where userId=#{userId} and name=#{name}
+    from tbl_vm_image where user_id=#{userId} and name=#{name}
   </select>
 
   <select id="getVmImagesPath" resultType="java.lang.String" parameterType="java.lang.Integer">
