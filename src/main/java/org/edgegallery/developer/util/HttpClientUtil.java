@@ -16,8 +16,6 @@
 
 package org.edgegallery.developer.util;
 
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -26,6 +24,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import org.edgegallery.developer.common.Consts;
 import org.edgegallery.developer.exception.CustomException;
 import org.edgegallery.developer.exception.DomainException;
@@ -35,6 +34,7 @@ import org.edgegallery.developer.model.lcm.DistributeBody;
 import org.edgegallery.developer.model.lcm.DistributeResponse;
 import org.edgegallery.developer.model.lcm.InstantRequest;
 import org.edgegallery.developer.model.lcm.LcmResponseBody;
+import org.edgegallery.developer.model.system.FileSystemResponse;
 import org.edgegallery.developer.model.vm.VmImageRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,6 +51,9 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 public final class HttpClientUtil {
 
@@ -80,7 +83,8 @@ public final class HttpClientUtil {
             return false;
         }
         //parse dis res
-        List<DistributeResponse> list = gson.fromJson(disRes, new TypeToken<List<DistributeResponse>>() { }.getType());
+        List<DistributeResponse> list = gson.fromJson(disRes, new TypeToken<List<DistributeResponse>>() {
+        }.getType());
         String appName = list.get(0).getAppPkgName();
         //set instantiate headers
         HttpHeaders headers = new HttpHeaders();
@@ -493,7 +497,7 @@ public final class HttpClientUtil {
                 throw new DomainException("create download file error");
             }
             try (InputStream inputStream = new ByteArrayInputStream(result);
-                 OutputStream outputStream = new FileOutputStream(file)) {
+                OutputStream outputStream = new FileOutputStream(file)) {
                 int len = 0;
                 byte[] buf = new byte[1024];
                 while ((len = inputStream.read(buf, 0, 1024)) != -1) {
@@ -540,8 +544,8 @@ public final class HttpClientUtil {
      * upload system image.
      *
      * @param fileServerAddr File Server Address
-     * @param filePath File Path
-     * @param userId User ID
+     * @param filePath       File Path
+     * @param userId         User ID
      * @return upload result
      */
     public static String uploadSystemImage(String fileServerAddr, String filePath, String userId) {
@@ -585,8 +589,8 @@ public final class HttpClientUtil {
      * slice upload file.
      *
      * @param fileServerAddr File Server Address
-     * @param chunk File Chunk
-     * @param filePath File Path
+     * @param chunk          File Chunk
+     * @param filePath       File Path
      * @return upload result
      */
     public static boolean sliceUploadFile(String fileServerAddr, Chunk chunk, String filePath) {
@@ -627,7 +631,7 @@ public final class HttpClientUtil {
      * cancel slice upload file.
      *
      * @param fileServerAddr File Server Address
-     * @param identifier File Identifier
+     * @param identifier     File Identifier
      * @return cancel result
      */
     public static boolean cancelSliceUpload(String fileServerAddr, String identifier) {
@@ -670,9 +674,9 @@ public final class HttpClientUtil {
      * slice merge file.
      *
      * @param fileServerAddr File Server Address
-     * @param identifier File Identifier
-     * @param fileName File Name
-     * @param userId User ID
+     * @param identifier     File Identifier
+     * @param fileName       File Name
+     * @param userId         User ID
      * @return merge result
      */
     public static String sliceMergeFile(String fileServerAddr, String identifier, String fileName, String userId) {
@@ -817,7 +821,7 @@ public final class HttpClientUtil {
     /**
      * getImageSlim.
      */
-    public static String getImageSlim(String url) {
+    public static FileSystemResponse queryImageCheck(String url) {
         HttpHeaders headers = new HttpHeaders();
         HttpEntity<String> requestEntity = new HttpEntity<>(headers);
         ResponseEntity<String> response;
@@ -830,7 +834,14 @@ public final class HttpClientUtil {
         }
         if (response.getStatusCode() == HttpStatus.OK) {
             LOGGER.info("image slim  success, resp = {}", response);
-            return response.getBody();
+            try {
+                return new ObjectMapper().readValue(
+                    Objects.requireNonNull(response.getBody()).getBytes(), FileSystemResponse.class);
+
+            } catch (Exception e) {
+                LOGGER.error("merge on remote file server failed. {}", e.getMessage());
+                return null;
+            }
         }
         LOGGER.error("image slim fail!");
         return null;
