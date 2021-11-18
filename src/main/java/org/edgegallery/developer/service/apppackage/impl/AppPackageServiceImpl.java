@@ -139,7 +139,7 @@ public class AppPackageServiceImpl implements AppPackageService {
 
     @Override
     public String updateAppPackageFileContent(String packageId, String fileName, String content) {
-        LOGGER.info("content:{}", content);
+        LOGGER.info("content:{}", content.substring(1,content.length()-1));
         if (StringUtils.isEmpty(packageId) || StringUtils.isEmpty(fileName) || StringUtils.isEmpty(content)) {
             String message = "packageId or fileName or content is empty";
             LOGGER.error(message);
@@ -177,6 +177,7 @@ public class AppPackageServiceImpl implements AppPackageService {
                 throw new FileFoundFailException("the file you update cannot be found!",
                     ResponseConsts.RET_FILE_NOT_FOUND);
             }
+            content = content.substring(1,content.length()-1);
             content = content.replaceAll("\\\\n", "\r\n");
             FileUtil.writeFile(updateFile, content);
             fileContent = FileUtil.readFileContent(updateFilePath);
