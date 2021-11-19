@@ -94,8 +94,7 @@ public class AppPackageCtl {
         @ApiResponse(code = 200, message = "OK", response = String.class),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
-    @RequestMapping(value = "/{packageId}/action/get-file-content", method = RequestMethod.GET,
-        produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @RequestMapping(value = "/{packageId}/action/get-file-content", method = RequestMethod.GET)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<String> getAppPackageFileContent(
         @Pattern(regexp = REGEX_UUID, message = "packageId must be in UUID format")
@@ -112,8 +111,7 @@ public class AppPackageCtl {
         @ApiResponse(code = 200, message = "OK", response = String.class),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
-    @RequestMapping(value = "/{packageId}/action/update-file-content", method = RequestMethod.PUT,
-        produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @RequestMapping(value = "/{packageId}/action/update-file-content", method = RequestMethod.PUT)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<String> updateAppPackageFileContent(
         @Pattern(regexp = REGEX_UUID, message = "packageId must be in UUID format")
