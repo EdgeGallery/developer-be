@@ -973,17 +973,11 @@ public class VmService {
         String imagePath = projectService.getProjectPath(config.getProjectId()) + config.getAppInstanceId() + "/Image";
         // modify image file
         String url = config.getChecksum();
-        String slimResult = HttpClientUtil.getImageSlim(url);
-        FileSystemResponse imageResult;
+        FileSystemResponse slimResult = HttpClientUtil.queryImageCheck(url);
         if (slimResult==null) {
             return false;
         }
-        try {
-            imageResult = new ObjectMapper().readValue(slimResult.getBytes(), FileSystemResponse.class);
-        } catch (Exception e) {
-            return false;
-        }
-        String checkSum = imageResult.getCheckStatusResponse().getCheckInfo().getChecksum();
+        String checkSum = slimResult.getCheckStatusResponse().getCheckInfo().getChecksum();
         File swImageDesc = new File(imagePath + TEMPLATE_TOSCA_IMAGE_DESC_PATH);
         try {
             List<ImageDesc> swImgDescs = getSwImageDescrInfo(
