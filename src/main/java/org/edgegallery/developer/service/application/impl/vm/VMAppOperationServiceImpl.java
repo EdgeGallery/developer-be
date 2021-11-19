@@ -193,6 +193,7 @@ public class VMAppOperationServiceImpl extends AppOperationServiceImpl implement
 
     @Override
     public Boolean mergeAppFile(String applicationId, String vmId, String fileName, String identifier) {
+        LOGGER.info("start merge file,fileName:{}", fileName);
         String partFilePath = getUploadFileRootDir() + identifier;
         File partFileDir = new File(partFilePath);
         File[] partFiles = partFileDir.listFiles();
@@ -495,7 +496,7 @@ public class VMAppOperationServiceImpl extends AppOperationServiceImpl implement
         scpConnectEntity.setPassWord(password);
         scpConnectEntity.setUserName(username);
         String remoteFileName = appFile.getName();
-        LOGGER.info("path:{}", targetPath);
+        LOGGER.info("path:{}，filename:{}", targetPath, remoteFileName);
         ShhFileUploadUtil sshFileUploadUtil = new ShhFileUploadUtil();
         FileUploadEntity fileUploadEntity = sshFileUploadUtil.uploadFile(appFile, remoteFileName, scpConnectEntity);
         if (fileUploadEntity.getCode().equals("ok")) {
