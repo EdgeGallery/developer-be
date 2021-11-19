@@ -483,6 +483,7 @@ public class SystemImageMgmtService {
 
         LOGGER.info("merge on remote file server.");
         String filesystemImageId = mergeOnRemoteFileServer(identifier, fileName);
+        LOGGER.info("filesystemImageId:{}", filesystemImageId);
         if (StringUtils.isEmpty(filesystemImageId)) {
             LOGGER.error("merge failed on remote file server!");
             systemImageMapper.updateSystemImageStatus(systemId, EnumSystemImageStatus.UPLOAD_FAILED.toString());
@@ -518,6 +519,7 @@ public class SystemImageMgmtService {
     private UploadFileInfo queryImageCheckFromFileSystem(String filesystemImageId) {
 
         String filesystemUrl = fileServerAddress + String.format(Consts.SYSTEM_IMAGE_GET_URL, filesystemImageId);
+        LOGGER.info("filesystemUrl:{}", filesystemUrl);
         int waitingTime = 0;
         while (waitingTime < TIMEOUT) {
 
@@ -612,8 +614,7 @@ public class SystemImageMgmtService {
                 return null;
             }
             Map<String, String> uploadResultModel = gson.fromJson(uploadResult, Map.class);
-            return fileServerAddress + String
-                .format(Consts.SYSTEM_IMAGE_DOWNLOAD_URL, uploadResultModel.get("imageId"));
+            return uploadResultModel.get("imageId");
         } catch (Exception e) {
             LOGGER.error("merge on remote file server failed. {}", e.getMessage());
             return null;
