@@ -207,11 +207,13 @@ public class ContainerAppHelmChartServiceImpl implements ContainerAppHelmChartSe
         }
         //delete helm chart file or k8s yaml
         String helmChartFileId = helmChart.getHelmChartFileId();
-        if (!StringUtils.isEmpty(helmChartFileId)) {
-            UploadFile uploadFile = uploadFileMapper.getFileById(helmChartFileId);
-            File helmChartFile = new File(InitConfigUtil.getWorkSpaceBaseDir() + uploadFile.getFilePath());
-            FileUtil.deleteFile(helmChartFile);
+        if (StringUtils.isEmpty(helmChartFileId)) {
+            LOGGER.error("helmChartFileId is empty!");
+            throw new DataBaseException("helmChartFileId is empty!", ResponseConsts.RET_QUERY_DATA_FAIL);
         }
+        UploadFile uploadFile = uploadFileMapper.getFileById(helmChartFileId);
+        File helmChartFile = new File(InitConfigUtil.getWorkSpaceBaseDir() + uploadFile.getFilePath());
+        FileUtil.deleteFile(helmChartFile);
         // delete data
         int ret = helmChartMapper.deleteHelmChart(helmChartId, helmChart.getHelmChartFileId());
         if (ret < 1) {
@@ -237,7 +239,7 @@ public class ContainerAppHelmChartServiceImpl implements ContainerAppHelmChartSe
         String helmChartFileId = helmChart.getHelmChartFileId();
         if (StringUtils.isEmpty(helmChartFileId)) {
             LOGGER.error("helmChartFileId is empty!");
-            return new byte[0];
+            throw new DataBaseException("helmChartFileId is empty!", ResponseConsts.RET_QUERY_DATA_FAIL);
         }
         byte[] ret = null;
         UploadFile uploadFile = uploadFileMapper.getFileById(helmChartFileId);
@@ -267,7 +269,7 @@ public class ContainerAppHelmChartServiceImpl implements ContainerAppHelmChartSe
 
         if (StringUtils.isEmpty(helmChartFileId)) {
             LOGGER.error("helmChartFileId is empty!");
-            return null;
+            throw new DataBaseException("helmChartFileId is empty!", ResponseConsts.RET_QUERY_DATA_FAIL);
         }
         String content = "";
         UploadFile uploadFile = uploadFileMapper.getFileById(helmChartFileId);
@@ -321,7 +323,7 @@ public class ContainerAppHelmChartServiceImpl implements ContainerAppHelmChartSe
         String helmChartFileId = helmChart.getHelmChartFileId();
         if (StringUtils.isEmpty(helmChartFileId)) {
             LOGGER.error("helmChartFileId is empty!");
-            return false;
+            throw new DataBaseException("helmChartFileId is empty!", ResponseConsts.RET_QUERY_DATA_FAIL);
         }
         boolean ret = false;
         UploadFile uploadFile = uploadFileMapper.getFileById(helmChartFileId);
