@@ -73,9 +73,8 @@ public class HelmChartsFileTest {
             String content = handler.getContentByInnerPath(dir);
             Assert.assertNull(content);
         }
-
-        String content = handler.getContentByInnerPath("/values-no.yaml");
-        Assert.assertNull(content);
+        String content = handler.getContentByInnerPath("/templates/eg_template/namespace-config.yaml");
+        Assert.assertNotNull(content);
     }
 
     private void deep(List<HelmChartFile> root, List<String> files, List<String> dirs) {

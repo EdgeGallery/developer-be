@@ -43,8 +43,8 @@ public class LoadK8sYamlHandlerImpl extends AbstractContainerFileHandler {
             workspace = tempDir.toString();
             File orgFile = new File(filePath);
             String fileName = orgFile.getName();
-            Path helmChartPath = Files.createDirectory(Paths.get(workspace,
-                fileName.contains(".") ? fileName.substring(0, fileName.lastIndexOf(".")) : fileName));
+            Path helmChartPath = Files.createDirectory(Paths
+                .get(workspace, fileName.contains(".") ? fileName.substring(0, fileName.lastIndexOf(".")) : fileName));
             helmChartsDir = helmChartPath.toString();
 
             // create template dir and copy k8s yaml to template

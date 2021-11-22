@@ -12,7 +12,7 @@
  * the License.
  */
 
-package org.edgegallery.developer.controller.application.container;
+package org.edgegallery.developer.model.application.container;
 
 import lombok.Getter;
 import lombok.Setter;

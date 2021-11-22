@@ -17,8 +17,8 @@
 package org.edgegallery.developer.service.application.container;
 
 import java.util.List;
-import org.edgegallery.developer.controller.application.container.ModifyFileContentDto;
 import org.edgegallery.developer.model.application.container.HelmChart;
+import org.edgegallery.developer.model.application.container.ModifyFileContentDto;
 import org.springframework.web.multipart.MultipartFile;
 
 public interface ContainerAppHelmChartService {
@@ -26,8 +26,6 @@ public interface ContainerAppHelmChartService {
     HelmChart uploadHelmChartFile(String applicationId, MultipartFile helmTemplateYaml);
 
     Boolean uploadHelmChartYaml(MultipartFile helmTemplateYaml, String applicationId);
-
-    Boolean createHelmCharts(MultipartFile helmChartFile, String applicationId);
 
     List<HelmChart> getHelmChartList(String applicationId);
 
@@ -37,7 +35,7 @@ public interface ContainerAppHelmChartService {
 
     byte[] downloadHelmChart(String applicationId, String helmChartId);
 
-    String getFileContentByFilePath(String application, String helmChartId, String filePath);
+    String getFileContentByFilePath(String applicationId, String helmChartId, String filePath);
 
-    Boolean modifyFileContentByFilePath(String application, String helmChartId, ModifyFileContentDto content);
+    Boolean modifyFileContent(String applicationId, String helmChartId, ModifyFileContentDto content);
 }

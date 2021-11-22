@@ -483,6 +483,8 @@
     "app_id" varchar(255) NOT NULL,
     "name" varchar(255) DEFAULT NULL,
     "helm_chart_file_id" text DEFAULT NULL,
+    "create_time" timestamptz(6)  DEFAULT NULL,
+    "helm_chart_file_list" text DEFAULT NULL,
     CONSTRAINT "tbl_container_helm_chart_pkey" PRIMARY KEY ("id")
     );
 

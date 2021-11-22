@@ -193,6 +193,7 @@ public final class FileUtil {
 
     /**
      * write file.
+     *
      * @param file file
      * @param content content
      */
@@ -202,6 +203,19 @@ public final class FileUtil {
             bw.write(content);
         } catch (IOException e) {
             LOGGER.error("write data failed, {}", e.getMessage());
+        }
+    }
+
+    /**
+     * delete file.
+     *
+     * @param file file
+     */
+    public static void deleteFile(File file) {
+        try {
+            FileUtils.forceDelete(file);
+        } catch (IOException e) {
+            LOGGER.error("delete file failed, {}", e.getMessage());
         }
     }
 }

@@ -38,6 +38,6 @@ public class HelmChart {
 
     private String applicationId;
 
-    private List<HelmChartFile> filesList;
+    private List<HelmChartFile> helmChartFileList;
 
 }

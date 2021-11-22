@@ -24,10 +24,16 @@ import io.swagger.annotations.ApiResponses;
 import java.util.List;
 import javax.validation.constraints.Pattern;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
+import org.edgegallery.developer.common.ResponseConsts;
+import org.edgegallery.developer.exception.EntityNotFoundException;
 import org.edgegallery.developer.model.application.container.HelmChart;
+import org.edgegallery.developer.model.application.container.ModifyFileContentDto;
 import org.edgegallery.developer.response.ErrorRespDto;
 import org.edgegallery.developer.service.application.container.ContainerAppHelmChartService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -48,6 +54,8 @@ import org.springframework.web.multipart.MultipartFile;
 @Validated
 public class ContainerAppHelmChartCtl {
     private static final String REGEX_UUID = "[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}";
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ContainerAppHelmChartCtl.class);
 
     @Autowired
     private ContainerAppHelmChartService containerAppHelmChartService;
@@ -140,7 +148,16 @@ public class ContainerAppHelmChartCtl {
         @ApiParam(value = "applicationId", required = true) @PathVariable("applicationId") String applicationId,
         @Pattern(regexp = REGEX_UUID, message = "fileId must be in UUID format")
         @ApiParam(value = "helmchartId", required = true) @PathVariable("helmchartId") String helmChartId) {
-        return ResponseEntity.ok(containerAppHelmChartService.downloadHelmChart(applicationId, helmChartId));
+        HelmChart helmChart = containerAppHelmChartService.getHelmChartById(applicationId, helmChartId);
+        if (helmChart == null) {
+            LOGGER.error("can not find helm chart {}", helmChartId);
+            throw new EntityNotFoundException("query HelmChart is empty!", ResponseConsts.RET_QUERY_DATA_EMPTY);
+        }
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Type", "application/octet-stream");
+        headers.add("Content-Disposition", "attachment; filename=" + helmChart.getName());
+        byte[] data = containerAppHelmChartService.downloadHelmChart(applicationId, helmChartId);
+        return ResponseEntity.ok().headers(headers).body(data);
     }
 
     /**
@@ -182,6 +199,6 @@ public class ContainerAppHelmChartCtl {
         @ApiParam(value = "helmchartId", required = true) @PathVariable("helmchartId") String helmChartId,
         @RequestBody ModifyFileContentDto content) {
         return ResponseEntity
-            .ok(containerAppHelmChartService.modifyFileContentByFilePath(applicationId, helmChartId, content));
+            .ok(containerAppHelmChartService.modifyFileContent(applicationId, helmChartId, content));
     }
 }
