@@ -199,6 +199,6 @@ public class ContainerAppHelmChartCtl {
         @ApiParam(value = "helmchartId", required = true) @PathVariable("helmchartId") String helmChartId,
         @RequestBody ModifyFileContentDto content) {
         return ResponseEntity
-            .ok(containerAppHelmChartService.modifyFileContentByFilePath(applicationId, helmChartId, content));
+            .ok(containerAppHelmChartService.modifyFileContent(applicationId, helmChartId, content));
     }
 }

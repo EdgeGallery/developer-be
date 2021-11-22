@@ -17,6 +17,7 @@ package org.edgegallery.developer.test.controller.application.container;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 
 
+import com.google.gson.Gson;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
@@ -26,6 +27,7 @@ import org.apache.http.entity.ContentType;
 import org.apache.ibatis.io.Resources;
 import org.edgegallery.developer.controller.application.container.ContainerAppHelmChartCtl;
 import org.edgegallery.developer.model.application.container.HelmChart;
+import org.edgegallery.developer.model.application.container.ModifyFileContentDto;
 import org.edgegallery.developer.service.application.container.ContainerAppHelmChartService;
 import org.junit.Assert;
 import org.junit.Before;
@@ -141,6 +143,21 @@ public class ContainerAppHelmChartCtlTest {
             .thenReturn(new String());
         ResultActions actions = mvc
             .perform(MockMvcRequestBuilders.get(url).contentType(MediaType.APPLICATION_JSON_UTF8))
+            .andExpect(MockMvcResultMatchers.status().isOk());
+        Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
+    }
+
+    @Test
+    @WithMockUser(roles = "DEVELOPER_ADMIN")
+    public void testModifyFileContentByFilePathSuccess() throws Exception {
+        String url = String.format("/mec/developer/v2/applications/%s/helmcharts/%s/action/modify-inner-file",
+            UUID.randomUUID().toString(), UUID.randomUUID().toString(), "testPath");
+        Mockito.when(containerAppHelmChartService
+            .modifyFileContent(Mockito.anyString(), Mockito.anyString(), Mockito.any()))
+            .thenReturn(true);
+        ResultActions actions = mvc
+            .perform(MockMvcRequestBuilders.put(url).with(csrf()).content(new Gson().toJson(new ModifyFileContentDto()))
+                .contentType(MediaType.APPLICATION_JSON_UTF8))
             .andExpect(MockMvcResultMatchers.status().isOk());
         Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
     }

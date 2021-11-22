@@ -19,7 +19,6 @@ package org.edgegallery.developer.service.application.impl.container;
 import com.google.common.collect.Lists;
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -107,7 +106,7 @@ public class ContainerAppHelmChartServiceImpl implements ContainerAppHelmChartSe
             helmChart.setHelmChartFileId(fileId);
             helmChart.setName(helmTemplateYaml.getOriginalFilename());
             helmChart.setApplicationId(applicationId);
-            helmChart.setFileList(containerFileHandler.getCatalog());
+            helmChart.setHelmChartFileList(containerFileHandler.getCatalog());
             helmChart.setCreateTime(new Date());
             int res = helmChartMapper.createHelmChart(applicationId, helmChart);
             if (res < 1) {
@@ -157,49 +156,56 @@ public class ContainerAppHelmChartServiceImpl implements ContainerAppHelmChartSe
         }
         if (!CollectionUtils.isEmpty(requiredItems) && requiredItems.size() == 1 && requiredItems.get(0)
             .equals("mep-agent")) {
-            return handleImageAndHelmchart(tempFile, applicationId, helmTemplateYaml, fileId);
+            return handleImageAndHelmChart(tempFile, applicationId, helmTemplateYaml, fileId);
         }
-        return handleImageAndHelmchart(tempFile, applicationId, helmTemplateYaml, fileId);
+        return handleImageAndHelmChart(tempFile, applicationId, helmTemplateYaml, fileId);
     }
 
     @Override
     public List<HelmChart> getHelmChartList(String applicationId) {
         if (StringUtils.isEmpty(applicationId)) {
+            LOGGER.error("applicationId is empty!");
             throw new IllegalRequestException("applicationId is empty", ResponseConsts.RET_REQUEST_PARAM_EMPTY);
         }
         return helmChartMapper.getHelmChartsByAppId(applicationId);
     }
 
     @Override
-    public HelmChart getHelmChartById(String applicationId, String helmChartsId) {
+    public HelmChart getHelmChartById(String applicationId, String helmChartId) {
         if (StringUtils.isEmpty(applicationId)) {
+            LOGGER.error("applicationId is empty!");
             throw new IllegalRequestException("applicationId is empty", ResponseConsts.RET_REQUEST_PARAM_EMPTY);
         }
-        if (StringUtils.isEmpty(helmChartsId)) {
+        if (StringUtils.isEmpty(helmChartId)) {
+            LOGGER.error("helm chart id is empty!");
             throw new IllegalRequestException("helm chart id is empty", ResponseConsts.RET_REQUEST_PARAM_EMPTY);
         }
-        HelmChart chart = helmChartMapper.getHelmChartById(helmChartsId);
+        HelmChart chart = helmChartMapper.getHelmChartById(helmChartId);
         if (chart == null || !chart.getApplicationId().equals(applicationId)) {
+            LOGGER.error("the query HelmChart is empty!");
             throw new EntityNotFoundException("the query HelmChart is empty", ResponseConsts.RET_QUERY_DATA_EMPTY);
         }
         return chart;
     }
 
     @Override
-    public Boolean deleteHelmChartById(String applicationId, String helmChartsId) {
-        if (StringUtils.isEmpty(applicationId) || StringUtils.isEmpty(helmChartsId)) {
-            throw new IllegalRequestException("applicationId or helmChartsId is empty!",
+    public Boolean deleteHelmChartById(String applicationId, String helmChartId) {
+        if (StringUtils.isEmpty(applicationId) || StringUtils.isEmpty(helmChartId)) {
+            LOGGER.error("applicationId or helmChartId is empty!");
+            throw new IllegalRequestException("applicationId or helmChartId is empty!",
                 ResponseConsts.RET_REQUEST_PARAM_EMPTY);
         }
         Application application = applicationMapper.getApplicationById(applicationId);
         if (application == null) {
+            LOGGER.error("the query Application is empty!");
             throw new EntityNotFoundException("the query Application is empty", ResponseConsts.RET_QUERY_DATA_EMPTY);
         }
-        HelmChart helmChart = helmChartMapper.getHelmChartById(helmChartsId);
+        HelmChart helmChart = helmChartMapper.getHelmChartById(helmChartId);
         if (helmChart == null) {
+            LOGGER.error("query HelmChart is empty!");
             throw new EntityNotFoundException("query HelmChart is empty!", ResponseConsts.RET_QUERY_DATA_EMPTY);
         }
-        //delete helmchar file or k8s yaml
+        //delete helm chart file or k8s yaml
         String helmChartFileId = helmChart.getHelmChartFileId();
         if (!StringUtils.isEmpty(helmChartFileId)) {
             UploadFile uploadFile = uploadFileMapper.getFileById(helmChartFileId);
@@ -207,65 +213,76 @@ public class ContainerAppHelmChartServiceImpl implements ContainerAppHelmChartSe
             FileUtil.deleteFile(helmChartFile);
         }
         // delete data
-        int ret = helmChartMapper.deleteHelmChart(helmChartsId, helmChart.getHelmChartFileId());
+        int ret = helmChartMapper.deleteHelmChart(helmChartId, helmChart.getHelmChartFileId());
         if (ret < 1) {
+            LOGGER.error("delete helm chart file failed!");
             throw new DataBaseException("delete helm chart file failed!", ResponseConsts.RET_DELETE_DATA_FAIL);
         }
         return true;
     }
 
     @Override
-    public byte[] downloadHelmChart(String applicationId, String helmChartsId) {
-        if (StringUtils.isEmpty(applicationId) || StringUtils.isEmpty(helmChartsId)) {
-            throw new IllegalRequestException("applicationId or helmChartsId is empty!",
+    public byte[] downloadHelmChart(String applicationId, String helmChartId) {
+        if (StringUtils.isEmpty(applicationId) || StringUtils.isEmpty(helmChartId)) {
+            LOGGER.error("applicationId or helmChartId is empty!");
+            throw new IllegalRequestException("applicationId or helmChartId is empty!",
                 ResponseConsts.RET_REQUEST_PARAM_EMPTY);
         }
-        HelmChart helmChart = helmChartMapper.getHelmChartById(helmChartsId);
+        HelmChart helmChart = helmChartMapper.getHelmChartById(helmChartId);
         if (helmChart == null || !helmChart.getApplicationId().equals(applicationId)) {
+            LOGGER.error("the query HelmChart is empty!");
             throw new EntityNotFoundException("the query HelmChart is empty", ResponseConsts.RET_QUERY_DATA_EMPTY);
         }
-        byte[] ret = null;
+
         String helmChartFileId = helmChart.getHelmChartFileId();
-        if (!StringUtils.isEmpty(helmChartFileId)) {
-            UploadFile uploadFile = uploadFileMapper.getFileById(helmChartFileId);
-            File helmChartFile = new File(InitConfigUtil.getWorkSpaceBaseDir() + uploadFile.getFilePath());
-            try {
-                ret = FileUtils.readFileToByteArray(helmChartFile);
-            } catch (IOException e) {
-                LOGGER.error("get helm chart file failed : {}", e.getMessage());
-                throw new FileOperateException("get helm chart file failed!", ResponseConsts.RET_DOWNLOAD_FILE_FAIL);
-            }
+        if (StringUtils.isEmpty(helmChartFileId)) {
+            LOGGER.error("helmChartFileId is empty!");
+            return new byte[0];
+        }
+        byte[] ret = null;
+        UploadFile uploadFile = uploadFileMapper.getFileById(helmChartFileId);
+        File helmChartFile = new File(InitConfigUtil.getWorkSpaceBaseDir() + uploadFile.getFilePath());
+        try {
+            ret = FileUtils.readFileToByteArray(helmChartFile);
+        } catch (IOException e) {
+            LOGGER.error("get helm chart file failed : {}", e.getMessage());
+            throw new FileOperateException("get helm chart file failed!", ResponseConsts.RET_DOWNLOAD_FILE_FAIL);
         }
         return ret;
     }
 
     @Override
-    public String getFileContentByFilePath(String applicationId, String helmChartsId, String filePath) {
-        if (StringUtils.isEmpty(applicationId) || StringUtils.isEmpty(helmChartsId)) {
-            throw new IllegalRequestException("applicationId or helmChartsId is empty!",
+    public String getFileContentByFilePath(String applicationId, String helmChartId, String filePath) {
+        if (StringUtils.isEmpty(applicationId) || StringUtils.isEmpty(helmChartId)) {
+            LOGGER.error("applicationId or helmChartId is empty!");
+            throw new IllegalRequestException("applicationId or helmChartId is empty!",
                 ResponseConsts.RET_REQUEST_PARAM_EMPTY);
         }
-        HelmChart helmChart = helmChartMapper.getHelmChartById(helmChartsId);
+        HelmChart helmChart = helmChartMapper.getHelmChartById(helmChartId);
         if (helmChart == null || !helmChart.getApplicationId().equals(applicationId)) {
+            LOGGER.error("the query HelmChart is empty!");
             throw new EntityNotFoundException("the query HelmChart is empty", ResponseConsts.RET_QUERY_DATA_EMPTY);
         }
         String helmChartFileId = helmChart.getHelmChartFileId();
+
+        if (StringUtils.isEmpty(helmChartFileId)) {
+            LOGGER.error("helmChartFileId is empty!");
+            return null;
+        }
         String content = "";
-        if (!StringUtils.isEmpty(helmChartFileId)) {
-            UploadFile uploadFile = uploadFileMapper.getFileById(helmChartFileId);
-            checkUploadFileExist(uploadFile, helmChartFileId);
-            File helmChartFile = new File(InitConfigUtil.getWorkSpaceBaseDir() + uploadFile.getFilePath());
-            checkHelmFileExist(helmChartFile, helmChartFileId);
-            try {
-                String helmPath = helmChartFile.getCanonicalPath();
-                IContainerFileHandler containerFileHandler = LoadContainerFileFactory.createLoader(helmPath);
-                assert containerFileHandler != null;
-                containerFileHandler.load(helmPath);
-                content = containerFileHandler.getContentByInnerPath(filePath);
-            } catch (IOException e) {
-                LOGGER.error("read file under {} path occur {}", filePath, e.getMessage());
-                return null;
-            }
+        UploadFile uploadFile = uploadFileMapper.getFileById(helmChartFileId);
+        checkUploadFileExist(uploadFile, helmChartFileId);
+        File helmChartFile = new File(InitConfigUtil.getWorkSpaceBaseDir() + uploadFile.getFilePath());
+        checkHelmFileExist(helmChartFile, helmChartFileId);
+        try {
+            String helmPath = helmChartFile.getCanonicalPath();
+            IContainerFileHandler containerFileHandler = LoadContainerFileFactory.createLoader(helmPath);
+            assert containerFileHandler != null;
+            containerFileHandler.load(helmPath);
+            content = containerFileHandler.getContentByInnerPath(filePath);
+        } catch (IOException e) {
+            LOGGER.error("read file under {} path occur {}", filePath, e.getMessage());
+            return null;
         }
         return content;
     }
@@ -285,40 +302,43 @@ public class ContainerAppHelmChartServiceImpl implements ContainerAppHelmChartSe
     }
 
     @Override
-    public Boolean modifyFileContentByFilePath(String applicationId, String helmChartsId,
-        ModifyFileContentDto contentDto) {
-        if (StringUtils.isEmpty(applicationId) || StringUtils.isEmpty(helmChartsId)) {
-            throw new IllegalRequestException("applicationId or helmChartsId is empty!",
+    public Boolean modifyFileContent(String applicationId, String helmChartId, ModifyFileContentDto contentDto) {
+        if (StringUtils.isEmpty(applicationId) || StringUtils.isEmpty(helmChartId)) {
+            LOGGER.error("applicationId or helmChartId is empty!");
+            throw new IllegalRequestException("applicationId or helmChartId is empty!",
                 ResponseConsts.RET_REQUEST_PARAM_EMPTY);
         }
         if (contentDto == null) {
+            LOGGER.error("param ModifyFileContentDto is null!");
             throw new IllegalRequestException("param ModifyFileContentDto is null!",
                 ResponseConsts.RET_REQUEST_PARAM_EMPTY);
         }
-        HelmChart helmChart = helmChartMapper.getHelmChartById(helmChartsId);
+        HelmChart helmChart = helmChartMapper.getHelmChartById(helmChartId);
         if (helmChart == null || !helmChart.getApplicationId().equals(applicationId)) {
+            LOGGER.error("the query HelmChart is empty!");
             throw new EntityNotFoundException("the query HelmChart is empty", ResponseConsts.RET_QUERY_DATA_EMPTY);
         }
         String helmChartFileId = helmChart.getHelmChartFileId();
+        if (StringUtils.isEmpty(helmChartFileId)) {
+            LOGGER.error("helmChartFileId is empty!");
+            return false;
+        }
         boolean ret = false;
-        if (!StringUtils.isEmpty(helmChartFileId)) {
-            UploadFile uploadFile = uploadFileMapper.getFileById(helmChartFileId);
-            checkUploadFileExist(uploadFile, helmChartFileId);
-            File helmChartFile = new File(InitConfigUtil.getWorkSpaceBaseDir() + uploadFile.getFilePath());
-            checkHelmFileExist(helmChartFile, helmChartFileId);
-            try {
-                IContainerFileHandler containerFileHandler = LoadContainerFileFactory
-                    .createLoader(helmChartFile.getCanonicalPath());
-                assert containerFileHandler != null;
-                containerFileHandler.load(helmChartFile.getCanonicalPath());
-                ret = containerFileHandler.modifyFileByPath(contentDto.getInnerFilePath(), contentDto.getContent());
-                String fileNewPath = containerFileHandler.exportHelmCharts();
-                com.google.common.io.Files.move(new File(fileNewPath), new File(helmChartFile.getCanonicalPath()));
-            } catch (IOException e) {
-                LOGGER.error("write file under {} path occur {}", contentDto.getInnerFilePath(), e.getMessage());
-                return false;
-            }
-
+        UploadFile uploadFile = uploadFileMapper.getFileById(helmChartFileId);
+        checkUploadFileExist(uploadFile, helmChartFileId);
+        File helmChartFile = new File(InitConfigUtil.getWorkSpaceBaseDir() + uploadFile.getFilePath());
+        checkHelmFileExist(helmChartFile, helmChartFileId);
+        try {
+            IContainerFileHandler containerFileHandler = LoadContainerFileFactory
+                .createLoader(helmChartFile.getCanonicalPath());
+            assert containerFileHandler != null;
+            containerFileHandler.load(helmChartFile.getCanonicalPath());
+            ret = containerFileHandler.modifyFileByPath(contentDto.getInnerFilePath(), contentDto.getContent());
+            String fileNewPath = containerFileHandler.exportHelmCharts();
+            com.google.common.io.Files.move(new File(fileNewPath), new File(helmChartFile.getCanonicalPath()));
+        } catch (IOException e) {
+            LOGGER.error("write file under {} path occur {}", contentDto.getInnerFilePath(), e.getMessage());
+            return false;
         }
         return ret;
     }
@@ -333,11 +353,12 @@ public class ContainerAppHelmChartServiceImpl implements ContainerAppHelmChartSe
         result.setFilePath(BusinessConfigUtil.getUploadfilesPath() + fileId + File.separator + fileName);
         int ret = uploadFileMapper.saveFile(result);
         if (ret < 1) {
+            LOGGER.error("save file record to db failed!");
             throw new DataBaseException("save file record to db failed!", ResponseConsts.RET_CERATE_DATA_FAIL);
         }
     }
 
-    private void moveFileToWorkSpace(String from, String fileId, String fileName) {
+    private void moveFileToWorkSpace(String fromPath, String fileId, String fileName) {
         try {
             String upLoadDir = InitConfigUtil.getWorkSpaceBaseDir() + BusinessConfigUtil.getUploadfilesPath() + fileId
                 + File.separator;
@@ -346,16 +367,18 @@ public class ContainerAppHelmChartServiceImpl implements ContainerAppHelmChartSe
             if (!dir.isDirectory()) {
                 boolean isSuccess = dir.mkdirs();
                 if (!isSuccess) {
+                    LOGGER.error("create upload dir fail!");
                     throw new FileOperateException("create upload dir fail!", ResponseConsts.RET_CREATE_FILE_FAIL);
                 }
             }
-            com.google.common.io.Files.move(new File(from), new File(fileRealPath));
+            com.google.common.io.Files.move(new File(fromPath), new File(fileRealPath));
         } catch (IOException e) {
+            LOGGER.error("write upload file failed!");
             throw new FileOperateException("write upload file failed!", ResponseConsts.RET_WRITE_FILE_FAIL);
         }
     }
 
-    private boolean handleImageAndHelmchart(File newFile, String applicationId, MultipartFile oldFile,
+    private boolean handleImageAndHelmChart(File newFile, String applicationId, MultipartFile oldFile,
         String newFileId) {
         // save image
         boolean isSaved = saveImage(newFile, applicationId, newFileId);

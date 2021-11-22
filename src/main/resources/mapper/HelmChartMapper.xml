@@ -24,19 +24,19 @@
         <result property="name" column="name"/>
         <result property="helmChartFileId" column="helm_chart_file_id"/>
         <result property="createTime" column="create_time"/>
-        <result property="fileList" column="file_list"
+        <result property="helmChartFileList" column="helm_chart_file_list"
                 typeHandler="org.edgegallery.developer.model.handler.JsonCollectionTypeHandler"/>
     </resultMap>
 
     <sql id="HelmChartAllColumn">
-        id, app_id, name, helm_chart_file_id,create_time,file_list
+        id, app_id, name, helm_chart_file_id,create_time,helm_chart_file_list
     </sql>
 
     <insert id="createHelmChart">
-        insert into tbl_container_helm_chart (id, app_id, name, helm_chart_file_id,create_time,file_list)
+        insert into tbl_container_helm_chart (id, app_id, name, helm_chart_file_id,create_time,helm_chart_file_list)
         values
         (#{helmChart.id}, #{applicationId}, #{helmChart.name}, #{helmChart.helmChartFileId},#{helmChart.createTime},
-        #{helmChart.fileList, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonCollectionTypeHandler})
+        #{helmChart.helmChartFileList, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonCollectionTypeHandler})
     </insert>
 
     <delete id="deleteHelmChart" parameterType="String">

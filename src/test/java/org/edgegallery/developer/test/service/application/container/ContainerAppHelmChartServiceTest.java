@@ -60,8 +60,8 @@ public class ContainerAppHelmChartServiceTest {
                 .getResourceAsStream("testdata/helmcharts/namespacetest.tgz"));
         HelmChart helmChart = appHelmChartService
             .uploadHelmChartFile("6a75a2bd-9811-432f-bbe8-2813aa97d364", uploadFile);
-        LOGGER.info("fileList:{}", helmChart.getFileList());
-        Assert.assertNotNull(helmChart.getFileList());
+        LOGGER.info("fileList:{}", helmChart.getHelmChartFileList());
+        Assert.assertNotNull(helmChart.getHelmChartFileList());
     }
 
 
@@ -72,8 +72,8 @@ public class ContainerAppHelmChartServiceTest {
                 .getResourceAsStream("testdata/demo-with-agent.yaml"));
         HelmChart helmChart = appHelmChartService
             .uploadHelmChartFile("3f11715f-b59e-4c23-965b-b7f9c34c20d1", uploadFile);
-        LOGGER.info("fileList:{}", helmChart.getFileList());
-        Assert.assertNotNull(helmChart.getFileList());
+        LOGGER.info("fileList:{}", helmChart.getHelmChartFileList());
+        Assert.assertNotNull(helmChart.getHelmChartFileList());
     }
 
     @Test
@@ -92,8 +92,8 @@ public class ContainerAppHelmChartServiceTest {
                 .getResourceAsStream("testdata/helmcharts/namespacetest.tgz"));
         HelmChart helmChart = appHelmChartService
             .uploadHelmChartFile("6a75a2bd-9811-432f-bbe8-2813aa97d365", uploadFile);
-        LOGGER.info("fileList:{}", helmChart.getFileList());
-        Assert.assertNotNull(helmChart.getFileList());
+        LOGGER.info("fileList:{}", helmChart.getHelmChartFileList());
+        Assert.assertNotNull(helmChart.getHelmChartFileList());
         List<HelmChart> list = appHelmChartService.getHelmChartList("6a75a2bd-9811-432f-bbe8-2813aa97d365");
         Assert.assertEquals(1, list.size());
     }
@@ -143,7 +143,7 @@ public class ContainerAppHelmChartServiceTest {
         try {
             appHelmChartService.deleteHelmChartById("appId", null);
         } catch (IllegalRequestException e) {
-            Assert.assertEquals("applicationId or helmChartsId is empty!", e.getMessage());
+            Assert.assertEquals("applicationId or helmChartId is empty!", e.getMessage());
         }
     }
 
@@ -152,7 +152,7 @@ public class ContainerAppHelmChartServiceTest {
         try {
             appHelmChartService.deleteHelmChartById(null, "helmchartID");
         } catch (IllegalRequestException e) {
-            Assert.assertEquals("applicationId or helmChartsId is empty!", e.getMessage());
+            Assert.assertEquals("applicationId or helmChartId is empty!", e.getMessage());
         }
     }
 
@@ -192,7 +192,7 @@ public class ContainerAppHelmChartServiceTest {
         try {
             appHelmChartService.downloadHelmChart(null, "helmchartID");
         } catch (IllegalRequestException e) {
-            Assert.assertEquals("applicationId or helmChartsId is empty!", e.getMessage());
+            Assert.assertEquals("applicationId or helmChartId is empty!", e.getMessage());
         }
     }
 
@@ -201,7 +201,7 @@ public class ContainerAppHelmChartServiceTest {
         try {
             appHelmChartService.downloadHelmChart("test", null);
         } catch (IllegalRequestException e) {
-            Assert.assertEquals("applicationId or helmChartsId is empty!", e.getMessage());
+            Assert.assertEquals("applicationId or helmChartId is empty!", e.getMessage());
         }
     }
 
@@ -231,7 +231,7 @@ public class ContainerAppHelmChartServiceTest {
         try {
             appHelmChartService.getFileContentByFilePath(null, "helmchartID", "test");
         } catch (IllegalRequestException e) {
-            Assert.assertEquals("applicationId or helmChartsId is empty!", e.getMessage());
+            Assert.assertEquals("applicationId or helmChartId is empty!", e.getMessage());
         }
     }
 
@@ -240,7 +240,7 @@ public class ContainerAppHelmChartServiceTest {
         try {
             appHelmChartService.getFileContentByFilePath("test", null, "get");
         } catch (IllegalRequestException e) {
-            Assert.assertEquals("applicationId or helmChartsId is empty!", e.getMessage());
+            Assert.assertEquals("applicationId or helmChartId is empty!", e.getMessage());
         }
     }
 
@@ -269,25 +269,25 @@ public class ContainerAppHelmChartServiceTest {
     @Test
     public void testModifyHelmFileContentWithNullHelmId() throws IOException {
         try {
-            appHelmChartService.modifyFileContentByFilePath("test", null, null);
+            appHelmChartService.modifyFileContent("test", null, null);
         } catch (IllegalRequestException e) {
-            Assert.assertEquals("applicationId or helmChartsId is empty!", e.getMessage());
+            Assert.assertEquals("applicationId or helmChartId is empty!", e.getMessage());
         }
     }
 
     @Test
     public void testModifyHelmFileContentWithNullAppId() throws IOException {
         try {
-            appHelmChartService.modifyFileContentByFilePath(null, "test111", null);
+            appHelmChartService.modifyFileContent(null, "test111", null);
         } catch (IllegalRequestException e) {
-            Assert.assertEquals("applicationId or helmChartsId is empty!", e.getMessage());
+            Assert.assertEquals("applicationId or helmChartId is empty!", e.getMessage());
         }
     }
 
     @Test
     public void testModifyHelmFileContentWithNullContentDto() throws IOException {
         try {
-            appHelmChartService.modifyFileContentByFilePath("appId", "helmId", null);
+            appHelmChartService.modifyFileContent("appId", "helmId", null);
         } catch (IllegalRequestException e) {
             Assert.assertEquals("param ModifyFileContentDto is null!", e.getMessage());
         }
@@ -297,7 +297,7 @@ public class ContainerAppHelmChartServiceTest {
     public void testModifyHelmFileContentWithBadHelmId() throws IOException {
         try {
             ModifyFileContentDto dto = new ModifyFileContentDto();
-            appHelmChartService.modifyFileContentByFilePath("test", "test111", dto);
+            appHelmChartService.modifyFileContent("test", "test111", dto);
         } catch (EntityNotFoundException e) {
             Assert.assertEquals("the query HelmChart is empty", e.getMessage());
         }
@@ -314,7 +314,7 @@ public class ContainerAppHelmChartServiceTest {
         dto.setInnerFilePath("/templates/eg_template/namespace-config.yaml");
         dto.setContent("test");
         boolean ret = appHelmChartService
-            .modifyFileContentByFilePath("6a75a2bd-9811-432f-bbe8-2813aa97d369", helmChart.getId(), dto);
+            .modifyFileContent("6a75a2bd-9811-432f-bbe8-2813aa97d369", helmChart.getId(), dto);
         Assert.assertEquals(true, ret);
     }
 

@@ -37,5 +37,5 @@ public interface ContainerAppHelmChartService {
 
     String getFileContentByFilePath(String applicationId, String helmChartId, String filePath);
 
-    Boolean modifyFileContentByFilePath(String applicationId, String helmChartId, ModifyFileContentDto content);
+    Boolean modifyFileContent(String applicationId, String helmChartId, ModifyFileContentDto content);
 }

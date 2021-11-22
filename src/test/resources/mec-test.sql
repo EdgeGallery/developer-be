@@ -263,7 +263,7 @@ CREATE TABLE IF NOT EXISTS tbl_container_helm_chart (
   name varchar(255) DEFAULT NULL,
   helm_chart_file_id text DEFAULT NULL,
   create_time varchar(255)  DEFAULT NULL,
-  file_list text DEFAULT NULL,
+  helm_chart_file_list text DEFAULT NULL,
   CONSTRAINT tbl_container_helm_chart_pkey PRIMARY KEY (id)
 );
 
