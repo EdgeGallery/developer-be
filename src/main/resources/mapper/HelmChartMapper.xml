@@ -18,45 +18,48 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.edgegallery.developer.mapper.application.container.HelmChartMapper">
 
-  <resultMap id="HelmChartMap" type="org.edgegallery.developer.model.application.container.HelmChart">
-    <id property="id" column="id"/>
-    <result property="name" column="name"/>
-    <result property="helmChartFileId" column="helm_chart_file_id"/>
-  </resultMap>
+    <resultMap id="HelmChartMap" type="org.edgegallery.developer.model.application.container.HelmChart">
+        <id property="id" column="id"/>
+        <result property="applicationId" column="app_id"/>
+        <result property="name" column="name"/>
+        <result property="helmChartFileId" column="helm_chart_file_id"/>
+        <result property="createTime" column="create_time"/>
+        <result property="fileList" column="file_list"
+                typeHandler="org.edgegallery.developer.model.handler.JsonCollectionTypeHandler"/>
+    </resultMap>
 
-  <sql id="HelmChartAllColumn">
-    id, app_id, name, helm_chart_file_id
-  </sql>
+    <sql id="HelmChartAllColumn">
+        id, app_id, name, helm_chart_file_id,create_time,file_list
+    </sql>
 
-  <insert id="createHelmChart">
-    insert into tbl_container_helm_chart (id, app_id, name, helm_chart_file_id)
-    values
-    (#{helmChart.id}, #{applicationId}, #{helmChart.name}, #{helmChart.helmChartFileId})
+    <insert id="createHelmChart">
+        insert into tbl_container_helm_chart (id, app_id, name, helm_chart_file_id,create_time,file_list)
+        values
+        (#{helmChart.id}, #{applicationId}, #{helmChart.name}, #{helmChart.helmChartFileId},#{helmChart.createTime},
+        #{helmChart.fileList, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonCollectionTypeHandler})
     </insert>
 
-  <delete id="deleteFileAndImage" parameterType="String">
-    DELETE FROM tbl_container_helm_chart WHERE id = #{id};
-    DELETE FROM tbl_uploaded_file WHERE file_id = #{helmChartId};
-    DELETE FROM
-    tbl_project_image where project_id = #{applicationId} and helm_chart_file_id=#{helmChartId};
-  </delete>
+    <delete id="deleteHelmChart" parameterType="String">
+        DELETE FROM tbl_container_helm_chart WHERE id = #{id};
+        DELETE FROM tbl_uploaded_file WHERE file_id = #{helmChartId};
+    </delete>
 
-  <select id="getHelmChartById" parameterType="String" resultMap="HelmChartMap">
-    SELECT
-    <include refid="HelmChartAllColumn"/>
-    FROM tbl_container_helm_chart where id = #{id}
-  </select>
+    <select id="getHelmChartById" parameterType="String" resultMap="HelmChartMap">
+        SELECT
+        <include refid="HelmChartAllColumn"/>
+        FROM tbl_container_helm_chart where id = #{id}
+    </select>
 
-  <select id="getHelmChartByFileId" parameterType="String" resultMap="HelmChartMap">
-    SELECT
-    <include refid="HelmChartAllColumn"/>
-    FROM tbl_container_helm_chart where helm_chart_file_id = #{fileId}
-  </select>
+    <select id="getHelmChartByFileId" parameterType="String" resultMap="HelmChartMap">
+        SELECT
+        <include refid="HelmChartAllColumn"/>
+        FROM tbl_container_helm_chart where helm_chart_file_id = #{fileId}
+    </select>
 
-  <select id="getHelmChartsByAppId" parameterType="String" resultMap="HelmChartMap">
-    SELECT
-    <include refid="HelmChartAllColumn"/>
-    FROM tbl_container_helm_chart where app_id = #{applicationId}
-  </select>
+    <select id="getHelmChartsByAppId" parameterType="String" resultMap="HelmChartMap">
+        SELECT
+        <include refid="HelmChartAllColumn"/>
+        FROM tbl_container_helm_chart where app_id = #{applicationId}
+    </select>
 
 </mapper>
