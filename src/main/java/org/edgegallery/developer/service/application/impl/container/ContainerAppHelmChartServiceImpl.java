@@ -158,7 +158,7 @@ public class ContainerAppHelmChartServiceImpl implements ContainerAppHelmChartSe
     private String saveLoadedFileToTempDir(MultipartFile helmTemplateYaml) throws IOException {
         Path tempDir = Files.createTempDirectory("eg-dev-");
         String path = tempDir.toString();
-        File loadFile = new File(path + File.separator + helmTemplateYaml.getName());
+        File loadFile = new File(path + File.separator + helmTemplateYaml.getOriginalFilename());
         helmTemplateYaml.transferTo(loadFile);
         return loadFile.getCanonicalPath();
     }
