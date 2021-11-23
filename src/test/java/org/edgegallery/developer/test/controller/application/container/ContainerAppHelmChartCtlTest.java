@@ -61,7 +61,6 @@ public class ContainerAppHelmChartCtlTest {
 
     @Before
     public void setUp() {
-
         this.mvc = MockMvcBuilders.standaloneSetup(appHelmChartCtl).build();
         MockitoAnnotations.initMocks(this);
     }
@@ -70,7 +69,7 @@ public class ContainerAppHelmChartCtlTest {
     @WithMockUser(roles = "DEVELOPER_ADMIN")
     public void testUploadHelmChartFileSuccess() throws Exception {
         String url = String.format("/mec/developer/v2/applications/%s/helmcharts", UUID.randomUUID().toString());
-        Mockito.when(containerAppHelmChartService.uploadHelmChartFile(Mockito.anyString(), Mockito.any()))
+        Mockito.when(containerAppHelmChartService.uploadHelmChartFile(Mockito.anyString(), Mockito.anyString()))
             .thenReturn(new HelmChart());
         File configFile = Resources.getResourceAsFile("testdata/config");
         InputStream configInputStream = new FileInputStream(configFile);
@@ -152,13 +151,12 @@ public class ContainerAppHelmChartCtlTest {
     public void testModifyFileContentByFilePathSuccess() throws Exception {
         String url = String.format("/mec/developer/v2/applications/%s/helmcharts/%s/action/modify-inner-file",
             UUID.randomUUID().toString(), UUID.randomUUID().toString(), "testPath");
-        Mockito.when(containerAppHelmChartService
-            .modifyFileContent(Mockito.anyString(), Mockito.anyString(), Mockito.any()))
+        Mockito.when(
+            containerAppHelmChartService.modifyFileContent(Mockito.anyString(), Mockito.anyString(), Mockito.any()))
             .thenReturn(true);
-        ResultActions actions = mvc
-            .perform(MockMvcRequestBuilders.put(url).with(csrf()).content(new Gson().toJson(new ModifyFileContentDto()))
-                .contentType(MediaType.APPLICATION_JSON_UTF8))
-            .andExpect(MockMvcResultMatchers.status().isOk());
+        ResultActions actions = mvc.perform(
+            MockMvcRequestBuilders.put(url).with(csrf()).content(new Gson().toJson(new ModifyFileContentDto()))
+                .contentType(MediaType.APPLICATION_JSON_UTF8)).andExpect(MockMvcResultMatchers.status().isOk());
         Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
     }
 }

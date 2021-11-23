@@ -69,11 +69,10 @@ public abstract class AbstractContainerFileHandler implements IContainerFileHand
     }
 
     @Override
-    public String exportHelmCharts() {
+    public String exportHelmChartsPackage() {
         try {
             String fileName = new File(helmChartsDir).getName();
-            File file = CompressFileUtilsJava
-                .compressToTgz(helmChartsDir, workspace, fileName + "_" + System.currentTimeMillis());
+            File file = CompressFileUtilsJava.compressToTgz(helmChartsDir, workspace, fileName);
             assert file != null;
             if (file.exists()) {
                 return file.getCanonicalPath();

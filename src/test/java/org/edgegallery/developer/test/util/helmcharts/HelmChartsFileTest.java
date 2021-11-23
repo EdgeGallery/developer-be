@@ -40,7 +40,7 @@ public class HelmChartsFileTest {
     public void should_successfully_when_export_tgz() throws IOException {
         File demo = Resources.getResourceAsFile("testdata/helmcharts/namespacetest.tgz");
         handler.load(demo.getCanonicalPath());
-        String outFile = handler.exportHelmCharts();
+        String outFile = handler.exportHelmChartsPackage();
         Assert.assertNotNull(outFile);
     }
 

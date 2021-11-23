@@ -25,6 +25,8 @@ public interface ContainerAppHelmChartService {
 
     HelmChart uploadHelmChartFile(String applicationId, MultipartFile helmTemplateYaml);
 
+    HelmChart uploadHelmChartFile(String applicationId, String... filePaths);
+
     Boolean uploadHelmChartYaml(MultipartFile helmTemplateYaml, String applicationId);
 
     List<HelmChart> getHelmChartList(String applicationId);
