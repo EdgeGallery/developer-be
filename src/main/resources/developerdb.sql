@@ -607,6 +607,7 @@
 
     CREATE TABLE IF NOT EXISTS "tbl_container_app_instantiate_info" (
     "app_id" varchar(255) NOT NULL,
+    "operation_id" varchar(255) DEFAULT NULL,
     "app_package_id" varchar(255) DEFAULT NULL,
     "distributed_mec_host" varchar(255) DEFAULT NULL,
     "app_instance_id" varchar(255) DEFAULT NULL,

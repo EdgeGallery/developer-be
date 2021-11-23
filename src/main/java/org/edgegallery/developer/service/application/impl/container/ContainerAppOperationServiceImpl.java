@@ -107,7 +107,7 @@ public class ContainerAppOperationServiceImpl extends AppOperationServiceImpl im
         OperationStatus operationStatus = new OperationStatus();
         operationStatus.setId(UUID.randomUUID().toString());
         operationStatus.setUserName(user.getUserName());
-        operationStatus.setObjectType(EnumOperationObjectType.APPLICATION);
+        operationStatus.setObjectType(EnumOperationObjectType.APPLICATION_INSTANCE);
         operationStatus.setObjectId(applicationId);
         operationStatus.setObjectName(application.getName());
         operationStatus.setStatus(EnumActionStatus.ONGOING);
@@ -121,6 +121,9 @@ public class ContainerAppOperationServiceImpl extends AppOperationServiceImpl im
         ContainerLaunchOperation actionCollection = new ContainerLaunchOperation(user,
             applicationId, helmChartId, operationStatus);
         LOGGER.info("start instantiate container app");
+        ContainerAppInstantiateInfo containerAppInstantiateInfo = new ContainerAppInstantiateInfo();
+        containerAppInstantiateInfo.setOperationId(operationStatus.getId());
+        containerAppInstantiateInfoMapper.createContainerAppInstantiateInfo(applicationId, containerAppInstantiateInfo);
         new InstantiateContainerAppProcessor(actionCollection).start();
         return new OperationInfoRep(operationStatus.getId());
     }

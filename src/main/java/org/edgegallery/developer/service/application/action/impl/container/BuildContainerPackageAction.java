@@ -16,25 +16,19 @@
 
 package org.edgegallery.developer.service.application.action.impl.container;
 
-import java.util.UUID;
-import org.edgegallery.developer.model.application.vm.VMApplication;
-import org.edgegallery.developer.model.application.vm.VirtualMachine;
+import org.edgegallery.developer.mapper.application.container.ContainerAppInstantiateInfoMapper;
 import org.edgegallery.developer.model.apppackage.AppPackage;
 import org.edgegallery.developer.model.instantiate.container.ContainerAppInstantiateInfo;
 import org.edgegallery.developer.model.instantiate.container.EnumContainerAppInstantiateStatus;
-import org.edgegallery.developer.model.instantiate.vm.EnumVMInstantiateStatus;
-import org.edgegallery.developer.model.instantiate.vm.VMInstantiateInfo;
 import org.edgegallery.developer.model.operation.ActionStatus;
 import org.edgegallery.developer.model.operation.EnumOperationObjectType;
-import org.edgegallery.developer.model.restful.ApplicationDetail;
 import org.edgegallery.developer.service.application.ApplicationService;
 import org.edgegallery.developer.service.application.action.impl.AbstractAction;
 import org.edgegallery.developer.service.application.common.IContextParameter;
 import org.edgegallery.developer.service.application.impl.container.ContainerAppOperationServiceImpl;
-import org.edgegallery.developer.service.application.impl.vm.VMAppOperationServiceImpl;
+import org.edgegallery.developer.util.SpringContextUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 
 public class BuildContainerPackageAction extends AbstractAction {
 
@@ -42,11 +36,8 @@ public class BuildContainerPackageAction extends AbstractAction {
 
     public static final String ACTION_NAME = "Build Application Package";
 
-    @Autowired
-    private ContainerAppOperationServiceImpl containerAppOperationService;
-
-    @Autowired
-    private ApplicationService applicationService;
+    ContainerAppOperationServiceImpl containerAppOperationService = (ContainerAppOperationServiceImpl) SpringContextUtil
+        .getBean(ContainerAppOperationServiceImpl.class);
 
     @Override
     public String getActionName() {
@@ -59,7 +50,8 @@ public class BuildContainerPackageAction extends AbstractAction {
         String applicationId = (String) getContext().getParameter(IContextParameter.PARAM_APPLICATION_ID);
         String statusLog = "Start to build the package for application: " + applicationId;
         LOGGER.info(statusLog);
-        ActionStatus actionStatus = initActionStatus(EnumOperationObjectType.APPLICATION, applicationId, ACTION_NAME, statusLog);
+        ActionStatus actionStatus = initActionStatus(EnumOperationObjectType.HELM_CHART, applicationId, ACTION_NAME,
+            statusLog);
 
         //build application package for container app
         AppPackage appPkg = containerAppOperationService.generatePackage(applicationId);
@@ -75,21 +67,26 @@ public class BuildContainerPackageAction extends AbstractAction {
         updateActionProgress(actionStatus, 50, statusLog);
 
         //save vm instantiate info.
-        ContainerAppInstantiateInfo instantiateInfo = containerAppOperationService.getInstantiateInfo(applicationId);
-        if (null == instantiateInfo) {
-            instantiateInfo = new ContainerAppInstantiateInfo();
-        }
-        instantiateInfo.setAppPackageId(appPkg.getId());
-        instantiateInfo.setStatus(EnumContainerAppInstantiateStatus.PACKAGE_GENERATE_SUCCESS);
-        Boolean res = containerAppOperationService.updateInstantiateInfo(applicationId, instantiateInfo);
-        if (!res) {
-            updateActionError(actionStatus, "Update instantiate info for container application failed.");
+        boolean saveResult = saveBuildContainerPackageInfo(applicationId, appPkg.getId());
+        if (!saveResult) {
+            updateActionError(actionStatus, "Update instantiate info for container failed.");
             return false;
         }
         statusLog = "Update package info to container application instantiate info finished.";
         LOGGER.info(statusLog);
         updateActionProgress(actionStatus, 100, statusLog);
         return true;
+    }
+
+    private boolean saveBuildContainerPackageInfo(String applicationId, String packageId) {
+        ContainerAppInstantiateInfo instantiateInfo = containerAppOperationService.getInstantiateInfo(applicationId);
+        if (instantiateInfo == null) {
+            return false;
+        }
+        instantiateInfo.setAppPackageId(packageId);
+        instantiateInfo.setStatus(EnumContainerAppInstantiateStatus.PACKAGE_GENERATE_SUCCESS);
+        return containerAppOperationService.updateInstantiateInfo(applicationId, instantiateInfo);
+
     }
 
 }
