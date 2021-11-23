@@ -74,6 +74,12 @@ public class ProfileInfo {
     private List<String> seq;
 
     /**
+     * app list the profile contains.
+     */
+    @Size(max = Consts.LENGTH_255, message = "profile app list can not more than 255.")
+    private List<String> appList;
+
+    /**
      * profile create time.
      */
     private Date createTime;

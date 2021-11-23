@@ -28,6 +28,8 @@
         <result property="configFilePath" column="config_file_path"/>
         <result property="seq" column="seq"
                 typeHandler="org.edgegallery.developer.model.handler.JsonCollectionTypeHandler"/>
+        <result property="appList" column="app_list"
+                typeHandler="org.edgegallery.developer.model.handler.JsonCollectionTypeHandler"/>
         <result property="createTime" column="create_time"/>
         <result property="type" column="type"/>
         <result property="industry" column="industry"/>
@@ -36,17 +38,18 @@
 
     <sql id="AllColumn">
         id, name, description, description_en,
-        file_path, deploy_file_path, config_file_path, seq, create_time,type, industry, topo_file_path
+        file_path, deploy_file_path, config_file_path, seq, app_list, create_time,type, industry, topo_file_path
     </sql>
 
     <insert id="createProfile" parameterType="org.edgegallery.developer.model.profile.ProfileInfo">
         insert into tbl_profile (id, name, description, description_en,
-        file_path, deploy_file_path, config_file_path, seq, create_time,type, industry, topo_file_path)
+        file_path, deploy_file_path, config_file_path, seq, app_list, create_time,type, industry, topo_file_path)
         values
         (#{id}, #{name}, #{description}, #{descriptionEn}, #{filePath},
         #{deployFilePath, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonTypeHandler},
         #{configFilePath},
         #{seq, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonCollectionTypeHandler},
+        #{appList, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonCollectionTypeHandler},
         #{createTime}, #{type}, #{industry}, #{topoFilePath})
     </insert>
 
@@ -66,6 +69,7 @@
         #{deployFilePath, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonTypeHandler},
         config_file_path = #{configFilePath},
         seq = #{seq, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonCollectionTypeHandler},
+        app_list = #{appList, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonCollectionTypeHandler},
         type = #{type}, industry = #{industry}, topo_file_path = #{topoFilePath}
         WHERE
         id = #{id}
