@@ -829,11 +829,11 @@ public final class HttpClientUtil {
             REST_TEMPLATE.setErrorHandler(new CustomResponseErrorHandler());
             response = REST_TEMPLATE.exchange(url, HttpMethod.GET, requestEntity, String.class);
         } catch (RestClientException e) {
-            LOGGER.error("image slim fail exception {}", e.getMessage());
+            LOGGER.error("get image info fail from filesystem exception {}", e.getMessage());
             return null;
         }
         if (response.getStatusCode() == HttpStatus.OK) {
-            LOGGER.info("image slim  success, resp = {}", response);
+            LOGGER.info("get image info fail from filesystem success, resp = {}", response);
             try {
                 return new ObjectMapper().readValue(
                     Objects.requireNonNull(response.getBody()).getBytes(), FileSystemResponse.class);
@@ -843,7 +843,7 @@ public final class HttpClientUtil {
                 return null;
             }
         }
-        LOGGER.error("image slim fail!");
+        LOGGER.error("get image info fail from filesystem!");
         return null;
     }
 }

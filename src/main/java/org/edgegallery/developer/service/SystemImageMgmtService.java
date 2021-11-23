@@ -64,7 +64,7 @@ public class SystemImageMgmtService {
     // time out: 10 min.
     public static final int TIMEOUT = 10 * 60 * 1000;
     //interval of the query, 5s.
-    public static final int INTERVAL = 5000;
+    public static final int INTERVAL = 12000;
 
     private static Gson gson = new Gson();
 
@@ -500,7 +500,7 @@ public class SystemImageMgmtService {
         if (uploadFileInfo == null) {
             // delete file system image
             LOGGER.error("query image info failed on file server!");
-            HttpClientUtil.deleteSystemImage(uploadedSystemPath);
+            HttpClientUtil.deleteSystemImage(fileServerAddress + String.format(Consts.SYSTEM_IMAGE_GET_URL, filesystemImageId));
             systemImageMapper.updateSystemImageStatus(systemId, EnumSystemImageStatus.UPLOAD_FAILED.toString());
             systemImageMapper
                 .updateSystemImageErrorType(systemId, EnumProcessErrorType.FILESYSTEM_MERGE_FAILED.getErrorType());
@@ -712,7 +712,7 @@ public class SystemImageMgmtService {
             long startTime = System.currentTimeMillis();
             while (System.currentTimeMillis() - startTime < MAX_SECONDS * 60) {
                 try {
-                    Thread.sleep(10000);
+                    Thread.sleep(12000);
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                     LOGGER.error("sleep fail! {}", e.getMessage());
