@@ -37,7 +37,7 @@ public abstract class AbstractContainerFileHandler implements IContainerFileHand
     protected String helmChartsDir;
 
     @Override
-    public abstract void load(String filePath) throws IOException;
+    public abstract void load(String... filePaths) throws IOException;
 
     @Override
     public List<HelmChartFile> getCatalog() {

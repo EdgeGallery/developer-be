@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.ibatis.io.Resources;
+import org.edgegallery.developer.exception.DeveloperException;
 import org.edgegallery.developer.util.helmcharts.HelmChartFile;
 import org.edgegallery.developer.util.helmcharts.IContainerFileHandler;
 import org.edgegallery.developer.util.helmcharts.LoadContainerFileFactory;
@@ -31,6 +32,8 @@ public class HelmChartsFileTest {
     public void should_successfully_when_load_helm_charts_file() throws IOException {
         File demo = Resources.getResourceAsFile("testdata/helmcharts/namespacetest.tgz");
         handler.load(demo.getCanonicalPath());
+        List<HelmChartFile> files = handler.getCatalog();
+        Assert.assertEquals(1, files.size());
     }
 
     @Test
@@ -40,7 +43,6 @@ public class HelmChartsFileTest {
         String outFile = handler.exportHelmCharts();
         Assert.assertNotNull(outFile);
     }
-
 
     @Test
     public void should_successfully_when_modify_content() throws IOException {
@@ -85,6 +87,18 @@ public class HelmChartsFileTest {
             } else {
                 files.add(file.getInnerPath());
             }
+        }
+    }
+
+    @Test
+    public void should_failed_when_upload_more_then_one_helmcharts() throws IOException {
+        File demo1 = Resources.getResourceAsFile("testdata/helmcharts/namespacetest.tgz");
+        File demo2 = Resources.getResourceAsFile("testdata/helmcharts/namespacetest2.tgz");
+        try {
+            handler.load(demo1.getCanonicalPath(), demo2.getCanonicalPath());
+            Assert.fail();
+        } catch (DeveloperException e) {
+            Assert.assertEquals("Just support to upload one HelmCharts.", e.getMessage());
         }
     }
 }

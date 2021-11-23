@@ -20,7 +20,7 @@ import java.util.List;
 public interface IContainerFileHandler {
 
     // load tgz or yaml file, and parse it. it will auto-create charts.yaml and values.yaml when loading yaml file.
-    void load(String filePath) throws IOException;
+    void load(String... filePaths) throws IOException;
 
     // get catalog from helm-charts file.
     List<HelmChartFile> getCatalog();

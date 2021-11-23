@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.commons.io.FileUtils;
 import org.apache.ibatis.io.Resources;
 import org.edgegallery.developer.util.helmcharts.HelmChartFile;
 import org.edgegallery.developer.util.helmcharts.IContainerFileHandler;
@@ -25,7 +24,7 @@ public class LoadK8SYamlHandlerIpmTest {
 
     @After
     public void clean() {
-        // handler.clean();
+        handler.clean();
     }
 
     @Test
@@ -110,4 +109,30 @@ public class LoadK8SYamlHandlerIpmTest {
             }
         }
     }
+
+    @Test
+    public void should_successfully_when_upload_more_then_one_k8s_file() throws IOException {
+        File demo1 = Resources.getResourceAsFile("testdata/helmcharts/demo.yaml");
+        File demo2 = Resources.getResourceAsFile("testdata/helmcharts/demo-onlyagent.yaml");
+        handler.load(demo1.getCanonicalPath(), demo2.getCanonicalPath());
+        List<HelmChartFile> fileList = handler.getCatalog();
+        Assert.assertEquals("demo", fileList.get(0).getName());
+        int count = 0;
+        for (HelmChartFile file : fileList.get(0).getChildren()) {
+            switch (file.getName()) {
+                case "charts.yaml":
+                case "values.yaml":
+                    count++;
+                    break;
+                case "templates":
+                    Assert.assertEquals(2, file.getChildren().size());
+                    Assert.assertEquals("demo-onlyagent.yaml", file.getChildren().get(0).getName());
+                    Assert.assertEquals("demo.yaml", file.getChildren().get(1).getName());
+                    count++;
+                    break;
+            }
+        }
+        Assert.assertEquals(3, count);
+    }
+
 }

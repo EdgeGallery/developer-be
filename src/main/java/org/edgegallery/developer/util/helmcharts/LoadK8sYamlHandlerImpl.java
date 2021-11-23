@@ -33,50 +33,65 @@ public class LoadK8sYamlHandlerImpl extends AbstractContainerFileHandler {
     private boolean hasMep = true;
 
     @Override
-    public void load(String filePath) throws IOException {
-        if (!verify(filePath)) {
+    public void load(String... filePaths) throws IOException {
+        if (filePaths.length < 1) {
+            LOGGER.error("Please upload one HelmCharts file.");
+            throw new DeveloperException("Failed to read k8s config.");
+        }
+        if (!verify(filePaths)) {
+            LOGGER.error("Can not parse this files by kubernetes-client.");
             return;
         }
+
+        // create helm-charts temp dir
+        String firstFile = filePaths[0];
+        Path tempDir = Files.createTempDirectory("eg-helmcharts-");
+        workspace = tempDir.toString();
+        File orgFile = new File(firstFile);
+        String fileName = orgFile.getName();
+        Path helmChartPath = Files.createDirectory(
+            Paths.get(workspace, fileName.contains(".") ? fileName.substring(0, fileName.lastIndexOf(".")) : fileName));
+        helmChartsDir = helmChartPath.toString();
+
+        // create values.yaml
+        EgValuesYaml defaultValues = EgValuesYaml.createDefaultEgValues();
+        Path valuesYaml = Files.createFile(Paths.get(helmChartsDir, "values.yaml"));
+        FileUtils.writeByteArrayToFile(valuesYaml.toFile(), defaultValues.getContent().getBytes(), false);
+
+        // create charts.yaml
+        EgChartsYaml defaultCharts = EgChartsYaml.createDefaultCharts();
+        Path chartsYaml = Files.createFile(Paths.get(helmChartsDir, "charts.yaml"));
+        FileUtils.writeByteArrayToFile(chartsYaml.toFile(), defaultCharts.getContent().getBytes(), false);
+
         try {
-            // create helm-charts temp dir
-            Path tempDir = Files.createTempDirectory("eg-helmcharts-");
-            workspace = tempDir.toString();
-            File orgFile = new File(filePath);
-            String fileName = orgFile.getName();
-            Path helmChartPath = Files.createDirectory(Paths
-                .get(workspace, fileName.contains(".") ? fileName.substring(0, fileName.lastIndexOf(".")) : fileName));
-            helmChartsDir = helmChartPath.toString();
-
-            // create template dir and copy k8s yaml to template
             Files.createDirectory(Paths.get(helmChartsDir, "templates"));
-            Path k8sYaml = Files.createFile(Paths.get(helmChartsDir, "templates", orgFile.getName()));
-            FileUtils.copyFile(orgFile, k8sYaml.toFile());
-
-            // create values.yaml
-            EgValuesYaml defaultValues = EgValuesYaml.createDefaultEgValues();
-            Path valuesYaml = Files.createFile(Paths.get(helmChartsDir, "values.yaml"));
-            FileUtils.writeByteArrayToFile(valuesYaml.toFile(), defaultValues.getContent().getBytes(), false);
-
-            // create charts.yaml
-            EgChartsYaml defaultCharts = EgChartsYaml.createDefaultCharts();
-            Path chartsYaml = Files.createFile(Paths.get(helmChartsDir, "charts.yaml"));
-            FileUtils.writeByteArrayToFile(chartsYaml.toFile(), defaultCharts.getContent().getBytes(), false);
-
+            for (String filePath : filePaths) {
+                addTemplate(filePath);
+            }
         } catch (IOException e) {
             FileUtils.deleteDirectory(new File(workspace));
             workspace = null;
-            throw new DeveloperException("Failed to read k8s config. config:" + filePath);
+            throw new DeveloperException("Failed to read k8s config. msg:" + e.getMessage());
         }
     }
 
+    private void addTemplate(String filePath) throws IOException {
+        File orgFile = new File(filePath);
+        // create template dir and copy k8s yaml to template
+        Path k8sYaml = Files.createFile(Paths.get(helmChartsDir, "templates", orgFile.getName()));
+        FileUtils.copyFile(orgFile, k8sYaml.toFile());
+    }
+
     // try to parse k8s file with kubernetes.client
-    boolean verify(String filePath) {
+    private boolean verify(String... filePaths) {
         try {
-            Yaml.loadAll(filePath);
+            for (String filePath : filePaths) {
+                Yaml.loadAll(filePath);
+            }
             return true;
         } catch (IOException e) {
-            LOGGER.error("Can not parse this yaml to k8s configs. filePath:{}, msg:{}", filePath, e.getMessage());
-            throw new DeveloperException("Failed to read k8s config. error message:" + e.getMessage());
+            LOGGER.error("Can not parse this yaml to k8s configs. msg:{}", e.getMessage());
+            return false;
         }
     }
 }
