@@ -62,13 +62,11 @@ import org.edgegallery.developer.service.application.impl.AppOperationServiceImp
 import org.edgegallery.developer.service.application.vm.VMAppOperationService;
 import org.edgegallery.developer.service.apppackage.AppPackageService;
 import org.edgegallery.developer.util.HttpClientUtil;
-import org.edgegallery.developer.util.InitConfigUtil;
 import org.edgegallery.developer.util.ShhFileUploadUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;

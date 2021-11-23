@@ -824,7 +824,7 @@ public final class HttpClientUtil {
             REST_TEMPLATE.setErrorHandler(new CustomResponseErrorHandler());
             response = REST_TEMPLATE.exchange(url, HttpMethod.GET, requestEntity, String.class);
         } catch (RestClientException e) {
-            LOGGER.error("image slim fail exception {}", e.getMessage());
+            LOGGER.error("get image info fail from filesystem exception {}", e.getMessage());
             return null;
         }
         if (response.getStatusCode() == HttpStatus.OK) {
@@ -834,11 +834,11 @@ public final class HttpClientUtil {
                     Objects.requireNonNull(response.getBody()).getBytes(), FileSystemResponse.class);
 
             } catch (Exception e) {
-                LOGGER.error("merge on remote file server failed. {}", e.getMessage());
+                LOGGER.error("get image info fail from filesystem. {}", e.getMessage());
                 return null;
             }
         }
-        LOGGER.error("image slim fail!");
+        LOGGER.error("get image info fail from filesystem!");
         return null;
     }
 }

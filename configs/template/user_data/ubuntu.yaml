@@ -1,4 +1,3 @@
-contents: |
   #!/bin/bash
   rm -rf /home/mep.ca
   rm -rf /home/init.txt
