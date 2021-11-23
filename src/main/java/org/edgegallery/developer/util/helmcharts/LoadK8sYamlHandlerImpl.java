@@ -39,6 +39,7 @@ public class LoadK8sYamlHandlerImpl extends AbstractContainerFileHandler {
             throw new DeveloperException("Failed to read k8s config.");
         }
         if (!verify(filePaths)) {
+            LOGGER.error("Can not parse this files by kubernetes-client.");
             return;
         }
 
@@ -74,16 +75,15 @@ public class LoadK8sYamlHandlerImpl extends AbstractContainerFileHandler {
         }
     }
 
-    public boolean addTemplate(String filePath) throws IOException {
+    private void addTemplate(String filePath) throws IOException {
         File orgFile = new File(filePath);
         // create template dir and copy k8s yaml to template
         Path k8sYaml = Files.createFile(Paths.get(helmChartsDir, "templates", orgFile.getName()));
         FileUtils.copyFile(orgFile, k8sYaml.toFile());
-        return true;
     }
 
     // try to parse k8s file with kubernetes.client
-    boolean verify(String... filePaths) {
+    private boolean verify(String... filePaths) {
         try {
             for (String filePath : filePaths) {
                 Yaml.loadAll(filePath);
@@ -91,7 +91,7 @@ public class LoadK8sYamlHandlerImpl extends AbstractContainerFileHandler {
             return true;
         } catch (IOException e) {
             LOGGER.error("Can not parse this yaml to k8s configs. msg:{}", e.getMessage());
-            throw new DeveloperException("Failed to read k8s config. error message:" + e.getMessage());
+            return false;
         }
     }
 }
