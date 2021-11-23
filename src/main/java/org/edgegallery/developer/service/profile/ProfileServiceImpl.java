@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
@@ -376,20 +377,23 @@ public class ProfileServiceImpl implements ProfileService {
             profileInfo.setType((String) profile.get("type"));
             profileInfo.setIndustry((String) profile.get("industry"));
             profileInfo.setConfigFilePath(baseFilePath.concat(File.separator).concat((String) profile.get("config")));
-            String seq = (String) profile.get("seq");
-            profileInfo.setSeq(Arrays.asList(seq.split(",")));
+            String seq = null == profile.get("seq") ? null : (String) profile.get("seq");
+            profileInfo.setSeq(null == seq ? null : Arrays.asList(seq.split(",")));
 
-            HashMap<String, Map<String, String>> appList = (HashMap<String, Map<String, String>>) profile
+            HashMap<String, Map<String, String>> appInfoList = (HashMap<String, Map<String, String>>) profile
                 .get(FIELD_APP);
-            checkParamNull(appList, "there is no app field in profile file.");
+            checkParamNull(appInfoList, "there is no app field in profile file.");
             Map<String, String> deployFilePath = new HashMap<>();
-            appList.keySet().stream().forEach(key -> {
+            List<String> appList = new ArrayList<>();
+            appInfoList.keySet().stream().forEach(key -> {
                 checkAppNameUniformity(key, profileInfo.getSeq());
-                Map<String, String> appInfo = appList.get(key);
+                Map<String, String> appInfo = appInfoList.get(key);
                 String deploymentFile = appInfo.get("deploymentFile");
                 deployFilePath.put(key, baseFilePath.concat(File.separator).concat(deploymentFile));
+                appList.add(key);
             });
             profileInfo.setDeployFilePath(deployFilePath);
+            profileInfo.setAppList(appList);
         } catch (DomainException e) {
             LOGGER.error("Yaml deserialization failed {}", e.getMessage());
             throw new DomainException("Yaml deserialization failed.");
@@ -406,7 +410,7 @@ public class ProfileServiceImpl implements ProfileService {
      * @param seq app deploy seq
      */
     private void checkAppNameUniformity(String appName, List<String> seq) {
-        if (!seq.contains(appName)) {
+        if (null != seq && !seq.contains(appName)) {
             String msg = "app seq ".concat(seq.toString()).concat(" not contains app name: ").concat(appName);
             LOGGER.error(msg);
             throw new IllegalRequestException(msg, ResponseConsts.RET_REQUEST_PARAM_ERROR);
