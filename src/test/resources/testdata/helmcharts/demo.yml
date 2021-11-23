@@ -1,0 +1,70 @@
+---
+apiVersion: v1              # pod信息
+kind: Pod
+metadata:
+  name: positioning-service    # pod名
+  namespace: '{{ .Values.appconfig.appnamespace }}'
+  labels:
+    app: positioning-service
+spec:
+  containers:
+    - name: positioning    # 容器名
+      image: swr.ap-southeast-1.myhuaweicloud.com/edgegallery/positioning_service:1.0  # 镜像信息
+      imagePullPolicy: IfNotPresent   # 镜像拉取策略
+      ports:
+        - containerPort: 9997         # 内部端口
+    - name: mep-agent
+      image: swr.ap-southeast-1.myhuaweicloud.com/edgegallery/mep-agent:latest
+      imagePullPolicy: Always
+      env:
+        - name: ENABLE_WAIT
+          value: "true"
+        - name: MEP_IP
+          value: "mep-api-gw.mep"
+        - name: MEP_APIGW_PORT
+          value: "8443"
+        - name: CA_CERT_DOMAIN_NAME
+          value: "edgegallery"
+        - name: CA_CERT
+          value: /usr/mep/ssl/ca.crt
+        - name: AK
+          valueFrom:
+            secretKeyRef:
+              name: '{{ .Values.appconfig.aksk.secretname }}'
+              key: accesskey
+        - name: SK
+          valueFrom:
+            secretKeyRef:
+              name: '{{ .Values.appconfig.aksk.secretname }}'
+              key: secretkey
+        - name: APPINSTID
+          valueFrom:
+            secretKeyRef:
+              name: '{{ .Values.appconfig.aksk.secretname }}'
+              key: appInsId
+      volumeMounts:
+        - name: mep-agent-service-config-volume
+          mountPath: /usr/mep/conf/app_instance_info.yaml
+          subPath: app_instance_info.yaml
+              
+  volumes:
+    - name: mep-agent-service-config-volume
+      configMap:
+        name: '{{ .Values.global.mepagent.configmapname }}'
+---
+apiVersion: v1                 # 服务信息
+kind: Service
+metadata:
+  name: positioning-service    # 服务名
+  namespace: '{{ .Values.appconfig.appnamespace }}'
+  labels:
+    svc: positioning-service
+spec:
+  type: NodePort
+  ports:
+    - port: 9997
+      targetPort: 9997      # 内部端口
+      protocol: TCP
+      nodePort: 32218       # 暴露端口号3000-33000
+  selector:
+    app: positioning-service

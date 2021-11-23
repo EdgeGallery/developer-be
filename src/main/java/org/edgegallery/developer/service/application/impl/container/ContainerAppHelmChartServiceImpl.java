@@ -80,31 +80,41 @@ public class ContainerAppHelmChartServiceImpl implements ContainerAppHelmChartSe
     @Autowired
     private AppConfigurationService appConfigurationService;
 
-    public HelmChart uploadHelmChartFile(String applicationId, MultipartFile helmTemplateYaml) {
+    public HelmChart uploadHelmChartFile(String applicationId, String... filePaths) {
+        if (filePaths.length < 1) {
+            LOGGER.error("The input file is empty.");
+            return null;
+        }
+        if (!verifyFileType(filePaths)) {
+            LOGGER.error("Failed to verify the input files.");
+            return null;
+        }
+        // use the first fileName to be the dir name and package name.
+        File firstFile = new File(filePaths[0]);
         try {
-            String filePath = saveLoadedFileToTempDir(helmTemplateYaml);
-            IContainerFileHandler containerFileHandler = LoadContainerFileFactory.createLoader(filePath);
+            IContainerFileHandler containerFileHandler = LoadContainerFileFactory.createLoader(firstFile.getName());
             assert containerFileHandler != null;
-            containerFileHandler.load(filePath);
+            containerFileHandler.load(filePaths);
 
             // default dependency mep service.
             containerFileHandler.setHasMep(true);
 
             // create charts-file(.tgz) and export it to the outPath.
             String helmCharts = containerFileHandler.exportHelmCharts();
-
+            String helmChartsName = new File(helmCharts).getName();
             String fileId = UUID.randomUUID().toString();
-            String fileName = helmTemplateYaml.getOriginalFilename();
-            moveFileToWorkSpace(helmCharts, fileId, fileName);
+
+            // use the first fileName to create the dir
+            moveFileToWorkSpace(helmCharts, fileId, helmChartsName);
 
             //save fileId
-            saveFileRecord(fileId, helmTemplateYaml.getOriginalFilename());
+            saveFileRecord(fileId, helmChartsName);
 
             // create a file id, and update
             HelmChart helmChart = new HelmChart();
             helmChart.setId(UUID.randomUUID().toString());
             helmChart.setHelmChartFileId(fileId);
-            helmChart.setName(helmTemplateYaml.getOriginalFilename());
+            helmChart.setName(helmChartsName);
             helmChart.setApplicationId(applicationId);
             helmChart.setHelmChartFileList(containerFileHandler.getCatalog());
             helmChart.setCreateTime(new Date());
@@ -115,6 +125,37 @@ public class ContainerAppHelmChartServiceImpl implements ContainerAppHelmChartSe
             }
             return helmChart;
         } catch (IOException e) {
+            LOGGER.error("Failed to read the helmchart file. msg:{}", e.getMessage());
+            return null;
+        }
+    }
+
+    private boolean verifyFileType(String[] filePaths) {
+        int yamlCount = 0;
+        int tgzCount = 0;
+        for (String filePath : filePaths) {
+            if (filePath.toLowerCase().endsWith(".yaml") || filePath.toLowerCase().endsWith(".yml")) {
+                yamlCount++;
+            } else if (filePath.toLowerCase().endsWith(".tgz")) {
+                tgzCount++;
+            } else {
+                LOGGER.error("Do not support this type of file({}) to create helmCharts package.", filePath);
+                return false;
+            }
+        }
+        if (yamlCount != 0 && tgzCount != 0) {
+            LOGGER.error("Do not support input tgz and yaml at once.");
+            return false;
+        }
+        return true;
+    }
+
+    public HelmChart uploadHelmChartFile(String applicationId, MultipartFile helmTemplateYaml) {
+        try {
+            String filePath = saveLoadedFileToTempDir(helmTemplateYaml);
+            return uploadHelmChartFile(applicationId, filePath);
+        } catch (IOException e) {
+            LOGGER.error("Failed to read the helmchart file. msg:{}", e.getMessage());
             return null;
         }
     }

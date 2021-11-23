@@ -14,8 +14,11 @@
 
 package org.edgegallery.developer.test.service.application.container;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import org.apache.ibatis.io.Resources;
+import org.edgegallery.developer.exception.DeveloperException;
 import org.edgegallery.developer.exception.EntityNotFoundException;
 import org.edgegallery.developer.exception.IllegalRequestException;
 import org.edgegallery.developer.model.application.container.HelmChart;
@@ -64,6 +67,47 @@ public class ContainerAppHelmChartServiceTest {
         Assert.assertNotNull(helmChart.getHelmChartFileList());
     }
 
+    @Test
+    public void should_successfully_when_upload_more_then_one_k8s_file() throws IOException {
+        File yaml1 = Resources.getResourceAsFile("testdata/helmcharts/demo.yaml");
+        File yaml2 = Resources.getResourceAsFile("testdata/helmcharts/demo-onlyagent.yaml");
+        HelmChart helmChart = appHelmChartService
+            .uploadHelmChartFile("6a75a2bd-9811-432f-bbe8-2813aa97d364", yaml1.getCanonicalPath(),
+                yaml2.getCanonicalPath());
+        LOGGER.info("fileList:{}", helmChart.getHelmChartFileList());
+        Assert.assertNotNull(helmChart.getHelmChartFileList());
+        Assert.assertEquals("demo.tgz", helmChart.getName());
+    }
+
+    @Test
+    public void should_successfully_when_upload_two_yaml_k8s_file() throws IOException {
+        File yaml1 = Resources.getResourceAsFile("testdata/helmcharts/demo.yml");
+        File yaml2 = Resources.getResourceAsFile("testdata/helmcharts/demo-onlyagent.yaml");
+        HelmChart helmChart = appHelmChartService
+            .uploadHelmChartFile("6a75a2bd-9811-432f-bbe8-2813aa97d364", yaml1.getCanonicalPath(),
+                yaml2.getCanonicalPath());
+        LOGGER.info("fileList:{}", helmChart.getHelmChartFileList());
+        Assert.assertNotNull(helmChart.getHelmChartFileList());
+        Assert.assertEquals("demo.tgz", helmChart.getName());
+    }
+
+    @Test
+    public void should_failed_when_upload_two_type_file() throws IOException {
+        File yaml = Resources.getResourceAsFile("testdata/helmcharts/demo.yaml");
+        File tgz = Resources.getResourceAsFile("testdata/helmcharts/namespacetest.tgz");
+        HelmChart helmChart = appHelmChartService
+            .uploadHelmChartFile("6a75a2bd-9811-432f-bbe8-2813aa97d364", yaml.getCanonicalPath(),
+                tgz.getCanonicalPath());
+        Assert.assertNull(helmChart);
+    }
+
+    @Test(expected = DeveloperException.class)
+    public void should_failed_when_upload_two_tgz_files() throws IOException {
+        File tgz1 = Resources.getResourceAsFile("testdata/helmcharts/namespacetest.tgz");
+        File tgz2 = Resources.getResourceAsFile("testdata/helmcharts/namespacetest2.tgz");
+        appHelmChartService.uploadHelmChartFile("6a75a2bd-9811-432f-bbe8-2813aa97d364", tgz1.getCanonicalPath(),
+            tgz2.getCanonicalPath());
+    }
 
     @Test
     public void testUploadHelmChartYamlSuccess() throws IOException {
