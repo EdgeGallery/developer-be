@@ -50,7 +50,7 @@ public class DownloadImageAction extends AbstractAction {
     // time out: 10 min.
     public static final int TIMEOUT = 30 * 60 * 1000;
     //interval of the query, 5s.
-    public static final int INTERVAL = 5000;
+    public static final int INTERVAL = 10000;
 
     ImageExportInfoMapper imageExportInfoMapper = (ImageExportInfoMapper) SpringContextUtil
         .getBean(ImageExportInfoMapper.class);

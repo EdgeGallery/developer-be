@@ -1113,7 +1113,7 @@ public class VmService {
         scpConnectEntity.setPassWord(vmPassword);
         scpConnectEntity.setUserName(vmUsername);
         String remoteFileName = appFile.getName();
-        LOGGER.info("path:{}", targetPath);
+        LOGGER.info("path:{}，filename:{}", targetPath, remoteFileName);
         ShhFileUploadUtil sshFileUploadUtil = new ShhFileUploadUtil();
         FileUploadEntity fileUploadEntity = sshFileUploadUtil.uploadFile(appFile, remoteFileName, scpConnectEntity);
         if (fileUploadEntity.getCode().equals("ok")) {
