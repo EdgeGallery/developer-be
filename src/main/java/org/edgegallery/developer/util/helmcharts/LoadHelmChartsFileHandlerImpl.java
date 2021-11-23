@@ -23,16 +23,22 @@ import lombok.Setter;
 import org.apache.commons.io.FileUtils;
 import org.edgegallery.developer.exception.DeveloperException;
 import org.edgegallery.developer.util.CompressFileUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class LoadHelmChartsFileHandlerImpl extends AbstractContainerFileHandler {
+    private static final Logger LOGGER = LoggerFactory.getLogger(LoadHelmChartsFileHandlerImpl.class);
 
     @Setter
     private boolean hasMep;
 
-    private String filePath;
-
     @Override
-    public void load(String filePath) throws IOException {
+    public void load(String... filePaths) throws IOException {
+        if (filePaths.length != 1) {
+            LOGGER.error("Just support to upload one HelmCharts.");
+            throw new DeveloperException("Just support to upload one HelmCharts.");
+        }
+        String filePath = filePaths[0];
         try {
             // create helm-charts temp dir
             Path tempDir = Files.createTempDirectory("eg-helmcharts-");
