@@ -59,7 +59,7 @@ public class LoadK8SYamlHandlerIpmTest {
     public void should_successfully_when_export_tgz() throws IOException {
         File demo = Resources.getResourceAsFile("testdata/demo.yaml");
         handler.load(demo.getCanonicalPath());
-        String outFile = handler.exportHelmCharts();
+        String outFile = handler.exportHelmChartsPackage();
         Assert.assertNotNull(outFile);
     }
 

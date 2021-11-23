@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -100,12 +101,12 @@ public class ContainerAppHelmChartServiceImpl implements ContainerAppHelmChartSe
             containerFileHandler.setHasMep(true);
 
             // create charts-file(.tgz) and export it to the outPath.
-            String helmCharts = containerFileHandler.exportHelmCharts();
-            String helmChartsName = new File(helmCharts).getName();
+            String helmChartsPackage = containerFileHandler.exportHelmChartsPackage();
+            String helmChartsName = new File(helmChartsPackage).getName();
             String fileId = UUID.randomUUID().toString();
 
             // use the first fileName to create the dir
-            moveFileToWorkSpace(helmCharts, fileId, helmChartsName);
+            moveFileToWorkSpace(helmChartsPackage, fileId, helmChartsName);
 
             //save fileId
             saveFileRecord(fileId, helmChartsName);
@@ -131,17 +132,11 @@ public class ContainerAppHelmChartServiceImpl implements ContainerAppHelmChartSe
     }
 
     private boolean verifyFileType(String[] filePaths) {
-        int yamlCount = 0;
-        int tgzCount = 0;
-        for (String filePath : filePaths) {
-            if (filePath.toLowerCase().endsWith(".yaml") || filePath.toLowerCase().endsWith(".yml")) {
-                yamlCount++;
-            } else if (filePath.toLowerCase().endsWith(".tgz")) {
-                tgzCount++;
-            } else {
-                LOGGER.error("Do not support this type of file({}) to create helmCharts package.", filePath);
-                return false;
-            }
+        long yamlCount = Arrays.stream(filePaths).filter(item -> item.toLowerCase().endsWith(".yaml") || item.toLowerCase().endsWith(".yml")).count();
+        long tgzCount = Arrays.stream(filePaths).filter(item -> item.toLowerCase().endsWith(".tgz")).count();
+        if (yamlCount + tgzCount < filePaths.length) {
+            LOGGER.error("Only YAML and TGZ file types are supported. Please check the input file types.");
+            return false;
         }
         if (yamlCount != 0 && tgzCount != 0) {
             LOGGER.error("Do not support input tgz and yaml at once.");
@@ -377,7 +372,7 @@ public class ContainerAppHelmChartServiceImpl implements ContainerAppHelmChartSe
             assert containerFileHandler != null;
             containerFileHandler.load(helmChartFile.getCanonicalPath());
             ret = containerFileHandler.modifyFileByPath(contentDto.getInnerFilePath(), contentDto.getContent());
-            String fileNewPath = containerFileHandler.exportHelmCharts();
+            String fileNewPath = containerFileHandler.exportHelmChartsPackage();
             com.google.common.io.Files.move(new File(fileNewPath), new File(helmChartFile.getCanonicalPath()));
         } catch (IOException e) {
             LOGGER.error("write file under {} path occur {}", contentDto.getInnerFilePath(), e.getMessage());
