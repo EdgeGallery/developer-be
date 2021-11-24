@@ -17,9 +17,13 @@ package org.edgegallery.developer.util.helmcharts;
 import io.kubernetes.client.util.Yaml;
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import lombok.Setter;
 import org.apache.commons.io.FileUtils;
 import org.edgegallery.developer.exception.DeveloperException;
@@ -31,6 +35,9 @@ public class LoadK8sYamlHandlerImpl extends AbstractContainerFileHandler {
 
     @Setter
     private boolean hasMep = true;
+
+    @Setter
+    private Map<String, Object> values;
 
     @Override
     public void load(String... filePaths) throws IOException {
@@ -72,6 +79,17 @@ public class LoadK8sYamlHandlerImpl extends AbstractContainerFileHandler {
             FileUtils.deleteDirectory(new File(workspace));
             workspace = null;
             throw new DeveloperException("Failed to read k8s config. msg:" + e.getMessage());
+        }
+    }
+
+    private void setValues(String valuesFilePath) throws IOException {
+        values = new HashMap<>();
+        org.yaml.snakeyaml.Yaml yaml = new org.yaml.snakeyaml.Yaml();
+        HashMap<String, Object> valuesMap = yaml.load(FileUtils.readFileToString(new File(valuesFilePath), "utf-8"));
+        Map<String, Object> values = new HashMap<>();
+        for (Map.Entry<String, Object> entry : valuesMap.entrySet()) {
+            Object val = entry.getValue();
+            // if (val instanceof Map)
         }
     }
 

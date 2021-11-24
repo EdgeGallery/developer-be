@@ -39,6 +39,11 @@ public interface IContainerFileHandler {
     // innerPath is the path of file in the tgz.
     void addFile(String innerPath, String content);
 
+    // parse the k8s file by kubernetes-client. If the file contains value-params, maybe need
+    List getKubernetesConfigs(String innerFilePath);
+
+    List<Object> getK8sTemplateObject(String innerPath);
+
     // clean the temp dir and data.
     void clean();
 }
