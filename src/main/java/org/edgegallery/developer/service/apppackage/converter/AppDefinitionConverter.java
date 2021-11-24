@@ -18,9 +18,6 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationConfig;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.google.gson.Gson;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -31,6 +28,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import org.apache.commons.io.FileUtils;
+import org.edgegallery.developer.model.application.container.ContainerApplication;
 import org.edgegallery.developer.model.application.vm.VMApplication;
 import org.edgegallery.developer.model.application.vm.VirtualMachine;
 import org.edgegallery.developer.model.apppackage.appd.AppDefinition;
@@ -126,6 +124,15 @@ public class AppDefinitionConverter {
         appDefinition.getTopologyTemplate()
             .updateNodeTemplates(application, queryFlavors(application), queryImages(application));
         appDefinition.getTopologyTemplate().updateGroupsAndPolicies();
+        return appDefinition;
+    }
+
+    public AppDefinition convertApplication2Appd(String appdFilePath, ContainerApplication application) {
+        AppDefinition appDefinition = new AppDefinition();
+        //update metadata
+        appDefinition.getMetadata().setVnfdId(application.getName());
+        appDefinition.getMetadata().setVnfdName(application.getName());
+        //TODO
         return appDefinition;
     }
 

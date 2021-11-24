@@ -20,6 +20,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -27,6 +29,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.edgegallery.developer.common.Consts;
@@ -50,7 +53,7 @@ import org.edgegallery.developer.model.profile.ProfileInfo;
 import org.edgegallery.developer.model.uploadfile.UploadFile;
 import org.edgegallery.developer.service.application.AppScriptService;
 import org.edgegallery.developer.service.application.ApplicationService;
-import org.edgegallery.developer.service.application.container.ContainerAppHelmChartService;
+import org.edgegallery.developer.service.application.impl.container.ContainerAppHelmChartServiceImpl;
 import org.edgegallery.developer.service.uploadfile.UploadFileService;
 import org.edgegallery.developer.util.BusinessConfigUtil;
 import org.edgegallery.developer.util.CompressFileUtils;
@@ -95,7 +98,7 @@ public class ProfileServiceImpl implements ProfileService {
     private UploadFileService uploadFileService;
 
     @Autowired
-    private ContainerAppHelmChartService containerAppHelmChartService;
+    private ContainerAppHelmChartServiceImpl containerAppHelmChartService;
 
     @Autowired
     private AppScriptService appScriptService;
@@ -282,10 +285,15 @@ public class ProfileServiceImpl implements ProfileService {
      */
     private void createHelmChartAndScript(ProfileInfo profileInfo, String applicationId) {
         try {
-            profileInfo.getSeq().stream().forEach(appName -> {
+            String[] filePathList = new String[(int) profileInfo.getDeployFilePath().values().stream().count()];
+            AtomicInteger index = new AtomicInteger(0);
+            profileInfo.getDeployFilePath().keySet().stream().forEach(appName -> {
                 File deployFile = new File(profileInfo.getDeployFilePath().get(appName));
-                containerAppHelmChartService.uploadHelmChartYaml(filePatternTransfer(deployFile), applicationId);
+                filePathList[index.get()] = saveLoadedFileToTempDir(filePatternTransfer(deployFile));
+                index.getAndIncrement();
             });
+            containerAppHelmChartService.uploadHelmChartFile(applicationId, filePathList);
+
             File scriptFile = new File(profileInfo.getConfigFilePath());
             appScriptService.uploadScriptFile(applicationId, filePatternTransfer(scriptFile));
         } catch (Exception e) {
@@ -293,6 +301,25 @@ public class ProfileServiceImpl implements ProfileService {
             applicationService.deleteApplication(applicationId, AccessUserUtil.getUser());
             throw new IllegalRequestException("create helm chart or script failed.",
                 ResponseConsts.RET_REQUEST_PARAM_ERROR);
+        }
+    }
+
+    /**
+     * save loaded file to temp dir.
+     *
+     * @param helmTemplateYaml helmTemplateYaml
+     * @return file path
+     */
+    private String saveLoadedFileToTempDir(MultipartFile helmTemplateYaml) {
+        try {
+            Path tempDir = Files.createTempDirectory("eg-dev-");
+            String path = tempDir.toString();
+            File loadFile = new File(path + File.separator + helmTemplateYaml.getOriginalFilename());
+            helmTemplateYaml.transferTo(loadFile);
+            return loadFile.getCanonicalPath();
+        } catch (IOException e) {
+            LOGGER.error("save loaded file to temp dir failed. {}", e);
+            throw new FileOperateException("save loaded file to temp dir failed.", ResponseConsts.RET_CREATE_FILE_FAIL);
         }
     }
 
@@ -389,6 +416,7 @@ public class ProfileServiceImpl implements ProfileService {
                 checkAppNameUniformity(key, profileInfo.getSeq());
                 Map<String, String> appInfo = appInfoList.get(key);
                 String deploymentFile = appInfo.get("deploymentFile");
+                checkDeployFileType(deploymentFile);
                 deployFilePath.put(key, baseFilePath.concat(File.separator).concat(deploymentFile));
                 appList.add(key);
             });
@@ -400,6 +428,18 @@ public class ProfileServiceImpl implements ProfileService {
         } catch (IOException e) {
             LOGGER.error("read file to string failed. {}", e);
             throw new FileOperateException("read file to string failed", ResponseConsts.RET_MERGE_FILE_FAIL);
+        }
+    }
+
+    /**
+     * deploy file type validation.
+     *
+     * @param fileName file name
+     */
+    private void checkDeployFileType(String fileName) {
+        if (!fileName.endsWith(".yaml")) {
+            LOGGER.error("deploy file type error, must be yaml.");
+            throw new IllegalRequestException("deploy file must be yaml file.", ResponseConsts.RET_REQUEST_PARAM_ERROR);
         }
     }
 
