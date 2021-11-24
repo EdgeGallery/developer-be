@@ -16,6 +16,7 @@ package org.edgegallery.developer.util.helmcharts;
 
 import java.io.IOException;
 import java.util.List;
+import org.edgegallery.developer.model.application.container.HelmChart;
 
 public interface IContainerFileHandler {
 
@@ -42,8 +43,10 @@ public interface IContainerFileHandler {
     // parse the k8s file by kubernetes-client. If the file contains value-params, maybe need
     List getKubernetesConfigs(String innerFilePath);
 
-    List<Object> getK8sTemplateObject(String innerPath);
+    List<Object> getK8sTemplateObject(HelmChartFile innerFile);
 
     // clean the temp dir and data.
     void clean();
+
+    List<HelmChartFile> getTemplatesFile();
 }

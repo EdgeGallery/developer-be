@@ -23,12 +23,10 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.commons.io.FileUtils;
@@ -58,15 +56,25 @@ public abstract class AbstractContainerFileHandler implements IContainerFileHand
         return deepReadDir(new ArrayList<>(), root);
     }
 
+    public Map<String, HelmChartFile> getHelmChartFileMap(List<HelmChartFile> catalog, Map<String, HelmChartFile> map) {
+        for (HelmChartFile file : catalog) {
+            map.put(file.getInnerPath(), file);
+            if (file.getChildren() != null) {
+                getHelmChartFileMap(file.getChildren(), map);
+            }
+        }
+        return map;
+    }
+
     private List<HelmChartFile> deepReadDir(List<HelmChartFile> files, File root) {
         if (root.isFile()) {
-            HelmChartFile file = HelmChartFile.builder().name(root.getName())
+            HelmChartFile file = HelmChartFile.builder().name(root.getName()).isFile(true)
                 .innerPath(root.getPath().replace(helmChartsDir, "")).index(files.size() + 1).build();
             files.add(file);
         }
 
         if (root.isDirectory()) {
-            HelmChartFile file = HelmChartFile.builder().name(root.getName())
+            HelmChartFile file = HelmChartFile.builder().name(root.getName()).isFile(false)
                 .innerPath(root.getPath().replace(helmChartsDir, "")).index(files.size() + 1).build();
             List<HelmChartFile> children = new ArrayList<>();
             file.setChildren(children);
@@ -78,9 +86,19 @@ public abstract class AbstractContainerFileHandler implements IContainerFileHand
         return files;
     }
 
-    public Map<String, Object> getValues() {
-
-        return null;
+    public List<HelmChartFile> getTemplatesFile() {
+        List<HelmChartFile> files = this.getCatalog();
+        if (files.isEmpty()) {
+            return null;
+        }
+        List<HelmChartFile> result = new ArrayList<>();
+        for (Map.Entry<String, HelmChartFile> entry : this.getHelmChartFileMap(files, new HashMap<>()).entrySet()) {
+            if (entry.getKey().startsWith(File.separator + "templates") && entry.getValue().isFile() && StringUtils
+                .endsWithAny(entry.getValue().getName().toLowerCase(), ".yaml", ".yml")) {
+                result.add(entry.getValue());
+            }
+        }
+        return result;
     }
 
     public List getKubernetesConfigs(String innerFilePath) {
@@ -159,11 +177,11 @@ public abstract class AbstractContainerFileHandler implements IContainerFileHand
         }
     }
 
-    public List<Object> getK8sTemplateObject(String innerPath) {
+    public List<Object> getK8sTemplateObject(HelmChartFile innerFile) {
         if (valuesMap == null) {
             this.valuesMap = getValuesMapFromYaml();
         }
-        String content = this.getContentByInnerPath(innerPath);
+        String content = this.getContentByInnerPath(innerFile.getInnerPath());
 
         // replace values
         content = replaceValuesInTemplateFile(content, this.valuesMap);
@@ -184,99 +202,71 @@ public abstract class AbstractContainerFileHandler implements IContainerFileHand
         return null;
     }
 
-    private String replaceValuesInTemplateFile(String templateContent, Map<String, Object> values) {
-        Pattern pattern = Pattern.compile("\\{\\{[\\s]*([\\S]+)[\\s]*}}");
+    private String replaceValuesInTemplateFile(String templateContent, Map<String, Object> valuesMap) {
+        Pattern pattern = Pattern.compile("\\{\\{[\\s]*([\\w\\.\\s\\[\\]|]+)[\\s]*}}");
         Matcher matcher = pattern.matcher(templateContent);
         String result = templateContent;
-        Set<String> hasReplaced = new HashSet<>();
         while (matcher.find()) {
             String find = matcher.group(0);
             String key = matcher.group(1);
-            if (hasReplaced.contains(key)) {
-                continue;
-            }
-            hasReplaced.add(key);
-            Object value = values.get(key);
+            Object value = valuesMap.getOrDefault(key, String.format("unknown(%s)", find).replaceAll(" ", "-"));
             result = StringUtils.replace(result, find, value + "");
         }
         return result;
-    }
-
-    private String replaceAll(String content, String target) {
-
-        return content;
-    }
-
-    public static void main(String[] args) throws IOException {
-        String content = FileUtils
-            .readFileToString(new File("D:\\test\\namespacetest\\templates\\eg_template\\namespace-config.yaml"),
-                "utf-8");
-        Pattern pattern = Pattern.compile("\\{\\{[\\s]*([\\S]+)[\\s]*}}");
-        Matcher matcher = pattern.matcher(content);
-        while (matcher.find()) {
-            int count = matcher.groupCount();
-            // System.out.println(count);
-            // for (int i = 0; i < count + 1; i++) {
-            //     System.out.println(matcher.group(i));
-            // }
-            String find = matcher.group(0);
-            String key = matcher.group(1);
-            Object value = "test value";
-            content = StringUtils.replace(content, find, value + "");
-            System.out.println(content);
-            System.out.println("------------------------------------");
-        }
     }
 
     private Map<String, Object> getValuesMapFromYaml() {
         String valueContent = getContentByInnerPath("/Values.yaml");
         assert valueContent != null;
         org.yaml.snakeyaml.Yaml yaml = new org.yaml.snakeyaml.Yaml();
-        HashMap<String, Object> valuesMap = yaml.load(valueContent);
-        Map<String, Object> values = new LinkedHashMap<>();
+        HashMap<String, Object> valuesYamlMap = yaml.load(valueContent);
         List<String> route = new ArrayList<>();
-        route.add("Values");
-        readMap(valuesMap, values, route);
-        // Gson gson = new GsonBuilder().setPrettyPrinting().create();
-        // System.out.println(gson.toJson(values));
-        return values;
+        route.add(".Values");
+        return readMap(valuesYamlMap, new LinkedHashMap<>(), route);
     }
 
-    private void readMap(Map<String, Object> map, Map<String, Object> values, List<String> route) {
-        for (Map.Entry<String, Object> entry : map.entrySet()) {
+    private Map<String, Object> readMap(Map<String, Object> valuesYamlMap, Map<String, Object> valuesResultMap,
+        List<String> route) {
+        for (Map.Entry<String, Object> entry : valuesYamlMap.entrySet()) {
             Object val = entry.getValue();
             if (val instanceof ArrayList) {
                 List list = (ArrayList) val;
                 int i = 0;
                 for (Object subList : list) {
                     route.add(entry.getKey() + "[" + i + "]");
-                    readObject(subList, values, route);
+                    readObject(subList, valuesResultMap, route);
                     route.remove(route.size() - 1);
                     i++;
                 }
             } else if (val instanceof Map) {
                 route.add(entry.getKey());
-                readMap((Map<String, Object>) entry.getValue(), values, route);
+                readMap((Map<String, Object>) entry.getValue(), valuesResultMap, route);
                 route.remove(route.size() - 1);
             } else {
                 route.add(entry.getKey());
-                values.put(StringUtils.join(route, "."), entry.getValue());
+                valuesResultMap.put(StringUtils.join(route, "."), entry.getValue());
                 route.remove(route.size() - 1);
             }
         }
+        return valuesResultMap;
     }
 
-    private void readObject(Object obj, Map<String, Object> values, List<String> route) {
-        Object val = obj;
-        if (val instanceof String || val instanceof Boolean || val instanceof Number) {
-            values.put(StringUtils.join(route, "."), val);
-            System.out.println("string--------" + val);
-        } else if (val instanceof ArrayList) {
-            System.out.println("array---------" + val);
-        } else if (val instanceof Map) {
-            readMap((Map<String, Object>) val, values, route);
-        } else {
-            System.out.println("not know------" + val);
+    private void readObject(Object obj, Map<String, Object> valuesResultMap, List<String> route) {
+        if (obj instanceof String || obj instanceof Boolean || obj instanceof Number) {
+            valuesResultMap.put(StringUtils.join(route, "."), obj);
+        } else if (obj instanceof ArrayList) {
+            System.out.println("array---------" + obj);
+            List list = (ArrayList) obj;
+            int i = 0;
+            for (Object subList : list) {
+                String lastKey = route.get(route.size() - 1);
+                route.set(route.size() - 1, lastKey + "[" + i + "]");
+                readObject(subList, valuesResultMap, route);
+                route.set(route.size() - 1, lastKey);
+                i++;
+            }
+        } else if (obj instanceof Map) {
+            readMap((Map<String, Object>) obj, valuesResultMap, route);
         }
     }
 }

@@ -15,9 +15,11 @@
 package org.edgegallery.developer.test.util.helmcharts;
 
 import io.kubernetes.client.common.KubernetesObject;
+import io.kubernetes.client.openapi.models.V1Pod;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.Objects;
 import org.apache.ibatis.io.Resources;
 import org.edgegallery.developer.util.helmcharts.HelmChartFile;
 import org.edgegallery.developer.util.helmcharts.IContainerFileHandler;
@@ -45,14 +47,19 @@ public class ParseK8sConfigFromHelmChartsPackageTest {
     public void should_successfully_when_read_k8s_config_from_helmcharts() throws IOException {
         File demo = Resources.getResourceAsFile("testdata/helmcharts/face2.tgz");
         handler.load(demo.getCanonicalPath());
-        List<HelmChartFile> files = handler.getCatalog();
-        List<Object> k8s = handler.getK8sTemplateObject("/templates/face_recognition_with_mepagent4_1.yaml");
-        for (Object obj : k8s) {
-            Assert.assertTrue(obj instanceof KubernetesObject);
-            KubernetesObject k8sObj = (KubernetesObject) obj;
-            k8sObj.getMetadata().getName();
-            System.out.println(obj.getClass() + ":" + k8sObj.getKind());
+        List<HelmChartFile> k8sTemplates = handler.getTemplatesFile();
+
+        for (HelmChartFile k8sTemplate : k8sTemplates) {
+            List<Object> k8s = handler.getK8sTemplateObject(k8sTemplate);
+            for (Object obj : k8s) {
+                Assert.assertTrue(obj instanceof KubernetesObject);
+                if (obj instanceof V1Pod) {
+                    V1Pod pod = (V1Pod) obj;
+                    Objects.requireNonNull(pod.getSpec()).getContainers().get(0).getImage();
+                }
+                KubernetesObject k8sObj = (KubernetesObject) obj;
+                Assert.assertNotNull(k8sObj.getKind());
+            }
         }
-        Assert.assertEquals(4, k8s.size());
     }
 }
