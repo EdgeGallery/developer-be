@@ -15,15 +15,18 @@
 package org.edgegallery.developer.test.util.helmcharts;
 
 import io.kubernetes.client.common.KubernetesObject;
+import io.kubernetes.client.openapi.models.V1Deployment;
 import io.kubernetes.client.openapi.models.V1Pod;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 import org.apache.ibatis.io.Resources;
+import org.edgegallery.developer.util.helmcharts.k8sObject.EnumKubernetesObject;
 import org.edgegallery.developer.util.helmcharts.HelmChartFile;
 import org.edgegallery.developer.util.helmcharts.IContainerFileHandler;
 import org.edgegallery.developer.util.helmcharts.LoadContainerFileFactory;
+import org.edgegallery.developer.util.helmcharts.k8sObject.IContainerImage;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -48,7 +51,6 @@ public class ParseK8sConfigFromHelmChartsPackageTest {
         File demo = Resources.getResourceAsFile("testdata/helmcharts/face2.tgz");
         handler.load(demo.getCanonicalPath());
         List<HelmChartFile> k8sTemplates = handler.getTemplatesFile();
-
         for (HelmChartFile k8sTemplate : k8sTemplates) {
             List<Object> k8s = handler.getK8sTemplateObject(k8sTemplate);
             for (Object obj : k8s) {
@@ -59,6 +61,47 @@ public class ParseK8sConfigFromHelmChartsPackageTest {
                 }
                 KubernetesObject k8sObj = (KubernetesObject) obj;
                 Assert.assertNotNull(k8sObj.getKind());
+            }
+        }
+    }
+
+    @Test
+    public void should_successfully_when_get_images_from_pod() throws IOException {
+        File demo = Resources.getResourceAsFile("testdata/helmcharts/face2.tgz");
+        handler.load(demo.getCanonicalPath());
+        List<HelmChartFile> k8sTemplates = handler.getTemplatesFile();
+        for (HelmChartFile k8sTemplate : k8sTemplates) {
+            List<Object> k8s = handler.getK8sTemplateObject(k8sTemplate);
+            for (Object obj : k8s) {
+                Assert.assertTrue(obj instanceof KubernetesObject);
+                IContainerImage containerImage = EnumKubernetesObject.of(obj);
+                List<String> images = containerImage.getImages();
+                if (obj instanceof V1Pod) {
+                    Assert.assertNotNull(images);
+                    Assert.assertEquals(4, images.size());
+                    Assert.assertEquals("192.168.102.132/appstore/face_recognition_app:v1.4", images.get(0));
+                }
+            }
+        }
+    }
+
+    @Test
+    public void should_successfully_when_get_images_from_deployment() throws IOException {
+        handler = LoadContainerFileFactory.createLoader("xxx.yaml");
+        File demo = Resources.getResourceAsFile("testdata/helmcharts/deployment.yaml");
+        handler.load(demo.getCanonicalPath());
+        List<HelmChartFile> k8sTemplates = handler.getTemplatesFile();
+        for (HelmChartFile k8sTemplate : k8sTemplates) {
+            List<Object> k8s = handler.getK8sTemplateObject(k8sTemplate);
+            for (Object obj : k8s) {
+                Assert.assertTrue(obj instanceof KubernetesObject);
+                IContainerImage containerImage = EnumKubernetesObject.of(obj);
+                List<String> images = containerImage.getImages();
+                if (obj instanceof V1Deployment) {
+                    Assert.assertNotNull(images);
+                    Assert.assertEquals(1, images.size());
+                    Assert.assertEquals("nginx:1.14.2", images.get(0));
+                }
             }
         }
     }
