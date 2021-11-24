@@ -18,6 +18,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.edgegallery.developer.mapper.application.container.ContainerAppInstantiateInfoMapper">
   <resultMap id="ContainerAppInstantiateInfoMap" type="org.edgegallery.developer.model.instantiate.container.ContainerAppInstantiateInfo">
+    <result property="operationId" column="operation_id"/>
     <result property="appPackageId" column="app_package_id"/>
     <result property="distributedMecHost" column="distributed_mec_host"/>
     <result property="appInstanceId" column="app_instance_id"/>
@@ -65,7 +66,7 @@
 <!--  </resultMap>-->
 
   <sql id="ContainerAppInstantiateInfoAllColumn">
-    app_id, app_package_id, distributed_mec_host, app_instance_id, status, log, instantiate_time
+    app_id, operation_id, app_package_id, distributed_mec_host, app_instance_id, status, log, instantiate_time
   </sql>
 
   <sql id="K8sPodAllColumn">
@@ -85,9 +86,9 @@
   </sql>
 
   <insert id="createContainerAppInstantiateInfo">
-    insert into tbl_container_app_instantiate_info (app_id, app_package_id, distributed_mec_host, app_instance_id, status, log, instantiate_time)
+    insert into tbl_container_app_instantiate_info (app_id, operation_id, app_package_id, distributed_mec_host, app_instance_id, status, log, instantiate_time)
     values
-    ( #{applicationId}, #{containerAppInstantiateInfo.appPackageId}, #{containerAppInstantiateInfo.distributedMecHost}, #{containerAppInstantiateInfo.appInstanceId},
+    (#{applicationId}, #{containerAppInstantiateInfo.operationId}, #{containerAppInstantiateInfo.appPackageId}, #{containerAppInstantiateInfo.distributedMecHost}, #{containerAppInstantiateInfo.appInstanceId},
     #{containerAppInstantiateInfo.status}, #{containerAppInstantiateInfo.log}, #{containerAppInstantiateInfo.instantiateTime})
   </insert>
 
@@ -95,6 +96,7 @@
     UPDATE
     tbl_container_app_instantiate_info
     SET
+    operation_id = #{containerAppInstantiateInfo.operationId},
     app_package_id = #{containerAppInstantiateInfo.appPackageId}, distributed_mec_host = #{containerAppInstantiateInfo.distributedMecHost}, app_instance_id = #{containerAppInstantiateInfo.appInstanceId},
     status = #{containerAppInstantiateInfo.status}, log = #{containerAppInstantiateInfo.log},
     instantiate_time = #{containerAppInstantiateInfo.instantiateTime}

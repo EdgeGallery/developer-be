@@ -99,6 +99,9 @@ public class BuildVMPackageAction extends AbstractAction {
 
     private boolean saveBuildVmPackageInfo(String vmId, String id) {
         VMInstantiateInfo instantiateInfo = VmAppOperationService.getInstantiateInfo(vmId);
+        if (instantiateInfo==null) {
+            return false;
+        }
         instantiateInfo.setAppPackageId(id);;
         instantiateInfo.setStatus(EnumVMInstantiateStatus.PACKAGE_GENERATE_SUCCESS);
         return  VmAppOperationService.updateInstantiateInfo(vmId, instantiateInfo);
