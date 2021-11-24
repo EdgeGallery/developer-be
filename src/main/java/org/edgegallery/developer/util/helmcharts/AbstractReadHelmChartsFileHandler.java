@@ -157,20 +157,4 @@ public abstract class AbstractReadHelmChartsFileHandler implements IContainerFil
         }
         return result;
     }
-    //
-    // public List getKubernetesConfigs(String innerFilePath) {
-    //     try {
-    //         List<String> allLines = Files.readAllLines(Paths.get(helmChartsDir, innerFilePath));
-    //         for (int i = 0; i < allLines.size(); i++) {
-    //             String line = allLines.get(i);
-    //             if (line.trim().startsWith("{{")) {
-    //                 allLines.set(i, line.replace("{{", "##"));
-    //             }
-    //         }
-    //         return Yaml.loadAll(StringUtils.join(allLines, "\n"));
-    //     } catch (IOException e) {
-    //         LOGGER.error("Failed to parse k8s config by kubernetes-client.");
-    //     }
-    //     return null;
-    // }
 }
