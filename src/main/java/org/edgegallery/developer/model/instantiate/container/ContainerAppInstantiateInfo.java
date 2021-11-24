@@ -21,6 +21,7 @@ import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import org.edgegallery.developer.model.instantiate.EnumAppInstantiateStatus;
 
 @Getter
 @Setter
@@ -33,9 +34,11 @@ public class ContainerAppInstantiateInfo {
 
     private String distributedMecHost;
 
+    private String mepmPackageId;
+
     private String appInstanceId;
 
-    private EnumContainerAppInstantiateStatus status;
+    private EnumAppInstantiateStatus status;
 
     private String log;
 

@@ -29,6 +29,7 @@ import org.edgegallery.developer.model.deployyaml.PodStatusInfo;
 import org.edgegallery.developer.model.deployyaml.PodStatusInfos;
 import org.edgegallery.developer.model.deployyaml.ServiceInfo;
 import org.edgegallery.developer.model.deployyaml.ServicePort;
+import org.edgegallery.developer.model.instantiate.EnumAppInstantiateStatus;
 import org.edgegallery.developer.model.instantiate.container.Container;
 import org.edgegallery.developer.model.instantiate.container.ContainerAppInstantiateInfo;
 import org.edgegallery.developer.model.instantiate.container.K8sPod;
@@ -40,20 +41,22 @@ import org.edgegallery.developer.service.application.common.EnumInstantiateStatu
 import org.edgegallery.developer.service.application.common.IContextParameter;
 import org.edgegallery.developer.service.application.impl.container.ContainerAppOperationServiceImpl;
 import org.edgegallery.developer.util.HttpClientUtil;
+import org.edgegallery.developer.util.SpringContextUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
 
 public class InstantiateContainerAppAction extends InstantiateAppAction {
 
-    @Autowired
-    private ContainerAppOperationServiceImpl containerAppOperationService;
+    ContainerAppOperationServiceImpl containerAppOperationService = (ContainerAppOperationServiceImpl) SpringContextUtil
+        .getBean(ContainerAppOperationServiceImpl.class);
 
     private static Gson gson = new Gson();
 
-    public boolean saveInstanceIdToInstantiateInfo(String appInstanceId) {
+    public boolean saveInstanceIdToInstantiateInfo(String appInstanceId, EnumAppInstantiateStatus status) {
         String applicationId = (String) getContext().getParameter(IContextParameter.PARAM_APPLICATION_ID);
         ContainerAppInstantiateInfo instantiateInfo = containerAppOperationService.getInstantiateInfo(applicationId);
         instantiateInfo.setAppInstanceId(appInstanceId);
+        instantiateInfo.setStatus(status);
         return containerAppOperationService.updateInstantiateInfo(appInstanceId, instantiateInfo);
     }
 
@@ -82,11 +85,11 @@ public class InstantiateContainerAppAction extends InstantiateAppAction {
             }
             //TODO make ServiceInfo/PodStatusInfo and K8sService/K8sPod same model etc.
             List<ServiceInfo> serviceInfoLst = status.getServices();
-            for(ServiceInfo service: serviceInfoLst){
+            for (ServiceInfo service : serviceInfoLst) {
                 K8sService k8sService = new K8sService();
                 k8sService.setName(service.getServiceName());
                 k8sService.setType(service.getType());
-                for(ServicePort port: service.getPorts()){
+                for (ServicePort port : service.getPorts()) {
                     K8sServicePort k8sServicePort = new K8sServicePort();
                     k8sServicePort.setPort(port.getPort());
                     k8sServicePort.setNodePort(port.getNodePort());

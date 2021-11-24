@@ -40,8 +40,8 @@ import org.edgegallery.developer.model.application.EnumApplicationStatus;
 import org.edgegallery.developer.model.application.vm.VMApplication;
 import org.edgegallery.developer.model.application.vm.VirtualMachine;
 import org.edgegallery.developer.model.apppackage.AppPackage;
+import org.edgegallery.developer.model.instantiate.EnumAppInstantiateStatus;
 import org.edgegallery.developer.model.instantiate.vm.EnumImageExportStatus;
-import org.edgegallery.developer.model.instantiate.vm.EnumVMInstantiateStatus;
 import org.edgegallery.developer.model.instantiate.vm.ImageExportInfo;
 import org.edgegallery.developer.model.instantiate.vm.PortInstantiateInfo;
 import org.edgegallery.developer.model.instantiate.vm.VMInstantiateInfo;
@@ -236,7 +236,7 @@ public class VMAppOperationServiceImpl extends AppOperationServiceImpl implement
 
         VirtualMachine virtualMachine = vmAppVmServiceImpl.getVm(applicationId, vmId);
         if (virtualMachine == null || !virtualMachine.getVmInstantiateInfo().getStatus()
-            .equals(EnumVMInstantiateStatus.SUCCESS)) {
+            .equals(EnumAppInstantiateStatus.SUCCESS)) {
             LOGGER.error("instantiate vm app not success  or vm does not exist , vmId:{}", vmId);
             throw new EntityNotFoundException("instantiate vm app not success  or vm does not exist.",
                 ResponseConsts.RET_QUERY_DATA_EMPTY);

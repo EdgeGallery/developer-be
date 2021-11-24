@@ -15,7 +15,7 @@
  */
 package org.edgegallery.developer.service.application.action.impl.vm;
 
-import org.edgegallery.developer.model.instantiate.vm.EnumVMInstantiateStatus;
+import org.edgegallery.developer.model.instantiate.EnumAppInstantiateStatus;
 import org.edgegallery.developer.model.instantiate.vm.VMInstantiateInfo;
 import org.edgegallery.developer.service.application.action.impl.DistributePackageAction;
 import org.edgegallery.developer.service.application.common.IContextParameter;
@@ -26,7 +26,7 @@ public class DistributeVMPackageAction extends DistributePackageAction {
 
     VMAppOperationServiceImpl VmAppOperationService = (VMAppOperationServiceImpl) SpringContextUtil.getBean(VMAppOperationServiceImpl.class);
 
-    public boolean saveDistributeInstantiateInfo(String mecHostIp, String mepmPkgId, EnumVMInstantiateStatus status){
+    public boolean saveDistributeInstantiateInfo(String mecHostIp, String mepmPkgId, EnumAppInstantiateStatus status){
         String vmId = (String) getContext().getParameter(IContextParameter.PARAM_VM_ID);
         VMInstantiateInfo instantiateInfo = VmAppOperationService.getInstantiateInfo(vmId);
         instantiateInfo.setDistributedMecHost(mecHostIp);
@@ -34,7 +34,5 @@ public class DistributeVMPackageAction extends DistributePackageAction {
         instantiateInfo.setStatus(status);
         return  VmAppOperationService.updateInstantiateInfo(vmId, instantiateInfo);
     }
-
-
 
 }

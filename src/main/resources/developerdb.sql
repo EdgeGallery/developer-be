@@ -610,6 +610,7 @@
     "operation_id" varchar(255) DEFAULT NULL,
     "app_package_id" varchar(255) DEFAULT NULL,
     "distributed_mec_host" varchar(255) DEFAULT NULL,
+    "mepm_package_id" varchar(255) DEFAULT NULL,
     "app_instance_id" varchar(255) DEFAULT NULL,
     "status" varchar(255) DEFAULT NULL,
     "log" text DEFAULT NULL,

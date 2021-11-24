@@ -21,6 +21,7 @@
     <result property="operationId" column="operation_id"/>
     <result property="appPackageId" column="app_package_id"/>
     <result property="distributedMecHost" column="distributed_mec_host"/>
+    <result property="mepmPackageId" column="mepm_package_id"/>
     <result property="appInstanceId" column="app_instance_id"/>
     <result property="status" column="status"/>
     <result property="log" column="log"/>
@@ -66,7 +67,7 @@
 <!--  </resultMap>-->
 
   <sql id="ContainerAppInstantiateInfoAllColumn">
-    app_id, operation_id, app_package_id, distributed_mec_host, app_instance_id, status, log, instantiate_time
+    app_id, operation_id, app_package_id, distributed_mec_host, mepm_package_id, app_instance_id, status, log, instantiate_time
   </sql>
 
   <sql id="K8sPodAllColumn">
@@ -97,7 +98,9 @@
     tbl_container_app_instantiate_info
     SET
     operation_id = #{containerAppInstantiateInfo.operationId},
-    app_package_id = #{containerAppInstantiateInfo.appPackageId}, distributed_mec_host = #{containerAppInstantiateInfo.distributedMecHost}, app_instance_id = #{containerAppInstantiateInfo.appInstanceId},
+    app_package_id = #{containerAppInstantiateInfo.appPackageId}, distributed_mec_host = #{containerAppInstantiateInfo.distributedMecHost},
+    mepm_package_id = #{containerAppInstantiateInfo.mepmPackageId},
+    app_instance_id = #{containerAppInstantiateInfo.appInstanceId},
     status = #{containerAppInstantiateInfo.status}, log = #{containerAppInstantiateInfo.log},
     instantiate_time = #{containerAppInstantiateInfo.instantiateTime}
     WHERE
@@ -106,12 +109,14 @@
 
   <delete id="deleteContainerAppInstantiateInfoByAppId" parameterType="String">
     DELETE FROM tbl_container_app_instantiate_info WHERE app_id = #{applicationId};
+    DELETE FROM tbl_k8s_pod_instantiate_info WHERE app_id = #{applicationId};
+    DELETE FROM tbl_k8s_service_instantiate_info WHERE app_id = #{applicationId};
   </delete>
 
   <select id="getContainerAppInstantiateInfoAppId" parameterType="String" resultMap="ContainerAppInstantiateInfoMap">
     SELECT
     <include refid="ContainerAppInstantiateInfoAllColumn"/>
-    FROM tbl_application where app_id = #{applicationId}
+    FROM tbl_container_app_instantiate_info where app_id = #{applicationId}
   </select>
 
   <insert id="createK8sPod">

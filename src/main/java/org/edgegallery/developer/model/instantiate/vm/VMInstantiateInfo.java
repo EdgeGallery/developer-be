@@ -21,6 +21,7 @@ import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import org.edgegallery.developer.model.instantiate.EnumAppInstantiateStatus;
 
 @Getter
 @Setter
@@ -39,7 +40,7 @@ public class VMInstantiateInfo {
 
     private String vmInstanceId;
 
-    private EnumVMInstantiateStatus status;
+    private EnumAppInstantiateStatus status;
 
     private Date instantiateTime;
 

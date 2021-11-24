@@ -21,8 +21,7 @@ import java.util.Map;
 import java.util.UUID;
 import org.edgegallery.developer.model.LcmLog;
 import org.edgegallery.developer.model.application.Application;
-import org.edgegallery.developer.model.application.EnumApplicationStatus;
-import org.edgegallery.developer.model.instantiate.vm.EnumVMInstantiateStatus;
+import org.edgegallery.developer.model.instantiate.EnumAppInstantiateStatus;
 import org.edgegallery.developer.model.operation.ActionStatus;
 import org.edgegallery.developer.model.operation.EnumOperationObjectType;
 import org.edgegallery.developer.model.resource.mephost.MepHost;
@@ -71,7 +70,7 @@ public abstract class InstantiateAppAction extends AbstractAction {
         String mepHostId = application.getMepHostId();
         if (null == mepHostId || "".equals(mepHostId)) {
             updateActionError(actionStatus, "Sandbox not selected. Failed to instantiate package");
-            saveInstanceIdToInstantiateInfo("", EnumVMInstantiateStatus.VM_INSTANTIATE_FAILED);
+            saveInstanceIdToInstantiateInfo("", EnumAppInstantiateStatus.INSTANTIATE_FAILED);
             return false;
         }
         MepHost mepHost = mepHostService.getHost(mepHostId);
@@ -82,7 +81,7 @@ public abstract class InstantiateAppAction extends AbstractAction {
         if (null == appInstanceId) {
             String msg = "Instantiate application failed. The log from lcm is : " + lcmLog.getLog();
             updateActionError(actionStatus, msg);
-            saveInstanceIdToInstantiateInfo("", EnumVMInstantiateStatus.VM_INSTANTIATE_FAILED);
+            saveInstanceIdToInstantiateInfo("", EnumAppInstantiateStatus.INSTANTIATE_FAILED);
             return false;
         }
         String msg = "Instantiate application request sent to lcm controller success. application InstanceId is: "
@@ -90,22 +89,22 @@ public abstract class InstantiateAppAction extends AbstractAction {
         updateActionProgress(actionStatus, 30, msg);
 
         //Save app instanceId to instantiate info.
-        saveInstanceIdToInstantiateInfo(appInstanceId, EnumVMInstantiateStatus.VM_INSTANTIATE_SUCCESS);
+        saveInstanceIdToInstantiateInfo(appInstanceId, EnumAppInstantiateStatus.INSTANTIATE_SUCCESS);
 
         //Query instantiate status.
         EnumInstantiateStatus status = queryInstantiateStatus(appInstanceId, mepHost);
         if (!EnumInstantiateStatus.INSTANTIATE_STATUS_SUCCESS.equals(status)) {
             msg = "Query instantiate status failed, the result is: " + status;
-            saveInstanceIdToInstantiateInfo(appInstanceId, EnumVMInstantiateStatus.VM_INSTANTIATE_FAILED);
+            saveInstanceIdToInstantiateInfo(appInstanceId, EnumAppInstantiateStatus.INSTANTIATE_FAILED);
             updateActionError(actionStatus, msg);
             return false;
         }
-        saveInstanceIdToInstantiateInfo(appInstanceId, EnumVMInstantiateStatus.SUCCESS);
+        saveInstanceIdToInstantiateInfo(appInstanceId, EnumAppInstantiateStatus.SUCCESS);
         updateActionProgress(actionStatus, 100, "Query instantiate status success.");
         return true;
     }
 
-    public boolean saveInstanceIdToInstantiateInfo(String appInstanceId, EnumVMInstantiateStatus status) {
+    public boolean saveInstanceIdToInstantiateInfo(String appInstanceId, EnumAppInstantiateStatus status) {
         return true;
     }
 
