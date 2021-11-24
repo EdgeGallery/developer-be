@@ -207,8 +207,7 @@ public class PackageFileCreator {
             String appdDir = tempPackagePath + File.separator + "APPD";
             CompressFileUtils.fileToZip(appdDir, getAppFileName(""));
             // compress helm chart
-            //TODO
-            // compressDeploymentFile();
+             compressDeploymentFile();
             boolean encryptedResult = encryptedService.encryptedCMS(tempPackagePath);
             if (!encryptedResult) {
                 LOGGER.error("sign package failed");
