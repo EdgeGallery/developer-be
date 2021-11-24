@@ -30,5 +30,7 @@ public class HelmChartFile {
 
     private String innerPath;
 
+    private boolean isFile;
+
     private List<HelmChartFile> children;
 }

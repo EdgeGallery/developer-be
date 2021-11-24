@@ -29,12 +29,8 @@ import org.edgegallery.developer.util.CompressFileUtilsJava;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class AbstractContainerFileHandler implements IContainerFileHandler {
+public abstract class AbstractContainerFileHandler extends AbstractReadHelmChartsFileHandler {
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractContainerFileHandler.class);
-
-    protected String workspace;
-
-    protected String helmChartsDir;
 
     @Override
     public abstract void load(String... filePaths) throws IOException;
@@ -50,13 +46,13 @@ public abstract class AbstractContainerFileHandler implements IContainerFileHand
 
     private List<HelmChartFile> deepReadDir(List<HelmChartFile> files, File root) {
         if (root.isFile()) {
-            HelmChartFile file = HelmChartFile.builder().name(root.getName())
+            HelmChartFile file = HelmChartFile.builder().name(root.getName()).isFile(true)
                 .innerPath(root.getPath().replace(helmChartsDir, "")).index(files.size() + 1).build();
             files.add(file);
         }
 
         if (root.isDirectory()) {
-            HelmChartFile file = HelmChartFile.builder().name(root.getName())
+            HelmChartFile file = HelmChartFile.builder().name(root.getName()).isFile(false)
                 .innerPath(root.getPath().replace(helmChartsDir, "")).index(files.size() + 1).build();
             List<HelmChartFile> children = new ArrayList<>();
             file.setChildren(children);
@@ -127,4 +123,5 @@ public abstract class AbstractContainerFileHandler implements IContainerFileHand
             helmChartsDir = null;
         }
     }
+
 }
