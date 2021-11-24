@@ -41,8 +41,6 @@ public interface IContainerFileHandler {
     void addFile(String innerPath, String content);
 
     // parse the k8s file by kubernetes-client. If the file contains value-params, maybe need
-    List getKubernetesConfigs(String innerFilePath);
-
     List<Object> getK8sTemplateObject(HelmChartFile innerFile);
 
     // clean the temp dir and data.
