@@ -27,6 +27,7 @@ import org.edgegallery.developer.exception.DataBaseException;
 import org.edgegallery.developer.exception.FileFoundFailException;
 import org.edgegallery.developer.exception.FileOperateException;
 import org.edgegallery.developer.exception.IllegalRequestException;
+import org.edgegallery.developer.mapper.application.AppScriptMapper;
 import org.edgegallery.developer.mapper.apppackage.AppPackageMapper;
 import org.edgegallery.developer.model.application.EnumAppClass;
 import org.edgegallery.developer.model.application.container.ContainerApplication;
@@ -59,6 +60,9 @@ public class AppPackageServiceImpl implements AppPackageService {
 
     @Autowired
     private ApplicationService applicationService;
+
+    @Autowired
+    private AppScriptMapper appScriptMapper;
 
     @Override
     public AppPackage getAppPackage(String packageId) {
@@ -218,6 +222,31 @@ public class AppPackageServiceImpl implements AppPackageService {
     }
 
     @Override
+    public AppPackage generateAppPackage(ContainerApplication application) {
+        AppPackage appPackage = appPackageMapper.getAppPackageByAppId(application.getId());
+        if (null == appPackage) {
+            appPackage = new AppPackage();
+            appPackage.setId(UUID.randomUUID().toString());
+            appPackage.setAppId(application.getId());
+            appPackageMapper.createAppPackage(appPackage);
+        }
+
+        application.setScriptList(appScriptMapper.getScriptsByAppId(application.getId()));
+        ContainerPackageFileCreator containerPackageFileCreator = new ContainerPackageFileCreator(application,
+            appPackage.getId());
+        String fileName = containerPackageFileCreator.generateAppPackageFile();
+
+        if (StringUtils.isEmpty(fileName)) {
+            LOGGER.error("Generation app package error.");
+            deletePackage(appPackage);
+            throw new FileOperateException("Generation app package error.", ResponseConsts.RET_CREATE_FILE_FAIL);
+        }
+        appPackage.setPackageFileName(fileName);
+        appPackageMapper.modifyAppPackage(appPackage);
+        return appPackage;
+    }
+
+    @Override
     public AppPackage zipPackage(String packageId) {
         AppPackage appPackage = getAppPackage(packageId);
         if (null == appPackage) {
@@ -246,11 +275,6 @@ public class AppPackageServiceImpl implements AppPackageService {
             }
         }
         return appPackage;
-    }
-
-    @Override
-    public AppPackage generateAppPackage(ContainerApplication application) {
-        return null;
     }
 
     @Override

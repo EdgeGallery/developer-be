@@ -16,7 +16,12 @@ package org.edgegallery.developer.service.apppackage.csar;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
+import org.apache.commons.io.FileUtils;
+import org.edgegallery.developer.model.application.Script;
 import org.edgegallery.developer.model.application.container.ContainerApplication;
+import org.edgegallery.developer.model.apppackage.appd.AppDefinition;
+import org.edgegallery.developer.service.apppackage.converter.AppDefinitionConverter;
 import org.edgegallery.developer.util.BusinessConfigUtil;
 import org.edgegallery.developer.util.CompressFileUtils;
 import org.edgegallery.developer.util.InitConfigUtil;
@@ -24,6 +29,8 @@ import org.edgegallery.developer.util.InitConfigUtil;
 public class ContainerPackageFileCreator extends PackageFileCreator {
 
     private static final String TEMPLATE_PACKAGE_HELM_CHART_PATH = "/Artifacts/Deployment/Charts/";
+
+    private static final String TEMPLATE_PACKAGE_SCRIPTS = "/Artifacts/Deployment/Scripts/";
 
     private static final String TEMPLATE_APPD = "APPD/";
 
@@ -41,13 +48,34 @@ public class ContainerPackageFileCreator extends PackageFileCreator {
         super(application, packageId);
         this.application = application;
         this.packageId = packageId;
-
     }
 
-    private File generateAPPDYaml() {
+    public String generateAppPackageFile() {
+        String packagePath = getPackagePath();
+        if (!copyPackageTemplateFile()) {
+            LOGGER.error("copy package template file fail, package dir:{}", packagePath);
+            return null;
+        }
+        configMfFile();
+        configMetaFile();
+        configVnfdMeta();
+        generateAPPDYaml();
+        generateImageDesFile();
+        configMdAndIcon();
+        generateScript();
+        String compressPath = PackageFileCompress();
+        if (null == compressPath) {
+            LOGGER.error("package compress fail");
+            return null;
+        }
+        return compressPath;
+    }
 
-        return new File(getPackageBasePath());
-
+    private boolean generateAPPDYaml() {
+        String appdFilePath = getAppdFilePath();
+        AppDefinitionConverter converter = new AppDefinitionConverter();
+        AppDefinition appDefinition = converter.convertApplication2Appd(appdFilePath, this.application);
+        return converter.saveAppdYaml(appdFilePath, appDefinition);
     }
 
     private File generateHelmChart() {
@@ -69,6 +97,23 @@ public class ContainerPackageFileCreator extends PackageFileCreator {
             + File.separator;
     }
 
+    private boolean generateScript() {
+        String scriptsDirPath = getPackagePath() + TEMPLATE_PACKAGE_SCRIPTS;
+        List<Script> scriptList = application.getScriptList();
+        for (Script script : scriptList) {
+            String scripPath = InitConfigUtil.getWorkSpaceBaseDir() + BusinessConfigUtil.getUploadfilesPath() + script
+                .getScriptFileId();
+            String artifactScriptPath = scriptsDirPath + script.getName();
+            try {
+                FileUtils.copyFile(new File(scripPath), new File(artifactScriptPath));
+            } catch (IOException e) {
+                LOGGER.error("generate script failed. {}", e);
+                return false;
+            }
+        }
+        return true;
+    }
+
     public boolean compressDeploymentFile() {
         String tempPackagePath = getPackagePath() + TEMPLATE_PATH;
         try {
@@ -79,8 +124,8 @@ public class ContainerPackageFileCreator extends PackageFileCreator {
                 return false;
             }
             File tgz = CompressFileUtils
-                .compressToTgzAndDeleteSrc(helmChartPath,
-                    tempPackagePath + TEMPLATE_PACKAGE_HELM_CHART_PATH, getHelmChartName());
+                .compressToTgzAndDeleteSrc(helmChartPath, tempPackagePath + TEMPLATE_PACKAGE_HELM_CHART_PATH,
+                    getHelmChartName());
             if (!tgz.exists()) {
                 LOGGER.error("Create tgz exception, file name is:{}", getHelmChartName());
                 return false;

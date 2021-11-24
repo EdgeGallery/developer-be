@@ -54,6 +54,10 @@ public class PackageFileCreator {
 
     private static final String TEMPLATE_DEFINITION = "Definition/";
 
+    private static final String APPD_BASE_PATH = "/APPD/Definition/";
+
+    private static final String APPD_FILE_TYPE = ".yaml";
+
     EncryptedService encryptedService = (EncryptedService) SpringContextUtil.getBean(EncryptedService.class);
 
     UploadFileService uploadService = (UploadFileService) SpringContextUtil.getBean(UploadFileService.class);
@@ -64,6 +68,10 @@ public class PackageFileCreator {
 
     public String getPackagePath() {
         return ApplicationUtil.getPackageBasePath(application.getId(), packageId);
+    }
+
+    public String getAppdFilePath() {
+        return getPackagePath() + APPD_BASE_PATH + getAppFileName(APPD_FILE_TYPE);
     }
 
     public String getApplicationPath() {
@@ -199,7 +207,8 @@ public class PackageFileCreator {
             String appdDir = tempPackagePath + File.separator + "APPD";
             CompressFileUtils.fileToZip(appdDir, getAppFileName(""));
             // compress helm chart
-            compressDeploymentFile();
+            //TODO
+            // compressDeploymentFile();
             boolean encryptedResult = encryptedService.encryptedCMS(tempPackagePath);
             if (!encryptedResult) {
                 LOGGER.error("sign package failed");
