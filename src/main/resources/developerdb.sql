@@ -178,29 +178,6 @@
     )
     ;
 
-    CREATE TABLE IF NOT EXISTS "tbl_service_host" (
-      "host_id" varchar(50) NOT NULL,
-      "user_id" varchar(50) DEFAULT NULL,
-      "name" varchar(100) DEFAULT NULL,
-      "address" varchar(255) DEFAULT NULL,
-      "architecture" varchar(100) DEFAULT NULL,
-      "status" varchar(20) DEFAULT NULL,
-      "protocol" varchar(20) DEFAULT NULL,
-      "lcm_ip" varchar(20) DEFAULT NULL,
-      "mec_host" varchar(20) DEFAULT NULL,
-      "os" varchar(255) DEFAULT NULL,
-      "port_range_min" int DEFAULT '-1'::integer,
-      "port_range_max" int DEFAULT '-1'::integer,
-      "port" int4 DEFAULT '-1'::integer,
-      "user_name" varchar(50) DEFAULT NULL,
-      "password" varchar(50) DEFAULT NULL,
-      "vnc_port" int4 DEFAULT 22,
-      "parameter" text DEFAULT NULL,
-      "delete" bool DEFAULT NULL,
-      "resource" text DEFAULT NULL
-    )
-    ;
-
     CREATE TABLE IF NOT EXISTS "tbl_mep_host" (
       "host_id" varchar(50) NOT NULL,
       "name" varchar(100) DEFAULT NULL,
@@ -632,7 +609,7 @@
     "cpu_usage" varchar(255) DEFAULT NULL,
     "mem_usage" varchar(255) DEFAULT NULL,
     "disk_usage" varchar(255) DEFAULT NULL,
-    CONSTRAINT  "tbl_container_instantiate_info_unique_id_name" UNIQUE ("pod_name","name")
+    CONSTRAINT  "tbl_container_instantiate_info_unique_id_name" UNIQUE ("pod_name")
     );
 
     CREATE TABLE IF NOT EXISTS "tbl_k8s_service_instantiate_info" (

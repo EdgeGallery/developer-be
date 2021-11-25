@@ -65,7 +65,6 @@
 
   <delete id="deleteVMInstantiateInfo" parameterType="String">
     DELETE FROM tbl_vm_instantiate_info WHERE vm_id = #{vmId};
-    DELETE FROM tbl_vm_port_instantiate_info WHERE vm_id = #{vmId};
   </delete>
 
   <select id="getVMInstantiateInfo" parameterType="String" resultMap="VMInstantiateInfoMap">

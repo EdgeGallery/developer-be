@@ -90,7 +90,7 @@
     insert into tbl_container_app_instantiate_info (app_id, operation_id, app_package_id, distributed_mec_host, app_instance_id, status, log, instantiate_time)
     values
     (#{applicationId}, #{containerAppInstantiateInfo.operationId}, #{containerAppInstantiateInfo.appPackageId}, #{containerAppInstantiateInfo.distributedMecHost}, #{containerAppInstantiateInfo.appInstanceId},
-    #{containerAppInstantiateInfo.status}, #{containerAppInstantiateInfo.log}, #{containerAppInstantiateInfo.instantiateTime})
+    #{containerAppInstantiateInfo.status}, #{containerAppInstantiateInfo.log}, now())
   </insert>
 
   <update id="modifyContainerAppInstantiateInfo">
@@ -98,19 +98,17 @@
     tbl_container_app_instantiate_info
     SET
     operation_id = #{containerAppInstantiateInfo.operationId},
-    app_package_id = #{containerAppInstantiateInfo.appPackageId}, distributed_mec_host = #{containerAppInstantiateInfo.distributedMecHost},
+    app_package_id = #{containerAppInstantiateInfo.appPackageId},
+    distributed_mec_host = #{containerAppInstantiateInfo.distributedMecHost},
     mepm_package_id = #{containerAppInstantiateInfo.mepmPackageId},
     app_instance_id = #{containerAppInstantiateInfo.appInstanceId},
-    status = #{containerAppInstantiateInfo.status}, log = #{containerAppInstantiateInfo.log},
-    instantiate_time = #{containerAppInstantiateInfo.instantiateTime}
+    status = #{containerAppInstantiateInfo.status}, log = #{containerAppInstantiateInfo.log}
     WHERE
     app_id = #{applicationId}
   </update>
 
   <delete id="deleteContainerAppInstantiateInfoByAppId" parameterType="String">
     DELETE FROM tbl_container_app_instantiate_info WHERE app_id = #{applicationId};
-    DELETE FROM tbl_k8s_pod_instantiate_info WHERE app_id = #{applicationId};
-    DELETE FROM tbl_k8s_service_instantiate_info WHERE app_id = #{applicationId};
   </delete>
 
   <select id="getContainerAppInstantiateInfoAppId" parameterType="String" resultMap="ContainerAppInstantiateInfoMap">
@@ -161,7 +159,7 @@
     DELETE FROM tbl_k8s_service_instantiate_info WHERE app_id = #{applicationId};
   </delete>
 
-  <select id="getK8sServiceByAppId" parameterType="String" resultMap="ContainerMap">
+  <select id="getK8sServiceByAppId" parameterType="String" resultMap="K8sServiceMap">
     SELECT
     <include refid="K8sServiceAllColumn"/>
     FROM tbl_k8s_service_instantiate_info where app_id = #{applicationId}
@@ -177,7 +175,7 @@
     DELETE FROM tbl_k8s_service_port_instantiate_info WHERE service_name = #{k8sServiceName};
   </delete>
 
-  <select id="getK8sServicePortsByK8sServiceName" parameterType="String" resultMap="ContainerMap">
+  <select id="getK8sServicePortsByK8sServiceName" parameterType="String" resultMap="K8sServicePortMap">
     SELECT
     <include refid="K8sServicePortAllColumn"/>
     FROM tbl_k8s_service_port_instantiate_info where service_name = #{k8sServiceName}

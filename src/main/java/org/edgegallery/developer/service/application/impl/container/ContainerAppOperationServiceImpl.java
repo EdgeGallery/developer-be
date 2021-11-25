@@ -20,7 +20,6 @@ import java.util.List;
 import java.util.UUID;
 import org.apache.commons.lang3.StringUtils;
 import org.edgegallery.developer.common.ResponseConsts;
-import org.edgegallery.developer.config.security.AccessUserUtil;
 import org.edgegallery.developer.domain.model.user.User;
 import org.edgegallery.developer.exception.DataBaseException;
 import org.edgegallery.developer.exception.EntityNotFoundException;
@@ -103,15 +102,16 @@ public class ContainerAppOperationServiceImpl extends AppOperationServiceImpl im
             throw new EntityNotFoundException("application does not exist.", ResponseConsts.RET_QUERY_DATA_EMPTY);
         }
 
-//        List<HelmChart> helmCharts = helmChartMapper.getHelmChartsByAppId(applicationId);
-//        if (CollectionUtils.isEmpty(helmCharts)) {
-//            LOGGER.error("instantiate container app fail ,helmchart file  not exist,applicationId:{}", applicationId);
-//            throw new EntityNotFoundException("instantiate container app fail,helmchart file id not exist.",
-//                ResponseConsts.RET_QUERY_DATA_EMPTY);
-//        }
-        if (containerAppInstantiateInfoMapper.getContainerAppInstantiateInfoAppId(applicationId)!=null) {
-            LOGGER.error("instantiate container app has been existed,applicationId:{}", applicationId);
-            throw new EntityNotFoundException("instantiate container app has been existed", ResponseConsts.RET_QUERY_DATA_EMPTY);
+        List<HelmChart> helmCharts = helmChartMapper.getHelmChartsByAppId(applicationId);
+        if (CollectionUtils.isEmpty(helmCharts)) {
+            LOGGER.error("instantiate container app fail ,helmchart file  not exist,applicationId:{}", applicationId);
+            throw new EntityNotFoundException("instantiate container app fail,helmchart file id not exist.",
+                ResponseConsts.RET_QUERY_DATA_EMPTY);
+        }
+        if (containerAppInstantiateInfoMapper.getContainerAppInstantiateInfoAppId(applicationId) != null) {
+            LOGGER.error("Container application has already been instantiated.,applicationId:{}", applicationId);
+            throw new EntityNotFoundException("Container application has already been instantiated.",
+                ResponseConsts.RET_QUERY_DATA_EMPTY);
         }
 
         // create OperationStatus
@@ -151,15 +151,15 @@ public class ContainerAppOperationServiceImpl extends AppOperationServiceImpl im
         }
 
         ContainerAppInstantiateInfo containerAppInstantiateInfo = getInstantiateInfo(applicationId);
-        if (containerAppInstantiateInfo!=null) {
+        if (containerAppInstantiateInfo != null) {
             cleanContainerLaunchInfo(application.getMepHostId(), containerAppInstantiateInfo, user);
-            containerAppInstantiateInfoMapper.deleteContainerAppInstantiateInfoByAppId(applicationId);
-
+            deleteInstantiateInfo(applicationId);
         }
         return true;
     }
 
-    private boolean cleanContainerLaunchInfo(String mepHostId, ContainerAppInstantiateInfo containerAppInstantiateInfo, User user) {
+    private boolean cleanContainerLaunchInfo(String mepHostId, ContainerAppInstantiateInfo containerAppInstantiateInfo,
+        User user) {
         MepHost mepHost = mepHostMapper.getHost(mepHostId);
         if (mepHost == null) {
             return true;
@@ -168,7 +168,8 @@ public class ContainerAppOperationServiceImpl extends AppOperationServiceImpl im
             mepHost.getLcmPort());
         if (StringUtils.isNotEmpty(containerAppInstantiateInfo.getMepmPackageId()) || StringUtils
             .isNotEmpty(containerAppInstantiateInfo.getAppInstanceId())) {
-            sentTerminateRequestToLcm(basePath, user.getUserId(), user.getToken(), containerAppInstantiateInfo.getAppInstanceId(),
+            sentTerminateRequestToLcm(basePath, user.getUserId(), user.getToken(),
+                containerAppInstantiateInfo.getAppInstanceId(),
                 containerAppInstantiateInfo.getMepmPackageId(), mepHost.getMecHostIp());
         }
         return true;
@@ -198,7 +199,7 @@ public class ContainerAppOperationServiceImpl extends AppOperationServiceImpl im
     public Boolean updateInstantiateInfo(String applicationId, ContainerAppInstantiateInfo instantiateInfo) {
         int res = containerAppInstantiateInfoMapper.modifyContainerAppInstantiateInfo(applicationId, instantiateInfo);
         if (res < 1) {
-            LOGGER.error("Update vm instantiate info failed");
+            LOGGER.error("Update container instantiate info failed");
             return false;
         }
         //remove and add container pods and service details
@@ -238,6 +239,28 @@ public class ContainerAppOperationServiceImpl extends AppOperationServiceImpl im
         return true;
     }
 
+    @Override
+    public Boolean deleteInstantiateInfo(String applicationId) {
+        ContainerAppInstantiateInfo containerAppInstantiateInfo = getInstantiateInfo(applicationId);
+        if (containerAppInstantiateInfo == null) {
+            return true;
+        }
+        if (!CollectionUtils.isEmpty(containerAppInstantiateInfo.getPods())) {
+            for (K8sPod k8sPod : containerAppInstantiateInfo.getPods()) {
+                containerAppInstantiateInfoMapper.deleteContainerByPodName(k8sPod.getName());
+            }
+        }
+        if (!CollectionUtils.isEmpty(containerAppInstantiateInfo.getServiceList())) {
+            for (K8sService k8sService : containerAppInstantiateInfo.getServiceList()) {
+                containerAppInstantiateInfoMapper.deleteK8sServicePortByK8sServiceName(k8sService.getName());
+            }
+        }
+        containerAppInstantiateInfoMapper.deleteK8sPodByAppId(applicationId);
+        containerAppInstantiateInfoMapper.deleteK8sServiceByAppId(applicationId);
+        containerAppInstantiateInfoMapper.deleteContainerAppInstantiateInfoByAppId(applicationId);
+        return true;
+    }
+
     public static class InstantiateContainerAppProcessor extends Thread {
 
         ContainerLaunchOperation actionCollection;
@@ -265,7 +288,7 @@ public class ContainerAppOperationServiceImpl extends AppOperationServiceImpl im
                     }
                 }
             } catch (Exception e) {
-                LOGGER.error("InstantiateVmAppProcessor Exception.", e);
+                LOGGER.error("InstantiateContainerAppProcessor Exception.", e);
                 operationStatus.setStatus(EnumActionStatus.FAILED);
                 operationStatus.setErrorMsg("Exception happens when export image: " + e.getStackTrace().toString());
                 operationStatusMapper.modifyOperationStatus(operationStatus);

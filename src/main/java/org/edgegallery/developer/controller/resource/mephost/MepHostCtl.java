@@ -29,7 +29,6 @@ import org.edgegallery.developer.domain.shared.Page;
 import org.edgegallery.developer.model.resource.mephost.MepHost;
 import org.edgegallery.developer.model.resource.mephost.MepHostLog;
 import org.edgegallery.developer.model.uploadfile.UploadFile;
-import org.edgegallery.developer.model.workspace.UploadedFile;
 import org.edgegallery.developer.response.ErrorRespDto;
 import org.edgegallery.developer.service.recource.mephost.MepHostService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,6 +52,7 @@ import org.springframework.web.multipart.MultipartFile;
 @RequestMapping("/mec/developer/v2/mephosts")
 @Api(tags = "mepHosts")
 public class MepHostCtl {
+
     private static final String REG_UUID = "[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}";
 
     @Autowired
@@ -187,7 +187,6 @@ public class MepHostCtl {
     public ResponseEntity<UploadFile> uploadFile(
         @ApiParam(value = "file", required = true) @RequestPart("file") MultipartFile uploadFile) {
         String userId = AccessUserUtil.getUser().getUserId();
-        return ResponseEntity.ok(mepHostService.uploadConfigFile(userId,uploadFile));
-
+        return ResponseEntity.ok(mepHostService.uploadConfigFile(userId, uploadFile));
     }
 }

@@ -29,5 +29,7 @@ public interface ContainerAppOperationService {
 
     Boolean updateInstantiateInfo(String applicationId, ContainerAppInstantiateInfo instantiateInfo);
 
+    Boolean deleteInstantiateInfo(String applicationId);
+
     AppPackage generatePackage(ContainerApplication application);
 }
