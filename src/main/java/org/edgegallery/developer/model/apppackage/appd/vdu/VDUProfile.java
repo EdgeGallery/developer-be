@@ -34,4 +34,14 @@ public class VDUProfile {
 
     @JsonProperty("flavor_extra_specs")
     private LinkedHashMap<String, String> flavorExtraSpecs;
+
+    public VDUProfile() {
+
+    }
+
+    public VDUProfile(int minNumberOfInstances, int maxNumberOfInstances, int initialNumberOfInstances) {
+        this.minNumberOfInstances = minNumberOfInstances;
+        this.maxNumberOfInstances = maxNumberOfInstances;
+        this.initialNumberOfInstances = initialNumberOfInstances;
+    }
 }

@@ -110,10 +110,10 @@
     FROM tbl_application where id = #{id}
   </select>
 
-  <select id="getApplicationByNameAndVersion" parameterType="String" resultMap="ApplicationMap">
+  <select id="getApplicationByNameVersionProvider" parameterType="String" resultMap="ApplicationMap">
     SELECT
     <include refid="ApplicationAllColumn"/>
-    FROM tbl_application where name = #{name} and version = #{version}
+    FROM tbl_application where name = #{name} and version = #{version} and provider = #{provider}
   </select>
 
 </mapper>

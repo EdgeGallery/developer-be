@@ -48,6 +48,6 @@ public class AppDefinition {
     @Valid
     @NotBlank
     @JsonProperty("topology_template")
-    private TopologyTemplate topologyTemplate = new TopologyTemplate();
+    private TopologyTemplate topologyTemplate;
 
 }

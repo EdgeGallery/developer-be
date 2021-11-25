@@ -25,13 +25,17 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.apache.commons.io.FileUtils;
+import org.edgegallery.developer.model.application.EnumAppClass;
 import org.edgegallery.developer.model.application.container.ContainerApplication;
 import org.edgegallery.developer.model.application.vm.VMApplication;
 import org.edgegallery.developer.model.application.vm.VirtualMachine;
 import org.edgegallery.developer.model.apppackage.appd.AppDefinition;
+import org.edgegallery.developer.model.apppackage.appd.TopologyTemplate;
+import org.edgegallery.developer.model.deployyaml.ImageDesc;
 import org.edgegallery.developer.model.resource.vm.Flavor;
 import org.edgegallery.developer.model.resource.vm.VMImage;
 import org.edgegallery.developer.service.recource.vm.FlavorService;
@@ -117,6 +121,8 @@ public class AppDefinitionConverter {
     public AppDefinition convertApplication2Appd(String appdFilePath, VMApplication application) {
         //if the yaml file already exists, read from file as default.
         AppDefinition appDefinition = new AppDefinition();
+        TopologyTemplate topologyTemplate = new TopologyTemplate(EnumAppClass.VM);
+        appDefinition.setTopologyTemplate(topologyTemplate);
         //update metadata
         appDefinition.getMetadata().setVnfdId(application.getName());
         appDefinition.getMetadata().setVnfdName(application.getName());
@@ -127,12 +133,17 @@ public class AppDefinitionConverter {
         return appDefinition;
     }
 
-    public AppDefinition convertApplication2Appd(String appdFilePath, ContainerApplication application) {
+    public AppDefinition convertApplication2Appd(String appdFilePath, ContainerApplication application,
+        List<ImageDesc> imageDescList) {
         AppDefinition appDefinition = new AppDefinition();
+        TopologyTemplate topologyTemplate = new TopologyTemplate(EnumAppClass.CONTAINER);
+        appDefinition.setTopologyTemplate(topologyTemplate);
         //update metadata
         appDefinition.getMetadata().setVnfdId(application.getName());
         appDefinition.getMetadata().setVnfdName(application.getName());
-        //TODO
+
+        appDefinition.getTopologyTemplate().updateContainerNodeTemplates(application, imageDescList);
+        appDefinition.getTopologyTemplate().updateGroupsAndPolicies();
         return appDefinition;
     }
 

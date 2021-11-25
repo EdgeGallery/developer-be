@@ -72,6 +72,8 @@ public class ContainerPackageFileCreator extends PackageFileCreator {
 
     private List<HelmChart> chartList;
 
+    private List<ImageDesc> imageDescList = new ArrayList<>();
+
     public ContainerPackageFileCreator(ContainerApplication application, String packageId) {
         super(application, packageId);
         this.application = application;
@@ -98,9 +100,9 @@ public class ContainerPackageFileCreator extends PackageFileCreator {
         configMfFile();
         configMetaFile();
         configVnfdMeta();
-        generateAPPDYaml();
-        generateImageDesFile();
         generateHelmChart();
+        generateImageDesFile();
+        generateAPPDYaml();
         configMdAndIcon();
         generateScript();
         String compressPath = PackageFileCompress();
@@ -114,7 +116,7 @@ public class ContainerPackageFileCreator extends PackageFileCreator {
     private boolean generateAPPDYaml() {
         String appdFilePath = getAppdFilePath();
         AppDefinitionConverter converter = new AppDefinitionConverter();
-        AppDefinition appDefinition = converter.convertApplication2Appd(appdFilePath, this.application);
+        AppDefinition appDefinition = converter.convertApplication2Appd(appdFilePath, this.application, imageDescList);
         return converter.saveAppdYaml(appdFilePath, appDefinition);
     }
 
@@ -149,7 +151,6 @@ public class ContainerPackageFileCreator extends PackageFileCreator {
             return;
         }
         LOGGER.info("imageList:{}", imageList);
-        List<ImageDesc> imageDescList = new ArrayList<>();
         for (String imageInfo : imageList) {
             ImageDesc imageDesc = new ImageDesc();
             imageDesc.setId(UUID.randomUUID().toString());

@@ -14,20 +14,23 @@
 
 package org.edgegallery.developer.model.apppackage.appd.vdu;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
 
 @Setter
 @Getter
-public class SwImageData {
+public class VDUPropertyContainer {
 
-    private String name = "Ubuntu18.04";
+    @JsonProperty("name")
+    private String name = "logic0";
 
-    public SwImageData() {
+    @JsonProperty("description")
+    private String description = "node logic template";
 
-    }
+    @JsonProperty("vdu_profile")
+    private VDUProfile vduProfile = new VDUProfile(1,2,1);
 
-    public SwImageData(String name) {
-        this.name = name;
-    }
+    @JsonProperty("sw_image_data")
+    private SwImageData swImageData = new SwImageData();
 }

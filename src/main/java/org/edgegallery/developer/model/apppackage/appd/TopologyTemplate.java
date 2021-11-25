@@ -28,11 +28,14 @@ import javax.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
+import org.edgegallery.developer.common.ResponseConsts;
+import org.edgegallery.developer.exception.FileOperateException;
 import org.edgegallery.developer.model.application.Application;
 import org.edgegallery.developer.model.application.EnumAppClass;
 import org.edgegallery.developer.model.application.configuration.AppConfiguration;
 import org.edgegallery.developer.model.application.configuration.AppServiceProduced;
 import org.edgegallery.developer.model.application.configuration.AppServiceRequired;
+import org.edgegallery.developer.model.application.container.ContainerApplication;
 import org.edgegallery.developer.model.application.vm.Network;
 import org.edgegallery.developer.model.application.vm.VMApplication;
 import org.edgegallery.developer.model.application.vm.VMPort;
@@ -42,8 +45,10 @@ import org.edgegallery.developer.model.apppackage.appd.appconfiguration.AppServi
 import org.edgegallery.developer.model.apppackage.appd.appconfiguration.ConfigurationProperty;
 import org.edgegallery.developer.model.apppackage.appd.groups.PlacementGroup;
 import org.edgegallery.developer.model.apppackage.appd.policies.AntiAffinityRule;
+import org.edgegallery.developer.model.apppackage.appd.vdu.SwImageData;
 import org.edgegallery.developer.model.apppackage.appd.vdu.VDUCapability;
 import org.edgegallery.developer.model.apppackage.appd.vdu.VDUProperty;
+import org.edgegallery.developer.model.apppackage.appd.vdu.VDUPropertyContainer;
 import org.edgegallery.developer.model.apppackage.appd.vducp.VDUCPAttributes;
 import org.edgegallery.developer.model.apppackage.appd.vducp.VDUCPProperty;
 import org.edgegallery.developer.model.apppackage.appd.vducp.VirtualBindingRequire;
@@ -53,16 +58,24 @@ import org.edgegallery.developer.model.apppackage.appd.vl.VLProperty;
 import org.edgegallery.developer.model.apppackage.constant.AppdConstants;
 import org.edgegallery.developer.model.apppackage.constant.InputConstant;
 import org.edgegallery.developer.model.apppackage.constant.NodeTypeConstant;
+import org.edgegallery.developer.model.deployyaml.ImageDesc;
 import org.edgegallery.developer.model.resource.vm.Flavor;
 import org.edgegallery.developer.model.resource.vm.VMImage;
+import org.slf4j.LoggerFactory;
 import org.springframework.util.CollectionUtils;
 import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.constructor.SafeConstructor;
 
 @Setter
 @Getter
 public class TopologyTemplate {
 
-    private static final String PACKAGE_TEMPLATE_INPUT_PATH = "./configs/template/appd/vm_appd_inputs.yaml";
+    private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(TopologyTemplate.class);
+
+    private static final String VM_PACKAGE_TEMPLATE_INPUT_PATH = "./configs/template/appd/vm_appd_inputs.yaml";
+
+    private static final String CONTAINER_PACKAGE_TEMPLATE_INPUT_PATH
+        = "./configs/template/appd/container_appd_inputs.yaml";
 
     // memory unit is Mib
     private static final int MEMORY_SIZE_UNIT = 1024;
@@ -85,27 +98,46 @@ public class TopologyTemplate {
     @JsonProperty("policies")
     private List<LinkedHashMap<String, AntiAffinityRule>> policies;
 
-    public TopologyTemplate() {
-        initInputs(EnumAppClass.VM);
+    public TopologyTemplate(EnumAppClass type) {
+        if (EnumAppClass.VM == type) {
+            initVmInputs();
+        } else if (EnumAppClass.CONTAINER == type) {
+            initContainerInputs();
+        }
         initVnfNode();
     }
 
-    private void initInputs(EnumAppClass appClass) {
-        if (EnumAppClass.VM.equals(appClass)) {
-            InputStream inputStream = null;
-            try {
-                inputStream = new FileInputStream(new File(PACKAGE_TEMPLATE_INPUT_PATH));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            Yaml yaml = new Yaml();
-            LinkedHashMap<String, LinkedHashMap<String, String>> vmInputs = yaml.load(inputStream);
+    private void initVmInputs() {
+        InputStream inputStream = null;
+        try {
+            inputStream = new FileInputStream(new File(VM_PACKAGE_TEMPLATE_INPUT_PATH));
+        } catch (IOException e) {
+            LOGGER.error("init vm inputs read file failed. {}", e);
+            throw new FileOperateException("init vm inputs read file failed.", ResponseConsts.RET_LOAD_YAML_FAIL);
+        }
+        Yaml yaml = new Yaml(new SafeConstructor());
+        LinkedHashMap<String, LinkedHashMap<String, String>> vmInputs = yaml.load(inputStream);
+        if (null == inputs) {
+            inputs = new LinkedHashMap<String, InputParam>();
+        }
+        for (Map.Entry<String, LinkedHashMap<String, String>> entry : vmInputs.entrySet()) {
+            inputs.put(entry.getKey(), new InputParam(entry.getValue()));
+        }
+    }
+
+    private void initContainerInputs() {
+        try {
+            InputStream inputStream = new FileInputStream(new File(CONTAINER_PACKAGE_TEMPLATE_INPUT_PATH));
+            Yaml yaml = new Yaml(new SafeConstructor());
+            LinkedHashMap<String, LinkedHashMap<String, String>> containerInputs = yaml.load(inputStream);
             if (null == inputs) {
                 inputs = new LinkedHashMap<String, InputParam>();
             }
-            for (Map.Entry<String, LinkedHashMap<String, String>> entry : vmInputs.entrySet()) {
-                inputs.put(entry.getKey(), new InputParam(entry.getValue()));
-            }
+            containerInputs.keySet().stream().forEach(key -> inputs.put(key, new InputParam(containerInputs.get(key))));
+        } catch (IOException e) {
+            LOGGER.error("init container inputs read file failed. {}", e);
+            throw new FileOperateException("init container inputs read file failed.",
+                ResponseConsts.RET_LOAD_YAML_FAIL);
         }
     }
 
@@ -121,9 +153,15 @@ public class TopologyTemplate {
 
     public void updateNodeTemplates(VMApplication application, Map<String, Flavor> id2FlavorMap,
         Map<Integer, VMImage> id2ImageMap) {
-        updateVnfNode(application);
+        updateVnfNode(application.getName(), application.getProvider(), application.getVersion());
         updateVMs(application.getNetworkList(), application.getVmList(), id2FlavorMap, id2ImageMap);
         updateVLs(application.getNetworkList());
+        updateAppConfiguration(application);
+    }
+
+    public void updateContainerNodeTemplates(ContainerApplication application, List<ImageDesc> imageDescList) {
+        updateVnfNode(application.getName(), application.getProvider(), application.getVersion());
+        updateVdu(application, imageDescList);
         updateAppConfiguration(application);
     }
 
@@ -155,13 +193,13 @@ public class TopologyTemplate {
 
     }
 
-    private TopologyTemplate updateVnfNode(VMApplication application) {
+    private TopologyTemplate updateVnfNode(String name, String provider, String version) {
         NodeTemplate vnfNode = this.nodeTemplates.get(AppdConstants.VNF_NODE_NAME);
         VNFNodeProperty vnfNodeProperty = (VNFNodeProperty) vnfNode.getProperties();
-        vnfNodeProperty.setVnfdId(application.getName());
-        vnfNodeProperty.setProvider(application.getProvider());
-        vnfNodeProperty.setProductName(application.getName());
-        vnfNodeProperty.setSoftwareVersion(application.getVersion());
+        vnfNodeProperty.setVnfdId(name);
+        vnfNodeProperty.setProvider(provider);
+        vnfNodeProperty.setProductName(name);
+        vnfNodeProperty.setSoftwareVersion(version);
         return this;
     }
 
@@ -203,6 +241,21 @@ public class TopologyTemplate {
         }
     }
 
+    private void updateVdu(ContainerApplication application, List<ImageDesc> imageDescList) {
+        NodeTemplate vduNode = new NodeTemplate();
+        vduNode.setType(NodeTypeConstant.NODE_TYPE_VDU);
+        VDUCapability capability = new VDUCapability(4 * MEMORY_SIZE_UNIT, 4, application.getArchitecture(), 20);
+        vduNode.setCapabilities(capability);
+
+        StringBuffer imageData = new StringBuffer();
+        imageDescList.stream().forEach(image -> imageData.append(image.getName() + ":" + image.getVersion() + ", "));
+        VDUPropertyContainer propertyContainer = new VDUPropertyContainer();
+        propertyContainer.setSwImageData(new SwImageData(imageData.substring(0, imageData.length() - 2)));
+        vduNode.setProperties(propertyContainer);
+
+        this.nodeTemplates.put("logic0", vduNode);
+    }
+
     private void updateVMs(List<Network> networkLst, List<VirtualMachine> vmLst, Map<String, Flavor> id2FlavorMap,
         Map<Integer, VMImage> id2ImageMap) {
         if (null == this.nodeTemplates) {
@@ -224,8 +277,7 @@ public class TopologyTemplate {
             vduNode.setType(NodeTypeConstant.NODE_TYPE_VDU);
             Flavor flavor = id2FlavorMap.get(vm.getFlavorId());
             VDUCapability capability = new VDUCapability(flavor.getMemory() * MEMORY_SIZE_UNIT, flavor.getCpu(),
-                flavor.getArchitecture(),
-                flavor.getSystemDiskSize());
+                flavor.getArchitecture(), flavor.getSystemDiskSize());
             vduNode.setCapabilities(capability);
             VDUProperty property = new VDUProperty();
             property.setName(vm.getName());
@@ -252,13 +304,13 @@ public class TopologyTemplate {
     private LinkedHashMap<String, String> getVDUNodeUserDataParams(String vduName, List<VMPort> ports,
         List<Network> networkLst) {
         LinkedHashMap<String, String> mapPortParams = new LinkedHashMap<>();
-        mapPortParams.put(InputConstant.USER_DATA_PARAM_CERTIFICATE_INFO,
-            getInputStr(InputConstant.INPUT_NAME_MAP_CERTIFICATE));
+        mapPortParams
+            .put(InputConstant.USER_DATA_PARAM_CERTIFICATE_INFO, getInputStr(InputConstant.INPUT_NAME_MAP_CERTIFICATE));
         mapPortParams.put(InputConstant.INPUT_NAME_UE_IP_SEGMENT.toUpperCase(),
             getInputStr(InputConstant.INPUT_NAME_UE_IP_SEGMENT));
         mapPortParams.put(InputConstant.INPUT_NAME_MEP_IP.toUpperCase(), getInputStr(InputConstant.INPUT_NAME_MEP_IP));
-        mapPortParams.put(InputConstant.INPUT_NAME_MEP_PORT.toUpperCase(),
-            getInputStr(InputConstant.INPUT_NAME_MEP_PORT));
+        mapPortParams
+            .put(InputConstant.INPUT_NAME_MEP_PORT.toUpperCase(), getInputStr(InputConstant.INPUT_NAME_MEP_PORT));
         for (int i = 0; i < ports.size(); i++) {
             //generate port inputs
             VMPort port = ports.get(i);
@@ -302,8 +354,8 @@ public class TopologyTemplate {
             inputIndex = flavorExtraSpecsStr.indexOf(InputConstant.GET_INPUT_PREFIX.trim(), inputIndex + 1);
             if (inputIndex != -1) {
                 int inputNameEndIndex = flavorExtraSpecsStr.indexOf(AppdConstants.CLOSING_BRACE_MARK, inputIndex);
-                String inputName = flavorExtraSpecsStr.substring(
-                    inputIndex + InputConstant.GET_INPUT_PREFIX.trim().length(), inputNameEndIndex).trim();
+                String inputName = flavorExtraSpecsStr
+                    .substring(inputIndex + InputConstant.GET_INPUT_PREFIX.trim().length(), inputNameEndIndex).trim();
                 InputParam inputParam = new InputParam(InputConstant.TYPE_STRING, "", inputName);
                 this.inputs.put(inputName, inputParam);
             } else {
@@ -319,8 +371,8 @@ public class TopologyTemplate {
             String key = lineStr.substring(1, keyIndex);
             int valueIndex = lineStr.indexOf(AppdConstants.COLON_MARK, keyIndex);
             String value = lineStr.substring(valueIndex + 1, lineStr.length()).trim();
-            if (value.startsWith(AppdConstants.QUOTATION_MARK) || value.startsWith(
-                AppdConstants.SINGLE_QUOTATION_MARK)) {
+            if (value.startsWith(AppdConstants.QUOTATION_MARK) || value
+                .startsWith(AppdConstants.SINGLE_QUOTATION_MARK)) {
                 value = value.substring(1, value.length());
             }
             if (value.endsWith(AppdConstants.QUOTATION_MARK) || value.endsWith(AppdConstants.SINGLE_QUOTATION_MARK)) {
@@ -395,8 +447,8 @@ public class TopologyTemplate {
         //if no configuration, skip this node
         AppConfiguration appConfiguration = app.getAppConfiguration();
         if ((null == appConfiguration.getAppServiceProducedList() || appConfiguration.getAppServiceProducedList()
-            .isEmpty()) && (null == appConfiguration.getAppServiceRequiredList()
-            || appConfiguration.getAppServiceRequiredList().isEmpty()) && (null == appConfiguration.getTrafficRuleList()
+            .isEmpty()) && (null == appConfiguration.getAppServiceRequiredList() || appConfiguration
+            .getAppServiceRequiredList().isEmpty()) && (null == appConfiguration.getTrafficRuleList()
             || appConfiguration.getTrafficRuleList().isEmpty()) && (null == appConfiguration.getDnsRuleList()
             || appConfiguration.getDnsRuleList().isEmpty())) {
             return;
@@ -404,7 +456,6 @@ public class TopologyTemplate {
         NodeTemplate appConfigurationNode = new NodeTemplate();
         appConfigurationNode.setType(NodeTypeConstant.NODE_TYPE_APP_CONFIGURATIOIN);
         ConfigurationProperty property = new ConfigurationProperty();
-        property.setAppCertificate(appConfiguration.getAppCertificate());
         if (!CollectionUtils.isEmpty(appConfiguration.getAppServiceRequiredList())) {
             for (AppServiceRequired appServiceRequired : appConfiguration.getAppServiceRequiredList()) {
                 AppServiceRequiredDef def = new AppServiceRequiredDef();
@@ -426,8 +477,8 @@ public class TopologyTemplate {
                 property.getAppServiceProduced().add(def);
             }
         }
-        boolean isNoMp1Call = appConfiguration.getAppServiceProducedList().isEmpty()
-            && appConfiguration.getAppServiceRequiredList().isEmpty();
+        boolean isNoMp1Call = appConfiguration.getAppServiceProducedList().isEmpty() && appConfiguration
+            .getAppServiceRequiredList().isEmpty();
         property.setAppSupportMp1(!isNoMp1Call);
         property.setAppName(app.getName().trim());
         property.setAppTrafficRule(appConfiguration.getTrafficRuleList());
