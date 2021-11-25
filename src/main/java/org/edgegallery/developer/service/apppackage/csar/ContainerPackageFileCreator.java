@@ -82,8 +82,10 @@ public class ContainerPackageFileCreator extends PackageFileCreator {
     private void init() {
         try {
             chartList = helmChartService.getHelmChartList(application.getId());
+            LOGGER.info("chartList:{}", chartList);
         } catch (Exception e) {
             LOGGER.error("get Helm chart list failed! {}", e.getMessage());
+            chartList = new ArrayList<>();
         }
     }
 
@@ -126,7 +128,6 @@ public class ContainerPackageFileCreator extends PackageFileCreator {
             return;
         }
         //Find the helm chart file first!
-        LOGGER.info("chartList:{}", chartList);
         try {
             for (HelmChart chart : chartList) {
                 UploadFile uploadFile = uploadFileService.getFile(chart.getHelmChartFileId());
@@ -222,7 +223,6 @@ public class ContainerPackageFileCreator extends PackageFileCreator {
 
     private List<String> getHelmChartNameList() {
         List<String> chartNameList = new ArrayList<>();
-        LOGGER.info("chartList:{}", chartList);
         for (HelmChart chart : chartList) {
             UploadFile uploadFile = uploadFileService.getFile(chart.getHelmChartFileId());
             String decompressFolderName = uploadFile.getFileName()
@@ -235,7 +235,6 @@ public class ContainerPackageFileCreator extends PackageFileCreator {
     private List<String> getImageInfo() {
         List<String> allImages = new ArrayList<>(0);
         //Find the helm chart file first!
-        LOGGER.info("chartList:{}", chartList);
         try {
             for (HelmChart chart : chartList) {
                 UploadFile uploadFile = uploadFileService.getFile(chart.getHelmChartFileId());
@@ -247,13 +246,10 @@ public class ContainerPackageFileCreator extends PackageFileCreator {
                 for (HelmChartFile k8sTemplate : k8sTemplates) {
                     List<Object> k8sList = containerFileHandler.getK8sTemplateObject(k8sTemplate);
                     for (Object obj : k8sList) {
-                        IContainerImage containerImage = EnumKubernetesObject.of(obj);
-                        if (obj instanceof V1Pod) {
+                        if (obj instanceof V1Pod || obj instanceof V1Deployment) {
+                            IContainerImage containerImage = EnumKubernetesObject.of(obj);
                             List<String> podImages = containerImage.getImages();
                             allImages.addAll(podImages);
-                        } else if (obj instanceof V1Deployment) {
-                            List<String> deploymentImages = containerImage.getImages();
-                            allImages.addAll(deploymentImages);
                         } else {
                             LOGGER.warn("{} does not support image configuration", obj.getClass());
                         }
