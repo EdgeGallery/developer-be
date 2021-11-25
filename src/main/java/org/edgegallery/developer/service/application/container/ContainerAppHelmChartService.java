@@ -27,13 +27,13 @@ public interface ContainerAppHelmChartService {
 
     HelmChart uploadHelmChartFile(String applicationId, String... filePaths);
 
-    Boolean uploadHelmChartYaml(MultipartFile helmTemplateYaml, String applicationId);
-
     List<HelmChart> getHelmChartList(String applicationId);
 
     HelmChart getHelmChartById(String applicationId, String helmChartId);
 
     Boolean deleteHelmChartById(String applicationId, String helmChartId);
+
+    Boolean deleteHelmChartByAppId(String applicationId);
 
     byte[] downloadHelmChart(String applicationId, String helmChartId);
 

@@ -15,16 +15,17 @@
 package org.edgegallery.developer.service.apppackage.csar;
 
 import com.google.gson.Gson;
-import io.kubernetes.client.common.KubernetesObject;
 import io.kubernetes.client.openapi.models.V1Deployment;
 import io.kubernetes.client.openapi.models.V1Pod;
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import org.apache.commons.io.FileUtils;
+import org.edgegallery.developer.common.ResponseConsts;
+import org.edgegallery.developer.exception.FileOperateException;
 import org.edgegallery.developer.model.application.Script;
 import org.edgegallery.developer.model.application.container.ContainerApplication;
 import org.edgegallery.developer.model.application.container.HelmChart;
@@ -43,10 +44,13 @@ import org.edgegallery.developer.util.helmcharts.IContainerFileHandler;
 import org.edgegallery.developer.util.helmcharts.LoadContainerFileFactory;
 import org.edgegallery.developer.util.helmcharts.k8sObject.EnumKubernetesObject;
 import org.edgegallery.developer.util.helmcharts.k8sObject.IContainerImage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
 
 public class ContainerPackageFileCreator extends PackageFileCreator {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ContainerPackageFileCreator.class);
 
     private ContainerAppHelmChartService helmChartService = (ContainerAppHelmChartService) SpringContextUtil
         .getBean(ContainerAppHelmChartService.class);
@@ -60,30 +64,27 @@ public class ContainerPackageFileCreator extends PackageFileCreator {
 
     private static final String APPD_IMAGE_DES_PATH = "/Image/SwImageDesc.json";
 
-    private static final String TEMPLATE_APPD = "APPD/";
-
     private static final String TEMPLATE_PATH = "temp";
 
     private ContainerApplication application;
 
     private String packageId;
 
-    private List<String> getHelmChartNameList() {
-        List<String> chartNameList = new ArrayList<>();
-        List<HelmChart> chartList = helmChartService.getHelmChartList(application.getId());
-        for (HelmChart chart : chartList) {
-            UploadFile uploadFile = uploadFileService.getFile(chart.getHelmChartFileId());
-            String decompressFolderName = uploadFile.getFileName()
-                .substring(0, uploadFile.getFileName().lastIndexOf("."));
-            chartNameList.add(decompressFolderName);
-        }
-        return chartNameList;
-    }
+    private List<HelmChart> chartList;
 
     public ContainerPackageFileCreator(ContainerApplication application, String packageId) {
         super(application, packageId);
         this.application = application;
         this.packageId = packageId;
+        init();
+    }
+
+    private void init() {
+        try {
+            chartList = helmChartService.getHelmChartList(application.getId());
+        } catch (Exception e) {
+            LOGGER.error("get Helm chart list failed! {}", e.getMessage());
+        }
     }
 
     public String generateAppPackageFile() {
@@ -116,32 +117,28 @@ public class ContainerPackageFileCreator extends PackageFileCreator {
     }
 
     private void generateHelmChart() {
-
-        //Find the helm chart file first!
-        List<HelmChart> chartList = helmChartService.getHelmChartList(application.getId());
-        for (HelmChart chart : chartList) {
-            UploadFile uploadFile = uploadFileService.getFile(chart.getHelmChartFileId());
-            File chartFile = new File(InitConfigUtil.getWorkSpaceBaseDir() + uploadFile.getFilePath());
-            //decompress
-            String outputDir = InitConfigUtil.getWorkSpaceBaseDir() + BusinessConfigUtil.getUploadfilesPath()
-                + uploadFile.getFileId() + File.separator;
-            try {
-                 //decompress
-                CompressFileUtils.decompress(chartFile.getCanonicalPath(), outputDir);
-                //Gets the name of the unzipped folder
-                String decompressFolderName = uploadFile.getFileName()
-                    .substring(0, uploadFile.getFileName().lastIndexOf("."));
-                // herm chart file unzipped path
-                String helmChartPath = outputDir + decompressFolderName + File.separator;
-                File srcDir = new File(helmChartPath);
-                File destDir = new File(getPackagePath() + TEMPLATE_PACKAGE_HELM_CHART_PATH);
-                FileUtils.copyDirectoryToDirectory(srcDir, destDir);
-            } catch (IOException e) {
-                LOGGER.error("copy unzipped helm chart Folder to Charts folder occur {}", e.getMessage());
-                break;
-            }
+        //clean helm chart folder
+        File destDir = new File(getPackagePath() + TEMPLATE_PACKAGE_HELM_CHART_PATH);
+        try {
+            FileUtils.cleanDirectory(destDir);
+        } catch (IOException e) {
+            LOGGER.error("clean dir {} failed!:{}", TEMPLATE_PACKAGE_HELM_CHART_PATH, e.getMessage());
+            return;
         }
-
+        //Find the helm chart file first!
+        LOGGER.info("chartList:{}", chartList);
+        try {
+            for (HelmChart chart : chartList) {
+                UploadFile uploadFile = uploadFileService.getFile(chart.getHelmChartFileId());
+                LOGGER.info("uploadFile path:{}", uploadFile.getFilePath());
+                File chartFile = new File(InitConfigUtil.getWorkSpaceBaseDir() + uploadFile.getFilePath());
+                CompressFileUtils.decompress(chartFile.getCanonicalPath(), destDir.getCanonicalPath());
+            }
+        } catch (IOException e) {
+            LOGGER.error("decompress helm chart file occur {}", e.getMessage());
+            throw new FileOperateException("decompress helm chart file failed!",
+                ResponseConsts.RET_DECOMPRESS_FILE_FAIL);
+        }
     }
 
     public void generateImageDesFile() {
@@ -150,7 +147,8 @@ public class ContainerPackageFileCreator extends PackageFileCreator {
             LOGGER.error("yaml file is not configured with any image information");
             return;
         }
-        List<ImageDesc> imageDescs = new ArrayList<>();
+        LOGGER.info("imageList:{}", imageList);
+        List<ImageDesc> imageDescList = new ArrayList<>();
         for (String imageInfo : imageList) {
             ImageDesc imageDesc = new ImageDesc();
             imageDesc.setId(UUID.randomUUID().toString());
@@ -164,21 +162,13 @@ public class ContainerPackageFileCreator extends PackageFileCreator {
                 imageDesc.setName(images[0]);
                 imageDesc.setVersion(images[1]);
             }
-            imageDesc.setChecksum("2");
-            imageDesc.setContainerFormat("bare");
-            imageDesc.setDiskFormat("raw");
-            imageDesc.setMinRam(6);
-            imageDesc.setArchitecture("application.getArchitecture()");
-            imageDesc.setSize(688390);
+            imageDesc.setArchitecture(application.getArchitecture());
             imageDesc.setSwImage(imageInfo);
-            imageDesc.setHwScsiModel("virtio-scsi");
-            imageDesc.setHwDiskBus("scsi");
-            imageDesc.setOperatingSystem("linux");
-            imageDescs.add(imageDesc);
+            imageDescList.add(imageDesc);
         }
         Gson gson = new Gson();
         File imageJson = new File(getPackagePath() + APPD_IMAGE_DES_PATH);
-        writeFile(imageJson, gson.toJson(imageDescs));
+        writeFile(imageJson, gson.toJson(imageDescList));
     }
 
     private boolean generateScript() {
@@ -191,7 +181,7 @@ public class ContainerPackageFileCreator extends PackageFileCreator {
             try {
                 FileUtils.copyFile(new File(scripPath), new File(artifactScriptPath));
             } catch (IOException e) {
-                LOGGER.error("generate script failed. {}", e);
+                LOGGER.error("generate script failed. {}", e.getMessage());
                 return false;
             }
         }
@@ -201,18 +191,12 @@ public class ContainerPackageFileCreator extends PackageFileCreator {
     public boolean compressDeploymentFile() {
         String tempPackagePath = getPackagePath() + TEMPLATE_PATH;
         File tempDir = new File(tempPackagePath);
-        if(!tempDir.exists() || !tempDir.isDirectory()){
+        if (!tempDir.exists() || !tempDir.isDirectory()) {
             LOGGER.error("temp dir {} can not found", tempPackagePath);
             return false;
         }
-        //clean temp
-        try {
-            FileUtils.cleanDirectory(tempDir);
-        } catch (IOException e) {
-            LOGGER.error("clean temp dir failed!:{}", e.getMessage());
-            return false;
-        }
         List<String> chartNameList = getHelmChartNameList();
+        LOGGER.info("chartNameList:{}", chartNameList);
         for (String helmChartName : chartNameList) {
             try {
                 String helmChartPath = tempPackagePath + TEMPLATE_PACKAGE_HELM_CHART_PATH + helmChartName;
@@ -221,8 +205,9 @@ public class ContainerPackageFileCreator extends PackageFileCreator {
                     LOGGER.error("helm chart file does not exist, file name is:{}", helmChartName);
                     return false;
                 }
-                File tgz = CompressFileUtils.compressToTgzAndDeleteSrc(helmChartPath, tempPackagePath + TEMPLATE_PACKAGE_HELM_CHART_PATH,
-                    helmChartName);
+                File tgz = CompressFileUtils
+                    .compressToTgzAndDeleteSrc(helmChartPath, tempPackagePath + TEMPLATE_PACKAGE_HELM_CHART_PATH,
+                        helmChartName);
                 if (!tgz.exists()) {
                     LOGGER.error("Create tgz exception, file name is:{}", helmChartName);
                     return false;
@@ -235,36 +220,49 @@ public class ContainerPackageFileCreator extends PackageFileCreator {
         return true;
     }
 
+    private List<String> getHelmChartNameList() {
+        List<String> chartNameList = new ArrayList<>();
+        LOGGER.info("chartList:{}", chartList);
+        for (HelmChart chart : chartList) {
+            UploadFile uploadFile = uploadFileService.getFile(chart.getHelmChartFileId());
+            String decompressFolderName = uploadFile.getFileName()
+                .substring(0, uploadFile.getFileName().lastIndexOf("."));
+            chartNameList.add(decompressFolderName);
+        }
+        return chartNameList;
+    }
+
     private List<String> getImageInfo() {
         List<String> allImages = new ArrayList<>(0);
         //Find the helm chart file first!
-        List<HelmChart> chartList = helmChartService.getHelmChartList(application.getId());
-        for (HelmChart chart : chartList) {
-            UploadFile uploadFile = uploadFileService.getFile(chart.getHelmChartFileId());
-            File chartFile = new File(InitConfigUtil.getWorkSpaceBaseDir() + uploadFile.getFilePath());
-            IContainerFileHandler containerFileHandler = LoadContainerFileFactory.createLoader(chartFile.getName());
-            assert containerFileHandler != null;
-            try {
+        LOGGER.info("chartList:{}", chartList);
+        try {
+            for (HelmChart chart : chartList) {
+                UploadFile uploadFile = uploadFileService.getFile(chart.getHelmChartFileId());
+                File chartFile = new File(InitConfigUtil.getWorkSpaceBaseDir() + uploadFile.getFilePath());
+                IContainerFileHandler containerFileHandler = LoadContainerFileFactory.createLoader(chartFile.getName());
+                assert containerFileHandler != null;
                 containerFileHandler.load(chartFile.getCanonicalPath());
-            } catch (IOException e) {
-               LOGGER.error("load helm chart File occur {}",e.getMessage());
-               break;
-            }
-            List<HelmChartFile> k8sTemplates = containerFileHandler.getTemplatesFile();
-            for (HelmChartFile k8sTemplate : k8sTemplates) {
-                List<Object> k8s = containerFileHandler.getK8sTemplateObject(k8sTemplate);
-                for (Object obj : k8s) {
-                    IContainerImage containerImage = EnumKubernetesObject.of(obj);
-                    if (obj instanceof V1Pod) {
-                        List<String> podImages = containerImage.getImages();
-                        allImages.addAll(podImages);
-                    }
-                    if (obj instanceof V1Deployment) {
-                        List<String> deploymentImages = containerImage.getImages();
-                        allImages.addAll(deploymentImages);
+                List<HelmChartFile> k8sTemplates = containerFileHandler.getTemplatesFile();
+                for (HelmChartFile k8sTemplate : k8sTemplates) {
+                    List<Object> k8sList = containerFileHandler.getK8sTemplateObject(k8sTemplate);
+                    for (Object obj : k8sList) {
+                        IContainerImage containerImage = EnumKubernetesObject.of(obj);
+                        if (obj instanceof V1Pod) {
+                            List<String> podImages = containerImage.getImages();
+                            allImages.addAll(podImages);
+                        } else if (obj instanceof V1Deployment) {
+                            List<String> deploymentImages = containerImage.getImages();
+                            allImages.addAll(deploymentImages);
+                        } else {
+                            LOGGER.warn("{} does not support image configuration", obj.getClass());
+                        }
                     }
                 }
             }
+        } catch (IOException e) {
+            LOGGER.error("get image info from service yaml occur {}", e.getMessage());
+            return Collections.emptyList();
         }
         return allImages;
     }
