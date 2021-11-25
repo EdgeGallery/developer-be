@@ -16,16 +16,13 @@
 
 package org.edgegallery.developer.service.application.impl.container;
 
-import com.google.common.collect.Lists;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 import org.apache.commons.io.FileUtils;
 import org.edgegallery.developer.common.ResponseConsts;
@@ -40,17 +37,14 @@ import org.edgegallery.developer.mapper.application.container.ContainerAppImageI
 import org.edgegallery.developer.mapper.application.container.HelmChartMapper;
 import org.edgegallery.developer.mapper.uploadfile.UploadFileMapper;
 import org.edgegallery.developer.model.application.Application;
-import org.edgegallery.developer.model.application.container.ContainerAppImageInfo;
 import org.edgegallery.developer.model.application.container.HelmChart;
 import org.edgegallery.developer.model.application.container.ModifyFileContentDto;
 import org.edgegallery.developer.model.uploadfile.UploadFile;
 import org.edgegallery.developer.service.application.AppConfigurationService;
 import org.edgegallery.developer.service.application.container.ContainerAppHelmChartService;
 import org.edgegallery.developer.util.BusinessConfigUtil;
-import org.edgegallery.developer.util.ContainerAppHelmChartUtil;
 import org.edgegallery.developer.util.FileUtil;
 import org.edgegallery.developer.util.InitConfigUtil;
-import org.edgegallery.developer.util.UploadFileUtil;
 import org.edgegallery.developer.util.helmcharts.IContainerFileHandler;
 import org.edgegallery.developer.util.helmcharts.LoadContainerFileFactory;
 import org.slf4j.Logger;
@@ -132,7 +126,8 @@ public class ContainerAppHelmChartServiceImpl implements ContainerAppHelmChartSe
     }
 
     private boolean verifyFileType(String[] filePaths) {
-        long yamlCount = Arrays.stream(filePaths).filter(item -> item.toLowerCase().endsWith(".yaml") || item.toLowerCase().endsWith(".yml")).count();
+        long yamlCount = Arrays.stream(filePaths)
+            .filter(item -> item.toLowerCase().endsWith(".yaml") || item.toLowerCase().endsWith(".yml")).count();
         long tgzCount = Arrays.stream(filePaths).filter(item -> item.toLowerCase().endsWith(".tgz")).count();
         if (yamlCount + tgzCount < filePaths.length) {
             LOGGER.error("Only YAML and TGZ file types are supported. Please check the input file types.");
@@ -161,40 +156,6 @@ public class ContainerAppHelmChartServiceImpl implements ContainerAppHelmChartSe
         File loadFile = new File(path + File.separator + helmTemplateYaml.getOriginalFilename());
         helmTemplateYaml.transferTo(loadFile);
         return loadFile.getCanonicalPath();
-    }
-
-    @Override
-    public Boolean uploadHelmChartYaml(MultipartFile helmTemplateYaml, String applicationId) {
-        //replace namespace
-        String content = ContainerAppHelmChartUtil.replaceNamesapce(helmTemplateYaml);
-        // write content file
-        String fileId = ContainerAppHelmChartUtil.writeContentToFile(content);
-        //save file to table
-        String fileName = helmTemplateYaml.getOriginalFilename();
-        saveFileRecord(fileId, fileName);
-        //determine whether the file conforms to yaml format
-        List<Map<String, Object>> mapList = ContainerAppHelmChartUtil.verifyYamlFormat(content);
-        //Verify whether there is image, service and MEP agent in the file
-        List<String> requiredItems = Lists.newArrayList("image", "service", "mep-agent");
-        ContainerAppHelmChartUtil.verifyHelmTemplate(mapList, requiredItems);
-        if (!CollectionUtils.isEmpty(requiredItems) && requiredItems.size() >= 2) {
-            LOGGER.error("Failed to verify helm template yaml!");
-            throw new FileOperateException("failed to validate yaml scheme!", ResponseConsts.RET_FILE_FORMAT_ERROR);
-        }
-        // handle image and save uploaded file
-        File tempFile;
-        try {
-            tempFile = File.createTempFile(UUID.randomUUID().toString(), null);
-            helmTemplateYaml.transferTo(tempFile);
-        } catch (IOException | IllegalStateException e) {
-            LOGGER.error("transfer multifile to file failed {}", e.getMessage());
-            throw new FileOperateException("transfer file failed!", ResponseConsts.RET_TRANSFER_FILE_FAIL);
-        }
-        if (!CollectionUtils.isEmpty(requiredItems) && requiredItems.size() == 1 && requiredItems.get(0)
-            .equals("mep-agent")) {
-            return handleImageAndHelmChart(tempFile, applicationId, helmTemplateYaml, fileId);
-        }
-        return handleImageAndHelmChart(tempFile, applicationId, helmTemplateYaml, fileId);
     }
 
     @Override
@@ -239,7 +200,7 @@ public class ContainerAppHelmChartServiceImpl implements ContainerAppHelmChartSe
         HelmChart helmChart = helmChartMapper.getHelmChartById(helmChartId);
         if (helmChart == null) {
             LOGGER.error("query HelmChart is empty!");
-            throw new EntityNotFoundException("query HelmChart is empty!", ResponseConsts.RET_QUERY_DATA_EMPTY);
+            return true;
         }
         //delete helm chart file or k8s yaml
         String helmChartFileId = helmChart.getHelmChartFileId();
@@ -255,6 +216,42 @@ public class ContainerAppHelmChartServiceImpl implements ContainerAppHelmChartSe
         if (ret < 1) {
             LOGGER.error("delete helm chart file failed!");
             throw new DataBaseException("delete helm chart file failed!", ResponseConsts.RET_DELETE_DATA_FAIL);
+        }
+        return true;
+    }
+
+    @Override
+    public Boolean deleteHelmChartByAppId(String applicationId) {
+        if (StringUtils.isEmpty(applicationId)) {
+            LOGGER.error("applicationId or helmChartId is empty!");
+            throw new IllegalRequestException("applicationId is empty!", ResponseConsts.RET_REQUEST_PARAM_EMPTY);
+        }
+        Application application = applicationMapper.getApplicationById(applicationId);
+        if (application == null) {
+            LOGGER.error("the query Application is empty!");
+            throw new EntityNotFoundException("the query Application is empty", ResponseConsts.RET_QUERY_DATA_EMPTY);
+        }
+        List<HelmChart> helmChartList = helmChartMapper.getHelmChartsByAppId(applicationId);
+        if (CollectionUtils.isEmpty(helmChartList)) {
+            LOGGER.error("the application {} did not upload any helm chart files", applicationId);
+            return true;
+        }
+        for (HelmChart helmChart : helmChartList) {
+            //delete helm chart file or k8s yaml
+            String helmChartFileId = helmChart.getHelmChartFileId();
+            if (StringUtils.isEmpty(helmChartFileId)) {
+                LOGGER.error("helmChartFileId is empty!");
+                return false;
+            }
+            UploadFile uploadFile = uploadFileMapper.getFileById(helmChartFileId);
+            File helmChartFile = new File(InitConfigUtil.getWorkSpaceBaseDir() + uploadFile.getFilePath());
+            FileUtil.deleteFile(helmChartFile);
+            // delete data
+            int ret = helmChartMapper.deleteHelmChart(helmChart.getId(), helmChart.getHelmChartFileId());
+            if (ret < 1) {
+                LOGGER.error("delete helm chart file failed!");
+                return false;
+            }
         }
         return true;
     }
@@ -416,59 +413,4 @@ public class ContainerAppHelmChartServiceImpl implements ContainerAppHelmChartSe
         }
     }
 
-    private boolean handleImageAndHelmChart(File newFile, String applicationId, MultipartFile oldFile,
-        String newFileId) {
-        // save image
-        boolean isSaved = saveImage(newFile, applicationId, newFileId);
-        if (!isSaved) {
-            LOGGER.error("Failed to save Image!");
-            throw new DataBaseException("Failed to save Image", ResponseConsts.RET_CERATE_DATA_FAIL);
-        }
-        //save helm chart
-        HelmChart helmChart = new HelmChart();
-        helmChart.setId(UUID.randomUUID().toString());
-        helmChart.setName(oldFile.getOriginalFilename());
-        helmChart.setHelmChartFileId(newFileId);
-        int res = helmChartMapper.createHelmChart(applicationId, helmChart);
-        if (res < 1) {
-            LOGGER.error("Failed to save helm chart!");
-            throw new DataBaseException("Failed to save helm chart!", ResponseConsts.RET_CERATE_DATA_FAIL);
-        }
-        return true;
-    }
-
-    private boolean saveImage(File helmYaml, String applicationId, String newFileId) {
-        //yamlRead aslist
-        List<String> list = UploadFileUtil.readFileByLine(helmYaml);
-        List<String> podImages = new ArrayList<>();
-        //query image and save
-        for (String str : list) {
-            if (str.contains("image:")) {
-                if (str.contains(".Values.imagelocation.domainname") || str.contains(".Values.imagelocation.project")) {
-                    String[] images = str.split("\'");
-                    podImages.add(images[1].trim());
-                } else {
-                    String[] images = str.split(":");
-                    podImages.add(images[1].trim() + ":" + images[2].trim());
-                }
-            }
-        }
-        //verify image info
-        LOGGER.warn("podImages {}", podImages);
-        boolean result = UploadFileUtil.isExist(podImages);
-        if (!result) {
-            LOGGER.error("the image configuration in the yaml file is incorrect");
-            return false;
-        }
-        ContainerAppImageInfo imageInfo = new ContainerAppImageInfo();
-        imageInfo.setId(UUID.randomUUID().toString());
-        imageInfo.setImageInfo(podImages.toString());
-        imageInfo.setApplicationId(applicationId);
-        imageInfo.setHelmChartFileId(newFileId);
-        int res = containerAppImageInfoMapper.saveImageInfo(imageInfo);
-        if (res <= 0) {
-            return false;
-        }
-        return true;
-    }
 }
