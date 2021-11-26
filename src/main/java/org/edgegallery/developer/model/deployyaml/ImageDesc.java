@@ -31,11 +31,11 @@ public class ImageDesc {
 
     private String version;
 
-    private String checksum;
+    private String checksum = "2";
 
     private String containerFormat = "bare";
 
-    private String diskFormat;
+    private String diskFormat = "raw";
 
     private int minDisk = 0;
 
@@ -43,7 +43,7 @@ public class ImageDesc {
 
     private String architecture;
 
-    private long size;
+    private long size = 0L;
 
     private String swImage;
 
@@ -53,7 +53,7 @@ public class ImageDesc {
     @SerializedName("hw_disk_bus")
     private String hwDiskBus = "virtio";
 
-    private String operatingSystem;
+    private String operatingSystem = "linux";
 
     private String supportedVirtualisationEnvironment = "linux";
 

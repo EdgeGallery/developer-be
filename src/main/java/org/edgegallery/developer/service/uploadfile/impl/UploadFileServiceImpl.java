@@ -219,11 +219,11 @@ public class UploadFileServiceImpl implements UploadFileService {
             decompressRes = CompressFileUtils.decompress(samplePath, samplePath.substring(0, samplePath.length() - 15));
         } catch (IOException e) {
             LOGGER.error("get sample code dir fail,{}", e.getMessage());
-            throw new FileOperateException("get sample code dir fail!", ResponseConsts.RET_DECOPRESS_FILE_FAIL);
+            throw new FileOperateException("get sample code dir fail!", ResponseConsts.RET_DECOMPRESS_FILE_FAIL);
         }
         if (!decompressRes) {
             LOGGER.error("decompress sample code file fail");
-            throw new FileOperateException("decompress file failed!", ResponseConsts.RET_DECOPRESS_FILE_FAIL);
+            throw new FileOperateException("decompress file failed!", ResponseConsts.RET_DECOMPRESS_FILE_FAIL);
         }
         DeveloperFileUtils.deleteTempFile(res);
         // get csar pkg structure
@@ -244,7 +244,7 @@ public class UploadFileServiceImpl implements UploadFileService {
     public String getSampleCodeContent(String fileName) {
         if (StringUtils.isEmpty(sampleCodePath)) {
             LOGGER.error("decompress sample code tgz failed!");
-            throw new FileOperateException("decompress file failed!", ResponseConsts.RET_DECOPRESS_FILE_FAIL);
+            throw new FileOperateException("decompress file failed!", ResponseConsts.RET_DECOMPRESS_FILE_FAIL);
         }
         File dir = new File(sampleCodePath);
         List<String> paths = FileUtil.getAllFilePath(dir);

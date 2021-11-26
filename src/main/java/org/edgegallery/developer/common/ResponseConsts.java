@@ -164,7 +164,7 @@ public class ResponseConsts {
     /**
      *  decompress file fail.
      */
-    public static final int RET_DECOPRESS_FILE_FAIL= 20030;
+    public static final int RET_DECOMPRESS_FILE_FAIL= 20030;
 
     /**
      *  get file structure error.

@@ -130,6 +130,44 @@ public class ContainerAppHelmChartServiceTest {
     }
 
     @Test
+    public void testDeleteHelmChartByAppIdFailed() {
+        try {
+            appHelmChartService.deleteHelmChartByAppId(null);
+        } catch (IllegalRequestException e) {
+            Assert.assertEquals("applicationId is empty!", e.getMessage());
+        }
+    }
+
+    @Test
+    public void testDeleteHelmChartByAppIdFailed2() {
+        try {
+            appHelmChartService.deleteHelmChartByAppId("test");
+        } catch (EntityNotFoundException e) {
+            Assert.assertEquals("the query Application is empty", e.getMessage());
+        }
+    }
+
+    @Test
+    public void testDeleteHelmChartByAppIdFailed3() {
+        boolean ret = appHelmChartService.deleteHelmChartByAppId("6a75a2bd-9811-432f-bbe8-2813aa97d366");
+        Assert.assertEquals(ret, true);
+    }
+
+    @Test
+    public void testDeleteHelmChartByAppIdSuccess() throws IOException {
+        MultipartFile uploadFile = new MockMultipartFile("namespacetest.tgz", "namespacetest.tgz", null,
+            ContainerAppHelmChartServiceTest.class.getClassLoader()
+                .getResourceAsStream("testdata/helmcharts/namespacetest.tgz"));
+        HelmChart helmChart = appHelmChartService
+            .uploadHelmChartFile("6a75a2bd-9811-432f-bbe8-2813aa97d366", uploadFile);
+        LOGGER.info("fileList:{}", helmChart.getHelmChartFileList());
+        Assert.assertNotNull(helmChart.getHelmChartFileList());
+        boolean ret = appHelmChartService.deleteHelmChartByAppId("6a75a2bd-9811-432f-bbe8-2813aa97d366");
+        Assert.assertEquals(ret, true);
+    }
+
+
+    @Test
     public void testGetHelmListSuccess() throws IOException {
         MultipartFile uploadFile = new MockMultipartFile("namespacetest.tgz", "namespacetest.tgz", null,
             ContainerAppHelmChartServiceTest.class.getClassLoader()
