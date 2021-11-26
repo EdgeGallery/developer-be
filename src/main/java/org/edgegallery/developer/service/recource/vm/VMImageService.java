@@ -17,9 +17,10 @@ package org.edgegallery.developer.service.recource.vm;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import org.edgegallery.developer.model.Chunk;
+import org.edgegallery.developer.model.resource.vm.VMImage;
+import org.edgegallery.developer.model.restful.OperationInfoRep;
 import org.edgegallery.developer.model.restful.VMImageReq;
 import org.edgegallery.developer.model.restful.VMImageRes;
-import org.edgegallery.developer.model.resource.vm.VMImage;
 import org.springframework.http.ResponseEntity;
 
 public interface VMImageService {
@@ -48,7 +49,7 @@ public interface VMImageService {
 
     byte[] downloadVmImage(Integer imageId);
 
-    Boolean imageSlim(Integer imageId);
+    OperationInfoRep imageSlim(Integer imageId);
 
     VMImage createVmImageAllInfo(VMImage vmImage);
 

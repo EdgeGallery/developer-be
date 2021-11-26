@@ -469,8 +469,6 @@ public class VMAppOperationServiceImpl extends AppOperationServiceImpl implement
         if (imageExportInfo != null && StringUtils.isNotEmpty(imageExportInfo.getImageInstanceId())) {
             HttpClientUtil.deleteVmImage(basePath, user.getUserId(), vmInstantiateInfo.getAppInstanceId(),
                 imageExportInfo.getImageInstanceId(), user.getToken());
-            deleteExportInfo(vm.getId());
-
         }
         if (vmInstantiateInfo == null) {
             return true;
@@ -479,12 +477,13 @@ public class VMAppOperationServiceImpl extends AppOperationServiceImpl implement
             .isNotEmpty(vmInstantiateInfo.getAppInstanceId())) {
             sentTerminateRequestToLcm(basePath, user.getUserId(), user.getToken(), vmInstantiateInfo.getAppInstanceId(),
                 vmInstantiateInfo.getMepmPackageId(), mepHost.getMecHostIp());
-            boolean deleteRes = appPackageService.deletePackage(vmInstantiateInfo.getAppPackageId());
-            if (!deleteRes) {
-                LOGGER.error("delete InstantiateInfo fail, vmId:{}", vm.getId());
-            }
-            deleteInstantiateInfo(vm.getId());
         }
+        boolean deleteRes = appPackageService.deletePackage(vmInstantiateInfo.getAppPackageId());
+        if (!deleteRes) {
+            LOGGER.info("delete InstantiateInfo fail, vmId:{}", vm.getId());
+        }
+        deleteExportInfo(vm.getId());
+        deleteInstantiateInfo(vm.getId());
         return true;
     }
 

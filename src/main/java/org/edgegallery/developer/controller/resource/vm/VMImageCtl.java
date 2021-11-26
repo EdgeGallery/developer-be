@@ -26,6 +26,7 @@ import org.edgegallery.developer.common.ResponseConsts;
 import org.edgegallery.developer.exception.EntityNotFoundException;
 import org.edgegallery.developer.model.Chunk;
 import org.edgegallery.developer.model.resource.vm.VMImage;
+import org.edgegallery.developer.model.restful.OperationInfoRep;
 import org.edgegallery.developer.model.restful.VMImageReq;
 import org.edgegallery.developer.model.restful.VMImageRes;
 import org.edgegallery.developer.response.ErrorRespDto;
@@ -278,14 +279,14 @@ public class VMImageCtl {
      *
      * @return
      */
-    @ApiOperation(value = "image slim.", response = Boolean.class)
+    @ApiOperation(value = "image slim.", response = OperationInfoRep.class)
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "OK", response = Boolean.class),
+        @ApiResponse(code = 200, message = "OK", response = OperationInfoRep.class),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
     @RequestMapping(value = "/{imageId}/action/slim", method = RequestMethod.POST)
     @PreAuthorize("hasRole('DEVELOPER_ADMIN')|| hasRole('DEVELOPER_TENANT')")
-    public ResponseEntity<Boolean> imageSlim(@PathVariable("imageId") Integer imageId) {
+    public ResponseEntity<OperationInfoRep> imageSlim(@PathVariable("imageId") Integer imageId) {
         LOGGER.info("image slim, imageId = {}", imageId);
         return ResponseEntity.ok(vmImageService.imageSlim(imageId));
     }
