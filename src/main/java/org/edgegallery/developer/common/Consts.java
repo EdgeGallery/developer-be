@@ -19,19 +19,19 @@ public final class Consts {
     public static final String DOWNLOAD_FILE_URL_V1 = "/mec/developer/v1/files/";
 
     public static final String APP_LCM_INSTANTIATE_APP_URL
-        = "/lcmcontroller/v1/tenants/tenantId/app_instances/appInstanceId/instantiate";
+        = "/lcmcontroller/v2/tenants/tenantId/app_instances/appInstanceId/instantiate";
 
     public static final String APP_LCM_UPLOAD_APPPKG_URL = "/lcmcontroller/v2/tenants/tenantId/packages";
 
     public static final String APP_LCM_DISTRIBUTE_APPPKG_URL = "/lcmcontroller/v2/tenants/tenantId/packages/packageId";
 
     public static final String APP_LCM_DELETE_HOST_URL
-        = "/lcmcontroller/v1/tenants/tenantId/packages/packageId/hosts/hostIp";
+        = "/lcmcontroller/v2/tenants/tenantId/packages/packageId/hosts/hostIp";
 
     public static final String APP_LCM_DELETE_APPPKG_URL = "/lcmcontroller/v2/tenants/tenantId/packages/packageId";
 
     public static final String APP_LCM_INSTANTIATE_IMAGE_URL
-        = "/lcmcontroller/v1/tenants/tenantId/app_instances/appInstanceId/images";
+        = "/lcmcontroller/v2/tenants/tenantId/app_instances/appInstanceId/images";
 
     public static final String APP_LCM_TERMINATE_APP_URL
         = "/lcmcontroller/v2/tenants/tenantId/app_instances/appInstanceId/terminate";
@@ -40,22 +40,22 @@ public final class Consts {
         = "/lcmcontroller/v2/tenants/tenantId/app_instances/appInstanceId";
 
     public static final String APP_LCM_GET_WORKLOAD_EVENTS_URL
-        = "/lcmcontroller/v1/tenants/tenantId/app_instances/appInstanceId/workload/events";
+        = "/lcmcontroller/v2/tenants/tenantId/app_instances/appInstanceId/workload/events";
 
     public static final String APP_LCM_GET_IMAGE_STATUS_URL
-        = "/lcmcontroller/v1/tenants/tenantId/app_instances/appInstanceId/images/imageId";
+        = "/lcmcontroller/v2/tenants/tenantId/app_instances/appInstanceId/images/imageId";
 
     public static final String APP_LCM_GET_IMAGE_DELETE_URL
-        = "/lcmcontroller/v1/tenants/tenantId/app_instances/appInstanceId/images/imageId";
+        = "/lcmcontroller/v2/tenants/tenantId/app_instances/appInstanceId/images/imageId";
 
     public static final String APP_LCM_GET_IMAGE_DOWNLOAD_URL
-        = "/lcmcontroller/v1/tenants/tenantId/app_instances/appInstanceId/images/imageId/file";
+        = "/lcmcontroller/v2/tenants/tenantId/app_instances/appInstanceId/images/imageId/file";
 
     public static final String APP_LCM_GET_HEALTH = "/lcmcontroller/v1/health";
 
-    public static final String APP_LCM_ADD_MECHOST = "/lcmcontroller/v1/hosts";
+    public static final String APP_LCM_ADD_MECHOST = "/lcmcontroller/v1/tenants/%s/hosts";
 
-    public static final String APP_LCM_UPLOAD_FILE = "/lcmcontroller/v1/configuration";
+    public static final String APP_LCM_UPLOAD_FILE = "/lcmcontroller/v2/tenants/%s/configuration";
 
     public static final String APP_LCM_GET_DEPLOY_STATUS_URL = "/lcmcontroller/v1/hosts/hostIp/packages/packageId";
 

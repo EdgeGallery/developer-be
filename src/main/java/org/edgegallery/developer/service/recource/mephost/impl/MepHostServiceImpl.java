@@ -105,10 +105,6 @@ public class MepHostServiceImpl implements MepHostService {
             LOGGER.error("mecHost already exists:{}", host.getMecHostIp());
             throw new IllegalRequestException("mecHost already exists!", ResponseConsts.RET_QUERY_DATA_EMPTY);
         }
-        // check host parameter
-        checkMepHost(host);
-        // config mepHost to lcm
-        configMepHostToLCM(host, user.getToken());
         host.setId(UUID.randomUUID().toString()); // no need to set hostId by user
         host.setUserId(user.getUserId());
         // AES encryption
@@ -116,6 +112,10 @@ public class MepHostServiceImpl implements MepHostService {
         String passwordEncode = AesUtil.encode(clientId, host.getMecHostPassword());
         host.setMecHostUserName(userNameEncode);
         host.setMecHostPassword(passwordEncode);
+        // check host parameter
+        checkMepHost(host);
+        // config mepHost to lcm
+        configMepHostToLCM(host, user.getToken());
         int ret = mepHostMapper.createHost(host);
         if (ret > 0) {
             LOGGER.info("Crete host {} success ", host.getId());
@@ -244,7 +244,7 @@ public class MepHostServiceImpl implements MepHostService {
             throw new IllegalRequestException(msg, ResponseConsts.RET_REQUEST_PARAM_ERROR);
         }
         // add mechost to lcm
-        boolean addMecHostRes = MepHostUtil.addMecHostToLcm(host);
+        boolean addMecHostRes = MepHostUtil.addMecHostToLcm(host, token);
         if (!addMecHostRes) {
             LOGGER.error("add mec host to lcm fail");
             throw new DeveloperException("add mec host to lcm fail!", ResponseConsts.RET_CALL_LCM_FAIL);
@@ -254,8 +254,7 @@ public class MepHostServiceImpl implements MepHostService {
             // upload file
             UploadFile uploadedFile = uploadFileMapper.getFileById(host.getConfigId());
             boolean uploadRes = MepHostUtil
-                .uploadFileToLcm(host.getLcmProtocol(), host.getLcmIp(), host.getLcmPort(), uploadedFile.getFilePath(),
-                    host.getMecHostIp(), token);
+                .uploadFileToLcm(host, uploadedFile.getFilePath(), token);
             if (!uploadRes) {
                 LOGGER.error("create host failed,upload config file error");
                 throw new DeveloperException("upload config file to lcm error!", ResponseConsts.RET_CALL_LCM_FAIL);

@@ -23,11 +23,13 @@ import org.edgegallery.developer.model.restful.OperationInfoRep;
 
 public interface ContainerAppOperationService {
 
-    OperationInfoRep instantiateContainerApp(String applicationId, String helmChartId, User user);
+    OperationInfoRep instantiateContainerApp(String applicationId, User user);
 
     ContainerAppInstantiateInfo getInstantiateInfo(String applicationId);
 
     Boolean updateInstantiateInfo(String applicationId, ContainerAppInstantiateInfo instantiateInfo);
+
+    Boolean deleteInstantiateInfo(String applicationId);
 
     AppPackage generatePackage(ContainerApplication application);
 }

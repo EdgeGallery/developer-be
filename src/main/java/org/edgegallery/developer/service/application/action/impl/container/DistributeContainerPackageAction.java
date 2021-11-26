@@ -16,24 +16,25 @@
 
 package org.edgegallery.developer.service.application.action.impl.container;
 
+import org.edgegallery.developer.model.instantiate.EnumAppInstantiateStatus;
 import org.edgegallery.developer.model.instantiate.container.ContainerAppInstantiateInfo;
-import org.edgegallery.developer.model.instantiate.container.EnumContainerAppInstantiateStatus;
-import org.edgegallery.developer.model.resource.mephost.MepHost;
 import org.edgegallery.developer.service.application.action.impl.DistributePackageAction;
 import org.edgegallery.developer.service.application.common.IContextParameter;
 import org.edgegallery.developer.service.application.impl.container.ContainerAppOperationServiceImpl;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.edgegallery.developer.util.SpringContextUtil;
 
 public class DistributeContainerPackageAction extends DistributePackageAction {
 
-    @Autowired
-    private ContainerAppOperationServiceImpl containerAppOperationService;
+    ContainerAppOperationServiceImpl containerAppOperationService = (ContainerAppOperationServiceImpl) SpringContextUtil
+        .getBean(ContainerAppOperationServiceImpl.class);
 
-    public boolean saveDistributeSuccessInstantiateInfo(MepHost mepHost) {
+    public boolean saveDistributeInstantiateInfo(String mecHostIp, String mepmPkgId, EnumAppInstantiateStatus status) {
         String applicationId = (String) getContext().getParameter(IContextParameter.PARAM_APPLICATION_ID);
         ContainerAppInstantiateInfo instantiateInfo = containerAppOperationService.getInstantiateInfo(applicationId);
-        instantiateInfo.setDistributedMecHost(mepHost.getMecHostIp());
-        instantiateInfo.setStatus(EnumContainerAppInstantiateStatus.PACKAGE_DISTRIBUTE_SUCCESS);
+        instantiateInfo.setDistributedMecHost(mecHostIp);
+        instantiateInfo.setMepmPackageId(mepmPkgId);
+        instantiateInfo.setStatus(status);
         return containerAppOperationService.updateInstantiateInfo(applicationId, instantiateInfo);
     }
+
 }

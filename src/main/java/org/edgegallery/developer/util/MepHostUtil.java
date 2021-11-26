@@ -14,7 +14,6 @@
 
 package org.edgegallery.developer.util;
 
-import com.google.gson.Gson;
 import java.io.File;
 import org.apache.http.client.CookieStore;
 import org.apache.http.impl.client.BasicCookieStore;
@@ -37,6 +36,7 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
+import com.google.gson.Gson;
 
 public final class MepHostUtil {
 
@@ -52,7 +52,7 @@ public final class MepHostUtil {
      * @param host request body
      * @return
      */
-    public static boolean addMecHostToLcm(MepHost host) {
+    public static boolean addMecHostToLcm(MepHost host, String token) {
         MecHostBody body = new MecHostBody();
         body.setAffinity(host.getArchitecture());
         body.setCity(host.getAddress());
@@ -67,10 +67,11 @@ public final class MepHostUtil {
         // add headers
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.set(Consts.ACCESS_TOKEN_STR, token);
         Gson gson = new Gson();
         HttpEntity<String> requestEntity = new HttpEntity<>(gson.toJson(body), headers);
         String url = getUrlPrefix(host.getLcmProtocol(), host.getLcmIp(), host.getLcmPort())
-            + Consts.APP_LCM_ADD_MECHOST;
+            + String.format(Consts.APP_LCM_ADD_MECHOST, host.getUserId());
         LOGGER.info("add mec host url:{}", url);
         ResponseEntity<String> response;
         try {
@@ -95,20 +96,20 @@ public final class MepHostUtil {
         return protocol + "://" + ip + ":" + port;
     }
 
-    public static boolean uploadFileToLcm(String protocol, String lcmIp, int port, String filePath, String mecHost,
-        String token) {
+    public static boolean uploadFileToLcm(MepHost host, String filePath, String token) {
         File file = new File(InitConfigUtil.getWorkSpaceBaseDir() + filePath);
         RestTemplate restTemplate = RestTemplateBuilder.create();
         MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
         body.add("configFile", new FileSystemResource(file));
-        body.add("hostIp", mecHost);
+        body.add("hostIp", host.getMecHostIp());
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);
         headers.set(Consts.ACCESS_TOKEN_STR, token);
         HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
         ResponseEntity<String> response;
         try {
-            String url = getUrlPrefix(protocol, lcmIp, port) + Consts.APP_LCM_UPLOAD_FILE;
+            String url = getUrlPrefix(host.getLcmProtocol(), host.getLcmIp(), host.getLcmPort()) +
+                String.format(Consts.APP_LCM_UPLOAD_FILE, host.getUserId());
             LOGGER.info(" upload file url is {}", url);
             response = restTemplate.exchange(url, HttpMethod.POST, requestEntity, String.class);
             LOGGER.info("upload file lcm log:{}", response);

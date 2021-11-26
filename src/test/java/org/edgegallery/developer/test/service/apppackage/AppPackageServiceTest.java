@@ -40,7 +40,6 @@ import org.edgegallery.developer.service.application.vm.VMAppVmService;
 import org.edgegallery.developer.service.apppackage.AppPackageService;
 import org.edgegallery.developer.service.uploadfile.UploadFileService;
 import org.edgegallery.developer.test.DeveloperApplicationTests;
-import org.edgegallery.developer.test.service.UploadFileServiceTest;
 import org.edgegallery.developer.test.service.application.ApplicationServiceTest;
 import org.edgegallery.developer.util.FileUtil;
 import org.edgegallery.developer.util.SpringContextUtil;
@@ -179,13 +178,6 @@ public class AppPackageServiceTest extends AbstractJUnit4SpringContextTests {
         }
     }
 
-    @Test
-    public void testGetAllFilePathSuccess() throws URISyntaxException {
-        File sourceFile = new File(
-            UploadFileServiceTest.class.getClassLoader().getResource("testdata/vm_package").toURI());
-        List<String> paths = FileUtil.getAllFilePath(sourceFile);
-        Assert.assertNotNull(paths);
-    }
 
     @Test
     public void testUpdateAppPackageFileContentBadWithNullPkgId() throws IOException {

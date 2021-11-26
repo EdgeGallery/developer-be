@@ -44,8 +44,7 @@ public class ContainerLaunchOperation implements IActionCollection {
         return actions;
     }
 
-    public ContainerLaunchOperation(User user, String applicationId, String helmChartId,
-        OperationStatus operationStatus) {
+    public ContainerLaunchOperation(User user, String applicationId, OperationStatus operationStatus) {
 
         IAction buildPackageAction = new BuildContainerPackageAction();
         IAction distributePackageAction = new DistributeContainerPackageAction();
@@ -61,7 +60,6 @@ public class ContainerLaunchOperation implements IActionCollection {
         distributePackageAction.setContext(context);
         instantiateContainerAppAction.setContext(context);
         context.addParameter(IContextParameter.PARAM_APPLICATION_ID, applicationId);
-        context.addParameter(IContextParameter.PARAM_HELMCHART_ID, helmChartId);
 
         actions = Arrays.asList(buildPackageAction, distributePackageAction, instantiateContainerAppAction);
     }
