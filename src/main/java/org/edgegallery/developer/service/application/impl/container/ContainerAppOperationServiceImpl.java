@@ -179,19 +179,27 @@ public class ContainerAppOperationServiceImpl extends AppOperationServiceImpl im
     public ContainerAppInstantiateInfo getInstantiateInfo(String applicationId) {
         ContainerAppInstantiateInfo instantiateInfo
             = containerAppInstantiateInfoMapper.getContainerAppInstantiateInfoAppId(applicationId);
+        if (instantiateInfo == null) {
+            return null;
+        }
         List<K8sPod> k8sPods = containerAppInstantiateInfoMapper.getK8sPodsByAppId(applicationId);
-        for (K8sPod pod : k8sPods) {
-            List<Container> containers = containerAppInstantiateInfoMapper.getContainersByPodName(pod.getName());
-            pod.setContainerList(containers);
+        if (!CollectionUtils.isEmpty(k8sPods)) {
+            for (K8sPod pod : k8sPods) {
+                List<Container> containers = containerAppInstantiateInfoMapper.getContainersByPodName(pod.getName());
+                pod.setContainerList(containers);
+            }
+            instantiateInfo.setPods(k8sPods);
         }
-        instantiateInfo.setPods(k8sPods);
         List<K8sService> k8sServices = containerAppInstantiateInfoMapper.getK8sServiceByAppId(applicationId);
-        for (K8sService service : k8sServices) {
-            List<K8sServicePort> k8sServicePorts = containerAppInstantiateInfoMapper.getK8sServicePortsByK8sServiceName(
-                service.getName());
-            service.setServicePortList(k8sServicePorts);
+        if (!CollectionUtils.isEmpty(k8sServices)) {
+            for (K8sService service : k8sServices) {
+                List<K8sServicePort> k8sServicePorts = containerAppInstantiateInfoMapper.getK8sServicePortsByK8sServiceName(
+                    service.getName());
+                service.setServicePortList(k8sServicePorts);
+            }
+            instantiateInfo.setServiceList(k8sServices);
         }
-        instantiateInfo.setServiceList(k8sServices);
+
         return instantiateInfo;
     }
 
