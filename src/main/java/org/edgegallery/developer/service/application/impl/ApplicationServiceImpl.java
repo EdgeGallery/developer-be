@@ -16,8 +16,6 @@
 
 package org.edgegallery.developer.service.application.impl;
 
-import com.github.pagehelper.PageHelper;
-import com.github.pagehelper.PageInfo;
 import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
@@ -44,7 +42,9 @@ import org.edgegallery.developer.model.restful.ApplicationDetail;
 import org.edgegallery.developer.service.application.AppConfigurationService;
 import org.edgegallery.developer.service.application.ApplicationService;
 import org.edgegallery.developer.service.application.container.ContainerAppHelmChartService;
+import org.edgegallery.developer.service.application.container.ContainerAppOperationService;
 import org.edgegallery.developer.service.application.factory.AppOperationServiceFactory;
+import org.edgegallery.developer.service.application.impl.container.ContainerAppOperationServiceImpl;
 import org.edgegallery.developer.service.application.impl.vm.VMAppOperationServiceImpl;
 import org.edgegallery.developer.service.application.vm.VMAppNetworkService;
 import org.edgegallery.developer.service.application.vm.VMAppVmService;
@@ -55,9 +55,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 
 @Service("applicationService")
 public class ApplicationServiceImpl implements ApplicationService {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(ApplicationServiceImpl.class);
 
     @Autowired
@@ -85,10 +88,16 @@ public class ApplicationServiceImpl implements ApplicationService {
     private AppPackageService appPackageService;
 
     @Autowired
-    private VMAppOperationServiceImpl vmApOperationServiceImpl;
+    private ContainerAppOperationService containerAppOperationService;
 
     @Autowired
-    AtpTestTaskMapper atpTestTaskMapper;
+    private AtpTestTaskMapper atpTestTaskMapper;
+
+    @Autowired
+    private VMAppOperationServiceImpl vmAppOperationServiceImpl;
+
+    @Autowired
+    private ContainerAppOperationServiceImpl containerAppOperationServiceImpl;
 
     @Autowired
     private AppScriptMapper appScriptMapper;
@@ -214,12 +223,15 @@ public class ApplicationServiceImpl implements ApplicationService {
             vmApplication.setVmList(vmService.getAllVm(applicationId));
             vmApplication.setAppConfiguration(appConfigurationService.getAppConfiguration(applicationId));
             vmApplication.setAppPackage(appPackageService.getAppPackageByAppId(applicationId));
-            vmApplication.setAtpTestTaskList(vmApOperationServiceImpl.getAtpTests(applicationId));
+            vmApplication.setAtpTestTaskList(vmAppOperationServiceImpl.getAtpTests(applicationId));
             applicationDetail.setVmApp(vmApplication);
         } else {
             ContainerApplication containerApplication = new ContainerApplication(application);
             containerApplication.setHelmChartList(helmChartService.getHelmChartList(applicationId));
             containerApplication.setAppConfiguration(appConfigurationService.getAppConfiguration(applicationId));
+            containerApplication.setAppPackage(appPackageService.getAppPackageByAppId(applicationId));
+            containerApplication.setAtpTestTaskList(containerAppOperationServiceImpl.getAtpTests(applicationId));
+            containerApplication.setInstantiateInfo(containerAppOperationService.getInstantiateInfo(applicationId));
             applicationDetail.setContainerApp(containerApplication);
         }
         return applicationDetail;

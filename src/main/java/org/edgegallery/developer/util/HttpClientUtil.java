@@ -16,19 +16,12 @@
 
 package org.edgegallery.developer.util;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import com.google.gson.reflect.TypeToken;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -58,6 +51,9 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 public final class HttpClientUtil {
 
@@ -87,7 +83,8 @@ public final class HttpClientUtil {
             return false;
         }
         //parse dis res
-        List<DistributeResponse> list = gson.fromJson(disRes, new TypeToken<List<DistributeResponse>>() { }.getType());
+        List<DistributeResponse> list = gson.fromJson(disRes, new TypeToken<List<DistributeResponse>>() {
+        }.getType());
         String appName = list.get(0).getAppPkgName();
         //set instantiate headers
         HttpHeaders headers = new HttpHeaders();
@@ -328,8 +325,7 @@ public final class HttpClientUtil {
             return null;
         }
         if (response.getStatusCode() == HttpStatus.OK) {
-            LcmResponseBody lcmResponseBody = gson.fromJson(response.getBody(), LcmResponseBody.class);
-            return lcmResponseBody.getData().toString();
+            return response.getBody();
         }
         LOGGER.error("Failed to get workload status which appInstanceId is {}", appInstanceId);
         return null;
@@ -501,7 +497,7 @@ public final class HttpClientUtil {
                 throw new DomainException("create download file error");
             }
             try (InputStream inputStream = new ByteArrayInputStream(result);
-                 OutputStream outputStream = new FileOutputStream(file)) {
+                OutputStream outputStream = new FileOutputStream(file)) {
                 int len = 0;
                 byte[] buf = new byte[1024];
                 while ((len = inputStream.read(buf, 0, 1024)) != -1) {
@@ -548,8 +544,8 @@ public final class HttpClientUtil {
      * upload system image.
      *
      * @param fileServerAddr File Server Address
-     * @param filePath File Path
-     * @param userId User ID
+     * @param filePath       File Path
+     * @param userId         User ID
      * @return upload result
      */
     public static String uploadSystemImage(String fileServerAddr, String filePath, String userId) {
@@ -593,8 +589,8 @@ public final class HttpClientUtil {
      * slice upload file.
      *
      * @param fileServerAddr File Server Address
-     * @param chunk File Chunk
-     * @param filePath File Path
+     * @param chunk          File Chunk
+     * @param filePath       File Path
      * @return upload result
      */
     public static boolean sliceUploadFile(String fileServerAddr, Chunk chunk, String filePath) {
@@ -635,7 +631,7 @@ public final class HttpClientUtil {
      * cancel slice upload file.
      *
      * @param fileServerAddr File Server Address
-     * @param identifier File Identifier
+     * @param identifier     File Identifier
      * @return cancel result
      */
     public static boolean cancelSliceUpload(String fileServerAddr, String identifier) {
@@ -678,9 +674,9 @@ public final class HttpClientUtil {
      * slice merge file.
      *
      * @param fileServerAddr File Server Address
-     * @param identifier File Identifier
-     * @param fileName File Name
-     * @param userId User ID
+     * @param identifier     File Identifier
+     * @param fileName       File Name
+     * @param userId         User ID
      * @return merge result
      */
     public static String sliceMergeFile(String fileServerAddr, String identifier, String fileName, String userId) {

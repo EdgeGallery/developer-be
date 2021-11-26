@@ -40,8 +40,8 @@ import org.edgegallery.developer.model.application.EnumApplicationStatus;
 import org.edgegallery.developer.model.application.vm.VMApplication;
 import org.edgegallery.developer.model.application.vm.VirtualMachine;
 import org.edgegallery.developer.model.apppackage.AppPackage;
+import org.edgegallery.developer.model.instantiate.EnumAppInstantiateStatus;
 import org.edgegallery.developer.model.instantiate.vm.EnumImageExportStatus;
-import org.edgegallery.developer.model.instantiate.vm.EnumVMInstantiateStatus;
 import org.edgegallery.developer.model.instantiate.vm.ImageExportInfo;
 import org.edgegallery.developer.model.instantiate.vm.PortInstantiateInfo;
 import org.edgegallery.developer.model.instantiate.vm.VMInstantiateInfo;
@@ -141,7 +141,7 @@ public class VMAppOperationServiceImpl extends AppOperationServiceImpl implement
         VMLaunchOperation actionCollection = new VMLaunchOperation(user, applicationId, vmId, operationStatus);
         VMInstantiateInfo instantiateInfo = new VMInstantiateInfo();
         instantiateInfo.setOperationId(operationStatus.getId());
-        vmInstantiateInfoMapper.createVMInstantiateInfo(vmId, instantiateInfo);
+        createInstantiateInfo(vmId, instantiateInfo);
         LOGGER.info("start instantiate vm app");
         new InstantiateVmAppProcessor(operationStatusMapper, operationStatus, actionCollection).start();
         return new OperationInfoRep(operationStatus.getId());
@@ -236,7 +236,7 @@ public class VMAppOperationServiceImpl extends AppOperationServiceImpl implement
 
         VirtualMachine virtualMachine = vmAppVmServiceImpl.getVm(applicationId, vmId);
         if (virtualMachine == null || !virtualMachine.getVmInstantiateInfo().getStatus()
-            .equals(EnumVMInstantiateStatus.SUCCESS)) {
+            .equals(EnumAppInstantiateStatus.SUCCESS)) {
             LOGGER.error("instantiate vm app not success  or vm does not exist , vmId:{}", vmId);
             throw new EntityNotFoundException("instantiate vm app not success  or vm does not exist.",
                 ResponseConsts.RET_QUERY_DATA_EMPTY);
@@ -262,7 +262,11 @@ public class VMAppOperationServiceImpl extends AppOperationServiceImpl implement
         }
         VMExportImageOperation actionCollection = new VMExportImageOperation(user, applicationId, vmId, operationStatus,
             appInstanceId, vmInstanceId);
-        createImageExportInfo(vmId, operationStatus.getId());
+
+        ImageExportInfo imageExportInfo = new ImageExportInfo();
+        imageExportInfo.setOperationId(operationStatus.getId());
+        imageExportInfo.setStatus(EnumImageExportStatus.IMAGE_CREATING);
+        createExportInfo(vmId, imageExportInfo);
         LOGGER.info("start export vm image");
         new ExportVmImageProcessor(operationStatusMapper, operationStatus, actionCollection).start();
         return new OperationInfoRep(operationStatus.getId());
@@ -319,8 +323,38 @@ public class VMAppOperationServiceImpl extends AppOperationServiceImpl implement
         int res = vmInstantiateInfoMapper.createVMInstantiateInfo(vmId, instantiateInfo);
         if (res < 1) {
             LOGGER.error("create vm instantiate info failed");
-            return false;
+            throw new DataBaseException("create vm instantiate info failed.", ResponseConsts.RET_CERATE_DATA_FAIL);
         }
+        return true;
+    }
+
+    @Override
+    public Boolean deleteInstantiateInfo(String vmId) {
+        VMInstantiateInfo vmInstantiateInfo = getInstantiateInfo(vmId);
+        if (vmInstantiateInfo == null) {
+            return true;
+        }
+        vmInstantiateInfoMapper.deletePortInstantiateInfo(vmId);
+        vmInstantiateInfoMapper.deleteVMInstantiateInfo(vmId);
+        return true;
+    }
+
+    @Override
+    public Boolean createExportInfo(String vmId, ImageExportInfo imageExportInfo) {
+        if (imageExportInfoMapper.getImageExportInfoInfoByVMId(vmId) != null) {
+            imageExportInfoMapper.deleteImageExportInfoInfoByVMId(vmId);
+        }
+        int res = imageExportInfoMapper.createImageExportInfoInfo(vmId, imageExportInfo);
+        if (res < 1) {
+            LOGGER.warn("create image export info baseDate fail");
+            throw new DataBaseException("create image export info baseDate fail.", ResponseConsts.RET_CERATE_DATA_FAIL);
+        }
+        return true;
+    }
+
+    @Override
+    public Boolean deleteExportInfo(String vmId) {
+        imageExportInfoMapper.deleteImageExportInfoInfoByVMId(vmId);
         return true;
     }
 
@@ -348,21 +382,6 @@ public class VMAppOperationServiceImpl extends AppOperationServiceImpl implement
 
     public ImageExportInfo getImageExportInfo(String vmId) {
         return imageExportInfoMapper.getImageExportInfoInfoByVMId(vmId);
-    }
-
-    private Boolean createImageExportInfo(String vmId, String operationId) {
-        if (imageExportInfoMapper.getImageExportInfoInfoByVMId(vmId) != null) {
-            imageExportInfoMapper.deleteImageExportInfoInfoByVMId(vmId);
-        }
-        ImageExportInfo imageExportInfo = new ImageExportInfo();
-        imageExportInfo.setOperationId(operationId);
-        imageExportInfo.setStatus(EnumImageExportStatus.IMAGE_CREATING);
-        int res = imageExportInfoMapper.createImageExportInfoInfo(vmId, imageExportInfo);
-        if (res < 1) {
-            LOGGER.warn("create image export info baseDate fail");
-            return false;
-        }
-        return true;
     }
 
     public static class InstantiateVmAppProcessor extends Thread {
@@ -450,7 +469,7 @@ public class VMAppOperationServiceImpl extends AppOperationServiceImpl implement
         if (imageExportInfo != null && StringUtils.isNotEmpty(imageExportInfo.getImageInstanceId())) {
             HttpClientUtil.deleteVmImage(basePath, user.getUserId(), vmInstantiateInfo.getAppInstanceId(),
                 imageExportInfo.getImageInstanceId(), user.getToken());
-            imageExportInfoMapper.deleteImageExportInfoInfoByVMId(vm.getId());
+            deleteExportInfo(vm.getId());
 
         }
         if (vmInstantiateInfo == null) {
@@ -464,10 +483,7 @@ public class VMAppOperationServiceImpl extends AppOperationServiceImpl implement
             if (!deleteRes) {
                 LOGGER.error("delete InstantiateInfo fail, vmId:{}", vm.getId());
             }
-            int res = vmInstantiateInfoMapper.deleteVMInstantiateInfo(vm.getId());
-            if (res < 1) {
-                LOGGER.error("delete InstantiateInfo fail, vmId:{}", vm.getId());
-            }
+            deleteInstantiateInfo(vm.getId());
         }
         return true;
     }

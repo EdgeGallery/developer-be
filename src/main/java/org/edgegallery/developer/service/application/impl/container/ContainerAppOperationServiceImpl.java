@@ -20,7 +20,6 @@ import java.util.List;
 import java.util.UUID;
 import org.apache.commons.lang3.StringUtils;
 import org.edgegallery.developer.common.ResponseConsts;
-import org.edgegallery.developer.config.security.AccessUserUtil;
 import org.edgegallery.developer.domain.model.user.User;
 import org.edgegallery.developer.exception.DataBaseException;
 import org.edgegallery.developer.exception.EntityNotFoundException;
@@ -28,6 +27,7 @@ import org.edgegallery.developer.mapper.application.ApplicationMapper;
 import org.edgegallery.developer.mapper.application.container.ContainerAppInstantiateInfoMapper;
 import org.edgegallery.developer.mapper.application.container.HelmChartMapper;
 import org.edgegallery.developer.mapper.operation.OperationStatusMapper;
+import org.edgegallery.developer.mapper.resource.mephost.MepHostMapper;
 import org.edgegallery.developer.model.application.Application;
 import org.edgegallery.developer.model.application.container.ContainerApplication;
 import org.edgegallery.developer.model.application.container.HelmChart;
@@ -40,6 +40,7 @@ import org.edgegallery.developer.model.instantiate.container.K8sServicePort;
 import org.edgegallery.developer.model.operation.EnumActionStatus;
 import org.edgegallery.developer.model.operation.EnumOperationObjectType;
 import org.edgegallery.developer.model.operation.OperationStatus;
+import org.edgegallery.developer.model.resource.mephost.MepHost;
 import org.edgegallery.developer.model.restful.ApplicationDetail;
 import org.edgegallery.developer.model.restful.OperationInfoRep;
 import org.edgegallery.developer.service.application.ApplicationService;
@@ -49,10 +50,12 @@ import org.edgegallery.developer.service.application.action.impl.container.Conta
 import org.edgegallery.developer.service.application.container.ContainerAppOperationService;
 import org.edgegallery.developer.service.application.impl.AppOperationServiceImpl;
 import org.edgegallery.developer.service.apppackage.AppPackageService;
+import org.edgegallery.developer.util.HttpClientUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 @Service("containerAppActionService")
 public class ContainerAppOperationServiceImpl extends AppOperationServiceImpl implements ContainerAppOperationService {
@@ -79,6 +82,9 @@ public class ContainerAppOperationServiceImpl extends AppOperationServiceImpl im
     @Autowired
     AppPackageService appPackageService;
 
+    @Autowired
+    MepHostMapper mepHostMapper;
+
     public AppPackage generatePackage(String applicationId) {
         ApplicationDetail detail = applicationService.getApplicationDetail(applicationId);
         return generatePackage(detail.getContainerApp());
@@ -89,17 +95,22 @@ public class ContainerAppOperationServiceImpl extends AppOperationServiceImpl im
     }
 
     @Override
-    public OperationInfoRep instantiateContainerApp(String applicationId, String helmChartId, User user) {
+    public OperationInfoRep instantiateContainerApp(String applicationId, User user) {
         Application application = applicationMapper.getApplicationById(applicationId);
         if (application == null) {
             LOGGER.error("application does not exist,id:{}", applicationId);
             throw new EntityNotFoundException("application does not exist.", ResponseConsts.RET_QUERY_DATA_EMPTY);
         }
 
-        HelmChart helmChart = helmChartMapper.getHelmChartById(helmChartId);
-        if (helmChart == null || StringUtils.isEmpty(helmChart.getHelmChartFileId())) {
-            LOGGER.error("instantiate container app fail ,helmchart file id not exist,vmId:{}", helmChartId);
+        List<HelmChart> helmCharts = helmChartMapper.getHelmChartsByAppId(applicationId);
+        if (CollectionUtils.isEmpty(helmCharts)) {
+            LOGGER.error("instantiate container app fail ,helmchart file  not exist,applicationId:{}", applicationId);
             throw new EntityNotFoundException("instantiate container app fail,helmchart file id not exist.",
+                ResponseConsts.RET_QUERY_DATA_EMPTY);
+        }
+        if (containerAppInstantiateInfoMapper.getContainerAppInstantiateInfoAppId(applicationId) != null) {
+            LOGGER.error("Container application has already been instantiated.,applicationId:{}", applicationId);
+            throw new EntityNotFoundException("Container application has already been instantiated.",
                 ResponseConsts.RET_QUERY_DATA_EMPTY);
         }
 
@@ -119,13 +130,49 @@ public class ContainerAppOperationServiceImpl extends AppOperationServiceImpl im
             throw new DataBaseException("Create operationStatus in db error.", ResponseConsts.RET_CERATE_DATA_FAIL);
         }
         ContainerLaunchOperation actionCollection = new ContainerLaunchOperation(user,
-            applicationId, helmChartId, operationStatus);
+            applicationId, operationStatus);
         LOGGER.info("start instantiate container app");
         ContainerAppInstantiateInfo containerAppInstantiateInfo = new ContainerAppInstantiateInfo();
         containerAppInstantiateInfo.setOperationId(operationStatus.getId());
         containerAppInstantiateInfoMapper.createContainerAppInstantiateInfo(applicationId, containerAppInstantiateInfo);
-        new InstantiateContainerAppProcessor(actionCollection).start();
+        new InstantiateContainerAppProcessor(operationStatusMapper, operationStatus, actionCollection).start();
         return new OperationInfoRep(operationStatus.getId());
+    }
+
+    @Override
+    public Boolean cleanEnv(String applicationId, User user) {
+        Application application = applicationService.getApplication(applicationId);
+        if (application == null) {
+            LOGGER.error("application does not exist ,id:{}", applicationId);
+            throw new EntityNotFoundException("application does not exist.", ResponseConsts.RET_QUERY_DATA_EMPTY);
+        }
+        if (StringUtils.isEmpty(application.getMepHostId())) {
+            return true;
+        }
+
+        ContainerAppInstantiateInfo containerAppInstantiateInfo = getInstantiateInfo(applicationId);
+        if (containerAppInstantiateInfo != null) {
+            cleanContainerLaunchInfo(application.getMepHostId(), containerAppInstantiateInfo, user);
+            deleteInstantiateInfo(applicationId);
+        }
+        return true;
+    }
+
+    private boolean cleanContainerLaunchInfo(String mepHostId, ContainerAppInstantiateInfo containerAppInstantiateInfo,
+        User user) {
+        MepHost mepHost = mepHostMapper.getHost(mepHostId);
+        if (mepHost == null) {
+            return true;
+        }
+        String basePath = HttpClientUtil.getUrlPrefix(mepHost.getLcmProtocol(), mepHost.getLcmIp(),
+            mepHost.getLcmPort());
+        if (StringUtils.isNotEmpty(containerAppInstantiateInfo.getMepmPackageId()) || StringUtils
+            .isNotEmpty(containerAppInstantiateInfo.getAppInstanceId())) {
+            sentTerminateRequestToLcm(basePath, user.getUserId(), user.getToken(),
+                containerAppInstantiateInfo.getAppInstanceId(),
+                containerAppInstantiateInfo.getMepmPackageId(), mepHost.getMecHostIp());
+        }
+        return true;
     }
 
     @Override
@@ -152,34 +199,65 @@ public class ContainerAppOperationServiceImpl extends AppOperationServiceImpl im
     public Boolean updateInstantiateInfo(String applicationId, ContainerAppInstantiateInfo instantiateInfo) {
         int res = containerAppInstantiateInfoMapper.modifyContainerAppInstantiateInfo(applicationId, instantiateInfo);
         if (res < 1) {
-            LOGGER.error("Update vm instantiate info failed");
+            LOGGER.error("Update container instantiate info failed");
             return false;
         }
         //remove and add container pods and service details
         List<K8sPod> k8sPods = containerAppInstantiateInfoMapper.getK8sPodsByAppId(applicationId);
-        for (K8sPod pod : k8sPods) {
-            containerAppInstantiateInfoMapper.deleteContainerByPodName(pod.getName());
+        if (!CollectionUtils.isEmpty(k8sPods)) {
+            for (K8sPod pod : k8sPods) {
+                containerAppInstantiateInfoMapper.deleteContainerByPodName(pod.getName());
+            }
+            containerAppInstantiateInfoMapper.deleteK8sPodByAppId(applicationId);
+        }
+        List<K8sService> k8sServices = containerAppInstantiateInfoMapper.getK8sServiceByAppId(applicationId);
+        if (!CollectionUtils.isEmpty(k8sServices)) {
+            for (K8sService service : k8sServices) {
+                containerAppInstantiateInfoMapper.deleteK8sServicePortByK8sServiceName(service.getName());
+            }
+            containerAppInstantiateInfoMapper.deleteK8sServiceByAppId(applicationId);
+        }
+        if (!CollectionUtils.isEmpty(instantiateInfo.getPods())) {
+            for (K8sPod pod : instantiateInfo.getPods()) {
+                List<Container> containers = pod.getContainerList();
+                for (Container container : containers) {
+                    containerAppInstantiateInfoMapper.createContainer(pod.getName(), container);
+                }
+                containerAppInstantiateInfoMapper.createK8sPod(applicationId, pod);
+            }
+        }
+        if (!CollectionUtils.isEmpty(instantiateInfo.getServiceList())) {
+            for (K8sService service : instantiateInfo.getServiceList()) {
+                List<K8sServicePort> ports = service.getServicePortList();
+                for (K8sServicePort port : ports) {
+                    containerAppInstantiateInfoMapper.createK8sServicePort(service.getName(), port);
+                }
+                containerAppInstantiateInfoMapper.createK8sService(applicationId, service);
+            }
+        }
+
+        return true;
+    }
+
+    @Override
+    public Boolean deleteInstantiateInfo(String applicationId) {
+        ContainerAppInstantiateInfo containerAppInstantiateInfo = getInstantiateInfo(applicationId);
+        if (containerAppInstantiateInfo == null) {
+            return true;
+        }
+        if (!CollectionUtils.isEmpty(containerAppInstantiateInfo.getPods())) {
+            for (K8sPod k8sPod : containerAppInstantiateInfo.getPods()) {
+                containerAppInstantiateInfoMapper.deleteContainerByPodName(k8sPod.getName());
+            }
+        }
+        if (!CollectionUtils.isEmpty(containerAppInstantiateInfo.getServiceList())) {
+            for (K8sService k8sService : containerAppInstantiateInfo.getServiceList()) {
+                containerAppInstantiateInfoMapper.deleteK8sServicePortByK8sServiceName(k8sService.getName());
+            }
         }
         containerAppInstantiateInfoMapper.deleteK8sPodByAppId(applicationId);
-        List<K8sService> k8sServices = containerAppInstantiateInfoMapper.getK8sServiceByAppId(applicationId);
-        for (K8sService service : k8sServices) {
-            containerAppInstantiateInfoMapper.deleteK8sServicePortByK8sServiceName(service.getName());
-        }
         containerAppInstantiateInfoMapper.deleteK8sServiceByAppId(applicationId);
-        for (K8sPod pod : instantiateInfo.getPods()) {
-            List<Container> containers = pod.getContainerList();
-            for (Container container : containers) {
-                containerAppInstantiateInfoMapper.createContainer(pod.getName(), container);
-            }
-            containerAppInstantiateInfoMapper.createK8sPod(applicationId, pod);
-        }
-        for (K8sService service : instantiateInfo.getServiceList()) {
-            List<K8sServicePort> ports = service.getServicePortList();
-            for (K8sServicePort port : ports) {
-                containerAppInstantiateInfoMapper.createK8sServicePort(service.getName(), port);
-            }
-            containerAppInstantiateInfoMapper.createK8sService(applicationId, service);
-        }
+        containerAppInstantiateInfoMapper.deleteContainerAppInstantiateInfoByAppId(applicationId);
         return true;
     }
 
@@ -187,19 +265,33 @@ public class ContainerAppOperationServiceImpl extends AppOperationServiceImpl im
 
         ContainerLaunchOperation actionCollection;
 
-        public InstantiateContainerAppProcessor(ContainerLaunchOperation actionCollection) {
+        OperationStatusMapper operationStatusMapper;
+
+        OperationStatus operationStatus;
+
+        public InstantiateContainerAppProcessor(OperationStatusMapper operationStatusMapper,
+            OperationStatus operationStatus, ContainerLaunchOperation actionCollection) {
+            this.operationStatusMapper = operationStatusMapper;
+            this.operationStatus = operationStatus;
             this.actionCollection = actionCollection;
         }
 
         @Override
         public void run() {
-            IActionIterator iterator = actionCollection.getActionIterator();
-            while (iterator.hasNext()) {
-                IAction action = iterator.nextAction();
-                boolean result = action.execute();
-                if (!result) {
-                    break;
+            try {
+                IActionIterator iterator = actionCollection.getActionIterator();
+                while (iterator.hasNext()) {
+                    IAction action = iterator.nextAction();
+                    boolean result = action.execute();
+                    if (!result) {
+                        break;
+                    }
                 }
+            } catch (Exception e) {
+                LOGGER.error("InstantiateContainerAppProcessor Exception.", e);
+                operationStatus.setStatus(EnumActionStatus.FAILED);
+                operationStatus.setErrorMsg("Exception happens when export image: " + e.getStackTrace().toString());
+                operationStatusMapper.modifyOperationStatus(operationStatus);
             }
         }
     }

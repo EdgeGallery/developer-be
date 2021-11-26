@@ -20,7 +20,7 @@ import java.util.UUID;
 import org.edgegallery.developer.model.application.vm.VMApplication;
 import org.edgegallery.developer.model.application.vm.VirtualMachine;
 import org.edgegallery.developer.model.apppackage.AppPackage;
-import org.edgegallery.developer.model.instantiate.vm.EnumVMInstantiateStatus;
+import org.edgegallery.developer.model.instantiate.EnumAppInstantiateStatus;
 import org.edgegallery.developer.model.instantiate.vm.VMInstantiateInfo;
 import org.edgegallery.developer.model.operation.ActionStatus;
 import org.edgegallery.developer.model.operation.EnumOperationObjectType;
@@ -103,7 +103,7 @@ public class BuildVMPackageAction extends AbstractAction {
             return false;
         }
         instantiateInfo.setAppPackageId(id);;
-        instantiateInfo.setStatus(EnumVMInstantiateStatus.PACKAGE_GENERATE_SUCCESS);
+        instantiateInfo.setStatus(EnumAppInstantiateStatus.PACKAGE_GENERATE_SUCCESS);
         return  VmAppOperationService.updateInstantiateInfo(vmId, instantiateInfo);
     }
 

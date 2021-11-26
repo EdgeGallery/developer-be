@@ -56,16 +56,14 @@ public class ContainerAppOperationCtl {
         @ApiResponse(code = 200, message = "OK", response = Boolean.class),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
-    @RequestMapping(value = "/{applicationId}/containers/{helmChartId}/action/launch", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_UTF8_VALUE,
+    @RequestMapping(value = "/{applicationId}/containers/action/launch", method = RequestMethod.POST,
         produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<OperationInfoRep> instantiateContainerApp(
         @Pattern(regexp = REGEX_UUID, message = "applicationId must be in UUID format")
-        @ApiParam(value = "applicationId", required = true) @PathVariable("applicationId") String applicationId,
-        @Pattern(regexp = REGEX_UUID, message = "helmChartId must be in UUID format")
-        @ApiParam(value = "helmChartId", required = true) @PathVariable("helmChartId") String helmChartId) {
+        @ApiParam(value = "applicationId", required = true) @PathVariable("applicationId") String applicationId) {
         User user = AccessUserUtil.getUser();
-        OperationInfoRep result = containerAppOperationService.instantiateContainerApp(applicationId, helmChartId, user);
+        OperationInfoRep result = containerAppOperationService.instantiateContainerApp(applicationId, user);
         return ResponseEntity.ok(result);
     }
 

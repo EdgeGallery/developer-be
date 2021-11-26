@@ -87,7 +87,7 @@ public class ContainerPackageFileCreator extends PackageFileCreator {
             LOGGER.info("chartList:{}", chartList);
         } catch (Exception e) {
             LOGGER.error("get Helm chart list failed! {}", e.getMessage());
-            chartList = new ArrayList<>();
+            chartList = Collections.emptyList();
         }
     }
 
@@ -123,11 +123,19 @@ public class ContainerPackageFileCreator extends PackageFileCreator {
     private void generateHelmChart() {
         //clean helm chart folder
         File destDir = new File(getPackagePath() + TEMPLATE_PACKAGE_HELM_CHART_PATH);
-        try {
-            FileUtils.cleanDirectory(destDir);
-        } catch (IOException e) {
-            LOGGER.error("clean dir {} failed!:{}", TEMPLATE_PACKAGE_HELM_CHART_PATH, e.getMessage());
-            return;
+        if (destDir.exists()) {
+            try {
+                FileUtils.cleanDirectory(destDir);
+            } catch (IOException e) {
+                LOGGER.error("clean dir {} failed!:{}", TEMPLATE_PACKAGE_HELM_CHART_PATH, e.getMessage());
+                return;
+            }
+        } else {
+            boolean res = destDir.mkdirs();
+            if (!res) {
+                LOGGER.error("create chart dir failed!");
+                return;
+            }
         }
         //Find the helm chart file first!
         try {
@@ -152,17 +160,32 @@ public class ContainerPackageFileCreator extends PackageFileCreator {
         }
         LOGGER.info("imageList:{}", imageList);
         for (String imageInfo : imageList) {
+            //image info support a/b/c:d a:b b/c:d
             ImageDesc imageDesc = new ImageDesc();
             imageDesc.setId(UUID.randomUUID().toString());
             if (imageInfo.contains("/")) {
                 String[] imageInfoArr = imageInfo.split("/");
-                String[] images = imageInfoArr[2].split(":");
-                imageDesc.setName(images[0]);
-                imageDesc.setVersion(images[1]);
+                if (imageInfoArr.length == 3) {
+                    String[] images = imageInfoArr[2].split(":");
+                    imageDesc.setName(images[0]);
+                    imageDesc.setVersion(images[1]);
+                } else if (imageInfoArr.length == 2) {
+                    String[] images = imageInfoArr[1].split(":");
+                    imageDesc.setName(images[0]);
+                    imageDesc.setVersion(images[1]);
+                } else {
+                    LOGGER.error("image {} info non-standard format", imageInfo);
+                    return;
+                }
             } else {
                 String[] images = imageInfo.split(":");
-                imageDesc.setName(images[0]);
-                imageDesc.setVersion(images[1]);
+                if (images.length == 2) {
+                    imageDesc.setName(images[0]);
+                    imageDesc.setVersion(images[1]);
+                } else {
+                    LOGGER.error("image {} non-standard format", imageInfo);
+                    return;
+                }
             }
             imageDesc.setArchitecture(application.getArchitecture());
             imageDesc.setSwImage(imageInfo);
