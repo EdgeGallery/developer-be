@@ -48,7 +48,6 @@ import org.edgegallery.developer.model.apppackage.appd.policies.AntiAffinityRule
 import org.edgegallery.developer.model.apppackage.appd.vdu.SwImageData;
 import org.edgegallery.developer.model.apppackage.appd.vdu.VDUCapability;
 import org.edgegallery.developer.model.apppackage.appd.vdu.VDUProperty;
-import org.edgegallery.developer.model.apppackage.appd.vdu.VDUPropertyContainer;
 import org.edgegallery.developer.model.apppackage.appd.vducp.VDUCPAttributes;
 import org.edgegallery.developer.model.apppackage.appd.vducp.VDUCPProperty;
 import org.edgegallery.developer.model.apppackage.appd.vducp.VirtualBindingRequire;
@@ -101,8 +100,6 @@ public class TopologyTemplate {
     public TopologyTemplate(EnumAppClass type) {
         if (EnumAppClass.VM == type) {
             initVmInputs();
-        } else if (EnumAppClass.CONTAINER == type) {
-            initContainerInputs();
         }
         initVnfNode();
     }
@@ -122,22 +119,6 @@ public class TopologyTemplate {
         }
         for (Map.Entry<String, LinkedHashMap<String, String>> entry : vmInputs.entrySet()) {
             inputs.put(entry.getKey(), new InputParam(entry.getValue()));
-        }
-    }
-
-    private void initContainerInputs() {
-        try {
-            InputStream inputStream = new FileInputStream(new File(CONTAINER_PACKAGE_TEMPLATE_INPUT_PATH));
-            Yaml yaml = new Yaml(new SafeConstructor());
-            LinkedHashMap<String, LinkedHashMap<String, String>> containerInputs = yaml.load(inputStream);
-            if (null == inputs) {
-                inputs = new LinkedHashMap<String, InputParam>();
-            }
-            containerInputs.keySet().stream().forEach(key -> inputs.put(key, new InputParam(containerInputs.get(key))));
-        } catch (IOException e) {
-            LOGGER.error("init container inputs read file failed. {}", e);
-            throw new FileOperateException("init container inputs read file failed.",
-                ResponseConsts.RET_LOAD_YAML_FAIL);
         }
     }
 
@@ -249,7 +230,8 @@ public class TopologyTemplate {
 
         StringBuffer imageData = new StringBuffer();
         imageDescList.stream().forEach(image -> imageData.append(image.getName() + ":" + image.getVersion() + ", "));
-        VDUPropertyContainer propertyContainer = new VDUPropertyContainer();
+        VDUProperty propertyContainer = new VDUProperty();
+        propertyContainer.getVduProfile().setMaxNumberOfInstances(2);
         propertyContainer.setSwImageData(new SwImageData(imageData.substring(0, imageData.length() - 2)));
         vduNode.setProperties(propertyContainer);
 
@@ -443,6 +425,22 @@ public class TopologyTemplate {
         return -1;
     }
 
+    private void updateInputs() {
+        try {
+            InputStream inputStream = new FileInputStream(new File(CONTAINER_PACKAGE_TEMPLATE_INPUT_PATH));
+            Yaml yaml = new Yaml(new SafeConstructor());
+            LinkedHashMap<String, LinkedHashMap<String, String>> containerInputs = yaml.load(inputStream);
+            if (null == inputs) {
+                inputs = new LinkedHashMap<String, InputParam>();
+            }
+            containerInputs.keySet().stream().forEach(key -> inputs.put(key, new InputParam(containerInputs.get(key))));
+        } catch (IOException e) {
+            LOGGER.error("init container inputs read file failed. {}", e);
+            throw new FileOperateException("init container inputs read file failed.",
+                ResponseConsts.RET_LOAD_YAML_FAIL);
+        }
+    }
+
     private void updateAppConfiguration(Application app) {
         //if no configuration, skip this node
         AppConfiguration appConfiguration = app.getAppConfiguration();
@@ -453,6 +451,7 @@ public class TopologyTemplate {
             || appConfiguration.getDnsRuleList().isEmpty())) {
             return;
         }
+        updateInputs();
         NodeTemplate appConfigurationNode = new NodeTemplate();
         appConfigurationNode.setType(NodeTypeConstant.NODE_TYPE_APP_CONFIGURATIOIN);
         ConfigurationProperty property = new ConfigurationProperty();

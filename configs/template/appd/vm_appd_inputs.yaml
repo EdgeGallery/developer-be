@@ -6,14 +6,6 @@ az_dc:
   type: string
   default: nova
   description: AZ.DZ
-ak:
-  type: string
-  default: abdc
-  description: AK
-sk:
-  type: password
-  default: 1234
-  description: SK
 mep_certificate:
   type: text
   default: YHXGFTWU!@$%@&%#(DH(122479+_)
