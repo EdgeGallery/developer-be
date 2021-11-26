@@ -28,9 +28,9 @@ public class NodeTemplate {
     @NotBlank
     private String type;
 
-    private Object capabilities;
-
     private Object properties;
+
+    private Object capabilities;
 
     private Object attributes;
 

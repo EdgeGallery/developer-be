@@ -244,9 +244,12 @@ public class ProfileServiceImpl implements ProfileService {
             throw new FileOperateException("read file to string failed.", ResponseConsts.RET_MERGE_FILE_FAIL);
         }
 
-        if (null != applicationMapper.getApplicationByNameAndVersion(application.getName(), application.getVersion())) {
-            String msg = "application with name: ".concat(application.getName()).concat(" and version: ")
-                .concat(application.getVersion()).concat(" already exists.");
+        if (null != applicationMapper
+            .getApplicationByNameVersionProvider(application.getName(), application.getVersion(),
+                application.getProvider())) {
+            String msg = String
+                .format("application has already be created by profile: %s, user: %s", profileInfo.getName(),
+                    application.getProvider());
             LOGGER.error(msg);
             throw new IllegalRequestException(msg, ResponseConsts.RET_REQUEST_PARAM_ERROR);
         }
@@ -371,7 +374,7 @@ public class ProfileServiceImpl implements ProfileService {
         //field according to the first app is ok, we just create one project.
         Map<String, String> appInfo = appList.values().stream().findFirst().get();
         application.setVersion(appInfo.get("version"));
-        application.setProvider(appInfo.get("provider"));
+        application.setProvider(AccessUserUtil.getUser().getUserName());
         application.setAppCreateType(
             EnumApplicationType.INTEGRATED.toString().equalsIgnoreCase(appInfo.get("createType"))
                 ? EnumApplicationType.INTEGRATED

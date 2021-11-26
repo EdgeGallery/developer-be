@@ -40,5 +40,6 @@ public interface ApplicationMapper {
 
     int updateApplicationStatus(@Param("applicationId") String applicationId, @Param("status") String status);
 
-    Application getApplicationByNameAndVersion(@Param("name") String name, @Param("version") String version);
+    Application getApplicationByNameVersionProvider(@Param("name") String name, @Param("version") String version,
+        @Param("provider") String provider);
 }

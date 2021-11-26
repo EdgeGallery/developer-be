@@ -22,4 +22,12 @@ import lombok.Setter;
 public class SwImageData {
 
     private String name = "Ubuntu18.04";
+
+    public SwImageData() {
+
+    }
+
+    public SwImageData(String name) {
+        this.name = name;
+    }
 }
