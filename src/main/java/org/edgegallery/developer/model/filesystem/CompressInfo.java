@@ -19,23 +19,12 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class FileSystemResponse {
+public class CompressInfo {
 
-    private String imageId;
+    private int compressStatus;
 
-    private String fileName;
+    private String compressMsg;
 
-    private String uploadTime;
-
-    private String storageMedium;
-
-    private int slimStatus;
-
-    private CompressInfo compressInfo;
-
-    private String userId;
-
-    private ImageCheckResponse checkStatusResponse;
-
+    private double compressRate;
 
 }

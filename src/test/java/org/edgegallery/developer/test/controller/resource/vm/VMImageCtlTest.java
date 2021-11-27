@@ -21,6 +21,7 @@ import com.google.gson.Gson;
 import java.util.ArrayList;
 import java.util.List;
 import org.edgegallery.developer.model.resource.vm.VMImage;
+import org.edgegallery.developer.model.restful.OperationInfoRep;
 import org.edgegallery.developer.model.restful.VMImageReq;
 import org.edgegallery.developer.model.restful.VMImageRes;
 import org.edgegallery.developer.model.uploadfile.UploadFile;
@@ -205,7 +206,7 @@ public class VMImageCtlTest {
     @WithMockUser(roles = "DEVELOPER_ADMIN")
     public void testImageSlimSuccess() throws Exception {
         String url = String.format("/mec/developer/v2/vmimages/%s/action/slim", 1);
-        Mockito.when(vmImageService.imageSlim(Mockito.anyInt())).thenReturn(true);
+        Mockito.when(vmImageService.imageSlim(Mockito.anyInt())).thenReturn(new OperationInfoRep(""));
         ResultActions actions = mvc
             .perform(MockMvcRequestBuilders.post(url).with(csrf()).contentType(MediaType.APPLICATION_JSON_UTF8))
             .andExpect(MockMvcResultMatchers.status().isOk());
