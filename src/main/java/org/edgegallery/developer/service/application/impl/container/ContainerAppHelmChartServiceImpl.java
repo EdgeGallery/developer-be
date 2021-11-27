@@ -44,9 +44,11 @@ import org.edgegallery.developer.service.application.AppConfigurationService;
 import org.edgegallery.developer.service.application.container.ContainerAppHelmChartService;
 import org.edgegallery.developer.util.BusinessConfigUtil;
 import org.edgegallery.developer.util.FileUtil;
+import org.edgegallery.developer.util.ImageConfig;
 import org.edgegallery.developer.util.InitConfigUtil;
 import org.edgegallery.developer.util.helmcharts.IContainerFileHandler;
 import org.edgegallery.developer.util.helmcharts.LoadContainerFileFactory;
+import org.edgegallery.developer.util.helmcharts.LoadK8sYamlHandlerImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -75,6 +77,9 @@ public class ContainerAppHelmChartServiceImpl implements ContainerAppHelmChartSe
     @Autowired
     private AppConfigurationService appConfigurationService;
 
+    @Autowired
+    private ImageConfig imageConfig;
+
     public HelmChart uploadHelmChartFile(String applicationId, String... filePaths) {
         if (filePaths.length < 1) {
             LOGGER.error("The input file is empty.");
@@ -89,6 +94,9 @@ public class ContainerAppHelmChartServiceImpl implements ContainerAppHelmChartSe
         try {
             IContainerFileHandler containerFileHandler = LoadContainerFileFactory.createLoader(firstFile.getName());
             assert containerFileHandler != null;
+            if (containerFileHandler instanceof LoadK8sYamlHandlerImpl) {
+                ((LoadK8sYamlHandlerImpl) containerFileHandler).setImageConfig(imageConfig);
+            }
             containerFileHandler.load(filePaths);
 
             // default dependency mep service.
