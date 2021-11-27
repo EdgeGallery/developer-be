@@ -32,16 +32,15 @@ import org.edgegallery.developer.exception.DeveloperException;
 import org.edgegallery.developer.exception.FileFoundFailException;
 import org.edgegallery.developer.exception.FileOperateException;
 import org.edgegallery.developer.exception.IllegalRequestException;
-import org.edgegallery.developer.mapper.HostMapper;
 import org.edgegallery.developer.mapper.capability.CapabilityMapper;
+import org.edgegallery.developer.mapper.resource.mephost.MepHostMapper;
 import org.edgegallery.developer.mapper.uploadfile.UploadFileMapper;
 import org.edgegallery.developer.model.GeneralConfig;
 import org.edgegallery.developer.model.apppackage.AppPkgStructure;
 import org.edgegallery.developer.model.capability.Capability;
-import org.edgegallery.developer.model.resource.MepHost;
+import org.edgegallery.developer.model.resource.mephost.EnumVimType;
+import org.edgegallery.developer.model.resource.mephost.MepHost;
 import org.edgegallery.developer.model.uploadfile.UploadFile;
-import org.edgegallery.developer.model.workspace.EnumHostStatus;
-import org.edgegallery.developer.service.AppReleaseService;
 import org.edgegallery.developer.service.uploadfile.UploadFileService;
 import org.edgegallery.developer.util.BusinessConfigUtil;
 import org.edgegallery.developer.util.CompressFileUtils;
@@ -71,13 +70,10 @@ public class UploadFileServiceImpl implements UploadFileService {
     private UploadFileMapper uploadFileMapper;
 
     @Autowired
-    private HostMapper hostMapper;
+    private MepHostMapper mepHostMapper;
 
     @Autowired
     private CapabilityMapper capabilityMapper;
-
-    @Autowired
-    private AppReleaseService appReleaseService;
 
     private String sampleCodePath;
 
@@ -103,7 +99,7 @@ public class UploadFileServiceImpl implements UploadFileService {
             return FileUtils.readFileToByteArray(file);
         }
         if (fileFormat.equals(".yaml") || fileFormat.equals(".json")) {
-            List<MepHost> enabledHosts = hostMapper.getHostsByStatus(EnumHostStatus.NORMAL, "X86", "K8S");
+            List<MepHost> enabledHosts = mepHostMapper.getHostsByCondition("", EnumVimType.K8S.toString(), "X86");
             if (!enabledHosts.isEmpty()) {
                 String host = enabledHosts.get(0).getLcmIp() + ":" + "32119";
                 return FileUtils.readFileToString(file, StandardCharsets.UTF_8).replace("{HOST}", host)
@@ -208,37 +204,9 @@ public class UploadFileServiceImpl implements UploadFileService {
 
     @Override
     public AppPkgStructure getSampleCodeStru(List<String> apiFileIds) {
-        File res = generateTgz(apiFileIds);
-        if (res == null) {
-            throw new FileOperateException("generate samplecode file failed!", ResponseConsts.RET_SAVE_FILE_FAIL);
-        }
-        boolean decompressRes;
-        String samplePath = "";
-        try {
-            samplePath = res.getCanonicalPath();
-            decompressRes = CompressFileUtils.decompress(samplePath, samplePath.substring(0, samplePath.length() - 15));
-        } catch (IOException e) {
-            LOGGER.error("get sample code dir fail,{}", e.getMessage());
-            throw new FileOperateException("get sample code dir fail!", ResponseConsts.RET_DECOMPRESS_FILE_FAIL);
-        }
-        if (!decompressRes) {
-            LOGGER.error("decompress sample code file fail");
-            throw new FileOperateException("decompress file failed!", ResponseConsts.RET_DECOMPRESS_FILE_FAIL);
-        }
-        DeveloperFileUtils.deleteTempFile(res);
-        // get csar pkg structure
-        AppPkgStructure structure;
-        try {
-            structure = appReleaseService
-                .getFiles(samplePath.substring(0, samplePath.length() - 15), new AppPkgStructure());
-            sampleCodePath = samplePath.substring(0, samplePath.length() - 15);
-        } catch (IOException ex) {
-            LOGGER.error("get sample code pkg occur io exception: {}", ex.getMessage());
-            String message = "get sample code pkg occur io exception!";
-            throw new FileOperateException(message, ResponseConsts.RET_FILE_STRUCTURE_FAIL);
-        }
-        return structure;
+        return null;
     }
+
 
     @Override
     public String getSampleCodeContent(String fileName) {

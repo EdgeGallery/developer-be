@@ -17,7 +17,7 @@ package org.edgegallery.developer.service.application.action.impl.vm;
 
 import org.apache.commons.lang3.StringUtils;
 import org.edgegallery.developer.mapper.application.vm.ImageExportInfoMapper;
-import org.edgegallery.developer.model.LcmLog;
+import org.edgegallery.developer.model.lcm.LcmLog;
 import org.edgegallery.developer.model.application.vm.EnumVMStatus;
 import org.edgegallery.developer.model.application.vm.VirtualMachine;
 import org.edgegallery.developer.model.filesystem.FileSystemResponse;
@@ -36,7 +36,6 @@ import org.edgegallery.developer.util.HttpClientUtil;
 import org.edgegallery.developer.util.SpringContextUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 
 public class DownloadImageAction extends AbstractAction {

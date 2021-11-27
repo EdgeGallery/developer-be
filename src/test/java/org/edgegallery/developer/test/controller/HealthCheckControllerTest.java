@@ -16,7 +16,6 @@ package org.edgegallery.developer.test.controller;
 
 import com.google.gson.Gson;
 import org.edgegallery.developer.controller.HealthCheckController;
-import org.edgegallery.developer.service.UploadFileService;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -37,9 +36,6 @@ public class HealthCheckControllerTest {
 
     @InjectMocks
     private HealthCheckController healthCheckController;
-
-    @Mock
-    private UploadFileService uploadFileService;
 
     private MockMvc mvc;
 

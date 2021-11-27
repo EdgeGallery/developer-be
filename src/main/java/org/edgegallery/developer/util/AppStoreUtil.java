@@ -17,15 +17,11 @@
 package org.edgegallery.developer.util;
 
 import com.google.gson.Gson;
-import java.util.HashMap;
 import java.util.Map;
-import org.edgegallery.developer.config.security.AccessUserUtil;
 import org.edgegallery.developer.domain.model.user.User;
-import org.edgegallery.developer.model.workspace.PublishAppReqDto;
-import org.edgegallery.developer.service.UtilsService;
+import org.edgegallery.developer.model.appstore.PublishAppReqDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -39,7 +35,8 @@ import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 public class AppStoreUtil {
-    private static final Logger LOGGER = LoggerFactory.getLogger(UtilsService.class);
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(AppStoreUtil.class);
 
     private static final String APPSTORE_ADDRESS = "appstore.address";
 

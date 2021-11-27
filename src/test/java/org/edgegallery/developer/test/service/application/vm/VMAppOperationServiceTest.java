@@ -28,7 +28,7 @@ import org.apache.ibatis.io.Resources;
 import org.edgegallery.developer.domain.model.user.User;
 import org.edgegallery.developer.mapper.application.vm.VMInstantiateInfoMapper;
 import org.edgegallery.developer.model.Chunk;
-import org.edgegallery.developer.model.LcmLog;
+import org.edgegallery.developer.model.lcm.LcmLog;
 import org.edgegallery.developer.model.application.Application;
 import org.edgegallery.developer.model.instantiate.vm.VMInstantiateInfo;
 import org.edgegallery.developer.model.operation.EnumActionStatus;

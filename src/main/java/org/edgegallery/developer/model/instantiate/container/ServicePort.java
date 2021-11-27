@@ -12,35 +12,17 @@
  * the License.
  */
 
-package org.edgegallery.developer.model.resource.mephost;
+package org.edgegallery.developer.model.instantiate.container;
 
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
-public class MepHostLog {
+public class ServicePort {
+    private String port;
 
-    private String logId;
+    private String targetPort;
 
-    private String hostIp;
-
-    private String userName;
-
-    private String userId;
-
-    private String projectId;
-
-    private String projectName;
-
-    private String appInstancesId;
-
-    private String deployTime;
-
-    private EnumMepHostStatus status;
-
-    private String operation;
-
-    private String hostId;
-
+    private String nodePort;
 }

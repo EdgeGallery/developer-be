@@ -39,30 +39,6 @@
       CONSTRAINT "tbl_plugin_pkey" PRIMARY KEY ("pluginid")
     )
     ;
-
-    -- plugin and app-test table end -----------------
-    -- workspace table start -----------------
-    CREATE TABLE IF NOT EXISTS "tbl_app_project" (
-      "id" varchar(50) DEFAULT NULL,
-      "name" varchar(100) DEFAULT NULL,
-      "provider" varchar(100) DEFAULT NULL,
-      "platform" varchar(100) DEFAULT NULL,
-      "industries" varchar(100) DEFAULT NULL,
-      "type" varchar(50) DEFAULT NULL,
-      "description" text DEFAULT NULL,
-      "status" varchar(20) DEFAULT NULL,
-      "user_id" varchar(50) DEFAULT NULL,
-      "create_date" varchar(50) DEFAULT NULL,
-      "last_test_id" varchar(50) DEFAULT NULL,
-      "version" varchar(50) DEFAULT NULL,
-      "capabilities" text DEFAULT NULL,
-      "project_type" varchar(10) DEFAULT NULL,
-      "icon_file_id" varchar(50) DEFAULT NULL,
-      "open_capability_id" varchar(50) DEFAULT NULL,
-      "deploy_platform" varchar(100) DEFAULT NULL,
-      CONSTRAINT "tbl_app_project_pkey" PRIMARY KEY ("id")
-    )
-    ;
     
     CREATE TABLE IF NOT EXISTS "tbl_app_project_capability" (
       "project_id" varchar(50) NOT NULL,
@@ -113,48 +89,6 @@
     )
     ;
 
-    CREATE TABLE IF NOT EXISTS "tbl_project_image" (
-      "id"  varchar(255) NOT NULL,
-      "image_info" text  DEFAULT NULL,
-      "project_id" varchar(255) DEFAULT NULL,
-      "helm_chart_file_id" varchar(255) DEFAULT NULL,
-      CONSTRAINT "tbl_project_image_pkey" PRIMARY KEY ("id")
-    )
-    ;
-
-     CREATE TABLE IF NOT EXISTS "tbl_container_app_image_info" (
-       "id"  varchar(255) NOT NULL,
-       "image_info" text  DEFAULT NULL,
-       "application_id" varchar(255) DEFAULT NULL,
-       "helm_chart_file_id" varchar(255) DEFAULT NULL,
-       CONSTRAINT "tbl_container_app_image_info_pkey" PRIMARY KEY ("id")
-     )
-     ;
-
-    CREATE TABLE IF NOT EXISTS "tbl_project_test_config" (
-      "test_id" varchar(50) NOT NULL,
-      "project_id" varchar(50) DEFAULT NULL,
-      "agent_config" text DEFAULT NULL,
-      "image_file_id" varchar(255) DEFAULT NULL,
-      "app_api_file_id" varchar(50) DEFAULT NULL,
-      "deploy_file_id" varchar(50) DEFAULT NULL,
-      "private_host" bool DEFAULT FALSE,
-      "platform" varchar(100) DEFAULT NULL,
-      "access_url" text DEFAULT NULL,
-      "error_log" text DEFAULT NULL,
-      "deploy_date" timestamptz(6) DEFAULT NULL,
-      "hosts" text DEFAULT NULL,
-      "app_instance_id" varchar(50) DEFAULT NULL,
-      "work_load_id" varchar(255) DEFAULT NULL,
-      "pods" text DEFAULT NULL,
-      "deploy_status" varchar(255) DEFAULT NULL,
-      "stage_status"  varchar(255) DEFAULT NULL,
-      "lcm_token"  varchar(1000) DEFAULT NULL,
-      "package_id" varchar(255) DEFAULT NULL,
-      CONSTRAINT "tbl_project_test_config_pkey" PRIMARY KEY ("test_id")
-    )
-    ;
-
     CREATE TABLE IF NOT EXISTS "tbl_uploaded_file" (
       "file_id" varchar(50) NOT NULL,
       "file_name" varchar(255) DEFAULT NULL,
@@ -163,18 +97,6 @@
       "upload_date" timestamptz(6) DEFAULT NULL,
       "file_path" varchar(255) DEFAULT NULL,
       CONSTRAINT "tbl_uploaded_file_pkey" PRIMARY KEY ("file_id")
-    )
-    ;
-
-    CREATE TABLE IF NOT EXISTS "tbl_helm_template_yaml" (
-      "file_id" varchar(50) NOT NULL,
-      "file_name" varchar(255) DEFAULT NULL,
-      "user_id" varchar(50) DEFAULT NULL,
-      "project_id" varchar(50) DEFAULT NULL,
-      "content" text DEFAULT NULL,
-      "upload_time_stamp" bigint DEFAULT NULL,
-      "config_type" varchar(50) DEFAULT NULL,
-      CONSTRAINT "tbl_helm_template_yaml_pkey" PRIMARY KEY ("file_id")
     )
     ;
 
@@ -221,135 +143,6 @@
       "port" int4 NOT NULL,
       "workload_id" varchar(50) NOT NULL,
       "create_time" varchar(50) NOT NULL
-    )
-    ;
-
-    CREATE TABLE IF NOT EXISTS "tbl_release_config" (
-       "release_id" varchar(255) NOT NULL,
-       "project_id" varchar(255) NOT NULL,
-       "guide_file_id" varchar(255) DEFAULT NULL,
-       "appinstance_id" varchar(255) DEFAULT NULL,
-       "capabilities_detail" text  DEFAULT NULL,
-       "atp_test" text DEFAULT NULL,
-       "test_status" varchar(255)  DEFAULT NULL,
-       "create_time" timestamptz(0) NOT NULL DEFAULT NULL,
-       CONSTRAINT "tbl_release_config_pkey" PRIMARY KEY ("release_id")
-     )
-     ;
-
-     CREATE TABLE IF NOT EXISTS "tbl_vm_regulation" (
-      "regulation_id" int4 NOT NULL,
-      "architecture" varchar(50) DEFAULT NULL,
-      "name_zh" varchar(50) DEFAULT NULL,
-      "name_en" varchar(50) DEFAULT NULL,
-      "scene_zh" varchar(255) DEFAULT NULL,
-      "scene_en" varchar(255) DEFAULT NULL,
-      "memory" int4  DEFAULT NULL,
-      "cpu" int4  DEFAULT NULL,
-      "system_disk" int4  DEFAULT NULL,
-      "data_disk" int4  DEFAULT NULL,
-      "gpu" varchar(50)  DEFAULT NULL,
-      "other_ability" varchar(255)  DEFAULT NULL,
-      CONSTRAINT "tbl_vm_regulation_pkey" PRIMARY KEY ("regulation_id")
-    )
-    ;
-
-    CREATE TABLE IF NOT EXISTS "tbl_vm_network" (
-      "network_type" varchar(50) DEFAULT NULL,
-      "description_zh" varchar(255) DEFAULT NULL,
-      "description_en" varchar(255) DEFAULT NULL,
-      "network_name" varchar(50) DEFAULT NULL,
-      CONSTRAINT "tbl_vm_network_pkey" PRIMARY KEY ("network_type")
-    )
-    ;
-
-    CREATE TABLE IF NOT EXISTS "tbl_vm_system" (
-      "system_id" SERIAL,
-      "system_name" varchar(128) DEFAULT NULL,
-      "type" varchar(50) DEFAULT NULL,
-      "operate_system" varchar(50) DEFAULT NULL,
-      "version" varchar(50) DEFAULT NULL,
-      "system_bit" varchar(50) DEFAULT NULL,
-      "system_disk" int4  DEFAULT NULL,
-      "user_id" varchar(50) DEFAULT NULL,
-      "user_name" varchar(50) DEFAULT NULL,
-      "create_time" timestamptz(6)  DEFAULT NULL,
-      "modify_time" timestamptz(6)  DEFAULT NULL,
-      "system_format" varchar(50) DEFAULT NULL,
-      "system_size" bigint DEFAULT NULL,
-      "system_slim" varchar(50) DEFAULT NULL,
-      "upload_time" timestamptz(6)  DEFAULT NULL,
-      "system_path" varchar(128) DEFAULT NULL,
-      "file_name" varchar(128) DEFAULT NULL,
-      "file_md5" varchar(128) DEFAULT NULL,
-      "status" varchar(50) DEFAULT NULL,
-      "file_identifier" varchar(128) DEFAULT NULL,
-      "error_type" varchar(32) DEFAULT NULL,
-      CONSTRAINT "tbl_vm_system_uniqueName" UNIQUE ("system_name","user_id"),
-      CONSTRAINT "tbl_vm_system_pkey" PRIMARY KEY ("system_id")
-      );
-
-    CREATE TABLE IF NOT EXISTS "tbl_vm_user_data" (
-      "operate_system" varchar(50) DEFAULT NULL,
-      "flavor_extra_specs" text DEFAULT NULL,
-      "is_temp" bool DEFAULT NULL,
-      "contents" text DEFAULT NULL,
-      "params" text DEFAULT NULL,
-      CONSTRAINT "tbl_vm_user_data_pkey" PRIMARY KEY ("operate_system")
-    )
-    ;
-
-    CREATE TABLE IF NOT EXISTS "tbl_project_vm_package_config" (
-      "id" varchar(50) DEFAULT NULL,
-      "project_id" varchar(50) DEFAULT NULL,
-      "vm_regulation_desc" text DEFAULT NULL,
-      "vm_system_desc" text DEFAULT NULL,
-      "vm_network_desc" text DEFAULT NULL,
-      "vm_user_data" text DEFAULT NULL,
-      "vm_name" varchar(500) DEFAULT NULL,
-      "ak" text DEFAULT NULL,
-      "sk" text DEFAULT NULL,
-      "app_instance_id" varchar(50) DEFAULT NULL,
-      "create_time" timestamptz(6) DEFAULT NULL,
-      CONSTRAINT  "tbl_project_vm_package__uniqueProjectId" UNIQUE ("project_id"),
-      CONSTRAINT "tbl_project_vm_package_config_pkey" PRIMARY KEY ("id")
-    )
-    ;
-
-    CREATE TABLE IF NOT EXISTS "tbl_project_vm_create_config" (
-      "vm_id"  varchar(255) NOT NULL DEFAULT NULL,
-      "project_id" varchar(50) DEFAULT NULL,
-      "vm_name" varchar(500) DEFAULT NULL,
-      "host" text  DEFAULT NULL,
-      "status" varchar(50)  DEFAULT NULL,
-      "stage_status" varchar(500)  DEFAULT NULL,
-      "lcm_token" varchar(1024)  DEFAULT NULL,
-      "vm_info" text  DEFAULT NULL,
-      "app_instance_id" varchar(50)  DEFAULT NULL,
-      "package_id" varchar(100)  DEFAULT NULL,
-      "create_time"  timestamptz(6)  DEFAULT NULL,
-      "log" text  DEFAULT NULL,
-      CONSTRAINT "tbl_vm_create_config_pkey" PRIMARY KEY ("vm_id")
-    )
-    ;
-
-    CREATE TABLE IF NOT EXISTS "tbl_project_vm_image_config" (
-      "vm_id"  varchar(255) NOT NULL DEFAULT NULL,
-      "image_id" varchar(500) DEFAULT NULL,
-      "project_id" varchar(50) DEFAULT NULL,
-      "vm_name" varchar(500) DEFAULT NULL,
-      "image_name" varchar(500) DEFAULT NULL,
-      "app_instance_id" varchar(50)  DEFAULT NULL,
-      "host_ip" varchar(50)  DEFAULT NULL,
-      "sum_chunk_num" varchar(50)  DEFAULT NULL,
-      "chunk_size" varchar(50)  DEFAULT NULL,
-      "checksum" varchar(500)  DEFAULT NULL,
-      "stage_status" varchar(500)  DEFAULT NULL,
-      "status" varchar(512)  DEFAULT NULL,
-      "lcm_token" varchar(1024)  DEFAULT NULL,
-      "create_time"  timestamptz(6)  DEFAULT NULL,
-      "log" text  DEFAULT NULL,
-      CONSTRAINT "tbl_vm_image_config_pkey" PRIMARY KEY ("vm_id")
     )
     ;
 

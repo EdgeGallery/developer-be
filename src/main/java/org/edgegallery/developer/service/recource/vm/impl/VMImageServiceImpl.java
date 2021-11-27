@@ -54,7 +54,6 @@ import org.edgegallery.developer.model.restful.OperationInfoRep;
 import org.edgegallery.developer.model.restful.VMImageQuery;
 import org.edgegallery.developer.model.restful.VMImageReq;
 import org.edgegallery.developer.model.restful.VMImageRes;
-import org.edgegallery.developer.model.workspace.EnumSystemImageSlimStatus;
 import org.edgegallery.developer.service.recource.vm.VMImageService;
 import org.edgegallery.developer.util.BusinessConfigUtil;
 import org.edgegallery.developer.util.HttpClientUtil;
@@ -461,7 +460,7 @@ public class VMImageServiceImpl implements VMImageService {
             ? EnumVmImageStatus.PUBLISHED
             : EnumVmImageStatus.UPLOAD_SUCCEED, uploadedSystemPath);
         vmImageMapper.updateVmImageUploadInfo(uploadFileInfo);
-        vmImageMapper.updateVmImageSlimStatus(imageId, EnumSystemImageSlimStatus.SLIM_WAIT.toString());
+        vmImageMapper.updateVmImageSlimStatus(imageId, EnumVmImageSlimStatus.SLIM_WAIT.toString());
         return ResponseEntity.ok().build();
     }
 
@@ -545,7 +544,7 @@ public class VMImageServiceImpl implements VMImageService {
         }
 
         LOGGER.info("update image status to SLIMMING.");
-        vmImageMapper.updateVmImageSlimStatus(imageId, EnumSystemImageSlimStatus.SLIMMING.toString());
+        vmImageMapper.updateVmImageSlimStatus(imageId, EnumVmImageSlimStatus.SLIMMING.toString());
         new GetVmImageSlimProcessor(imageId, operationStatus).start();
         return new OperationInfoRep(operationStatus.getId());
 
@@ -710,14 +709,14 @@ public class VMImageServiceImpl implements VMImageService {
                 }
                 FileSystemResponse slimResult = HttpClientUtil.queryImageCheck(url);
                 if (slimResult == null) {
-                    vmImageMapper.updateVmImageSlimStatus(imageId, EnumSystemImageSlimStatus.SLIM_FAILED.toString());
+                    vmImageMapper.updateVmImageSlimStatus(imageId, EnumVmImageSlimStatus.SLIM_FAILED.toString());
                     return false;
                 }
                 LOGGER.info("image slim result: {}", slimResult);
                 int slimStatus = slimResult.getSlimStatus();
 
                 if (slimStatus == 2) {
-                    vmImageMapper.updateVmImageSlimStatus(imageId, EnumSystemImageSlimStatus.SLIM_SUCCEED.toString());
+                    vmImageMapper.updateVmImageSlimStatus(imageId, EnumVmImageSlimStatus.SLIM_SUCCEED.toString());
                     Long imageSize = Long
                         .parseLong(slimResult.getCheckStatusResponse().getCheckInfo().getImageInfo().getImageSize());
                     String checkSum = slimResult.getCheckStatusResponse().getCheckInfo().getChecksum();
@@ -726,12 +725,12 @@ public class VMImageServiceImpl implements VMImageService {
                     vmImageMapper.updateVmImageInfo(imageId, imageSize, checkSum);
                     return true;
                 } else if (slimStatus == 1) {
-                    vmImageMapper.updateVmImageSlimStatus(imageId, EnumSystemImageSlimStatus.SLIMMING.toString());
+                    vmImageMapper.updateVmImageSlimStatus(imageId, EnumVmImageSlimStatus.SLIMMING.toString());
                     int progress = (int) (10 + slimResult.getCompressInfo().getCompressRate() * 70);
                     saveOperationInfo(operationStatus, EnumActionStatus.ONGOING, progress,
                         slimResult.getCompressInfo().getCompressMsg());
                 } else {
-                    vmImageMapper.updateVmImageSlimStatus(imageId, EnumSystemImageSlimStatus.SLIM_FAILED.toString());
+                    vmImageMapper.updateVmImageSlimStatus(imageId, EnumVmImageSlimStatus.SLIM_FAILED.toString());
                     return false;
                 }
             }

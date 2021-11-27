@@ -17,7 +17,7 @@
 package org.edgegallery.developer.service.application.action.impl;
 
 import java.util.List;
-import org.edgegallery.developer.model.LcmLog;
+import org.edgegallery.developer.model.lcm.LcmLog;
 import org.edgegallery.developer.model.application.Application;
 import org.edgegallery.developer.model.apppackage.AppPackage;
 import org.edgegallery.developer.model.instantiate.EnumAppInstantiateStatus;

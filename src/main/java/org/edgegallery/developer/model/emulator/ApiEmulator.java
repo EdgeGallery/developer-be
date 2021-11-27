@@ -14,19 +14,25 @@
  *    limitations under the License.
  */
 
-package org.edgegallery.developer.mapper;
+package org.edgegallery.developer.model.emulator;
 
-import org.apache.ibatis.annotations.Mapper;
-import org.edgegallery.developer.model.emulator.ApiEmulator;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
 
-@Mapper
-public interface ApiEmulatorMapper {
+@Getter
+@Setter
+@AllArgsConstructor
+public class ApiEmulator {
 
-    int saveEmulator(ApiEmulator apiEmulator);
+    private String id;
 
-    int deleteEmulatorById(String id);
+    private String userId;
 
-    ApiEmulator getEmulatorByUserId(String userId);
+    private String hostId;
 
-    int selectMaxPort(String hostId);
+    private int port;
+
+    private String workloadId;
+
 }

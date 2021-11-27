@@ -20,7 +20,7 @@ import java.util.List;
 import org.edgegallery.developer.model.application.vm.VMApplication;
 import org.edgegallery.developer.model.application.vm.VirtualMachine;
 import org.edgegallery.developer.model.apppackage.appd.AppDefinition;
-import org.edgegallery.developer.model.deployyaml.ImageDesc;
+import org.edgegallery.developer.model.apppackage.ImageDesc;
 import org.edgegallery.developer.model.resource.vm.VMImage;
 import org.edgegallery.developer.service.apppackage.converter.AppDefinitionConverter;
 import org.edgegallery.developer.service.recource.vm.VMImageService;

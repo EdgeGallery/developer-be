@@ -237,14 +237,14 @@ definitions:
         enum:
           - "OPENMEP"
           - "OPENMEP_ECO"
-        x-java-class: "org.edgegallery.developer.model.workspace.EnumOpenMepType"
+        x-java-class: "org.edgegallery.developer.model.capability.EnumOpenMepType"
       description:
         type: "string"
       capabilityDetailList:
         type: "array"
         items:
           $ref: "#/definitions/OpenMepCapabilityDetail"
-    x-java-class: "org.edgegallery.developer.model.workspace.OpenMepCapabilityGroup"
+    x-java-class: "org.edgegallery.developer.model.capability.OpenMepCapabilityGroup"
   OpenMepApi:
     type: "object"
     properties:

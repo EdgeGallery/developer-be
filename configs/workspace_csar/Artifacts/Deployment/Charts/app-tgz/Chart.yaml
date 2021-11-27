@@ -1,5 +1,0 @@
-apiVersion: v1
-appVersion: "{version}"
-description: A Helm chart for Kubernetes
-name: {name}
-version: "{version}"

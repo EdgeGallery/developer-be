@@ -35,7 +35,6 @@ import org.edgegallery.developer.domain.shared.IconChecker;
 import org.edgegallery.developer.domain.shared.PluginChecker;
 import org.edgegallery.developer.exception.EntityNotFoundException;
 import org.edgegallery.developer.response.FormatRespDto;
-import org.edgegallery.developer.service.AppReleaseService;
 import org.edgegallery.developer.util.FileHashCode;
 import org.edgegallery.developer.util.FileUtil;
 import org.slf4j.Logger;
@@ -57,9 +56,6 @@ public class PluginService {
 
     @Autowired
     private FileService fileService;
-
-    @Autowired
-    private AppReleaseService appReleaseService;
 
     /**
      * publish plugin over.

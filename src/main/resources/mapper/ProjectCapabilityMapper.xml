@@ -21,12 +21,12 @@
      project_id,capability_id
     </sql>
     
-    <insert id="insert" parameterType="org.edgegallery.developer.model.workspace.ApplicationProjectCapability">
+    <insert id="insert" parameterType="org.edgegallery.developer.model.capability.ApplicationProjectCapability">
         insert into tbl_app_project_capability (<include refid="AllColumn"/>)
         values( #{projectId}, #{capabilityId})
     </insert>
 
-    <delete id="delete" parameterType="org.edgegallery.developer.model.workspace.ApplicationProjectCapability">
+    <delete id="delete" parameterType="org.edgegallery.developer.model.capability.ApplicationProjectCapability">
         DELETE FROM tbl_app_project_capability WHERE project_id = #{projectId} and capability_id=#{capabilityId}
     </delete>
 
@@ -34,7 +34,7 @@
         DELETE FROM tbl_app_project_capability WHERE project_id = #{projectId}
     </delete>
 
-    <select id="selectByProjectId" parameterType="String" resultType="org.edgegallery.developer.model.workspace.ApplicationProjectCapability">
+    <select id="selectByProjectId" parameterType="String" resultType="org.edgegallery.developer.model.capability.ApplicationProjectCapability">
         SELECT <include refid="AllColumn"/> FROM tbl_app_project_capability where project_id = #{projectId}
     </select>
 </mapper>
