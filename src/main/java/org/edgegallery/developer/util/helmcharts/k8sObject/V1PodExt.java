@@ -18,7 +18,6 @@ import io.kubernetes.client.openapi.models.V1Container;
 import io.kubernetes.client.openapi.models.V1Pod;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.ResourceBundle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
