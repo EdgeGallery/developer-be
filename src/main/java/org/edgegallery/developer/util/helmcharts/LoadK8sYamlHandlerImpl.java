@@ -22,18 +22,23 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import lombok.Setter;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.edgegallery.developer.exception.DeveloperException;
+import org.edgegallery.developer.util.ImageConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class LoadK8sYamlHandlerImpl extends AbstractContainerFileHandler {
     private static final Logger LOGGER = LoggerFactory.getLogger(LoadK8sYamlHandlerImpl.class);
 
-    private static String MEP_TEMPLATES_PATH = System.getProperty("user.dir") + File.separator
-        + "chart_template/templates/eg_template";
+    private static String MEP_TEMPLATES_PATH = System.getProperty("user.dir")
+        + "/configs/chart_template/templates/eg_template";
 
     @Setter
     private boolean hasMep = true;
+
+    @Setter
+    private ImageConfig imageConfig;
 
     @Override
     public void load(String... filePaths) throws IOException {
@@ -52,17 +57,22 @@ public class LoadK8sYamlHandlerImpl extends AbstractContainerFileHandler {
         workspace = tempDir.toString();
         File orgFile = new File(firstFile);
         String fileName = orgFile.getName();
-        Path helmChartPath = Files.createDirectory(
-            Paths.get(workspace, fileName.contains(".") ? fileName.substring(0, fileName.lastIndexOf(".")) : fileName));
+        String helmChartsName = fileName.contains(".") ? fileName.substring(0, fileName.lastIndexOf(".")) : fileName;
+        Path helmChartPath = Files.createDirectory(Paths.get(workspace, helmChartsName));
         helmChartsDir = helmChartPath.toString();
 
         // create values.yaml
         EgValuesYaml defaultValues = EgValuesYaml.createDefaultEgValues(hasMep);
+        if (imageConfig != null) {
+            defaultValues.getImageLocation().setDomainName(imageConfig.getDomainname());
+            defaultValues.getImageLocation().setProject(imageConfig.getProject());
+        }
         Path valuesYaml = Files.createFile(Paths.get(helmChartsDir, "values.yaml"));
         FileUtils.writeByteArrayToFile(valuesYaml.toFile(), defaultValues.getContent().getBytes(), false);
 
         // create charts.yaml
         EgChartsYaml defaultCharts = EgChartsYaml.createDefaultCharts();
+        defaultCharts.setName(helmChartsName + "-" + RandomStringUtils.randomNumeric(8));
         Path chartsYaml = Files.createFile(Paths.get(helmChartsDir, "Chart.yaml"));
         FileUtils.writeByteArrayToFile(chartsYaml.toFile(), defaultCharts.getContent().getBytes(), false);
 

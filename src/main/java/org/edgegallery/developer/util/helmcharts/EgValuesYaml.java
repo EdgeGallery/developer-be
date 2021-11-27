@@ -61,7 +61,7 @@ public class EgValuesYaml {
     @Getter
     @Setter
     @Builder
-    static class Global {
+    public static class Global {
         @Builder.Default
         @SerializedName("mepagent")
         private MepAgent mepAgent = MepAgent.builder().build();
@@ -73,7 +73,7 @@ public class EgValuesYaml {
         @Getter
         @Setter
         @Builder
-        static class MepAgent {
+        public static class MepAgent {
             @Builder.Default
             private boolean enabled = true;
 
@@ -85,7 +85,7 @@ public class EgValuesYaml {
         @Getter
         @Setter
         @Builder
-        static class NameSpace {
+        public static class NameSpace {
             @Builder.Default
             private boolean enabled = true;
         }
@@ -94,7 +94,7 @@ public class EgValuesYaml {
     @Setter
     @Getter
     @Builder
-    static class AppConfig {
+    public static class AppConfig {
         @Builder.Default
         @SerializedName("appnamespace")
         private String appNameSpace = "default";
@@ -104,7 +104,7 @@ public class EgValuesYaml {
 
         @Getter
         @Setter
-        static class AkSk {
+        public static class AkSk {
 
             @SerializedName("secretname")
             private String secretName = "<random_value>";
@@ -123,7 +123,7 @@ public class EgValuesYaml {
     @Setter
     @Getter
     @Builder
-    static class ServiceConfig {
+    public static class ServiceConfig {
         @SerializedName("servicename")
         private String serviceName;
 
@@ -140,7 +140,7 @@ public class EgValuesYaml {
     @Setter
     @Getter
     @Builder
-    static class ImageLocation {
+    public static class ImageLocation {
         @Builder.Default
         @SerializedName("domainname")
         private String domainName = "192.168.1.1";
