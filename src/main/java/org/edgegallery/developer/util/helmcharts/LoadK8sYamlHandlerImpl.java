@@ -58,7 +58,6 @@ public class LoadK8sYamlHandlerImpl extends AbstractContainerFileHandler {
         File orgFile = new File(firstFile);
         String fileName = orgFile.getName();
         String helmChartsName = fileName.contains(".") ? fileName.substring(0, fileName.lastIndexOf(".")) : fileName;
-        helmChartsName = helmChartsName.replaceAll("_", "-");
         Path helmChartPath = Files.createDirectory(Paths.get(workspace, helmChartsName));
         helmChartsDir = helmChartPath.toString();
 
@@ -73,7 +72,7 @@ public class LoadK8sYamlHandlerImpl extends AbstractContainerFileHandler {
 
         // create charts.yaml
         EgChartsYaml defaultCharts = EgChartsYaml.createDefaultCharts();
-        defaultCharts.setName(helmChartsName + "-" + RandomStringUtils.randomNumeric(8));
+        defaultCharts.setName(helmChartsName.replaceAll("_", "-") + "-" + RandomStringUtils.randomNumeric(8));
         Path chartsYaml = Files.createFile(Paths.get(helmChartsDir, "Chart.yaml"));
         FileUtils.writeByteArrayToFile(chartsYaml.toFile(), defaultCharts.getContent().getBytes(), false);
 

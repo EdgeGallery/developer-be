@@ -16,7 +16,6 @@
 
 package org.edgegallery.developer.service.application.action.impl.container;
 
-import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -47,6 +46,8 @@ import com.google.gson.reflect.TypeToken;
 
 public class InstantiateContainerAppAction extends InstantiateAppAction {
 
+    public static final String POD_RUNNING = "Running";
+
     ContainerAppOperationServiceImpl containerAppOperationService = (ContainerAppOperationServiceImpl) SpringContextUtil
         .getBean(ContainerAppOperationServiceImpl.class);
 
@@ -69,14 +70,14 @@ public class InstantiateContainerAppAction extends InstantiateAppAction {
                 K8sPod pod = getPodByName(instantiateInfo, podStatusInfo.getPodname());
                 pod.setPodStatus(podStatusInfo.getPodstatus());
                 for (PodContainers containerTmp : podStatusInfo.getContainers()) {
-                    Container container = new Container();
-                    container.setName(containerTmp.getContainername());
-                    if (null != containerTmp.getMetricsusage()) {
+                    if (!StringUtils.isEmpty(containerTmp.getContainername())) {
+                        Container container = new Container();
+                        container.setName(containerTmp.getContainername());
                         container.setCpuUsage(containerTmp.getMetricsusage().getCpuusage());
                         container.setMemUsage(containerTmp.getMetricsusage().getMemusage());
                         container.setDiskUsage(containerTmp.getMetricsusage().getDiskusage());
+                        pod.getContainerList().add(container);
                     }
-                    pod.getContainerList().add(container);
                 }
             }
             List<ServiceInfo> serviceInfoLst = status.getServices();
@@ -132,6 +133,8 @@ public class InstantiateContainerAppAction extends InstantiateAppAction {
 
     public EnumInstantiateStatus queryInstantiateStatus(String appInstanceId, MepHost mepHost) {
         int waitingTime = 0;
+        PodStatusInfos status = null;
+        PodEventsRes events = null;
         while (waitingTime < TIMEOUT) {
             String workStatus = HttpClientUtil.getWorkloadStatus(mepHost.getLcmProtocol(), mepHost.getLcmIp(),
                 mepHost.getLcmPort(), appInstanceId, getContext().getUserId(), getContext().getToken());
@@ -140,18 +143,14 @@ public class InstantiateContainerAppAction extends InstantiateAppAction {
                 mepHost.getLcmPort(), appInstanceId, getContext().getUserId(), getContext().getToken());
             LOGGER.info("Container app instantiate workEvents: {}", workEvents);
             if (null != workStatus && null != workEvents) {
-                Type type = new TypeToken<PodStatusInfos>() {
-                }.getType();
-                PodStatusInfos status = gson.fromJson(workStatus, type);
-                Type typeEvents = new TypeToken<PodEventsRes>() {
-                }.getType();
-                PodEventsRes events = gson.fromJson(workEvents, typeEvents);
-                if (!StringUtils.isEmpty(status.getPods().get(0).getContainers()[0].getContainername())) {
+                status = gson.fromJson(workStatus, new TypeToken<PodStatusInfos>() {}.getType());
+                events = gson.fromJson(workEvents, new TypeToken<PodEventsRes>() {}.getType());
+                boolean podStatus = queryPodStatus(status.getPods());
+                if (podStatus) {
                     saveWorkloadToInstantiateInfo(status, events);
                     return EnumInstantiateStatus.INSTANTIATE_STATUS_SUCCESS;
                 }
             }
-
             try {
                 Thread.sleep(INTERVAL);
                 waitingTime += INTERVAL;
@@ -160,7 +159,18 @@ public class InstantiateContainerAppAction extends InstantiateAppAction {
                 return EnumInstantiateStatus.INSTANTIATE_STATUS_ERROR;
             }
         }
-        return EnumInstantiateStatus.INSTANTIATE_STATUS_TIMEOUT;
+        saveWorkloadToInstantiateInfo(status, events);
+        return EnumInstantiateStatus.INSTANTIATE_STATUS_FAILED;
 
+    }
+
+    private boolean queryPodStatus(List<PodStatusInfo> pods) {
+        int podRunningNum = 0;
+        for(PodStatusInfo pod:pods) {
+            if (POD_RUNNING.equals(pod.getPodstatus()) && !StringUtils.isEmpty(pod.getContainers()[0].getContainername())) {
+                podRunningNum++;
+            }
+        }
+        return podRunningNum == pods.size();
     }
 }
