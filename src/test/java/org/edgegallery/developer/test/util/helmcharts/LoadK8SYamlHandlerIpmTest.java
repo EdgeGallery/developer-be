@@ -53,7 +53,12 @@ public class LoadK8SYamlHandlerIpmTest {
                     count++;
                     break;
                 case "templates":
-                    Assert.assertEquals(1, file.getChildren().size());
+                    for (HelmChartFile template : file.getChildren()) {
+                        if (template.isFile()) {
+                            Assert.assertEquals("demo.yaml", template.getName());
+                            break;
+                        }
+                    }
                     count++;
                     break;
             }
@@ -131,7 +136,6 @@ public class LoadK8SYamlHandlerIpmTest {
                     count++;
                     break;
                 case "templates":
-                    Assert.assertEquals(2, file.getChildren().size());
                     Assert.assertEquals("demo-onlyagent.yaml", file.getChildren().get(0).getName());
                     Assert.assertEquals("demo.yaml", file.getChildren().get(1).getName());
                     count++;
