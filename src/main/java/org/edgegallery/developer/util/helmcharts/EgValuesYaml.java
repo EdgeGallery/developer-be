@@ -42,9 +42,11 @@ public class EgValuesYaml {
     @SerializedName("imagelocation")
     private ImageLocation imageLocation;
 
-    public static EgValuesYaml createDefaultEgValues() {
+    private transient boolean hasMep;
+
+    public static EgValuesYaml createDefaultEgValues(boolean hasMep) {
         EgValuesYaml defaultValues = new EgValuesYaml();
-        defaultValues.setGlobal(Global.builder().build());
+        defaultValues.setGlobal(Global.builder().mepAgent(Global.MepAgent.builder().enabled(hasMep).build()).build());
         defaultValues.setAppConfig(AppConfig.builder().build());
         defaultValues.setImageLocation(ImageLocation.builder().build());
         return defaultValues;
@@ -95,7 +97,7 @@ public class EgValuesYaml {
     static class AppConfig {
         @Builder.Default
         @SerializedName("appnamespace")
-        private String appNameSpace = "<NAMESPACE>";
+        private String appNameSpace = "default";
 
         @Builder.Default
         private AkSk aksk = new AkSk();

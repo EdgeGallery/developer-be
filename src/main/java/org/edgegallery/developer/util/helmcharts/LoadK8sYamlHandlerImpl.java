@@ -17,13 +17,9 @@ package org.edgegallery.developer.util.helmcharts;
 import io.kubernetes.client.util.Yaml;
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 import lombok.Setter;
 import org.apache.commons.io.FileUtils;
 import org.edgegallery.developer.exception.DeveloperException;
@@ -33,11 +29,11 @@ import org.slf4j.LoggerFactory;
 public class LoadK8sYamlHandlerImpl extends AbstractContainerFileHandler {
     private static final Logger LOGGER = LoggerFactory.getLogger(LoadK8sYamlHandlerImpl.class);
 
-    @Setter
-    private boolean hasMep = true;
+    private static String MEP_TEMPLATES_PATH = System.getProperty("user.dir") + File.separator
+        + "chart_template/templates/eg_template";
 
     @Setter
-    private Map<String, Object> values;
+    private boolean hasMep = true;
 
     @Override
     public void load(String... filePaths) throws IOException {
@@ -61,7 +57,7 @@ public class LoadK8sYamlHandlerImpl extends AbstractContainerFileHandler {
         helmChartsDir = helmChartPath.toString();
 
         // create values.yaml
-        EgValuesYaml defaultValues = EgValuesYaml.createDefaultEgValues();
+        EgValuesYaml defaultValues = EgValuesYaml.createDefaultEgValues(hasMep);
         Path valuesYaml = Files.createFile(Paths.get(helmChartsDir, "values.yaml"));
         FileUtils.writeByteArrayToFile(valuesYaml.toFile(), defaultValues.getContent().getBytes(), false);
 
@@ -72,6 +68,7 @@ public class LoadK8sYamlHandlerImpl extends AbstractContainerFileHandler {
 
         try {
             Files.createDirectory(Paths.get(helmChartsDir, "templates"));
+            createMepTemplates();
             for (String filePath : filePaths) {
                 addTemplate(filePath);
             }
@@ -82,14 +79,14 @@ public class LoadK8sYamlHandlerImpl extends AbstractContainerFileHandler {
         }
     }
 
-    private void setValues(String valuesFilePath) throws IOException {
-        values = new HashMap<>();
-        org.yaml.snakeyaml.Yaml yaml = new org.yaml.snakeyaml.Yaml();
-        HashMap<String, Object> valuesMap = yaml.load(FileUtils.readFileToString(new File(valuesFilePath), "utf-8"));
-        Map<String, Object> values = new HashMap<>();
-        for (Map.Entry<String, Object> entry : valuesMap.entrySet()) {
-            Object val = entry.getValue();
-            // if (val instanceof Map)
+    private void createMepTemplates() throws IOException {
+        if (hasMep) {
+            File egMepTemplatePath = new File(MEP_TEMPLATES_PATH);
+            if (egMepTemplatePath.exists() && egMepTemplatePath.isDirectory()) {
+                Path k8sYaml = Files
+                    .createDirectory(Paths.get(helmChartsDir, "templates", egMepTemplatePath.getName()));
+                FileUtils.copyDirectory(egMepTemplatePath, k8sYaml.toFile());
+            }
         }
     }
 
