@@ -42,7 +42,7 @@ public class LoadK8SYamlHandlerIpmTest {
         int count = 0;
         for (HelmChartFile file : fileList.get(0).getChildren()) {
             switch (file.getName()) {
-                case "charts.yaml":
+                case "Chart.yaml":
                 case "values.yaml":
                     count++;
                     break;
@@ -120,7 +120,7 @@ public class LoadK8SYamlHandlerIpmTest {
         int count = 0;
         for (HelmChartFile file : fileList.get(0).getChildren()) {
             switch (file.getName()) {
-                case "charts.yaml":
+                case "Chart.yaml":
                 case "values.yaml":
                     count++;
                     break;

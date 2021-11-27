@@ -67,7 +67,7 @@ public class LoadK8sYamlHandlerImpl extends AbstractContainerFileHandler {
 
         // create charts.yaml
         EgChartsYaml defaultCharts = EgChartsYaml.createDefaultCharts();
-        Path chartsYaml = Files.createFile(Paths.get(helmChartsDir, "charts.yaml"));
+        Path chartsYaml = Files.createFile(Paths.get(helmChartsDir, "Chart.yaml"));
         FileUtils.writeByteArrayToFile(chartsYaml.toFile(), defaultCharts.getContent().getBytes(), false);
 
         try {
