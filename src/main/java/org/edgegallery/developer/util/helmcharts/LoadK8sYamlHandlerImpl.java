@@ -58,6 +58,7 @@ public class LoadK8sYamlHandlerImpl extends AbstractContainerFileHandler {
         File orgFile = new File(firstFile);
         String fileName = orgFile.getName();
         String helmChartsName = fileName.contains(".") ? fileName.substring(0, fileName.lastIndexOf(".")) : fileName;
+        helmChartsName = helmChartsName.replaceAll("_", "-");
         Path helmChartPath = Files.createDirectory(Paths.get(workspace, helmChartsName));
         helmChartsDir = helmChartPath.toString();
 
@@ -90,13 +91,10 @@ public class LoadK8sYamlHandlerImpl extends AbstractContainerFileHandler {
     }
 
     private void createMepTemplates() throws IOException {
-        if (hasMep) {
-            File egMepTemplatePath = new File(MEP_TEMPLATES_PATH);
-            if (egMepTemplatePath.exists() && egMepTemplatePath.isDirectory()) {
-                Path k8sYaml = Files
-                    .createDirectory(Paths.get(helmChartsDir, "templates", egMepTemplatePath.getName()));
-                FileUtils.copyDirectory(egMepTemplatePath, k8sYaml.toFile());
-            }
+        File egMepTemplatePath = new File(MEP_TEMPLATES_PATH);
+        if (egMepTemplatePath.exists() && egMepTemplatePath.isDirectory()) {
+            Path k8sYaml = Files.createDirectory(Paths.get(helmChartsDir, "templates", egMepTemplatePath.getName()));
+            FileUtils.copyDirectory(egMepTemplatePath, k8sYaml.toFile());
         }
     }
 
