@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apache.ibatis.io.Resources;
 import org.edgegallery.developer.util.ImageConfig;
+import org.edgegallery.developer.util.helmcharts.EgChartsYaml;
 import org.edgegallery.developer.util.helmcharts.EgValuesYaml;
 import org.edgegallery.developer.util.helmcharts.HelmChartFile;
 import org.edgegallery.developer.util.helmcharts.IContainerFileHandler;
@@ -157,6 +158,15 @@ public class LoadK8SYamlHandlerIpmTest {
         EgValuesYaml valuesYaml = gson.fromJson(json, EgValuesYaml.class);
         Assert.assertEquals("test_domain", valuesYaml.getImageLocation().getDomainName());
         Assert.assertEquals("test_project", valuesYaml.getImageLocation().getProject());
+    }
+
+    @Test
+    public void should_successfully_when_set_chart_from_param() throws IOException {
+        File demo = Resources.getResourceAsFile("testdata/demo.yaml");
+        handler.load(demo.getCanonicalPath());
+        String content = handler.getContentByInnerPath("/Chart.yaml");
+        EgChartsYaml chartsYaml = new Yaml().loadAs(content, EgChartsYaml.class);
+        Assert.assertTrue(chartsYaml.getName().matches("demo-[0-9]{8}"));
     }
 
 }
