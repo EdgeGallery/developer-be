@@ -15,7 +15,7 @@
  */
 package org.edgegallery.developer.service.application.container;
 
-import org.edgegallery.developer.domain.model.user.User;
+import org.edgegallery.developer.model.common.User;
 import org.edgegallery.developer.model.application.container.ContainerApplication;
 import org.edgegallery.developer.model.apppackage.AppPackage;
 import org.edgegallery.developer.model.instantiate.container.ContainerAppInstantiateInfo;

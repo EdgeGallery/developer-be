@@ -22,10 +22,8 @@ import javax.validation.constraints.Pattern;
 
 import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.edgegallery.developer.model.capability.CapabilityGroup;
-import org.edgegallery.developer.response.ErrorRespDto;
-import org.edgegallery.developer.response.FormatRespDto;
+import org.edgegallery.developer.model.restful.ErrorRespDto;
 import org.edgegallery.developer.service.capability.CapabilityGroupService;
-import org.edgegallery.developer.util.ResponseDataUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -37,8 +35,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-
-import com.spencerwi.either.Either;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;

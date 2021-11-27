@@ -23,7 +23,7 @@ import java.util.List;
 import javax.validation.constraints.NotNull;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.edgegallery.developer.model.resource.vm.Flavor;
-import org.edgegallery.developer.response.ErrorRespDto;
+import org.edgegallery.developer.model.restful.ErrorRespDto;
 import org.edgegallery.developer.service.recource.vm.FlavorService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;

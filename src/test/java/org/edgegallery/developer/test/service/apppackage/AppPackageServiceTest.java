@@ -14,14 +14,12 @@
 
 package org.edgegallery.developer.test.service.apppackage;
 
-import java.io.File;
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
-import org.edgegallery.developer.config.security.AccessUserUtil;
+import org.edgegallery.developer.filter.security.AccessUserUtil;
 import org.edgegallery.developer.exception.DataBaseException;
 import org.edgegallery.developer.exception.FileFoundFailException;
 import org.edgegallery.developer.exception.IllegalRequestException;
@@ -41,7 +39,6 @@ import org.edgegallery.developer.service.apppackage.AppPackageService;
 import org.edgegallery.developer.service.uploadfile.UploadFileService;
 import org.edgegallery.developer.test.DeveloperApplicationTests;
 import org.edgegallery.developer.test.service.application.ApplicationServiceTest;
-import org.edgegallery.developer.util.FileUtil;
 import org.edgegallery.developer.util.SpringContextUtil;
 import org.junit.Assert;
 import org.junit.Before;

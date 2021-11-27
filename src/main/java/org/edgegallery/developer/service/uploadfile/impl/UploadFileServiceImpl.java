@@ -35,7 +35,7 @@ import org.edgegallery.developer.exception.IllegalRequestException;
 import org.edgegallery.developer.mapper.capability.CapabilityMapper;
 import org.edgegallery.developer.mapper.resource.mephost.MepHostMapper;
 import org.edgegallery.developer.mapper.uploadfile.UploadFileMapper;
-import org.edgegallery.developer.model.GeneralConfig;
+import org.edgegallery.developer.model.uploadfile.GeneralConfig;
 import org.edgegallery.developer.model.apppackage.AppPkgStructure;
 import org.edgegallery.developer.model.capability.Capability;
 import org.edgegallery.developer.model.resource.mephost.EnumVimType;

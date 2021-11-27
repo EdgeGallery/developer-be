@@ -16,7 +16,7 @@ package org.edgegallery.developer.service.recource.vm;
 
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
-import org.edgegallery.developer.model.Chunk;
+import org.edgegallery.developer.model.common.Chunk;
 import org.edgegallery.developer.model.resource.vm.VMImage;
 import org.edgegallery.developer.model.restful.OperationInfoRep;
 import org.edgegallery.developer.model.restful.VMImageReq;

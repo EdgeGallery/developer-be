@@ -1,9 +1,6 @@
 package org.edgegallery.developer.util;
 
 import java.io.File;
-import org.apache.commons.lang3.StringUtils;
-import org.edgegallery.developer.common.Consts;
-import org.edgegallery.developer.config.security.AccessUserUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

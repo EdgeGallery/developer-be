@@ -22,7 +22,7 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
-import org.edgegallery.developer.model.GeneralConfig;
+import org.edgegallery.developer.model.uploadfile.GeneralConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

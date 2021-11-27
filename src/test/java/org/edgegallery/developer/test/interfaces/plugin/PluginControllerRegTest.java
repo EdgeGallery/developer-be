@@ -24,7 +24,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.edgegallery.developer.test.DeveloperApplicationTests;
-import org.edgegallery.developer.interfaces.plugin.facade.dto.PluginDto;
+import org.edgegallery.developer.model.plugin.PluginDto;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;

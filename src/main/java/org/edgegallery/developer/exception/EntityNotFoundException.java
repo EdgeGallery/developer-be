@@ -19,7 +19,7 @@ package org.edgegallery.developer.exception;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.edgegallery.developer.domain.shared.Entity;
+import org.edgegallery.developer.service.plugin.impl.shared.Entity;
 
 public class EntityNotFoundException extends RuntimeException {
 

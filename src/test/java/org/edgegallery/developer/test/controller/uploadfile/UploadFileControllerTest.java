@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.UUID;
 import org.apache.http.entity.ContentType;
 import org.apache.ibatis.io.Resources;
-import org.edgegallery.developer.config.security.AccessUserUtil;
+import org.edgegallery.developer.filter.security.AccessUserUtil;
 import org.edgegallery.developer.controller.uploadfile.UploadFileController;
 import org.edgegallery.developer.mapper.uploadfile.UploadFileMapper;
 import org.edgegallery.developer.model.apppackage.AppPkgStructure;

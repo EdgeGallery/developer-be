@@ -16,8 +16,8 @@
 
 package org.edgegallery.developer.service.application;
 
-import org.edgegallery.developer.domain.model.user.User;
-import org.edgegallery.developer.domain.shared.Page;
+import org.edgegallery.developer.model.common.User;
+import org.edgegallery.developer.model.common.Page;
 import org.edgegallery.developer.model.application.Application;
 import org.edgegallery.developer.model.application.EnumApplicationStatus;
 import org.edgegallery.developer.model.restful.ApplicationDetail;
