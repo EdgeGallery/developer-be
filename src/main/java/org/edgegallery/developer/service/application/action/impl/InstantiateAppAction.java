@@ -19,7 +19,7 @@ package org.edgegallery.developer.service.application.action.impl;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-import org.edgegallery.developer.model.LcmLog;
+import org.edgegallery.developer.model.lcm.LcmLog;
 import org.edgegallery.developer.model.application.Application;
 import org.edgegallery.developer.model.instantiate.EnumAppInstantiateStatus;
 import org.edgegallery.developer.model.operation.ActionStatus;

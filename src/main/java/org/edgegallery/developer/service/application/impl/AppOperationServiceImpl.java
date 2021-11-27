@@ -48,7 +48,7 @@ import org.edgegallery.developer.model.capability.Capability;
 import org.edgegallery.developer.model.capability.CapabilityGroup;
 import org.edgegallery.developer.model.restful.SelectMepHostReq;
 import org.edgegallery.developer.model.uploadfile.UploadFile;
-import org.edgegallery.developer.model.workspace.PublishAppReqDto;
+import org.edgegallery.developer.model.appstore.PublishAppReqDto;
 import org.edgegallery.developer.service.application.AppOperationService;
 import org.edgegallery.developer.service.apppackage.AppPackageService;
 import org.edgegallery.developer.util.AppStoreUtil;

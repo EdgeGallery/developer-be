@@ -18,7 +18,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.edgegallery.developer.mapper.ApiEmulatorMapper">
     <resultMap id="ApiEmulatorMap"
-               type="org.edgegallery.developer.model.workspace.ApiEmulator">
+               type="org.edgegallery.developer.model.emulator.ApiEmulator">
         <id property="id" column="id"/>
         <result property="userId" column="user_id"/>
         <result property="hostId" column="host_id"/>
@@ -27,7 +27,7 @@
     </resultMap>
 
     <insert id="saveEmulator"
-            parameterType="org.edgegallery.developer.model.workspace.ApiEmulator">
+            parameterType="org.edgegallery.developer.model.emulator.ApiEmulator">
         insert into tbl_api_emulator (id, user_id, host_id, port, workload_id, create_time)
         values ( #{id}, #{userId}, #{hostId}, #{port}, #{workloadId}, (select current_timestamp))
     </insert>
@@ -36,7 +36,7 @@
         DELETE FROM tbl_api_emulator WHERE id = #{id};
     </delete>
 
-    <select id="getEmulatorByUserId" parameterType="String" resultType="org.edgegallery.developer.model.workspace.ApiEmulator">
+    <select id="getEmulatorByUserId" parameterType="String" resultType="org.edgegallery.developer.model.emulator.ApiEmulator">
         SELECT id, user_id, host_id, port, workload_id FROM tbl_api_emulator WHERE user_id = #{userId}
     </select>
 

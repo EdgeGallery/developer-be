@@ -14,19 +14,16 @@
  *    limitations under the License.
  */
 
-package org.edgegallery.developer.mapper;
+package org.edgegallery.developer.model.capability;
 
-import org.apache.ibatis.annotations.Mapper;
-import org.edgegallery.developer.model.emulator.ApiEmulator;
+import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
+import org.edgegallery.developer.model.capability.OpenMepCapabilityGroup;
 
-@Mapper
-public interface ApiEmulatorMapper {
+@Getter
+@Setter
+public class OpenMepCapabilityGroups {
 
-    int saveEmulator(ApiEmulator apiEmulator);
-
-    int deleteEmulatorById(String id);
-
-    ApiEmulator getEmulatorByUserId(String userId);
-
-    int selectMaxPort(String hostId);
+    private List<OpenMepCapabilityGroup> values;
 }

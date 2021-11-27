@@ -18,7 +18,7 @@ package org.edgegallery.developer.service.application.action.impl.vm;
 import java.lang.reflect.Type;
 import org.apache.commons.lang3.StringUtils;
 import org.edgegallery.developer.mapper.application.vm.ImageExportInfoMapper;
-import org.edgegallery.developer.model.LcmLog;
+import org.edgegallery.developer.model.lcm.LcmLog;
 import org.edgegallery.developer.model.application.Application;
 import org.edgegallery.developer.model.instantiate.vm.EnumImageExportStatus;
 import org.edgegallery.developer.model.instantiate.vm.ImageExportInfo;
@@ -53,7 +53,7 @@ public class CreateImageAction extends AbstractAction {
     // time out: 10 min.
     public static final int TIMEOUT = 60 * 60 * 1000;
     //interval of the query, 5s.
-    public static final int INTERVAL = 5000;
+    public static final int INTERVAL = 20000;
 
     ApplicationService applicationService = (ApplicationService) SpringContextUtil.getBean(ApplicationService.class);
 

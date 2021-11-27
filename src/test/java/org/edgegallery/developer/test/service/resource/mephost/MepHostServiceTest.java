@@ -35,7 +35,6 @@ import org.edgegallery.developer.model.resource.mephost.EnumVimType;
 import org.edgegallery.developer.model.resource.mephost.MepHost;
 import org.edgegallery.developer.model.resource.mephost.MepHostLog;
 import org.edgegallery.developer.model.uploadfile.UploadFile;
-import org.edgegallery.developer.model.workspace.UploadedFile;
 import org.edgegallery.developer.service.recource.mephost.MepHostService;
 import org.edgegallery.developer.test.DeveloperApplicationTests;
 import org.junit.After;

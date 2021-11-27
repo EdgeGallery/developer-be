@@ -16,10 +16,7 @@
 
 package org.edgegallery.developer.util;
 
-import org.edgegallery.developer.service.ProjectService;
-import org.edgegallery.developer.service.uploadfile.UploadFileService;
 import org.edgegallery.developer.service.uploadfile.impl.UploadFileServiceImpl;
-import org.edgegallery.developer.service.virtual.VmService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -32,34 +29,9 @@ public class ScheduleTask {
     @Autowired
     private UploadFileServiceImpl uploadFileService;
 
-    @Autowired
-    private ProjectService projectService;
-
-    @Autowired
-    private VmService vmService;
-
     @Scheduled(cron = "0 0/30 * * * ?")
     public void deleteTempFile() {
         uploadFileService.deleteTempFile();
     }
 
-    @Scheduled(cron = "0/30 * * * * ?")
-    public void processConfigDeploy() {
-        projectService.processDeploy();
-    }
-
-    @Scheduled(cron = "0/30 * * * * ?")
-    public void processVmCreateConfig() {
-        vmService.processCreateVm();
-    }
-
-    @Scheduled(cron = "0/30 * * * * ?")
-    public void processVmImageConfig() {
-        vmService.processVmImage();
-    }
-
-    @Scheduled(cron = "0 0 22 * * ? ")
-    public void processCleanEnv() {
-        projectService.cleanUnreleasedEnv();
-    }
 }

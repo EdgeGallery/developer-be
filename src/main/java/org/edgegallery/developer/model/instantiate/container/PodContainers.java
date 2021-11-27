@@ -1,5 +1,5 @@
 /*
- *    Copyright 2020 Huawei Technologies Co., Ltd.
+ *    Copyright 2021 Huawei Technologies Co., Ltd.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -14,19 +14,14 @@
  *    limitations under the License.
  */
 
-package org.edgegallery.developer.mapper;
+package org.edgegallery.developer.model.instantiate.container;
 
-import org.apache.ibatis.annotations.Mapper;
-import org.edgegallery.developer.model.emulator.ApiEmulator;
+import lombok.Getter;
+import lombok.Setter;
 
-@Mapper
-public interface ApiEmulatorMapper {
-
-    int saveEmulator(ApiEmulator apiEmulator);
-
-    int deleteEmulatorById(String id);
-
-    ApiEmulator getEmulatorByUserId(String userId);
-
-    int selectMaxPort(String hostId);
+@Getter
+@Setter
+public class PodContainers {
+    private String containername;
+    private MetricsUsage metricsusage;
 }

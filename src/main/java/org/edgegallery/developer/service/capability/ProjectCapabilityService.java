@@ -14,21 +14,24 @@
  *    limitations under the License.
  */
 
-package org.edgegallery.developer.mapper;
+package org.edgegallery.developer.service.capability;
 
 import java.util.List;
 
-import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.edgegallery.developer.model.capability.ApplicationProjectCapability;
+import org.edgegallery.developer.response.FormatRespDto;
 
-@Mapper
-public interface ProjectCapabilityMapper {
-	int insert(ApplicationProjectCapability projectCapability);
+import com.spencerwi.either.Either;
 
-	int delete(ApplicationProjectCapability projectCapability);
+public interface ProjectCapabilityService {
+	public Either<FormatRespDto, ApplicationProjectCapability> create(ApplicationProjectCapability projectCapability);
+	
+	public Either<FormatRespDto, List<ApplicationProjectCapability>> create(List<ApplicationProjectCapability> projectCapabilities);
+	
+	public Either<FormatRespDto, Boolean> delete(ApplicationProjectCapability projectCapability);
 
-	int deleteByProjectId(@Param("projectId") String projectId);
+	public Either<FormatRespDto, Boolean> deleteByProjectId(@Param("projectId") String projectId);
 
-	List<ApplicationProjectCapability> selectByProjectId(@Param("projectId") String projectId);
+	public List<ApplicationProjectCapability> findByProjectId(@Param("projectId") String projectId);
 }

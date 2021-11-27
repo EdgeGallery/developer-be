@@ -14,19 +14,9 @@
  *    limitations under the License.
  */
 
-package org.edgegallery.developer.mapper;
+package org.edgegallery.developer.model.capability;
 
-import org.apache.ibatis.annotations.Mapper;
-import org.edgegallery.developer.model.emulator.ApiEmulator;
-
-@Mapper
-public interface ApiEmulatorMapper {
-
-    int saveEmulator(ApiEmulator apiEmulator);
-
-    int deleteEmulatorById(String id);
-
-    ApiEmulator getEmulatorByUserId(String userId);
-
-    int selectMaxPort(String hostId);
+public enum EnumOpenMepType {
+    OPENMEP,
+    OPENMEP_ECO;
 }

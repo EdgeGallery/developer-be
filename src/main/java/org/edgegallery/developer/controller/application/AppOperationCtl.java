@@ -31,7 +31,7 @@ import org.edgegallery.developer.domain.model.user.User;
 import org.edgegallery.developer.model.apppackage.AppPackage;
 import org.edgegallery.developer.model.atpTestTask.AtpTest;
 import org.edgegallery.developer.model.restful.SelectMepHostReq;
-import org.edgegallery.developer.model.workspace.PublishAppReqDto;
+import org.edgegallery.developer.model.appstore.PublishAppReqDto;
 import org.edgegallery.developer.response.ErrorRespDto;
 import org.edgegallery.developer.service.application.AppOperationService;
 import org.edgegallery.developer.service.application.factory.AppOperationServiceFactory;

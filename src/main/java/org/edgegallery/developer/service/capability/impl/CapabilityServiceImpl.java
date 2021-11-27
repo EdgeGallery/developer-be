@@ -23,8 +23,8 @@ import org.edgegallery.developer.common.ResponseConsts;
 import org.edgegallery.developer.exception.DataBaseException;
 import org.edgegallery.developer.exception.DeveloperException;
 import org.edgegallery.developer.exception.IllegalRequestException;
-import org.edgegallery.developer.mapper.UploadedFileMapper;
 import org.edgegallery.developer.mapper.capability.CapabilityMapper;
+import org.edgegallery.developer.mapper.uploadfile.UploadFileMapper;
 import org.edgegallery.developer.model.capability.Capability;
 import org.edgegallery.developer.model.capability.CapabilityGroup;
 import org.edgegallery.developer.service.capability.CapabilityGroupService;
@@ -47,7 +47,8 @@ public class CapabilityServiceImpl implements CapabilityService {
     private CapabilityGroupService capbilityGroupService;
 
     @Autowired
-    private UploadedFileMapper uploadedFileMapper;
+    private UploadFileMapper uploadFileMapper;
+
 
     @Transactional(rollbackFor = RuntimeException.class)
     @Override
@@ -129,10 +130,10 @@ public class CapabilityServiceImpl implements CapabilityService {
         if (result > 0) {
             LOGGER.info("Create capability {} success", capability.getName());
             // update api file to un temp
-            int api = uploadedFileMapper.updateFileStatus(capability.getApiFileId(), false);
-            int guide = uploadedFileMapper.updateFileStatus(capability.getGuideFileId(), false);
-            int guideEn = uploadedFileMapper.updateFileStatus(capability.getGuideFileIdEn(), false);
-            int icon = uploadedFileMapper.updateFileStatus(capability.getIconFileId(), false);
+            int api = uploadFileMapper.updateFileStatus(capability.getApiFileId(), false);
+            int guide = uploadFileMapper.updateFileStatus(capability.getGuideFileId(), false);
+            int guideEn = uploadFileMapper.updateFileStatus(capability.getGuideFileIdEn(), false);
+            int icon = uploadFileMapper.updateFileStatus(capability.getIconFileId(), false);
             if (api <= 0 || guide <= 0 || guideEn <= 0 || icon <= 0) {
                 String msg = "update api or guide or guide-en or icon file status occur db error";
                 LOGGER.error(msg);
@@ -154,10 +155,10 @@ public class CapabilityServiceImpl implements CapabilityService {
             LOGGER.error("Update capability {} failed!{}", capability.getId(), capability.getName());
             throw new DataBaseException("Update capability failed.", ResponseConsts.RET_UPDATE_DATA_FAIL);
         }
-        int api = uploadedFileMapper.updateFileStatus(capability.getApiFileId(), false);
-        int guide = uploadedFileMapper.updateFileStatus(capability.getGuideFileId(), false);
-        int guideEn = uploadedFileMapper.updateFileStatus(capability.getGuideFileIdEn(), false);
-        int icon = uploadedFileMapper.updateFileStatus(capability.getIconFileId(), false);
+        int api = uploadFileMapper.updateFileStatus(capability.getApiFileId(), false);
+        int guide = uploadFileMapper.updateFileStatus(capability.getGuideFileId(), false);
+        int guideEn = uploadFileMapper.updateFileStatus(capability.getGuideFileIdEn(), false);
+        int icon = uploadFileMapper.updateFileStatus(capability.getIconFileId(), false);
         if (api <= 0 || guide <= 0 || guideEn <= 0 || icon <= 0) {
             String msg = "update api or guide or guide-en file status occur db error";
             LOGGER.error(msg);
@@ -181,9 +182,9 @@ public class CapabilityServiceImpl implements CapabilityService {
             throw new DataBaseException("Delete capability failed.", ResponseConsts.RET_DELETE_DATA_FAIL);
         }
 
-        uploadedFileMapper.updateFileStatus(capability.getApiFileId(), true);
-        uploadedFileMapper.updateFileStatus(capability.getGuideFileId(), true);
-        uploadedFileMapper.updateFileStatus(capability.getGuideFileIdEn(), true);
+        uploadFileMapper.updateFileStatus(capability.getApiFileId(), true);
+        uploadFileMapper.updateFileStatus(capability.getGuideFileId(), true);
+        uploadFileMapper.updateFileStatus(capability.getGuideFileIdEn(), true);
 
         String groupId = capability.getGroupId();
         if (StringUtils.isEmpty(groupId)) {

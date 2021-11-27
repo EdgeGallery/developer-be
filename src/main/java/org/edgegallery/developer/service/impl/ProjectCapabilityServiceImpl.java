@@ -24,9 +24,9 @@ import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.edgegallery.developer.mapper.ProjectCapabilityMapper;
-import org.edgegallery.developer.model.workspace.ApplicationProjectCapability;
+import org.edgegallery.developer.model.capability.ApplicationProjectCapability;
 import org.edgegallery.developer.response.FormatRespDto;
-import org.edgegallery.developer.service.ProjectCapabilityService;
+import org.edgegallery.developer.service.capability.ProjectCapabilityService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

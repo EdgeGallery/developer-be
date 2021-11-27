@@ -1,7 +1,0 @@
-TOSCA-Meta-File-Version: {version}
-CSAR-Version: {version}
-Created-By: MEC Developer
-Entry-Definitions: Definitions/MainServiceTemplate.yaml
-ETSI-Entry-Manifest: MainServiceTemplate.mf
-Entry-Tests: Artifacts/Tests
-ETSI-Entry-Change-Log: Artifacts/ChangeLog.txt

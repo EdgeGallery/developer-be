@@ -103,10 +103,10 @@ public class MepHostCtl {
      * @return
      */
     @ApiOperation(value = "update one server by hostId",
-        response = org.edgegallery.developer.model.workspace.MepCreateHost.class)
+        response = Boolean.class)
     @ApiResponses(value = {
         @ApiResponse(code = 200, message = "OK",
-            response = org.edgegallery.developer.model.workspace.MepCreateHost.class),
+            response = Boolean.class),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
     @RequestMapping(value = "/{mephostId}", method = RequestMethod.PUT,
