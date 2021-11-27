@@ -20,7 +20,7 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
-import org.edgegallery.developer.response.ErrorRespDto;
+import org.edgegallery.developer.model.restful.ErrorRespDto;
 import org.edgegallery.developer.service.recource.vm.UserDataService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;

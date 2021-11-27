@@ -16,8 +16,8 @@
   -->
 
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="org.edgegallery.developer.infrastructure.persistence.plugin.PluginMapper">
-    <resultMap id="BaseResultMap" type="org.edgegallery.developer.infrastructure.persistence.plugin.PluginPO">
+<mapper namespace="org.edgegallery.developer.mapper.plugin.PluginMapper">
+    <resultMap id="BaseResultMap" type="org.edgegallery.developer.model.plugin.PluginPO">
         <id column="pluginid" property="pluginId" jdbcType="VARCHAR"/>
         <result column="pluginname" property="pluginName" jdbcType="VARCHAR"/>
         <result column="introduction" property="introduction" jdbcType="VARCHAR"/>
@@ -50,10 +50,10 @@
         FROM tbl_plugin WHERE plugintype = #{pluginType} ORDER BY uploadtime DESC
     </select>
     <select id="getPluginById" parameterType="java.lang.String"
-            resultType="org.edgegallery.developer.infrastructure.persistence.plugin.PluginPO">
+            resultType="org.edgegallery.developer.model.plugin.PluginPO">
         SELECT <include refid="AllColumn"/> FROM tbl_plugin WHERE pluginid =#{pluginId}
     </select>
-    <select id="getPluginByUploadTime" parameterType="java.util.Date" resultType="org.edgegallery.developer.infrastructure.persistence.plugin.PluginPO">
+    <select id="getPluginByUploadTime" parameterType="java.util.Date" resultType="org.edgegallery.developer.model.plugin.PluginPO">
         SELECT <include refid="AllColumn"/> FROM tbl_plugin WHERE uploadtime =#{uploadtime}
     </select>
     <update id="updateScore" parameterType="java.util.Map">
@@ -66,7 +66,7 @@
         SELECT satisfaction FROM tbl_plugin WHERE pluginid = #{pluginId}
     </select>
 
-    <insert id="insert" parameterType="org.edgegallery.developer.infrastructure.persistence.plugin.PluginPO">
+    <insert id="insert" parameterType="org.edgegallery.developer.model.plugin.PluginPO">
         INSERT INTO tbl_plugin
         (pluginid,pluginname, introduction,
         satisfaction,codelanguage,plugintype,version,downloadcount,logofile,pluginfile,uploadtime,userid,username,
@@ -77,7 +77,7 @@
         #{downloadCount},#{logoFile},#{pluginFile},#{uploadTime},#{userId},#{userName},#{pluginSize},
         #{apiFile},#{scoreCount}, #{pluginFileHashCode})
     </insert>
-    <insert id="saveDownloadRecord" parameterType="org.edgegallery.developer.domain.model.comment.PluginDownloadRecord">
+    <insert id="saveDownloadRecord" parameterType="org.edgegallery.developer.model.plugin.comment.PluginDownloadRecord">
         INSERT INTO tbl_downloadrecord
         (recordid,pluginid, downloaduserid, downloadusername,score,scoretype,downloadtime)
         VALUES (#{recordId},#{pluginId}, #{downloadUserId}, #{downloadUserName},#{score},#{scoreType},#{downloadTime})
@@ -97,7 +97,7 @@
     <update id="updownloadCount" parameterType="java.lang.String">
         UPDATE tbl_plugin SET downloadcount = downloadcount+1 WHERE pluginid=#{pluginId}
     </update>
-    <update id="update" parameterType="org.edgegallery.developer.infrastructure.persistence.plugin.PluginPO">
+    <update id="update" parameterType="org.edgegallery.developer.model.plugin.PluginPO">
         UPDATE tbl_plugin SET
         pluginname = #{pluginName},
         plugintype=#{pluginType},

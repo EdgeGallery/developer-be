@@ -17,8 +17,6 @@ package org.edgegallery.developer.service.application.vm;
 
 import java.util.List;
 import org.edgegallery.developer.model.application.vm.Network;
-import org.edgegallery.developer.response.FormatRespDto;
-import com.spencerwi.either.Either;
 
 public interface VMAppNetworkService {
 

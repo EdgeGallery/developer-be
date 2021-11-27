@@ -18,12 +18,10 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 
 
 import com.google.gson.Gson;
-import com.spencerwi.either.Either;
 import java.util.ArrayList;
 import java.util.List;
 import org.edgegallery.developer.test.DeveloperApplicationTests;
 import org.edgegallery.developer.model.capability.CapabilityGroup;
-import org.edgegallery.developer.response.FormatRespDto;
 import org.edgegallery.developer.service.capability.CapabilityGroupService;
 import org.junit.Assert;
 import org.junit.Before;

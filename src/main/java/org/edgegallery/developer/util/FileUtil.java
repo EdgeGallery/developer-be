@@ -36,7 +36,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.commons.io.FileUtils;
 import org.edgegallery.developer.common.Consts;
-import org.edgegallery.developer.domain.shared.FileChecker;
+import org.edgegallery.developer.service.plugin.impl.shared.FileChecker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.CollectionUtils;

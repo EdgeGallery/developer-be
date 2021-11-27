@@ -21,7 +21,7 @@ import com.google.gson.Gson;
 import java.util.ArrayList;
 import java.util.List;
 import org.edgegallery.developer.test.DeveloperApplicationTests;
-import org.edgegallery.developer.domain.shared.Page;
+import org.edgegallery.developer.model.common.Page;
 import org.edgegallery.developer.model.resource.container.ContainerImage;
 import org.edgegallery.developer.model.resource.container.ContainerImageReq;
 import org.edgegallery.developer.service.recource.container.ContainerImageService;

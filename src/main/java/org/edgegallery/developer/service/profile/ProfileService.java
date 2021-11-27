@@ -14,7 +14,7 @@
 
 package org.edgegallery.developer.service.profile;
 
-import org.edgegallery.developer.domain.shared.Page;
+import org.edgegallery.developer.model.common.Page;
 import org.edgegallery.developer.model.application.Application;
 import org.edgegallery.developer.model.profile.ProfileInfo;
 import org.springframework.http.ResponseEntity;

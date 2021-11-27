@@ -17,8 +17,8 @@
 package org.edgegallery.developer.service.recource.container;
 
 import javax.servlet.http.HttpServletRequest;
-import org.edgegallery.developer.domain.shared.Page;
-import org.edgegallery.developer.model.Chunk;
+import org.edgegallery.developer.model.common.Chunk;
+import org.edgegallery.developer.model.common.Page;
 import org.edgegallery.developer.model.resource.container.ContainerImage;
 import org.edgegallery.developer.model.resource.container.ContainerImageReq;
 import org.springframework.core.io.InputStreamResource;

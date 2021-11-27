@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.UUID;
 import org.apache.commons.lang3.StringUtils;
 import org.edgegallery.developer.common.ResponseConsts;
-import org.edgegallery.developer.domain.model.user.User;
+import org.edgegallery.developer.model.common.User;
 import org.edgegallery.developer.exception.DataBaseException;
 import org.edgegallery.developer.exception.EntityNotFoundException;
 import org.edgegallery.developer.mapper.application.ApplicationMapper;

@@ -18,7 +18,7 @@ package org.edgegallery.developer.util;
 
 import com.google.gson.Gson;
 import java.util.Map;
-import org.edgegallery.developer.domain.model.user.User;
+import org.edgegallery.developer.model.common.User;
 import org.edgegallery.developer.model.appstore.PublishAppReqDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

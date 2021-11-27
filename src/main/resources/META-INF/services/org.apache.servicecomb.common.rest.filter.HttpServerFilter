@@ -14,4 +14,4 @@
 #    limitations under the License.
 #
 
-org.edgegallery.developer.log.AccessLogFilter
+org.edgegallery.developer.filter.AccessLogFilter

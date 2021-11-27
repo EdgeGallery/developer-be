@@ -18,7 +18,7 @@ package org.edgegallery.developer.util;
 
 import com.spencerwi.either.Either;
 import org.apache.servicecomb.swagger.invocation.exception.InvocationException;
-import org.edgegallery.developer.response.FormatRespDto;
+import org.edgegallery.developer.model.restful.FormatRespDto;
 import org.springframework.http.ResponseEntity;
 
 public final class ResponseDataUtil {

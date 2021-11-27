@@ -18,8 +18,6 @@ package org.edgegallery.developer.service.application.vm;
 import java.util.List;
 import org.edgegallery.developer.model.application.vm.EnumVMStatus;
 import org.edgegallery.developer.model.application.vm.VirtualMachine;
-import org.edgegallery.developer.response.FormatRespDto;
-import com.spencerwi.either.Either;
 
 public interface VMAppVmService {
 

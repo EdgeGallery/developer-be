@@ -21,10 +21,6 @@ import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import org.edgegallery.developer.response.FormatRespDto;
-import org.edgegallery.developer.service.application.AppConfigurationService;
-import org.springframework.beans.factory.annotation.Autowired;
-import com.spencerwi.either.Either;
 
 @Getter
 @Setter

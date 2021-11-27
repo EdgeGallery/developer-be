@@ -207,7 +207,7 @@ public class PackageFileCreator {
             String appdDir = tempPackagePath + File.separator + "APPD";
             CompressFileUtils.fileToZip(appdDir, getAppFileName(""));
             // compress helm chart
-             compressDeploymentFile();
+            compressDeploymentFile();
             boolean encryptedResult = encryptedService.encryptedCMS(tempPackagePath);
             if (!encryptedResult) {
                 LOGGER.error("sign package failed");
@@ -252,12 +252,12 @@ public class PackageFileCreator {
     /**
      * write json file.
      *
-     * @param file file.
+     * @param file    file.
      * @param content content.
      */
     public void writeFile(File file, String content) {
         try (Writer fw = new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8);
-             BufferedWriter bw = new BufferedWriter(fw)) {
+            BufferedWriter bw = new BufferedWriter(fw)) {
             bw.write(content);
         } catch (IOException e) {
             LOGGER.error("write data into SwImageDesc.json failed, {}", e.getMessage());

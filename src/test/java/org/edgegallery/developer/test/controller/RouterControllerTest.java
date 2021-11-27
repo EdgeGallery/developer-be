@@ -17,7 +17,7 @@ package org.edgegallery.developer.test.controller;
 import com.spencerwi.either.Either;
 import org.edgegallery.developer.test.DeveloperApplicationTests;
 import org.edgegallery.developer.model.apppackage.AppPkgStructure;
-import org.edgegallery.developer.response.FormatRespDto;
+import org.edgegallery.developer.model.restful.FormatRespDto;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

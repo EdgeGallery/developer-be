@@ -21,9 +21,9 @@ import java.util.List;
 import javax.validation.constraints.Min;
 
 import org.apache.servicecomb.provider.rest.common.RestSchema;
-import org.edgegallery.developer.domain.shared.Page;
+import org.edgegallery.developer.model.common.Page;
 import org.edgegallery.developer.model.capability.Capability;
-import org.edgegallery.developer.response.ErrorRespDto;
+import org.edgegallery.developer.model.restful.ErrorRespDto;
 import org.edgegallery.developer.service.capability.CapabilityService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;

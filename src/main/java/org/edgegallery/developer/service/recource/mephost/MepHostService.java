@@ -17,8 +17,8 @@
 package org.edgegallery.developer.service.recource.mephost;
 
 import java.util.List;
-import org.edgegallery.developer.domain.model.user.User;
-import org.edgegallery.developer.domain.shared.Page;
+import org.edgegallery.developer.model.common.User;
+import org.edgegallery.developer.model.common.Page;
 import org.edgegallery.developer.model.resource.mephost.MepHost;
 import org.edgegallery.developer.model.resource.mephost.MepHostLog;
 import org.edgegallery.developer.model.uploadfile.UploadFile;

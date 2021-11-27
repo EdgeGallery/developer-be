@@ -24,7 +24,7 @@ import io.swagger.annotations.ApiResponses;
 import javax.validation.constraints.Pattern;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.edgegallery.developer.model.operation.OperationStatus;
-import org.edgegallery.developer.response.ErrorRespDto;
+import org.edgegallery.developer.model.restful.ErrorRespDto;
 import org.edgegallery.developer.service.application.OperationStatusService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;

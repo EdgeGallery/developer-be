@@ -16,7 +16,7 @@
 swagger: "2.0"
 info:
   version: "1.0.0"
-  title: "swagger definition for org.edgegallery.developer.interfaces.plugin.PluginController"
+  title: "swagger definition for org.edgegallery.developer.controller.plugin.PluginController"
   x-java-interface: "cse.gen.openMec.mec_developer.plugin.PluginControllerIntf"
 basePath: "/mec/developer/v1/plugins"
 consumes:
@@ -394,7 +394,7 @@ definitions:
         type: "string"
       detail:
         type: "string"
-    x-java-class: "org.edgegallery.developer.response.ErrorRespDto"
+    x-java-class: "org.edgegallery.developer.model.restful.ErrorRespDto"
   Page:
     type: "object"
     properties:
@@ -411,7 +411,7 @@ definitions:
       total:
         type: "integer"
         format: "int64"
-    x-java-class: "org.edgegallery.developer.domain.shared.Page"
+    x-java-class: "org.edgegallery.developer.model.common.Page"
   AFile:
     type: "object"
     properties:
@@ -424,7 +424,7 @@ definitions:
       size:
         type: "integer"
         format: "int64"
-    x-java-class: "org.edgegallery.developer.domain.shared.AFile"
+    x-java-class: "org.edgegallery.developer.service.plugin.impl.shared.AFile"
   Plugin:
     type: "object"
     properties:
@@ -460,7 +460,7 @@ definitions:
         $ref: "#/definitions/User"
       apiFile:
         $ref: "#/definitions/AFile"
-    x-java-class: "org.edgegallery.developer.domain.model.plugin.Plugin"
+    x-java-class: "org.edgegallery.developer.model.plugin.Plugin"
   User:
     type: "object"
     properties:
@@ -468,4 +468,4 @@ definitions:
         type: "string"
       userName:
         type: "string"
-    x-java-class: "org.edgegallery.developer.domain.model.user.User"
+    x-java-class: "org.edgegallery.developer.model.user.User"

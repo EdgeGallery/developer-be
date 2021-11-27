@@ -20,7 +20,7 @@ import java.util.List;
 
 import org.apache.ibatis.annotations.Param;
 import org.edgegallery.developer.model.capability.ApplicationProjectCapability;
-import org.edgegallery.developer.response.FormatRespDto;
+import org.edgegallery.developer.model.restful.FormatRespDto;
 
 import com.spencerwi.either.Either;
 

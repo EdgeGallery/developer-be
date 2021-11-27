@@ -14,13 +14,11 @@
 
 package org.edgegallery.developer.test.service.capability;
 
-import com.spencerwi.either.Either;
 import java.io.IOException;
 import java.util.List;
 import org.edgegallery.developer.exception.DataBaseException;
 import org.edgegallery.developer.test.DeveloperApplicationTests;
 import org.edgegallery.developer.model.capability.CapabilityGroup;
-import org.edgegallery.developer.response.FormatRespDto;
 import org.edgegallery.developer.service.capability.CapabilityGroupService;
 import org.junit.Assert;
 import org.junit.Test;

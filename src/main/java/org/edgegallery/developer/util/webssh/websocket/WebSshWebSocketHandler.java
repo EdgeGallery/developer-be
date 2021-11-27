@@ -16,7 +16,7 @@
 
 package org.edgegallery.developer.util.webssh.websocket;
 
-import org.edgegallery.developer.service.WebSshService;
+import org.edgegallery.developer.service.proxy.WebSshService;
 import org.edgegallery.developer.util.webssh.constant.ConstantPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

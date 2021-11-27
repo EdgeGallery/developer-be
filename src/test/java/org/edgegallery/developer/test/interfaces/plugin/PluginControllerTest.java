@@ -14,8 +14,6 @@
 
 package org.edgegallery.developer.test.interfaces.plugin;
 
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-
 
 import com.google.gson.Gson;
 import java.io.File;
@@ -25,24 +23,22 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import org.apache.commons.io.FileUtils;
 import org.apache.http.entity.ContentType;
 import org.apache.ibatis.io.Resources;
-import org.edgegallery.developer.application.plugin.PluginService;
-import org.edgegallery.developer.config.security.AccessUserUtil;
-import org.edgegallery.developer.domain.model.plugin.ApiChecker;
-import org.edgegallery.developer.domain.model.plugin.Plugin;
-import org.edgegallery.developer.domain.model.user.User;
-import org.edgegallery.developer.domain.service.FileService;
-import org.edgegallery.developer.domain.shared.AFile;
-import org.edgegallery.developer.domain.shared.FileChecker;
-import org.edgegallery.developer.domain.shared.IconChecker;
-import org.edgegallery.developer.domain.shared.Page;
-import org.edgegallery.developer.domain.shared.PluginChecker;
-import org.edgegallery.developer.interfaces.plugin.PluginController;
-import org.edgegallery.developer.interfaces.plugin.facade.PluginServiceFacade;
-import org.edgegallery.developer.interfaces.plugin.facade.dto.PluginDto;
-import org.junit.Assert;
+import org.edgegallery.developer.service.plugin.impl.PluginService;
+import org.edgegallery.developer.filter.security.AccessUserUtil;
+import org.edgegallery.developer.model.plugin.ApiChecker;
+import org.edgegallery.developer.model.plugin.Plugin;
+import org.edgegallery.developer.model.common.User;
+import org.edgegallery.developer.service.plugin.FileService;
+import org.edgegallery.developer.service.plugin.impl.shared.AFile;
+import org.edgegallery.developer.service.plugin.impl.shared.FileChecker;
+import org.edgegallery.developer.service.plugin.impl.shared.IconChecker;
+import org.edgegallery.developer.model.common.Page;
+import org.edgegallery.developer.service.plugin.impl.shared.PluginChecker;
+import org.edgegallery.developer.controller.plugin.PluginController;
+import org.edgegallery.developer.service.plugin.impl.PluginServiceFacade;
+import org.edgegallery.developer.model.plugin.PluginDto;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -55,7 +51,6 @@ import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;

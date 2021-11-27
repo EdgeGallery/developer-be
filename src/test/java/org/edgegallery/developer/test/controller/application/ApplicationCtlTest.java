@@ -21,7 +21,7 @@ import com.google.gson.Gson;
 import java.util.ArrayList;
 import java.util.UUID;
 import org.edgegallery.developer.test.DeveloperApplicationTests;
-import org.edgegallery.developer.domain.shared.Page;
+import org.edgegallery.developer.model.common.Page;
 import org.edgegallery.developer.model.application.Application;
 import org.edgegallery.developer.model.restful.ApplicationDetail;
 import org.edgegallery.developer.service.application.ApplicationService;

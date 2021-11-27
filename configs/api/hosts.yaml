@@ -188,4 +188,4 @@ definitions:
         type: "string"
       detail:
         type: "string"
-    x-java-class: "org.edgegallery.developer.response.ErrorRespDto"
+    x-java-class: "org.edgegallery.developer.model.restful.ErrorRespDto"
