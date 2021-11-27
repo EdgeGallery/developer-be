@@ -14,6 +14,8 @@
 
 package org.edgegallery.developer.util.helmcharts;
 
+import com.google.gson.Gson;
+import com.google.gson.annotations.SerializedName;
 import java.util.List;
 import java.util.UUID;
 import lombok.Builder;
@@ -31,10 +33,13 @@ public class EgValuesYaml {
 
     private Global global;
 
+    @SerializedName("appconfig")
     private AppConfig appConfig;
 
+    @SerializedName("serviceconfig")
     private List<ServiceConfig> serviceConfig;
 
+    @SerializedName("imagelocation")
     private ImageLocation imageLocation;
 
     public static EgValuesYaml createDefaultEgValues() {
@@ -46,8 +51,9 @@ public class EgValuesYaml {
     }
 
     public String getContent() {
+        String json = new Gson().toJson(this);
         Yaml yaml = new Yaml(new SafeConstructor(), new CustomRepresenter());
-        return yaml.dumpAs(this, Tag.MAP, DumperOptions.FlowStyle.BLOCK);
+        return yaml.dumpAs(new Gson().fromJson(json, Object.class), Tag.MAP, DumperOptions.FlowStyle.BLOCK);
     }
 
     @Getter
@@ -55,9 +61,11 @@ public class EgValuesYaml {
     @Builder
     static class Global {
         @Builder.Default
+        @SerializedName("mepagent")
         private MepAgent mepAgent = MepAgent.builder().build();
 
         @Builder.Default
+        @SerializedName("namespace")
         private NameSpace nameSpace = NameSpace.builder().build();
 
         @Getter
@@ -68,6 +76,7 @@ public class EgValuesYaml {
             private boolean enabled = true;
 
             @Builder.Default
+            @SerializedName("configmapname")
             private String configMapName = "mepagent-" + UUID.randomUUID().toString();
         }
 
@@ -85,6 +94,7 @@ public class EgValuesYaml {
     @Builder
     static class AppConfig {
         @Builder.Default
+        @SerializedName("appnamespace")
         private String appNameSpace = "<NAMESPACE>";
 
         @Builder.Default
@@ -94,12 +104,16 @@ public class EgValuesYaml {
         @Setter
         static class AkSk {
 
+            @SerializedName("secretname")
             private String secretName = "<random_value>";
 
+            @SerializedName("accesskey")
             private String accessKey = "<akvalue>";
 
+            @SerializedName("secretkey")
             private String secretKey = "<skvalue>";
 
+            @SerializedName("appInsId")
             private String appInsId = "<idvalue>";
         }
     }
@@ -108,6 +122,7 @@ public class EgValuesYaml {
     @Getter
     @Builder
     static class ServiceConfig {
+        @SerializedName("servicename")
         private String serviceName;
 
         private int port;
@@ -116,6 +131,7 @@ public class EgValuesYaml {
 
         private String protocol;
 
+        @SerializedName("appnamespace")
         private String appNameSpace;
     }
 
@@ -124,6 +140,7 @@ public class EgValuesYaml {
     @Builder
     static class ImageLocation {
         @Builder.Default
+        @SerializedName("domainname")
         private String domainName = "192.168.1.1";
 
         @Builder.Default

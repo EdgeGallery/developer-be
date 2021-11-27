@@ -57,7 +57,7 @@ public class LoadK8SYamlHandlerIpmTest {
 
     @Test
     public void should_successfully_when_export_tgz() throws IOException {
-        File demo = Resources.getResourceAsFile("testdata/demo.yaml");
+        File demo = Resources.getResourceAsFile("testdata/helmcharts/battlecity_no_agent.yaml");
         handler.load(demo.getCanonicalPath());
         String outFile = handler.exportHelmChartsPackage();
         Assert.assertNotNull(outFile);
