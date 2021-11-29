@@ -54,7 +54,8 @@ RUN apk add nginx &&\
     chmod -R 777 /var/lib/nginx &&\
     chmod -R 777 /run/nginx
 
-RUN useradd -r -u $UID -G $GROUP_NAME,docker -d $APP_HOME -s /sbin/nologin -c "Docker image user" $USER_NAME
+#RUN useradd -r -u $UID -G $GROUP_NAME,docker -d $APP_HOME -s /sbin/nologin -c "Docker image user" $USER_NAME
+RUN  useradd -r -u $UID -g $GID -d $APP_HOME -s /sbin/nologin -c "Docker image user" $USER_NAME
 
 RUN groupadd docker && \
     gpasswd -a $USER_NAME docker
