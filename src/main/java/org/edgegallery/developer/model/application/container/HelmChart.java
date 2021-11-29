@@ -21,6 +21,7 @@ import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import org.edgegallery.developer.model.instantiate.container.ContainerAppInstantiateInfo;
 import org.edgegallery.developer.util.helmcharts.HelmChartFile;
 
 @Getter
@@ -39,5 +40,7 @@ public class HelmChart {
     private String applicationId;
 
     private List<HelmChartFile> helmChartFileList;
+
+    private ContainerAppInstantiateInfo containerAppInstantiateInfo;
 
 }
