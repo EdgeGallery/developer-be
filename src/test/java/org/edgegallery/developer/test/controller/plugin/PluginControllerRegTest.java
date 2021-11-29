@@ -12,7 +12,7 @@
  * the License.
  */
 
-package org.edgegallery.developer.test.interfaces.plugin;
+package org.edgegallery.developer.test.controller.plugin;
 
 import com.google.gson.Gson;
 import junit.framework.TestCase;

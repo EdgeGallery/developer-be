@@ -19,7 +19,7 @@ package org.edgegallery.developer.mapper.atp;
 import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
-import org.edgegallery.developer.model.atpTestTask.AtpTest;
+import org.edgegallery.developer.model.atp.AtpTest;
 
 @Mapper
 public interface AtpTestTaskMapper {

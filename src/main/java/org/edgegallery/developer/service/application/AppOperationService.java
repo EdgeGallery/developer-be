@@ -19,7 +19,7 @@ package org.edgegallery.developer.service.application;
 import java.util.List;
 import org.edgegallery.developer.model.common.User;
 import org.edgegallery.developer.model.apppackage.AppPackage;
-import org.edgegallery.developer.model.atpTestTask.AtpTest;
+import org.edgegallery.developer.model.atp.AtpTest;
 import org.edgegallery.developer.model.restful.SelectMepHostReq;
 import org.edgegallery.developer.model.appstore.PublishAppReqDto;
 

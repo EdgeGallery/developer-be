@@ -43,7 +43,7 @@ import org.edgegallery.developer.model.application.Application;
 import org.edgegallery.developer.model.application.EnumApplicationStatus;
 import org.edgegallery.developer.model.application.configuration.AppServiceProduced;
 import org.edgegallery.developer.model.apppackage.AppPackage;
-import org.edgegallery.developer.model.atpTestTask.AtpTest;
+import org.edgegallery.developer.model.atp.AtpTest;
 import org.edgegallery.developer.model.capability.Capability;
 import org.edgegallery.developer.model.capability.CapabilityGroup;
 import org.edgegallery.developer.model.restful.SelectMepHostReq;
