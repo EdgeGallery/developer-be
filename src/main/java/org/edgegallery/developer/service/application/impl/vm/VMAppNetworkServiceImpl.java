@@ -95,6 +95,9 @@ public class VMAppNetworkServiceImpl implements VMAppNetworkService {
     public boolean deleteNetworkByAppId(String applicationId) {
         //check network used by port
         List<Network> networks = networkMapper.getNetworkByAppId(applicationId);
+        if(networks.isEmpty()){
+            return true;
+        }
         List<VirtualMachine> vms = vmAppVmService.getAllVm(applicationId);
         for (Network network : networks) {
             if (isNetworkUsedByVMPorts(network, vms)) {

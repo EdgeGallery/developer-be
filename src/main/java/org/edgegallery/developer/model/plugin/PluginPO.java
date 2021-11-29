@@ -21,7 +21,6 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import org.edgegallery.developer.model.common.User;
-import org.edgegallery.developer.service.plugin.impl.shared.AFile;
 
 @Getter
 @Setter

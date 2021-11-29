@@ -22,8 +22,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang.Validate;
 import org.edgegallery.developer.model.common.User;
-import org.edgegallery.developer.service.plugin.impl.shared.AFile;
-import org.edgegallery.developer.service.plugin.impl.shared.Entity;
+import org.edgegallery.developer.exception.Entity;
 
 @Setter
 @Getter

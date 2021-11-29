@@ -29,7 +29,7 @@ import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.edgegallery.developer.filter.security.AccessUserUtil;
 import org.edgegallery.developer.model.common.User;
 import org.edgegallery.developer.model.apppackage.AppPackage;
-import org.edgegallery.developer.model.atpTestTask.AtpTest;
+import org.edgegallery.developer.model.atp.AtpTest;
 import org.edgegallery.developer.model.restful.SelectMepHostReq;
 import org.edgegallery.developer.model.appstore.PublishAppReqDto;
 import org.edgegallery.developer.model.restful.ErrorRespDto;
