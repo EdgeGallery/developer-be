@@ -38,9 +38,8 @@ RUN mkdir -p /usr/app/lib
 RUN apk update &&\
     apk add shadow &&\
     groupadd -r -g $GID $GROUP_NAME
-   # useradd -r -u $UID -g $GID -d $APP_HOME -s /sbin/nologin -c "Docker image user" $USER_NAME
-   # useradd -r -u $UID -G $GROUP_NAME,docker -d $APP_HOME -s /sbin/nologin -c "Docker image user" $USER_NAME
-RUN apk add docker
+
+#RUN apk add docker
 
 RUN apk add openssh
 
@@ -56,6 +55,9 @@ RUN apk add nginx &&\
     chmod -R 777 /run/nginx
 
 RUN useradd -r -u $UID -G $GROUP_NAME,docker -d $APP_HOME -s /sbin/nologin -c "Docker image user" $USER_NAME
+
+RUN groupadd docker && \
+    gpasswd -a $USER_NAME docker
 
 WORKDIR $APP_HOME
 

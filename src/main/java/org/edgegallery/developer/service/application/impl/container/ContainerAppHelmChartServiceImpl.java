@@ -26,12 +26,12 @@ import java.util.List;
 import java.util.UUID;
 import org.apache.commons.io.FileUtils;
 import org.edgegallery.developer.common.ResponseConsts;
-import org.edgegallery.developer.filter.security.AccessUserUtil;
 import org.edgegallery.developer.exception.DataBaseException;
 import org.edgegallery.developer.exception.EntityNotFoundException;
 import org.edgegallery.developer.exception.FileFoundFailException;
 import org.edgegallery.developer.exception.FileOperateException;
 import org.edgegallery.developer.exception.IllegalRequestException;
+import org.edgegallery.developer.filter.security.AccessUserUtil;
 import org.edgegallery.developer.mapper.application.ApplicationMapper;
 import org.edgegallery.developer.mapper.application.container.ContainerAppImageInfoMapper;
 import org.edgegallery.developer.mapper.application.container.HelmChartMapper;
@@ -39,9 +39,11 @@ import org.edgegallery.developer.mapper.uploadfile.UploadFileMapper;
 import org.edgegallery.developer.model.application.Application;
 import org.edgegallery.developer.model.application.container.HelmChart;
 import org.edgegallery.developer.model.application.container.ModifyFileContentDto;
+import org.edgegallery.developer.model.instantiate.container.ContainerAppInstantiateInfo;
 import org.edgegallery.developer.model.uploadfile.UploadFile;
 import org.edgegallery.developer.service.application.AppConfigurationService;
 import org.edgegallery.developer.service.application.container.ContainerAppHelmChartService;
+import org.edgegallery.developer.service.application.container.ContainerAppOperationService;
 import org.edgegallery.developer.util.BusinessConfigUtil;
 import org.edgegallery.developer.util.FileUtil;
 import org.edgegallery.developer.util.ImageConfig;
@@ -76,6 +78,9 @@ public class ContainerAppHelmChartServiceImpl implements ContainerAppHelmChartSe
 
     @Autowired
     private AppConfigurationService appConfigurationService;
+
+    @Autowired
+    private ContainerAppOperationService containerAppOperationService;
 
     @Autowired
     private ImageConfig imageConfig;
@@ -189,6 +194,11 @@ public class ContainerAppHelmChartServiceImpl implements ContainerAppHelmChartSe
         if (chart == null || !chart.getApplicationId().equals(applicationId)) {
             LOGGER.error("the query HelmChart is empty!");
             throw new EntityNotFoundException("the query HelmChart is empty", ResponseConsts.RET_QUERY_DATA_EMPTY);
+        }
+        ContainerAppInstantiateInfo containerAppInstantiateInfo = containerAppOperationService
+            .getInstantiateInfo(applicationId);
+        if (containerAppInstantiateInfo != null) {
+            chart.setContainerAppInstantiateInfo(containerAppInstantiateInfo);
         }
         return chart;
     }
