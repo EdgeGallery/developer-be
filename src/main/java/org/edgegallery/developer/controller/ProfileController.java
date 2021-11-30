@@ -110,8 +110,10 @@ public class ProfileController {
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<Page<ProfileInfo>> getAllProfiles(
         @ApiParam(value = "the max count of one page", required = true) @Min(1) @QueryParam("limit") int limit,
-        @ApiParam(value = "start index of the page", required = true) @Min(0) @QueryParam("offset") int offset) {
-        return ResponseEntity.ok(profileService.getAllProfiles(limit, offset));
+        @ApiParam(value = "start index of the page", required = true) @Min(0) @QueryParam("offset") int offset,
+        @ApiParam(value = "profile name", required = false) @Size(max = Consts.LENGTH_64) @QueryParam("name")
+            String name) {
+        return ResponseEntity.ok(profileService.getAllProfiles(limit, offset,name));
     }
 
     /**

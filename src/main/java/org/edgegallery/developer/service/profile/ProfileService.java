@@ -44,9 +44,10 @@ public interface ProfileService {
      *
      * @param limit limit
      * @param offset offset
+     * @param name profile name
      * @return profile info list
      */
-    Page<ProfileInfo> getAllProfiles(int limit, int offset);
+    Page<ProfileInfo> getAllProfiles(int limit, int offset, String name);
 
     /**
      * get profile by id.

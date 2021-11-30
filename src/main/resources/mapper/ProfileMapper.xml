@@ -60,6 +60,13 @@
         FROM tbl_profile WHERE id =#{id}
     </select>
 
+    <select id="getProfileByName" parameterType="java.lang.String"
+            resultMap="AllProfileMap">
+        SELECT
+        <include refid="AllColumn"/>
+        FROM tbl_profile WHERE name =#{name}
+    </select>
+
     <update id="updateProfile">
         UPDATE
         tbl_profile
@@ -69,7 +76,8 @@
         #{deployFilePath, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonTypeHandler},
         config_file_path = #{configFilePath},
         seq = #{seq, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonCollectionTypeHandler},
-        app_list = #{appList, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonCollectionTypeHandler},
+        app_list =
+        #{appList, jdbcType=OTHER, typeHandler=org.edgegallery.developer.model.handler.JsonCollectionTypeHandler},
         type = #{type}, industry = #{industry}, topo_file_path = #{topoFilePath}
         WHERE
         id = #{id}
@@ -78,7 +86,13 @@
     <select id="getAllProfiles" resultMap="AllProfileMap">
         SELECT
         <include refid="AllColumn"/>
-        FROM tbl_profile order by create_time desc
+        FROM tbl_profile
+        <where>
+            <if test="name != null and name !=''">
+                and name ~* #{name}
+            </if>
+        </where>
+        order by create_time desc
     </select>
 
     <delete id="deleteProfileById" parameterType="java.lang.String">
