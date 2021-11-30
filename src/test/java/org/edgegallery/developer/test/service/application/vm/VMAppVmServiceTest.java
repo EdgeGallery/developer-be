@@ -36,7 +36,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 @RunWith(SpringRunner.class)
 public class VMAppVmServiceTest {
 
-    private final String PRESET_APPLICATION_ID = "4cbbab9d-c48f-4adb-ae82-d1816d8edd7b";
+    private final String PRESET_APPLICATION_ID = "4cbbab9d-c48f-4adb-ae82-d1816d8edd7c";
 
     private final String PRESET_VM1_ID = "6a75a2bd-9811-432f-bbe8-2813aa97d757";
 
