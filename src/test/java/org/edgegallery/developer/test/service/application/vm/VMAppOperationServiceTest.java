@@ -65,7 +65,7 @@ import org.springframework.web.multipart.MultipartFile;
 @RunWith(SpringRunner.class)
 public class VMAppOperationServiceTest extends AbstractJUnit4SpringContextTests {
 
-    private final String PRESET_APPLICATION_ID = "4cbbab9d-c48f-4adb-ae82-d1816d8edd7b";
+    private final String PRESET_APPLICATION_ID = "4cbbab9d-c48f-4adb-ae82-d1816d8edd7c";
 
     private final String PRESET_VM_ID = "6a75a2bd-9811-432f-bbe8-2813aa97d757";
 
