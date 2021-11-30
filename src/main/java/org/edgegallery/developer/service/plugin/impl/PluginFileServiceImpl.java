@@ -1,20 +1,18 @@
 /*
- *    Copyright 2020 Huawei Technologies Co., Ltd.
+ * Copyright 2021 Huawei Technologies Co., Ltd.
  *
- *    Licensed under the Apache License, Version 2.0 (the "License");
- *    you may not use this file except in compliance with the License.
- *    You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  *
- *        http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *    Unless required by applicable law or agreed to in writing, software
- *    distributed under the License is distributed on an "AS IS" BASIS,
- *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *    See the License for the specific language governing permissions and
- *    limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
  */
 
-package org.edgegallery.developer.service.plugin.impl.files;
+package org.edgegallery.developer.service.plugin.impl;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -31,18 +29,18 @@ import java.util.zip.ZipFile;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.edgegallery.developer.service.plugin.FileService;
-import org.edgegallery.developer.service.plugin.impl.shared.AFile;
-import org.edgegallery.developer.service.plugin.impl.shared.FileChecker;
+import org.edgegallery.developer.service.plugin.PluginFileService;
+import org.edgegallery.developer.model.plugin.AFile;
+import org.edgegallery.developer.util.filechecker.FileChecker;
 import org.edgegallery.developer.util.BusinessConfigUtil;
 import org.edgegallery.developer.util.InitConfigUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.multipart.MultipartFile;
 
-public class LocalFileService implements FileService {
+public class PluginFileServiceImpl implements PluginFileService {
 
-    public static final Logger LOGGER = LoggerFactory.getLogger(FileService.class);
+    public static final Logger LOGGER = LoggerFactory.getLogger(PluginFileService.class);
 
     public static final String PLUGIN_DIR = InitConfigUtil.getWorkSpaceBaseDir() + BusinessConfigUtil.getPluginPath();
 

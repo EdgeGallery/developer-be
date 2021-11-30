@@ -24,15 +24,15 @@ import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.servicecomb.swagger.invocation.exception.InvocationException;
 import org.edgegallery.developer.model.plugin.comment.PluginDownloadRecord;
-import org.edgegallery.developer.model.plugin.ApiChecker;
+import org.edgegallery.developer.util.filechecker.ApiChecker;
 import org.edgegallery.developer.model.plugin.Plugin;
-import org.edgegallery.developer.model.plugin.PluginRepository;
+import org.edgegallery.developer.service.plugin.PluginRepository;
 import org.edgegallery.developer.model.common.User;
-import org.edgegallery.developer.service.plugin.FileService;
-import org.edgegallery.developer.service.plugin.impl.shared.AFile;
-import org.edgegallery.developer.service.plugin.impl.shared.FileChecker;
-import org.edgegallery.developer.service.plugin.impl.shared.IconChecker;
-import org.edgegallery.developer.service.plugin.impl.shared.PluginChecker;
+import org.edgegallery.developer.service.plugin.PluginFileService;
+import org.edgegallery.developer.model.plugin.AFile;
+import org.edgegallery.developer.util.filechecker.FileChecker;
+import org.edgegallery.developer.util.filechecker.IconChecker;
+import org.edgegallery.developer.util.filechecker.PluginChecker;
 import org.edgegallery.developer.exception.EntityNotFoundException;
 import org.edgegallery.developer.model.restful.FormatRespDto;
 import org.edgegallery.developer.util.FileHashCode;
@@ -55,7 +55,7 @@ public class PluginService {
     private PluginRepository pluginRepository;
 
     @Autowired
-    private FileService fileService;
+    private PluginFileService pluginFileService;
 
     /**
      * publish plugin over.
@@ -87,7 +87,7 @@ public class PluginService {
     }
 
     private AFile getFile(MultipartFile file, FileChecker fileChecker) throws IOException {
-        String fileAddress = fileService.saveTo(file, fileChecker);
+        String fileAddress = pluginFileService.saveTo(file, fileChecker);
         return new AFile(file.getOriginalFilename(), fileAddress, file.getSize());
     }
 
@@ -100,9 +100,9 @@ public class PluginService {
     public void deleteByPluginId(String pluginId) {
         Plugin plugin = pluginRepository.find(pluginId)
             .orElseThrow(() -> new EntityNotFoundException(Plugin.class, pluginId));
-        fileService.delete(plugin.getApiFile());
-        fileService.delete(plugin.getLogoFile());
-        fileService.delete(plugin.getPluginFile());
+        pluginFileService.delete(plugin.getApiFile());
+        pluginFileService.delete(plugin.getLogoFile());
+        pluginFileService.delete(plugin.getPluginFile());
         pluginRepository.remove(plugin);
     }
 
@@ -118,7 +118,7 @@ public class PluginService {
         int downloadCount = plugin.getDownloadCount() + 1;
         plugin.setDownloadCount(downloadCount);
         pluginRepository.store(plugin);
-        return fileService.get(plugin.getPluginFile());
+        return pluginFileService.get(plugin.getPluginFile());
     }
 
     /**
@@ -130,7 +130,7 @@ public class PluginService {
     public InputStream downloadLogo(String pluginId) throws IOException {
         Plugin plugin = pluginRepository.find(pluginId)
             .orElseThrow(() -> new EntityNotFoundException(Plugin.class, pluginId));
-        return fileService.get(plugin.getLogoFile());
+        return pluginFileService.get(plugin.getLogoFile());
     }
 
     /**
@@ -142,7 +142,7 @@ public class PluginService {
     public InputStream downloadApiFile(String pluginId) throws IOException {
         Plugin plugin = pluginRepository.find(pluginId)
             .orElseThrow(() -> new EntityNotFoundException(Plugin.class, pluginId));
-        return fileService.get(plugin.getApiFile());
+        return pluginFileService.get(plugin.getApiFile());
     }
 
     /**

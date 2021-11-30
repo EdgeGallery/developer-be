@@ -16,8 +16,8 @@
 
 package org.edgegallery.developer.filter;
 
-import org.edgegallery.developer.service.plugin.FileService;
-import org.edgegallery.developer.service.plugin.impl.files.LocalFileService;
+import org.edgegallery.developer.service.plugin.PluginFileService;
+import org.edgegallery.developer.service.plugin.impl.PluginFileServiceImpl;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -25,8 +25,8 @@ import org.springframework.context.annotation.Configuration;
 public class ApplicationContext {
 
     @Bean
-    public FileService fileService() {
-        return new LocalFileService();
+    public PluginFileService fileService() {
+        return new PluginFileServiceImpl();
     }
 
 }
