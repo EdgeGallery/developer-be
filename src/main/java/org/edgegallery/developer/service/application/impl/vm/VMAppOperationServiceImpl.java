@@ -123,7 +123,7 @@ public class VMAppOperationServiceImpl extends AppOperationServiceImpl implement
         }
         if (virtualMachine.getVmInstantiateInfo() != null) {
             LOGGER.error("instantiate vm app fail ,vm has instantiated. please clean env, vmId:{}", vmId);
-            throw new EntityNotFoundException("instantiate vm app fail ,vm has instantiated. please clean env.",
+            throw new IllegalRequestException("instantiate vm app fail ,vm has instantiated. please clean env.",
                 ResponseConsts.RET_QUERY_DATA_EMPTY);
         }
 
