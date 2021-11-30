@@ -109,6 +109,10 @@ public class ContainerAppHelmChartServiceImpl implements ContainerAppHelmChartSe
             // default dependency mep service.
             containerFileHandler.setHasMep(true);
 
+            // create charts-file(.tgz) and export it to the outPath.
+            String helmChartsPackage = containerFileHandler.exportHelmChartsPackage();
+            String helmChartsName = new File(helmChartsPackage).getName();
+
             //get image
             List<String> imageList = ContainerAppHelmChartUtil.getImageFromHelmFile(containerFileHandler);
             if (CollectionUtils.isEmpty(imageList)) {
@@ -123,9 +127,6 @@ public class ContainerAppHelmChartServiceImpl implements ContainerAppHelmChartSe
                 throw new HarborException("some images are not found in harbor repo!",
                     ResponseConsts.RET_GET_HARBOR_IMAGE_LIST_FAIL);
             }
-            // create charts-file(.tgz) and export it to the outPath.
-            String helmChartsPackage = containerFileHandler.exportHelmChartsPackage();
-            String helmChartsName = new File(helmChartsPackage).getName();
             String fileId = UUID.randomUUID().toString();
 
             // use the first fileName to create the dir

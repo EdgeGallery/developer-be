@@ -179,7 +179,8 @@ public class ContainerImageServiceImpl implements ContainerImageService {
             File partFileDir = new File(partFilePath);
             if (!partFileDir.exists() || !partFileDir.isDirectory()) {
                 LOGGER.error("uploaded part file path not found!");
-                throw new FileFoundFailException("uploaded part file path not found", ResponseConsts.RET_FILE_NOT_FOUND);
+                throw new FileFoundFailException("uploaded part file path not found",
+                    ResponseConsts.RET_FILE_NOT_FOUND);
             }
 
             File[] partFiles = partFileDir.listFiles();
@@ -350,7 +351,8 @@ public class ContainerImageServiceImpl implements ContainerImageService {
         }
         try {
             DockerClientConfig config = DefaultDockerClientConfig.createDefaultConfigBuilder()
-                .withDockerHost(protocol + "://" + devRepoEndpoint + ":" + port).build();
+                .withDockerHost(protocol + "://" + devRepoEndpoint + ":" + port).withDockerTlsVerify(true)
+                .withDockerCertPath("/root/tls").build();
             DockerCmdExecFactory factory = new NettyDockerCmdExecFactory().withConnectTimeout(100000);
             DockerClient dockerClient = DockerClientBuilder.getInstance(config).withDockerCmdExecFactory(factory)
                 .build();
