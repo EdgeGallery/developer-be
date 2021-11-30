@@ -61,7 +61,7 @@ public class ContainerAppHelmChartServiceTest {
 
         new MockUp<ContainerAppHelmChartUtil>() {
             @Mock
-            public List<String> getImageFromHelmFile(IContainerFileHandler containerFileHandler) {
+            public List<String> getImageFromHelmFile(IContainerFileHandler containerFileHandler,String helmChartsPackagePath) {
                 {
                     List<String> list = new ArrayList<>();
                     list.add("1/2/3:4");

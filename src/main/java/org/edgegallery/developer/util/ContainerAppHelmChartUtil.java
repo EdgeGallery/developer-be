@@ -18,6 +18,7 @@ package org.edgegallery.developer.util;
 
 import io.kubernetes.client.openapi.models.V1Deployment;
 import io.kubernetes.client.openapi.models.V1Pod;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -53,9 +54,16 @@ public final class ContainerAppHelmChartUtil {
      * get image form tgz file.
      *
      * @param containerFileHandler containerFileHandler
+     * @param helmChartsPackagePath helmChartsPackagePath
      * @return
      */
-    public static List<String> getImageFromHelmFile(IContainerFileHandler containerFileHandler) {
+    public static List<String> getImageFromHelmFile(IContainerFileHandler containerFileHandler, String helmChartsPackagePath) {
+        try {
+            containerFileHandler.load(helmChartsPackagePath);
+        } catch (IOException e) {
+            LOGGER.error("load tgz file failed {}!", e.getMessage());
+            return Collections.emptyList();
+        }
         List<String> images = new ArrayList<>();
         List<HelmChartFile> k8sTemplates = containerFileHandler.getTemplatesFile();
         if (CollectionUtils.isEmpty(k8sTemplates)) {
