@@ -89,7 +89,7 @@ public class ContainerImageCtl {
     @ApiResponses(value = {
         @ApiResponse(code = 200, message = "OK", response = ContainerImage.class)
     })
-    @RequestMapping(value = "/list", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_UTF8_VALUE,
+    @RequestMapping(value = "/action/get-all-images", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_UTF8_VALUE,
         produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_ADMIN')|| hasRole('DEVELOPER_TENANT')")
     public ResponseEntity<Page<ContainerImage>> getAllContainerImage(
