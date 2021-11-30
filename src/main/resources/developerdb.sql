@@ -277,7 +277,7 @@
     "app_id" varchar(255) DEFAULT NULL,
     "name" varchar(255) NOT NULL,
     "description" varchar(255) DEFAULT NULL,
-    CONSTRAINT "tbl_network_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "tbl_network_pkey_uniqueName" UNIQUE ("app_id","name")
     );
 
     CREATE TABLE IF NOT EXISTS "tbl_vm_port" (

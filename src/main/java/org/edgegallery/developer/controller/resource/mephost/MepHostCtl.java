@@ -69,7 +69,7 @@ public class MepHostCtl {
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
     @GetMapping(produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    @PreAuthorize("hasRole('DEVELOPER_ADMIN')")
+    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<Page<MepHost>> getAllHosts(
         @ApiParam(value = "name", required = false) @RequestParam(value = "name", required = false) String name,
         @ApiParam(value = "vimType", required = false) @RequestParam(value = "vimType") String vimType,
@@ -149,7 +149,7 @@ public class MepHostCtl {
     })
     @RequestMapping(value = "/{mephostId}", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    @PreAuthorize("hasRole('DEVELOPER_ADMIN')")
+    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<MepHost> getHost(@ApiParam(value = "mephostId", required = true) @PathVariable("mephostId")
     @Pattern(regexp = REG_UUID, message = "hostId must be in UUID format") String mephostId) {
         return ResponseEntity.ok(mepHostService.getHost(mephostId));
