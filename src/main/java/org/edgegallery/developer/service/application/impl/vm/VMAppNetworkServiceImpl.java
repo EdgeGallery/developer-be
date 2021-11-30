@@ -83,11 +83,7 @@ public class VMAppNetworkServiceImpl implements VMAppNetworkService {
             throw new DeveloperException("Network is used by vm port. Cannot be deleted",
                 ResponseConsts.RET_DELETE_DATA_FAIL);
         }
-        int res = networkMapper.deleteNetwork(networkId);
-        if (res < 1) {
-            LOGGER.error("delete network in db error.");
-            throw new DataBaseException("delete network in db error.", ResponseConsts.RET_DELETE_DATA_FAIL);
-        }
+        networkMapper.deleteNetwork(networkId);
         return true;
     }
 
@@ -95,6 +91,9 @@ public class VMAppNetworkServiceImpl implements VMAppNetworkService {
     public boolean deleteNetworkByAppId(String applicationId) {
         //check network used by port
         List<Network> networks = networkMapper.getNetworkByAppId(applicationId);
+        if(networks.isEmpty()){
+            return true;
+        }
         List<VirtualMachine> vms = vmAppVmService.getAllVm(applicationId);
         for (Network network : networks) {
             if (isNetworkUsedByVMPorts(network, vms)) {

@@ -424,7 +424,7 @@ definitions:
       size:
         type: "integer"
         format: "int64"
-    x-java-class: "org.edgegallery.developer.service.plugin.impl.shared.AFile"
+    x-java-class: "org.edgegallery.developer.model.plugin.AFile"
   Plugin:
     type: "object"
     properties:

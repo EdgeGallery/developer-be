@@ -12,19 +12,7 @@
  * the License.
  */
 
-package org.edgegallery.developer.model.filesystem;
+package org.edgegallery.developer.exception;
 
-import lombok.Getter;
-import lombok.Setter;
-
-@Getter
-@Setter
-public class ImageCheckResponse {
-
-    private int status;
-
-    private String msg;
-
-    private CheckInfo checkInfo;
-
+public interface Entity {
 }

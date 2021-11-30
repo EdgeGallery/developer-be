@@ -116,9 +116,14 @@ public class VMAppOperationServiceImpl extends AppOperationServiceImpl implement
         }
 
         VirtualMachine virtualMachine = vmAppVmServiceImpl.getVm(applicationId, vmId);
-        if (virtualMachine == null || virtualMachine.getVmInstantiateInfo() != null) {
-            LOGGER.error("instantiate vm app fail ,vm is not exit or is used,vmId:{}", vmId);
-            throw new EntityNotFoundException("instantiate vm app fail ,vm is not exit or is used.",
+        if (virtualMachine == null) {
+            LOGGER.error("instantiate vm app fail ,vm does not exit,vmId:{}", vmId);
+            throw new EntityNotFoundException("instantiate vm app fail ,vm does not exit.",
+                ResponseConsts.RET_QUERY_DATA_EMPTY);
+        }
+        if (virtualMachine.getVmInstantiateInfo() != null) {
+            LOGGER.error("instantiate vm app fail ,vm has instantiated. please clean env, vmId:{}", vmId);
+            throw new IllegalRequestException("instantiate vm app fail ,vm has instantiated. please clean env.",
                 ResponseConsts.RET_QUERY_DATA_EMPTY);
         }
 

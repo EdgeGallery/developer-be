@@ -12,19 +12,21 @@
  * the License.
  */
 
-package org.edgegallery.developer.model.filesystem;
+package org.edgegallery.developer.util.filechecker;
 
-import lombok.Getter;
-import lombok.Setter;
+import java.util.Arrays;
+import java.util.List;
 
-@Getter
-@Setter
-public class ImageCheckResponse {
+public class IconChecker extends FileChecker {
 
-    private int status;
+    @Override
+    protected long getMaxFileSize() {
+        return 10485760;
+    }
 
-    private String msg;
-
-    private CheckInfo checkInfo;
+    @Override
+    protected List<String> getFileExtensions() {
+        return Arrays.asList("jpg", "png", "bmp");
+    }
 
 }

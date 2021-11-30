@@ -25,7 +25,7 @@ import lombok.Setter;
 import lombok.ToString;
 import org.edgegallery.developer.model.application.configuration.AppConfiguration;
 import org.edgegallery.developer.model.apppackage.AppPackage;
-import org.edgegallery.developer.model.atpTestTask.AtpTest;
+import org.edgegallery.developer.model.atp.AtpTest;
 
 @Getter
 @Setter

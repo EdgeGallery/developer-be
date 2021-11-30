@@ -38,7 +38,12 @@ public enum EnumProcessErrorType {
     /**
      * file system merge failed.
      */
-    FILESYSTEM_MERGE_FAILED("fileSystemMergeFailed");
+    FILESYSTEM_MERGE_FAILED("fileSystemMergeFailed"),
+
+    /**
+     * file system check failed.
+     */
+    FILESYSTEM_CHECK_FAILED("filesystemCheckFailed");
 
     private String errorType;
 

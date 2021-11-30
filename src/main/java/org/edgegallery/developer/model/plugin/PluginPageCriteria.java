@@ -16,8 +16,6 @@
 
 package org.edgegallery.developer.model.plugin;
 
-import org.edgegallery.developer.service.plugin.impl.shared.PageCriteria;
-
 public class PluginPageCriteria extends PageCriteria {
 
     private Integer type;

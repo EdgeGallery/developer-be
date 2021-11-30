@@ -91,9 +91,10 @@ developer:
   ip: ${DEVELOPER_IP:}
 
 upload:
+
   path: /usr/app/images
   tempPath: /usr/app/tmp
 
 signature:
-  encrypted-key-path: /usr/app/keys/public.p12
-  key-password: ${EDGE_CERT_PASSWORD:Test12345_}
+  encrypted-key-path: ${EDGE_CERT_PATH:C:/user/public.p12}
+  key-password: ${EDGE_CERT_PASSWORD:te9Fmv%qaq}

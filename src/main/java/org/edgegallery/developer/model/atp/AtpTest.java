@@ -12,19 +12,21 @@
  * the License.
  */
 
-package org.edgegallery.developer.model.filesystem;
+package org.edgegallery.developer.model.atp;
 
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
-public class ImageCheckResponse {
+public class AtpTest {
 
-    private int status;
+    String id;
 
-    private String msg;
+    String appName;
 
-    private CheckInfo checkInfo;
+    String status;
+
+    String createTime;
 
 }

@@ -16,7 +16,10 @@ package org.edgegallery.developer.test.service.application.container;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+import mockit.Mock;
+import mockit.MockUp;
 import org.apache.ibatis.io.Resources;
 import org.edgegallery.developer.exception.DeveloperException;
 import org.edgegallery.developer.exception.EntityNotFoundException;
@@ -25,6 +28,8 @@ import org.edgegallery.developer.model.application.container.HelmChart;
 import org.edgegallery.developer.model.application.container.ModifyFileContentDto;
 import org.edgegallery.developer.service.application.container.ContainerAppHelmChartService;
 import org.edgegallery.developer.test.DeveloperApplicationTests;
+import org.edgegallery.developer.util.ContainerAppHelmChartUtil;
+import org.edgegallery.developer.util.helmcharts.IContainerFileHandler;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -54,6 +59,25 @@ public class ContainerAppHelmChartServiceTest {
         request = new MockHttpServletRequest();
         request.setCharacterEncoding("UTF-8");
 
+        new MockUp<ContainerAppHelmChartUtil>() {
+            @Mock
+            public List<String> getImageFromHelmFile(IContainerFileHandler containerFileHandler) {
+                {
+                    List<String> list = new ArrayList<>();
+                    list.add("1/2/3:4");
+                    return list;
+                }
+            }
+
+            @Mock
+            public boolean checkImageExist(List<String> imageList) {
+                {
+                    return true;
+                }
+            }
+
+        };
+
     }
 
     @Test
@@ -61,10 +85,12 @@ public class ContainerAppHelmChartServiceTest {
         MultipartFile uploadFile = new MockMultipartFile("namespacetest.tgz", "namespacetest.tgz", null,
             ContainerAppHelmChartServiceTest.class.getClassLoader()
                 .getResourceAsStream("testdata/helmcharts/namespacetest.tgz"));
+
         HelmChart helmChart = appHelmChartService
             .uploadHelmChartFile("6a75a2bd-9811-432f-bbe8-2813aa97d364", uploadFile);
         LOGGER.info("fileList:{}", helmChart.getHelmChartFileList());
         Assert.assertNotNull(helmChart.getHelmChartFileList());
+
     }
 
     @Test
@@ -165,7 +191,6 @@ public class ContainerAppHelmChartServiceTest {
         boolean ret = appHelmChartService.deleteHelmChartByAppId("6a75a2bd-9811-432f-bbe8-2813aa97d366");
         Assert.assertEquals(ret, true);
     }
-
 
     @Test
     public void testGetHelmListSuccess() throws IOException {

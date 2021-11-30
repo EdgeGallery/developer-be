@@ -14,7 +14,21 @@
  *    limitations under the License.
  */
 
-package org.edgegallery.developer.service.plugin.impl.shared;
+package org.edgegallery.developer.service.plugin;
 
-public interface Entity {
+import java.io.IOException;
+import java.io.InputStream;
+import org.edgegallery.developer.model.plugin.AFile;
+import org.edgegallery.developer.util.filechecker.FileChecker;
+import org.springframework.web.multipart.MultipartFile;
+
+public interface PluginFileService {
+
+    String saveTo(MultipartFile file, FileChecker fileChecker) throws IOException;
+
+    InputStream get(AFile afile) throws IOException;
+
+    String get(String fileAddress, String filePath) throws IOException;
+
+    void delete(AFile afile);
 }

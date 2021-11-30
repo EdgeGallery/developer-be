@@ -27,20 +27,16 @@ import org.edgegallery.developer.common.Consts;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.security.oauth2.resource.ResourceServerTokenServicesConfiguration;
-import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.security.oauth2.provider.token.TokenStore;
-import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-@Component
-@Import({ResourceServerTokenServicesConfiguration.class})
-@EnableGlobalMethodSecurity(prePostEnabled = true)
+// @Component
+// @Import({ResourceServerTokenServicesConfiguration.class})
+// @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class AccessTokenFilter extends OncePerRequestFilter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AccessTokenFilter.class);
