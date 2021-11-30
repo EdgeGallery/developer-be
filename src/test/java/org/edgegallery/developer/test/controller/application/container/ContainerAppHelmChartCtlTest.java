@@ -23,12 +23,17 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.UUID;
+import mockit.MockUp;
 import org.apache.http.entity.ContentType;
 import org.apache.ibatis.io.Resources;
 import org.edgegallery.developer.controller.application.container.ContainerAppHelmChartCtl;
 import org.edgegallery.developer.model.application.container.HelmChart;
 import org.edgegallery.developer.model.application.container.ModifyFileContentDto;
+import org.edgegallery.developer.model.reverseproxy.ScpConnectEntity;
+import org.edgegallery.developer.model.uploadfile.FileUploadEntity;
 import org.edgegallery.developer.service.application.container.ContainerAppHelmChartService;
+import org.edgegallery.developer.util.ContainerAppHelmChartUtil;
+import org.edgegallery.developer.util.ShhFileUploadUtil;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -69,8 +74,6 @@ public class ContainerAppHelmChartCtlTest {
     @WithMockUser(roles = "DEVELOPER_ADMIN")
     public void testUploadHelmChartFileSuccess() throws Exception {
         String url = String.format("/mec/developer/v2/applications/%s/helmcharts", UUID.randomUUID().toString());
-        Mockito.when(containerAppHelmChartService.uploadHelmChartFile(Mockito.anyString(), Mockito.anyString()))
-            .thenReturn(new HelmChart());
         File configFile = Resources.getResourceAsFile("testdata/config");
         InputStream configInputStream = new FileInputStream(configFile);
         MultipartFile configMultiFile = new MockMultipartFile(configFile.getName(), configFile.getName(),

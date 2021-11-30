@@ -29,6 +29,7 @@ import org.edgegallery.developer.filter.security.AccessUserUtil;
 import org.edgegallery.developer.model.common.User;
 import org.edgegallery.developer.model.profile.ProfileInfo;
 import org.edgegallery.developer.test.DeveloperApplicationTests;
+import org.edgegallery.developer.util.ContainerAppHelmChartUtil;
 import org.edgegallery.developer.util.UploadFileUtil;
 import org.junit.After;
 import org.junit.Before;
@@ -149,9 +150,9 @@ public class ProfileControllerTest {
             }
         };
 
-        new MockUp<UploadFileUtil>() {
+        new MockUp<ContainerAppHelmChartUtil>() {
             @Mock
-            public boolean isExist(List<String> imageList) {
+            public boolean checkImageExist(List<String> imageList) {
                 return true;
             }
         };
