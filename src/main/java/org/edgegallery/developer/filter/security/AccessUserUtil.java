@@ -18,13 +18,10 @@ package org.edgegallery.developer.filter.security;
 
 import org.edgegallery.developer.model.common.User;
 
+
 public final class AccessUserUtil {
 
     private static final ThreadLocal<User> user = new ThreadLocal<>();
-
-    static {
-        user.set(new User("lhl", "lhl", "userAuth"));
-    }
 
     public static void setUser(String userId, String userName) {
         user.set(new User(userId, userName));

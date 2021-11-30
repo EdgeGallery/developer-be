@@ -35,13 +35,6 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.edgegallery.developer.common.Consts;
 import org.edgegallery.developer.common.ResponseConsts;
-<<<<<<< HEAD
-=======
-import org.edgegallery.developer.filter.security.AccessUserUtil;
-import org.edgegallery.developer.util.filechecker.IconChecker;
-import org.edgegallery.developer.model.common.Page;
-import org.edgegallery.developer.util.filechecker.PluginChecker;
->>>>>>> 82e3f29d5a8a0acd8ecc5aa5de001c66c2c81359
 import org.edgegallery.developer.exception.DeveloperException;
 import org.edgegallery.developer.exception.DomainException;
 import org.edgegallery.developer.exception.EntityNotFoundException;
@@ -60,12 +53,12 @@ import org.edgegallery.developer.model.uploadfile.UploadFile;
 import org.edgegallery.developer.service.application.AppScriptService;
 import org.edgegallery.developer.service.application.ApplicationService;
 import org.edgegallery.developer.service.application.impl.container.ContainerAppHelmChartServiceImpl;
-import org.edgegallery.developer.service.plugin.impl.shared.IconChecker;
-import org.edgegallery.developer.service.plugin.impl.shared.PluginChecker;
 import org.edgegallery.developer.service.uploadfile.UploadFileService;
 import org.edgegallery.developer.util.BusinessConfigUtil;
 import org.edgegallery.developer.util.CompressFileUtils;
 import org.edgegallery.developer.util.InitConfigUtil;
+import org.edgegallery.developer.util.filechecker.IconChecker;
+import org.edgegallery.developer.util.filechecker.PluginChecker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
