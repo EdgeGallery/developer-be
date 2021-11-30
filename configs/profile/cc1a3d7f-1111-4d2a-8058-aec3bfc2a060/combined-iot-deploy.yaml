@@ -1,0 +1,42 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: '{{ .Values.appconfig.appnamespace }}'
+  name: battle-city
+  labels:
+    app: battle-city
+spec:
+  selector:
+    matchLabels:
+      app: battle-city
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: battle-city
+    spec:
+      containers:
+        - name: battle-city
+          image: '{{.Values.imagelocation.domainname}}/{{.Values.imagelocation.project}}/battle_city:v1.0'
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 80
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: '{{ .Values.appconfig.appnamespace }}'
+  name: battle-city-svc
+  labels:
+    svc: battle-city-svc
+spec:
+  type: NodePort
+  ports:
+    - port: 80
+      targetPort: 80
+      nodePort: 32525
+      protocol: TCP
+  selector:
+    app: battle-city
