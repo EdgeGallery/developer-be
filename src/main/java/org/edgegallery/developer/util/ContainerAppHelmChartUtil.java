@@ -54,11 +54,12 @@ public final class ContainerAppHelmChartUtil {
      * get image form tgz file.
      *
      * @param containerFileHandler containerFileHandler
+     * @param helmChartsPackagePath helmChartsPackagePath
      * @return
      */
-    public static List<String> getImageFromHelmFile(IContainerFileHandler containerFileHandler, String helmFilePath) {
+    public static List<String> getImageFromHelmFile(IContainerFileHandler containerFileHandler, String helmChartsPackagePath) {
         try {
-            containerFileHandler.load(helmFilePath);
+            containerFileHandler.load(helmChartsPackagePath);
         } catch (IOException e) {
             LOGGER.error("load tgz file failed {}!", e.getMessage());
             return Collections.emptyList();

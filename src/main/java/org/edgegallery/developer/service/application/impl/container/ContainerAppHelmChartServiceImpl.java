@@ -110,11 +110,11 @@ public class ContainerAppHelmChartServiceImpl implements ContainerAppHelmChartSe
             containerFileHandler.setHasMep(true);
 
             // create charts-file(.tgz) and export it to the outPath.
-            String helmChartsPackage = containerFileHandler.exportHelmChartsPackage();
+            String helmChartsPackagePath = containerFileHandler.exportHelmChartsPackage();
 
             //get image
             List<String> imageList = ContainerAppHelmChartUtil
-                .getImageFromHelmFile(containerFileHandler, helmChartsPackage);
+                .getImageFromHelmFile(containerFileHandler, helmChartsPackagePath);
             if (CollectionUtils.isEmpty(imageList)) {
                 LOGGER.error("No image information was found in the yaml file under the template folder!");
                 throw new HarborException("no images found from tgz file!",
@@ -128,9 +128,9 @@ public class ContainerAppHelmChartServiceImpl implements ContainerAppHelmChartSe
                     ResponseConsts.RET_GET_HARBOR_IMAGE_LIST_FAIL);
             }
             String fileId = UUID.randomUUID().toString();
-            String helmChartsName = new File(helmChartsPackage).getName();
+            String helmChartsName = new File(helmChartsPackagePath).getName();
             // use the first fileName to create the dir
-            moveFileToWorkSpace(helmChartsPackage, fileId, helmChartsName);
+            moveFileToWorkSpace(helmChartsPackagePath, fileId, helmChartsName);
 
             //save fileId
             saveFileRecord(fileId, helmChartsName);
