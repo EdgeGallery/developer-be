@@ -24,7 +24,7 @@ import org.edgegallery.developer.model.plugin.PluginPO;
 import org.edgegallery.developer.model.plugin.comment.PluginDownloadRecord;
 import org.edgegallery.developer.model.plugin.Plugin;
 import org.edgegallery.developer.model.plugin.PluginPageCriteria;
-import org.edgegallery.developer.model.plugin.PluginRepository;
+import org.edgegallery.developer.service.plugin.PluginRepository;
 import org.edgegallery.developer.model.common.Page;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;

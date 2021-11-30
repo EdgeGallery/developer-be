@@ -23,7 +23,7 @@ import org.apache.servicecomb.swagger.invocation.exception.InvocationException;
 import org.edgegallery.developer.filter.security.AccessUserUtil;
 import org.edgegallery.developer.model.plugin.Plugin;
 import org.edgegallery.developer.model.plugin.PluginPageCriteria;
-import org.edgegallery.developer.model.plugin.PluginRepository;
+import org.edgegallery.developer.service.plugin.PluginRepository;
 import org.edgegallery.developer.model.common.User;
 import org.edgegallery.developer.model.common.Page;
 import org.edgegallery.developer.exception.EntityNotFoundException;

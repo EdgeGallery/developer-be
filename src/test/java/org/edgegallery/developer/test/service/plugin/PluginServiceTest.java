@@ -12,7 +12,7 @@
  * the License.
  */
 
-package org.edgegallery.developer.test.application.plugin;
+package org.edgegallery.developer.test.service.plugin;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -25,15 +25,15 @@ import org.apache.servicecomb.swagger.invocation.exception.InvocationException;
 import org.edgegallery.developer.test.DeveloperApplicationTests;
 import org.edgegallery.developer.service.plugin.impl.PluginService;
 import org.edgegallery.developer.filter.security.AccessUserUtil;
-import org.edgegallery.developer.model.plugin.ApiChecker;
+import org.edgegallery.developer.util.filechecker.ApiChecker;
 import org.edgegallery.developer.model.plugin.Plugin;
 import org.edgegallery.developer.model.common.User;
-import org.edgegallery.developer.service.plugin.FileService;
-import org.edgegallery.developer.service.plugin.impl.shared.AFile;
-import org.edgegallery.developer.service.plugin.impl.shared.FileChecker;
-import org.edgegallery.developer.service.plugin.impl.shared.IconChecker;
+import org.edgegallery.developer.service.plugin.PluginFileService;
+import org.edgegallery.developer.model.plugin.AFile;
+import org.edgegallery.developer.util.filechecker.FileChecker;
+import org.edgegallery.developer.util.filechecker.IconChecker;
 import org.edgegallery.developer.model.common.Page;
-import org.edgegallery.developer.service.plugin.impl.shared.PluginChecker;
+import org.edgegallery.developer.util.filechecker.PluginChecker;
 import org.edgegallery.developer.exception.EntityNotFoundException;
 import org.edgegallery.developer.service.plugin.impl.PluginServiceFacade;
 import org.edgegallery.developer.model.plugin.PluginDto;
@@ -60,7 +60,7 @@ public class PluginServiceTest {
     private PluginService pluginService;
 
     @Autowired
-    private FileService fileService;
+    private PluginFileService pluginFileService;
 
     @Before
     public void init() {
@@ -207,7 +207,7 @@ public class PluginServiceTest {
     }
 
     private AFile getFile(MultipartFile file, FileChecker fileChecker) throws IOException {
-        String fileAddress = fileService.saveTo(file, fileChecker);
+        String fileAddress = pluginFileService.saveTo(file, fileChecker);
         return new AFile(file.getOriginalFilename(), fileAddress, file.getSize());
     }
 

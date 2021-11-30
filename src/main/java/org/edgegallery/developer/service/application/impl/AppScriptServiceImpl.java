@@ -20,7 +20,7 @@ import java.util.Date;
 import java.util.UUID;
 import org.edgegallery.developer.common.Consts;
 import org.edgegallery.developer.filter.security.AccessUserUtil;
-import org.edgegallery.developer.service.plugin.impl.shared.ScriptChecker;
+import org.edgegallery.developer.util.filechecker.ScriptChecker;
 import org.edgegallery.developer.mapper.application.AppScriptMapper;
 import org.edgegallery.developer.model.application.Script;
 import org.edgegallery.developer.model.uploadfile.UploadFile;

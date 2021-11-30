@@ -12,7 +12,7 @@
  * the License.
  */
 
-package org.edgegallery.developer.test.interfaces.plugin;
+package org.edgegallery.developer.test.controller.plugin;
 
 
 import com.google.gson.Gson;
@@ -27,15 +27,15 @@ import org.apache.http.entity.ContentType;
 import org.apache.ibatis.io.Resources;
 import org.edgegallery.developer.service.plugin.impl.PluginService;
 import org.edgegallery.developer.filter.security.AccessUserUtil;
-import org.edgegallery.developer.model.plugin.ApiChecker;
+import org.edgegallery.developer.util.filechecker.ApiChecker;
 import org.edgegallery.developer.model.plugin.Plugin;
 import org.edgegallery.developer.model.common.User;
-import org.edgegallery.developer.service.plugin.FileService;
-import org.edgegallery.developer.service.plugin.impl.shared.AFile;
-import org.edgegallery.developer.service.plugin.impl.shared.FileChecker;
-import org.edgegallery.developer.service.plugin.impl.shared.IconChecker;
+import org.edgegallery.developer.service.plugin.PluginFileService;
+import org.edgegallery.developer.model.plugin.AFile;
+import org.edgegallery.developer.util.filechecker.FileChecker;
+import org.edgegallery.developer.util.filechecker.IconChecker;
 import org.edgegallery.developer.model.common.Page;
-import org.edgegallery.developer.service.plugin.impl.shared.PluginChecker;
+import org.edgegallery.developer.util.filechecker.PluginChecker;
 import org.edgegallery.developer.controller.plugin.PluginController;
 import org.edgegallery.developer.service.plugin.impl.PluginServiceFacade;
 import org.edgegallery.developer.model.plugin.PluginDto;
@@ -72,7 +72,7 @@ public class PluginControllerTest {
     private PluginService pluginService;
 
     @Mock
-    private FileService fileService;
+    private PluginFileService pluginFileService;
 
     private MockMvc mvc;
 
@@ -216,7 +216,7 @@ public class PluginControllerTest {
     }
 
     private AFile getFile(MultipartFile file, FileChecker fileChecker) throws IOException {
-        String fileAddress = fileService.saveTo(file, fileChecker);
+        String fileAddress = pluginFileService.saveTo(file, fileChecker);
         return new AFile(file.getOriginalFilename(), fileAddress, file.getSize());
     }
 

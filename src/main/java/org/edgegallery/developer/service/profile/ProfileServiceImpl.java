@@ -35,9 +35,9 @@ import org.apache.commons.io.IOUtils;
 import org.edgegallery.developer.common.Consts;
 import org.edgegallery.developer.common.ResponseConsts;
 import org.edgegallery.developer.filter.security.AccessUserUtil;
-import org.edgegallery.developer.service.plugin.impl.shared.IconChecker;
+import org.edgegallery.developer.util.filechecker.IconChecker;
 import org.edgegallery.developer.model.common.Page;
-import org.edgegallery.developer.service.plugin.impl.shared.PluginChecker;
+import org.edgegallery.developer.util.filechecker.PluginChecker;
 import org.edgegallery.developer.exception.DeveloperException;
 import org.edgegallery.developer.exception.DomainException;
 import org.edgegallery.developer.exception.EntityNotFoundException;
@@ -85,6 +85,10 @@ public class ProfileServiceImpl implements ProfileService {
 
     private static final String FIELD_DESCRIPTION_CH = "descriptionCh";
 
+    private static final String FIELD_TYPE = "type";
+
+    private static final String FIELD_INDUSTRY = "industry";
+
     private static final String BASE_PAHT = InitConfigUtil.getWorkSpaceBaseDir()
         .concat(BusinessConfigUtil.getProfileFilePath());
 
@@ -129,7 +133,7 @@ public class ProfileServiceImpl implements ProfileService {
             CompressFileUtils.unZip(zipFile, baseFilePath);
             ProfileInfo profileInfo = new ProfileInfo();
             profileInfo.setId(id);
-            profileInfo.setFilePath(zipFilePath);
+            profileInfo.setFilePath(id.concat(".zip"));
             profileInfo.setCreateTime(new Date());
             analysizeProfile(baseFilePath, profileInfo);
 
@@ -152,7 +156,7 @@ public class ProfileServiceImpl implements ProfileService {
             checkParamNull(profileInfo, "profile does not exist, profileId: ".concat(profileId));
 
             String baseFilePath = BASE_PAHT.concat(profileId);
-            FileUtils.deleteQuietly(new File(profileInfo.getFilePath()));
+            FileUtils.deleteQuietly(new File(BASE_PAHT + profileInfo.getFilePath()));
             FileUtils.deleteQuietly(new File(baseFilePath));
 
             File zipFile = new File(baseFilePath.concat(".zip"));
@@ -197,7 +201,7 @@ public class ProfileServiceImpl implements ProfileService {
         }
         validateDbOptResult(profileMapper.deleteProfileById(profileId),
             "delete profile failed, profileId: ".concat(profileId));
-        FileUtils.deleteQuietly(new File(profileInfo.getFilePath()));
+        FileUtils.deleteQuietly(new File(BASE_PAHT.concat(profileInfo.getFilePath())));
         FileUtils.deleteQuietly(new File(BASE_PAHT.concat(profileId)));
         LOGGER.info("delete profile by id successfully.");
         return true;
@@ -235,7 +239,7 @@ public class ProfileServiceImpl implements ProfileService {
             checkParamNull(uploadFile, "upload file failed.");
             application.setIconFileId(uploadFile.getFileId());
 
-            String profileFilePath = profileInfo.getFilePath().replace(".zip", "").concat(File.separator)
+            String profileFilePath = (BASE_PAHT + profileInfo.getFilePath()).replace(".zip", "").concat(File.separator)
                 .concat(PROFILE_FILE);
             File profileFile = new File(profileFilePath);
             constructApp(FileUtils.readFileToString(profileFile, StandardCharsets.UTF_8), application);
@@ -270,13 +274,13 @@ public class ProfileServiceImpl implements ProfileService {
     private String getFilePath(ProfileInfo profileInfo, String type, String name) {
         switch (type) {
             case Consts.PROFILE_FILE_TYPE_PROFILE:
-                return profileInfo.getFilePath();
+                return BASE_PAHT + profileInfo.getFilePath();
             case Consts.PROFILE_FILE_TYPE_DEPLOY:
-                return profileInfo.getDeployFilePath().get(name);
+                return BASE_PAHT + profileInfo.getDeployFilePath().get(name);
             case Consts.PROFILE_FILE_TYPE_CONFIG:
-                return profileInfo.getConfigFilePath();
+                return BASE_PAHT + profileInfo.getConfigFilePath();
             default:
-                return profileInfo.getFilePath();
+                return BASE_PAHT + profileInfo.getFilePath();
         }
     }
 
@@ -291,13 +295,13 @@ public class ProfileServiceImpl implements ProfileService {
             String[] filePathList = new String[(int) profileInfo.getDeployFilePath().values().stream().count()];
             AtomicInteger index = new AtomicInteger(0);
             profileInfo.getDeployFilePath().keySet().stream().forEach(appName -> {
-                File deployFile = new File(profileInfo.getDeployFilePath().get(appName));
+                File deployFile = new File(BASE_PAHT + profileInfo.getDeployFilePath().get(appName));
                 filePathList[index.get()] = saveLoadedFileToTempDir(filePatternTransfer(deployFile));
                 index.getAndIncrement();
             });
             containerAppHelmChartService.uploadHelmChartFile(applicationId, filePathList);
 
-            File scriptFile = new File(profileInfo.getConfigFilePath());
+            File scriptFile = new File(BASE_PAHT + profileInfo.getConfigFilePath());
             appScriptService.uploadScriptFile(applicationId, filePatternTransfer(scriptFile));
         } catch (Exception e) {
             LOGGER.error("create helm chart or script failed. {}", e);
@@ -369,6 +373,8 @@ public class ProfileServiceImpl implements ProfileService {
         HashMap<String, Object> profile = (HashMap<String, Object>) loaded.get(FIELD_PROFILE);
         application.setName((String) profile.get(FIELD_NAME));
         application.setDescription((String) profile.get(FIELD_DESCRIPTION_CH));
+        application.setType((String) profile.get(FIELD_TYPE));
+        application.setIndustry((String) profile.get(FIELD_INDUSTRY));
 
         HashMap<String, Map<String, String>> appList = (HashMap<String, Map<String, String>>) profile.get(FIELD_APP);
         //field according to the first app is ok, we just create one project.
@@ -406,7 +412,8 @@ public class ProfileServiceImpl implements ProfileService {
             profileInfo.setDescriptionEn((String) profile.get("descriptionEn"));
             profileInfo.setType((String) profile.get("type"));
             profileInfo.setIndustry((String) profile.get("industry"));
-            profileInfo.setConfigFilePath(baseFilePath.concat(File.separator).concat((String) profile.get("config")));
+            profileInfo
+                .setConfigFilePath(profileInfo.getId().concat(File.separator).concat((String) profile.get("config")));
             String seq = null == profile.get("seq") ? null : (String) profile.get("seq");
             profileInfo.setSeq(null == seq ? null : Arrays.asList(seq.split(",")));
 
@@ -420,7 +427,7 @@ public class ProfileServiceImpl implements ProfileService {
                 Map<String, String> appInfo = appInfoList.get(key);
                 String deploymentFile = appInfo.get("deploymentFile");
                 checkDeployFileType(deploymentFile);
-                deployFilePath.put(key, baseFilePath.concat(File.separator).concat(deploymentFile));
+                deployFilePath.put(key, profileInfo.getId().concat(File.separator).concat(deploymentFile));
                 appList.add(key);
             });
             profileInfo.setDeployFilePath(deployFilePath);
