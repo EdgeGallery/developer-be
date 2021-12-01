@@ -59,7 +59,7 @@
     <select id="getHelmChartsByAppId" parameterType="String" resultMap="HelmChartMap">
         SELECT
         <include refid="HelmChartAllColumn"/>
-        FROM tbl_container_helm_chart where app_id = #{applicationId}
+        FROM tbl_container_helm_chart where app_id = #{applicationId} order by create_time desc
     </select>
 
 </mapper>

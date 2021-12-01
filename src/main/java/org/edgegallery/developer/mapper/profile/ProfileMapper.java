@@ -27,9 +27,11 @@ public interface ProfileMapper {
 
     ProfileInfo getProfileById(String id);
 
+    ProfileInfo getProfileByName(String name);
+
     int updateProfile(ProfileInfo profileInfo);
 
-    List<ProfileInfo> getAllProfiles();
+    List<ProfileInfo> getAllProfiles(String name);
 
     int deleteProfileById(String id);
 }

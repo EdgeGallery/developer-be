@@ -16,6 +16,7 @@
 
 package org.edgegallery.developer.service.application;
 
+import java.util.List;
 import org.edgegallery.developer.model.application.Script;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -29,4 +30,12 @@ public interface AppScriptService {
      * @return script info
      */
     Script uploadScriptFile(String applicationId, MultipartFile scriptFile);
+
+    /**
+     * get scripts by application id.
+     *
+     * @param applicationId application id
+     * @return script list
+     */
+    List<Script> getScriptsByAppId(String applicationId);
 }

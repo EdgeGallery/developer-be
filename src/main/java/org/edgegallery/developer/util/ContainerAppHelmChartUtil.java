@@ -16,149 +16,162 @@
 
 package org.edgegallery.developer.util;
 
+import io.kubernetes.client.openapi.models.V1Deployment;
+import io.kubernetes.client.openapi.models.V1Pod;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import org.apache.commons.lang.StringUtils;
-import org.edgegallery.developer.common.ResponseConsts;
-import org.edgegallery.developer.exception.FileOperateException;
-import org.edgegallery.developer.exception.IllegalRequestException;
+import org.edgegallery.developer.common.Consts;
+import org.edgegallery.developer.util.helmcharts.HelmChartFile;
+import org.edgegallery.developer.util.helmcharts.IContainerFileHandler;
+import org.edgegallery.developer.util.helmcharts.LoadContainerFileFactory;
+import org.edgegallery.developer.util.helmcharts.k8sObject.EnumKubernetesObject;
+import org.edgegallery.developer.util.helmcharts.k8sObject.IContainerImage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.web.multipart.MultipartFile;
-import org.yaml.snakeyaml.Yaml;
-import org.yaml.snakeyaml.constructor.SafeConstructor;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
+import org.springframework.web.client.RestClientException;
+import org.springframework.web.client.RestTemplate;
 
 public final class ContainerAppHelmChartUtil {
     private static final Logger LOGGER = LoggerFactory.getLogger(ContainerAppHelmChartUtil.class);
+
+    private static final RestTemplate REST_TEMPLATE = new RestTemplate();
+
+    private static final String HARBOR_PROTOCOL = "https";
 
     private ContainerAppHelmChartUtil() {
 
     }
 
     /**
-     * replace namespace.
+     * get image form tgz file.
      *
-     * @param multipartFile uploaded file
+     * @param helmChartsPackagePath helmChartsPackagePath
      * @return
      */
-    public static String replaceNamesapce(MultipartFile multipartFile) {
-        String fileName = multipartFile.getOriginalFilename();
-        String[] nameSuffixes = {"yaml", "yml", "YAML", "YML"};
-        String suffix = fileName.substring(fileName.lastIndexOf(".") + 1);
-        if (!Arrays.asList(nameSuffixes).contains(suffix)) {
-            String errMsg = "upload file is not in yaml format";
-            LOGGER.error(errMsg);
-            throw new IllegalRequestException(errMsg, ResponseConsts.RET_FILE_FORMAT_ERROR);
-        }
-        String content = "";
-        File tempFile;
+    public static List<String> getImageFromHelmFile(String helmChartsPackagePath) {
+        File file = new File(helmChartsPackagePath);
+        IContainerFileHandler containerFileHandler = null;
         try {
-            tempFile = File.createTempFile(UUID.randomUUID().toString(), null);
-            multipartFile.transferTo(tempFile);
-            content = UploadFileUtil.readFile(tempFile);
+            containerFileHandler = LoadContainerFileFactory.createLoader(file.getCanonicalPath());
+            containerFileHandler.load(helmChartsPackagePath);
         } catch (IOException e) {
-            String errorMsg = "Failed to read content of helm template yaml";
-            LOGGER.error("Failed to read content of helm template yaml {}", e.getMessage());
-            throw new FileOperateException(errorMsg, ResponseConsts.RET_READ_FILE_FAIL);
+            LOGGER.error("load tgz file failed {}!", e.getMessage());
+            return Collections.emptyList();
         }
-        //empty yaml
-        if (StringUtils.isEmpty(content)) {
-            throw new FileOperateException("upload file is empty!", ResponseConsts.RET_FILE_EMPTY);
+        List<String> images = new ArrayList<>();
+        List<HelmChartFile> k8sTemplates = containerFileHandler.getTemplatesFile();
+        if (CollectionUtils.isEmpty(k8sTemplates)) {
+            LOGGER.error("There are no files in the template folder!");
+            return Collections.emptyList();
         }
-        //Verify whether there exists a configuration namespace
-        if (!content.contains("namespace")) {
-            content = UploadFileUtil.addNameSpace(content);
-        } else {
-            //replace namespace content
-            content = UploadFileUtil.replaceContent(content);
+        for (HelmChartFile k8sTemplate : k8sTemplates) {
+            List<Object> k8sList = containerFileHandler.getK8sTemplateObject(k8sTemplate);
+            for (Object obj : k8sList) {
+                if (obj instanceof V1Pod || obj instanceof V1Deployment) {
+                    IContainerImage containerImage = EnumKubernetesObject.of(obj);
+                    List<String> podImages = containerImage.getImages();
+                    images.addAll(podImages);
+                } else {
+                    LOGGER.warn("{} does not support image configuration", obj.getClass());
+                }
+            }
         }
-        return content;
+        if (CollectionUtils.isEmpty(images)) {
+            LOGGER.error("No image information was found in the yaml file under the template folder!");
+            return Collections.emptyList();
+        }
+        return images;
     }
 
     /**
-     * Verify that the file conforms to yaml format.
+     * check image exist.
      *
-     * @param content uploaded file content
+     * @param imageList image list
      * @return
      */
-    public static List<Map<String, Object>> verifyYamlFormat(String content) {
-        String[] multiContent = content.split("---");
-        List<Map<String, Object>> mapList = new ArrayList<>();
-        try {
-            for (String str : multiContent) {
-                if (StringUtils.isBlank(str)) {
-                    continue;
-                }
-                Yaml yaml = new Yaml(new SafeConstructor());
-                Map<String, Object> loaded = yaml.load(str);
-                mapList.add(loaded);
-            }
-        } catch (Exception e) {
-            LOGGER.error("failed to validate yaml scheme {}", e.getMessage());
-            throw new FileOperateException("failed to validate yaml scheme!", ResponseConsts.RET_FILE_FORMAT_ERROR);
+    public static boolean checkImageExist(List<String> imageList) {
+        if (CollectionUtils.isEmpty(imageList)) {
+            LOGGER.error("image list is empty!");
+            return false;
         }
-        return mapList;
+        for (String image : imageList) {
+            //judge image in format
+            if (!image.contains(":") || image.endsWith(":")) {
+                LOGGER.error("image {} must be in xxx:xxx format!", image);
+                return false;
+            }
+            String project = "";
+            String imageName = "";
+            String imageVersion = "";
+            if (image.contains("/")) {
+                String[] imageInfoArr = image.split("/");
+                if (imageInfoArr.length == 3) {
+                    String[] images = imageInfoArr[2].split(":");
+                    project = imageInfoArr[1];
+                    imageName = images[0];
+                    imageVersion = images[1];
+                } else if (imageInfoArr.length == 4) {
+                    String[] images = imageInfoArr[3].split(":");
+                    project = imageInfoArr[1];
+                    imageName = imageInfoArr[2] + "/" + images[0];
+                    imageVersion = images[1];
+                } else {
+                    LOGGER.error("image {} non-standard format domainname/project/name:version", image);
+                    return false;
+                }
+            } else {
+                LOGGER.error("image {} non-standard format domainname/project/name:version", image);
+                return false;
+            }
+            String ret = getHarborImageInfo(project, imageName, imageVersion);
+            if (StringUtils.isEmpty(ret)) {
+                LOGGER.error("image {} does not exist in harbor repo", imageName);
+                return false;
+            }
+        }
+        return true;
     }
 
     /**
-     * verifyHelmTemplate.
+     * get image info from harbor repo.
      *
-     * @param mapList file content list
-     * @param requiredItems Collection of things to be verified
+     * @param project harbor project
+     * @param name image name
+     * @param version image version
+     * @return
      */
-    public static void verifyHelmTemplate(List<Map<String, Object>> mapList, List<String> requiredItems) {
-        for (Map<String, Object> stringMap : mapList) {
-            for (Map.Entry<String, Object> entry : stringMap.entrySet()) {
-                if ("kind".equals(entry.getKey())) {
-                    if ("Service".equalsIgnoreCase(stringMap.get(entry.getKey()).toString())) {
-                        requiredItems.remove("service");
-                        continue;
-                    }
-                    if (stringMap.get("spec") != null) {
-                        String specContent = stringMap.get("spec").toString();
-                        if (specContent.contains("image")) {
-                            requiredItems.remove("image");
-                        }
-                        if (specContent.contains("mep-agent")) {
-                            requiredItems.remove("mep-agent");
-                        }
-                    }
-                }
-            }
+    private static String getHarborImageInfo(String project, String name, String version) {
+        HttpHeaders headers = new HttpHeaders();
+        ImageConfig imageConfig = (ImageConfig) SpringContextUtil.getBean(ImageConfig.class);
+        headers.set("Authorization",
+            "Basic " + ContainerImageUtil.encodeUserAndPwd(imageConfig.getUsername(), imageConfig.getPassword()));
+        HttpEntity requestEntity = new HttpEntity<>(headers);
+        ResponseEntity<String> response;
+        try {
+            String url = String
+                .format(Consts.HARBOR_IMAGE_DELETE_URL, HARBOR_PROTOCOL, imageConfig.getDomainname(), project, name,
+                    version);
+            response = REST_TEMPLATE.exchange(url, HttpMethod.GET, requestEntity, String.class);
+            LOGGER.warn("get harbor image log:{}", response);
+        } catch (RestClientException e) {
+            LOGGER.error("Failed get harbor image {} occur {}", name, e.getMessage());
+            return null;
         }
+        if (response.getStatusCode() == HttpStatus.OK || response.getStatusCode() == HttpStatus.CREATED) {
+            return response.getBody();
+        }
+        LOGGER.error("Failed get harbor image!");
+        return null;
     }
 
-    /**
-     * writeContentToFile.
-     *
-     * @param content file content
-     */
-    public static String writeContentToFile(String content) {
-        FileWriter writer;
-        String fileId = UUID.randomUUID().toString();
-        try {
-            String upLoadDir = InitConfigUtil.getWorkSpaceBaseDir() + BusinessConfigUtil.getUploadfilesPath();
-            String fileRealPath = upLoadDir + fileId;
-            File dir = new File(upLoadDir);
-            if (!dir.isDirectory()) {
-                boolean isSuccess = dir.mkdirs();
-                if (!isSuccess) {
-                    throw new FileOperateException("create upload dir fail!", ResponseConsts.RET_CREATE_FILE_FAIL);
-                }
-            }
-            writer = new FileWriter(fileRealPath);
-            writer.write(content);
-            writer.flush();
-            writer.close();
-        } catch (IOException e) {
-            throw new FileOperateException("write upload file failed!", ResponseConsts.RET_WRITE_FILE_FAIL);
-        }
-        return fileId;
-    }
 }

@@ -44,6 +44,7 @@ DROP TABLE  IF  EXISTS tbl_openmep_capability_detail;
 DROP TABLE  IF  EXISTS tbl_uploaded_file;
 DROP TABLE  IF  EXISTS tbl_api_emulator;
 DROP TABLE  IF  EXISTS tbl_host_log;
+DROP TABLE  IF  EXISTS tbl_container_app_instantiate_info;
 
 -- ----------------------------
 -- Table structure for tbl_downloadrecord
@@ -448,7 +449,7 @@ CREATE TABLE IF NOT EXISTS tbl_capability_group (
   update_time bigint NOT NULL DEFAULT 0,
   CONSTRAINT tbl_capability_group_pkey PRIMARY KEY (id)
 )
-;    
+;
 
 CREATE TABLE IF NOT EXISTS tbl_capability (
   id varchar(50) NOT NULL,
@@ -562,6 +563,19 @@ CREATE TABLE IF NOT EXISTS tbl_host_log (
         script_file_id text DEFAULT NULL,
         create_time  varchar(255)  NOT NULL,
         CONSTRAINT tbl_app_script_pkey PRIMARY KEY (id)
+     );
+
+      CREATE TABLE IF NOT EXISTS tbl_container_app_instantiate_info (
+         app_id varchar(255) NOT NULL,
+         operation_id varchar(255) DEFAULT NULL,
+         app_package_id varchar(255) DEFAULT NULL,
+         distributed_mec_host varchar(255) DEFAULT NULL,
+         mepm_package_id varchar(255) DEFAULT NULL,
+         app_instance_id varchar(255) DEFAULT NULL,
+         status varchar(255) DEFAULT NULL,
+         log text DEFAULT NULL,
+         instantiate_time varchar(255)  DEFAULT NULL,
+         CONSTRAINT tbl_container_app_instantiate_info_pkey PRIMARY KEY (app_id)
      );
 
 -- workspace table end -----------------

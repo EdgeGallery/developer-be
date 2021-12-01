@@ -30,6 +30,7 @@ import org.edgegallery.developer.exception.DataBaseException;
 import org.edgegallery.developer.exception.EntityNotFoundException;
 import org.edgegallery.developer.exception.FileFoundFailException;
 import org.edgegallery.developer.exception.FileOperateException;
+import org.edgegallery.developer.exception.HarborException;
 import org.edgegallery.developer.exception.IllegalRequestException;
 import org.edgegallery.developer.filter.security.AccessUserUtil;
 import org.edgegallery.developer.mapper.application.ApplicationMapper;
@@ -45,6 +46,7 @@ import org.edgegallery.developer.service.application.AppConfigurationService;
 import org.edgegallery.developer.service.application.container.ContainerAppHelmChartService;
 import org.edgegallery.developer.service.application.container.ContainerAppOperationService;
 import org.edgegallery.developer.util.BusinessConfigUtil;
+import org.edgegallery.developer.util.ContainerAppHelmChartUtil;
 import org.edgegallery.developer.util.FileUtil;
 import org.edgegallery.developer.util.ImageConfig;
 import org.edgegallery.developer.util.InitConfigUtil;
@@ -108,15 +110,35 @@ public class ContainerAppHelmChartServiceImpl implements ContainerAppHelmChartSe
             containerFileHandler.setHasMep(true);
 
             // create charts-file(.tgz) and export it to the outPath.
-            String helmChartsPackage = containerFileHandler.exportHelmChartsPackage();
-            String helmChartsName = new File(helmChartsPackage).getName();
-            String fileId = UUID.randomUUID().toString();
+            String helmChartsPackagePath = containerFileHandler.exportHelmChartsPackage();
+            LOGGER.info("helmChartsPackagePath:{}", helmChartsPackagePath);
 
+            String fileId = UUID.randomUUID().toString();
+            String helmChartsName = new File(helmChartsPackagePath).getName();
             // use the first fileName to create the dir
-            moveFileToWorkSpace(helmChartsPackage, fileId, helmChartsName);
+            moveFileToWorkSpace(helmChartsPackagePath, fileId, helmChartsName);
 
             //save fileId
             saveFileRecord(fileId, helmChartsName);
+
+            String tgzPath = InitConfigUtil.getWorkSpaceBaseDir() + BusinessConfigUtil.getUploadfilesPath() + fileId
+                + File.separator + helmChartsName;
+            LOGGER.info("tgzPath:{}", tgzPath);
+
+            //get image
+            List<String> imageList = ContainerAppHelmChartUtil.getImageFromHelmFile(tgzPath);
+            if (CollectionUtils.isEmpty(imageList)) {
+                LOGGER.error("No image information was found in the yaml file under the template folder!");
+                throw new HarborException("no images found from tgz file!",
+                    ResponseConsts.RET_GET_HARBOR_IMAGE_LIST_FAIL);
+            }
+            // verify image exist
+            boolean ret = ContainerAppHelmChartUtil.checkImageExist(imageList);
+            if (!ret) {
+                LOGGER.error("The image information in yaml file is not found in harbor repo!");
+                throw new HarborException("some images are not found in harbor repo!",
+                    ResponseConsts.RET_GET_HARBOR_IMAGE_LIST_FAIL);
+            }
 
             // create a file id, and update
             HelmChart helmChart = new HelmChart();

@@ -557,3 +557,7 @@
   INSERT INTO tbl_vm_flavor (id, name, description, architecture, cpu, memory, system_disk_size, data_disk_size, gpu_extra_info, other_extra_info) VALUES
       ('9f0eec36-0cee-4697-851d-a5eb6b7fa5aa', 'AI', 'Industrial,Pack Monitoring', 'ARM', 8, 4, 50, 100, '', '1*Atlas300C(16G)')
       ON CONFLICT(id) do nothing;
+
+  INSERT INTO tbl_profile (id, name, description, description_en, file_path, deploy_file_path, config_file_path, seq, app_list, create_time, type, industry, topo_file_path) VALUES
+      ('cc1a3d7f-1111-4d2a-8058-aec3bfc2a060', 'IOT Stack', '用于数据采集、清洗、整理场景', 'It is used for data collection, cleaning and sorting scenes','cc1a3d7f-1111-4d2a-8058-aec3bfc2a060.zip','{"profileName":"cc1a3d7f-1111-4d2a-8058-aec3bfc2a060\\combined-iot-deploy.yaml"}','cc1a3d7f-1111-4d2a-8058-aec3bfc2a060\iot_config.sh','','["fledge","kuiper","tdengine","mqtt"]',now(),'Internet of Things','Open Source','')
+      ON CONFLICT(id) do nothing;

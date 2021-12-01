@@ -30,25 +30,24 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.edgegallery.developer.common.Consts;
 import org.edgegallery.developer.common.ResponseConsts;
-import org.edgegallery.developer.filter.security.AccessUserUtil;
-import org.edgegallery.developer.util.filechecker.IconChecker;
-import org.edgegallery.developer.model.common.Page;
-import org.edgegallery.developer.util.filechecker.PluginChecker;
 import org.edgegallery.developer.exception.DeveloperException;
 import org.edgegallery.developer.exception.DomainException;
 import org.edgegallery.developer.exception.EntityNotFoundException;
 import org.edgegallery.developer.exception.FileOperateException;
 import org.edgegallery.developer.exception.IllegalRequestException;
+import org.edgegallery.developer.filter.security.AccessUserUtil;
 import org.edgegallery.developer.mapper.application.ApplicationMapper;
 import org.edgegallery.developer.mapper.profile.ProfileMapper;
 import org.edgegallery.developer.mapper.uploadfile.UploadFileMapper;
 import org.edgegallery.developer.model.application.Application;
 import org.edgegallery.developer.model.application.EnumAppClass;
 import org.edgegallery.developer.model.application.EnumApplicationType;
+import org.edgegallery.developer.model.common.Page;
 import org.edgegallery.developer.model.profile.ProfileInfo;
 import org.edgegallery.developer.model.uploadfile.UploadFile;
 import org.edgegallery.developer.service.application.AppScriptService;
@@ -58,6 +57,8 @@ import org.edgegallery.developer.service.uploadfile.UploadFileService;
 import org.edgegallery.developer.util.BusinessConfigUtil;
 import org.edgegallery.developer.util.CompressFileUtils;
 import org.edgegallery.developer.util.InitConfigUtil;
+import org.edgegallery.developer.util.filechecker.IconChecker;
+import org.edgegallery.developer.util.filechecker.PluginChecker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -177,9 +178,9 @@ public class ProfileServiceImpl implements ProfileService {
     }
 
     @Override
-    public Page<ProfileInfo> getAllProfiles(int limit, int offset) {
+    public Page<ProfileInfo> getAllProfiles(int limit, int offset, String name) {
         PageHelper.offsetPage(offset, limit);
-        PageInfo<ProfileInfo> pageInfo = new PageInfo<>(profileMapper.getAllProfiles());
+        PageInfo<ProfileInfo> pageInfo = new PageInfo<>(profileMapper.getAllProfiles(name));
         LOGGER.info("get all profiles successfully.");
         return new Page<ProfileInfo>(pageInfo.getList(), limit, offset, pageInfo.getTotal());
     }
@@ -408,6 +409,7 @@ public class ProfileServiceImpl implements ProfileService {
             HashMap<String, Object> profile = (HashMap<String, Object>) loaded.get(FIELD_PROFILE);
 
             profileInfo.setName((String) profile.get(FIELD_NAME));
+            checkNameExistence(profileInfo.getName());
             profileInfo.setDescription((String) profile.get(FIELD_DESCRIPTION_CH));
             profileInfo.setDescriptionEn((String) profile.get("descriptionEn"));
             profileInfo.setType((String) profile.get("type"));
@@ -431,13 +433,29 @@ public class ProfileServiceImpl implements ProfileService {
                 appList.add(key);
             });
             profileInfo.setDeployFilePath(deployFilePath);
-            profileInfo.setAppList(appList);
+            String appListField = (String) profile.get("appList");
+            profileInfo.setAppList(StringUtils.isEmpty(appListField)
+                ? appList
+                : Arrays.stream(appListField.split(",")).map(app -> app.trim()).collect(Collectors.toList()));
         } catch (DomainException e) {
             LOGGER.error("Yaml deserialization failed {}", e.getMessage());
             throw new DomainException("Yaml deserialization failed.");
         } catch (IOException e) {
             LOGGER.error("read file to string failed. {}", e);
             throw new FileOperateException("read file to string failed", ResponseConsts.RET_MERGE_FILE_FAIL);
+        }
+    }
+
+    /**
+     * profile name existence validation.
+     *
+     * @param name profile name
+     */
+    private void checkNameExistence(String name) {
+        if (null != profileMapper.getProfileByName(name)) {
+            String msg = String.format("profile name %s has already exists.", name);
+            LOGGER.error(msg);
+            throw new IllegalRequestException(msg, ResponseConsts.RET_REQUEST_PARAM_ERROR);
         }
     }
 

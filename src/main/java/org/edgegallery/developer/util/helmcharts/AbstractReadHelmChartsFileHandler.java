@@ -46,10 +46,11 @@ public abstract class AbstractReadHelmChartsFileHandler implements IContainerFil
         // replace values
         content = replaceValuesInTemplateFile(content, this.valuesMap);
         content = commentedLogicCodeInContent(content);
+        LOGGER.info("content:{}", content);
         try {
             return Yaml.loadAll(content);
         } catch (IOException e) {
-            LOGGER.error("Failed to parse k8s file.");
+            LOGGER.error("yaml file {} Failed to parse k8s file.{}", innerFile.getInnerPath(), e.getMessage());
         }
         return null;
     }
@@ -80,7 +81,7 @@ public abstract class AbstractReadHelmChartsFileHandler implements IContainerFil
     }
 
     private Map<String, Object> getValuesMapFromYaml() {
-        String valueContent = getContentByInnerPath("/Values.yaml");
+        String valueContent = getContentByInnerPath("/values.yaml");
         assert valueContent != null;
         org.yaml.snakeyaml.Yaml yaml = new org.yaml.snakeyaml.Yaml();
         HashMap<String, Object> valuesYamlMap = yaml.load(valueContent);
