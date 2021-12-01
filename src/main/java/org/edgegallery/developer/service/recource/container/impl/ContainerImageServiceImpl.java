@@ -80,9 +80,6 @@ public class ContainerImageServiceImpl implements ContainerImageService {
     @Value("${upload.tempPath}")
     private String filePathTemp;
 
-    @Value("${imagelocation.dockercertpath}")
-    private String dockercertpath;
-
     @Value("${imagelocation.domainname:}")
     private String devRepoEndpoint;
 
@@ -94,12 +91,6 @@ public class ContainerImageServiceImpl implements ContainerImageService {
 
     @Value("${imagelocation.project:}")
     private String devRepoProject;
-
-    @Value("${imagelocation.port:}")
-    private String port;
-
-    @Value("${imagelocation.protocol:}")
-    private String protocol;
 
     @Value("${security.oauth2.resource.jwt.key-uri:}")
     private String loginUrl;
