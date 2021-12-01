@@ -18,6 +18,7 @@ package org.edgegallery.developer.util;
 
 import io.kubernetes.client.openapi.models.V1Deployment;
 import io.kubernetes.client.openapi.models.V1Pod;
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -25,6 +26,7 @@ import java.util.List;
 import org.edgegallery.developer.common.Consts;
 import org.edgegallery.developer.util.helmcharts.HelmChartFile;
 import org.edgegallery.developer.util.helmcharts.IContainerFileHandler;
+import org.edgegallery.developer.util.helmcharts.LoadContainerFileFactory;
 import org.edgegallery.developer.util.helmcharts.k8sObject.EnumKubernetesObject;
 import org.edgegallery.developer.util.helmcharts.k8sObject.IContainerImage;
 import org.slf4j.Logger;
@@ -53,12 +55,14 @@ public final class ContainerAppHelmChartUtil {
     /**
      * get image form tgz file.
      *
-     * @param containerFileHandler containerFileHandler
      * @param helmChartsPackagePath helmChartsPackagePath
      * @return
      */
-    public static List<String> getImageFromHelmFile(IContainerFileHandler containerFileHandler, String helmChartsPackagePath) {
+    public static List<String> getImageFromHelmFile(String helmChartsPackagePath) {
+        File file = new File(helmChartsPackagePath);
+        IContainerFileHandler containerFileHandler = null;
         try {
+            containerFileHandler = LoadContainerFileFactory.createLoader(file.getCanonicalPath());
             containerFileHandler.load(helmChartsPackagePath);
         } catch (IOException e) {
             LOGGER.error("load tgz file failed {}!", e.getMessage());

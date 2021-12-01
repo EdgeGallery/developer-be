@@ -113,8 +113,7 @@ public class ContainerAppHelmChartServiceImpl implements ContainerAppHelmChartSe
             String helmChartsPackagePath = containerFileHandler.exportHelmChartsPackage();
 
             //get image
-            List<String> imageList = ContainerAppHelmChartUtil
-                .getImageFromHelmFile(containerFileHandler, helmChartsPackagePath);
+            List<String> imageList = ContainerAppHelmChartUtil.getImageFromHelmFile(helmChartsPackagePath);
             if (CollectionUtils.isEmpty(imageList)) {
                 LOGGER.error("No image information was found in the yaml file under the template folder!");
                 throw new HarborException("no images found from tgz file!",
