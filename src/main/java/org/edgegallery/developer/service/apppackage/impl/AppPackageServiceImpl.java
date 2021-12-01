@@ -231,7 +231,6 @@ public class AppPackageServiceImpl implements AppPackageService {
             appPackageMapper.createAppPackage(appPackage);
         }
 
-        application.setScriptList(appScriptMapper.getScriptsByAppId(application.getId()));
         ContainerPackageFileCreator containerPackageFileCreator = new ContainerPackageFileCreator(application,
             appPackage.getId());
         String fileName = containerPackageFileCreator.generateAppPackageFile();

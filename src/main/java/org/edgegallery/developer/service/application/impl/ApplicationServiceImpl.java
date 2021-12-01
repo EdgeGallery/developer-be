@@ -16,20 +16,20 @@
 
 package org.edgegallery.developer.service.application.impl;
 
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 import org.apache.commons.lang3.StringUtils;
 import org.edgegallery.developer.common.ResponseConsts;
-import org.edgegallery.developer.filter.security.AccessUserUtil;
-import org.edgegallery.developer.model.common.Page;
 import org.edgegallery.developer.exception.DataBaseException;
 import org.edgegallery.developer.exception.EntityNotFoundException;
 import org.edgegallery.developer.exception.FileFoundFailException;
 import org.edgegallery.developer.exception.FileOperateException;
-import org.edgegallery.developer.mapper.atp.AtpTestTaskMapper;
-import org.edgegallery.developer.mapper.application.AppScriptMapper;
+import org.edgegallery.developer.filter.security.AccessUserUtil;
 import org.edgegallery.developer.mapper.application.ApplicationMapper;
+import org.edgegallery.developer.mapper.atp.AtpTestTaskMapper;
 import org.edgegallery.developer.model.application.Application;
 import org.edgegallery.developer.model.application.EnumAppClass;
 import org.edgegallery.developer.model.application.EnumApplicationStatus;
@@ -37,9 +37,11 @@ import org.edgegallery.developer.model.application.container.ContainerApplicatio
 import org.edgegallery.developer.model.application.vm.Network;
 import org.edgegallery.developer.model.application.vm.VMApplication;
 import org.edgegallery.developer.model.application.vm.VirtualMachine;
+import org.edgegallery.developer.model.common.Page;
 import org.edgegallery.developer.model.common.User;
 import org.edgegallery.developer.model.restful.ApplicationDetail;
 import org.edgegallery.developer.service.application.AppConfigurationService;
+import org.edgegallery.developer.service.application.AppScriptService;
 import org.edgegallery.developer.service.application.ApplicationService;
 import org.edgegallery.developer.service.application.container.ContainerAppHelmChartService;
 import org.edgegallery.developer.service.application.container.ContainerAppOperationService;
@@ -55,8 +57,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import com.github.pagehelper.PageHelper;
-import com.github.pagehelper.PageInfo;
 
 @Service("applicationService")
 public class ApplicationServiceImpl implements ApplicationService {
@@ -100,7 +100,7 @@ public class ApplicationServiceImpl implements ApplicationService {
     private ContainerAppOperationServiceImpl containerAppOperationServiceImpl;
 
     @Autowired
-    private AppScriptMapper appScriptMapper;
+    private AppScriptService appScriptService;
 
     @Override
     public Application createApplication(Application application) {
@@ -214,7 +214,7 @@ public class ApplicationServiceImpl implements ApplicationService {
             LOGGER.error("Can not find application by applicationId:{}.", applicationId);
             throw new EntityNotFoundException("Application does not exist.", ResponseConsts.RET_QUERY_DATA_EMPTY);
         }
-        application.setScriptList(appScriptMapper.getScriptsByAppId(applicationId));
+        application.setScriptList(appScriptService.getScriptsByAppId(applicationId));
 
         if (application.getAppClass() == EnumAppClass.VM) {
             VMApplication vmApplication = new VMApplication(application);
