@@ -46,6 +46,7 @@ public abstract class AbstractReadHelmChartsFileHandler implements IContainerFil
         // replace values
         content = replaceValuesInTemplateFile(content, this.valuesMap);
         content = commentedLogicCodeInContent(content);
+        LOGGER.info("innerFile:{}", innerFile.getInnerPath());
         LOGGER.info("content:{}", content);
         try {
             return Yaml.loadAll(content);

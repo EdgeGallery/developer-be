@@ -76,13 +76,10 @@ client:
 
 ### image location config ###
 imagelocation:
-  dockercertpath: ${DOCKER_CERT_PATH:/usr/app/keys/dockerCert}
   domainname: ${IMAGE_REPO_NAME:swr.ap-southeast-1.myhuaweicloud.com}
   project: ${IMAGE_REPO_PROJECT:developer}
   password: ${IMAGE_REPO_PASSWORD:}
   username: ${IMAGE_REPO_USERNAME:}
-  port: ${DOCKER_PORT:2376}
-  protocol: ${DOCKER_PROTOCOL:tcp}
 
 developer:
   ip: ${DEVELOPER_IP:}
