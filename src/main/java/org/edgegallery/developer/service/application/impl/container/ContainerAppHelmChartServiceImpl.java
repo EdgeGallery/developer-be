@@ -121,24 +121,24 @@ public class ContainerAppHelmChartServiceImpl implements ContainerAppHelmChartSe
             //save fileId
             saveFileRecord(fileId, helmChartsName);
 
-            String tgzPath = InitConfigUtil.getWorkSpaceBaseDir() + BusinessConfigUtil.getUploadfilesPath() + fileId
-                + File.separator + helmChartsName;
-            LOGGER.info("tgzPath:{}", tgzPath);
-
-            //get image
-            List<String> imageList = ContainerAppHelmChartUtil.getImageFromHelmFile(tgzPath);
-            if (CollectionUtils.isEmpty(imageList)) {
-                LOGGER.error("No image information was found in the yaml file under the template folder!");
-                throw new HarborException("no images found from tgz file!",
-                    ResponseConsts.RET_GET_HARBOR_IMAGE_LIST_FAIL);
-            }
-            // verify image exist
-            boolean ret = ContainerAppHelmChartUtil.checkImageExist(imageList);
-            if (!ret) {
-                LOGGER.error("The image information in yaml file is not found in harbor repo!");
-                throw new HarborException("some images are not found in harbor repo!",
-                    ResponseConsts.RET_GET_HARBOR_IMAGE_LIST_FAIL);
-            }
+            // String tgzPath = InitConfigUtil.getWorkSpaceBaseDir() + BusinessConfigUtil.getUploadfilesPath() + fileId
+            //     + File.separator + helmChartsName;
+            // LOGGER.info("tgzPath:{}", tgzPath);
+            //
+            // //get image
+            // List<String> imageList = ContainerAppHelmChartUtil.getImageFromHelmFile(tgzPath);
+            // if (CollectionUtils.isEmpty(imageList)) {
+            //     LOGGER.error("No image information was found in the yaml file under the template folder!");
+            //     throw new HarborException("no images found from tgz file!",
+            //         ResponseConsts.RET_GET_HARBOR_IMAGE_LIST_FAIL);
+            // }
+            // // verify image exist
+            // boolean ret = ContainerAppHelmChartUtil.checkImageExist(imageList);
+            // if (!ret) {
+            //     LOGGER.error("The image information in yaml file is not found in harbor repo!");
+            //     throw new HarborException("some images are not found in harbor repo!",
+            //         ResponseConsts.RET_GET_HARBOR_IMAGE_LIST_FAIL);
+            // }
 
             // create a file id, and update
             HelmChart helmChart = new HelmChart();
