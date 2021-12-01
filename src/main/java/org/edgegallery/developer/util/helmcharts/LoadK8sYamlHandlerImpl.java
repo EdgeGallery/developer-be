@@ -108,6 +108,7 @@ public class LoadK8sYamlHandlerImpl extends AbstractContainerFileHandler {
     private boolean verify(String... filePaths) {
         try {
             for (String filePath : filePaths) {
+                LOGGER.info("filePath:{}", filePath);
                 Yaml.loadAll(filePath);
             }
             return true;

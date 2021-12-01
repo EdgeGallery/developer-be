@@ -17,13 +17,8 @@
 package org.edgegallery.developer.service.recource.container.impl;
 
 import com.github.dockerjava.api.DockerClient;
-import com.github.dockerjava.api.command.DockerCmdExecFactory;
 import com.github.dockerjava.api.command.PullImageResultCallback;
 import com.github.dockerjava.api.command.SaveImageCmd;
-import com.github.dockerjava.core.DefaultDockerClientConfig;
-import com.github.dockerjava.core.DockerClientBuilder;
-import com.github.dockerjava.core.DockerClientConfig;
-import com.github.dockerjava.netty.NettyDockerCmdExecFactory;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import java.io.File;
@@ -353,12 +348,7 @@ public class ContainerImageServiceImpl implements ContainerImageService {
             throw new IllegalRequestException(msg, ResponseConsts.RET_QUERY_DATA_EMPTY);
         }
         try {
-            DockerClientConfig config = DefaultDockerClientConfig.createDefaultConfigBuilder()
-                .withDockerHost(protocol + "://" + devRepoEndpoint + ":" + port).withDockerTlsVerify(true)
-                .withDockerCertPath(dockercertpath).build();
-            DockerCmdExecFactory factory = new NettyDockerCmdExecFactory().withConnectTimeout(100000);
-            DockerClient dockerClient = DockerClientBuilder.getInstance(config).withDockerCmdExecFactory(factory)
-                .build();
+            DockerClient dockerClient = ContainerImageUtil.getDockerClient();
             //pull image
             dockerClient.pullImageCmd(image).exec(new PullImageResultCallback()).awaitCompletion().close();
             String[] images = image.trim().split(":");
