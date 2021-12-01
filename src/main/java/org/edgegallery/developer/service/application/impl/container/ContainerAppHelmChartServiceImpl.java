@@ -217,11 +217,6 @@ public class ContainerAppHelmChartServiceImpl implements ContainerAppHelmChartSe
             LOGGER.error("the query HelmChart is empty!");
             throw new EntityNotFoundException("the query HelmChart is empty", ResponseConsts.RET_QUERY_DATA_EMPTY);
         }
-        ContainerAppInstantiateInfo containerAppInstantiateInfo = containerAppOperationService
-            .getInstantiateInfo(applicationId);
-        if (containerAppInstantiateInfo != null) {
-            chart.setContainerAppInstantiateInfo(containerAppInstantiateInfo);
-        }
         return chart;
     }
 

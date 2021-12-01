@@ -41,6 +41,4 @@ public class HelmChart {
 
     private List<HelmChartFile> helmChartFileList;
 
-    private ContainerAppInstantiateInfo containerAppInstantiateInfo;
-
 }

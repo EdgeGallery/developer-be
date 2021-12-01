@@ -85,6 +85,9 @@ public class ContainerImageServiceImpl implements ContainerImageService {
     @Value("${upload.tempPath}")
     private String filePathTemp;
 
+    @Value("${imagelocation.dockercertpath}")
+    private String dockercertpath;
+
     @Value("${imagelocation.domainname:}")
     private String devRepoEndpoint;
 
@@ -352,7 +355,7 @@ public class ContainerImageServiceImpl implements ContainerImageService {
         try {
             DockerClientConfig config = DefaultDockerClientConfig.createDefaultConfigBuilder()
                 .withDockerHost(protocol + "://" + devRepoEndpoint + ":" + port).withDockerTlsVerify(true)
-                .withDockerCertPath("/root/tls").build();
+                .withDockerCertPath(dockercertpath).build();
             DockerCmdExecFactory factory = new NettyDockerCmdExecFactory().withConnectTimeout(100000);
             DockerClient dockerClient = DockerClientBuilder.getInstance(config).withDockerCmdExecFactory(factory)
                 .build();

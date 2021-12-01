@@ -18,6 +18,8 @@ package org.edgegallery.developer.service.application.impl;
 
 import java.util.List;
 import java.util.Map;
+import org.edgegallery.developer.common.ResponseConsts;
+import org.edgegallery.developer.exception.DataBaseException;
 import org.edgegallery.developer.mapper.operation.OperationStatusMapper;
 import org.edgegallery.developer.model.operation.ActionStatus;
 import org.edgegallery.developer.model.operation.EnumActionStatus;
@@ -48,6 +50,33 @@ public class OperationStatusServiceImpl implements OperationStatusService {
         List<ActionStatus> actionStatusList = operationStatusMapper.getActionStatusByOperationId(operationId);
         operationStatus.setActionStatusList(actionStatusList);
         return operationStatus;
+    }
+
+    @Override
+    public Boolean createOperationStatus(OperationStatus operationStatus) {
+        int res = operationStatusMapper.createOperationStatus(operationStatus);
+        if (res < 1) {
+            LOGGER.error("Create operationStatus in db error.");
+            throw new DataBaseException("Create operationStatus in db error.",
+                ResponseConsts.RET_CERATE_DATA_FAIL);
+        }
+        return true;
+    }
+
+    @Override
+    public Boolean modifyOperationStatus(OperationStatus operationStatus) {
+        int res = operationStatusMapper.modifyOperationStatus(operationStatus);
+        if (res <1) {
+            LOGGER.error("Modify operationStatus in db error.");
+            throw new DataBaseException("Modify operationStatus in db error.",
+                ResponseConsts.RET_CERATE_DATA_FAIL);
+        }
+        return true;
+    }
+
+    @Override
+    public int getOperationCountByObjectType(String objectType) {
+        return operationStatusMapper.getOperationCountByObjectType(objectType);
     }
 
     @Override
