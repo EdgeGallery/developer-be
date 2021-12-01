@@ -44,6 +44,8 @@ public interface VMAppOperationService {
 
     Boolean createExportInfo(String vmId, ImageExportInfo imageExportInfo);
 
+    Boolean modifyExportInfo(String vmId, ImageExportInfo imageExportInfo);
+
     Boolean deleteExportInfo(String vmId);
 
     Boolean updateInstantiateInfo(String vmId, VMInstantiateInfo instantiateInfo);

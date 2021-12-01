@@ -44,12 +44,15 @@ import org.edgegallery.developer.model.resource.mephost.MepHost;
 import org.edgegallery.developer.model.restful.ApplicationDetail;
 import org.edgegallery.developer.model.restful.OperationInfoRep;
 import org.edgegallery.developer.service.application.ApplicationService;
+import org.edgegallery.developer.service.application.OperationStatusService;
 import org.edgegallery.developer.service.application.action.IAction;
 import org.edgegallery.developer.service.application.action.IActionIterator;
 import org.edgegallery.developer.service.application.action.impl.container.ContainerLaunchOperation;
+import org.edgegallery.developer.service.application.container.ContainerAppHelmChartService;
 import org.edgegallery.developer.service.application.container.ContainerAppOperationService;
 import org.edgegallery.developer.service.application.impl.AppOperationServiceImpl;
 import org.edgegallery.developer.service.apppackage.AppPackageService;
+import org.edgegallery.developer.service.recource.mephost.MepHostService;
 import org.edgegallery.developer.util.HttpClientUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,22 +71,19 @@ public class ContainerAppOperationServiceImpl extends AppOperationServiceImpl im
     ApplicationService applicationService;
 
     @Autowired
-    private ApplicationMapper applicationMapper;
+    private ContainerAppHelmChartService containerAppHelmChartService;
 
     @Autowired
-    private HelmChartMapper helmChartMapper;
-
-    @Autowired
-    private OperationStatusMapper operationStatusMapper;
+    private OperationStatusService operationStatusService;
 
     @Autowired
     private ContainerAppInstantiateInfoMapper containerAppInstantiateInfoMapper;
 
     @Autowired
-    AppPackageService appPackageService;
+    private AppPackageService appPackageService;
 
     @Autowired
-    MepHostMapper mepHostMapper;
+    private MepHostService mepHostService;
 
     public AppPackage generatePackage(String applicationId) {
         ApplicationDetail detail = applicationService.getApplicationDetail(applicationId);
@@ -96,13 +96,13 @@ public class ContainerAppOperationServiceImpl extends AppOperationServiceImpl im
 
     @Override
     public OperationInfoRep instantiateContainerApp(String applicationId, User user) {
-        Application application = applicationMapper.getApplicationById(applicationId);
+        Application application = applicationService.getApplication(applicationId);
         if (application == null) {
             LOGGER.error("application does not exist,id:{}", applicationId);
             throw new EntityNotFoundException("application does not exist.", ResponseConsts.RET_QUERY_DATA_EMPTY);
         }
 
-        List<HelmChart> helmCharts = helmChartMapper.getHelmChartsByAppId(applicationId);
+        List<HelmChart> helmCharts = containerAppHelmChartService.getHelmChartList(applicationId);
         if (CollectionUtils.isEmpty(helmCharts)) {
             LOGGER.error("instantiate container app fail ,helmchart file  not exist,applicationId:{}", applicationId);
             throw new EntityNotFoundException("instantiate container app fail,helmchart file id not exist.",
@@ -124,18 +124,14 @@ public class ContainerAppOperationServiceImpl extends AppOperationServiceImpl im
         operationStatus.setStatus(EnumActionStatus.ONGOING);
         operationStatus.setProgress(0);
         operationStatus.setOperationName(OPERATION_NAME);
-        int res = operationStatusMapper.createOperationStatus(operationStatus);
-        if (res < 1) {
-            LOGGER.error("Create operationStatus in db error.");
-            throw new DataBaseException("Create operationStatus in db error.", ResponseConsts.RET_CERATE_DATA_FAIL);
-        }
+        operationStatusService.createOperationStatus(operationStatus);
         ContainerLaunchOperation actionCollection = new ContainerLaunchOperation(user,
             applicationId, operationStatus);
         LOGGER.info("start instantiate container app");
         ContainerAppInstantiateInfo containerAppInstantiateInfo = new ContainerAppInstantiateInfo();
         containerAppInstantiateInfo.setOperationId(operationStatus.getId());
-        containerAppInstantiateInfoMapper.createContainerAppInstantiateInfo(applicationId, containerAppInstantiateInfo);
-        new InstantiateContainerAppProcessor(operationStatusMapper, operationStatus, actionCollection).start();
+        createContainerAppInstantiateInfo(applicationId, containerAppInstantiateInfo);
+        new InstantiateContainerAppProcessor(operationStatusService, operationStatus, actionCollection).start();
         return new OperationInfoRep(operationStatus.getId());
     }
 
@@ -160,10 +156,7 @@ public class ContainerAppOperationServiceImpl extends AppOperationServiceImpl im
 
     private boolean cleanContainerLaunchInfo(String mepHostId, ContainerAppInstantiateInfo containerAppInstantiateInfo,
         User user) {
-        MepHost mepHost = mepHostMapper.getHost(mepHostId);
-        if (mepHost == null) {
-            return true;
-        }
+        MepHost mepHost = mepHostService.getHost(mepHostId);
         String basePath = HttpClientUtil.getUrlPrefix(mepHost.getLcmProtocol(), mepHost.getLcmIp(),
             mepHost.getLcmPort());
         if (StringUtils.isNotEmpty(containerAppInstantiateInfo.getMepmPackageId()) || StringUtils
@@ -201,6 +194,16 @@ public class ContainerAppOperationServiceImpl extends AppOperationServiceImpl im
         }
 
         return instantiateInfo;
+    }
+
+    @Override
+    public Boolean createContainerAppInstantiateInfo(String applicationId, ContainerAppInstantiateInfo instantiateInfo) {
+        int res = containerAppInstantiateInfoMapper.createContainerAppInstantiateInfo(applicationId, instantiateInfo);
+        if (res<1) {
+            LOGGER.error("Create container App instantiate info in db error.");
+            throw new DataBaseException("Create container App instantiate info in db error.", ResponseConsts.RET_CERATE_DATA_FAIL);
+        }
+        return true;
     }
 
     @Override
@@ -273,13 +276,13 @@ public class ContainerAppOperationServiceImpl extends AppOperationServiceImpl im
 
         ContainerLaunchOperation actionCollection;
 
-        OperationStatusMapper operationStatusMapper;
+        OperationStatusService operationStatusService;
 
         OperationStatus operationStatus;
 
-        public InstantiateContainerAppProcessor(OperationStatusMapper operationStatusMapper,
+        public InstantiateContainerAppProcessor(OperationStatusService operationStatusService,
             OperationStatus operationStatus, ContainerLaunchOperation actionCollection) {
-            this.operationStatusMapper = operationStatusMapper;
+            this.operationStatusService = operationStatusService;
             this.operationStatus = operationStatus;
             this.actionCollection = actionCollection;
         }
@@ -299,7 +302,7 @@ public class ContainerAppOperationServiceImpl extends AppOperationServiceImpl im
                 LOGGER.error("InstantiateContainerAppProcessor Exception.", e);
                 operationStatus.setStatus(EnumActionStatus.FAILED);
                 operationStatus.setErrorMsg("Exception happens when export image: " + e.getStackTrace().toString());
-                operationStatusMapper.modifyOperationStatus(operationStatus);
+                operationStatusService.modifyOperationStatus(operationStatus);
             }
         }
     }

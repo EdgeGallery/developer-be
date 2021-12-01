@@ -16,7 +16,6 @@
 
 package org.edgegallery.developer.service.application.action.impl.container;
 
-import org.edgegallery.developer.mapper.application.container.ContainerAppInstantiateInfoMapper;
 import org.edgegallery.developer.model.apppackage.AppPackage;
 import org.edgegallery.developer.model.instantiate.EnumAppInstantiateStatus;
 import org.edgegallery.developer.model.instantiate.container.ContainerAppInstantiateInfo;
@@ -37,8 +36,6 @@ public class BuildContainerPackageAction extends AbstractAction {
 
     ContainerAppOperationServiceImpl containerAppOperationService = (ContainerAppOperationServiceImpl) SpringContextUtil
         .getBean(ContainerAppOperationServiceImpl.class);
-    ContainerAppInstantiateInfoMapper containerAppInstantiateInfoMapper = (ContainerAppInstantiateInfoMapper) SpringContextUtil
-        .getBean(ContainerAppInstantiateInfoMapper.class);
 
     @Override
     public String getActionName() {
@@ -80,15 +77,15 @@ public class BuildContainerPackageAction extends AbstractAction {
     }
 
     private boolean saveBuildContainerPackageInfo(String applicationId, String packageId) {
-        ContainerAppInstantiateInfo instantiateInfo = containerAppInstantiateInfoMapper.getContainerAppInstantiateInfoAppId(applicationId);
+        ContainerAppInstantiateInfo instantiateInfo = containerAppOperationService.getInstantiateInfo(applicationId);
         if (instantiateInfo == null) {
             LOGGER.error("modify Container App InstantiateInfo fail, InstantiateInfo is null");
             return false;
         }
         instantiateInfo.setAppPackageId(packageId);
         instantiateInfo.setStatus(EnumAppInstantiateStatus.PACKAGE_GENERATE_SUCCESS);
-        int res = containerAppInstantiateInfoMapper.modifyContainerAppInstantiateInfo(applicationId, instantiateInfo);
-        if (res<1) {
+        Boolean res = containerAppOperationService.updateInstantiateInfo(applicationId, instantiateInfo);
+        if (!res) {
             LOGGER.error("modify Container App InstantiateInfo fail");
             return false;
         }

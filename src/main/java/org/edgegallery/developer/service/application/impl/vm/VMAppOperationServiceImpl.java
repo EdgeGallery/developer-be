@@ -25,21 +25,19 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.tomcat.util.http.fileupload.servlet.ServletFileUpload;
 import org.edgegallery.developer.common.ResponseConsts;
-import org.edgegallery.developer.model.common.User;
 import org.edgegallery.developer.exception.DataBaseException;
 import org.edgegallery.developer.exception.EntityNotFoundException;
 import org.edgegallery.developer.exception.FileOperateException;
 import org.edgegallery.developer.exception.IllegalRequestException;
 import org.edgegallery.developer.mapper.application.vm.ImageExportInfoMapper;
 import org.edgegallery.developer.mapper.application.vm.VMInstantiateInfoMapper;
-import org.edgegallery.developer.mapper.operation.OperationStatusMapper;
-import org.edgegallery.developer.mapper.resource.mephost.MepHostMapper;
-import org.edgegallery.developer.model.common.Chunk;
 import org.edgegallery.developer.model.application.Application;
 import org.edgegallery.developer.model.application.EnumApplicationStatus;
 import org.edgegallery.developer.model.application.vm.VMApplication;
 import org.edgegallery.developer.model.application.vm.VirtualMachine;
 import org.edgegallery.developer.model.apppackage.AppPackage;
+import org.edgegallery.developer.model.common.Chunk;
+import org.edgegallery.developer.model.common.User;
 import org.edgegallery.developer.model.instantiate.EnumAppInstantiateStatus;
 import org.edgegallery.developer.model.instantiate.vm.EnumImageExportStatus;
 import org.edgegallery.developer.model.instantiate.vm.ImageExportInfo;
@@ -51,9 +49,10 @@ import org.edgegallery.developer.model.operation.OperationStatus;
 import org.edgegallery.developer.model.resource.mephost.MepHost;
 import org.edgegallery.developer.model.restful.ApplicationDetail;
 import org.edgegallery.developer.model.restful.OperationInfoRep;
-import org.edgegallery.developer.model.uploadfile.FileUploadEntity;
 import org.edgegallery.developer.model.reverseproxy.ScpConnectEntity;
+import org.edgegallery.developer.model.uploadfile.FileUploadEntity;
 import org.edgegallery.developer.service.application.ApplicationService;
+import org.edgegallery.developer.service.application.OperationStatusService;
 import org.edgegallery.developer.service.application.action.IAction;
 import org.edgegallery.developer.service.application.action.IActionIterator;
 import org.edgegallery.developer.service.application.action.impl.vm.VMExportImageOperation;
@@ -61,6 +60,7 @@ import org.edgegallery.developer.service.application.action.impl.vm.VMLaunchOper
 import org.edgegallery.developer.service.application.impl.AppOperationServiceImpl;
 import org.edgegallery.developer.service.application.vm.VMAppOperationService;
 import org.edgegallery.developer.service.apppackage.AppPackageService;
+import org.edgegallery.developer.service.recource.mephost.MepHostService;
 import org.edgegallery.developer.util.HttpClientUtil;
 import org.edgegallery.developer.util.ShhFileUploadUtil;
 import org.slf4j.Logger;
@@ -86,25 +86,25 @@ public class VMAppOperationServiceImpl extends AppOperationServiceImpl implement
     private static final String SUBDIR_FILE = "uploadFile";
 
     @Autowired
-    VMInstantiateInfoMapper vmInstantiateInfoMapper;
+    private VMInstantiateInfoMapper vmInstantiateInfoMapper;
 
     @Autowired
-    ImageExportInfoMapper imageExportInfoMapper;
+    private ImageExportInfoMapper imageExportInfoMapper;
 
     @Autowired
-    OperationStatusMapper operationStatusMapper;
+    private OperationStatusService operationStatusService;
 
     @Autowired
-    ApplicationService applicationService;
+    private ApplicationService applicationService;
 
     @Autowired
-    VMAppVmServiceImpl vmAppVmServiceImpl;
+    private VMAppVmServiceImpl vmAppVmServiceImpl;
 
     @Autowired
-    AppPackageService appPackageService;
+    private AppPackageService appPackageService;
 
     @Autowired
-    MepHostMapper mepHostMapper;
+    private MepHostService mepHostService;
 
     @Override
     public OperationInfoRep instantiateVM(String applicationId, String vmId, User user) {
@@ -137,18 +137,13 @@ public class VMAppOperationServiceImpl extends AppOperationServiceImpl implement
         operationStatus.setObjectId(vmId);
         operationStatus.setObjectName(virtualMachine.getName());
         operationStatus.setOperationName(OPERATION_LAUNCH_NAME);
-        int res = operationStatusMapper.createOperationStatus(operationStatus);
-        if (res < 1) {
-            LOGGER.error("Create instantiate vm operationStatus in db error.");
-            throw new DataBaseException("Create instantiate vm operationStatus in db error.",
-                ResponseConsts.RET_CERATE_DATA_FAIL);
-        }
+        operationStatusService.createOperationStatus(operationStatus);
         VMLaunchOperation actionCollection = new VMLaunchOperation(user, applicationId, vmId, operationStatus);
         VMInstantiateInfo instantiateInfo = new VMInstantiateInfo();
         instantiateInfo.setOperationId(operationStatus.getId());
         createInstantiateInfo(vmId, instantiateInfo);
         LOGGER.info("start instantiate vm app");
-        new InstantiateVmAppProcessor(operationStatusMapper, operationStatus, actionCollection).start();
+        new InstantiateVmAppProcessor(operationStatusService, operationStatus, actionCollection).start();
         return new OperationInfoRep(operationStatus.getId());
     }
 
@@ -259,12 +254,7 @@ public class VMAppOperationServiceImpl extends AppOperationServiceImpl implement
         operationStatus.setObjectId(vmId);
         operationStatus.setObjectName(virtualMachine.getName());
         operationStatus.setOperationName(OPERATION_EXPORT_IMAGE_NAME);
-        int res = operationStatusMapper.createOperationStatus(operationStatus);
-        if (res < 1) {
-            LOGGER.error("Create export image operationStatus in db error.");
-            throw new DataBaseException("Create export image operationStatus in db error.",
-                ResponseConsts.RET_CERATE_DATA_FAIL);
-        }
+        operationStatusService.createOperationStatus(operationStatus);
         VMExportImageOperation actionCollection = new VMExportImageOperation(user, applicationId, vmId, operationStatus,
             appInstanceId, vmInstanceId);
 
@@ -273,7 +263,7 @@ public class VMAppOperationServiceImpl extends AppOperationServiceImpl implement
         imageExportInfo.setStatus(EnumImageExportStatus.IMAGE_CREATING);
         createExportInfo(vmId, imageExportInfo);
         LOGGER.info("start export vm image");
-        new ExportVmImageProcessor(operationStatusMapper, operationStatus, actionCollection).start();
+        new ExportVmImageProcessor(operationStatusService, operationStatus, actionCollection).start();
         return new OperationInfoRep(operationStatus.getId());
     }
 
@@ -358,6 +348,16 @@ public class VMAppOperationServiceImpl extends AppOperationServiceImpl implement
     }
 
     @Override
+    public Boolean modifyExportInfo(String vmId, ImageExportInfo imageExportInfo) {
+        int res = imageExportInfoMapper.modifyImageExportInfoInfoByVMId(vmId, imageExportInfo);
+        if (res<1) {
+            LOGGER.warn("modify image export info baseDate fail");
+            throw new DataBaseException("modify image export info baseDate fail.", ResponseConsts.RET_CERATE_DATA_FAIL);
+        }
+        return true;
+    }
+
+    @Override
     public Boolean deleteExportInfo(String vmId) {
         imageExportInfoMapper.deleteImageExportInfoInfoByVMId(vmId);
         return true;
@@ -391,15 +391,15 @@ public class VMAppOperationServiceImpl extends AppOperationServiceImpl implement
 
     public static class InstantiateVmAppProcessor extends Thread {
 
-        OperationStatusMapper operationStatusMapper;
+        OperationStatusService operationStatusService;
 
         OperationStatus operationStatus;
 
         VMLaunchOperation actionCollection;
 
-        public InstantiateVmAppProcessor(OperationStatusMapper operationStatusMapper, OperationStatus operationStatus,
+        public InstantiateVmAppProcessor(OperationStatusService operationStatusService, OperationStatus operationStatus,
             VMLaunchOperation actionCollection) {
-            this.operationStatusMapper = operationStatusMapper;
+            this.operationStatusService = operationStatusService;
             this.operationStatus = operationStatus;
             this.actionCollection = actionCollection;
         }
@@ -419,7 +419,7 @@ public class VMAppOperationServiceImpl extends AppOperationServiceImpl implement
                 LOGGER.error("InstantiateVmAppProcessor Exception.", e);
                 operationStatus.setStatus(EnumActionStatus.FAILED);
                 operationStatus.setErrorMsg("Exception happens when instantiate VM: " + e.getStackTrace().toString());
-                operationStatusMapper.modifyOperationStatus(operationStatus);
+                operationStatusService.modifyOperationStatus(operationStatus);
             }
 
         }
@@ -428,15 +428,15 @@ public class VMAppOperationServiceImpl extends AppOperationServiceImpl implement
 
     public static class ExportVmImageProcessor extends Thread {
 
-        OperationStatusMapper operationStatusMapper;
+        OperationStatusService operationStatusService;
 
         OperationStatus operationStatus;
 
         VMExportImageOperation actionCollection;
 
-        public ExportVmImageProcessor(OperationStatusMapper operationStatusMapper, OperationStatus operationStatus,
+        public ExportVmImageProcessor(OperationStatusService operationStatusService, OperationStatus operationStatus,
             VMExportImageOperation actionCollection) {
-            this.operationStatusMapper = operationStatusMapper;
+            this.operationStatusService = operationStatusService;
             this.operationStatus = operationStatus;
             this.actionCollection = actionCollection;
         }
@@ -457,16 +457,13 @@ public class VMAppOperationServiceImpl extends AppOperationServiceImpl implement
                 LOGGER.error("InstantiateVmAppProcessor Exception.", e);
                 operationStatus.setStatus(EnumActionStatus.FAILED);
                 operationStatus.setErrorMsg("Exception happens when export image: " + e.getStackTrace().toString());
-                operationStatusMapper.modifyOperationStatus(operationStatus);
+                operationStatusService.modifyOperationStatus(operationStatus);
             }
         }
     }
 
     private boolean cleanVmLaunchInfo(String mepHostId, VirtualMachine vm, User user) {
-        MepHost mepHost = mepHostMapper.getHost(mepHostId);
-        if (mepHost == null) {
-            return true;
-        }
+        MepHost mepHost = mepHostService.getHost(mepHostId);
         String basePath = HttpClientUtil.getUrlPrefix(mepHost.getLcmProtocol(), mepHost.getLcmIp(),
             mepHost.getLcmPort());
         VMInstantiateInfo vmInstantiateInfo = vm.getVmInstantiateInfo();

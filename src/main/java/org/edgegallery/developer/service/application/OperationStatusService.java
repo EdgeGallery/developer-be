@@ -25,6 +25,12 @@ public interface OperationStatusService {
 
     OperationStatus getOperationStatusById(String operationId);
 
+    Boolean createOperationStatus(OperationStatus operationStatus);
+
+    Boolean modifyOperationStatus(OperationStatus operationStatus);
+
+    int getOperationCountByObjectType(String objectType);
+
     int addActionStatusWithUpdateOperationStatus(String operationId, ActionStatus status, Map<String, ActionProgressRange> actionProgressRangeMap);
 
     int updateActionStatusWithUpdateOperationStatus(String operationId, ActionStatus status, Map<String, ActionProgressRange> actionProgressRangeMap);

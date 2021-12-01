@@ -33,6 +33,7 @@ import org.edgegallery.developer.model.operation.EnumOperationObjectType;
 import org.edgegallery.developer.model.resource.mephost.MepHost;
 import org.edgegallery.developer.model.lcm.NetworkInfo;
 import org.edgegallery.developer.model.lcm.VmInstantiateWorkload;
+import org.edgegallery.developer.service.application.OperationStatusService;
 import org.edgegallery.developer.service.application.action.impl.InstantiateAppAction;
 import org.edgegallery.developer.service.application.common.EnumInstantiateStatus;
 import org.edgegallery.developer.service.application.common.IContextParameter;
@@ -49,8 +50,8 @@ public class InstantiateVMAppAction extends InstantiateAppAction {
 
     VMAppOperationService vmAppOperationService = (VMAppOperationService) SpringContextUtil.getBean(VMAppOperationService.class);
 
-    OperationStatusMapper operationStatusMapper = (OperationStatusMapper) SpringContextUtil.getBean(
-        OperationStatusMapper.class);
+    OperationStatusService operationStatusService = (OperationStatusService) SpringContextUtil.getBean(
+        OperationStatusService.class);
 
     VMAppVmService vmAppVmService = (VMAppVmService) SpringContextUtil.getBean(VMAppVmService.class);
 
@@ -70,7 +71,7 @@ public class InstantiateVMAppAction extends InstantiateAppAction {
 
     public Map<String, String> getInputParams(MepHost mepHost) {
         String parameter = mepHost.getNetworkParameter();
-        int count = operationStatusMapper.getOperationCountByObjectType(EnumOperationObjectType.APPLICATION_INSTANCE.toString());
+        int count = operationStatusService.getOperationCountByObjectType(EnumOperationObjectType.APPLICATION_INSTANCE.toString());
         Map<String, String> vmInputParams = InputParameterUtil.getParams(parameter);
         String n6Range = vmInputParams.get("VDU1_APP_Plane03_IP");
         String mepRange = vmInputParams.get("VDU1_APP_Plane01_IP");
