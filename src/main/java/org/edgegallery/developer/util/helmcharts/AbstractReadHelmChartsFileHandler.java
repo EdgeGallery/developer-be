@@ -49,7 +49,7 @@ public abstract class AbstractReadHelmChartsFileHandler implements IContainerFil
         try {
             return Yaml.loadAll(content);
         } catch (IOException e) {
-            LOGGER.error("Failed to parse k8s file.");
+            LOGGER.error("yaml file {} Failed to parse k8s file.{}", innerFile.getInnerPath(), e.getMessage());
         }
         return null;
     }
