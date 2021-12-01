@@ -80,7 +80,7 @@ public abstract class AbstractReadHelmChartsFileHandler implements IContainerFil
     }
 
     private Map<String, Object> getValuesMapFromYaml() {
-        String valueContent = getContentByInnerPath("/Values.yaml");
+        String valueContent = getContentByInnerPath("/values.yaml");
         assert valueContent != null;
         org.yaml.snakeyaml.Yaml yaml = new org.yaml.snakeyaml.Yaml();
         HashMap<String, Object> valuesYamlMap = yaml.load(valueContent);

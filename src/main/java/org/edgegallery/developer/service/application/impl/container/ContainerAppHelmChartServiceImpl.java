@@ -113,8 +113,20 @@ public class ContainerAppHelmChartServiceImpl implements ContainerAppHelmChartSe
             String helmChartsPackagePath = containerFileHandler.exportHelmChartsPackage();
             LOGGER.info("helmChartsPackagePath:{}", helmChartsPackagePath);
 
+            String fileId = UUID.randomUUID().toString();
+            String helmChartsName = new File(helmChartsPackagePath).getName();
+            // use the first fileName to create the dir
+            moveFileToWorkSpace(helmChartsPackagePath, fileId, helmChartsName);
+
+            //save fileId
+            saveFileRecord(fileId, helmChartsName);
+
+            String tgzPath = InitConfigUtil.getWorkSpaceBaseDir() + BusinessConfigUtil.getUploadfilesPath() + fileId
+                + File.separator + helmChartsName;
+            LOGGER.info("tgzPath:{}", tgzPath);
+
             //get image
-            List<String> imageList = ContainerAppHelmChartUtil.getImageFromHelmFile(helmChartsPackagePath);
+            List<String> imageList = ContainerAppHelmChartUtil.getImageFromHelmFile(tgzPath);
             if (CollectionUtils.isEmpty(imageList)) {
                 LOGGER.error("No image information was found in the yaml file under the template folder!");
                 throw new HarborException("no images found from tgz file!",
@@ -127,13 +139,6 @@ public class ContainerAppHelmChartServiceImpl implements ContainerAppHelmChartSe
                 throw new HarborException("some images are not found in harbor repo!",
                     ResponseConsts.RET_GET_HARBOR_IMAGE_LIST_FAIL);
             }
-            String fileId = UUID.randomUUID().toString();
-            String helmChartsName = new File(helmChartsPackagePath).getName();
-            // use the first fileName to create the dir
-            moveFileToWorkSpace(helmChartsPackagePath, fileId, helmChartsName);
-
-            //save fileId
-            saveFileRecord(fileId, helmChartsName);
 
             // create a file id, and update
             HelmChart helmChart = new HelmChart();
