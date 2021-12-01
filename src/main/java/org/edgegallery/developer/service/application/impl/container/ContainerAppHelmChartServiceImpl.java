@@ -111,6 +111,7 @@ public class ContainerAppHelmChartServiceImpl implements ContainerAppHelmChartSe
 
             // create charts-file(.tgz) and export it to the outPath.
             String helmChartsPackagePath = containerFileHandler.exportHelmChartsPackage();
+            LOGGER.info("helmChartsPackagePath:{}", helmChartsPackagePath);
 
             //get image
             List<String> imageList = ContainerAppHelmChartUtil.getImageFromHelmFile(helmChartsPackagePath);
