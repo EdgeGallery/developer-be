@@ -501,13 +501,13 @@
 
    INSERT INTO tbl_network (id, app_id, description, name) VALUES
   ('Network_N6', 'init-application', 'N6 network, when end-side devices access edge applications, they need to access through this network', 'MEC_APP_N6')
-  ON CONFLICT(id) do nothing;
+  ON CONFLICT(app_id, name) do nothing;
   INSERT INTO tbl_network (id, app_id, description, name)
   VALUES ('Network_MEP', 'init-application', 'The network with the edge computing platform, when the application has service dependency or needs to publish the service, the network is needed', 'MEC_APP_Private')
-  ON CONFLICT(id) do nothing;
+  ON CONFLICT(app_id, name) do nothing;
   INSERT INTO tbl_network (id, app_id, description, name) VALUES
   ('Network_Internet', 'init-application', 'Internet Network', 'MEC_APP_Public')
-  ON CONFLICT(id) do nothing;
+  ON CONFLICT(app_id, name) do nothing;
 
   INSERT INTO tbl_vm_flavor (id, name, description, architecture, cpu, memory, system_disk_size, data_disk_size, gpu_extra_info, other_extra_info) VALUES
       ('3ef2bea0-5e23-4fab-952d-cc9e6741dbe7', 'General Computing-1', 'Ordinary APP', 'X86', 1, 1, 20, 40, '', '')
