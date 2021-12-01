@@ -80,7 +80,6 @@ imagelocation:
   project: ${IMAGE_REPO_PROJECT:developer}
   password: ${IMAGE_REPO_PASSWORD:}
   username: ${IMAGE_REPO_USERNAME:}
-  protocol: ${DOCKER_PROTOCOL:tcp}
 
 developer:
   ip: ${DEVELOPER_IP:}
