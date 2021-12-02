@@ -187,12 +187,13 @@ public class UploadFileController {
         @ApiResponse(code = 200, message = "OK", response = String.class),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
-    @RequestMapping(value = "/action/get-sample-code-content", method = RequestMethod.GET,
+    @RequestMapping(value = "/action/get-sample-code-content", method = RequestMethod.POST,
         produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN') || hasRole('DEVELOPER_GUEST')")
     public ResponseEntity<String> getSampleCodeContent(
+        @ApiParam(value = "apiFileIds", required = true) @RequestBody List<String> apiFileIds,
         @ApiParam(value = "fileName", required = true) @RequestParam String fileName) {
-        return ResponseEntity.ok(uploadFileService.getSampleCodeContent(fileName));
+        return ResponseEntity.ok(uploadFileService.getSampleCodeContent(apiFileIds,fileName));
     }
 
     /**

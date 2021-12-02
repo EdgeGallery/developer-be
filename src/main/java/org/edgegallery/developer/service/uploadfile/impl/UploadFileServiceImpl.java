@@ -278,12 +278,26 @@ public class UploadFileServiceImpl implements UploadFileService {
     }
 
     @Override
-    public String getSampleCodeContent(String fileName) {
-        if (StringUtils.isEmpty(sampleCodePath)) {
+    public String getSampleCodeContent(List<String> apiFileIds, String fileName) {
+        File res = generateTgz(apiFileIds);
+        if (res == null) {
+            LOGGER.error("generate sample code file failed!");
+            throw new FileOperateException("generate sample code file failed!", ResponseConsts.RET_SAVE_FILE_FAIL);
+        }
+        String samplePath = "";
+        try {
+            samplePath = res.getCanonicalPath();
+            samplePath = samplePath.substring(0, samplePath.lastIndexOf(File.separator));
+            CompressFileUtils.decompress(res.getCanonicalPath(), samplePath);
+        } catch (IOException e) {
+            LOGGER.error("get sample code dir fail,{}", e.getMessage());
+            throw new FileOperateException("get sample code dir fail!", ResponseConsts.RET_DECOMPRESS_FILE_FAIL);
+        }
+        if (StringUtils.isEmpty(samplePath)) {
             LOGGER.error("decompress sample code tgz failed!");
             throw new FileOperateException("decompress file failed!", ResponseConsts.RET_DECOMPRESS_FILE_FAIL);
         }
-        File dir = new File(sampleCodePath);
+        File dir = new File(samplePath);
         List<String> paths = FileUtil.getAllFilePath(dir);
         if (paths.isEmpty()) {
             LOGGER.error("can not find any file!");

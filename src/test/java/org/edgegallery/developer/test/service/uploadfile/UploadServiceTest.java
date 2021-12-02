@@ -246,7 +246,7 @@ public class UploadServiceTest {
             apis.add(file.getFileId());
             AppPkgStructure appPkgStructure = uploadFileService.getSampleCodeStru(apis);
             Assert.assertNotNull(appPkgStructure);
-            uploadFileService.getSampleCodeContent("test");
+            uploadFileService.getSampleCodeContent(apis,"test");
         } catch (IllegalRequestException e) {
             Assert.assertEquals("file has not any content!", e.getMessage());
         }
@@ -262,7 +262,7 @@ public class UploadServiceTest {
         apis.add(file.getFileId());
         AppPkgStructure appPkgStructure = uploadFileService.getSampleCodeStru(apis);
         Assert.assertNotNull(appPkgStructure);
-        String content = uploadFileService.getSampleCodeContent("ApiSampleCode001.java");
+        String content = uploadFileService.getSampleCodeContent(apis,"ApiSampleCode001.java");
         Assert.assertNotNull(content);
     }
 
