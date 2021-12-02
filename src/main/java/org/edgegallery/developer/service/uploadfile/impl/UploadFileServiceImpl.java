@@ -96,6 +96,7 @@ public class UploadFileServiceImpl implements UploadFileService {
     private byte[] getFileByteArray(File file, String userId, String fileName) throws IOException {
         String fileFormat = fileName.substring(fileName.lastIndexOf("."));
         if (userId == null) {
+            LOGGER.error("userId is null!");
             return FileUtils.readFileToByteArray(file);
         }
         if (fileFormat.equals(".yaml") || fileFormat.equals(".json")) {
@@ -159,17 +160,20 @@ public class UploadFileServiceImpl implements UploadFileService {
             LOGGER.error("fileId is empty!");
             throw new IllegalRequestException("fileId does not exist.", ResponseConsts.RET_REQUEST_PARAM_EMPTY);
         }
+        //get UploadFile
         UploadFile uploadFile = uploadFileMapper.getFileById(fileId);
         if (uploadFile == null) {
             LOGGER.error("the queried Object(UploadedFile) is null!");
             return true;
         }
+        //judge file exist
         String filePath = uploadFile.getFilePath();
         File file = new File(InitConfigUtil.getWorkSpaceBaseDir() + filePath);
         if (!file.exists()) {
             LOGGER.warn("the queried file may be deleted or moved!");
             return true;
         }
+        //delete file
         try {
             FileUtils.forceDelete(file);
         } catch (IOException e) {
@@ -189,8 +193,10 @@ public class UploadFileServiceImpl implements UploadFileService {
     public byte[] downloadSampleCode(List<String> apiFileIds) {
         File res = generateTgz(apiFileIds);
         if (res == null) {
+            LOGGER.error("generate sample code file failed!");
             throw new FileOperateException("generate samplecode file failed!", ResponseConsts.RET_SAVE_FILE_FAIL);
         }
+
         try {
             byte[] fileData = FileUtils.readFileToByteArray(res);
             LOGGER.info("get sample code file success");
@@ -206,27 +212,31 @@ public class UploadFileServiceImpl implements UploadFileService {
     public AppPkgStructure getSampleCodeStru(List<String> apiFileIds) {
         File res = generateTgz(apiFileIds);
         if (res == null) {
-            throw new FileOperateException("generate samplecode file failed!", ResponseConsts.RET_SAVE_FILE_FAIL);
+            LOGGER.error("generate sample code file failed!");
+            throw new FileOperateException("generate sample code file failed!", ResponseConsts.RET_SAVE_FILE_FAIL);
         }
+
         boolean decompressRes;
         String samplePath = "";
         try {
             samplePath = res.getCanonicalPath();
-            decompressRes = CompressFileUtils.decompress(samplePath, samplePath.substring(0, samplePath.length() - 15));
+            sampleCodePath = samplePath.substring(0, samplePath.lastIndexOf(File.separator));
+            decompressRes = CompressFileUtils.decompress(samplePath, sampleCodePath);
         } catch (IOException e) {
             LOGGER.error("get sample code dir fail,{}", e.getMessage());
             throw new FileOperateException("get sample code dir fail!", ResponseConsts.RET_DECOMPRESS_FILE_FAIL);
         }
+
         if (!decompressRes) {
             LOGGER.error("decompress sample code file fail");
             throw new FileOperateException("decompress file failed!", ResponseConsts.RET_DECOMPRESS_FILE_FAIL);
         }
+
         DeveloperFileUtils.deleteTempFile(res);
         // get csar pkg structure
         AppPkgStructure structure;
         try {
-            structure = getFiles(samplePath.substring(0, samplePath.length() - 15), new AppPkgStructure());
-            sampleCodePath = samplePath.substring(0, samplePath.length() - 15);
+            structure = getFiles(sampleCodePath, new AppPkgStructure());
         } catch (IOException ex) {
             LOGGER.error("get sample code pkg occur io exception: {}", ex.getMessage());
             String message = "get sample code pkg occur io exception!";
@@ -239,6 +249,7 @@ public class UploadFileServiceImpl implements UploadFileService {
         File root = new File(filePath);
         File[] files = root.listFiles();
         if (files == null || files.length == 0) {
+            LOGGER.error("no file was found under {}!", filePath);
             return null;
         }
         List<AppPkgStructure> fileList = new ArrayList<>();
@@ -453,6 +464,7 @@ public class UploadFileServiceImpl implements UploadFileService {
         Date now = new Date();
         List<String> tempIds = uploadFileMapper.getAllTempFiles();
         if (tempIds == null) {
+            LOGGER.warn("no temp file found!");
             return;
         }
         for (String tempId : tempIds) {
