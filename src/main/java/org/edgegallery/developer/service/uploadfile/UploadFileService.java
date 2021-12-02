@@ -34,7 +34,7 @@ public interface UploadFileService {
 
     AppPkgStructure getSampleCodeStru(List<String> apiFileIds);
 
-    String getSampleCodeContent(String fileName);
+    String getSampleCodeContent(List<String> apiFileIds,String fileName);
 
     byte[] getSdkProject(String fileId, String lan, List<Capability> capabilities);
 

@@ -143,12 +143,12 @@ public class AppPackageServiceImpl implements AppPackageService {
 
     @Override
     public String updateAppPackageFileContent(String packageId, String fileName, String content) {
-        LOGGER.info("content:{}", content.substring(1, content.length() - 1));
         if (StringUtils.isEmpty(packageId) || StringUtils.isEmpty(fileName) || StringUtils.isEmpty(content)) {
             String message = "packageId or fileName or content is empty";
             LOGGER.error(message);
             throw new IllegalRequestException(message, ResponseConsts.RET_REQUEST_PARAM_EMPTY);
         }
+        LOGGER.info("content:{}", content.substring(1, content.length() - 1));
         AppPackage appPackage = appPackageMapper.getAppPackage(packageId);
         if (appPackage == null) {
             LOGGER.error("query object(AppPackage) is null.");

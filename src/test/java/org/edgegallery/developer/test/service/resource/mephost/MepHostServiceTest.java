@@ -123,7 +123,7 @@ public class MepHostServiceTest {
         try {
             //Consts.ROLE_DEVELOPER_ADMIN
             AccessUserUtil.setUser("5ce78873-d73d-4e7d-84a4-ab75ac95400f", "admin", "");
-            mepHostService.createHost(createAnotherHost(), null);
+            mepHostService.createHost(createAnotherHost(), AccessUserUtil.getUser());
         } catch (UnauthorizedException e) {
             Assert.assertEquals("userId is empty or not admin!", e.getMessage());
         }
@@ -133,7 +133,7 @@ public class MepHostServiceTest {
     public void testCreateHostBadWithErrNetConfig() {
         try {
             AccessUserUtil.setUser("5ce78873-d73d-4e7d-84a4-ab75ac95400f", "admin", Consts.ROLE_DEVELOPER_ADMIN);
-            mepHostService.createHost(createAnotherHost(), null);
+            mepHostService.createHost(createAnotherHost(), AccessUserUtil.getUser());
         } catch (IllegalRequestException e) {
             Assert.assertEquals("Network params config error!", e.getMessage());
         }
@@ -147,7 +147,7 @@ public class MepHostServiceTest {
             isConfig = false;
             mepHostService.createHost(createHost(), user);
         } catch (DeveloperException e) {
-            Assert.assertEquals("failed to reload nginx config", e.getMessage());
+            Assert.assertEquals("add mec host to lcm fail!", e.getMessage());
         }
     }
 
@@ -159,11 +159,15 @@ public class MepHostServiceTest {
 
     @Test
     public void testUpdateHostSuccess() throws Exception {
-        AccessUserUtil.setUser("5ce78873-d73d-4e7d-84a4-ab75ac95400f", "admin", Consts.ROLE_DEVELOPER_ADMIN);
-        User user = new User("5ce78873-d73d-4e7d-84a4-ab75ac95400f", "admin", Consts.ROLE_DEVELOPER_ADMIN, "token");
-        isConfig = false;
-        boolean res = mepHostService.updateHost("fe934a92-1cfc-42fe-919d-422e2e3bd1f9", createHost(), user);
-        Assert.assertEquals(true, res);
+        try {
+            AccessUserUtil.setUser("5ce78873-d73d-4e7d-84a4-ab75ac95400f", "admin", Consts.ROLE_DEVELOPER_ADMIN);
+            User user = new User("5ce78873-d73d-4e7d-84a4-ab75ac95400f", "admin", Consts.ROLE_DEVELOPER_ADMIN, "token");
+            isConfig = false;
+            mepHostService.updateHost("fe934a92-1cfc-42fe-919d-422e2e3bd1f9", createHost(), user);
+        }catch (DeveloperException e){
+            Assert.assertEquals("add mec host to lcm fail!",e.getMessage());
+        }
+
     }
 
     @Test

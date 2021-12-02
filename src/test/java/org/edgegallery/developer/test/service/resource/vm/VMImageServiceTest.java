@@ -346,6 +346,7 @@ public class VMImageServiceTest {
     public void testCreateVmImageAllInfoSuccess() throws IOException {
         VMImage vmImage = new VMImage();
         vmImage.setName("Ubuntu18.0445");
+        vmImage.setUserId("userId");
         VMImage createdVmImage = vmImageService.createVmImageAllInfo(vmImage);
         Assert.assertNotNull(createdVmImage.getName());
     }
