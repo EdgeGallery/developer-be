@@ -14,13 +14,13 @@
 
 package org.edgegallery.developer.util.helmcharts.k8sObject;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
-public class UnknownObject implements IContainerImage{
+public class UnknownObject implements IContainerImage {
 
     @Override
     public List<String> getImages() {
-        return new ArrayList<>();
+        return Collections.emptyList();
     }
 }

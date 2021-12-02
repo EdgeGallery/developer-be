@@ -17,18 +17,23 @@ package org.edgegallery.developer.util.helmcharts;
 import io.kubernetes.client.util.Yaml;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class AbstractReadHelmChartsFileHandler implements IContainerFileHandler {
+public abstract class AbstractReadHelmChartsFileHandler extends AbstractDefaultFileHandler {
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractReadHelmChartsFileHandler.class);
 
     protected String workspace;
@@ -36,6 +41,20 @@ public abstract class AbstractReadHelmChartsFileHandler implements IContainerFil
     protected String helmChartsDir;
 
     private Map<String, Object> valuesMap;
+
+    @Override
+    public List<HelmChartFile> getCatalog() {
+        if (helmChartsDir == null) {
+            return null;
+        }
+        File root = new File(helmChartsDir);
+        try {
+            return deepReadDir(new ArrayList<>(), root);
+        } catch (IOException e) {
+            LOGGER.error("Failed to get catalog. maybe read file error.");
+        }
+        return Collections.emptyList();
+    }
 
     public List<Object> getK8sTemplateObject(HelmChartFile innerFile) {
         if (valuesMap == null) {
@@ -46,14 +65,61 @@ public abstract class AbstractReadHelmChartsFileHandler implements IContainerFil
         // replace values
         content = replaceValuesInTemplateFile(content, this.valuesMap);
         content = commentedLogicCodeInContent(content);
-        LOGGER.info("innerFile:{}", innerFile.getInnerPath());
-        LOGGER.info("content:{}", content);
         try {
             return Yaml.loadAll(content);
         } catch (IOException e) {
             LOGGER.error("yaml file {} Failed to parse k8s file.{}", innerFile.getInnerPath(), e.getMessage());
         }
         return null;
+    }
+
+    HelmChartFile getValuesYaml() {
+        String innerPath = "/values.yaml";
+        return getInnerFileByPath(innerPath);
+    }
+
+    HelmChartFile getChartYaml() {
+        String innerPath = "/chart.yaml";
+        return getInnerFileByPath(innerPath);
+    }
+
+    private HelmChartFile getInnerFileByPath(String innerPath) {
+        try {
+            Path innerFilePath = Paths.get(helmChartsDir, innerPath);
+            File file = innerFilePath.toFile();
+            if (file.exists()) {
+                List<HelmChartFile> files = deepReadDir(new ArrayList<>(), file);
+                return files.get(0);
+            }
+        } catch (IOException e) {
+            LOGGER.error("Failed to get the inner-file, please to check {} is really exist.", innerPath);
+        }
+        return null;
+    }
+
+    private List<HelmChartFile> deepReadDir(List<HelmChartFile> files, File root) throws IOException {
+        if (root.isFile()) {
+            HelmChartFile file = HelmChartFile.builder().name(root.getName()).isFile(true)
+                .innerPath(root.getPath().replace(helmChartsDir, "")).build();
+            // when the size of file is over 1mb, will not read content to memory.
+            if (root.length() < 1024 * 1024) {
+                file.setContent(
+                    FileUtils.readFileToString(Paths.get(helmChartsDir, file.getInnerPath()).toFile(), "UTF-8"));
+            }
+            files.add(file);
+        }
+
+        if (root.isDirectory()) {
+            HelmChartFile file = HelmChartFile.builder().name(root.getName()).isFile(false)
+                .innerPath(root.getPath().replace(helmChartsDir, "")).build();
+            List<HelmChartFile> children = new ArrayList<>();
+            file.setChildren(children);
+            files.add(file);
+            for (File childrenFile : Objects.requireNonNull(root.listFiles())) {
+                deepReadDir(children, childrenFile);
+            }
+        }
+        return files;
     }
 
     private String commentedLogicCodeInContent(String content) {
@@ -74,7 +140,7 @@ public abstract class AbstractReadHelmChartsFileHandler implements IContainerFil
         String result = templateContent;
         while (matcher.find()) {
             String find = matcher.group(0);
-            String key = matcher.group(1);
+            String key = matcher.group(1).trim();
             Object value = valuesMap.getOrDefault(key, String.format("unknown(%s)", find).replaceAll(" ", "-"));
             result = StringUtils.replace(result, find, value + "");
         }

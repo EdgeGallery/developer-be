@@ -31,6 +31,10 @@ import org.yaml.snakeyaml.nodes.Tag;
 @Getter
 public class EgValuesYaml {
 
+    public static final String VALUES_KEY_IMAGE_DOMAIN_NAME = ".Values.imagelocation.domainname";
+    public static final String VALUES_KEY_IMAGE_PROJECT = ".Values.imagelocation.project";
+    public static final String VALUES_KEY_APPCONFIG_NAMESPACE = ".Values.appconfig.appnamespace";
+
     private Global global;
 
     @SerializedName("appconfig")
