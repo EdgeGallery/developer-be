@@ -86,7 +86,7 @@ COPY --chown=$USER_NAME:$GROUP_NAME target/*.jar $APP_HOME/bin
 COPY --chown=$USER_NAME:$GROUP_NAME target/output $APP_HOME
 COPY --chown=$USER_NAME:$GROUP_NAME configs/mep_capability $APP_HOME/mep_capability
 COPY --chown=$USER_NAME:$GROUP_NAME configs/mep_capability/images $APP_HOME/mep_capability/images
-COPY --chown=$USER_NAME:$GROUP_NAME lib/*.jar  $APP_HOME/bin/lib/
+COPY --chown=$USER_NAME:$GROUP_NAME target/lib/ $APP_HOME/bin/lib/
 
 EXPOSE 9080
 EXPOSE 30111-30120
