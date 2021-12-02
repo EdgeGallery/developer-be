@@ -59,7 +59,7 @@ public class UploadServiceTest {
                 UploadServiceTest.class.getClassLoader().getResourceAsStream("testdata/test-icon.png"));
             uploadFileService.uploadFile(null, "text", uploadFile);
         } catch (IllegalRequestException e) {
-            Assert.assertEquals("fileType is error,must be one of [icon,md,api]", e.getMessage());
+            Assert.assertEquals("fileType is error,must be one of [icon,md,api,script]", e.getMessage());
         }
     }
 

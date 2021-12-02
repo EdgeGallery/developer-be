@@ -64,24 +64,24 @@ MERGE INTO tbl_capability (id,group_id, name, name_en, version, description, des
 MERGE INTO tbl_uploaded_file (file_id, file_name,is_temp, user_id, upload_date, file_path)  KEY(file_id) values
 ( 'e111f3e7-90d8-4a39-9874-ea6ea6752ef5','pet.json', false, 'e111f3e7-90d8-4a39-9874-ea6ea6752ef6', '2019-10-23 03:27:36', '/workspace/200dfab1-3c30-4fc7-a6ca-ed6f0620a85e\ad66d1b6-5d29-487b-9769-be48b62aec2e');
 --
---MERGE INTO tbl_container_image (image_id, image_name, image_version, user_id, user_name)  KEY(image_id) values
---( '6ababcec-2934-43d9-afc8-d3d403ebc782','test1','1.0','c5c7c35a-f85b-441c-9307-5516b951efd2','author');
---
---MERGE INTO tbl_container_image (image_id, image_name, image_version, user_id, user_name, file_name, image_path)  KEY(image_id) values
---( '6ababcec-2934-43d9-afc8-d3d403ebc785','test2','2.0','c5c7c35a-f85b-441c-9307-5516b951efd3','author1','test2.tar','xxxx')
+MERGE INTO tbl_container_image (image_id, image_name, image_version, user_id, user_name)  KEY(image_id) values
+('6ababcec-2934-43d9-afc8-d3d403ebc782','test1','1.0','c5c7c35a-f85b-441c-9307-5516b951efd2','author');
+
+--MERGE INTO tbl_container_image (image_id, image_name, image_version, user_id, user_name,upload_time)  KEY(image_id) values
+--('6ababcec-2934-43d9-afc8-d3d403ebc785','test2','2.0','c5c7c35a-f85b-441c-9307-5516b951efd3','author1')
 ---- ----------------------------
 
 -- ----------------------------
 -- Records of tbl_network
 -- ----------------------------
-MERGE INTO tbl_network KEY(id) VALUES('776be50f-f6eb-4aed-b562-e9e5b914dc59','init-application','MEC_APP_N6','N6网络，端侧设备在访问边缘应用时，需要通过该网络进行访问');
-MERGE INTO tbl_network KEY(id) VALUES('776be50f-f6eb-4aed-b562-e9e5b914dc60','init-application','MEC_APP_Private','与边缘计算平台之间的网络，当应用存在服务依赖或需要发布服务时，需要该网络');
-MERGE INTO tbl_network KEY(id) VALUES('776be50f-f6eb-4aed-b562-e9e5b914dc61','init-application','MEC_APP_Public','Internet网络');
-MERGE INTO tbl_network KEY(id) VALUES('560e554c-7ef4-4f21-b2b5-e33fa64aa069','4cbbab9d-c48f-4adb-ae82-d1816d8edd7c','MEC_APP_Public','Internet网络');
-MERGE INTO tbl_network KEY(id) VALUES('560e554c-7ef4-4f21-b2b5-e33fa64aa068','4cbbab9d-c48f-4adb-ae82-d1816d8edd7c','MEC_APP_N6','N6网络');
-MERGE INTO tbl_network KEY(id) VALUES('560e554c-7ef4-4f21-b2b5-e33fa64aa067','4cbbab9d-c48f-4adb-ae82-d1816d8edd7c','MEC_APP_Private','MEP网络');
-MERGE INTO tbl_network KEY(id) VALUES('560e554c-7ef4-4f21-b2b5-e33fa64aa070','3f11715f-b59e-4c23-965b-b7f9c34c20d1','MEC_APP_Public','Internet网络');
-MERGE INTO tbl_network KEY(id) VALUES('560e554c-7ef4-4f21-b2b5-e33fa64aa071','3f11715f-b59e-4c23-965b-b7f9c34c20d1','MEC_APP_Private','MEP网络');
+MERGE INTO tbl_network KEY(app_id,name) VALUES('776be50f-f6eb-4aed-b562-e9e5b914dc59','init-application','MEC_APP_N6','N6网络，端侧设备在访问边缘应用时，需要通过该网络进行访问');
+MERGE INTO tbl_network KEY(app_id,name) VALUES('776be50f-f6eb-4aed-b562-e9e5b914dc60','init-application','MEC_APP_Private','与边缘计算平台之间的网络，当应用存在服务依赖或需要发布服务时，需要该网络');
+MERGE INTO tbl_network KEY(app_id,name) VALUES('776be50f-f6eb-4aed-b562-e9e5b914dc61','init-application','MEC_APP_Public','Internet网络');
+MERGE INTO tbl_network KEY(app_id,name) VALUES('560e554c-7ef4-4f21-b2b5-e33fa64aa069','4cbbab9d-c48f-4adb-ae82-d1816d8edd7c','MEC_APP_Public','Internet网络');
+MERGE INTO tbl_network KEY(app_id,name) VALUES('560e554c-7ef4-4f21-b2b5-e33fa64aa068','4cbbab9d-c48f-4adb-ae82-d1816d8edd7c','MEC_APP_N6','N6网络');
+MERGE INTO tbl_network KEY(app_id,name) VALUES('560e554c-7ef4-4f21-b2b5-e33fa64aa067','4cbbab9d-c48f-4adb-ae82-d1816d8edd7c','MEC_APP_Private','MEP网络');
+MERGE INTO tbl_network KEY(app_id,name) VALUES('560e554c-7ef4-4f21-b2b5-e33fa64aa070','3f11715f-b59e-4c23-965b-b7f9c34c20d1','MEC_APP_Public','Internet网络');
+MERGE INTO tbl_network KEY(app_id,name) VALUES('560e554c-7ef4-4f21-b2b5-e33fa64aa071','3f11715f-b59e-4c23-965b-b7f9c34c20d1','MEC_APP_Private','MEP网络');
 -- ----------------------------
 -- Records of tbl_vm_flavor
 -- ----------------------------
