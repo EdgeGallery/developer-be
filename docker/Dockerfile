@@ -64,6 +64,7 @@ WORKDIR $APP_HOME
 
 RUN chmod -R 750 $APP_HOME &&\
     chmod -R 550 $APP_HOME/bin &&\
+    mkdir -p -m 550 $APP_HOME/bin/lib &&\
     mkdir -p -m 750 $APP_HOME/config &&\
     mkdir -p -m 750 $APP_HOME/log &&\
     mkdir -p -m 700 $APP_HOME/ssl &&\
