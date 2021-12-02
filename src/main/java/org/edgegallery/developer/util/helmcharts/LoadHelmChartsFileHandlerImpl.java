@@ -22,10 +22,14 @@ import java.nio.file.Paths;
 import java.util.Map;
 import org.apache.commons.io.FileUtils;
 import org.edgegallery.developer.exception.DeveloperException;
+import org.edgegallery.developer.service.apppackage.converter.CustomRepresenter;
 import org.edgegallery.developer.util.CompressFileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.constructor.SafeConstructor;
+import org.yaml.snakeyaml.nodes.Tag;
 
 public class LoadHelmChartsFileHandlerImpl extends AbstractContainerFileHandler {
     private static final Logger LOGGER = LoggerFactory.getLogger(LoadHelmChartsFileHandlerImpl.class);
@@ -77,9 +81,9 @@ public class LoadHelmChartsFileHandlerImpl extends AbstractContainerFileHandler 
         String valuesYaml = defaultValues.getContent();
 
         // merge input values.yaml and default values.yaml
-        Yaml yaml = new Yaml();
+        Yaml yaml = new Yaml(new SafeConstructor(), new CustomRepresenter());
         Object mergedYamlObj = mergeObject(yaml.load(valuesYaml), yaml.load(inputValuesYaml));
-        String mergedYaml = yaml.dump(mergedYamlObj);
+        String mergedYaml = yaml.dumpAs(mergedYamlObj, Tag.MAP, DumperOptions.FlowStyle.BLOCK);
 
         // save to
         this.modifyFileByPath(inputValues.getInnerPath(), mergedYaml);
