@@ -75,8 +75,6 @@ public class UploadFileServiceImpl implements UploadFileService {
     @Autowired
     private CapabilityMapper capabilityMapper;
 
-    private String sampleCodePath;
-
     @Override
     public byte[] getFileStream(UploadFile uploadFile, String userId) {
         File file = new File(InitConfigUtil.getWorkSpaceBaseDir() + uploadFile.getFilePath());
@@ -220,8 +218,8 @@ public class UploadFileServiceImpl implements UploadFileService {
         String samplePath = "";
         try {
             samplePath = res.getCanonicalPath();
-            sampleCodePath = samplePath.substring(0, samplePath.lastIndexOf(File.separator));
-            decompressRes = CompressFileUtils.decompress(samplePath, sampleCodePath);
+            samplePath = samplePath.substring(0, samplePath.lastIndexOf(File.separator));
+            decompressRes = CompressFileUtils.decompress(res.getCanonicalPath(), samplePath);
         } catch (IOException e) {
             LOGGER.error("get sample code dir fail,{}", e.getMessage());
             throw new FileOperateException("get sample code dir fail!", ResponseConsts.RET_DECOMPRESS_FILE_FAIL);
@@ -236,7 +234,7 @@ public class UploadFileServiceImpl implements UploadFileService {
         // get csar pkg structure
         AppPkgStructure structure;
         try {
-            structure = getFiles(sampleCodePath, new AppPkgStructure());
+            structure = getFiles(samplePath, new AppPkgStructure());
         } catch (IOException ex) {
             LOGGER.error("get sample code pkg occur io exception: {}", ex.getMessage());
             String message = "get sample code pkg occur io exception!";
