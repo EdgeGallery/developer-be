@@ -33,18 +33,17 @@ import org.edgegallery.developer.exception.FileOperateException;
 import org.edgegallery.developer.exception.HarborException;
 import org.edgegallery.developer.exception.IllegalRequestException;
 import org.edgegallery.developer.filter.security.AccessUserUtil;
-import org.edgegallery.developer.mapper.application.ApplicationMapper;
-import org.edgegallery.developer.mapper.application.container.ContainerAppImageInfoMapper;
 import org.edgegallery.developer.mapper.application.container.HelmChartMapper;
-import org.edgegallery.developer.mapper.uploadfile.UploadFileMapper;
 import org.edgegallery.developer.model.application.Application;
+import org.edgegallery.developer.model.application.EnumApplicationStatus;
 import org.edgegallery.developer.model.application.container.HelmChart;
 import org.edgegallery.developer.model.application.container.ModifyFileContentDto;
-import org.edgegallery.developer.model.instantiate.container.ContainerAppInstantiateInfo;
 import org.edgegallery.developer.model.uploadfile.UploadFile;
 import org.edgegallery.developer.service.application.AppConfigurationService;
+import org.edgegallery.developer.service.application.ApplicationService;
 import org.edgegallery.developer.service.application.container.ContainerAppHelmChartService;
 import org.edgegallery.developer.service.application.container.ContainerAppOperationService;
+import org.edgegallery.developer.service.uploadfile.UploadFileService;
 import org.edgegallery.developer.util.BusinessConfigUtil;
 import org.edgegallery.developer.util.ContainerAppHelmChartUtil;
 import org.edgegallery.developer.util.FileUtil;
@@ -67,16 +66,13 @@ public class ContainerAppHelmChartServiceImpl implements ContainerAppHelmChartSe
     private static final Logger LOGGER = LoggerFactory.getLogger(ContainerAppHelmChartServiceImpl.class);
 
     @Autowired
-    private ContainerAppImageInfoMapper containerAppImageInfoMapper;
-
-    @Autowired
-    private ApplicationMapper applicationMapper;
+    private ApplicationService applicationService;
 
     @Autowired
     private HelmChartMapper helmChartMapper;
 
     @Autowired
-    private UploadFileMapper uploadFileMapper;
+    private UploadFileService uploadFileService;
 
     @Autowired
     private AppConfigurationService appConfigurationService;
@@ -153,6 +149,8 @@ public class ContainerAppHelmChartServiceImpl implements ContainerAppHelmChartSe
                 LOGGER.error("Failed to save helm chart!");
                 throw new DataBaseException("Failed to save helm chart!", ResponseConsts.RET_CERATE_DATA_FAIL);
             }
+            //update application status
+            applicationService.updateApplicationStatus(applicationId, EnumApplicationStatus.CONFIGURED);
             return helmChart;
         } catch (IOException e) {
             LOGGER.error("Failed to read the helmchart file. msg:{}", e.getMessage());
@@ -227,7 +225,7 @@ public class ContainerAppHelmChartServiceImpl implements ContainerAppHelmChartSe
             throw new IllegalRequestException("applicationId or helmChartId is empty!",
                 ResponseConsts.RET_REQUEST_PARAM_EMPTY);
         }
-        Application application = applicationMapper.getApplicationById(applicationId);
+        Application application = applicationService.getApplication(applicationId);
         if (application == null) {
             LOGGER.error("the query Application is empty!");
             throw new EntityNotFoundException("the query Application is empty", ResponseConsts.RET_QUERY_DATA_EMPTY);
@@ -243,7 +241,7 @@ public class ContainerAppHelmChartServiceImpl implements ContainerAppHelmChartSe
             LOGGER.error("helmChartFileId is empty!");
             throw new DataBaseException("helmChartFileId is empty!", ResponseConsts.RET_QUERY_DATA_FAIL);
         }
-        UploadFile uploadFile = uploadFileMapper.getFileById(helmChartFileId);
+        UploadFile uploadFile = uploadFileService.getFile(helmChartFileId);
         File helmChartFile = new File(InitConfigUtil.getWorkSpaceBaseDir() + uploadFile.getFilePath());
         FileUtil.deleteFile(helmChartFile);
         // delete data
@@ -261,7 +259,7 @@ public class ContainerAppHelmChartServiceImpl implements ContainerAppHelmChartSe
             LOGGER.error("applicationId or helmChartId is empty!");
             throw new IllegalRequestException("applicationId is empty!", ResponseConsts.RET_REQUEST_PARAM_EMPTY);
         }
-        Application application = applicationMapper.getApplicationById(applicationId);
+        Application application = applicationService.getApplication(applicationId);
         if (application == null) {
             LOGGER.error("the query Application is empty!");
             throw new EntityNotFoundException("the query Application is empty", ResponseConsts.RET_QUERY_DATA_EMPTY);
@@ -278,7 +276,7 @@ public class ContainerAppHelmChartServiceImpl implements ContainerAppHelmChartSe
                 LOGGER.error("helmChartFileId is empty!");
                 return false;
             }
-            UploadFile uploadFile = uploadFileMapper.getFileById(helmChartFileId);
+            UploadFile uploadFile = uploadFileService.getFile(helmChartFileId);
             File helmChartFile = new File(InitConfigUtil.getWorkSpaceBaseDir() + uploadFile.getFilePath());
             FileUtil.deleteFile(helmChartFile);
             // delete data
@@ -310,7 +308,7 @@ public class ContainerAppHelmChartServiceImpl implements ContainerAppHelmChartSe
             throw new DataBaseException("helmChartFileId is empty!", ResponseConsts.RET_QUERY_DATA_FAIL);
         }
         byte[] ret = null;
-        UploadFile uploadFile = uploadFileMapper.getFileById(helmChartFileId);
+        UploadFile uploadFile = uploadFileService.getFile(helmChartFileId);
         File helmChartFile = new File(InitConfigUtil.getWorkSpaceBaseDir() + uploadFile.getFilePath());
         try {
             ret = FileUtils.readFileToByteArray(helmChartFile);
@@ -340,7 +338,7 @@ public class ContainerAppHelmChartServiceImpl implements ContainerAppHelmChartSe
             throw new DataBaseException("helmChartFileId is empty!", ResponseConsts.RET_QUERY_DATA_FAIL);
         }
         String content = "";
-        UploadFile uploadFile = uploadFileMapper.getFileById(helmChartFileId);
+        UploadFile uploadFile = uploadFileService.getFile(helmChartFileId);
         checkUploadFileExist(uploadFile, helmChartFileId);
         File helmChartFile = new File(InitConfigUtil.getWorkSpaceBaseDir() + uploadFile.getFilePath());
         checkHelmFileExist(helmChartFile, helmChartFileId);
@@ -394,7 +392,7 @@ public class ContainerAppHelmChartServiceImpl implements ContainerAppHelmChartSe
             throw new DataBaseException("helmChartFileId is empty!", ResponseConsts.RET_QUERY_DATA_FAIL);
         }
         boolean ret = false;
-        UploadFile uploadFile = uploadFileMapper.getFileById(helmChartFileId);
+        UploadFile uploadFile = uploadFileService.getFile(helmChartFileId);
         checkUploadFileExist(uploadFile, helmChartFileId);
         File helmChartFile = new File(InitConfigUtil.getWorkSpaceBaseDir() + uploadFile.getFilePath());
         checkHelmFileExist(helmChartFile, helmChartFileId);
@@ -421,7 +419,7 @@ public class ContainerAppHelmChartServiceImpl implements ContainerAppHelmChartSe
         result.setUploadDate(new Date());
         result.setTemp(false);
         result.setFilePath(BusinessConfigUtil.getUploadfilesPath() + fileId + File.separator + fileName);
-        int ret = uploadFileMapper.saveFile(result);
+        int ret = uploadFileService.saveFile(result);
         if (ret < 1) {
             LOGGER.error("save file record to db failed!");
             throw new DataBaseException("save file record to db failed!", ResponseConsts.RET_CERATE_DATA_FAIL);

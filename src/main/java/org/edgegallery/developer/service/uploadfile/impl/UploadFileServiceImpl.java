@@ -122,6 +122,11 @@ public class UploadFileServiceImpl implements UploadFileService {
     }
 
     @Override
+    public int saveFile(UploadFile uploadFile) {
+        return uploadFileMapper.saveFile(uploadFile);
+    }
+
+    @Override
     public UploadFile uploadFile(String userId, String fileType, MultipartFile uploadFile) {
         //check format
         LOGGER.info("Start uploading file");

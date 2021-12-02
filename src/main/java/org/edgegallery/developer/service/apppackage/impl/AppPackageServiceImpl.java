@@ -30,6 +30,7 @@ import org.edgegallery.developer.exception.IllegalRequestException;
 import org.edgegallery.developer.mapper.application.AppScriptMapper;
 import org.edgegallery.developer.mapper.apppackage.AppPackageMapper;
 import org.edgegallery.developer.model.application.EnumAppClass;
+import org.edgegallery.developer.model.application.EnumApplicationStatus;
 import org.edgegallery.developer.model.application.container.ContainerApplication;
 import org.edgegallery.developer.model.application.vm.VMApplication;
 import org.edgegallery.developer.model.apppackage.AppPackage;
@@ -242,6 +243,7 @@ public class AppPackageServiceImpl implements AppPackageService {
         }
         appPackage.setPackageFileName(fileName);
         appPackageMapper.modifyAppPackage(appPackage);
+        applicationService.updateApplicationStatus(application.getId(), EnumApplicationStatus.PACKAGED);
         return appPackage;
     }
 
