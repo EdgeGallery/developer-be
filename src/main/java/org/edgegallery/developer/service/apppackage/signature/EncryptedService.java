@@ -23,17 +23,16 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
 import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.LineIterator;
 import org.apache.commons.lang3.StringUtils;
 import org.edgegallery.developer.common.ResponseConsts;
 import org.edgegallery.developer.exception.FileOperateException;
-import org.edgegallery.developer.service.apppackage.impl.AppPackageServiceImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -72,7 +71,7 @@ public class EncryptedService {
                     String encryptedFilePath = path.replace("\\", File.separator).replace("/", File.separator);
                     encryptedFilePath.replace(" ", "");
                     File file = new File(encryptedFilePath);
-                    sha256String = getFileSHA1(file);
+                    sha256String = getHash(file);
                     bf.append(tempString).append("\r\n");
                     continue;
                 }
@@ -144,16 +143,6 @@ public class EncryptedService {
         return true;
     }
 
-    private static String getFileSHA1(File file) {
-        String str = "";
-        try {
-            str = getHash(file, "SHA-256");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return str;
-    }
-
     private File getMfFile(String filePath) {
         ArrayList<String> files = new ArrayList<String>();
         File file = new File(filePath);
@@ -169,23 +158,14 @@ public class EncryptedService {
         return mfFile;
     }
 
-    private static String getHash(File file, String hashType) throws Exception {
-        InputStream fis = new FileInputStream(file);
-        byte buffer[] = new byte[1024];
-        MessageDigest md5 = MessageDigest.getInstance(hashType);
-        for (int numRead = 0; (numRead = fis.read(buffer)) > 0; ) {
-            md5.update(buffer, 0, numRead);
+    private static String getHash(File file) {
+        try (FileInputStream fis = new FileInputStream(file.getCanonicalPath())) {
+            return DigestUtils.sha256Hex(fis);
+        } catch (IOException e) {
+            LOGGER.error("get hash value of source file failed! {}", file.getPath());
+            throw new FileOperateException("get hash value of source file failed!", ResponseConsts.RET_HASH_FILE_FAIL);
         }
-        fis.close();
-        return toHexString(md5.digest());
-    }
 
-    private static String toHexString(byte b[]) {
-        StringBuilder sb = new StringBuilder();
-        for (byte aB : b) {
-            sb.append(Integer.toHexString(aB & 0xFF));
-        }
-        return sb.toString();
     }
 
     private String signPackage(String filePath, String keyPasswd) {
@@ -235,7 +215,7 @@ public class EncryptedService {
         try (InputStream inputStream = FileUtils.openInputStream(FileUtils.getFile(filePath));
              InputStreamReader inputStreamReader = new InputStreamReader(inputStream, StandardCharsets.UTF_8);
              BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
-            LineIterator lineIterator = new LineIterator(bufferedReader)) {
+             LineIterator lineIterator = new LineIterator(bufferedReader)) {
             String line;
 
             while (lineIterator.hasNext()) {
