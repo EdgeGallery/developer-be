@@ -26,6 +26,8 @@ public interface UploadFileService {
 
     UploadFile getFile(String fileId);
 
+    int saveFile(UploadFile uploadFile);
+
     UploadFile uploadFile(String userId, String fileType, MultipartFile uploadFile);
 
     boolean deleteFile(String fileId);
