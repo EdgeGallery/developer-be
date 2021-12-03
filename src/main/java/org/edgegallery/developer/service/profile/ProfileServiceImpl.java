@@ -400,7 +400,7 @@ public class ProfileServiceImpl implements ProfileService {
      */
     private void analysizeProfile(String baseFilePath, ProfileInfo profileInfo) {
         try {
-            String profileFilePath = baseFilePath.concat(Consts.FILE_SEPERATOR).concat(PROFILE_FILE);
+            String profileFilePath = baseFilePath.concat(File.separator).concat(PROFILE_FILE);
             File profileFile = new File(profileFilePath);
 
             String yamlContent = FileUtils.readFileToString(profileFile, StandardCharsets.UTF_8);
@@ -414,8 +414,8 @@ public class ProfileServiceImpl implements ProfileService {
             profileInfo.setDescriptionEn((String) profile.get("descriptionEn"));
             profileInfo.setType((String) profile.get("type"));
             profileInfo.setIndustry((String) profile.get("industry"));
-            profileInfo.setConfigFilePath(
-                profileInfo.getId().concat(Consts.FILE_SEPERATOR).concat((String) profile.get("config")));
+            profileInfo
+                .setConfigFilePath(profileInfo.getId().concat(File.separator).concat((String) profile.get("config")));
             String seq = null == profile.get("seq") ? null : (String) profile.get("seq");
             profileInfo.setSeq(null == seq ? null : Arrays.asList(seq.split(",")));
 
@@ -429,7 +429,7 @@ public class ProfileServiceImpl implements ProfileService {
                 Map<String, String> appInfo = appInfoList.get(key);
                 String deploymentFile = appInfo.get("deploymentFile");
                 checkDeployFileType(deploymentFile);
-                deployFilePath.put(key, profileInfo.getId().concat(Consts.FILE_SEPERATOR).concat(deploymentFile));
+                deployFilePath.put(key, profileInfo.getId().concat(File.separator).concat(deploymentFile));
                 appList.add(key);
             });
             profileInfo.setDeployFilePath(deployFilePath);
