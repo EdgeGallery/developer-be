@@ -141,6 +141,8 @@ public final class Consts {
 
     public static final String PROFILE_FILE_TYPE_CONFIG = "configFile";
 
+    public static final String FILE_SEPERATOR = "/";
+
     private Consts() {
     }
 }
