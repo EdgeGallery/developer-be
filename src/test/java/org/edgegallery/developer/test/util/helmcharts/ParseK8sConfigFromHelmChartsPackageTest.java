@@ -100,7 +100,7 @@ public class ParseK8sConfigFromHelmChartsPackageTest {
                 if (obj instanceof V1Deployment) {
                     Assert.assertNotNull(images);
                     Assert.assertEquals(1, images.size());
-                    Assert.assertEquals("nginx:1.14.2", images.get(0));
+                    Assert.assertEquals("192.168.1.1/project/nginx:1.14.2", images.get(0));
                 }
             }
         }

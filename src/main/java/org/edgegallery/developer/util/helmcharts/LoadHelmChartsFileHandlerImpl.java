@@ -19,18 +19,20 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import lombok.Setter;
+import java.util.Map;
 import org.apache.commons.io.FileUtils;
 import org.edgegallery.developer.exception.DeveloperException;
+import org.edgegallery.developer.service.apppackage.converter.CustomRepresenter;
 import org.edgegallery.developer.util.CompressFileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.yaml.snakeyaml.DumperOptions;
+import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.constructor.SafeConstructor;
+import org.yaml.snakeyaml.nodes.Tag;
 
 public class LoadHelmChartsFileHandlerImpl extends AbstractContainerFileHandler {
     private static final Logger LOGGER = LoggerFactory.getLogger(LoadHelmChartsFileHandlerImpl.class);
-
-    @Setter
-    private boolean hasMep;
 
     @Override
     public void load(String... filePaths) throws IOException {
@@ -49,19 +51,69 @@ public class LoadHelmChartsFileHandlerImpl extends AbstractContainerFileHandler 
             Path targetFilePath = Files.createFile(Paths.get(workspace, fileName));
             FileUtils.copyFile(orgFile, targetFilePath.toFile());
 
-            Path helmChartPath = Files.createDirectory(Paths.get(workspace,
-                fileName.contains(".") ? fileName.substring(0, fileName.lastIndexOf(".")) : fileName));
+            Path helmChartPath = Files.createDirectory(Paths
+                .get(workspace, fileName.contains(".") ? fileName.substring(0, fileName.lastIndexOf(".")) : fileName));
+            helmChartsDir = helmChartPath.toString();
 
             // unzip file
             if (!CompressFileUtils.decompress(targetFilePath.toString(), workspace)) {
-                clean();
                 return;
             }
-            helmChartsDir = helmChartPath.toString();
+
+            mergeValuesYaml();
         } catch (IOException e) {
-            FileUtils.deleteDirectory(new File(workspace));
-            workspace = null;
             throw new DeveloperException("Failed to read k8s config. config:" + filePath);
+        }
+    }
+
+    private void mergeValuesYaml() throws IOException {
+        // get input values.yaml
+        HelmChartFile inputValues = this.getValuesYaml();
+        String inputValuesYaml = null;
+        if (inputValues == null) {
+            createDefaultValuesYaml();
+            return;
+        }
+        inputValuesYaml = inputValues.getContent();
+
+        // default values.yaml
+        EgValuesYaml defaultValues = this.getDefaultValues();
+        String valuesYaml = defaultValues.getContent();
+
+        // merge input values.yaml and default values.yaml
+        Yaml yaml = new Yaml(new SafeConstructor(), new CustomRepresenter());
+        Object mergedYamlObj = mergeObject(yaml.load(valuesYaml), yaml.load(inputValuesYaml));
+        String mergedYaml = yaml.dumpAs(mergedYamlObj, Tag.MAP, DumperOptions.FlowStyle.BLOCK);
+
+        // save to
+        this.modifyFileByPath(inputValues.getInnerPath(), mergedYaml);
+    }
+
+    private void createDefaultValuesYaml() throws IOException {
+        // create values.yaml
+        EgValuesYaml defaultValues = this.getDefaultValues();
+        Path valuesYaml = Files.createFile(Paths.get(helmChartsDir, "values.yaml"));
+        FileUtils.writeByteArrayToFile(valuesYaml.toFile(), defaultValues.getContent().getBytes(), false);
+    }
+
+    // merge the object, back replaces front
+    private Object mergeObject(Object arg1, Object arg2) {
+        if (arg1 instanceof Map && arg2 instanceof Map) {
+            // back merge to front, return front.
+            Map<String, Object> map1 = (Map) arg1;
+            Map<String, Object> map2 = (Map) arg2;
+            for (Map.Entry<String, Object> entry : map2.entrySet()) {
+                if (map1.containsKey(entry.getKey())) {
+                    Object merged = mergeObject(map1.get(entry.getKey()), entry.getValue());
+                    map1.put(entry.getKey(), merged);
+                } else {
+                    map1.put(entry.getKey(), entry.getValue());
+                }
+            }
+            return arg1;
+        } else {
+            // back replaces front
+            return arg2;
         }
     }
 

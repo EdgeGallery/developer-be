@@ -40,7 +40,6 @@ import org.edgegallery.developer.mapper.uploadfile.UploadFileMapper;
 import org.edgegallery.developer.model.application.Application;
 import org.edgegallery.developer.model.application.container.HelmChart;
 import org.edgegallery.developer.model.application.container.ModifyFileContentDto;
-import org.edgegallery.developer.model.instantiate.container.ContainerAppInstantiateInfo;
 import org.edgegallery.developer.model.uploadfile.UploadFile;
 import org.edgegallery.developer.service.application.AppConfigurationService;
 import org.edgegallery.developer.service.application.container.ContainerAppHelmChartService;
@@ -52,7 +51,6 @@ import org.edgegallery.developer.util.ImageConfig;
 import org.edgegallery.developer.util.InitConfigUtil;
 import org.edgegallery.developer.util.helmcharts.IContainerFileHandler;
 import org.edgegallery.developer.util.helmcharts.LoadContainerFileFactory;
-import org.edgegallery.developer.util.helmcharts.LoadK8sYamlHandlerImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -98,12 +96,9 @@ public class ContainerAppHelmChartServiceImpl implements ContainerAppHelmChartSe
         }
         // use the first fileName to be the dir name and package name.
         File firstFile = new File(filePaths[0]);
-        try {
-            IContainerFileHandler containerFileHandler = LoadContainerFileFactory.createLoader(firstFile.getName());
+        try (IContainerFileHandler containerFileHandler = LoadContainerFileFactory.createLoader(firstFile.getName())) {
             assert containerFileHandler != null;
-            if (containerFileHandler instanceof LoadK8sYamlHandlerImpl) {
-                ((LoadK8sYamlHandlerImpl) containerFileHandler).setImageConfig(imageConfig);
-            }
+            containerFileHandler.setImageConfig(imageConfig);
             containerFileHandler.load(filePaths);
 
             // default dependency mep service.
@@ -344,9 +339,8 @@ public class ContainerAppHelmChartServiceImpl implements ContainerAppHelmChartSe
         checkUploadFileExist(uploadFile, helmChartFileId);
         File helmChartFile = new File(InitConfigUtil.getWorkSpaceBaseDir() + uploadFile.getFilePath());
         checkHelmFileExist(helmChartFile, helmChartFileId);
-        try {
-            String helmPath = helmChartFile.getCanonicalPath();
-            IContainerFileHandler containerFileHandler = LoadContainerFileFactory.createLoader(helmPath);
+        String helmPath = helmChartFile.getPath();
+        try (IContainerFileHandler containerFileHandler = LoadContainerFileFactory.createLoader(helmPath)){
             assert containerFileHandler != null;
             containerFileHandler.load(helmPath);
             content = containerFileHandler.getContentByInnerPath(filePath);
@@ -398,9 +392,8 @@ public class ContainerAppHelmChartServiceImpl implements ContainerAppHelmChartSe
         checkUploadFileExist(uploadFile, helmChartFileId);
         File helmChartFile = new File(InitConfigUtil.getWorkSpaceBaseDir() + uploadFile.getFilePath());
         checkHelmFileExist(helmChartFile, helmChartFileId);
-        try {
-            IContainerFileHandler containerFileHandler = LoadContainerFileFactory
-                .createLoader(helmChartFile.getCanonicalPath());
+        try (IContainerFileHandler containerFileHandler = LoadContainerFileFactory
+            .createLoader(helmChartFile.getName())){
             assert containerFileHandler != null;
             containerFileHandler.load(helmChartFile.getCanonicalPath());
             ret = containerFileHandler.modifyFileByPath(contentDto.getInnerFilePath(), contentDto.getContent());

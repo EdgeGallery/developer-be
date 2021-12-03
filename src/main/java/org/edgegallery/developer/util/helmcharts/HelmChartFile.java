@@ -24,8 +24,6 @@ import lombok.Setter;
 @Builder
 public class HelmChartFile {
 
-    private int index;
-
     private String name;
 
     private String innerPath;
@@ -33,4 +31,6 @@ public class HelmChartFile {
     private boolean isFile;
 
     private List<HelmChartFile> children;
+
+    private transient String content;
 }
