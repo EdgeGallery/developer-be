@@ -42,6 +42,6 @@ public interface ContainersImageMapper {
     int updateContainerImageType(@Param("imageId") String imageId, @Param("userId") String userId,
         @Param("imageType") String imageType);
 
-    int updateContainerImage(@Param("oldImageId") String imageId, ContainerImage containerImage);
+    int updateContainerImage(@Param("oldImageId") String imageId, @Param("containerImage") ContainerImage containerImage);
 
 }
