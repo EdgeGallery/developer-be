@@ -129,7 +129,7 @@
         where image_id=#{imageId} and user_id =#{userId}
     </update>
 
-    <update id="updateContainerImage" parameterType="org.edgegallery.developer.model.resource.container.ContainerImage">
+    <update id="updateContainerImage">
         update tbl_container_image
         set
         image_name=#{containerImage.imageName},image_version=#{containerImage.imageVersion},user_id=#{containerImage.userId},
