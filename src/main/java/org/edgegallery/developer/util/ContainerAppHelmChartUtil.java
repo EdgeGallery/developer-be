@@ -85,7 +85,6 @@ public final class ContainerAppHelmChartUtil {
      * @return
      */
     public static boolean checkServiceExist(String helmChartsPackagePath) {
-        boolean isExist = false;
         try (IContainerFileHandler containerFileHandler = LoadContainerFileFactory
             .createLoader(helmChartsPackagePath)) {
             assert containerFileHandler != null;
@@ -95,14 +94,14 @@ public final class ContainerAppHelmChartUtil {
                 List<Object> k8sList = containerFileHandler.getK8sTemplateObject(k8sTemplate);
                 for (Object obj : k8sList) {
                     if (obj instanceof V1Service) {
-                        isExist = true;
+                        return true;
                     }
                 }
             }
         } catch (IOException e) {
             LOGGER.error("Failed to load file. file={}", helmChartsPackagePath);
         }
-        return isExist;
+        return false;
     }
 
     /**
