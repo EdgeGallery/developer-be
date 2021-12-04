@@ -19,11 +19,8 @@ package org.edgegallery.developer.util;
 import io.kubernetes.client.openapi.models.V1Service;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.UUID;
 import org.edgegallery.developer.common.Consts;
-import org.edgegallery.developer.util.helmcharts.HelmChartFile;
 import org.edgegallery.developer.util.helmcharts.IContainerFileHandler;
 import org.edgegallery.developer.util.helmcharts.LoadContainerFileFactory;
 import org.edgegallery.developer.util.helmcharts.k8sObject.EnumKubernetesObject;
@@ -63,14 +60,11 @@ public final class ContainerAppHelmChartUtil {
             .createLoader(helmChartsPackagePath)) {
             assert containerFileHandler != null;
             containerFileHandler.load(helmChartsPackagePath);
-            List<HelmChartFile> k8sTemplates = containerFileHandler.getTemplatesFile();
-            for (HelmChartFile k8sTemplate : k8sTemplates) {
-                List<Object> k8sList = containerFileHandler.getK8sTemplateObject(k8sTemplate);
-                for (Object obj : k8sList) {
-                    IContainerImage containerImage = EnumKubernetesObject.of(obj);
-                    List<String> podImages = containerImage.getImages();
-                    images.addAll(podImages);
-                }
+            List<Object> k8sList = containerFileHandler.getAllK8sObject();
+            for (Object obj : k8sList) {
+                IContainerImage containerImage = EnumKubernetesObject.of(obj);
+                List<String> podImages = containerImage.getImages();
+                images.addAll(podImages);
             }
         } catch (IOException e) {
             LOGGER.error("Failed to load file. file={}", helmChartsPackagePath);
@@ -89,13 +83,10 @@ public final class ContainerAppHelmChartUtil {
             .createLoader(helmChartsPackagePath)) {
             assert containerFileHandler != null;
             containerFileHandler.load(helmChartsPackagePath);
-            List<HelmChartFile> k8sTemplates = containerFileHandler.getTemplatesFile();
-            for (HelmChartFile k8sTemplate : k8sTemplates) {
-                List<Object> k8sList = containerFileHandler.getK8sTemplateObject(k8sTemplate);
-                for (Object obj : k8sList) {
-                    if (obj instanceof V1Service) {
-                        return true;
-                    }
+            List<Object> k8sList = containerFileHandler.getAllK8sObject();
+            for (Object obj : k8sList) {
+                if (obj instanceof V1Service) {
+                    return true;
                 }
             }
         } catch (IOException e) {
