@@ -106,37 +106,21 @@ public class ContainerAppHelmChartServiceImpl implements ContainerAppHelmChartSe
             LOGGER.info("helmChartsPackagePath:{}", helmChartsPackagePath);
 
             String fileId = UUID.randomUUID().toString();
-            String helmChartsName = new File(helmChartsPackagePath).getName();
+            String helmChartFileName = new File(helmChartsPackagePath).getName();
             // use the first fileName to create the dir
-            moveFileToWorkSpace(helmChartsPackagePath, fileId, helmChartsName);
+            moveFileToWorkSpace(helmChartsPackagePath, fileId, helmChartFileName);
 
             //save fileId
-            saveFileRecord(fileId, helmChartsName);
+            saveFileRecord(fileId, helmChartFileName);
 
-            String tgzPath = InitConfigUtil.getWorkSpaceBaseDir() + BusinessConfigUtil.getUploadfilesPath() + fileId
-                + File.separator + helmChartsName;
-            LOGGER.info("tgzPath:{}", tgzPath);
-
-            //get image
-            List<String> imageList = ContainerAppHelmChartUtil.getImageFromHelmFile(tgzPath);
-            if (CollectionUtils.isEmpty(imageList)) {
-                LOGGER.error("No image information was found in the yaml file under the template folder!");
-                throw new HarborException("no images found from tgz file!",
-                    ResponseConsts.RET_GET_HARBOR_IMAGE_LIST_FAIL);
-            }
-            // verify image exist
-            boolean ret = ContainerAppHelmChartUtil.checkImageExist(imageList);
-            if (!ret) {
-                LOGGER.error("The image information in yaml file is not found in harbor repo!");
-                throw new HarborException("some images are not found in harbor repo!",
-                    ResponseConsts.RET_GET_HARBOR_IMAGE_LIST_FAIL);
-            }
+            //check helm chart file format
+            checkHelmFileFormat(fileId, helmChartFileName);
 
             // create a file id, and update
             HelmChart helmChart = new HelmChart();
             helmChart.setId(UUID.randomUUID().toString());
             helmChart.setHelmChartFileId(fileId);
-            helmChart.setName(helmChartsName);
+            helmChart.setName(helmChartFileName);
             helmChart.setApplicationId(applicationId);
             helmChart.setHelmChartFileList(containerFileHandler.getCatalog());
             helmChart.setCreateTime(new Date());
@@ -152,6 +136,34 @@ public class ContainerAppHelmChartServiceImpl implements ContainerAppHelmChartSe
             LOGGER.error("Failed to read the helmchart file. msg:{}", e.getMessage());
             return null;
         }
+    }
+
+    private void checkHelmFileFormat(String fileId, String helmChartFileName) {
+        String tgzPath = InitConfigUtil.getWorkSpaceBaseDir() + BusinessConfigUtil.getUploadfilesPath() + fileId
+            + File.separator + helmChartFileName;
+        LOGGER.info("tgzPath:{}", tgzPath);
+
+        //check image
+        List<String> imageList = ContainerAppHelmChartUtil.getImageFromHelmFile(tgzPath);
+        if (CollectionUtils.isEmpty(imageList)) {
+            String errMsg = "Image info not found in deployment yaml!";
+            LOGGER.error(errMsg);
+            throw new FileOperateException(errMsg, ResponseConsts.RET_FILE_FORMAT_ERROR);
+        }
+        //check service
+        if (imageList.size() == 1 && imageList.get(0).equals("no-svc-found")) {
+            String errMsg = "Service info not found in deployment yaml!";
+            LOGGER.error(errMsg);
+            throw new FileOperateException(errMsg, ResponseConsts.RET_FILE_FORMAT_ERROR);
+        }
+        // verify image exist
+        boolean ret = ContainerAppHelmChartUtil.checkImageExist(imageList);
+        if (!ret) {
+            String errMsg = "some images are not found in harbor repo!";
+            LOGGER.error(errMsg);
+            throw new HarborException(errMsg, ResponseConsts.RET_GET_HARBOR_IMAGE_LIST_FAIL);
+        }
+
     }
 
     private boolean verifyFileType(String[] filePaths) {
@@ -339,7 +351,7 @@ public class ContainerAppHelmChartServiceImpl implements ContainerAppHelmChartSe
         File helmChartFile = new File(InitConfigUtil.getWorkSpaceBaseDir() + uploadFile.getFilePath());
         checkHelmFileExist(helmChartFile, helmChartFileId);
         String helmPath = helmChartFile.getPath();
-        try (IContainerFileHandler containerFileHandler = LoadContainerFileFactory.createLoader(helmPath)){
+        try (IContainerFileHandler containerFileHandler = LoadContainerFileFactory.createLoader(helmPath)) {
             assert containerFileHandler != null;
             containerFileHandler.load(helmPath);
             content = containerFileHandler.getContentByInnerPath(filePath);
@@ -392,7 +404,7 @@ public class ContainerAppHelmChartServiceImpl implements ContainerAppHelmChartSe
         File helmChartFile = new File(InitConfigUtil.getWorkSpaceBaseDir() + uploadFile.getFilePath());
         checkHelmFileExist(helmChartFile, helmChartFileId);
         try (IContainerFileHandler containerFileHandler = LoadContainerFileFactory
-            .createLoader(helmChartFile.getName())){
+            .createLoader(helmChartFile.getName())) {
             assert containerFileHandler != null;
             containerFileHandler.load(helmChartFile.getCanonicalPath());
             ret = containerFileHandler.modifyFileByPath(contentDto.getInnerFilePath(), contentDto.getContent());

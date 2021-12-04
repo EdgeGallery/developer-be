@@ -16,10 +16,16 @@
 
 package org.edgegallery.developer.util;
 
+import io.kubernetes.client.openapi.models.V1Deployment;
+import io.kubernetes.client.openapi.models.V1Pod;
+import io.kubernetes.client.openapi.models.V1Service;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.edgegallery.developer.common.Consts;
 import org.edgegallery.developer.util.helmcharts.HelmChartFile;
 import org.edgegallery.developer.util.helmcharts.IContainerFileHandler;
@@ -73,6 +79,12 @@ public final class ContainerAppHelmChartUtil {
                     return Collections.emptyList();
                 }
                 for (Object obj : k8sList) {
+                    if(obj instanceof V1Pod || obj instanceof V1Deployment){
+                         if(!k8sTemplate.getContent().contains("kind: Service")){
+                             LOGGER.error("No service was found in the yaml file {}!", k8sTemplate.getInnerPath());
+                             return Stream.of("no-svc-found").collect(Collectors.toList());
+                         }
+                    }
                     IContainerImage containerImage = EnumKubernetesObject.of(obj);
                     List<String> podImages = containerImage.getImages();
                     images.addAll(podImages);
