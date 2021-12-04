@@ -33,7 +33,7 @@ public class WebSshData {
 
     private String userId;
 
-    private String projectId;
+    private String applicationId;
 
     public String getUserId() {
         return userId;
@@ -43,12 +43,12 @@ public class WebSshData {
         this.userId = userId;
     }
 
-    public String getProjectId() {
-        return projectId;
+    public String getApplicationId() {
+        return applicationId;
     }
 
-    public void setProjectId(String projectId) {
-        this.projectId = projectId;
+    public void setApplicationId(String applicationId) {
+        this.applicationId = applicationId;
     }
 
     public String getOperate() {
