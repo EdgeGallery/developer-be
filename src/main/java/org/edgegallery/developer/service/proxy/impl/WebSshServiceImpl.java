@@ -230,7 +230,7 @@ public class WebSshServiceImpl implements WebSshService {
             String namespace = "";
             for (String event : eventsArr) {
                 if (event.contains("assigned")) {
-                    String[] events = event.split(" ");
+                    String[] events = event.split("\\s+");
                     String[] names = events[2].split("/");
                     namespace = names[0];
                     hostName = events[events.length - 1];
