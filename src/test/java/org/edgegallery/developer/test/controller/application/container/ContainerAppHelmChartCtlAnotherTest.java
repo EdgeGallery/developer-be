@@ -65,13 +65,42 @@ public class ContainerAppHelmChartCtlAnotherTest {
     @Test
     @WithMockUser(roles = "DEVELOPER_ADMIN")
     public void testUploadHelmChartFile1Success() throws Exception {
-        String url = String.format("/mec/developer/v2/applications/%s/helmcharts", UUID.randomUUID().toString());
+        String url = String.format("/mec/developer/v2/applications/%s/helmcharts", "6a75a2bd-9811-432f-bbe8-2813aa97d365");
         File file = Resources.getResourceAsFile("testdata/helmcharts/bonita.yaml");
         MvcResult mvcResult = mvc.perform(MockMvcRequestBuilders.multipart(url).file(
             new MockMultipartFile("file", "bonita.yaml", MediaType.TEXT_PLAIN_VALUE, FileUtils.openInputStream(file)))
             .with(csrf())).andReturn();
         Assert.assertEquals(200, mvcResult.getResponse().getStatus());
 
+    }
+
+    @Test
+    @WithMockUser(roles = "DEVELOPER_ADMIN")
+    public void testUploadHelmChartFileBad() {
+        try {
+            String url = String.format("/mec/developer/v2/applications/%s/helmcharts", UUID.randomUUID().toString());
+            File file = Resources.getResourceAsFile("testdata/helmcharts/bonita-no-image.yaml");
+            MvcResult mvcResult = mvc.perform(MockMvcRequestBuilders.multipart(url).file(
+                new MockMultipartFile("file", "bonita-no-image.yaml", MediaType.TEXT_PLAIN_VALUE,
+                    FileUtils.openInputStream(file))).with(csrf())).andReturn();
+        } catch (Exception e) {
+            Assert.assertEquals("Image info not found in deployment yaml!", e.getMessage());
+        }
+
+    }
+
+    @Test
+    @WithMockUser(roles = "DEVELOPER_ADMIN")
+    public void testUploadHelmChartFileBad2() {
+        try {
+            String url = String.format("/mec/developer/v2/applications/%s/helmcharts", UUID.randomUUID().toString());
+            File file = Resources.getResourceAsFile("testdata/helmcharts/bonita-no-service.yaml");
+            MvcResult mvcResult = mvc.perform(MockMvcRequestBuilders.multipart(url).file(
+                new MockMultipartFile("file", "bonita-no-service.yaml", MediaType.TEXT_PLAIN_VALUE,
+                    FileUtils.openInputStream(file))).with(csrf())).andReturn();
+        } catch (Exception e) {
+            Assert.assertEquals("Service info not found in deployment yaml!", e.getMessage());
+        }
     }
 
 }

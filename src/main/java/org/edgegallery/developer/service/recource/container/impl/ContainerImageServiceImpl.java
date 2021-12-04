@@ -489,9 +489,9 @@ public class ContainerImageServiceImpl implements ContainerImageService {
 
     private boolean pushImageToRepo(File imageFile, String rootDir, String inputImageId, String fileName)
         throws IOException {
-        //create repo by current user id
-        String projectName = getNeededProName(AccessUserUtil.getUser().getUserName());
-        // judge user private harbor repo is exist
+        //create repo
+        String projectName = devRepoProject;
+        // judge  harbor repo is exist
         boolean isExist = ContainerImageUtil.isExist(projectName);
         if (!isExist) {
             boolean createRes = ContainerImageUtil.createHarborRepo(projectName);
@@ -530,16 +530,6 @@ public class ContainerImageServiceImpl implements ContainerImageService {
             return false;
         }
         return true;
-    }
-
-    private String getNeededProName(String userName) {
-        String projectName = "";
-        if (SystemImageUtil.isAdminUser()) {
-            projectName = devRepoProject;
-        } else {
-            projectName = userName.replaceAll(Consts.PATTERN, "").toLowerCase();
-        }
-        return projectName;
     }
 
     private boolean createImage(String repoTags, String inputImageId, String fileName, String projectName) {
