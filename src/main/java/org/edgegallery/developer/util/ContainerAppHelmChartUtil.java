@@ -79,13 +79,13 @@ public final class ContainerAppHelmChartUtil {
     }
 
     /**
-     * get service  form tgz file.
+     * check service exist.
      *
      * @param helmChartsPackagePath helmChartsPackagePath
      * @return
      */
-    public static List<String> getServicesFromHelmFile(String helmChartsPackagePath) {
-        List<String> services = new ArrayList<>();
+    public static boolean checkServiceExist(String helmChartsPackagePath) {
+        boolean isExist = false;
         try (IContainerFileHandler containerFileHandler = LoadContainerFileFactory
             .createLoader(helmChartsPackagePath)) {
             assert containerFileHandler != null;
@@ -95,14 +95,14 @@ public final class ContainerAppHelmChartUtil {
                 List<Object> k8sList = containerFileHandler.getK8sTemplateObject(k8sTemplate);
                 for (Object obj : k8sList) {
                     if (obj instanceof V1Service) {
-                        services.add(UUID.randomUUID().toString());
+                        isExist = true;
                     }
                 }
             }
         } catch (IOException e) {
             LOGGER.error("Failed to load file. file={}", helmChartsPackagePath);
         }
-        return services;
+        return isExist;
     }
 
     /**

@@ -70,11 +70,9 @@ public class ContainerAppHelmChartServiceTest {
             }
 
             @Mock
-            public List<String> getServicesFromHelmFile(String helmChartsPackagePath) {
+            public boolean checkServiceExist(String helmChartsPackagePath) {
                 {
-                    List<String> list = new ArrayList<>();
-                    list.add("1/2/3:4");
-                    return list;
+                    return true;
                 }
             }
 

@@ -151,8 +151,8 @@ public class ContainerAppHelmChartServiceImpl implements ContainerAppHelmChartSe
             throw new FileOperateException(errMsg, ResponseConsts.RET_FILE_FORMAT_ERROR);
         }
         //check service
-        List<String> serviceList = ContainerAppHelmChartUtil.getServicesFromHelmFile(tgzPath);
-        if (CollectionUtils.isEmpty(serviceList)) {
+        boolean isExist = ContainerAppHelmChartUtil.checkServiceExist(tgzPath);
+        if (!isExist) {
             String errMsg = "Service info not found in deployment yaml!";
             LOGGER.error(errMsg);
             throw new FileOperateException(errMsg, ResponseConsts.RET_FILE_FORMAT_ERROR);
