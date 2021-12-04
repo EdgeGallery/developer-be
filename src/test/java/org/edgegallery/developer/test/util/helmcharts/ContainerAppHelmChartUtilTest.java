@@ -29,7 +29,7 @@ public class ContainerAppHelmChartUtilTest {
     public void should_successfully_when_get_images_from_tgz() throws IOException {
         for (int i = 0; i < 1; i++) {
             File demo = Resources.getResourceAsFile("testdata/helmcharts/namespacetest.tgz");
-            List<String> images = ContainerAppHelmChartUtil.getK8sResourcesFromHelmFile(demo.getCanonicalPath(),"Image");
+            List<String> images = ContainerAppHelmChartUtil.getImagesFromHelmFile(demo.getCanonicalPath());
             Assert.assertTrue(images.size() > 0);
         }
     }

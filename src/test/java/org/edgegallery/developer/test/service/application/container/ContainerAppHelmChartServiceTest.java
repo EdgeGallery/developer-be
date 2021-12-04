@@ -61,7 +61,16 @@ public class ContainerAppHelmChartServiceTest {
 
         new MockUp<ContainerAppHelmChartUtil>() {
             @Mock
-            public List<String> getImageFromHelmFile(String helmChartsPackagePath) {
+            public List<String> getImagesFromHelmFile(String helmChartsPackagePath) {
+                {
+                    List<String> list = new ArrayList<>();
+                    list.add("1/2/3:4");
+                    return list;
+                }
+            }
+
+            @Mock
+            public List<String> getServicesFromHelmFile(String helmChartsPackagePath) {
                 {
                     List<String> list = new ArrayList<>();
                     list.add("1/2/3:4");

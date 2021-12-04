@@ -52,50 +52,57 @@ public final class ContainerAppHelmChartUtil {
     }
 
     /**
-     * get K8s resources form tgz file.
+     * get image form tgz file.
      *
      * @param helmChartsPackagePath helmChartsPackagePath
-     * @param resourceType Image or Service
      * @return
      */
-    public static List<String> getK8sResourcesFromHelmFile(String helmChartsPackagePath, String resourceType) {
+    public static List<String> getImagesFromHelmFile(String helmChartsPackagePath) {
+        List<String> images = new ArrayList<>();
         try (IContainerFileHandler containerFileHandler = LoadContainerFileFactory
             .createLoader(helmChartsPackagePath)) {
             assert containerFileHandler != null;
             containerFileHandler.load(helmChartsPackagePath);
             List<HelmChartFile> k8sTemplates = containerFileHandler.getTemplatesFile();
-            if (CollectionUtils.isEmpty(k8sTemplates)) {
-                LOGGER.error("There are no files in the template folder!");
-                return Collections.emptyList();
-            }
-            List<String> svcList = new ArrayList<>();
-            List<String> images = new ArrayList<>();
             for (HelmChartFile k8sTemplate : k8sTemplates) {
                 List<Object> k8sList = containerFileHandler.getK8sTemplateObject(k8sTemplate);
-                if (CollectionUtils.isEmpty(k8sList)) {
-                    LOGGER.error("No content was found in the yaml file {}!", k8sTemplate.getInnerPath());
-                    return Collections.emptyList();
-                }
                 for (Object obj : k8sList) {
-                    if (obj instanceof V1Service) {
-                        svcList.add(UUID.randomUUID().toString());
-                    }
                     IContainerImage containerImage = EnumKubernetesObject.of(obj);
                     List<String> podImages = containerImage.getImages();
                     images.addAll(podImages);
                 }
             }
-            if (resourceType.equals("Service") && !CollectionUtils.isEmpty(svcList)) {
-                return svcList;
-            }
-            if (resourceType.equals("Image") && !CollectionUtils.isEmpty(images)) {
-                return images;
-            }
-            return Collections.emptyList();
         } catch (IOException e) {
             LOGGER.error("Failed to load file. file={}", helmChartsPackagePath);
         }
-        return Collections.emptyList();
+        return images;
+    }
+
+    /**
+     * get service  form tgz file.
+     *
+     * @param helmChartsPackagePath helmChartsPackagePath
+     * @return
+     */
+    public static List<String> getServicesFromHelmFile(String helmChartsPackagePath) {
+        List<String> services = new ArrayList<>();
+        try (IContainerFileHandler containerFileHandler = LoadContainerFileFactory
+            .createLoader(helmChartsPackagePath)) {
+            assert containerFileHandler != null;
+            containerFileHandler.load(helmChartsPackagePath);
+            List<HelmChartFile> k8sTemplates = containerFileHandler.getTemplatesFile();
+            for (HelmChartFile k8sTemplate : k8sTemplates) {
+                List<Object> k8sList = containerFileHandler.getK8sTemplateObject(k8sTemplate);
+                for (Object obj : k8sList) {
+                    if (obj instanceof V1Service) {
+                        services.add(UUID.randomUUID().toString());
+                    }
+                }
+            }
+        } catch (IOException e) {
+            LOGGER.error("Failed to load file. file={}", helmChartsPackagePath);
+        }
+        return services;
     }
 
     /**
