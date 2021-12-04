@@ -223,7 +223,7 @@ public abstract class AbstractReadHelmChartsFileHandler extends AbstractDefaultF
     public List<HelmChartFile> getTemplatesFile() {
         List<HelmChartFile> files = this.getCatalog();
         if (files.isEmpty()) {
-            return null;
+            return Collections.emptyList();
         }
         List<HelmChartFile> result = new ArrayList<>();
         for (Map.Entry<String, HelmChartFile> entry : this.catalogToMap(files, new HashMap<>()).entrySet()) {
