@@ -38,8 +38,6 @@ import java.util.concurrent.Executors;
 import org.apache.commons.lang3.StringUtils;
 import org.edgegallery.developer.model.application.Application;
 import org.edgegallery.developer.model.application.EnumAppClass;
-import org.edgegallery.developer.model.application.container.ContainerApplication;
-import org.edgegallery.developer.model.instantiate.container.ContainerAppInstantiateInfo;
 import org.edgegallery.developer.model.instantiate.container.K8sPod;
 import org.edgegallery.developer.model.resource.mephost.MepHost;
 import org.edgegallery.developer.model.reverseproxy.SshConnectInfo;
@@ -212,13 +210,13 @@ public class WebSshServiceImpl implements WebSshService {
         sshConnectInfo.setChannel(channel);
         String hostName = "";
         if (application.getAppClass() == EnumAppClass.CONTAINER) {
-            List<K8sPod> pods = applicationService.getApplicationDetail(applicationId)
-                .getContainerApp().getInstantiateInfo().getPods();
+            List<K8sPod> pods = applicationService.getApplicationDetail(applicationId).getContainerApp()
+                .getInstantiateInfo().getPods();
             if (CollectionUtils.isEmpty(pods)) {
                 logger.error("no pods info!");
                 return;
             }
-           String podName =  pods.get(0).getName();
+            String podName = pods.get(0).getName();
             if (StringUtils.isEmpty(podName)) {
                 logger.error("podName in pods is empty!");
                 return;
@@ -228,7 +226,7 @@ public class WebSshServiceImpl implements WebSshService {
                 logger.error("eventsInfo in pods is empty!");
                 return;
             }
-            String[] eventsArr = eventsInfo.substring(0,eventsInfo.lastIndexOf("]")).split(",");
+            String[] eventsArr = eventsInfo.substring(0, eventsInfo.lastIndexOf("]")).split(",");
             String namespace = "";
             for (String event : eventsArr) {
                 if (event.contains("assigned")) {
@@ -277,7 +275,7 @@ public class WebSshServiceImpl implements WebSshService {
                 }
             }
 
-        }else {
+        } else {
             //Forward message
             transToSsh(channel, "\r");
             //Read the information flow returned by the terminal
