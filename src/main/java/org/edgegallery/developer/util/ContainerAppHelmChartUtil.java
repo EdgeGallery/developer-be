@@ -24,7 +24,6 @@ import org.edgegallery.developer.common.Consts;
 import org.edgegallery.developer.util.helmcharts.IContainerFileHandler;
 import org.edgegallery.developer.util.helmcharts.LoadContainerFileFactory;
 import org.edgegallery.developer.util.helmcharts.k8sObject.EnumKubernetesObject;
-import org.edgegallery.developer.util.helmcharts.k8sObject.IContainerImage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpEntity;
@@ -60,12 +59,8 @@ public final class ContainerAppHelmChartUtil {
             .createLoader(helmChartsPackagePath)) {
             assert containerFileHandler != null;
             containerFileHandler.load(helmChartsPackagePath);
-            List<Object> k8sList = containerFileHandler.getAllK8sObject();
-            for (Object obj : k8sList) {
-                IContainerImage containerImage = EnumKubernetesObject.of(obj);
-                List<String> podImages = containerImage.getImages();
-                images.addAll(podImages);
-            }
+            containerFileHandler.getAllK8sObject()
+                .forEach(item -> images.addAll(EnumKubernetesObject.of(item).getImages()));
         } catch (IOException e) {
             LOGGER.error("Failed to load file. file={}", helmChartsPackagePath);
         }
@@ -83,12 +78,7 @@ public final class ContainerAppHelmChartUtil {
             .createLoader(helmChartsPackagePath)) {
             assert containerFileHandler != null;
             containerFileHandler.load(helmChartsPackagePath);
-            List<Object> k8sList = containerFileHandler.getAllK8sObject();
-            for (Object obj : k8sList) {
-                if (obj instanceof V1Service) {
-                    return true;
-                }
-            }
+            return containerFileHandler.getAllK8sObject().stream().anyMatch(item -> item instanceof V1Service);
         } catch (IOException e) {
             LOGGER.error("Failed to load file. file={}", helmChartsPackagePath);
         }
