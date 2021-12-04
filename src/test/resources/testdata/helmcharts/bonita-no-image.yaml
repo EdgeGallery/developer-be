@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: bonita-svc
+  namespace: default
+  labels:
+    svc: bonita-svc
+spec:
+  type: NodePort
+  ports:
+    - port: 8080
+      name: function1
+      targetPort: 8080
+      protocol: TCP
+      nodePort: 32703
+  selector:
+    app: bonita

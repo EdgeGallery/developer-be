@@ -144,14 +144,15 @@ public class ContainerAppHelmChartServiceImpl implements ContainerAppHelmChartSe
         LOGGER.info("tgzPath:{}", tgzPath);
 
         //check image
-        List<String> imageList = ContainerAppHelmChartUtil.getImageFromHelmFile(tgzPath);
+        List<String> imageList = ContainerAppHelmChartUtil.getK8sResourcesFromHelmFile(tgzPath,"Image");
         if (CollectionUtils.isEmpty(imageList)) {
             String errMsg = "Image info not found in deployment yaml!";
             LOGGER.error(errMsg);
             throw new FileOperateException(errMsg, ResponseConsts.RET_FILE_FORMAT_ERROR);
         }
         //check service
-        if (imageList.size() == 1 && imageList.get(0).equals("no-svc-found")) {
+        List<String> serviceList = ContainerAppHelmChartUtil.getK8sResourcesFromHelmFile(tgzPath,"Service");
+        if (CollectionUtils.isEmpty(serviceList)) {
             String errMsg = "Service info not found in deployment yaml!";
             LOGGER.error(errMsg);
             throw new FileOperateException(errMsg, ResponseConsts.RET_FILE_FORMAT_ERROR);
