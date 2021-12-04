@@ -116,4 +116,12 @@ public class HelmChartsFileTest {
         Assert.assertTrue(map.containsKey("appconfig"));
         Assert.assertTrue(map.containsKey("replicaCount"));
     }
+
+    @Test
+    public void should_successfully_when_get_all_k8s_objects() throws IOException {
+        File demo1 = Resources.getResourceAsFile("testdata/helmcharts/namespacetest.tgz");
+        handler.load(demo1.getCanonicalPath());
+        List<Object> objects = handler.getAllK8sObject();
+        Assert.assertEquals(7, objects.size());
+    }
 }
