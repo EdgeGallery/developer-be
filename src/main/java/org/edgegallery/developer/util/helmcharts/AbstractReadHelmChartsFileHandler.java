@@ -70,7 +70,16 @@ public abstract class AbstractReadHelmChartsFileHandler extends AbstractDefaultF
         } catch (IOException e) {
             LOGGER.error("yaml file {} Failed to parse k8s file.{}", innerFile.getInnerPath(), e.getMessage());
         }
-        return null;
+        return Collections.emptyList();
+    }
+
+    public List<Object> getAllK8sObject() {
+        List<Object> k8sObjects = new ArrayList<>();
+        List<HelmChartFile> k8sTemplates = this.getTemplatesFile();
+        for (HelmChartFile k8sTemplate : k8sTemplates) {
+            k8sObjects.addAll(this.getK8sTemplateObject(k8sTemplate));
+        }
+        return k8sObjects;
     }
 
     HelmChartFile getValuesYaml() {
@@ -214,7 +223,7 @@ public abstract class AbstractReadHelmChartsFileHandler extends AbstractDefaultF
     public List<HelmChartFile> getTemplatesFile() {
         List<HelmChartFile> files = this.getCatalog();
         if (files.isEmpty()) {
-            return null;
+            return Collections.emptyList();
         }
         List<HelmChartFile> result = new ArrayList<>();
         for (Map.Entry<String, HelmChartFile> entry : this.catalogToMap(files, new HashMap<>()).entrySet()) {

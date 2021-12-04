@@ -48,6 +48,9 @@ public interface IContainerFileHandler extends Closeable {
     // parse the k8s file by kubernetes-client. If the file contains value-params, maybe need
     List<Object> getK8sTemplateObject(HelmChartFile innerFile);
 
+    // get all of k8s-objects in the helm-charts.
+    List<Object> getAllK8sObject();
+
     // clean the temp dir and data.
     void clean();
 
