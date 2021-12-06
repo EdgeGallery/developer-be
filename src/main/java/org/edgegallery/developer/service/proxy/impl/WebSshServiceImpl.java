@@ -129,7 +129,7 @@ public class WebSshServiceImpl implements WebSshService {
                 public void run() {
                     try {
                         connectToSsh(sshConnectInfo, finalWebSshData, session);
-                    } catch (JSchException | IOException e) {
+                    } catch (JSchException | IOException | InterruptedException e) {
                         logger.error("webssh连接异常");
                         logger.error("异常信息:{}", e.getMessage());
                         close(session);
@@ -174,7 +174,7 @@ public class WebSshServiceImpl implements WebSshService {
     }
 
     private void connectToSsh(SshConnectInfo sshConnectInfo, WebSshData webSshData, WebSocketSession webSocketSession)
-        throws JSchException, IOException {
+        throws JSchException, IOException, InterruptedException {
 
         Properties config = new Properties();
         config.put("StrictHostKeyChecking", "no");
@@ -249,6 +249,7 @@ public class WebSshServiceImpl implements WebSshService {
             }
             String enterPodCommand = "kubectl exec -it " + podName + " -n " + namespace + " -- sh";
             transToSsh(channel, "\r");
+            Thread.sleep(2000);
             transToSsh(channel, enterPodCommand);
             transToSsh(channel, "\r");
             //Read the information flow returned by the terminal
