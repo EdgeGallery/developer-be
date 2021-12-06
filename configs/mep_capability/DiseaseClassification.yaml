@@ -1,0 +1,41 @@
+swagger: '2.0'
+info:
+  version: '1.0'
+  title: Plant Disease Identification
+  description: Identify which disease of plant is in the input image and can identify totally 38 diseases.
+host: 192.168.1.57:3000
+schemes:
+- http
+paths:
+  /infer:
+    post:
+      tags:
+      - diseaseIdentify
+      description: Upload one image which needs to be identified
+      operationId: diseaseIdentifyPOST
+      produces:
+      - application/json
+      consumes:
+      - multipart/form-data
+      parameters:
+      - name: pictureFile
+        in: formData
+        required: true
+        type: file
+        format: file
+        description: Image need to be identified
+      responses:
+        200:
+          description: 'successful operation'
+          schema:
+            $ref: '#/definitions/Response'
+definitions:
+  Response:
+    type: object
+    properties:
+      res:
+        description: Output type of disease with probility
+        type: string
+      img:
+        description: Input image file name transfered after uploaded
+        type: string
