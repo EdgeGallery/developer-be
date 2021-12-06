@@ -83,6 +83,8 @@ imagelocation:
 
 developer:
   ip: ${DEVELOPER_IP:}
+  protocol: ${HTTP_PROTOCOL:http}
+  cbbport: 30101
 
 upload:
 

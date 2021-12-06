@@ -17,40 +17,32 @@
 package org.edgegallery.developer.model.reverseproxy;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
+@AllArgsConstructor
 @NoArgsConstructor
 @ToString
 @Getter
 @Setter
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ReverseProxy {
-    /**
-     * openstack vnc proxy
-     */
-    public static final int TYPE_OPENSTACK_VNC = 1;
-
-    private String id;
-
-    private String destHostId;
-
+    private String destHostIp;
     private int destHostPort;
+    private int localPort;
+    private String nextHopProtocol;
+    private String nextHopIp;
+    private int nextHopPort;
+    private int hopIndex;
 
-    private int proxyPort;
-
-    /**
-     * Field reserved for future expansion of reverse proxy
-     */
-    private int type;
-
-    public ReverseProxy(String id, String destHostId, int destHostPort, int proxyPort, int type) {
-        this.id = id;
-        this.destHostId = destHostId;
+    public ReverseProxy(String destHostIp, int destHostPort, String nextHopProtocol, String nextHopIp, int hopIndex) {
+        this.destHostIp = destHostIp;
         this.destHostPort = destHostPort;
-        this.proxyPort = proxyPort;
-        this.type = type;
+        this.nextHopProtocol = nextHopProtocol;
+        this.nextHopIp = nextHopIp;
+        this.hopIndex = hopIndex;
     }
 }

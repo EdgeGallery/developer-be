@@ -97,7 +97,7 @@ public class MepHostServiceImpl implements MepHostService {
      */
     @Transactional
     @Override
-    public boolean createHost(MepHost host, User user) {
+    public boolean createHost(MepHost host, User user, String token) {
         MepHost mepHost = mepHostMapper.getHostsByMecHostIp(host.getMecHostIp());
         if (mepHost != null) {
             LOGGER.error("mecHost already exists:{}", host.getMecHostIp());
@@ -117,7 +117,7 @@ public class MepHostServiceImpl implements MepHostService {
         int ret = mepHostMapper.createHost(host);
         if (ret > 0) {
             LOGGER.info("Crete host {} success ", host.getId());
-            reverseProxyService.addReverseProxy(host.getId(), Consts.DEFAULT_OPENSTACK_VNC_PORT);
+            reverseProxyService.addReverseProxy(host.getId(), Consts.DEFAULT_OPENSTACK_VNC_PORT, token);
             return true;
         }
         LOGGER.error("Create host failed!");
@@ -131,8 +131,8 @@ public class MepHostServiceImpl implements MepHostService {
      */
     @Transactional
     @Override
-    public boolean deleteHost(String hostId) {
-        reverseProxyService.deleteReverseProxy(hostId);
+    public boolean deleteHost(String hostId, String token) {
+        reverseProxyService.deleteReverseProxy(hostId, Consts.DEFAULT_OPENSTACK_VNC_PORT, token);
         int res = mepHostMapper.deleteHost(hostId);
         if (res < 1) {
             LOGGER.error("Delete host {} failed", hostId);

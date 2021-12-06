@@ -1,72 +1,60 @@
 package org.edgegallery.developer.service.proxy.impl;
 
 import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
-import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.edgegallery.developer.common.Consts;
 import org.edgegallery.developer.exception.DeveloperException;
 import org.edgegallery.developer.mapper.application.ApplicationMapper;
 import org.edgegallery.developer.mapper.resource.mephost.MepHostMapper;
-import org.edgegallery.developer.mapper.reverseproxy.ReverseProxyMapper;
 import org.edgegallery.developer.model.application.Application;
 import org.edgegallery.developer.model.instantiate.vm.VMInstantiateInfo;
-import org.edgegallery.developer.model.resource.mephost.MepHost;
-import org.edgegallery.developer.model.reverseproxy.ReverseProxy;
 import org.edgegallery.developer.model.lcm.VmInfo;
 import org.edgegallery.developer.model.lcm.VmInstantiateWorkload;
-import org.edgegallery.developer.service.proxy.ReverseProxyService;
+import org.edgegallery.developer.model.resource.mephost.MepHost;
+import org.edgegallery.developer.model.reverseproxy.ReverseProxy;
 import org.edgegallery.developer.service.application.vm.VMAppOperationService;
+import org.edgegallery.developer.service.proxy.ReverseProxyService;
 import org.edgegallery.developer.util.HttpClientUtil;
-import org.edgegallery.developer.util.RuntimeUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StreamUtils;
+import org.springframework.web.client.RestClientException;
+import org.springframework.web.client.RestTemplate;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.lang.reflect.Type;
-import java.nio.charset.Charset;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Service
 public class ReverseProxyServiceImpl implements ReverseProxyService {
     private static final Logger LOGGER = LoggerFactory.getLogger(ReverseProxyService.class);
-
-    private static final String BASE_CONFIG_FILE = "/reverse_proxy/nginx.conf";
-
-    private static final String NGINX_CONFIG_FILE_SUFFIX = ".conf";
-
-    private static final String NGINX_CONFIG_DIR = "/etc/nginx/conf.d/";
-
-    private static final int MIN_REVERSE_PROXY_PORT = 30111;
-
-    private static final int MAX_REVERSE_PROXY_PORT = 30120;
-
-    @Autowired
-    private ReverseProxyMapper reverseProxyMapper;
-
     @Autowired
     private MepHostMapper mepHostMapper;
-
     @Autowired
     private ApplicationMapper applicationMapper;
-
     @Autowired
     private VMAppOperationService vmAppOperationService;
-
     private static Gson gson = new Gson();
-
     @Value("${developer.ip:}")
     private String developerIp;
+    @Value("${developer.protocol:}")
+    private String protocol;
+    @Value("${developer.cbbport:}")
+    private int cbbPort;
+    private String reverseProxyBaseUrl;
+    private RestTemplate restTemplate = new RestTemplate();
+    private Lock lock = new ReentrantLock();
 
     /**
      * add reverse proxy
@@ -74,44 +62,33 @@ public class ReverseProxyServiceImpl implements ReverseProxyService {
      * @param hostConsolePort vnc port
      */
     @Override
-    public void addReverseProxy(String hostId, int hostConsolePort) {
+    public void addReverseProxy(String hostId, int hostConsolePort, String token) {
         MepHost mepHost = mepHostMapper.getHost(hostId);
-        String mepHostIp = mepHost.getMecHostIp();
-        int proxyHostPort = getUsableProxyPort();
+        String mecHostIp = mepHost.getMecHostIp();
+        String lcmIp = mepHost.getLcmIp();
+        String nextHopProtocol = null;
+        String nextHopIp = null;
 
-        // add nginx config first
-        addReverseProxyConfigFile(proxyHostPort, mepHostIp, hostConsolePort);
-        reloadNginxConfig();
-        ReverseProxy reverseProxy = new ReverseProxy(UUID.randomUUID().toString(), hostId,
-                hostConsolePort, proxyHostPort, ReverseProxy.TYPE_OPENSTACK_VNC);
-
-        // if insert data failed, nginx config should be roll back.
-        if (reverseProxyMapper.createReverseProxy(reverseProxy) != 1) {
-            LOGGER.error("failed to insert reverse proxy data, nginx config will be roll back! proxy data : {}",
-                    reverseProxy.toString());
-            deleteReverseProxyConfigFile(proxyHostPort);
-            reloadNginxConfig();
-            throw new DeveloperException("failed to insert reverse proxy data");
+        if (StringUtils.isNotEmpty(lcmIp) && lcmIp.equals(mecHostIp)) {
+            LOGGER.info("mec host ip {} is different with lcm ip {}", mecHostIp, lcmIp);
+            nextHopProtocol = mepHost.getLcmProtocol();
+            nextHopIp = lcmIp;
         }
 
+        ReverseProxy reverseProxy = new ReverseProxy(mecHostIp, hostConsolePort, nextHopProtocol, nextHopIp, 1);
+        sendHttpRequest(getReverseProxyBaseUrl(), token, HttpMethod.POST, reverseProxy);
+        LOGGER.info("succeed in adding reverse proxy, param is: {}", reverseProxy.toString());
     }
 
     @Override
-    public void deleteReverseProxy(String hostId) {
-        List<ReverseProxy> reverseProxyList = reverseProxyMapper.getProxiesByDestHostId(hostId);
-        if (reverseProxyList.isEmpty()) {
-            LOGGER.info("the proxy was already deleted, hostId : {}", hostId);
-            return;
-        }
-
-        // delete database first
-        reverseProxyMapper.deleteProxyByDestHostId(hostId);
-
-        // delete nginx config
-        for (ReverseProxy reverseProxy : reverseProxyList) {
-            deleteReverseProxyConfigFile(reverseProxy.getProxyPort());
-        }
-        reloadNginxConfig();
+    public void deleteReverseProxy(String hostId, int hostConsolePort, String token ) {
+        MepHost mepHost = mepHostMapper.getHost(hostId);
+        String mecHostIp = mepHost.getMecHostIp();
+        String url = new StringBuffer(getReverseProxyBaseUrl()).append("/dest-host-ip/").append(mecHostIp)
+                .append("/dest-host-port/").append(hostConsolePort).toString();
+        sendHttpRequest(url, token, HttpMethod.DELETE, null);
+        LOGGER.info("succeed in deleting reverse proxy, dest host ip is: {}, dest host port is: {}",
+                mecHostIp, hostConsolePort);
     }
 
     @Override
@@ -127,8 +104,7 @@ public class ReverseProxyServiceImpl implements ReverseProxyService {
         String workLoadStatus = HttpClientUtil.getWorkloadStatus(mepHost.getLcmProtocol(), mepHost.getLcmIp(),
                 mepHost.getLcmPort(), instantiateInfo.getAppInstanceId(), userId, token);
         LOGGER.info("get vm workLoad status:{}", workLoadStatus);
-        Type vmInfoType = new TypeToken<VmInstantiateWorkload>() { }.getType();
-        VmInstantiateWorkload vmInstantiateWorkload = gson.fromJson(workLoadStatus, vmInfoType);
+        VmInstantiateWorkload vmInstantiateWorkload = gson.fromJson(workLoadStatus, VmInstantiateWorkload.class);
         if (vmInstantiateWorkload == null || !Consts.HTTP_STATUS_SUCCESS_STR.equals(vmInstantiateWorkload.getCode())) {
             LOGGER.error("failed to get vnc console url, http request error happened.");
             throw new DeveloperException("failed to get vnc console url");
@@ -139,16 +115,30 @@ public class ReverseProxyServiceImpl implements ReverseProxyService {
             LOGGER.error("failed to get vnc console url, http request error happened.");
             throw new DeveloperException("failed to get vnc console url");
         }
-        String vndUrl = vmInfos.get(0).getVncUrl();
+        String vncUrl = vmInfos.get(0).getVncUrl();
+        String url = new StringBuffer(getReverseProxyBaseUrl()).append("/dest-host-ip/").append(mepHost.getMecHostIp())
+                .append("/dest-host-port/").append(Consts.DEFAULT_OPENSTACK_VNC_PORT).toString();
+        String resp = sendHttpRequest(url, token, HttpMethod.GET, null);
+        ReverseProxy reverseProxy = gson.fromJson(resp, ReverseProxy.class);
 
-        List<ReverseProxy> reverseProxyList = reverseProxyMapper.getProxiesByDestHostId(hostId);
-        if (reverseProxyList == null || reverseProxyList.isEmpty()){
-            LOGGER.error("reverse proxy has not been configured. hostId : {}, aplicationId : {}",
-                hostId, applicationId);
-            throw new DeveloperException("reverse proxy has not been configured.");
+        return genProxyUrl(vncUrl, developerIp, reverseProxy.getLocalPort());
+    }
+
+    private String sendHttpRequest(String url, String token, HttpMethod method, ReverseProxy body) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.set(Consts.ACCESS_TOKEN_STR, token);
+        ResponseEntity<String> response = null;
+        try {
+            response = restTemplate.exchange(url, method, new HttpEntity<>(body, headers), String.class);
+            if (response.getStatusCode() == HttpStatus.OK) {
+                return response.getBody();
+            }
+        } catch (RestClientException e) {
+            LOGGER.error("Failed to send http request", e);
         }
-
-        return genProxyUrl(vndUrl, developerIp, reverseProxyList.get(0).getProxyPort());
+        LOGGER.error("Failed to send http request, url is : {}, method is : {}", url, method);
+        throw new DeveloperException("Failed to send http request");
     }
 
     private String genProxyUrl(String url, String proxyHostIp, int proxyHostPort) {
@@ -166,56 +156,25 @@ public class ReverseProxyServiceImpl implements ReverseProxyService {
         throw new DeveloperException("failed to generate proxy url");
     }
 
-    private void reloadNginxConfig() {
-        List<String> command = Arrays.asList("nginx", "-s", "reload");
+    private String getReverseProxyBaseUrl() {
+        if (reverseProxyBaseUrl != null) {
+            return reverseProxyBaseUrl;
+        }
         try {
-            String cmdResult = RuntimeUtil.execCommand(command);
-            if (!cmdResult.contains("SUCCESS")) {
-                LOGGER.error("failed to reload nginx config, cmd result : {}", cmdResult);
-                throw new DeveloperException("failed to reload nginx config");
+            if (lock.tryLock(2, TimeUnit.SECONDS)) {
+                if (reverseProxyBaseUrl != null) {
+                    return reverseProxyBaseUrl;
+                }
+
+                reverseProxyBaseUrl = new StringBuffer(protocol).append("://localhost:")
+                        .append(cbbPort).append("/commonservice/cbb/v1/reverseproxies").toString();
             }
-        } catch (IOException e) {
-            LOGGER.error("failed to reload nginx config.", e);
-            throw new DeveloperException("failed to reload nginx config");
+        } catch (InterruptedException e) {
+            LOGGER.error("failed to get the lock", e);
+            throw new DeveloperException("failed to get reverse proxy base url");
+        } finally {
+            lock.unlock();
         }
+        return reverseProxyBaseUrl;
     }
-
-    private int getUsableProxyPort() {
-        Set<Integer> usedPorts = reverseProxyMapper.getAllVncProxyPorts();
-        for (int i = MIN_REVERSE_PROXY_PORT; i <= MAX_REVERSE_PROXY_PORT; i++) {
-            if (!usedPorts.contains(i)) {
-                LOGGER.debug("proxy port {} is usable.", i);
-                return i;
-            }
-        }
-        LOGGER.error("no usable proxy port left.");
-        throw new DeveloperException("there is no usable proxy port left.");
-    }
-
-    private void addReverseProxyConfigFile(int proxyPort, String hostIp, int hostConsolePort){
-        try {
-            InputStream is = ReverseProxyServiceImpl.class.getResourceAsStream(BASE_CONFIG_FILE);
-            Charset charset = Charset.forName(Consts.FILE_ENCODING);
-            String content = StreamUtils.copyToString(is, charset);
-            String url = new StringBuffer("http://").append(hostIp).append(":").append(hostConsolePort).toString();
-            String nginxConfig = String.format(content, proxyPort, url);
-            File file = new File(NGINX_CONFIG_DIR + proxyPort + NGINX_CONFIG_FILE_SUFFIX);
-            FileUtils.writeStringToFile(file, nginxConfig, charset);
-            LOGGER.info("reverse proxy config file {} is created.", file.getName());
-        } catch(IOException e) {
-            LOGGER.error("failed to make reverse proxy conf", e);
-            throw new DeveloperException("failed to make reverse proxy conf.");
-        }
-    }
-
-    private void deleteReverseProxyConfigFile(int proxyPort) {
-        File file = new File(NGINX_CONFIG_DIR + proxyPort + NGINX_CONFIG_FILE_SUFFIX);
-        if (file.exists() && !file.delete()) {
-            LOGGER.error("failed to delete reverse config file {}.", file.getName());
-            throw new DeveloperException("failed to delete config file.");
-        }
-        LOGGER.info("reverse proxy file {} is deleted.", file.getName());
-    }
-
-
 }

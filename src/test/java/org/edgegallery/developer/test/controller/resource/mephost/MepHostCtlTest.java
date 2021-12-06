@@ -88,7 +88,7 @@ public class MepHostCtlTest {
     @WithMockUser(roles = "DEVELOPER_ADMIN")
     public void testCreateMepHostSuccess() throws Exception {
         String url = String.format("/mec/developer/v2/mephosts");
-        Mockito.when(mepHostService.createHost(Mockito.any(), Mockito.any())).thenReturn(true);
+        Mockito.when(mepHostService.createHost(Mockito.any(), Mockito.any(), Mockito.anyString())).thenReturn(true);
         ResultActions actions = mvc.perform(
             MockMvcRequestBuilders.post(url).with((csrf())).content(new Gson().toJson(createNewHost()))
                 .contentType(MediaType.APPLICATION_JSON_UTF8).accept(MediaType.APPLICATION_JSON_UTF8))
@@ -112,7 +112,7 @@ public class MepHostCtlTest {
     @WithMockUser(roles = "DEVELOPER_ADMIN")
     public void testDeleteMepHostSuccess() throws Exception {
         String url = String.format("/mec/developer/v2/mephosts/%s", UUID.randomUUID().toString());
-        Mockito.when(mepHostService.deleteHost(Mockito.anyString())).thenReturn(true);
+        Mockito.when(mepHostService.deleteHost(Mockito.anyString(), Mockito.anyString())).thenReturn(true);
         ResultActions actions = mvc.perform(
             MockMvcRequestBuilders.delete(url).with((csrf())).contentType(MediaType.APPLICATION_JSON_UTF8)
                 .accept(MediaType.APPLICATION_JSON_UTF8)).andExpect(MockMvcResultMatchers.status().isOk());
