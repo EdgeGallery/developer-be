@@ -1,42 +1,341 @@
 ---
-apiVersion: apps/v1
-kind: Deployment
+apiVersion: v1
+data:
+  config.yaml: |-
+    config:
+      fledge:
+        hostUrl: http://fledge:8081
+        north:
+          default:
+            type: mqtt
+            topic: fledge
+        readiness:
+          httpGet: /fledge/ping
+      kuiper:
+        hostUrl: http://kuiper:9081
+        rules:
+          default:
+            type: mqtt
+            topic: kuiper
+      tdengine:
+        hostUrl: http://td-engine:9085
+        south:
+          default:
+            dbName: iotdb
+            sTable: meters
+    broker:
+      host: mqtt
+      port: 1883
+  profile.yaml: |-
+    profile:
+      - fledge:
+          south:
+            - type: mqtt-readings
+              topic: Room1/Condition
+              installPlugin: true
+      - kuiper:
+          stream:
+            - sql: 'create stream events () WITH ( datasource = "fledge", FORMAT = "json")'
+          rules:
+            - id: rule1
+              sql: "SELECT readings->device AS asset, `timestamp`, round(readings->temp) AS temperature FROM events"
+              actions:
+                - type: mqtt
+      - tdengine:
+          south:
+            - dbName: iotdb
+              sTable: meters
+              topic: kuiper
+              tableNameJqPath: .asset
+              dataMapping:
+                - field: ts
+                  jqPath: .timestamp
+                  dataType: TIMESTAMP
+                - field: temperature
+                  jqPath: .temperature
+                  dataType: TINYINT
+kind: ConfigMap
 metadata:
-  namespace: '{{ .Values.appconfig.appnamespace }}'
-  name: battle-city
+  name: profile-conf
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
   labels:
-    app: battle-city
+    app: profile-config
+  name: profile-config
 spec:
-  selector:
-    matchLabels:
-      app: battle-city
-  replicas: 1
   template:
     metadata:
       labels:
-        app: battle-city
+        app: profile-config
     spec:
       containers:
-        - name: battle-city
-          image: '{{.Values.imagelocation.domainname}}/{{.Values.imagelocation.project}}/battle_city:v1.0'
-          imagePullPolicy: Always
+        - image: '{{.Values.imagelocation.domainname}}/{{.Values.imagelocation.project}}/profile-manager:v1.0'
+          imagePullPolicy: IfNotPresent
+          name: config
+          volumeMounts:
+            - name: profile-vol
+              mountPath: /conf/
+      restartPolicy: Never
+      volumes:
+        - name: profile-vol
+          configMap:
+            name: profile-conf
+            items:
+              - key: config.yaml
+                path: config.yaml
+                mode: 0644
+              - key: profile.yaml
+                path: profile.yaml
+                mode: 0644
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: fledge
+  name: fledge
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: fledge
+  template:
+    metadata:
+      labels:
+        app: fledge
+    spec:
+      containers:
+        - image: '{{.Values.imagelocation.domainname}}/{{.Values.imagelocation.project}}/fledge:latest'
+          name: fledge-core
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8081
+        - image: '{{.Values.imagelocation.domainname}}/{{.Values.imagelocation.project}}/fledge-gui:latest'
+          name: fledge-gui
+          imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 80
-
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  namespace: '{{ .Values.appconfig.appnamespace }}'
-  name: battle-city-svc
   labels:
-    svc: battle-city-svc
+    app: fledge-ext
+  name: fledge-ext
 spec:
   type: NodePort
   ports:
-    - port: 80
+    - name: "fledge-core-ext"
+      nodePort: 32681
+      port: 8081
+      protocol: TCP
+      targetPort: 8081
+    - name: "fledge-gui"
+      nodePort: 32680
+      port: 8080
+      protocol: TCP
       targetPort: 80
-      nodePort: 32525
+  selector:
+    app: fledge
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: fledge
+  name: fledge
+spec:
+  ports:
+    - name: "fledge"
+      port: 8081
+      protocol: TCP
+      targetPort: 8081
+  selector:
+    app: fledge
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: kuiper
+  name: kuiper
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kuiper
+  template:
+    metadata:
+      labels:
+        app: kuiper
+    spec:
+      containers:
+        - env:
+            - name: MQTT_SOURCE__DEFAULT__SERVERS
+              value: '[tcp://mqtt:1883]'
+          image: '{{.Values.imagelocation.domainname}}/{{.Values.imagelocation.project}}/kuiper:1.2.1-slim'
+          name: kuiper
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 9081
+      restartPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: kuiper
+  name: kuiper
+spec:
+  ports:
+    - name: "kuiper-conf"
+      port: 9081
+      targetPort: 9081
+  selector:
+    app: kuiper
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: mec-app
+  name: mec-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mec-app
+  template:
+    metadata:
+      labels:
+        app: mec-app
+    spec:
+      containers:
+        - env:
+            - name: GF_PLUGINS_ALLOW_LOADING_UNSIGNED_PLUGINS
+              value: taosdata-tdengine-datasource
+          image: '{{.Values.imagelocation.domainname}}/{{.Values.imagelocation.project}}/mec-app-visual-demo:latest'
+          imagePullPolicy: IfNotPresent
+          name: mec-app-visual
+          ports:
+            - containerPort: 3000
+      restartPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: mec-app
+  name: mec-app
+spec:
+  type: NodePort
+  ports:
+    - name: "grafana"
+      port: 3000
+      targetPort: 3000
+      nodePort: 32300
       protocol: TCP
   selector:
-    app: battle-city
+    app: mec-app
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: mqtt
+  name: mqtt
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mqtt
+  template:
+    metadata:
+      labels:
+        app: mqtt
+    spec:
+      containers:
+        - image: '{{.Values.imagelocation.domainname}}/{{.Values.imagelocation.project}}/emqx:latest'
+          name: mqtt
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 1883
+      restartPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: mqtt
+  name: mqtt
+spec:
+  ports:
+    - name: "broker"
+      port: 1883
+      targetPort: 1883
+  selector:
+    app: mqtt
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: mqtt-ext
+  name: mqtt-ext
+spec:
+  type: NodePort
+  ports:
+    - name: "mqtt-ext"
+      port: 1883
+      targetPort: 1883
+      nodePort: 31883
+      protocol: TCP
+  selector:
+    app: mqtt
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: td-engine
+  name: td-engine
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: td-engine
+  template:
+    metadata:
+      labels:
+        app: td-engine
+    spec:
+      containers:
+        - image: '{{.Values.imagelocation.domainname}}/{{.Values.imagelocation.project}}/tdengine:2.2.0.2'
+          name: td-engine
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 6041
+        - image: '{{.Values.imagelocation.domainname}}/{{.Values.imagelocation.project}}/mqtt-tdengine-adapter:latest'
+          name: mqtt-td-engine-adapter
+          ports:
+            - containerPort: 9085
+      restartPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: td-engine
+  name: td-engine
+spec:
+  ports:
+    - name: "api"
+      port: 9085
+      targetPort: 9085
+    - name: "db"
+      port: 6041
+      targetPort: 6041
+  selector:
+    app: td-engine
