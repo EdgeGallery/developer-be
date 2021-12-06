@@ -3,7 +3,7 @@ info:
   version: '1.0'
   title: Mushroom Identify
   description: Identify which mushroom is in the input image and can identify totally 1395 types.
-host: 192.168.1.57:3000
+host: localhost:3000
 schemes:
 - http
 paths:

@@ -3,7 +3,7 @@ info:
   version: '1.0'
   title: Plant Disease Identification
   description: Identify which disease of plant is in the input image and can identify totally 38 diseases.
-host: 192.168.1.57:3000
+host: localhost:3000
 schemes:
 - http
 paths:
