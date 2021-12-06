@@ -36,7 +36,6 @@ DROP TABLE  IF  EXISTS tbl_operation_status;
 DROP TABLE  IF  EXISTS tbl_action_status;
 DROP TABLE  IF  EXISTS tbl_atp_test_task;
 DROP TABLE  IF  EXISTS tbl_mep_host;
-DROP TABLE  IF  EXISTS tbl_reverse_proxy;
 DROP TABLE  IF  EXISTS tbl_app_package;
 DROP TABLE  IF  EXISTS tbl_atp_test_task;
 DROP TABLE  IF  EXISTS tbl_openmep_capability;
@@ -369,15 +368,6 @@ CREATE TABLE IF NOT EXISTS tbl_mep_host (
   net_work_parameter text DEFAULT NULL,
   resource text DEFAULT NULL,
   address varchar(255) DEFAULT NULL
-);
-
-CREATE TABLE IF NOT EXISTS tbl_reverse_proxy (
-  id varchar(255) NOT NULL,
-  dest_host_id varchar(255) NOT NULL,
-  dest_host_port int4 NOT NULL,
-  proxy_port int4 NOT NULL,
-  type int4 NOT NULL,
-  CONSTRAINT tbl_reverse_proxy_pkey PRIMARY KEY (id)
 );
 
 CREATE TABLE IF NOT EXISTS tbl_app_package (
