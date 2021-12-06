@@ -45,6 +45,7 @@ import org.edgegallery.developer.model.reverseproxy.WebSshData;
 import org.edgegallery.developer.service.application.ApplicationService;
 import org.edgegallery.developer.service.proxy.WebSshService;
 import org.edgegallery.developer.service.recource.mephost.MepHostService;
+import org.edgegallery.developer.util.AesUtil;
 import org.edgegallery.developer.util.webssh.constant.ConstantPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -91,6 +92,9 @@ public class WebSshServiceImpl implements WebSshService {
 
     @Autowired
     private MepHostService hostService;
+
+    @Value("${client.client-id:}")
+    private String clientId;
 
     @Override
     public void initConnection(WebSocketSession session) {
@@ -192,8 +196,11 @@ public class WebSshServiceImpl implements WebSshService {
             MepHost host = gson.fromJson(gson.toJson(hostService.getHost(hostId)), type);
             this.port = host.getMecHostPort();
             this.ip = host.getLcmIp();
-            this.username = host.getMecHostUserName();
-            this.password = host.getMecHostPassword();
+            this.username = AesUtil.decode(clientId, host.getMecHostUserName());
+            logger.info("port:{}", port);
+            logger.info("ip:{}", ip);
+            logger.info("username:{}", username);
+            this.password = AesUtil.decode(clientId, host.getMecHostPassword());
         }
         Session session = sshConnectInfo.getjSch().getSession(this.username, this.ip, this.port);
         session.setConfig(config);
@@ -246,7 +253,7 @@ public class WebSshServiceImpl implements WebSshService {
             transToSsh(channel, "\r");
             //Read the information flow returned by the terminal
             int j = 0;
-            try (InputStream inputStream = channel.getInputStream()){
+            try (InputStream inputStream = channel.getInputStream()) {
                 //Loop reading
                 byte[] buffer = new byte[1024];
                 int i = 0;
