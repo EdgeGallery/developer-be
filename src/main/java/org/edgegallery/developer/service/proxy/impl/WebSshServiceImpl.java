@@ -247,9 +247,10 @@ public class WebSshServiceImpl implements WebSshService {
                 logger.warn("pod is not running!");
                 return;
             }
+            logger.info("podName:{},namespace:{}", podName, namespace);
             String enterPodCommand = "kubectl exec -it " + podName + " -n " + namespace + " -- sh";
             transToSsh(channel, "\r");
-            Thread.sleep(2000);
+            Thread.sleep(1000);
             transToSsh(channel, enterPodCommand);
             transToSsh(channel, "\r");
             //Read the information flow returned by the terminal
