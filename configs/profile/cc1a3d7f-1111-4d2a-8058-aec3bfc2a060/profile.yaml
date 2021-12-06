@@ -1,5 +1,5 @@
 profile:
-  name: IOT Stack
+  name: IOT_Stack
   descriptionCh: 用于数据采集、清洗、整理场景
   descriptionEn: It is used for data collection, cleaning and sorting scenes
   app:

@@ -408,8 +408,9 @@ public class ProfileServiceImpl implements ProfileService {
             Map<String, Object> loaded = yaml.load(yamlContent);
             HashMap<String, Object> profile = (HashMap<String, Object>) loaded.get(FIELD_PROFILE);
 
-            profileInfo.setName((String) profile.get(FIELD_NAME));
-            checkNameExistence(profileInfo.getName());
+            String name = (String) profile.get(FIELD_NAME);
+            checkProfileName(name);
+            profileInfo.setName(name);
             profileInfo.setDescription((String) profile.get(FIELD_DESCRIPTION_CH));
             profileInfo.setDescriptionEn((String) profile.get("descriptionEn"));
             profileInfo.setType((String) profile.get("type"));
@@ -447,11 +448,17 @@ public class ProfileServiceImpl implements ProfileService {
     }
 
     /**
-     * profile name existence validation.
+     * profile name existence and effectiveness validation.
      *
      * @param name profile name
      */
-    private void checkNameExistence(String name) {
+    private void checkProfileName(String name) {
+        if (StringUtils.containsWhitespace(name)) {
+            String msg = String.format("profile name %s can not contain white space.", name);
+            LOGGER.error(msg);
+            throw new IllegalRequestException(msg, ResponseConsts.RET_REQUEST_PARAM_ERROR);
+        }
+
         if (null != profileMapper.getProfileByName(name)) {
             String msg = String.format("profile name %s has already exists.", name);
             LOGGER.error(msg);
