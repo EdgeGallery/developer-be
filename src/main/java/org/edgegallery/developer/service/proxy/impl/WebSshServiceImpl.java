@@ -250,7 +250,6 @@ public class WebSshServiceImpl implements WebSshService {
             logger.info("podName:{},namespace:{}", podName, namespace);
             String enterPodCommand = "kubectl exec -it " + podName + " -n " + namespace + " -- sh";
             transToSsh(channel, "\r");
-            Thread.sleep(1000);
             transToSsh(channel, enterPodCommand);
             transToSsh(channel, "\r");
             //Read the information flow returned by the terminal
@@ -264,8 +263,9 @@ public class WebSshServiceImpl implements WebSshService {
                     String echoCmd = new String(Arrays.copyOfRange(buffer, 0, i), StandardCharsets.UTF_8);
                     logger.info("cmd: {}", echoCmd);
                     logger.info("hostName: {}", hostName);
-                    String exitCmd = this.username + "@" + hostName + ":";
-                    if (echoCmd.trim().toLowerCase().startsWith(exitCmd.toLowerCase()) && j != 1 && j != 2) {
+                    String exitCmd = this.username + "@" + hostName + ":~#";
+                    if (echoCmd.trim().equals(exitCmd) && j >= 3) {
+                        logger.info("enter exit:{}", j);
                         transToSsh(channel, "exit");
                         transToSsh(channel, "\r");
                         sendExitMessage(webSocketSession, channel, session);
