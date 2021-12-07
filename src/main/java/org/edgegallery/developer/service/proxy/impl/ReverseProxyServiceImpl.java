@@ -51,7 +51,7 @@ public class ReverseProxyServiceImpl implements ReverseProxyService {
     @Value("${developer.protocol:}")
     private String protocol;
     @Value("${developer.cbbport:}")
-    private int cbbPort;
+    private String cbbPort;
     private String reverseProxyBaseUrl;
     private RestTemplate restTemplate = new RestTemplate();
     private Lock lock = new ReentrantLock();
@@ -167,7 +167,7 @@ public class ReverseProxyServiceImpl implements ReverseProxyService {
                 }
 
                 reverseProxyBaseUrl = new StringBuffer(protocol).append("://localhost:")
-                        .append(cbbPort).append("/commonservice/cbb/v1/reverseproxies").toString();
+                        .append(Integer.valueOf(cbbPort)).append("/commonservice/cbb/v1/reverseproxies").toString();
             }
         } catch (InterruptedException e) {
             LOGGER.error("failed to get the lock", e);
