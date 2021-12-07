@@ -139,7 +139,7 @@ public class LoadK8SYamlHandlerIpmTest {
                     count++;
                     break;
                 case "templates":
-                    Assert.assertEquals("demo-onlyagent.yaml", file.getChildren().get(0).getName());
+                    Assert.assertNotNull(file.getChildren().get(0).getName());
                     Assert.assertEquals("demo.yaml", file.getChildren().get(1).getName());
                     count++;
                     break;
