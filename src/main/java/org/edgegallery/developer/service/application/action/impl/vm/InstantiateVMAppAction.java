@@ -121,9 +121,8 @@ public class InstantiateVMAppAction extends InstantiateAppAction {
                 return EnumInstantiateStatus.INSTANTIATE_STATUS_ERROR;
             }
             JsonObject jsonObject = new JsonParser().parse(workStatus).getAsJsonObject();
-            JsonElement code = jsonObject.get("code");
-            if (code.getAsString().equals("200")) {
-                LOGGER.info("Query instantiate result, lcm return success. workload: ", workStatus);
+            if (jsonObject.get("data").getAsString().equals("Instantiated")) {
+                LOGGER.info("Query instantiate result, lcm return success. workload:{} ", workStatus);
                 saveWorkloadToInstantiateInfo(workStatus);
                 return EnumInstantiateStatus.INSTANTIATE_STATUS_SUCCESS;
             }
