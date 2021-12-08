@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.io.Resources;
 import org.edgegallery.developer.util.ImageConfig;
 import org.edgegallery.developer.util.helmcharts.EgChartsYaml;
@@ -139,8 +140,10 @@ public class LoadK8SYamlHandlerIpmTest {
                     count++;
                     break;
                 case "templates":
-                    Assert.assertNotNull(file.getChildren().get(0).getName());
-                    Assert.assertEquals("demo.yaml", file.getChildren().get(1).getName());
+                    Assert.assertTrue(StringUtils
+                        .containsAny(file.getChildren().get(0).getName(), "demo.yaml", "demo-onlyagent.yaml"));
+                    Assert.assertTrue(StringUtils
+                        .containsAny(file.getChildren().get(1).getName(), "demo.yaml", "demo-onlyagent.yaml"));
                     count++;
                     break;
             }
