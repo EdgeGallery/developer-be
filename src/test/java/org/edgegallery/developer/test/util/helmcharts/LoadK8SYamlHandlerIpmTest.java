@@ -140,7 +140,6 @@ public class LoadK8SYamlHandlerIpmTest {
                     count++;
                     break;
                 case "templates":
-                    System.out.println(file.getChildren().size());
                     for (HelmChartFile subFile : file.getChildren()) {
                         if (subFile.isFile()) {
                             Assert.assertTrue(
