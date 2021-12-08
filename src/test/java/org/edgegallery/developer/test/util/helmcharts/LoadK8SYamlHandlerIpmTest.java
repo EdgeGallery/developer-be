@@ -140,10 +140,15 @@ public class LoadK8SYamlHandlerIpmTest {
                     count++;
                     break;
                 case "templates":
-                    Assert.assertTrue(StringUtils
-                        .containsAny(file.getChildren().get(0).getName(), "demo.yaml", "demo-onlyagent.yaml"));
-                    Assert.assertTrue(StringUtils
-                        .containsAny(file.getChildren().get(1).getName(), "demo.yaml", "demo-onlyagent.yaml"));
+                    System.out.println(file.getChildren().size());
+                    for (HelmChartFile subFile : file.getChildren()) {
+                        if (subFile.isFile()) {
+                            Assert.assertTrue(
+                                StringUtils.containsAny(subFile.getName(), "demo.yaml", "demo-onlyagent.yaml"));
+                            Assert.assertTrue(
+                                StringUtils.containsAny(subFile.getName(), "demo.yaml", "demo-onlyagent.yaml"));
+                        }
+                    }
                     count++;
                     break;
             }
