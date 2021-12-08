@@ -73,7 +73,7 @@ public class VMAppOperationServiceTest extends AbstractJUnit4SpringContextTests 
 
     private static final Logger LOGGER = LoggerFactory.getLogger(VMAppOperationServiceTest.class);
 
-    private static final int MAX_TRY_NUMBER = 5;
+    private static final int MAX_TRY_NUMBER = 50;
 
     private static final int CHUNK_SIZE = 102400;
 

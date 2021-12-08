@@ -60,7 +60,8 @@
         tbl_container_image
     </select>
 
-    <select id="getAllImageByAdminAuth" parameterType="org.edgegallery.developer.model.resource.container.ContainerImageReq"
+    <select id="getAllImageByAdminAuth"
+            parameterType="org.edgegallery.developer.model.resource.container.ContainerImageReq"
             resultMap="ContainerImageMap">
         SELECT
         image_id,image_name,image_version,user_id,user_name,
@@ -128,12 +129,13 @@
         where image_id=#{imageId} and user_id =#{userId}
     </update>
 
-    <update id="updateContainerImage" parameterType="org.edgegallery.developer.model.resource.container.ContainerImage">
+    <update id="updateContainerImage">
         update tbl_container_image
-        set image_name=#{imageName},image_version=#{imageVersion},user_id=#{userId},
-        user_name=#{userName},upload_time=#{uploadTime},create_time=#{createTime},
-        image_status=#{imageStatus},image_type=#{imageType},image_path=#{imagePath},
-        file_name=#{fileName} where image_id=#{oldImageId}
+        set
+        image_name=#{containerImage.imageName},image_version=#{containerImage.imageVersion},user_id=#{containerImage.userId},
+        user_name=#{containerImage.userName},upload_time=#{containerImage.uploadTime},create_time=#{containerImage.createTime},
+        image_status=#{containerImage.imageStatus},image_type=#{containerImage.imageType},image_path=#{containerImage.imagePath},
+        file_name=#{containerImage.fileName} where image_id=#{oldImageId}
     </update>
 
     <delete id="deleteContainerImageById" parameterType="java.lang.String">

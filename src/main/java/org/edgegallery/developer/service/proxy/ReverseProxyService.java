@@ -17,7 +17,7 @@
 package org.edgegallery.developer.service.proxy;
 
 public interface ReverseProxyService {
-    void addReverseProxy(String hostId, int hostConsolePort);
-    void deleteReverseProxy(String hostId);
+    void addReverseProxy(String hostId, int hostConsolePort, String token);
+    void deleteReverseProxy(String hostId, int hostConsolePort, String token);
     String getVmConsoleUrl(String applicationId, String vmId, String userId, String token);
 }

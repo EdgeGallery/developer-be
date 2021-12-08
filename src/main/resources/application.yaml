@@ -80,15 +80,11 @@ imagelocation:
   project: ${IMAGE_REPO_PROJECT:developer}
   password: ${IMAGE_REPO_PASSWORD:}
   username: ${IMAGE_REPO_USERNAME:}
-  port: ${DOCKER_PORT:2375}
-  protocol: ${DOCKER_PROTOCOL:tcp}
-vm:
-  username: ${VNC_USERNAME:}
-  password: ${VNC_PASSWORD:}
-  port: ${VNC_PORT:22}
 
 developer:
   ip: ${DEVELOPER_IP:}
+  protocol: ${HTTP_PROTOCOL:http}
+  cbbport: 30101
 
 upload:
 
@@ -96,5 +92,5 @@ upload:
   tempPath: /usr/app/tmp
 
 signature:
-  encrypted-key-path: ${EDGE_CERT_PATH:C:/user/public.p12}
-  key-password: ${EDGE_CERT_PASSWORD:te9Fmv%qaq}
+  encrypted-key-path: ${EDGE_CERT_PATH:/usr/app/keys/public.p12}
+  key-password: ${EDGE_CERT_PASSWORD:}

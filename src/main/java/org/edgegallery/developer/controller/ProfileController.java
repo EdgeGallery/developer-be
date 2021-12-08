@@ -67,7 +67,7 @@ public class ProfileController {
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
     @RequestMapping(method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
+    @PreAuthorize("hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<ProfileInfo> createProfile(
         @ApiParam(value = "profile zip file", required = true) @RequestPart("file") MultipartFile file) {
         return ResponseEntity.ok(profileService.createProfile(file));
@@ -86,7 +86,7 @@ public class ProfileController {
     })
     @RequestMapping(value = "/{profileId}", method = RequestMethod.PUT,
         produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
+    @PreAuthorize("hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<ProfileInfo> updateProfile(
         @Pattern(regexp = REGEX_UUID, message = "profileId must be in UUID format")
         @ApiParam(value = "profileId", required = true) @PathVariable("profileId") String profileId,
@@ -110,8 +110,10 @@ public class ProfileController {
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<Page<ProfileInfo>> getAllProfiles(
         @ApiParam(value = "the max count of one page", required = true) @Min(1) @QueryParam("limit") int limit,
-        @ApiParam(value = "start index of the page", required = true) @Min(0) @QueryParam("offset") int offset) {
-        return ResponseEntity.ok(profileService.getAllProfiles(limit, offset));
+        @ApiParam(value = "start index of the page", required = true) @Min(0) @QueryParam("offset") int offset,
+        @ApiParam(value = "profile name", required = false) @Size(max = Consts.LENGTH_64) @QueryParam("name")
+            String name) {
+        return ResponseEntity.ok(profileService.getAllProfiles(limit, offset, name));
     }
 
     /**
@@ -147,7 +149,7 @@ public class ProfileController {
     })
     @RequestMapping(value = "/{profileId}", method = RequestMethod.DELETE,
         produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
+    @PreAuthorize("hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<Boolean> deleteProfileById(
         @Pattern(regexp = REGEX_UUID, message = "profileId must be in UUID format")
         @ApiParam(value = "profileId", required = true) @PathVariable("profileId") String profileId) {

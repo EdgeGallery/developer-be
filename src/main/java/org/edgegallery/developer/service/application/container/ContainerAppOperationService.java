@@ -27,6 +27,8 @@ public interface ContainerAppOperationService {
 
     ContainerAppInstantiateInfo getInstantiateInfo(String applicationId);
 
+    Boolean createContainerAppInstantiateInfo(String applicationId, ContainerAppInstantiateInfo instantiateInfo);
+
     Boolean updateInstantiateInfo(String applicationId, ContainerAppInstantiateInfo instantiateInfo);
 
     Boolean deleteInstantiateInfo(String applicationId);

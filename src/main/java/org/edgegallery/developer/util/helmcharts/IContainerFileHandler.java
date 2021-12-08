@@ -14,13 +14,16 @@
 
 package org.edgegallery.developer.util.helmcharts;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.util.List;
 import org.edgegallery.developer.model.application.container.HelmChart;
+import org.edgegallery.developer.util.ImageConfig;
 
-public interface IContainerFileHandler {
+public interface IContainerFileHandler extends Closeable {
 
     // load tgz or yaml file, and parse it. it will auto-create charts.yaml and values.yaml when loading yaml file.
+    // create a template dir to parse the input files, please using clean() to delete the temp files after using.
     void load(String... filePaths) throws IOException;
 
     // get catalog from helm-charts file.
@@ -30,6 +33,8 @@ public interface IContainerFileHandler {
     String exportHelmChartsPackage();
 
     void setHasMep(boolean hasMep);
+
+    void setImageConfig(ImageConfig imageConfig);
 
     // innerPath is the path of file in the tgz. Can get innerPath from the object of HelmChartFile.
     String getContentByInnerPath(String innerPath);
@@ -42,6 +47,9 @@ public interface IContainerFileHandler {
 
     // parse the k8s file by kubernetes-client. If the file contains value-params, maybe need
     List<Object> getK8sTemplateObject(HelmChartFile innerFile);
+
+    // get all of k8s-objects in the helm-charts.
+    List<Object> getAllK8sObject();
 
     // clean the temp dir and data.
     void clean();

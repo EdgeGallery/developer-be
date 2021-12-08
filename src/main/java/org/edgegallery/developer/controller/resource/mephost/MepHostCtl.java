@@ -20,9 +20,11 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import java.util.List;
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.Pattern;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
+import org.edgegallery.developer.common.Consts;
 import org.edgegallery.developer.filter.security.AccessUserUtil;
 import org.edgegallery.developer.model.common.User;
 import org.edgegallery.developer.model.common.Page;
@@ -92,9 +94,11 @@ public class MepHostCtl {
     @PostMapping(consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<Boolean> createHost(
-        @ApiParam(value = "MepHost", required = true) @Validated @RequestBody MepHost host) {
+        @ApiParam(value = "MepHost", required = true) @Validated @RequestBody MepHost host,
+        HttpServletRequest request) {
         User user = AccessUserUtil.getUser();
-        return ResponseEntity.ok(mepHostService.createHost(host, user));
+        String accessToken = request.getHeader(Consts.ACCESS_TOKEN_STR);
+        return ResponseEntity.ok(mepHostService.createHost(host, user, accessToken));
     }
 
     /**
@@ -133,8 +137,10 @@ public class MepHostCtl {
         produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<Boolean> deleteHost(@ApiParam(value = "mephostId", required = true) @PathVariable("mephostId")
-    @Pattern(regexp = REG_UUID, message = "hostId must be in UUID format") String mephostId) {
-        return ResponseEntity.ok(mepHostService.deleteHost(mephostId));
+    @Pattern(regexp = REG_UUID, message = "hostId must be in UUID format") String mephostId,
+                                              HttpServletRequest request) {
+        String accessToken = request.getHeader(Consts.ACCESS_TOKEN_STR);
+        return ResponseEntity.ok(mepHostService.deleteHost(mephostId, accessToken));
     }
 
     /**

@@ -17,6 +17,7 @@
 package org.edgegallery.developer.service.application.impl;
 
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 import org.edgegallery.developer.common.Consts;
 import org.edgegallery.developer.filter.security.AccessUserUtil;
@@ -53,5 +54,10 @@ public class AppScriptServiceImpl implements AppScriptService {
         appScriptMapper.createAppScript(applicationId, script);
         LOGGER.info("upload script successfully.");
         return script;
+    }
+
+    @Override
+    public List<Script> getScriptsByAppId(String applicationId) {
+        return appScriptMapper.getScriptsByAppId(applicationId);
     }
 }

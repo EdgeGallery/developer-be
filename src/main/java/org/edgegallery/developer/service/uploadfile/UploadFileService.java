@@ -26,6 +26,8 @@ public interface UploadFileService {
 
     UploadFile getFile(String fileId);
 
+    int saveFile(UploadFile uploadFile);
+
     UploadFile uploadFile(String userId, String fileType, MultipartFile uploadFile);
 
     boolean deleteFile(String fileId);
@@ -34,7 +36,7 @@ public interface UploadFileService {
 
     AppPkgStructure getSampleCodeStru(List<String> apiFileIds);
 
-    String getSampleCodeContent(String fileName);
+    String getSampleCodeContent(List<String> apiFileIds,String fileName);
 
     byte[] getSdkProject(String fileId, String lan, List<Capability> capabilities);
 

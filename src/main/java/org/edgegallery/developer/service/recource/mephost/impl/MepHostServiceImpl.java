@@ -24,17 +24,17 @@ import java.util.UUID;
 import org.apache.commons.lang3.StringUtils;
 import org.edgegallery.developer.common.Consts;
 import org.edgegallery.developer.common.ResponseConsts;
-import org.edgegallery.developer.filter.security.AccessUserUtil;
-import org.edgegallery.developer.model.common.User;
-import org.edgegallery.developer.model.common.Page;
 import org.edgegallery.developer.exception.DataBaseException;
 import org.edgegallery.developer.exception.DeveloperException;
 import org.edgegallery.developer.exception.EntityNotFoundException;
 import org.edgegallery.developer.exception.IllegalRequestException;
 import org.edgegallery.developer.exception.UnauthorizedException;
+import org.edgegallery.developer.filter.security.AccessUserUtil;
 import org.edgegallery.developer.mapper.resource.mephost.MepHostLogMapper;
 import org.edgegallery.developer.mapper.resource.mephost.MepHostMapper;
 import org.edgegallery.developer.mapper.uploadfile.UploadFileMapper;
+import org.edgegallery.developer.model.common.Page;
+import org.edgegallery.developer.model.common.User;
 import org.edgegallery.developer.model.resource.mephost.EnumVimType;
 import org.edgegallery.developer.model.resource.mephost.MepHost;
 import org.edgegallery.developer.model.resource.mephost.MepHostLog;
@@ -97,7 +97,7 @@ public class MepHostServiceImpl implements MepHostService {
      */
     @Transactional
     @Override
-    public boolean createHost(MepHost host, User user) {
+    public boolean createHost(MepHost host, User user, String token) {
         MepHost mepHost = mepHostMapper.getHostsByMecHostIp(host.getMecHostIp());
         if (mepHost != null) {
             LOGGER.error("mecHost already exists:{}", host.getMecHostIp());
@@ -117,7 +117,7 @@ public class MepHostServiceImpl implements MepHostService {
         int ret = mepHostMapper.createHost(host);
         if (ret > 0) {
             LOGGER.info("Crete host {} success ", host.getId());
-            reverseProxyService.addReverseProxy(host.getId(), Consts.DEFAULT_OPENSTACK_VNC_PORT);
+            reverseProxyService.addReverseProxy(host.getId(), Consts.DEFAULT_OPENSTACK_VNC_PORT, token);
             return true;
         }
         LOGGER.error("Create host failed!");
@@ -131,8 +131,8 @@ public class MepHostServiceImpl implements MepHostService {
      */
     @Transactional
     @Override
-    public boolean deleteHost(String hostId) {
-        reverseProxyService.deleteReverseProxy(hostId);
+    public boolean deleteHost(String hostId, String token) {
+        reverseProxyService.deleteReverseProxy(hostId, Consts.DEFAULT_OPENSTACK_VNC_PORT, token);
         int res = mepHostMapper.deleteHost(hostId);
         if (res < 1) {
             LOGGER.error("Delete host {} failed", hostId);
@@ -208,7 +208,7 @@ public class MepHostServiceImpl implements MepHostService {
      * @return
      */
     @Override
-    public UploadFile uploadConfigFile(String userId,MultipartFile uploadFile) {
+    public UploadFile uploadConfigFile(String userId, MultipartFile uploadFile) {
         LOGGER.info("Start uploading file");
         //check format
         String fileName = uploadFile.getOriginalFilename();
@@ -251,8 +251,7 @@ public class MepHostServiceImpl implements MepHostService {
         if (StringUtils.isNotBlank(host.getConfigId())) {
             // upload file
             UploadFile uploadedFile = uploadFileMapper.getFileById(host.getConfigId());
-            boolean uploadRes = MepHostUtil
-                .uploadFileToLcm(host, uploadedFile.getFilePath(), token);
+            boolean uploadRes = MepHostUtil.uploadFileToLcm(host, uploadedFile.getFilePath(), token);
             if (!uploadRes) {
                 LOGGER.error("create host failed,upload config file error");
                 throw new DeveloperException("upload config file to lcm error!", ResponseConsts.RET_CALL_LCM_FAIL);
@@ -267,8 +266,8 @@ public class MepHostServiceImpl implements MepHostService {
         }
         if (!EnumVimType.K8S.equals(host.getVimType())) {
             Map<String, String> getParams = InputParameterUtil.getParams(host.getNetworkParameter());
-            if (!getParams.containsKey("VDU1_APP_Plane03_IP") || !getParams.containsKey("VDU1_APP_Plane02_IP") || !getParams
-                .containsKey("VDU1_APP_Plane01_IP")) {
+            if (!getParams.containsKey("VDU1_APP_Plane03_IP") || !getParams.containsKey("VDU1_APP_Plane02_IP")
+                || !getParams.containsKey("VDU1_APP_Plane01_IP")) {
                 LOGGER.error("Network params config error");
                 throw new IllegalRequestException("Network params config error!",
                     ResponseConsts.RET_REQUEST_PARAM_ERROR);

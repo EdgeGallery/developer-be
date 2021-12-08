@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bonita
+  namespace: default
+  labels:
+    app: bonita
+spec:
+  selector:
+    matchLabels:
+      app: bonita
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: bonita
+    spec:
+      containers:
+        - name: bonita
+          image: 192.168.1.38/developer/bonita:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 80

@@ -4,8 +4,10 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import org.apache.ibatis.io.Resources;
 import org.edgegallery.developer.exception.DeveloperException;
+import org.edgegallery.developer.service.apppackage.converter.CustomRepresenter;
 import org.edgegallery.developer.util.helmcharts.HelmChartFile;
 import org.edgegallery.developer.util.helmcharts.IContainerFileHandler;
 import org.edgegallery.developer.util.helmcharts.LoadContainerFileFactory;
@@ -13,6 +15,8 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.constructor.SafeConstructor;
 
 public class HelmChartsFileTest {
 
@@ -100,5 +104,24 @@ public class HelmChartsFileTest {
         } catch (DeveloperException e) {
             Assert.assertEquals("Just support to upload one HelmCharts.", e.getMessage());
         }
+    }
+
+    @Test
+    public void should_successfully_when_merge_input_values_and_default() throws IOException {
+        File demo1 = Resources.getResourceAsFile("testdata/helmcharts/namespacetest.tgz");
+        handler.load(demo1.getCanonicalPath());
+        String content = handler.getContentByInnerPath("/values.yaml");
+        Yaml yaml = new Yaml(new SafeConstructor(), new CustomRepresenter());
+        Map<String, Object> map = (Map) yaml.load(content);
+        Assert.assertTrue(map.containsKey("appconfig"));
+        Assert.assertTrue(map.containsKey("replicaCount"));
+    }
+
+    @Test
+    public void should_successfully_when_get_all_k8s_objects() throws IOException {
+        File demo1 = Resources.getResourceAsFile("testdata/helmcharts/namespacetest.tgz");
+        handler.load(demo1.getCanonicalPath());
+        List<Object> objects = handler.getAllK8sObject();
+        Assert.assertEquals(7, objects.size());
     }
 }

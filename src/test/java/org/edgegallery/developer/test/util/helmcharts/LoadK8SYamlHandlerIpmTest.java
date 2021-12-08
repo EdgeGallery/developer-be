@@ -1,6 +1,7 @@
 package org.edgegallery.developer.test.util.helmcharts;
 
 import com.google.gson.Gson;
+import io.kubernetes.client.common.KubernetesObject;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -13,6 +14,8 @@ import org.edgegallery.developer.util.helmcharts.HelmChartFile;
 import org.edgegallery.developer.util.helmcharts.IContainerFileHandler;
 import org.edgegallery.developer.util.helmcharts.LoadContainerFileFactory;
 import org.edgegallery.developer.util.helmcharts.LoadK8sYamlHandlerImpl;
+import org.edgegallery.developer.util.helmcharts.k8sObject.EnumKubernetesObject;
+import org.edgegallery.developer.util.helmcharts.k8sObject.IContainerImage;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -136,7 +139,7 @@ public class LoadK8SYamlHandlerIpmTest {
                     count++;
                     break;
                 case "templates":
-                    Assert.assertEquals("demo-onlyagent.yaml", file.getChildren().get(0).getName());
+                    Assert.assertNotNull(file.getChildren().get(0).getName());
                     Assert.assertEquals("demo.yaml", file.getChildren().get(1).getName());
                     count++;
                     break;
@@ -171,6 +174,28 @@ public class LoadK8SYamlHandlerIpmTest {
         String content = handler.getContentByInnerPath("/Chart.yaml");
         EgChartsYaml chartsYaml = new Yaml().loadAs(content, EgChartsYaml.class);
         Assert.assertTrue(chartsYaml.getName().matches("demo-[0-9]{8}"));
+    }
+
+    @Test
+    public void should_successfully_when_replace_imageurl_to_values() throws IOException {
+        File demo = Resources.getResourceAsFile("testdata/demo.yaml");
+        handler.load(demo.getPath());
+        List<HelmChartFile> k8sTemplates = handler.getTemplatesFile();
+        EgValuesYaml defaultValues = EgValuesYaml.createDefaultEgValues(true);
+
+        for (HelmChartFile k8sTemplate : k8sTemplates) {
+            List<Object> k8s = handler.getK8sTemplateObject(k8sTemplate);
+            for (Object obj : k8s) {
+                Assert.assertTrue(obj instanceof KubernetesObject);
+                IContainerImage containerImage = EnumKubernetesObject.of(obj);
+                List<String> images = containerImage.getImages();
+                if (images.size() > 0) {
+                    Assert.assertEquals(String
+                        .format("%s/%s/positioning_service:1.0", defaultValues.getImageLocation().getDomainName(),
+                            defaultValues.getImageLocation().getProject()), images.get(0));
+                }
+            }
+        }
     }
 
 }

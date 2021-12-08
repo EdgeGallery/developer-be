@@ -16,16 +16,14 @@
 
 package org.edgegallery.developer.util;
 
-import io.kubernetes.client.openapi.models.V1Deployment;
-import io.kubernetes.client.openapi.models.V1Pod;
+import io.kubernetes.client.openapi.models.V1Service;
+import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import org.edgegallery.developer.common.Consts;
-import org.edgegallery.developer.util.helmcharts.HelmChartFile;
 import org.edgegallery.developer.util.helmcharts.IContainerFileHandler;
+import org.edgegallery.developer.util.helmcharts.LoadContainerFileFactory;
 import org.edgegallery.developer.util.helmcharts.k8sObject.EnumKubernetesObject;
-import org.edgegallery.developer.util.helmcharts.k8sObject.IContainerImage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpEntity;
@@ -52,33 +50,39 @@ public final class ContainerAppHelmChartUtil {
     /**
      * get image form tgz file.
      *
-     * @param containerFileHandler containerFileHandler
+     * @param helmChartsPackagePath helmChartsPackagePath
      * @return
      */
-    public static List<String> getImageFromHelmFile(IContainerFileHandler containerFileHandler) {
+    public static List<String> getImagesFromHelmFile(String helmChartsPackagePath) {
         List<String> images = new ArrayList<>();
-        List<HelmChartFile> k8sTemplates = containerFileHandler.getTemplatesFile();
-        if (CollectionUtils.isEmpty(k8sTemplates)) {
-            LOGGER.error("There are no files in the template folder!");
-            return Collections.emptyList();
-        }
-        for (HelmChartFile k8sTemplate : k8sTemplates) {
-            List<Object> k8sList = containerFileHandler.getK8sTemplateObject(k8sTemplate);
-            for (Object obj : k8sList) {
-                if (obj instanceof V1Pod || obj instanceof V1Deployment) {
-                    IContainerImage containerImage = EnumKubernetesObject.of(obj);
-                    List<String> podImages = containerImage.getImages();
-                    images.addAll(podImages);
-                } else {
-                    LOGGER.warn("{} does not support image configuration", obj.getClass());
-                }
-            }
-        }
-        if (CollectionUtils.isEmpty(images)) {
-            LOGGER.error("No image information was found in the yaml file under the template folder!");
-            return Collections.emptyList();
+        try (IContainerFileHandler containerFileHandler = LoadContainerFileFactory
+            .createLoader(helmChartsPackagePath)) {
+            assert containerFileHandler != null;
+            containerFileHandler.load(helmChartsPackagePath);
+            containerFileHandler.getAllK8sObject()
+                .forEach(item -> images.addAll(EnumKubernetesObject.of(item).getImages()));
+        } catch (IOException e) {
+            LOGGER.error("Failed to load file. file={}", helmChartsPackagePath);
         }
         return images;
+    }
+
+    /**
+     * check service exist.
+     *
+     * @param helmChartsPackagePath helmChartsPackagePath
+     * @return
+     */
+    public static boolean checkServiceExist(String helmChartsPackagePath) {
+        try (IContainerFileHandler containerFileHandler = LoadContainerFileFactory
+            .createLoader(helmChartsPackagePath)) {
+            assert containerFileHandler != null;
+            containerFileHandler.load(helmChartsPackagePath);
+            return containerFileHandler.getAllK8sObject().stream().anyMatch(item -> item instanceof V1Service);
+        } catch (IOException e) {
+            LOGGER.error("Failed to load file. file={}", helmChartsPackagePath);
+        }
+        return false;
     }
 
     /**

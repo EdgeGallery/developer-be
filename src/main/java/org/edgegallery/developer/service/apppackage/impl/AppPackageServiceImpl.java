@@ -30,6 +30,7 @@ import org.edgegallery.developer.exception.IllegalRequestException;
 import org.edgegallery.developer.mapper.application.AppScriptMapper;
 import org.edgegallery.developer.mapper.apppackage.AppPackageMapper;
 import org.edgegallery.developer.model.application.EnumAppClass;
+import org.edgegallery.developer.model.application.EnumApplicationStatus;
 import org.edgegallery.developer.model.application.container.ContainerApplication;
 import org.edgegallery.developer.model.application.vm.VMApplication;
 import org.edgegallery.developer.model.apppackage.AppPackage;
@@ -143,12 +144,12 @@ public class AppPackageServiceImpl implements AppPackageService {
 
     @Override
     public String updateAppPackageFileContent(String packageId, String fileName, String content) {
-        // LOGGER.info("content:{}", content.substring(1, content.length() - 1));
         if (StringUtils.isEmpty(packageId) || StringUtils.isEmpty(fileName) || StringUtils.isEmpty(content)) {
             String message = "packageId or fileName or content is empty";
             LOGGER.error(message);
             throw new IllegalRequestException(message, ResponseConsts.RET_REQUEST_PARAM_EMPTY);
         }
+        LOGGER.info("content:{}", content.substring(1, content.length() - 1));
         AppPackage appPackage = appPackageMapper.getAppPackage(packageId);
         if (appPackage == null) {
             LOGGER.error("query object(AppPackage) is null.");
@@ -231,7 +232,6 @@ public class AppPackageServiceImpl implements AppPackageService {
             appPackageMapper.createAppPackage(appPackage);
         }
 
-        application.setScriptList(appScriptMapper.getScriptsByAppId(application.getId()));
         ContainerPackageFileCreator containerPackageFileCreator = new ContainerPackageFileCreator(application,
             appPackage.getId());
         String fileName = containerPackageFileCreator.generateAppPackageFile();
@@ -243,6 +243,7 @@ public class AppPackageServiceImpl implements AppPackageService {
         }
         appPackage.setPackageFileName(fileName);
         appPackageMapper.modifyAppPackage(appPackage);
+        applicationService.updateApplicationStatus(application.getId(), EnumApplicationStatus.PACKAGED);
         return appPackage;
     }
 

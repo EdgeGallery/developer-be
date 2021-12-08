@@ -148,9 +148,9 @@ public class UploadFileControllerTest {
     @WithMockUser(roles = "DEVELOPER_ADMIN")
     public void testGetSampleCodeContentSuccess() throws Exception {
         String url = String.format("/mec/developer/v2/upload-files/action/get-sample-code-content?fileName=%s", "test");
-        Mockito.when(uploadService.getSampleCodeContent(Mockito.anyString())).thenReturn(new String());
+        Mockito.when(uploadService.getSampleCodeContent(Mockito.any(),Mockito.anyString())).thenReturn(new String());
         ResultActions actions = mvc
-            .perform(MockMvcRequestBuilders.get(url).contentType(MediaType.APPLICATION_JSON_VALUE))
+            .perform(MockMvcRequestBuilders.post(url).with(csrf()).content(new Gson().toJson(new ArrayList<>())).contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(MockMvcResultMatchers.status().isOk());
         Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
     }

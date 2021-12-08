@@ -345,23 +345,8 @@ public class TopologyTemplate {
             }
         }
         //generate the definition for FlavorExtraSpecs
-        LinkedHashMap<String, String> mapSpecs = new LinkedHashMap<>();
-        String[] specs = flavorExtraSpecsStr.split(AppdConstants.REGEX_LINE_SEPARATOR);
-        for (String spec : specs) {
-            String lineStr = spec.trim();
-            int keyIndex = lineStr.indexOf(AppdConstants.QUOTATION_MARK, 1);
-            String key = lineStr.substring(1, keyIndex);
-            int valueIndex = lineStr.indexOf(AppdConstants.COLON_MARK, keyIndex);
-            String value = lineStr.substring(valueIndex + 1, lineStr.length()).trim();
-            if (value.startsWith(AppdConstants.QUOTATION_MARK) || value
-                .startsWith(AppdConstants.SINGLE_QUOTATION_MARK)) {
-                value = value.substring(1, value.length());
-            }
-            if (value.endsWith(AppdConstants.QUOTATION_MARK) || value.endsWith(AppdConstants.SINGLE_QUOTATION_MARK)) {
-                value = value.substring(0, value.length() - 1);
-            }
-            mapSpecs.put(key, value);
-        }
+        Yaml yaml = new Yaml(new SafeConstructor());
+        LinkedHashMap<String, String> mapSpecs = yaml.load(flavorExtraSpecsStr);
         return mapSpecs;
     }
 

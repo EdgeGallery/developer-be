@@ -31,14 +31,8 @@ import org.slf4j.LoggerFactory;
 public class LoadK8sYamlHandlerImpl extends AbstractContainerFileHandler {
     private static final Logger LOGGER = LoggerFactory.getLogger(LoadK8sYamlHandlerImpl.class);
 
-    private static String MEP_TEMPLATES_PATH = System.getProperty("user.dir")
+    private static final String MEP_TEMPLATES_PATH = System.getProperty("user.dir")
         + "/configs/chart_template/templates/eg_template";
-
-    @Setter
-    private boolean hasMep = true;
-
-    @Setter
-    private ImageConfig imageConfig;
 
     @Override
     public void load(String... filePaths) throws IOException {
@@ -51,30 +45,14 @@ public class LoadK8sYamlHandlerImpl extends AbstractContainerFileHandler {
             return;
         }
 
+        String helmChartsName = getHelmChartName(filePaths[0]);
+
         // create helm-charts temp dir
-        String firstFile = filePaths[0];
-        Path tempDir = Files.createTempDirectory("eg-helmcharts-");
-        workspace = tempDir.toString();
-        File orgFile = new File(firstFile);
-        String fileName = orgFile.getName();
-        String helmChartsName = fileName.contains(".") ? fileName.substring(0, fileName.lastIndexOf(".")) : fileName;
-        Path helmChartPath = Files.createDirectory(Paths.get(workspace, helmChartsName));
-        helmChartsDir = helmChartPath.toString();
+        genTempWorkspace(helmChartsName);
 
-        // create values.yaml
-        EgValuesYaml defaultValues = EgValuesYaml.createDefaultEgValues(hasMep);
-        if (imageConfig != null) {
-            defaultValues.getImageLocation().setDomainName(imageConfig.getDomainname());
-            defaultValues.getImageLocation().setProject(imageConfig.getProject());
-        }
-        Path valuesYaml = Files.createFile(Paths.get(helmChartsDir, "values.yaml"));
-        FileUtils.writeByteArrayToFile(valuesYaml.toFile(), defaultValues.getContent().getBytes(), false);
+        genDefaultValuesYaml();
 
-        // create charts.yaml
-        EgChartsYaml defaultCharts = EgChartsYaml.createDefaultCharts();
-        defaultCharts.setName(helmChartsName.replaceAll("_", "-") + "-" + RandomStringUtils.randomNumeric(8));
-        Path chartsYaml = Files.createFile(Paths.get(helmChartsDir, "Chart.yaml"));
-        FileUtils.writeByteArrayToFile(chartsYaml.toFile(), defaultCharts.getContent().getBytes(), false);
+        genDefaultChartYaml(helmChartsName);
 
         try {
             Files.createDirectory(Paths.get(helmChartsDir, "templates"));
@@ -87,6 +65,35 @@ public class LoadK8sYamlHandlerImpl extends AbstractContainerFileHandler {
             workspace = null;
             throw new DeveloperException("Failed to read k8s config. msg:" + e.getMessage());
         }
+
+        replaceAllImageUrlToValues();
+    }
+
+    private void genDefaultChartYaml(String helmChartsName) throws IOException {
+        // create charts.yaml
+        EgChartsYaml defaultCharts = this.getDefaultChart(helmChartsName);
+        Path chartsYaml = Files.createFile(Paths.get(helmChartsDir, "Chart.yaml"));
+        FileUtils.writeByteArrayToFile(chartsYaml.toFile(), defaultCharts.getContent().getBytes(), false);
+    }
+
+    private void genDefaultValuesYaml() throws IOException {
+        // create values.yaml
+        EgValuesYaml defaultValues = this.getDefaultValues();
+        Path valuesYaml = Files.createFile(Paths.get(helmChartsDir, "values.yaml"));
+        FileUtils.writeByteArrayToFile(valuesYaml.toFile(), defaultValues.getContent().getBytes(), false);
+    }
+
+    private String getHelmChartName(String inputFile) {
+        File orgFile = new File(inputFile);
+        String fileName = orgFile.getName();
+        return fileName.contains(".") ? fileName.substring(0, fileName.lastIndexOf(".")) : fileName;
+    }
+
+    private void genTempWorkspace(String helmChartsName) throws IOException {
+        Path tempDir = Files.createTempDirectory("eg-helmcharts-");
+        workspace = tempDir.toString();
+        Path helmChartPath = Files.createDirectory(Paths.get(workspace, helmChartsName));
+        helmChartsDir = helmChartPath.toString();
     }
 
     private void createMepTemplates() throws IOException {

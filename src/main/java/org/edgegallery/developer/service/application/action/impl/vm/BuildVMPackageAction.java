@@ -39,7 +39,7 @@ public class BuildVMPackageAction extends AbstractAction {
 
     public static final String ACTION_NAME = "Build Application Package";
 
-    VMAppOperationServiceImpl VmAppOperationService = (VMAppOperationServiceImpl) SpringContextUtil
+    VMAppOperationServiceImpl vmAppOperationService = (VMAppOperationServiceImpl) SpringContextUtil
         .getBean(VMAppOperationServiceImpl.class);
 
     ApplicationService applicationService = (ApplicationService) SpringContextUtil.getBean(ApplicationService.class);
@@ -74,7 +74,7 @@ public class BuildVMPackageAction extends AbstractAction {
         updateActionProgress(actionStatus, 25, statusLog);
 
         //build application package for launch VM.
-        AppPackage appPkg = VmAppOperationService.generatePackage(tempApp);
+        AppPackage appPkg = vmAppOperationService.generatePackage(tempApp);
         if (appPkg == null) {
             statusLog = "Build package for VM failed.";
             LOGGER.error(statusLog);
@@ -98,13 +98,13 @@ public class BuildVMPackageAction extends AbstractAction {
     }
 
     private boolean saveBuildVmPackageInfo(String vmId, String id) {
-        VMInstantiateInfo instantiateInfo = VmAppOperationService.getInstantiateInfo(vmId);
+        VMInstantiateInfo instantiateInfo = vmAppOperationService.getInstantiateInfo(vmId);
         if (instantiateInfo==null) {
             return false;
         }
         instantiateInfo.setAppPackageId(id);;
         instantiateInfo.setStatus(EnumAppInstantiateStatus.PACKAGE_GENERATE_SUCCESS);
-        return  VmAppOperationService.updateInstantiateInfo(vmId, instantiateInfo);
+        return  vmAppOperationService.updateInstantiateInfo(vmId, instantiateInfo);
     }
 
 }

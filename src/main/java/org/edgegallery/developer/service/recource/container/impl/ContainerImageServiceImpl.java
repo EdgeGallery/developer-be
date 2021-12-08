@@ -17,13 +17,8 @@
 package org.edgegallery.developer.service.recource.container.impl;
 
 import com.github.dockerjava.api.DockerClient;
-import com.github.dockerjava.api.command.DockerCmdExecFactory;
 import com.github.dockerjava.api.command.PullImageResultCallback;
 import com.github.dockerjava.api.command.SaveImageCmd;
-import com.github.dockerjava.core.DefaultDockerClientConfig;
-import com.github.dockerjava.core.DockerClientBuilder;
-import com.github.dockerjava.core.DockerClientConfig;
-import com.github.dockerjava.netty.NettyDockerCmdExecFactory;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import java.io.File;
@@ -96,12 +91,6 @@ public class ContainerImageServiceImpl implements ContainerImageService {
 
     @Value("${imagelocation.project:}")
     private String devRepoProject;
-
-    @Value("${imagelocation.port:}")
-    private String port;
-
-    @Value("${imagelocation.protocol:}")
-    private String protocol;
 
     @Value("${security.oauth2.resource.jwt.key-uri:}")
     private String loginUrl;
@@ -179,7 +168,8 @@ public class ContainerImageServiceImpl implements ContainerImageService {
             File partFileDir = new File(partFilePath);
             if (!partFileDir.exists() || !partFileDir.isDirectory()) {
                 LOGGER.error("uploaded part file path not found!");
-                throw new FileFoundFailException("uploaded part file path not found", ResponseConsts.RET_FILE_NOT_FOUND);
+                throw new FileFoundFailException("uploaded part file path not found",
+                    ResponseConsts.RET_FILE_NOT_FOUND);
             }
 
             File[] partFiles = partFileDir.listFiles();
@@ -349,11 +339,7 @@ public class ContainerImageServiceImpl implements ContainerImageService {
             throw new IllegalRequestException(msg, ResponseConsts.RET_QUERY_DATA_EMPTY);
         }
         try {
-            DockerClientConfig config = DefaultDockerClientConfig.createDefaultConfigBuilder()
-                .withDockerHost(protocol + "://" + devRepoEndpoint + ":" + port).build();
-            DockerCmdExecFactory factory = new NettyDockerCmdExecFactory().withConnectTimeout(100000);
-            DockerClient dockerClient = DockerClientBuilder.getInstance(config).withDockerCmdExecFactory(factory)
-                .build();
+            DockerClient dockerClient = ContainerImageUtil.getDockerClient();
             //pull image
             dockerClient.pullImageCmd(image).exec(new PullImageResultCallback()).awaitCompletion().close();
             String[] images = image.trim().split(":");
@@ -503,9 +489,9 @@ public class ContainerImageServiceImpl implements ContainerImageService {
 
     private boolean pushImageToRepo(File imageFile, String rootDir, String inputImageId, String fileName)
         throws IOException {
-        //create repo by current user id
-        String projectName = getNeededProName(AccessUserUtil.getUser().getUserName());
-        // judge user private harbor repo is exist
+        //create repo
+        String projectName = devRepoProject;
+        // judge  harbor repo is exist
         boolean isExist = ContainerImageUtil.isExist(projectName);
         if (!isExist) {
             boolean createRes = ContainerImageUtil.createHarborRepo(projectName);
@@ -544,16 +530,6 @@ public class ContainerImageServiceImpl implements ContainerImageService {
             return false;
         }
         return true;
-    }
-
-    private String getNeededProName(String userName) {
-        String projectName = "";
-        if (SystemImageUtil.isAdminUser()) {
-            projectName = devRepoProject;
-        } else {
-            projectName = userName.replaceAll(Consts.PATTERN, "").toLowerCase();
-        }
-        return projectName;
     }
 
     private boolean createImage(String repoTags, String inputImageId, String fileName, String projectName) {
