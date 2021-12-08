@@ -121,12 +121,12 @@ public class InstantiateVMAppAction extends InstantiateAppAction {
                 return EnumInstantiateStatus.INSTANTIATE_STATUS_ERROR;
             }
             JsonObject jsonObject = new JsonParser().parse(workStatus).getAsJsonObject();
-            if (jsonObject.get("data").getAsString().equals("Instantiated")) {
+            if (jsonObject.get("status").getAsString().equals("Instantiated")) {
                 LOGGER.info("Query instantiate result, lcm return success. workload:{} ", workStatus);
                 saveWorkloadToInstantiateInfo(workStatus);
                 return EnumInstantiateStatus.INSTANTIATE_STATUS_SUCCESS;
             }
-            if (jsonObject.get("data").getAsString().equals("Failure")) {
+            if (jsonObject.get("status").getAsString().equals("Failure")) {
                 LOGGER.error("Query instantiate failed:{}", jsonObject.get("msg").getAsString());
                 return EnumInstantiateStatus.INSTANTIATE_STATUS_FAILED;
             }
