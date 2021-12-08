@@ -31,6 +31,8 @@ public class VmInstantiateWorkload {
 
     private String msg;
 
+    private String status;
+
     private List<VmInfo> data;
 
 }

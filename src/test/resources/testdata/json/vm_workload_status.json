@@ -1,6 +1,7 @@
 {
   "code": "200",
   "msg": "ok",
+  "status": "Instantiated",
   "data": [
     {
       "vmId": "d21ba089-6935-45db-af86-cf00cee6auuu",
