@@ -65,7 +65,7 @@ public class VMImageCtlTest {
     @Test
     @WithMockUser(roles = "DEVELOPER_TENANT")
     public void testGetVmImagesSuccess() throws Exception {
-        String url = String.format("/mec/developer/v2/vmimages/list");
+        String url = String.format("/mec/developer/v2/vmimages/action/get-list");
         Mockito.when(vmImageService.getVmImages(Mockito.any())).thenReturn(new VMImageRes());
         ResultActions actions = mvc.perform(
             MockMvcRequestBuilders.post(url).with(csrf()).content(new Gson().toJson(new VMImageReq()))

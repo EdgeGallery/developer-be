@@ -143,7 +143,7 @@ public class AppPackageServiceImpl implements AppPackageService {
 
     @Override
     public String updateAppPackageFileContent(String packageId, String fileName, String content) {
-        LOGGER.info("content:{}", content.substring(1, content.length() - 1));
+        // LOGGER.info("content:{}", content.substring(1, content.length() - 1));
         if (StringUtils.isEmpty(packageId) || StringUtils.isEmpty(fileName) || StringUtils.isEmpty(content)) {
             String message = "packageId or fileName or content is empty";
             LOGGER.error(message);

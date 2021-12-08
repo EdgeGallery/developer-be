@@ -123,7 +123,7 @@ public class MepHostServiceTest {
         try {
             //Consts.ROLE_DEVELOPER_ADMIN
             AccessUserUtil.setUser("5ce78873-d73d-4e7d-84a4-ab75ac95400f", "admin", "");
-            mepHostService.createHost(createAnotherHost(), null);
+            mepHostService.createHost(createAnotherHost(), AccessUserUtil.getUser());
         } catch (UnauthorizedException e) {
             Assert.assertEquals("userId is empty or not admin!", e.getMessage());
         }
@@ -133,7 +133,7 @@ public class MepHostServiceTest {
     public void testCreateHostBadWithErrNetConfig() {
         try {
             AccessUserUtil.setUser("5ce78873-d73d-4e7d-84a4-ab75ac95400f", "admin", Consts.ROLE_DEVELOPER_ADMIN);
-            mepHostService.createHost(createAnotherHost(), null);
+            mepHostService.createHost(createAnotherHost(), AccessUserUtil.getUser());
         } catch (IllegalRequestException e) {
             Assert.assertEquals("Network params config error!", e.getMessage());
         }

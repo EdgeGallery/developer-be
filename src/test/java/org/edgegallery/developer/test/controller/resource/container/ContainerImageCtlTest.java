@@ -90,7 +90,7 @@ public class ContainerImageCtlTest {
         ContainerImageReq containerImage = new ContainerImageReq();
         List<ContainerImage> list = new ArrayList<>();
         Page<ContainerImage> page = new Page<>(list,1,2,3);
-        String url = String.format("/mec/developer/v2/containerimages/list");
+        String url = String.format("/mec/developer/v2/containerimages/action/get-all-images");
         Mockito.when(containerImageService.getAllImage(Mockito.any())).thenReturn(page);
         ResultActions actions = mvc.perform(MockMvcRequestBuilders.post(url).with(csrf())
             .content(new Gson().toJson(containerImage)).contentType(MediaType.APPLICATION_JSON_UTF8))

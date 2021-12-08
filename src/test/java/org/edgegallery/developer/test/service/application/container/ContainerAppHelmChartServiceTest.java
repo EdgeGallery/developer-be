@@ -287,10 +287,10 @@ public class ContainerAppHelmChartServiceTest {
             ContainerAppHelmChartServiceTest.class.getClassLoader()
                 .getResourceAsStream("testdata/helmcharts/namespacetest.tgz"));
         HelmChart helmChart = appHelmChartService
-            .uploadHelmChartFile("4cbbab9d-c48f-4adb-ae82-d1816d8edd7b", uploadFile);
+            .uploadHelmChartFile("6a75a2bd-9811-432f-bbe8-2813aa97d367", uploadFile);
         Assert.assertNotNull(helmChart);
         boolean ret = appHelmChartService
-            .deleteHelmChartById("4cbbab9d-c48f-4adb-ae82-d1816d8edd7b", helmChart.getId());
+            .deleteHelmChartById("6a75a2bd-9811-432f-bbe8-2813aa97d367", helmChart.getId());
         Assert.assertEquals(true, ret);
     }
 
