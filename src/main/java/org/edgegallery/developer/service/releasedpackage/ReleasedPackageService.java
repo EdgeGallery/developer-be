@@ -28,18 +28,67 @@ import org.edgegallery.developer.model.releasedpackage.ReleasedPkgReqDto;
 
 public interface ReleasedPackageService {
 
+    /**
+     * synchronize released app package.
+     *
+     * @param user current login user
+     * @param pkgReqDtos body param
+     * @return if success return true or false
+     */
     boolean synchronizePackage(User user, List<ReleasedPkgReqDto> pkgReqDtos);
 
+    /**
+     * get all synchronize package.
+     *
+     * @param name filter condition
+     * @param limit page limit
+     * @param offset page offset
+     * @return if success return paging data or throw exception
+     */
     Page<ReleasedPackage> getAllPackages(String name, int limit, int offset);
 
+    /**
+     * get app package structure.
+     *
+     * @param packageId package id
+     * @return return AppPkgFile list
+     */
     List<AppPkgFile> getAppPkgStructure(String packageId);
 
+    /**
+     * get file(under package) content.
+     *
+     * @param structureReqDto body param(inner file path)
+     * @param packageId package id
+     * @return return file path and content
+     */
     ReleasedPkgFileContent getAppPkgFileContent(ReleasedPkgFileContentReqDto structureReqDto, String packageId);
 
+    /**
+     * get file(under package) content.
+     *
+     * @param releasedPkgFileContent body param(inner file path and content)
+     * @param packageId package id
+     * @return return file path and content
+     */
     ReleasedPkgFileContent editAppPkgFileContent(ReleasedPkgFileContent releasedPkgFileContent, String packageId);
 
+    /**
+     * delete app package.
+     *
+     * @param packageId package id
+     * @return if success return true or return false
+     */
     boolean deleteAppPkg(String packageId);
 
+    /**
+     * release app package.
+     *
+     * @param user current login user info
+     * @param publishAppReqDto body param(is free and price)
+     * @param packageId package id
+     * @return if success return true or return false
+     */
     boolean releaseAppPkg(User user, PublishAppReqDto publishAppReqDto, String packageId);
 
 }

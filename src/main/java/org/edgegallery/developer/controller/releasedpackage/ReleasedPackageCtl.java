@@ -36,6 +36,8 @@ import org.edgegallery.developer.model.releasedpackage.ReleasedPkgFileContentReq
 import org.edgegallery.developer.model.releasedpackage.ReleasedPkgReqDto;
 import org.edgegallery.developer.model.restful.ErrorRespDto;
 import org.edgegallery.developer.service.releasedpackage.ReleasedPackageService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -55,11 +57,16 @@ import org.springframework.web.bind.annotation.RequestParam;
 @Validated
 public class ReleasedPackageCtl {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(ReleasedPackageCtl.class);
+
     @Autowired
     private ReleasedPackageService releasedPackageService;
 
     /**
      * synchronize app pkg from app store.
+     *
+     * @param pkgReqDtos app id and package id list
+     * @return if success return true or false
      */
     @ApiOperation(value = "Get app package by packageId.", response = Boolean.class)
     @ApiResponses(value = {
@@ -70,12 +77,18 @@ public class ReleasedPackageCtl {
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<Boolean> synchronizeAppPkg(
         @NotNull @ApiParam(value = "pkgReqDtos", required = true) @RequestBody List<ReleasedPkgReqDto> pkgReqDtos) {
+        LOGGER.info("enter synchronizeAppPkg method....");
         User user = AccessUserUtil.getUser();
         return ResponseEntity.ok(releasedPackageService.synchronizePackage(user, pkgReqDtos));
     }
 
     /**
      * get all synchronized pkg.
+     *
+     * @param name query condition (app package name)
+     * @param limit page limit
+     * @param offset page offset
+     * @return return all synchronized pkg paging data
      */
     @ApiOperation(value = "Get app package by packageId.", response = Boolean.class)
     @ApiResponses(value = {
@@ -88,11 +101,15 @@ public class ReleasedPackageCtl {
         @ApiParam(value = "name", required = false) @RequestParam(value = "name", required = false) String name,
         @ApiParam(value = "the max count of one page", required = true) @Min(1) @RequestParam("limit") int limit,
         @ApiParam(value = "start index of the page", required = true) @Min(0) @RequestParam("offset") int offset) {
+        LOGGER.info("enter getAllAppPkg method ....");
         return ResponseEntity.ok(releasedPackageService.getAllPackages(name, limit, offset));
     }
 
     /**
      * get app pkg structure.
+     *
+     * @param packageId app package id
+     * @return return AppPkgFile list
      */
     @ApiOperation(value = "Get package structure", response = List.class)
     @ApiResponses(value = {
@@ -104,11 +121,16 @@ public class ReleasedPackageCtl {
     public ResponseEntity<List<AppPkgFile>> getAppPackageStructure(
         @ApiParam(value = "packageId", required = true) @PathVariable(value = "packageId", required = true)
             String packageId) {
+        LOGGER.info("enter getAppPackageStructure method ....");
         return ResponseEntity.ok(releasedPackageService.getAppPkgStructure(packageId));
     }
 
     /**
      * get app pkg file content.
+     *
+     * @param structureReqDto body param(inner file path)
+     * @param packageId package id
+     * @return return file path and content
      */
     @ApiOperation(value = "Get app package file content", response = ReleasedPkgFileContent.class)
     @ApiResponses(value = {
@@ -122,11 +144,16 @@ public class ReleasedPackageCtl {
             ReleasedPkgFileContentReqDto structureReqDto,
         @ApiParam(value = "packageId", required = true) @PathVariable(value = "packageId", required = true)
             String packageId) {
+        LOGGER.info("enter getAppPkgFile method ....");
         return ResponseEntity.ok(releasedPackageService.getAppPkgFileContent(structureReqDto, packageId));
     }
 
     /**
      * edit app pkg file content.
+     *
+     * @param releasedPkgFileContent body param(inner file path and content)
+     * @param packageId package id
+     * @return return file path and content
      */
     @ApiOperation(value = "Update app package file content", response = ReleasedPkgFileContent.class)
     @ApiResponses(value = {
@@ -139,11 +166,15 @@ public class ReleasedPackageCtl {
         @ApiParam(value = "packageId", required = true) @PathVariable(value = "packageId", required = true)
             String packageId, @NotNull @ApiParam(value = "releasedPkgFileContent", required = true) @RequestBody
         ReleasedPkgFileContent releasedPkgFileContent) {
+        LOGGER.info("enter updateAppPackageFileContent method ....");
         return ResponseEntity.ok(releasedPackageService.editAppPkgFileContent(releasedPkgFileContent, packageId));
     }
 
     /**
      * delete app pkg info.
+     *
+     * @param packageId package id
+     * @return if success return true or return false
      */
     @ApiOperation(value = "delete app package info", response = Boolean.class)
     @ApiResponses(value = {
@@ -155,14 +186,16 @@ public class ReleasedPackageCtl {
     public ResponseEntity<Boolean> deleteAppPackage(
         @ApiParam(value = "packageId", required = true) @PathVariable(value = "packageId", required = true)
             String packageId) {
+        LOGGER.info("enter deleteAppPackage method ....");
         return ResponseEntity.ok(releasedPackageService.deleteAppPkg(packageId));
     }
 
     /**
      * release app.
      *
-     * @param packageId packageId
-     * @return true
+     * @param publishAppDto body param(is free and price)
+     * @param packageId package id
+     * @return if success return true or return false
      */
     @ApiOperation(value = "release app.", response = Boolean.class)
     @ApiResponses(value = {
@@ -175,6 +208,7 @@ public class ReleasedPackageCtl {
     public ResponseEntity<Boolean> releaseApp(
         @ApiParam(value = "packageId", required = true) @PathVariable String packageId,
         @ApiParam(value = "publishAppDto", required = true) @RequestBody PublishAppReqDto publishAppDto) {
+        LOGGER.info("enter releaseApp method ....");
         User user = AccessUserUtil.getUser();
         return ResponseEntity.ok(releasedPackageService.releaseAppPkg(user, publishAppDto, packageId));
     }

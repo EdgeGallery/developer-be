@@ -24,10 +24,12 @@ import com.google.gson.JsonParser;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import org.apache.commons.io.FileUtils;
 import org.edgegallery.developer.common.ResponseConsts;
 import org.edgegallery.developer.exception.DataBaseException;
@@ -91,13 +93,14 @@ public class ReleasedPackageServiceImpl implements ReleasedPackageService {
     public boolean synchronizePackage(User user, List<ReleasedPkgReqDto> pkgReqDtos) {
         // check user param
         if (user == null) {
-            LOGGER.error("not found any user info!");
-            throw new UnauthorizedException("not found any user info", ResponseConsts.RET_REQUEST_UNAUTHORIZED);
+            LOGGER.error("no user info was found!");
+            throw new UnauthorizedException("no user info was found", ResponseConsts.RET_REQUEST_UNAUTHORIZED);
         }
+
         // check pkgReqDtos param
         if (CollectionUtils.isEmpty(pkgReqDtos)) {
-            LOGGER.error("not found any request body info!");
-            throw new IllegalRequestException("not found any request body info",
+            LOGGER.error("no request body info was found!");
+            throw new IllegalRequestException("no request body info was found",
                 ResponseConsts.RET_REQUEST_PARAM_EMPTY);
         }
 
@@ -131,10 +134,12 @@ public class ReleasedPackageServiceImpl implements ReleasedPackageService {
         JsonObject dataObj = jsonObject.getAsJsonObject("data");
         String appId = dataObj.get("appId").getAsString();
         String packageId = dataObj.get("packageId").getAsString();
+
         ReleasedPackage queryReleasedPackage = releasedPackageMapper.getReleasedPackageById(appId, packageId);
         if (queryReleasedPackage != null) {
             releasedPackageMapper.deleteReleasedPackageById(appId, packageId);
         }
+
         ReleasedPackage releasedPackage = new ReleasedPackage();
         releasedPackage.setAppId(dataObj.get("appId").getAsString());
         releasedPackage.setPackageId(dataObj.get("packageId").getAsString());
@@ -149,6 +154,7 @@ public class ReleasedPackageServiceImpl implements ReleasedPackageService {
         releasedPackage.setUserId(user.getUserId());
         releasedPackage.setUserName(user.getUserName());
         releasedPackage.setTestTaskId(dataObj.get("testTaskId").getAsString());
+
         int res = releasedPackageMapper.createReleasedPackage(releasedPackage);
         if (res <= 0) {
             String msg = "save released pkg info failed!";
@@ -164,6 +170,7 @@ public class ReleasedPackageServiceImpl implements ReleasedPackageService {
                 LOGGER.error("download pkg failed!");
                 throw new RestfulRequestException("download pkg failed!", ResponseConsts.RET_RESTFUL_REQUEST_FAIL);
             }
+
             String fileName = packageId + ".zip";
             String outPath = getPackagePath(packageId);
             LOGGER.info("output package path:{}", outPath);
@@ -175,11 +182,13 @@ public class ReleasedPackageServiceImpl implements ReleasedPackageService {
                     throw new FileOperateException("create pkg out path failed!", ResponseConsts.RET_CREATE_FILE_FAIL);
                 }
             }
+
             File pkgFile = new File(outPath + fileName);
             if (!pkgFile.exists() && !pkgFile.createNewFile()) {
                 LOGGER.error("create pkg file failed");
                 throw new FileOperateException("create pkg file failed!", ResponseConsts.RET_CREATE_FILE_FAIL);
             }
+
             FileUtils.writeByteArrayToFile(pkgFile, result);
         } catch (IOException e) {
             LOGGER.error("save file occur {}", e.getMessage());
@@ -194,6 +203,7 @@ public class ReleasedPackageServiceImpl implements ReleasedPackageService {
             boolean res = uploadFileService.deleteFileRecord(packageId);
             LOGGER.info("del res:{}", res);
         }
+
         UploadFile uploadFile = new UploadFile();
         uploadFile.setFileId(packageId);
         uploadFile.setFileName(packageId + ".zip");
@@ -202,6 +212,7 @@ public class ReleasedPackageServiceImpl implements ReleasedPackageService {
         uploadFile.setTemp(false);
         uploadFile.setUploadDate(new Date());
         uploadFile.setUserId(user.getUserId());
+
         int res = uploadFileService.saveFile(uploadFile);
         if (res <= 0) {
             String msg = "save released pkg info to table upload file failed!";
@@ -230,6 +241,7 @@ public class ReleasedPackageServiceImpl implements ReleasedPackageService {
             LOGGER.error("packageId is null");
             throw new IllegalRequestException("packageId is null", ResponseConsts.RET_REQUEST_PARAM_EMPTY);
         }
+
         // query uploadFile and releasedPackage
         UploadFile uploadFile = uploadFileService.getFile(packageId);
         ReleasedPackage releasedPackage = releasedPackageMapper.getReleasedPackageByPkgId(packageId);
@@ -243,15 +255,18 @@ public class ReleasedPackageServiceImpl implements ReleasedPackageService {
             LOGGER.error("pkg {} not found", pkgFile.getName());
             throw new FileFoundFailException("pkg(.zip) not found!", ResponseConsts.RET_FILE_NOT_FOUND);
         }
+
         //decompress zip
         String zipDecompressDir = decompressAppPkg(uploadFile, releasedPackage, pkgDir, packageId);
         LOGGER.info("zipDecompressDir:{}", zipDecompressDir);
+
         //get zip catalog
         return ReleasedPackageUtil.getCatalogue(zipDecompressDir);
     }
 
     private String decompressAppPkg(UploadFile uploadFile, ReleasedPackage releasedPackage, String pkgDir,
         String packageId) {
+
         //decompress zip
         String zipPath = uploadFile.getFilePath();
         String zipParentDir = zipPath.substring(0, zipPath.lastIndexOf(File.separator));
@@ -262,6 +277,7 @@ public class ReleasedPackageServiceImpl implements ReleasedPackageService {
             LOGGER.error("decompress zip file {} failed!", uploadFile.getFileName());
             throw new FileOperateException("decompress pkg(.zip) failed!", ResponseConsts.RET_DECOMPRESS_FILE_FAIL);
         }
+
         // decompress zip under \APPD
         String appdFileName = releasedPackage.getName() + "_" + releasedPackage.getProvider() + "_" + releasedPackage
             .getVersion() + "_" + releasedPackage.getArchitecture() + ".zip";
@@ -277,6 +293,8 @@ public class ReleasedPackageServiceImpl implements ReleasedPackageService {
             LOGGER.error("decompress zip file {} failed!", uploadFile.getFileName());
             throw new FileOperateException("decompress pkg(.zip) failed!", ResponseConsts.RET_DECOMPRESS_FILE_FAIL);
         }
+
+
         // decompress tgz under \Artifacts\Deployment\Charts
         String chartsTgzParentDir = zipDecompressDir + CHARTS_TGZ_PATH;
         List<File> fileList = ReleasedPackageUtil.getFiles(chartsTgzParentDir);
@@ -284,6 +302,8 @@ public class ReleasedPackageServiceImpl implements ReleasedPackageService {
             LOGGER.error("no tgz file found under path {}", chartsTgzParentDir);
             throw new FileFoundFailException("pkg(.tgz) not found!", ResponseConsts.RET_FILE_NOT_FOUND);
         }
+
+
         try {
             for (File tgzFile : fileList) {
                 boolean tgzRet = ReleasedPackageUtil.decompressAppPkg(tgzFile.getCanonicalPath(), chartsTgzParentDir);
@@ -299,6 +319,7 @@ public class ReleasedPackageServiceImpl implements ReleasedPackageService {
             LOGGER.error("delete zip file {} failed!", appdZipFile.getName());
             throw new FileOperateException("delete pkg(.zip) failed!", ResponseConsts.RET_DELETE_FILE_FAIL);
         }
+
         return zipDecompressDir;
     }
 
@@ -309,11 +330,13 @@ public class ReleasedPackageServiceImpl implements ReleasedPackageService {
             LOGGER.error("packageId is null");
             throw new IllegalRequestException("packageId is null", ResponseConsts.RET_REQUEST_PARAM_EMPTY);
         }
+
         //check param
         if (structureReqDto == null) {
             LOGGER.error("structureReqDto(body param) is null");
             throw new IllegalRequestException("structureReqDto is null", ResponseConsts.RET_REQUEST_PARAM_EMPTY);
         }
+
         //get decompress dir and get file content
         String zipDecompressDir = getAppPkgDecompressPath(packageId);
         File decompressDir = new File(zipDecompressDir);
@@ -321,11 +344,13 @@ public class ReleasedPackageServiceImpl implements ReleasedPackageService {
             LOGGER.error("app pkg not decompress!");
             throw new FileFoundFailException("app pkg not decompress", ResponseConsts.RET_FILE_NOT_FOUND);
         }
+
         String content = ReleasedPackageUtil.getContentByInnerPath(structureReqDto.getFilePath(), zipDecompressDir);
         LOGGER.info("file content:{}", content);
         ReleasedPkgFileContent pkgFileContent = new ReleasedPkgFileContent();
         pkgFileContent.setFilePath(structureReqDto.getFilePath());
         pkgFileContent.setContent(content);
+
         return pkgFileContent;
     }
 
@@ -337,23 +362,27 @@ public class ReleasedPackageServiceImpl implements ReleasedPackageService {
             LOGGER.error("packageId is null");
             throw new IllegalRequestException("packageId is null", ResponseConsts.RET_REQUEST_PARAM_EMPTY);
         }
+
         ReleasedPackage releasedPackage = releasedPackageMapper.getReleasedPackageByPkgId(packageId);
         if (releasedPackage == null) {
             LOGGER.error("packageId is error");
             throw new DataBaseException("packageId is error", ResponseConsts.RET_QUERY_DATA_EMPTY);
         }
+
         //check param
         if (releasedPkgFileContent == null) {
             LOGGER.error("releasedPkgFileContent(body param) is null");
             throw new IllegalRequestException("releasedPkgFileContent is null", ResponseConsts.RET_REQUEST_PARAM_EMPTY);
         }
+
         //get decompress dir
         String zipDecompressDir = getAppPkgDecompressPath(packageId);
         File decompressDir = new File(zipDecompressDir);
         if (!decompressDir.exists() || !decompressDir.isDirectory()) {
-            LOGGER.error("app pkg not decompress!");
-            throw new FileFoundFailException("app pkg not decompress", ResponseConsts.RET_FILE_NOT_FOUND);
+            LOGGER.error("app pkg decompress dir was not found!");
+            throw new FileFoundFailException("app pkg decompress dir was not found", ResponseConsts.RET_FILE_NOT_FOUND);
         }
+
         //modify content
         boolean ret = ReleasedPackageUtil
             .modifyFileByPath(releasedPkgFileContent.getFilePath(), releasedPkgFileContent.getContent(),
@@ -362,11 +391,14 @@ public class ReleasedPackageServiceImpl implements ReleasedPackageService {
             LOGGER.error("modify file  {} content failed!", releasedPkgFileContent.getFilePath());
             throw new FileOperateException("modify file content failed!", ResponseConsts.RET_WRITE_FILE_FAIL);
         }
+
         //compress to csar
         if (!compressToCsar(packageId, releasedPackage)) {
             LOGGER.error("compress csar file failed!");
             throw new FileOperateException("compress csar file failed", ResponseConsts.RET_WRITE_FILE_FAIL);
         }
+
+        //set ReleasedPkgFileContent
         ReleasedPkgFileContent queryFile = new ReleasedPkgFileContent();
         queryFile.setFilePath(releasedPkgFileContent.getFilePath());
         queryFile.setContent(
@@ -378,17 +410,21 @@ public class ReleasedPackageServiceImpl implements ReleasedPackageService {
         String decompressDir = getAppPkgDecompressPath(packageId);
         String pkgDir = getAppPkgPath(packageId);
         File pkgDeCompressDir = new File(decompressDir);
+
         if (!pkgDeCompressDir.exists()) {
             LOGGER.error("can not found decompress path {}!", decompressDir);
             throw new FileFoundFailException("can not found pkg decompress path!", ResponseConsts.RET_FILE_NOT_FOUND);
         }
+
         String tempPackageName = TEMPLATE_PATH + "-" + packageId;
         String tempPackagePath = pkgDir + File.separator + tempPackageName;
         try {
             DeveloperFileUtils.copyDirectory(pkgDeCompressDir, new File(pkgDir), tempPackageName);
+
             // compress appd
             String appdDir = tempPackagePath + APPD_ZIP_PATH;
             CompressFileUtils.fileToZip(appdDir, getAppFileName(releasedPackage, ""));
+
             // compress tgz
             String tgzDir = tempPackagePath + CHARTS_TGZ_PATH;
             File chartsDir = new File(tgzDir);
@@ -398,12 +434,15 @@ public class ReleasedPackageServiceImpl implements ReleasedPackageService {
                 throw new FileFoundFailException("can not found any tgz file!", ResponseConsts.RET_FILE_NOT_FOUND);
             }
             CompressFileUtils.compressToTgzAndDeleteSrc(charts[0].getCanonicalPath(), tgzDir, charts[0].getName());
+
+            //sign package
             boolean encryptedResult = encryptedService.encryptedCMS(tempPackagePath);
             if (!encryptedResult) {
                 LOGGER.error("sign package failed");
                 return false;
             }
-            // compress package
+
+            // compress csar
             CompressFileUtilsJava.compressToCsarAndDeleteSrc(tempPackagePath, pkgDir, packageId);
         } catch (IOException e) {
             LOGGER.error("package compress fail, package path:{}", tempPackagePath);
@@ -424,6 +463,7 @@ public class ReleasedPackageServiceImpl implements ReleasedPackageService {
             LOGGER.error("packageId is null");
             throw new IllegalRequestException("packageId is null", ResponseConsts.RET_REQUEST_PARAM_EMPTY);
         }
+
         // query uploadFile and releasedPackage
         UploadFile uploadFile = uploadFileService.getFile(packageId);
         ReleasedPackage releasedPackage = releasedPackageMapper.getReleasedPackageByPkgId(packageId);
@@ -431,16 +471,19 @@ public class ReleasedPackageServiceImpl implements ReleasedPackageService {
             LOGGER.warn("packageId is error");
             return true;
         }
+
         boolean ret = uploadFileService.deleteFile(packageId);
         if (!ret) {
             LOGGER.error("delete upload file data {} failed!", packageId);
             throw new DataBaseException("delete upload file data failed", ResponseConsts.RET_DELETE_DATA_FAIL);
         }
+
         int deletePkgRet = releasedPackageMapper.deleteReleasedPackageByPkgId(packageId);
         if (deletePkgRet <= 0) {
             LOGGER.error("delete released pkg data {} failed!", packageId);
             throw new DataBaseException("delete released pkg data failed", ResponseConsts.RET_DELETE_DATA_FAIL);
         }
+
         //delete file
         String pkgDirPath = getAppPkgPath(packageId);
         File pkgDir = new File(pkgDirPath);
@@ -448,12 +491,14 @@ public class ReleasedPackageServiceImpl implements ReleasedPackageService {
             LOGGER.warn("app pkg dir {} not exist", pkgDirPath);
             return true;
         }
+
         try {
             FileUtils.cleanDirectory(pkgDir);
         } catch (IOException e) {
             LOGGER.error("clean app pkg dir {} failed! {}", pkgDirPath, e.getMessage());
             return false;
         }
+
         return true;
     }
 
@@ -464,6 +509,7 @@ public class ReleasedPackageServiceImpl implements ReleasedPackageService {
             LOGGER.error("packageId is null");
             throw new IllegalRequestException("packageId is null", ResponseConsts.RET_REQUEST_PARAM_EMPTY);
         }
+
         // query uploadFile and releasedPackage
         UploadFile uploadFile = uploadFileService.getFile(packageId);
         ReleasedPackage releasedPackage = releasedPackageMapper.getReleasedPackageByPkgId(packageId);
@@ -471,17 +517,20 @@ public class ReleasedPackageServiceImpl implements ReleasedPackageService {
             LOGGER.warn("packageId is error");
             return false;
         }
+
         String appPKgPath = getAppPkgPath(packageId) + packageId + ".csar";
         File appPkg = new File(appPKgPath);
         if (!appPkg.exists()) {
             LOGGER.warn("The synchronized pkg has not been packaged(.csar) yet");
             return false;
         }
+
         List<File> list = getIconList(packageId);
         if (CollectionUtils.isEmpty(list)) {
             LOGGER.warn("can not found icon under art/docs dir");
             return false;
         }
+
         Map<String, Object> map = new HashMap<>();
         map.put("file", new FileSystemResource(appPkg));
         map.put("icon", new FileSystemResource(list.get(0)));
@@ -521,14 +570,8 @@ public class ReleasedPackageServiceImpl implements ReleasedPackageService {
     private List<File> getIconList(String packageId) {
         String iconPath = getAppPkgDecompressPath(packageId) + DOCS_ICON_PATH;
         File icon = new File(iconPath);
-        File[] files = icon.listFiles();
-        List<File> list = new ArrayList<>();
-        for (File file : files) {
-            if (file.getName().endsWith("jpg") || file.getName().endsWith("png")) {
-                list.add(file);
-            }
-        }
-        return list;
+        return Arrays.stream(icon.listFiles()).filter(item -> item.getName().endsWith("jpg")||item.getName().endsWith("png"))
+            .collect(Collectors.toList());
     }
 
     private <T> void checkInnerParamNull(T innerParam, String msg) {

@@ -23,9 +23,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.edgegallery.developer.model.releasedpackage.AppPkgFile;
@@ -40,14 +42,13 @@ public class ReleasedPackageUtil {
         throw new IllegalStateException("ReleasedPackageUtil class");
     }
 
-    private static String appPkgRootDir;
-
+    private static  String appPkgRootDir;
     /**
      * decompress app pkg.
      *
-     * @param appPkgDir appPkgDir
-     * @param outPutPath outPutPath
-     * @return
+     * @param appPkgDir package directory
+     * @param outPutPath decompress directory
+     * @return if decompress return true or return false
      */
     public static boolean decompressAppPkg(String appPkgDir, String outPutPath) {
         File file = new File(outPutPath);
@@ -61,8 +62,8 @@ public class ReleasedPackageUtil {
     /**
      * get decompressPkgDir catalog.
      *
-     * @param decompressPkgDir decompressPkgDir
-     * @return
+     * @param decompressPkgDir package decompress directory
+     * @return if decompressPkgDir exist return file list or return empty list
      */
     public static List<AppPkgFile> getCatalogue(String decompressPkgDir) {
         if (StringUtils.isEmpty(decompressPkgDir)) {
@@ -78,8 +79,7 @@ public class ReleasedPackageUtil {
         }
     }
 
-    private static List<AppPkgFile> deepReadDir(List<AppPkgFile> files, File root, String decompressPkgDir)
-        throws IOException {
+    private static List<AppPkgFile> deepReadDir(List<AppPkgFile> files, File root, String decompressPkgDir) throws IOException {
         LOGGER.info("appPkgRootDir:{}", appPkgRootDir);
         if (root.isFile()) {
             AppPkgFile file = AppPkgFile.builder().fileName(root.getName()).isFile(true)
@@ -89,15 +89,13 @@ public class ReleasedPackageUtil {
                 file.setContent(FileUtils.readFileToString(Paths.get(decompressPkgDir, file.getFilePath()).toFile(),
                     StandardCharsets.UTF_8));
             }
-            LOGGER.info("root file:{}", root.getPath().replaceAll("\\\\", "/"));
             String filePath = root.getPath().replaceAll("\\\\", "/");
+            LOGGER.info("root file:{}", filePath);
             file.setFilePath(filePath.replace(appPkgRootDir, ""));
             files.add(file);
         }
 
         if (root.isDirectory()) {
-            LOGGER.info(root.getCanonicalPath());
-            LOGGER.info(root.getPath());
             AppPkgFile file = AppPkgFile.builder().fileName(root.getName()).isFile(false)
                 .filePath(root.getPath().replace(decompressPkgDir, "")).build();
             List<AppPkgFile> children = new ArrayList<>();
@@ -113,15 +111,16 @@ public class ReleasedPackageUtil {
     }
 
     /**
-     * getContentByInnerPath.
+     * get file content.
      *
-     * @param filePath filePath
-     * @return
+     * @param filePath file path in app package
+     * @param decompressPkgDir package decompress directory
+     * @return if success return content or null
      */
     public static String getContentByInnerPath(String filePath, String decompressPkgDir) {
         try {
-            decompressPkgDir = decompressPkgDir.replaceAll("\\\\", "/");
-            return FileUtils.readFileToString(Paths.get(decompressPkgDir, filePath).toFile(), StandardCharsets.UTF_8);
+            String pkgDir = decompressPkgDir.replaceAll("\\\\", "/");
+            return FileUtils.readFileToString(Paths.get(pkgDir, filePath).toFile(), StandardCharsets.UTF_8);
         } catch (IOException e) {
             LOGGER.error("Failed to read the inner file. innerPath:{}", filePath);
             return null;
@@ -131,14 +130,15 @@ public class ReleasedPackageUtil {
     /**
      * modify file.
      *
-     * @param filePath filePath
-     * @param content content
-     * @return
+     * @param filePath file path in app package
+     * @param content new file content
+     * @param decompressPkgDir package decompress directory
+     * @return if success return true or false
      */
     public static boolean modifyFileByPath(String filePath, String content, String decompressPkgDir) {
         try {
-            decompressPkgDir = decompressPkgDir.replaceAll("\\\\", "/");
-            Path realPath = Paths.get(decompressPkgDir, filePath);
+            String pkgDir = decompressPkgDir.replaceAll("\\\\", "/");
+            Path realPath = Paths.get(pkgDir, filePath);
             if (realPath.toFile().exists() && realPath.toFile().isFile()) {
                 Files.write(realPath, content.getBytes(StandardCharsets.UTF_8));
                 return true;
@@ -153,8 +153,8 @@ public class ReleasedPackageUtil {
     /**
      * get files.
      *
-     * @param filePath filePath
-     * @return
+     * @param filePath file Path
+     * @return if success return file list or return empty list
      */
     public static List<File> getFiles(String filePath) {
         File file = new File(filePath);
@@ -162,17 +162,7 @@ public class ReleasedPackageUtil {
             LOGGER.info("directory {} not exist", filePath);
             return Collections.emptyList();
         }
-        File[] files = file.listFiles();
-        if (files == null || files.length == 0) {
-            LOGGER.info("no file was found under directory {}", filePath);
-            return Collections.emptyList();
-        }
-        List<File> fileList = new ArrayList<>();
-        for (File fileObj : files) {
-            if (fileObj.getName().endsWith("tgz")) {
-                fileList.add(fileObj);
-            }
-        }
-        return fileList;
+        return Arrays.stream(file.listFiles()).filter(item -> item.getName().endsWith("tgz"))
+            .collect(Collectors.toList());
     }
 }
