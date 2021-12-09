@@ -1,5 +1,5 @@
 /*
- *    Copyright 2020-2021 Huawei Technologies Co., Ltd.
+ *    Copyright 2021 Huawei Technologies Co., Ltd.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -14,17 +14,21 @@
  *    limitations under the License.
  */
 
-package org.edgegallery.developer.service.proxy;
+package org.edgegallery.developer.model.reverseproxy;
 
-import org.edgegallery.developer.model.reverseproxy.SshResponseInfo;
+import lombok.Getter;
+import lombok.Setter;
 
-public interface ReverseProxyService {
+@Getter
+@Setter
+public class SshResponseInfo {
 
-    void addReverseProxy(String hostId, int hostConsolePort, String token);
+    private String encoding;
 
-    void deleteReverseProxy(String hostId, int hostConsolePort, String token);
+    private String id;
 
-    String getVmConsoleUrl(String applicationId, String vmId, String userId, String token);
+    private String status;
 
-    SshResponseInfo getVmSshResponseInfo(String applicationId, String vmId, String userId, String cookie);
+    private String sshAddress;
+
 }
