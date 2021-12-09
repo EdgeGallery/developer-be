@@ -92,7 +92,7 @@ public class VMImageServiceImpl implements VMImageService {
     // time out: 10 min.
     public static final int TIMEOUT = 10 * 60 * 1000;
     //interval of the query, 5s.
-    public static final int INTERVAL = 5000;
+    public static final int INTERVAL = 10000;
 
     private static Gson gson = new Gson();
 
@@ -473,6 +473,12 @@ public class VMImageServiceImpl implements VMImageService {
 
         String filesystemUrl = fileServerAddress + String.format(Consts.SYSTEM_IMAGE_GET_URL, filesystemImageId);
         int waitingTime = 0;
+        try {
+            Thread.sleep(INTERVAL);
+            waitingTime += INTERVAL;
+        } catch (Exception e) {
+            return new UploadFileInfo(3, EnumProcessErrorType.FILESYSTEM_CHECK_FAILED.getErrorType());
+        }
         while (waitingTime < TIMEOUT) {
 
             FileSystemResponse imageCheckResult = HttpClientUtil.queryImageCheck(filesystemUrl);

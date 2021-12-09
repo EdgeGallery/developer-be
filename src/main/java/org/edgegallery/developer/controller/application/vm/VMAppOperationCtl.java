@@ -31,6 +31,7 @@ import org.edgegallery.developer.model.common.Chunk;
 import org.edgegallery.developer.model.restful.OperationInfoRep;
 import org.edgegallery.developer.model.restful.VncUrlRep;
 import org.edgegallery.developer.model.restful.ErrorRespDto;
+import org.edgegallery.developer.model.reverseproxy.SshResponseInfo;
 import org.edgegallery.developer.service.proxy.ReverseProxyService;
 import org.edgegallery.developer.service.application.vm.VMAppOperationService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -155,5 +156,26 @@ public class VMAppOperationCtl {
         String vncUrl = reverseProxyService.getVmConsoleUrl(applicationId, vmId, AccessUserUtil.getUserId(),
             accessToken);
         return ResponseEntity.ok(new VncUrlRep(vncUrl));
+    }
+
+    /**
+     * get ssh info.
+     */
+    @ApiOperation(value = "get ssh url", response = SshResponseInfo.class)
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = "OK", response = SshResponseInfo.class),
+        @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
+    })
+    @RequestMapping(value = "/{applicationId}/vms/{vmId}/ssh", method = RequestMethod.GET)
+    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
+    public ResponseEntity getSshInfo(
+        @ApiParam(value = "applicationId", required = true) @PathVariable("applicationId") String applicationId,
+        @Pattern(regexp = REGEX_UUID, message = "vmId must be in UUID format")
+        @ApiParam(value = "vmId", required = true) @PathVariable("vmId") String vmId, HttpServletRequest request) {
+
+        String cookie = request.getHeader("Cookie");
+        SshResponseInfo sshResponseInfo = reverseProxyService.getVmSshResponseInfo(applicationId, vmId, AccessUserUtil.getUserId(),
+            cookie);
+        return ResponseEntity.ok(sshResponseInfo);
     }
 }

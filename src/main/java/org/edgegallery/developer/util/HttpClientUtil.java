@@ -22,6 +22,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -36,6 +37,7 @@ import org.edgegallery.developer.model.lcm.DistributeResponse;
 import org.edgegallery.developer.model.lcm.InstantRequest;
 import org.edgegallery.developer.model.lcm.LcmResponseBody;
 import org.edgegallery.developer.model.lcm.VmImageRequest;
+import org.edgegallery.developer.model.reverseproxy.SshResponseInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.FileSystemResource;
@@ -824,7 +826,7 @@ public final class HttpClientUtil {
             return null;
         }
         if (response.getStatusCode() == HttpStatus.OK) {
-            LOGGER.info("image slim  success, resp = {}", response);
+            LOGGER.info("get image info success, resp = {}", response);
             try {
                 return new ObjectMapper().readValue(
                     Objects.requireNonNull(response.getBody()).getBytes(), FileSystemResponse.class);
@@ -835,6 +837,43 @@ public final class HttpClientUtil {
             }
         }
         LOGGER.error("get image info fail from filesystem!");
+        return null;
+    }
+
+    public static SshResponseInfo sendWebSshRequest(String basePath, String hostIp, int port, String username, String password, String cookie) {
+        MultiValueMap<String, Object> formData = new LinkedMultiValueMap<>();
+        formData.add("hostname", hostIp);
+        formData.add("port", port);
+        formData.add("username", username);
+        formData.add("password", password);
+        formData.add("_xsrf", cookie.split("=")[1]);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+        headers.add("Cookie", cookie);
+
+        HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(formData, headers);
+
+        ResponseEntity<String> response;
+        try {
+            REST_TEMPLATE.setErrorHandler(new CustomResponseErrorHandler());
+            response = REST_TEMPLATE.exchange(basePath, HttpMethod.POST, requestEntity, String.class);
+            LOGGER.info("send WebSsh request, resp = {}", response);
+        } catch (Exception e) {
+            LOGGER.error("send WebSsh request exception {}", e.getMessage());
+            return null;
+        }
+        if (response.getStatusCode() == HttpStatus.OK) {
+            LOGGER.info("send WebSsh request success, resp = {}", response);
+            try {
+                return new ObjectMapper().readValue(
+                    Objects.requireNonNull(response.getBody()).getBytes(), SshResponseInfo.class);
+
+            } catch (Exception e) {
+                LOGGER.error("send WebSsh request fail from filesystem. {}", e.getMessage());
+                return null;
+            }
+        }
+        LOGGER.error("send WebSsh request fail from filesystem!");
         return null;
     }
 }

@@ -136,6 +136,9 @@
         <if test="vimType != null and vimType != ''">
             and vim_type = #{vimType}
         </if>
+        <if test="vimType != null and vimType != '' and vimType != 'K8S'">
+            and vim_type != 'K8S'
+        </if>
         <if test="architecture != null and architecture != ''">
             and architecture = #{architecture}
         </if>
