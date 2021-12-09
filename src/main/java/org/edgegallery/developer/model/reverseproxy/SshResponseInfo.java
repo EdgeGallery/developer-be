@@ -14,25 +14,21 @@
  *    limitations under the License.
  */
 
-package org.edgegallery.developer.model.lcm;
+package org.edgegallery.developer.model.reverseproxy;
 
-import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.ToString;
-import org.edgegallery.developer.model.lcm.VmInfo;
 
 @Getter
 @Setter
-@ToString
-public class VmInstantiateWorkload {
+public class SshResponseInfo {
 
-    private  String code;
+    private String encoding;
 
-    private String msg;
+    private String id;
 
     private String status;
 
-    private List<VmInfo> data;
+    private String sshAddress;
 
 }

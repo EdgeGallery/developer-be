@@ -63,12 +63,12 @@ MERGE INTO tbl_capability (id,group_id, name, name_en, version, description, des
 -- ----------------------------
 MERGE INTO tbl_uploaded_file (file_id, file_name,is_temp, user_id, upload_date, file_path)  KEY(file_id) values
 ( 'e111f3e7-90d8-4a39-9874-ea6ea6752ef5','pet.json', false, 'e111f3e7-90d8-4a39-9874-ea6ea6752ef6', '2019-10-23 03:27:36', '/workspace/200dfab1-3c30-4fc7-a6ca-ed6f0620a85e\ad66d1b6-5d29-487b-9769-be48b62aec2e');
---
-MERGE INTO tbl_container_image (image_id, image_name, image_version, user_id, user_name)  KEY(image_id) values
-('6ababcec-2934-43d9-afc8-d3d403ebc782','test1','1.0','c5c7c35a-f85b-441c-9307-5516b951efd2','author');
 
---MERGE INTO tbl_container_image (image_id, image_name, image_version, user_id, user_name,upload_time)  KEY(image_id) values
---('6ababcec-2934-43d9-afc8-d3d403ebc785','test2','2.0','c5c7c35a-f85b-441c-9307-5516b951efd3','author1')
+MERGE INTO tbl_container_image (image_id, image_name, image_version, user_id, user_name)  KEY(image_id) values
+( '6ababcec-2934-43d9-afc8-d3d403ebc782','test1','1.0','c5c7c35a-f85b-441c-9307-5516b951efd2','author');
+--
+--MERGE INTO tbl_container_image (image_id, image_name, image_version, user_id, user_name, file_name, image_path)  KEY(image_id) values
+--( '6ababcec-2934-43d9-afc8-d3d403ebc785','test2','2.0','c5c7c35a-f85b-441c-9307-5516b951efd3','author1','test2.tar','xxxx')
 ---- ----------------------------
 
 -- ----------------------------
@@ -105,6 +105,7 @@ MERGE INTO tbl_application KEY(id) VALUES('4cbbab9d-c48f-4adb-ae82-d1816d8edd7c'
 MERGE INTO tbl_application KEY(id) VALUES('3f11715f-b59e-4c23-965b-b7f9c34c20d1','vm-app-01','vm app desc','v2.0','edgegallery','X86','VM','Video Application','Smart Park','db22dc00-8f44-408c-a106-402e60c643de','db22dc00-8f44-408c-a106-402e60c643df','DEVELOP','1635738228272','CREATED','b27d72b5-93a6-4db4-8268-7ec502331ade','admin',null);
 MERGE INTO tbl_application KEY(id) VALUES('6a75a2bd-9811-432f-bbe8-2813aa97d365','container-app-01','container app desc','v1.1','edgegallery','X86','CONTAINER','Video Application','Smart Park','db22dc00-8f44-408c-a106-402e60c643de','db22dc00-8f44-408c-a106-402e60c643df','DEVELOP','1635738228272','CREATED','b27d72b5-93a6-4db4-8268-7ec502331ade','admin',null);
 MERGE INTO tbl_application KEY(id) VALUES('6a75a2bd-9811-432f-bbe8-2813aa97d366','container-app-02','container app desc','v1.2','edgegallery','X86','CONTAINER','Video Application','Smart Park','db22dc00-8f44-408c-a106-402e60c643de','db22dc00-8f44-408c-a106-402e60c643df','DEVELOP','1635738228272','CREATED','b27d72b5-93a6-4db4-8268-7ec502331ade','admin',null);
+MERGE INTO tbl_application KEY(id) VALUES('6a75a2bd-9811-432f-bbe8-2813aa97d367','container-app-03','container app desc','v1.3','edgegallery','X86','CONTAINER','Video Application','Smart Park','db22dc00-8f44-408c-a106-402e60c643de','db22dc00-8f44-408c-a106-402e60c643df','DEVELOP','1635738228272','CREATED','b27d72b5-93a6-4db4-8268-7ec502331ade','admin',null);
 
 -- ----------------------------
 -- Records of tbl_vm

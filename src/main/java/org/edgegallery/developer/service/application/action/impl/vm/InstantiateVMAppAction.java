@@ -55,6 +55,10 @@ public class InstantiateVMAppAction extends InstantiateAppAction {
 
     VMAppVmService vmAppVmService = (VMAppVmService) SpringContextUtil.getBean(VMAppVmService.class);
 
+    private static final String INSTANTIATE_SUCCESS = "Instantiated";
+
+    private static final String INSTANTIATE_FAILURE = "Failure";
+
     public boolean saveInstanceIdToInstantiateInfo(String appInstanceId, EnumAppInstantiateStatus status) {
         String applicationId = (String) getContext().getParameter(IContextParameter.PARAM_APPLICATION_ID);
         String vmId = (String) getContext().getParameter(IContextParameter.PARAM_VM_ID);
@@ -121,12 +125,12 @@ public class InstantiateVMAppAction extends InstantiateAppAction {
                 return EnumInstantiateStatus.INSTANTIATE_STATUS_ERROR;
             }
             JsonObject jsonObject = new JsonParser().parse(workStatus).getAsJsonObject();
-            if (jsonObject.get("status").getAsString().equals("Instantiated")) {
+            if (INSTANTIATE_SUCCESS.equals(jsonObject.get("status").getAsString())) {
                 LOGGER.info("Query instantiate result, lcm return success. workload:{} ", workStatus);
                 saveWorkloadToInstantiateInfo(workStatus);
                 return EnumInstantiateStatus.INSTANTIATE_STATUS_SUCCESS;
             }
-            if (jsonObject.get("status").getAsString().equals("Failure")) {
+            if (INSTANTIATE_FAILURE.equals(jsonObject.get("status").getAsString())) {
                 LOGGER.error("Query instantiate failed:{}", jsonObject.get("msg").getAsString());
                 return EnumInstantiateStatus.INSTANTIATE_STATUS_FAILED;
             }

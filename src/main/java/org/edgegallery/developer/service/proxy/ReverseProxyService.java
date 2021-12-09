@@ -16,8 +16,15 @@
 
 package org.edgegallery.developer.service.proxy;
 
+import org.edgegallery.developer.model.reverseproxy.SshResponseInfo;
+
 public interface ReverseProxyService {
+
     void addReverseProxy(String hostId, int hostConsolePort, String token);
+
     void deleteReverseProxy(String hostId, int hostConsolePort, String token);
+
     String getVmConsoleUrl(String applicationId, String vmId, String userId, String token);
+
+    SshResponseInfo getVmSshResponseInfo(String applicationId, String vmId, String userId, String cookie);
 }
