@@ -42,4 +42,6 @@ public interface UploadFileService {
 
     UploadFile saveFileToLocal(MultipartFile uploadFile, String userId);
 
+    boolean deleteFileRecord(String fileId);
+
 }
