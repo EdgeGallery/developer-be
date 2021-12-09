@@ -840,16 +840,16 @@ public final class HttpClientUtil {
         return null;
     }
 
-    public static SshResponseInfo sendWebSshRequest(String basePath, String hostIp, int port, String username, String password, String cookie) {
+    public static SshResponseInfo sendWebSshRequest(String basePath, String hostIp, int port, String username, String password, String XSRFValue) {
         MultiValueMap<String, Object> formData = new LinkedMultiValueMap<>();
         formData.add("hostname", hostIp);
         formData.add("port", port);
         formData.add("username", username);
         formData.add("password", password);
-        formData.add("_xsrf", cookie.split("=")[1]);
+        formData.add("_xsrf", XSRFValue);
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);
-        headers.add("Cookie", cookie);
+        headers.add("Cookie", "_xsrf=" + XSRFValue);
 
         HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(formData, headers);
 
