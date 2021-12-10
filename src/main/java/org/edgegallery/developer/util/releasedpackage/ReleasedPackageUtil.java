@@ -68,8 +68,8 @@ public class ReleasedPackageUtil {
         if (StringUtils.isEmpty(decompressPkgDir)) {
             return Collections.emptyList();
         }
-        String appPkgRootDir = decompressPkgDir.replaceAll("\\\\", "/");
-        LOGGER.info("appPkgRootDir:{}",appPkgRootDir);
+        String appPkgRootDir = decompressPkgDir.replaceAll("\\\\", "/").replaceAll("//", "/");
+        LOGGER.info("appPkgRootDir:{}", appPkgRootDir);
         File root = new File(decompressPkgDir);
         try {
             return deepReadDir(new ArrayList<>(), root, decompressPkgDir, appPkgRootDir);
