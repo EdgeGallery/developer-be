@@ -490,3 +490,20 @@
     "create_time" timestamptz(6)  NOT NULL,
     CONSTRAINT "tbl_app_script_pkey" PRIMARY KEY ("id")
     );
+
+     CREATE TABLE IF NOT EXISTS "tbl_released_package" (
+       "app_id"  varchar(50) NOT NULL,
+       "package_id" varchar(50) NOT NULL,
+       "name" varchar(255) NOT NULL,
+       "version" varchar(255) NOT NULL,
+       "provider" varchar(255) NOT NULL,
+       "industry" varchar(255) NOT NULL,
+       "type" varchar(255) NOT NULL,
+       "architecture" varchar(255) NOT NULL,
+       "short_desc" varchar(255) NOT NULL,
+       "synchronize_date" timestamptz(6) NOT NULL,
+       "user_id" varchar(50) NOT NULL,
+       "user_name" varchar(255) NOT NULL,
+       "test_task_id" varchar(50) NOT NULL,
+       CONSTRAINT "tbl_released_package_pkey" PRIMARY KEY ("package_id")
+     );

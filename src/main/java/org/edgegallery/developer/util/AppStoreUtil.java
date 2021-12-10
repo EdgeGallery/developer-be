@@ -18,8 +18,8 @@ package org.edgegallery.developer.util;
 
 import com.google.gson.Gson;
 import java.util.Map;
-import org.edgegallery.developer.model.common.User;
 import org.edgegallery.developer.model.appstore.PublishAppReqDto;
+import org.edgegallery.developer.model.common.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpEntity;
@@ -92,11 +92,12 @@ public class AppStoreUtil {
         String url = String.format("%s/mec/appstore/v1/apps/%s/packages/%s/action/publish",
             InitConfigUtil.getProperties(APPSTORE_ADDRESS), appId, pkgId);
 
-        LOGGER.info("isFree: {}, price: {}", pubAppReqDto.isFree(),pubAppReqDto.getPrice());
+        LOGGER.info("isFree: {}, price: {}", pubAppReqDto.isFree(), pubAppReqDto.getPrice());
         LOGGER.info("url: {}", url);
         try {
             ResponseEntity<String> responses = restTemplate
-                .exchange(url, HttpMethod.POST, new HttpEntity<>(new Gson().toJson(pubAppReqDto), headers), String.class);
+                .exchange(url, HttpMethod.POST, new HttpEntity<>(new Gson().toJson(pubAppReqDto), headers),
+                    String.class);
             LOGGER.info("res: {}", responses);
             if (HttpStatus.OK.equals(responses.getStatusCode()) || HttpStatus.ACCEPTED
                 .equals(responses.getStatusCode())) {
@@ -107,7 +108,67 @@ public class AppStoreUtil {
         } catch (RestClientException e) {
             LOGGER.error("publish app  failed,  exception {}", e.getMessage());
             return null;
+        }
+    }
 
+    /**
+     * get pkg info.
+     */
+    public static ResponseEntity<String> getPkgInfo(String appId, String pkgId, String token) {
+        SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
+        requestFactory.setConnectTimeout(600000);// 设置超时
+        requestFactory.setReadTimeout(600000);
+        RestTemplate restTemplate = new RestTemplate(requestFactory);
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("access_token", token);
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        String url = String
+            .format("%S/mec/appstore/v2/apps/%s/packages/%s", InitConfigUtil.getProperties(APPSTORE_ADDRESS), appId,
+                pkgId);
+        LOGGER.info("url: {}", url);
+        try {
+            ResponseEntity<String> responses = restTemplate
+                .exchange(url, HttpMethod.GET, new HttpEntity<>(headers), String.class);
+            LOGGER.info("res: {}", responses);
+            if (HttpStatus.OK.equals(responses.getStatusCode()) || HttpStatus.CREATED
+                .equals(responses.getStatusCode())) {
+                return responses;
+            }
+            LOGGER.error("get pkg info failed, status is {}", responses.getStatusCode());
+            return null;
+        } catch (RestClientException e) {
+            LOGGER.error("get pkg info failed, exception {}", e.getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * download pkg .
+     */
+    public static ResponseEntity<byte[]> downloadPkg(String appId, String pkgId, String token) {
+        SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
+        requestFactory.setConnectTimeout(600000);// 设置超时
+        requestFactory.setReadTimeout(600000);
+        RestTemplate restTemplate = new RestTemplate(requestFactory);
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("access_token", token);
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        String url = String.format("%S/mec/appstore/v1/apps/%s/packages/%s/action/download",
+            InitConfigUtil.getProperties(APPSTORE_ADDRESS), appId, pkgId);
+        LOGGER.info("url: {}", url);
+        try {
+            ResponseEntity<byte[]> responses = restTemplate
+                .exchange(url, HttpMethod.GET, new HttpEntity<>(headers), byte[].class);
+            LOGGER.info("res: {}", responses);
+            if (HttpStatus.OK.equals(responses.getStatusCode()) || HttpStatus.CREATED
+                .equals(responses.getStatusCode())) {
+                return responses;
+            }
+            LOGGER.error("download pkg failed, status is {}", responses.getStatusCode());
+            return null;
+        } catch (RestClientException e) {
+            LOGGER.error("download pkg failed, exception {}", e.getMessage());
+            return null;
         }
     }
 
