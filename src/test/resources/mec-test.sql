@@ -300,7 +300,7 @@ CREATE TABLE IF NOT EXISTS tbl_vm_port_instantiate_info (
 CREATE TABLE IF NOT EXISTS tbl_vm_image_export_info (
    vm_id varchar(255) NOT NULL,
    operation_id varchar(255) DEFAULT NULL,
-   image_instance_id varchar(255) NOT NULL,
+   image_instance_id varchar(255) DEFAULT NULL,
    name varchar(255) DEFAULT NULL,
    image_file_name varchar(255) DEFAULT NULL,
    format varchar(255) DEFAULT NULL,
