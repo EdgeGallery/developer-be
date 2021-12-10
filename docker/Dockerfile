@@ -39,22 +39,8 @@ RUN apk update &&\
     apk add shadow &&\
     groupadd -r -g $GID $GROUP_NAME
 
-#RUN apk add docker
-
 RUN apk add openssh
 
-RUN apk add nginx &&\
-    mkdir -p /run/nginx &&\
-    rm -f /etc/nginx/conf.d/default.conf &&\
-    mkdir -p /var/log/nginx &&\
-    mkdir -p /var/tmp/nginx &&\
-    chmod -R 777 /var/tmp/nginx &&\
-    chmod -R 777 /etc/nginx &&\
-    chmod -R 777 /var/log/nginx &&\
-    chmod -R 777 /var/lib/nginx &&\
-    chmod -R 777 /run/nginx
-
-#RUN useradd -r -u $UID -G $GROUP_NAME,docker -d $APP_HOME -s /sbin/nologin -c "Docker image user" $USER_NAME
 RUN  useradd -r -u $UID -g $GID -d $APP_HOME -s /sbin/nologin -c "Docker image user" $USER_NAME
 
 RUN groupadd docker && \
@@ -89,11 +75,10 @@ COPY --chown=$USER_NAME:$GROUP_NAME configs/mep_capability/images $APP_HOME/mep_
 COPY --chown=$USER_NAME:$GROUP_NAME target/lib/ $APP_HOME/bin/lib/
 
 EXPOSE 9080
-EXPOSE 30111-30120
 
 # Change to the app user.
 USER $USER_NAME
 
 # Execute script & application
 ENTRYPOINT ["sh", "-c"]
-CMD ["nginx && exec java -jar ./bin/$APP_FILE"]
+CMD ["exec java -jar ./bin/$APP_FILE"]
