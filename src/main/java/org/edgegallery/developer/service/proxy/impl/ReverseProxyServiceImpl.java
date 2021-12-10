@@ -78,7 +78,7 @@ public class ReverseProxyServiceImpl implements ReverseProxyService {
         String nextHopProtocol = null;
         String nextHopIp = null;
 
-        if (StringUtils.isNotEmpty(lcmIp) && lcmIp.equals(mecHostIp)) {
+        if (StringUtils.isNotEmpty(lcmIp) && !lcmIp.equals(developerIp)) {
             LOGGER.info("mec host ip {} is different with lcm ip {}", mecHostIp, lcmIp);
             nextHopProtocol = mepHost.getLcmProtocol();
             nextHopIp = lcmIp;
