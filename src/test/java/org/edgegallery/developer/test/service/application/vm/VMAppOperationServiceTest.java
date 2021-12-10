@@ -14,6 +14,7 @@
 
 package org.edgegallery.developer.test.service.application.vm;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -21,22 +22,26 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
+import java.util.UUID;
 import mockit.Mock;
 import mockit.MockUp;
 import org.apache.commons.io.FileUtils;
 import org.apache.ibatis.io.Resources;
-import org.edgegallery.developer.model.common.User;
 import org.edgegallery.developer.mapper.application.vm.VMInstantiateInfoMapper;
-import org.edgegallery.developer.model.common.Chunk;
-import org.edgegallery.developer.model.lcm.LcmLog;
 import org.edgegallery.developer.model.application.Application;
+import org.edgegallery.developer.model.common.Chunk;
+import org.edgegallery.developer.model.common.User;
+import org.edgegallery.developer.model.filesystem.FileSystemResponse;
+import org.edgegallery.developer.model.instantiate.EnumAppInstantiateStatus;
+import org.edgegallery.developer.model.instantiate.vm.ImageExportInfo;
 import org.edgegallery.developer.model.instantiate.vm.VMInstantiateInfo;
+import org.edgegallery.developer.model.lcm.LcmLog;
 import org.edgegallery.developer.model.operation.EnumActionStatus;
 import org.edgegallery.developer.model.operation.OperationStatus;
 import org.edgegallery.developer.model.restful.OperationInfoRep;
-import org.edgegallery.developer.model.uploadfile.UploadFile;
-import org.edgegallery.developer.model.uploadfile.FileUploadEntity;
 import org.edgegallery.developer.model.reverseproxy.ScpConnectEntity;
+import org.edgegallery.developer.model.uploadfile.FileUploadEntity;
+import org.edgegallery.developer.model.uploadfile.UploadFile;
 import org.edgegallery.developer.service.application.ApplicationService;
 import org.edgegallery.developer.service.application.OperationStatusService;
 import org.edgegallery.developer.service.application.impl.vm.VMAppOperationServiceImpl;
@@ -77,6 +82,8 @@ public class VMAppOperationServiceTest extends AbstractJUnit4SpringContextTests 
 
     private static final int CHUNK_SIZE = 102400;
 
+    private User user;
+
     @Autowired
     private VMAppVmService vmAppVmService;
 
@@ -106,6 +113,7 @@ public class VMAppOperationServiceTest extends AbstractJUnit4SpringContextTests 
 
     @Before
     public void prepare() {
+        user = new User("testId", "testUser", "testAuth", "testToken");
         SpringContextUtil.setApplicationContext(applicationContext);
         prepareFilesForTestApplication();
     }
@@ -278,16 +286,62 @@ public class VMAppOperationServiceTest extends AbstractJUnit4SpringContextTests 
         }
     }
 
+    @Test
+    public void testCreateVmImageSuccess() {
+        mockLcmReturnInfo(LcmReturnMockTypeEnum.SUCCESS);
+        try {
+            OperationStatus status = callCreateVMImage();
+            Assert.assertEquals(EnumActionStatus.SUCCESS, status.getStatus());
+            Assert.assertEquals(100, status.getProgress());
+            //imageExport info check.
+            ImageExportInfo imageExportInfo = vmAppOperationService.getImageExportInfo(PRESET_VM_ID);
+            Assert.assertFalse(StringUtils.isEmpty(imageExportInfo.getImageInstanceId()));
+        } catch (Exception e) {
+            LOGGER.error("Exception happens", e);
+            Assert.fail();
+        }
+    }
+
+    private OperationStatus callCreateVMImage() {
+        //mock as instantiated.
+        VMInstantiateInfo instantiateInfo = vmAppOperationService.getInstantiateInfo(PRESET_VM_ID);
+        if (null == instantiateInfo) {
+            instantiateInfo = new VMInstantiateInfo();
+            instantiateInfo.setOperationId(UUID.randomUUID().toString());
+            instantiateInfo.setStatus(EnumAppInstantiateStatus.SUCCESS);
+            vmAppOperationService.createInstantiateInfo(PRESET_VM_ID, instantiateInfo);
+        } else if (EnumAppInstantiateStatus.SUCCESS.equals(instantiateInfo.getStatus())) {
+            instantiateInfo.setStatus(EnumAppInstantiateStatus.SUCCESS);
+            vmAppOperationService.updateInstantiateInfo(PRESET_VM_ID, instantiateInfo);
+        }
+        //Sent instantiate request.
+        OperationInfoRep operationInfo = vmAppOperationService.createVmImage(PRESET_APPLICATION_ID, PRESET_VM_ID, user);
+        OperationStatus status = null;
+        for (int i = 0; i < MAX_TRY_NUMBER; i++) {
+            status = operationStatusService.getOperationStatusById(operationInfo.getOperationId());
+            if (EnumActionStatus.SUCCESS.equals(status.getStatus()) || EnumActionStatus.FAILED.equals(
+                status.getStatus())) {
+                break;
+            }
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+                LOGGER.error("thread sleep error.");
+            }
+        }
+        return status;
+    }
+
     private OperationStatus callInstantiateVM() {
         //Clean instantiate data in db.
         vmInstantiateInfoMapper.deleteVMInstantiateInfo(PRESET_VM_ID);
         //Sent instantiate request.
-        User user = new User("testId", "testUser", "testAuth", "testToken");
         OperationInfoRep operationInfo = vmAppOperationService.instantiateVM(PRESET_APPLICATION_ID, PRESET_VM_ID, user);
         OperationStatus status = null;
         for (int i = 0; i < MAX_TRY_NUMBER; i++) {
             status = operationStatusService.getOperationStatusById(operationInfo.getOperationId());
-            if (EnumActionStatus.SUCCESS.equals(status.getStatus())) {
+            if (EnumActionStatus.SUCCESS.equals(status.getStatus()) || EnumActionStatus.FAILED.equals(
+                status.getStatus())) {
                 break;
             }
             try {
@@ -301,6 +355,49 @@ public class VMAppOperationServiceTest extends AbstractJUnit4SpringContextTests 
 
     private void mockLcmReturnInfo(final LcmReturnMockTypeEnum lcmReturnType) {
         new MockUp<HttpClientUtil>() {
+
+            @Mock
+            public FileSystemResponse queryImageCheck(String url) {
+                FileSystemResponse response = null;
+                try {
+                    File file = Resources.getResourceAsFile("testdata/json/vm_export_image_filesystem_rsp.json");
+                    response = new ObjectMapper().readValue(file, FileSystemResponse.class);
+
+                } catch (IOException e) {
+                    LOGGER.error("Load the mock json data for getDistributeRes failed.");
+                }
+
+                return response;
+            }
+
+            @Mock
+            public String getImageStatus(String basePath, String appInstanceId, String userId, String imageId,
+                String lcmToken) {
+                String jsonStr = null;
+                try {
+                    File file = Resources.getResourceAsFile("testdata/json/vm_export_image_status_rsp.json");
+                    jsonStr = FileUtils.readFileToString(file, StandardCharsets.UTF_8);
+
+                } catch (IOException e) {
+                    LOGGER.error("Load the mock json data for getDistributeRes failed.");
+                }
+                return jsonStr;
+            }
+
+            @Mock
+            public String vmInstantiateImage(String basePath, String userId, String lcmToken, String vmId,
+                String appInstanceId, LcmLog lcmLog) {
+                String jsonStr = null;
+                try {
+                    File file = Resources.getResourceAsFile("testdata/json/vm_export_image_rsp.json");
+                    jsonStr = FileUtils.readFileToString(file, StandardCharsets.UTF_8);
+
+                } catch (IOException e) {
+                    LOGGER.error("Load the mock json data for getDistributeRes failed.");
+                }
+                return jsonStr;
+            }
+
             @Mock
             public String uploadPkg(String basePath, String filePath, String userId, String token, LcmLog lcmLog) {
                 if (lcmReturnType.equals(LcmReturnMockTypeEnum.UPLOAD_PKG_FAILED)) {
