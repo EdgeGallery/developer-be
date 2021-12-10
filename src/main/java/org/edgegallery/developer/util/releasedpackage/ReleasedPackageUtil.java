@@ -42,7 +42,6 @@ public class ReleasedPackageUtil {
         throw new IllegalStateException("ReleasedPackageUtil class");
     }
 
-    private static  String appPkgRootDir;
     /**
      * decompress app pkg.
      *
@@ -69,17 +68,19 @@ public class ReleasedPackageUtil {
         if (StringUtils.isEmpty(decompressPkgDir)) {
             return Collections.emptyList();
         }
-        appPkgRootDir = decompressPkgDir.replaceAll("\\\\", "/");
+        String appPkgRootDir = decompressPkgDir.replaceAll("\\\\", "/");
+        LOGGER.info("appPkgRootDir:{}",appPkgRootDir);
         File root = new File(decompressPkgDir);
         try {
-            return deepReadDir(new ArrayList<>(), root, decompressPkgDir);
+            return deepReadDir(new ArrayList<>(), root, decompressPkgDir, appPkgRootDir);
         } catch (IOException e) {
             LOGGER.error("Failed to get catalog. maybe read file error.");
             return Collections.emptyList();
         }
     }
 
-    private static List<AppPkgFile> deepReadDir(List<AppPkgFile> files, File root, String decompressPkgDir) throws IOException {
+    private static List<AppPkgFile> deepReadDir(List<AppPkgFile> files, File root, String decompressPkgDir,
+        String appPkgRootDir) throws IOException {
         LOGGER.info("appPkgRootDir:{}", appPkgRootDir);
         if (root.isFile()) {
             AppPkgFile file = AppPkgFile.builder().fileName(root.getName()).isFile(true)
@@ -104,7 +105,7 @@ public class ReleasedPackageUtil {
             file.setFilePath(filePath.replace(appPkgRootDir, ""));
             files.add(file);
             for (File childrenFile : Objects.requireNonNull(root.listFiles())) {
-                deepReadDir(children, childrenFile, childrenFile.getParent());
+                deepReadDir(children, childrenFile, childrenFile.getParent(), appPkgRootDir);
             }
         }
         return files;
