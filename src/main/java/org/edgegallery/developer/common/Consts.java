@@ -104,6 +104,10 @@ public final class Consts {
 
     public static final String SYSTEM_IMAGE_SLICE_MERGE_URL = "/image-management/v1/images/merge";
 
+    public static final String UPLOAD_TO_APPSTORE_URL = "/mec/appstore/v1/apps?userId=%s&userName=%s";
+
+    public static final String PUBLISH_TO_APPSTORE_URL = "/mec/appstore/v1/apps/%s/packages/%s/action/publish";
+
     public static final String HARBOR_IMAGE_LOGIN_URL = "%s://%s/c/login";
 
     public static final String HARBOR_IMAGE_DELETE_URL = "%s://%s/api/v2.0/projects/%s/repositories/%s/artifacts/%s";

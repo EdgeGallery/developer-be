@@ -117,8 +117,8 @@ public class AppOperationServiceImpl implements AppOperationService {
         checkParamNull(appPkg.getId(), "app package content is empty. applicationId: ".concat(applicationId));
 
         String filePath = appPkg.queryPkgPath();
-        ResponseEntity<String> response = AtpUtil.sendCreatTask2Atp(filePath, user.getToken());
-        JsonObject jsonObject = new JsonParser().parse(response.getBody()).getAsJsonObject();
+        String response = AtpUtil.sendCreatTask2Atp(filePath, user.getToken());
+        JsonObject jsonObject = new JsonParser().parse(response).getAsJsonObject();
 
         AtpTest atpTest = new AtpTest();
         atpTest.setId(jsonObject.get("id").getAsString());
@@ -201,18 +201,18 @@ public class AppOperationServiceImpl implements AppOperationService {
         map.put("affinity", app.getArchitecture());
         map.put("industry", app.getIndustry());
         map.put("testTaskId", testList.get(0).getId());
-        ResponseEntity<String> uploadReslut = AppStoreUtil.storeToAppStore(map, user);
+        String uploadReslut = AppStoreUtil.storeToAppStore(map, user);
         checkInnerParamNull(uploadReslut, "upload app to appstore fail!");
 
         LOGGER.info("upload appstore result:{}", uploadReslut);
-        JsonObject jsonObject = new JsonParser().parse(uploadReslut.getBody()).getAsJsonObject();
+        JsonObject jsonObject = new JsonParser().parse(uploadReslut).getAsJsonObject();
         JsonElement appStoreAppId = jsonObject.get("appId");
         JsonElement appStorePackageId = jsonObject.get("packageId");
 
         checkInnerParamNull(appStoreAppId, "response from upload to appstore does not contain appId");
         checkInnerParamNull(appStorePackageId, "response from upload to appstore does not contain packageId");
 
-        ResponseEntity<String> publishRes = AppStoreUtil
+        String publishRes = AppStoreUtil
             .publishToAppStore(appStoreAppId.getAsString(), appStorePackageId.getAsString(), user.getToken(),
                 publishAppDto);
         checkInnerParamNull(publishRes, "publish app to appstore fail!");

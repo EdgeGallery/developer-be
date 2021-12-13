@@ -18,6 +18,7 @@ package org.edgegallery.developer.util;
 
 import com.google.gson.Gson;
 import java.util.Map;
+import org.edgegallery.developer.common.Consts;
 import org.edgegallery.developer.model.appstore.PublishAppReqDto;
 import org.edgegallery.developer.model.common.User;
 import org.slf4j.Logger;
@@ -47,7 +48,7 @@ public class AppStoreUtil {
     /**
      * upload app to appstore.
      */
-    public static ResponseEntity<String> storeToAppStore(Map<String, Object> params, User user) {
+    public static String storeToAppStore(Map<String, Object> params, User user) {
         SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
         requestFactory.setConnectTimeout(600000);// 设置超时
         requestFactory.setReadTimeout(600000);
@@ -57,9 +58,7 @@ public class AppStoreUtil {
         HttpHeaders headers = new HttpHeaders();
         headers.set("access_token", user.getToken());
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);
-        String url = String
-            .format("%s/mec/appstore/v1/apps?userId=%s&userName=%s", InitConfigUtil.getProperties(APPSTORE_ADDRESS),
-                user.getUserId(), user.getUserName());
+        String url = InitConfigUtil.getProperties(APPSTORE_ADDRESS) + String.format(Consts.UPLOAD_TO_APPSTORE_URL, user.getUserId(), user.getUserName());
         LOGGER.warn(url);
         try {
             ResponseEntity<String> responses = restTemplate
@@ -67,7 +66,7 @@ public class AppStoreUtil {
             LOGGER.info("upload appstore response:{}", responses);
             if (HttpStatus.OK.equals(responses.getStatusCode()) || HttpStatus.ACCEPTED
                 .equals(responses.getStatusCode())) {
-                return responses;
+                return responses.getBody();
             }
             LOGGER.error("Upload appstore failed,  status is {}", responses.getStatusCode());
             return null;
@@ -80,7 +79,7 @@ public class AppStoreUtil {
     /**
      * publish app to appstore.
      */
-    public static ResponseEntity<String> publishToAppStore(String appId, String pkgId, String token,
+    public static String publishToAppStore(String appId, String pkgId, String token,
         PublishAppReqDto pubAppReqDto) {
         SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
         requestFactory.setConnectTimeout(600000);// 设置超时
@@ -89,9 +88,7 @@ public class AppStoreUtil {
         HttpHeaders headers = new HttpHeaders();
         headers.set("access_token", token);
         headers.setContentType(MediaType.APPLICATION_JSON);
-        String url = String.format("%s/mec/appstore/v1/apps/%s/packages/%s/action/publish",
-            InitConfigUtil.getProperties(APPSTORE_ADDRESS), appId, pkgId);
-
+        String url = InitConfigUtil.getProperties(APPSTORE_ADDRESS) + String.format(Consts.PUBLISH_TO_APPSTORE_URL, appId, pkgId);
         LOGGER.info("isFree: {}, price: {}", pubAppReqDto.isFree(), pubAppReqDto.getPrice());
         LOGGER.info("url: {}", url);
         try {
@@ -101,7 +98,7 @@ public class AppStoreUtil {
             LOGGER.info("res: {}", responses);
             if (HttpStatus.OK.equals(responses.getStatusCode()) || HttpStatus.ACCEPTED
                 .equals(responses.getStatusCode())) {
-                return responses;
+                return responses.getBody();
             }
             LOGGER.error("publish app failed: the app have exist,  status is {}", responses.getStatusCode());
             return null;

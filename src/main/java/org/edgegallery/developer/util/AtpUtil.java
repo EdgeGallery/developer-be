@@ -54,7 +54,7 @@ public class AtpUtil {
      * @param token request token
      * @return response from atp
      */
-    public static ResponseEntity<String> sendCreatTask2Atp(String filePath, String token) {
+    public static String sendCreatTask2Atp(String filePath, String token) {
         MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
         LOGGER.info("filePath: {}", filePath);
         body.add("file", new FileSystemResource(filePath));
@@ -68,9 +68,8 @@ public class AtpUtil {
         LOGGER.info("url: {}", url);
         try {
             ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.POST, requestEntity, String.class);
-            if (HttpStatus.OK.equals(response.getStatusCode()) || HttpStatus.ACCEPTED
-                .equals(response.getStatusCode())) {
-                return response;
+            if (HttpStatus.OK.equals(response.getStatusCode())) {
+                return response.getBody();
             }
             LOGGER.error("Create instance from atp failed,  status is {}", response.getStatusCode());
         } catch (RestClientException e) {
@@ -106,15 +105,4 @@ public class AtpUtil {
         return status;
     }
 
-
-    /**
-     * get file path by projectId.
-     *
-     * @param projectId projectId
-     * @return filePath
-     */
-    public static String getProjectPath(String projectId) {
-        return InitConfigUtil.getWorkSpaceBaseDir() + BusinessConfigUtil.getWorkspacePath() + projectId
-            + File.separator;
-    }
 }
