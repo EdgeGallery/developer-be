@@ -1,0 +1,37 @@
+{
+  "supportPkgSpecs": true,
+  "pkgSpecs": [
+    {
+      "id": "PKG_SPEC_SUPPORT_DYNAMIC_FLAVOR",
+      "zhName": "APP部署时支持自定义虚机规格",
+      "enName": "Support Dynamic Flavor During Instantiate Application",
+      "specifications": {
+        "appdSpecs": {
+          "networkNameSpecs": {
+            "networkNameN6": "APP_Private",
+            "networkNameInternet": "APP_Public",
+            "networkNameMep": "APP_MP1"
+          },
+          "userDataFlag": "campus",
+          "flavorSpecs": "cpu,mem,disk,gpu,host_aggr"
+        }
+      }
+    },
+    {
+      "id": "PKG_SPEC_SUPPORT_FIXED_FLAVOR",
+      "zhName": "APP部署时固定虚机规格",
+      "enName": "Support Fixed Flavor During Instantiate Application",
+      "specifications": {
+        "appdSpecs": {
+          "networkNameSpecs": {
+            "networkNameN6": "APP_N6",
+            "networkNameInternet": "APP_Internet",
+            "networkNameMep": "APP_MP1"
+          },
+          "userDataFlag": "",
+          "flavorSpecs": ""
+        }
+      }
+    }
+  ]
+}

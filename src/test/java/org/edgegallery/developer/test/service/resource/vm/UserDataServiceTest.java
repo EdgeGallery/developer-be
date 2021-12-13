@@ -50,13 +50,13 @@ public class UserDataServiceTest {
 
     @Test
     public void testGetUserDataBadWithErrType() {
-        String content = userDataService.getUserData("test");
+        String content = userDataService.getUserData("test", "");
         Assert.assertNull(content);
     }
 
     @Test
     public void testGetUserDataSuccess() {
-        String content = userDataService.getUserData("centos");
+        String content = userDataService.getUserData("centos", "");
         Assert.assertNotNull(content);
     }
 

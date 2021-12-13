@@ -12,9 +12,18 @@
  * the License.
  */
 
-package org.edgegallery.developer.service.recource.vm;
+package org.edgegallery.developer.model.resource.pkgspec;
 
-public interface UserDataService {
+import lombok.Getter;
+import lombok.Setter;
 
-    String getUserData(String osType, String pkgSpecId);
+@Getter
+@Setter
+public class AppdSpecs {
+
+    private NetworkNameSpecs networkNameSpecs;
+
+    private String userDataFlag;
+
+    private String flavorSpecs;
 }

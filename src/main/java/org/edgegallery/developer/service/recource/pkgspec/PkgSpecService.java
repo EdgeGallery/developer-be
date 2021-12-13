@@ -12,9 +12,14 @@
  * the License.
  */
 
-package org.edgegallery.developer.service.recource.vm;
+package org.edgegallery.developer.service.recource.pkgspec;
 
-public interface UserDataService {
+import java.util.List;
+import org.edgegallery.developer.model.resource.pkgspec.PkgSpec;
 
-    String getUserData(String osType, String pkgSpecId);
+public interface PkgSpecService {
+
+    List<PkgSpec> getPkgSpecs();
+
+    PkgSpec getPkgSpecById(String pkgSpecId);
 }
