@@ -369,6 +369,17 @@ public class AppPackageServiceImpl implements AppPackageService {
     }
 
     @Override
+    public boolean deletePackageRecord(String packageId) {
+        AppPackage appPackage = appPackageMapper.getAppPackage(packageId);
+        if (appPackage == null) {
+            LOGGER.error("package does not exist");
+            return true;
+        }
+        appPackageMapper.deleteAppPackage(appPackage.getId());
+        return true;
+    }
+
+    @Override
     public boolean deletePackage(String packageId) {
         AppPackage appPackage = appPackageMapper.getAppPackage(packageId);
         if (appPackage == null) {
@@ -383,7 +394,7 @@ public class AppPackageServiceImpl implements AppPackageService {
         // delete package file
         String appPkgDir = appPackage.getPackageFilePath();
         if (StringUtils.isNotEmpty(appPkgDir)) {
-            File pkgFile = new File(appPkgDir);
+            File pkgFile = new File(InitConfigUtil.getWorkSpaceBaseDir() + appPkgDir);
             if (!pkgFile.exists()) {
                 LOGGER.warn("package file {} does not exist", pkgFile.getName());
             } else {

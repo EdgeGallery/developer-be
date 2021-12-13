@@ -188,6 +188,16 @@ public class ReleasedPackageUtil {
         }
 
         // decompress zip under \APPD
+        decompressAppdZip(appPackage,zipDecompressDir);
+
+        // decompress tgz under \Artifacts\Deployment\Charts
+        decompressChartTgz(zipDecompressDir);
+
+        return zipDecompressDir;
+    }
+
+    private static void decompressAppdZip(AppPackage appPackage,String zipDecompressDir){
+        // decompress zip under \APPD
         String appdZipParentDir = zipDecompressDir + APPD_ZIP_PATH;
         List<File> zipList = getFiles(appdZipParentDir);
         if (CollectionUtils.isEmpty(zipList)) {
@@ -212,7 +222,10 @@ public class ReleasedPackageUtil {
             LOGGER.error("delete zip file failed!");
             throw new FileOperateException("delete pkg(.zip) failed!", ResponseConsts.RET_DELETE_FILE_FAIL);
         }
+    }
 
+
+    private static void decompressChartTgz(String zipDecompressDir) {
         // decompress tgz under \Artifacts\Deployment\Charts
         String chartsTgzParentDir = zipDecompressDir + CHARTS_TGZ_PATH;
         List<File> fileList = getFiles(chartsTgzParentDir);
@@ -232,9 +245,7 @@ public class ReleasedPackageUtil {
                 throw new FileOperateException("delete pkg(.tgz) failed!", ResponseConsts.RET_DELETE_FILE_FAIL);
             }
         }
-        return zipDecompressDir;
     }
-
     /**
      * get released package decompress directory.
      *

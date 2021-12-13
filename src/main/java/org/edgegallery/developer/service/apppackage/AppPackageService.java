@@ -107,4 +107,12 @@ public interface AppPackageService {
      * @return return true or false
      */
     boolean createPackage(AppPackage appPackage);
+
+    /**
+     * delete app package record by package id.
+     *
+     * @param packageId package id
+     * @return return true or false
+     */
+    boolean deletePackageRecord(String packageId);
 }

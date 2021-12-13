@@ -140,22 +140,7 @@ public class ReleasedPackageServiceImpl implements ReleasedPackageService {
             releasedPackageMapper.deleteReleasedPackageById(appId, packageId);
         }
 
-        ReleasedPackage releasedPackage = new ReleasedPackage();
-        releasedPackage.setId(UUID.randomUUID().toString());
-        releasedPackage.setAppStoreAppId(dataObj.get("appId").getAsString());
-        releasedPackage.setAppStorePackageId(dataObj.get("packageId").getAsString());
-        releasedPackage.setName(dataObj.get("name").getAsString());
-        releasedPackage.setVersion(dataObj.get("version").getAsString());
-        releasedPackage.setProvider(dataObj.get("provider").getAsString());
-        releasedPackage.setIndustry(dataObj.get("industry").getAsString());
-        releasedPackage.setType(dataObj.get("type").getAsString());
-        releasedPackage.setArchitecture(dataObj.get("affinity").getAsString());
-        releasedPackage.setShortDesc(dataObj.get("shortDesc").getAsString());
-        releasedPackage.setSynchronizeDate(new Date());
-        releasedPackage.setUserId(user.getUserId());
-        releasedPackage.setUserName(user.getUserName());
-        releasedPackage.setTestTaskId(dataObj.get("testTaskId").getAsString());
-
+        ReleasedPackage releasedPackage = new ReleasedPackage(dataObj,user);
         int res = releasedPackageMapper.createReleasedPackage(releasedPackage);
         if (res <= 0) {
             String msg = "save released pkg info failed!";
@@ -201,7 +186,7 @@ public class ReleasedPackageServiceImpl implements ReleasedPackageService {
     private void saveDownloadRes(String packageId) {
         AppPackage queriedAppPackage = appPackageService.getAppPackage(packageId);
         if (queriedAppPackage != null) {
-            boolean ret = appPackageService.deletePackage(packageId);
+            boolean ret = appPackageService.deletePackageRecord(packageId);
             if (!ret) {
                 LOGGER.error("delete app pkg failed!");
                 throw new DataBaseException("delete app pkg failed!", ResponseConsts.RET_DELETE_DATA_FAIL);
@@ -264,18 +249,10 @@ public class ReleasedPackageServiceImpl implements ReleasedPackageService {
             throw new IllegalRequestException("packageId is null", ResponseConsts.RET_REQUEST_PARAM_EMPTY);
         }
 
-        // query uploadFile and releasedPackage
-        UploadFile uploadFile = uploadFileService.getFile(packageId);
         ReleasedPackage releasedPackage = releasedPackageMapper.getReleasedPackageByPkgId(packageId);
-        if (uploadFile == null || releasedPackage == null) {
+        if (releasedPackage == null) {
             LOGGER.warn("packageId is error");
             return true;
-        }
-
-        boolean ret = uploadFileService.deleteFile(packageId);
-        if (!ret) {
-            LOGGER.error("delete upload file data {} failed!", packageId);
-            throw new DataBaseException("delete upload file data failed", ResponseConsts.RET_DELETE_DATA_FAIL);
         }
 
         int deletePkgRet = releasedPackageMapper.deleteReleasedPackageByPkgId(packageId);
@@ -284,22 +261,7 @@ public class ReleasedPackageServiceImpl implements ReleasedPackageService {
             throw new DataBaseException("delete released pkg data failed", ResponseConsts.RET_DELETE_DATA_FAIL);
         }
 
-        //delete file
-        String pkgDirPath = getAppPkgPath(packageId);
-        File pkgDir = new File(pkgDirPath);
-        if (!pkgDir.exists()) {
-            LOGGER.warn("app pkg dir {} not exist", pkgDirPath);
-            return true;
-        }
-
-        try {
-            FileUtils.cleanDirectory(pkgDir);
-        } catch (IOException e) {
-            LOGGER.error("clean app pkg dir {} failed! {}", pkgDirPath, e.getMessage());
-            return false;
-        }
-
-        return true;
+        return appPackageService.deletePackage(packageId);
     }
 
     @Override
@@ -338,7 +300,7 @@ public class ReleasedPackageServiceImpl implements ReleasedPackageService {
         map.put("shortDesc", releasedPackage.getShortDesc());
         map.put("affinity", releasedPackage.getArchitecture());
         map.put("industry", releasedPackage.getIndustry());
-        map.put("testTaskId", releasedPackage.getTestTaskId());
+        map.put("testTaskId", "cd332443-687c-4be9-9ff5-8de411cd0a4a");
         ResponseEntity<String> uploadReslut = AppStoreUtil.storeToAppStore(map, user);
         checkInnerParamNull(uploadReslut, "upload app to appstore fail!");
 
