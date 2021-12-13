@@ -126,7 +126,7 @@ public class AppPackageServiceTest extends AbstractJUnit4SpringContextTests {
     @Test
     public void testGetAppPackageStructureBadWithErrReturn() throws IOException {
         AppPkgStructure appPkgStructure = appPackageService
-            .getAppPackageStructure("f2759fcb-bb4b-42f5-bc6c-8e1635348fdd");
+            .getAppPackageStructure("f2759fcb-bb4b-42f5-bc6c-8e1635348fda");
         Assert.assertNull(appPkgStructure);
     }
 
