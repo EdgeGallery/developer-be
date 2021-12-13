@@ -72,7 +72,7 @@ public class VMPackageFileCreator extends PackageFileCreator {
     private boolean generateAPPDYaml() {
         String appdFilePath = getAppdFilePath();
         AppDefinitionConverter converter = new AppDefinitionConverter();
-        AppDefinition appDefinition = converter.convertApplication2Appd(appdFilePath, this.application);
+        AppDefinition appDefinition = converter.convertApplication2Appd(this.application);
         return converter.saveAppdYaml(appdFilePath, appDefinition);
     }
 

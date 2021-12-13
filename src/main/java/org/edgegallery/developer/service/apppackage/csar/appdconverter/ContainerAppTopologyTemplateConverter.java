@@ -1,0 +1,57 @@
+/*
+ * Copyright 2021 Huawei Technologies Co., Ltd.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
+ */
+
+package org.edgegallery.developer.service.apppackage.csar.appdconverter;
+
+import java.util.List;
+import org.edgegallery.developer.model.application.EnumAppClass;
+import org.edgegallery.developer.model.application.container.ContainerApplication;
+import org.edgegallery.developer.model.apppackage.ImageDesc;
+import org.edgegallery.developer.model.apppackage.appd.NodeTemplate;
+import org.edgegallery.developer.model.apppackage.appd.TopologyTemplate;
+import org.edgegallery.developer.model.apppackage.appd.vdu.SwImageData;
+import org.edgegallery.developer.model.apppackage.appd.vdu.VDUCapability;
+import org.edgegallery.developer.model.apppackage.appd.vdu.VDUProperty;
+import org.edgegallery.developer.model.apppackage.constant.NodeTypeConstant;
+
+public class ContainerAppTopologyTemplateConverter extends TopologyTemplateConverter {
+
+    public ContainerAppTopologyTemplateConverter() {
+        topologyTemplate = new TopologyTemplate();
+    }
+
+    public TopologyTemplate convertNodeTemplates(ContainerApplication application, List<ImageDesc> imageDescList) {
+        updateVnfNode(application.getName(), application.getProvider(), application.getVersion());
+        updateVDUs(application, imageDescList);
+        updateAppConfiguration(application);
+        updateGroupsAndPolicies();
+        return this.topologyTemplate;
+    }
+
+    protected void updateVDUs(ContainerApplication application, List<ImageDesc> imageDescList) {
+        NodeTemplate vduNode = new NodeTemplate();
+        vduNode.setType(NodeTypeConstant.NODE_TYPE_VDU);
+        VDUCapability capability = new VDUCapability(4 * MEMORY_SIZE_UNIT, 4, application.getArchitecture(), 20);
+        vduNode.setCapabilities(capability);
+
+        StringBuffer imageData = new StringBuffer();
+        imageDescList.stream().forEach(image -> imageData.append(image.getName() + ":" + image.getVersion() + ", "));
+        VDUProperty propertyContainer = new VDUProperty();
+        propertyContainer.getVduProfile().setMaxNumberOfInstances(2);
+        propertyContainer.setSwImageData(new SwImageData(imageData.substring(0, imageData.length() - 2)));
+        vduNode.setProperties(propertyContainer);
+
+        topologyTemplate.getNodeTemplates().put("logic0", vduNode);
+    }
+}

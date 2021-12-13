@@ -116,7 +116,7 @@ public class ContainerPackageFileCreator extends PackageFileCreator {
     private boolean generateAPPDYaml() {
         String appdFilePath = getAppdFilePath();
         AppDefinitionConverter converter = new AppDefinitionConverter();
-        AppDefinition appDefinition = converter.convertApplication2Appd(appdFilePath, this.application, imageDescList);
+        AppDefinition appDefinition = converter.convertApplication2Appd(this.application, imageDescList);
         return converter.saveAppdYaml(appdFilePath, appDefinition);
     }
 
