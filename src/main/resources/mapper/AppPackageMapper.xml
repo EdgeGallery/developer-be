@@ -21,12 +21,13 @@
     <id property="id" column="id"/>
     <result property="appId" column="app_id"/>
     <result property="packageFileName" column="package_file_name"/>
+    <result property="packageFilePath" column="package_file_path"/>
   </resultMap>
 
   <insert id="createAppPackage">
-    insert into tbl_app_package (id, app_id, package_file_name)
+    insert into tbl_app_package (id, app_id, package_file_name,package_file_path)
     values
-    ( #{id}, #{appId}, #{packageFileName})
+    ( #{id}, #{appId}, #{packageFileName},#{packageFilePath})
   </insert>
 
   <delete id="deleteAppPackage" parameterType="String">
@@ -39,14 +40,14 @@
 
   <select id="getAppPackage" parameterType="String" resultMap="AppPackageMap">
     SELECT
-    id, app_id, package_file_name
+    id, app_id, package_file_name,package_file_path
     FROM tbl_app_package
     WHERE id=#{id}
   </select>
 
   <select id="getAppPackageByAppId" parameterType="String" resultMap="AppPackageMap">
     SELECT
-    id, app_id, package_file_name
+    id, app_id, package_file_name,package_file_path
     FROM tbl_app_package
     WHERE app_id=#{appId}
   </select>
@@ -55,7 +56,7 @@
     UPDATE
     tbl_app_package
     SET
-    app_id = #{appId}, package_file_name = #{packageFileName}
+    app_id = #{appId}, package_file_name = #{packageFileName},package_file_path=#{packageFilePath}
     WHERE
     id = #{id}
   </update>

@@ -18,10 +18,12 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 
 
 import com.google.gson.Gson;
+import java.util.ArrayList;
 import java.util.UUID;
-import org.edgegallery.developer.model.application.Application;
 import org.edgegallery.developer.model.apppackage.AppPackage;
 import org.edgegallery.developer.model.apppackage.AppPkgStructure;
+import org.edgegallery.developer.model.releasedpackage.ReleasedPkgFileContent;
+import org.edgegallery.developer.model.releasedpackage.ReleasedPkgFileContentReqDto;
 import org.edgegallery.developer.service.apppackage.AppPackageService;
 import org.edgegallery.developer.test.DeveloperApplicationTests;
 import org.junit.Assert;
@@ -74,9 +76,8 @@ public class AppPackageCtlTest {
     @WithMockUser(roles = "DEVELOPER_ADMIN")
     public void testGetAppPackageStructureSuccess() throws Exception {
         AppPkgStructure structure = new AppPkgStructure();
-        String url = String
-            .format("/mec/developer/v2/apppackages/%s/action/get-pkg-structure", UUID.randomUUID().toString());
-        Mockito.when(packageService.getAppPackageStructure(Mockito.anyString())).thenReturn(structure);
+        String url = String.format("/mec/developer/v2/apppackages/%s/action/get-pkg-structure", "aa");
+        Mockito.when(packageService.getAppPackageStructure(Mockito.anyString())).thenReturn(new ArrayList<>());
         ResultActions actions = mvc
             .perform(MockMvcRequestBuilders.get(url).contentType(MediaType.APPLICATION_JSON_UTF8))
             .andExpect(MockMvcResultMatchers.status().isOk());
@@ -86,26 +87,24 @@ public class AppPackageCtlTest {
     @Test
     @WithMockUser(roles = "DEVELOPER_ADMIN")
     public void testGetAppPackageFileContentSuccess() throws Exception {
-        String url = String.format("/mec/developer/v2/apppackages/%s/action/get-file-content?fileName=%s",
-            UUID.randomUUID().toString(), "fileName");
-        Mockito.when(packageService.getAppPackageFileContent(Mockito.anyString(), Mockito.anyString()))
-            .thenReturn(new String());
-        ResultActions actions = mvc
-            .perform(MockMvcRequestBuilders.get(url).contentType(MediaType.APPLICATION_JSON_UTF8))
-            .andExpect(MockMvcResultMatchers.status().isOk());
+        String url = String
+            .format("/mec/developer/v2/apppackages/%s/action/get-file-content", UUID.randomUUID().toString());
+        Mockito.when(packageService.getAppPackageFileContent(Mockito.any(), Mockito.anyString()))
+            .thenReturn(new ReleasedPkgFileContent());
+        ResultActions actions = mvc.perform(
+            MockMvcRequestBuilders.post(url).with(csrf()).content(new Gson().toJson(new ReleasedPkgFileContentReqDto()))
+                .contentType(MediaType.APPLICATION_JSON_UTF8)).andExpect(MockMvcResultMatchers.status().isOk());
         Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
     }
 
     @Test
     @WithMockUser(roles = "DEVELOPER_ADMIN")
     public void testUpdateAppPackageFileContentSuccess() throws Exception {
-        String url = String.format("/mec/developer/v2/apppackages/%s/action/update-file-content?fileName=%s",
-            UUID.randomUUID().toString(), "fileName");
-        Mockito.when(
-            packageService.updateAppPackageFileContent(Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
-            .thenReturn(new String());
+        String url = String.format("/mec/developer/v2/apppackages/%s/action/update-file-content", "aa");
+        Mockito.when(packageService.updateAppPackageFileContent(Mockito.any(), Mockito.anyString()))
+            .thenReturn(new ReleasedPkgFileContent());
         ResultActions actions = mvc.perform(
-            MockMvcRequestBuilders.put(url).with((csrf())).content("new Gson().toJson(new String())")
+            MockMvcRequestBuilders.put(url).with((csrf())).content(new Gson().toJson(new ReleasedPkgFileContent()))
                 .contentType(MediaType.APPLICATION_JSON_UTF8)).andExpect(MockMvcResultMatchers.status().isOk());
         Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
     }

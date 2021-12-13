@@ -19,10 +19,10 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
-import org.edgegallery.developer.filter.security.AccessUserUtil;
 import org.edgegallery.developer.exception.DataBaseException;
 import org.edgegallery.developer.exception.FileFoundFailException;
 import org.edgegallery.developer.exception.IllegalRequestException;
+import org.edgegallery.developer.filter.security.AccessUserUtil;
 import org.edgegallery.developer.model.application.EnumAppClass;
 import org.edgegallery.developer.model.application.EnumApplicationType;
 import org.edgegallery.developer.model.application.vm.EnumVMStatus;
@@ -30,7 +30,8 @@ import org.edgegallery.developer.model.application.vm.Network;
 import org.edgegallery.developer.model.application.vm.VMApplication;
 import org.edgegallery.developer.model.application.vm.VirtualMachine;
 import org.edgegallery.developer.model.apppackage.AppPackage;
-import org.edgegallery.developer.model.apppackage.AppPkgStructure;
+import org.edgegallery.developer.model.releasedpackage.ReleasedPkgFileContent;
+import org.edgegallery.developer.model.releasedpackage.ReleasedPkgFileContentReqDto;
 import org.edgegallery.developer.model.uploadfile.UploadFile;
 import org.edgegallery.developer.service.application.ApplicationService;
 import org.edgegallery.developer.service.application.vm.VMAppNetworkService;
@@ -110,7 +111,7 @@ public class AppPackageServiceTest extends AbstractJUnit4SpringContextTests {
         try {
             appPackageService.getAppPackageStructure("err-id");
         } catch (DataBaseException e) {
-            Assert.assertEquals("query object(AppPackage) is null!", e.getMessage());
+            Assert.assertEquals("packageId is error", e.getMessage());
         }
     }
 
@@ -118,117 +119,85 @@ public class AppPackageServiceTest extends AbstractJUnit4SpringContextTests {
     public void testGetAppPackageStructureBadWithErrFileName() throws IOException {
         try {
             appPackageService.getAppPackageStructure("f2759fcb-bb4b-42f5-bc6c-8e1635348fdc");
-        } catch (DataBaseException e) {
-            Assert.assertEquals("fileName of app pkg is empty!", e.getMessage());
+        } catch (FileFoundFailException e) {
+            Assert.assertEquals("pkg(.zip) not found!", e.getMessage());
         }
-    }
-
-    @Test
-    public void testGetAppPackageStructureBadWithErrReturn() throws IOException {
-        AppPkgStructure appPkgStructure = appPackageService
-            .getAppPackageStructure("f2759fcb-bb4b-42f5-bc6c-8e1635348fda");
-        Assert.assertNull(appPkgStructure);
     }
 
     @Test
     public void testGetAppPackageFileContentBadWithNullPkgId() throws IOException {
         try {
-            appPackageService.getAppPackageFileContent("", "f2759fcb-bb4b-42f5-bc6c-8e1635348fda");
+            ReleasedPkgFileContentReqDto structureReqDto = new ReleasedPkgFileContentReqDto();
+            appPackageService.getAppPackageFileContent(structureReqDto, "");
         } catch (IllegalRequestException e) {
-            Assert.assertEquals("packageId or fileName is empty", e.getMessage());
+            Assert.assertEquals("packageId is null", e.getMessage());
         }
     }
 
     @Test
-    public void testGetAppPackageFileContentBadWithNullFileName() throws IOException {
+    public void testGetAppPackageFileContentBadWithNullReqDto() throws IOException {
         try {
-            appPackageService.getAppPackageFileContent("f2759fcb-bb4b-42f5-bc6c-8e1635348fda", "");
+            ReleasedPkgFileContentReqDto structureReqDto = new ReleasedPkgFileContentReqDto();
+            appPackageService.getAppPackageFileContent(null, "zzz");
         } catch (IllegalRequestException e) {
-            Assert.assertEquals("packageId or fileName is empty", e.getMessage());
+            Assert.assertEquals("structureReqDto is null", e.getMessage());
         }
     }
 
     @Test
-    public void testGetAppPackageFileContentBadWithErrPkgId() throws IOException {
+    public void testGetAppPackageFileContentBadWithNullReturn() throws IOException {
         try {
-            appPackageService.getAppPackageFileContent("f2759fcb-bb4b-42f5-bc6c-8e1635348fdf", "fileName");
+            ReleasedPkgFileContentReqDto structureReqDto = new ReleasedPkgFileContentReqDto();
+            appPackageService.getAppPackageFileContent(structureReqDto, "zzz");
         } catch (DataBaseException e) {
-            Assert.assertEquals("query object(AppPackage) is null!", e.getMessage());
+            Assert.assertEquals("packageId is error", e.getMessage());
         }
     }
 
     @Test
-    public void testGetAppPackageFileContentBadWithNullPkgName() throws IOException {
+    public void testGetAppPackageFileContentBadWithNullFile() throws IOException {
         try {
-            appPackageService.getAppPackageFileContent("f2759fcb-bb4b-42f5-bc6c-8e1635348fdc", "fileName");
-        } catch (DataBaseException e) {
-            Assert.assertEquals("fileName of app pkg is empty!", e.getMessage());
-        }
-    }
-
-    @Test
-    public void testGetAppPackageFileContentBadWithErrPkgName() throws IOException {
-        try {
-            appPackageService.getAppPackageFileContent("f2759fcb-bb4b-42f5-bc6c-8e1635348fda", "fileName");
+            ReleasedPkgFileContentReqDto structureReqDto = new ReleasedPkgFileContentReqDto();
+            appPackageService.getAppPackageFileContent(structureReqDto, "f2759fcb-bb4b-42f5-bc6c-8e1635348fda");
         } catch (FileFoundFailException e) {
-            Assert.assertEquals("can not find any file in app pkg folder!", e.getMessage());
+            Assert.assertEquals("app pkg not decompress", e.getMessage());
         }
     }
 
-
     @Test
-    public void testUpdateAppPackageFileContentBadWithNullPkgId() throws IOException {
+    public void testUpdateAppPackageStructureBadWithEmptyId() throws IOException {
         try {
-            appPackageService.updateAppPackageFileContent("", "fileName", "content");
+            appPackageService.updateAppPackageFileContent(new ReleasedPkgFileContent(), "");
         } catch (IllegalRequestException e) {
-            Assert.assertEquals("packageId or fileName or content is empty", e.getMessage());
+            Assert.assertEquals("packageId is null", e.getMessage());
         }
     }
 
     @Test
-    public void testUpdateAppPackageFileContentBadWithNullFileName() throws IOException {
+    public void testUpdateAppPackageStructureBadWithErrId() throws IOException {
         try {
-            appPackageService.updateAppPackageFileContent("f2759fcb-bb4b-42f5-bc6c-8e1635348fda", "", "content");
-        } catch (IllegalRequestException e) {
-            Assert.assertEquals("packageId or fileName or content is empty", e.getMessage());
-        }
-    }
-
-    @Test
-    public void testUpdateAppPackageFileContentBadWithNullFileContent() throws IOException {
-        try {
-            appPackageService.updateAppPackageFileContent("f2759fcb-bb4b-42f5-bc6c-8e1635348fda", "fileName", "");
-        } catch (IllegalRequestException e) {
-            Assert.assertEquals("packageId or fileName or content is empty", e.getMessage());
-        }
-    }
-
-    @Test
-    public void testUpdateAppPackageFileContentBadWithErrPkgId() throws IOException {
-        try {
-            appPackageService.updateAppPackageFileContent("err-id", "fileName", "content");
+            appPackageService.getAppPackageStructure("err-id");
         } catch (DataBaseException e) {
-            Assert.assertEquals("query object(AppPackage) is null!", e.getMessage());
+            Assert.assertEquals("packageId is error", e.getMessage());
         }
     }
 
     @Test
-    public void testUpdateAppPackageFileContentBadWithErrPkgName() throws IOException {
+    public void testUpdateAppPackageFileContentBadWithNullReqDto() throws IOException {
+        try {
+            appPackageService.updateAppPackageFileContent(null, "f2759fcb-bb4b-42f5-bc6c-8e1635348fdc");
+        } catch (IllegalRequestException e) {
+            Assert.assertEquals("releasedPkgFileContent is null", e.getMessage());
+        }
+    }
+
+    @Test
+    public void testUpdateAppPackageStructureBadWithNullFile() throws IOException {
         try {
             appPackageService
-                .updateAppPackageFileContent("f2759fcb-bb4b-42f5-bc6c-8e1635348fdc", "fileName", "content");
-        } catch (DataBaseException e) {
-            Assert.assertEquals("fileName of app pkg is empty!", e.getMessage());
-        }
-    }
-
-    @Test
-    public void testUpdateAppPackageFileContentBadWithErrReturn() throws IOException {
-        try {
-            appPackageService
-                .updateAppPackageFileContent("f2759fcb-bb4b-42f5-bc6c-8e1635348fda", "fileName", "content");
+                .updateAppPackageFileContent(new ReleasedPkgFileContent(), "f2759fcb-bb4b-42f5-bc6c-8e1635348fdc");
         } catch (FileFoundFailException e) {
-            Assert.assertEquals("the file you update cannot be found!", e.getMessage());
+            Assert.assertEquals("app pkg decompress dir was not found", e.getMessage());
         }
     }
 

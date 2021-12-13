@@ -3,14 +3,17 @@ package org.edgegallery.developer.model.releasedpackage;
 import java.util.Date;
 import lombok.Getter;
 import lombok.Setter;
+import org.edgegallery.developer.model.apppackage.AppPackage;
 
 @Getter
 @Setter
 public class ReleasedPackage {
 
-    private String appId;
+    private String id;
 
-    private String packageId;
+    private String appStoreAppId;
+
+    private String appStorePackageId;
 
     private String name;
 
@@ -33,5 +36,7 @@ public class ReleasedPackage {
     private String userName;
 
     private String testTaskId;
+
+     private AppPackage appPackage;
 
 }

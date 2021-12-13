@@ -452,8 +452,9 @@
 
     CREATE TABLE IF NOT EXISTS "tbl_app_package" (
     "id" varchar(255) NOT NULL,
-    "app_id" varchar(255) NOT NULL,
+    "app_id" varchar(255) DEFAULT NULL,
     "package_file_name" varchar(255) DEFAULT NULL,
+    "package_file_path" varchar(500) DEFAULT NULL,
     CONSTRAINT "tbl_app_package_pkey" PRIMARY KEY ("id")
     );
 
@@ -508,3 +509,21 @@
        "test_task_id" varchar(50) NOT NULL,
        CONSTRAINT "tbl_released_package_pkey" PRIMARY KEY ("package_id")
      );
+
+     CREATE TABLE IF NOT EXISTS "tbl_released_package" (
+            "id" varchar(50) NOT NULL,
+            "app_store_app_id"  varchar(50) NOT NULL,
+            "app_store_package_id" varchar(50) NOT NULL,
+            "name" varchar(255) NOT NULL,
+            "version" varchar(255) NOT NULL,
+            "provider" varchar(255) NOT NULL,
+            "industry" varchar(255) NOT NULL,
+            "type" varchar(255) NOT NULL,
+            "architecture" varchar(255) NOT NULL,
+            "short_desc" varchar(255) NOT NULL,
+            "synchronize_date" timestamptz(6) NOT NULL,
+            "user_id" varchar(50) NOT NULL,
+            "user_name" varchar(255) NOT NULL,
+            "test_task_id" varchar(50) NOT NULL,
+            CONSTRAINT "tbl_released_package_pkey" PRIMARY KEY ("id")
+          );
