@@ -19,8 +19,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
@@ -29,7 +27,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.apache.commons.io.FileUtils;
-import org.edgegallery.developer.model.application.EnumAppClass;
 import org.edgegallery.developer.model.application.container.ContainerApplication;
 import org.edgegallery.developer.model.application.vm.VMApplication;
 import org.edgegallery.developer.model.application.vm.VirtualMachine;
@@ -47,7 +44,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
-import org.yaml.snakeyaml.constructor.SafeConstructor;
 import org.yaml.snakeyaml.nodes.Tag;
 
 public class AppDefinitionConverter {
@@ -99,47 +95,30 @@ public class AppDefinitionConverter {
         return true;
     }
 
-    public AppDefinition loadAppdYaml(String appdFilePath) {
-        AppDefinition appDefinition = null;
-        File file = new File(appdFilePath);
-        if (file.exists()) {
-            try {
-                Yaml yaml = new Yaml(new SafeConstructor());
-                appDefinition = yaml.loadAs(new FileInputStream(file), AppDefinition.class);
-            } catch (FileNotFoundException e) {
-                LOGGER.error("Appd {} exists, but read failed, will create default APPD file.", appdFilePath);
-                return null;
-            }
-        }
-        return appDefinition;
-    }
-
-    public AppDefinition convertApplication2Appd(String appdFilePath, VMApplication application) {
-        //if the yaml file already exists, read from file as default.
+    public AppDefinition convertApplication2Appd(VMApplication application) {
         AppDefinition appDefinition = new AppDefinition();
-        TopologyTemplate topologyTemplate = new TopologyTemplate(EnumAppClass.VM);
-        appDefinition.setTopologyTemplate(topologyTemplate);
         //update metadata
         appDefinition.getMetadata().setVnfdId(application.getName());
         appDefinition.getMetadata().setVnfdName(application.getName());
+
         //update the nodeTemplates
-        appDefinition.getTopologyTemplate()
-            .updateVMAppNodeTemplates(application, queryFlavors(application), queryImages(application));
-        appDefinition.getTopologyTemplate().updateGroupsAndPolicies();
+        TopologyTemplate topologyTemplate = new VMAppTopologyTemplateConverter().convertNodeTemplates(application,
+            queryFlavors(application), queryImages(application));
+        appDefinition.setTopologyTemplate(topologyTemplate);
         return appDefinition;
     }
 
-    public AppDefinition convertApplication2Appd(String appdFilePath, ContainerApplication application,
-        List<ImageDesc> imageDescList) {
+    public AppDefinition convertApplication2Appd(ContainerApplication application, List<ImageDesc> imageDescList) {
         AppDefinition appDefinition = new AppDefinition();
-        TopologyTemplate topologyTemplate = new TopologyTemplate(EnumAppClass.CONTAINER);
-        appDefinition.setTopologyTemplate(topologyTemplate);
         //update metadata
         appDefinition.getMetadata().setVnfdId(application.getName());
         appDefinition.getMetadata().setVnfdName(application.getName());
 
-        appDefinition.getTopologyTemplate().updateContainerAppNodeTemplates(application, imageDescList);
-        appDefinition.getTopologyTemplate().updateGroupsAndPolicies();
+        //update the nodeTemplates
+        TopologyTemplate topologyTemplate = new ContainerAppTopologyTemplateConverter().convertNodeTemplates(
+            application, imageDescList);
+        appDefinition.setTopologyTemplate(topologyTemplate);
+
         return appDefinition;
     }
 
