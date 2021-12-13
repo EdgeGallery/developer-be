@@ -16,20 +16,13 @@
 
 package org.edgegallery.developer.service.releasedpackage.impl;
 
-import com.github.pagehelper.PageHelper;
-import com.github.pagehelper.PageInfo;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.stream.Collectors;
 import org.apache.commons.io.FileUtils;
 import org.edgegallery.developer.common.ResponseConsts;
@@ -48,7 +41,6 @@ import org.edgegallery.developer.model.releasedpackage.ReleasedPackage;
 import org.edgegallery.developer.model.releasedpackage.ReleasedPkgFileContent;
 import org.edgegallery.developer.model.releasedpackage.ReleasedPkgFileContentReqDto;
 import org.edgegallery.developer.model.releasedpackage.ReleasedPkgReqDto;
-import org.edgegallery.developer.model.uploadfile.UploadFile;
 import org.edgegallery.developer.service.apppackage.AppPackageService;
 import org.edgegallery.developer.service.apppackage.csar.signature.EncryptedService;
 import org.edgegallery.developer.service.releasedpackage.ReleasedPackageService;
@@ -64,6 +56,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 @Service
 public class ReleasedPackageServiceImpl implements ReleasedPackageService {
@@ -140,7 +137,7 @@ public class ReleasedPackageServiceImpl implements ReleasedPackageService {
             releasedPackageMapper.deleteReleasedPackageById(appId, packageId);
         }
 
-        ReleasedPackage releasedPackage = new ReleasedPackage(dataObj,user);
+        ReleasedPackage releasedPackage = new ReleasedPackage(dataObj, user);
         int res = releasedPackageMapper.createReleasedPackage(releasedPackage);
         if (res <= 0) {
             String msg = "save released pkg info failed!";
@@ -301,18 +298,18 @@ public class ReleasedPackageServiceImpl implements ReleasedPackageService {
         map.put("affinity", releasedPackage.getArchitecture());
         map.put("industry", releasedPackage.getIndustry());
         map.put("testTaskId", releasedPackage.getTestTaskId());
-        ResponseEntity<String> uploadReslut = AppStoreUtil.storeToAppStore(map, user);
+        String uploadReslut = AppStoreUtil.storeToAppStore(map, user);
         checkInnerParamNull(uploadReslut, "upload app to appstore fail!");
 
         LOGGER.info("upload appstore result:{}", uploadReslut);
-        JsonObject jsonObject = new JsonParser().parse(uploadReslut.getBody()).getAsJsonObject();
+        JsonObject jsonObject = new JsonParser().parse(uploadReslut).getAsJsonObject();
         JsonElement appStoreAppId = jsonObject.get("appId");
         JsonElement appStorePackageId = jsonObject.get("packageId");
 
         checkInnerParamNull(appStoreAppId, "response from upload to appstore does not contain appId");
         checkInnerParamNull(appStorePackageId, "response from upload to appstore does not contain packageId");
 
-        ResponseEntity<String> publishRes = AppStoreUtil
+        String publishRes = AppStoreUtil
             .publishToAppStore(appStoreAppId.getAsString(), appStorePackageId.getAsString(), user.getToken(),
                 publishAppReqDto);
         checkInnerParamNull(publishRes, "publish app to appstore fail!");
@@ -349,3 +346,4 @@ public class ReleasedPackageServiceImpl implements ReleasedPackageService {
         }
     }
 }
+
