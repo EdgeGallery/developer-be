@@ -98,6 +98,9 @@ public abstract class TopologyTemplateConverter {
             || appConfiguration.getDnsRuleList().isEmpty())) {
             return;
         }
+        if (null == topologyTemplate.getInputs()) {
+            topologyTemplate.setInputs(new LinkedHashMap<String, InputParam>());
+        }
         topologyTemplate.getInputs().put(InputConstant.INPUT_NAME_AK,
             new InputParam(InputConstant.TYPE_STRING, "", InputConstant.INPUT_NAME_AK));
         topologyTemplate.getInputs().put(InputConstant.INPUT_NAME_SK,
