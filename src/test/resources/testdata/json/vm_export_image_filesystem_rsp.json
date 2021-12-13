@@ -1,0 +1,27 @@
+{
+  "imageId": "d21ba089-6935-45db-af86-cf00cee61234",
+  "fileName": "ubuntu18.04",
+  "uploadTime": "2021-12-10 10:33:21",
+  "storageMedium": "",
+  "slimStatus": "",
+  "compressInfo": {
+    "compressStatus": 1,
+    "compressMsg": "Success",
+    "compressRate": 100232345
+  },
+  "userId": "testUser",
+  "checkStatusResponse": {
+    "status": 1,
+    "msg": "Success",
+    "checkInfo": {
+      "checksum": "d21ba089693545dbaf86cf00cee61234",
+      "checkResult": 0,
+      "imageInfo": {
+        "image-end-offset": "123532",
+        "check-errors": "",
+        "format": "qcow2",
+        "filename": "ubuntu18.04.qcow2"
+      }
+    }
+  }
+}

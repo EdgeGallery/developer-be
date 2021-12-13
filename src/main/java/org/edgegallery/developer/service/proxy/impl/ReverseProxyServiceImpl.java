@@ -78,7 +78,7 @@ public class ReverseProxyServiceImpl implements ReverseProxyService {
         String nextHopProtocol = null;
         String nextHopIp = null;
 
-        if (StringUtils.isNotEmpty(lcmIp) && lcmIp.equals(mecHostIp)) {
+        if (StringUtils.isNotEmpty(lcmIp) && !lcmIp.equals(developerIp)) {
             LOGGER.info("mec host ip {} is different with lcm ip {}", mecHostIp, lcmIp);
             nextHopProtocol = mepHost.getLcmProtocol();
             nextHopIp = lcmIp;
@@ -134,7 +134,7 @@ public class ReverseProxyServiceImpl implements ReverseProxyService {
     }
 
     @Override
-    public SshResponseInfo getVmSshResponseInfo(String applicationId, String vmId, String userId, String cookie) {
+    public SshResponseInfo getVmSshResponseInfo(String applicationId, String vmId, String userId, String XSRFValue) {
         Application application = applicationMapper.getApplicationById(applicationId);
         String hostId = application.getMepHostId();
         MepHost mepHost = mepHostMapper.getHost(hostId);
@@ -154,12 +154,12 @@ public class ReverseProxyServiceImpl implements ReverseProxyService {
         }
         String username = vm.getVmCertificate().getPwdCertificate().getUsername();
         String password = vm.getVmCertificate().getPwdCertificate().getPassword();
-
-//        String basePath = HttpClientUtil
-//            .getUrlPrefix(mepHost.getLcmProtocol(), mepHost.getLcmIp(), mepHost.getLcmPort());
-        String basePath = "http://127.0.0.1:8888/";
+        LOGGER.info("ip:{}", networkIp);
+        LOGGER.info("username:{}", username);
+        String basePath = HttpClientUtil
+            .getUrlPrefix(mepHost.getLcmProtocol(), mepHost.getLcmIp(), mepHost.getLcmPort());
         SshResponseInfo sshResponseInfo = HttpClientUtil
-            .sendWebSshRequest(basePath, networkIp, 22, username, password, cookie);
+            .sendWebSshRequest(basePath, networkIp, 22, username, password, XSRFValue);
         if (sshResponseInfo == null) {
             LOGGER.error("send WebSsh request fail.");
             throw new DeveloperException("failed to get ssh console url");

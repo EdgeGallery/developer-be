@@ -116,7 +116,7 @@ public class ApplicationServiceImpl implements ApplicationService {
         application.setUserName(AccessUserUtil.getUser().getUserName());
         String iconFileId = application.getIconFileId();
         application.setStatus(EnumApplicationStatus.CREATED);
-        if (iconFileId == null) {
+        if (StringUtils.isEmpty(iconFileId)) {
             LOGGER.error("icon file is null");
             throw new FileFoundFailException("icon file is null", ResponseConsts.RET_FILE_NOT_FOUND);
         }

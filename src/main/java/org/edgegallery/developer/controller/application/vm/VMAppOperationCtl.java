@@ -25,6 +25,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.Pattern;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.edgegallery.developer.common.Consts;
+import org.edgegallery.developer.exception.DeveloperException;
 import org.edgegallery.developer.filter.security.AccessUserUtil;
 import org.edgegallery.developer.model.common.User;
 import org.edgegallery.developer.model.common.Chunk;
@@ -145,7 +146,7 @@ public class VMAppOperationCtl {
         @ApiResponse(code = 200, message = "OK", response = ResponseEntity.class),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
-    @RequestMapping(value = "/{applicationId}/vms/{vmId}/vnc", method = RequestMethod.GET)
+    @RequestMapping(value = "/{applicationId}/vms/{vmId}/action/vnc", method = RequestMethod.GET)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity getVncUrl(
         @ApiParam(value = "applicationId", required = true) @PathVariable("applicationId") String applicationId,
@@ -166,16 +167,25 @@ public class VMAppOperationCtl {
         @ApiResponse(code = 200, message = "OK", response = SshResponseInfo.class),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
-    @RequestMapping(value = "/{applicationId}/vms/{vmId}/ssh", method = RequestMethod.GET)
+    @RequestMapping(value = "/{applicationId}/vms/{vmId}/action/ssh", method = RequestMethod.GET)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity getSshInfo(
         @ApiParam(value = "applicationId", required = true) @PathVariable("applicationId") String applicationId,
         @Pattern(regexp = REGEX_UUID, message = "vmId must be in UUID format")
         @ApiParam(value = "vmId", required = true) @PathVariable("vmId") String vmId, HttpServletRequest request) {
 
-        String cookie = request.getHeader("Cookie");
+        String[] cookies = request.getHeader("Cookie").split(";");
+        String XSRFValue="";
+        for (String cookie:cookies) {
+            if (cookie.contains("XSRF-TOKEN")){
+                XSRFValue = cookie.split("=")[1];
+            }
+        }
+        if (XSRFValue.equals("")) {
+            throw new DeveloperException("failed to get XSRF-TOKEN by cookie");
+        }
         SshResponseInfo sshResponseInfo = reverseProxyService.getVmSshResponseInfo(applicationId, vmId, AccessUserUtil.getUserId(),
-            cookie);
+            XSRFValue);
         return ResponseEntity.ok(sshResponseInfo);
     }
 }
