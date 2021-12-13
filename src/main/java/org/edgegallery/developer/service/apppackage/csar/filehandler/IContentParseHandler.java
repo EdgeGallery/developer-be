@@ -12,7 +12,7 @@
  * the License.
  */
 
-package org.edgegallery.developer.service.apppackage.csar;
+package org.edgegallery.developer.service.apppackage.csar.filehandler;
 
 import java.util.Map;
 import org.edgegallery.developer.model.apppackage.IToscaContentEnum;

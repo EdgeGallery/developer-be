@@ -12,10 +12,10 @@
  * the License.
  */
 
-package org.edgegallery.developer.test.service.apppackage.signature;
+package org.edgegallery.developer.test.service.apppackage.csar.signature;
 
 import org.edgegallery.developer.test.DeveloperApplicationTests;
-import org.edgegallery.developer.service.apppackage.signature.EncryptedService;
+import org.edgegallery.developer.service.apppackage.csar.signature.EncryptedService;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;

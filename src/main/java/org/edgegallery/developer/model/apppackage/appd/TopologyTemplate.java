@@ -132,17 +132,17 @@ public class TopologyTemplate {
         this.nodeTemplates.put(AppdConstants.VNF_NODE_NAME, vnfNode);
     }
 
-    public void updateNodeTemplates(VMApplication application, Map<String, Flavor> id2FlavorMap,
+    public void updateVMAppNodeTemplates(VMApplication application, Map<String, Flavor> id2FlavorMap,
         Map<Integer, VMImage> id2ImageMap) {
         updateVnfNode(application.getName(), application.getProvider(), application.getVersion());
-        updateVMs(application.getNetworkList(), application.getVmList(), id2FlavorMap, id2ImageMap);
+        updateVDUsForVMApp(application.getNetworkList(), application.getVmList(), id2FlavorMap, id2ImageMap);
         updateVLs(application.getNetworkList());
         updateAppConfiguration(application);
     }
 
-    public void updateContainerNodeTemplates(ContainerApplication application, List<ImageDesc> imageDescList) {
+    public void updateContainerAppNodeTemplates(ContainerApplication application, List<ImageDesc> imageDescList) {
         updateVnfNode(application.getName(), application.getProvider(), application.getVersion());
-        updateVdu(application, imageDescList);
+        updateVDUsForContainerApp(application, imageDescList);
         updateAppConfiguration(application);
     }
 
@@ -222,7 +222,7 @@ public class TopologyTemplate {
         }
     }
 
-    private void updateVdu(ContainerApplication application, List<ImageDesc> imageDescList) {
+    private void updateVDUsForContainerApp(ContainerApplication application, List<ImageDesc> imageDescList) {
         NodeTemplate vduNode = new NodeTemplate();
         vduNode.setType(NodeTypeConstant.NODE_TYPE_VDU);
         VDUCapability capability = new VDUCapability(4 * MEMORY_SIZE_UNIT, 4, application.getArchitecture(), 20);
@@ -238,7 +238,7 @@ public class TopologyTemplate {
         this.nodeTemplates.put("logic0", vduNode);
     }
 
-    private void updateVMs(List<Network> networkLst, List<VirtualMachine> vmLst, Map<String, Flavor> id2FlavorMap,
+    private void updateVDUsForVMApp(List<Network> networkLst, List<VirtualMachine> vmLst, Map<String, Flavor> id2FlavorMap,
         Map<Integer, VMImage> id2ImageMap) {
         if (null == this.nodeTemplates) {
             this.nodeTemplates = new LinkedHashMap<String, NodeTemplate>();
@@ -282,6 +282,7 @@ public class TopologyTemplate {
             updateVMPorts(vduName, vm.getPortList(), networkLst);
         }
     }
+
 
     private LinkedHashMap<String, String> getVDUNodeUserDataParams(String vduName, List<VMPort> ports,
         List<Network> networkLst) {

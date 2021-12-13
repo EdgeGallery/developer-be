@@ -24,7 +24,7 @@ import mockit.Mock;
 import mockit.MockUp;
 import org.edgegallery.developer.filter.security.AccessUserUtil;
 import org.edgegallery.developer.model.common.User;
-import org.edgegallery.developer.service.apppackage.signature.EncryptedService;
+import org.edgegallery.developer.service.apppackage.csar.signature.EncryptedService;
 import org.edgegallery.developer.service.uploadfile.UploadFileService;
 import org.edgegallery.developer.test.DeveloperApplicationTests;
 import org.edgegallery.developer.util.AtpUtil;

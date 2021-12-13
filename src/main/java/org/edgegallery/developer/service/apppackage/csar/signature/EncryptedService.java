@@ -12,7 +12,7 @@
  * the License.
  */
 
-package org.edgegallery.developer.service.apppackage.signature;
+package org.edgegallery.developer.service.apppackage.csar.signature;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;

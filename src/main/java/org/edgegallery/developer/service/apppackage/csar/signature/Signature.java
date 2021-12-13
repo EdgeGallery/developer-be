@@ -12,7 +12,7 @@
  * the License.
  */
 
-package org.edgegallery.developer.service.apppackage.signature;
+package org.edgegallery.developer.service.apppackage.csar.signature;
 
 import org.bouncycastle.cert.jcajce.JcaCertStore;
 import org.bouncycastle.cms.*;

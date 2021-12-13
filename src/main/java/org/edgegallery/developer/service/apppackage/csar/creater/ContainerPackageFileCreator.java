@@ -12,7 +12,7 @@
  * the License.
  */
 
-package org.edgegallery.developer.service.apppackage.csar;
+package org.edgegallery.developer.service.apppackage.csar.creater;
 
 import com.google.gson.Gson;
 import io.kubernetes.client.openapi.models.V1Deployment;
@@ -33,7 +33,7 @@ import org.edgegallery.developer.model.apppackage.ImageDesc;
 import org.edgegallery.developer.model.apppackage.appd.AppDefinition;
 import org.edgegallery.developer.model.uploadfile.UploadFile;
 import org.edgegallery.developer.service.application.container.ContainerAppHelmChartService;
-import org.edgegallery.developer.service.apppackage.converter.AppDefinitionConverter;
+import org.edgegallery.developer.service.apppackage.csar.appdconverter.AppDefinitionConverter;
 import org.edgegallery.developer.service.uploadfile.UploadFileService;
 import org.edgegallery.developer.util.BusinessConfigUtil;
 import org.edgegallery.developer.util.CompressFileUtils;

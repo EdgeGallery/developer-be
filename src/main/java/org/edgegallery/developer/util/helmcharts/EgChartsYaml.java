@@ -17,7 +17,7 @@ package org.edgegallery.developer.util.helmcharts;
 import java.util.UUID;
 import lombok.Getter;
 import lombok.Setter;
-import org.edgegallery.developer.service.apppackage.converter.CustomRepresenter;
+import org.edgegallery.developer.service.apppackage.csar.appdconverter.CustomRepresenter;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.SafeConstructor;
