@@ -16,11 +16,6 @@
 
 package org.edgegallery.developer.service.releasedpackage.impl;
 
-import com.github.pagehelper.PageHelper;
-import com.github.pagehelper.PageInfo;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
@@ -65,6 +60,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 @Service
 public class ReleasedPackageServiceImpl implements ReleasedPackageService {
@@ -293,7 +293,6 @@ public class ReleasedPackageServiceImpl implements ReleasedPackageService {
             throw new FileOperateException("decompress pkg(.zip) failed!", ResponseConsts.RET_DECOMPRESS_FILE_FAIL);
         }
 
-
         // decompress tgz under \Artifacts\Deployment\Charts
         String chartsTgzParentDir = zipDecompressDir + CHARTS_TGZ_PATH;
         List<File> fileList = ReleasedPackageUtil.getFiles(chartsTgzParentDir);
@@ -301,7 +300,6 @@ public class ReleasedPackageServiceImpl implements ReleasedPackageService {
             LOGGER.error("no tgz file found under path {}", chartsTgzParentDir);
             throw new FileFoundFailException("pkg(.tgz) not found!", ResponseConsts.RET_FILE_NOT_FOUND);
         }
-
 
         try {
             for (File tgzFile : fileList) {
@@ -538,18 +536,18 @@ public class ReleasedPackageServiceImpl implements ReleasedPackageService {
         map.put("affinity", releasedPackage.getArchitecture());
         map.put("industry", releasedPackage.getIndustry());
         map.put("testTaskId", releasedPackage.getTestTaskId());
-        ResponseEntity<String> uploadReslut = AppStoreUtil.storeToAppStore(map, user);
+        String uploadReslut = AppStoreUtil.storeToAppStore(map, user);
         checkInnerParamNull(uploadReslut, "upload app to appstore fail!");
 
         LOGGER.info("upload appstore result:{}", uploadReslut);
-        JsonObject jsonObject = new JsonParser().parse(uploadReslut.getBody()).getAsJsonObject();
+        JsonObject jsonObject = new JsonParser().parse(uploadReslut).getAsJsonObject();
         JsonElement appStoreAppId = jsonObject.get("appId");
         JsonElement appStorePackageId = jsonObject.get("packageId");
 
         checkInnerParamNull(appStoreAppId, "response from upload to appstore does not contain appId");
         checkInnerParamNull(appStorePackageId, "response from upload to appstore does not contain packageId");
 
-        ResponseEntity<String> publishRes = AppStoreUtil
+        String publishRes = AppStoreUtil
             .publishToAppStore(appStoreAppId.getAsString(), appStorePackageId.getAsString(), user.getToken(),
                 publishAppReqDto);
         checkInnerParamNull(publishRes, "publish app to appstore fail!");
@@ -569,7 +567,8 @@ public class ReleasedPackageServiceImpl implements ReleasedPackageService {
     private List<File> getIconList(String packageId) {
         String iconPath = getAppPkgDecompressPath(packageId) + DOCS_ICON_PATH;
         File icon = new File(iconPath);
-        return Arrays.stream(icon.listFiles()).filter(item -> item.getName().endsWith("jpg")||item.getName().endsWith("png"))
+        return Arrays.stream(icon.listFiles())
+            .filter(item -> item.getName().endsWith("jpg") || item.getName().endsWith("png"))
             .collect(Collectors.toList());
     }
 

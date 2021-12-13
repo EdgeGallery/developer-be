@@ -14,11 +14,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.test.context.junit4.SpringRunner;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
@@ -47,21 +44,23 @@ public class AppStoreUtilTest {
                 exchange.close();
             }
         });
-        httpServer.createContext("/mec/appstore/v1/apps/applicationId/packages/packageId/action/publish", new HttpHandler() {
-            @Override
-            public void handle(HttpExchange exchange) throws IOException {
-                String method = exchange.getRequestMethod();
-                if (method.equals("POST")) {
-                    String res = "ok";
-                    byte[] response = res.getBytes();
-                    exchange.sendResponseHeaders(HttpURLConnection.HTTP_OK, response.length);
-                    exchange.getResponseBody().write(response);
+        httpServer
+            .createContext("/mec/appstore/v1/apps/applicationId/packages/packageId/action/publish", new HttpHandler() {
+                @Override
+                public void handle(HttpExchange exchange) throws IOException {
+                    String method = exchange.getRequestMethod();
+                    if (method.equals("POST")) {
+                        String res = "ok";
+                        byte[] response = res.getBytes();
+                        exchange.sendResponseHeaders(HttpURLConnection.HTTP_OK, response.length);
+                        exchange.getResponseBody().write(response);
+                    }
+                    exchange.close();
                 }
-                exchange.close();
-            }
-        });
+            });
         httpServer.start();
     }
+
     @After
     public void after() {
         httpServer.stop(1);
@@ -80,7 +79,7 @@ public class AppStoreUtilTest {
         PublishAppReqDto pubAppReqDto = new PublishAppReqDto();
         pubAppReqDto.setFree(false);
         pubAppReqDto.setPrice(10);
-        String result = AppStoreUtil.publishToAppStore("applicationId", "packageId","", pubAppReqDto);
+        String result = AppStoreUtil.publishToAppStore("applicationId", "packageId", "", pubAppReqDto);
         Assert.assertEquals("ok", result);
     }
 
