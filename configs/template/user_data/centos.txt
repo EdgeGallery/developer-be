@@ -19,9 +19,9 @@
   echo "DEFROUTE=yes" >> /etc/sysconfig/network-scripts/"ifcfg-${netname1}"
   echo "IPV4_FAILURE_FATAL=no" >> /etc/sysconfig/network-scripts/"ifcfg-${netname1}"
   echo "MTU=1500" >> /etc/sysconfig/network-scripts/"ifcfg-${netname1}"
-  echo "IPADDR=$APP_INTERNET_IP$" >> /etc/sysconfig/network-scripts/"ifcfg-${netname1}"
-  echo "NETMASK=$APP_INTERNET_MASK$" >> /etc/sysconfig/network-scripts/"ifcfg-${netname1}"
-  echo "GATEWAY=$APP_INTERNET_GW$" >> /etc/sysconfig/network-scripts/"ifcfg-${netname1}"
+  echo "IPADDR=$APP_Internet_IP$" >> /etc/sysconfig/network-scripts/"ifcfg-${netname1}"
+  echo "NETMASK=$APP_Internet_MASK$" >> /etc/sysconfig/network-scripts/"ifcfg-${netname1}"
+  echo "GATEWAY=$APP_Internet_GW$" >> /etc/sysconfig/network-scripts/"ifcfg-${netname1}"
 
   echo "BOOTPROTO=static" >> /etc/sysconfig/network-scripts/"ifcfg-${netname2}"
   echo "DEVICE=${netname2}" >> /etc/sysconfig/network-scripts/"ifcfg-${netname2}"

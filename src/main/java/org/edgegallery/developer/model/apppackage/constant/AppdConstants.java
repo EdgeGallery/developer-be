@@ -22,9 +22,13 @@ public class AppdConstants {
 
     public static final String PORT_VNIC_NAME_PREFIX = "eth";
 
-    public static final String NETWORK_NAME_Public = "MEC_APP_Public";
+    public static final String NETWORK_NAME_PREFIX = "MEC_";
 
-    public static final String NETWORK_NAME_MP1 = "MEC_APP_MP1";
+    public static final String DEFAULT_NETWORK_ID_INTERNET = "Network_Internet";
+
+    public static final String DEFAULT_NETWORK_ID_N6 = "Network_N6";
+
+    public static final String DEFAULT_NETWORK_ID_MP1 = "Network_MEP";
 
     public static final String GROUPS_NODE_NAME = "AntiAffinityGroup";
 
@@ -39,4 +43,6 @@ public class AppdConstants {
     public static final String CLOSING_BRACE_MARK = "}";
 
     public static final String REGEX_LINE_SEPARATOR = "\r\n|\n";
+
+    public static final int MEMORY_SIZE_UNIT = 1024;
 }
