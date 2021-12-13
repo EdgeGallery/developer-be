@@ -85,7 +85,7 @@ public final class DeveloperFileUtils {
     public static File copyDirectory(File srcDir, File desDir, String name) throws IOException {
         File res = new File(desDir, name);
         if (res.exists() && res.isDirectory()) {
-            FileUtils.deleteDirectory(res);
+            FileUtils.forceDelete(res);
         }
         FileUtils.copyDirectory(srcDir, res);
         return res;

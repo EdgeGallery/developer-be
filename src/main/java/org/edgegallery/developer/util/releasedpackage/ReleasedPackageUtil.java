@@ -30,26 +30,30 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.edgegallery.developer.common.ResponseConsts;
+import org.edgegallery.developer.exception.FileFoundFailException;
+import org.edgegallery.developer.exception.FileOperateException;
+import org.edgegallery.developer.model.apppackage.AppPackage;
 import org.edgegallery.developer.model.releasedpackage.AppPkgFile;
+import org.edgegallery.developer.util.BusinessConfigUtil;
 import org.edgegallery.developer.util.CompressFileUtils;
+import org.edgegallery.developer.util.InitConfigUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.CollectionUtils;
 
 public class ReleasedPackageUtil {
     private static final Logger LOGGER = LoggerFactory.getLogger(ReleasedPackageUtil.class);
+
+    private static final String APPD_ZIP_PATH = "/APPD/";
+
+    private static final String CHARTS_TGZ_PATH = "/Artifacts/Deployment/Charts/";
 
     private ReleasedPackageUtil() {
         throw new IllegalStateException("ReleasedPackageUtil class");
     }
 
-    /**
-     * decompress app pkg.
-     *
-     * @param appPkgDir package directory
-     * @param outPutPath decompress directory
-     * @return if decompress return true or return false
-     */
-    public static boolean decompressAppPkg(String appPkgDir, String outPutPath) {
+    private static boolean decompressAppPkg(String appPkgDir, String outPutPath) {
         File file = new File(outPutPath);
         if (!file.exists() && !file.mkdirs()) {
             LOGGER.error("create dir {} failed!", outPutPath);
@@ -151,19 +155,127 @@ public class ReleasedPackageUtil {
         return false;
     }
 
-    /**
-     * get files.
-     *
-     * @param filePath file Path
-     * @return if success return file list or return empty list
-     */
-    public static List<File> getFiles(String filePath) {
+    private static List<File> getFiles(String filePath) {
         File file = new File(filePath);
         if (!file.exists() || !file.isDirectory()) {
             LOGGER.info("directory {} not exist", filePath);
             return Collections.emptyList();
         }
-        return Arrays.stream(file.listFiles()).filter(item -> item.getName().endsWith("tgz"))
+        return Arrays.stream(file.listFiles())
+            .filter(item -> item.getName().endsWith("tgz") || item.getName().endsWith("zip"))
             .collect(Collectors.toList());
+    }
+
+    /**
+     * decompress app package.
+     *
+     * @param appPackage app package object
+     * @param pkgDir app package directory
+     * @param packageId package id
+     * @return if success return decompress directory or throw exception.
+     */
+    public static String decompressAppPkg(AppPackage appPackage, String pkgDir, String packageId) {
+
+        //decompress zip
+        String zipPath = appPackage.getPackageFilePath();
+        String zipParentDir = zipPath.substring(0, zipPath.lastIndexOf(File.separator));
+        String zipDecompressDir = InitConfigUtil.getWorkSpaceBaseDir() + zipParentDir + File.separator + "decompress-"
+            + packageId;
+        boolean ret = decompressAppPkg(pkgDir, zipDecompressDir);
+        if (!ret) {
+            LOGGER.error("decompress zip file {} failed!", appPackage.getPackageFileName());
+            throw new FileOperateException("decompress pkg(.zip) failed!", ResponseConsts.RET_DECOMPRESS_FILE_FAIL);
+        }
+
+        // decompress zip under \APPD
+        decompressAppdZip(appPackage,zipDecompressDir);
+
+        // decompress tgz under \Artifacts\Deployment\Charts
+        decompressChartTgz(zipDecompressDir);
+
+        return zipDecompressDir;
+    }
+
+    private static void decompressAppdZip(AppPackage appPackage,String zipDecompressDir){
+        // decompress zip under \APPD
+        String appdZipParentDir = zipDecompressDir + APPD_ZIP_PATH;
+        List<File> zipList = getFiles(appdZipParentDir);
+        if (CollectionUtils.isEmpty(zipList)) {
+            LOGGER.error("no zip file found under path {}", appdZipParentDir);
+            throw new FileFoundFailException("pkg(.zip) not found!", ResponseConsts.RET_FILE_NOT_FOUND);
+        }
+        try {
+            for (File zipFile : zipList) {
+                if (!zipFile.exists()) {
+                    LOGGER.error("pkg {} not found", zipFile.getName());
+                    throw new FileFoundFailException("pkg(.zip) not found!", ResponseConsts.RET_FILE_NOT_FOUND);
+                }
+                boolean appdRet = decompressAppPkg(zipFile.getCanonicalPath(), appdZipParentDir);
+                if (!appdRet) {
+                    LOGGER.error("decompress zip file {} failed!", appPackage.getPackageFileName());
+                    throw new FileOperateException("decompress pkg(.zip) failed!",
+                        ResponseConsts.RET_DECOMPRESS_FILE_FAIL);
+                }
+                FileUtils.forceDelete(zipFile);
+            }
+        } catch (IOException e) {
+            LOGGER.error("delete zip file failed!");
+            throw new FileOperateException("delete pkg(.zip) failed!", ResponseConsts.RET_DELETE_FILE_FAIL);
+        }
+    }
+
+
+    private static void decompressChartTgz(String zipDecompressDir) {
+        // decompress tgz under \Artifacts\Deployment\Charts
+        String chartsTgzParentDir = zipDecompressDir + CHARTS_TGZ_PATH;
+        List<File> fileList = getFiles(chartsTgzParentDir);
+        if (!CollectionUtils.isEmpty(fileList)) {
+            try {
+                for (File tgzFile : fileList) {
+                    boolean tgzRet = decompressAppPkg(tgzFile.getCanonicalPath(), chartsTgzParentDir);
+                    if (!tgzRet) {
+                        LOGGER.error("decompress tgz file {} failed!", tgzFile.getName());
+                        throw new FileOperateException("decompress pkg(.tgz) failed!",
+                            ResponseConsts.RET_DECOMPRESS_FILE_FAIL);
+                    }
+                    FileUtils.forceDelete(tgzFile);
+                }
+            } catch (IOException e) {
+                LOGGER.error("delete tgz file failed!");
+                throw new FileOperateException("delete pkg(.tgz) failed!", ResponseConsts.RET_DELETE_FILE_FAIL);
+            }
+        }
+    }
+    /**
+     * get released package decompress directory.
+     *
+     * @param packageId package id
+     * @return return released package decompress directory
+     */
+    public static String getReleasedPkgDecompressPath(String packageId) {
+        return InitConfigUtil.getWorkSpaceBaseDir() + BusinessConfigUtil.getReleasedPackagesPath() + packageId
+            + File.separator + "decompress-" + packageId + File.separator;
+    }
+
+    /**
+     * get app package decompress directory.
+     *
+     * @param packageId package id
+     * @return return app package decompress directory
+     */
+    public static String getAppPkgDecompressPath(String packageId) {
+        return InitConfigUtil.getWorkSpaceBaseDir() + BusinessConfigUtil.getWorkspacePath() + packageId
+            + File.separator + "decompress-" + packageId + File.separator;
+    }
+
+    /**
+     * get app package directory.
+     *
+     * @param packageId package id
+     * @return return app package directory
+     */
+    public static String getAppPkgPath(String packageId) {
+        return InitConfigUtil.getWorkSpaceBaseDir() + BusinessConfigUtil.getReleasedPackagesPath() + packageId
+            + File.separator;
     }
 }

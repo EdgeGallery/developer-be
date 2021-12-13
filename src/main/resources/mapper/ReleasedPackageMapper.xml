@@ -18,8 +18,9 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.edgegallery.developer.mapper.releasedpackage.ReleasedPackageMapper">
     <resultMap id="ReleasedPkgMap" type="org.edgegallery.developer.model.releasedpackage.ReleasedPackage">
-        <result property="appId" column="app_id"/>
-        <result property="packageId" column="package_id"/>
+        <result property="id" column="id"/>
+        <result property="appStoreAppId" column="app_store_app_id"/>
+        <result property="appStorePackageId" column="app_store_package_id"/>
         <result property="name" column="name"/>
         <result property="version" column="version"/>
         <result property="provider" column="provider"/>
@@ -34,14 +35,14 @@
     </resultMap>
 
     <sql id="packageColumn">
-        app_id,package_id,name,version,provider,industry,type,architecture,short_desc,synchronize_date,user_id,user_name,test_task_id
+        id,app_store_app_id,app_store_package_id,name,version,provider,industry,type,architecture,short_desc,synchronize_date,user_id,user_name,test_task_id
     </sql>
 
     <insert id="createReleasedPackage">
         insert into tbl_released_package
-        (app_id,package_id,name,version,provider,industry,type,architecture,short_desc,synchronize_date,user_id,user_name,test_task_id)
+        (id,app_store_app_id,app_store_package_id,name,version,provider,industry,type,architecture,short_desc,synchronize_date,user_id,user_name,test_task_id)
         values
-        ( #{appId}, #{packageId},#{name},#{version},#{provider},#{industry},#{type},
+        ( #{id},#{appStoreAppId}, #{appStorePackageId},#{name},#{version},#{provider},#{industry},#{type},
         #{architecture}, #{shortDesc},#{synchronizeDate},#{userId},#{userName},#{testTaskId})
     </insert>
 
@@ -49,22 +50,22 @@
             resultMap="ReleasedPkgMap">
         SELECT
         <include refid="packageColumn"/>
-        from tbl_released_package where app_id=#{appId} and package_id =#{packageId}
+        from tbl_released_package where app_store_app_id=#{appId} and app_store_package_id =#{packageId}
     </select>
 
     <select id="getReleasedPackageByPkgId" parameterType="java.lang.String"
             resultMap="ReleasedPkgMap">
         SELECT
         <include refid="packageColumn"/>
-        from tbl_released_package where package_id =#{packageId}
+        from tbl_released_package where app_store_package_id =#{packageId}
     </select>
 
     <delete id="deleteReleasedPackageById">
-        delete from tbl_released_package where app_id =#{appId} and package_id=#{packageId}
+        delete from tbl_released_package where app_store_app_id =#{appId} and app_store_package_id=#{packageId}
     </delete>
 
     <delete id="deleteReleasedPackageByPkgId">
-        delete from tbl_released_package where package_id=#{packageId}
+        delete from tbl_released_package where app_store_package_id=#{packageId}
     </delete>
 
     <select id="getAllReleasedPackages" parameterType="java.lang.String" resultMap="ReleasedPkgMap">
