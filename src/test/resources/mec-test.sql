@@ -44,6 +44,11 @@ DROP TABLE  IF  EXISTS tbl_uploaded_file;
 DROP TABLE  IF  EXISTS tbl_api_emulator;
 DROP TABLE  IF  EXISTS tbl_host_log;
 DROP TABLE  IF  EXISTS tbl_container_app_instantiate_info;
+DROP TABLE  IF  EXISTS tbl_k8s_pod_instantiate_info;
+DROP TABLE  IF  EXISTS tbl_container_instantiate_info;
+DROP TABLE  IF  EXISTS tbl_k8s_service_instantiate_info;
+DROP TABLE  IF  EXISTS tbl_k8s_service_port_instantiate_info;
+
 
 -- ----------------------------
 -- Table structure for tbl_downloadrecord
@@ -546,27 +551,59 @@ CREATE TABLE IF NOT EXISTS tbl_host_log (
     )
     ;
 
-     CREATE TABLE IF NOT EXISTS tbl_app_script (
-        id varchar(255) NOT NULL,
-        app_id varchar(255) NOT NULL,
-        name varchar(255) DEFAULT NULL,
-        script_file_id text DEFAULT NULL,
-        create_time  varchar(255)  NOT NULL,
-        CONSTRAINT tbl_app_script_pkey PRIMARY KEY (id)
-     );
+   CREATE TABLE IF NOT EXISTS tbl_app_script (
+      id varchar(255) NOT NULL,
+      app_id varchar(255) NOT NULL,
+      name varchar(255) DEFAULT NULL,
+      script_file_id text DEFAULT NULL,
+      create_time  varchar(255)  NOT NULL,
+      CONSTRAINT tbl_app_script_pkey PRIMARY KEY (id)
+   );
 
-      CREATE TABLE IF NOT EXISTS tbl_container_app_instantiate_info (
-         app_id varchar(255) NOT NULL,
-         operation_id varchar(255) DEFAULT NULL,
-         app_package_id varchar(255) DEFAULT NULL,
-         distributed_mec_host varchar(255) DEFAULT NULL,
-         mepm_package_id varchar(255) DEFAULT NULL,
-         app_instance_id varchar(255) DEFAULT NULL,
-         status varchar(255) DEFAULT NULL,
-         log text DEFAULT NULL,
-         instantiate_time varchar(255)  DEFAULT NULL,
-         CONSTRAINT tbl_container_app_instantiate_info_pkey PRIMARY KEY (app_id)
-     );
+  CREATE TABLE IF NOT EXISTS tbl_container_app_instantiate_info (
+      app_id varchar(255) NOT NULL,
+      operation_id varchar(255) DEFAULT NULL,
+      app_package_id varchar(255) DEFAULT NULL,
+      distributed_mec_host varchar(255) DEFAULT NULL,
+      mepm_package_id varchar(255) DEFAULT NULL,
+      app_instance_id varchar(255) DEFAULT NULL,
+      status varchar(255) DEFAULT NULL,
+      log text DEFAULT NULL,
+      instantiate_time varchar(200)  DEFAULT NULL,
+      CONSTRAINT tbl_container_app_instantiate_info_pkey PRIMARY KEY (app_id)
+      );
+
+      CREATE TABLE IF NOT EXISTS tbl_k8s_pod_instantiate_info (
+      name varchar(255) NOT NULL,
+      app_id varchar(255) NOT NULL,
+      pod_status varchar(255) DEFAULT NULL,
+      events_info text DEFAULT NULL,
+      CONSTRAINT  tbl_k8s_pod_instantiate_info_unique_id_name UNIQUE (app_id,name)
+      );
+
+      CREATE TABLE IF NOT EXISTS tbl_container_instantiate_info (
+      name varchar(255) NOT NULL,
+      pod_name varchar(255) NOT NULL,
+      cpu_usage varchar(255) DEFAULT NULL,
+      mem_usage varchar(255) DEFAULT NULL,
+      disk_usage varchar(255) DEFAULT NULL,
+      CONSTRAINT  tbl_container_instantiate_info_unique_id_name UNIQUE (pod_name)
+      );
+
+      CREATE TABLE IF NOT EXISTS tbl_k8s_service_instantiate_info (
+      name varchar(255) NOT NULL,
+      app_id varchar(255) NOT NULL,
+      type varchar(255) DEFAULT NULL,
+      CONSTRAINT tbl_k8s_service_instantiate_info_pkey PRIMARY KEY (name)
+      );
+
+      CREATE TABLE IF NOT EXISTS tbl_k8s_service_port_instantiate_info (
+      port varchar(255) NOT NULL,
+      service_name varchar(255) NOT NULL,
+      target_port varchar(255) DEFAULT NULL,
+      node_port varchar(255) DEFAULT NULL,
+      CONSTRAINT tbl_k8s_service_port_instantiate_info_pkey PRIMARY KEY (service_name)
+      );
 
 -- workspace table end -----------------
 
