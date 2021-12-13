@@ -300,7 +300,7 @@ public class ReleasedPackageServiceImpl implements ReleasedPackageService {
         map.put("shortDesc", releasedPackage.getShortDesc());
         map.put("affinity", releasedPackage.getArchitecture());
         map.put("industry", releasedPackage.getIndustry());
-        map.put("testTaskId", "cd332443-687c-4be9-9ff5-8de411cd0a4a");
+        map.put("testTaskId", releasedPackage.getTestTaskId());
         ResponseEntity<String> uploadReslut = AppStoreUtil.storeToAppStore(map, user);
         checkInnerParamNull(uploadReslut, "upload app to appstore fail!");
 
