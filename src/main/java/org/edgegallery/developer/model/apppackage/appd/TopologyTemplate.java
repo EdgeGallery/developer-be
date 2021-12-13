@@ -33,7 +33,7 @@ public class TopologyTemplate {
     @Valid
     @NotNull
     @JsonProperty("inputs")
-    private LinkedHashMap<String, InputParam> inputs;
+    private LinkedHashMap<String, InputParam> inputs = new LinkedHashMap<String, InputParam>();
 
     @Valid
     @NotNull

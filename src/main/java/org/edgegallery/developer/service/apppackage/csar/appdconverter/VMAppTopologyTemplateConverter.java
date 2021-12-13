@@ -32,7 +32,6 @@ import org.edgegallery.developer.model.application.vm.VirtualMachine;
 import org.edgegallery.developer.model.apppackage.appd.InputParam;
 import org.edgegallery.developer.model.apppackage.appd.NodeTemplate;
 import org.edgegallery.developer.model.apppackage.appd.TopologyTemplate;
-import org.edgegallery.developer.model.apppackage.appd.vdu.VDUCapability;
 import org.edgegallery.developer.model.apppackage.appd.vdu.VDUProperty;
 import org.edgegallery.developer.model.apppackage.appd.vducp.VDUCPAttributes;
 import org.edgegallery.developer.model.apppackage.appd.vducp.VDUCPProperty;
@@ -52,15 +51,19 @@ public class VMAppTopologyTemplateConverter extends TopologyTemplateConverter {
 
     private static final String VM_PACKAGE_TEMPLATE_INPUT_PATH = "./configs/template/appd/vm_appd_inputs.yaml";
 
+    PkgSpecsUtil pkgSpecsUtil;
+
     public VMAppTopologyTemplateConverter() {
         topologyTemplate = new TopologyTemplate();
+        pkgSpecsUtil = new PkgSpecsUtil();
     }
 
     public TopologyTemplate convertNodeTemplates(VMApplication application, Map<String, Flavor> id2FlavorMap,
         Map<Integer, VMImage> id2ImageMap) {
+        pkgSpecsUtil.init(application.getPkgSpecId());
         initVmInputs();
         updateVnfNode(application.getName(), application.getProvider(), application.getVersion());
-        updateVDUs(application.getNetworkList(), application.getVmList(), id2FlavorMap, id2ImageMap);
+        updateVDUs(application, id2FlavorMap, id2ImageMap);
         updateVLs(application.getNetworkList());
         updateAppConfiguration(application);
         updateGroupsAndPolicies();
@@ -77,9 +80,6 @@ public class VMAppTopologyTemplateConverter extends TopologyTemplateConverter {
         }
         Yaml yaml = new Yaml(new SafeConstructor());
         LinkedHashMap<String, LinkedHashMap<String, String>> vmInputs = yaml.load(inputStream);
-        if (null == topologyTemplate.getInputs()) {
-            topologyTemplate.setInputs(new LinkedHashMap<String, InputParam>());
-        }
         for (Map.Entry<String, LinkedHashMap<String, String>> entry : vmInputs.entrySet()) {
             topologyTemplate.getInputs().put(entry.getKey(), new InputParam(entry.getValue()));
         }
@@ -91,7 +91,7 @@ public class VMAppTopologyTemplateConverter extends TopologyTemplateConverter {
         }
         for (int i = 0; i < networkLst.size(); i++) {
             //generate inputs for network;
-            String networkName = networkLst.get(i).getName();
+            String networkName = pkgSpecsUtil.getDefaultNetworkNameById(networkLst.get(i).getId());
             int index = i + 1;
             String networkNameInputName = InputConstant.INPUT_NETWORK_PREFIX + index
                 + InputConstant.INPUT_NETWORK_POSTFIX;
@@ -123,8 +123,10 @@ public class VMAppTopologyTemplateConverter extends TopologyTemplateConverter {
         }
     }
 
-    protected void updateVDUs(List<Network> networkLst, List<VirtualMachine> vmLst, Map<String, Flavor> id2FlavorMap,
+    protected void updateVDUs(VMApplication application, Map<String, Flavor> id2FlavorMap,
         Map<Integer, VMImage> id2ImageMap) {
+        List<Network> networkLst = application.getNetworkList();
+        List<VirtualMachine> vmLst = application.getVmList();
         if (null == topologyTemplate.getNodeTemplates()) {
             topologyTemplate.setNodeTemplates(new LinkedHashMap<String, NodeTemplate>());
         }
@@ -143,13 +145,11 @@ public class VMAppTopologyTemplateConverter extends TopologyTemplateConverter {
             NodeTemplate vduNode = new NodeTemplate();
             vduNode.setType(NodeTypeConstant.NODE_TYPE_VDU);
             Flavor flavor = id2FlavorMap.get(vm.getFlavorId());
-            VDUCapability capability = new VDUCapability(flavor.getMemory() * MEMORY_SIZE_UNIT, flavor.getCpu(),
-                flavor.getArchitecture(), flavor.getSystemDiskSize());
-            vduNode.setCapabilities(capability);
+            pkgSpecsUtil.updateVDUCapabilities(topologyTemplate, vduName, vduNode, flavor);
             VDUProperty property = new VDUProperty();
             property.setName(vm.getName());
             property.setNfviConstraints(getInputStr(azInputName));
-            property.getVduProfile().setFlavorExtraSpecs(analyzeVMFlavorExtraSpecs(vm.getFlavorExtraSpecs()));
+            pkgSpecsUtil.updateFlavorExtraSpecs(topologyTemplate, vduName, property, vm.getFlavorExtraSpecs());
             property.getSwImageData().setName(id2ImageMap.get(Integer.valueOf(vm.getImageId())).getName());
             if (StringUtils.isEmpty(vm.getUserData())) {
                 property.getBootdata().setConfigDrive(false);
@@ -168,30 +168,6 @@ public class VMAppTopologyTemplateConverter extends TopologyTemplateConverter {
         }
     }
 
-    private LinkedHashMap<String, String> analyzeVMFlavorExtraSpecs(String flavorExtraSpecsStr) {
-        if (StringUtils.isEmpty(flavorExtraSpecsStr)) {
-            return null;
-        }
-        //generate Inputs for FlavorExtraSpecs
-        int inputIndex = 0;
-        while (true) {
-            inputIndex = flavorExtraSpecsStr.indexOf(InputConstant.GET_INPUT_PREFIX.trim(), inputIndex + 1);
-            if (inputIndex != -1) {
-                int inputNameEndIndex = flavorExtraSpecsStr.indexOf(AppdConstants.CLOSING_BRACE_MARK, inputIndex);
-                String inputName = flavorExtraSpecsStr.substring(
-                    inputIndex + InputConstant.GET_INPUT_PREFIX.trim().length(), inputNameEndIndex).trim();
-                InputParam inputParam = new InputParam(InputConstant.TYPE_STRING, "", inputName);
-                topologyTemplate.getInputs().put(inputName, inputParam);
-            } else {
-                break;
-            }
-        }
-        //generate the definition for FlavorExtraSpecs
-        Yaml yaml = new Yaml(new SafeConstructor());
-        LinkedHashMap<String, String> mapSpecs = yaml.load(flavorExtraSpecsStr);
-        return mapSpecs;
-    }
-
     private LinkedHashMap<String, String> getVDUNodeUserDataParams(String vduName, List<VMPort> ports,
         List<Network> networkLst) {
         LinkedHashMap<String, String> mapPortParams = new LinkedHashMap<>();
@@ -202,6 +178,7 @@ public class VMAppTopologyTemplateConverter extends TopologyTemplateConverter {
         mapPortParams.put(InputConstant.INPUT_NAME_MEP_IP.toUpperCase(), getInputStr(InputConstant.INPUT_NAME_MEP_IP));
         mapPortParams.put(InputConstant.INPUT_NAME_MEP_PORT.toUpperCase(),
             getInputStr(InputConstant.INPUT_NAME_MEP_PORT));
+        pkgSpecsUtil.updateUserDataParam(topologyTemplate, mapPortParams);
         for (int i = 0; i < ports.size(); i++) {
             //generate port inputs
             VMPort port = ports.get(i);
@@ -213,12 +190,15 @@ public class VMAppTopologyTemplateConverter extends TopologyTemplateConverter {
             String portGWInputName = vduName + "_" + InputConstant.INPUT_NETWORK_PREFIX + networkIndex
                 + InputConstant.INPUT_PORT_GW_POSTFIX;
             String paramPrefix = "";
-            if (port.getNetworkName().equalsIgnoreCase(InputConstant.NETWORK_INTERNET)) {
-                paramPrefix = "APP_INTERNET";
-            } else if (port.getNetworkName().equalsIgnoreCase(InputConstant.NETWORK_N6)) {
-                paramPrefix = "APP_N6";
-            } else if (port.getNetworkName().equalsIgnoreCase(InputConstant.NETWORK_MP1)) {
-                paramPrefix = "APP_MP1";
+            if (port.getNetworkName()
+                .equalsIgnoreCase(AppdConstants.NETWORK_NAME_PREFIX + pkgSpecsUtil.getNetworkInternetName())) {
+                paramPrefix = pkgSpecsUtil.getNetworkInternetName();
+            } else if (port.getNetworkName()
+                .equalsIgnoreCase(AppdConstants.NETWORK_NAME_PREFIX + pkgSpecsUtil.getNetworkN6Name())) {
+                paramPrefix = pkgSpecsUtil.getNetworkN6Name();
+            } else if (port.getNetworkName()
+                .equalsIgnoreCase(AppdConstants.NETWORK_NAME_PREFIX + pkgSpecsUtil.getNetworkMp1Name())) {
+                paramPrefix = pkgSpecsUtil.getNetworkMp1Name();
             } else {
                 paramPrefix = "";
             }

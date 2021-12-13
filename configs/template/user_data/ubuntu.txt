@@ -21,11 +21,11 @@
   echo "    ethernets:" >> /etc/netplan/50-cloud-init.yaml
 
   ip a | grep '^3:' | awk '{print "       "$2}' >> /etc/netplan/50-cloud-init.yaml
-  prefix $APP_INTERNET_MASK$
-  echo "            addresses: [$APP_INTERNET_IP$/$?]" >> /etc/netplan/50-cloud-init.yaml
+  prefix $APP_Internet_MASK$
+  echo "            addresses: [$APP_Internet_IP$/$?]" >> /etc/netplan/50-cloud-init.yaml
   echo "            routes:" >> /etc/netplan/50-cloud-init.yaml
   echo "                    - to: 0.0.0.0/0" >> /etc/netplan/50-cloud-init.yaml
-  echo "                      via: $APP_INTERNET_GW$" >> /etc/netplan/50-cloud-init.yaml
+  echo "                      via: $APP_Internet_GW$" >> /etc/netplan/50-cloud-init.yaml
   echo "                      metric: 50" >> /etc/netplan/50-cloud-init.yaml
   echo "            mtu: 1500" >> /etc/netplan/50-cloud-init.yaml
 

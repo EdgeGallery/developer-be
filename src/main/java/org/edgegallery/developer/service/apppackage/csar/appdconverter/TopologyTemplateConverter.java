@@ -42,9 +42,6 @@ public abstract class TopologyTemplateConverter {
 
     public static final Logger LOGGER = LoggerFactory.getLogger(TopologyTemplateConverter.class);
 
-    // memory unit is Mib
-    public static final int MEMORY_SIZE_UNIT = 1024;
-
     TopologyTemplate topologyTemplate;
 
     protected void updateVnfNode(String name, String provider, String version) {
@@ -97,9 +94,6 @@ public abstract class TopologyTemplateConverter {
             || appConfiguration.getTrafficRuleList().isEmpty()) && (null == appConfiguration.getDnsRuleList()
             || appConfiguration.getDnsRuleList().isEmpty())) {
             return;
-        }
-        if (null == topologyTemplate.getInputs()) {
-            topologyTemplate.setInputs(new LinkedHashMap<String, InputParam>());
         }
         topologyTemplate.getInputs().put(InputConstant.INPUT_NAME_AK,
             new InputParam(InputConstant.TYPE_STRING, "", InputConstant.INPUT_NAME_AK));

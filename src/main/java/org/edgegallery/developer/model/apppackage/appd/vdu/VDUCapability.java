@@ -27,7 +27,7 @@ public class VDUCapability {
     @JsonProperty("virtual_compute")
     LinkedHashMap<String, Object> virtualCompute = new LinkedHashMap<>();
 
-    public VDUCapability(int memSize, int cpuNum, String cpuArc, int diskSize) {
+    public VDUCapability(Object memSize, Object cpuNum, String cpuArc, Object diskSize) {
         Map<String, Object> memory = new LinkedHashMap<>();
         memory.put("virtual_mem_size", memSize);
 
