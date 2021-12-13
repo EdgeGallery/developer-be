@@ -19,7 +19,6 @@ package org.edgegallery.developer.mapper.application.container;
 import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
-import org.edgegallery.developer.model.application.Application;
 import org.edgegallery.developer.model.instantiate.container.Container;
 import org.edgegallery.developer.model.instantiate.container.ContainerAppInstantiateInfo;
 import org.edgegallery.developer.model.instantiate.container.K8sPod;
@@ -57,7 +56,8 @@ public interface ContainerAppInstantiateInfoMapper {
 
     List<K8sService> getK8sServiceByAppId(String applicationId);
 
-    int createK8sServicePort(@Param("k8sServiceName") String k8sServiceName, @Param("k8sServicePort") K8sServicePort k8sServicePort);
+    int createK8sServicePort(@Param("k8sServiceName") String k8sServiceName,
+        @Param("k8sServicePort") K8sServicePort k8sServicePort);
 
     int deleteK8sServicePortByK8sServiceName(String k8sServiceName);
 

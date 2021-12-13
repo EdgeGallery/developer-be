@@ -25,13 +25,14 @@ import java.io.File;
 import java.util.List;
 import javax.validation.constraints.Pattern;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
+import org.edgegallery.developer.common.Consts;
 import org.edgegallery.developer.common.ResponseConsts;
-import org.edgegallery.developer.filter.security.AccessUserUtil;
 import org.edgegallery.developer.exception.EntityNotFoundException;
+import org.edgegallery.developer.filter.security.AccessUserUtil;
 import org.edgegallery.developer.model.apppackage.AppPkgStructure;
 import org.edgegallery.developer.model.capability.Capability;
-import org.edgegallery.developer.model.uploadfile.UploadFile;
 import org.edgegallery.developer.model.restful.ErrorRespDto;
+import org.edgegallery.developer.model.uploadfile.UploadFile;
 import org.edgegallery.developer.service.capability.CapabilityService;
 import org.edgegallery.developer.service.uploadfile.UploadFileService;
 import org.edgegallery.developer.service.uploadfile.impl.UploadFileServiceImpl;
@@ -88,8 +89,8 @@ public class UploadFileController {
             throw new EntityNotFoundException("can not find file in db!", ResponseConsts.RET_QUERY_DATA_EMPTY);
         }
         HttpHeaders headers = new HttpHeaders();
-        headers.add("Content-Type", "application/octet-stream");
-        headers.add("Content-Disposition", "attachment; filename=" + uploadFile.getFileName());
+        headers.add(Consts.CONTENT_TYPE, "application/octet-stream");
+        headers.add(Consts.CONTENT_DISPOSITION, "attachment; filename=" + uploadFile.getFileName());
         byte[] fileData = uploadFileService.getFileStream(uploadFile, userId);
         return ResponseEntity.ok().headers(headers).body(fileData);
     }
@@ -157,8 +158,8 @@ public class UploadFileController {
     public ResponseEntity<byte[]> getSampleCode(
         @ApiParam(value = "apiFileIds", required = true) @RequestBody List<String> apiFileIds) {
         HttpHeaders headers = new HttpHeaders();
-        headers.add("Content-Type", MediaType.APPLICATION_OCTET_STREAM_VALUE);
-        headers.add("Content-Disposition", "attachment; filename=SampleCode.tgz");
+        headers.add(Consts.CONTENT_TYPE, MediaType.APPLICATION_OCTET_STREAM_VALUE);
+        headers.add(Consts.CONTENT_DISPOSITION, "attachment; filename=SampleCode.tgz");
         byte[] fileData = uploadFileService.downloadSampleCode(apiFileIds);
         return ResponseEntity.ok().headers(headers).body(fileData);
     }
@@ -217,8 +218,8 @@ public class UploadFileController {
             throw new EntityNotFoundException("can not find capability in db", ResponseConsts.RET_QUERY_DATA_EMPTY);
         }
         HttpHeaders headers = new HttpHeaders();
-        headers.add("Content-Type", MediaType.APPLICATION_OCTET_STREAM_VALUE);
-        headers.add("Content-Disposition", "attachment; filename=" + capabilities.get(0).getHost() + ".tgz");
+        headers.add(Consts.CONTENT_TYPE, MediaType.APPLICATION_OCTET_STREAM_VALUE);
+        headers.add(Consts.CONTENT_DISPOSITION, "attachment; filename=" + capabilities.get(0).getHost() + ".tgz");
         byte[] fileData = uploadFileService.getSdkProject(fileId, lan, capabilities);
         return ResponseEntity.ok().headers(headers).body(fileData);
     }

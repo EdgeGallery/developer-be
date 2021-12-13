@@ -154,7 +154,8 @@ public class ContainerAppOperationServiceTest extends AbstractJUnit4SpringContex
             Assert.assertEquals(EnumActionStatus.SUCCESS, status.getStatus());
             Assert.assertEquals(100, status.getProgress());
             //InstantiateInfo created check.
-            ContainerAppInstantiateInfo instantiateInfo = containerAppOperationService.getInstantiateInfo(APPLICATION_ID);
+            ContainerAppInstantiateInfo instantiateInfo = containerAppOperationService
+                .getInstantiateInfo(APPLICATION_ID);
             Assert.assertFalse(StringUtils.isEmpty(instantiateInfo.getAppInstanceId()));
             Assert.assertFalse(StringUtils.isEmpty(instantiateInfo.getAppPackageId()));
             Assert.assertFalse(StringUtils.isEmpty(instantiateInfo.getPods()));
@@ -171,7 +172,8 @@ public class ContainerAppOperationServiceTest extends AbstractJUnit4SpringContex
             OperationStatus status = callInstantiateContainer();
             Assert.assertEquals(EnumActionStatus.FAILED, status.getStatus());
             //InstantiateInfo created check.
-            ContainerAppInstantiateInfo instantiateInfo = containerAppOperationService.getInstantiateInfo(APPLICATION_ID);
+            ContainerAppInstantiateInfo instantiateInfo = containerAppOperationService
+                .getInstantiateInfo(APPLICATION_ID);
             Assert.assertFalse(StringUtils.isEmpty(instantiateInfo.getAppPackageId()));
             Assert.assertTrue(StringUtils.isEmpty(instantiateInfo.getMepmPackageId()));
         } catch (Exception e) {
@@ -187,7 +189,8 @@ public class ContainerAppOperationServiceTest extends AbstractJUnit4SpringContex
             OperationStatus status = callInstantiateContainer();
             Assert.assertEquals(EnumActionStatus.FAILED, status.getStatus());
             //InstantiateInfo created check.
-            ContainerAppInstantiateInfo instantiateInfo = containerAppOperationService.getInstantiateInfo(APPLICATION_ID);
+            ContainerAppInstantiateInfo instantiateInfo = containerAppOperationService
+                .getInstantiateInfo(APPLICATION_ID);
             Assert.assertFalse(StringUtils.isEmpty(instantiateInfo.getAppPackageId()));
             Assert.assertTrue(StringUtils.isEmpty(instantiateInfo.getAppInstanceId()));
         } catch (Exception e) {
@@ -203,7 +206,8 @@ public class ContainerAppOperationServiceTest extends AbstractJUnit4SpringContex
             OperationStatus status = callInstantiateContainer();
             Assert.assertEquals(EnumActionStatus.FAILED, status.getStatus());
             //InstantiateInfo created check.
-            ContainerAppInstantiateInfo instantiateInfo = containerAppOperationService.getInstantiateInfo(APPLICATION_ID);
+            ContainerAppInstantiateInfo instantiateInfo = containerAppOperationService
+                .getInstantiateInfo(APPLICATION_ID);
             Assert.assertFalse(StringUtils.isEmpty(instantiateInfo.getAppPackageId()));
             Assert.assertTrue(StringUtils.isEmpty(instantiateInfo.getAppInstanceId()));
         } catch (Exception e) {
@@ -219,7 +223,8 @@ public class ContainerAppOperationServiceTest extends AbstractJUnit4SpringContex
             OperationStatus status = callInstantiateContainer();
             Assert.assertEquals(EnumActionStatus.FAILED, status.getStatus());
             //InstantiateInfo created check.
-            ContainerAppInstantiateInfo instantiateInfo = containerAppOperationService.getInstantiateInfo(APPLICATION_ID);
+            ContainerAppInstantiateInfo instantiateInfo = containerAppOperationService
+                .getInstantiateInfo(APPLICATION_ID);
             Assert.assertFalse(StringUtils.isEmpty(instantiateInfo.getAppPackageId()));
             Assert.assertTrue(StringUtils.isEmpty(instantiateInfo.getAppInstanceId()));
         } catch (Exception e) {
@@ -263,7 +268,8 @@ public class ContainerAppOperationServiceTest extends AbstractJUnit4SpringContex
             @Mock
             public String distributePkg(String basePath, String userId, String token, String packageId, String mecHost,
                 LcmLog lcmLog) {
-                if (lcmReturnType.equals(ContainerAppOperationServiceTest.LcmReturnMockTypeEnum.DISTRIBUTE_PKG_FAILED)) {
+                if (lcmReturnType
+                    .equals(ContainerAppOperationServiceTest.LcmReturnMockTypeEnum.DISTRIBUTE_PKG_FAILED)) {
                     return null;
                 }
                 return "success";
@@ -271,7 +277,8 @@ public class ContainerAppOperationServiceTest extends AbstractJUnit4SpringContex
 
             @Mock
             public String getDistributeRes(String basePath, String userId, String token, String pkgId) {
-                if (lcmReturnType.equals(ContainerAppOperationServiceTest.LcmReturnMockTypeEnum.GET_DISTRIBUTE_RES_FAILED)) {
+                if (lcmReturnType
+                    .equals(ContainerAppOperationServiceTest.LcmReturnMockTypeEnum.GET_DISTRIBUTE_RES_FAILED)) {
                     return null;
                 }
                 String jsonStr = null;
@@ -288,7 +295,8 @@ public class ContainerAppOperationServiceTest extends AbstractJUnit4SpringContex
             @Mock
             public boolean instantiateApplication(String basePath, String appInstanceId, String userId, String token,
                 LcmLog lcmLog, String pkgId, String mecHost, Map<String, String> inputParams) {
-                if (lcmReturnType.equals(ContainerAppOperationServiceTest.LcmReturnMockTypeEnum.INSTANTIATE_APP_FAILED)) {
+                if (lcmReturnType
+                    .equals(ContainerAppOperationServiceTest.LcmReturnMockTypeEnum.INSTANTIATE_APP_FAILED)) {
                     return false;
                 }
                 return true;
@@ -297,7 +305,8 @@ public class ContainerAppOperationServiceTest extends AbstractJUnit4SpringContex
             @Mock
             public String getWorkloadStatus(String protocol, String ip, int port, String appInstanceId, String userId,
                 String token) {
-                if (lcmReturnType.equals(ContainerAppOperationServiceTest.LcmReturnMockTypeEnum.GET_WORKLOAD_STATUS_FAILED)) {
+                if (lcmReturnType
+                    .equals(ContainerAppOperationServiceTest.LcmReturnMockTypeEnum.GET_WORKLOAD_STATUS_FAILED)) {
                     return null;
                 }
                 String jsonStr = null;
@@ -314,7 +323,8 @@ public class ContainerAppOperationServiceTest extends AbstractJUnit4SpringContex
             @Mock
             public String getWorkloadEvents(String protocol, String ip, int port, String appInstanceId, String userId,
                 String token) {
-                if (lcmReturnType.equals(ContainerAppOperationServiceTest.LcmReturnMockTypeEnum.GET_WORKLOAD_STATUS_FAILED)) {
+                if (lcmReturnType
+                    .equals(ContainerAppOperationServiceTest.LcmReturnMockTypeEnum.GET_WORKLOAD_STATUS_FAILED)) {
                     return null;
                 }
                 String jsonStr = null;

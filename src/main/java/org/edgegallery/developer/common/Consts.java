@@ -69,6 +69,10 @@ public final class Consts {
 
     public static final String ACCESS_TOKEN_STR = "access_token";
 
+    public static final String CONTENT_TYPE = "Content-Type";
+
+    public static final String CONTENT_DISPOSITION = "Content-Disposition";
+
     public static final String ROLE_DEVELOPER_ADMIN = "ROLE_DEVELOPER_ADMIN";
 
     public static final String CHUNK_NUM = "chunk_num";
@@ -99,6 +103,10 @@ public final class Consts {
     public static final String SYSTEM_IMAGE_SLICE_UPLOAD_URL = "/image-management/v1/images/upload";
 
     public static final String SYSTEM_IMAGE_SLICE_MERGE_URL = "/image-management/v1/images/merge";
+
+    public static final String UPLOAD_TO_APPSTORE_URL = "/mec/appstore/v1/apps?userId=%s&userName=%s";
+
+    public static final String PUBLISH_TO_APPSTORE_URL = "/mec/appstore/v1/apps/%s/packages/%s/action/publish";
 
     public static final String HARBOR_IMAGE_LOGIN_URL = "%s://%s/c/login";
 

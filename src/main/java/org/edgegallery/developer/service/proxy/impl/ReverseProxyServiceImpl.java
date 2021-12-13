@@ -134,7 +134,7 @@ public class ReverseProxyServiceImpl implements ReverseProxyService {
     }
 
     @Override
-    public SshResponseInfo getVmSshResponseInfo(String applicationId, String vmId, String userId, String XSRFValue) {
+    public SshResponseInfo getVmSshResponseInfo(String applicationId, String vmId, String userId, String xsrfValue) {
         Application application = applicationMapper.getApplicationById(applicationId);
         String hostId = application.getMepHostId();
         MepHost mepHost = mepHostMapper.getHost(hostId);
@@ -159,7 +159,7 @@ public class ReverseProxyServiceImpl implements ReverseProxyService {
         String basePath = HttpClientUtil
             .getUrlPrefix(mepHost.getLcmProtocol(), mepHost.getLcmIp(), mepHost.getLcmPort());
         SshResponseInfo sshResponseInfo = HttpClientUtil
-            .sendWebSshRequest(basePath, networkIp, 22, username, password, XSRFValue);
+            .sendWebSshRequest(basePath, networkIp, 22, username, password, xsrfValue);
         if (sshResponseInfo == null) {
             LOGGER.error("send WebSsh request fail.");
             throw new DeveloperException("failed to get ssh console url");
