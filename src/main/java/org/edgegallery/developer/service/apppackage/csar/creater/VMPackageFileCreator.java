@@ -12,7 +12,7 @@
  * the License.
  */
 
-package org.edgegallery.developer.service.apppackage.csar;
+package org.edgegallery.developer.service.apppackage.csar.creater;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -22,7 +22,7 @@ import org.edgegallery.developer.model.application.vm.VirtualMachine;
 import org.edgegallery.developer.model.apppackage.appd.AppDefinition;
 import org.edgegallery.developer.model.apppackage.ImageDesc;
 import org.edgegallery.developer.model.resource.vm.VMImage;
-import org.edgegallery.developer.service.apppackage.converter.AppDefinitionConverter;
+import org.edgegallery.developer.service.apppackage.csar.appdconverter.AppDefinitionConverter;
 import org.edgegallery.developer.service.recource.vm.VMImageService;
 import org.edgegallery.developer.util.SpringContextUtil;
 import org.springframework.util.CollectionUtils;

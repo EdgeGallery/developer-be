@@ -12,7 +12,7 @@
  * the License.
  */
 
-package org.edgegallery.developer.service.apppackage.csar;
+package org.edgegallery.developer.service.apppackage.csar.filehandler;
 
 import java.io.File;
 import java.util.List;

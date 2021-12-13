@@ -12,13 +12,13 @@
  * the License.
  */
 
-package org.edgegallery.developer.test.service.apppackage.csar;
+package org.edgegallery.developer.test.service.apppackage.csar.creater;
 
 import java.io.IOException;
 import org.edgegallery.developer.test.DeveloperApplicationTests;
 import org.edgegallery.developer.model.application.Application;
 import org.edgegallery.developer.model.application.EnumAppClass;
-import org.edgegallery.developer.service.apppackage.csar.PackageFileCreator;
+import org.edgegallery.developer.service.apppackage.csar.creater.PackageFileCreator;
 import org.edgegallery.developer.util.SpringContextUtil;
 import org.junit.Assert;
 import org.junit.Before;

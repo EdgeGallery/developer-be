@@ -22,7 +22,7 @@ import java.nio.file.Paths;
 import java.util.Map;
 import org.apache.commons.io.FileUtils;
 import org.edgegallery.developer.exception.DeveloperException;
-import org.edgegallery.developer.service.apppackage.converter.CustomRepresenter;
+import org.edgegallery.developer.service.apppackage.csar.appdconverter.CustomRepresenter;
 import org.edgegallery.developer.util.CompressFileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

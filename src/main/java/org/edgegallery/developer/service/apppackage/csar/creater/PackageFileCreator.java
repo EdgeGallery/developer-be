@@ -1,4 +1,4 @@
-package org.edgegallery.developer.service.apppackage.csar;
+package org.edgegallery.developer.service.apppackage.csar.creater;
 
 import com.google.common.io.Files;
 import java.io.BufferedWriter;
@@ -24,8 +24,10 @@ import org.edgegallery.developer.model.apppackage.basicContext.ToscaMetadataCont
 import org.edgegallery.developer.model.apppackage.basicContext.ToscaSourceContent;
 import org.edgegallery.developer.model.apppackage.basicContext.VnfdToscaMetaContent;
 import org.edgegallery.developer.model.uploadfile.UploadFile;
-import org.edgegallery.developer.service.apppackage.csar.impl.TocsarFileHandlerFactory;
-import org.edgegallery.developer.service.apppackage.signature.EncryptedService;
+import org.edgegallery.developer.service.apppackage.csar.filehandler.IACsarFile;
+import org.edgegallery.developer.service.apppackage.csar.filehandler.IContentParseHandler;
+import org.edgegallery.developer.service.apppackage.csar.filehandler.TocsarFileHandlerFactory;
+import org.edgegallery.developer.service.apppackage.csar.signature.EncryptedService;
 import org.edgegallery.developer.service.uploadfile.UploadFileService;
 import org.edgegallery.developer.util.ApplicationUtil;
 import org.edgegallery.developer.util.CompressFileUtils;

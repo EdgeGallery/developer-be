@@ -12,7 +12,7 @@
  * the License.
  */
 
-package org.edgegallery.developer.service.apppackage.converter;
+package org.edgegallery.developer.service.apppackage.csar.appdconverter;
 
 import java.util.Iterator;
 import java.util.List;

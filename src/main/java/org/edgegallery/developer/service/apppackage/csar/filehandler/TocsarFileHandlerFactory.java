@@ -12,7 +12,7 @@
  * the License.
  */
 
-package org.edgegallery.developer.service.apppackage.csar.impl;
+package org.edgegallery.developer.service.apppackage.csar.filehandler;
 
 import org.edgegallery.developer.model.apppackage.basicContext.ManifestCmsContent;
 import org.edgegallery.developer.model.apppackage.basicContext.ManifestFiledataContent;
@@ -20,7 +20,6 @@ import org.edgegallery.developer.model.apppackage.basicContext.ManifestMetadataC
 import org.edgegallery.developer.model.apppackage.basicContext.ToscaMetadataContent;
 import org.edgegallery.developer.model.apppackage.basicContext.ToscaSourceContent;
 import org.edgegallery.developer.model.apppackage.basicContext.VnfdToscaMetaContent;
-import org.edgegallery.developer.service.apppackage.csar.IACsarFile;
 
 public final class TocsarFileHandlerFactory {
 

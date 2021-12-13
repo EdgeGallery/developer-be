@@ -12,7 +12,7 @@
  * the License.
  */
 
-package org.edgegallery.developer.service.apppackage.converter;
+package org.edgegallery.developer.service.apppackage.csar.appdconverter;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -71,10 +71,6 @@ public class AppDefinitionConverter {
     }
 
     public boolean saveAppdYaml(String appdFilePath, AppDefinition appDefinition) {
-        //convert to json string first.
-        // Gson gson = new Gson();
-        //  String appdJsonStr = gson.toJson(appDefinition);
-
         //convert to Map Object. gson will change int to double ,so we use jackson.
         ObjectMapper mapper = new ObjectMapper();
         mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
@@ -128,7 +124,7 @@ public class AppDefinitionConverter {
         appDefinition.getMetadata().setVnfdName(application.getName());
         //update the nodeTemplates
         appDefinition.getTopologyTemplate()
-            .updateNodeTemplates(application, queryFlavors(application), queryImages(application));
+            .updateVMAppNodeTemplates(application, queryFlavors(application), queryImages(application));
         appDefinition.getTopologyTemplate().updateGroupsAndPolicies();
         return appDefinition;
     }
@@ -142,7 +138,7 @@ public class AppDefinitionConverter {
         appDefinition.getMetadata().setVnfdId(application.getName());
         appDefinition.getMetadata().setVnfdName(application.getName());
 
-        appDefinition.getTopologyTemplate().updateContainerNodeTemplates(application, imageDescList);
+        appDefinition.getTopologyTemplate().updateContainerAppNodeTemplates(application, imageDescList);
         appDefinition.getTopologyTemplate().updateGroupsAndPolicies();
         return appDefinition;
     }

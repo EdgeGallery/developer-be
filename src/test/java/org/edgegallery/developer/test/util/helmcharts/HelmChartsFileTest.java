@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 import org.apache.ibatis.io.Resources;
 import org.edgegallery.developer.exception.DeveloperException;
-import org.edgegallery.developer.service.apppackage.converter.CustomRepresenter;
+import org.edgegallery.developer.service.apppackage.csar.appdconverter.CustomRepresenter;
 import org.edgegallery.developer.util.helmcharts.HelmChartFile;
 import org.edgegallery.developer.util.helmcharts.IContainerFileHandler;
 import org.edgegallery.developer.util.helmcharts.LoadContainerFileFactory;
