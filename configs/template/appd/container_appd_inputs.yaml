@@ -1,8 +1,0 @@
-ak:
-  type: string
-  default: abdc
-  description: AK
-sk:
-  type: password
-  default: 1234
-  description: SK

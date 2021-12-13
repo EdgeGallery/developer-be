@@ -14,16 +14,10 @@
 
 package org.edgegallery.developer.service.apppackage.csar.appdconverter;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import org.edgegallery.developer.common.ResponseConsts;
-import org.edgegallery.developer.exception.FileOperateException;
 import org.edgegallery.developer.model.application.Application;
 import org.edgegallery.developer.model.application.configuration.AppConfiguration;
 import org.edgegallery.developer.model.application.configuration.AppServiceProduced;
@@ -43,8 +37,6 @@ import org.edgegallery.developer.model.apppackage.constant.NodeTypeConstant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.CollectionUtils;
-import org.yaml.snakeyaml.Yaml;
-import org.yaml.snakeyaml.constructor.SafeConstructor;
 
 public abstract class TopologyTemplateConverter {
 
@@ -54,9 +46,6 @@ public abstract class TopologyTemplateConverter {
     public static final int MEMORY_SIZE_UNIT = 1024;
 
     TopologyTemplate topologyTemplate;
-
-    private static final String CONTAINER_PACKAGE_TEMPLATE_INPUT_PATH
-        = "./configs/template/appd/container_appd_inputs.yaml";
 
     protected void updateVnfNode(String name, String provider, String version) {
         NodeTemplate vnfNode = topologyTemplate.getNodeTemplates().get(AppdConstants.VNF_NODE_NAME);
@@ -109,7 +98,10 @@ public abstract class TopologyTemplateConverter {
             || appConfiguration.getDnsRuleList().isEmpty())) {
             return;
         }
-        updateInputs();
+        topologyTemplate.getInputs().put(InputConstant.INPUT_NAME_AK,
+            new InputParam(InputConstant.TYPE_STRING, "", InputConstant.INPUT_NAME_AK));
+        topologyTemplate.getInputs().put(InputConstant.INPUT_NAME_SK,
+            new InputParam(InputConstant.TYPE_PASSWORD, "", InputConstant.INPUT_NAME_SK));
         NodeTemplate appConfigurationNode = new NodeTemplate();
         appConfigurationNode.setType(NodeTypeConstant.NODE_TYPE_APP_CONFIGURATIOIN);
         ConfigurationProperty property = new ConfigurationProperty();
@@ -144,20 +136,4 @@ public abstract class TopologyTemplateConverter {
         topologyTemplate.getNodeTemplates().put(AppdConstants.APP_CONFIGURATION_NODE_NAME, appConfigurationNode);
     }
 
-    private void updateInputs() {
-        try {
-            InputStream inputStream = new FileInputStream(new File(CONTAINER_PACKAGE_TEMPLATE_INPUT_PATH));
-            Yaml yaml = new Yaml(new SafeConstructor());
-            LinkedHashMap<String, LinkedHashMap<String, String>> containerInputs = yaml.load(inputStream);
-            if (null == topologyTemplate.getInputs()) {
-                topologyTemplate.setInputs(new LinkedHashMap<String, InputParam>());
-            }
-            containerInputs.keySet().stream()
-                .forEach(key -> topologyTemplate.getInputs().put(key, new InputParam(containerInputs.get(key))));
-        } catch (IOException e) {
-            LOGGER.error("init container inputs read file failed. {}", e);
-            throw new FileOperateException("init container inputs read file failed.",
-                ResponseConsts.RET_LOAD_YAML_FAIL);
-        }
-    }
 }
