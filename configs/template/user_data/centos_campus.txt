@@ -19,9 +19,9 @@
   echo "DEFROUTE=yes" >> /etc/sysconfig/network-scripts/"ifcfg-${netname1}"
   echo "IPV4_FAILURE_FATAL=no" >> /etc/sysconfig/network-scripts/"ifcfg-${netname1}"
   echo "MTU=1500" >> /etc/sysconfig/network-scripts/"ifcfg-${netname1}"
-  echo "IPADDR=$APP_INTERNET_IP$" >> /etc/sysconfig/network-scripts/"ifcfg-${netname1}"
-  echo "NETMASK=$APP_INTERNET_MASK$" >> /etc/sysconfig/network-scripts/"ifcfg-${netname1}"
-  echo "GATEWAY=$APP_INTERNET_GW$" >> /etc/sysconfig/network-scripts/"ifcfg-${netname1}"
+  echo "IPADDR=$APP_Public_IP$" >> /etc/sysconfig/network-scripts/"ifcfg-${netname1}"
+  echo "NETMASK=$APP_Public_MASK$" >> /etc/sysconfig/network-scripts/"ifcfg-${netname1}"
+  echo "GATEWAY=$APP_Public_GW$" >> /etc/sysconfig/network-scripts/"ifcfg-${netname1}"
 
   echo "BOOTPROTO=static" >> /etc/sysconfig/network-scripts/"ifcfg-${netname2}"
   echo "DEVICE=${netname2}" >> /etc/sysconfig/network-scripts/"ifcfg-${netname2}"
@@ -31,11 +31,11 @@
   echo "DEFROUTE=no" >> /etc/sysconfig/network-scripts/"ifcfg-${netname2}"
   echo "IPV4_FAILURE_FATAL=no" >> /etc/sysconfig/network-scripts/"ifcfg-${netname2}"
   echo "MTU=1500" >> /etc/sysconfig/network-scripts/"ifcfg-${netname2}"
-  echo "IPADDR=$APP_N6_IP$" >> /etc/sysconfig/network-scripts/"ifcfg-${netname2}"
-  echo "NETMASK=$APP_N6_MASK$" >> /etc/sysconfig/network-scripts/"ifcfg-${netname2}"
+  echo "IPADDR=$APP_Private_IP$" >> /etc/sysconfig/network-scripts/"ifcfg-${netname2}"
+  echo "NETMASK=$APP_Private_MASK$" >> /etc/sysconfig/network-scripts/"ifcfg-${netname2}"
 
-  echo "$UE_IP_SEGMENT$ via $APP_N6_GW$" >> /etc/sysconfig/network-scripts/"route-${netname2}"
-  echo "$ENTERPRISE_CAMPUS$ via $APP_N6_GW$" >> /etc/sysconfig/network-scripts/"route-${netname2}"
+  echo "$UE_IP_SEGMENT$ via $APP_Private_GW$" >> /etc/sysconfig/network-scripts/"route-${netname2}"
+  echo "$ENTERPRISE_CAMPUS$ via $APP_Private_GW$" >> /etc/sysconfig/network-scripts/"route-${netname2}"
 
   echo "BOOTPROTO=static" >> /etc/sysconfig/network-scripts/"ifcfg-${netname3}"
   echo "DEVICE=${netname3}" >> /etc/sysconfig/network-scripts/"ifcfg-${netname3}"

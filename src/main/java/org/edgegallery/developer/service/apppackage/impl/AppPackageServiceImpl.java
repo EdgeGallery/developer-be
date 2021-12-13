@@ -18,7 +18,6 @@ package org.edgegallery.developer.service.apppackage.impl;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import org.apache.commons.lang3.StringUtils;
@@ -34,18 +33,24 @@ import org.edgegallery.developer.model.application.EnumApplicationStatus;
 import org.edgegallery.developer.model.application.container.ContainerApplication;
 import org.edgegallery.developer.model.application.vm.VMApplication;
 import org.edgegallery.developer.model.apppackage.AppPackage;
-import org.edgegallery.developer.model.apppackage.AppPkgStructure;
+import org.edgegallery.developer.model.releasedpackage.AppPkgFile;
+import org.edgegallery.developer.model.releasedpackage.ReleasedPackage;
+import org.edgegallery.developer.model.releasedpackage.ReleasedPkgFileContent;
+import org.edgegallery.developer.model.releasedpackage.ReleasedPkgFileContentReqDto;
 import org.edgegallery.developer.model.restful.ApplicationDetail;
 import org.edgegallery.developer.service.application.ApplicationService;
 import org.edgegallery.developer.service.apppackage.AppPackageService;
 import org.edgegallery.developer.service.apppackage.csar.creater.ContainerPackageFileCreator;
 import org.edgegallery.developer.service.apppackage.csar.creater.PackageFileCreator;
 import org.edgegallery.developer.service.apppackage.csar.creater.VMPackageFileCreator;
-import org.edgegallery.developer.util.ApplicationUtil;
+import org.edgegallery.developer.service.apppackage.csar.signature.EncryptedService;
+import org.edgegallery.developer.service.releasedpackage.ReleasedPackageService;
 import org.edgegallery.developer.util.BusinessConfigUtil;
+import org.edgegallery.developer.util.CompressFileUtils;
+import org.edgegallery.developer.util.CompressFileUtilsJava;
 import org.edgegallery.developer.util.DeveloperFileUtils;
-import org.edgegallery.developer.util.FileUtil;
 import org.edgegallery.developer.util.InitConfigUtil;
+import org.edgegallery.developer.util.releasedpackage.ReleasedPackageUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,6 +61,12 @@ public class AppPackageServiceImpl implements AppPackageService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AppPackageServiceImpl.class);
 
+    private static final String APPD_ZIP_PATH = "/APPD/";
+
+    private static final String CHARTS_TGZ_PATH = "/Artifacts/Deployment/Charts/";
+
+    private static final String TEMPLATE_PATH = "temp";
+
     @Autowired
     private AppPackageMapper appPackageMapper;
 
@@ -64,6 +75,12 @@ public class AppPackageServiceImpl implements AppPackageService {
 
     @Autowired
     private AppScriptMapper appScriptMapper;
+
+    @Autowired
+    private ReleasedPackageService releasedPackageService;
+
+    @Autowired
+    private EncryptedService encryptedService;
 
     @Override
     public AppPackage getAppPackage(String packageId) {
@@ -76,127 +93,186 @@ public class AppPackageServiceImpl implements AppPackageService {
     }
 
     @Override
-    public AppPkgStructure getAppPackageStructure(String packageId) {
+    public List<AppPkgFile> getAppPackageStructure(String packageId) {
         if (StringUtils.isEmpty(packageId)) {
             LOGGER.error("packageId is empty.");
             throw new IllegalRequestException("packageId is empty!", ResponseConsts.RET_REQUEST_PARAM_EMPTY);
         }
+
         AppPackage appPackage = appPackageMapper.getAppPackage(packageId);
         if (appPackage == null) {
-            LOGGER.error("query object(AppPackage) is null.");
-            throw new DataBaseException("query object(AppPackage) is null!", ResponseConsts.RET_QUERY_DATA_EMPTY);
+            LOGGER.error("packageId is error!");
+            throw new DataBaseException("packageId is error", ResponseConsts.RET_QUERY_DATA_EMPTY);
         }
-        String applicationPath = getApplicationPath(appPackage.getAppId());
-        // get csar pkg structure
-        AppPkgStructure structure;
-        String fileName = appPackage.getPackageFileName();
-        if (StringUtils.isEmpty(fileName)) {
-            LOGGER.error("fileName of app pkg is empty.");
-            throw new DataBaseException("fileName of app pkg is empty!", ResponseConsts.RET_QUERY_DATA_EMPTY);
+        String pkgDir = InitConfigUtil.getWorkSpaceBaseDir() + appPackage.getPackageFilePath();
+        File pkgFile = new File(pkgDir);
+        if (!pkgFile.exists()) {
+            LOGGER.error("pkg {} not found", pkgFile.getName());
+            throw new FileFoundFailException("pkg(.zip) not found!", ResponseConsts.RET_FILE_NOT_FOUND);
         }
-        try {
-            String pkgFolderName = fileName.substring(0, fileName.lastIndexOf("."));
-            LOGGER.warn("pkgFolderName:{}", pkgFolderName);
-            structure = getFiles(applicationPath + pkgFolderName + File.separator, new AppPkgStructure());
-        } catch (IOException e) {
-            LOGGER.error("get app pkg occur {}", e.getMessage());
-            return null;
-        }
-        return structure;
+
+        //decompress zip
+        String zipDecompressDir = ReleasedPackageUtil.decompressAppPkg(appPackage, pkgDir, packageId);
+        LOGGER.info("zipDecompressDir:{}", zipDecompressDir);
+
+        //get zip catalog
+        return ReleasedPackageUtil.getCatalogue(zipDecompressDir);
     }
 
     @Override
-    public String getAppPackageFileContent(String packageId, String fileName) {
-        if (StringUtils.isEmpty(packageId) || StringUtils.isEmpty(fileName)) {
-            LOGGER.error("packageId or fileName is empty.");
-            throw new IllegalRequestException("packageId or fileName is empty", ResponseConsts.RET_REQUEST_PARAM_EMPTY);
+    public ReleasedPkgFileContent getAppPackageFileContent(ReleasedPkgFileContentReqDto structureReqDto,
+        String packageId) {
+        // check packageId
+        if (org.springframework.util.StringUtils.isEmpty(packageId)) {
+            LOGGER.error("packageId is null");
+            throw new IllegalRequestException("packageId is null", ResponseConsts.RET_REQUEST_PARAM_EMPTY);
         }
+
+        //check param
+        if (structureReqDto == null) {
+            LOGGER.error("structureReqDto(body param) is null");
+            throw new IllegalRequestException("structureReqDto is null", ResponseConsts.RET_REQUEST_PARAM_EMPTY);
+        }
+
+        //query appPackage
         AppPackage appPackage = appPackageMapper.getAppPackage(packageId);
         if (appPackage == null) {
-            LOGGER.error("query object(AppPackage) is null.");
-            throw new DataBaseException("query object(AppPackage) is null!", ResponseConsts.RET_QUERY_DATA_EMPTY);
+            LOGGER.error("packageId is error");
+            throw new DataBaseException("packageId is error", ResponseConsts.RET_QUERY_DATA_EMPTY);
         }
-        String pkgName = appPackage.getPackageFileName();
-        if (StringUtils.isEmpty(pkgName)) {
-            LOGGER.error("fileName of app pkg is empty.");
-            throw new DataBaseException("fileName of app pkg is empty!", ResponseConsts.RET_QUERY_DATA_EMPTY);
+
+        String appId = appPackage.getAppId();
+        String zipDecompressDir = "";
+        if (StringUtils.isEmpty(appId)) {
+            zipDecompressDir = ReleasedPackageUtil.getReleasedPkgDecompressPath(packageId);
+        } else {
+            zipDecompressDir = ReleasedPackageUtil.getAppPkgDecompressPath(packageId);
         }
-        String pkgFolderName = pkgName.substring(0, pkgName.lastIndexOf("."));
-        String applicationPath = getApplicationPath(appPackage.getAppId());
-        File file = new File(applicationPath + pkgFolderName + File.separator);
-        List<String> paths = FileUtil.getAllFilePath(file);
-        if (paths.isEmpty()) {
-            String errMsg = "can not find any file in app pkg folder!";
-            throw new FileFoundFailException(errMsg, ResponseConsts.RET_FILE_NOT_FOUND);
+        //get decompress dir and get file content
+        File decompressDir = new File(zipDecompressDir);
+        if (!decompressDir.exists() || !decompressDir.isDirectory()) {
+            LOGGER.error("app pkg {} not decompress!", zipDecompressDir);
+            throw new FileFoundFailException("app pkg not decompress", ResponseConsts.RET_FILE_NOT_FOUND);
         }
-        String fileContent = "";
-        for (String path : paths) {
-            if (path.endsWith(fileName)) {
-                fileContent = FileUtil.readFileContent(path);
-            }
-        }
-        if (fileContent.equals("error")) {
-            LOGGER.error("file is not readable!");
-            throw new FileOperateException("file is not readable", ResponseConsts.RET_FILE_NOT_READABLE);
-        }
-        return fileContent;
+
+        String content = ReleasedPackageUtil.getContentByInnerPath(structureReqDto.getFilePath(), zipDecompressDir);
+        LOGGER.info("file content:{}", content);
+        ReleasedPkgFileContent pkgFileContent = new ReleasedPkgFileContent();
+        pkgFileContent.setFilePath(structureReqDto.getFilePath());
+        pkgFileContent.setContent(content);
+
+        return pkgFileContent;
     }
 
     @Override
-    public String updateAppPackageFileContent(String packageId, String fileName, String content) {
-        if (StringUtils.isEmpty(packageId) || StringUtils.isEmpty(fileName) || StringUtils.isEmpty(content)) {
-            String message = "packageId or fileName or content is empty";
-            LOGGER.error(message);
-            throw new IllegalRequestException(message, ResponseConsts.RET_REQUEST_PARAM_EMPTY);
+    public ReleasedPkgFileContent updateAppPackageFileContent(ReleasedPkgFileContent releasedPkgFileContent,
+        String packageId) {
+        // check packageId
+        if (org.springframework.util.StringUtils.isEmpty(packageId)) {
+            LOGGER.error("packageId is null");
+            throw new IllegalRequestException("packageId is null", ResponseConsts.RET_REQUEST_PARAM_EMPTY);
         }
-        LOGGER.info("content:{}", content.substring(1, content.length() - 1));
+
         AppPackage appPackage = appPackageMapper.getAppPackage(packageId);
         if (appPackage == null) {
-            LOGGER.error("query object(AppPackage) is null.");
-            throw new DataBaseException("query object(AppPackage) is null!", ResponseConsts.RET_QUERY_DATA_EMPTY);
+            LOGGER.error("packageId is error");
+            throw new DataBaseException("packageId is error", ResponseConsts.RET_QUERY_DATA_EMPTY);
         }
-        String pkgName = appPackage.getPackageFileName();
-        if (StringUtils.isEmpty(pkgName)) {
-            LOGGER.error("fileName of app pkg is empty.");
-            throw new DataBaseException("fileName of app pkg is empty!", ResponseConsts.RET_QUERY_DATA_EMPTY);
+
+        //check param
+        if (releasedPkgFileContent == null) {
+            LOGGER.error("releasedPkgFileContent(body param) is null");
+            throw new IllegalRequestException("releasedPkgFileContent is null", ResponseConsts.RET_REQUEST_PARAM_EMPTY);
         }
-        String applicationPath = getApplicationPath(appPackage.getAppId());
-        File fileRootDir = new File(applicationPath + packageId + File.separator);
-        List<String> paths = FileUtil.getAllFilePath(fileRootDir);
-        if (paths.isEmpty()) {
-            String errMsg = "can not find any file in app pkg folder!";
-            throw new FileFoundFailException(errMsg, ResponseConsts.RET_FILE_NOT_FOUND);
+
+        //get decompress dir
+        String appId = appPackage.getAppId();
+        String zipDecompressDir = "";
+        if (StringUtils.isEmpty(appId)) {
+            zipDecompressDir = ReleasedPackageUtil.getReleasedPkgDecompressPath(packageId);
+        } else {
+            zipDecompressDir = ReleasedPackageUtil.getAppPkgDecompressPath(packageId);
         }
-        String updateFilePath = "";
-        for (String path : paths) {
-            if (path.endsWith(fileName)) {
-                updateFilePath = path;
+        File decompressDir = new File(zipDecompressDir);
+        if (!decompressDir.exists() || !decompressDir.isDirectory()) {
+            LOGGER.error("app pkg decompress dir {} was not found!", zipDecompressDir);
+            throw new FileFoundFailException("app pkg decompress dir was not found", ResponseConsts.RET_FILE_NOT_FOUND);
+        }
+
+        //modify content
+        boolean ret = ReleasedPackageUtil
+            .modifyFileByPath(releasedPkgFileContent.getFilePath(), releasedPkgFileContent.getContent(),
+                zipDecompressDir);
+        if (!ret) {
+            LOGGER.error("modify file  {} content failed!", releasedPkgFileContent.getFilePath());
+            throw new FileOperateException("modify file content failed!", ResponseConsts.RET_WRITE_FILE_FAIL);
+        }
+        if (StringUtils.isEmpty(appId)) {
+            ReleasedPackage releasedPackage = releasedPackageService.getReleasedPackageByPkgId(packageId);
+            String compressZipName = getAppFileName(releasedPackage, "");
+            //compress to csar
+            if (!compressToCsar(packageId, compressZipName)) {
+                LOGGER.error("compress csar file failed!");
+                throw new FileOperateException("compress csar file failed", ResponseConsts.RET_WRITE_FILE_FAIL);
             }
         }
-        String fileContent = "";
+
+        //set ReleasedPkgFileContent
+        ReleasedPkgFileContent queryFile = new ReleasedPkgFileContent();
+        queryFile.setFilePath(releasedPkgFileContent.getFilePath());
+        queryFile.setContent(
+            ReleasedPackageUtil.getContentByInnerPath(releasedPkgFileContent.getFilePath(), zipDecompressDir));
+        return queryFile;
+    }
+
+    private boolean compressToCsar(String packageId, String compressZipName) {
+        String decompressDir = ReleasedPackageUtil.getReleasedPkgDecompressPath(packageId);
+        String pkgDir = ReleasedPackageUtil.getAppPkgPath(packageId);
+        File pkgDeCompressDir = new File(decompressDir);
+
+        if (!pkgDeCompressDir.exists()) {
+            LOGGER.error("can not found decompress path {}!", decompressDir);
+            throw new FileFoundFailException("can not found pkg decompress path!", ResponseConsts.RET_FILE_NOT_FOUND);
+        }
+
+        String tempPackageName = TEMPLATE_PATH + "-" + packageId;
+        String tempPackagePath = pkgDir + File.separator + tempPackageName;
         try {
-            File updateFile = new File(updateFilePath);
-            LOGGER.info("update file path:{}", updateFile.getCanonicalPath());
-            if (!updateFile.exists()) {
-                LOGGER.error("can not find file {}!", fileName);
-                throw new FileFoundFailException("the file you update cannot be found!",
-                    ResponseConsts.RET_FILE_NOT_FOUND);
+            DeveloperFileUtils.copyDirectory(pkgDeCompressDir, new File(pkgDir), tempPackageName);
+
+            // compress appd
+            String appdDir = tempPackagePath + APPD_ZIP_PATH;
+            CompressFileUtils.fileToZip(appdDir, compressZipName);
+
+            // compress tgz
+            String tgzDir = tempPackagePath + CHARTS_TGZ_PATH;
+            File chartsDir = new File(tgzDir);
+            File[] charts = chartsDir.listFiles();
+            if (charts == null || charts.length == 0) {
+                LOGGER.error("can not found any tgz file under path  {}!", tgzDir);
+                throw new FileFoundFailException("can not found any tgz file!", ResponseConsts.RET_FILE_NOT_FOUND);
             }
-            if (!fileName.endsWith("json")) {
-                content = content.substring(1, content.length() - 1);
+            CompressFileUtils.compressToTgzAndDeleteSrc(charts[0].getCanonicalPath(), tgzDir, charts[0].getName());
+
+            //sign package
+            boolean encryptedResult = encryptedService.encryptedCMS(tempPackagePath);
+            if (!encryptedResult) {
+                LOGGER.error("sign package failed");
+                return false;
             }
-            content = content.replaceAll("\\\\n", "\r\n");
-            FileUtil.writeFile(updateFile, content);
-            fileContent = FileUtil.readFileContent(updateFilePath);
+
+            // compress csar
+            CompressFileUtilsJava.compressToCsarAndDeleteSrc(tempPackagePath, pkgDir, packageId);
         } catch (IOException e) {
-            LOGGER.error("write or read file occur {}!", e.getMessage());
-            return null;
+            LOGGER.error("package compress fail, package path:{}", tempPackagePath);
+            return false;
         }
-        if (fileContent.equals("error")) {
-            LOGGER.error("file is not readable!");
-            throw new FileOperateException("file is not readable", ResponseConsts.RET_FILE_NOT_READABLE);
-        }
-        return fileContent;
+        return true;
+    }
+
+    private String getAppFileName(ReleasedPackage releasedPackage, String format) {
+        return releasedPackage.getName() + "_" + releasedPackage.getProvider() + "_" + releasedPackage.getVersion()
+            + "_" + releasedPackage.getArchitecture() + format;
     }
 
     @Override
@@ -218,6 +294,8 @@ public class AppPackageServiceImpl implements AppPackageService {
             throw new FileOperateException("Generation app package error.", ResponseConsts.RET_CREATE_FILE_FAIL);
         }
         appPackage.setPackageFileName(fileName);
+        appPackage.setPackageFilePath(
+            BusinessConfigUtil.getWorkspacePath().concat(application.getId()).concat(File.separator).concat(fileName));
         appPackageMapper.modifyAppPackage(appPackage);
         return appPackage;
     }
@@ -242,6 +320,8 @@ public class AppPackageServiceImpl implements AppPackageService {
             throw new FileOperateException("Generation app package error.", ResponseConsts.RET_CREATE_FILE_FAIL);
         }
         appPackage.setPackageFileName(fileName);
+        appPackage.setPackageFilePath(
+            BusinessConfigUtil.getWorkspacePath().concat(application.getId()).concat(File.separator).concat(fileName));
         appPackageMapper.modifyAppPackage(appPackage);
         applicationService.updateApplicationStatus(application.getId(), EnumApplicationStatus.PACKAGED);
         return appPackage;
@@ -279,6 +359,27 @@ public class AppPackageServiceImpl implements AppPackageService {
     }
 
     @Override
+    public boolean createPackage(AppPackage appPackage) {
+        int res = appPackageMapper.createAppPackage(appPackage);
+        if (res <= 0) {
+            LOGGER.error("create app package failed.");
+            throw new DataBaseException("create app package failed.", ResponseConsts.RET_CERATE_DATA_FAIL);
+        }
+        return true;
+    }
+
+    @Override
+    public boolean deletePackageRecord(String packageId) {
+        AppPackage appPackage = appPackageMapper.getAppPackage(packageId);
+        if (appPackage == null) {
+            LOGGER.error("package does not exist");
+            return true;
+        }
+        appPackageMapper.deleteAppPackage(appPackage.getId());
+        return true;
+    }
+
+    @Override
     public boolean deletePackage(String packageId) {
         AppPackage appPackage = appPackageMapper.getAppPackage(packageId);
         if (appPackage == null) {
@@ -291,45 +392,16 @@ public class AppPackageServiceImpl implements AppPackageService {
 
     private boolean deletePackage(AppPackage appPackage) {
         // delete package file
-        String packagePath = ApplicationUtil.getApplicationBasePath(appPackage.getAppId());
-        DeveloperFileUtils.deleteDir(packagePath);
-        appPackageMapper.deleteAppPackage(appPackage.getId());
-        return true;
-    }
-
-    private String getApplicationPath(String applicationId) {
-        return InitConfigUtil.getWorkSpaceBaseDir() + BusinessConfigUtil.getWorkspacePath() + applicationId
-            + File.separator;
-    }
-
-    private AppPkgStructure getFiles(String filePath, AppPkgStructure appPkgStructure) throws IOException {
-        File root = new File(filePath);
-        File[] files = root.listFiles();
-        if (files == null || files.length == 0) {
-            return null;
-        }
-        List<AppPkgStructure> fileList = new ArrayList<>();
-        for (File file : files) {
-            AppPkgStructure dto = new AppPkgStructure();
-            if (file.isDirectory()) {
-                String str = file.getName();
-                dto.setId(str);
-                dto.setName(str);
-                fileList.add(dto);
-                //Recursive call
-                File[] fileArr = file.listFiles();
-                if (fileArr != null && fileArr.length != 0) {
-                    getFiles(file.getCanonicalPath(), dto);
-                }
+        String appPkgDir = appPackage.getPackageFilePath();
+        if (StringUtils.isNotEmpty(appPkgDir)) {
+            File pkgFile = new File(InitConfigUtil.getWorkSpaceBaseDir() + appPkgDir);
+            if (!pkgFile.exists()) {
+                LOGGER.warn("package file {} does not exist", pkgFile.getName());
             } else {
-                AppPkgStructure valueDto = new AppPkgStructure();
-                valueDto.setId(file.getName());
-                valueDto.setName(file.getName());
-                valueDto.setParent(false);
-                fileList.add(valueDto);
+                DeveloperFileUtils.deleteDir(pkgFile.getParent());
             }
         }
-        appPkgStructure.setChildren(fileList);
-        return appPkgStructure;
+        appPackageMapper.deleteAppPackage(appPackage.getId());
+        return true;
     }
 }

@@ -21,13 +21,18 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import java.util.List;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.edgegallery.developer.model.apppackage.AppPackage;
-import org.edgegallery.developer.model.apppackage.AppPkgStructure;
+import org.edgegallery.developer.model.releasedpackage.AppPkgFile;
+import org.edgegallery.developer.model.releasedpackage.ReleasedPkgFileContent;
+import org.edgegallery.developer.model.releasedpackage.ReleasedPkgFileContentReqDto;
 import org.edgegallery.developer.model.restful.ErrorRespDto;
 import org.edgegallery.developer.service.apppackage.AppPackageService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -38,7 +43,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
 @RestSchema(schemaId = "AppPackage")
@@ -46,6 +50,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 @Api(tags = "AppPackage")
 @Validated
 public class AppPackageCtl {
+    private static final Logger LOGGER = LoggerFactory.getLogger(AppPackageCtl.class);
 
     private static final String REGEX_UUID = "[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}";
 
@@ -66,57 +71,54 @@ public class AppPackageCtl {
     public ResponseEntity<AppPackage> getAppPackage(
         @Pattern(regexp = REGEX_UUID, message = "packageId must be in UUID format")
         @ApiParam(value = "packageId", required = true) @PathVariable("packageId") String packageId) {
+        LOGGER.info("enter getAppPackage method ....");
         return ResponseEntity.ok(appPackageService.getAppPackage(packageId));
     }
 
-    @ApiOperation(value = "Get app package structure", response = AppPkgStructure.class)
+    @ApiOperation(value = "Get app package structure", response = List.class)
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "OK", response = AppPkgStructure.class),
+        @ApiResponse(code = 200, message = "OK", response = List.class),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
     @RequestMapping(value = "/{packageId}/action/get-pkg-structure", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
-    public ResponseEntity<AppPkgStructure> getAppPackageStructure(
-        @Pattern(regexp = REGEX_UUID, message = "packageId must be in UUID format")
+    public ResponseEntity<List<AppPkgFile>> getAppPackageStructure(
         @ApiParam(value = "packageId", required = true) @PathVariable(value = "packageId", required = true)
             String packageId) {
-        AppPkgStructure structure = appPackageService.getAppPackageStructure(packageId);
-        return ResponseEntity.ok(structure);
+        LOGGER.info("enter getAppPackageStructure method ....");
+        return ResponseEntity.ok(appPackageService.getAppPackageStructure(packageId));
     }
 
-    @ApiOperation(value = "Get app package file content", response = String.class)
+    @ApiOperation(value = "Get app package file content", response = ReleasedPkgFileContent.class)
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "OK", response = String.class),
+        @ApiResponse(code = 200, message = "OK", response = ReleasedPkgFileContent.class),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
-    @RequestMapping(value = "/{packageId}/action/get-file-content", method = RequestMethod.GET)
+    @RequestMapping(value = "/{packageId}/action/get-file-content", method = RequestMethod.POST)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
-    public ResponseEntity<String> getAppPackageFileContent(
-        @Pattern(regexp = REGEX_UUID, message = "packageId must be in UUID format")
+    public ResponseEntity<ReleasedPkgFileContent> getAppPackageFileContent(
+        @NotNull @ApiParam(value = "filePath", required = true) @RequestBody
+            ReleasedPkgFileContentReqDto structureReqDto,
         @ApiParam(value = "packageId", required = true) @PathVariable(value = "packageId", required = true)
-            String packageId,
-        @ApiParam(value = "fileName", required = true) @RequestParam(value = "fileName", required = true)
-            String fileName) {
-        String fileContent = appPackageService.getAppPackageFileContent(packageId, fileName);
-        return ResponseEntity.ok(fileContent);
+            String packageId) {
+        LOGGER.info("enter getAppPackageFileContent method ....");
+        return ResponseEntity.ok(appPackageService.getAppPackageFileContent(structureReqDto, packageId));
     }
 
-    @ApiOperation(value = "Update app package file content", response = String.class)
+    @ApiOperation(value = "Update app package file content", response = ReleasedPkgFileContent.class)
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "OK", response = String.class),
+        @ApiResponse(code = 200, message = "OK", response = ReleasedPkgFileContent.class),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
     @RequestMapping(value = "/{packageId}/action/update-file-content", method = RequestMethod.PUT)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
-    public ResponseEntity<String> updateAppPackageFileContent(
-        @Pattern(regexp = REGEX_UUID, message = "packageId must be in UUID format")
+    public ResponseEntity<ReleasedPkgFileContent> updateAppPackageFileContent(
         @ApiParam(value = "packageId", required = true) @PathVariable(value = "packageId", required = true)
-            String packageId,
-        @ApiParam(value = "fileName", required = true) @RequestParam(value = "fileName", required = true)
-            String fileName, @NotNull @ApiParam(value = "content", required = true) @RequestBody String content) {
-        String result = appPackageService.updateAppPackageFileContent(packageId, fileName, content);
-        return ResponseEntity.ok(result);
+            String packageId, @NotNull @ApiParam(value = "releasedPkgFileContent", required = true) @RequestBody
+        ReleasedPkgFileContent releasedPkgFileContent) {
+        LOGGER.info("enter updateAppPackageFileContent method ....");
+        return ResponseEntity.ok(appPackageService.updateAppPackageFileContent(releasedPkgFileContent, packageId));
     }
 
     /**
@@ -133,6 +135,7 @@ public class AppPackageCtl {
     public ResponseEntity<AppPackage> zipPackage(
         @Pattern(regexp = REGEX_UUID, message = "packageId must be in UUID format")
         @ApiParam(value = "packageId", required = true) @PathVariable("packageId") String packageId) {
+        LOGGER.info("enter zipPackage method ....");
         AppPackage appPkg = appPackageService.zipPackage(packageId);
         return ResponseEntity.ok(appPkg);
     }

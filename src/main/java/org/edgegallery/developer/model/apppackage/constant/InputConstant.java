@@ -51,12 +51,6 @@ public class InputConstant {
 
     public static final String INPUT_VLANID_POSTFIX = "_VlanId";
 
-    public static final String NETWORK_INTERNET = "MEC_APP_Public";
-
-    public static final String NETWORK_N6 = "MEC_APP_N6";
-
-    public static final String NETWORK_MP1=  "MEC_APP_Private";
-
     public static final String INPUT_PORT_IP_POSTFIX = "_IP";
 
     public static final String INPUT_PORT_MASK_POSTFIX = "_MASK";
@@ -68,4 +62,27 @@ public class InputConstant {
     public static final String GET_INPUT_PREFIX = "{get_input: ";
 
     public static final String GET_INPUT_POSTFIX = "}";
+
+    public static final String INPUT_MEM_POSTFIX = "_MEM";
+
+    public static final String INPUT_MEM_DES_POSTFIX = "_Mem_Size";
+
+    public static final String INPUT_VCPU_POSTFIX = "_vCPU";
+
+    public static final String INPUT_VCPU_DES_POSTFIX = "_vCPU_Number";
+
+    public static final String INPUT_DATADISK_POSTFIX = "_DataDisk";
+
+    public static final String INPUT_DATADISK_DES_POSTFIX = "_DataDisk_Size";
+
+    public static final String INPUT_GPU_POSTFIX = "_GPU";
+
+    public static final String INPUT_HOST_AGGR_POSTFIX = "_host_aggr";
+
+    public static final String FLAVOR_EXTRA_SPECS_GPU = "pci_passthrough:alias";
+
+    public static final String FLAVOR_EXTRA_SPECS_HOST_AGGR = "aggregate_instance_extra_spec";
+
+    public static final String INPUT_CAMPUS_SEGMENT = "Enterprise_Campus";
+
 }

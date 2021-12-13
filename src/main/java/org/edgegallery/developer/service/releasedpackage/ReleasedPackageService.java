@@ -91,4 +91,12 @@ public interface ReleasedPackageService {
      */
     boolean releaseAppPkg(User user, PublishAppReqDto publishAppReqDto, String packageId);
 
+    /**
+     * get released package by id.
+     *
+     * @param packageId package id
+     * @return return ReleasedPackage
+     */
+    ReleasedPackage getReleasedPackageByPkgId(String packageId);
+
 }

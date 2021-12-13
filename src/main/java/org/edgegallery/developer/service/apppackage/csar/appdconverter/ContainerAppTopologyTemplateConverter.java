@@ -23,6 +23,7 @@ import org.edgegallery.developer.model.apppackage.appd.TopologyTemplate;
 import org.edgegallery.developer.model.apppackage.appd.vdu.SwImageData;
 import org.edgegallery.developer.model.apppackage.appd.vdu.VDUCapability;
 import org.edgegallery.developer.model.apppackage.appd.vdu.VDUProperty;
+import org.edgegallery.developer.model.apppackage.constant.AppdConstants;
 import org.edgegallery.developer.model.apppackage.constant.NodeTypeConstant;
 
 public class ContainerAppTopologyTemplateConverter extends TopologyTemplateConverter {
@@ -42,7 +43,7 @@ public class ContainerAppTopologyTemplateConverter extends TopologyTemplateConve
     protected void updateVDUs(ContainerApplication application, List<ImageDesc> imageDescList) {
         NodeTemplate vduNode = new NodeTemplate();
         vduNode.setType(NodeTypeConstant.NODE_TYPE_VDU);
-        VDUCapability capability = new VDUCapability(4 * MEMORY_SIZE_UNIT, 4, application.getArchitecture(), 20);
+        VDUCapability capability = new VDUCapability(4 * AppdConstants.MEMORY_SIZE_UNIT, 4, application.getArchitecture(), 20);
         vduNode.setCapabilities(capability);
 
         StringBuffer imageData = new StringBuffer();

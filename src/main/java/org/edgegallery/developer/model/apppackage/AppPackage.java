@@ -34,6 +34,8 @@ public class AppPackage {
 
     private String packageFileName;
 
+    private String packageFilePath;
+
     /**
      * get package path.
      *
