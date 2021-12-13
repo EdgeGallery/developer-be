@@ -719,7 +719,7 @@ public class VMImageServiceImpl implements VMImageService {
             long startTime = System.currentTimeMillis();
             while (System.currentTimeMillis() - startTime < MAX_SECONDS * 60) {
                 try {
-                    Thread.sleep(10000);
+                    Thread.sleep(15000);
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                     LOGGER.error("sleep fail! {}", e.getMessage());
