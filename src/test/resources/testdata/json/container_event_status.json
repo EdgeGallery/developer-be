@@ -1,0 +1,14 @@
+{
+  "pods": [
+    {
+      "podName": "spiderfoot-54b575c979-k2jcb",
+      "podEventsInfo": [
+        "Successfully assigned default/spiderfoot-54b575c979-k2jcb to developer-env-zhangebiyuan",
+        "Add eth0 [10.244.99.150/32]",
+        "Container image \"192.168.1.38/developer/spiderfoot:latest\" already present on machine",
+        "Created container spiderfoot",
+        "Started container spiderfoot"
+      ]
+    }
+  ]
+}

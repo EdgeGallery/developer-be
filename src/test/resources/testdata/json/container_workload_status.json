@@ -1,0 +1,33 @@
+{
+  "pods": [
+    {
+      "podstatus": "Running",
+      "podname": "spiderfoot-54b575c979-k2jcb",
+      "containers": [
+        {
+          "containername": "spiderfoot",
+          "metricsusage": {
+            "cpuusage": "150/8000",
+            "memusage": "84484096/33624739840",
+            "diskusage": "0/522917840850"
+          }
+        }
+      ]
+    }
+  ],
+  "services": [
+    {
+      "serviceName": "spiderfoot-svc",
+      "type": "NodePort",
+      "ports": [
+        {
+          "port": "5001",
+          "targetPort": "5001",
+          "nodePort": "32649"
+        }
+      ]
+    }
+  ],
+  "cpupercent": 0.01875,
+  "mempercent": 0.019670486454775206
+}

@@ -16,31 +16,44 @@ package org.edgegallery.developer.test.service.application.container;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Map;
 import mockit.Mock;
 import mockit.MockUp;
 import org.apache.commons.io.FileUtils;
 import org.apache.ibatis.io.Resources;
 import org.edgegallery.developer.model.application.Application;
+import org.edgegallery.developer.model.common.User;
+import org.edgegallery.developer.model.instantiate.container.ContainerAppInstantiateInfo;
+import org.edgegallery.developer.model.lcm.LcmLog;
+import org.edgegallery.developer.model.operation.EnumActionStatus;
+import org.edgegallery.developer.model.operation.OperationStatus;
+import org.edgegallery.developer.model.restful.OperationInfoRep;
 import org.edgegallery.developer.model.uploadfile.UploadFile;
 import org.edgegallery.developer.service.application.ApplicationService;
+import org.edgegallery.developer.service.application.OperationStatusService;
 import org.edgegallery.developer.service.application.container.ContainerAppHelmChartService;
 import org.edgegallery.developer.service.application.impl.container.ContainerAppOperationServiceImpl;
 import org.edgegallery.developer.service.uploadfile.UploadFileService;
 import org.edgegallery.developer.test.DeveloperApplicationTests;
 import org.edgegallery.developer.test.service.application.vm.VMAppOperationServiceTest;
 import org.edgegallery.developer.util.ContainerAppHelmChartUtil;
+import org.edgegallery.developer.util.HttpClientUtil;
 import org.edgegallery.developer.util.SpringContextUtil;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.junit4.AbstractJUnit4SpringContextTests;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 @SpringBootTest(classes = DeveloperApplicationTests.class)
@@ -49,11 +62,20 @@ public class ContainerAppOperationServiceTest extends AbstractJUnit4SpringContex
 
     private static String APPLICATION_ID = "6a75a2bd-9811-432f-bbe8-2813aa97d365";
 
-    @Autowired
-    ContainerAppOperationServiceImpl containerAppOperationService;
+    private final String PRESET_APPLICATION_ID = "4cbbab9d-c48f-4adb-ae82-d1816d8edd7c";
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ContainerAppOperationServiceTest.class);
+
+    private static final int MAX_TRY_NUMBER = 50;
 
     @Autowired
-    ContainerAppHelmChartService containerAppHelmChartService;
+    private ContainerAppOperationServiceImpl containerAppOperationService;
+
+    @Autowired
+    private ContainerAppHelmChartService containerAppHelmChartService;
+
+    @Autowired
+    private OperationStatusService operationStatusService;
 
     @Autowired
     private UploadFileService uploadFileService;
@@ -61,10 +83,33 @@ public class ContainerAppOperationServiceTest extends AbstractJUnit4SpringContex
     @Autowired
     private ApplicationService applicationService;
 
+    private User user;
+
+    private enum LcmReturnMockTypeEnum {
+        UPLOAD_PKG_FAILED,
+        DISTRIBUTE_PKG_FAILED,
+        GET_DISTRIBUTE_RES_FAILED,
+        INSTANTIATE_APP_FAILED,
+        GET_WORKLOAD_STATUS_FAILED,
+        SUCCESS
+    }
+
     @Before
-    public void prepare() {
+    public void prepare() throws IOException {
+        user = new User("testId", "testUser", "testAuth", "testToken");
         SpringContextUtil.setApplicationContext(applicationContext);
         prepareFilesForTestApplication();
+        new MockUp<ContainerAppHelmChartUtil>() {
+            @Mock
+            public boolean checkImageExist(List<String> imageList) {
+                return true;
+            }
+        };
+        MultipartFile uploadFile = new MockMultipartFile("namespacetest.tgz", "namespacetest.tgz", null,
+            ContainerAppHelmChartServiceTest.class.getClassLoader()
+                .getResourceAsStream("testdata/helmcharts/namespacetest.tgz"));
+        containerAppHelmChartService
+            .uploadHelmChartFile(APPLICATION_ID, uploadFile);
     }
 
     @Test
@@ -99,6 +144,190 @@ public class ContainerAppOperationServiceTest extends AbstractJUnit4SpringContex
         } catch (IOException e) {
             Assert.fail();
         }
+    }
+
+    @Test
+    public void testInstantiateContainerSuccess() {
+        mockLcmReturnInfo(LcmReturnMockTypeEnum.SUCCESS);
+        try {
+            OperationStatus status = callInstantiateContainer();
+            Assert.assertEquals(EnumActionStatus.SUCCESS, status.getStatus());
+            Assert.assertEquals(100, status.getProgress());
+            //InstantiateInfo created check.
+            ContainerAppInstantiateInfo instantiateInfo = containerAppOperationService.getInstantiateInfo(APPLICATION_ID);
+            Assert.assertFalse(StringUtils.isEmpty(instantiateInfo.getAppInstanceId()));
+            Assert.assertFalse(StringUtils.isEmpty(instantiateInfo.getAppPackageId()));
+            Assert.assertFalse(StringUtils.isEmpty(instantiateInfo.getPods()));
+        } catch (Exception e) {
+            LOGGER.error("Exception happens", e);
+            Assert.fail();
+        }
+    }
+
+    @Test
+    public void testInstantiateContainerUploadPkgFailed() {
+        mockLcmReturnInfo(LcmReturnMockTypeEnum.UPLOAD_PKG_FAILED);
+        try {
+            OperationStatus status = callInstantiateContainer();
+            Assert.assertEquals(EnumActionStatus.FAILED, status.getStatus());
+            //InstantiateInfo created check.
+            ContainerAppInstantiateInfo instantiateInfo = containerAppOperationService.getInstantiateInfo(APPLICATION_ID);
+            Assert.assertFalse(StringUtils.isEmpty(instantiateInfo.getAppPackageId()));
+            Assert.assertTrue(StringUtils.isEmpty(instantiateInfo.getMepmPackageId()));
+        } catch (Exception e) {
+            LOGGER.error("Exception happens", e);
+            Assert.fail();
+        }
+    }
+
+    @Test
+    public void testInstantiateContainerDistributePkgFailed() {
+        mockLcmReturnInfo(LcmReturnMockTypeEnum.DISTRIBUTE_PKG_FAILED);
+        try {
+            OperationStatus status = callInstantiateContainer();
+            Assert.assertEquals(EnumActionStatus.FAILED, status.getStatus());
+            //InstantiateInfo created check.
+            ContainerAppInstantiateInfo instantiateInfo = containerAppOperationService.getInstantiateInfo(APPLICATION_ID);
+            Assert.assertFalse(StringUtils.isEmpty(instantiateInfo.getAppPackageId()));
+            Assert.assertTrue(StringUtils.isEmpty(instantiateInfo.getAppInstanceId()));
+        } catch (Exception e) {
+            LOGGER.error("Exception happens", e);
+            Assert.fail();
+        }
+    }
+
+    @Test
+    public void testInstantiateContainerGetDistributeResFailed() {
+        mockLcmReturnInfo(LcmReturnMockTypeEnum.DISTRIBUTE_PKG_FAILED);
+        try {
+            OperationStatus status = callInstantiateContainer();
+            Assert.assertEquals(EnumActionStatus.FAILED, status.getStatus());
+            //InstantiateInfo created check.
+            ContainerAppInstantiateInfo instantiateInfo = containerAppOperationService.getInstantiateInfo(APPLICATION_ID);
+            Assert.assertFalse(StringUtils.isEmpty(instantiateInfo.getAppPackageId()));
+            Assert.assertTrue(StringUtils.isEmpty(instantiateInfo.getAppInstanceId()));
+        } catch (Exception e) {
+            LOGGER.error("Exception happens", e);
+            Assert.fail();
+        }
+    }
+
+    @Test
+    public void testInstantiateContainerInstantiateAppFailed() {
+        mockLcmReturnInfo(LcmReturnMockTypeEnum.INSTANTIATE_APP_FAILED);
+        try {
+            OperationStatus status = callInstantiateContainer();
+            Assert.assertEquals(EnumActionStatus.FAILED, status.getStatus());
+            //InstantiateInfo created check.
+            ContainerAppInstantiateInfo instantiateInfo = containerAppOperationService.getInstantiateInfo(APPLICATION_ID);
+            Assert.assertFalse(StringUtils.isEmpty(instantiateInfo.getAppPackageId()));
+            Assert.assertTrue(StringUtils.isEmpty(instantiateInfo.getAppInstanceId()));
+        } catch (Exception e) {
+            LOGGER.error("Exception happens", e);
+            Assert.fail();
+        }
+    }
+
+    private OperationStatus callInstantiateContainer() {
+        //Clean instantiate data in db.
+        containerAppOperationService.deleteInstantiateInfo(APPLICATION_ID);
+        //Sent instantiate request.
+        OperationInfoRep operationInfo = containerAppOperationService.instantiateContainerApp(APPLICATION_ID, user);
+        OperationStatus status = null;
+        for (int i = 0; i < MAX_TRY_NUMBER; i++) {
+            status = operationStatusService.getOperationStatusById(operationInfo.getOperationId());
+            if (EnumActionStatus.SUCCESS.equals(status.getStatus()) || EnumActionStatus.FAILED.equals(
+                status.getStatus())) {
+                break;
+            }
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+                LOGGER.error("thread sleep error.");
+            }
+        }
+        return status;
+    }
+
+    private void mockLcmReturnInfo(final ContainerAppOperationServiceTest.LcmReturnMockTypeEnum lcmReturnType) {
+        new MockUp<HttpClientUtil>() {
+
+            @Mock
+            public String uploadPkg(String basePath, String filePath, String userId, String token, LcmLog lcmLog) {
+                if (lcmReturnType.equals(ContainerAppOperationServiceTest.LcmReturnMockTypeEnum.UPLOAD_PKG_FAILED)) {
+                    return null;
+                }
+                return "{\"appId\": \"" + PRESET_APPLICATION_ID + "\", \"packageId\": \"test_mepm_package_id\" }";
+            }
+
+            @Mock
+            public String distributePkg(String basePath, String userId, String token, String packageId, String mecHost,
+                LcmLog lcmLog) {
+                if (lcmReturnType.equals(ContainerAppOperationServiceTest.LcmReturnMockTypeEnum.DISTRIBUTE_PKG_FAILED)) {
+                    return null;
+                }
+                return "success";
+            }
+
+            @Mock
+            public String getDistributeRes(String basePath, String userId, String token, String pkgId) {
+                if (lcmReturnType.equals(ContainerAppOperationServiceTest.LcmReturnMockTypeEnum.GET_DISTRIBUTE_RES_FAILED)) {
+                    return null;
+                }
+                String jsonStr = null;
+                try {
+                    File file = Resources.getResourceAsFile("testdata/json/container_package_distribute_status.json");
+                    jsonStr = FileUtils.readFileToString(file, StandardCharsets.UTF_8);
+
+                } catch (IOException e) {
+                    LOGGER.error("Load the mock json data for getDistributeRes failed.");
+                }
+                return jsonStr;
+            }
+
+            @Mock
+            public boolean instantiateApplication(String basePath, String appInstanceId, String userId, String token,
+                LcmLog lcmLog, String pkgId, String mecHost, Map<String, String> inputParams) {
+                if (lcmReturnType.equals(ContainerAppOperationServiceTest.LcmReturnMockTypeEnum.INSTANTIATE_APP_FAILED)) {
+                    return false;
+                }
+                return true;
+            }
+
+            @Mock
+            public String getWorkloadStatus(String protocol, String ip, int port, String appInstanceId, String userId,
+                String token) {
+                if (lcmReturnType.equals(ContainerAppOperationServiceTest.LcmReturnMockTypeEnum.GET_WORKLOAD_STATUS_FAILED)) {
+                    return null;
+                }
+                String jsonStr = null;
+                try {
+                    File file = Resources.getResourceAsFile("testdata/json/container_workload_status.json");
+                    jsonStr = FileUtils.readFileToString(file, StandardCharsets.UTF_8);
+
+                } catch (IOException e) {
+                    LOGGER.error("Load the mock json data for getWorkloadStatus failed.");
+                }
+                return jsonStr;
+            }
+
+            @Mock
+            public String getWorkloadEvents(String protocol, String ip, int port, String appInstanceId, String userId,
+                String token) {
+                if (lcmReturnType.equals(ContainerAppOperationServiceTest.LcmReturnMockTypeEnum.GET_WORKLOAD_STATUS_FAILED)) {
+                    return null;
+                }
+                String jsonStr = null;
+                try {
+                    File file = Resources.getResourceAsFile("testdata/json/container_event_status.json");
+                    jsonStr = FileUtils.readFileToString(file, StandardCharsets.UTF_8);
+
+                } catch (IOException e) {
+                    LOGGER.error("Load the mock json data for getWorkloadStatus failed.");
+                }
+                return jsonStr;
+            }
+        };
     }
 
 }
