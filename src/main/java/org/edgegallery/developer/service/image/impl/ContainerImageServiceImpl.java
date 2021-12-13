@@ -91,12 +91,6 @@ public class ContainerImageServiceImpl implements ContainerImageService {
     @Value("${imagelocation.project:}")
     private String devRepoProject;
 
-    @Value("${imagelocation.port:}")
-    private String port;
-
-    @Value("${imagelocation.protocol:}")
-    private String protocol;
-
     /**
      * uploadContainerImage.
      *
@@ -377,11 +371,7 @@ public class ContainerImageServiceImpl implements ContainerImageService {
             throw new IllegalRequestException(msg, ResponseConsts.RET_QUERY_DATA_EMPTY);
         }
         try {
-            DockerClientConfig config = DefaultDockerClientConfig.createDefaultConfigBuilder()
-                .withDockerHost(protocol + "://" + devRepoEndpoint + ":" + port).build();
-            DockerCmdExecFactory factory = new NettyDockerCmdExecFactory().withConnectTimeout(100000);
-            DockerClient dockerClient = DockerClientBuilder.getInstance(config).withDockerCmdExecFactory(factory)
-                .build();
+            DockerClient dockerClient = ContainerImageUtil.getDockerClient();
             //pull image
             dockerClient.pullImageCmd(image).exec(new PullImageResultCallback()).awaitCompletion().close();
             String[] images = image.trim().split(":");
