@@ -75,6 +75,8 @@ public class Application {
 
     private String mepHostId;
 
+    private String pkgSpecId;
+
     private AppPackage appPackage = new AppPackage();
 
     private List<AtpTest> atpTestTaskList = new ArrayList<AtpTest>(0);

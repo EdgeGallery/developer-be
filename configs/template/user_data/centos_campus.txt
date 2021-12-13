@@ -10,6 +10,7 @@
   netname1=`ip a | grep '^2:' | awk -F ':' '{print $2}'|sed 's/^[ \\t]*//g'`
   netname2=`ip a | grep '^3:' | awk -F ':' '{print $2}'|sed 's/^[ \\t]*//g'`
   netname3=`ip a | grep '^4:' | awk -F ':'  '{print $2}'|sed 's/^[ \\t]*//g'`
+
   echo "BOOTPROTO=static" >> /etc/sysconfig/network-scripts/"ifcfg-${netname1}"
   echo "DEVICE=${netname1}" >> /etc/sysconfig/network-scripts/"ifcfg-${netname1}"
   echo "ONBOOT=yes" >> /etc/sysconfig/network-scripts/"ifcfg-${netname1}"
@@ -21,6 +22,7 @@
   echo "IPADDR=$APP_INTERNET_IP$" >> /etc/sysconfig/network-scripts/"ifcfg-${netname1}"
   echo "NETMASK=$APP_INTERNET_MASK$" >> /etc/sysconfig/network-scripts/"ifcfg-${netname1}"
   echo "GATEWAY=$APP_INTERNET_GW$" >> /etc/sysconfig/network-scripts/"ifcfg-${netname1}"
+
   echo "BOOTPROTO=static" >> /etc/sysconfig/network-scripts/"ifcfg-${netname2}"
   echo "DEVICE=${netname2}" >> /etc/sysconfig/network-scripts/"ifcfg-${netname2}"
   echo "ONBOOT=yes" >> /etc/sysconfig/network-scripts/"ifcfg-${netname2}"
@@ -31,7 +33,10 @@
   echo "MTU=1500" >> /etc/sysconfig/network-scripts/"ifcfg-${netname2}"
   echo "IPADDR=$APP_N6_IP$" >> /etc/sysconfig/network-scripts/"ifcfg-${netname2}"
   echo "NETMASK=$APP_N6_MASK$" >> /etc/sysconfig/network-scripts/"ifcfg-${netname2}"
-  echo "$UE_IP_SEGMENT$ via $APP_N6_GW$" >> /etc/sysconfig/network-scripts/"ifcfg-${netname2}"
+
+  echo "$UE_IP_SEGMENT$ via $APP_N6_GW$" >> /etc/sysconfig/network-scripts/"route-${netname2}"
+  echo "$ENTERPRISE_CAMPUS$ via $APP_N6_GW$" >> /etc/sysconfig/network-scripts/"route-${netname2}"
+
   echo "BOOTPROTO=static" >> /etc/sysconfig/network-scripts/"ifcfg-${netname3}"
   echo "DEVICE=${netname3}" >> /etc/sysconfig/network-scripts/"ifcfg-${netname3}"
   echo "ONBOOT=yes" >> /etc/sysconfig/network-scripts/"ifcfg-${netname3}"

@@ -118,6 +118,7 @@ CREATE TABLE IF NOT EXISTS tbl_application (
   user_id varchar(255) DEFAULT NULL,
   user_name varchar(255) DEFAULT NULL,
   mep_host_id varchar(255) DEFAULT NULL,
+  pkg_spec_id varchar(255) DEFAULT NULL,
   CONSTRAINT tbl_application_unique_name_version UNIQUE (name,version),
   CONSTRAINT tbl_application_pkey PRIMARY KEY (id)
 );

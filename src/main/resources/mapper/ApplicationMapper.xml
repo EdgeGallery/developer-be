@@ -35,17 +35,18 @@
     <result property="userId" column="user_id"/>
     <result property="userName" column="user_name"/>
     <result property="mepHostId" column="mep_host_id"/>
+    <result property="pkgSpecId" column="pkg_spec_id"/>
   </resultMap>
 
   <sql id="ApplicationAllColumn">
-    id, name, description, version, provider, architecture, app_class, type, industry, icon_file_id, guide_file_id, app_create_type, create_time, user_id, user_name, status, mep_host_id
+    id, name, description, version, provider, architecture, app_class, type, industry, icon_file_id, guide_file_id, app_create_type, create_time, user_id, user_name, status, mep_host_id, pkg_spec_id
   </sql>
 
   <insert id="createApplication">
-    insert into tbl_application (id, name, description, version, provider, architecture, app_class, type, industry, icon_file_id, guide_file_id, app_create_type, create_time, user_id, user_name, status)
+    insert into tbl_application (id, name, description, version, provider, architecture, app_class, type, industry, icon_file_id, guide_file_id, app_create_type, create_time, status, user_id, user_name, mep_host_id, pkg_spec_id)
     values
     ( #{id}, #{name}, #{description}, #{version}, #{provider}, #{architecture}, #{appClass},  #{type}, #{industry}, #{iconFileId}, #{guideFileId},
-    #{appCreateType}, now(), #{userId}, #{userName}, #{status})
+    #{appCreateType}, now(), #{status}, #{userId}, #{userName}, #{mepHostId}, #{pkgSpecId} )
   </insert>
 
   <update id="modifyApplication" parameterType="org.edgegallery.developer.model.application.Application">
@@ -53,7 +54,8 @@
     tbl_application
     SET
     name = #{name}, description = #{description}, version = #{version}, provider = #{provider}, architecture = #{architecture},
-    app_class = #{appClass}, type = #{type}, industry = #{industry}, icon_file_id = #{iconFileId}, guide_file_id = #{guideFileId}, app_create_type = #{appCreateType}
+    app_class = #{appClass}, type = #{type}, industry = #{industry}, icon_file_id = #{iconFileId}, guide_file_id = #{guideFileId},
+    app_create_type = #{appCreateType}, status = #{status}, mep_host_id = #{mepHostId}, pkg_spec_id = #{pkgSpecId}
     WHERE
     id = #{id}
   </update>
@@ -83,14 +85,14 @@
   <select id="getAllApplications" resultMap="ApplicationMap">
     SELECT
     id, name, description, version, provider, architecture, app_class, type, industry, icon_file_id, guide_file_id,
-    app_create_type, to_char(create_time, 'YYYY-MM-DD HH24:MI:SS') as create_time, user_id, user_name, status, mep_host_id
+    app_create_type, to_char(create_time, 'YYYY-MM-DD HH24:MI:SS') as create_time, user_id, user_name, status, mep_host_id, pkg_spec_id
     FROM tbl_application
   </select>
 
   <select id="getAllApplicationsByUserId" parameterType="String" resultMap="ApplicationMap">
     SELECT
     id, name, description, version, provider, architecture, app_class, type, industry, icon_file_id, guide_file_id,
-    app_create_type, to_char(create_time, 'YYYY-MM-DD HH24:MI:SS') as create_time, user_id, user_name, status, mep_host_id
+    app_create_type, to_char(create_time, 'YYYY-MM-DD HH24:MI:SS') as create_time, user_id, user_name, status, mep_host_id, pkg_spec_id
     FROM tbl_application
     <where>
       <if test="userId != null and userId != ''">
@@ -106,7 +108,7 @@
   <select id="getApplicationById" parameterType="String" resultMap="ApplicationMap">
     SELECT
     id, name, description, version, provider, architecture, app_class, type, industry, icon_file_id, guide_file_id,
-    app_create_type, to_char(create_time, 'YYYY-MM-DD HH24:MI:SS') as create_time, user_id, user_name, status, mep_host_id
+    app_create_type, to_char(create_time, 'YYYY-MM-DD HH24:MI:SS') as create_time, user_id, user_name, status, mep_host_id, pkg_spec_id
     FROM tbl_application where id = #{id}
   </select>
 

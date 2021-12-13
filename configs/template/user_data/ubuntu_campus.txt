@@ -19,23 +19,26 @@
   echo "network:" >> /etc/netplan/50-cloud-init.yaml
   echo "    version: 2" >> /etc/netplan/50-cloud-init.yaml
   echo "    ethernets:" >> /etc/netplan/50-cloud-init.yaml
-  ip a | grep '^3:' | awk '{print "       "$2}' >> /etc/netplan/50-cloud-init.yaml
-  prefix $APP_INTERNET_MASK$
-  echo "            addresses: [$APP_INTERNET_IP$/$?]" >> /etc/netplan/50-cloud-init.yaml
-  echo "            routes:" >> /etc/netplan/50-cloud-init.yaml
-  echo "                    - to: 0.0.0.0/0" >> /etc/netplan/50-cloud-init.yaml
-  echo "                      via: $APP_INTERNET_GW$" >> /etc/netplan/50-cloud-init.yaml
-  echo "                      metric: 50" >> /etc/netplan/50-cloud-init.yaml
+
+  ip a | grep '^2:' | awk '{print "       "$2}' >> /etc/netplan/50-cloud-init.yaml
+  prefix $APP_Public_MASK$
+  echo "            addresses: [$APP_Public_IP$/$?]" >> /etc/netplan/50-cloud-init.yaml
+  echo "            gateway4: $APP_Public_GW$" >> /etc/netplan/50-cloud-init.yaml
   echo "            mtu: 1500" >> /etc/netplan/50-cloud-init.yaml
-  ip a | grep '^4:' | awk '{print "       "$2}' >> /etc/netplan/50-cloud-init.yaml
-  prefix $APP_N6_MASK$
-  echo "            addresses: [$APP_N6_IP$/$?]" >> /etc/netplan/50-cloud-init.yaml
+
+  ip a | grep '^3:' | awk '{print "       "$2}' >> /etc/netplan/50-cloud-init.yaml
+  prefix $APP_Private_MASK$
+  echo "            addresses: [$APP_Private_IP$/$?]" >> /etc/netplan/50-cloud-init.yaml
   echo "            routes:" >> /etc/netplan/50-cloud-init.yaml
   echo "                    - to: $UE_IP_SEGMENT$" >> /etc/netplan/50-cloud-init.yaml
-  echo "                      via: $APP_N6_GW$" >> /etc/netplan/50-cloud-init.yaml
-  echo "                      metric: 30" >> /etc/netplan/50-cloud-init.yaml
+  echo "                      via: $APP_Private_GW$" >> /etc/netplan/50-cloud-init.yaml
+  echo "                      metric: 50" >> /etc/netplan/50-cloud-init.yaml
+  echo "                    - to: $ENTERPRISE_CAMPUS$" >> /etc/netplan/50-cloud-init.yaml
+  echo "                      via: $APP_Private_GW$" >> /etc/netplan/50-cloud-init.yaml
+  echo "                      metric: 50" >> /etc/netplan/50-cloud-init.yaml
   echo "            mtu: 1500" >> /etc/netplan/50-cloud-init.yaml
-  ip a | grep '^2:' | awk '{print "       "$2}' >> /etc/netplan/50-cloud-init.yaml
+
+  ip a | grep '^4:' | awk '{print "       "$2}' >> /etc/netplan/50-cloud-init.yaml
   prefix $APP_MP1_MASK$
   echo "            addresses: [$APP_MP1_IP$/$?]" >> /etc/netplan/50-cloud-init.yaml
   echo "            routes:" >> /etc/netplan/50-cloud-init.yaml

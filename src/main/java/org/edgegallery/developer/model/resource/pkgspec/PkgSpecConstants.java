@@ -11,10 +11,19 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
+package org.edgegallery.developer.model.resource.pkgspec;
 
-package org.edgegallery.developer.service.recource.vm;
+public class PkgSpecConstants {
 
-public interface UserDataService {
 
-    String getUserData(String osType, String pkgSpecId);
+    public static final String FLAVOR_SPEC_CPU = "cpu";
+
+    public static final String FLAVOR_SPEC_MEM = "mem";
+
+    public static final String FLAVOR_SPEC_DISK = "disk";
+
+    public static final String FLAVOR_SPEC_GPU = "gpu";
+
+    public static final String FLAVOR_SPEC_HOST = "host_aggr";
+
 }

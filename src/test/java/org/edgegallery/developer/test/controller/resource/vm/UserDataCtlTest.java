@@ -64,8 +64,8 @@ public class UserDataCtlTest {
     @WithMockUser(roles = "DEVELOPER_TENANT")
     public void testGetUserdataSuccess() throws Exception {
         List<Flavor> flavors = new ArrayList<>();
-        String url = String.format("/mec/developer/v2/user-data?osType=%s","test");
-        Mockito.when(userDataService.getUserData(Mockito.anyString())).thenReturn(new String());
+        String url = String.format("/mec/developer/v2/user-datas?osType=%s","test");
+        Mockito.when(userDataService.getUserData(Mockito.anyString(),Mockito.anyString())).thenReturn(new String());
         ResultActions actions = mvc
             .perform(MockMvcRequestBuilders.get(url).contentType(MediaType.APPLICATION_JSON_UTF8))
             .andExpect(MockMvcResultMatchers.status().isOk());

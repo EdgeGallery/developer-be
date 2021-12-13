@@ -11,10 +11,17 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
+package org.edgegallery.developer.model.resource.pkgspec;
 
-package org.edgegallery.developer.service.recource.vm;
+import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 
-public interface UserDataService {
+@Getter
+@Setter
+public class PkgSpecConfig {
 
-    String getUserData(String osType, String pkgSpecId);
+    private boolean supportPkgSpecs;
+
+    private List<PkgSpec> pkgSpecs;
 }
