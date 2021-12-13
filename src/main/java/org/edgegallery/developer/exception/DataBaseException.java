@@ -18,7 +18,6 @@ package org.edgegallery.developer.exception;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.springframework.web.client.HttpClientErrorException;
 
 public class DataBaseException extends RuntimeException {
 

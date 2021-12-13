@@ -56,7 +56,7 @@ public class VMAppOperationCtl {
     private static final String REGEX_UUID = "[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}";
 
     @Autowired
-    private VMAppOperationService VmAppOperationService;
+    private VMAppOperationService vmAppOperationService;
 
     @Autowired
     private ReverseProxyService reverseProxyService;
@@ -77,7 +77,7 @@ public class VMAppOperationCtl {
         @ApiParam(value = "applicationId", required = true) @PathVariable("applicationId") String applicationId,
         @ApiParam(value = "vmId", required = true) @PathVariable("vmId") String vmId) {
         User user = AccessUserUtil.getUser();
-        OperationInfoRep result = VmAppOperationService.instantiateVM(applicationId, vmId, user);
+        OperationInfoRep result = vmAppOperationService.instantiateVM(applicationId, vmId, user);
         return ResponseEntity.ok(result);
     }
 
@@ -97,7 +97,7 @@ public class VMAppOperationCtl {
         @ApiParam(value = "applicationId", required = true) @PathVariable("applicationId") String applicationId,
         @ApiParam(value = "vmId", required = true) @PathVariable("vmId") String vmId) {
         User user = AccessUserUtil.getUser();
-        OperationInfoRep result = VmAppOperationService.createVmImage(applicationId, vmId, user);
+        OperationInfoRep result = vmAppOperationService.createVmImage(applicationId, vmId, user);
         return ResponseEntity.ok(result);
     }
 
@@ -115,7 +115,7 @@ public class VMAppOperationCtl {
         @ApiParam(value = "applicationId", required = true) @PathVariable("applicationId") String applicationId,
         @Pattern(regexp = REGEX_UUID, message = "vmId must be in UUID format")
         @ApiParam(value = "vmId", required = true) @PathVariable("vmId") String vmId) {
-        Boolean result = VmAppOperationService.uploadFileToVm(applicationId, vmId, request, chunk);
+        Boolean result = vmAppOperationService.uploadFileToVm(applicationId, vmId, request, chunk);
         return ResponseEntity.ok(result);
     }
 
@@ -134,7 +134,7 @@ public class VMAppOperationCtl {
         @ApiParam(value = "applicationId", required = true) @PathVariable("applicationId") String applicationId,
         @Pattern(regexp = REGEX_UUID, message = "vmId must be in UUID format")
         @ApiParam(value = "vmId", required = true) @PathVariable("vmId") String vmId) {
-        Boolean result = VmAppOperationService.mergeAppFile(applicationId, vmId, fileName, identifier);
+        Boolean result = vmAppOperationService.mergeAppFile(applicationId, vmId, fileName, identifier);
         return ResponseEntity.ok(result);
     }
 
@@ -175,17 +175,17 @@ public class VMAppOperationCtl {
         @ApiParam(value = "vmId", required = true) @PathVariable("vmId") String vmId, HttpServletRequest request) {
 
         String[] cookies = request.getHeader("Cookie").split(";");
-        String XSRFValue="";
+        String xsrfValue="";
         for (String cookie:cookies) {
             if (cookie.contains("XSRF-TOKEN")){
-                XSRFValue = cookie.split("=")[1];
+                xsrfValue = cookie.split("=")[1];
             }
         }
-        if (XSRFValue.equals("")) {
+        if (xsrfValue.equals("")) {
             throw new DeveloperException("failed to get XSRF-TOKEN by cookie");
         }
         SshResponseInfo sshResponseInfo = reverseProxyService.getVmSshResponseInfo(applicationId, vmId, AccessUserUtil.getUserId(),
-            XSRFValue);
+            xsrfValue);
         return ResponseEntity.ok(sshResponseInfo);
     }
 }

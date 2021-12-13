@@ -20,7 +20,6 @@ import org.apache.ibatis.annotations.Options;
 import org.apache.ibatis.annotations.Param;
 import org.edgegallery.developer.model.resource.vm.UploadFileInfo;
 import org.edgegallery.developer.model.resource.vm.VMImage;
-import org.edgegallery.developer.model.restful.VMImageRes;
 
 public interface VMImageMapper {
     Integer getVmImagesCount(Map map);

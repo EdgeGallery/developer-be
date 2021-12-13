@@ -69,6 +69,10 @@ public final class Consts {
 
     public static final String ACCESS_TOKEN_STR = "access_token";
 
+    public static final String CONTENT_TYPE = "Content-Type";
+
+    public static final String CONTENT_DISPOSITION = "Content-Disposition";
+
     public static final String ROLE_DEVELOPER_ADMIN = "ROLE_DEVELOPER_ADMIN";
 
     public static final String CHUNK_NUM = "chunk_num";
