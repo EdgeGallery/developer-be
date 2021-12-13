@@ -35,6 +35,10 @@ public class InputConstant {
 
     public static final String INPUT_NAME_MEP_PORT = "mep_port";
 
+    public static final String INPUT_NAME_AK = "ak";
+
+    public static final String INPUT_NAME_SK = "sk";
+
     public static final String USER_DATA_PARAM_CERTIFICATE_INFO = "certificate_info";
 
     public static final String VDU_NAME_PREFIX = "VDU";
