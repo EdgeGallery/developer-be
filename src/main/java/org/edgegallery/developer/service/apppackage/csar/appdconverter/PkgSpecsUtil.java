@@ -138,14 +138,17 @@ public class PkgSpecsUtil {
         return pkgSpecTmp.getSpecifications().getAppdSpecs().getNetworkNameSpecs().getNetworkNameMep();
     }
 
-    public String getDefaultNetworkNameById(String networkId) {
+    public String getDefaultVLName(String networkName) {
         PkgSpec pkgSpecTmp = null == this.pkgSpec ? defaultPkgSpec : pkgSpec;
-        if (AppdConstants.DEFAULT_NETWORK_ID_INTERNET.equals(networkId)) {
-            return pkgSpecTmp.getSpecifications().getAppdSpecs().getNetworkNameSpecs().getNetworkNameInternet();
-        } else if (AppdConstants.DEFAULT_NETWORK_ID_N6.equals(networkId)) {
-            return pkgSpecTmp.getSpecifications().getAppdSpecs().getNetworkNameSpecs().getNetworkNameN6();
+        if (AppdConstants.DEFAULT_NETWORK_INTERNET.equals(networkName)) {
+            return AppdConstants.NETWORK_NAME_PREFIX + pkgSpecTmp.getSpecifications().getAppdSpecs()
+                .getNetworkNameSpecs().getNetworkNameInternet();
+        } else if (AppdConstants.DEFAULT_NETWORK_N6.equals(networkName)) {
+            return AppdConstants.NETWORK_NAME_PREFIX + pkgSpecTmp.getSpecifications().getAppdSpecs()
+                .getNetworkNameSpecs().getNetworkNameN6();
         } else {
-            return pkgSpecTmp.getSpecifications().getAppdSpecs().getNetworkNameSpecs().getNetworkNameMep();
+            return AppdConstants.NETWORK_NAME_PREFIX + pkgSpecTmp.getSpecifications().getAppdSpecs()
+                .getNetworkNameSpecs().getNetworkNameMep();
         }
     }
 
