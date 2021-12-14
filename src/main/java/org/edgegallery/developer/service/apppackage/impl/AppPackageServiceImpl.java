@@ -146,7 +146,7 @@ public class AppPackageServiceImpl implements AppPackageService {
         if (StringUtils.isEmpty(appId)) {
             zipDecompressDir = ReleasedPackageUtil.getReleasedPkgDecompressPath(packageId);
         } else {
-            zipDecompressDir = ReleasedPackageUtil.getAppPkgDecompressPath(packageId);
+            zipDecompressDir = ReleasedPackageUtil.getAppPkgDecompressPath(appId, packageId);
         }
         //get decompress dir and get file content
         File decompressDir = new File(zipDecompressDir);
@@ -191,7 +191,7 @@ public class AppPackageServiceImpl implements AppPackageService {
         if (StringUtils.isEmpty(appId)) {
             zipDecompressDir = ReleasedPackageUtil.getReleasedPkgDecompressPath(packageId);
         } else {
-            zipDecompressDir = ReleasedPackageUtil.getAppPkgDecompressPath(packageId);
+            zipDecompressDir = ReleasedPackageUtil.getAppPkgDecompressPath(appId, packageId);
         }
         File decompressDir = new File(zipDecompressDir);
         if (!decompressDir.exists() || !decompressDir.isDirectory()) {
