@@ -197,6 +197,7 @@ public class PackageFileCreator {
 
     public String PackageFileCompress() {
         File packageFileDir = new File(getPackagePath());
+        LOGGER.info("packageFileDir:{}", packageFileDir.getPath());
         if (!packageFileDir.exists() || !packageFileDir.isDirectory()) {
             LOGGER.error("package file does not exist");
             return null;
@@ -254,12 +255,12 @@ public class PackageFileCreator {
     /**
      * write json file.
      *
-     * @param file    file.
+     * @param file file.
      * @param content content.
      */
     public void writeFile(File file, String content) {
         try (Writer fw = new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8);
-            BufferedWriter bw = new BufferedWriter(fw)) {
+             BufferedWriter bw = new BufferedWriter(fw)) {
             bw.write(content);
         } catch (IOException e) {
             LOGGER.error("write data into SwImageDesc.json failed, {}", e.getMessage());

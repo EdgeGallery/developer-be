@@ -28,6 +28,7 @@ import org.edgegallery.developer.exception.FileOperateException;
 import org.edgegallery.developer.exception.IllegalRequestException;
 import org.edgegallery.developer.mapper.application.AppScriptMapper;
 import org.edgegallery.developer.mapper.apppackage.AppPackageMapper;
+import org.edgegallery.developer.model.application.Application;
 import org.edgegallery.developer.model.application.EnumAppClass;
 import org.edgegallery.developer.model.application.EnumApplicationStatus;
 import org.edgegallery.developer.model.application.container.ContainerApplication;
@@ -112,7 +113,14 @@ public class AppPackageServiceImpl implements AppPackageService {
         }
 
         //decompress zip
-        String zipDecompressDir = ReleasedPackageUtil.decompressAppPkg(appPackage, pkgDir, packageId);
+        String zipPath = appPackage.getPackageFilePath();
+        String zipParentDir = zipPath.substring(0, zipPath.lastIndexOf(File.separator));
+        String zipDecompressDir = InitConfigUtil.getWorkSpaceBaseDir() + zipParentDir + File.separator + "decompress-"
+            + packageId;
+        File decompressDir = new File(zipDecompressDir);
+        if (!decompressDir.exists()) {
+            zipDecompressDir = ReleasedPackageUtil.decompressAppPkg(appPackage, pkgDir, packageId);
+        }
         LOGGER.info("zipDecompressDir:{}", zipDecompressDir);
 
         //get zip catalog
@@ -275,6 +283,11 @@ public class AppPackageServiceImpl implements AppPackageService {
             + "_" + releasedPackage.getArchitecture() + format;
     }
 
+    private String getAppdZipFileName(Application application, String format) {
+        return application.getName() + "_" + application.getProvider() + "_" + application.getVersion() + "_"
+            + application.getArchitecture() + format;
+    }
+
     @Override
     public AppPackage generateAppPackage(VMApplication application) {
         AppPackage appPackage = appPackageMapper.getAppPackageByAppId(application.getId());
@@ -347,10 +360,10 @@ public class AppPackageServiceImpl implements AppPackageService {
         }
         if (applicationDetail.getContainerApp() != null && applicationDetail.getContainerApp().getAppClass()
             .equals(EnumAppClass.CONTAINER)) {
-            ContainerPackageFileCreator packageFileCreator = new ContainerPackageFileCreator(
-                applicationDetail.getContainerApp(), appPackage.getId());
-            String fileName = packageFileCreator.PackageFileCompress();
-            if (StringUtils.isEmpty(fileName)) {
+            String compressZipName = getAppdZipFileName(applicationDetail.getContainerApp(), "");
+            boolean ret = compressToCsar(packageId, compressZipName);
+            LOGGER.info("compressZipName:{},ret:{}", compressZipName, ret);
+            if (!ret) {
                 LOGGER.error("zip package error.");
                 throw new FileOperateException("zip package error.", ResponseConsts.RET_CREATE_FILE_FAIL);
             }
