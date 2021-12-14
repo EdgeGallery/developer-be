@@ -114,7 +114,7 @@ public class AppOperationServiceImpl implements AppOperationService {
         checkParamNull(app, "application is empty. applicationId: ".concat(applicationId));
 
         AppPackage appPkg = appPackageService.getAppPackageByAppId(applicationId);
-        checkParamNull(appPkg.getId(), "app package content is empty. applicationId: ".concat(applicationId));
+        checkParamNull(appPkg, "app package content is empty. applicationId: ".concat(applicationId));
 
         String filePath = appPkg.queryPkgPath();
         ResponseEntity<String> response = AtpUtil.sendCreatTask2Atp(filePath, user.getToken());
@@ -192,7 +192,7 @@ public class AppOperationServiceImpl implements AppOperationService {
         Map<String, Object> map = new HashMap<>();
         map.put("file", new FileSystemResource(new File(appPkg.queryPkgPath())));
         File icon = new File(InitConfigUtil.getWorkSpaceBaseDir() + iconFile.getFilePath());
-        File copyIcon = FileUtil.copyFile(icon,iconFile.getFileName());
+        File copyIcon = FileUtil.copyFile(icon, iconFile.getFileName());
         LOGGER.info("copy file Name:{}", copyIcon.getName());
         checkFileNull(copyIcon, "copy file failed!");
         map.put("icon", new FileSystemResource(copyIcon));
