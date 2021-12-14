@@ -1,5 +1,7 @@
 package org.edgegallery.developer.service.proxy.impl;
 
+import static org.edgegallery.developer.util.HttpClientUtil.getUrlPrefix;
+
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -110,8 +112,8 @@ public class ReverseProxyServiceImpl implements ReverseProxyService {
             LOGGER.error("failed to get vnc console url, instantiate info does not exist.");
             throw new DeveloperException("failed to get vnc console url");
         }
-        String workLoadStatus = HttpClientUtil.getWorkloadStatus(mepHost.getLcmProtocol(), mepHost.getLcmIp(),
-            mepHost.getLcmPort(), instantiateInfo.getAppInstanceId(), userId, token);
+        String basePath = getUrlPrefix(mepHost.getLcmProtocol(), mepHost.getLcmIp(), mepHost.getLcmPort());
+        String workLoadStatus = HttpClientUtil.getWorkloadStatus(basePath, instantiateInfo.getAppInstanceId(), userId, token);
         LOGGER.info("get vm workLoad status:{}", workLoadStatus);
         VmInstantiateWorkload vmInstantiateWorkload = gson.fromJson(workLoadStatus, VmInstantiateWorkload.class);
         if (vmInstantiateWorkload == null || !Consts.HTTP_STATUS_SUCCESS_STR.equals(vmInstantiateWorkload.getCode())) {
