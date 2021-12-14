@@ -74,13 +74,13 @@ public class AppOperationCtlTest {
     public void createAtpTestTest() throws Exception {
         new MockUp<AtpUtil>() {
             @Mock
-            public ResponseEntity<String> sendCreatTask2Atp(String filePath, String token) {
+            public String sendCreateTask2Atp(String filePath, String token) {
                 Map<String, String> result = new HashMap<String, String>();
-                result.put("id", "6a75a2bd-1111-432f-bbe8-2813aa97d365");
+                result.put("id", "6a75a2bd-1111-432f-bbe8-2813aa97d375");
                 result.put("status", "created");
                 result.put("createTime", "2021");
                 result.put("appName", "appName");
-                return ResponseEntity.ok(gson.toJson(result).toString());
+                return gson.toJson(result).toString();
             }
         };
 

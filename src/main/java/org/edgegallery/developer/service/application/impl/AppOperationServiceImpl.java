@@ -117,7 +117,7 @@ public class AppOperationServiceImpl implements AppOperationService {
         checkParamNull(appPkg, "app package content is empty. applicationId: ".concat(applicationId));
 
         String filePath = appPkg.queryPkgPath();
-        String response = AtpUtil.sendCreatTask2Atp(filePath, user.getToken());
+        String response = AtpUtil.sendCreateTask2Atp(filePath, user.getToken());
         JsonObject jsonObject = new JsonParser().parse(response).getAsJsonObject();
 
         AtpTest atpTest = new AtpTest();

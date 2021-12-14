@@ -269,13 +269,9 @@ public class VMImageServiceTest {
     }
 
     @Test
-    public void testUploadVmImageBadWithErrFileAddr() throws IOException {
-        File tarFile = Resources.getResourceAsFile("testdata/nginx.tar");
-        InputStream helmIs = new FileInputStream(tarFile);
-        MultipartFile tarMultiFile = new MockMultipartFile(tarFile.getName(), tarFile.getName(),
-            ContentType.APPLICATION_OCTET_STREAM.toString(), helmIs);
+    public void testUploadVmImageBadWithErrFileAddr() {
         Chunk chunk = new Chunk();
-        chunk.setFile(tarMultiFile);
+        chunk.setFile(null);
         chunk.setChunkNumber(4);
         chunk.setCurrentChunkSize(24173056L);
         chunk.setTotalSize(24173056L);
@@ -285,7 +281,7 @@ public class VMImageServiceTest {
         request.setContentType("multipart/form-data");
         request.setMethod(RequestMethod.POST.name());
         ResponseEntity res = vmImageService.uploadVmImage(request, chunk, 2);
-        Assert.assertEquals(500, res.getStatusCode().value());
+        Assert.assertEquals(400, res.getStatusCode().value());
 
     }
 

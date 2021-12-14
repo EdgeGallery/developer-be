@@ -150,7 +150,7 @@ public class VMAppTopologyTemplateConverter extends TopologyTemplateConverter {
             property.setName(vm.getName());
             property.setNfviConstraints(getInputStr(azInputName));
             pkgSpecsUtil.updateFlavorExtraSpecs(topologyTemplate, vduName, property, vm.getFlavorExtraSpecs());
-            property.getSwImageData().setName(id2ImageMap.get(Integer.valueOf(vm.getImageId())).getName());
+            property.getSwImageData().setName(id2ImageMap.get(vm.getImageId()).getName());
             if (StringUtils.isEmpty(vm.getUserData())) {
                 property.getBootdata().setConfigDrive(false);
                 property.getBootdata().setUserData(null);
