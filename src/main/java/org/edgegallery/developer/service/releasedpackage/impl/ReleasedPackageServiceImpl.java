@@ -323,7 +323,7 @@ public class ReleasedPackageServiceImpl implements ReleasedPackageService {
 
     private String getAppPkgDecompressPath(String packageId) {
         return InitConfigUtil.getWorkSpaceBaseDir() + BusinessConfigUtil.getReleasedPackagesPath() + packageId
-            + File.separator + "decompress-" + packageId + File.separator;
+            + File.separator + packageId + File.separator;
     }
 
     private String getAppPkgPath(String packageId) {
