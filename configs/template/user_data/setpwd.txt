@@ -1,0 +1,5 @@
+#!/bin/bash
+passwd $USERNAME$<<EOF
+$PASSWORD$
+$PASSWORD$
+EOF
