@@ -188,7 +188,7 @@ public class ReleasedPackageUtil {
         }
 
         // decompress zip under \APPD
-        decompressAppdZip(appPackage,zipDecompressDir);
+        decompressAppdZip(appPackage, zipDecompressDir);
 
         // decompress tgz under \Artifacts\Deployment\Charts
         decompressChartTgz(zipDecompressDir);
@@ -196,7 +196,7 @@ public class ReleasedPackageUtil {
         return zipDecompressDir;
     }
 
-    private static void decompressAppdZip(AppPackage appPackage,String zipDecompressDir){
+    private static void decompressAppdZip(AppPackage appPackage, String zipDecompressDir) {
         // decompress zip under \APPD
         String appdZipParentDir = zipDecompressDir + APPD_ZIP_PATH;
         List<File> zipList = getFiles(appdZipParentDir);
@@ -224,7 +224,6 @@ public class ReleasedPackageUtil {
         }
     }
 
-
     private static void decompressChartTgz(String zipDecompressDir) {
         // decompress tgz under \Artifacts\Deployment\Charts
         String chartsTgzParentDir = zipDecompressDir + CHARTS_TGZ_PATH;
@@ -246,6 +245,7 @@ public class ReleasedPackageUtil {
             }
         }
     }
+
     /**
      * get released package decompress directory.
      *
@@ -260,12 +260,13 @@ public class ReleasedPackageUtil {
     /**
      * get app package decompress directory.
      *
+     * @param appId application id
      * @param packageId package id
      * @return return app package decompress directory
      */
-    public static String getAppPkgDecompressPath(String packageId) {
-        return InitConfigUtil.getWorkSpaceBaseDir() + BusinessConfigUtil.getWorkspacePath() + packageId
-            + File.separator + "decompress-" + packageId + File.separator;
+    public static String getAppPkgDecompressPath(String appId, String packageId) {
+        return InitConfigUtil.getWorkSpaceBaseDir() + BusinessConfigUtil.getWorkspacePath() + appId + File.separator
+            + "decompress-" + packageId + File.separator;
     }
 
     /**
