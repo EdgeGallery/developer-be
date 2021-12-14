@@ -121,6 +121,7 @@ public class Application {
         this.userId = app.userId;
         this.userName = app.userName;
         this.mepHostId = app.mepHostId;
+        this.pkgSpecId = app.pkgSpecId;
         this.appConfiguration = app.appConfiguration;
         this.appPackage = app.appPackage;
         this.atpTestTaskList = app.atpTestTaskList;
