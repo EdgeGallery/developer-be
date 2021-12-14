@@ -360,10 +360,10 @@ public class AppPackageServiceImpl implements AppPackageService {
         }
         if (applicationDetail.getContainerApp() != null && applicationDetail.getContainerApp().getAppClass()
             .equals(EnumAppClass.CONTAINER)) {
-            String compressZipName = getAppdZipFileName(applicationDetail.getContainerApp(), "");
-            boolean ret = compressToCsar(packageId, compressZipName);
-            LOGGER.info("compressZipName:{},ret:{}", compressZipName, ret);
-            if (!ret) {
+            PackageFileCreator packageFileCreator = new PackageFileCreator(applicationDetail.getContainerApp(),
+                appPackage.getId());
+            String fileName = packageFileCreator.PackageFileCompress();
+            if (StringUtils.isEmpty(fileName)) {
                 LOGGER.error("zip package error.");
                 throw new FileOperateException("zip package error.", ResponseConsts.RET_CREATE_FILE_FAIL);
             }
