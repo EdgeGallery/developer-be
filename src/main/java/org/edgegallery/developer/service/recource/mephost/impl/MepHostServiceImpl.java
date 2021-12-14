@@ -16,6 +16,8 @@
 
 package org.edgegallery.developer.service.recource.mephost.impl;
 
+import static org.edgegallery.developer.util.HttpClientUtil.getUrlPrefix;
+
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import java.util.List;
@@ -235,7 +237,8 @@ public class MepHostServiceImpl implements MepHostService {
     }
 
     private void configMepHostToLCM(MepHost host, String token) {
-        String healRes = HttpClientUtil.getHealth(host.getLcmProtocol(), host.getLcmIp(), host.getLcmPort());
+        String basePath = getUrlPrefix(host.getLcmProtocol(), host.getLcmIp(), host.getLcmPort());
+        String healRes = HttpClientUtil.getHealth(basePath);
         if (healRes == null) {
             String msg = "health check faild,current ip or port cann't be used!";
             LOGGER.error(msg);

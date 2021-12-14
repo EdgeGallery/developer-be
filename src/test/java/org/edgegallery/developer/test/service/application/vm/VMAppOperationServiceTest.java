@@ -14,7 +14,6 @@
 
 package org.edgegallery.developer.test.service.application.vm;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -65,6 +64,7 @@ import org.springframework.test.context.junit4.AbstractJUnit4SpringContextTests;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @SpringBootTest(classes = DeveloperApplicationTests.class)
 @RunWith(SpringRunner.class)
@@ -441,7 +441,7 @@ public class VMAppOperationServiceTest extends AbstractJUnit4SpringContextTests 
             }
 
             @Mock
-            public String getWorkloadStatus(String protocol, String ip, int port, String appInstanceId, String userId,
+            public String getWorkloadStatus(String basePath, String appInstanceId, String userId,
                 String token) {
                 if (lcmReturnType.equals(LcmReturnMockTypeEnum.GET_WORKLOAD_STATUS_FAILED)) {
                     return null;

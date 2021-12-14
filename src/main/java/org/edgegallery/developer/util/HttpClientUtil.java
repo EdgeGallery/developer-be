@@ -310,9 +310,9 @@ public final class HttpClientUtil {
      *
      * @return String
      */
-    public static String getWorkloadStatus(String protocol, String ip, int port, String appInstanceId, String userId,
+    public static String getWorkloadStatus(String basePath, String appInstanceId, String userId,
         String token) {
-        String url = getUrlPrefix(protocol, ip, port) + Consts.APP_LCM_GET_WORKLOAD_STATUS_URL
+        String url = basePath + Consts.APP_LCM_GET_WORKLOAD_STATUS_URL
             .replaceAll("appInstanceId", appInstanceId).replaceAll("tenantId", userId);
         LOGGER.info("url is {}", url);
         HttpHeaders headers = new HttpHeaders();
@@ -338,9 +338,9 @@ public final class HttpClientUtil {
      *
      * @return String
      */
-    public static String getWorkloadEvents(String protocol, String ip, int port, String appInstanceId, String userId,
+    public static String getWorkloadEvents(String basePath, String appInstanceId, String userId,
         String token) {
-        String url = getUrlPrefix(protocol, ip, port) + Consts.APP_LCM_GET_WORKLOAD_EVENTS_URL
+        String url = basePath + Consts.APP_LCM_GET_WORKLOAD_EVENTS_URL
             .replaceAll("appInstanceId", appInstanceId).replaceAll("tenantId", userId);
         LOGGER.info("work event url is {}", url);
         HttpHeaders headers = new HttpHeaders();
@@ -364,8 +364,8 @@ public final class HttpClientUtil {
     /**
      * getHealth.
      */
-    public static String getHealth(String protocol, String ip, int port) {
-        String url = getUrlPrefix(protocol, ip, port) + Consts.APP_LCM_GET_HEALTH;
+    public static String getHealth(String basePath) {
+        String url = basePath + Consts.APP_LCM_GET_HEALTH;
         LOGGER.info(" health url is {}", url);
         ResponseEntity<String> response;
         try {
@@ -453,71 +453,6 @@ public final class HttpClientUtil {
     }
 
     /**
-     * downloadVmImage.
-     */
-    public static boolean downloadVmImage(String basePath, String userId, String packagePath, String appInstanceId,
-        String imageId, String imageName, String chunkNum, String token) {
-
-        String url = basePath + Consts.APP_LCM_GET_IMAGE_DOWNLOAD_URL.replaceAll("appInstanceId", appInstanceId)
-            .replaceAll("tenantId", userId).replaceAll("imageId", imageId);
-        LOGGER.info("url is {}", url);
-        SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
-        RestTemplate restTemplate = new RestTemplate(requestFactory);
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.setConnection("close");
-        headers.set(Consts.ACCESS_TOKEN_STR, token);
-        headers.set("chunk_num", chunkNum);
-        // download images
-        ResponseEntity<byte[]> response;
-        try {
-
-            response = restTemplate.exchange(url, HttpMethod.GET, new HttpEntity<>(headers), byte[].class);
-            //            LOGGER.warn(response.getBody());
-            if (response.getStatusCode() != HttpStatus.OK) {
-                LOGGER.error("download file error, response is {}", response.getBody());
-                throw new DomainException("download file exception");
-            }
-            byte[] result = response.getBody();
-            if (result == null) {
-                throw new DomainException("download response is null");
-            }
-            String fileName = "temp_" + chunkNum;
-            String outPath = packagePath + File.separator + imageName;
-            LOGGER.info("output image path:{}", outPath);
-            File imageDir = new File(outPath);
-            if (!imageDir.exists()) {
-                boolean isMk = imageDir.mkdirs();
-                if (!isMk) {
-                    LOGGER.error("create upload path failed");
-                    return false;
-                }
-            }
-            File file = new File(outPath + File.separator + fileName);
-            if (!file.exists() && !file.createNewFile()) {
-                LOGGER.error("create download file error");
-                throw new DomainException("create download file error");
-            }
-            try (InputStream inputStream = new ByteArrayInputStream(result);
-                OutputStream outputStream = new FileOutputStream(file)) {
-                int len = 0;
-                byte[] buf = new byte[1024];
-                while ((len = inputStream.read(buf, 0, 1024)) != -1) {
-                    outputStream.write(buf, 0, len);
-                }
-                outputStream.flush();
-            }
-        } catch (RestClientException | IOException e) {
-
-            LOGGER.error("Failed to get image  which chunkNum is {} exception {}", chunkNum, e.getMessage());
-            return false;
-        }
-
-        return true;
-
-    }
-
-    /**
      * deleteVmImage.
      */
     public static boolean deleteVmImage(String basePath, String userId, String appInstanceId,
@@ -540,51 +475,6 @@ public final class HttpClientUtil {
         }
         return true;
 
-    }
-
-    /**
-     * upload system image.
-     *
-     * @param fileServerAddr File Server Address
-     * @param filePath       File Path
-     * @param userId         User ID
-     * @return upload result
-     */
-    public static String uploadSystemImage(String fileServerAddr, String filePath, String userId) {
-        MultiValueMap<String, Object> formData = new LinkedMultiValueMap<>();
-        formData.add("file", new FileSystemResource(filePath));
-        formData.add("userId", userId);
-        formData.add("priority", 0);
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
-
-        HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(formData, headers);
-        String url = fileServerAddr + Consts.SYSTEM_IMAGE_UPLOAD_URL;
-
-        ResponseEntity<String> response;
-        try {
-            REST_TEMPLATE.setErrorHandler(new CustomResponseErrorHandler());
-            response = REST_TEMPLATE.exchange(url, HttpMethod.POST, requestEntity, String.class);
-        } catch (CustomException e) {
-            String errorLog = e.getBody();
-            LOGGER.error("Failed upload system image exception {}", errorLog);
-            return null;
-        } catch (RestClientException e) {
-            LOGGER.error("Failed upload system image exception {}", e.getMessage());
-            return null;
-        } catch (Exception e) {
-            LOGGER.error("Failed upload system image exception {}", e.getMessage());
-            return null;
-        }
-
-        if (response == null || response.getStatusCode() != HttpStatus.OK) {
-            LOGGER.error("Failed to upload system image!");
-            return null;
-        }
-
-        LOGGER.info("upload system image file success, resp = {}", response);
-        return response.getBody();
     }
 
     /**
@@ -766,33 +656,6 @@ public final class HttpClientUtil {
         }
         LOGGER.error("Failed to download system image!");
         return null;
-    }
-
-    /**
-     * checkImageInfo.
-     *
-     * @param systemPath systemPath
-     * @return
-     */
-    public static Boolean checkImageInfo(String systemPath) {
-        String url = systemPath.substring(0, systemPath.length() - 16);
-        HttpHeaders headers = new HttpHeaders();
-        HttpEntity<String> requestEntity = new HttpEntity<>(headers);
-        ResponseEntity<String> response;
-        try {
-            REST_TEMPLATE.setErrorHandler(new CustomResponseErrorHandler());
-            response = REST_TEMPLATE.exchange(url, HttpMethod.GET, requestEntity, String.class);
-        } catch (RestClientException e) {
-            LOGGER.error("get system image exception {}", e.getMessage());
-            return false;
-        }
-        if (response.getStatusCode() == HttpStatus.OK) {
-            LOGGER.info("get image file success, resp = {}", response);
-            return true;
-        }
-        LOGGER.error("get system image fail!");
-        return false;
-
     }
 
     public static boolean imageSlim(String url) {

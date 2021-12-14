@@ -303,8 +303,7 @@ public class ContainerAppOperationServiceTest extends AbstractJUnit4SpringContex
             }
 
             @Mock
-            public String getWorkloadStatus(String protocol, String ip, int port, String appInstanceId, String userId,
-                String token) {
+            public String getWorkloadStatus(String basePath, String appInstanceId, String userId, String token) {
                 if (lcmReturnType
                     .equals(ContainerAppOperationServiceTest.LcmReturnMockTypeEnum.GET_WORKLOAD_STATUS_FAILED)) {
                     return null;
@@ -321,7 +320,7 @@ public class ContainerAppOperationServiceTest extends AbstractJUnit4SpringContex
             }
 
             @Mock
-            public String getWorkloadEvents(String protocol, String ip, int port, String appInstanceId, String userId,
+            public String getWorkloadEvents(String basePath, String appInstanceId, String userId,
                 String token) {
                 if (lcmReturnType
                     .equals(ContainerAppOperationServiceTest.LcmReturnMockTypeEnum.GET_WORKLOAD_STATUS_FAILED)) {
