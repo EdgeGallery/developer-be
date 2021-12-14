@@ -118,6 +118,7 @@ MERGE INTO tbl_vm KEY(id) VALUES('6a75a2bd-9811-432f-bbe8-2813aa97d758','4cbbab9
 MERGE INTO tbl_vm_port KEY(id) VALUES('6a75a2bd-9811-432f-bbe8-2813aa97d661','6a75a2bd-9811-432f-bbe8-2813aa97d757','port1','vm port 1', 'MEC_APP_Public');
 MERGE INTO tbl_vm_port KEY(id) VALUES('6a75a2bd-9811-432f-bbe8-2813aa97d662','6a75a2bd-9811-432f-bbe8-2813aa97d757','port2','vm port 2', 'MEC_APP_Private');
 
+MERGE INTO tbl_vm_certificate KEY(vm_id) VALUES('6a75a2bd-9811-432f-bbe8-2813aa97d757','PASSWORD','{"username":"root","password":"test1234"}', null);
 -- ----------------------------
 -- Records of tbl_vm_instantiate_info
 -- ----------------------------
