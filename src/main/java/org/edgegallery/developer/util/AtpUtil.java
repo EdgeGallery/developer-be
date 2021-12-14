@@ -54,7 +54,7 @@ public class AtpUtil {
      * @param token request token
      * @return response from atp
      */
-    public static String sendCreatTask2Atp(String filePath, String token) {
+    public static String sendCreateTask2Atp(String filePath, String token) {
         MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
         LOGGER.info("filePath: {}", filePath);
         body.add("file", new FileSystemResource(filePath));

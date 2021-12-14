@@ -64,9 +64,9 @@ public class AtpUtilTest {
     }
 
     @Test
-    public void testSendCreatTask2AtpSuccess() throws IOException {
+    public void testSendCreateTask2AtpSuccess() throws IOException {
         File file = Resources.getResourceAsFile("testdata/face_recognition1.4.csar");
-        String result = AtpUtil.sendCreatTask2Atp(file.getCanonicalPath(), "");
+        String result = AtpUtil.sendCreateTask2Atp(file.getCanonicalPath(), "");
         Assert.assertEquals("ok", result);
     }
 
