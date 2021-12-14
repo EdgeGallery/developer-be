@@ -112,7 +112,14 @@ public class AppPackageServiceImpl implements AppPackageService {
         }
 
         //decompress zip
-        String zipDecompressDir = ReleasedPackageUtil.decompressAppPkg(appPackage, pkgDir, packageId);
+        String zipPath = appPackage.getPackageFilePath();
+        String zipParentDir = zipPath.substring(0, zipPath.lastIndexOf(File.separator));
+        String zipDecompressDir = InitConfigUtil.getWorkSpaceBaseDir() + zipParentDir + File.separator + "decompress-"
+            + packageId;
+        File decompressDir = new File(zipDecompressDir);
+        if (!decompressDir.exists()) {
+            zipDecompressDir = ReleasedPackageUtil.decompressAppPkg(appPackage, pkgDir, packageId);
+        }
         LOGGER.info("zipDecompressDir:{}", zipDecompressDir);
 
         //get zip catalog

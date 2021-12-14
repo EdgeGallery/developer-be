@@ -17,6 +17,7 @@ import org.edgegallery.developer.common.Consts;
 import org.edgegallery.developer.common.ResponseConsts;
 import org.edgegallery.developer.exception.EntityNotFoundException;
 import org.edgegallery.developer.model.application.Application;
+import org.edgegallery.developer.model.application.EnumAppClass;
 import org.edgegallery.developer.model.apppackage.IToscaContentEnum;
 import org.edgegallery.developer.model.apppackage.basicContext.ManifestFiledataContent;
 import org.edgegallery.developer.model.apppackage.basicContext.ManifestMetadataContent;
@@ -35,6 +36,7 @@ import org.edgegallery.developer.util.CompressFileUtilsJava;
 import org.edgegallery.developer.util.DeveloperFileUtils;
 import org.edgegallery.developer.util.InitConfigUtil;
 import org.edgegallery.developer.util.SpringContextUtil;
+import org.edgegallery.developer.util.releasedpackage.ReleasedPackageUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -196,7 +198,13 @@ public class PackageFileCreator {
     }
 
     public String PackageFileCompress() {
-        File packageFileDir = new File(getPackagePath());
+        File packageFileDir = null;
+        if (application.getAppClass().equals(EnumAppClass.CONTAINER)) {
+            packageFileDir = new File(ReleasedPackageUtil.getAppPkgDecompressPath(application.getId(), packageId));
+        } else {
+            packageFileDir = new File(getPackagePath());
+        }
+        LOGGER.info("packageFileDir:{}", packageFileDir.getPath());
         if (!packageFileDir.exists() || !packageFileDir.isDirectory()) {
             LOGGER.error("package file does not exist");
             return null;
@@ -254,12 +262,12 @@ public class PackageFileCreator {
     /**
      * write json file.
      *
-     * @param file    file.
+     * @param file file.
      * @param content content.
      */
     public void writeFile(File file, String content) {
         try (Writer fw = new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8);
-            BufferedWriter bw = new BufferedWriter(fw)) {
+             BufferedWriter bw = new BufferedWriter(fw)) {
             bw.write(content);
         } catch (IOException e) {
             LOGGER.error("write data into SwImageDesc.json failed, {}", e.getMessage());
