@@ -179,8 +179,7 @@ public class ReleasedPackageUtil {
         //decompress zip
         String zipPath = appPackage.getPackageFilePath();
         String zipParentDir = zipPath.substring(0, zipPath.lastIndexOf(File.separator));
-        String zipDecompressDir = InitConfigUtil.getWorkSpaceBaseDir() + zipParentDir + File.separator + "decompress-"
-            + packageId;
+        String zipDecompressDir = InitConfigUtil.getWorkSpaceBaseDir() + zipParentDir + File.separator + packageId;
         boolean ret = decompressAppPkg(pkgDir, zipDecompressDir);
         if (!ret) {
             LOGGER.error("decompress zip file {} failed!", appPackage.getPackageFileName());
@@ -254,7 +253,7 @@ public class ReleasedPackageUtil {
      */
     public static String getReleasedPkgDecompressPath(String packageId) {
         return InitConfigUtil.getWorkSpaceBaseDir() + BusinessConfigUtil.getReleasedPackagesPath() + packageId
-            + File.separator + "decompress-" + packageId + File.separator;
+            + File.separator + packageId + File.separator;
     }
 
     /**
@@ -266,7 +265,7 @@ public class ReleasedPackageUtil {
      */
     public static String getAppPkgDecompressPath(String appId, String packageId) {
         return InitConfigUtil.getWorkSpaceBaseDir() + BusinessConfigUtil.getWorkspacePath() + appId + File.separator
-            + "decompress-" + packageId + File.separator;
+            + packageId + File.separator;
     }
 
     /**

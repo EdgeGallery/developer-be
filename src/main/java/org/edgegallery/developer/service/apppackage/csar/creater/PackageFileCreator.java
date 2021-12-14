@@ -198,12 +198,7 @@ public class PackageFileCreator {
     }
 
     public String PackageFileCompress() {
-        File packageFileDir = null;
-        if (application.getAppClass().equals(EnumAppClass.CONTAINER)) {
-            packageFileDir = new File(ReleasedPackageUtil.getAppPkgDecompressPath(application.getId(), packageId));
-        } else {
-            packageFileDir = new File(getPackagePath());
-        }
+        File packageFileDir = new File(getPackagePath());
         LOGGER.info("packageFileDir:{}", packageFileDir.getPath());
         if (!packageFileDir.exists() || !packageFileDir.isDirectory()) {
             LOGGER.error("package file does not exist");
