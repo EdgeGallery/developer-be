@@ -28,7 +28,6 @@ import org.edgegallery.developer.exception.FileOperateException;
 import org.edgegallery.developer.exception.IllegalRequestException;
 import org.edgegallery.developer.mapper.application.AppScriptMapper;
 import org.edgegallery.developer.mapper.apppackage.AppPackageMapper;
-import org.edgegallery.developer.model.application.Application;
 import org.edgegallery.developer.model.application.EnumAppClass;
 import org.edgegallery.developer.model.application.EnumApplicationStatus;
 import org.edgegallery.developer.model.application.container.ContainerApplication;
@@ -109,14 +108,13 @@ public class AppPackageServiceImpl implements AppPackageService {
         File pkgFile = new File(pkgDir);
         if (!pkgFile.exists()) {
             LOGGER.error("pkg {} not found", pkgFile.getName());
-            throw new FileFoundFailException("pkg(.zip) not found!", ResponseConsts.RET_FILE_NOT_FOUND);
+            throw new FileFoundFailException("app pkg not found!", ResponseConsts.RET_FILE_NOT_FOUND);
         }
 
         //decompress zip
         String zipPath = appPackage.getPackageFilePath();
         String zipParentDir = zipPath.substring(0, zipPath.lastIndexOf(File.separator));
-        String zipDecompressDir = InitConfigUtil.getWorkSpaceBaseDir() + zipParentDir + File.separator + "decompress-"
-            + packageId;
+        String zipDecompressDir = InitConfigUtil.getWorkSpaceBaseDir() + zipParentDir + File.separator + packageId;
         File decompressDir = new File(zipDecompressDir);
         if (!decompressDir.exists()) {
             zipDecompressDir = ReleasedPackageUtil.decompressAppPkg(appPackage, pkgDir, packageId);
@@ -164,7 +162,6 @@ public class AppPackageServiceImpl implements AppPackageService {
         }
 
         String content = ReleasedPackageUtil.getContentByInnerPath(structureReqDto.getFilePath(), zipDecompressDir);
-        LOGGER.info("file content:{}", content);
         ReleasedPkgFileContent pkgFileContent = new ReleasedPkgFileContent();
         pkgFileContent.setFilePath(structureReqDto.getFilePath());
         pkgFileContent.setContent(content);
@@ -281,11 +278,6 @@ public class AppPackageServiceImpl implements AppPackageService {
     private String getAppFileName(ReleasedPackage releasedPackage, String format) {
         return releasedPackage.getName() + "_" + releasedPackage.getProvider() + "_" + releasedPackage.getVersion()
             + "_" + releasedPackage.getArchitecture() + format;
-    }
-
-    private String getAppdZipFileName(Application application, String format) {
-        return application.getName() + "_" + application.getProvider() + "_" + application.getVersion() + "_"
-            + application.getArchitecture() + format;
     }
 
     @Override

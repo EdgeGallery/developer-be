@@ -378,7 +378,7 @@ CREATE TABLE IF NOT EXISTS tbl_mep_host (
 
 CREATE TABLE IF NOT EXISTS tbl_app_package (
   id varchar(255) NOT NULL,
-  app_id varchar(255) NOT NULL,
+  app_id varchar(255) DEFAULT NULL,
   package_file_name varchar(255) DEFAULT NULL,
   package_file_path varchar(500) DEFAULT NULL,
   CONSTRAINT tbl_app_package_pkey PRIMARY KEY (id)
