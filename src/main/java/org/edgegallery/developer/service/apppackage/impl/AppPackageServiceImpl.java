@@ -162,7 +162,6 @@ public class AppPackageServiceImpl implements AppPackageService {
         }
 
         String content = ReleasedPackageUtil.getContentByInnerPath(structureReqDto.getFilePath(), zipDecompressDir);
-        LOGGER.info("file content:{}", content);
         ReleasedPkgFileContent pkgFileContent = new ReleasedPkgFileContent();
         pkgFileContent.setFilePath(structureReqDto.getFilePath());
         pkgFileContent.setContent(content);
