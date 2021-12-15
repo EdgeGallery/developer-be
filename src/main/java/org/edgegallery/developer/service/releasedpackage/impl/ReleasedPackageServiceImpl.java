@@ -16,6 +16,11 @@
 
 package org.edgegallery.developer.service.releasedpackage.impl;
 
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -27,6 +32,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.io.FileUtils;
 import org.edgegallery.developer.common.ResponseConsts;
 import org.edgegallery.developer.exception.DataBaseException;
+import org.edgegallery.developer.exception.FileFoundFailException;
 import org.edgegallery.developer.exception.FileOperateException;
 import org.edgegallery.developer.exception.IllegalRequestException;
 import org.edgegallery.developer.exception.RestfulRequestException;
@@ -56,11 +62,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
-import com.github.pagehelper.PageHelper;
-import com.github.pagehelper.PageInfo;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 
 @Service
 public class ReleasedPackageServiceImpl implements ReleasedPackageService {
@@ -274,20 +275,20 @@ public class ReleasedPackageServiceImpl implements ReleasedPackageService {
         ReleasedPackage releasedPackage = releasedPackageMapper.getReleasedPackageByPkgId(packageId);
         if (appPackage == null || releasedPackage == null) {
             LOGGER.warn("packageId is error");
-            return false;
+            throw new DataBaseException("can not found app or released Package", ResponseConsts.RET_QUERY_DATA_EMPTY);
         }
 
         String appPKgPath = getAppPkgPath(packageId) + packageId + ".csar";
         File appPkg = new File(appPKgPath);
         if (!appPkg.exists()) {
             LOGGER.warn("The synchronized pkg has not been packaged(.csar) yet");
-            return false;
+            throw new FileFoundFailException("can not found app package(.csar)", ResponseConsts.RET_FILE_NOT_FOUND);
         }
 
         List<File> list = getIconList(packageId);
         if (CollectionUtils.isEmpty(list)) {
             LOGGER.warn("can not found icon under art/docs dir");
-            return false;
+            throw new FileFoundFailException("can not found icon under docs dir", ResponseConsts.RET_FILE_NOT_FOUND);
         }
 
         Map<String, Object> map = new HashMap<>();

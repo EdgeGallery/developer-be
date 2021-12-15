@@ -108,6 +108,10 @@ public final class Consts {
 
     public static final String PUBLISH_TO_APPSTORE_URL = "/mec/appstore/v1/apps/%s/packages/%s/action/publish";
 
+    public static final String QUERY_APPSTORE_PKG_URL = "%s/mec/appstore/v2/apps/%s/packages/%s";
+
+    public static final String DOWNLOAD_APPSTORE_PKG_URL = "%s/mec/appstore/v1/apps/%s/packages/%s/action/download";
+
     public static final String HARBOR_IMAGE_LOGIN_URL = "%s://%s/c/login";
 
     public static final String HARBOR_IMAGE_DELETE_URL = "%s://%s/api/v2.0/projects/%s/repositories/%s/artifacts/%s";

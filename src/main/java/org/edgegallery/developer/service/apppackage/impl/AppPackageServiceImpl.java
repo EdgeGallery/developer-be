@@ -108,7 +108,7 @@ public class AppPackageServiceImpl implements AppPackageService {
         File pkgFile = new File(pkgDir);
         if (!pkgFile.exists()) {
             LOGGER.error("pkg {} not found", pkgFile.getName());
-            throw new FileFoundFailException("pkg(.zip) not found!", ResponseConsts.RET_FILE_NOT_FOUND);
+            throw new FileFoundFailException("app pkg not found!", ResponseConsts.RET_FILE_NOT_FOUND);
         }
 
         //decompress zip
