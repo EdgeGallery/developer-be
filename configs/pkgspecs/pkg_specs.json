@@ -8,9 +8,9 @@
       "specifications": {
         "appdSpecs": {
           "networkNameSpecs": {
-            "networkNameN6": "APP_N6",
+            "networkNameN6": "APP_Private",
             "networkNameInternet": "APP_Public",
-            "networkNameMep": "APP_Private"
+            "networkNameMep": "APP_MP1"
           },
           "userDataFlag": "campus",
           "flavorSpecs": "cpu,mem,disk,gpu,host_aggr"
