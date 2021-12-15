@@ -16,6 +16,8 @@
 
 package org.edgegallery.developer.service.application.action.impl.vm;
 
+import static org.edgegallery.developer.util.HttpClientUtil.getUrlPrefix;
+
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -117,8 +119,8 @@ public class InstantiateVMAppAction extends InstantiateAppAction {
     public EnumInstantiateStatus queryInstantiateStatus(String appInstanceId, MepHost mepHost) {
         int waitingTime = 0;
         while (waitingTime < TIMEOUT) {
-            String workStatus = HttpClientUtil.getWorkloadStatus(mepHost.getLcmProtocol(), mepHost.getLcmIp(),
-                mepHost.getLcmPort(), appInstanceId, getContext().getUserId(), getContext().getToken());
+            String basePath = getUrlPrefix(mepHost.getLcmProtocol(), mepHost.getLcmIp(), mepHost.getLcmPort());
+            String workStatus = HttpClientUtil.getWorkloadStatus(basePath, appInstanceId, getContext().getUserId(), getContext().getToken());
             LOGGER.info("get instantiate status: {}", workStatus);
             if (workStatus == null) {
                 // compare time between now and deployDate

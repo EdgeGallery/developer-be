@@ -1,0 +1,27 @@
+{
+  "imageId": "b2052615-7f8b-411b-972e-315988500437",
+  "fileName": "ubuntu1804.qcow2",
+  "uploadTime": "2021-12-13 08:47:32",
+  "userId": "39937079-99fe-4cd8-881f-04ca8c4fe09d",
+  "storageMedium": "/usr/app/vmImage/",
+  "slimStatus": 2,
+  "compressInfo": {
+    "compressStatus": 0,
+    "compressMsg": "Compress Completed",
+    "compressRate": 1
+  },
+  "checkStatusResponse": {
+    "status": 0,
+    "msg": "Check Completed, the image is (now) consistent",
+    "checkInfo": {
+      "checksum": "92bdf4500a80a2e37a77de132617371c",
+      "checkResult": 0,
+      "imageInfo": {
+        "image-end-offset": "362872832",
+        "check-errors": "0",
+        "format": "qcow2",
+        "filename": ""
+      }
+    }
+  }
+}
