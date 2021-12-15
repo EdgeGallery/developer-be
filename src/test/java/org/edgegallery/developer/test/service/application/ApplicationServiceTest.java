@@ -151,7 +151,7 @@ public class ApplicationServiceTest {
         Application application = new Application();
         application.setName("vmApp");
         application.setDescription("test create vm app");
-        application.setVersion("v1.0");
+        application.setVersion("v1.1");
         application.setProvider("edgegallery");
         application.setArchitecture("X86");
         application.setAppClass(EnumAppClass.VM);
