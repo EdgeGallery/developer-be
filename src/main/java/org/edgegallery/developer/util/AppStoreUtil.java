@@ -58,7 +58,8 @@ public class AppStoreUtil {
         HttpHeaders headers = new HttpHeaders();
         headers.set("access_token", user.getToken());
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);
-        String url = InitConfigUtil.getProperties(APPSTORE_ADDRESS) + String.format(Consts.UPLOAD_TO_APPSTORE_URL, user.getUserId(), user.getUserName());
+        String url = InitConfigUtil.getProperties(APPSTORE_ADDRESS) + String
+            .format(Consts.UPLOAD_TO_APPSTORE_URL, user.getUserId(), user.getUserName());
         LOGGER.warn(url);
         try {
             ResponseEntity<String> responses = restTemplate
@@ -79,8 +80,7 @@ public class AppStoreUtil {
     /**
      * publish app to appstore.
      */
-    public static String publishToAppStore(String appId, String pkgId, String token,
-        PublishAppReqDto pubAppReqDto) {
+    public static String publishToAppStore(String appId, String pkgId, String token, PublishAppReqDto pubAppReqDto) {
         SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
         requestFactory.setConnectTimeout(600000);// 设置超时
         requestFactory.setReadTimeout(600000);
@@ -88,7 +88,8 @@ public class AppStoreUtil {
         HttpHeaders headers = new HttpHeaders();
         headers.set("access_token", token);
         headers.setContentType(MediaType.APPLICATION_JSON);
-        String url = InitConfigUtil.getProperties(APPSTORE_ADDRESS) + String.format(Consts.PUBLISH_TO_APPSTORE_URL, appId, pkgId);
+        String url = InitConfigUtil.getProperties(APPSTORE_ADDRESS) + String
+            .format(Consts.PUBLISH_TO_APPSTORE_URL, appId, pkgId);
         LOGGER.info("isFree: {}, price: {}", pubAppReqDto.isFree(), pubAppReqDto.getPrice());
         LOGGER.info("url: {}", url);
         try {
@@ -120,8 +121,7 @@ public class AppStoreUtil {
         headers.set("access_token", token);
         headers.setContentType(MediaType.APPLICATION_JSON);
         String url = String
-            .format("%S/mec/appstore/v2/apps/%s/packages/%s", InitConfigUtil.getProperties(APPSTORE_ADDRESS), appId,
-                pkgId);
+            .format(Consts.QUERY_APPSTORE_PKG_URL, InitConfigUtil.getProperties(APPSTORE_ADDRESS), appId, pkgId);
         LOGGER.info("url: {}", url);
         try {
             ResponseEntity<String> responses = restTemplate
@@ -150,8 +150,8 @@ public class AppStoreUtil {
         HttpHeaders headers = new HttpHeaders();
         headers.set("access_token", token);
         headers.setContentType(MediaType.APPLICATION_JSON);
-        String url = String.format("%S/mec/appstore/v1/apps/%s/packages/%s/action/download",
-            InitConfigUtil.getProperties(APPSTORE_ADDRESS), appId, pkgId);
+        String url = String
+            .format(Consts.DOWNLOAD_APPSTORE_PKG_URL, InitConfigUtil.getProperties(APPSTORE_ADDRESS), appId, pkgId);
         LOGGER.info("url: {}", url);
         try {
             ResponseEntity<byte[]> responses = restTemplate

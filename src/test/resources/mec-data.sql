@@ -168,10 +168,18 @@ MERGE INTO tbl_app_certificate KEY(app_id) VALUES('6a75a2bd-9811-432f-bbe8-2813a
 -- ----------------------------
 -- Records of tbl_app_package
 -- ----------------------------
-MERGE INTO tbl_app_package KEY(id) VALUES('f2759fcb-bb4b-42f5-bc6c-8e1635348fda','6a75a2bd-9811-432f-bbe8-2813aa97d365','a.csar',null);
-MERGE INTO tbl_app_package KEY(id) VALUES('f2759fcb-bb4b-42f5-bc6c-8e1635348fdb','6a75a2bd-9811-432f-bbe8-2813aa97d366','b.csar',null);
+MERGE INTO tbl_app_package KEY(id) VALUES('f2759fcb-bb4b-42f5-bc6c-8e1635348fda','6a75a2bd-9811-432f-bbe8-2813aa97d365','a.csar','/test/a.csar');
+MERGE INTO tbl_app_package KEY(id) VALUES('f2759fcb-bb4b-42f5-bc6c-8e1635348fdb','6a75a2bd-9811-432f-bbe8-2813aa97d366','b.csar','/test/b.csar');
 MERGE INTO tbl_app_package KEY(id) VALUES('f2759fcb-bb4b-42f5-bc6c-8e1635348fdc','test-path','',null);
 -- ----------------------------
+
+-- ----------------------------
+-- Records of tbl_released_package
+-- ----------------------------
+MERGE INTO tbl_released_package KEY(id) VALUES('f69fc98c-51d9-4c20-b2ad-20b50359f1cb','appId','f2759fcb-bb4b-42f5-bc6c-8e1635348fda','name','v1.0','eg','smart','video','X86','desc','2021-12-14 11:50:10.456+08','userId','userName','testTaskId');
+MERGE INTO tbl_released_package KEY(id) VALUES('f69fc98c-51d9-4c20-b2ad-20b50359f1ca','appId1','f2759fcb-bb4b-42f5-bc6c-8e1635348fdb','name','v1.0','eg','smart','video','X86','desc','2021-12-14 11:51:10.456+08','userId','userName','testTaskId');
+MERGE INTO tbl_released_package KEY(id) VALUES('f69fc98c-51d9-4c20-b2ad-20b50359f1cc','appId2','f2759fcb-bb4b-42f5-bc6c-8e1635348fdc','name','v1.0','eg','smart','video','X86','desc','2021-12-14 11:52:10.456+08','userId','userName','testTaskId');
+
 -- Records of tbl_mep_host
 -- ----------------------------
 MERGE INTO tbl_mep_host KEY(host_id) VALUES('fe934a92-1cfc-42fe-919d-422e2e3bd1f9','k8s-sandbox','localhost','http',31252,'X86','NORMAL','localhost','K8S','test','test',20000,
