@@ -15,6 +15,7 @@
 package org.edgegallery.developer.service.recource.pkgspec;
 
 import java.util.List;
+import org.edgegallery.developer.model.application.vm.Network;
 import org.edgegallery.developer.model.resource.pkgspec.PkgSpec;
 
 public interface PkgSpecService {
@@ -22,4 +23,6 @@ public interface PkgSpecService {
     List<PkgSpec> getPkgSpecs();
 
     PkgSpec getPkgSpecById(String pkgSpecId);
+
+    List<Network> getNetworkResourceByPkgSpecId(String pkgSpecId);
 }

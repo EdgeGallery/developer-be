@@ -91,7 +91,7 @@ public class VMAppTopologyTemplateConverter extends TopologyTemplateConverter {
         }
         for (int i = 0; i < networkLst.size(); i++) {
             //generate inputs for network;
-            String networkName = pkgSpecsUtil.getDefaultVLName(networkLst.get(i).getName());
+            String networkName = networkLst.get(i).getName();
             int index = i + 1;
             String networkNameInputName = InputConstant.INPUT_NETWORK_PREFIX + index
                 + InputConstant.INPUT_NETWORK_POSTFIX;
@@ -189,19 +189,7 @@ public class VMAppTopologyTemplateConverter extends TopologyTemplateConverter {
                 + InputConstant.INPUT_PORT_MASK_POSTFIX;
             String portGWInputName = vduName + "_" + InputConstant.INPUT_NETWORK_PREFIX + networkIndex
                 + InputConstant.INPUT_PORT_GW_POSTFIX;
-            String paramPrefix = "";
-            if (port.getNetworkName()
-                .equalsIgnoreCase(AppdConstants.DEFAULT_NETWORK_INTERNET)) {
-                paramPrefix = pkgSpecsUtil.getNetworkInternetName();
-            } else if (port.getNetworkName()
-                .equalsIgnoreCase(AppdConstants.DEFAULT_NETWORK_N6)) {
-                paramPrefix = pkgSpecsUtil.getNetworkN6Name();
-            } else if (port.getNetworkName()
-                .equalsIgnoreCase(AppdConstants.DEFAULT_NETWORK_MP1)) {
-                paramPrefix = pkgSpecsUtil.getNetworkMp1Name();
-            } else {
-                paramPrefix = "";
-            }
+            String paramPrefix = port.getNetworkName().replaceAll(AppdConstants.NETWORK_NAME_PREFIX, "");
             if (!StringUtils.isEmpty(paramPrefix)) {
                 mapPortParams.put(paramPrefix + InputConstant.INPUT_PORT_IP_POSTFIX, getInputStr(portIpInputName));
                 mapPortParams.put(paramPrefix + InputConstant.INPUT_PORT_MASK_POSTFIX, getInputStr(portMaskInputName));

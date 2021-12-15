@@ -26,6 +26,7 @@ import org.edgegallery.developer.model.apppackage.appd.vdu.VDUProperty;
 import org.edgegallery.developer.model.apppackage.constant.AppdConstants;
 import org.edgegallery.developer.model.apppackage.constant.InputConstant;
 import org.edgegallery.developer.model.resource.pkgspec.PkgSpec;
+import org.edgegallery.developer.model.resource.pkgspec.PkgSpecConstants;
 import org.edgegallery.developer.model.resource.vm.Flavor;
 import org.edgegallery.developer.service.recource.pkgspec.PkgSpecService;
 import org.edgegallery.developer.util.SpringContextUtil;
@@ -38,26 +39,19 @@ public class PkgSpecsUtil {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PkgSpecsUtil.class);
 
-    private static final String PKG_SPEC_SUPPORT_DYNAMIC_FLAVOR = "PKG_SPEC_SUPPORT_DYNAMIC_FLAVOR";
-
-    private static final String PKG_SPEC_SUPPORT_FIXED_FLAVOR = "PKG_SPEC_SUPPORT_FIXED_FLAVOR";
-
     private PkgSpecService pkgSpecService = (PkgSpecService) SpringContextUtil.getBean(PkgSpecService.class);
 
     @Getter
     @Setter
     private PkgSpec pkgSpec;
 
-    private PkgSpec defaultPkgSpec;
-
     public void init(String pkgSpecId) {
         pkgSpec = pkgSpecService.getPkgSpecById(pkgSpecId);
-        defaultPkgSpec = pkgSpecService.getPkgSpecById(PKG_SPEC_SUPPORT_DYNAMIC_FLAVOR);
     }
 
     public void updateVDUCapabilities(TopologyTemplate topologyTemplate, String vduName, NodeTemplate vduNode,
         Flavor flavor) {
-        if (null != pkgSpec && PKG_SPEC_SUPPORT_FIXED_FLAVOR.equals(pkgSpec.getId())) {
+        if (null != pkgSpec && PkgSpecConstants.PKG_SPEC_SUPPORT_FIXED_FLAVOR.equals(pkgSpec.getId())) {
             VDUCapability capability = new VDUCapability(flavor.getMemory() * AppdConstants.MEMORY_SIZE_UNIT,
                 flavor.getCpu(), flavor.getArchitecture(), flavor.getSystemDiskSize());
             vduNode.setCapabilities(capability);
@@ -86,7 +80,7 @@ public class PkgSpecsUtil {
         if (null == mapSpecs) {
             return;
         }
-        if (null != pkgSpec && PKG_SPEC_SUPPORT_FIXED_FLAVOR.equals(pkgSpec.getId())) {
+        if (null != pkgSpec && PkgSpecConstants.PKG_SPEC_SUPPORT_FIXED_FLAVOR.equals(pkgSpec.getId())) {
             if (mapSpecs.containsKey(InputConstant.FLAVOR_EXTRA_SPECS_HOST_AGGR)) {
                 String sgLabel = mapSpecs.get(InputConstant.FLAVOR_EXTRA_SPECS_HOST_AGGR);
                 mapSpecs.remove(InputConstant.FLAVOR_EXTRA_SPECS_HOST_AGGR);
@@ -113,42 +107,13 @@ public class PkgSpecsUtil {
     }
 
     public void updateUserDataParam(TopologyTemplate topologyTemplate, LinkedHashMap<String, String> mapPortParams) {
-        if (null == pkgSpec || PKG_SPEC_SUPPORT_DYNAMIC_FLAVOR.equals(pkgSpec.getId())) {
+        if (null == pkgSpec || PkgSpecConstants.PKG_SPEC_SUPPORT_DYNAMIC_FLAVOR.equals(pkgSpec.getId())) {
             String campusInputName = InputConstant.INPUT_CAMPUS_SEGMENT;
             InputParam campusInput = new InputParam(InputConstant.TYPE_STRING, "", campusInputName);
             if (!topologyTemplate.getInputs().containsKey(campusInputName)) {
                 topologyTemplate.getInputs().put(campusInputName, campusInput);
             }
             mapPortParams.put(InputConstant.INPUT_CAMPUS_SEGMENT.toUpperCase(), getInputStr(campusInputName));
-        }
-    }
-
-    public String getNetworkInternetName() {
-        PkgSpec pkgSpecTmp = null == this.pkgSpec ? defaultPkgSpec : pkgSpec;
-        return pkgSpecTmp.getSpecifications().getAppdSpecs().getNetworkNameSpecs().getNetworkNameInternet();
-    }
-
-    public String getNetworkN6Name() {
-        PkgSpec pkgSpecTmp = null == this.pkgSpec ? defaultPkgSpec : pkgSpec;
-        return pkgSpecTmp.getSpecifications().getAppdSpecs().getNetworkNameSpecs().getNetworkNameN6();
-    }
-
-    public String getNetworkMp1Name() {
-        PkgSpec pkgSpecTmp = null == this.pkgSpec ? defaultPkgSpec : pkgSpec;
-        return pkgSpecTmp.getSpecifications().getAppdSpecs().getNetworkNameSpecs().getNetworkNameMep();
-    }
-
-    public String getDefaultVLName(String networkName) {
-        PkgSpec pkgSpecTmp = null == this.pkgSpec ? defaultPkgSpec : pkgSpec;
-        if (AppdConstants.DEFAULT_NETWORK_INTERNET.equals(networkName)) {
-            return AppdConstants.NETWORK_NAME_PREFIX + pkgSpecTmp.getSpecifications().getAppdSpecs()
-                .getNetworkNameSpecs().getNetworkNameInternet();
-        } else if (AppdConstants.DEFAULT_NETWORK_N6.equals(networkName)) {
-            return AppdConstants.NETWORK_NAME_PREFIX + pkgSpecTmp.getSpecifications().getAppdSpecs()
-                .getNetworkNameSpecs().getNetworkNameN6();
-        } else {
-            return AppdConstants.NETWORK_NAME_PREFIX + pkgSpecTmp.getSpecifications().getAppdSpecs()
-                .getNetworkNameSpecs().getNetworkNameMep();
         }
     }
 

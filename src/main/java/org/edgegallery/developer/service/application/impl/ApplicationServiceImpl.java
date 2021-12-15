@@ -51,6 +51,7 @@ import org.edgegallery.developer.service.application.impl.vm.VMAppOperationServi
 import org.edgegallery.developer.service.application.vm.VMAppNetworkService;
 import org.edgegallery.developer.service.application.vm.VMAppVmService;
 import org.edgegallery.developer.service.apppackage.AppPackageService;
+import org.edgegallery.developer.service.recource.pkgspec.PkgSpecService;
 import org.edgegallery.developer.service.uploadfile.UploadFileService;
 import org.edgegallery.developer.util.DeveloperFileUtils;
 import org.slf4j.Logger;
@@ -71,6 +72,9 @@ public class ApplicationServiceImpl implements ApplicationService {
 
     @Autowired
     private VMAppNetworkService networkService;
+
+    @Autowired
+    private PkgSpecService pkgSpecService;
 
     @Autowired
     private VMAppVmService vmService;
@@ -122,7 +126,7 @@ public class ApplicationServiceImpl implements ApplicationService {
         }
         if (application.getAppClass().equals(EnumAppClass.VM)) {
             // init VM application default networks
-            initNetwork(applicationId);
+            initNetwork(applicationId, application.getPkgSpecId());
         }
 
         // save application to DB
@@ -137,8 +141,8 @@ public class ApplicationServiceImpl implements ApplicationService {
         return app;
     }
 
-    private void initNetwork(String applicationId) {
-        List<Network> networks = networkService.getAllNetwork("init-application");
+    private void initNetwork(String applicationId, String pkgSpecId) {
+        List<Network> networks = pkgSpecService.getNetworkResourceByPkgSpecId(pkgSpecId);
         for (Network network : networks) {
             network.setId(UUID.randomUUID().toString());
             networkService.createNetwork(applicationId, network);
@@ -246,8 +250,8 @@ public class ApplicationServiceImpl implements ApplicationService {
         }
         if (application.getAppClass() == EnumAppClass.VM) {
             applicationMapper.modifyApplication(applicationDetail.getVmApp());
-            appConfigurationService
-                .modifyAppConfiguration(applicationId, applicationDetail.getVmApp().getAppConfiguration());
+            appConfigurationService.modifyAppConfiguration(applicationId,
+                applicationDetail.getVmApp().getAppConfiguration());
             for (Network network : applicationDetail.getVmApp().getNetworkList()) {
                 networkService.modifyNetwork(applicationId, network.getId(), network);
             }
@@ -256,8 +260,8 @@ public class ApplicationServiceImpl implements ApplicationService {
             }
         } else {
             applicationMapper.modifyApplication(applicationDetail.getContainerApp());
-            appConfigurationService
-                .modifyAppConfiguration(applicationId, applicationDetail.getContainerApp().getAppConfiguration());
+            appConfigurationService.modifyAppConfiguration(applicationId,
+                applicationDetail.getContainerApp().getAppConfiguration());
             //todo modify helmchart
         }
         return true;

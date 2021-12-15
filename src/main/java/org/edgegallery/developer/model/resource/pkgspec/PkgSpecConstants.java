@@ -26,4 +26,8 @@ public class PkgSpecConstants {
 
     public static final String FLAVOR_SPEC_HOST = "host_aggr";
 
+    public static final String PKG_SPEC_SUPPORT_DYNAMIC_FLAVOR = "PKG_SPEC_SUPPORT_DYNAMIC_FLAVOR";
+
+    public static final String PKG_SPEC_SUPPORT_FIXED_FLAVOR = "PKG_SPEC_SUPPORT_FIXED_FLAVOR";
+
 }

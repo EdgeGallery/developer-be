@@ -128,6 +128,50 @@ public class ApplicationServiceTest {
         application.setCreateTime(String.valueOf(new Date().getTime()));
         Application retApp = applicationService.createApplication(application);
         Assert.assertNotNull(retApp);
+        ApplicationDetail appDetail = applicationService.getApplicationDetail(retApp.getId());
+        boolean containsNetwork = false;
+        for(Network network: appDetail.getVmApp().getNetworkList()){
+            if(network.getName().equals("MEC_APP_Public")){
+                containsNetwork = true;
+                break;
+            }
+        }
+        Assert.assertTrue(containsNetwork);
+    }
+
+    @Test
+    public void testCreateVMAppWithSpecPkgSuccess() throws IOException {
+        //upload icon
+        MultipartFile uploadFile = new MockMultipartFile("test-icon.png", "test-icon.png", null,
+            ApplicationServiceTest.class.getClassLoader().getResourceAsStream("testdata/test-icon.png"));
+        UploadFile result = uploadFileService.uploadFile("b27d72b5-93a6-4db4-8268-7ec502331adf", "icon", uploadFile);
+        Assert.assertNotNull(result);
+        //create application
+        AccessUserUtil.setUser("b27d72b5-93a6-4db4-8268-7ec502331adf", "admin");
+        Application application = new Application();
+        application.setName("vmApp");
+        application.setDescription("test create vm app");
+        application.setVersion("v1.0");
+        application.setProvider("edgegallery");
+        application.setArchitecture("X86");
+        application.setAppClass(EnumAppClass.VM);
+        application.setType("Video Application");
+        application.setIndustry("Smart Park");
+        application.setIconFileId(result.getFileId());
+        application.setPkgSpecId("PKG_SPEC_SUPPORT_FIXED_FLAVOR");
+        application.setAppCreateType(EnumApplicationType.DEVELOP);
+        application.setCreateTime(String.valueOf(new Date().getTime()));
+        Application retApp = applicationService.createApplication(application);
+        Assert.assertNotNull(retApp);
+        ApplicationDetail appDetail = applicationService.getApplicationDetail(retApp.getId());
+        boolean containsNetwork = false;
+        for(Network network: appDetail.getVmApp().getNetworkList()){
+            if(network.getName().equals("MEC_APP_Internet")){
+                containsNetwork = true;
+                break;
+            }
+        }
+        Assert.assertTrue(containsNetwork);
     }
 
     @Test
