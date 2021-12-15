@@ -474,7 +474,8 @@ public class VMImageServiceImpl implements VMImageService {
         String filesystemUrl = fileServerAddress + String.format(Consts.SYSTEM_IMAGE_GET_URL, filesystemImageId);
         int waitingTime = 0;
         try {
-            Thread.sleep(20000);
+            Thread.sleep(INTERVAL);
+            waitingTime += INTERVAL;
         } catch (Exception e) {
             return new UploadFileInfo(3, EnumProcessErrorType.FILESYSTEM_CHECK_FAILED.getErrorType());
         }
