@@ -120,7 +120,7 @@ public class AppPackageServiceTest extends AbstractJUnit4SpringContextTests {
         try {
             appPackageService.getAppPackageStructure("f2759fcb-bb4b-42f5-bc6c-8e1635348fdc");
         } catch (FileFoundFailException e) {
-            Assert.assertEquals("pkg(.zip) not found!", e.getMessage());
+            Assert.assertEquals("app pkg not found!", e.getMessage());
         }
     }
 
