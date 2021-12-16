@@ -17,6 +17,7 @@ package org.edgegallery.developer.util;
 public class IpCalculateUtil {
     /**
      * 根据掩码位数计算掩码
+     *
      * @param maskIndex 掩码位
      * @return 子网掩码
      */
@@ -60,6 +61,7 @@ public class IpCalculateUtil {
      * 根据网段计算起始IP 网段格式:x.x.x.x/x
      * 一个网段0一般为网络地址,255一般为广播地址.
      * 起始IP计算:网段与掩码相与之后加一的IP地址
+     *
      * @param segment 网段
      * @return 起始IP
      */
@@ -85,10 +87,10 @@ public class IpCalculateUtil {
                     return null;
                 }
                 ipArray[i] = ipArray[i] & netMaskArray[i];
-                if(i==3){
-                    startIp.append(ipArray[i] + range%250 + 1);
-                }else{
-                    startIp.append(ipArray[i]+".");
+                if (i == 3) {
+                    startIp.append(ipArray[i] + range % 250 + 1);
+                } else {
+                    startIp.append(ipArray[i] + ".");
                 }
             } catch (NumberFormatException e) {
                 System.out.println(e.getMessage());
@@ -96,63 +98,4 @@ public class IpCalculateUtil {
         }
         return startIp.toString();
     }
-
-    /**
-     * 根据网段计算结束IP
-     * @param segment
-     * @return 结束IP
-     */
-    public static String getEndIp(String segment) {
-        StringBuffer endIp=new StringBuffer();
-        String startIp = getStartIp(segment,0);
-        if (segment == null) {
-            return null;
-        }
-        String arr[] = segment.split("/");
-        String maskIndex = arr[1];
-        //实际需要的IP个数
-        int hostNumber = 0;
-        int startIpArray[] = new int[4];
-        try {
-            hostNumber=1<<32-(Integer.parseInt(maskIndex));
-            for (int i = 0; i <4; i++) {
-                startIpArray[i] = Integer.parseInt(startIp.split("\\.")[i]);
-                if(i == 3){
-                    startIpArray[i] = startIpArray[i] - 1;
-                    break;
-                }
-            }
-            startIpArray[3] = startIpArray[3] + (hostNumber - 1);
-        } catch (NumberFormatException e) {
-            System.out.println(e.getMessage());
-        }
-
-        if(startIpArray[3] >255){
-            int k = startIpArray[3] / 256;
-            startIpArray[3] = startIpArray[3] % 256;
-            startIpArray[2] = startIpArray[2] + k;
-        }
-        if(startIpArray[2] > 255){
-            int j = startIpArray[2] / 256;
-            startIpArray[2] = startIpArray[2] % 256;
-            startIpArray[1] = startIpArray[1] + j;
-            if(startIpArray[1] > 255){
-                int k = startIpArray[1] / 256;
-                startIpArray[1] = startIpArray[1] % 256;
-                startIpArray[0] = startIpArray[0] + k;
-            }
-        }
-        for(int i = 0; i < 4; i++){
-            if(i == 3){
-                startIpArray[i] = startIpArray[i] - 1;
-            }
-            if("" == endIp.toString()||endIp.length()==0){
-                endIp.append(startIpArray[i]);
-            }else{
-                endIp.append("." + startIpArray[i]);
-            }
-        }
-        return endIp.toString();
-    }
-
 }

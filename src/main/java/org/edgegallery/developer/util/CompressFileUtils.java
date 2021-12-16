@@ -30,10 +30,6 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.zip.GZIPOutputStream;
 import java.util.zip.ZipEntry;
-import net.lingala.zip4j.ZipFile;
-import net.lingala.zip4j.model.ZipParameters;
-import net.lingala.zip4j.model.enums.CompressionLevel;
-import net.lingala.zip4j.model.enums.CompressionMethod;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
@@ -62,22 +58,6 @@ public final class CompressFileUtils {
     public static File compressToTgzAndDeleteSrc(String sourcePath, String outPutPath, String fileName)
         throws IOException {
         File res = compressToTgz(sourcePath, outPutPath, fileName);
-        FileUtils.deleteDirectory(new File(sourcePath));
-        return res;
-    }
-
-    /**
-     * compressToCsarAndDeleteSrc.
-     *
-     * @return
-     */
-    public static File compressToCsarAndDeleteSrc(String sourcePath, String outPutPath, String fileName)
-        throws IOException {
-        File res = compressToCsar(sourcePath, outPutPath, fileName);
-        if (res == null) {
-            LOGGER.error("Failed to compress file.");
-            throw new IOException("Failed to compress file.");
-        }
         FileUtils.deleteDirectory(new File(sourcePath));
         return res;
     }
@@ -323,18 +303,4 @@ public final class CompressFileUtils {
         }
     }
 
-    private static File compressToCsar(String resourcesPath, String targetPath, String fileName) throws IOException {
-        ZipFile zipFile = new ZipFile(targetPath + File.separator + fileName + ".csar");
-        ZipParameters parameters = new ZipParameters();
-        parameters.setCompressionMethod(CompressionMethod.DEFLATE);
-        parameters.setCompressionLevel(CompressionLevel.NORMAL);
-
-        zipFile.addFolder(new File(resourcesPath), parameters);
-        File csar = new File(targetPath + File.separator + fileName + ".csar");
-        if (csar.exists()) {
-            return csar;
-        } else {
-            return null;
-        }
-    }
 }

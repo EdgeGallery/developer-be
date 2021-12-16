@@ -72,10 +72,8 @@ public class AesUtil {
         return null;
     }
 
-    /**
-     * Generate key.
-     */
-    public static String generateKey(String clientId) {
+
+    private static String generateKey(String clientId) {
         try {
             SecureRandom secureRandom = SecureRandom.getInstance("SHA1PRNG");
             secureRandom.setSeed(clientId.getBytes(StandardCharsets.UTF_8));
@@ -85,7 +83,7 @@ public class AesUtil {
             byte[] byteKey = secretKey.getEncoded();
             return new BASE64Encoder().encode(byteKey);
         } catch (NoSuchAlgorithmException e) {
-            LOGGER.error("Generate keyfail:{}", e.getMessage());
+            LOGGER.error("Generate key fail:{}", e.getMessage());
         }
         return null;
     }

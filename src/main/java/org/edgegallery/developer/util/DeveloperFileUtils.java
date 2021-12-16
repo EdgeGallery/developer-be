@@ -17,16 +17,11 @@
 package org.edgegallery.developer.util;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import org.apache.commons.fileupload.FileItem;
-import org.apache.commons.fileupload.FileItemFactory;
-import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,8 +29,6 @@ import org.slf4j.LoggerFactory;
 public final class DeveloperFileUtils {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DeveloperFileUtils.class);
-
-    private static final int BUFFER_LENGTH = 8192;
 
     private DeveloperFileUtils() {
     }
@@ -56,29 +49,7 @@ public final class DeveloperFileUtils {
      *
      * @param srcDir src
      * @param desDir des
-     * @param name   new name
-     * @return new file
-     * @throws IOException io exception
-     */
-    public static File copyDirAndReName(File srcDir, File desDir, String name) throws IOException {
-        FileUtils.copyDirectoryToDirectory(srcDir, desDir);
-        File src = new File(desDir, srcDir.getName());
-        File res = new File(desDir, name);
-        if (res.exists() && res.isDirectory()) {
-            FileUtils.deleteDirectory(res);
-        }
-        if (src.renameTo(res)) {
-            return res;
-        }
-        throw new IOException("copy template exception");
-    }
-
-    /**
-     * copy template to des dir and rename the dir name.
-     *
-     * @param srcDir src
-     * @param desDir des
-     * @param name   new name
+     * @param name new name
      * @return new file
      * @throws IOException io exception
      */
@@ -102,26 +73,6 @@ public final class DeveloperFileUtils {
                 LOGGER.error("Failed to delete temp file {}", file.getName());
             }
         }
-    }
-
-    /**
-     * createFileItem.
-     *
-     * @return
-     */
-    public static FileItem createFileItem(File file, String fieldName) {
-        FileItemFactory factory = new DiskFileItemFactory(16, null);
-        FileItem item = factory.createItem(fieldName, "text/plain", true, file.getName());
-        int bytesRead = 0;
-        byte[] buffer = new byte[BUFFER_LENGTH];
-        try (FileInputStream fis = FileUtils.openInputStream(file); OutputStream os = item.getOutputStream()) {
-            while ((bytesRead = fis.read(buffer, 0, BUFFER_LENGTH)) != -1) {
-                os.write(buffer, 0, bytesRead);
-            }
-        } catch (IOException e) {
-            LOGGER.error("file to fileItem occur exception {}", e.getMessage());
-        }
-        return item;
     }
 
     /**
@@ -177,13 +128,6 @@ public final class DeveloperFileUtils {
     }
 
     /**
-     * moveFile.
-     */
-    public static void moveFile(File res, File des) throws IOException {
-        FileUtils.moveFile(res, des);
-    }
-
-    /**
      * copyFile.
      */
     public static void copyFile(File res, File des) throws IOException {
@@ -197,19 +141,6 @@ public final class DeveloperFileUtils {
      */
     public static String readFileToString(File file) throws IOException {
         return FileUtils.readFileToString(file, StandardCharsets.UTF_8);
-    }
-
-    /**
-     * deleteAndCreateFile.
-     */
-    public static void deleteAndCreateFile(File fi) throws IOException {
-        if (fi.exists() && fi.isFile()) {
-            FileUtils.deleteQuietly(fi);
-        }
-        boolean isCreated = fi.createNewFile();
-        if (!isCreated) {
-            throw new IOException("Create file error.");
-        }
     }
 
     /**
