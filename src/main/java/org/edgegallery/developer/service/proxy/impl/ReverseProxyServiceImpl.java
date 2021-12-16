@@ -166,7 +166,7 @@ public class ReverseProxyServiceImpl implements ReverseProxyService {
             AppdConstants.NETWORK_NAME_PREFIX + pkgSpec.getSpecifications().getAppdSpecs().getNetworkNameSpecs()
                 .getNetworkNameN6();
         Map<String, String> vmInputParams = InputParameterUtil.getParams(mepHost.getNetworkParameter());
-        String networkName = vmInputParams.getOrDefault("APP_Plane01_Network", defaultNetworkName);
+        String networkName = vmInputParams.getOrDefault("APP_Plane03_Network", defaultNetworkName);
         LOGGER.info("defaultNetworkName:{}, networkName:{}", defaultNetworkName, networkName);
         List<PortInstantiateInfo> portInstantiateInfos = vm.getVmInstantiateInfo().getPortInstanceList();
         String networkIp = "";
