@@ -752,7 +752,7 @@ public final class HttpClientUtil {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);
         headers.add("Cookie", "_xsrf=" + XSRFValue);
-
+        LOGGER.info("send WebSsh request url is {}", basePath);
         HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(formData, headers);
 
         ResponseEntity<String> response;
