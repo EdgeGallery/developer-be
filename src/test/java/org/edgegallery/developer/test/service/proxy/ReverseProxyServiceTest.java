@@ -77,7 +77,7 @@ public class ReverseProxyServiceTest {
                     exchange.close();
                 }
             });
-        httpServer.createContext("/commonservice/cbb/v1/reverseproxies/dest-host-ip/1.1.1.3/dest-host-port/6080",
+        httpServer.createContext("/commonservice/cbb/v1/reverseproxies/dest-host-ip/192.168.1.156/dest-host-port/6080",
             new HttpHandler() {
                 @Override
                 public void handle(HttpExchange exchange) throws IOException {
@@ -128,7 +128,7 @@ public class ReverseProxyServiceTest {
     public void testGetVmConsoleUrlFail2() {
         new MockUp<HttpClientUtil>() {
             @Mock
-            public String getWorkloadStatus(String basePath, String appInstanceId, String userId, String token) {
+            public String getVncUrl(String basePath, String userId, String hostId, String vmId, String token) {
                 return null;
             }
         };
@@ -145,8 +145,8 @@ public class ReverseProxyServiceTest {
     public void testGetVmConsoleUrlFail3() {
         new MockUp<HttpClientUtil>() {
             @Mock
-            public String getWorkloadStatus(String basePath, String appInstanceId, String userId, String token) {
-                return "{\"code\":\"200\",\"msg\":\"success\",\"status\":\"ok\",\"data\":[]}";
+            public String getVncUrl(String basePath, String userId, String hostId, String vmId, String token) {
+                return "{\"console\":{\"type\":\"url\",\"url\":\"localhost:30101\"}}";
             }
         };
         try {
@@ -154,24 +154,7 @@ public class ReverseProxyServiceTest {
             String vmId = "6a75a2bd-9811-432f-bbe8-2813aa97d758";
             proxyService.getVmConsoleUrl(applicationId, vmId, "", "");
         } catch (DeveloperException e) {
-            Assert.assertEquals("failed to get vnc console url", e.getMessage());
-        }
-    }
-
-    @Test
-    public void testGetVmConsoleUrlFail4() {
-        new MockUp<HttpClientUtil>() {
-            @Mock
-            public String getWorkloadStatus(String basePath, String appInstanceId, String userId, String token) {
-                return "{\"code\":\"200\",\"msg\":\"success\",\"status\":\"ok\",\"data\":[{\"vmId\":\"vmId\",\"vncurl\":\"localhost:30101\",\"networks\":[]}]}";
-            }
-        };
-        try {
-            String applicationId = "4cbbab9d-c48f-4adb-ae82-d1816d8edd7b";
-            String vmId = "6a75a2bd-9811-432f-bbe8-2813aa97d758";
-            proxyService.getVmConsoleUrl(applicationId, vmId, "", "");
-        } catch (Exception e) {
-            Assert.assertNotNull(e);
+            Assert.assertEquals("failed to generate proxy url", e.getMessage());
         }
     }
 

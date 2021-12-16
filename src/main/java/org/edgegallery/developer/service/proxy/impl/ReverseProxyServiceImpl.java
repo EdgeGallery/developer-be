@@ -4,6 +4,7 @@ import static org.edgegallery.developer.util.HttpClientUtil.getUrlPrefix;
 
 
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
@@ -20,6 +21,7 @@ import org.edgegallery.developer.model.application.vm.VirtualMachine;
 import org.edgegallery.developer.model.instantiate.vm.PortInstantiateInfo;
 import org.edgegallery.developer.model.instantiate.vm.VMInstantiateInfo;
 import org.edgegallery.developer.model.lcm.ConsoleResponse;
+import org.edgegallery.developer.model.lcm.VmInstantiateWorkload;
 import org.edgegallery.developer.model.resource.mephost.MepHost;
 import org.edgegallery.developer.model.reverseproxy.ReverseProxy;
 import org.edgegallery.developer.model.reverseproxy.SshResponseInfo;
@@ -40,8 +42,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 
 @Service
 public class ReverseProxyServiceImpl implements ReverseProxyService {
@@ -124,12 +124,6 @@ public class ReverseProxyServiceImpl implements ReverseProxyService {
             throw new DeveloperException("failed to get vnc console url");
         }
         String basePath = getUrlPrefix(mepHost.getLcmProtocol(), mepHost.getLcmIp(), mepHost.getLcmPort());
-        String workLoadStatus = HttpClientUtil
-            .getWorkloadStatus(basePath, instantiateInfo.getAppInstanceId(), userId, token);
-        LOGGER.info("get vm workLoad status:{}", workLoadStatus);
-        VmInstantiateWorkload vmInstantiateWorkload = gson.fromJson(workLoadStatus, VmInstantiateWorkload.class);
-        if (vmInstantiateWorkload == null || !Consts.HTTP_STATUS_SUCCESS_STR.equals(vmInstantiateWorkload.getCode())) {
-            LOGGER.error("failed to get vnc console url, http request error happened.");
         String getVncUrlResult = HttpClientUtil
             .getVncUrl(basePath, userId, instantiateInfo.getDistributedMecHost(), instantiateInfo.getVmInstanceId(),
                 token);
@@ -138,8 +132,8 @@ public class ReverseProxyServiceImpl implements ReverseProxyService {
             LOGGER.error("failed to get vnc console url by lcm");
             throw new DeveloperException("failed to get vnc console url");
         }
-        ConsoleResponse consoleResponse = gson.fromJson(getVncUrlResult, new TypeToken<ConsoleResponse>() {
-        }.getType());
+        ConsoleResponse consoleResponse = gson
+            .fromJson(getVncUrlResult, new TypeToken<ConsoleResponse>() { }.getType());
         String vncUrl = consoleResponse.getConsole().getUrl();
         String url = new StringBuffer(getReverseProxyBaseUrl()).append("/dest-host-ip/").append("192.168.1.156")
             .append("/dest-host-port/").append(Consts.DEFAULT_OPENSTACK_VNC_PORT).toString();
@@ -166,8 +160,7 @@ public class ReverseProxyServiceImpl implements ReverseProxyService {
         String password = vm.getVmCertificate().getPwdCertificate().getPassword();
         LOGGER.info("ip:{}", networkIp);
         LOGGER.info("username:{}", username);
-        String basePath = HttpClientUtil
-            .getUrlPrefix("http", mepHost.getLcmIp(), 30209);
+        String basePath = HttpClientUtil.getUrlPrefix("http", mepHost.getLcmIp(), 30209);
         SshResponseInfo sshResponseInfo = HttpClientUtil
             .sendWebSshRequest(basePath, networkIp, 22, username, password, xsrfValue);
         if (sshResponseInfo == null) {
@@ -225,8 +218,8 @@ public class ReverseProxyServiceImpl implements ReverseProxyService {
                     return reverseProxyBaseUrl;
                 }
 
-                reverseProxyBaseUrl = new StringBuffer(protocol).append("://localhost:")
-                    .append(cbbPort).append("/commonservice/cbb/v1/reverseproxies").toString();
+                reverseProxyBaseUrl = new StringBuffer(protocol).append("://localhost:").append(cbbPort)
+                    .append("/commonservice/cbb/v1/reverseproxies").toString();
             }
         } catch (InterruptedException e) {
             LOGGER.error("failed to get the lock", e);
