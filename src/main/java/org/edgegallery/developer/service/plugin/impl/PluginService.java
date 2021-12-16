@@ -18,33 +18,31 @@ package org.edgegallery.developer.service.plugin.impl;
 
 import java.io.IOException;
 import java.io.InputStream;
-
 import javax.ws.rs.core.Response;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.servicecomb.swagger.invocation.exception.InvocationException;
-import org.edgegallery.developer.model.plugin.comment.PluginDownloadRecord;
-import org.edgegallery.developer.util.filechecker.ApiChecker;
-import org.edgegallery.developer.model.plugin.Plugin;
-import org.edgegallery.developer.service.plugin.PluginRepository;
+import org.edgegallery.developer.common.ResponseConsts;
+import org.edgegallery.developer.exception.EntityNotFoundException;
+import org.edgegallery.developer.exception.FileOperateException;
 import org.edgegallery.developer.model.common.User;
-import org.edgegallery.developer.service.plugin.PluginFileService;
 import org.edgegallery.developer.model.plugin.AFile;
+import org.edgegallery.developer.model.plugin.Plugin;
+import org.edgegallery.developer.model.plugin.comment.PluginDownloadRecord;
+import org.edgegallery.developer.model.restful.FormatRespDto;
+import org.edgegallery.developer.service.plugin.PluginFileService;
+import org.edgegallery.developer.service.plugin.PluginRepository;
+import org.edgegallery.developer.util.FileHashCode;
+import org.edgegallery.developer.util.FileUtil;
+import org.edgegallery.developer.util.filechecker.ApiChecker;
 import org.edgegallery.developer.util.filechecker.FileChecker;
 import org.edgegallery.developer.util.filechecker.IconChecker;
 import org.edgegallery.developer.util.filechecker.PluginChecker;
-import org.edgegallery.developer.exception.EntityNotFoundException;
-import org.edgegallery.developer.model.restful.FormatRespDto;
-import org.edgegallery.developer.util.FileHashCode;
-import org.edgegallery.developer.util.FileUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-
-import com.spencerwi.either.Either;
 
 @Service("pluginService")
 public class PluginService {
@@ -169,7 +167,7 @@ public class PluginService {
      * @param pluginId id of plugin
      * @return
      */
-    public Either<FormatRespDto, String> getApiContent(String pluginId) {
+    public String getApiContent(String pluginId) {
         Plugin plugin = pluginRepository.find(pluginId)
             .orElseThrow(() -> new EntityNotFoundException(Plugin.class, pluginId));
         AFile apiFile = plugin.getApiFile();
@@ -178,11 +176,11 @@ public class PluginService {
             if (StringUtils.isNotEmpty(path)) {
                 String content = FileUtil.readFileContent(path);
                 if (StringUtils.isNotEmpty(content)) {
-                    return Either.right(content);
+                    return content;
                 }
             }
         }
-        FormatRespDto error = new FormatRespDto(Response.Status.BAD_REQUEST, "file is empty!");
-        return Either.left(error);
+        LOGGER.error("apiFile is empty!");
+        throw new FileOperateException("read api file failed!", ResponseConsts.RET_READ_FILE_FAIL);
     }
 }

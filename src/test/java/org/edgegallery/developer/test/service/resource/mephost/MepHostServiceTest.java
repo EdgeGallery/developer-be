@@ -155,7 +155,7 @@ public class MepHostServiceTest {
     public void testDeleteHostSuccess() throws Exception {
         try {
             boolean res = mepHostService.deleteHost("fe934a92-1cfc-42fe-919d-422e2e3bd1f8", "token");
-        } catch (NumberFormatException e) {
+        } catch (DeveloperException e) {
             Assert.assertNotNull(e.getMessage());
         }
     }
