@@ -20,6 +20,7 @@ import org.edgegallery.developer.model.instantiate.vm.VMInstantiateInfo;
 import org.edgegallery.developer.model.lcm.ConsoleResponse;
 import org.edgegallery.developer.model.resource.mephost.MepHost;
 import org.edgegallery.developer.model.resource.pkgspec.PkgSpec;
+import org.edgegallery.developer.model.restful.ApplicationDetail;
 import org.edgegallery.developer.model.reverseproxy.ReverseProxy;
 import org.edgegallery.developer.model.reverseproxy.SshResponseInfo;
 import org.edgegallery.developer.service.application.ApplicationService;
@@ -28,6 +29,7 @@ import org.edgegallery.developer.service.application.vm.VMAppVmService;
 import org.edgegallery.developer.service.proxy.ReverseProxyService;
 import org.edgegallery.developer.service.recource.mephost.MepHostService;
 import org.edgegallery.developer.service.recource.pkgspec.PkgSpecService;
+import org.edgegallery.developer.util.AesUtil;
 import org.edgegallery.developer.util.HttpClientUtil;
 import org.edgegallery.developer.util.InputParameterUtil;
 import org.slf4j.Logger;
@@ -76,6 +78,9 @@ public class ReverseProxyServiceImpl implements ReverseProxyService {
 
     @Value("${developer.cbbport:}")
     private String cbbPort;
+
+    @Value("${client.client-id:}")
+    private String clientId;
 
     private String reverseProxyBaseUrl;
 
@@ -192,6 +197,36 @@ public class ReverseProxyServiceImpl implements ReverseProxyService {
         }
         sshResponseInfo.setSshAddress(basePath);
 
+        return sshResponseInfo;
+    }
+
+    @Override
+    public SshResponseInfo getContainerSshResponseInfo(String applicationId, String userId, String xsrfValue) {
+        ApplicationDetail application = applicationService.getApplicationDetail(applicationId);
+        if (application.getContainerApp().getInstantiateInfo() == null) {
+            LOGGER.error("failed to get ssh console url, container instantiate info does not exist.");
+            throw new DeveloperException("failed to get ssh console url");
+        }
+        String hostId = application.getContainerApp().getMepHostId();
+        MepHost mepHost = mepHostService.getHost(hostId);
+        String username = AesUtil.decode(clientId, mepHost.getMecHostUserName());
+        LOGGER.info("port:{}", mepHost.getMecHostPort());
+        LOGGER.info("ip:{}", mepHost.getMecHostIp());
+        LOGGER.info("username:{}", username);
+        String password = AesUtil.decode(clientId, mepHost.getMecHostPassword());
+        String basePath = HttpClientUtil.getUrlPrefix("http", mepHost.getLcmIp(), 30209);
+        SshResponseInfo sshResponseInfo = HttpClientUtil
+            .sendWebSshRequest(basePath, mepHost.getMecHostIp(), mepHost.getMecHostPort(), username, password,
+                xsrfValue);
+        if (sshResponseInfo == null) {
+            LOGGER.error("send WebSsh request fail.");
+            throw new DeveloperException("failed to get ssh console url");
+        }
+        if (StringUtils.isEmpty(sshResponseInfo.getId())) {
+            LOGGER.error(" WebSsh info input error:{}", sshResponseInfo.getStatus());
+            throw new DeveloperException("WebSsh info input error");
+        }
+        sshResponseInfo.setSshAddress(basePath);
         return sshResponseInfo;
     }
 
