@@ -1,5 +1,8 @@
 package org.edgegallery.developer.test.util;
 
+import com.sun.net.httpserver.HttpExchange;
+import com.sun.net.httpserver.HttpHandler;
+import com.sun.net.httpserver.HttpServer;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.InetSocketAddress;
@@ -16,10 +19,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.SpringRunner;
-import com.sun.net.httpserver.HttpExchange;
-import com.sun.net.httpserver.HttpHandler;
-import com.sun.net.httpserver.HttpServer;
 
 @SpringBootTest(classes = DeveloperApplicationTests.class)
 @RunWith(SpringRunner.class)
@@ -36,6 +37,32 @@ public class AppStoreUtilTest {
             public void handle(HttpExchange exchange) throws IOException {
                 String method = exchange.getRequestMethod();
                 if (method.equals("POST")) {
+                    String res = "ok";
+                    byte[] response = res.getBytes();
+                    exchange.sendResponseHeaders(HttpURLConnection.HTTP_OK, response.length);
+                    exchange.getResponseBody().write(response);
+                }
+                exchange.close();
+            }
+        });
+        httpServer.createContext("/mec/appstore/v2/apps/appId/packages/packageId", new HttpHandler() {
+            @Override
+            public void handle(HttpExchange exchange) throws IOException {
+                String method = exchange.getRequestMethod();
+                if (method.equals("GET")) {
+                    String res = "ok";
+                    byte[] response = res.getBytes();
+                    exchange.sendResponseHeaders(HttpURLConnection.HTTP_OK, response.length);
+                    exchange.getResponseBody().write(response);
+                }
+                exchange.close();
+            }
+        });
+        httpServer.createContext("/mec/appstore/v1/apps/appId/packages/packageId/action/download", new HttpHandler() {
+            @Override
+            public void handle(HttpExchange exchange) throws IOException {
+                String method = exchange.getRequestMethod();
+                if (method.equals("GET")) {
                     String res = "ok";
                     byte[] response = res.getBytes();
                     exchange.sendResponseHeaders(HttpURLConnection.HTTP_OK, response.length);
@@ -81,6 +108,18 @@ public class AppStoreUtilTest {
         pubAppReqDto.setPrice(10);
         String result = AppStoreUtil.publishToAppStore("applicationId", "packageId", "", pubAppReqDto);
         Assert.assertEquals("ok", result);
+    }
+
+    @Test
+    public void testGetPkgInfoSuccess() {
+        ResponseEntity<String> ret = AppStoreUtil.getPkgInfo("appId", "packageId", "");
+        Assert.assertEquals("ok", ret.getBody());
+    }
+
+    @Test
+    public void testDownloadPkgSuccess() {
+        ResponseEntity<byte[]> ret = AppStoreUtil.downloadPkg("appId", "packageId", "");
+        Assert.assertNotNull(ret);
     }
 
 }

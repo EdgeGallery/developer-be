@@ -20,11 +20,16 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
+import org.edgegallery.developer.model.application.vm.Network;
+import org.edgegallery.developer.model.apppackage.constant.AppdConstants;
 import org.edgegallery.developer.model.resource.pkgspec.PkgSpec;
 import org.edgegallery.developer.model.resource.pkgspec.PkgSpecConfig;
+import org.edgegallery.developer.model.resource.pkgspec.PkgSpecConstants;
+import org.edgegallery.developer.service.application.vm.VMAppNetworkService;
 import org.edgegallery.developer.service.recource.pkgspec.PkgSpecService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -33,6 +38,9 @@ public class PkgSpecServiceImpl implements PkgSpecService {
     private static final Logger LOGGER = LoggerFactory.getLogger(PkgSpecServiceImpl.class);
 
     private static final String PKG_SPECS_FILE_PATH = "./configs/pkgspecs/pkg_specs.json";
+
+    @Autowired
+    private VMAppNetworkService VMAppNetworkService;
 
     public List<PkgSpec> getPkgSpecs() {
         PkgSpecConfig pkgSpecConfig = null;
@@ -50,16 +58,39 @@ public class PkgSpecServiceImpl implements PkgSpecService {
     }
 
     public PkgSpec getPkgSpecById(String pkgSpecId) {
+        String pkgSpecIdTmp = pkgSpecId;
         if (StringUtils.isEmpty(pkgSpecId)) {
-            return null;
+            pkgSpecIdTmp = PkgSpecConstants.PKG_SPEC_SUPPORT_DYNAMIC_FLAVOR;
         }
         List<PkgSpec> pkgSpecs = getPkgSpecs();
         for (PkgSpec pkgSpec : pkgSpecs) {
-            if (pkgSpec.getId().equals(pkgSpecId)) {
+            if (pkgSpec.getId().equals(pkgSpecIdTmp)) {
                 return pkgSpec;
             }
         }
         return null;
     }
 
+    @Override
+    public List<Network> getNetworkResourceByPkgSpecId(String pkgSpecId) {
+        List<Network> networks = VMAppNetworkService.getAllNetwork("init-application");
+        PkgSpec pkgSpec = getPkgSpecById(pkgSpecId);
+        for (Network network : networks) {
+            network.setName(getDefaultVLName(pkgSpec, network.getName()));
+        }
+        return networks;
+    }
+
+    private String getDefaultVLName(PkgSpec pkgSpec, String networkName) {
+        if (AppdConstants.DEFAULT_NETWORK_INTERNET.equals(networkName)) {
+            return AppdConstants.NETWORK_NAME_PREFIX + pkgSpec.getSpecifications().getAppdSpecs().getNetworkNameSpecs()
+                .getNetworkNameInternet();
+        } else if (AppdConstants.DEFAULT_NETWORK_N6.equals(networkName)) {
+            return AppdConstants.NETWORK_NAME_PREFIX + pkgSpec.getSpecifications().getAppdSpecs().getNetworkNameSpecs()
+                .getNetworkNameN6();
+        } else {
+            return AppdConstants.NETWORK_NAME_PREFIX + pkgSpec.getSpecifications().getAppdSpecs().getNetworkNameSpecs()
+                .getNetworkNameMep();
+        }
+    }
 }
