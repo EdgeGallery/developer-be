@@ -30,6 +30,7 @@ import org.edgegallery.developer.common.Consts;
 import org.edgegallery.developer.exception.CustomException;
 import org.edgegallery.developer.exception.DomainException;
 import org.edgegallery.developer.model.common.Chunk;
+import org.edgegallery.developer.model.lcm.CreateConsole;
 import org.edgegallery.developer.model.lcm.LcmLog;
 import org.edgegallery.developer.model.filesystem.FileSystemResponse;
 import org.edgegallery.developer.model.lcm.DistributeBody;
@@ -318,6 +319,7 @@ public final class HttpClientUtil {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.set(Consts.ACCESS_TOKEN_STR, token);
+
         ResponseEntity<String> response;
         try {
             response = REST_TEMPLATE.exchange(url, HttpMethod.GET, new HttpEntity<>(headers), String.class);
@@ -330,6 +332,43 @@ public final class HttpClientUtil {
             return response.getBody();
         }
         LOGGER.error("Failed to get workload status which appInstanceId is {}", appInstanceId);
+        return null;
+    }
+
+    /**
+     * getWorkloadStatus.
+     *
+     * @return String
+     */
+    public static String getVncUrl(String basePath, String userId, String hostId, String vmId,
+        String token) {
+        String url = basePath + Consts.APP_LCM_GET_VNC_CONSOLE_URL
+            .replaceAll("tenantId", userId).replaceAll("hostId", hostId).replaceAll("vmId", vmId);
+        LOGGER.info("url is {}", url);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.set(Consts.ACCESS_TOKEN_STR, token);
+        //set vncUrl bodys
+        CreateConsole ins = new CreateConsole();
+        ins.setAction("createConsole");
+        LOGGER.warn(gson.toJson(ins));
+        HttpEntity<String> requestEntity = new HttpEntity<>(gson.toJson(ins), headers);
+        LOGGER.warn(url);
+        ResponseEntity<String> response;
+        try {
+            REST_TEMPLATE.setErrorHandler(new CustomResponseErrorHandler());
+            response = REST_TEMPLATE.exchange(url, HttpMethod.POST, requestEntity, String.class);
+            LOGGER.info("APPlCM create console log:{}", response);
+        } catch (RestClientException e) {
+            LOGGER.error("Failed to get vm console which vmId is {} exception {}", vmId,
+                e.getMessage());
+            return null;
+        }
+        if (response.getStatusCode() == HttpStatus.OK) {
+            LcmResponseBody lcmResponseBody = gson.fromJson(response.getBody(), LcmResponseBody.class);
+            return gson.toJson(lcmResponseBody.getData());
+        }
+        LOGGER.error("Failed to get vm console which vmId is {}", vmId);
         return null;
     }
 

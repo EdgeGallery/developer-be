@@ -42,6 +42,9 @@ public final class Consts {
     public static final String APP_LCM_GET_WORKLOAD_EVENTS_URL
         = "/lcmcontroller/v2/tenants/tenantId/app_instances/appInstanceId/workload/events";
 
+    public static final String APP_LCM_GET_VNC_CONSOLE_URL
+        = "/rescontroller/v1/tenants/tenantId/hosts/hostId/servers/vmId";
+
     public static final String APP_LCM_GET_IMAGE_STATUS_URL
         = "/lcmcontroller/v2/tenants/tenantId/app_instances/appInstanceId/images/imageId";
 
