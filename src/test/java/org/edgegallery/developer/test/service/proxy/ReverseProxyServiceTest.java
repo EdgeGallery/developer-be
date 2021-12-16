@@ -77,7 +77,7 @@ public class ReverseProxyServiceTest {
                     exchange.close();
                 }
             });
-        httpServer.createContext("/commonservice/cbb/v1/reverseproxies/dest-host-ip/192.168.1.156/dest-host-port/6080",
+        httpServer.createContext("/commonservice/cbb/v1/reverseproxies/dest-host-ip/1.1.1.3/dest-host-port/6080",
             new HttpHandler() {
                 @Override
                 public void handle(HttpExchange exchange) throws IOException {

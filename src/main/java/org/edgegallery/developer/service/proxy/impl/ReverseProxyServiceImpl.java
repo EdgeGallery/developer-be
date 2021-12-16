@@ -135,7 +135,7 @@ public class ReverseProxyServiceImpl implements ReverseProxyService {
         ConsoleResponse consoleResponse = gson
             .fromJson(getVncUrlResult, new TypeToken<ConsoleResponse>() { }.getType());
         String vncUrl = consoleResponse.getConsole().getUrl();
-        String url = new StringBuffer(getReverseProxyBaseUrl()).append("/dest-host-ip/").append("192.168.1.156")
+        String url = new StringBuffer(getReverseProxyBaseUrl()).append("/dest-host-ip/").append(mepHost.getMecHostIp())
             .append("/dest-host-port/").append(Consts.DEFAULT_OPENSTACK_VNC_PORT).toString();
         String resp = sendHttpRequest(url, token, HttpMethod.GET, null);
         ReverseProxy reverseProxy = gson.fromJson(resp, ReverseProxy.class);
