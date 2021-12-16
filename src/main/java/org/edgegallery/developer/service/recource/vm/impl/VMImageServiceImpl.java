@@ -401,42 +401,11 @@ public class VMImageServiceImpl implements VMImageService {
         LOGGER.info("merge vm image file, imageId = {}, fileName = {}, identifier = {}", imageId, fileName, identifier);
         vmImageMapper.updateVmImageStatus(imageId, EnumVmImageStatus.UPLOADING_MERGING.toString());
 
-        String rootDir = getUploadVmImageRootDir(imageId);
-        String partFilePath = rootDir + identifier;
-        File partFileDir = new File(partFilePath);
-        if (!partFileDir.exists() || !partFileDir.isDirectory()) {
-            LOGGER.error("uploaded part file path not found!");
-            cancelOnRemoteFileServer(identifier);
-            vmImageMapper.updateVmImageStatus(imageId, EnumVmImageStatus.UPLOAD_FAILED.toString());
-            return ResponseEntity.status(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode()).build();
-        }
-
-        File[] partFiles = partFileDir.listFiles();
-        if (partFiles == null || partFiles.length == 0) {
-            LOGGER.error("uploaded part file not found!");
-            cancelOnRemoteFileServer(identifier);
-            vmImageMapper.updateVmImageStatus(imageId, EnumVmImageStatus.UPLOAD_FAILED.toString());
-            return ResponseEntity.status(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode()).build();
-        }
-
-        File mergedFile = new File(rootDir + File.separator + fileName);
-        try (FileOutputStream mergedFileStream = new FileOutputStream(mergedFile, true);) {
-            for (int i = 1; i <= partFiles.length; i++) {
-                File partFile = new File(partFilePath, i + ".part");
-                FileUtils.copyFile(partFile, mergedFileStream);
-                partFile.delete();
-            }
-        } catch (Exception ex) {
-            LOGGER.error("merge local file failed: {}", ex.getMessage());
-            cancelOnRemoteFileServer(identifier);
-            vmImageMapper.updateVmImageStatus(imageId, EnumVmImageStatus.UPLOAD_FAILED.toString());
-            vmImageMapper.updateVmImageErrorType(imageId, EnumProcessErrorType.OPEN_FAILED.getErrorType());
-            cleanWorkDir(mergedFile.getParentFile());
-            return ResponseEntity.status(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode()).build();
-        }
-
         LOGGER.info("delete old vm image on remote server.");
         deleteImageFileOnRemote(imageId);
+        // clean local slice file
+        File partFileDir = new File(getUploadVmImageRootDir(imageId) + identifier);
+        cleanWorkDir(partFileDir);
 
         LOGGER.info("merge on remote file server.");
         String filesystemImageId = mergeOnRemoteFileServer(identifier, fileName);
@@ -446,6 +415,7 @@ public class VMImageServiceImpl implements VMImageService {
             vmImageMapper.updateVmImageErrorType(imageId, EnumProcessErrorType.FILESYSTEM_MERGE_FAILED.getErrorType());
             return ResponseEntity.status(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode()).build();
         }
+
         String uploadedSystemPath =
             fileServerAddress + String.format(Consts.SYSTEM_IMAGE_DOWNLOAD_URL, filesystemImageId);
 
