@@ -29,11 +29,11 @@ public class ReleasedPackageUtilTest {
 
     @Test
     public void testDecompressAppPkgSuccess() throws IOException {
-        File pluginFile = Resources.getResourceAsFile("testdata/bonita-1_download.zip");
+        File pluginFile = Resources.getResourceAsFile("testdata/bonita.zip");
         AppPackage appPackage = new AppPackage();
         String pkgId = UUID.randomUUID().toString();
         appPackage.setId(UUID.randomUUID().toString());
-        appPackage.setPackageFileName("bonita-1_download.zip");
+        appPackage.setPackageFileName("bonita.zip");
         String pkgFilePath = pluginFile.getCanonicalPath();
         if (pkgFilePath.contains("D:")) {
             pkgFilePath = pkgFilePath.substring(2);

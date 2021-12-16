@@ -14,24 +14,24 @@
 
 package org.edgegallery.developer.test.util;
 
-    import com.sun.net.httpserver.HttpExchange;
-    import com.sun.net.httpserver.HttpHandler;
-    import com.sun.net.httpserver.HttpServer;
-    import java.io.File;
-    import java.io.IOException;
-    import java.net.HttpURLConnection;
-    import java.net.InetSocketAddress;
-    import mockit.Mock;
-    import mockit.MockUp;
-    import org.apache.ibatis.io.Resources;
-    import org.edgegallery.developer.filter.security.AccessUserUtil;
-    import org.edgegallery.developer.util.ContainerImageUtil;
-    import org.edgegallery.developer.util.ImageConfig;
-    import org.edgegallery.developer.util.SpringContextUtil;
-    import org.junit.After;
-    import org.junit.Assert;
-    import org.junit.Before;
-    import org.junit.Test;
+import com.sun.net.httpserver.HttpExchange;
+import com.sun.net.httpserver.HttpHandler;
+import com.sun.net.httpserver.HttpServer;
+import java.io.File;
+import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.InetSocketAddress;
+import mockit.Mock;
+import mockit.MockUp;
+import org.apache.ibatis.io.Resources;
+import org.edgegallery.developer.filter.security.AccessUserUtil;
+import org.edgegallery.developer.util.ContainerImageUtil;
+import org.edgegallery.developer.util.ImageConfig;
+import org.edgegallery.developer.util.SpringContextUtil;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 public class ContainerImageUtilTest {
 
@@ -131,11 +131,11 @@ public class ContainerImageUtilTest {
 
     @Test
     public void testGetDockerClient() throws IOException {
-       try {
-           ContainerImageUtil.getDockerClient();
-       }catch (Exception e){
-           Assert.assertNotNull(e.getMessage());
-       }
+        try {
+            ContainerImageUtil.getDockerClient();
+        } catch (Exception e) {
+            Assert.assertNotNull(e.getMessage());
+        }
     }
 
     @Test

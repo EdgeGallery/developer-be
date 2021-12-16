@@ -47,6 +47,11 @@ imagelocation:
   password: ${IMAGE_REPO_PASSWORD:}
   username: ${IMAGE_REPO_USERNAME:}
 
+developer:
+  ip: ${DEVELOPER_IP:}
+  protocol: ${HTTP_PROTOCOL:http}
+  cbbport: 30101
+
 upload:
   path: /usr/app-test/images
   tempPath: /usr/app-test/tmp

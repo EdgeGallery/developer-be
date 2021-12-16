@@ -24,6 +24,8 @@ import org.apache.http.entity.ContentType;
 import org.apache.ibatis.io.Resources;
 import org.apache.servicecomb.swagger.invocation.exception.InvocationException;
 import org.edgegallery.developer.exception.EntityNotFoundException;
+import org.edgegallery.developer.exception.FileFoundFailException;
+import org.edgegallery.developer.exception.IllegalRequestException;
 import org.edgegallery.developer.filter.security.AccessUserUtil;
 import org.edgegallery.developer.model.common.Page;
 import org.edgegallery.developer.model.common.User;
@@ -233,8 +235,19 @@ public class PluginServiceTest {
         try {
             File file = Resources.getResourceAsFile("testdata/face_recognition1.4.csar");
             pluginFileService.get(file.getCanonicalPath(), "TOSCA.meta");
-        } catch (FileNotFoundException e) {
-            Assert.assertEquals("TOSCA.meta not found", e.getMessage());
+        } catch (FileFoundFailException e) {
+            Assert.assertEquals("file not found", e.getMessage());
+        }
+    }
+
+    @Test
+    @WithMockUser(roles = "DEVELOPER_TENANT")
+    public void testGetFileContentFail2() throws Exception {
+        try {
+            File file = Resources.getResourceAsFile("testdata/face_recognition1.4.csar");
+            pluginFileService.get(file.getCanonicalPath(), "TOSCA.m1");
+        } catch (IllegalRequestException e) {
+            Assert.assertEquals("file type error", e.getMessage());
         }
     }
 
