@@ -350,7 +350,7 @@ public class VMAppOperationServiceImpl extends AppOperationServiceImpl implement
     @Override
     public Boolean modifyExportInfo(String vmId, ImageExportInfo imageExportInfo) {
         int res = imageExportInfoMapper.modifyImageExportInfoInfoByVMId(vmId, imageExportInfo);
-        if (res<1) {
+        if (res < 1) {
             LOGGER.warn("modify image export info baseDate fail");
             throw new DataBaseException("modify image export info baseDate fail.", ResponseConsts.RET_CERATE_DATA_FAIL);
         }
@@ -495,13 +495,7 @@ public class VMAppOperationServiceImpl extends AppOperationServiceImpl implement
         String username = vm.getVmCertificate().getPwdCertificate().getUsername();
         String password = vm.getVmCertificate().getPwdCertificate().getPassword();
         List<PortInstantiateInfo> portInstantiateInfos = vmInstantiateInfo.getPortInstanceList();
-        String networkName = "MEC_APP_N6";
-        String networkIp = "";
-        for (PortInstantiateInfo portInstantiateInfo : portInstantiateInfos) {
-            if (portInstantiateInfo.getNetworkName().equals(networkName)) {
-                networkIp = portInstantiateInfo.getIpAddress();
-            }
-        }
+        String networkIp = portInstantiateInfos.get(0).getIpAddress();
         LOGGER.info("network Ip, username is {},{}", networkIp, username);
         // ssh upload file
         String targetPath = "";
