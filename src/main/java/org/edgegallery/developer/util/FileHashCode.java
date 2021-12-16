@@ -40,13 +40,7 @@ public class FileHashCode {
         return md5HashCode32(fis);
     }
 
-    /**
-     * get the file md5 code.
-     *
-     * @param fis fis
-     * @return MD5 code
-     */
-    public static String md5HashCode32(InputStream fis) {
+    private static String md5HashCode32(InputStream fis) {
         try {
             MessageDigest md = MessageDigest.getInstance("MD5");
             byte[] buffer = new byte[1024];

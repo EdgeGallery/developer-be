@@ -16,26 +16,21 @@
 
 package org.edgegallery.developer.util;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.HashMap;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import org.edgegallery.developer.common.Consts;
 import org.edgegallery.developer.exception.CustomException;
-import org.edgegallery.developer.exception.DomainException;
 import org.edgegallery.developer.model.common.Chunk;
-import org.edgegallery.developer.model.lcm.CreateConsole;
-import org.edgegallery.developer.model.lcm.LcmLog;
 import org.edgegallery.developer.model.filesystem.FileSystemResponse;
+import org.edgegallery.developer.model.lcm.CreateConsole;
 import org.edgegallery.developer.model.lcm.DistributeBody;
 import org.edgegallery.developer.model.lcm.DistributeResponse;
 import org.edgegallery.developer.model.lcm.InstantRequest;
+import org.edgegallery.developer.model.lcm.LcmLog;
 import org.edgegallery.developer.model.lcm.LcmResponseBody;
 import org.edgegallery.developer.model.lcm.VmImageRequest;
 import org.edgegallery.developer.model.reverseproxy.SshResponseInfo;
@@ -48,15 +43,11 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 
 public final class HttpClientUtil {
 
@@ -86,8 +77,7 @@ public final class HttpClientUtil {
             return false;
         }
         //parse dis res
-        List<DistributeResponse> list = gson.fromJson(disRes, new TypeToken<List<DistributeResponse>>() {
-        }.getType());
+        List<DistributeResponse> list = gson.fromJson(disRes, new TypeToken<List<DistributeResponse>>() { }.getType());
         String appName = list.get(0).getAppPkgName();
         //set instantiate headers
         HttpHeaders headers = new HttpHeaders();
@@ -311,10 +301,9 @@ public final class HttpClientUtil {
      *
      * @return String
      */
-    public static String getWorkloadStatus(String basePath, String appInstanceId, String userId,
-        String token) {
-        String url = basePath + Consts.APP_LCM_GET_WORKLOAD_STATUS_URL
-            .replaceAll("appInstanceId", appInstanceId).replaceAll("tenantId", userId);
+    public static String getWorkloadStatus(String basePath, String appInstanceId, String userId, String token) {
+        String url = basePath + Consts.APP_LCM_GET_WORKLOAD_STATUS_URL.replaceAll("appInstanceId", appInstanceId)
+            .replaceAll("tenantId", userId);
         LOGGER.info("url is {}", url);
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -340,10 +329,9 @@ public final class HttpClientUtil {
      *
      * @return String
      */
-    public static String getVncUrl(String basePath, String userId, String hostId, String vmId,
-        String token) {
-        String url = basePath + Consts.APP_LCM_GET_VNC_CONSOLE_URL
-            .replaceAll("tenantId", userId).replaceAll("hostId", hostId).replaceAll("vmId", vmId);
+    public static String getVncUrl(String basePath, String userId, String hostId, String vmId, String token) {
+        String url = basePath + Consts.APP_LCM_GET_VNC_CONSOLE_URL.replaceAll("tenantId", userId)
+            .replaceAll("hostId", hostId).replaceAll("vmId", vmId);
         LOGGER.info("url is {}", url);
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -360,8 +348,7 @@ public final class HttpClientUtil {
             response = REST_TEMPLATE.exchange(url, HttpMethod.POST, requestEntity, String.class);
             LOGGER.info("APPlCM create console log:{}", response);
         } catch (RestClientException e) {
-            LOGGER.error("Failed to get vm console which vmId is {} exception {}", vmId,
-                e.getMessage());
+            LOGGER.error("Failed to get vm console which vmId is {} exception {}", vmId, e.getMessage());
             return null;
         }
         if (response.getStatusCode() == HttpStatus.OK) {
@@ -377,10 +364,9 @@ public final class HttpClientUtil {
      *
      * @return String
      */
-    public static String getWorkloadEvents(String basePath, String appInstanceId, String userId,
-        String token) {
-        String url = basePath + Consts.APP_LCM_GET_WORKLOAD_EVENTS_URL
-            .replaceAll("appInstanceId", appInstanceId).replaceAll("tenantId", userId);
+    public static String getWorkloadEvents(String basePath, String appInstanceId, String userId, String token) {
+        String url = basePath + Consts.APP_LCM_GET_WORKLOAD_EVENTS_URL.replaceAll("appInstanceId", appInstanceId)
+            .replaceAll("tenantId", userId);
         LOGGER.info("work event url is {}", url);
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -423,7 +409,6 @@ public final class HttpClientUtil {
     public static String getUrlPrefix(String protocol, String ip, int port) {
         return protocol + "://" + ip + ":" + port;
     }
-
 
     /**
      * vmInstantiateImage.
@@ -494,11 +479,11 @@ public final class HttpClientUtil {
     /**
      * deleteVmImage.
      */
-    public static boolean deleteVmImage(String basePath, String userId, String appInstanceId,
-        String imageId, String token) {
+    public static boolean deleteVmImage(String basePath, String userId, String appInstanceId, String imageId,
+        String token) {
 
-        String url = basePath + Consts.APP_LCM_GET_IMAGE_DELETE_URL
-            .replaceAll("appInstanceId", appInstanceId).replaceAll("tenantId", userId).replaceAll("imageId", imageId);
+        String url = basePath + Consts.APP_LCM_GET_IMAGE_DELETE_URL.replaceAll("appInstanceId", appInstanceId)
+            .replaceAll("tenantId", userId).replaceAll("imageId", imageId);
         LOGGER.info("url is {}", url);
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -520,8 +505,8 @@ public final class HttpClientUtil {
      * slice upload file.
      *
      * @param fileServerAddr File Server Address
-     * @param chunk          File Chunk
-     * @param filePath       File Path
+     * @param chunk File Chunk
+     * @param filePath File Path
      * @return upload result
      */
     public static boolean sliceUploadFile(String fileServerAddr, Chunk chunk, String filePath) {
@@ -562,7 +547,7 @@ public final class HttpClientUtil {
      * cancel slice upload file.
      *
      * @param fileServerAddr File Server Address
-     * @param identifier     File Identifier
+     * @param identifier File Identifier
      * @return cancel result
      */
     public static boolean cancelSliceUpload(String fileServerAddr, String identifier) {
@@ -605,9 +590,9 @@ public final class HttpClientUtil {
      * slice merge file.
      *
      * @param fileServerAddr File Server Address
-     * @param identifier     File Identifier
-     * @param fileName       File Name
-     * @param userId         User ID
+     * @param identifier File Identifier
+     * @param fileName File Name
+     * @param userId User ID
      * @return merge result
      */
     public static String sliceMergeFile(String fileServerAddr, String identifier, String fileName, String userId) {
@@ -730,8 +715,8 @@ public final class HttpClientUtil {
         if (response.getStatusCode() == HttpStatus.OK) {
             LOGGER.info("get image info success, resp = {}", response);
             try {
-                return new ObjectMapper().readValue(
-                    Objects.requireNonNull(response.getBody()).getBytes(), FileSystemResponse.class);
+                return new ObjectMapper()
+                    .readValue(Objects.requireNonNull(response.getBody()).getBytes(), FileSystemResponse.class);
 
             } catch (Exception e) {
                 LOGGER.error("get image info fail from filesystem. {}", e.getMessage());
@@ -742,7 +727,8 @@ public final class HttpClientUtil {
         return null;
     }
 
-    public static SshResponseInfo sendWebSshRequest(String basePath, String hostIp, int port, String username, String password, String XSRFValue) {
+    public static SshResponseInfo sendWebSshRequest(String basePath, String hostIp, int port, String username,
+        String password, String XSRFValue) {
         MultiValueMap<String, Object> formData = new LinkedMultiValueMap<>();
         formData.add("hostname", hostIp);
         formData.add("port", port);
@@ -767,8 +753,8 @@ public final class HttpClientUtil {
         if (response.getStatusCode() == HttpStatus.OK) {
             LOGGER.info("send WebSsh request success, resp = {}", response);
             try {
-                return new ObjectMapper().readValue(
-                    Objects.requireNonNull(response.getBody()).getBytes(), SshResponseInfo.class);
+                return new ObjectMapper()
+                    .readValue(Objects.requireNonNull(response.getBody()).getBytes(), SshResponseInfo.class);
 
             } catch (Exception e) {
                 LOGGER.error("send WebSsh request fail from filesystem. {}", e.getMessage());

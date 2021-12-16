@@ -42,8 +42,6 @@ public final class MepHostUtil {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MepHostUtil.class);
 
-    private static CookieStore cookieStore = new BasicCookieStore();
-
     private static final RestTemplate REST_TEMPLATE = new RestTemplate();
 
     /**

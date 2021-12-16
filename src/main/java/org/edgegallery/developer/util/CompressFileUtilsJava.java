@@ -46,16 +46,6 @@ public class CompressFileUtilsJava {
     }
 
     /**
-     * compressToTgzAndDeleteSrc.
-     */
-    public static File compressToTgzAndDeleteSrc(String sourcePath, String outPutPath, String fileName)
-        throws IOException {
-        File res = compressToTgz(sourcePath, outPutPath, fileName);
-        FileUtils.deleteDirectory(new File(sourcePath));
-        return res;
-    }
-
-    /**
      * zipFiles.
      */
     public static void zipFiles(List<File> srcfile, File zipfile) {
@@ -152,32 +142,6 @@ public class CompressFileUtilsJava {
             }
         }
         return outPutFile;
-    }
-
-    /**
-     * compressToZip.
-     */
-    public static File compressToZip(String resourcesPath, String targetPath, String fileName) throws IOException {
-        File resourcesFile = new File(resourcesPath);
-        File targetFile = new File(targetPath);
-        if (!targetFile.exists()) {
-            boolean isSuccess = targetFile.mkdirs();
-            if (!isSuccess) {
-                throw new IOException("create dir failed!");
-            }
-        }
-
-        FileOutputStream outputStream = new FileOutputStream(targetPath + File.separator + fileName + ".zip");
-        ZipOutputStream out = new ZipOutputStream(new BufferedOutputStream(outputStream));
-
-        createCompressedFile(out, resourcesFile, resourcesFile.getName());
-
-        out.close();
-        File zip = new File(targetPath + File.separator + fileName + ".zip");
-        if (zip.exists()) {
-            return zip;
-        }
-        throw new IOException("zip not find");
     }
 
     private static File pack(String sourcePath) throws IOException {
