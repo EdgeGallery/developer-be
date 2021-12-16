@@ -55,7 +55,7 @@ public class MepHost {
 
     private String mecHostPassword;
 
-    private int mecHostPort;
+    private int mecHostPort = 22;
 
     private String userId;
 

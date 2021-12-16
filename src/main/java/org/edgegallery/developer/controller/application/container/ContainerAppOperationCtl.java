@@ -20,13 +20,17 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.Pattern;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
+import org.edgegallery.developer.exception.DeveloperException;
 import org.edgegallery.developer.filter.security.AccessUserUtil;
 import org.edgegallery.developer.model.common.User;
 import org.edgegallery.developer.model.restful.OperationInfoRep;
 import org.edgegallery.developer.model.restful.ErrorRespDto;
+import org.edgegallery.developer.model.reverseproxy.SshResponseInfo;
 import org.edgegallery.developer.service.application.container.ContainerAppOperationService;
+import org.edgegallery.developer.service.proxy.ReverseProxyService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -48,6 +52,9 @@ public class ContainerAppOperationCtl {
     @Autowired
     private ContainerAppOperationService containerAppOperationService;
 
+    @Autowired
+    private ReverseProxyService reverseProxyService;
+
     /**
      * instantiate a container app.
      */
@@ -65,6 +72,34 @@ public class ContainerAppOperationCtl {
         User user = AccessUserUtil.getUser();
         OperationInfoRep result = containerAppOperationService.instantiateContainerApp(applicationId, user);
         return ResponseEntity.ok(result);
+    }
+
+    /**
+     * get ssh info.
+     */
+    @ApiOperation(value = "get ssh url", response = SshResponseInfo.class)
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = "OK", response = SshResponseInfo.class),
+        @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
+    })
+    @RequestMapping(value = "/{applicationId}/containers/action/ssh", method = RequestMethod.GET)
+    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
+    public ResponseEntity getContainerSshInfo(
+        @ApiParam(value = "applicationId", required = true) @PathVariable("applicationId") String applicationId, HttpServletRequest request) {
+
+        String[] cookies = request.getHeader("Cookie").split(";");
+        String xsrfValue="";
+        for (String cookie:cookies) {
+            if (cookie.contains("XSRF-TOKEN")){
+                xsrfValue = cookie.split("=")[1];
+            }
+        }
+        if (xsrfValue.equals("")) {
+            throw new DeveloperException("failed to get XSRF-TOKEN by cookie");
+        }
+        SshResponseInfo sshResponseInfo = reverseProxyService.getContainerSshResponseInfo(applicationId, AccessUserUtil.getUserId(),
+            xsrfValue);
+        return ResponseEntity.ok(sshResponseInfo);
     }
 
 }

@@ -27,4 +27,6 @@ public interface ReverseProxyService {
     String getVmConsoleUrl(String applicationId, String vmId, String userId, String token);
 
     SshResponseInfo getVmSshResponseInfo(String applicationId, String vmId, String userId, String xsrfValue);
+
+    SshResponseInfo getContainerSshResponseInfo(String applicationId, String userId, String xsrfValue);
 }
