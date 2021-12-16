@@ -167,7 +167,7 @@ public class ReverseProxyServiceImpl implements ReverseProxyService {
         LOGGER.info("ip:{}", networkIp);
         LOGGER.info("username:{}", username);
         String basePath = HttpClientUtil
-            .getUrlPrefix(mepHost.getLcmProtocol(), mepHost.getLcmIp(), 30209);
+            .getUrlPrefix("http", mepHost.getLcmIp(), 30209);
         SshResponseInfo sshResponseInfo = HttpClientUtil
             .sendWebSshRequest(basePath, networkIp, 22, username, password, xsrfValue);
         if (sshResponseInfo == null) {
