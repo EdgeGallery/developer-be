@@ -42,9 +42,6 @@ public class ContainerAppOperationCtlTest {
     @Autowired
     private ContainerAppOperationService operationService;
 
-    // @MockBean
-    // private AppOperationServiceImpl appOperationService;
-
     @Autowired
     private MockMvc mvc;
 
