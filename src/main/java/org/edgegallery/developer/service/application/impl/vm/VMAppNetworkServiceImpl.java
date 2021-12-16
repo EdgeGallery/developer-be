@@ -16,6 +16,7 @@
 
 package org.edgegallery.developer.service.application.impl.vm;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 import org.edgegallery.developer.common.ResponseConsts;
@@ -25,6 +26,7 @@ import org.edgegallery.developer.mapper.application.vm.NetworkMapper;
 import org.edgegallery.developer.model.application.vm.Network;
 import org.edgegallery.developer.model.application.vm.VMPort;
 import org.edgegallery.developer.model.application.vm.VirtualMachine;
+import org.edgegallery.developer.model.apppackage.constant.AppdConstants;
 import org.edgegallery.developer.service.application.vm.VMAppNetworkService;
 import org.edgegallery.developer.service.application.vm.VMAppVmService;
 import org.slf4j.Logger;
@@ -55,7 +57,16 @@ public class VMAppNetworkServiceImpl implements VMAppNetworkService {
 
     @Override
     public List<Network> getAllNetwork(String applicationId) {
-        return networkMapper.getNetworkByAppId(applicationId);
+        List<Network> networks = networkMapper.getNetworkByAppId(applicationId);
+        networks.sort(new Comparator<Network>() {
+            @Override
+            public int compare(Network o1, Network o2) {
+                int index1 = AppdConstants.NETWORK_NAME_SORTED_LIST.indexOf(o1.getName());
+                int index2 = AppdConstants.NETWORK_NAME_SORTED_LIST.indexOf(o2.getName());
+                return index1 - index2;
+            }
+        });
+        return networks;
     }
 
     @Override
@@ -91,7 +102,7 @@ public class VMAppNetworkServiceImpl implements VMAppNetworkService {
     public boolean deleteNetworkByAppId(String applicationId) {
         //check network used by port
         List<Network> networks = networkMapper.getNetworkByAppId(applicationId);
-        if(networks.isEmpty()){
+        if (networks.isEmpty()) {
             return true;
         }
         List<VirtualMachine> vms = vmAppVmService.getAllVm(applicationId);

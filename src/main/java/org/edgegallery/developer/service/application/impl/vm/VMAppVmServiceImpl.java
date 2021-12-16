@@ -16,6 +16,8 @@
 
 package org.edgegallery.developer.service.application.impl.vm;
 
+import com.google.gson.Gson;
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 import org.edgegallery.developer.common.ResponseConsts;
@@ -26,6 +28,7 @@ import org.edgegallery.developer.model.application.EnumApplicationStatus;
 import org.edgegallery.developer.model.application.vm.EnumVMStatus;
 import org.edgegallery.developer.model.application.vm.VMPort;
 import org.edgegallery.developer.model.application.vm.VirtualMachine;
+import org.edgegallery.developer.model.apppackage.constant.AppdConstants;
 import org.edgegallery.developer.service.application.ApplicationService;
 import org.edgegallery.developer.service.application.vm.VMAppOperationService;
 import org.edgegallery.developer.service.application.vm.VMAppVmService;
@@ -34,7 +37,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
-import com.google.gson.Gson;
 
 @Service("vmAppVmService")
 public class VMAppVmServiceImpl implements VMAppVmService {
@@ -80,7 +82,7 @@ public class VMAppVmServiceImpl implements VMAppVmService {
         for (VirtualMachine virtualMachine : virtualMachines) {
             virtualMachine.setVmInstantiateInfo(vmAppOperationService.getInstantiateInfo(virtualMachine.getId()));
             virtualMachine.setImageExportInfo(vmAppOperationService.getImageExportInfo(virtualMachine.getId()));
-            virtualMachine.setPortList(vmMapper.getAllVMPortsByVMId(virtualMachine.getId()));
+            virtualMachine.setPortList(getPortList(virtualMachine.getId()));
             virtualMachine.setVmCertificate(vmMapper.getVMCertificate(virtualMachine.getId()));
         }
         return virtualMachines;
@@ -94,7 +96,7 @@ public class VMAppVmServiceImpl implements VMAppVmService {
             throw new EntityNotFoundException("vm is not exit.", ResponseConsts.RET_QUERY_DATA_EMPTY);
         }
         virtualMachine.setVmCertificate(vmMapper.getVMCertificate(vmId));
-        virtualMachine.setPortList(vmMapper.getAllVMPortsByVMId(vmId));
+        virtualMachine.setPortList(getPortList(vmId));
         virtualMachine.setImageExportInfo(vmAppOperationService.getImageExportInfo(virtualMachine.getId()));
         virtualMachine.setVmInstantiateInfo(vmAppOperationService.getInstantiateInfo(virtualMachine.getId()));
         return virtualMachine;
@@ -123,7 +125,7 @@ public class VMAppVmServiceImpl implements VMAppVmService {
         if (CollectionUtils.isEmpty(virtualMachines)) {
             return;
         }
-        for (VirtualMachine virtualMachine: virtualMachines) {
+        for (VirtualMachine virtualMachine : virtualMachines) {
             deleteVm(applicationId, virtualMachine.getId());
         }
     }
@@ -148,7 +150,6 @@ public class VMAppVmServiceImpl implements VMAppVmService {
         return true;
     }
 
-
     public int createVmPort(String vmId, VMPort port) {
         port.setId(UUID.randomUUID().toString());
         int res = vmMapper.createVMPort(vmId, port);
@@ -157,5 +158,18 @@ public class VMAppVmServiceImpl implements VMAppVmService {
             throw new DataBaseException("Create VMPort in db error.", ResponseConsts.RET_CERATE_DATA_FAIL);
         }
         return res;
+    }
+
+    private List<VMPort> getPortList(String vmId) {
+        List<VMPort> ports = vmMapper.getAllVMPortsByVMId(vmId);
+        ports.sort(new Comparator<VMPort>() {
+            @Override
+            public int compare(VMPort o1, VMPort o2) {
+                int index1 = AppdConstants.NETWORK_NAME_SORTED_LIST.indexOf(o1.getNetworkName());
+                int index2 = AppdConstants.NETWORK_NAME_SORTED_LIST.indexOf(o2.getNetworkName());
+                return index1 - index2;
+            }
+        });
+        return ports;
     }
 }

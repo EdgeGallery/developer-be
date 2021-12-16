@@ -14,6 +14,9 @@
 
 package org.edgegallery.developer.model.apppackage.constant;
 
+import java.util.Arrays;
+import java.util.List;
+
 public class AppdConstants {
 
     public static final String VNF_NODE_NAME = "Simple_VNF";
@@ -23,6 +26,9 @@ public class AppdConstants {
     public static final String PORT_VNIC_NAME_PREFIX = "eth";
 
     public static final String NETWORK_NAME_PREFIX = "MEC_";
+
+    public static final List<String> NETWORK_NAME_SORTED_LIST = Arrays.asList("MEC_APP_N6", "MEC_APP_Private",
+        "MEC_APP_Internet", "MEC_APP_Public", "MEC_APP_MP1");
 
     public static final String DEFAULT_NETWORK_INTERNET = "MEC_APP_Public";
 

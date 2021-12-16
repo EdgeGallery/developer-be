@@ -269,7 +269,7 @@ public class ReleasedPackageServiceTest extends AbstractJUnit4SpringContextTests
         try {
             ReleasedPkgFileContentReqDto reqDto = new ReleasedPkgFileContentReqDto();
             reqDto.setFilePath("/test");
-            releasedPackageService.getAppPkgFileContent(reqDto, "f2759fcb-bb4b-42f5-bc6c-8e1635348fdb");
+            releasedPackageService.getAppPkgFileContent(reqDto, "f2759fcb-bb4b-42f5-bc6c-8e1635348fdc");
         } catch (FileFoundFailException e) {
             Assert.assertEquals("app pkg not decompress", e.getMessage());
         }
@@ -296,7 +296,7 @@ public class ReleasedPackageServiceTest extends AbstractJUnit4SpringContextTests
     @Test
     public void testEditAppPkgFileContentFail2() throws IOException {
         try {
-            releasedPackageService.editAppPkgFileContent(null, "f2759fcb-bb4b-42f5-bc6c-8e1635348fdb");
+            releasedPackageService.editAppPkgFileContent(null, "f2759fcb-bb4b-42f5-bc6c-8e1635348fdc");
         } catch (IllegalRequestException e) {
             Assert.assertEquals("releasedPkgFileContent is null", e.getMessage());
         }
@@ -308,7 +308,7 @@ public class ReleasedPackageServiceTest extends AbstractJUnit4SpringContextTests
             ReleasedPkgFileContent reqDto = new ReleasedPkgFileContent();
             reqDto.setFilePath("/test");
             reqDto.setContent("ss");
-            releasedPackageService.editAppPkgFileContent(reqDto, "f2759fcb-bb4b-42f5-bc6c-8e1635348fdb");
+            releasedPackageService.editAppPkgFileContent(reqDto, "f2759fcb-bb4b-42f5-bc6c-8e1635348fdc");
         } catch (FileFoundFailException e) {
             Assert.assertEquals("app pkg decompress dir was not found", e.getMessage());
         }
@@ -359,7 +359,7 @@ public class ReleasedPackageServiceTest extends AbstractJUnit4SpringContextTests
     public void testReleaseAppPkgFail2() throws IOException {
         try {
             User user = new User("userId", "userName", "userAuth");
-            releasedPackageService.releaseAppPkg(user, new PublishAppReqDto(), "f2759fcb-bb4b-42f5-bc6c-8e1635348fdb");
+            releasedPackageService.releaseAppPkg(user, new PublishAppReqDto(), "f2759fcb-bb4b-42f5-bc6c-8e1635348fdc");
         } catch (FileFoundFailException e) {
             Assert.assertEquals("can not found app package(.csar)", e.getMessage());
         }

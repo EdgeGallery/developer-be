@@ -306,6 +306,27 @@ public class HttpClientUtilTest {
             }
         });
 
+        httpServer.createContext(Consts.APP_LCM_GET_VNC_CONSOLE_URL, new HttpHandler() {
+            @Override
+            public void handle(HttpExchange exchange) throws IOException {
+                String method = exchange.getRequestMethod();
+                if (method.equals("POST")) {
+                    String jsonStr = null;
+                    try {
+                        File file = Resources.getResourceAsFile("testdata/json/package_upload.json");
+                        jsonStr = FileUtils.readFileToString(file, StandardCharsets.UTF_8);
+
+                    } catch (IOException e) {
+                        LOGGER.error("Load the mock json data for getDistributeRes failed.");
+                    }
+                    byte[] response = jsonStr.getBytes();
+                    exchange.sendResponseHeaders(HttpURLConnection.HTTP_OK, response.length);
+                    exchange.getResponseBody().write(response);
+                }
+                exchange.close();
+            }
+        });
+
         httpServer.start();
     }
 
@@ -447,6 +468,13 @@ public class HttpClientUtilTest {
     public void testQueryImageCheckSuccess() {
         FileSystemResponse result = HttpClientUtil
             .queryImageCheck(LCM_URL + String.format(Consts.SYSTEM_IMAGE_GET_URL, IMAGE_ID));
+        Assert.assertNotNull(result);
+    }
+
+    @Test
+    public void testGetVncUrlSuccess() {
+        String result = HttpClientUtil
+            .getVncUrl(LCM_URL, "tenantId", "hostId", "vmId","");
         Assert.assertNotNull(result);
     }
 
