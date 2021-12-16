@@ -78,18 +78,6 @@ public class ReleasedPackageServiceTest extends AbstractJUnit4SpringContextTests
         request = new MockHttpServletRequest();
         request.setCharacterEncoding("UTF-8");
         SpringContextUtil.setApplicationContext(applicationContext);
-        // new MockUp<AppStoreUtil>() {
-        //     @Mock
-        //     public ResponseEntity<String> getPkgInfo(String appId, String pkgId, String token) {
-        //         return null;
-        //     }
-        //
-        //     @Mock
-        //     public ResponseEntity<byte[]> downloadPkg(String appId, String pkgId, String token) {
-        //         return null;
-        //     }
-        // };
-
     }
 
     @Test
