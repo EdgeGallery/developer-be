@@ -51,8 +51,7 @@ public class AccessTokenFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
         throws ServletException, IOException {
-        if (request.getRequestURI() == null || !(request.getRequestURI().equals("/health") || request.getRequestURI()
-            .equals("/webssh"))) {
+        if (request.getRequestURI() == null || !(request.getRequestURI().equals("/health"))) {
             String accessTokenStr = request.getHeader(Consts.ACCESS_TOKEN_STR);
             if (StringUtils.isEmpty(accessTokenStr)) {
                 LOGGER.error("Access token is empty");
