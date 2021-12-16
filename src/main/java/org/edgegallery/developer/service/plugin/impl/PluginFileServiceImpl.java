@@ -40,23 +40,23 @@ import org.springframework.web.multipart.MultipartFile;
 
 public class PluginFileServiceImpl implements PluginFileService {
 
-    public static final Logger LOGGER = LoggerFactory.getLogger(PluginFileService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(PluginFileServiceImpl.class);
 
-    public static final String PLUGIN_DIR = InitConfigUtil.getWorkSpaceBaseDir() + BusinessConfigUtil.getPluginPath();
+    private static final String PLUGIN_DIR = InitConfigUtil.getWorkSpaceBaseDir() + BusinessConfigUtil.getPluginPath();
 
-    public static final String PACKAGE_XML_FORMAT = ".xml";
+    private static final String PACKAGE_XML_FORMAT = ".xml";
 
-    public static final String PACKAGE_YAML_FORMAT = ".yaml";
+    private static final String PACKAGE_YAML_FORMAT = ".yaml";
 
-    public static final String PACKAGE_CSH_FORMAT = ".csh";
+    private static final String PACKAGE_CSH_FORMAT = ".csh";
 
-    public static final String PACKAGE_META_FORMAT = ".meta";
+    private static final String PACKAGE_META_FORMAT = ".meta";
 
-    public static final String PACKAGE_TXT_FORMAT = ".txt";
+    private static final String PACKAGE_TXT_FORMAT = ".txt";
 
-    public static final String MANIFEST = ".mf";
+    private static final String MANIFEST = ".mf";
 
-    public static final String MARKDOWN = ".md";
+    private static final String MARKDOWN = ".md";
 
     private String generateFileName() {
         String random = UUID.randomUUID().toString();
@@ -96,7 +96,7 @@ public class PluginFileServiceImpl implements PluginFileService {
         try {
             java.nio.file.Files.deleteIfExists(Paths.get(afile.getStorageAddress()));
         } catch (IOException e) {
-            LOGGER.error("delete file error", e.getMessage());
+            LOGGER.error("delete file error {}", e.getMessage());
         }
     }
 
@@ -107,11 +107,11 @@ public class PluginFileServiceImpl implements PluginFileService {
      * @param file file path in package.
      * @return
      */
-    public static String getCsarFileContentByName(String filePath, String file) throws IOException {
+    private static String getCsarFileContentByName(String filePath, String file) throws IOException {
         String type = file.toLowerCase();
-        if (!(type.endsWith(MANIFEST) || type.endsWith(MARKDOWN) || type.endsWith(PACKAGE_XML_FORMAT) || type.endsWith(
-            PACKAGE_YAML_FORMAT) || type.endsWith(PACKAGE_CSH_FORMAT) || type.endsWith(PACKAGE_META_FORMAT)
-            || type.endsWith(PACKAGE_TXT_FORMAT))) {
+        if (!(type.endsWith(MANIFEST) || !type.endsWith(MARKDOWN) || !type.endsWith(PACKAGE_XML_FORMAT) || !type.endsWith(
+            PACKAGE_YAML_FORMAT) || !type.endsWith(PACKAGE_CSH_FORMAT) || !type.endsWith(PACKAGE_META_FORMAT)
+            || !type.endsWith(PACKAGE_TXT_FORMAT))) {
             LOGGER.error("file type error");
             throw new IllegalArgumentException();
         }
