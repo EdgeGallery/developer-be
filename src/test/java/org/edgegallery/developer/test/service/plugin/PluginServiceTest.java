@@ -16,27 +16,28 @@ package org.edgegallery.developer.test.service.plugin;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Date;
 import org.apache.http.entity.ContentType;
 import org.apache.ibatis.io.Resources;
 import org.apache.servicecomb.swagger.invocation.exception.InvocationException;
-import org.edgegallery.developer.test.DeveloperApplicationTests;
-import org.edgegallery.developer.service.plugin.impl.PluginService;
+import org.edgegallery.developer.exception.EntityNotFoundException;
 import org.edgegallery.developer.filter.security.AccessUserUtil;
-import org.edgegallery.developer.util.filechecker.ApiChecker;
-import org.edgegallery.developer.model.plugin.Plugin;
+import org.edgegallery.developer.model.common.Page;
 import org.edgegallery.developer.model.common.User;
-import org.edgegallery.developer.service.plugin.PluginFileService;
 import org.edgegallery.developer.model.plugin.AFile;
+import org.edgegallery.developer.model.plugin.Plugin;
+import org.edgegallery.developer.model.plugin.PluginDto;
+import org.edgegallery.developer.service.plugin.PluginFileService;
+import org.edgegallery.developer.service.plugin.impl.PluginService;
+import org.edgegallery.developer.service.plugin.impl.PluginServiceFacade;
+import org.edgegallery.developer.test.DeveloperApplicationTests;
+import org.edgegallery.developer.util.filechecker.ApiChecker;
 import org.edgegallery.developer.util.filechecker.FileChecker;
 import org.edgegallery.developer.util.filechecker.IconChecker;
-import org.edgegallery.developer.model.common.Page;
 import org.edgegallery.developer.util.filechecker.PluginChecker;
-import org.edgegallery.developer.exception.EntityNotFoundException;
-import org.edgegallery.developer.service.plugin.impl.PluginServiceFacade;
-import org.edgegallery.developer.model.plugin.PluginDto;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -142,7 +143,8 @@ public class PluginServiceTest {
         upload();
         InputStream stream = pluginServiceFacade.downloadFile("b7370981-f199-4bf1-9814-30c3ea48b1d9");
         Assert.assertNotNull(stream);
-        pluginServiceFacade.deleteByPluginId("b7370981-f199-4bf1-9814-30c3ea48b1d9", "b7370981-f199-4bf1-9814-30c3ea48b1d8");
+        pluginServiceFacade
+            .deleteByPluginId("b7370981-f199-4bf1-9814-30c3ea48b1d9", "b7370981-f199-4bf1-9814-30c3ea48b1d8");
     }
 
     @Test
@@ -151,7 +153,8 @@ public class PluginServiceTest {
         upload();
         InputStream stream = pluginServiceFacade.downloadLogo("b7370981-f199-4bf1-9814-30c3ea48b1d9");
         Assert.assertNotNull(stream);
-        pluginServiceFacade.deleteByPluginId("b7370981-f199-4bf1-9814-30c3ea48b1d9", "b7370981-f199-4bf1-9814-30c3ea48b1d8");
+        pluginServiceFacade
+            .deleteByPluginId("b7370981-f199-4bf1-9814-30c3ea48b1d9", "b7370981-f199-4bf1-9814-30c3ea48b1d8");
     }
 
     @Test
@@ -160,7 +163,8 @@ public class PluginServiceTest {
         upload();
         InputStream stream = pluginServiceFacade.downloadApiFile("b7370981-f199-4bf1-9814-30c3ea48b1d9");
         Assert.assertNotNull(stream);
-        pluginServiceFacade.deleteByPluginId("b7370981-f199-4bf1-9814-30c3ea48b1d9", "b7370981-f199-4bf1-9814-30c3ea48b1d8");
+        pluginServiceFacade
+            .deleteByPluginId("b7370981-f199-4bf1-9814-30c3ea48b1d9", "b7370981-f199-4bf1-9814-30c3ea48b1d8");
     }
 
     @Test
@@ -223,6 +227,25 @@ public class PluginServiceTest {
         }
     }
 
+    @Test
+    @WithMockUser(roles = "DEVELOPER_TENANT")
+    public void testGetFileContentFail() throws Exception {
+        try {
+            File file = Resources.getResourceAsFile("testdata/face_recognition1.4.csar");
+            pluginFileService.get(file.getCanonicalPath(), "TOSCA.meta");
+        } catch (FileNotFoundException e) {
+            Assert.assertEquals("TOSCA.meta not found", e.getMessage());
+        }
+    }
 
+    @Test
+    @WithMockUser(roles = "DEVELOPER_TENANT")
+    public void testGetFileContentSuccess() throws Exception {
+        File file = Resources.getResourceAsFile("testdata/face_recognition1.4.csar");
+        String content = pluginFileService
+            .get(file.getCanonicalPath(), "face_reconigition_app/Artifacts/Docs/face_recognition.md");
+        Assert.assertNotNull(content);
+
+    }
 
 }
