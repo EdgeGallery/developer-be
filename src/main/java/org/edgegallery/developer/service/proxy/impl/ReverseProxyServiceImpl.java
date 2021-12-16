@@ -2,10 +2,8 @@ package org.edgegallery.developer.service.proxy.impl;
 
 import static org.edgegallery.developer.util.HttpClientUtil.getUrlPrefix;
 
-
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -14,21 +12,24 @@ import java.util.regex.Pattern;
 import org.apache.commons.lang3.StringUtils;
 import org.edgegallery.developer.common.Consts;
 import org.edgegallery.developer.exception.DeveloperException;
-import org.edgegallery.developer.mapper.application.ApplicationMapper;
-import org.edgegallery.developer.mapper.resource.mephost.MepHostMapper;
 import org.edgegallery.developer.model.application.Application;
 import org.edgegallery.developer.model.application.vm.VirtualMachine;
+import org.edgegallery.developer.model.apppackage.constant.AppdConstants;
 import org.edgegallery.developer.model.instantiate.vm.PortInstantiateInfo;
 import org.edgegallery.developer.model.instantiate.vm.VMInstantiateInfo;
 import org.edgegallery.developer.model.lcm.ConsoleResponse;
-import org.edgegallery.developer.model.lcm.VmInstantiateWorkload;
 import org.edgegallery.developer.model.resource.mephost.MepHost;
+import org.edgegallery.developer.model.resource.pkgspec.PkgSpec;
 import org.edgegallery.developer.model.reverseproxy.ReverseProxy;
 import org.edgegallery.developer.model.reverseproxy.SshResponseInfo;
+import org.edgegallery.developer.service.application.ApplicationService;
 import org.edgegallery.developer.service.application.vm.VMAppOperationService;
 import org.edgegallery.developer.service.application.vm.VMAppVmService;
 import org.edgegallery.developer.service.proxy.ReverseProxyService;
+import org.edgegallery.developer.service.recource.mephost.MepHostService;
+import org.edgegallery.developer.service.recource.pkgspec.PkgSpecService;
 import org.edgegallery.developer.util.HttpClientUtil;
+import org.edgegallery.developer.util.InputParameterUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,6 +43,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 @Service
 public class ReverseProxyServiceImpl implements ReverseProxyService {
@@ -49,16 +52,19 @@ public class ReverseProxyServiceImpl implements ReverseProxyService {
     private static final Logger LOGGER = LoggerFactory.getLogger(ReverseProxyService.class);
 
     @Autowired
-    private MepHostMapper mepHostMapper;
+    private MepHostService mepHostService;
 
     @Autowired
-    private ApplicationMapper applicationMapper;
+    private ApplicationService applicationService;
 
     @Autowired
     private VMAppOperationService vmAppOperationService;
 
     @Autowired
     private VMAppVmService vmAppVmService;
+
+    @Autowired
+    private PkgSpecService pkgSpecService;
 
     private static Gson gson = new Gson();
 
@@ -85,7 +91,7 @@ public class ReverseProxyServiceImpl implements ReverseProxyService {
      */
     @Override
     public void addReverseProxy(String hostId, int hostConsolePort, String token) {
-        MepHost mepHost = mepHostMapper.getHost(hostId);
+        MepHost mepHost = mepHostService.getHost(hostId);
         String mecHostIp = mepHost.getMecHostIp();
         String lcmIp = mepHost.getLcmIp();
         String nextHopProtocol = null;
@@ -104,7 +110,7 @@ public class ReverseProxyServiceImpl implements ReverseProxyService {
 
     @Override
     public void deleteReverseProxy(String hostId, int hostConsolePort, String token) {
-        MepHost mepHost = mepHostMapper.getHost(hostId);
+        MepHost mepHost = mepHostService.getHost(hostId);
         String mecHostIp = mepHost.getMecHostIp();
         String url = new StringBuffer(getReverseProxyBaseUrl()).append("/dest-host-ip/").append(mecHostIp)
             .append("/dest-host-port/").append(hostConsolePort).toString();
@@ -115,9 +121,9 @@ public class ReverseProxyServiceImpl implements ReverseProxyService {
 
     @Override
     public String getVmConsoleUrl(String applicationId, String vmId, String userId, String token) {
-        Application application = applicationMapper.getApplicationById(applicationId);
+        Application application = applicationService.getApplication(applicationId);
         String hostId = application.getMepHostId();
-        MepHost mepHost = mepHostMapper.getHost(hostId);
+        MepHost mepHost = mepHostService.getHost(hostId);
         VMInstantiateInfo instantiateInfo = vmAppOperationService.getInstantiateInfo(vmId);
         if (instantiateInfo == null) {
             LOGGER.error("failed to get vnc console url, instantiate info does not exist.");
@@ -133,7 +139,8 @@ public class ReverseProxyServiceImpl implements ReverseProxyService {
             throw new DeveloperException("failed to get vnc console url");
         }
         ConsoleResponse consoleResponse = gson
-            .fromJson(getVncUrlResult, new TypeToken<ConsoleResponse>() { }.getType());
+            .fromJson(getVncUrlResult, new TypeToken<ConsoleResponse>() {
+            }.getType());
         String vncUrl = consoleResponse.getConsole().getUrl();
         String url = new StringBuffer(getReverseProxyBaseUrl()).append("/dest-host-ip/").append(mepHost.getMecHostIp())
             .append("/dest-host-port/").append(Consts.DEFAULT_OPENSTACK_VNC_PORT).toString();
@@ -145,17 +152,29 @@ public class ReverseProxyServiceImpl implements ReverseProxyService {
 
     @Override
     public SshResponseInfo getVmSshResponseInfo(String applicationId, String vmId, String userId, String xsrfValue) {
-        Application application = applicationMapper.getApplicationById(applicationId);
+        Application application = applicationService.getApplication(applicationId);
         String hostId = application.getMepHostId();
-        MepHost mepHost = mepHostMapper.getHost(hostId);
+        MepHost mepHost = mepHostService.getHost(hostId);
         VirtualMachine vm = vmAppVmService.getVm(applicationId, vmId);
         if (vm.getVmInstantiateInfo() == null) {
             LOGGER.error("failed to get ssh console url, instantiate info does not exist.");
             throw new DeveloperException("failed to get ssh console url");
         }
 
+        PkgSpec pkgSpec = pkgSpecService.getPkgSpecById(application.getPkgSpecId());
+        String defaultNetworkName =
+            AppdConstants.NETWORK_NAME_PREFIX + pkgSpec.getSpecifications().getAppdSpecs().getNetworkNameSpecs()
+                .getNetworkNameN6();
+        Map<String, String> vmInputParams = InputParameterUtil.getParams(mepHost.getNetworkParameter());
+        String networkName = vmInputParams.getOrDefault("APP_Plane01_Network", defaultNetworkName);
+        LOGGER.info("defaultNetworkName:{}, networkName:{}", defaultNetworkName, networkName);
         List<PortInstantiateInfo> portInstantiateInfos = vm.getVmInstantiateInfo().getPortInstanceList();
-        String networkIp = portInstantiateInfos.get(0).getIpAddress();
+        String networkIp = "";
+        for (PortInstantiateInfo networkInfo : portInstantiateInfos) {
+            if (networkInfo.getNetworkName().equals(networkName)) {
+                networkIp = networkInfo.getIpAddress();
+            }
+        }
         String username = vm.getVmCertificate().getPwdCertificate().getUsername();
         String password = vm.getVmCertificate().getPwdCertificate().getPassword();
         LOGGER.info("ip:{}", networkIp);

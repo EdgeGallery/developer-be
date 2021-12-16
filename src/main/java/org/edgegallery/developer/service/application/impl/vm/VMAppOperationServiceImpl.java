@@ -19,6 +19,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.io.FileUtils;
@@ -36,6 +37,7 @@ import org.edgegallery.developer.model.application.EnumApplicationStatus;
 import org.edgegallery.developer.model.application.vm.VMApplication;
 import org.edgegallery.developer.model.application.vm.VirtualMachine;
 import org.edgegallery.developer.model.apppackage.AppPackage;
+import org.edgegallery.developer.model.apppackage.constant.AppdConstants;
 import org.edgegallery.developer.model.common.Chunk;
 import org.edgegallery.developer.model.common.User;
 import org.edgegallery.developer.model.instantiate.EnumAppInstantiateStatus;
@@ -47,6 +49,7 @@ import org.edgegallery.developer.model.operation.EnumActionStatus;
 import org.edgegallery.developer.model.operation.EnumOperationObjectType;
 import org.edgegallery.developer.model.operation.OperationStatus;
 import org.edgegallery.developer.model.resource.mephost.MepHost;
+import org.edgegallery.developer.model.resource.pkgspec.PkgSpec;
 import org.edgegallery.developer.model.restful.ApplicationDetail;
 import org.edgegallery.developer.model.restful.OperationInfoRep;
 import org.edgegallery.developer.model.reverseproxy.ScpConnectEntity;
@@ -61,7 +64,9 @@ import org.edgegallery.developer.service.application.impl.AppOperationServiceImp
 import org.edgegallery.developer.service.application.vm.VMAppOperationService;
 import org.edgegallery.developer.service.apppackage.AppPackageService;
 import org.edgegallery.developer.service.recource.mephost.MepHostService;
+import org.edgegallery.developer.service.recource.pkgspec.PkgSpecService;
 import org.edgegallery.developer.util.HttpClientUtil;
+import org.edgegallery.developer.util.InputParameterUtil;
 import org.edgegallery.developer.util.ShhFileUploadUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -105,6 +110,9 @@ public class VMAppOperationServiceImpl extends AppOperationServiceImpl implement
 
     @Autowired
     private MepHostService mepHostService;
+
+    @Autowired
+    private PkgSpecService pkgSpecService;
 
     @Override
     public OperationInfoRep instantiateVM(String applicationId, String vmId, User user) {
@@ -490,12 +498,27 @@ public class VMAppOperationServiceImpl extends AppOperationServiceImpl implement
     }
 
     private Boolean pushFileToVm(File appFile, String applicationId, String vmId) {
+        Application application = applicationService.getApplication(applicationId);
+        String hostId = application.getMepHostId();
+        MepHost mepHost = mepHostService.getHost(hostId);
         VirtualMachine vm = vmAppVmServiceImpl.getVm(applicationId, vmId);
         VMInstantiateInfo vmInstantiateInfo = vm.getVmInstantiateInfo();
         String username = vm.getVmCertificate().getPwdCertificate().getUsername();
         String password = vm.getVmCertificate().getPwdCertificate().getPassword();
         List<PortInstantiateInfo> portInstantiateInfos = vmInstantiateInfo.getPortInstanceList();
-        String networkIp = portInstantiateInfos.get(0).getIpAddress();
+        PkgSpec pkgSpec = pkgSpecService.getPkgSpecById(application.getPkgSpecId());
+        String defaultNetworkName =
+            AppdConstants.NETWORK_NAME_PREFIX + pkgSpec.getSpecifications().getAppdSpecs().getNetworkNameSpecs()
+                .getNetworkNameN6();
+        Map<String, String> vmInputParams = InputParameterUtil.getParams(mepHost.getNetworkParameter());
+        String networkName = vmInputParams.getOrDefault("APP_Plane01_Network", defaultNetworkName);
+        LOGGER.info("defaultNetworkName:{}, networkName:{}", defaultNetworkName, networkName);
+        String networkIp = "";
+        for (PortInstantiateInfo portInstantiateInfo : portInstantiateInfos) {
+            if (portInstantiateInfo.getNetworkName().equals(networkName)) {
+                networkIp = portInstantiateInfo.getIpAddress();
+            }
+        }
         LOGGER.info("network Ip, username is {},{}", networkIp, username);
         // ssh upload file
         String targetPath = "";
