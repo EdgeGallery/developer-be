@@ -511,7 +511,7 @@ public class VMAppOperationServiceImpl extends AppOperationServiceImpl implement
             AppdConstants.NETWORK_NAME_PREFIX + pkgSpec.getSpecifications().getAppdSpecs().getNetworkNameSpecs()
                 .getNetworkNameN6();
         Map<String, String> vmInputParams = InputParameterUtil.getParams(mepHost.getNetworkParameter());
-        String networkName = vmInputParams.getOrDefault("APP_Plane01_Network", defaultNetworkName);
+        String networkName = vmInputParams.getOrDefault("APP_Plane03_Network", defaultNetworkName);
         LOGGER.info("defaultNetworkName:{}, networkName:{}", defaultNetworkName, networkName);
         String networkIp = "";
         for (PortInstantiateInfo portInstantiateInfo : portInstantiateInfos) {
