@@ -15,26 +15,23 @@
  */
 package org.edgegallery.developer.model.application.vm;
 
-import java.sql.Array;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import org.edgegallery.developer.model.application.Application;
-import org.edgegallery.developer.model.application.vm.Network;
-import org.edgegallery.developer.model.application.vm.VirtualMachine;
 
 @Getter
 @Setter
 @ToString
 public class VMApplication extends Application {
 
-    private List<VirtualMachine> vmList = new ArrayList<VirtualMachine>(0);
+    private List<VirtualMachine> vmList = new ArrayList<>(0);
 
-    private List<Network>  networkList = new ArrayList<Network>(0);
+    private List<Network> networkList = new ArrayList<>(0);
 
-    public VMApplication(){
+    public VMApplication() {
         super();
     }
 

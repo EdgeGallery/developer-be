@@ -18,23 +18,17 @@ package org.edgegallery.developer.service.application.action.impl.vm;
 
 import static org.edgegallery.developer.util.HttpClientUtil.getUrlPrefix;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
 import java.util.Map;
-import org.edgegallery.developer.mapper.operation.OperationStatusMapper;
 import org.edgegallery.developer.model.application.vm.EnumVMStatus;
 import org.edgegallery.developer.model.application.vm.VirtualMachine;
 import org.edgegallery.developer.model.instantiate.EnumAppInstantiateStatus;
 import org.edgegallery.developer.model.instantiate.vm.PortInstantiateInfo;
 import org.edgegallery.developer.model.instantiate.vm.VMInstantiateInfo;
-import org.edgegallery.developer.model.operation.EnumOperationObjectType;
-import org.edgegallery.developer.model.resource.mephost.MepHost;
 import org.edgegallery.developer.model.lcm.NetworkInfo;
 import org.edgegallery.developer.model.lcm.VmInstantiateWorkload;
+import org.edgegallery.developer.model.operation.EnumOperationObjectType;
+import org.edgegallery.developer.model.resource.mephost.MepHost;
 import org.edgegallery.developer.service.application.OperationStatusService;
 import org.edgegallery.developer.service.application.action.impl.InstantiateAppAction;
 import org.edgegallery.developer.service.application.common.EnumInstantiateStatus;
@@ -45,6 +39,11 @@ import org.edgegallery.developer.util.HttpClientUtil;
 import org.edgegallery.developer.util.InputParameterUtil;
 import org.edgegallery.developer.util.IpCalculateUtil;
 import org.edgegallery.developer.util.SpringContextUtil;
+import org.springframework.util.CollectionUtils;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.google.gson.reflect.TypeToken;
 
 public class InstantiateVMAppAction extends InstantiateAppAction {
 
@@ -61,6 +60,7 @@ public class InstantiateVMAppAction extends InstantiateAppAction {
 
     private static final String INSTANTIATE_FAILURE = "Failure";
 
+    @Override
     public boolean saveInstanceIdToInstantiateInfo(String appInstanceId, EnumAppInstantiateStatus status) {
         String applicationId = (String) getContext().getParameter(IContextParameter.PARAM_APPLICATION_ID);
         String vmId = (String) getContext().getParameter(IContextParameter.PARAM_VM_ID);
@@ -75,6 +75,7 @@ public class InstantiateVMAppAction extends InstantiateAppAction {
         return vmAppOperationService.updateInstantiateInfo(vmId, instantiateInfo);
     }
 
+    @Override
     public Map<String, String> getInputParams(MepHost mepHost) {
         String parameter = mepHost.getNetworkParameter();
         int count = operationStatusService.getOperationCountByObjectType(EnumOperationObjectType.APPLICATION_INSTANCE.toString());
@@ -103,7 +104,7 @@ public class InstantiateVMAppAction extends InstantiateAppAction {
         Type vmInfoType = new TypeToken<VmInstantiateWorkload>() { }.getType();
         VmInstantiateWorkload vmInstantiateWorkload = gson.fromJson(respBody, vmInfoType);
         vmInstantiateInfo.setLog(respBody);
-        if (vmInstantiateWorkload.getData().size() > 0) {
+        if (!CollectionUtils.isEmpty(vmInstantiateWorkload.getData()) && vmInstantiateWorkload.getData().size() > 0) {
             vmInstantiateInfo.setVncUrl(vmInstantiateWorkload.getData().get(0).getVncUrl());
             vmInstantiateInfo.setVmInstanceId(vmInstantiateWorkload.getData().get(0).getVmId());
             for (NetworkInfo info : vmInstantiateWorkload.getData().get(0).getNetworks()) {
@@ -116,6 +117,7 @@ public class InstantiateVMAppAction extends InstantiateAppAction {
         return vmAppOperationService.updateInstantiateInfo(vmId, vmInstantiateInfo);
     }
 
+    @Override
     public EnumInstantiateStatus queryInstantiateStatus(String appInstanceId, MepHost mepHost) {
         int waitingTime = 0;
         while (waitingTime < TIMEOUT) {

@@ -15,6 +15,9 @@ package org.edgegallery.developer.model.resource.pkgspec;
 
 public class PkgSpecConstants {
 
+    private PkgSpecConstants() {
+        throw new IllegalStateException("PkgSpecConstants class");
+    }
 
     public static final String FLAVOR_SPEC_CPU = "cpu";
 

@@ -15,6 +15,11 @@
 package org.edgegallery.developer.model.apppackage.constant;
 
 public class NodeTypeConstant {
+
+    private NodeTypeConstant() {
+        throw new IllegalStateException("NodeTypeConstant class");
+    }
+
     public static final String NODE_TYPE_VNF = "tosca.nodes.nfv.VNF";
 
     public static final String NODE_TYPE_VDU = "tosca.nodes.nfv.Vdu.Compute";

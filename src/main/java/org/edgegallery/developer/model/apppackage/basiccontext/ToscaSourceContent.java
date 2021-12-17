@@ -12,21 +12,19 @@
  * the License.
  */
 
-package org.edgegallery.developer.model.apppackage.basicContext;
+package org.edgegallery.developer.model.apppackage.basiccontext;
 
 import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 import org.edgegallery.developer.model.apppackage.IToscaContentEnum;
 
 /**
- * TOSCA-Metadata: metadata.
+ * TOSCA-Metadata: source file.
  */
 @Getter
-public enum ToscaMetadataContent implements IToscaContentEnum {
-    TOSCA_META_FILE_VERSION("TOSCA-Meta-File-Version", true),
-    CSAR_VERSION("CSAR-Version", true),
-    CREATED_BY("Created-by", true),
-    ENTRY_DEFINITIONS("Entry-Definitions", true);
+public enum ToscaSourceContent implements IToscaContentEnum {
+    NAME("Name", true),
+    CONTENT_TYPE("Content-Type", true);
 
     private final String name;
 
@@ -34,7 +32,7 @@ public enum ToscaMetadataContent implements IToscaContentEnum {
 
     private final String split = ": ";
 
-    ToscaMetadataContent(String name, boolean isNotNull) {
+    ToscaSourceContent(String name, boolean isNotNull) {
         this.name = name;
         this.isNotNull = isNotNull;
     }
@@ -43,7 +41,7 @@ public enum ToscaMetadataContent implements IToscaContentEnum {
      * create enum from name.
      */
     public IToscaContentEnum of(String name) {
-        for (ToscaMetadataContent type : ToscaMetadataContent.values()) {
+        for (ToscaSourceContent type : ToscaSourceContent.values()) {
             if (type.name.equals(name)) {
                 return type;
             }

@@ -19,6 +19,10 @@ import java.util.List;
 
 public class AppdConstants {
 
+    private AppdConstants() {
+        throw new IllegalStateException("AppdConstants class");
+    }
+
     public static final String VNF_NODE_NAME = "Simple_VNF";
 
     public static final String APP_CONFIGURATION_NODE_NAME = "app_configuration";
@@ -27,14 +31,14 @@ public class AppdConstants {
 
     public static final String NETWORK_NAME_PREFIX = "MEC_";
 
-    public static final List<String> NETWORK_NAME_SORTED_LIST = Arrays.asList("MEC_APP_MP1",
-        "MEC_APP_Internet", "MEC_APP_Public", "MEC_APP_N6", "MEC_APP_Private");
-
     public static final String DEFAULT_NETWORK_INTERNET = "MEC_APP_Public";
 
     public static final String DEFAULT_NETWORK_N6 = "MEC_APP_Private";
 
     public static final String DEFAULT_NETWORK_MP1 = "MEC_APP_MP1";
+
+    public static final List<String> NETWORK_NAME_SORTED_LIST = Arrays.asList(DEFAULT_NETWORK_MP1,
+        "MEC_APP_Internet", DEFAULT_NETWORK_INTERNET, "MEC_APP_N6", DEFAULT_NETWORK_N6);
 
     public static final String GROUPS_NODE_NAME = "AntiAffinityGroup";
 

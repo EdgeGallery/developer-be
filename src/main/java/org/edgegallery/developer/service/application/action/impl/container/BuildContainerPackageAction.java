@@ -84,7 +84,7 @@ public class BuildContainerPackageAction extends AbstractAction {
         }
         instantiateInfo.setAppPackageId(packageId);
         instantiateInfo.setStatus(EnumAppInstantiateStatus.PACKAGE_GENERATE_SUCCESS);
-        Boolean res = containerAppOperationService.updateInstantiateInfo(applicationId, instantiateInfo);
+        boolean res = containerAppOperationService.updateInstantiateInfo(applicationId, instantiateInfo);
         if (!res) {
             LOGGER.error("modify Container App InstantiateInfo fail");
             return false;

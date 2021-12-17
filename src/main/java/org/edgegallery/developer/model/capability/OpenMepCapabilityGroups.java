@@ -19,7 +19,6 @@ package org.edgegallery.developer.model.capability;
 import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
-import org.edgegallery.developer.model.capability.OpenMepCapabilityGroup;
 
 @Getter
 @Setter

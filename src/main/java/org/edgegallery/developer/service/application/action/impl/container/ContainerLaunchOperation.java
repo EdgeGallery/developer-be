@@ -50,7 +50,7 @@ public class ContainerLaunchOperation implements IActionCollection {
         IAction distributePackageAction = new DistributeContainerPackageAction();
         IAction instantiateContainerAppAction = new InstantiateContainerAppAction();
 
-        Map<String, ActionProgressRange> actionProgressRangeMap = new HashMap<String, ActionProgressRange>();
+        Map<String, ActionProgressRange> actionProgressRangeMap = new HashMap<>();
         actionProgressRangeMap.put(buildPackageAction.getActionName(), new ActionProgressRange(0, 20));
         actionProgressRangeMap.put(distributePackageAction.getActionName(), new ActionProgressRange(20, 50));
         actionProgressRangeMap.put(instantiateContainerAppAction.getActionName(), new ActionProgressRange(50, 100));

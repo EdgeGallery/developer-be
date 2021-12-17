@@ -55,7 +55,7 @@ public class AppServiceProduced {
 
     private String experienceUrl;
 
-    private List<String> dnsRuleIdList = new ArrayList<String>(0);
+    private List<String> dnsRuleIdList = new ArrayList<>(0);
 
-    private List<String> trafficRuleIdList = new ArrayList<String>(0);
+    private List<String> trafficRuleIdList = new ArrayList<>(0);
 }

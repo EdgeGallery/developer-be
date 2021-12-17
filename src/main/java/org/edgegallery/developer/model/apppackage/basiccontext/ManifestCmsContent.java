@@ -12,51 +12,64 @@
  * the License.
  */
 
-package org.edgegallery.developer.model.apppackage.basicContext;
+package org.edgegallery.developer.model.apppackage.basiccontext;
 
 import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 import org.edgegallery.developer.model.apppackage.IToscaContentEnum;
 
-/**
- * manifest-file: source file.
- */
 @Getter
-public enum ManifestFiledataContent implements IToscaContentEnum {
-    SOURCE("Source", true),
-    ALGORITHM("Algorithm", true),
-    HASH("Hash", true);
+public enum ManifestCmsContent implements IToscaContentEnum {
+
+    BEGIN_CMS("-----BEGIN CMS-----", true),
+    CONTENT_CMS(".*", true),
+    END_CMS("-----END CMS-----", true);
 
     private final String name;
 
     private final boolean isNotNull;
 
-    private final String split = ": ";
+    private final String split = "";
 
-    ManifestFiledataContent(String name, boolean isNotNull) {
+    ManifestCmsContent(String name, boolean isNotNull) {
         this.name = name;
         this.isNotNull = isNotNull;
     }
 
-    /**
-     * create enum from name.
-     */
+    @Override
     public IToscaContentEnum of(String name) {
-        for (ManifestFiledataContent type : ManifestFiledataContent.values()) {
+        for (ManifestCmsContent type : ManifestCmsContent.values()) {
             if (type.name.equals(name)) {
                 return type;
             }
         }
+        if (!StringUtils.isEmpty(name)) {
+            return CONTENT_CMS;
+        }
         return null;
     }
 
-    @Override
+    /**
+     * to check the value is right.
+     */
     public boolean check(String value) {
         return !this.isNotNull() || !StringUtils.isEmpty(value);
     }
 
+    /**
+     * format to string this value.
+     */
     @Override
     public String toString(String value) {
-        return ToscaFileUtil.toStringBy(this, value);
+        switch (this) {
+            case BEGIN_CMS:
+                return BEGIN_CMS.getName();
+            case END_CMS:
+                return END_CMS.getName();
+            case CONTENT_CMS:
+                return value;
+            default:
+                return "";
+        }
     }
 }

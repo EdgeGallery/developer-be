@@ -36,7 +36,7 @@ import com.google.gson.Gson;
 public class VMAppOperationCtlTest {
 
     @MockBean
-    private VMAppOperationServiceImpl VmAppOperationService;
+    private VMAppOperationServiceImpl vmAppOperationService;
 
     @MockBean
     private ReverseProxyService reverseProxyService;
@@ -54,7 +54,7 @@ public class VMAppOperationCtlTest {
     public void testInstantiateVmSuccess() throws Exception {
         OperationInfoRep operationInfoRep = new OperationInfoRep("");
         String url = String.format("/mec/developer/v2/applications/%s/vms/%s/action/launch", UUID.randomUUID().toString(), UUID.randomUUID().toString());
-        Mockito.when(VmAppOperationService.instantiateVM(Mockito.anyString(), Mockito.anyString(), Mockito.any())).thenReturn(operationInfoRep);
+        Mockito.when(vmAppOperationService.instantiateVM(Mockito.anyString(), Mockito.anyString(), Mockito.any())).thenReturn(operationInfoRep);
         ResultActions actions = mvc.perform(
             MockMvcRequestBuilders.post(url).with((csrf())).content(new Gson().toJson(new OperationInfoRep("")))
                 .contentType(MediaType.APPLICATION_JSON_UTF8)).andExpect(MockMvcResultMatchers.status().isOk());
@@ -66,7 +66,7 @@ public class VMAppOperationCtlTest {
     public void testExportImageVmSuccess() throws Exception {
         OperationInfoRep operationInfoRep = new OperationInfoRep("");
         String url = String.format("/mec/developer/v2/applications/%s/vms/%s/action/export-image", UUID.randomUUID().toString(), UUID.randomUUID().toString());
-        Mockito.when(VmAppOperationService.createVmImage(Mockito.anyString(), Mockito.anyString(), Mockito.any())).thenReturn(operationInfoRep);
+        Mockito.when(vmAppOperationService.createVmImage(Mockito.anyString(), Mockito.anyString(), Mockito.any())).thenReturn(operationInfoRep);
         ResultActions actions = mvc.perform(
             MockMvcRequestBuilders.post(url).with((csrf())).content(new Gson().toJson(new OperationInfoRep("")))
                 .contentType(MediaType.APPLICATION_JSON_UTF8)).andExpect(MockMvcResultMatchers.status().isOk());
@@ -77,7 +77,7 @@ public class VMAppOperationCtlTest {
     @WithMockUser(roles = "DEVELOPER_ADMIN")
     public void testUploadFileVmSuccess() throws Exception {
         String url = String.format("/mec/developer/v2/applications/%s/vms/%s/action/upload-file", UUID.randomUUID().toString(), UUID.randomUUID().toString());
-        Mockito.when(VmAppOperationService.uploadFileToVm(Mockito.anyString(), Mockito.anyString(), Mockito.any(), Mockito.any())).thenReturn(true);
+        Mockito.when(vmAppOperationService.uploadFileToVm(Mockito.anyString(), Mockito.anyString(), Mockito.any(), Mockito.any())).thenReturn(true);
         ResultActions actions = mvc.perform(
             MockMvcRequestBuilders.post(url).with((csrf()))
                 .contentType(MediaType.APPLICATION_JSON_UTF8)).andExpect(MockMvcResultMatchers.status().isOk());
@@ -88,7 +88,7 @@ public class VMAppOperationCtlTest {
     @WithMockUser(roles = "DEVELOPER_ADMIN")
     public void testMergeFileVmSuccess() throws Exception {
         String url = String.format("/mec/developer/v2/applications/%s/vms/%s/action/merge-file", UUID.randomUUID().toString(), UUID.randomUUID().toString());
-        Mockito.when(VmAppOperationService.mergeAppFile(Mockito.anyString(), Mockito.anyString(), Mockito.any(), Mockito.any())).thenReturn(true);
+        Mockito.when(vmAppOperationService.mergeAppFile(Mockito.anyString(), Mockito.anyString(), Mockito.any(), Mockito.any())).thenReturn(true);
         ResultActions actions = mvc.perform(
             MockMvcRequestBuilders.get(url).with((csrf()))
                 .contentType(MediaType.APPLICATION_JSON_UTF8)).andExpect(MockMvcResultMatchers.status().isOk());

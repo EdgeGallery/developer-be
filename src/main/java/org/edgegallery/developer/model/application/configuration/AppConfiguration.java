@@ -29,12 +29,12 @@ public class AppConfiguration {
 
     private AppCertificate appCertificate = new AppCertificate();
 
-    private List<AppServiceProduced> appServiceProducedList = new ArrayList<AppServiceProduced>(0);
+    private List<AppServiceProduced> appServiceProducedList = new ArrayList<>(0);
 
-    private List<AppServiceRequired> appServiceRequiredList = new ArrayList<AppServiceRequired>(0);
+    private List<AppServiceRequired> appServiceRequiredList = new ArrayList<>(0);
 
-    private List<TrafficRule> trafficRuleList = new ArrayList<TrafficRule>(0);
+    private List<TrafficRule> trafficRuleList = new ArrayList<>(0);
 
-    private List<DnsRule> dnsRuleList = new ArrayList<DnsRule>(0);
+    private List<DnsRule> dnsRuleList = new ArrayList<>(0);
 
 }

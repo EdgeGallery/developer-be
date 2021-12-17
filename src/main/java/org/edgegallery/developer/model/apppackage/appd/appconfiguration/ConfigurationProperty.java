@@ -28,15 +28,15 @@ public class ConfigurationProperty {
 
     private AppCertificate appCertificate = new AppCertificate();
 
-    private List<AppServiceRequiredDef> appServiceRequired = new ArrayList<AppServiceRequiredDef>(0);
+    private List<AppServiceRequiredDef> appServiceRequired = new ArrayList<>(0);
 
-    private List<AppServiceProducedDef> appServiceProduced = new ArrayList<AppServiceProducedDef>(0);
+    private List<AppServiceProducedDef> appServiceProduced = new ArrayList<>(0);
 
     private boolean appSupportMp1 = true;
 
     private String appName;
 
-    private List<TrafficRule> appTrafficRule = new ArrayList<TrafficRule>(0);
+    private List<TrafficRule> appTrafficRule = new ArrayList<>(0);
 
-    private List<DnsRule> appDNSRule = new ArrayList<DnsRule>(0);
+    private List<DnsRule> appDNSRule = new ArrayList<>(0);
 }

@@ -45,7 +45,7 @@ public class VirtualMachine {
 
     private String userData;
 
-    private List<VMPort> portList = new ArrayList<VMPort>(0);
+    private List<VMPort> portList = new ArrayList<>(0);
 
     private EnumVMStatus status;
 

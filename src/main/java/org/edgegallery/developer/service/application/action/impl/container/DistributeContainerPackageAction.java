@@ -28,6 +28,7 @@ public class DistributeContainerPackageAction extends DistributePackageAction {
     ContainerAppOperationServiceImpl containerAppOperationService = (ContainerAppOperationServiceImpl) SpringContextUtil
         .getBean(ContainerAppOperationServiceImpl.class);
 
+    @Override
     public boolean saveDistributeInstantiateInfo(String mecHostIp, String mepmPkgId, EnumAppInstantiateStatus status) {
         String applicationId = (String) getContext().getParameter(IContextParameter.PARAM_APPLICATION_ID);
         ContainerAppInstantiateInfo instantiateInfo = containerAppOperationService.getInstantiateInfo(applicationId);

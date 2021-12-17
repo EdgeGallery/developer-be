@@ -12,7 +12,7 @@
  * the License.
  */
 
-package org.edgegallery.developer.model.apppackage.basicContext;
+package org.edgegallery.developer.model.apppackage.basiccontext;
 
 
 import org.edgegallery.developer.model.apppackage.IToscaContentEnum;

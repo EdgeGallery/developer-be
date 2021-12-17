@@ -79,11 +79,11 @@ public class Application {
 
     private AppPackage appPackage = new AppPackage();
 
-    private List<AtpTest> atpTestTaskList = new ArrayList<AtpTest>(0);
+    private List<AtpTest> atpTestTaskList = new ArrayList<>(0);
 
     private AppConfiguration appConfiguration = new AppConfiguration();
 
-    private List<Script> scriptList = new ArrayList<Script>(0);
+    private List<Script> scriptList = new ArrayList<>(0);
 
     public String getId() {
         if (this.id == null) {

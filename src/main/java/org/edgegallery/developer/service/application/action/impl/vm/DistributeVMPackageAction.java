@@ -24,15 +24,16 @@ import org.edgegallery.developer.util.SpringContextUtil;
 
 public class DistributeVMPackageAction extends DistributePackageAction {
 
-    VMAppOperationServiceImpl VmAppOperationService = (VMAppOperationServiceImpl) SpringContextUtil.getBean(VMAppOperationServiceImpl.class);
+    VMAppOperationServiceImpl vmAppOperationService = (VMAppOperationServiceImpl) SpringContextUtil.getBean(VMAppOperationServiceImpl.class);
 
+    @Override
     public boolean saveDistributeInstantiateInfo(String mecHostIp, String mepmPkgId, EnumAppInstantiateStatus status){
         String vmId = (String) getContext().getParameter(IContextParameter.PARAM_VM_ID);
-        VMInstantiateInfo instantiateInfo = VmAppOperationService.getInstantiateInfo(vmId);
+        VMInstantiateInfo instantiateInfo = vmAppOperationService.getInstantiateInfo(vmId);
         instantiateInfo.setDistributedMecHost(mecHostIp);
         instantiateInfo.setMepmPackageId(mepmPkgId);
         instantiateInfo.setStatus(status);
-        return  VmAppOperationService.updateInstantiateInfo(vmId, instantiateInfo);
+        return  vmAppOperationService.updateInstantiateInfo(vmId, instantiateInfo);
     }
 
 }

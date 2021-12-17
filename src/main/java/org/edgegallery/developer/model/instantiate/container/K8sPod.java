@@ -32,5 +32,5 @@ public class K8sPod {
 
     private String eventsInfo;
 
-    private List<Container> containerList = new ArrayList<Container>(0);
+    private List<Container> containerList = new ArrayList<>(0);
 }

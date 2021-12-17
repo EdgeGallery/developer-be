@@ -35,10 +35,6 @@ public abstract class AbstractAction implements IAction {
         return context;
     }
 
-    public abstract String getActionName();
-
-    public abstract boolean execute();
-
     public ActionStatus  initActionStatus(EnumOperationObjectType objectType, String objectId, String actionName, String statusLog){
         ActionStatus actionStatus = new ActionStatus();
         actionStatus.setId(UUID.randomUUID().toString());
