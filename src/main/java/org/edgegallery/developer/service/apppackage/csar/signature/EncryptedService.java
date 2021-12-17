@@ -87,12 +87,10 @@ public class EncryptedService {
                 bf.append(tempString).append("\r\n");
             }
             br.close();
-
-            BufferedWriter out = new BufferedWriter(new FileWriter(mfFile));
-            out.write(bf.toString());
-            out.flush();
-            out.close();
-
+            try (BufferedWriter out = new BufferedWriter(new FileWriter(mfFile));) {
+                out.write(bf.toString());
+                out.flush();
+            }
         } catch (IOException e) {
             LOGGER.error("Hash package failed.");
             return false;

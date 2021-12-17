@@ -146,7 +146,7 @@ public class DownloadImageAction extends AbstractAction {
                 waitingTime += INTERVAL;
             } catch (InterruptedException e) {
                 LOGGER.error("export image sleep failed.");
-                return false;
+                Thread.currentThread().interrupt();
             } catch (Exception e) {
                 return false;
             }

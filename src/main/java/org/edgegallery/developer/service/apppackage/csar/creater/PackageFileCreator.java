@@ -129,7 +129,10 @@ public class PackageFileCreator {
         Map<IToscaContentEnum, String> contentSourceMap = contentSource.getParams();
         contentSourceMap.put(ManifestFiledataContent.SOURCE, TEMPLATE_APPD + getAppFileName(Consts.FILE_FORMAT_ZIP));
         writeFile(mfFile, mfFileHandler.toString());
-        mfFile.renameTo(new File(getPackagePath() + File.separator + getAppFileName(Consts.FILE_FORMAT_MF)));
+        boolean result = mfFile.renameTo(new File(getPackagePath() + File.separator + getAppFileName(Consts.FILE_FORMAT_MF)));
+        if (!result) {
+            LOGGER.warn("file name modify fail:{}", getAppFileName(Consts.FILE_FORMAT_MF));
+        }
     }
 
     /**
