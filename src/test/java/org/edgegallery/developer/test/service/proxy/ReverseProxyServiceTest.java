@@ -164,7 +164,7 @@ public class ReverseProxyServiceTest {
     public void testGetVmSshResponseInfoFail1() {
         try {
             String applicationId = "4cbbab9d-c48f-4adb-ae82-d1816d8edd7c";
-            String vmId = "6a75a2bd-9811-432f-bbe8-2813aa97d757";
+            String vmId = "6a75a2bd-9811-432f-bbe8-d18efa97d760";
             proxyService.getVmSshResponseInfo(applicationId, vmId, "", "");
         } catch (DeveloperException e) {
             Assert.assertEquals("failed to get ssh console url, instantiate info does not exist.", e.getMessage());
