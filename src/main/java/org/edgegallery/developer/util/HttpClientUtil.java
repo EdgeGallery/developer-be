@@ -324,7 +324,7 @@ public final class HttpClientUtil {
      * @return String
      */
     public static String getVncUrl(String basePath, String userId, String hostId, String vmId, String token) {
-        String url = basePath + String.format(Consts.APP_LCM_GET_VNC_CONSOLE_URL, userId, vmId);
+        String url = basePath + String.format(Consts.APP_LCM_GET_VNC_CONSOLE_URL, userId, hostId, vmId);
         LOGGER.info("url is {}", url);
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
