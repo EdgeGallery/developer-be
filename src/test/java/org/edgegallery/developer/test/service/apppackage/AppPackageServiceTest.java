@@ -19,12 +19,16 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
+import mockit.Mock;
+import mockit.MockUp;
 import org.edgegallery.developer.exception.DataBaseException;
 import org.edgegallery.developer.exception.FileFoundFailException;
+import org.edgegallery.developer.exception.FileOperateException;
 import org.edgegallery.developer.exception.IllegalRequestException;
 import org.edgegallery.developer.filter.security.AccessUserUtil;
 import org.edgegallery.developer.model.application.EnumAppClass;
 import org.edgegallery.developer.model.application.EnumApplicationType;
+import org.edgegallery.developer.model.application.container.ContainerApplication;
 import org.edgegallery.developer.model.application.vm.EnumVMStatus;
 import org.edgegallery.developer.model.application.vm.Network;
 import org.edgegallery.developer.model.application.vm.VMApplication;
@@ -37,6 +41,8 @@ import org.edgegallery.developer.service.application.ApplicationService;
 import org.edgegallery.developer.service.application.vm.VMAppNetworkService;
 import org.edgegallery.developer.service.application.vm.VMAppVmService;
 import org.edgegallery.developer.service.apppackage.AppPackageService;
+import org.edgegallery.developer.service.apppackage.csar.creater.ContainerPackageFileCreator;
+import org.edgegallery.developer.service.apppackage.csar.creater.PackageFileCreator;
 import org.edgegallery.developer.service.uploadfile.UploadFileService;
 import org.edgegallery.developer.test.DeveloperApplicationTests;
 import org.edgegallery.developer.test.service.application.ApplicationServiceTest;
@@ -216,6 +222,116 @@ public class AppPackageServiceTest extends AbstractJUnit4SpringContextTests {
     public void testDeletePackageBadWithErrId() throws IOException {
         boolean res = appPackageService.deletePackage("vmApplication");
         Assert.assertEquals(true, res);
+    }
+
+    @Test
+    public void testGenerateAppPackageFail() throws IOException {
+        try {
+            new MockUp<ContainerPackageFileCreator>() {
+                @Mock
+                public String generateAppPackageFile() {
+                    return null;
+                }
+            };
+            ContainerApplication application = new ContainerApplication();
+            application.setId(UUID.randomUUID().toString());
+            appPackageService.generateAppPackage(application);
+        } catch (FileOperateException e) {
+            Assert.assertEquals("Generation app package error.", e.getMessage());
+        }
+    }
+
+    @Test
+    public void testGenerateAppPackageFail1() throws IOException {
+        try {
+            new MockUp<ContainerPackageFileCreator>() {
+                @Mock
+                public String generateAppPackageFile() {
+                    return "";
+                }
+            };
+            ContainerApplication application = new ContainerApplication();
+            application.setId(UUID.randomUUID().toString());
+            appPackageService.generateAppPackage(application);
+        } catch (FileOperateException e) {
+            Assert.assertEquals("Generation app package error.", e.getMessage());
+        }
+    }
+
+    @Test
+    public void testZipPackageFail1() throws IOException {
+        try {
+            appPackageService.zipPackage("application");
+        } catch (FileFoundFailException e) {
+            Assert.assertEquals("package does not exist!", e.getMessage());
+        }
+    }
+
+    @Test
+    public void testZipPackageFail2() throws IOException {
+        try {
+            new MockUp<PackageFileCreator>() {
+                @Mock
+                public String PackageFileCompress() {
+                    return "";
+                }
+            };
+            appPackageService.zipPackage("f2759fcb-bb4b-42f5-bc6c-8e1635348fdd");
+        } catch (FileOperateException e) {
+            Assert.assertEquals("zip package error.", e.getMessage());
+        }
+    }
+
+    @Test
+    public void testZipPackageFail3() throws IOException {
+        try {
+            new MockUp<PackageFileCreator>() {
+                @Mock
+                public String PackageFileCompress() {
+                    return null;
+                }
+            };
+            appPackageService.zipPackage("f2759fcb-bb4b-42f5-bc6c-8e1635348fdd");
+        } catch (FileOperateException e) {
+            Assert.assertEquals("zip package error.", e.getMessage());
+        }
+    }
+
+    @Test
+    public void testZipPackageFail4() throws IOException {
+        try {
+            new MockUp<PackageFileCreator>() {
+                @Mock
+                public String PackageFileCompress() {
+                    return null;
+                }
+            };
+            appPackageService.zipPackage("f2759fcb-bb4b-42f5-bc6c-8e1635348fda");
+        } catch (FileOperateException e) {
+            Assert.assertEquals("zip package error.", e.getMessage());
+        }
+    }
+
+    @Test
+    public void testZipPackageFail5() throws IOException {
+        try {
+            new MockUp<PackageFileCreator>() {
+                @Mock
+                public String PackageFileCompress() {
+                    return "";
+                }
+            };
+            appPackageService.zipPackage("f2759fcb-bb4b-42f5-bc6c-8e1635348fda");
+        } catch (FileOperateException e) {
+            Assert.assertEquals("zip package error.", e.getMessage());
+        }
+    }
+
+    @Test
+    public void testDeletePackageRecordFail() throws IOException {
+        boolean ret = appPackageService.deletePackageRecord("appPackage");
+        Assert.assertEquals(true, ret);
+
     }
 
     @Test
