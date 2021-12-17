@@ -2,8 +2,9 @@ package org.edgegallery.developer.service.proxy.impl;
 
 import static org.edgegallery.developer.util.HttpClientUtil.getUrlPrefix;
 
+
+import com.google.gson.Gson;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -18,8 +19,7 @@ import org.edgegallery.developer.model.application.Application;
 import org.edgegallery.developer.model.application.vm.VirtualMachine;
 import org.edgegallery.developer.model.instantiate.vm.PortInstantiateInfo;
 import org.edgegallery.developer.model.instantiate.vm.VMInstantiateInfo;
-import org.edgegallery.developer.model.lcm.VmInfo;
-import org.edgegallery.developer.model.lcm.VmInstantiateWorkload;
+import org.edgegallery.developer.model.lcm.ConsoleResponse;
 import org.edgegallery.developer.model.resource.mephost.MepHost;
 import org.edgegallery.developer.model.reverseproxy.ReverseProxy;
 import org.edgegallery.developer.model.reverseproxy.SshResponseInfo;
@@ -27,7 +27,6 @@ import org.edgegallery.developer.service.application.vm.VMAppOperationService;
 import org.edgegallery.developer.service.application.vm.VMAppVmService;
 import org.edgegallery.developer.service.proxy.ReverseProxyService;
 import org.edgegallery.developer.util.HttpClientUtil;
-import org.edgegallery.developer.util.InputParameterUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,28 +41,40 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 @Service
 public class ReverseProxyServiceImpl implements ReverseProxyService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ReverseProxyService.class);
+
     @Autowired
     private MepHostMapper mepHostMapper;
+
     @Autowired
     private ApplicationMapper applicationMapper;
+
     @Autowired
     private VMAppOperationService vmAppOperationService;
+
     @Autowired
-    VMAppVmService vmAppVmService;
+    private VMAppVmService vmAppVmService;
+
     private static Gson gson = new Gson();
+
     @Value("${developer.ip:}")
     private String developerIp;
+
     @Value("${developer.protocol:}")
     private String protocol;
+
     @Value("${developer.cbbport:}")
     private String cbbPort;
+
     private String reverseProxyBaseUrl;
+
     private RestTemplate restTemplate = new RestTemplate();
+
     private Lock lock = new ReentrantLock();
 
     /**
@@ -98,8 +109,8 @@ public class ReverseProxyServiceImpl implements ReverseProxyService {
         String url = new StringBuffer(getReverseProxyBaseUrl()).append("/dest-host-ip/").append(mecHostIp)
             .append("/dest-host-port/").append(hostConsolePort).toString();
         sendHttpRequest(url, token, HttpMethod.DELETE, null);
-        LOGGER.info("succeed in deleting reverse proxy, dest host ip is: {}, dest host port is: {}",
-            mecHostIp, hostConsolePort);
+        LOGGER.info("succeed in deleting reverse proxy, dest host ip is: {}, dest host port is: {}", mecHostIp,
+            hostConsolePort);
     }
 
     @Override
@@ -113,21 +124,24 @@ public class ReverseProxyServiceImpl implements ReverseProxyService {
             throw new DeveloperException("failed to get vnc console url");
         }
         String basePath = getUrlPrefix(mepHost.getLcmProtocol(), mepHost.getLcmIp(), mepHost.getLcmPort());
-        String workLoadStatus = HttpClientUtil.getWorkloadStatus(basePath, instantiateInfo.getAppInstanceId(), userId, token);
+        String workLoadStatus = HttpClientUtil
+            .getWorkloadStatus(basePath, instantiateInfo.getAppInstanceId(), userId, token);
         LOGGER.info("get vm workLoad status:{}", workLoadStatus);
         VmInstantiateWorkload vmInstantiateWorkload = gson.fromJson(workLoadStatus, VmInstantiateWorkload.class);
         if (vmInstantiateWorkload == null || !Consts.HTTP_STATUS_SUCCESS_STR.equals(vmInstantiateWorkload.getCode())) {
             LOGGER.error("failed to get vnc console url, http request error happened.");
+        String getVncUrlResult = HttpClientUtil
+            .getVncUrl(basePath, userId, instantiateInfo.getDistributedMecHost(), instantiateInfo.getVmInstanceId(),
+                token);
+        LOGGER.info("get vm workLoad status:{}", getVncUrlResult);
+        if (StringUtils.isEmpty(getVncUrlResult)) {
+            LOGGER.error("failed to get vnc console url by lcm");
             throw new DeveloperException("failed to get vnc console url");
         }
-
-        List<VmInfo> vmInfos = vmInstantiateWorkload.getData();
-        if (vmInfos == null || vmInfos.isEmpty()) {
-            LOGGER.error("failed to get vnc console url, http request error happened.");
-            throw new DeveloperException("failed to get vnc console url");
-        }
-        String vncUrl = vmInfos.get(0).getVncUrl();
-        String url = new StringBuffer(getReverseProxyBaseUrl()).append("/dest-host-ip/").append(mepHost.getMecHostIp())
+        ConsoleResponse consoleResponse = gson.fromJson(getVncUrlResult, new TypeToken<ConsoleResponse>() {
+        }.getType());
+        String vncUrl = consoleResponse.getConsole().getUrl();
+        String url = new StringBuffer(getReverseProxyBaseUrl()).append("/dest-host-ip/").append("192.168.1.156")
             .append("/dest-host-port/").append(Consts.DEFAULT_OPENSTACK_VNC_PORT).toString();
         String resp = sendHttpRequest(url, token, HttpMethod.GET, null);
         ReverseProxy reverseProxy = gson.fromJson(resp, ReverseProxy.class);
@@ -145,21 +159,15 @@ public class ReverseProxyServiceImpl implements ReverseProxyService {
             LOGGER.error("failed to get ssh console url, instantiate info does not exist.");
             throw new DeveloperException("failed to get ssh console url");
         }
-        Map<String, String> vmInputParams = InputParameterUtil.getParams(mepHost.getNetworkParameter());
-        String networkName = vmInputParams.getOrDefault("APP_Plane01_Network", "MEC_APP_N6");
+
         List<PortInstantiateInfo> portInstantiateInfos = vm.getVmInstantiateInfo().getPortInstanceList();
-        String networkIp = "";
-        for (PortInstantiateInfo networkInfo : portInstantiateInfos) {
-            if (networkInfo.getNetworkName().equals(networkName)) {
-                networkIp = networkInfo.getIpAddress();
-            }
-        }
+        String networkIp = portInstantiateInfos.get(0).getIpAddress();
         String username = vm.getVmCertificate().getPwdCertificate().getUsername();
         String password = vm.getVmCertificate().getPwdCertificate().getPassword();
         LOGGER.info("ip:{}", networkIp);
         LOGGER.info("username:{}", username);
         String basePath = HttpClientUtil
-            .getUrlPrefix(mepHost.getLcmProtocol(), mepHost.getLcmIp(), mepHost.getLcmPort());
+            .getUrlPrefix(mepHost.getLcmProtocol(), mepHost.getLcmIp(), 30209);
         SshResponseInfo sshResponseInfo = HttpClientUtil
             .sendWebSshRequest(basePath, networkIp, 22, username, password, xsrfValue);
         if (sshResponseInfo == null) {
@@ -174,7 +182,6 @@ public class ReverseProxyServiceImpl implements ReverseProxyService {
 
         return sshResponseInfo;
     }
-
 
     private String sendHttpRequest(String url, String token, HttpMethod method, ReverseProxy body) {
         HttpHeaders headers = new HttpHeaders();
@@ -199,8 +206,8 @@ public class ReverseProxyServiceImpl implements ReverseProxyService {
         Matcher matcher = pattern.matcher(url);
         while (matcher.find()) {
             int count = matcher.groupCount();
-            String vncUrl = url.replace(matcher.group(1), proxyHostIp).replace(matcher.group(3),
-                String.valueOf(proxyHostPort));
+            String vncUrl = url.replace(matcher.group(1), proxyHostIp)
+                .replace(matcher.group(3), String.valueOf(proxyHostPort));
             LOGGER.debug("vnc url : {}, origin url : {}", vncUrl, url);
             return vncUrl;
         }
@@ -219,7 +226,7 @@ public class ReverseProxyServiceImpl implements ReverseProxyService {
                 }
 
                 reverseProxyBaseUrl = new StringBuffer(protocol).append("://localhost:")
-                    .append(Integer.valueOf(cbbPort)).append("/commonservice/cbb/v1/reverseproxies").toString();
+                    .append(cbbPort).append("/commonservice/cbb/v1/reverseproxies").toString();
             }
         } catch (InterruptedException e) {
             LOGGER.error("failed to get the lock", e);

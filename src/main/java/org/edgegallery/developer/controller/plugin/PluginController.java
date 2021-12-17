@@ -16,7 +16,6 @@
 
 package org.edgegallery.developer.controller.plugin;
 
-import com.spencerwi.either.Either;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -29,16 +28,14 @@ import java.io.IOException;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.Pattern;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
-import org.edgegallery.developer.service.plugin.impl.PluginService;
 import org.edgegallery.developer.filter.security.AccessUserUtil;
-import org.edgegallery.developer.model.plugin.Plugin;
-import org.edgegallery.developer.model.common.User;
 import org.edgegallery.developer.model.common.Page;
-import org.edgegallery.developer.service.plugin.impl.PluginServiceFacade;
+import org.edgegallery.developer.model.common.User;
+import org.edgegallery.developer.model.plugin.Plugin;
 import org.edgegallery.developer.model.plugin.PluginDto;
 import org.edgegallery.developer.model.restful.ErrorRespDto;
-import org.edgegallery.developer.model.restful.FormatRespDto;
-import org.edgegallery.developer.util.ResponseDataUtil;
+import org.edgegallery.developer.service.plugin.impl.PluginService;
+import org.edgegallery.developer.service.plugin.impl.PluginServiceFacade;
 import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.Range;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -347,7 +344,6 @@ public class PluginController {
         @Pattern(regexp = REGEX_UUID, message = "pluginId must be in UUID format")
         @ApiParam(value = "pluginId", required = true) @PathVariable(value = "pluginId", required = true)
             String pluginId) {
-        Either<FormatRespDto, String> either = pluginService.getApiContent(pluginId);
-        return ResponseDataUtil.buildResponse(either);
+        return ResponseEntity.ok(pluginService.getApiContent(pluginId));
     }
 }

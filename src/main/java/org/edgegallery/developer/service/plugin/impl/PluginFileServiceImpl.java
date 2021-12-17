@@ -16,47 +16,55 @@ package org.edgegallery.developer.service.plugin.impl;
 
 import java.io.BufferedInputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.UUID;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.edgegallery.developer.service.plugin.PluginFileService;
+import org.edgegallery.developer.common.ResponseConsts;
+import org.edgegallery.developer.exception.FileFoundFailException;
+import org.edgegallery.developer.exception.IllegalRequestException;
 import org.edgegallery.developer.model.plugin.AFile;
-import org.edgegallery.developer.util.filechecker.FileChecker;
+import org.edgegallery.developer.service.plugin.PluginFileService;
 import org.edgegallery.developer.util.BusinessConfigUtil;
 import org.edgegallery.developer.util.InitConfigUtil;
+import org.edgegallery.developer.util.filechecker.FileChecker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.multipart.MultipartFile;
 
 public class PluginFileServiceImpl implements PluginFileService {
 
-    public static final Logger LOGGER = LoggerFactory.getLogger(PluginFileService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(PluginFileServiceImpl.class);
 
-    public static final String PLUGIN_DIR = InitConfigUtil.getWorkSpaceBaseDir() + BusinessConfigUtil.getPluginPath();
+    private static final String PLUGIN_DIR = InitConfigUtil.getWorkSpaceBaseDir() + BusinessConfigUtil.getPluginPath();
 
-    public static final String PACKAGE_XML_FORMAT = ".xml";
+    private static final String PACKAGE_XML_FORMAT = ".xml";
 
-    public static final String PACKAGE_YAML_FORMAT = ".yaml";
+    private static final String PACKAGE_YAML_FORMAT = ".yaml";
 
-    public static final String PACKAGE_CSH_FORMAT = ".csh";
+    private static final String PACKAGE_CSH_FORMAT = ".csh";
 
-    public static final String PACKAGE_META_FORMAT = ".meta";
+    private static final String PACKAGE_META_FORMAT = ".meta";
 
-    public static final String PACKAGE_TXT_FORMAT = ".txt";
+    private static final String PACKAGE_TXT_FORMAT = ".txt";
 
-    public static final String MANIFEST = ".mf";
+    private static final String MANIFEST = ".mf";
 
-    public static final String MARKDOWN = ".md";
+    private static final String MARKDOWN = ".md";
+
+    private static final List<String> FILE_TYPE_LIST = Arrays
+        .asList(PACKAGE_XML_FORMAT, PACKAGE_YAML_FORMAT, PACKAGE_CSH_FORMAT, PACKAGE_META_FORMAT, PACKAGE_TXT_FORMAT,
+            MANIFEST, MARKDOWN);
 
     private String generateFileName() {
         String random = UUID.randomUUID().toString();
@@ -96,7 +104,7 @@ public class PluginFileServiceImpl implements PluginFileService {
         try {
             java.nio.file.Files.deleteIfExists(Paths.get(afile.getStorageAddress()));
         } catch (IOException e) {
-            LOGGER.error("delete file error", e.getMessage());
+            LOGGER.error("delete file error {}", e.getMessage());
         }
     }
 
@@ -107,21 +115,22 @@ public class PluginFileServiceImpl implements PluginFileService {
      * @param file file path in package.
      * @return
      */
-    public static String getCsarFileContentByName(String filePath, String file) throws IOException {
-        String type = file.toLowerCase();
-        if (!(type.endsWith(MANIFEST) || type.endsWith(MARKDOWN) || type.endsWith(PACKAGE_XML_FORMAT) || type.endsWith(
-            PACKAGE_YAML_FORMAT) || type.endsWith(PACKAGE_CSH_FORMAT) || type.endsWith(PACKAGE_META_FORMAT)
-            || type.endsWith(PACKAGE_TXT_FORMAT))) {
-            LOGGER.error("file type error");
-            throw new IllegalArgumentException();
+    private static String getCsarFileContentByName(String filePath, String file) throws IOException {
+        File inputFile = new File(file.toLowerCase());
+        String type = inputFile.getName();
+        if (type.contains(".")) {
+            type = type.substring(type.lastIndexOf("."));
+        }
+        if (!FILE_TYPE_LIST.contains(type)) {
+            LOGGER.error("file type {} error", type);
+            throw new IllegalRequestException("file type error", ResponseConsts.RET_REQUEST_PARAM_ERROR);
         }
         return readFileContent(filePath, file);
     }
 
     private static String readFileContent(String filePath, String file) throws IOException {
         String target = file.replace(":", File.separator);
-        try (ZipFile zipFile = new ZipFile(filePath);
-             StringWriter writer = new StringWriter()) {
+        try (ZipFile zipFile = new ZipFile(filePath); StringWriter writer = new StringWriter()) {
             ZipEntry result = null;
             Enumeration<? extends ZipEntry> entries = zipFile.entries();
             while (entries.hasMoreElements()) {
@@ -132,7 +141,8 @@ public class PluginFileServiceImpl implements PluginFileService {
                 }
             }
             if (result == null) {
-                throw new FileNotFoundException(file + " not found");
+                LOGGER.error("file {} not found", file);
+                throw new FileFoundFailException("file not found", ResponseConsts.RET_FILE_NOT_FOUND);
             }
             try (InputStream inputStream = zipFile.getInputStream(result)) {
                 IOUtils.copy(inputStream, writer, StandardCharsets.UTF_8);
