@@ -16,6 +16,7 @@
 
 package org.edgegallery.developer.service.application.impl.container;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 import org.apache.commons.lang3.StringUtils;
@@ -122,8 +123,7 @@ public class ContainerAppOperationServiceImpl extends AppOperationServiceImpl im
         operationStatus.setProgress(0);
         operationStatus.setOperationName(OPERATION_NAME);
         operationStatusService.createOperationStatus(operationStatus);
-        ContainerLaunchOperation actionCollection = new ContainerLaunchOperation(user,
-            applicationId, operationStatus);
+        ContainerLaunchOperation actionCollection = new ContainerLaunchOperation(user, applicationId, operationStatus);
         LOGGER.info("start instantiate container app");
         ContainerAppInstantiateInfo containerAppInstantiateInfo = new ContainerAppInstantiateInfo();
         containerAppInstantiateInfo.setOperationId(operationStatus.getId());
@@ -154,21 +154,21 @@ public class ContainerAppOperationServiceImpl extends AppOperationServiceImpl im
     private boolean cleanContainerLaunchInfo(String mepHostId, ContainerAppInstantiateInfo containerAppInstantiateInfo,
         User user) {
         MepHost mepHost = mepHostService.getHost(mepHostId);
-        String basePath = HttpClientUtil.getUrlPrefix(mepHost.getLcmProtocol(), mepHost.getLcmIp(),
-            mepHost.getLcmPort());
+        String basePath = HttpClientUtil
+            .getUrlPrefix(mepHost.getLcmProtocol(), mepHost.getLcmIp(), mepHost.getLcmPort());
         if (StringUtils.isNotEmpty(containerAppInstantiateInfo.getMepmPackageId()) || StringUtils
             .isNotEmpty(containerAppInstantiateInfo.getAppInstanceId())) {
             sentTerminateRequestToLcm(basePath, user.getUserId(), user.getToken(),
-                containerAppInstantiateInfo.getAppInstanceId(),
-                containerAppInstantiateInfo.getMepmPackageId(), mepHost.getMecHostIp());
+                containerAppInstantiateInfo.getAppInstanceId(), containerAppInstantiateInfo.getMepmPackageId(),
+                mepHost.getMecHostIp());
         }
         return true;
     }
 
     @Override
     public ContainerAppInstantiateInfo getInstantiateInfo(String applicationId) {
-        ContainerAppInstantiateInfo instantiateInfo
-            = containerAppInstantiateInfoMapper.getContainerAppInstantiateInfoAppId(applicationId);
+        ContainerAppInstantiateInfo instantiateInfo = containerAppInstantiateInfoMapper
+            .getContainerAppInstantiateInfoAppId(applicationId);
         if (instantiateInfo == null) {
             return null;
         }
@@ -184,8 +184,7 @@ public class ContainerAppOperationServiceImpl extends AppOperationServiceImpl im
         if (!CollectionUtils.isEmpty(k8sServices)) {
             for (K8sService service : k8sServices) {
                 List<K8sServicePort> k8sServicePorts = containerAppInstantiateInfoMapper
-                    .getK8sServicePortsByK8sServiceName(
-                        service.getName());
+                    .getK8sServicePortsByK8sServiceName(service.getName());
                 service.setServicePortList(k8sServicePorts);
             }
             instantiateInfo.setServiceList(k8sServices);
@@ -301,7 +300,8 @@ public class ContainerAppOperationServiceImpl extends AppOperationServiceImpl im
             } catch (Exception e) {
                 LOGGER.error("InstantiateContainerAppProcessor Exception.", e);
                 operationStatus.setStatus(EnumActionStatus.FAILED);
-                operationStatus.setErrorMsg("Exception happens when export image: " + e.getStackTrace().toString());
+                operationStatus
+                    .setErrorMsg("Exception happens when export image: " + Arrays.toString(e.getStackTrace()));
                 operationStatusService.modifyOperationStatus(operationStatus);
             }
         }

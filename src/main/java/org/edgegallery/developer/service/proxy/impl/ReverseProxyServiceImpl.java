@@ -2,6 +2,9 @@ package org.edgegallery.developer.service.proxy.impl;
 
 import static org.edgegallery.developer.util.HttpClientUtil.getUrlPrefix;
 
+
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -45,8 +48,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 
 @Service
 public class ReverseProxyServiceImpl implements ReverseProxyService {
@@ -110,7 +111,7 @@ public class ReverseProxyServiceImpl implements ReverseProxyService {
 
         ReverseProxy reverseProxy = new ReverseProxy(mecHostIp, hostConsolePort, nextHopProtocol, nextHopIp, 1);
         sendHttpRequest(getReverseProxyBaseUrl(), token, HttpMethod.POST, reverseProxy);
-        LOGGER.info("succeed in adding reverse proxy, param is: {}", reverseProxy.toString());
+        LOGGER.info("succeed in adding reverse proxy, param is: {}", reverseProxy);
     }
 
     @Override
@@ -144,8 +145,7 @@ public class ReverseProxyServiceImpl implements ReverseProxyService {
             throw new DeveloperException("failed to get vnc console url");
         }
         ConsoleResponse consoleResponse = gson
-            .fromJson(getVncUrlResult, new TypeToken<ConsoleResponse>() {
-            }.getType());
+            .fromJson(getVncUrlResult, new TypeToken<ConsoleResponse>() { }.getType());
         String vncUrl = consoleResponse.getConsole().getUrl();
         String url = new StringBuffer(getReverseProxyBaseUrl()).append("/dest-host-ip/").append(mepHost.getMecHostIp())
             .append("/dest-host-port/").append(Consts.DEFAULT_OPENSTACK_VNC_PORT).toString();
@@ -167,9 +167,8 @@ public class ReverseProxyServiceImpl implements ReverseProxyService {
         }
 
         PkgSpec pkgSpec = pkgSpecService.getPkgSpecById(application.getPkgSpecId());
-        String defaultNetworkName =
-            AppdConstants.NETWORK_NAME_PREFIX + pkgSpec.getSpecifications().getAppdSpecs().getNetworkNameSpecs()
-                .getNetworkNameN6();
+        String defaultNetworkName = AppdConstants.NETWORK_NAME_PREFIX + pkgSpec.getSpecifications().getAppdSpecs()
+            .getNetworkNameSpecs().getNetworkNameN6();
         Map<String, String> vmInputParams = InputParameterUtil.getParams(mepHost.getNetworkParameter());
         String networkName = vmInputParams.getOrDefault("APP_Plane03_Network", defaultNetworkName);
         LOGGER.info("defaultNetworkName:{}, networkName:{}", defaultNetworkName, networkName);
@@ -251,7 +250,7 @@ public class ReverseProxyServiceImpl implements ReverseProxyService {
         String regex = "(\\d{1,3}(.\\d{1,3}){3}):(\\d+)";
         Pattern pattern = Pattern.compile(regex);
         Matcher matcher = pattern.matcher(url);
-        while (matcher.find()) {
+        if (matcher.find()) {
             String vncUrl = url.replace(matcher.group(1), proxyHostIp)
                 .replace(matcher.group(3), String.valueOf(proxyHostPort));
             LOGGER.debug("vnc url : {}, origin url : {}", vncUrl, url);

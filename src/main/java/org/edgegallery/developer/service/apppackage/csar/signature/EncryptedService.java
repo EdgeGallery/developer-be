@@ -50,26 +50,24 @@ public class EncryptedService {
     private String keyPasswd;
 
     public boolean encryptedFile(String filePath) {
-        try {
-            BufferedReader reader = null;
+        File mfFile = getMfFile(filePath);
+        try (BufferedReader br = new BufferedReader(
+            new InputStreamReader(new FileInputStream(mfFile), StandardCharsets.UTF_8));
+             BufferedReader reader = new BufferedReader(br)) {
             if (filePath == null) {
                 LOGGER.error("Failed to encrypted code.");
                 return false;
             }
-            File mfFile = getMfFile(filePath);
-            BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(mfFile), "utf-8"));
-            reader = new BufferedReader(br);
             String tempString = null;
             String sha256String = null;
             StringBuffer bf = new StringBuffer();
             while ((tempString = reader.readLine()) != null) {
-                tempString.trim();
+                tempString = tempString.trim();
                 if (tempString.startsWith("Source")) {
-                    String tempPath = tempString.substring(8);
-                    tempPath.trim();
+                    String tempPath = tempString.substring(8).trim();
                     String path = filePath + File.separator + tempPath;
                     String encryptedFilePath = path.replace("\\", File.separator).replace("/", File.separator);
-                    encryptedFilePath.replace(" ", "");
+                    encryptedFilePath = encryptedFilePath.replace(" ", "");
                     File file = new File(encryptedFilePath);
                     sha256String = getHash(file);
                     bf.append(tempString).append("\r\n");
@@ -86,7 +84,6 @@ public class EncryptedService {
                 }
                 bf.append(tempString).append("\r\n");
             }
-            br.close();
             try (BufferedWriter out = new BufferedWriter(new FileWriter(mfFile));) {
                 out.write(bf.toString());
                 out.flush();
@@ -99,28 +96,27 @@ public class EncryptedService {
     }
 
     public boolean encryptedCMS(String filePath) {
+        if (StringUtils.isEmpty(filePath)) {
+            LOGGER.error("filePath {} is empty.", filePath);
+            return false;
+        }
         boolean encryptedFile = encryptedFile(filePath);
         if (!encryptedFile) {
             LOGGER.error("Hash package failed.");
             return false;
         }
-        try {
-            BufferedReader reader = null;
-            if (filePath == null) {
-                throw new IOException("Failed to encrypted code.");
-            }
-            File mfFile = getMfFile(filePath);
-            BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(mfFile), "utf-8"));
-            reader = new BufferedReader(br);
+        File mfFile = getMfFile(filePath);
+        try (BufferedReader br = new BufferedReader(
+            new InputStreamReader(new FileInputStream(mfFile), StandardCharsets.UTF_8));
+             BufferedReader reader = new BufferedReader(br);
+             BufferedWriter out = new BufferedWriter(new FileWriter(mfFile))) {
+
             String tempString = null;
             StringBuffer bf = new StringBuffer();
             while ((tempString = reader.readLine()) != null) {
                 bf.append(tempString).append("\r\n");
             }
-            br.close();
-
             String encrypted = signPackage(mfFile.getCanonicalPath(), keyPasswd);
-            BufferedWriter out = new BufferedWriter(new FileWriter(mfFile));
             out.write(bf.toString());
             out.write("-----BEGIN CMS-----");
             out.write("\n");
@@ -128,12 +124,10 @@ public class EncryptedService {
             out.write("\n");
             out.write("-----END CMS-----");
             out.flush();
-            out.close();
             if (StringUtils.isEmpty(encrypted)) {
                 LOGGER.error("sign package failed");
                 return false;
             }
-
         } catch (IOException e) {
             LOGGER.error("Failed to encrypted code.");
             return false;
