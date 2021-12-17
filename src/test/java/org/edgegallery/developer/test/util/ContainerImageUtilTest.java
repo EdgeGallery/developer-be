@@ -37,10 +37,12 @@ public class ContainerImageUtilTest {
 
     private HttpServer httpServer;
 
+    private MockUp mockup;
+
     @Before
     public void setUp() throws IOException {
 
-        new MockUp<SpringContextUtil>() {
+        mockup = new MockUp<SpringContextUtil>() {
             @Mock
             public Object getBean(Class<?> requiredType) {
                 ImageConfig imageConfig = new ImageConfig();
@@ -114,6 +116,7 @@ public class ContainerImageUtilTest {
     @After
     public void after() {
         httpServer.stop(1);
+        mockup.tearDown();
     }
 
     @Test

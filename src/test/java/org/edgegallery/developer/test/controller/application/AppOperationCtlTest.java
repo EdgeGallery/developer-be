@@ -28,6 +28,7 @@ import org.edgegallery.developer.service.apppackage.csar.signature.EncryptedServ
 import org.edgegallery.developer.service.uploadfile.UploadFileService;
 import org.edgegallery.developer.test.DeveloperApplicationTests;
 import org.edgegallery.developer.util.AtpUtil;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -59,9 +60,11 @@ public class AppOperationCtlTest {
     @Autowired
     UploadFileService uploadFileService;
 
+    private MockUp mockup;
+
     @Before
     public void init() {
-        new MockUp<AccessUserUtil>() {
+        mockup = new MockUp<AccessUserUtil>() {
             @Mock
             public User getUser() {
                 return new User("userId", "userName");
@@ -69,10 +72,15 @@ public class AppOperationCtlTest {
         };
     }
 
+    @After
+    public void shutdown(){
+        mockup.tearDown();
+    }
+
     @Test
     @WithMockUser(roles = "DEVELOPER_ADMIN")
     public void createAtpTestTest() throws Exception {
-        new MockUp<AtpUtil>() {
+        MockUp mockup = new MockUp<AtpUtil>() {
             @Mock
             public String sendCreateTask2Atp(String filePath, String token) {
                 Map<String, String> result = new HashMap<String, String>();
@@ -89,33 +97,36 @@ public class AppOperationCtlTest {
         ResultActions actions = mvc.perform(MockMvcRequestBuilders.post(url).with((csrf())))
             .andExpect(MockMvcResultMatchers.status().isOk());
         Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
+        mockup.tearDown();
     }
 
     @Test
     @WithMockUser(roles = "DEVELOPER_ADMIN")
     public void getAtpTestsTest() throws Exception {
-        mockQueryAtpTests();
+        MockUp mockup = mockQueryAtpTests();
         String url = String
             .format("/mec/developer/v2/applications/%s/action/atp-tests", "6a75a2bd-9811-432f-bbe8-2813aa97d365");
         ResultActions actions = mvc.perform(MockMvcRequestBuilders.get(url).with((csrf())))
             .andExpect(MockMvcResultMatchers.status().isOk());
         Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
+        mockup.tearDown();
     }
 
     @Test
     @WithMockUser(roles = "DEVELOPER_ADMIN")
     public void getAtpTestByIdTest() throws Exception {
-        mockQueryAtpTests();
+        MockUp mockup = mockQueryAtpTests();
         String url = String
             .format("/mec/developer/v2/applications/%s/atpTests/%s", "6a75a2bd-9811-432f-bbe8-2813aa97d365",
                 "6a75a2bd-1111-432f-bbe8-2813aa97d365");
         ResultActions actions = mvc.perform(MockMvcRequestBuilders.get(url).with((csrf())))
             .andExpect(MockMvcResultMatchers.status().isOk());
         Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
+        mockup.tearDown();
     }
 
-    private void mockQueryAtpTests() {
-        new MockUp<AtpUtil>() {
+    private MockUp mockQueryAtpTests() {
+       return new MockUp<AtpUtil>() {
             @Mock
             public String getTaskStatusFromAtp(String taskId) {
                 Map<String, String> result = new HashMap<String, String>();

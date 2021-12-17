@@ -27,6 +27,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.ibatis.io.Resources;
 import org.edgegallery.developer.test.DeveloperApplicationTests;
 import org.edgegallery.developer.util.ContainerAppHelmChartUtil;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -49,9 +50,11 @@ public class ContainerAppHelmChartCtlAnotherTest {
     @Autowired
     private MockMvc mvc;
 
+    private MockUp mockup;
+
     @Before
     public void setUp() throws IOException {
-        new MockUp<ContainerAppHelmChartUtil>() {
+        mockup = new MockUp<ContainerAppHelmChartUtil>() {
             @Mock
             public boolean checkImageExist(List<String> imageList) {
                 {
@@ -60,6 +63,11 @@ public class ContainerAppHelmChartCtlAnotherTest {
             }
         };
 
+    }
+
+    @After
+    public void shutdown(){
+        mockup.tearDown();
     }
 
     @Test
