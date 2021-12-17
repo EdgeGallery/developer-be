@@ -142,14 +142,14 @@ public class ProfileControllerTest {
     @Test
     @WithMockUser(roles = "DEVELOPER_ADMIN")
     public void createAppByProfileIdTest() throws Exception {
-        new MockUp<AccessUserUtil>() {
+        MockUp mockupAccess = new MockUp<AccessUserUtil>() {
             @Mock
             public User getUser() {
                 return new User("userId", "userName");
             }
         };
 
-        new MockUp<ContainerAppHelmChartUtil>() {
+        MockUp mockup = new MockUp<ContainerAppHelmChartUtil>() {
             @Mock
             public boolean checkImageExist(List<String> imageList) {
                 return true;
@@ -161,12 +161,14 @@ public class ProfileControllerTest {
             .multipart("/mec/developer/v2/profiles/".concat(profileId).concat("/create-application")).file(
                 new MockMultipartFile("iconFile", "iconFile.jpg", MediaType.TEXT_PLAIN_VALUE,
                     FileUtils.openInputStream(file))).with(csrf())).andExpect(MockMvcResultMatchers.status().isOk());
+        mockup.tearDown();
+        mockupAccess.tearDown();
     }
 
     @Test
     @WithMockUser(roles = "DEVELOPER_ADMIN")
     public void createAppByProfileIdNameVersionExistsTest() throws Exception {
-        new MockUp<AccessUserUtil>() {
+        MockUp mockup = new MockUp<AccessUserUtil>() {
             @Mock
             public User getUser() {
                 return new User("userId", "userName");
@@ -179,5 +181,6 @@ public class ProfileControllerTest {
                 new MockMultipartFile("iconFile", "iconFile.jpg", MediaType.TEXT_PLAIN_VALUE,
                     FileUtils.openInputStream(file))).with(csrf())).andReturn();
         assertEquals(400, result.getResponse().getStatus());
+        mockup.tearDown();
     }
 }

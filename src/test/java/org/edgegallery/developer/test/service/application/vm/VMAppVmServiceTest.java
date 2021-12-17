@@ -40,7 +40,7 @@ public class VMAppVmServiceTest {
 
     private final String PRESET_VM1_ID = "6a75a2bd-9811-432f-bbe8-2813aa97d757";
 
-    private final String PRESET_VM2_ID = "6a75a2bd-9811-432f-bbe8-2813aa97d758";
+    private final String PRESET_VM2_ID = "6a75a2bd-9811-432f-bbe8-d18fordelete";
 
     private final String PRESET_VM_NAME = "appvm1";
 

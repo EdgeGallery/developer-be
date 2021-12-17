@@ -102,7 +102,7 @@ public class ReleasedPackageServiceTest extends AbstractJUnit4SpringContextTests
     @Test
     public void testSynchronizePackageFailWithNullQueryPkgRes() throws IOException {
         User user = new User("userId", "userName", "userAuth");
-        new MockUp<AppStoreUtil>() {
+        MockUp mockup = new MockUp<AppStoreUtil>() {
             @Mock
             public ResponseEntity<String> getPkgInfo(String appId, String pkgId, String token) {
                 return null;
@@ -118,12 +118,13 @@ public class ReleasedPackageServiceTest extends AbstractJUnit4SpringContextTests
         } catch (RestfulRequestException e) {
             Assert.assertEquals("call app store query pkg interface failed!", e.getMessage());
         }
+        mockup.tearDown();
     }
 
     @Test
     public void testSynchronizePackageFailWithFalseDownloadPkgRes() throws IOException {
         User user = new User("userId", "userName", "userAuth");
-        new MockUp<AppStoreUtil>() {
+        MockUp mockup = new MockUp<AppStoreUtil>() {
             @Mock
             public ResponseEntity<String> getPkgInfo(String appId, String pkgId, String token) {
                 String res = "{\n" + "    \"data\": {\n"
@@ -162,12 +163,13 @@ public class ReleasedPackageServiceTest extends AbstractJUnit4SpringContextTests
         } catch (RestfulRequestException e) {
             Assert.assertEquals("download pkg failed!", e.getMessage());
         }
+        mockup.tearDown();
     }
 
     @Test
     public void testSynchronizePackageSuccess() throws IOException {
         User user = new User("userId", "userName", "userAuth");
-        new MockUp<AppStoreUtil>() {
+        MockUp mockup = new MockUp<AppStoreUtil>() {
             @Mock
             public ResponseEntity<String> getPkgInfo(String appId, String pkgId, String token) {
                 String res = "{\n" + "    \"data\": {\n"
@@ -203,6 +205,7 @@ public class ReleasedPackageServiceTest extends AbstractJUnit4SpringContextTests
         pkgReqDtos.add(releasedPkgReqDto);
         boolean ret = releasedPackageService.synchronizePackage(user, pkgReqDtos);
         Assert.assertEquals(true, ret);
+        mockup.tearDown();
     }
 
     @Test
@@ -331,7 +334,7 @@ public class ReleasedPackageServiceTest extends AbstractJUnit4SpringContextTests
 
     @Test
     public void testDeleteAppPkgSuccess() throws IOException {
-        boolean ret = releasedPackageService.deleteAppPkg("f2759fcb-bb4b-42f5-bc6c-8e1635348fdc");
+        boolean ret = releasedPackageService.deleteAppPkg("f2759fcb-bb4b-42f5-bc6c-8e1635fordel");
         Assert.assertEquals(true, ret);
     }
 

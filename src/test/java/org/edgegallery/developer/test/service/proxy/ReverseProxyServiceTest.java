@@ -126,7 +126,7 @@ public class ReverseProxyServiceTest {
 
     @Test
     public void testGetVmConsoleUrlFail2() {
-        new MockUp<HttpClientUtil>() {
+        MockUp mockup = new MockUp<HttpClientUtil>() {
             @Mock
             public String getVncUrl(String basePath, String userId, String hostId, String vmId, String token) {
                 return null;
@@ -139,11 +139,12 @@ public class ReverseProxyServiceTest {
         } catch (DeveloperException e) {
             Assert.assertEquals("failed to get vnc console url", e.getMessage());
         }
+        mockup.tearDown();
     }
 
     @Test
     public void testGetVmConsoleUrlFail3() {
-        new MockUp<HttpClientUtil>() {
+        MockUp mockup = new MockUp<HttpClientUtil>() {
             @Mock
             public String getVncUrl(String basePath, String userId, String hostId, String vmId, String token) {
                 return "{\"console\":{\"type\":\"url\",\"url\":\"localhost:30101\"}}";
@@ -156,6 +157,7 @@ public class ReverseProxyServiceTest {
         } catch (DeveloperException e) {
             Assert.assertEquals("failed to generate proxy url", e.getMessage());
         }
+        mockup.tearDown();
     }
 
     @Test
@@ -172,45 +174,47 @@ public class ReverseProxyServiceTest {
 
     @Test
     public void testGetVmSshResponseInfoFail2() {
+        MockUp mockup = new MockUp<HttpClientUtil>() {
+            @Mock
+            public SshResponseInfo sendWebSshRequest(String basePath, String hostIp, int port, String username,
+                String password, String XSRFValue) {
+                return null;
+            }
+        };
         try {
-            new MockUp<HttpClientUtil>() {
-                @Mock
-                public SshResponseInfo sendWebSshRequest(String basePath, String hostIp, int port, String username,
-                    String password, String XSRFValue) {
-                    return null;
-                }
-            };
             String applicationId = "4cbbab9d-c48f-4adb-ae82-d1816d8edd7c";
             String vmId = "6a75a2bd-9811-432f-bbe8-2813aa97d758";
             proxyService.getVmSshResponseInfo(applicationId, vmId, "", "");
         } catch (DeveloperException e) {
             Assert.assertEquals("failed to get ssh console url", e.getMessage());
         }
+        mockup.tearDown();
     }
 
     @Test
     public void testGetVmSshResponseInfoFail3() {
+        MockUp mockup = new MockUp<HttpClientUtil>() {
+            @Mock
+            public SshResponseInfo sendWebSshRequest(String basePath, String hostIp, int port, String username,
+                String password, String XSRFValue) {
+                SshResponseInfo sshResponseInfo = new SshResponseInfo();
+                sshResponseInfo.setId("");
+                return sshResponseInfo;
+            }
+        };
         try {
-            new MockUp<HttpClientUtil>() {
-                @Mock
-                public SshResponseInfo sendWebSshRequest(String basePath, String hostIp, int port, String username,
-                    String password, String XSRFValue) {
-                    SshResponseInfo sshResponseInfo = new SshResponseInfo();
-                    sshResponseInfo.setId("");
-                    return sshResponseInfo;
-                }
-            };
             String applicationId = "4cbbab9d-c48f-4adb-ae82-d1816d8edd7c";
             String vmId = "6a75a2bd-9811-432f-bbe8-2813aa97d758";
             proxyService.getVmSshResponseInfo(applicationId, vmId, "", "");
         } catch (DeveloperException e) {
             Assert.assertEquals("WebSsh info input error", e.getMessage());
         }
+        mockup.tearDown();
     }
 
     @Test
     public void testGetVmSshResponseInfoSuccess() {
-        new MockUp<HttpClientUtil>() {
+        MockUp mockup = new MockUp<HttpClientUtil>() {
             @Mock
             public SshResponseInfo sendWebSshRequest(String basePath, String hostIp, int port, String username,
                 String password, String XSRFValue) {
@@ -224,6 +228,7 @@ public class ReverseProxyServiceTest {
         String applicationId = "4cbbab9d-c48f-4adb-ae82-d1816d8edd7c";
         String vmId = "6a75a2bd-9811-432f-bbe8-2813aa97d758";
         Assert.assertNotNull(proxyService.getVmSshResponseInfo(applicationId, vmId, "", ""));
+        mockup.tearDown();
     }
 
 }
