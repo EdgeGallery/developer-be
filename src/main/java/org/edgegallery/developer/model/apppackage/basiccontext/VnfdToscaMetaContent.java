@@ -1,4 +1,4 @@
-package org.edgegallery.developer.model.apppackage.basicContext;
+package org.edgegallery.developer.model.apppackage.basiccontext;
 
 import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;

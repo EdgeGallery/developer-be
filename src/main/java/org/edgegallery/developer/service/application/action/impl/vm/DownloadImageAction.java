@@ -16,13 +16,12 @@
 package org.edgegallery.developer.service.application.action.impl.vm;
 
 import org.apache.commons.lang3.StringUtils;
-import org.edgegallery.developer.mapper.application.vm.ImageExportInfoMapper;
-import org.edgegallery.developer.model.lcm.LcmLog;
 import org.edgegallery.developer.model.application.vm.EnumVMStatus;
 import org.edgegallery.developer.model.application.vm.VirtualMachine;
 import org.edgegallery.developer.model.filesystem.FileSystemResponse;
 import org.edgegallery.developer.model.instantiate.vm.EnumImageExportStatus;
 import org.edgegallery.developer.model.instantiate.vm.ImageExportInfo;
+import org.edgegallery.developer.model.lcm.LcmLog;
 import org.edgegallery.developer.model.operation.ActionStatus;
 import org.edgegallery.developer.model.operation.EnumOperationObjectType;
 import org.edgegallery.developer.model.resource.vm.EnumVmImageSlimStatus;
@@ -159,7 +158,7 @@ public class DownloadImageAction extends AbstractAction {
         ImageExportInfo imageExportInfo = vmAppOperationService.getImageExportInfo(vmId);
         imageExportInfo.setStatus(status);
         imageExportInfo.setLog(log);
-        vmAppOperationService.modifyExportInfo(vmId, imageExportInfo);;
+        vmAppOperationService.modifyExportInfo(vmId, imageExportInfo);
         return true;
     }
 }

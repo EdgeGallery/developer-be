@@ -28,7 +28,7 @@ import org.edgegallery.developer.model.instantiate.container.ContainerAppInstant
 @ToString
 public class ContainerApplication extends Application {
 
-    private List<HelmChart> helmChartList = new ArrayList<HelmChart>(0);
+    private List<HelmChart> helmChartList = new ArrayList<>(0);
 
     private ContainerAppInstantiateInfo instantiateInfo;
 

@@ -31,10 +31,10 @@ public class TrafficRule {
 
     private Integer priority;
 
-    private List<TrafficFilter> trafficFilter = new ArrayList<TrafficFilter>(0);
+    private List<TrafficFilter> trafficFilter = new ArrayList<>(0);
 
     private String action;
 
-    private List<DstInterface> dstInterface = new ArrayList<DstInterface>(0);
+    private List<DstInterface> dstInterface = new ArrayList<>(0);
 
 }

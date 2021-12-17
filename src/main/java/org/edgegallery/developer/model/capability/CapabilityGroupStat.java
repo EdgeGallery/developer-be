@@ -15,14 +15,13 @@
  */
 package org.edgegallery.developer.model.capability;
 
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
 public class CapabilityGroupStat extends CapabilityGroup{
+
 	private int capabilityCount;
 
-	public int getCapabilityCount() {
-		return capabilityCount;
-	}
-
-	public void setCapabilityCount(int capabilityCount) {
-		this.capabilityCount = capabilityCount;
-	}
 }

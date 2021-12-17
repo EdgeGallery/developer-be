@@ -164,7 +164,7 @@ public abstract class DistributePackageAction extends AbstractAction {
         while (waitingTime < TIMEOUT) {
             String distributeResult = HttpClientUtil.getDistributeRes(basePath, userId, getContext().getToken(),
                 packageId);
-            LOGGER.info("Distribute package result: {}", distributeResult);
+            LOGGER.info("Get distribute package result: {}", distributeResult);
             if (distributeResult == null) {
                 LOGGER.error("Get distribute package result failed");
                 return EnumDistributeStatus.DISTRIBUTE_PACKAGE_STATUS_ERROR;
@@ -182,7 +182,7 @@ public abstract class DistributePackageAction extends AbstractAction {
                 LOGGER.error("Failed to upload vm image packageId is : {}.", packageId);
                 return EnumDistributeStatus.DISTRIBUTE_PACKAGE_STATUS_FAILED;
             } else if (EnumDistributeStatus.DISTRIBUTE_PACKAGE_STATUS_SUCCESS.toString().equals(status)) {
-                LOGGER.info("Distribute package result: {}", distributeResult);
+                LOGGER.info("Distribute package success: {}", distributeResult);
                 return EnumDistributeStatus.DISTRIBUTE_PACKAGE_STATUS_SUCCESS;
             }
             try {

@@ -35,7 +35,7 @@ public class ImageExportInfo {
 
     private String format;
 
-    private String CheckSum;
+    private String checkSum;
 
     private EnumImageExportStatus status;
 

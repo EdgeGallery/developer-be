@@ -21,6 +21,10 @@ import org.edgegallery.developer.model.common.User;
 
 public final class AccessUserUtil {
 
+    private AccessUserUtil() {
+        throw new IllegalStateException("AccessUserUtil class");
+    }
+
     private static final ThreadLocal<User> user = new ThreadLocal<>();
 
     public static void setUser(String userId, String userName) {

@@ -14,12 +14,12 @@
 
 package org.edgegallery.developer.service.apppackage.csar.filehandler;
 
-import org.edgegallery.developer.model.apppackage.basicContext.ManifestCmsContent;
-import org.edgegallery.developer.model.apppackage.basicContext.ManifestFiledataContent;
-import org.edgegallery.developer.model.apppackage.basicContext.ManifestMetadataContent;
-import org.edgegallery.developer.model.apppackage.basicContext.ToscaMetadataContent;
-import org.edgegallery.developer.model.apppackage.basicContext.ToscaSourceContent;
-import org.edgegallery.developer.model.apppackage.basicContext.VnfdToscaMetaContent;
+import org.edgegallery.developer.model.apppackage.basiccontext.ManifestCmsContent;
+import org.edgegallery.developer.model.apppackage.basiccontext.ManifestFiledataContent;
+import org.edgegallery.developer.model.apppackage.basiccontext.ManifestMetadataContent;
+import org.edgegallery.developer.model.apppackage.basiccontext.ToscaMetadataContent;
+import org.edgegallery.developer.model.apppackage.basiccontext.ToscaSourceContent;
+import org.edgegallery.developer.model.apppackage.basiccontext.VnfdToscaMetaContent;
 
 public final class TocsarFileHandlerFactory {
 

@@ -98,7 +98,7 @@ public class CreateImageAction extends AbstractAction {
             + imageId;
         updateActionProgress(actionStatus, 30, msg);
         //Save  imageId to ImageExportInfo.
-        Boolean updateRes = saveImageIdToImageExportInfo(imageId);
+        boolean updateRes = saveImageIdToImageExportInfo(imageId);
         if (!updateRes) {
             updateActionError(actionStatus, "Update ImageId To image export info failed.");
             return false;

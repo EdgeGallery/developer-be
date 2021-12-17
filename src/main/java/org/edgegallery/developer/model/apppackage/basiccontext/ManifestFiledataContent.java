@@ -12,25 +12,20 @@
  * the License.
  */
 
-package org.edgegallery.developer.model.apppackage.basicContext;
+package org.edgegallery.developer.model.apppackage.basiccontext;
 
 import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 import org.edgegallery.developer.model.apppackage.IToscaContentEnum;
 
 /**
- * manifest-file: metadata info.
+ * manifest-file: source file.
  */
 @Getter
-public enum ManifestMetadataContent implements IToscaContentEnum {
-    METADATA("metadata", true),
-    APP_PRODUCT_NAME("app_product_name", true),
-    APP_PROVIDER_ID("app_provider_id", true),
-    APP_PACKAGE_VERSION("app_package_version", true),
-    APP_RELEASE_DATA_TIME("app_release_data_time", true),
-    APP_TYPE("app_type", false),
-    APP_CLASS("app_class", true),
-    APP_PACKAGE_DESCRIPTION("app_package_description", false);
+public enum ManifestFiledataContent implements IToscaContentEnum {
+    SOURCE("Source", true),
+    ALGORITHM("Algorithm", true),
+    HASH("Hash", true);
 
     private final String name;
 
@@ -38,7 +33,7 @@ public enum ManifestMetadataContent implements IToscaContentEnum {
 
     private final String split = ": ";
 
-    ManifestMetadataContent(String name, boolean isNotNull) {
+    ManifestFiledataContent(String name, boolean isNotNull) {
         this.name = name;
         this.isNotNull = isNotNull;
     }
@@ -47,7 +42,7 @@ public enum ManifestMetadataContent implements IToscaContentEnum {
      * create enum from name.
      */
     public IToscaContentEnum of(String name) {
-        for (ManifestMetadataContent type : ManifestMetadataContent.values()) {
+        for (ManifestFiledataContent type : ManifestFiledataContent.values()) {
             if (type.name.equals(name)) {
                 return type;
             }

@@ -30,5 +30,5 @@ public class K8sService {
 
     private String type;
 
-    private List<K8sServicePort> servicePortList = new ArrayList<K8sServicePort>(0);
+    private List<K8sServicePort> servicePortList = new ArrayList<>(0);
 }

@@ -33,7 +33,7 @@ public class TopologyTemplate {
     @Valid
     @NotNull
     @JsonProperty("inputs")
-    private LinkedHashMap<String, InputParam> inputs = new LinkedHashMap<String, InputParam>();
+    private LinkedHashMap<String, InputParam> inputs = new LinkedHashMap<>();
 
     @Valid
     @NotNull
@@ -57,7 +57,7 @@ public class TopologyTemplate {
         vnfNode.setType(NodeTypeConstant.NODE_TYPE_VNF);
         vnfNode.setProperties(new VNFNodeProperty());
         if (null == this.nodeTemplates) {
-            this.nodeTemplates = new LinkedHashMap<String, NodeTemplate>();
+            this.nodeTemplates = new LinkedHashMap<>();
         }
         this.nodeTemplates.put(AppdConstants.VNF_NODE_NAME, vnfNode);
     }

@@ -44,9 +44,9 @@ public class ContainerAppInstantiateInfo {
 
     private Date instantiateTime;
 
-    private List<K8sPod> pods = new ArrayList<K8sPod>(0);
+    private List<K8sPod> pods = new ArrayList<>(0);
 
-    private List<K8sService> serviceList = new ArrayList<K8sService>(0);
+    private List<K8sService> serviceList = new ArrayList<>(0);
 
 
 }

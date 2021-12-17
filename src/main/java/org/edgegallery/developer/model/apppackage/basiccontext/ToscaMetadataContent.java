@@ -12,64 +12,52 @@
  * the License.
  */
 
-package org.edgegallery.developer.model.apppackage.basicContext;
+package org.edgegallery.developer.model.apppackage.basiccontext;
 
 import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 import org.edgegallery.developer.model.apppackage.IToscaContentEnum;
 
+/**
+ * TOSCA-Metadata: metadata.
+ */
 @Getter
-public enum ManifestCmsContent implements IToscaContentEnum {
-
-    BEGIN_CMS("-----BEGIN CMS-----", true),
-    CONTENT_CMS(".*", true),
-    END_CMS("-----END CMS-----", true);
+public enum ToscaMetadataContent implements IToscaContentEnum {
+    TOSCA_META_FILE_VERSION("TOSCA-Meta-File-Version", true),
+    CSAR_VERSION("CSAR-Version", true),
+    CREATED_BY("Created-by", true),
+    ENTRY_DEFINITIONS("Entry-Definitions", true);
 
     private final String name;
 
     private final boolean isNotNull;
 
-    private final String split = "";
+    private final String split = ": ";
 
-    ManifestCmsContent(String name, boolean isNotNull) {
+    ToscaMetadataContent(String name, boolean isNotNull) {
         this.name = name;
         this.isNotNull = isNotNull;
     }
 
-    @Override
+    /**
+     * create enum from name.
+     */
     public IToscaContentEnum of(String name) {
-        for (ManifestCmsContent type : ManifestCmsContent.values()) {
+        for (ToscaMetadataContent type : ToscaMetadataContent.values()) {
             if (type.name.equals(name)) {
                 return type;
             }
         }
-        if (!StringUtils.isEmpty(name)) {
-            return CONTENT_CMS;
-        }
         return null;
     }
 
-    /**
-     * to check the value is right.
-     */
+    @Override
     public boolean check(String value) {
         return !this.isNotNull() || !StringUtils.isEmpty(value);
     }
 
-    /**
-     * format to string this value.
-     */
     @Override
     public String toString(String value) {
-        switch (this) {
-            case BEGIN_CMS:
-                return BEGIN_CMS.getName();
-            case END_CMS:
-                return END_CMS.getName();
-            case CONTENT_CMS:
-                return value;
-            default:
-                return "";
-        }
+        return ToscaFileUtil.toStringBy(this, value);
     }
 }

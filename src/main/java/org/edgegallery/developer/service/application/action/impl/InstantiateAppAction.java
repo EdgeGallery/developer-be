@@ -130,7 +130,7 @@ public abstract class InstantiateAppAction extends AbstractAction {
     }
 
     public Map<String, String> getInputParams(MepHost mepHost) {
-        return new HashMap<String, String>();
+        return new HashMap<>();
     }
 
     public EnumInstantiateStatus queryInstantiateStatus(String appInstanceId, MepHost mepHost) {

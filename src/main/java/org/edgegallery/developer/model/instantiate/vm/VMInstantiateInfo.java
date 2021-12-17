@@ -48,7 +48,7 @@ public class VMInstantiateInfo {
 
     private String vncUrl;
 
-    private List<PortInstantiateInfo> portInstanceList = new ArrayList<PortInstantiateInfo>(0);
+    private List<PortInstantiateInfo> portInstanceList = new ArrayList<>(0);
 
 
 }

@@ -15,8 +15,6 @@
  */
 package org.edgegallery.developer.service.application.action;
 
-import org.edgegallery.developer.service.application.action.IAction;
-
 public interface IActionIterator {
 
     boolean hasNext();

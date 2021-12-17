@@ -16,6 +16,10 @@ package org.edgegallery.developer.common;
 
 public final class ResponseConsts {
 
+    private ResponseConsts() {
+        throw new IllegalStateException("ResponseConsts class");
+    }
+
     /**
      * request format is error.
      */

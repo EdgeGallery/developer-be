@@ -27,7 +27,7 @@ public class ApplicationDetail {
 
     private VMApplication vmApp;
 
-    private ContainerApplication ContainerApp;
+    private ContainerApplication containerApp;
 
 
 }

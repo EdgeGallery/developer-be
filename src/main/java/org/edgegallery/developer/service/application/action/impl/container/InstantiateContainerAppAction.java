@@ -55,6 +55,7 @@ public class InstantiateContainerAppAction extends InstantiateAppAction {
 
     private static Gson gson = new Gson();
 
+    @Override
     public boolean saveInstanceIdToInstantiateInfo(String appInstanceId, EnumAppInstantiateStatus status) {
         String applicationId = (String) getContext().getParameter(IContextParameter.PARAM_APPLICATION_ID);
         ContainerAppInstantiateInfo instantiateInfo = containerAppOperationService.getInstantiateInfo(applicationId);
@@ -129,10 +130,12 @@ public class InstantiateContainerAppAction extends InstantiateAppAction {
         return pod;
     }
 
+    @Override
     public Map<String, String> getInputParams(MepHost mepHost) {
         return null;
     }
 
+    @Override
     public EnumInstantiateStatus queryInstantiateStatus(String appInstanceId, MepHost mepHost) {
         int waitingTime = 0;
         PodStatusInfos status = null;
