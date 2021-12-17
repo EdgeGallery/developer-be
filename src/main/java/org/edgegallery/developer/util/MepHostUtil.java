@@ -15,8 +15,6 @@
 package org.edgegallery.developer.util;
 
 import java.io.File;
-import org.apache.http.client.CookieStore;
-import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.servicecomb.provider.springmvc.reference.RestTemplateBuilder;
 import org.edgegallery.developer.common.Consts;
 import org.edgegallery.developer.exception.CustomException;
@@ -43,6 +41,10 @@ public final class MepHostUtil {
     private static final Logger LOGGER = LoggerFactory.getLogger(MepHostUtil.class);
 
     private static final RestTemplate REST_TEMPLATE = new RestTemplate();
+
+    private MepHostUtil() {
+        throw new IllegalStateException("MepHostUtil class");
+    }
 
     /**
      * addMecHostToLcm.

@@ -15,7 +15,6 @@
 package org.edgegallery.developer.service.recource.vm.impl;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -58,7 +57,7 @@ import org.edgegallery.developer.service.recource.vm.VMImageService;
 import org.edgegallery.developer.util.BusinessConfigUtil;
 import org.edgegallery.developer.util.HttpClientUtil;
 import org.edgegallery.developer.util.InitConfigUtil;
-import org.edgegallery.developer.util.SystemImageUtil;
+import org.edgegallery.developer.util.VMImageUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -82,8 +81,6 @@ public class VMImageServiceImpl implements VMImageService {
     private static final int CHECK_STATUS_SUCCESS = 0;
 
     private static final int CHECK_STATUS_PROGRESS = 4;
-
-    private static final String FILE_FORMAT_ISO = "iso";
 
     private static final String FILE_SLIM_PATH = "/action/slim";
 
@@ -139,18 +136,18 @@ public class VMImageServiceImpl implements VMImageService {
         Map map = new HashMap<>();
         map.put("name", vmImageReq.getName());
         if (StringUtils.isNotEmpty(vmImageReq.getVisibleType())) {
-            map.put("visibleTypes", SystemImageUtil.splitParam(vmImageReq.getVisibleType()));
+            map.put("visibleTypes", VMImageUtil.splitParam(vmImageReq.getVisibleType()));
         } else {
             map.put("visibleTypes", null);
         }
         map.put("userId", vmImageReq.getUserId());
         if (StringUtils.isNotEmpty(vmImageReq.getOsType())) {
-            map.put("osTypes", SystemImageUtil.splitParam(vmImageReq.getOsType()));
+            map.put("osTypes", VMImageUtil.splitParam(vmImageReq.getOsType()));
         } else {
             map.put("osTypes", null);
         }
         if (StringUtils.isNotEmpty(vmImageReq.getStatus())) {
-            map.put("statusList", SystemImageUtil.splitParam(vmImageReq.getStatus()));
+            map.put("statusList", VMImageUtil.splitParam(vmImageReq.getStatus()));
         } else {
             map.put("statusList", null);
         }
@@ -620,26 +617,6 @@ public class VMImageServiceImpl implements VMImageService {
             + imageId + File.separator;
     }
 
-    private boolean imageSlimByFileServer(Integer imageId) {
-        String imagePath = vmImageMapper.getVmImagesPath(imageId);
-        if (StringUtils.isEmpty(imagePath)) {
-            LOGGER.debug("image path is invalid, no need to delete.");
-            return false;
-        }
-        try {
-            String url = imagePath.substring(0, imagePath.length() - 16) + FILE_SLIM_PATH;
-            boolean slimResult = HttpClientUtil.imageSlim(url);
-            if (!slimResult) {
-                LOGGER.error("image slim by file server failed.");
-                return false;
-            }
-        } catch (Exception e) {
-            LOGGER.error("image slim by file server failed. {}", e.getMessage());
-            return false;
-        }
-        return true;
-    }
-
     public class GetVmImageSlimProcessor extends Thread {
 
         Integer imageId;
@@ -652,7 +629,7 @@ public class VMImageServiceImpl implements VMImageService {
 
         @Override
         public void run() {
-            Boolean res = getImageFileInfo(imageId, operationStatus);
+            boolean res = getImageFileInfo(imageId, operationStatus);
             if (res) {
                 LOGGER.info("slim image success");
             } else {
@@ -681,6 +658,26 @@ public class VMImageServiceImpl implements VMImageService {
             saveOperationInfo(operationStatus, EnumActionStatus.SUCCESS, 100, "vm image slim success");
             return true;
 
+        }
+
+        private boolean imageSlimByFileServer(Integer imageId) {
+            String imagePath = vmImageMapper.getVmImagesPath(imageId);
+            if (StringUtils.isEmpty(imagePath)) {
+                LOGGER.debug("image path is invalid, no need to delete.");
+                return false;
+            }
+            try {
+                String url = imagePath.substring(0, imagePath.length() - 16) + FILE_SLIM_PATH;
+                boolean slimResult = HttpClientUtil.imageSlim(url);
+                if (!slimResult) {
+                    LOGGER.error("image slim by file server failed.");
+                    return false;
+                }
+            } catch (Exception e) {
+                LOGGER.error("image slim by file server failed. {}", e.getMessage());
+                return false;
+            }
+            return true;
         }
 
         private boolean querySlimProgress(int imageId) {

@@ -77,7 +77,8 @@ public final class HttpClientUtil {
             return false;
         }
         //parse dis res
-        List<DistributeResponse> list = gson.fromJson(disRes, new TypeToken<List<DistributeResponse>>() { }.getType());
+        List<DistributeResponse> list = gson.fromJson(disRes, new TypeToken<List<DistributeResponse>>() {
+        }.getType());
         String appName = list.get(0).getAppPkgName();
         //set instantiate headers
         HttpHeaders headers = new HttpHeaders();
@@ -91,8 +92,7 @@ public final class HttpClientUtil {
         ins.setParameters(inputParams);
         LOGGER.warn(gson.toJson(ins));
         HttpEntity<String> requestEntity = new HttpEntity<>(gson.toJson(ins), headers);
-        String url = basePath + Consts.APP_LCM_INSTANTIATE_APP_URL.replaceAll("appInstanceId", appInstanceId)
-            .replaceAll("tenantId", userId);
+        String url = basePath + String.format(Consts.APP_LCM_INSTANTIATE_APP_URL, userId, appInstanceId);
         LOGGER.warn(url);
         ResponseEntity<String> response;
         try {
@@ -129,7 +129,7 @@ public final class HttpClientUtil {
         headers.set(Consts.ACCESS_TOKEN_STR, token);
         headers.set("Origin", "mepm");
         HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
-        String url = basePath + Consts.APP_LCM_UPLOAD_APPPKG_URL.replaceAll("tenantId", userId);
+        String url = basePath + String.format(Consts.APP_LCM_UPLOAD_APPPKG_URL, userId);
         ResponseEntity<String> response;
         try {
             REST_TEMPLATE.setErrorHandler(new CustomResponseErrorHandler());
@@ -169,8 +169,7 @@ public final class HttpClientUtil {
         headers.set(Consts.ACCESS_TOKEN_STR, token);
         Gson gson = new Gson();
         HttpEntity<String> requestEntity = new HttpEntity<>(gson.toJson(body), headers);
-        String url = basePath + Consts.APP_LCM_DISTRIBUTE_APPPKG_URL.replaceAll("tenantId", userId)
-            .replaceAll("packageId", packageId);
+        String url = basePath + String.format(Consts.APP_LCM_DISTRIBUTE_APPPKG_URL, userId, packageId);
         ResponseEntity<String> response;
         try {
             REST_TEMPLATE.setErrorHandler(new CustomResponseErrorHandler());
@@ -201,8 +200,7 @@ public final class HttpClientUtil {
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.set(Consts.ACCESS_TOKEN_STR, token);
         HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(null, headers);
-        String url = basePath + Consts.APP_LCM_DELETE_HOST_URL.replaceAll("tenantId", userId)
-            .replaceAll("packageId", pkgId).replaceAll("hostIp", hostIp);
+        String url = basePath + String.format(Consts.APP_LCM_DELETE_HOST_URL, userId, pkgId, hostIp);
         ResponseEntity<String> response;
         try {
             response = REST_TEMPLATE.exchange(url, HttpMethod.DELETE, requestEntity, String.class);
@@ -226,8 +224,7 @@ public final class HttpClientUtil {
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.set(Consts.ACCESS_TOKEN_STR, token);
         HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(null, headers);
-        String url = basePath + Consts.APP_LCM_DELETE_APPPKG_URL.replaceAll("tenantId", userId)
-            .replaceAll("packageId", pkgId);
+        String url = basePath + String.format(Consts.APP_LCM_DELETE_APPPKG_URL, userId, pkgId);
         ResponseEntity<String> response;
         try {
             response = REST_TEMPLATE.exchange(url, HttpMethod.DELETE, requestEntity, String.class);
@@ -251,8 +248,7 @@ public final class HttpClientUtil {
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.set(Consts.ACCESS_TOKEN_STR, token);
         HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(null, headers);
-        String url = basePath + Consts.APP_LCM_DISTRIBUTE_APPPKG_URL.replaceAll("tenantId", userId)
-            .replaceAll("packageId", pkgId);
+        String url = basePath + String.format(Consts.APP_LCM_DISTRIBUTE_APPPKG_URL, userId, pkgId);
         ResponseEntity<String> response;
         try {
             response = REST_TEMPLATE.exchange(url, HttpMethod.GET, requestEntity, String.class);
@@ -275,8 +271,7 @@ public final class HttpClientUtil {
      * @return boolean
      */
     public static boolean terminateAppInstance(String basePath, String appInstanceId, String userId, String token) {
-        String url = basePath + Consts.APP_LCM_TERMINATE_APP_URL.replaceAll("appInstanceId", appInstanceId)
-            .replaceAll("tenantId", userId);
+        String url = basePath + String.format(Consts.APP_LCM_TERMINATE_APP_URL, userId, appInstanceId);
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.set(Consts.ACCESS_TOKEN_STR, token);
@@ -302,8 +297,7 @@ public final class HttpClientUtil {
      * @return String
      */
     public static String getWorkloadStatus(String basePath, String appInstanceId, String userId, String token) {
-        String url = basePath + Consts.APP_LCM_GET_WORKLOAD_STATUS_URL.replaceAll("appInstanceId", appInstanceId)
-            .replaceAll("tenantId", userId);
+        String url = basePath + String.format(Consts.APP_LCM_GET_WORKLOAD_STATUS_URL, userId, appInstanceId);
         LOGGER.info("url is {}", url);
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -330,8 +324,7 @@ public final class HttpClientUtil {
      * @return String
      */
     public static String getVncUrl(String basePath, String userId, String hostId, String vmId, String token) {
-        String url = basePath + Consts.APP_LCM_GET_VNC_CONSOLE_URL.replaceAll("tenantId", userId)
-            .replaceAll("hostId", hostId).replaceAll("vmId", vmId);
+        String url = basePath + String.format(Consts.APP_LCM_GET_VNC_CONSOLE_URL, userId, vmId);
         LOGGER.info("url is {}", url);
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -365,8 +358,7 @@ public final class HttpClientUtil {
      * @return String
      */
     public static String getWorkloadEvents(String basePath, String appInstanceId, String userId, String token) {
-        String url = basePath + Consts.APP_LCM_GET_WORKLOAD_EVENTS_URL.replaceAll("appInstanceId", appInstanceId)
-            .replaceAll("tenantId", userId);
+        String url = basePath + String.format(Consts.APP_LCM_GET_WORKLOAD_EVENTS_URL, userId, appInstanceId);
         LOGGER.info("work event url is {}", url);
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -423,8 +415,7 @@ public final class HttpClientUtil {
         Gson gson = new Gson();
         LOGGER.warn(gson.toJson(ins));
         HttpEntity<String> requestEntity = new HttpEntity<>(gson.toJson(ins), headers);
-        String url = basePath + Consts.APP_LCM_INSTANTIATE_IMAGE_URL.replaceAll("appInstanceId", appInstanceId)
-            .replaceAll("tenantId", userId);
+        String url = basePath + String.format(Consts.APP_LCM_INSTANTIATE_IMAGE_URL, userId, appInstanceId);
         LOGGER.warn(url);
         ResponseEntity<String> response;
         try {
@@ -455,8 +446,7 @@ public final class HttpClientUtil {
      */
     public static String getImageStatus(String basePath, String appInstanceId, String userId, String imageId,
         String lcmToken) {
-        String url = basePath + Consts.APP_LCM_GET_IMAGE_STATUS_URL.replaceAll("appInstanceId", appInstanceId)
-            .replaceAll("tenantId", userId).replaceAll("imageId", imageId);
+        String url = basePath + String.format(Consts.APP_LCM_GET_IMAGE_STATUS_URL, userId, appInstanceId, imageId);
         LOGGER.info("url is {}", url);
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -482,8 +472,7 @@ public final class HttpClientUtil {
     public static boolean deleteVmImage(String basePath, String userId, String appInstanceId, String imageId,
         String token) {
 
-        String url = basePath + Consts.APP_LCM_GET_IMAGE_DELETE_URL.replaceAll("appInstanceId", appInstanceId)
-            .replaceAll("tenantId", userId).replaceAll("imageId", imageId);
+        String url = basePath + String.format(Consts.APP_LCM_GET_IMAGE_STATUS_URL, userId, appInstanceId, imageId);
         LOGGER.info("url is {}", url);
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -505,8 +494,8 @@ public final class HttpClientUtil {
      * slice upload file.
      *
      * @param fileServerAddr File Server Address
-     * @param chunk File Chunk
-     * @param filePath File Path
+     * @param chunk          File Chunk
+     * @param filePath       File Path
      * @return upload result
      */
     public static boolean sliceUploadFile(String fileServerAddr, Chunk chunk, String filePath) {
@@ -547,7 +536,7 @@ public final class HttpClientUtil {
      * cancel slice upload file.
      *
      * @param fileServerAddr File Server Address
-     * @param identifier File Identifier
+     * @param identifier     File Identifier
      * @return cancel result
      */
     public static boolean cancelSliceUpload(String fileServerAddr, String identifier) {
@@ -590,9 +579,9 @@ public final class HttpClientUtil {
      * slice merge file.
      *
      * @param fileServerAddr File Server Address
-     * @param identifier File Identifier
-     * @param fileName File Name
-     * @param userId User ID
+     * @param identifier     File Identifier
+     * @param fileName       File Name
+     * @param userId         User ID
      * @return merge result
      */
     public static String sliceMergeFile(String fileServerAddr, String identifier, String fileName, String userId) {
@@ -638,7 +627,7 @@ public final class HttpClientUtil {
     /**
      * delete system image.
      */
-    public static Boolean deleteSystemImage(String url) {
+    public static boolean deleteSystemImage(String url) {
         HttpHeaders headers = new HttpHeaders();
         HttpEntity<String> requestEntity = new HttpEntity<>(headers);
         ResponseEntity<String> response;
@@ -728,16 +717,16 @@ public final class HttpClientUtil {
     }
 
     public static SshResponseInfo sendWebSshRequest(String basePath, String hostIp, int port, String username,
-        String password, String XSRFValue) {
+        String password, String xsrfValue) {
         MultiValueMap<String, Object> formData = new LinkedMultiValueMap<>();
         formData.add("hostname", hostIp);
         formData.add("port", port);
         formData.add("username", username);
         formData.add("password", password);
-        formData.add("_xsrf", XSRFValue);
+        formData.add("_xsrf", xsrfValue);
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);
-        headers.add("Cookie", "_xsrf=" + XSRFValue);
+        headers.add("Cookie", "_xsrf=" + xsrfValue);
         LOGGER.info("send WebSsh request url is {}", basePath);
         HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(formData, headers);
 

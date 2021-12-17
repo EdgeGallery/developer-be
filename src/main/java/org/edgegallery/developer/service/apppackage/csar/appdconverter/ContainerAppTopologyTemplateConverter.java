@@ -15,7 +15,6 @@
 package org.edgegallery.developer.service.apppackage.csar.appdconverter;
 
 import java.util.List;
-import org.edgegallery.developer.model.application.EnumAppClass;
 import org.edgegallery.developer.model.application.container.ContainerApplication;
 import org.edgegallery.developer.model.apppackage.ImageDesc;
 import org.edgegallery.developer.model.apppackage.appd.NodeTemplate;
@@ -43,7 +42,8 @@ public class ContainerAppTopologyTemplateConverter extends TopologyTemplateConve
     protected void updateVDUs(ContainerApplication application, List<ImageDesc> imageDescList) {
         NodeTemplate vduNode = new NodeTemplate();
         vduNode.setType(NodeTypeConstant.NODE_TYPE_VDU);
-        VDUCapability capability = new VDUCapability(4 * AppdConstants.MEMORY_SIZE_UNIT, 4, application.getArchitecture(), 20);
+        VDUCapability capability = new VDUCapability(4 * AppdConstants.MEMORY_SIZE_UNIT, 4,
+            application.getArchitecture(), 20);
         vduNode.setCapabilities(capability);
 
         StringBuffer imageData = new StringBuffer();

@@ -20,11 +20,10 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import java.io.File;
-import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
-import org.edgegallery.developer.model.common.Page;
 import org.edgegallery.developer.model.common.Chunk;
+import org.edgegallery.developer.model.common.Page;
 import org.edgegallery.developer.model.resource.container.ContainerImage;
 import org.edgegallery.developer.model.resource.container.ContainerImageReq;
 import org.edgegallery.developer.model.restful.ErrorRespDto;
@@ -46,6 +45,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 @RequestMapping("/mec/developer/v2/containerimages")
 @Api(tags = "ContainerImage")
 public class ContainerImageCtl {
+
     @Autowired
     private ContainerImageService containerImageService;
 

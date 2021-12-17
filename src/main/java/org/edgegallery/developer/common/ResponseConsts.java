@@ -14,7 +14,7 @@
 
 package org.edgegallery.developer.common;
 
-public class ResponseConsts {
+public final class ResponseConsts {
 
     /**
      * request format is error.

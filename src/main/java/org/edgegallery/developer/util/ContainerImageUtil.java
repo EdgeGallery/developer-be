@@ -375,7 +375,7 @@ public final class ContainerImageUtil {
             imageVersion = names[1];
             //excute delete image operation
             String deleteImageUrl = "";
-            if (SystemImageUtil.isAdminUser() && AccessUserUtil.getUser().getUserName().equals(userName)) {
+            if (VMImageUtil.isAdminUser() && AccessUserUtil.getUser().getUserName().equals(userName)) {
                 deleteImageUrl = String
                     .format(Consts.HARBOR_IMAGE_DELETE_URL, HARBOR_PROTOCOL, imageConfig.getDomainname(),
                         imageConfig.getProject(), imageName, imageVersion);

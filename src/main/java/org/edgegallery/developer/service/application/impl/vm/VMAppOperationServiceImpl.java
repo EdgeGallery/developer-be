@@ -280,7 +280,7 @@ public class VMAppOperationServiceImpl extends AppOperationServiceImpl implement
         Application application = applicationService.getApplication(applicationId);
         if (application == null) {
             LOGGER.error("application does not exist ,id:{}", applicationId);
-            throw new EntityNotFoundException("application does not exist.", ResponseConsts.RET_QUERY_DATA_EMPTY);
+            return true;
         }
         if (StringUtils.isEmpty(application.getMepHostId())) {
             return true;
@@ -330,14 +330,13 @@ public class VMAppOperationServiceImpl extends AppOperationServiceImpl implement
     }
 
     @Override
-    public Boolean deleteInstantiateInfo(String vmId) {
+    public void deleteInstantiateInfo(String vmId) {
         VMInstantiateInfo vmInstantiateInfo = getInstantiateInfo(vmId);
         if (vmInstantiateInfo == null) {
-            return true;
+            return;
         }
         vmInstantiateInfoMapper.deletePortInstantiateInfo(vmId);
         vmInstantiateInfoMapper.deleteVMInstantiateInfo(vmId);
-        return true;
     }
 
     @Override

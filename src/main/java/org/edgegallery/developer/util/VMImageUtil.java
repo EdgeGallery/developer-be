@@ -25,9 +25,13 @@ import org.edgegallery.developer.filter.security.AccessUserUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public final class SystemImageUtil {
+public final class VMImageUtil {
 
-    public static final Logger LOGGER = LoggerFactory.getLogger(SystemImageUtil.class);
+    private VMImageUtil() {
+        throw new IllegalStateException("MepHostUtil class");
+    }
+
+    public static final Logger LOGGER = LoggerFactory.getLogger(VMImageUtil.class);
 
     /**
      * isAdminUser.

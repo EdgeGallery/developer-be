@@ -58,7 +58,7 @@ public class PackageFileCreatorTest extends AbstractJUnit4SpringContextTests {
         packageFileCreator.configMfFile();
         packageFileCreator.configMetaFile();
         packageFileCreator.configVnfdMeta();
-        String compressPath = packageFileCreator.PackageFileCompress();
+        String compressPath = packageFileCreator.packageFileCompress();
         Assert.assertNotNull(compressPath);
     }
 

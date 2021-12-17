@@ -52,20 +52,6 @@
     <result property="nodePort" column="node_port"/>
   </resultMap>
 
-<!--  <resultMap id="ContainerAppInstantiateInfoMap" type="org.edgegallery.developer.model.instantiate.container.ContainerAppInstantiateInfo">-->
-<!--    <result property="appPackageId" column="app_package_id"/>-->
-<!--    <result property="appInstanceId" column="app_instance_id"/>-->
-<!--    <result property="status" column="status"/>-->
-<!--    <result property="log" column="log"/>-->
-<!--    <result property="instantiateTime" column="instantiate_time"/>-->
-<!--    <collection property="pods"-->
-<!--      ofType="org.edgegallery.developer.model.instantiate.container.K8sPod">-->
-<!--      <result property="name" column="name"/>-->
-<!--      <result property="podStatus" column="pod_status"/>-->
-<!--      <result property="eventsInfo" column="events_info"/>-->
-<!--    </collection>-->
-<!--  </resultMap>-->
-
   <sql id="ContainerAppInstantiateInfoAllColumn">
     app_id, operation_id, app_package_id, distributed_mec_host, mepm_package_id, app_instance_id, status, log, instantiate_time
   </sql>

@@ -15,11 +15,16 @@
 package org.edgegallery.developer.util;
 
 public class IpCalculateUtil {
+
+    private IpCalculateUtil() {
+        throw new IllegalStateException("IpCalculateUtil class");
+    }
+
     /**
-     * 根据掩码位数计算掩码
+     * get mask by mask index
      *
-     * @param maskIndex 掩码位
-     * @return 子网掩码
+     * @param maskIndex maskIndex
+     * @return mask
      */
     public static String getNetMask(String maskIndex) {
         StringBuilder mask = new StringBuilder();
@@ -27,17 +32,14 @@ public class IpCalculateUtil {
         try {
             inetMask = Integer.parseInt(maskIndex);
         } catch (NumberFormatException e) {
-            System.out.println(e.getMessage());
             return null;
         }
         if (inetMask > 32) {
             return null;
         }
-        // 子网掩码为1占了几个字节
         int num1 = inetMask / 8;
-        // 子网掩码的补位位数
         int num2 = inetMask % 8;
-        int array[] = new int[4];
+        int[] array = new int[4];
         for (int i = 0; i < num1; i++) {
             array[i] = 255;
         }
@@ -58,27 +60,25 @@ public class IpCalculateUtil {
     }
 
     /**
-     * 根据网段计算起始IP 网段格式:x.x.x.x/x
-     * 一个网段0一般为网络地址,255一般为广播地址.
-     * 起始IP计算:网段与掩码相与之后加一的IP地址
+     * get start ip by ip range:x.x.x.x/x
      *
-     * @param segment 网段
-     * @return 起始IP
+     * @param segment segment
+     * @return startIp
      */
     public static String getStartIp(String segment, int range) {
-        StringBuffer startIp = new StringBuffer();
+        StringBuilder startIp = new StringBuilder();
         if (segment == null) {
             return null;
         }
-        String arr[] = segment.split("/");
+        String[] arr = segment.split("/");
         String ip = arr[0];
         String maskIndex = arr[1];
         String mask = IpCalculateUtil.getNetMask(maskIndex);
         if (4 != ip.split("\\.").length || mask == null) {
             return null;
         }
-        int ipArray[] = new int[4];
-        int netMaskArray[] = new int[4];
+        int[] ipArray = new int[4];
+        int[] netMaskArray = new int[4];
         for (int i = 0; i < 4; i++) {
             try {
                 ipArray[i] = Integer.parseInt(ip.split("\\.")[i]);
@@ -93,7 +93,7 @@ public class IpCalculateUtil {
                     startIp.append(ipArray[i] + ".");
                 }
             } catch (NumberFormatException e) {
-                System.out.println(e.getMessage());
+                return null;
             }
         }
         return startIp.toString();

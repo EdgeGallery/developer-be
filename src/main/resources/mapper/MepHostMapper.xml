@@ -133,7 +133,7 @@
         <if test="name != null and name!=''">
             and name like CONCAT('%',#{name},'%')
         </if>
-        <if test="vimType != null and vimType != ''">
+        <if test="vimType != null and vimType != '' and vimType == 'K8S'">
             and vim_type = #{vimType}
         </if>
         <if test="vimType != null and vimType != '' and vimType != 'K8S'">

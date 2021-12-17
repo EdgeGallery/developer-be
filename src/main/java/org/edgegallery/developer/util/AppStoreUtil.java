@@ -16,7 +16,6 @@
 
 package org.edgegallery.developer.util;
 
-import com.google.gson.Gson;
 import java.util.Map;
 import org.edgegallery.developer.common.Consts;
 import org.edgegallery.developer.model.appstore.PublishAppReqDto;
@@ -34,6 +33,7 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
+import com.google.gson.Gson;
 
 public class AppStoreUtil {
 
@@ -56,7 +56,7 @@ public class AppStoreUtil {
         MultiValueMap<String, Object> map = new LinkedMultiValueMap<>();
         params.forEach(map::add);
         HttpHeaders headers = new HttpHeaders();
-        headers.set("access_token", user.getToken());
+        headers.set(Consts.ACCESS_TOKEN_STR, user.getToken());
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);
         String url = InitConfigUtil.getProperties(APPSTORE_ADDRESS) + String
             .format(Consts.UPLOAD_TO_APPSTORE_URL, user.getUserId(), user.getUserName());
@@ -86,17 +86,17 @@ public class AppStoreUtil {
         requestFactory.setReadTimeout(600000);
         RestTemplate restTemplate = new RestTemplate(requestFactory);
         HttpHeaders headers = new HttpHeaders();
-        headers.set("access_token", token);
+        headers.set(Consts.ACCESS_TOKEN_STR, token);
         headers.setContentType(MediaType.APPLICATION_JSON);
         String url = InitConfigUtil.getProperties(APPSTORE_ADDRESS) + String
             .format(Consts.PUBLISH_TO_APPSTORE_URL, appId, pkgId);
         LOGGER.info("isFree: {}, price: {}", pubAppReqDto.isFree(), pubAppReqDto.getPrice());
-        LOGGER.info("url: {}", url);
+        LOGGER.info("publish url: {}", url);
         try {
             ResponseEntity<String> responses = restTemplate
                 .exchange(url, HttpMethod.POST, new HttpEntity<>(new Gson().toJson(pubAppReqDto), headers),
                     String.class);
-            LOGGER.info("res: {}", responses);
+            LOGGER.info("publish res: {}", responses);
             if (HttpStatus.OK.equals(responses.getStatusCode()) || HttpStatus.ACCEPTED
                 .equals(responses.getStatusCode())) {
                 return responses.getBody();
@@ -118,15 +118,15 @@ public class AppStoreUtil {
         requestFactory.setReadTimeout(600000);
         RestTemplate restTemplate = new RestTemplate(requestFactory);
         HttpHeaders headers = new HttpHeaders();
-        headers.set("access_token", token);
+        headers.set(Consts.ACCESS_TOKEN_STR, token);
         headers.setContentType(MediaType.APPLICATION_JSON);
         String url = String
             .format(Consts.QUERY_APPSTORE_PKG_URL, InitConfigUtil.getProperties(APPSTORE_ADDRESS), appId, pkgId);
-        LOGGER.info("url: {}", url);
+        LOGGER.info("get pkg url: {}", url);
         try {
             ResponseEntity<String> responses = restTemplate
                 .exchange(url, HttpMethod.GET, new HttpEntity<>(headers), String.class);
-            LOGGER.info("res: {}", responses);
+            LOGGER.info("get pkg res: {}", responses);
             if (HttpStatus.OK.equals(responses.getStatusCode()) || HttpStatus.CREATED
                 .equals(responses.getStatusCode())) {
                 return responses;
@@ -152,11 +152,11 @@ public class AppStoreUtil {
         headers.setContentType(MediaType.APPLICATION_JSON);
         String url = String
             .format(Consts.DOWNLOAD_APPSTORE_PKG_URL, InitConfigUtil.getProperties(APPSTORE_ADDRESS), appId, pkgId);
-        LOGGER.info("url: {}", url);
+        LOGGER.info("download pkg url: {}", url);
         try {
             ResponseEntity<byte[]> responses = restTemplate
                 .exchange(url, HttpMethod.GET, new HttpEntity<>(headers), byte[].class);
-            LOGGER.info("res: {}", responses);
+            LOGGER.info("download pkg res: {}", responses);
             if (HttpStatus.OK.equals(responses.getStatusCode()) || HttpStatus.CREATED
                 .equals(responses.getStatusCode())) {
                 return responses;

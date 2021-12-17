@@ -40,7 +40,7 @@ public interface VMAppOperationService {
 
     Boolean createInstantiateInfo(String vmId, VMInstantiateInfo instantiateInfo);
 
-    Boolean deleteInstantiateInfo(String vmId);
+    void deleteInstantiateInfo(String vmId);
 
     Boolean createExportInfo(String vmId, ImageExportInfo imageExportInfo);
 

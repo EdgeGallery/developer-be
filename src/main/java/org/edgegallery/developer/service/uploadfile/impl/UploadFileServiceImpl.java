@@ -197,7 +197,7 @@ public class UploadFileServiceImpl implements UploadFileService {
         File res = generateTgz(apiFileIds);
         if (res == null) {
             LOGGER.error("generate sample code file failed!");
-            throw new FileOperateException("generate samplecode file failed!", ResponseConsts.RET_SAVE_FILE_FAIL);
+            throw new FileOperateException("generate sample code file failed!", ResponseConsts.RET_SAVE_FILE_FAIL);
         }
 
         try {
@@ -215,8 +215,8 @@ public class UploadFileServiceImpl implements UploadFileService {
     public AppPkgStructure getSampleCodeStru(List<String> apiFileIds) {
         File res = generateTgz(apiFileIds);
         if (res == null) {
-            LOGGER.error("generate sample code file failed!");
-            throw new FileOperateException("generate sample code file failed!", ResponseConsts.RET_SAVE_FILE_FAIL);
+            LOGGER.error("get sample code structure failed!");
+            throw new FileOperateException("get sample code structure failed!", ResponseConsts.RET_SAVE_FILE_FAIL);
         }
 
         boolean decompressRes;
@@ -284,8 +284,8 @@ public class UploadFileServiceImpl implements UploadFileService {
     public String getSampleCodeContent(List<String> apiFileIds, String fileName) {
         File res = generateTgz(apiFileIds);
         if (res == null) {
-            LOGGER.error("generate sample code file failed!");
-            throw new FileOperateException("generate sample code file failed!", ResponseConsts.RET_SAVE_FILE_FAIL);
+            LOGGER.error("get sample code content failed!");
+            throw new FileOperateException("get sample code content failed!", ResponseConsts.RET_SAVE_FILE_FAIL);
         }
         String samplePath = "";
         try {

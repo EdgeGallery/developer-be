@@ -20,18 +20,14 @@ import java.util.List;
 import java.util.UUID;
 import org.apache.commons.lang3.StringUtils;
 import org.edgegallery.developer.common.ResponseConsts;
-import org.edgegallery.developer.model.common.User;
 import org.edgegallery.developer.exception.DataBaseException;
 import org.edgegallery.developer.exception.EntityNotFoundException;
-import org.edgegallery.developer.mapper.application.ApplicationMapper;
 import org.edgegallery.developer.mapper.application.container.ContainerAppInstantiateInfoMapper;
-import org.edgegallery.developer.mapper.application.container.HelmChartMapper;
-import org.edgegallery.developer.mapper.operation.OperationStatusMapper;
-import org.edgegallery.developer.mapper.resource.mephost.MepHostMapper;
 import org.edgegallery.developer.model.application.Application;
 import org.edgegallery.developer.model.application.container.ContainerApplication;
 import org.edgegallery.developer.model.application.container.HelmChart;
 import org.edgegallery.developer.model.apppackage.AppPackage;
+import org.edgegallery.developer.model.common.User;
 import org.edgegallery.developer.model.instantiate.container.Container;
 import org.edgegallery.developer.model.instantiate.container.ContainerAppInstantiateInfo;
 import org.edgegallery.developer.model.instantiate.container.K8sPod;
@@ -85,6 +81,7 @@ public class ContainerAppOperationServiceImpl extends AppOperationServiceImpl im
     @Autowired
     private MepHostService mepHostService;
 
+    @Override
     public AppPackage generatePackage(String applicationId) {
         ApplicationDetail detail = applicationService.getApplicationDetail(applicationId);
         return generatePackage(detail.getContainerApp());
@@ -140,7 +137,7 @@ public class ContainerAppOperationServiceImpl extends AppOperationServiceImpl im
         Application application = applicationService.getApplication(applicationId);
         if (application == null) {
             LOGGER.error("application does not exist ,id:{}", applicationId);
-            throw new EntityNotFoundException("application does not exist.", ResponseConsts.RET_QUERY_DATA_EMPTY);
+            return false;
         }
         if (StringUtils.isEmpty(application.getMepHostId())) {
             return true;
@@ -186,8 +183,9 @@ public class ContainerAppOperationServiceImpl extends AppOperationServiceImpl im
         List<K8sService> k8sServices = containerAppInstantiateInfoMapper.getK8sServiceByAppId(applicationId);
         if (!CollectionUtils.isEmpty(k8sServices)) {
             for (K8sService service : k8sServices) {
-                List<K8sServicePort> k8sServicePorts = containerAppInstantiateInfoMapper.getK8sServicePortsByK8sServiceName(
-                    service.getName());
+                List<K8sServicePort> k8sServicePorts = containerAppInstantiateInfoMapper
+                    .getK8sServicePortsByK8sServiceName(
+                        service.getName());
                 service.setServicePortList(k8sServicePorts);
             }
             instantiateInfo.setServiceList(k8sServices);
@@ -197,11 +195,13 @@ public class ContainerAppOperationServiceImpl extends AppOperationServiceImpl im
     }
 
     @Override
-    public Boolean createContainerAppInstantiateInfo(String applicationId, ContainerAppInstantiateInfo instantiateInfo) {
+    public Boolean createContainerAppInstantiateInfo(String applicationId,
+        ContainerAppInstantiateInfo instantiateInfo) {
         int res = containerAppInstantiateInfoMapper.createContainerAppInstantiateInfo(applicationId, instantiateInfo);
-        if (res<1) {
+        if (res < 1) {
             LOGGER.error("Create container App instantiate info in db error.");
-            throw new DataBaseException("Create container App instantiate info in db error.", ResponseConsts.RET_CERATE_DATA_FAIL);
+            throw new DataBaseException("Create container App instantiate info in db error.",
+                ResponseConsts.RET_CERATE_DATA_FAIL);
         }
         return true;
     }

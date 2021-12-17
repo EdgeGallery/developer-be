@@ -34,18 +34,12 @@ public class VMPackageFileCreator extends PackageFileCreator {
 
     private VMApplication application;
 
-    private String packageId;
-
-    private static final String APPD_BASE_PATH = "/APPD/Definition/";
-
     private static final String APPD_IMAGE_DES_PATH = "/Image/SwImageDesc.json";
 
-    private static final String APPD_FILE_TYPE = ".yaml";
 
     public VMPackageFileCreator(VMApplication application, String packageId) {
         super(application, packageId);
         this.application = application;
-        this.packageId = packageId;
 
     }
 
@@ -61,7 +55,7 @@ public class VMPackageFileCreator extends PackageFileCreator {
         generateAPPDYaml();
         generateImageDesFile();
         configMdAndIcon();
-        String compressPath = PackageFileCompress();
+        String compressPath = packageFileCompress();
         if (compressPath == null) {
             LOGGER.error("package compress fail");
             return null;
@@ -76,6 +70,7 @@ public class VMPackageFileCreator extends PackageFileCreator {
         return converter.saveAppdYaml(appdFilePath, appDefinition);
     }
 
+    @Override
     public void generateImageDesFile() {
         List<ImageDesc> imageDescs = new ArrayList<>();
         for (VirtualMachine vm : application.getVmList()) {
