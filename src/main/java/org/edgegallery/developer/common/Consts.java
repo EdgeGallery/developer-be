@@ -43,7 +43,7 @@ public final class Consts {
         = "/lcmcontroller/v2/tenants/%s/app_instances/%s/workload/events";
 
     public static final String APP_LCM_GET_VNC_CONSOLE_URL
-        = "/rescontroller/v1/tenants/%s/hosts/hostId/servers/%s";
+        = "/rescontroller/v1/tenants/%s/hosts/%s/servers/%s";
 
     public static final String APP_LCM_GET_IMAGE_STATUS_URL
         = "/lcmcontroller/v2/tenants/%s/app_instances/%s/images/%s";
