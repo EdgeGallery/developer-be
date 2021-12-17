@@ -17,8 +17,6 @@ package org.edgegallery.developer.exception;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.RandomAccessFile;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Signals that an attempt to open the file denoted by a specified pathname
@@ -30,57 +28,21 @@ import java.util.List;
  * constructors if the file does exist but for some reason is inaccessible, for
  * example when an attempt is made to open a read-only file for writing.
  *
- * @author  unascribed
- * @since   JDK1.0
+ * @author unascribed
+ * @since JDK1.0
  */
 
-public class FileFoundFailException extends RuntimeException {
-
-    private static final long serialVersionUID = -897856973823710492L;
-
-    private ErrorMessage errMsg;
-
-    public FileFoundFailException(String message) {
-        super(message);
-    }
+public class FileFoundFailException extends CommonException {
 
     /**
-     * Constructor to create FileOperateException with retCode and params.
+     * Constructor to create FileFoundFailException with retCode and params.
      *
+     * @param msg exception message
      * @param ret retCode
      */
     public FileFoundFailException(String msg, int ret) {
-        super(msg);
-        ErrorMessage errorMessage = new ErrorMessage(ret, null);
-        errMsg = errorMessage;
+        super(msg, ret);
     }
-
-    /**
-     * get error message.
-     *
-     */
-    public ErrorMessage getErrMsg() {
-        return errMsg;
-    }
-
-    /**
-     * Constructor to create FileNotFoundException with retCode and params.
-     *
-     * @param ret retCode
-     * @param args params of error message
-     */
-    public FileFoundFailException(String msg, int ret, Object... args) {
-        super(msg);
-        List<String> params = new ArrayList<>();
-        int length = args == null ? 0 : args.length;
-        for (int i = 0; i < length; i++) {
-            params.add(args[i].toString());
-        }
-        ErrorMessage errorMessage = new ErrorMessage(ret, params);
-        errMsg = errorMessage;
-    }
-
-
 
 }
 

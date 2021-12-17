@@ -16,26 +16,7 @@
 
 package org.edgegallery.developer.exception;
 
-import java.util.ArrayList;
-import java.util.List;
-
-public class DataBaseException extends RuntimeException {
-
-    private static final long serialVersionUID = 1646444285623052457L;
-
-    private ErrorMessage errMsg;
-
-
-    /**
-     * Constructor to create DeveloperException with message.
-     *
-     * @param message exception message
-     */
-    public DataBaseException(String message) {
-        super(message);
-    }
-
-
+public class DataBaseException extends CommonException {
     /**
      * Constructor to create DeveloperException with message.
      *
@@ -43,34 +24,7 @@ public class DataBaseException extends RuntimeException {
      * @param ret retCode
      */
     public DataBaseException(String message, int ret) {
-        super(message);
-        ErrorMessage errorMessage = new ErrorMessage(ret, null);
-        errMsg = errorMessage;
-    }
+        super(message, ret);
 
-    /**
-     * Constructor to create DeveloperException with retCode and params.
-     *
-     * @param ret retCode
-     * @param args params of error message
-     */
-    public DataBaseException(String message, int ret, Object... args) {
-        super(message);
-        int length = args == null ? 0 : args.length;
-        List<String> params = new ArrayList<>();
-        for (int i = 0; i < length; i++) {
-            params.add(args[i].toString());
-        }
-        ErrorMessage errorMessage = new ErrorMessage(ret,params);
-        errMsg = errorMessage;
     }
-
-    /**
-     * get error message.
-     *
-     */
-    public ErrorMessage getErrMsg() {
-        return errMsg;
-    }
-
 }
