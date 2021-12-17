@@ -60,21 +60,21 @@ public class HttpClientUtilTest {
     @Before
     public void setUp() throws IOException {
         httpServer = HttpServer.create(new InetSocketAddress("", 30204), 10);
-        httpServer.createContext(Consts.APP_LCM_INSTANTIATE_APP_URL.replaceAll("appInstanceId", APPLICATION_ID)
-            .replaceAll("tenantId", USER_ID), new HttpHandler() {
-            @Override
-            public void handle(HttpExchange exchange) throws IOException {
-                String method = exchange.getRequestMethod();
-                if (method.equals("POST")) {
-                    String res = "ok";
-                    byte[] response = res.getBytes();
-                    exchange.sendResponseHeaders(HttpURLConnection.HTTP_OK, response.length);
-                    exchange.getResponseBody().write(response);
+        httpServer.createContext(String.format(Consts.APP_LCM_INSTANTIATE_APP_URL, USER_ID, APPLICATION_ID),
+            new HttpHandler() {
+                @Override
+                public void handle(HttpExchange exchange) throws IOException {
+                    String method = exchange.getRequestMethod();
+                    if (method.equals("POST")) {
+                        String res = "ok";
+                        byte[] response = res.getBytes();
+                        exchange.sendResponseHeaders(HttpURLConnection.HTTP_OK, response.length);
+                        exchange.getResponseBody().write(response);
+                    }
+                    exchange.close();
                 }
-                exchange.close();
-            }
-        });
-        httpServer.createContext(Consts.APP_LCM_UPLOAD_APPPKG_URL.replaceAll("tenantId", USER_ID), new HttpHandler() {
+            });
+        httpServer.createContext(String.format(Consts.APP_LCM_UPLOAD_APPPKG_URL, USER_ID), new HttpHandler() {
             @Override
             public void handle(HttpExchange exchange) throws IOException {
                 String method = exchange.getRequestMethod();
@@ -94,90 +94,90 @@ public class HttpClientUtilTest {
                 exchange.close();
             }
         });
-        httpServer.createContext(Consts.APP_LCM_DISTRIBUTE_APPPKG_URL.replaceAll("tenantId", USER_ID)
-            .replaceAll("packageId", PACKAGE_ID), new HttpHandler() {
-            @Override
-            public void handle(HttpExchange exchange) throws IOException {
-                String method = exchange.getRequestMethod();
-                if (method.equals("POST")) {
-                    String res = "ok";
-                    byte[] response = res.getBytes();
-                    exchange.sendResponseHeaders(HttpURLConnection.HTTP_OK, response.length);
-                    exchange.getResponseBody().write(response);
-                }
-                if (method.equals("GET")) {
-                    String jsonStr = null;
-                    try {
-                        File file = Resources.getResourceAsFile("testdata/json/package_distribute_status.json");
-                        jsonStr = FileUtils.readFileToString(file, StandardCharsets.UTF_8);
-
-                    } catch (IOException e) {
-                        LOGGER.error("Load the mock json data for getDistributeRes failed.");
+        httpServer
+            .createContext(String.format(Consts.APP_LCM_DISTRIBUTE_APPPKG_URL, USER_ID, PACKAGE_ID), new HttpHandler() {
+                @Override
+                public void handle(HttpExchange exchange) throws IOException {
+                    String method = exchange.getRequestMethod();
+                    if (method.equals("POST")) {
+                        String res = "ok";
+                        byte[] response = res.getBytes();
+                        exchange.sendResponseHeaders(HttpURLConnection.HTTP_OK, response.length);
+                        exchange.getResponseBody().write(response);
                     }
-                    byte[] response = jsonStr.getBytes();
-                    exchange.sendResponseHeaders(HttpURLConnection.HTTP_OK, response.length);
-                    exchange.getResponseBody().write(response);
-                }
-                if (method.equals("DELETE")) {
+                    if (method.equals("GET")) {
+                        String jsonStr = null;
+                        try {
+                            File file = Resources.getResourceAsFile("testdata/json/package_distribute_status.json");
+                            jsonStr = FileUtils.readFileToString(file, StandardCharsets.UTF_8);
 
-                    exchange.sendResponseHeaders(HttpURLConnection.HTTP_OK, 1);
-                }
-                exchange.close();
-            }
-        });
-        httpServer.createContext(Consts.APP_LCM_DELETE_HOST_URL.replaceAll("tenantId", USER_ID)
-            .replaceAll("packageId", PACKAGE_ID).replaceAll("hostIp", MEC_HOST), new HttpHandler() {
-            @Override
-            public void handle(HttpExchange exchange) throws IOException {
-                String method = exchange.getRequestMethod();
-                if (method.equals("DELETE")) {
+                        } catch (IOException e) {
+                            LOGGER.error("Load the mock json data for getDistributeRes failed.");
+                        }
+                        byte[] response = jsonStr.getBytes();
+                        exchange.sendResponseHeaders(HttpURLConnection.HTTP_OK, response.length);
+                        exchange.getResponseBody().write(response);
+                    }
+                    if (method.equals("DELETE")) {
 
-                    exchange.sendResponseHeaders(HttpURLConnection.HTTP_OK, 1);
+                        exchange.sendResponseHeaders(HttpURLConnection.HTTP_OK, 1);
+                    }
+                    exchange.close();
                 }
-                exchange.close();
-            }
-        });
-        httpServer.createContext(Consts.APP_LCM_TERMINATE_APP_URL.replaceAll("appInstanceId", APPLICATION_ID)
-            .replaceAll("tenantId", USER_ID), new HttpHandler() {
-            @Override
-            public void handle(HttpExchange exchange) throws IOException {
-                String method = exchange.getRequestMethod();
-                if (method.equals("POST")) {
+            });
+        httpServer.createContext(String.format(Consts.APP_LCM_DELETE_HOST_URL, USER_ID, PACKAGE_ID, MEC_HOST),
+            new HttpHandler() {
+                @Override
+                public void handle(HttpExchange exchange) throws IOException {
+                    String method = exchange.getRequestMethod();
+                    if (method.equals("DELETE")) {
 
-                    exchange.sendResponseHeaders(HttpURLConnection.HTTP_OK, 1);
+                        exchange.sendResponseHeaders(HttpURLConnection.HTTP_OK, 1);
+                    }
+                    exchange.close();
                 }
-                exchange.close();
-            }
-        });
-        httpServer.createContext(Consts.APP_LCM_GET_WORKLOAD_STATUS_URL
-            .replaceAll("appInstanceId", APPLICATION_ID).replaceAll("tenantId", USER_ID), new HttpHandler() {
-            @Override
-            public void handle(HttpExchange exchange) throws IOException {
-                String method = exchange.getRequestMethod();
-                if (method.equals("GET")) {
-                    String res = "ok";
-                    byte[] response = res.getBytes();
-                    exchange.sendResponseHeaders(HttpURLConnection.HTTP_OK, response.length);
-                    exchange.getResponseBody().write(response);
-                }
-                exchange.close();
-            }
-        });
+            });
+        httpServer
+            .createContext(String.format(Consts.APP_LCM_TERMINATE_APP_URL, USER_ID, APPLICATION_ID), new HttpHandler() {
+                @Override
+                public void handle(HttpExchange exchange) throws IOException {
+                    String method = exchange.getRequestMethod();
+                    if (method.equals("POST")) {
 
-        httpServer.createContext(Consts.APP_LCM_GET_WORKLOAD_EVENTS_URL
-            .replaceAll("appInstanceId", APPLICATION_ID).replaceAll("tenantId", USER_ID), new HttpHandler() {
-            @Override
-            public void handle(HttpExchange exchange) throws IOException {
-                String method = exchange.getRequestMethod();
-                if (method.equals("GET")) {
-                    String res = "ok";
-                    byte[] response = res.getBytes();
-                    exchange.sendResponseHeaders(HttpURLConnection.HTTP_OK, response.length);
-                    exchange.getResponseBody().write(response);
+                        exchange.sendResponseHeaders(HttpURLConnection.HTTP_OK, 1);
+                    }
+                    exchange.close();
                 }
-                exchange.close();
-            }
-        });
+            });
+        httpServer.createContext(String.format(Consts.APP_LCM_GET_WORKLOAD_STATUS_URL, USER_ID, APPLICATION_ID),
+            new HttpHandler() {
+                @Override
+                public void handle(HttpExchange exchange) throws IOException {
+                    String method = exchange.getRequestMethod();
+                    if (method.equals("GET")) {
+                        String res = "ok";
+                        byte[] response = res.getBytes();
+                        exchange.sendResponseHeaders(HttpURLConnection.HTTP_OK, response.length);
+                        exchange.getResponseBody().write(response);
+                    }
+                    exchange.close();
+                }
+            });
+
+        httpServer.createContext(String.format(Consts.APP_LCM_GET_WORKLOAD_EVENTS_URL, USER_ID, APPLICATION_ID),
+            new HttpHandler() {
+                @Override
+                public void handle(HttpExchange exchange) throws IOException {
+                    String method = exchange.getRequestMethod();
+                    if (method.equals("GET")) {
+                        String res = "ok";
+                        byte[] response = res.getBytes();
+                        exchange.sendResponseHeaders(HttpURLConnection.HTTP_OK, response.length);
+                        exchange.getResponseBody().write(response);
+                    }
+                    exchange.close();
+                }
+            });
 
         httpServer.createContext(Consts.APP_LCM_GET_HEALTH, new HttpHandler() {
             @Override
@@ -193,39 +193,39 @@ public class HttpClientUtilTest {
             }
         });
 
-        httpServer.createContext(Consts.APP_LCM_INSTANTIATE_IMAGE_URL.replaceAll("appInstanceId", APPLICATION_ID)
-            .replaceAll("tenantId", USER_ID), new HttpHandler() {
-            @Override
-            public void handle(HttpExchange exchange) throws IOException {
-                String method = exchange.getRequestMethod();
-                if (method.equals("POST")) {
-                    String res = "ok";
-                    byte[] response = res.getBytes();
-                    exchange.sendResponseHeaders(HttpURLConnection.HTTP_OK, response.length);
-                    exchange.getResponseBody().write(response);
+        httpServer.createContext(String.format(Consts.APP_LCM_INSTANTIATE_IMAGE_URL, USER_ID, APPLICATION_ID),
+            new HttpHandler() {
+                @Override
+                public void handle(HttpExchange exchange) throws IOException {
+                    String method = exchange.getRequestMethod();
+                    if (method.equals("POST")) {
+                        String res = "ok";
+                        byte[] response = res.getBytes();
+                        exchange.sendResponseHeaders(HttpURLConnection.HTTP_OK, response.length);
+                        exchange.getResponseBody().write(response);
+                    }
+                    exchange.close();
                 }
-                exchange.close();
-            }
-        });
+            });
 
-        httpServer.createContext(Consts.APP_LCM_GET_IMAGE_STATUS_URL.replaceAll("appInstanceId", APPLICATION_ID)
-            .replaceAll("tenantId", USER_ID).replaceAll("imageId", IMAGE_ID), new HttpHandler() {
-            @Override
-            public void handle(HttpExchange exchange) throws IOException {
-                String method = exchange.getRequestMethod();
-                if (method.equals("GET")) {
-                    String res = "ok";
-                    byte[] response = res.getBytes();
-                    exchange.sendResponseHeaders(HttpURLConnection.HTTP_OK, response.length);
-                    exchange.getResponseBody().write(response);
-                }
-                if (method.equals("DELETE")) {
+        httpServer.createContext(String.format(Consts.APP_LCM_GET_IMAGE_STATUS_URL, USER_ID, APPLICATION_ID, IMAGE_ID),
+            new HttpHandler() {
+                @Override
+                public void handle(HttpExchange exchange) throws IOException {
+                    String method = exchange.getRequestMethod();
+                    if (method.equals("GET")) {
+                        String res = "ok";
+                        byte[] response = res.getBytes();
+                        exchange.sendResponseHeaders(HttpURLConnection.HTTP_OK, response.length);
+                        exchange.getResponseBody().write(response);
+                    }
+                    if (method.equals("DELETE")) {
 
-                    exchange.sendResponseHeaders(HttpURLConnection.HTTP_OK, 1);
+                        exchange.sendResponseHeaders(HttpURLConnection.HTTP_OK, 1);
+                    }
+                    exchange.close();
                 }
-                exchange.close();
-            }
-        });
+            });
 
         httpServer.createContext(Consts.SYSTEM_IMAGE_SLICE_UPLOAD_URL, new HttpHandler() {
             @Override
@@ -306,7 +306,7 @@ public class HttpClientUtilTest {
             }
         });
 
-        httpServer.createContext(Consts.APP_LCM_GET_VNC_CONSOLE_URL, new HttpHandler() {
+        httpServer.createContext(String.format(Consts.APP_LCM_GET_VNC_CONSOLE_URL, USER_ID, MEC_HOST, VM_ID), new HttpHandler() {
             @Override
             public void handle(HttpExchange exchange) throws IOException {
                 String method = exchange.getRequestMethod();
@@ -474,7 +474,7 @@ public class HttpClientUtilTest {
     @Test
     public void testGetVncUrlSuccess() {
         String result = HttpClientUtil
-            .getVncUrl(LCM_URL, "tenantId", "hostId", "vmId","");
+            .getVncUrl(LCM_URL, USER_ID, MEC_HOST, VM_ID, "");
         Assert.assertNotNull(result);
     }
 
