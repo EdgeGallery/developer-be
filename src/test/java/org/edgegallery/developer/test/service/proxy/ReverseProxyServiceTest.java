@@ -168,7 +168,7 @@ public class ReverseProxyServiceTest {
             String vmId = "6a75a2bd-9811-432f-bbe8-2813aa97d757";
             proxyService.getVmSshResponseInfo(applicationId, vmId, "", "");
         } catch (DeveloperException e) {
-            Assert.assertEquals("failed to get ssh console url", e.getMessage());
+            Assert.assertEquals("failed to get ssh console url, instantiate info does not exist.", e.getMessage());
         }
     }
 
@@ -186,7 +186,7 @@ public class ReverseProxyServiceTest {
             String vmId = "6a75a2bd-9811-432f-bbe8-2813aa97d758";
             proxyService.getVmSshResponseInfo(applicationId, vmId, "", "");
         } catch (DeveloperException e) {
-            Assert.assertEquals("failed to get ssh console url", e.getMessage());
+            Assert.assertEquals("send WebSsh request fail.", e.getMessage());
         }
         mockup.tearDown();
     }
