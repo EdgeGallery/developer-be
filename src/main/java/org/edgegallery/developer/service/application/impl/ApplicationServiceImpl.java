@@ -58,6 +58,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 @Service("applicationService")
 public class ApplicationServiceImpl implements ApplicationService {
@@ -142,6 +143,9 @@ public class ApplicationServiceImpl implements ApplicationService {
     }
 
     private void initNetwork(String applicationId, String pkgSpecId) {
+        if (!CollectionUtils.isEmpty(networkService.getAllNetwork(applicationId))) {
+            return;
+        }
         List<Network> networks = pkgSpecService.getNetworkResourceByPkgSpecId(pkgSpecId);
         for (Network network : networks) {
             network.setId(UUID.randomUUID().toString());
@@ -156,6 +160,10 @@ public class ApplicationServiceImpl implements ApplicationService {
 
     @Override
     public Boolean modifyApplication(String applicationId, Application application) {
+        if (application.getAppClass().equals(EnumAppClass.VM)) {
+            // init VM application default networks
+            initNetwork(applicationId, application.getPkgSpecId());
+        }
         int res = applicationMapper.modifyApplication(application);
         if (res < 1) {
             LOGGER.error("modify application in db error.");
