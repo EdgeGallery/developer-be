@@ -20,7 +20,9 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -36,6 +38,8 @@ import org.edgegallery.developer.filter.security.AccessUserUtil;
 import org.edgegallery.developer.mapper.application.container.HelmChartMapper;
 import org.edgegallery.developer.model.application.Application;
 import org.edgegallery.developer.model.application.EnumApplicationStatus;
+import org.edgegallery.developer.model.application.configuration.AppServiceProduced;
+import org.edgegallery.developer.model.application.configuration.AppServiceRequired;
 import org.edgegallery.developer.model.application.container.HelmChart;
 import org.edgegallery.developer.model.application.container.ModifyFileContentDto;
 import org.edgegallery.developer.model.uploadfile.UploadFile;
@@ -49,6 +53,7 @@ import org.edgegallery.developer.util.ContainerAppHelmChartUtil;
 import org.edgegallery.developer.util.FileUtil;
 import org.edgegallery.developer.util.ImageConfig;
 import org.edgegallery.developer.util.InitConfigUtil;
+import org.edgegallery.developer.util.helmcharts.EgValuesYaml;
 import org.edgegallery.developer.util.helmcharts.IContainerFileHandler;
 import org.edgegallery.developer.util.helmcharts.LoadContainerFileFactory;
 import org.slf4j.Logger;
@@ -96,10 +101,16 @@ public class ContainerAppHelmChartServiceImpl implements ContainerAppHelmChartSe
         try (IContainerFileHandler containerFileHandler = LoadContainerFileFactory.createLoader(firstFile.getName())) {
             assert containerFileHandler != null;
             containerFileHandler.setImageConfig(imageConfig);
-            containerFileHandler.load(filePaths);
+
+            containerFileHandler.setServiceConfig(getServiceConfigList(applicationId));
 
             // default dependency mep service.
-            containerFileHandler.setHasMep(true);
+            List<AppServiceRequired> requiredList = appConfigurationService.getAllServiceRequired(applicationId);
+            List<AppServiceProduced> producedList = appConfigurationService.getAllServiceProduced(applicationId);
+            containerFileHandler
+                .setHasMep(!CollectionUtils.isEmpty(requiredList) || !CollectionUtils.isEmpty(producedList));
+
+            containerFileHandler.load(filePaths);
 
             // create charts-file(.tgz) and export it to the outPath.
             String helmChartsPackagePath = containerFileHandler.exportHelmChartsPackage();
@@ -136,6 +147,21 @@ public class ContainerAppHelmChartServiceImpl implements ContainerAppHelmChartSe
             LOGGER.error("Failed to read the helmchart file. msg:{}", e.getMessage());
             return null;
         }
+    }
+
+    private List<EgValuesYaml.ServiceConfig> getServiceConfigList(String applicationId) {
+        List<AppServiceProduced> list = appConfigurationService.getAllServiceProduced(applicationId);
+        if (CollectionUtils.isEmpty(list)) {
+            return Collections.emptyList();
+        }
+        List<EgValuesYaml.ServiceConfig> configs = new ArrayList<>();
+        for (AppServiceProduced appServiceProduced : list) {
+            EgValuesYaml.ServiceConfig serviceConfig = EgValuesYaml.ServiceConfig.builder().appNameSpace("default")
+                .serviceName(appServiceProduced.getServiceName()).port(appServiceProduced.getInternalPort())
+                .protocol(appServiceProduced.getProtocol()).version(appServiceProduced.getVersion()).build();
+            configs.add(serviceConfig);
+        }
+        return configs;
     }
 
     private void checkHelmFileFormat(String fileId, String helmChartFileName) {

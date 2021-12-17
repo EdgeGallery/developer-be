@@ -36,6 +36,8 @@ public interface IContainerFileHandler extends Closeable {
 
     void setImageConfig(ImageConfig imageConfig);
 
+    void setServiceConfig(List<EgValuesYaml.ServiceConfig> configList);
+
     // innerPath is the path of file in the tgz. Can get innerPath from the object of HelmChartFile.
     String getContentByInnerPath(String innerPath);
 

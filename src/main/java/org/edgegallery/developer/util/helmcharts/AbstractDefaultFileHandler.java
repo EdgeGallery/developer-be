@@ -14,9 +14,11 @@
 
 package org.edgegallery.developer.util.helmcharts;
 
+import java.util.List;
 import lombok.Setter;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.edgegallery.developer.util.ImageConfig;
+import org.springframework.util.CollectionUtils;
 
 public abstract class AbstractDefaultFileHandler implements IContainerFileHandler {
 
@@ -26,11 +28,18 @@ public abstract class AbstractDefaultFileHandler implements IContainerFileHandle
     @Setter
     private ImageConfig imageConfig;
 
+    @Setter
+    private List<EgValuesYaml.ServiceConfig> serviceConfig;
+
     EgValuesYaml getDefaultValues() {
         EgValuesYaml defaultValues = EgValuesYaml.createDefaultEgValues(hasMep);
         if (imageConfig != null) {
             defaultValues.getImageLocation().setDomainName(imageConfig.getDomainname());
             defaultValues.getImageLocation().setProject(imageConfig.getProject());
+        }
+
+        if (!CollectionUtils.isEmpty(serviceConfig)) {
+            defaultValues.setServiceConfig(serviceConfig);
         }
         return defaultValues;
     }
