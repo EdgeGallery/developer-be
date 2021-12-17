@@ -20,6 +20,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Date;
 import java.util.UUID;
+import mockit.Mock;
+import mockit.MockUp;
 import org.apache.http.entity.ContentType;
 import org.apache.ibatis.io.Resources;
 import org.edgegallery.developer.test.DeveloperApplicationTests;
@@ -36,6 +38,7 @@ import org.edgegallery.developer.model.resource.container.ContainerImageReq;
 import org.edgegallery.developer.model.resource.container.EnumContainerImageStatus;
 import org.edgegallery.developer.service.recource.container.ContainerImageService;
 import org.edgegallery.developer.service.recource.container.impl.ContainerImageServiceImpl;
+import org.edgegallery.developer.util.SpringContextUtil;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -45,16 +48,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.test.context.junit4.AbstractJUnit4SpringContextTests;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.multipart.MultipartFile;
 
 @SpringBootTest(classes = DeveloperApplicationTests.class)
 @RunWith(SpringRunner.class)
-public class ContainerImageServiceTest {
+public class ContainerImageServiceTest extends AbstractJUnit4SpringContextTests {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ContainerImageServiceTest.class);
 
@@ -67,7 +72,7 @@ public class ContainerImageServiceTest {
     public void setUp() {
         request = new MockHttpServletRequest();
         request.setCharacterEncoding("UTF-8");
-
+        SpringContextUtil.setApplicationContext(applicationContext);
     }
 
     @Test
@@ -311,6 +316,13 @@ public class ContainerImageServiceTest {
 
     @Test
     public void testMergeContainerImage() throws IOException {
+        MockUp mockup = new MockUp<ContainerImageServiceImpl>() {
+
+            @Mock
+            public boolean pushImageToRepo(File imageFile, String rootDir, String inputImageId, String fileName){
+                return true;
+            }
+        };
         try {
             AccessUserUtil.setUser("fac94f94-1b35-4b15-9a9a-6bfa295f5d54", "admin", Consts.ROLE_DEVELOPER_ADMIN);
             String imageId = UUID.randomUUID().toString();
@@ -332,11 +344,13 @@ public class ContainerImageServiceTest {
             request.setMethod(RequestMethod.POST.name());
             ResponseEntity res = containerImageService.uploadContainerImage(request, chunk, imageId);
             Assert.assertEquals(200, res.getStatusCode().value());
-            containerImageService.mergeContainerImage("nginx.tar", "24173056-nginxtar", imageId);
-        } catch (NullPointerException e) {
+            ResponseEntity resp =  containerImageService.mergeContainerImage("nginx.tar", "24173056-nginxtar", imageId);
+            Assert.assertEquals(HttpStatus.OK, resp.getStatusCode());
+        } catch (Exception e) {
             LOGGER.info(e.getMessage());
-            Assert.assertThrows(NullPointerException.class, null);
+            Assert.fail();
         }
+        mockup.tearDown();
     }
 
     @Test
