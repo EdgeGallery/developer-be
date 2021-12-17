@@ -74,7 +74,7 @@ public class ReleasedPackageCtl {
         @ApiResponse(code = 400, message = "Bad Request", response = Boolean.class)
     })
     @RequestMapping(value = "", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
+    @PreAuthorize("hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<Boolean> synchronizeAppPkg(
         @NotNull @ApiParam(value = "pkgReqDtos", required = true) @RequestBody List<ReleasedPkgReqDto> pkgReqDtos) {
         LOGGER.info("enter synchronizeAppPkg method....");
@@ -96,7 +96,7 @@ public class ReleasedPackageCtl {
         @ApiResponse(code = 400, message = "Bad Request", response = Boolean.class)
     })
     @RequestMapping(value = "", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
+    @PreAuthorize("hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<Page<ReleasedPackage>> getAllAppPkg(
         @ApiParam(value = "name", required = false) @RequestParam(value = "name", required = false) String name,
         @ApiParam(value = "the max count of one page", required = true) @Min(1) @RequestParam("limit") int limit,
@@ -117,7 +117,7 @@ public class ReleasedPackageCtl {
         @ApiResponse(code = 400, message = "Bad Request", response = List.class)
     })
     @RequestMapping(value = "/{packageId}/action/get-pkg-structure", method = RequestMethod.GET)
-    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
+    @PreAuthorize("hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<List<AppPkgFile>> getAppPackageStructure(
         @ApiParam(value = "packageId", required = true) @PathVariable(value = "packageId", required = true)
             String packageId) {
@@ -138,7 +138,7 @@ public class ReleasedPackageCtl {
         @ApiResponse(code = 400, message = "Bad Request", response = ReleasedPkgFileContent.class)
     })
     @RequestMapping(value = "/{packageId}/action/get-file-content", method = RequestMethod.POST)
-    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
+    @PreAuthorize("hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<ReleasedPkgFileContent> getAppPkgFile(
         @NotNull @ApiParam(value = "filePath", required = true) @RequestBody
             ReleasedPkgFileContentReqDto structureReqDto,
@@ -161,7 +161,7 @@ public class ReleasedPackageCtl {
         @ApiResponse(code = 400, message = "Bad Request", response = ReleasedPkgFileContent.class)
     })
     @RequestMapping(value = "/{packageId}/action/edit-file-content", method = RequestMethod.PUT)
-    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
+    @PreAuthorize("hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<ReleasedPkgFileContent> updateAppPackageFileContent(
         @ApiParam(value = "packageId", required = true) @PathVariable(value = "packageId", required = true)
             String packageId, @NotNull @ApiParam(value = "releasedPkgFileContent", required = true) @RequestBody
@@ -182,7 +182,7 @@ public class ReleasedPackageCtl {
         @ApiResponse(code = 400, message = "Bad Request", response = Boolean.class)
     })
     @RequestMapping(value = "/{packageId}", method = RequestMethod.DELETE)
-    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
+    @PreAuthorize("hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<Boolean> deleteAppPackage(
         @ApiParam(value = "packageId", required = true) @PathVariable(value = "packageId", required = true)
             String packageId) {
@@ -204,7 +204,7 @@ public class ReleasedPackageCtl {
     })
     @RequestMapping(value = "/{packageId}/action/release", method = RequestMethod.POST,
         consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
+    @PreAuthorize("hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<Boolean> releaseApp(
         @ApiParam(value = "packageId", required = true) @PathVariable String packageId,
         @ApiParam(value = "publishAppDto", required = true) @RequestBody PublishAppReqDto publishAppDto) {

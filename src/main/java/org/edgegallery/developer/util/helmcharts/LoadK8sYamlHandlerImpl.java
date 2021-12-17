@@ -20,11 +20,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import lombok.Setter;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.RandomStringUtils;
 import org.edgegallery.developer.exception.DeveloperException;
-import org.edgegallery.developer.util.ImageConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,7 +37,8 @@ public class LoadK8sYamlHandlerImpl extends AbstractContainerFileHandler {
             LOGGER.error("Please upload one HelmCharts file.");
             throw new DeveloperException("Failed to read k8s config.");
         }
-        if (!verify(filePaths)) {
+        boolean ret = verify(filePaths);
+        if (!ret) {
             LOGGER.error("Can not parse this files by kubernetes-client.");
             return;
         }

@@ -28,6 +28,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -125,9 +126,17 @@ public class ProfileServiceImpl implements ProfileService {
             String zipFilePath = baseFilePath.concat(".zip");
             File zipFile = new File(zipFilePath);
             if (!zipFile.getParentFile().exists()) {
-                zipFile.getParentFile().mkdirs();
+                boolean mkRes = zipFile.getParentFile().mkdirs();
+                if (!mkRes) {
+                    LOGGER.error("create zip dir {} failed!", zipFile.getParentFile().getName());
+                    throw new FileOperateException("create zip dir failed!", ResponseConsts.RET_CREATE_FILE_FAIL);
+                }
             }
-            zipFile.createNewFile();
+            boolean createResult = zipFile.createNewFile();
+            if (!createResult) {
+                LOGGER.error("create zip file {} failed!", zipFile.getName());
+                throw new FileOperateException("create zip file failed!", ResponseConsts.RET_CREATE_FILE_FAIL);
+            }
             file.transferTo(zipFile);
             checker.check(zipFile);
 
@@ -142,7 +151,7 @@ public class ProfileServiceImpl implements ProfileService {
             LOGGER.info("create profile successfully.");
             return profileInfo;
         } catch (IOException e) {
-            LOGGER.error("file transfer failed. {}", e);
+            LOGGER.error("file transfer failed. {}", e.getMessage());
             throw new FileOperateException("file transfer failed.", ResponseConsts.RET_MERGE_FILE_FAIL);
         }
     }
@@ -161,7 +170,11 @@ public class ProfileServiceImpl implements ProfileService {
             FileUtils.deleteQuietly(new File(baseFilePath));
 
             File zipFile = new File(baseFilePath.concat(".zip"));
-            zipFile.createNewFile();
+            boolean createResult = zipFile.createNewFile();
+            if (!createResult) {
+                LOGGER.error("create zip file {} failed!", zipFile.getName());
+                throw new FileOperateException("create zip file failed!", ResponseConsts.RET_CREATE_FILE_FAIL);
+            }
             file.transferTo(zipFile);
             checker.check(zipFile);
             CompressFileUtils.unZip(zipFile, baseFilePath);
@@ -172,7 +185,7 @@ public class ProfileServiceImpl implements ProfileService {
             LOGGER.info("update profile successfully.");
             return profileInfo;
         } catch (IOException e) {
-            LOGGER.error("file transfer failed. {}", e);
+            LOGGER.error("file transfer failed. {}", e.getMessage());
             throw new FileOperateException("file transfer failed.", ResponseConsts.RET_MERGE_FILE_FAIL);
         }
     }
@@ -223,7 +236,7 @@ public class ProfileServiceImpl implements ProfileService {
             LOGGER.info("download profile by id successfully.");
             return ResponseEntity.ok().headers(headers).body(fileContent);
         } catch (IOException e) {
-            LOGGER.error("read file to byte array failed. {}", e);
+            LOGGER.error("read file to byte array failed. {}", e.getMessage());
             throw new FileOperateException("read file to byte array failed.", ResponseConsts.RET_MERGE_FILE_FAIL);
         }
     }
@@ -245,7 +258,7 @@ public class ProfileServiceImpl implements ProfileService {
             File profileFile = new File(profileFilePath);
             constructApp(FileUtils.readFileToString(profileFile, StandardCharsets.UTF_8), application);
         } catch (IOException e) {
-            LOGGER.error("read file to string failed. {}", e);
+            LOGGER.error("read file to string failed. {}", e.getMessage());
             throw new FileOperateException("read file to string failed.", ResponseConsts.RET_MERGE_FILE_FAIL);
         }
 
@@ -305,7 +318,7 @@ public class ProfileServiceImpl implements ProfileService {
             File scriptFile = new File(BASE_PAHT + profileInfo.getConfigFilePath());
             appScriptService.uploadScriptFile(applicationId, filePatternTransfer(scriptFile));
         } catch (Exception e) {
-            LOGGER.error("create helm chart or script failed. {}", e);
+            LOGGER.error("create helm chart or script failed. {}", e.getMessage());
             applicationService.deleteApplication(applicationId, AccessUserUtil.getUser());
             throw new IllegalRequestException("create helm chart or script failed.",
                 ResponseConsts.RET_REQUEST_PARAM_ERROR);
@@ -340,11 +353,9 @@ public class ProfileServiceImpl implements ProfileService {
     private MultipartFile filePatternTransfer(File file) {
         try {
             FileInputStream input = new FileInputStream(file);
-            MultipartFile multipartFile = new MockMultipartFile("file", file.getName(), "text/plain",
-                IOUtils.toByteArray(input));
-            return multipartFile;
+            return new MockMultipartFile("file", file.getName(), "text/plain", IOUtils.toByteArray(input));
         } catch (IOException e) {
-            LOGGER.error("file transfer failed. {}", e);
+            LOGGER.error("file transfer failed. {}", e.getMessage());
             throw new FileOperateException("file transfer failed.", ResponseConsts.RET_CREATE_FILE_FAIL);
         }
     }
@@ -378,18 +389,22 @@ public class ProfileServiceImpl implements ProfileService {
         application.setIndustry((String) profile.get(FIELD_INDUSTRY));
 
         HashMap<String, Map<String, String>> appList = (HashMap<String, Map<String, String>>) profile.get(FIELD_APP);
-        //field according to the first app is ok, we just create one project.
-        Map<String, String> appInfo = appList.values().stream().findFirst().get();
-        application.setVersion(appInfo.get("version"));
-        application.setProvider(AccessUserUtil.getUser().getUserName());
-        application.setAppCreateType(
-            EnumApplicationType.INTEGRATED.toString().equalsIgnoreCase(appInfo.get("createType"))
-                ? EnumApplicationType.INTEGRATED
-                : EnumApplicationType.DEVELOP);
-        application.setAppClass(EnumAppClass.VM.toString().equalsIgnoreCase(appInfo.get("appClass"))
-            ? EnumAppClass.VM
-            : EnumAppClass.CONTAINER);
-        application.setArchitecture(appInfo.get("architecture"));
+        Optional<Map<String, String>> optional = appList.values().stream().findFirst();
+        if (optional.isPresent()) {
+            //field according to the first app is ok, we just create one project.
+            Map<String, String> appInfo = optional.get();
+            application.setVersion(appInfo.get("version"));
+            application.setProvider(AccessUserUtil.getUser().getUserName());
+            application.setAppCreateType(
+                EnumApplicationType.INTEGRATED.toString().equalsIgnoreCase(appInfo.get("createType"))
+                    ? EnumApplicationType.INTEGRATED
+                    : EnumApplicationType.DEVELOP);
+            application.setAppClass(EnumAppClass.VM.toString().equalsIgnoreCase(appInfo.get("appClass"))
+                ? EnumAppClass.VM
+                : EnumAppClass.CONTAINER);
+            application.setArchitecture(appInfo.get("architecture"));
+        }
+
     }
 
     /**
@@ -442,7 +457,7 @@ public class ProfileServiceImpl implements ProfileService {
             LOGGER.error("Yaml deserialization failed {}", e.getMessage());
             throw new DomainException("Yaml deserialization failed.");
         } catch (IOException e) {
-            LOGGER.error("read file to string failed. {}", e);
+            LOGGER.error("read file to string failed. {}", e.getMessage());
             throw new FileOperateException("read file to string failed", ResponseConsts.RET_MERGE_FILE_FAIL);
         }
     }

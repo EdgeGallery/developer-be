@@ -34,11 +34,8 @@ public final class DeveloperFileUtils {
     }
 
     /**
-     * get Absolute Path
-     *
-     * @throws IOException io exception
+     * get Absolute Path.
      */
-
     public static String getAbsolutePath(String relativePath) {
         return InitConfigUtil.getWorkSpaceBaseDir() + BusinessConfigUtil.getWorkspacePath() + relativePath
             + File.separator;
@@ -120,11 +117,18 @@ public final class DeveloperFileUtils {
     private static void deleteFile(File file) {
         if (file.isDirectory()) {
             File[] files = file.listFiles();
-            for (int i = 0; i < files.length; i++) {
-                deleteFile(files[i]);
+            if (files != null && files.length != 0) {
+                for (File listFile : files) {
+                    deleteFile(listFile);
+                }
+            }
+        } else {
+            try {
+                Files.delete(file.toPath());
+            } catch (IOException e) {
+                LOGGER.error("delete file failed! {}", e.getMessage());
             }
         }
-        file.delete();
     }
 
     /**
