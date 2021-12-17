@@ -103,14 +103,12 @@ public class ContainerAppHelmChartServiceImpl implements ContainerAppHelmChartSe
             containerFileHandler.setImageConfig(imageConfig);
 
             containerFileHandler.setServiceConfig(getServiceConfigList(applicationId));
+
             // default dependency mep service.
             List<AppServiceRequired> requiredList = appConfigurationService.getAllServiceRequired(applicationId);
             List<AppServiceProduced> producedList = appConfigurationService.getAllServiceProduced(applicationId);
-            if (CollectionUtils.isEmpty(requiredList) && CollectionUtils.isEmpty(producedList)) {
-                containerFileHandler.setHasMep(false);
-            } else {
-                containerFileHandler.setHasMep(true);
-            }
+            containerFileHandler
+                .setHasMep(!CollectionUtils.isEmpty(requiredList) || !CollectionUtils.isEmpty(producedList));
 
             containerFileHandler.load(filePaths);
 
