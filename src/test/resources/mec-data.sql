@@ -114,6 +114,7 @@ MERGE INTO tbl_application KEY(id) VALUES('6a75a2bd-9811-432f-bbe8-2813aa97d367'
 MERGE INTO tbl_vm KEY(id) VALUES('6a75a2bd-9811-432f-bbe8-2813aa97d757','4cbbab9d-c48f-4adb-ae82-d1816d8edd7c','appvm1','3ef2bea0-5e23-4fab-952d-cc9e6741dbe7',1,null,'',null,'','');
 MERGE INTO tbl_vm KEY(id) VALUES('6a75a2bd-9811-432f-bbe8-2813aa97d758','4cbbab9d-c48f-4adb-ae82-d1816d8edd7c','appvm2','3ef2bea0-5e23-4fab-952d-cc9e6741dbe7',1,null,'',null,'','');
 MERGE INTO tbl_vm KEY(id) VALUES('6a75a2bd-9811-432f-bbe8-d18fordelete','4cbbab9d-c48f-4adb-ae82-d1816d8edd7c','appvm2','3ef2bea0-5e23-4fab-952d-cc9e6741dbe7',1,null,'',null,'','');
+MERGE INTO tbl_vm KEY(id) VALUES('6a75a2bd-9811-432f-bbe8-d18efa97d760','4cbbab9d-c48f-4adb-ae82-d1816d8edd7c','appvm2','3ef2bea0-5e23-4fab-952d-cc9e6741dbe7',1,null,'',null,'','');
 -- ----------------------------
 -- Records of tbl_vm_port
 -- ----------------------------
