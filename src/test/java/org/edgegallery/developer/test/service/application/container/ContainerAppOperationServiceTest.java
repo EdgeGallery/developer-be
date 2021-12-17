@@ -41,6 +41,7 @@ import org.edgegallery.developer.test.service.application.vm.VMAppOperationServi
 import org.edgegallery.developer.util.ContainerAppHelmChartUtil;
 import org.edgegallery.developer.util.HttpClientUtil;
 import org.edgegallery.developer.util.SpringContextUtil;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -85,6 +86,8 @@ public class ContainerAppOperationServiceTest extends AbstractJUnit4SpringContex
 
     private User user;
 
+    private MockUp mockup;
+
     private enum LcmReturnMockTypeEnum {
         UPLOAD_PKG_FAILED,
         DISTRIBUTE_PKG_FAILED,
@@ -99,7 +102,7 @@ public class ContainerAppOperationServiceTest extends AbstractJUnit4SpringContex
         user = new User("testId", "testUser", "testAuth", "testToken");
         SpringContextUtil.setApplicationContext(applicationContext);
         prepareFilesForTestApplication();
-        new MockUp<ContainerAppHelmChartUtil>() {
+        mockup = new MockUp<ContainerAppHelmChartUtil>() {
             @Mock
             public boolean checkImageExist(List<String> imageList) {
                 return true;
@@ -112,9 +115,14 @@ public class ContainerAppOperationServiceTest extends AbstractJUnit4SpringContex
             .uploadHelmChartFile(APPLICATION_ID, uploadFile);
     }
 
+    @After
+    public void shutdown(){
+        mockup.tearDown();
+    }
+
     @Test
     public void generatePackageTest() throws IOException {
-        new MockUp<ContainerAppHelmChartUtil>() {
+        MockUp mockup = new MockUp<ContainerAppHelmChartUtil>() {
             @Mock
             public boolean checkImageExist(List<String> imageList) {
                 return true;
@@ -125,6 +133,7 @@ public class ContainerAppOperationServiceTest extends AbstractJUnit4SpringContex
             FileUtils.openInputStream(file));
         containerAppHelmChartService.uploadHelmChartFile(APPLICATION_ID, multipartFile);
         containerAppOperationService.generatePackage(APPLICATION_ID);
+        mockup.tearDown();
     }
 
     private void prepareFilesForTestApplication() {
@@ -148,7 +157,7 @@ public class ContainerAppOperationServiceTest extends AbstractJUnit4SpringContex
 
     @Test
     public void testInstantiateContainerSuccess() {
-        mockLcmReturnInfo(LcmReturnMockTypeEnum.SUCCESS);
+        MockUp mockup = mockLcmReturnInfo(LcmReturnMockTypeEnum.SUCCESS);
         try {
             OperationStatus status = callInstantiateContainer();
             Assert.assertEquals(EnumActionStatus.SUCCESS, status.getStatus());
@@ -163,11 +172,12 @@ public class ContainerAppOperationServiceTest extends AbstractJUnit4SpringContex
             LOGGER.error("Exception happens", e);
             Assert.fail();
         }
+        mockup.tearDown();
     }
 
     @Test
     public void testInstantiateContainerUploadPkgFailed() {
-        mockLcmReturnInfo(LcmReturnMockTypeEnum.UPLOAD_PKG_FAILED);
+        MockUp mockup = mockLcmReturnInfo(LcmReturnMockTypeEnum.UPLOAD_PKG_FAILED);
         try {
             OperationStatus status = callInstantiateContainer();
             Assert.assertEquals(EnumActionStatus.FAILED, status.getStatus());
@@ -180,11 +190,12 @@ public class ContainerAppOperationServiceTest extends AbstractJUnit4SpringContex
             LOGGER.error("Exception happens", e);
             Assert.fail();
         }
+        mockup.tearDown();
     }
 
     @Test
     public void testInstantiateContainerDistributePkgFailed() {
-        mockLcmReturnInfo(LcmReturnMockTypeEnum.DISTRIBUTE_PKG_FAILED);
+        MockUp mockup = mockLcmReturnInfo(LcmReturnMockTypeEnum.DISTRIBUTE_PKG_FAILED);
         try {
             OperationStatus status = callInstantiateContainer();
             Assert.assertEquals(EnumActionStatus.FAILED, status.getStatus());
@@ -197,11 +208,12 @@ public class ContainerAppOperationServiceTest extends AbstractJUnit4SpringContex
             LOGGER.error("Exception happens", e);
             Assert.fail();
         }
+        mockup.tearDown();
     }
 
     @Test
     public void testInstantiateContainerGetDistributeResFailed() {
-        mockLcmReturnInfo(LcmReturnMockTypeEnum.DISTRIBUTE_PKG_FAILED);
+        MockUp mockup = mockLcmReturnInfo(LcmReturnMockTypeEnum.DISTRIBUTE_PKG_FAILED);
         try {
             OperationStatus status = callInstantiateContainer();
             Assert.assertEquals(EnumActionStatus.FAILED, status.getStatus());
@@ -214,11 +226,12 @@ public class ContainerAppOperationServiceTest extends AbstractJUnit4SpringContex
             LOGGER.error("Exception happens", e);
             Assert.fail();
         }
+        mockup.tearDown();
     }
 
     @Test
     public void testInstantiateContainerInstantiateAppFailed() {
-        mockLcmReturnInfo(LcmReturnMockTypeEnum.INSTANTIATE_APP_FAILED);
+        MockUp mockup = mockLcmReturnInfo(LcmReturnMockTypeEnum.INSTANTIATE_APP_FAILED);
         try {
             OperationStatus status = callInstantiateContainer();
             Assert.assertEquals(EnumActionStatus.FAILED, status.getStatus());
@@ -231,6 +244,7 @@ public class ContainerAppOperationServiceTest extends AbstractJUnit4SpringContex
             LOGGER.error("Exception happens", e);
             Assert.fail();
         }
+        mockup.tearDown();
     }
 
     private OperationStatus callInstantiateContainer() {
@@ -254,8 +268,8 @@ public class ContainerAppOperationServiceTest extends AbstractJUnit4SpringContex
         return status;
     }
 
-    private void mockLcmReturnInfo(final ContainerAppOperationServiceTest.LcmReturnMockTypeEnum lcmReturnType) {
-        new MockUp<HttpClientUtil>() {
+    private MockUp mockLcmReturnInfo(final ContainerAppOperationServiceTest.LcmReturnMockTypeEnum lcmReturnType) {
+        return new MockUp<HttpClientUtil>() {
 
             @Mock
             public String uploadPkg(String basePath, String filePath, String userId, String token, LcmLog lcmLog) {

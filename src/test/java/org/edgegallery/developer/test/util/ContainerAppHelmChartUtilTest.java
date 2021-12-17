@@ -35,10 +35,11 @@ import org.junit.Test;
 public class ContainerAppHelmChartUtilTest {
     private HttpServer httpServer;
 
+    MockUp mockup;
+
     @Before
     public void setUp() throws IOException {
-
-        new MockUp<SpringContextUtil>() {
+        mockup = new MockUp<SpringContextUtil>() {
             @Mock
             public Object getBean(Class<?> requiredType) {
                 ImageConfig imageConfig = new ImageConfig();
@@ -71,6 +72,7 @@ public class ContainerAppHelmChartUtilTest {
     @After
     public void after() {
         httpServer.stop(1);
+        mockup.tearDown();
     }
 
     @Test

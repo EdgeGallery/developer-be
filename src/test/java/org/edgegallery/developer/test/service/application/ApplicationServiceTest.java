@@ -234,7 +234,7 @@ public class ApplicationServiceTest {
         try {
             AccessUserUtil.setUser("b27d72b5-93a6-4db4-8268-7ec502331ade", "admin");
             boolean res = applicationService
-                .deleteApplication("4cbbab9d-c48f-4adb-ae82-d1816d8edd7b", AccessUserUtil.getUser());
+                .deleteApplication("4cbbab9d-c48f-4adb-ae82-d18fordelete", AccessUserUtil.getUser());
         } catch (DeveloperException e) {
             Assert.assertEquals("Network is used by vm port. Cannot be deleted", e.getMessage());
         }

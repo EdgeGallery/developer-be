@@ -30,6 +30,7 @@ import org.edgegallery.developer.service.application.container.ContainerAppHelmC
 import org.edgegallery.developer.test.DeveloperApplicationTests;
 import org.edgegallery.developer.util.ContainerAppHelmChartUtil;
 import org.edgegallery.developer.util.helmcharts.IContainerFileHandler;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -54,12 +55,14 @@ public class ContainerAppHelmChartServiceTest {
 
     private MockHttpServletRequest request;
 
+    private MockUp mockup;
+
     @Before
     public void setUp() {
         request = new MockHttpServletRequest();
         request.setCharacterEncoding("UTF-8");
 
-        new MockUp<ContainerAppHelmChartUtil>() {
+        mockup = new MockUp<ContainerAppHelmChartUtil>() {
             @Mock
             public List<String> getImagesFromHelmFile(String helmChartsPackagePath) {
                 {
@@ -85,6 +88,10 @@ public class ContainerAppHelmChartServiceTest {
 
         };
 
+    }
+    @After
+    public void shutdown() {
+        mockup.tearDown();
     }
 
     @Test
