@@ -14,32 +14,15 @@
 
 package org.edgegallery.developer.exception;
 
-public class FileOperateException extends DomainException {
-
-    private static final long serialVersionUID = 1311109258952411151L;
-
-    private ErrorMessage errMsg;
-
-    public FileOperateException(String message) {
-        super(message);
-    }
+public class FileOperateException extends CommonException {
 
     /**
      * Constructor to create FileOperateException with retCode and params.
      *
+     * @param msg exception message
      * @param ret retCode
      */
     public FileOperateException(String msg, int ret) {
-        super(msg);
-        ErrorMessage errorMessage = new ErrorMessage(ret, null);
-        errMsg = errorMessage;
-    }
-
-    /**
-     * get error message.
-     *
-     */
-    public ErrorMessage getErrMsg() {
-        return errMsg;
+        super(msg, ret);
     }
 }

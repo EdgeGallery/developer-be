@@ -16,61 +16,16 @@
 
 package org.edgegallery.developer.exception;
 
-import java.util.ArrayList;
-import java.util.List;
-
-public class ForbiddenException extends RuntimeException {
-
-    private static final long serialVersionUID = 1646444285623052459L;
-
-    private ErrorMessage errMsg;
-
+public class ForbiddenException extends CommonException {
 
     /**
-     * Constructor to create DeveloperException with message.
-     *
-     * @param message exception message
-     */
-    public ForbiddenException(String message) {
-        super(message);
-    }
-
-
-    /**
-     * Constructor to create DeveloperException with message.
+     * Constructor to create ForbiddenException with message.
      *
      * @param message exception message
      * @param ret retCode
      */
     public ForbiddenException(String message, int ret) {
-        super(message);
-        ErrorMessage errorMessage = new ErrorMessage(ret, null);
-        errMsg = errorMessage;
-    }
+        super(message, ret);
 
-    /**
-     * Constructor to create DeveloperException with retCode and params.
-     *
-     * @param ret retCode
-     * @param args params of error message
-     */
-    public ForbiddenException(String message, int ret, Object... args) {
-        super(message);
-        int length = args == null ? 0 : args.length;
-        List<String> params = new ArrayList<>();
-        for (int i = 0; i < length; i++) {
-            params.add(args[i].toString());
-        }
-        ErrorMessage errorMessage = new ErrorMessage(ret,params);
-        errMsg = errorMessage;
     }
-
-    /**
-     * get error message.
-     *
-     */
-    public ErrorMessage getErrMsg() {
-        return errMsg;
-    }
-
 }

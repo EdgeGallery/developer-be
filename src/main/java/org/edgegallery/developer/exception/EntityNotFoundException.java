@@ -16,13 +16,7 @@
 
 package org.edgegallery.developer.exception;
 
-
-import java.util.ArrayList;
-import java.util.List;
-
-public class EntityNotFoundException extends RuntimeException {
-
-    private static final long serialVersionUID = 5224743617068936039L;
+public class EntityNotFoundException extends CommonException {
 
     public EntityNotFoundException(String message) {
         super(message);
@@ -32,41 +26,15 @@ public class EntityNotFoundException extends RuntimeException {
         super("cannot find the " + entityClass.getSimpleName().toLowerCase() + " with id " + id);
     }
 
-    private ErrorMessage errMsg;
-
     /**
      * Constructor to create EntityNotFoundException with retCode and params.
      *
+     * @param msg exception message
      * @param ret retCode
      */
     public EntityNotFoundException(String msg, int ret) {
-        super(msg);
-        ErrorMessage errorMessage = new ErrorMessage(ret, null);
-        errMsg = errorMessage;
+        super(msg, ret);
+
     }
 
-    /**
-     * get error message.
-     *
-     */
-    public ErrorMessage getErrMsg() {
-        return errMsg;
-    }
-
-    /**
-     * Constructor to create EntityNotFoundException with retCode and params.
-     *
-     * @param ret retCode
-     * @param args params of error message
-     */
-    public EntityNotFoundException(String msg, int ret, Object... args) {
-        super(msg);
-        List<String> params = new ArrayList<>();
-        int length = args == null ? 0 : args.length;
-        for (int i = 0; i < length; i++) {
-            params.add(args[i].toString());
-        }
-        ErrorMessage errorMessage = new ErrorMessage(ret, params);
-        errMsg = errorMessage;
-    }
 }
