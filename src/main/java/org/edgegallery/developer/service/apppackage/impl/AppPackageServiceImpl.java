@@ -344,7 +344,7 @@ public class AppPackageServiceImpl implements AppPackageService {
             .equals(EnumAppClass.VM)) {
             PackageFileCreator packageFileCreator = new PackageFileCreator(applicationDetail.getVmApp(),
                 appPackage.getId());
-            String fileName = packageFileCreator.PackageFileCompress();
+            String fileName = packageFileCreator.packageFileCompress();
             if (StringUtils.isEmpty(fileName)) {
                 LOGGER.error("zip package error.");
                 throw new FileOperateException("zip package error.", ResponseConsts.RET_CREATE_FILE_FAIL);
@@ -354,7 +354,7 @@ public class AppPackageServiceImpl implements AppPackageService {
             .equals(EnumAppClass.CONTAINER)) {
             PackageFileCreator packageFileCreator = new PackageFileCreator(applicationDetail.getContainerApp(),
                 appPackage.getId());
-            String fileName = packageFileCreator.PackageFileCompress();
+            String fileName = packageFileCreator.packageFileCompress();
             if (StringUtils.isEmpty(fileName)) {
                 LOGGER.error("zip package error.");
                 throw new FileOperateException("zip package error.", ResponseConsts.RET_CREATE_FILE_FAIL);

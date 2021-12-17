@@ -68,8 +68,6 @@ public class ContainerPackageFileCreator extends PackageFileCreator {
 
     private ContainerApplication application;
 
-    private String packageId;
-
     private List<HelmChart> chartList;
 
     private List<ImageDesc> imageDescList = new ArrayList<>();
@@ -77,7 +75,6 @@ public class ContainerPackageFileCreator extends PackageFileCreator {
     public ContainerPackageFileCreator(ContainerApplication application, String packageId) {
         super(application, packageId);
         this.application = application;
-        this.packageId = packageId;
         init();
     }
 
@@ -105,7 +102,7 @@ public class ContainerPackageFileCreator extends PackageFileCreator {
         generateAPPDYaml();
         configMdAndIcon();
         generateScript();
-        String compressPath = PackageFileCompress();
+        String compressPath = packageFileCompress();
         if (null == compressPath) {
             LOGGER.error("package compress fail");
             return null;
@@ -152,6 +149,7 @@ public class ContainerPackageFileCreator extends PackageFileCreator {
         }
     }
 
+    @Override
     public void generateImageDesFile() {
         List<String> imageList = getImageInfo();
         if (CollectionUtils.isEmpty(imageList)) {
@@ -213,6 +211,7 @@ public class ContainerPackageFileCreator extends PackageFileCreator {
         return true;
     }
 
+    @Override
     public boolean compressDeploymentFile() {
         String tempPackagePath = getPackagePath() + TEMPLATE_PATH;
         File tempDir = new File(tempPackagePath);

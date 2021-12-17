@@ -30,14 +30,10 @@ import org.edgegallery.developer.model.resource.pkgspec.PkgSpecConstants;
 import org.edgegallery.developer.model.resource.vm.Flavor;
 import org.edgegallery.developer.service.recource.pkgspec.PkgSpecService;
 import org.edgegallery.developer.util.SpringContextUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.SafeConstructor;
 
 public class PkgSpecsUtil {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(PkgSpecsUtil.class);
 
     private PkgSpecService pkgSpecService = (PkgSpecService) SpringContextUtil.getBean(PkgSpecService.class);
 

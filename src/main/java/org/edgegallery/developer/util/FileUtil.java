@@ -18,6 +18,7 @@ package org.edgegallery.developer.util;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -69,7 +70,7 @@ public final class FileUtil {
     public static String readFileContent(String filePath) {
         Path path = Paths.get(filePath);
         try {
-            return new String(Files.readAllBytes(path), "UTF-8");
+            return new String(Files.readAllBytes(path), StandardCharsets.UTF_8);
         } catch (IOException ex) {
             LOGGER.error("read file {} occur exception {}", filePath, ex.getMessage());
             return "error";
@@ -114,13 +115,13 @@ public final class FileUtil {
      */
     public static boolean checkFileSize(Long len, int size, String unit) {
         double fileSize = 0;
-        if ("B".equals(unit.toUpperCase())) {
+        if ("B".equalsIgnoreCase(unit)) {
             fileSize = (double) len;
-        } else if ("K".equals(unit.toUpperCase())) {
+        } else if ("K".equalsIgnoreCase(unit)) {
             fileSize = (double) len / 1024;
-        } else if ("M".equals(unit.toUpperCase())) {
+        } else if ("M".equalsIgnoreCase(unit)) {
             fileSize = (double) len / 1048576;
-        } else if ("G".equals(unit.toUpperCase())) {
+        } else if ("G".equalsIgnoreCase(unit)) {
             fileSize = (double) len / 1073741824;
         }
         if (fileSize > size) {

@@ -163,7 +163,7 @@ public class ReverseProxyServiceImpl implements ReverseProxyService {
         VirtualMachine vm = vmAppVmService.getVm(applicationId, vmId);
         if (vm.getVmInstantiateInfo() == null) {
             LOGGER.error("failed to get ssh console url, instantiate info does not exist.");
-            throw new DeveloperException("failed to get ssh console url");
+            throw new DeveloperException("failed to get ssh console url, instantiate info does not exist.");
         }
 
         PkgSpec pkgSpec = pkgSpecService.getPkgSpecById(application.getPkgSpecId());
@@ -189,7 +189,7 @@ public class ReverseProxyServiceImpl implements ReverseProxyService {
             .sendWebSshRequest(basePath, networkIp, 22, username, password, xsrfValue);
         if (sshResponseInfo == null) {
             LOGGER.error("send WebSsh request fail.");
-            throw new DeveloperException("failed to get ssh console url");
+            throw new DeveloperException("send WebSsh request fail.");
         }
         if (StringUtils.isEmpty(sshResponseInfo.getId())) {
             LOGGER.error(" WebSsh info input error:{}", sshResponseInfo.getStatus());
@@ -205,7 +205,7 @@ public class ReverseProxyServiceImpl implements ReverseProxyService {
         ApplicationDetail application = applicationService.getApplicationDetail(applicationId);
         if (application.getContainerApp().getInstantiateInfo() == null) {
             LOGGER.error("failed to get ssh console url, container instantiate info does not exist.");
-            throw new DeveloperException("failed to get ssh console url");
+            throw new DeveloperException("failed to get ssh console url, container instantiate info does not exist.");
         }
         String hostId = application.getContainerApp().getMepHostId();
         MepHost mepHost = mepHostService.getHost(hostId);
@@ -220,7 +220,7 @@ public class ReverseProxyServiceImpl implements ReverseProxyService {
                 xsrfValue);
         if (sshResponseInfo == null) {
             LOGGER.error("send WebSsh request fail.");
-            throw new DeveloperException("failed to get ssh console url");
+            throw new DeveloperException("send WebSsh request fail.");
         }
         if (StringUtils.isEmpty(sshResponseInfo.getId())) {
             LOGGER.error(" WebSsh info input error:{}", sshResponseInfo.getStatus());
@@ -252,7 +252,6 @@ public class ReverseProxyServiceImpl implements ReverseProxyService {
         Pattern pattern = Pattern.compile(regex);
         Matcher matcher = pattern.matcher(url);
         while (matcher.find()) {
-            int count = matcher.groupCount();
             String vncUrl = url.replace(matcher.group(1), proxyHostIp)
                 .replace(matcher.group(3), String.valueOf(proxyHostPort));
             LOGGER.debug("vnc url : {}, origin url : {}", vncUrl, url);

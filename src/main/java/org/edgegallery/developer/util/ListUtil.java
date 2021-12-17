@@ -19,6 +19,11 @@ import java.util.Collections;
 import java.util.List;
 
 public class ListUtil {
+
+    private ListUtil() {
+        throw new IllegalStateException("ListUtil class");
+    }
+
     /**
      * judge two list is equal.
      *

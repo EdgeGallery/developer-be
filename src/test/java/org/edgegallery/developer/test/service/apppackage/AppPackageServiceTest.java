@@ -272,7 +272,7 @@ public class AppPackageServiceTest extends AbstractJUnit4SpringContextTests {
         try {
             new MockUp<PackageFileCreator>() {
                 @Mock
-                public String PackageFileCompress() {
+                public String packageFileCompress() {
                     return "";
                 }
             };
@@ -287,7 +287,7 @@ public class AppPackageServiceTest extends AbstractJUnit4SpringContextTests {
         try {
             new MockUp<PackageFileCreator>() {
                 @Mock
-                public String PackageFileCompress() {
+                public String packageFileCompress() {
                     return null;
                 }
             };
@@ -302,7 +302,7 @@ public class AppPackageServiceTest extends AbstractJUnit4SpringContextTests {
         try {
             new MockUp<PackageFileCreator>() {
                 @Mock
-                public String PackageFileCompress() {
+                public String packageFileCompress() {
                     return null;
                 }
             };
@@ -317,7 +317,7 @@ public class AppPackageServiceTest extends AbstractJUnit4SpringContextTests {
         try {
             new MockUp<PackageFileCreator>() {
                 @Mock
-                public String PackageFileCompress() {
+                public String packageFileCompress() {
                     return "";
                 }
             };

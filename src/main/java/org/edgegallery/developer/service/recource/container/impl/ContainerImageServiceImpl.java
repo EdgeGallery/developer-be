@@ -36,7 +36,6 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.tomcat.util.http.fileupload.servlet.ServletFileUpload;
-import org.edgegallery.developer.common.Consts;
 import org.edgegallery.developer.common.ResponseConsts;
 import org.edgegallery.developer.exception.DataBaseException;
 import org.edgegallery.developer.exception.FileFoundFailException;
@@ -54,7 +53,7 @@ import org.edgegallery.developer.model.resource.container.EnumContainerImageStat
 import org.edgegallery.developer.service.recource.container.ContainerImageService;
 import org.edgegallery.developer.util.ContainerImageUtil;
 import org.edgegallery.developer.util.ListUtil;
-import org.edgegallery.developer.util.SystemImageUtil;
+import org.edgegallery.developer.util.VMImageUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -271,7 +270,7 @@ public class ContainerImageServiceImpl implements ContainerImageService {
             containerImageReq.setUploadTimeEnd(uploadTimeEnd + " 23:59:59");
         }
         PageInfo pageInfo;
-        if (SystemImageUtil.isAdminUser()) {
+        if (VMImageUtil.isAdminUser()) {
             pageInfo = new PageInfo<>(containerImageMapper.getAllImageByAdminAuth(containerImageReq));
         } else {
             pageInfo = new PageInfo<>(containerImageMapper.getAllImageByOrdinaryAuth(containerImageReq));
@@ -293,7 +292,7 @@ public class ContainerImageServiceImpl implements ContainerImageService {
         ContainerImage oldImage = containerImageMapper.getContainerImage(imageId);
         int retCode;
         boolean isDel;
-        if (!SystemImageUtil.isAdminUser() && !loginUserId.equals(oldImage.getUserId())) {
+        if (!VMImageUtil.isAdminUser() && !loginUserId.equals(oldImage.getUserId())) {
             String errorMsg = "Cannot delete data created by others";
             LOGGER.error(errorMsg);
             throw new ForbiddenException(errorMsg, ResponseConsts.RET_REQUEST_FORBIDDEN);
@@ -373,7 +372,7 @@ public class ContainerImageServiceImpl implements ContainerImageService {
     @Override
     public ResponseEntity cancelUploadHarborImage(String imageId) {
         String rootDir = getUploadSysImageRootDir(imageId);
-        SystemImageUtil.cleanWorkDir(new File(rootDir));
+        VMImageUtil.cleanWorkDir(new File(rootDir));
         return ResponseEntity.ok().build();
     }
 
