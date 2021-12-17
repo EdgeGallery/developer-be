@@ -157,7 +157,7 @@ public class InstantiateContainerAppAction extends InstantiateAppAction {
                 waitingTime += INTERVAL;
             } catch (InterruptedException e) {
                 LOGGER.error("Distribute package sleep failed.");
-                return EnumInstantiateStatus.INSTANTIATE_STATUS_ERROR;
+                Thread.currentThread().interrupt();
             }
         }
         saveWorkloadToInstantiateInfo(status, events);

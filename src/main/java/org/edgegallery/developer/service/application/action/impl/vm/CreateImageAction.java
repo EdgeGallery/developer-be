@@ -187,7 +187,7 @@ public class CreateImageAction extends AbstractAction {
                 waitingTime += INTERVAL;
             }catch (InterruptedException e) {
                 LOGGER.error("export image sleep failed.");
-                return EnumExportImageStatus.EXPORT_IMAGE_STATUS_ERROR;
+                Thread.currentThread().interrupt();
             }
             
         }

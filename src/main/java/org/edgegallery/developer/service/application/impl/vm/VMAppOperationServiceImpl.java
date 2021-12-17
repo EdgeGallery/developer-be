@@ -292,10 +292,8 @@ public class VMAppOperationServiceImpl extends AppOperationServiceImpl implement
             return true;
         }
         for (VirtualMachine vm : vms) {
-            boolean res = cleanVmLaunchInfo(application.getMepHostId(), vm, user);
-            if (!res) {
-                LOGGER.error("clean env fail, vmId:{}", vm.getId());
-            }
+            cleanVmLaunchInfo(application.getMepHostId(), vm, user);
+
         }
         applicationService.updateApplicationStatus(applicationId, EnumApplicationStatus.CONFIGURED);
         return true;
@@ -426,7 +424,7 @@ public class VMAppOperationServiceImpl extends AppOperationServiceImpl implement
             } catch (Exception e) {
                 LOGGER.error("InstantiateVmAppProcessor Exception.", e);
                 operationStatus.setStatus(EnumActionStatus.FAILED);
-                operationStatus.setErrorMsg("Exception happens when instantiate VM: " + e.getStackTrace().toString());
+                operationStatus.setErrorMsg("Exception happens when instantiate VM: " + e.getMessage());
                 operationStatusService.modifyOperationStatus(operationStatus);
             }
 
@@ -464,13 +462,13 @@ public class VMAppOperationServiceImpl extends AppOperationServiceImpl implement
             } catch (Exception e) {
                 LOGGER.error("InstantiateVmAppProcessor Exception.", e);
                 operationStatus.setStatus(EnumActionStatus.FAILED);
-                operationStatus.setErrorMsg("Exception happens when export image: " + e.getStackTrace().toString());
+                operationStatus.setErrorMsg("Exception happens when export image: " + e.getMessage());
                 operationStatusService.modifyOperationStatus(operationStatus);
             }
         }
     }
 
-    private boolean cleanVmLaunchInfo(String mepHostId, VirtualMachine vm, User user) {
+    private void cleanVmLaunchInfo(String mepHostId, VirtualMachine vm, User user) {
         MepHost mepHost = mepHostService.getHost(mepHostId);
         String basePath = HttpClientUtil.getUrlPrefix(mepHost.getLcmProtocol(), mepHost.getLcmIp(),
             mepHost.getLcmPort());
@@ -481,7 +479,7 @@ public class VMAppOperationServiceImpl extends AppOperationServiceImpl implement
                 imageExportInfo.getImageInstanceId(), user.getToken());
         }
         if (vmInstantiateInfo == null) {
-            return true;
+            return;
         }
         if (StringUtils.isNotEmpty(vmInstantiateInfo.getMepmPackageId()) || StringUtils
             .isNotEmpty(vmInstantiateInfo.getAppInstanceId())) {
@@ -494,7 +492,6 @@ public class VMAppOperationServiceImpl extends AppOperationServiceImpl implement
         }
         deleteExportInfo(vm.getId());
         deleteInstantiateInfo(vm.getId());
-        return true;
     }
 
     private Boolean pushFileToVm(File appFile, String applicationId, String vmId) {

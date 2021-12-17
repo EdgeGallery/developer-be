@@ -268,15 +268,12 @@ public class ReverseProxyServiceImpl implements ReverseProxyService {
         }
         try {
             if (lock.tryLock(2, TimeUnit.SECONDS)) {
-                if (reverseProxyBaseUrl != null) {
-                    return reverseProxyBaseUrl;
-                }
-
                 reverseProxyBaseUrl = new StringBuffer(protocol).append("://localhost:").append(cbbPort)
                     .append("/commonservice/cbb/v1/reverseproxies").toString();
             }
         } catch (InterruptedException e) {
             LOGGER.error("failed to get the lock", e);
+            Thread.currentThread().interrupt();
             throw new DeveloperException("failed to get reverse proxy base url");
         } finally {
             lock.unlock();

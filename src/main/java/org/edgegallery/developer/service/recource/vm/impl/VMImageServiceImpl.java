@@ -447,7 +447,7 @@ public class VMImageServiceImpl implements VMImageService {
             Thread.sleep(INTERVAL);
             waitingTime += INTERVAL;
         } catch (Exception e) {
-            return new UploadFileInfo(3, EnumProcessErrorType.FILESYSTEM_CHECK_FAILED.getErrorType());
+            Thread.currentThread().interrupt();
         }
         while (waitingTime < TIMEOUT) {
 
@@ -469,7 +469,7 @@ public class VMImageServiceImpl implements VMImageService {
                     Thread.sleep(INTERVAL);
                     waitingTime += INTERVAL;
                 } catch (Exception e) {
-                    return new UploadFileInfo(3, EnumProcessErrorType.FILESYSTEM_CHECK_FAILED.getErrorType());
+                    Thread.currentThread().interrupt();
                 }
             } else {
                 String msg = imageCheckResult.getCheckStatusResponse().getMsg();

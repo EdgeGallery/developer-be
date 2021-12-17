@@ -190,7 +190,7 @@ public abstract class DistributePackageAction extends AbstractAction {
                 waitingTime += INTERVAL;
             } catch (InterruptedException e) {
                 LOGGER.error("Distribute package sleep failed.");
-                return EnumDistributeStatus.DISTRIBUTE_PACKAGE_STATUS_ERROR;
+                Thread.currentThread().interrupt();
             }
         }
         return EnumDistributeStatus.DISTRIBUTE_PACKAGE_STATUS_TIMEOUT;
