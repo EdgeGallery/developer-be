@@ -142,7 +142,7 @@ public class VMAppOperationServiceTest extends AbstractJUnit4SpringContextTests 
 
     @Test
     public void testInstantiateVMSuccess() {
-        mockLcmReturnInfo(LcmReturnMockTypeEnum.SUCCESS);
+        MockUp mockup = mockLcmReturnInfo(LcmReturnMockTypeEnum.SUCCESS);
         try {
             OperationStatus status = callInstantiateVM();
             Assert.assertEquals(EnumActionStatus.SUCCESS, status.getStatus());
@@ -156,11 +156,12 @@ public class VMAppOperationServiceTest extends AbstractJUnit4SpringContextTests 
             LOGGER.error("Exception happens", e);
             Assert.fail();
         }
+        mockup.tearDown();
     }
 
     @Test
     public void testInstantiateVMUploadPkgFailed() {
-        mockLcmReturnInfo(LcmReturnMockTypeEnum.UPLOAD_PKG_FAILED);
+        MockUp mockup = mockLcmReturnInfo(LcmReturnMockTypeEnum.UPLOAD_PKG_FAILED);
         try {
             OperationStatus status = callInstantiateVM();
             Assert.assertEquals(EnumActionStatus.FAILED, status.getStatus());
@@ -172,11 +173,12 @@ public class VMAppOperationServiceTest extends AbstractJUnit4SpringContextTests 
             LOGGER.error("Exception happens", e);
             Assert.fail();
         }
+        mockup.tearDown();
     }
 
     @Test
     public void testInstantiateVMDistributePkgFailed() {
-        mockLcmReturnInfo(LcmReturnMockTypeEnum.DISTRIBUTE_PKG_FAILED);
+        MockUp mockup = mockLcmReturnInfo(LcmReturnMockTypeEnum.DISTRIBUTE_PKG_FAILED);
         try {
             OperationStatus status = callInstantiateVM();
             Assert.assertEquals(EnumActionStatus.FAILED, status.getStatus());
@@ -188,11 +190,12 @@ public class VMAppOperationServiceTest extends AbstractJUnit4SpringContextTests 
             LOGGER.error("Exception happens", e);
             Assert.fail();
         }
+        mockup.tearDown();
     }
 
     @Test
     public void testInstantiateVMGetDistributeResFailed() {
-        mockLcmReturnInfo(LcmReturnMockTypeEnum.GET_DISTRIBUTE_RES_FAILED);
+        MockUp mockup = mockLcmReturnInfo(LcmReturnMockTypeEnum.GET_DISTRIBUTE_RES_FAILED);
         try {
             OperationStatus status = callInstantiateVM();
             Assert.assertEquals(EnumActionStatus.FAILED, status.getStatus());
@@ -205,11 +208,12 @@ public class VMAppOperationServiceTest extends AbstractJUnit4SpringContextTests 
             LOGGER.error("Exception happens", e);
             Assert.fail();
         }
+        mockup.tearDown();
     }
 
     @Test
     public void testInstantiateVMInstantiateAppFailed() {
-        mockLcmReturnInfo(LcmReturnMockTypeEnum.INSTANTIATE_APP_FAILED);
+        MockUp mockup = mockLcmReturnInfo(LcmReturnMockTypeEnum.INSTANTIATE_APP_FAILED);
         try {
             OperationStatus status = callInstantiateVM();
             Assert.assertEquals(EnumActionStatus.FAILED, status.getStatus());
@@ -221,11 +225,12 @@ public class VMAppOperationServiceTest extends AbstractJUnit4SpringContextTests 
             LOGGER.error("Exception happens", e);
             Assert.fail();
         }
+        mockup.tearDown();
     }
 
     @Test
     public void testInstantiateVMGetWorkloadFailed() {
-        mockLcmReturnInfo(LcmReturnMockTypeEnum.GET_WORKLOAD_STATUS_FAILED);
+        MockUp mockup = mockLcmReturnInfo(LcmReturnMockTypeEnum.GET_WORKLOAD_STATUS_FAILED);
         try {
             OperationStatus status = callInstantiateVM();
             Assert.assertEquals(EnumActionStatus.FAILED, status.getStatus());
@@ -238,6 +243,7 @@ public class VMAppOperationServiceTest extends AbstractJUnit4SpringContextTests 
             LOGGER.error("Exception happens", e);
             Assert.fail();
         }
+        mockup.tearDown();
     }
 
     @Test
@@ -288,7 +294,7 @@ public class VMAppOperationServiceTest extends AbstractJUnit4SpringContextTests 
 
     @Test
     public void testCreateVmImageSuccess() {
-        mockLcmReturnInfo(LcmReturnMockTypeEnum.SUCCESS);
+        MockUp mockup = mockLcmReturnInfo(LcmReturnMockTypeEnum.SUCCESS);
         try {
             OperationStatus status = callCreateVMImage();
             Assert.assertEquals(EnumActionStatus.SUCCESS, status.getStatus());
@@ -300,6 +306,7 @@ public class VMAppOperationServiceTest extends AbstractJUnit4SpringContextTests 
             LOGGER.error("Exception happens", e);
             Assert.fail();
         }
+        mockup.tearDown();
     }
 
     private OperationStatus callCreateVMImage() {
@@ -353,8 +360,8 @@ public class VMAppOperationServiceTest extends AbstractJUnit4SpringContextTests 
         return status;
     }
 
-    private void mockLcmReturnInfo(final LcmReturnMockTypeEnum lcmReturnType) {
-        new MockUp<HttpClientUtil>() {
+    private MockUp mockLcmReturnInfo(final LcmReturnMockTypeEnum lcmReturnType) {
+        return new MockUp<HttpClientUtil>() {
 
             @Mock
             public FileSystemResponse queryImageCheck(String url) {
