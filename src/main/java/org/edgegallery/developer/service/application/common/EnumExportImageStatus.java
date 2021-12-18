@@ -30,6 +30,7 @@ public enum EnumExportImageStatus {
         this.name = name;
     }
 
+    @Override
     public String toString() {
         return name;
     }

@@ -104,7 +104,7 @@ public class InstantiateVMAppAction extends InstantiateAppAction {
         Type vmInfoType = new TypeToken<VmInstantiateWorkload>() { }.getType();
         VmInstantiateWorkload vmInstantiateWorkload = gson.fromJson(respBody, vmInfoType);
         vmInstantiateInfo.setLog(respBody);
-        if (!CollectionUtils.isEmpty(vmInstantiateWorkload.getData()) && vmInstantiateWorkload.getData().size() > 0) {
+        if (!vmInstantiateWorkload.getData().isEmpty() && vmInstantiateWorkload.getData().size() > 0) {
             vmInstantiateInfo.setVncUrl(vmInstantiateWorkload.getData().get(0).getVncUrl());
             vmInstantiateInfo.setVmInstanceId(vmInstantiateWorkload.getData().get(0).getVmId());
             for (NetworkInfo info : vmInstantiateWorkload.getData().get(0).getNetworks()) {

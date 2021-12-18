@@ -71,7 +71,7 @@ public abstract class TopologyTemplateConverter {
         }
         group.setMembers(members);
         topologyTemplate.getGroups().put(AppdConstants.GROUPS_NODE_NAME, group);
-        // update policies;
+        // update policies
         if (null == topologyTemplate.getPolicies()) {
             topologyTemplate.setPolicies(new ArrayList<>());
         }

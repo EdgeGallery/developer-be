@@ -15,6 +15,7 @@
 package org.edgegallery.developer.service.apppackage.csar.appdconverter;
 
 import java.util.LinkedHashMap;
+import java.util.Map;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
@@ -102,7 +103,7 @@ public class PkgSpecsUtil {
         property.getVduProfile().setFlavorExtraSpecs(mapSpecs);
     }
 
-    public void updateUserDataParam(TopologyTemplate topologyTemplate, LinkedHashMap<String, String> mapPortParams) {
+    public void updateUserDataParam(TopologyTemplate topologyTemplate, Map<String, String> mapPortParams) {
         if (null == pkgSpec || PkgSpecConstants.PKG_SPEC_SUPPORT_DYNAMIC_FLAVOR.equals(pkgSpec.getId())) {
             String campusInputName = InputConstant.INPUT_CAMPUS_SEGMENT;
             InputParam campusInput = new InputParam(InputConstant.TYPE_STRING, "", campusInputName);

@@ -15,6 +15,11 @@
 package org.edgegallery.developer.model.apppackage.constant;
 
 public class InputConstant {
+
+    private InputConstant() {
+        throw new IllegalStateException("InputConstant class");
+    }
+
     public static final String TYPE_STRING = "string";
 
     public static final String TYPE_PASSWORD = "password";

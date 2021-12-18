@@ -31,7 +31,7 @@ public class AppOperationServiceFactory {
     private ApplicationMapper appMapper;
 
     @Autowired
-    private VMAppOperationServiceImpl VmAppOperationService;
+    private VMAppOperationServiceImpl vmAppOperationService;
 
     @Autowired
     private ContainerAppOperationServiceImpl containerAppOperationService;
@@ -45,7 +45,7 @@ public class AppOperationServiceFactory {
         if (EnumAppClass.CONTAINER.equals(appClass)) {
             return containerAppOperationService;
         } else if (EnumAppClass.VM.equals(appClass)) {
-            return VmAppOperationService;
+            return vmAppOperationService;
         }
         return null;
     }

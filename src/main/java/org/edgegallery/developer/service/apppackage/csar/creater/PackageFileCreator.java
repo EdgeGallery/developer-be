@@ -231,7 +231,7 @@ public class PackageFileCreator {
     }
 
     public void generateImageDesFile() {
-
+        // container app need override
     }
 
     public boolean compressDeploymentFile() {
