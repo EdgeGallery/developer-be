@@ -352,7 +352,7 @@ public class AppPackageServiceImpl implements AppPackageService {
         }
         if (applicationDetail.getContainerApp() != null && applicationDetail.getContainerApp().getAppClass()
             .equals(EnumAppClass.CONTAINER)) {
-            PackageFileCreator packageFileCreator = new PackageFileCreator(applicationDetail.getContainerApp(),
+            ContainerPackageFileCreator packageFileCreator = new ContainerPackageFileCreator(applicationDetail.getContainerApp(),
                 appPackage.getId());
             String fileName = packageFileCreator.packageFileCompress();
             if (StringUtils.isEmpty(fileName)) {

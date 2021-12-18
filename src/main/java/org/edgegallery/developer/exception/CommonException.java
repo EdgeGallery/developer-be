@@ -42,7 +42,7 @@ public class CommonException extends RuntimeException implements Serializable {
      * Constructor to create DeveloperException with message.
      *
      * @param message exception message
-     * @param ret retCode
+     * @param ret     retCode
      */
     public CommonException(String message, int ret) {
         super(message);
@@ -53,7 +53,7 @@ public class CommonException extends RuntimeException implements Serializable {
     /**
      * Constructor to create DeveloperException with retCode and params.
      *
-     * @param ret retCode
+     * @param ret  retCode
      * @param args params of error message
      */
     public CommonException(String message, int ret, Object... args) {

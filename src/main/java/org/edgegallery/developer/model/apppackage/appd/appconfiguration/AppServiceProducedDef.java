@@ -32,7 +32,7 @@ public class AppServiceProducedDef {
 
     private String version;
 
-    private List<String> dnsRuleIdList = new ArrayList<String>(0);
+    private List<String> dnsRuleIdList = new ArrayList<>(0);
 
-    private List<String> trafficRuleIdList = new ArrayList<String>(0);
+    private List<String> trafficRuleIdList = new ArrayList<>(0);
 }
