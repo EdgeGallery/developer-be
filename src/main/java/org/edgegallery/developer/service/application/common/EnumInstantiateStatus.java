@@ -31,6 +31,7 @@ public enum EnumInstantiateStatus {
         this.name = name;
     }
 
+    @Override
     public String toString() {
         return name;
     }

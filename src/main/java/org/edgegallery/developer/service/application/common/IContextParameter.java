@@ -15,19 +15,19 @@
  */
 package org.edgegallery.developer.service.application.common;
 
-public interface IContextParameter {
-    String PARAM_APPLICATION_ID = "application_id";
+public class IContextParameter {
+    public static final String PARAM_APPLICATION_ID = "application_id";
 
-    String PARAM_VM_ID = "vm_id";
+    public static final String PARAM_VM_ID = "vm_id";
 
-    String PARAM_PACKAGE_ID = "package_id";
+    public static final String PARAM_PACKAGE_ID = "package_id";
 
-    String PARAM_MEPM_PACKAGE_ID = "mepm_package_id";
+    public static final String PARAM_MEPM_PACKAGE_ID = "mepm_package_id";
 
-    String PARAM_APP_INSTANCE_ID = "app_instance_id";
+    public static final String PARAM_APP_INSTANCE_ID = "app_instance_id";
 
-    String PARAM_VM_INSTANCE_ID = "vm_instance_id";
+    public static final String PARAM_VM_INSTANCE_ID = "vm_instance_id";
 
-    String PARAM_IMAGE_INSTANCE_ID = "image_instance_id";
+    public static final String PARAM_IMAGE_INSTANCE_ID = "image_instance_id";
 
 }

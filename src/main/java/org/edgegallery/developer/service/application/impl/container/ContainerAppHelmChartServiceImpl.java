@@ -268,7 +268,7 @@ public class ContainerAppHelmChartServiceImpl implements ContainerAppHelmChartSe
         HelmChart helmChart = helmChartMapper.getHelmChartById(helmChartId);
         if (helmChart == null) {
             LOGGER.error("query HelmChart is empty!");
-            return true;
+            return false;
         }
         //delete helm chart file or k8s yaml
         String helmChartFileId = helmChart.getHelmChartFileId();

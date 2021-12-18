@@ -90,7 +90,7 @@ public class VMAppTopologyTemplateConverter extends TopologyTemplateConverter {
             topologyTemplate.setNodeTemplates(new LinkedHashMap<>());
         }
         for (int i = 0; i < networkLst.size(); i++) {
-            //generate inputs for network;
+            //generate inputs for network
             String networkName = networkLst.get(i).getName();
             int index = i + 1;
             String networkNameInputName = InputConstant.INPUT_NETWORK_PREFIX + index
@@ -128,7 +128,7 @@ public class VMAppTopologyTemplateConverter extends TopologyTemplateConverter {
         List<Network> networkLst = application.getNetworkList();
         List<VirtualMachine> vmLst = application.getVmList();
         if (null == topologyTemplate.getNodeTemplates()) {
-            topologyTemplate.setNodeTemplates(new LinkedHashMap<String, NodeTemplate>());
+            topologyTemplate.setNodeTemplates(new LinkedHashMap<>());
         }
         for (int i = 0; i < vmLst.size(); i++) {
             VirtualMachine vm = vmLst.get(i);

@@ -138,8 +138,7 @@ public class ApplicationServiceImpl implements ApplicationService {
         }
         LOGGER.info("Create application success.");
         //query db to get model with default values.
-        Application app = applicationMapper.getApplicationById(applicationId);
-        return app;
+        return applicationMapper.getApplicationById(applicationId);
     }
 
     private void initNetwork(String applicationId, String pkgSpecId) {
@@ -176,10 +175,10 @@ public class ApplicationServiceImpl implements ApplicationService {
     public Page<Application> getApplicationByNameWithFuzzy(String appName, int limit, int offset) {
         String userId = AccessUserUtil.getUser().getUserId();
         PageHelper.offsetPage(offset, limit);
-        PageInfo<Application> pageInfo = new PageInfo<Application>(
+        PageInfo<Application> pageInfo = new PageInfo<>(
             applicationMapper.getAllApplicationsByUserId(userId, appName));
         LOGGER.info("get all applications success.");
-        return new Page<Application>(pageInfo.getList(), limit, offset, pageInfo.getTotal());
+        return new Page<>(pageInfo.getList(), limit, offset, pageInfo.getTotal());
     }
 
     @Override
@@ -270,7 +269,6 @@ public class ApplicationServiceImpl implements ApplicationService {
             applicationMapper.modifyApplication(applicationDetail.getContainerApp());
             appConfigurationService.modifyAppConfiguration(applicationId,
                 applicationDetail.getContainerApp().getAppConfiguration());
-            //todo modify helmchart
         }
         return true;
 

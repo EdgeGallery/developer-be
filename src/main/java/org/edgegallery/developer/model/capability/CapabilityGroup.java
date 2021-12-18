@@ -30,17 +30,6 @@ public class CapabilityGroup {
 	private long createTime;
 	private long updateTime;
 	private CapabilityGroup parent;
-	
-	public String getParentId() {
-		return parent == null ? null : parent.getId();
-	}
-
-	public void setParentId(String parentId) {
-		if (parent == null) {
-			parent = new CapabilityGroup();
-		}
-		parent.setId(parentId);
-	}
 
 	@Override
 	public int hashCode() {
@@ -133,10 +122,6 @@ public class CapabilityGroup {
 
 	public void setCreateTime(long createTime) {
 		this.createTime = createTime;
-	}
-
-	public long getUpdateTime() {
-		return updateTime;
 	}
 
 	public void setUpdateTime(long updateTime) {

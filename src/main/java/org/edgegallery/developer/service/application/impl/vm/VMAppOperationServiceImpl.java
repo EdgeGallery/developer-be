@@ -224,7 +224,7 @@ public class VMAppOperationServiceImpl extends AppOperationServiceImpl implement
             throw new FileOperateException("Merge file failed.", ResponseConsts.RET_MERGE_FILE_FAIL);
         }
 
-        Boolean pushFileToVmRes = pushFileToVm(mergedFile, applicationId, vmId);
+        boolean pushFileToVmRes = pushFileToVm(mergedFile, applicationId, vmId);
         FileUtils.deleteQuietly(new File(getUploadFileRootDir()));
 
         if (!pushFileToVmRes) {

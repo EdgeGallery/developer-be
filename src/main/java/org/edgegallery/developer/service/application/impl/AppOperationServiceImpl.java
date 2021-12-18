@@ -16,9 +16,6 @@
 
 package org.edgegallery.developer.service.application.impl;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import java.io.File;
 import java.util.Date;
 import java.util.HashMap;
@@ -27,15 +24,14 @@ import java.util.Map;
 import java.util.UUID;
 import org.apache.commons.lang3.StringUtils;
 import org.edgegallery.developer.common.ResponseConsts;
-import org.edgegallery.developer.filter.security.AccessUserUtil;
-import org.edgegallery.developer.model.common.User;
 import org.edgegallery.developer.exception.DataBaseException;
 import org.edgegallery.developer.exception.EntityNotFoundException;
 import org.edgegallery.developer.exception.FileOperateException;
 import org.edgegallery.developer.exception.IllegalRequestException;
-import org.edgegallery.developer.mapper.atp.AtpTestTaskMapper;
+import org.edgegallery.developer.filter.security.AccessUserUtil;
 import org.edgegallery.developer.mapper.application.AppConfigurationMapper;
 import org.edgegallery.developer.mapper.application.ApplicationMapper;
+import org.edgegallery.developer.mapper.atp.AtpTestTaskMapper;
 import org.edgegallery.developer.mapper.capability.CapabilityGroupMapper;
 import org.edgegallery.developer.mapper.capability.CapabilityMapper;
 import org.edgegallery.developer.mapper.uploadfile.UploadFileMapper;
@@ -43,12 +39,13 @@ import org.edgegallery.developer.model.application.Application;
 import org.edgegallery.developer.model.application.EnumApplicationStatus;
 import org.edgegallery.developer.model.application.configuration.AppServiceProduced;
 import org.edgegallery.developer.model.apppackage.AppPackage;
+import org.edgegallery.developer.model.appstore.PublishAppReqDto;
 import org.edgegallery.developer.model.atp.AtpTest;
 import org.edgegallery.developer.model.capability.Capability;
 import org.edgegallery.developer.model.capability.CapabilityGroup;
+import org.edgegallery.developer.model.common.User;
 import org.edgegallery.developer.model.restful.SelectMepHostReq;
 import org.edgegallery.developer.model.uploadfile.UploadFile;
-import org.edgegallery.developer.model.appstore.PublishAppReqDto;
 import org.edgegallery.developer.service.application.AppOperationService;
 import org.edgegallery.developer.service.apppackage.AppPackageService;
 import org.edgegallery.developer.util.AppStoreUtil;
@@ -60,9 +57,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 @Service("AppOperationService")
 public class AppOperationServiceImpl implements AppOperationService {
@@ -149,7 +148,7 @@ public class AppOperationServiceImpl implements AppOperationService {
         atpTests.stream().filter(atpTestTask -> TEST_TASK_STATUS_WAITING.equalsIgnoreCase(atpTestTask.getStatus())
             || TEST_TASK_STATUS_RUNNING.equalsIgnoreCase(atpTestTask.getStatus())
             || TEST_TASK_STATUS_CREATED.equalsIgnoreCase(atpTestTask.getStatus()))
-            .forEach(task -> queryAndUpdateTestStatus(task));
+            .forEach(this::queryAndUpdateTestStatus);
         return atpTests;
     }
 
@@ -226,7 +225,7 @@ public class AppOperationServiceImpl implements AppOperationService {
         List<AppServiceProduced> serviceProducedList = appConfigurationMapper.getAllServiceProduced(applicationId);
         if (CollectionUtils.isEmpty(serviceProducedList)) {
             LOGGER.warn("This project is not configured with any services and does not need to be published!");
-            return true;
+            return false;
         }
         for (AppServiceProduced serviceProduced : serviceProducedList) {
             Capability capability = new Capability();
