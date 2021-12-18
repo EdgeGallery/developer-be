@@ -75,7 +75,7 @@ public class VMAppTopologyTemplateConverter extends TopologyTemplateConverter {
         try {
             inputStream = new FileInputStream(new File(VM_PACKAGE_TEMPLATE_INPUT_PATH));
         } catch (IOException e) {
-            LOGGER.error("init vm inputs read file failed. {}", e);
+            LOGGER.error("init vm inputs read file failed. {}", e.getMessage());
             throw new FileOperateException("init vm inputs read file failed.", ResponseConsts.RET_LOAD_YAML_FAIL);
         }
         Yaml yaml = new Yaml(new SafeConstructor());
@@ -87,7 +87,7 @@ public class VMAppTopologyTemplateConverter extends TopologyTemplateConverter {
 
     protected void updateVLs(List<Network> networkLst) {
         if (null == topologyTemplate.getNodeTemplates()) {
-            topologyTemplate.setNodeTemplates(new LinkedHashMap<String, NodeTemplate>());
+            topologyTemplate.setNodeTemplates(new LinkedHashMap<>());
         }
         for (int i = 0; i < networkLst.size(); i++) {
             //generate inputs for network;

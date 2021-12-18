@@ -18,6 +18,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.LinkedHashMap;
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
+import java.util.Map;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -48,7 +49,7 @@ public class InputParam {
         this.description = description;
     }
 
-    public InputParam(LinkedHashMap<String,String> map){
+    public InputParam(Map<String,String> map){
         this.type = map.get("type");
         this.defaultValue = map.get("default");
         this.description = map.get("description");

@@ -20,7 +20,6 @@ import java.io.FileNotFoundException;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Response;
 import org.apache.servicecomb.swagger.invocation.exception.InvocationException;
-import org.edgegallery.developer.controller.application.vm.VMAppOperationCtl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -33,7 +32,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 @ControllerAdvice
 public class GlobalExceptionConvert {
-    
+
     private static final Logger LOGGER = LoggerFactory.getLogger(GlobalExceptionConvert.class);
 
     /**
