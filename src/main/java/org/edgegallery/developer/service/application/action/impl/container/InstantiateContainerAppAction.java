@@ -83,18 +83,7 @@ public class InstantiateContainerAppAction extends InstantiateAppAction {
                     }
                 }
             }
-            List<ServiceInfo> serviceInfoLst = status.getServices();
-            for (ServiceInfo service : serviceInfoLst) {
-                K8sService k8sService = getServiceByName(instantiateInfo, service.getServiceName());
-                k8sService.setType(service.getType());
-                for (ServicePort port : service.getPorts()) {
-                    K8sServicePort k8sServicePort = new K8sServicePort();
-                    k8sServicePort.setPort(port.getPort());
-                    k8sServicePort.setNodePort(port.getNodePort());
-                    k8sServicePort.setTargetPort(port.getTargetPort());
-                    k8sService.getServicePortList().add(k8sServicePort);
-                }
-            }
+            saveServiceInfo(instantiateInfo, status.getServices());
         }
         if (!CollectionUtils.isEmpty(events.getPods())) {
             List<PodEvents> eventsInfoLst = events.getPods();
@@ -105,6 +94,20 @@ public class InstantiateContainerAppAction extends InstantiateAppAction {
         }
         LOGGER.info("instantiate info: {}", instantiateInfo.toString());
         return containerAppOperationService.updateInstantiateInfo(applicationId, instantiateInfo);
+    }
+
+    private void saveServiceInfo(ContainerAppInstantiateInfo instantiateInfo, List<ServiceInfo> serviceInfoLst) {
+        for (ServiceInfo service : serviceInfoLst) {
+            K8sService k8sService = getServiceByName(instantiateInfo, service.getServiceName());
+            k8sService.setType(service.getType());
+            for (ServicePort port : service.getPorts()) {
+                K8sServicePort k8sServicePort = new K8sServicePort();
+                k8sServicePort.setPort(port.getPort());
+                k8sServicePort.setNodePort(port.getNodePort());
+                k8sServicePort.setTargetPort(port.getTargetPort());
+                k8sService.getServicePortList().add(k8sServicePort);
+            }
+        }
     }
 
     private K8sService getServiceByName(ContainerAppInstantiateInfo instantiateInfo, String serviceName) {

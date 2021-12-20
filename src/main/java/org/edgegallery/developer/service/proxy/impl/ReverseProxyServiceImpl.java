@@ -187,8 +187,8 @@ public class ReverseProxyServiceImpl implements ReverseProxyService {
         SshResponseInfo sshResponseInfo = HttpClientUtil
             .sendWebSshRequest(basePath, networkIp, 22, username, password, xsrfValue);
         if (sshResponseInfo == null) {
-            LOGGER.error("send WebSsh request fail.");
-            throw new DeveloperException("send WebSsh request fail.");
+            LOGGER.error("send vm WebSsh request fail.");
+            throw new DeveloperException("send vm WebSsh request fail.");
         }
         if (StringUtils.isEmpty(sshResponseInfo.getId())) {
             LOGGER.error(" WebSsh info input error:{}", sshResponseInfo.getStatus());
@@ -218,8 +218,8 @@ public class ReverseProxyServiceImpl implements ReverseProxyService {
             .sendWebSshRequest(basePath, mepHost.getMecHostIp(), mepHost.getMecHostPort(), username, password,
                 xsrfValue);
         if (sshResponseInfo == null) {
-            LOGGER.error("send WebSsh request fail.");
-            throw new DeveloperException("send WebSsh request fail.");
+            LOGGER.error("send container WebSsh request fail.");
+            throw new DeveloperException("send container WebSsh request fail.");
         }
         if (StringUtils.isEmpty(sshResponseInfo.getId())) {
             LOGGER.error(" WebSsh info input error:{}", sshResponseInfo.getStatus());

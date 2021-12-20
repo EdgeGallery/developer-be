@@ -32,7 +32,7 @@ import org.edgegallery.developer.service.application.common.IContextParameter;
 
 public class ContainerLaunchOperation implements IActionCollection {
 
-    public List<IAction> actions;
+    private List<IAction> actions;
 
     @Override
     public IActionIterator getActionIterator() {

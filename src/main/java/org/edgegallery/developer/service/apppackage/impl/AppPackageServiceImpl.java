@@ -102,7 +102,7 @@ public class AppPackageServiceImpl implements AppPackageService {
         AppPackage appPackage = appPackageMapper.getAppPackage(packageId);
         if (appPackage == null) {
             LOGGER.error("packageId is error!");
-            throw new DataBaseException("packageId is error", ResponseConsts.RET_QUERY_DATA_EMPTY);
+            throw new DataBaseException("packageId does not exist", ResponseConsts.RET_QUERY_DATA_EMPTY);
         }
         String pkgDir = InitConfigUtil.getWorkSpaceBaseDir() + appPackage.getPackageFilePath();
         File pkgFile = new File(pkgDir);
@@ -294,9 +294,9 @@ public class AppPackageServiceImpl implements AppPackageService {
         VMPackageFileCreator vmPackageFileCreator = new VMPackageFileCreator(application, appPackage.getId());
         String fileName = vmPackageFileCreator.generateAppPackageFile();
         if (StringUtils.isEmpty(fileName)) {
-            LOGGER.error("Generation app package error.");
+            LOGGER.error("Generation vm app package error.");
             deletePackage(appPackage);
-            throw new FileOperateException("Generation app package error.", ResponseConsts.RET_CREATE_FILE_FAIL);
+            throw new FileOperateException("Generation vm app package error.", ResponseConsts.RET_CREATE_FILE_FAIL);
         }
         appPackage.setPackageFileName(fileName);
         appPackage.setPackageFilePath(
@@ -320,9 +320,9 @@ public class AppPackageServiceImpl implements AppPackageService {
         String fileName = containerPackageFileCreator.generateAppPackageFile();
 
         if (StringUtils.isEmpty(fileName)) {
-            LOGGER.error("Generation app package error.");
+            LOGGER.error("Generation container app package error.");
             deletePackage(appPackage);
-            throw new FileOperateException("Generation app package error.", ResponseConsts.RET_CREATE_FILE_FAIL);
+            throw new FileOperateException("Generation container app package error.", ResponseConsts.RET_CREATE_FILE_FAIL);
         }
         appPackage.setPackageFileName(fileName);
         appPackage.setPackageFilePath(
@@ -346,8 +346,8 @@ public class AppPackageServiceImpl implements AppPackageService {
                 appPackage.getId());
             String fileName = packageFileCreator.packageFileCompress();
             if (StringUtils.isEmpty(fileName)) {
-                LOGGER.error("zip package error.");
-                throw new FileOperateException("zip package error.", ResponseConsts.RET_CREATE_FILE_FAIL);
+                LOGGER.error("vm zip package error.");
+                throw new FileOperateException("vm zip package error.", ResponseConsts.RET_CREATE_FILE_FAIL);
             }
         }
         if (applicationDetail.getContainerApp() != null && applicationDetail.getContainerApp().getAppClass()
@@ -356,8 +356,8 @@ public class AppPackageServiceImpl implements AppPackageService {
                 appPackage.getId());
             String fileName = packageFileCreator.packageFileCompress();
             if (StringUtils.isEmpty(fileName)) {
-                LOGGER.error("zip package error.");
-                throw new FileOperateException("zip package error.", ResponseConsts.RET_CREATE_FILE_FAIL);
+                LOGGER.error("container zip package error.");
+                throw new FileOperateException("container zip package error.", ResponseConsts.RET_CREATE_FILE_FAIL);
             }
         }
         return appPackage;

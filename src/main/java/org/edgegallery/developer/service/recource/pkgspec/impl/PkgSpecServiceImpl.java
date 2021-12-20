@@ -40,7 +40,7 @@ public class PkgSpecServiceImpl implements PkgSpecService {
     private static final String PKG_SPECS_FILE_PATH = "./configs/pkgspecs/pkg_specs.json";
 
     @Autowired
-    private VMAppNetworkService VMAppNetworkService;
+    private VMAppNetworkService vmAppNetworkService;
 
     public List<PkgSpec> getPkgSpecs() {
         PkgSpecConfig pkgSpecConfig = null;
@@ -73,7 +73,7 @@ public class PkgSpecServiceImpl implements PkgSpecService {
 
     @Override
     public List<Network> getNetworkResourceByPkgSpecId(String pkgSpecId) {
-        List<Network> networks = VMAppNetworkService.getAllNetwork("init-application");
+        List<Network> networks = vmAppNetworkService.getAllNetwork("init-application");
         PkgSpec pkgSpec = getPkgSpecById(pkgSpecId);
         for (Network network : networks) {
             network.setName(getDefaultVLName(pkgSpec, network.getName()));

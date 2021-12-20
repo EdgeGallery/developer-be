@@ -32,7 +32,7 @@ import org.edgegallery.developer.service.application.common.IContextParameter;
 public class VMExportImageOperation implements IActionCollection {
     private OperationContext context;
 
-    public List<IAction> actions;
+    private List<IAction> actions;
 
     public VMExportImageOperation(User user, String applicationId, String vmId,
         OperationStatus operationStatus, String appInstanceId, String vmInstanceId) {
