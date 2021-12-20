@@ -146,7 +146,7 @@ public class CreateImageAction extends AbstractAction {
         String vmInstanceId = (String) getContext().getParameter(IContextParameter.PARAM_VM_INSTANCE_ID);
         String basePath = HttpClientUtil.getUrlPrefix(mepHost.getLcmProtocol(), mepHost.getLcmIp(), mepHost.getLcmPort());
         String imageResult = HttpClientUtil.vmInstantiateImage(basePath, getContext().getUserId(), getContext().getToken(), vmInstanceId, mepHost.getMecHostIp(), imageName, lcmLog);
-        LOGGER.info("import image result: {}", imageResult);;
+        LOGGER.info("import image result: {}", imageResult);
         if (StringUtils.isEmpty(imageResult)) {
             return null;
         }

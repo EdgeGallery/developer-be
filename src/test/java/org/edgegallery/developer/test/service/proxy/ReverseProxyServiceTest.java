@@ -185,7 +185,7 @@ public class ReverseProxyServiceTest {
             String vmId = "6a75a2bd-9811-432f-bbe8-2813aa97d758";
             proxyService.getVmSshResponseInfo(applicationId, vmId, "", "");
         } catch (DeveloperException e) {
-            Assert.assertEquals("send WebSsh request fail.", e.getMessage());
+            Assert.assertEquals("send vm WebSsh request fail.", e.getMessage());
         }
         mockup.tearDown();
     }

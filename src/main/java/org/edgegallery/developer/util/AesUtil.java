@@ -29,6 +29,10 @@ import org.slf4j.LoggerFactory;
 
 public class AesUtil {
 
+    private AesUtil() {
+        throw new IllegalStateException("AesUtil class");
+    }
+
     private static final Logger LOGGER = LoggerFactory.getLogger(AesUtil.class);
 
     /**

@@ -34,7 +34,7 @@ public class VMLaunchOperation implements IActionCollection {
 
     private OperationContext context;
 
-    public List<IAction> actions;
+    private List<IAction> actions;
 
     public VMLaunchOperation(User user, String applicationId, String vmId, OperationStatus operationStatus) {
 

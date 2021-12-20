@@ -227,7 +227,7 @@ public class ReleasedPackageServiceTest extends AbstractJUnit4SpringContextTests
         try {
             releasedPackageService.getAppPkgStructure("a");
         } catch (DataBaseException e) {
-            Assert.assertEquals("packageId is error", e.getMessage());
+            Assert.assertEquals("packageId does not exist", e.getMessage());
         }
     }
 

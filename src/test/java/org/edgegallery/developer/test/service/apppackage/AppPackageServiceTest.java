@@ -117,7 +117,7 @@ public class AppPackageServiceTest extends AbstractJUnit4SpringContextTests {
         try {
             appPackageService.getAppPackageStructure("err-id");
         } catch (DataBaseException e) {
-            Assert.assertEquals("packageId is error", e.getMessage());
+            Assert.assertEquals("packageId does not exist", e.getMessage());
         }
     }
 
@@ -184,7 +184,7 @@ public class AppPackageServiceTest extends AbstractJUnit4SpringContextTests {
         try {
             appPackageService.getAppPackageStructure("err-id");
         } catch (DataBaseException e) {
-            Assert.assertEquals("packageId is error", e.getMessage());
+            Assert.assertEquals("packageId does not exist", e.getMessage());
         }
     }
 
@@ -237,7 +237,7 @@ public class AppPackageServiceTest extends AbstractJUnit4SpringContextTests {
             application.setId(UUID.randomUUID().toString());
             appPackageService.generateAppPackage(application);
         } catch (FileOperateException e) {
-            Assert.assertEquals("Generation app package error.", e.getMessage());
+            Assert.assertEquals("Generation container app package error.", e.getMessage());
         }
     }
 
@@ -254,7 +254,7 @@ public class AppPackageServiceTest extends AbstractJUnit4SpringContextTests {
             application.setId(UUID.randomUUID().toString());
             appPackageService.generateAppPackage(application);
         } catch (FileOperateException e) {
-            Assert.assertEquals("Generation app package error.", e.getMessage());
+            Assert.assertEquals("Generation container app package error.", e.getMessage());
         }
     }
 
@@ -278,7 +278,7 @@ public class AppPackageServiceTest extends AbstractJUnit4SpringContextTests {
             };
             appPackageService.zipPackage("f2759fcb-bb4b-42f5-bc6c-8e1635348fdd");
         } catch (FileOperateException e) {
-            Assert.assertEquals("zip package error.", e.getMessage());
+            Assert.assertEquals("vm zip package error.", e.getMessage());
         }
     }
 
@@ -293,7 +293,7 @@ public class AppPackageServiceTest extends AbstractJUnit4SpringContextTests {
             };
             appPackageService.zipPackage("f2759fcb-bb4b-42f5-bc6c-8e1635348fdd");
         } catch (FileOperateException e) {
-            Assert.assertEquals("zip package error.", e.getMessage());
+            Assert.assertEquals("vm zip package error.", e.getMessage());
         }
     }
 
@@ -308,7 +308,7 @@ public class AppPackageServiceTest extends AbstractJUnit4SpringContextTests {
             };
             appPackageService.zipPackage("f2759fcb-bb4b-42f5-bc6c-8e1635348fda");
         } catch (FileOperateException e) {
-            Assert.assertEquals("zip package error.", e.getMessage());
+            Assert.assertEquals("container zip package error.", e.getMessage());
         }
     }
 
@@ -323,7 +323,7 @@ public class AppPackageServiceTest extends AbstractJUnit4SpringContextTests {
             };
             appPackageService.zipPackage("f2759fcb-bb4b-42f5-bc6c-8e1635348fda");
         } catch (FileOperateException e) {
-            Assert.assertEquals("zip package error.", e.getMessage());
+            Assert.assertEquals("container zip package error.", e.getMessage());
         }
     }
 

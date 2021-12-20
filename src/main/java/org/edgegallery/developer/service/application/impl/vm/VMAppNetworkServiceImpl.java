@@ -103,7 +103,7 @@ public class VMAppNetworkServiceImpl implements VMAppNetworkService {
         //check network used by port
         List<Network> networks = networkMapper.getNetworkByAppId(applicationId);
         if (networks.isEmpty()) {
-            return true;
+            return false;
         }
         List<VirtualMachine> vms = vmAppVmService.getAllVm(applicationId);
         for (Network network : networks) {
