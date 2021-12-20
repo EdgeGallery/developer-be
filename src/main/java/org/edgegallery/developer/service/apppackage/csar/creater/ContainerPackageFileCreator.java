@@ -197,16 +197,16 @@ public class ContainerPackageFileCreator extends PackageFileCreator {
     private boolean generateScript() {
         String scriptsDirPath = getPackagePath() + TEMPLATE_PACKAGE_SCRIPTS;
         List<Script> scriptList = application.getScriptList();
-        for (Script script : scriptList) {
-            String scripPath = InitConfigUtil.getWorkSpaceBaseDir() + BusinessConfigUtil.getUploadfilesPath() + script
-                .getScriptFileId();
-            String artifactScriptPath = scriptsDirPath + script.getName();
-            try {
+        try {
+            for (Script script : scriptList) {
+                String scripPath = InitConfigUtil.getWorkSpaceBaseDir() + BusinessConfigUtil.getUploadfilesPath()
+                    + script.getScriptFileId();
+                String artifactScriptPath = scriptsDirPath + script.getName();
                 FileUtils.copyFile(new File(scripPath), new File(artifactScriptPath));
-            } catch (IOException e) {
-                LOGGER.error("generate script failed. {}", e.getMessage());
-                return false;
             }
+        } catch (IOException e) {
+            LOGGER.error("generate script failed. {}", e.getMessage());
+            return false;
         }
         return true;
     }

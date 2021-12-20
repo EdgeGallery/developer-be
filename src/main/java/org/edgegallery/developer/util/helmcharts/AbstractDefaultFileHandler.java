@@ -23,7 +23,7 @@ import org.springframework.util.CollectionUtils;
 public abstract class AbstractDefaultFileHandler implements IContainerFileHandler {
 
     @Setter
-    private boolean hasMep = true;
+    private boolean hasMep;
 
     @Setter
     private ImageConfig imageConfig;
