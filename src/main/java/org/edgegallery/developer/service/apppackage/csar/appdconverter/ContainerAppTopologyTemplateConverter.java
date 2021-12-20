@@ -46,7 +46,7 @@ public class ContainerAppTopologyTemplateConverter extends TopologyTemplateConve
             application.getArchitecture(), 20);
         vduNode.setCapabilities(capability);
 
-        StringBuffer imageData = new StringBuffer();
+        StringBuilder imageData = new StringBuilder();
         imageDescList.stream().forEach(image -> imageData.append(image.getName() + ":" + image.getVersion() + ", "));
         VDUProperty propertyContainer = new VDUProperty();
         propertyContainer.getVduProfile().setMaxNumberOfInstances(2);

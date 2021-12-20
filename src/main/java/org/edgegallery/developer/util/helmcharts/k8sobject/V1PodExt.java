@@ -12,7 +12,7 @@
  * the License.
  */
 
-package org.edgegallery.developer.util.helmcharts.k8sObject;
+package org.edgegallery.developer.util.helmcharts.k8sobject;
 
 import io.kubernetes.client.openapi.models.V1Container;
 import io.kubernetes.client.openapi.models.V1Pod;

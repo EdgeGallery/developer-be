@@ -23,7 +23,7 @@ import java.util.List;
 import org.edgegallery.developer.common.Consts;
 import org.edgegallery.developer.util.helmcharts.IContainerFileHandler;
 import org.edgegallery.developer.util.helmcharts.LoadContainerFileFactory;
-import org.edgegallery.developer.util.helmcharts.k8sObject.EnumKubernetesObject;
+import org.edgegallery.developer.util.helmcharts.k8sobject.EnumKubernetesObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpEntity;

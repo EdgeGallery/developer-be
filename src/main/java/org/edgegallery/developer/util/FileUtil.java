@@ -48,7 +48,7 @@ public final class FileUtil {
 
     private static final List<String> SCRIPT_LIST = Arrays.asList("sh");
 
-    private static final Map<String, List<String>> FILE_TYPE_MAP = new HashMap();
+    private static final Map<String, List<String>> FILE_TYPE_MAP = new HashMap<>();
 
     static {
         FILE_TYPE_MAP.put("icon", ICON_LIST);

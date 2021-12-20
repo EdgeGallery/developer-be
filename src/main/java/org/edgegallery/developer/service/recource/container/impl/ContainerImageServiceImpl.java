@@ -404,8 +404,7 @@ public class ContainerImageServiceImpl implements ContainerImageService {
             throw new DataBaseException(errorMsg, ResponseConsts.RET_UPDATE_DATA_FAIL);
         }
         LOGGER.info("update ContainerImage type success");
-        ContainerImage queryImage = containerImageMapper.getContainerImage(imageId);
-        return queryImage;
+        return containerImageMapper.getContainerImage(imageId);
     }
 
     /**

@@ -142,7 +142,7 @@ public class EncryptedService {
     }
 
     private File getMfFile(String filePath) {
-        ArrayList<String> files = new ArrayList<String>();
+        ArrayList<String> files = new ArrayList<>();
         File file = new File(filePath);
         File mfFile = null;
         File[] fileList = file.listFiles();

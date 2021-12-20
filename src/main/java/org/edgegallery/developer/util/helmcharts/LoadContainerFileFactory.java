@@ -16,6 +16,10 @@ package org.edgegallery.developer.util.helmcharts;
 
 public class LoadContainerFileFactory {
 
+    private LoadContainerFileFactory() {
+        throw new IllegalStateException("LoadContainerFileFactory class");
+    }
+
     public static IContainerFileHandler createLoader(String filePath) {
         if (filePath.toLowerCase().endsWith(".tgz")) {
             return new LoadHelmChartsFileHandlerImpl();

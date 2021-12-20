@@ -14,6 +14,7 @@
 
 package org.edgegallery.developer.service.recource.vm.impl;
 
+import com.google.gson.Gson;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -67,7 +68,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import org.springframework.web.multipart.MultipartFile;
-import com.google.gson.Gson;
 
 @Service("VMImageService")
 public class VMImageServiceImpl implements VMImageService {
@@ -88,6 +88,7 @@ public class VMImageServiceImpl implements VMImageService {
 
     // time out: 10 min.
     public static final int TIMEOUT = 10 * 60 * 1000;
+
     //interval of the query, 5s.
     public static final int INTERVAL = 10000;
 
@@ -133,7 +134,7 @@ public class VMImageServiceImpl implements VMImageService {
         }
         vmImageReq.setQueryCtrl(queryCtrl);
         VMImageRes vmImageRes = new VMImageRes();
-        Map map = new HashMap<>();
+        Map<String, Object> map = new HashMap<>();
         map.put("name", vmImageReq.getName());
         if (StringUtils.isNotEmpty(vmImageReq.getVisibleType())) {
             map.put("visibleTypes", VMImageUtil.splitParam(vmImageReq.getVisibleType()));
@@ -413,8 +414,8 @@ public class VMImageServiceImpl implements VMImageService {
             return ResponseEntity.status(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode()).build();
         }
 
-        String uploadedSystemPath =
-            fileServerAddress + String.format(Consts.SYSTEM_IMAGE_DOWNLOAD_URL, filesystemImageId);
+        String uploadedSystemPath = fileServerAddress + String
+            .format(Consts.SYSTEM_IMAGE_DOWNLOAD_URL, filesystemImageId);
 
         UploadFileInfo uploadFileInfo = queryImageCheckFromFileSystem(filesystemImageId);
 
@@ -486,13 +487,13 @@ public class VMImageServiceImpl implements VMImageService {
             byte[] dataStream = HttpClientUtil.downloadSystemImage(systemPath);
             if (dataStream == null) {
                 LOGGER.error("download vm image failed!");
-                return null;
+                return new byte[0];
             }
             LOGGER.info("download vm image succeed!");
             return dataStream;
         } catch (Exception e) {
             LOGGER.error("download vm image failed!");
-            return null;
+            return new byte[0];
         }
     }
 
@@ -620,6 +621,7 @@ public class VMImageServiceImpl implements VMImageService {
     public class GetVmImageSlimProcessor extends Thread {
 
         Integer imageId;
+
         OperationStatus operationStatus;
 
         public GetVmImageSlimProcessor(Integer imageId, OperationStatus operationStatus) {

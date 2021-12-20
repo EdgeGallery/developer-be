@@ -12,13 +12,12 @@
  * the License.
  */
 
-package org.edgegallery.developer.util.helmcharts.k8sObject;
+package org.edgegallery.developer.util.helmcharts.k8sobject;
 
 import io.kubernetes.client.openapi.models.V1Container;
 import io.kubernetes.client.openapi.models.V1Deployment;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

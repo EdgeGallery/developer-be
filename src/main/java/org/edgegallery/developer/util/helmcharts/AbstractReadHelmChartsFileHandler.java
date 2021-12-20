@@ -45,7 +45,7 @@ public abstract class AbstractReadHelmChartsFileHandler extends AbstractDefaultF
     @Override
     public List<HelmChartFile> getCatalog() {
         if (helmChartsDir == null) {
-            return null;
+            return Collections.emptyList();
         }
         File root = new File(helmChartsDir);
         try {

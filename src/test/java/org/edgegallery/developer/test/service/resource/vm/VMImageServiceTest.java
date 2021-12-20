@@ -22,10 +22,10 @@ import java.util.List;
 import org.apache.http.entity.ContentType;
 import org.apache.ibatis.io.Resources;
 import org.edgegallery.developer.common.Consts;
-import org.edgegallery.developer.filter.security.AccessUserUtil;
 import org.edgegallery.developer.exception.IllegalRequestException;
 import org.edgegallery.developer.exception.RestfulRequestException;
 import org.edgegallery.developer.exception.UnauthorizedException;
+import org.edgegallery.developer.filter.security.AccessUserUtil;
 import org.edgegallery.developer.model.common.Chunk;
 import org.edgegallery.developer.model.resource.vm.VMImage;
 import org.edgegallery.developer.model.restful.VMImageQuery;
@@ -350,8 +350,7 @@ public class VMImageServiceTest {
     @Test
     public void testDownloadVmImageSuccess() throws IOException {
         byte[] data = vmImageService.downloadVmImage(2);
-        Assert.assertNull(data);
+        Assert.assertEquals(data.length, 0);
     }
-
 
 }
