@@ -31,7 +31,10 @@ public final class Consts {
     public static final String APP_LCM_DELETE_APPPKG_URL = "/lcmcontroller/v2/tenants/%s/packages/%s";
 
     public static final String APP_LCM_INSTANTIATE_IMAGE_URL
-        = "/lcmcontroller/v2/tenants/%s/app_instances/%s/images";
+        = "/rescontroller/v1/tenants/%s/hosts/%s/servers/%s";
+
+    public static final String APP_LCM_GET_IMAGE_STATUS_URL
+        = "/rescontroller/v1/tenants/%s/hosts/%s/images/%s";
 
     public static final String APP_LCM_TERMINATE_APP_URL
         = "/lcmcontroller/v2/tenants/%s/app_instances/%s/terminate";
@@ -44,9 +47,6 @@ public final class Consts {
 
     public static final String APP_LCM_GET_VNC_CONSOLE_URL
         = "/rescontroller/v1/tenants/%s/hosts/%s/servers/%s";
-
-    public static final String APP_LCM_GET_IMAGE_STATUS_URL
-        = "/lcmcontroller/v2/tenants/%s/app_instances/%s/images/%s";
 
     public static final String APP_LCM_GET_HEALTH = "/lcmcontroller/v1/health";
 

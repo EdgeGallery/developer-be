@@ -378,7 +378,7 @@ public class VMAppOperationServiceTest extends AbstractJUnit4SpringContextTests 
             }
 
             @Mock
-            public String getImageStatus(String basePath, String appInstanceId, String userId, String imageId,
+            public String getImageStatus(String basePath, String hostIp, String userId, String imageId,
                 String lcmToken) {
                 String jsonStr = null;
                 try {
@@ -393,7 +393,7 @@ public class VMAppOperationServiceTest extends AbstractJUnit4SpringContextTests 
 
             @Mock
             public String vmInstantiateImage(String basePath, String userId, String lcmToken, String vmId,
-                String appInstanceId, LcmLog lcmLog) {
+                String hostIp, String imageName, LcmLog lcmLog) {
                 String jsonStr = null;
                 try {
                     File file = Resources.getResourceAsFile("testdata/json/vm_export_image_rsp.json");

@@ -30,11 +30,13 @@ public class MepmVmImageInfo {
 
     private String imageName;
 
-    //compressing active killed quened
-    private String status;  //compressing
+    //create image status queued,saving,deactived,active,killed
+    private String status;
 
+    //compress image status success fail
+    private String compressTaskStatus; //download,compressing,waiting,pushing,Success,Failure
     // image uri from filesystem
-    private String url;
+    private String resourceUrl;
 
 
 }
