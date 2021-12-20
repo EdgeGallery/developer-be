@@ -103,6 +103,7 @@ public class InstantiateContainerAppAction extends InstantiateAppAction {
                 pod.setEventsInfo(Arrays.toString(podEventInfo.getPodEventsInfo()));
             }
         }
+        LOGGER.info("instantiate info: {}", instantiateInfo.toString());
         return containerAppOperationService.updateInstantiateInfo(applicationId, instantiateInfo);
     }
 
