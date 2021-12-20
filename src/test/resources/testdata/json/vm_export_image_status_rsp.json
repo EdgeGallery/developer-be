@@ -2,5 +2,6 @@
   "imageId": "d21ba089-6935-45db-af86-cf00cee61234",
   "imageName": "ubuntu18.04",
   "status": "active",
-  "url": "testfilesystemuri"
+  "compressTaskStatus": "Success",
+  "resourceUrl": "testfilesystemuri"
 }

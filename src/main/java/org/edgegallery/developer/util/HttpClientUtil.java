@@ -406,16 +406,17 @@ public final class HttpClientUtil {
      * vmInstantiateImage.
      */
     public static String vmInstantiateImage(String basePath, String userId, String lcmToken, String vmId,
-        String appInstanceId, LcmLog lcmLog) {
+        String hostIp, String imageName, LcmLog lcmLog) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.set(Consts.ACCESS_TOKEN_STR, lcmToken);
         VmImageRequest ins = new VmImageRequest();
-        ins.setVmId(vmId);
+        ins.setAction("createImage");
+        ins.getCreateImage().setName(imageName);
         Gson gson = new Gson();
         LOGGER.warn(gson.toJson(ins));
         HttpEntity<String> requestEntity = new HttpEntity<>(gson.toJson(ins), headers);
-        String url = basePath + String.format(Consts.APP_LCM_INSTANTIATE_IMAGE_URL, userId, appInstanceId);
+        String url = basePath + String.format(Consts.APP_LCM_INSTANTIATE_IMAGE_URL, userId, hostIp, vmId);
         LOGGER.warn(url);
         ResponseEntity<String> response;
         try {
@@ -425,18 +426,18 @@ public final class HttpClientUtil {
         } catch (CustomException e) {
             e.printStackTrace();
             String errorLog = e.getBody();
-            LOGGER.error("Failed to create vm image  which appInstanceId is {} exception {}", appInstanceId, errorLog);
+            LOGGER.error("Failed to create vm image  which vmId is {} exception {}", vmId, errorLog);
             lcmLog.setLog(errorLog);
             return null;
         } catch (Exception e) {
-            LOGGER.error("Failed to create vm image  which appInstanceId is {} exception {}", appInstanceId,
+            LOGGER.error("Failed to create vm image  which vmId is {} exception {}", vmId,
                 e.getMessage());
             return null;
         }
         if (response.getStatusCode() == HttpStatus.OK) {
             return response.getBody();
         }
-        LOGGER.error("Failed to create vm image  which appInstanceId is {}", appInstanceId);
+        LOGGER.error("Failed to create vm image  which vmId is {}", vmId);
         return null;
 
     }
@@ -444,9 +445,9 @@ public final class HttpClientUtil {
     /**
      * getImageStatus.
      */
-    public static String getImageStatus(String basePath, String appInstanceId, String userId, String imageId,
+    public static String getImageStatus(String basePath, String hostIp, String userId, String imageId,
         String lcmToken) {
-        String url = basePath + String.format(Consts.APP_LCM_GET_IMAGE_STATUS_URL, userId, appInstanceId, imageId);
+        String url = basePath + String.format(Consts.APP_LCM_GET_IMAGE_STATUS_URL, userId, hostIp, imageId);
         LOGGER.info("url is {}", url);
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -459,7 +460,8 @@ public final class HttpClientUtil {
             return null;
         }
         if (response.getStatusCode() == HttpStatus.OK) {
-            return response.getBody();
+            LcmResponseBody lcmResponseBody = gson.fromJson(response.getBody(), LcmResponseBody.class);
+            return gson.toJson(lcmResponseBody.getData());
         }
         LOGGER.error("Failed to get image status which imageId is {}", imageId);
         return null;
@@ -469,10 +471,10 @@ public final class HttpClientUtil {
     /**
      * deleteVmImage.
      */
-    public static boolean deleteVmImage(String basePath, String userId, String appInstanceId, String imageId,
+    public static boolean deleteVmImage(String basePath, String userId, String hostIp, String imageId,
         String token) {
 
-        String url = basePath + String.format(Consts.APP_LCM_GET_IMAGE_STATUS_URL, userId, appInstanceId, imageId);
+        String url = basePath + String.format(Consts.APP_LCM_GET_IMAGE_STATUS_URL, userId, hostIp, imageId);
         LOGGER.info("url is {}", url);
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);

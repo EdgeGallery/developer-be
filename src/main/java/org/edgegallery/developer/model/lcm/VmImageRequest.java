@@ -25,6 +25,10 @@ import lombok.ToString;
 @ToString
 public class VmImageRequest {
 
-    private String vmId;
+    private String action;
+
+    private String reboot;
+
+    private CreateImage createImage = new CreateImage();
 
 }

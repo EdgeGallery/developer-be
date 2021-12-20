@@ -78,15 +78,22 @@ public class HttpClientUtilTest {
             @Override
             public void handle(HttpExchange exchange) throws IOException {
                 String method = exchange.getRequestMethod();
-                if (method.equals("POST")) {
-                    String jsonStr = null;
-                    try {
-                        File file = Resources.getResourceAsFile("testdata/json/package_upload.json");
-                        jsonStr = FileUtils.readFileToString(file, StandardCharsets.UTF_8);
+                String jsonStr = null;
+                try {
+                    File file = Resources.getResourceAsFile("testdata/json/package_upload.json");
+                    jsonStr = FileUtils.readFileToString(file, StandardCharsets.UTF_8);
 
-                    } catch (IOException e) {
-                        LOGGER.error("Load the mock json data for getDistributeRes failed.");
-                    }
+                } catch (IOException e) {
+                    LOGGER.error("Load the mock json data for getDistributeRes failed.");
+                }
+                if (method.equals("POST")) {
+
+                    byte[] response = jsonStr.getBytes();
+                    exchange.sendResponseHeaders(HttpURLConnection.HTTP_OK, response.length);
+                    exchange.getResponseBody().write(response);
+                }
+                if (method.equals("GET")) {
+
                     byte[] response = jsonStr.getBytes();
                     exchange.sendResponseHeaders(HttpURLConnection.HTTP_OK, response.length);
                     exchange.getResponseBody().write(response);
@@ -193,14 +200,21 @@ public class HttpClientUtilTest {
             }
         });
 
-        httpServer.createContext(String.format(Consts.APP_LCM_INSTANTIATE_IMAGE_URL, USER_ID, APPLICATION_ID),
+        httpServer.createContext(String.format(Consts.APP_LCM_INSTANTIATE_IMAGE_URL, USER_ID, MEC_HOST, VM_ID),
             new HttpHandler() {
                 @Override
                 public void handle(HttpExchange exchange) throws IOException {
                     String method = exchange.getRequestMethod();
                     if (method.equals("POST")) {
-                        String res = "ok";
-                        byte[] response = res.getBytes();
+                        String jsonStr = null;
+                        try {
+                            File file = Resources.getResourceAsFile("testdata/json/package_upload.json");
+                            jsonStr = FileUtils.readFileToString(file, StandardCharsets.UTF_8);
+
+                        } catch (IOException e) {
+                            LOGGER.error("Load the mock json data for getDistributeRes failed.");
+                        }
+                        byte[] response = jsonStr.getBytes();
                         exchange.sendResponseHeaders(HttpURLConnection.HTTP_OK, response.length);
                         exchange.getResponseBody().write(response);
                     }
@@ -208,14 +222,21 @@ public class HttpClientUtilTest {
                 }
             });
 
-        httpServer.createContext(String.format(Consts.APP_LCM_GET_IMAGE_STATUS_URL, USER_ID, APPLICATION_ID, IMAGE_ID),
+        httpServer.createContext(String.format(Consts.APP_LCM_GET_IMAGE_STATUS_URL, USER_ID, MEC_HOST, IMAGE_ID),
             new HttpHandler() {
                 @Override
                 public void handle(HttpExchange exchange) throws IOException {
                     String method = exchange.getRequestMethod();
                     if (method.equals("GET")) {
-                        String res = "ok";
-                        byte[] response = res.getBytes();
+                        String jsonStr = null;
+                        try {
+                            File file = Resources.getResourceAsFile("testdata/json/package_upload.json");
+                            jsonStr = FileUtils.readFileToString(file, StandardCharsets.UTF_8);
+
+                        } catch (IOException e) {
+                            LOGGER.error("Load the mock json data for getDistributeRes failed.");
+                        }
+                        byte[] response = jsonStr.getBytes();
                         exchange.sendResponseHeaders(HttpURLConnection.HTTP_OK, response.length);
                         exchange.getResponseBody().write(response);
                     }
@@ -400,19 +421,19 @@ public class HttpClientUtilTest {
 
     @Test
     public void testVmInstantiateImageSuccess() {
-        String result = HttpClientUtil.vmInstantiateImage(LCM_URL, USER_ID, TOKEN, VM_ID, APPLICATION_ID, LCM_LOG);
-        Assert.assertEquals("ok", result);
+        String result = HttpClientUtil.vmInstantiateImage(LCM_URL, USER_ID, TOKEN, VM_ID, MEC_HOST, "", LCM_LOG);
+        Assert.assertNotNull(result);
     }
 
     @Test
     public void testGetImageStatusImageSuccess() {
-        String result = HttpClientUtil.getImageStatus(LCM_URL, APPLICATION_ID, USER_ID, IMAGE_ID, TOKEN);
-        Assert.assertEquals("ok", result);
+        String result = HttpClientUtil.getImageStatus(LCM_URL, MEC_HOST, USER_ID, IMAGE_ID, TOKEN);
+        Assert.assertNotNull(result);
     }
 
     @Test
     public void testDeleteVmImageSuccess() {
-        boolean result = HttpClientUtil.deleteVmImage(LCM_URL, USER_ID, APPLICATION_ID, IMAGE_ID, TOKEN);
+        boolean result = HttpClientUtil.deleteVmImage(LCM_URL, USER_ID, MEC_HOST, IMAGE_ID, TOKEN);
         Assert.assertTrue(result);
     }
 

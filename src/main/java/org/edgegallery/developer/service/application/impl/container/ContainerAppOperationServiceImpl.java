@@ -253,7 +253,7 @@ public class ContainerAppOperationServiceImpl extends AppOperationServiceImpl im
     public Boolean deleteInstantiateInfo(String applicationId) {
         ContainerAppInstantiateInfo containerAppInstantiateInfo = getInstantiateInfo(applicationId);
         if (containerAppInstantiateInfo == null) {
-            return true;
+            return false;
         }
         if (!CollectionUtils.isEmpty(containerAppInstantiateInfo.getPods())) {
             for (K8sPod k8sPod : containerAppInstantiateInfo.getPods()) {

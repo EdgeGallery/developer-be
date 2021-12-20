@@ -22,7 +22,11 @@ public enum EnumExportImageStatus {
 
     EXPORT_IMAGE_STATUS_FAILED("killed"),
 
-    EXPORT_IMAGE_STATUS_SUCCESS("active");
+    EXPORT_IMAGE_STATUS_SUCCESS("active"),
+
+    COMPRESS_IMAGE_STATUS_SUCCESS("Success"),
+
+    COMPRESS_IMAGE_STATUS_FAILURE("Failure");
 
     private String name;
 
