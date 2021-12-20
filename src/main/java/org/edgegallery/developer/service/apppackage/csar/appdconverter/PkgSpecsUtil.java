@@ -96,8 +96,8 @@ public class PkgSpecsUtil {
                 String hostAggrLabel = mapSpecs.get(InputConstant.FLAVOR_EXTRA_SPECS_HOST_AGGR);
                 InputParam hostAggrInput = new InputParam(InputConstant.TYPE_STRING, hostAggrLabel, hostAggrInputName);
                 topologyTemplate.getInputs().put(hostAggrInputName, hostAggrInput);
-                mapSpecs.replace(InputConstant.FLAVOR_EXTRA_SPECS_HOST_AGGR,
-                    getFlavorHostAggrInputStr(hostAggrInputName));
+                mapSpecs
+                    .replace(InputConstant.FLAVOR_EXTRA_SPECS_HOST_AGGR, getFlavorHostAggrInputStr(hostAggrInputName));
             }
         }
         property.getVduProfile().setFlavorExtraSpecs(mapSpecs);
@@ -120,8 +120,7 @@ public class PkgSpecsUtil {
         }
         //generate the definition for FlavorExtraSpecs
         Yaml yaml = new Yaml(new SafeConstructor());
-        LinkedHashMap<String, String> mapSpecs = yaml.load(flavorExtraSpecsStr);
-        return mapSpecs;
+        return yaml.load(flavorExtraSpecsStr);
     }
 
     private String getInputStr(String inputName) {

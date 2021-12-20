@@ -12,7 +12,7 @@
  * the License.
  */
 
-package org.edgegallery.developer.util.helmcharts.k8sObject;
+package org.edgegallery.developer.util.helmcharts.k8sobject;
 
 import com.google.gson.Gson;
 import io.kubernetes.client.common.KubernetesObject;

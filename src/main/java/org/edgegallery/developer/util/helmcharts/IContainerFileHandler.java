@@ -17,7 +17,6 @@ package org.edgegallery.developer.util.helmcharts;
 import java.io.Closeable;
 import java.io.IOException;
 import java.util.List;
-import org.edgegallery.developer.model.application.container.HelmChart;
 import org.edgegallery.developer.util.ImageConfig;
 
 public interface IContainerFileHandler extends Closeable {

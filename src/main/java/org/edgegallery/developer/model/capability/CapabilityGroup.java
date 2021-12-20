@@ -13,126 +13,35 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
+
 package org.edgegallery.developer.model.capability;
 
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
+import lombok.Getter;
+import lombok.Setter;
 
+@Getter
+@Setter
 public class CapabilityGroup {
-	private String id;
-	private String name;
-	private String description;
-	private String nameEn;
-	private String descriptionEn;
-	private String type;
-	private String iconFileId;
-	private String author;
-	private long createTime;
-	private long updateTime;
-	private CapabilityGroup parent;
+    private String id;
 
-	@Override
-	public int hashCode() {
-		HashCodeBuilder builder = new HashCodeBuilder().append(id);
-		return builder.build();
-	}
+    private String name;
 
-	@Override
-	public boolean equals(Object obj) {
-		if (!(obj instanceof CapabilityGroup)) {
-			return false;
-		}
-		CapabilityGroup another = (CapabilityGroup) obj;
-		EqualsBuilder builder = new EqualsBuilder().append(id, another.getId());
-		return builder.build();
-	}
+    private String description;
 
-	@Override
-	public String toString() {
-		return "CapabilityGroup [id=" + id + ", name=" + name + ", type=" + type + "]";
-	}
+    private String nameEn;
 
-	public String getNameEn() {
-		return nameEn;
-	}
+    private String descriptionEn;
 
-	public void setNameEn(String nameEn) {
-		this.nameEn = nameEn;
-	}
+    private String type;
 
-	public String getDescriptionEn() {
-		return descriptionEn;
-	}
+    private String iconFileId;
 
-	public void setDescriptionEn(String descriptionEn) {
-		this.descriptionEn = descriptionEn;
-	}
+    private String author;
 
-	public String getId() {
-		return id;
-	}
+    private long createTime;
 
-	public void setId(String id) {
-		this.id = id;
-	}
+    private long updateTime;
 
-	public String getName() {
-		return name;
-	}
+    private CapabilityGroup parent;
 
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public String getDescription() {
-		return description;
-	}
-
-	public void setDescription(String description) {
-		this.description = description;
-	}
-
-	public String getType() {
-		return type;
-	}
-
-	public void setType(String type) {
-		this.type = type;
-	}
-
-	public String getIconFileId() {
-		return iconFileId;
-	}
-
-	public void setIconFileId(String iconFileId) {
-		this.iconFileId = iconFileId;
-	}
-
-	public String getAuthor() {
-		return author;
-	}
-
-	public void setAuthor(String author) {
-		this.author = author;
-	}
-
-	public long getCreateTime() {
-		return createTime;
-	}
-
-	public void setCreateTime(long createTime) {
-		this.createTime = createTime;
-	}
-
-	public void setUpdateTime(long updateTime) {
-		this.updateTime = updateTime;
-	}
-
-	public CapabilityGroup getParent() {
-		return parent;
-	}
-
-	public void setParent(CapabilityGroup parent) {
-		this.parent = parent;
-	}
 }

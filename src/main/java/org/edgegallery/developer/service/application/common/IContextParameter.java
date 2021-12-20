@@ -13,9 +13,15 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
+
 package org.edgegallery.developer.service.application.common;
 
 public class IContextParameter {
+
+    private IContextParameter() {
+        throw new IllegalStateException("IContextParameter class");
+    }
+
     public static final String PARAM_APPLICATION_ID = "application_id";
 
     public static final String PARAM_VM_ID = "vm_id";

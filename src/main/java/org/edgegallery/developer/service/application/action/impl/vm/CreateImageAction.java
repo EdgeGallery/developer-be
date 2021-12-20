@@ -13,20 +13,25 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
+
 package org.edgegallery.developer.service.application.action.impl.vm;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
 import org.apache.commons.lang3.StringUtils;
-import org.edgegallery.developer.mapper.application.vm.ImageExportInfoMapper;
-import org.edgegallery.developer.model.lcm.LcmLog;
 import org.edgegallery.developer.model.application.Application;
 import org.edgegallery.developer.model.instantiate.vm.EnumImageExportStatus;
 import org.edgegallery.developer.model.instantiate.vm.ImageExportInfo;
-import org.edgegallery.developer.model.resource.mephost.MepHost;
+import org.edgegallery.developer.model.lcm.LcmLog;
+import org.edgegallery.developer.model.lcm.MepmVmImageInfo;
 import org.edgegallery.developer.model.operation.ActionStatus;
 import org.edgegallery.developer.model.operation.EnumActionStatus;
 import org.edgegallery.developer.model.operation.EnumOperationObjectType;
-import org.edgegallery.developer.model.lcm.MepmVmImageInfo;
+import org.edgegallery.developer.model.resource.mephost.MepHost;
 import org.edgegallery.developer.service.application.ApplicationService;
 import org.edgegallery.developer.service.application.action.impl.AbstractAction;
 import org.edgegallery.developer.service.application.common.EnumExportImageStatus;
@@ -37,11 +42,6 @@ import org.edgegallery.developer.util.HttpClientUtil;
 import org.edgegallery.developer.util.SpringContextUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import com.google.gson.reflect.TypeToken;
 
 public class CreateImageAction extends AbstractAction {
 
@@ -53,6 +53,7 @@ public class CreateImageAction extends AbstractAction {
 
     // time out: 10 min.
     public static final int TIMEOUT = 60 * 60 * 1000;
+
     //interval of the query, 5s.
     public static final int INTERVAL = 20000;
 
@@ -76,8 +77,8 @@ public class CreateImageAction extends AbstractAction {
         Application application = applicationService.getApplication(applicationId);
         String statusLog = "Start to create vm image for vm Id：" + vmId;
         LOGGER.info(statusLog);
-        ActionStatus actionStatus = initActionStatus(EnumOperationObjectType.VM_IMAGE_INSTANCE, vmId,
-            ACTION_NAME, statusLog);
+        ActionStatus actionStatus = initActionStatus(EnumOperationObjectType.VM_IMAGE_INSTANCE, vmId, ACTION_NAME,
+            statusLog);
         String mepHostId = application.getMepHostId();
         if (null == mepHostId || "".equals(mepHostId)) {
             actionStatus.setStatus(EnumActionStatus.FAILED);
@@ -94,8 +95,7 @@ public class CreateImageAction extends AbstractAction {
             updateActionError(actionStatus, msg);
             return false;
         }
-        String msg = "create vm  image request sent to lcm controller success. imageId is: "
-            + imageId;
+        String msg = "create vm  image request sent to lcm controller success. imageId is: " + imageId;
         updateActionProgress(actionStatus, 30, msg);
         //Save  imageId to ImageExportInfo.
         boolean updateRes = saveImageIdToImageExportInfo(imageId);
@@ -105,7 +105,7 @@ public class CreateImageAction extends AbstractAction {
         }
         getContext().addParameter(IContextParameter.PARAM_IMAGE_INSTANCE_ID, imageId);
         // get vm export image status
-        EnumExportImageStatus exportImageStatus = queryImageStatus(mepHost, imageId, lcmLog);
+        EnumExportImageStatus exportImageStatus = queryImageStatus(mepHost, imageId);
         if (!EnumExportImageStatus.EXPORT_IMAGE_STATUS_SUCCESS.equals(exportImageStatus)) {
             String imageErrorLog = "Query export image status failed, the result is: " + exportImageStatus;
             updateActionError(actionStatus, imageErrorLog);
@@ -119,7 +119,6 @@ public class CreateImageAction extends AbstractAction {
 
         return true;
     }
-
 
     private Boolean saveImageIdToImageExportInfo(String imageId) {
         String vmId = (String) getContext().getParameter(IContextParameter.PARAM_VM_ID);
@@ -142,8 +141,11 @@ public class CreateImageAction extends AbstractAction {
     private String sentCreateImageRequestToLcm(MepHost mepHost, LcmLog lcmLog) {
         String vmInstanceId = (String) getContext().getParameter(IContextParameter.PARAM_VM_INSTANCE_ID);
         String appInstanceId = (String) getContext().getParameter(IContextParameter.PARAM_APP_INSTANCE_ID);
-        String basePath = HttpClientUtil.getUrlPrefix(mepHost.getLcmProtocol(), mepHost.getLcmIp(), mepHost.getLcmPort());
-        String imageResult = HttpClientUtil.vmInstantiateImage(basePath, getContext().getUserId(), getContext().getToken(), vmInstanceId, appInstanceId, lcmLog);
+        String basePath = HttpClientUtil
+            .getUrlPrefix(mepHost.getLcmProtocol(), mepHost.getLcmIp(), mepHost.getLcmPort());
+        String imageResult = HttpClientUtil
+            .vmInstantiateImage(basePath, getContext().getUserId(), getContext().getToken(), vmInstanceId,
+                appInstanceId, lcmLog);
         LOGGER.info("import image result: {}", imageResult);
         if (StringUtils.isEmpty(imageResult)) {
             return null;
@@ -156,18 +158,20 @@ public class CreateImageAction extends AbstractAction {
     private void sendDeleteVmImageToLcm(MepHost mepHost) {
         String imageId = (String) getContext().getParameter(IContextParameter.PARAM_IMAGE_INSTANCE_ID);
         String appInstanceId = (String) getContext().getParameter(IContextParameter.PARAM_APP_INSTANCE_ID);
-        String basePath = HttpClientUtil.getUrlPrefix(mepHost.getLcmProtocol(), mepHost.getLcmIp(), mepHost.getLcmPort());
-        HttpClientUtil.deleteVmImage(basePath, getContext().getUserId(), appInstanceId,
-            imageId, getContext().getToken());
+        String basePath = HttpClientUtil
+            .getUrlPrefix(mepHost.getLcmProtocol(), mepHost.getLcmIp(), mepHost.getLcmPort());
+        HttpClientUtil
+            .deleteVmImage(basePath, getContext().getUserId(), appInstanceId, imageId, getContext().getToken());
     }
 
-    private EnumExportImageStatus queryImageStatus(MepHost mepHost, String imageId, LcmLog lcmLog) {
+    private EnumExportImageStatus queryImageStatus(MepHost mepHost, String imageId) {
         String appInstanceId = (String) getContext().getParameter(IContextParameter.PARAM_APP_INSTANCE_ID);
         int waitingTime = 0;
-        String basePath = HttpClientUtil.getUrlPrefix(mepHost.getLcmProtocol(), mepHost.getLcmIp(), mepHost.getLcmPort());
+        String basePath = HttpClientUtil
+            .getUrlPrefix(mepHost.getLcmProtocol(), mepHost.getLcmIp(), mepHost.getLcmPort());
         while (waitingTime < TIMEOUT) {
-            String workStatus = HttpClientUtil.getImageStatus(basePath, appInstanceId, getContext().getUserId(),
-                imageId, getContext().getToken());
+            String workStatus = HttpClientUtil
+                .getImageStatus(basePath, appInstanceId, getContext().getUserId(), imageId, getContext().getToken());
             LOGGER.info("export image result: {}", workStatus);
             if (workStatus == null) {
                 // compare time between now and deployDate
@@ -185,11 +189,11 @@ public class CreateImageAction extends AbstractAction {
             try {
                 Thread.sleep(INTERVAL);
                 waitingTime += INTERVAL;
-            }catch (InterruptedException e) {
+            } catch (InterruptedException e) {
                 LOGGER.error("export image sleep failed.");
                 Thread.currentThread().interrupt();
             }
-            
+
         }
         return EnumExportImageStatus.EXPORT_IMAGE_STATUS_TIMEOUT;
     }

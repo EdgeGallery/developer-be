@@ -13,6 +13,7 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
+
 package org.edgegallery.developer.model.capability;
 
 import lombok.Getter;
@@ -20,8 +21,8 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class CapabilityGroupStat extends CapabilityGroup{
+public class CapabilityGroupStat extends CapabilityGroup {
 
-	private int capabilityCount;
+    private int capabilityCount;
 
 }

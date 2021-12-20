@@ -28,8 +28,8 @@ import lombok.Setter;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.edgegallery.developer.util.CompressFileUtilsJava;
-import org.edgegallery.developer.util.helmcharts.k8sObject.EnumKubernetesObject;
-import org.edgegallery.developer.util.helmcharts.k8sObject.IContainerImage;
+import org.edgegallery.developer.util.helmcharts.k8sobject.EnumKubernetesObject;
+import org.edgegallery.developer.util.helmcharts.k8sobject.IContainerImage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

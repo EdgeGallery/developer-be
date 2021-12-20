@@ -18,6 +18,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.edgegallery.developer.model.application.vm.Network;
@@ -54,7 +55,7 @@ public class PkgSpecServiceImpl implements PkgSpecService {
         if (null != pkgSpecConfig && pkgSpecConfig.isSupportPkgSpecs()) {
             return pkgSpecConfig.getPkgSpecs();
         }
-        return new ArrayList<PkgSpec>(0);
+        return Collections.emptyList();
     }
 
     public PkgSpec getPkgSpecById(String pkgSpecId) {

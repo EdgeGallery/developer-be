@@ -339,7 +339,7 @@ public class ProfileServiceImpl implements ProfileService {
             helmTemplateYaml.transferTo(loadFile);
             return loadFile.getCanonicalPath();
         } catch (IOException e) {
-            LOGGER.error("save loaded file to temp dir failed. {}", e);
+            LOGGER.error("save loaded file to temp dir failed. {}", e.getMessage());
             throw new FileOperateException("save loaded file to temp dir failed.", ResponseConsts.RET_CREATE_FILE_FAIL);
         }
     }

@@ -24,7 +24,7 @@ import org.yaml.snakeyaml.representer.Representer;
 
 public class CustomRepresenter extends Representer {
     protected Node representMapping(Tag tag, Map<?, ?> mapping, DumperOptions.FlowStyle flowStyle) {
-        for (Iterator iterator = mapping.entrySet().iterator(); iterator.hasNext(); ) {
+        for (Iterator<?> iterator = mapping.entrySet().iterator(); iterator.hasNext(); ) {
             Map.Entry<?, ?> entry = (Map.Entry) iterator.next();
             if (entry.getValue() instanceof List && ((List) entry.getValue()).isEmpty()) {
                 iterator.remove();

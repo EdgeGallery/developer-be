@@ -16,52 +16,21 @@
 
 package org.edgegallery.developer.model.capability;
 
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
+import lombok.Getter;
+import lombok.Setter;
 
+@Getter
+@Setter
 public class ApplicationProjectCapability {
-	private String projectId;
-	private String capabilityId;
+    private String projectId;
 
-	public static ApplicationProjectCapability newInstance(String projectId,String capabilityId) {
-		ApplicationProjectCapability instance = new ApplicationProjectCapability();
-		instance.projectId = projectId;
-		instance.capabilityId = capabilityId;
-		return instance;
-	}
-	public String getProjectId() {
-		return projectId;
-	}
+    private String capabilityId;
 
-	public void setProjectId(String projectId) {
-		this.projectId = projectId;
-	}
+    public static ApplicationProjectCapability newInstance(String projectId, String capabilityId) {
+        ApplicationProjectCapability instance = new ApplicationProjectCapability();
+        instance.projectId = projectId;
+        instance.capabilityId = capabilityId;
+        return instance;
+    }
 
-	public String getCapabilityId() {
-		return capabilityId;
-	}
-
-	public void setCapabilityId(String capabilityId) {
-		this.capabilityId = capabilityId;
-	}
-
-	@Override
-	public int hashCode() {
-		return new HashCodeBuilder().append(projectId).append(capabilityId).hashCode();
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (!(obj instanceof ApplicationProjectCapability)) {
-			return false;
-		}
-		ApplicationProjectCapability other = (ApplicationProjectCapability) obj;
-		return new EqualsBuilder().append(this.projectId, other.projectId).append(this.capabilityId, other.capabilityId)
-				.isEquals();
-	}
-
-	@Override
-	public String toString() {
-		return projectId + ',' + capabilityId;
-	}
 }

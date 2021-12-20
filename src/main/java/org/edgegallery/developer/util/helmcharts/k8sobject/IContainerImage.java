@@ -12,15 +12,10 @@
  * the License.
  */
 
-package org.edgegallery.developer.util.helmcharts.k8sObject;
+package org.edgegallery.developer.util.helmcharts.k8sobject;
 
-import java.util.Collections;
 import java.util.List;
 
-public class UnknownObject implements IContainerImage {
-
-    @Override
-    public List<String> getImages() {
-        return Collections.emptyList();
-    }
+public interface IContainerImage {
+    List<String> getImages();
 }

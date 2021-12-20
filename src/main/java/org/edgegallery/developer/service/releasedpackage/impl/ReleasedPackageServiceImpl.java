@@ -68,13 +68,7 @@ public class ReleasedPackageServiceImpl implements ReleasedPackageService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ReleasedPackageServiceImpl.class);
 
-    private static final String APPD_ZIP_PATH = "/APPD/";
-
-    private static final String CHARTS_TGZ_PATH = "/Artifacts/Deployment/Charts/";
-
     private static final String DOCS_ICON_PATH = "/Artifacts/Docs";
-
-    private static final String TEMPLATE_PATH = "temp";
 
     @Autowired
     private ReleasedPackageMapper releasedPackageMapper;

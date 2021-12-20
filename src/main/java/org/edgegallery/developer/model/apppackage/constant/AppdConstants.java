@@ -35,7 +35,7 @@ public class AppdConstants {
 
     public static final String DEFAULT_NETWORK_N6 = "MEC_APP_Private";
 
-    public static final String DEFAULT_NETWORK_MP1 = "MEC_APP_MP1";
+    private static final String DEFAULT_NETWORK_MP1 = "MEC_APP_MP1";
 
     public static final List<String> NETWORK_NAME_SORTED_LIST = Arrays.asList(DEFAULT_NETWORK_MP1,
         "MEC_APP_Internet", DEFAULT_NETWORK_INTERNET, "MEC_APP_N6", DEFAULT_NETWORK_N6);

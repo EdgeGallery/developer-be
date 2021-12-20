@@ -18,6 +18,11 @@ package org.edgegallery.developer.service.application.action.impl.vm;
 
 import static org.edgegallery.developer.util.HttpClientUtil.getUrlPrefix;
 
+
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
 import java.util.Map;
 import org.edgegallery.developer.model.application.vm.EnumVMStatus;
@@ -40,19 +45,16 @@ import org.edgegallery.developer.util.InputParameterUtil;
 import org.edgegallery.developer.util.IpCalculateUtil;
 import org.edgegallery.developer.util.SpringContextUtil;
 import org.springframework.util.CollectionUtils;
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import com.google.gson.reflect.TypeToken;
 
 public class InstantiateVMAppAction extends InstantiateAppAction {
 
     private static Gson gson = new Gson();
 
-    VMAppOperationService vmAppOperationService = (VMAppOperationService) SpringContextUtil.getBean(VMAppOperationService.class);
+    VMAppOperationService vmAppOperationService = (VMAppOperationService) SpringContextUtil
+        .getBean(VMAppOperationService.class);
 
-    OperationStatusService operationStatusService = (OperationStatusService) SpringContextUtil.getBean(
-        OperationStatusService.class);
+    OperationStatusService operationStatusService = (OperationStatusService) SpringContextUtil
+        .getBean(OperationStatusService.class);
 
     VMAppVmService vmAppVmService = (VMAppVmService) SpringContextUtil.getBean(VMAppVmService.class);
 
@@ -78,7 +80,8 @@ public class InstantiateVMAppAction extends InstantiateAppAction {
     @Override
     public Map<String, String> getInputParams(MepHost mepHost) {
         String parameter = mepHost.getNetworkParameter();
-        int count = operationStatusService.getOperationCountByObjectType(EnumOperationObjectType.APPLICATION_INSTANCE.toString());
+        int count = operationStatusService
+            .getOperationCountByObjectType(EnumOperationObjectType.APPLICATION_INSTANCE.toString());
         Map<String, String> vmInputParams = InputParameterUtil.getParams(parameter);
         String n6Range = vmInputParams.get("VDU1_APP_Plane03_IP");
         String mepRange = vmInputParams.get("VDU1_APP_Plane01_IP");
@@ -104,7 +107,7 @@ public class InstantiateVMAppAction extends InstantiateAppAction {
         Type vmInfoType = new TypeToken<VmInstantiateWorkload>() { }.getType();
         VmInstantiateWorkload vmInstantiateWorkload = gson.fromJson(respBody, vmInfoType);
         vmInstantiateInfo.setLog(respBody);
-        if (!vmInstantiateWorkload.getData().isEmpty() && vmInstantiateWorkload.getData().size() > 0) {
+        if (!CollectionUtils.isEmpty(vmInstantiateWorkload.getData())) {
             vmInstantiateInfo.setVncUrl(vmInstantiateWorkload.getData().get(0).getVncUrl());
             vmInstantiateInfo.setVmInstanceId(vmInstantiateWorkload.getData().get(0).getVmId());
             for (NetworkInfo info : vmInstantiateWorkload.getData().get(0).getNetworks()) {
@@ -122,7 +125,8 @@ public class InstantiateVMAppAction extends InstantiateAppAction {
         int waitingTime = 0;
         while (waitingTime < TIMEOUT) {
             String basePath = getUrlPrefix(mepHost.getLcmProtocol(), mepHost.getLcmIp(), mepHost.getLcmPort());
-            String workStatus = HttpClientUtil.getWorkloadStatus(basePath, appInstanceId, getContext().getUserId(), getContext().getToken());
+            String workStatus = HttpClientUtil
+                .getWorkloadStatus(basePath, appInstanceId, getContext().getUserId(), getContext().getToken());
             LOGGER.info("get instantiate status: {}", workStatus);
             if (workStatus == null) {
                 // compare time between now and deployDate

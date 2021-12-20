@@ -22,9 +22,9 @@ import org.edgegallery.developer.model.resource.vm.UploadFileInfo;
 import org.edgegallery.developer.model.resource.vm.VMImage;
 
 public interface VMImageMapper {
-    Integer getVmImagesCount(Map map);
+    Integer getVmImagesCount(Map<String, Object> map);
 
-    List<VMImage> getVmImagesByCondition(Map map);
+    List<VMImage> getVmImagesByCondition(Map<String, Object> map);
 
     VMImage getVmImage(Integer imageId);
 
@@ -47,11 +47,13 @@ public interface VMImageMapper {
 
     void updateVmImageUploadInfo(UploadFileInfo uploadFileInfo);
 
-    void updateVmImageSlimStatus(@Param("imageId")Integer imageId, @Param("imageSlimStatus")String imageSlimStatus);
+    void updateVmImageSlimStatus(@Param("imageId") Integer imageId, @Param("imageSlimStatus") String imageSlimStatus);
 
-    int updateVmImageInfo(@Param("imageId") Integer imageId, @Param("imageSize") Long imageSize, @Param("fileMd5") String fileMd5);
+    int updateVmImageInfo(@Param("imageId") Integer imageId, @Param("imageSize") Long imageSize,
+        @Param("fileMd5") String fileMd5);
 
-    VMImage getVmImageByName(@Param("name")String name, @Param("userId")String userId);
-    @Options(useGeneratedKeys=true, keyProperty="id")
+    VMImage getVmImageByName(@Param("name") String name, @Param("userId") String userId);
+
+    @Options(useGeneratedKeys = true, keyProperty = "id")
     int createVmImageAllInfo(VMImage vmImage);
 }
