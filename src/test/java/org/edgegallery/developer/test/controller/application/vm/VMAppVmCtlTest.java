@@ -98,7 +98,7 @@ public class VMAppVmCtlTest {
     @WithMockUser(roles = "DEVELOPER_ADMIN")
     public void testDeleteVmSuccess() throws Exception {
         String url = String.format("/mec/developer/v2/applications/%s/vms/%s", UUID.randomUUID().toString(), UUID.randomUUID().toString());
-        Mockito.when(vmAppVmService.deleteVm(Mockito.anyString(), Mockito.anyString())).thenReturn(true);
+        Mockito.when(vmAppVmService.deleteVm(Mockito.anyString(), Mockito.anyString(),  Mockito.any())).thenReturn(true);
         ResultActions actions = mvc.perform(
             MockMvcRequestBuilders.delete(url).with((csrf())).content(new Gson().toJson(new VirtualMachine()))
                 .contentType(MediaType.APPLICATION_JSON_UTF8)).andExpect(MockMvcResultMatchers.status().isOk());

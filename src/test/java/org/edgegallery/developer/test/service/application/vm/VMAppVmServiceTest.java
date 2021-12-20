@@ -21,6 +21,7 @@ import org.edgegallery.developer.model.application.vm.PwdCertificate;
 import org.edgegallery.developer.model.application.vm.VMCertificate;
 import org.edgegallery.developer.model.application.vm.VMPort;
 import org.edgegallery.developer.model.application.vm.VirtualMachine;
+import org.edgegallery.developer.model.common.User;
 import org.edgegallery.developer.service.application.vm.VMAppVmService;
 import org.edgegallery.developer.test.DeveloperApplicationTests;
 import org.junit.Assert;
@@ -113,7 +114,8 @@ public class VMAppVmServiceTest {
 
     @Test
     public void testDeleteVMSuccess() {
-        boolean res = vmAppVmService.deleteVm(PRESET_APPLICATION_ID, PRESET_VM2_ID);
+        User user = new User("testId", "testUser", "testAuth", "testToken");
+        boolean res = vmAppVmService.deleteVm(PRESET_APPLICATION_ID, PRESET_VM2_ID, user);
         Assert.assertTrue(res);
     }
 }

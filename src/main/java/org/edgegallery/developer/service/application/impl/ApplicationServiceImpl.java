@@ -194,7 +194,7 @@ public class ApplicationServiceImpl implements ApplicationService {
         atpTestTaskMapper.deleteAtpTestByAppId(applicationId);
         // clean vm db
         if (application.getAppClass().equals(EnumAppClass.VM)) {
-            vmService.deleteVmByAppId(applicationId);
+            vmService.deleteVmByAppId(applicationId, user);
             // init VM application default networks
             networkService.deleteNetworkByAppId(applicationId);
         }

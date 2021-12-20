@@ -24,7 +24,9 @@ import java.util.List;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
+import org.edgegallery.developer.filter.security.AccessUserUtil;
 import org.edgegallery.developer.model.application.vm.VirtualMachine;
+import org.edgegallery.developer.model.common.User;
 import org.edgegallery.developer.model.restful.ErrorRespDto;
 import org.edgegallery.developer.service.application.vm.VMAppVmService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -135,7 +137,8 @@ public class VMAppVmCtl {
         @Pattern(regexp = REGEX_UUID, message = "applicationId must be in UUID format")
         @ApiParam(value = "applicationId", required = true) @PathVariable("applicationId") String applicationId,
         @ApiParam(value = "vmId", required = true) @PathVariable("vmId") String vmId) {
-        Boolean result = vmAppVmService.deleteVm(applicationId, vmId);
+        User user = AccessUserUtil.getUser();
+        Boolean result = vmAppVmService.deleteVm(applicationId, vmId, user);
         return ResponseEntity.ok(result);
     }
 
