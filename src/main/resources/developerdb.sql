@@ -403,7 +403,7 @@
     "cpu_usage" varchar(255) DEFAULT NULL,
     "mem_usage" varchar(255) DEFAULT NULL,
     "disk_usage" varchar(255) DEFAULT NULL,
-    CONSTRAINT  "tbl_container_instantiate_info_unique_id_name" UNIQUE ("pod_name")
+    CONSTRAINT  "tbl_container_instantiate_info_unique_id_name" UNIQUE ("pod_name", "name")
     );
 
     CREATE TABLE IF NOT EXISTS "tbl_k8s_service_instantiate_info" (
