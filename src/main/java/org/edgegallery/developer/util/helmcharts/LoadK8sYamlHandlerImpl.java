@@ -54,7 +54,10 @@ public class LoadK8sYamlHandlerImpl extends AbstractContainerFileHandler {
 
         try {
             Files.createDirectory(Paths.get(helmChartsDir, "templates"));
-            createMepTemplates();
+            EgValuesYaml defaultValues = this.getDefaultValues();
+            if (defaultValues.isHasMep()) {
+                createMepTemplates();
+            }
             for (String filePath : filePaths) {
                 addTemplate(filePath);
             }
@@ -115,10 +118,10 @@ public class LoadK8sYamlHandlerImpl extends AbstractContainerFileHandler {
             for (String filePath : filePaths) {
                 Yaml.loadAll(filePath);
             }
-            return true;
         } catch (IOException e) {
             LOGGER.error("Can not parse this yaml to k8s configs. msg:{}", e.getMessage());
             return false;
         }
+        return true;
     }
 }

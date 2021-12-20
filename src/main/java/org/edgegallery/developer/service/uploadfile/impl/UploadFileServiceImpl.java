@@ -163,32 +163,25 @@ public class UploadFileServiceImpl implements UploadFileService {
             LOGGER.error("fileId is empty!");
             throw new IllegalRequestException("fileId does not exist.", ResponseConsts.RET_REQUEST_PARAM_EMPTY);
         }
-        //get UploadFile
+        //get UploadFile & delete file
         UploadFile uploadFile = uploadFileMapper.getFileById(fileId);
-        if (uploadFile == null) {
-            LOGGER.error("the queried Object(UploadedFile) is null!");
-            return true;
+        if (uploadFile != null) {
+            try {
+                String filePath = uploadFile.getFilePath();
+                File file = new File(InitConfigUtil.getWorkSpaceBaseDir() + filePath);
+                FileUtils.forceDelete(file);
+            } catch (IOException e) {
+                LOGGER.error("delete file occur {}", e.getMessage());
+                return false;
+            }
+            //delete db record
+            int ret = uploadFileMapper.deleteFile(fileId);
+            if (ret < 1) {
+                LOGGER.error("delete file failed!");
+                throw new DataBaseException("delete file failed!", ResponseConsts.RET_DELETE_DATA_FAIL);
+            }
         }
-        //judge file exist
-        String filePath = uploadFile.getFilePath();
-        File file = new File(InitConfigUtil.getWorkSpaceBaseDir() + filePath);
-        if (!file.exists()) {
-            LOGGER.warn("the queried file may be deleted or moved!");
-            return true;
-        }
-        //delete file
-        try {
-            FileUtils.forceDelete(file);
-        } catch (IOException e) {
-            LOGGER.error("delete file occur {}", e.getMessage());
-            return false;
-        }
-        //delete db record
-        int ret = uploadFileMapper.deleteFile(fileId);
-        if (ret < 1) {
-            LOGGER.error("delete file failed!");
-            throw new DataBaseException("delete file failed!", ResponseConsts.RET_DELETE_DATA_FAIL);
-        }
+        LOGGER.warn("fileId is error!");
         return true;
     }
 

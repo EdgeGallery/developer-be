@@ -161,7 +161,7 @@ public class UploadServiceTest {
     @Test
     public void testDeleteFileBadWithExistId() throws Exception {
         boolean res = uploadFileService.deleteFile("e111f3e7-90d8-4a39-9874-ea6ea6752ef5");
-        Assert.assertEquals(true, res);
+        Assert.assertFalse(res);
     }
 
     @Test

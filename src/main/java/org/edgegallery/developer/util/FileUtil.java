@@ -40,13 +40,13 @@ import org.springframework.util.CollectionUtils;
 public final class FileUtil {
     private static final Logger LOGGER = LoggerFactory.getLogger(FileUtil.class);
 
-    private static final List<String> ICON_LIST = Arrays.asList("png", "jpg");
+    private static final List<String> ICON_LIST = Arrays.asList("png", "jpg", "PNG", "JPG");
 
     private static final List<String> MD_LIST = Arrays.asList("md", "MD");
 
-    private static final List<String> API_LIST = Arrays.asList("yaml", "yml", "json");
+    private static final List<String> API_LIST = Arrays.asList("yaml", "yml", "json", "YAML", "YML", "JSON");
 
-    private static final List<String> SCRIPT_LIST = Arrays.asList("sh");
+    private static final List<String> SCRIPT_LIST = Arrays.asList("sh", "SH");
 
     private static final Map<String, List<String>> FILE_TYPE_MAP = new HashMap<>();
 
