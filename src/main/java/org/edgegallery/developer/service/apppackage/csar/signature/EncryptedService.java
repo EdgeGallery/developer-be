@@ -50,26 +50,26 @@ public class EncryptedService {
     private String keyPasswd;
 
     public boolean encryptedFile(String filePath) {
+        BufferedReader reader = null;
         try {
-            BufferedReader reader = null;
             if (filePath == null) {
                 LOGGER.error("Failed to encrypted code.");
                 return false;
             }
             File mfFile = getMfFile(filePath);
-            BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(mfFile), "utf-8"));
+            BufferedReader br = new BufferedReader(
+                new InputStreamReader(new FileInputStream(mfFile), StandardCharsets.UTF_8));
             reader = new BufferedReader(br);
             String tempString = null;
             String sha256String = null;
-            StringBuffer bf = new StringBuffer();
+            StringBuilder bf = new StringBuilder();
             while ((tempString = reader.readLine()) != null) {
                 tempString.trim();
                 if (tempString.startsWith("Source")) {
-                    String tempPath = tempString.substring(8);
-                    tempPath.trim();
+                    String tempPath = tempString.substring(8).trim();
                     String path = filePath + File.separator + tempPath;
                     String encryptedFilePath = path.replace("\\", File.separator).replace("/", File.separator);
-                    encryptedFilePath.replace(" ", "");
+                    encryptedFilePath = encryptedFilePath.replace(" ", "");
                     File file = new File(encryptedFilePath);
                     sha256String = getHash(file);
                     bf.append(tempString).append("\r\n");
@@ -94,6 +94,14 @@ public class EncryptedService {
         } catch (IOException e) {
             LOGGER.error("Hash package failed.");
             return false;
+        } finally {
+            if (reader != null) {
+                try {
+                    reader.close();
+                } catch (IOException e) {
+                    LOGGER.error("close stream failed.");
+                }
+            }
         }
         return true;
     }
@@ -104,23 +112,25 @@ public class EncryptedService {
             LOGGER.error("Hash package failed.");
             return false;
         }
+        BufferedReader reader = null;
+        BufferedWriter out = null;
         try {
-            BufferedReader reader = null;
             if (filePath == null) {
                 throw new IOException("Failed to encrypted code.");
             }
             File mfFile = getMfFile(filePath);
-            BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(mfFile), "utf-8"));
+            BufferedReader br = new BufferedReader(
+                new InputStreamReader(new FileInputStream(mfFile), StandardCharsets.UTF_8));
             reader = new BufferedReader(br);
             String tempString = null;
-            StringBuffer bf = new StringBuffer();
+            StringBuilder bf = new StringBuilder();
             while ((tempString = reader.readLine()) != null) {
                 bf.append(tempString).append("\r\n");
             }
             br.close();
 
             String encrypted = signPackage(mfFile.getCanonicalPath(), keyPasswd);
-            BufferedWriter out = new BufferedWriter(new FileWriter(mfFile));
+            out = new BufferedWriter(new FileWriter(mfFile));
             out.write(bf.toString());
             out.write("-----BEGIN CMS-----");
             out.write("\n");
@@ -137,6 +147,21 @@ public class EncryptedService {
         } catch (IOException e) {
             LOGGER.error("Failed to encrypted code.");
             return false;
+        } finally {
+            if (reader != null) {
+                try {
+                    reader.close();
+                } catch (IOException e) {
+                    LOGGER.error("close stream failed.");
+                }
+            }
+            if (out != null) {
+                try {
+                    out.close();
+                } catch (IOException e) {
+                    LOGGER.error("close stream failed.");
+                }
+            }
         }
         return true;
     }

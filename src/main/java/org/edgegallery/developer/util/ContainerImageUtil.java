@@ -305,18 +305,18 @@ public final class ContainerImageUtil {
         String uploadImgName = imageConfig.getDomainname() + "/" + projectName + "/" + imageName;
         LOGGER.warn("uploadImgName: {}", uploadImgName);
         //image retag,push
-        if (!imageId.equals("")) {
-            //tag image
-            dockerClient.tagImageCmd(imageId, uploadImgName, imageVersion).withForce().exec();
-            LOGGER.warn("Upload tagged docker image: {}", uploadImgName);
-            //push image
-            try {
+        try {
+            if (!imageId.equals("")) {
+                //tag image
+                dockerClient.tagImageCmd(imageId, uploadImgName, imageVersion).withForce().exec();
+                LOGGER.warn("Upload tagged docker image: {}", uploadImgName);
+                //push image
                 dockerClient.pushImageCmd(uploadImgName).start().awaitCompletion();
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                LOGGER.error("failed to push image {}", e.getMessage());
-                return false;
             }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            LOGGER.error("failed to push image {}", e.getMessage());
+            return false;
         }
         return true;
     }
