@@ -21,6 +21,12 @@ import static org.edgegallery.developer.util.HttpClientUtil.getUrlPrefix;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import org.edgegallery.developer.model.instantiate.EnumAppInstantiateStatus;
+import org.edgegallery.developer.model.instantiate.container.Container;
+import org.edgegallery.developer.model.instantiate.container.ContainerAppInstantiateInfo;
+import org.edgegallery.developer.model.instantiate.container.K8sPod;
+import org.edgegallery.developer.model.instantiate.container.K8sService;
+import org.edgegallery.developer.model.instantiate.container.K8sServicePort;
 import org.edgegallery.developer.model.instantiate.container.PodContainers;
 import org.edgegallery.developer.model.instantiate.container.PodEvents;
 import org.edgegallery.developer.model.instantiate.container.PodEventsRes;
@@ -28,12 +34,6 @@ import org.edgegallery.developer.model.instantiate.container.PodStatusInfo;
 import org.edgegallery.developer.model.instantiate.container.PodStatusInfos;
 import org.edgegallery.developer.model.instantiate.container.ServiceInfo;
 import org.edgegallery.developer.model.instantiate.container.ServicePort;
-import org.edgegallery.developer.model.instantiate.EnumAppInstantiateStatus;
-import org.edgegallery.developer.model.instantiate.container.Container;
-import org.edgegallery.developer.model.instantiate.container.ContainerAppInstantiateInfo;
-import org.edgegallery.developer.model.instantiate.container.K8sPod;
-import org.edgegallery.developer.model.instantiate.container.K8sService;
-import org.edgegallery.developer.model.instantiate.container.K8sServicePort;
 import org.edgegallery.developer.model.resource.mephost.MepHost;
 import org.edgegallery.developer.service.application.action.impl.InstantiateAppAction;
 import org.edgegallery.developer.service.application.common.EnumInstantiateStatus;
@@ -142,9 +142,11 @@ public class InstantiateContainerAppAction extends InstantiateAppAction {
         PodEventsRes events = null;
         while (waitingTime < TIMEOUT) {
             String basePath = getUrlPrefix(mepHost.getLcmProtocol(), mepHost.getLcmIp(), mepHost.getLcmPort());
-            String workStatus = HttpClientUtil.getWorkloadStatus(basePath, appInstanceId, getContext().getUserId(), getContext().getToken());
+            String workStatus = HttpClientUtil
+                .getWorkloadStatus(basePath, appInstanceId, getContext().getUserId(), getContext().getToken());
             LOGGER.info("Container app instantiate workStatus: {}", workStatus);
-            String workEvents = HttpClientUtil.getWorkloadEvents(basePath, appInstanceId, getContext().getUserId(), getContext().getToken());
+            String workEvents = HttpClientUtil
+                .getWorkloadEvents(basePath, appInstanceId, getContext().getUserId(), getContext().getToken());
             LOGGER.info("Container app instantiate workEvents: {}", workEvents);
             if (null != workStatus && null != workEvents) {
                 status = gson.fromJson(workStatus, new TypeToken<PodStatusInfos>() {}.getType());
@@ -170,8 +172,9 @@ public class InstantiateContainerAppAction extends InstantiateAppAction {
 
     private boolean queryPodStatus(List<PodStatusInfo> pods) {
         int podRunningNum = 0;
-        for(PodStatusInfo pod:pods) {
-            if (POD_RUNNING.equals(pod.getPodstatus()) && pod.getContainers()!=null &&!StringUtils.isEmpty(pod.getContainers()[0].getContainername())) {
+        for (PodStatusInfo pod : pods) {
+            if (POD_RUNNING.equals(pod.getPodstatus()) && pod.getContainers().length != 0 && !StringUtils
+                .isEmpty(pod.getContainers()[0].getContainername())) {
                 podRunningNum++;
             }
         }
