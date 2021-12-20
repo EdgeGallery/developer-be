@@ -122,7 +122,7 @@ apiVersion: v1
 kind: Service
 metadata:
   labels:
-    app: fledge-ext
+    svc: fledge-ext
   name: fledge-ext
 spec:
   type: NodePort
@@ -144,7 +144,7 @@ apiVersion: v1
 kind: Service
 metadata:
   labels:
-    app: fledge
+    svc: fledge
   name: fledge
 spec:
   ports:
@@ -186,7 +186,7 @@ apiVersion: v1
 kind: Service
 metadata:
   labels:
-    app: kuiper
+    svc: kuiper
   name: kuiper
 spec:
   ports:
@@ -227,7 +227,7 @@ apiVersion: v1
 kind: Service
 metadata:
   labels:
-    app: mec-app
+    svc: mec-app
   name: mec-app
 spec:
   type: NodePort
@@ -268,7 +268,7 @@ apiVersion: v1
 kind: Service
 metadata:
   labels:
-    app: mqtt
+    svc: mqtt
   name: mqtt
 spec:
   ports:
@@ -282,7 +282,7 @@ apiVersion: v1
 kind: Service
 metadata:
   labels:
-    app: mqtt-ext
+    svc: mqtt-ext
   name: mqtt-ext
 spec:
   type: NodePort
@@ -327,7 +327,7 @@ apiVersion: v1
 kind: Service
 metadata:
   labels:
-    app: td-engine
+    svc: td-engine
   name: td-engine
 spec:
   ports:
