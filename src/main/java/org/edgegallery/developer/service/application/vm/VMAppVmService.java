@@ -18,6 +18,7 @@ package org.edgegallery.developer.service.application.vm;
 import java.util.List;
 import org.edgegallery.developer.model.application.vm.EnumVMStatus;
 import org.edgegallery.developer.model.application.vm.VirtualMachine;
+import org.edgegallery.developer.model.common.User;
 
 public interface VMAppVmService {
 
@@ -29,9 +30,9 @@ public interface VMAppVmService {
 
     Boolean modifyVm(String applicationId, String vmId, VirtualMachine virtualMachine);
 
-    Boolean deleteVm(String applicationId, String vmId);
+    Boolean deleteVm(String applicationId, String vmId, User user);
 
     boolean updateVmStatus(String vmId, EnumVMStatus status, Integer targetImageId);
 
-    void deleteVmByAppId(String applicationId);
+    void deleteVmByAppId(String applicationId, User user);
 }

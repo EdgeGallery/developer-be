@@ -280,7 +280,7 @@ public class VMAppOperationServiceImpl extends AppOperationServiceImpl implement
         Application application = applicationService.getApplication(applicationId);
         if (application == null) {
             LOGGER.error("application does not exist ,id:{}", applicationId);
-            return true;
+            return false;
         }
         if (StringUtils.isEmpty(application.getMepHostId())) {
             return true;
@@ -467,7 +467,7 @@ public class VMAppOperationServiceImpl extends AppOperationServiceImpl implement
         }
     }
 
-    private void cleanVmLaunchInfo(String mepHostId, VirtualMachine vm, User user) {
+    public void cleanVmLaunchInfo(String mepHostId, VirtualMachine vm, User user) {
         MepHost mepHost = mepHostService.getHost(mepHostId);
         String basePath = HttpClientUtil.getUrlPrefix(mepHost.getLcmProtocol(), mepHost.getLcmIp(),
             mepHost.getLcmPort());

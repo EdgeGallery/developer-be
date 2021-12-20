@@ -29,6 +29,7 @@ import org.edgegallery.developer.model.application.vm.EnumVMStatus;
 import org.edgegallery.developer.model.application.vm.VMPort;
 import org.edgegallery.developer.model.application.vm.VirtualMachine;
 import org.edgegallery.developer.model.apppackage.constant.AppdConstants;
+import org.edgegallery.developer.model.common.User;
 import org.edgegallery.developer.service.application.ApplicationService;
 import org.edgegallery.developer.service.application.vm.VMAppOperationService;
 import org.edgegallery.developer.service.application.vm.VMAppVmService;
@@ -119,23 +120,25 @@ public class VMAppVmServiceImpl implements VMAppVmService {
     }
 
     @Override
-    public void deleteVmByAppId(String applicationId) {
+    public void deleteVmByAppId(String applicationId, User user) {
 
         List<VirtualMachine> virtualMachines = vmMapper.getAllVMsByAppId(applicationId);
         if (CollectionUtils.isEmpty(virtualMachines)) {
             return;
         }
         for (VirtualMachine virtualMachine : virtualMachines) {
-            deleteVm(applicationId, virtualMachine.getId());
+            deleteVm(applicationId, virtualMachine.getId(), user);
         }
     }
 
     @Override
-    public Boolean deleteVm(String applicationId, String vmId) {
-        VirtualMachine getVm = getVm(applicationId, vmId);
-        if (getVm == null) {
+    public Boolean deleteVm(String applicationId, String vmId, User user) {
+        VirtualMachine vm = getVm(applicationId, vmId);
+        if (vm == null) {
             return true;
         }
+        String mepHostId = applicationService.getApplication(applicationId).getMepHostId();
+        vmAppOperationService.cleanVmLaunchInfo(mepHostId, vm, user);
         vmMapper.deleteVM(vmId);
         return true;
     }

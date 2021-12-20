@@ -16,6 +16,7 @@
 package org.edgegallery.developer.service.application.vm;
 
 import javax.servlet.http.HttpServletRequest;
+import org.edgegallery.developer.model.application.vm.VirtualMachine;
 import org.edgegallery.developer.model.common.User;
 import org.edgegallery.developer.model.common.Chunk;
 import org.edgegallery.developer.model.application.vm.VMApplication;
@@ -39,6 +40,8 @@ public interface VMAppOperationService {
     VMInstantiateInfo getInstantiateInfo(String vmId);
 
     Boolean createInstantiateInfo(String vmId, VMInstantiateInfo instantiateInfo);
+
+    void cleanVmLaunchInfo(String mepHostId, VirtualMachine vm, User user);
 
     void deleteInstantiateInfo(String vmId);
 
