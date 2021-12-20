@@ -64,7 +64,7 @@ public class EncryptedService {
             String sha256String = null;
             StringBuilder bf = new StringBuilder();
             while ((tempString = reader.readLine()) != null) {
-                tempString.trim();
+                tempString = tempString.trim();
                 if (tempString.startsWith("Source")) {
                     String tempPath = tempString.substring(8).trim();
                     String path = filePath + File.separator + tempPath;
