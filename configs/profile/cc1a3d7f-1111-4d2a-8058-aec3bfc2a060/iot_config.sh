@@ -5,7 +5,7 @@
 FLEDGE_HOST='http://0.0.0.0:32681'
 KUIPER_HOST='http://0.0.0.0:32686'
 MQTT_TDENG_ADAPTER_HOST='http://0.0.0.0:32687'
-MQTT_BROKER_HOST='mqtt-broker'
+MQTT_BROKER_HOST='mqtt'
 BROKER_PORT='1883'
 
 
@@ -37,7 +37,7 @@ curl -X POST -H "Content-Type: Application/json" -d '{"sql":"create stream event
 
 #### API to add rules with zmqi
 echo -e "\n********** Config Rule in Kuiper **************\n"
-curl -X POST -H "Content-Type: Application/json" -d '{"id": "rule2","sql": "SELECT asset, `timestamp`, round(readings->temp) AS temperature FROM events","actions": [{"mqtt": {"server": "tcp://mqtt-broker:1883","topic": "TDen/Round"}}]}' \
+curl -X POST -H "Content-Type: Application/json" -d '{"id": "rule2","sql": "SELECT asset, `timestamp`, round(readings->temp) AS temperature FROM events","actions": [{"mqtt": {"server": "tcp://mqtt:1883","topic": "TDen/Round"}}]}' \
         $KUIPER_HOST/rules
 
 
@@ -46,11 +46,11 @@ curl --location --request POST $MQTT_TDENG_ADAPTER_HOST/api/v1/resource \
 --header 'Content-Type: application/json' \
 --data-raw '{
     "brokerAddr": {
-        "host": "mqtt-broker",
+        "host": "mqtt",
         "port": 1883
     },
     "dbAddr": {
-        "host": "td-engine",
+        "host": "0.0.0.0",
         "port": 6030
     },
     "dbName": "iotdb",
