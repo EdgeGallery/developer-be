@@ -329,9 +329,11 @@ public class AppPackageServiceTest extends AbstractJUnit4SpringContextTests {
 
     @Test
     public void testDeletePackageRecordFail() throws IOException {
-        boolean ret = appPackageService.deletePackageRecord("appPackage");
-        Assert.assertEquals(true, ret);
-
+        try {
+            appPackageService.deletePackageRecord("appPackage");
+        } catch (DataBaseException e) {
+            Assert.assertEquals("app pkg record does not exist!", e.getMessage());
+        }
     }
 
     @Test

@@ -276,7 +276,7 @@ public class ContainerImageServiceImpl implements ContainerImageService {
             pageInfo = new PageInfo<>(containerImageMapper.getAllImageByOrdinaryAuth(containerImageReq));
         }
         LOGGER.info("Get all container image success.");
-        return new Page<ContainerImage>(pageInfo.getList(), containerImageReq.getLimit(), containerImageReq.getOffset(),
+        return new Page<>(pageInfo.getList(), containerImageReq.getLimit(), containerImageReq.getOffset(),
             pageInfo.getTotal());
     }
 

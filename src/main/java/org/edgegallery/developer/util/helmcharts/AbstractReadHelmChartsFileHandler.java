@@ -150,7 +150,7 @@ public abstract class AbstractReadHelmChartsFileHandler extends AbstractDefaultF
         while (matcher.find()) {
             String find = matcher.group(0);
             String key = matcher.group(1).trim();
-            Object value = valuesMap.getOrDefault(key, String.format("unknown(%s)", find).replaceAll(" ", "-"));
+            Object value = valuesMap.getOrDefault(key, String.format("unknown(%s)", find).replace(" ", "-"));
             result = StringUtils.replace(result, find, value + "");
         }
         return result;
@@ -171,7 +171,7 @@ public abstract class AbstractReadHelmChartsFileHandler extends AbstractDefaultF
         for (Map.Entry<String, Object> entry : valuesYamlMap.entrySet()) {
             Object val = entry.getValue();
             if (val instanceof ArrayList) {
-                List list = (ArrayList) val;
+                List<?> list = (ArrayList) val;
                 int i = 0;
                 for (Object subList : list) {
                     route.add(entry.getKey() + "[" + i + "]");
@@ -196,7 +196,7 @@ public abstract class AbstractReadHelmChartsFileHandler extends AbstractDefaultF
         if (obj instanceof String || obj instanceof Boolean || obj instanceof Number) {
             valuesResultMap.put(StringUtils.join(route, "."), obj);
         } else if (obj instanceof ArrayList) {
-            List list = (ArrayList) obj;
+            List<?> list = (ArrayList) obj;
             int i = 0;
             for (Object subList : list) {
                 String lastKey = route.get(route.size() - 1);

@@ -46,7 +46,7 @@ public abstract class AbstractDefaultFileHandler implements IContainerFileHandle
 
     EgChartsYaml getDefaultChart(String helmChartsName) {
         EgChartsYaml defaultCharts = EgChartsYaml.createDefaultCharts();
-        defaultCharts.setName(helmChartsName.replaceAll("_", "-") + "-" + RandomStringUtils.randomNumeric(8));
+        defaultCharts.setName(helmChartsName.replace("_", "-") + "-" + RandomStringUtils.randomNumeric(8));
         return defaultCharts;
     }
 }

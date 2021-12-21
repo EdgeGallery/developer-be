@@ -177,8 +177,8 @@ public class UploadFileServiceImpl implements UploadFileService {
             //delete db record
             int ret = uploadFileMapper.deleteFile(fileId);
             if (ret < 1) {
-                LOGGER.error("delete file failed!");
-                throw new DataBaseException("delete file failed!", ResponseConsts.RET_DELETE_DATA_FAIL);
+                LOGGER.error("delete upload file failed!");
+                throw new DataBaseException("delete uploadFile failed!", ResponseConsts.RET_DELETE_DATA_FAIL);
             }
         }
         LOGGER.warn("fileId is error!");
