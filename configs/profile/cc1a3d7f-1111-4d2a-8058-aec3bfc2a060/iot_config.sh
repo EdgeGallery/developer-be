@@ -1,10 +1,14 @@
+
 #!/bin/bash
 
-FLEDGE_HOST='http://0.0.0.0:8081'
-KUIPER_HOST='http://0.0.0.0:9081'
-MQTT_TDENG_ADAPTER_HOST='http://0.0.0.0:9085'
+
+FLEDGE_HOST='http://0.0.0.0:32681'
+KUIPER_HOST='http://0.0.0.0:32686'
+MQTT_TDENG_ADAPTER_HOST='http://0.0.0.0:32687'
 MQTT_BROKER_HOST='mqtt-broker'
 BROKER_PORT='1883'
+
+
 FLEDGE_SVC_URL="fledge/service"
 
 ### Install plugin mqtt-readngs

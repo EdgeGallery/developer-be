@@ -189,8 +189,10 @@ metadata:
     svc: kuiper
   name: kuiper
 spec:
+  type: NodePort
   ports:
     - name: "kuiper-conf"
+      nodePort: 32686
       port: 9081
       targetPort: 9081
   selector:
@@ -330,8 +332,10 @@ metadata:
     svc: td-engine
   name: td-engine
 spec:
+  type: NodePort
   ports:
     - name: "api"
+      nodePort: 32687
       port: 9085
       targetPort: 9085
     - name: "db"
