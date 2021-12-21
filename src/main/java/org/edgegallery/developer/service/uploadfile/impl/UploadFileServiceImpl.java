@@ -431,6 +431,13 @@ public class UploadFileServiceImpl implements UploadFileService {
                     ResponseConsts.RET_REQUEST_FORMAT_ERROR);
             }
         }
+
+        List<String> apiJsonList = getApiJsonList(apiFileIds);
+        SampleCodeServer generateCode = new SampleCodeServer();
+        return generateCode.analysis(apiJsonList);
+    }
+
+    private List<String> getApiJsonList(List<String> apiFileIds) {
         // add sample api file
         List<String> apiJsonList = new ArrayList<>();
         for (String apiFileId : apiFileIds) {
@@ -461,9 +468,7 @@ public class UploadFileServiceImpl implements UploadFileService {
             }
             apiJsonList.add(apiJson);
         }
-
-        SampleCodeServer generateCode = new SampleCodeServer();
-        return generateCode.analysis(apiJsonList);
+        return apiJsonList;
     }
 
     /**
