@@ -77,6 +77,8 @@ public class ProfileServiceImpl implements ProfileService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ProfileServiceImpl.class);
 
+    private static final String PROFILE_NOT_EXIST_MSG = "profile does not exist, profileId: ";
+
     private static final String PROFILE_FILE = "profile.yaml";
 
     private static final String FIELD_PROFILE = "profile";
@@ -151,8 +153,8 @@ public class ProfileServiceImpl implements ProfileService {
             LOGGER.info("create profile successfully.");
             return profileInfo;
         } catch (IOException e) {
-            LOGGER.error("file transfer failed. {}", e.getMessage());
-            throw new FileOperateException("file transfer failed.", ResponseConsts.RET_MERGE_FILE_FAIL);
+            LOGGER.error("create profile fail,file transfer failed. {}", e.getMessage());
+            throw new FileOperateException("file transfer failed!", ResponseConsts.RET_MERGE_FILE_FAIL);
         }
     }
 
@@ -163,7 +165,7 @@ public class ProfileServiceImpl implements ProfileService {
             checker.check(file);
 
             ProfileInfo profileInfo = profileMapper.getProfileById(profileId);
-            checkParamNull(profileInfo, "profile does not exist, profileId: ".concat(profileId));
+            checkParamNull(profileInfo, PROFILE_NOT_EXIST_MSG.concat(profileId));
 
             String baseFilePath = BASE_PAHT.concat(profileId);
             FileUtils.deleteQuietly(new File(BASE_PAHT + profileInfo.getFilePath()));
@@ -185,7 +187,7 @@ public class ProfileServiceImpl implements ProfileService {
             LOGGER.info("update profile successfully.");
             return profileInfo;
         } catch (IOException e) {
-            LOGGER.error("file transfer failed. {}", e.getMessage());
+            LOGGER.error("update profile fail,file transfer failed. {}", e.getMessage());
             throw new FileOperateException("file transfer failed.", ResponseConsts.RET_MERGE_FILE_FAIL);
         }
     }
@@ -195,13 +197,13 @@ public class ProfileServiceImpl implements ProfileService {
         PageHelper.offsetPage(offset, limit);
         PageInfo<ProfileInfo> pageInfo = new PageInfo<>(profileMapper.getAllProfiles(name));
         LOGGER.info("get all profiles successfully.");
-        return new Page<ProfileInfo>(pageInfo.getList(), limit, offset, pageInfo.getTotal());
+        return new Page<>(pageInfo.getList(), limit, offset, pageInfo.getTotal());
     }
 
     @Override
     public ProfileInfo getProfileById(String profileId) {
         ProfileInfo profileInfo = profileMapper.getProfileById(profileId);
-        checkParamNull(profileInfo, "profile does not exist, profileId: ".concat(profileId));
+        checkParamNull(profileInfo, PROFILE_NOT_EXIST_MSG.concat(profileId));
         LOGGER.info("get profile by id successfully.");
         return profileInfo;
     }
@@ -224,7 +226,7 @@ public class ProfileServiceImpl implements ProfileService {
     @Override
     public ResponseEntity<byte[]> downloadFileById(String profileId, String type, String name) {
         ProfileInfo profileInfo = profileMapper.getProfileById(profileId);
-        checkParamNull(profileInfo, "profile does not exist, profileId: ".concat(profileId));
+        checkParamNull(profileInfo, PROFILE_NOT_EXIST_MSG.concat(profileId));
         checkFileTypeAndName(type, name, profileInfo);
         type = StringUtils.isEmpty(type) ? Consts.PROFILE_FILE_TYPE_PROFILE : type;
         String filePath = getFilePath(profileInfo, type, name);
@@ -244,7 +246,7 @@ public class ProfileServiceImpl implements ProfileService {
     @Override
     public Application createAppByProfileId(String profileId, MultipartFile iconFile) {
         ProfileInfo profileInfo = profileMapper.getProfileById(profileId);
-        checkParamNull(profileInfo, "profile does not exist, profileId: ".concat(profileId));
+        checkParamNull(profileInfo, PROFILE_NOT_EXIST_MSG.concat(profileId));
         new IconChecker().check(iconFile);
         Application application = new Application();
         try {

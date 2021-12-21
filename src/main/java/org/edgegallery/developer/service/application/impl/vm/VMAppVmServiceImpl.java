@@ -139,7 +139,11 @@ public class VMAppVmServiceImpl implements VMAppVmService {
         }
         String mepHostId = applicationService.getApplication(applicationId).getMepHostId();
         vmAppOperationService.cleanVmLaunchInfo(mepHostId, vm, user);
-        vmMapper.deleteVM(vmId);
+        int res = vmMapper.deleteVM(vmId);
+        if (res <= 0) {
+            LOGGER.error("delete vm in db error.");
+            throw new DataBaseException("delete vm in db error.", ResponseConsts.RET_DELETE_DATA_FAIL);
+        }
         return true;
     }
 
@@ -153,7 +157,7 @@ public class VMAppVmServiceImpl implements VMAppVmService {
         return true;
     }
 
-    public int createVmPort(String vmId, VMPort port) {
+    private int createVmPort(String vmId, VMPort port) {
         port.setId(UUID.randomUUID().toString());
         int res = vmMapper.createVMPort(vmId, port);
         if (res < 1) {

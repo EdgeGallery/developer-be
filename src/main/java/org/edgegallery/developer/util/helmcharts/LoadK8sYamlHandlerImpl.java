@@ -31,6 +31,8 @@ public class LoadK8sYamlHandlerImpl extends AbstractContainerFileHandler {
     private static final String MEP_TEMPLATES_PATH = System.getProperty("user.dir")
         + "/configs/chart_template/templates/eg_template";
 
+    private static final String TEMPLATES_DIR_NAME = "templates";
+
     @Override
     public void load(String... filePaths) throws IOException {
         if (filePaths.length < 1) {
@@ -53,7 +55,7 @@ public class LoadK8sYamlHandlerImpl extends AbstractContainerFileHandler {
         genDefaultChartYaml(helmChartsName);
 
         try {
-            Files.createDirectory(Paths.get(helmChartsDir, "templates"));
+            Files.createDirectory(Paths.get(helmChartsDir, TEMPLATES_DIR_NAME));
             EgValuesYaml defaultValues = this.getDefaultValues();
             if (defaultValues.isHasMep()) {
                 createMepTemplates();
@@ -100,7 +102,7 @@ public class LoadK8sYamlHandlerImpl extends AbstractContainerFileHandler {
     private void createMepTemplates() throws IOException {
         File egMepTemplatePath = new File(MEP_TEMPLATES_PATH);
         if (egMepTemplatePath.exists() && egMepTemplatePath.isDirectory()) {
-            Path k8sYaml = Files.createDirectory(Paths.get(helmChartsDir, "templates", egMepTemplatePath.getName()));
+            Path k8sYaml = Files.createDirectory(Paths.get(helmChartsDir, TEMPLATES_DIR_NAME, egMepTemplatePath.getName()));
             FileUtils.copyDirectory(egMepTemplatePath, k8sYaml.toFile());
         }
     }
@@ -108,7 +110,7 @@ public class LoadK8sYamlHandlerImpl extends AbstractContainerFileHandler {
     private void addTemplate(String filePath) throws IOException {
         File orgFile = new File(filePath);
         // create template dir and copy k8s yaml to template
-        Path k8sYaml = Files.createFile(Paths.get(helmChartsDir, "templates", orgFile.getName()));
+        Path k8sYaml = Files.createFile(Paths.get(helmChartsDir, TEMPLATES_DIR_NAME, orgFile.getName()));
         FileUtils.copyFile(orgFile, k8sYaml.toFile());
     }
 

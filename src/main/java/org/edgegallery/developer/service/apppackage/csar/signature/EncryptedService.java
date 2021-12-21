@@ -53,7 +53,7 @@ public class EncryptedService {
         BufferedReader reader = null;
         try {
             if (filePath == null) {
-                LOGGER.error("Failed to encrypted code.");
+                LOGGER.error("encrypted file Failed to encrypted code.");
                 return false;
             }
             File mfFile = getMfFile(filePath);
@@ -99,7 +99,7 @@ public class EncryptedService {
                 try {
                     reader.close();
                 } catch (IOException e) {
-                    LOGGER.error("close stream failed.");
+                    LOGGER.error("close stream(encrypted file) failed.");
                 }
             }
         }
@@ -116,7 +116,7 @@ public class EncryptedService {
         BufferedWriter out = null;
         try {
             if (filePath == null) {
-                throw new IOException("Failed to encrypted code.");
+                throw new IOException("encrypted CMS Failed to encrypted code.");
             }
             File mfFile = getMfFile(filePath);
             BufferedReader br = new BufferedReader(
@@ -140,7 +140,7 @@ public class EncryptedService {
             out.flush();
             out.close();
             if (StringUtils.isEmpty(encrypted)) {
-                LOGGER.error("sign package failed");
+                LOGGER.error("sign package failed!(encryptedCMS)");
                 return false;
             }
 
@@ -152,14 +152,14 @@ public class EncryptedService {
                 try {
                     reader.close();
                 } catch (IOException e) {
-                    LOGGER.error("close stream failed.");
+                    LOGGER.error("close stream(encrypted CMS reader) failed.");
                 }
             }
             if (out != null) {
                 try {
                     out.close();
                 } catch (IOException e) {
-                    LOGGER.error("close stream failed.");
+                    LOGGER.error("close stream(encrypted CMS outputStream) failed.");
                 }
             }
         }
@@ -208,11 +208,11 @@ public class EncryptedService {
                 if (signBytes.isPresent()) {
                     return new String(signBytes.get(), StandardCharsets.UTF_8);
                 } else {
-                    LOGGER.error("sign package failed");
+                    LOGGER.error("sign package failed!(signPackage)");
                     return "";
                 }
             } else {
-                LOGGER.error("sign package failed");
+                LOGGER.error("keyPath is empty!");
                 return "";
             }
         } else {
@@ -249,7 +249,7 @@ public class EncryptedService {
                 }
             }
         } catch (IOException e) {
-            LOGGER.error("sign package failed");
+            LOGGER.error("sign package failed!");
             return null;
         }
         return result.toString().trim();

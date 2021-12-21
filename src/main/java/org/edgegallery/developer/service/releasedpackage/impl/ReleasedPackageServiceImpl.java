@@ -237,7 +237,7 @@ public class ReleasedPackageServiceImpl implements ReleasedPackageService {
     public boolean deleteAppPkg(String packageId) {
         // check packageId
         if (StringUtils.isEmpty(packageId)) {
-            LOGGER.error("packageId is null");
+            LOGGER.error("delete pkg failed,packageId is null");
             throw new IllegalRequestException("packageId is null", ResponseConsts.RET_REQUEST_PARAM_EMPTY);
         }
 
@@ -260,7 +260,7 @@ public class ReleasedPackageServiceImpl implements ReleasedPackageService {
     public boolean releaseAppPkg(User user, PublishAppReqDto publishAppReqDto, String packageId) {
         // check packageId
         if (StringUtils.isEmpty(packageId)) {
-            LOGGER.error("packageId is null");
+            LOGGER.error("release pkg failed,packageId is null");
             throw new IllegalRequestException("packageId is null", ResponseConsts.RET_REQUEST_PARAM_EMPTY);
         }
 

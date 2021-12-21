@@ -185,8 +185,8 @@ public class ApplicationServiceImpl implements ApplicationService {
     public Boolean deleteApplication(String applicationId, User user) {
         Application application = applicationMapper.getApplicationById(applicationId);
         if (application == null) {
-            LOGGER.error("Can not find application by applicationId:{}.", applicationId);
-            throw new EntityNotFoundException("Application does not exist.", ResponseConsts.RET_QUERY_DATA_EMPTY);
+            LOGGER.error("delete application failed! can not find application {}.", applicationId);
+            throw new EntityNotFoundException("application does not exist!", ResponseConsts.RET_QUERY_DATA_EMPTY);
         }
         // clean env
         appServiceFactory.getAppOperationService(applicationId).cleanEnv(applicationId, user);
@@ -222,7 +222,7 @@ public class ApplicationServiceImpl implements ApplicationService {
         ApplicationDetail applicationDetail = new ApplicationDetail();
         Application application = applicationMapper.getApplicationById(applicationId);
         if (application == null) {
-            LOGGER.error("Can not find application by applicationId:{}.", applicationId);
+            LOGGER.error("get application detail failed! can not find application {}.", applicationId);
             throw new EntityNotFoundException("Application does not exist.", ResponseConsts.RET_QUERY_DATA_EMPTY);
         }
         application.setScriptList(appScriptService.getScriptsByAppId(applicationId));
@@ -252,8 +252,8 @@ public class ApplicationServiceImpl implements ApplicationService {
     public Boolean modifyApplicationDetail(String applicationId, ApplicationDetail applicationDetail) {
         Application application = applicationMapper.getApplicationById(applicationId);
         if (application == null) {
-            LOGGER.error("Can not find application by applicationId:{}.", applicationId);
-            throw new EntityNotFoundException("Application does not exist.", ResponseConsts.RET_QUERY_DATA_EMPTY);
+            LOGGER.error("modify application detail failed! can not find application {}.", applicationId);
+            throw new EntityNotFoundException("Application does not exist!", ResponseConsts.RET_QUERY_DATA_EMPTY);
         }
         if (application.getAppClass() == EnumAppClass.VM) {
             applicationMapper.modifyApplication(applicationDetail.getVmApp());

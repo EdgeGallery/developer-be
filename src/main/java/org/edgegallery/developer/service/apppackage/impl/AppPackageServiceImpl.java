@@ -130,7 +130,7 @@ public class AppPackageServiceImpl implements AppPackageService {
         String packageId) {
         // check packageId
         if (org.springframework.util.StringUtils.isEmpty(packageId)) {
-            LOGGER.error("packageId is null");
+            LOGGER.error("get app pkg file content,packageId is null");
             throw new IllegalRequestException("packageId is null", ResponseConsts.RET_REQUEST_PARAM_EMPTY);
         }
 
@@ -143,7 +143,7 @@ public class AppPackageServiceImpl implements AppPackageService {
         //query appPackage
         AppPackage appPackage = appPackageMapper.getAppPackage(packageId);
         if (appPackage == null) {
-            LOGGER.error("packageId is error");
+            LOGGER.error("get app pkg file content,packageId is error");
             throw new DataBaseException("packageId is error", ResponseConsts.RET_QUERY_DATA_EMPTY);
         }
 
@@ -174,13 +174,13 @@ public class AppPackageServiceImpl implements AppPackageService {
         String packageId) {
         // check packageId
         if (org.springframework.util.StringUtils.isEmpty(packageId)) {
-            LOGGER.error("packageId is null");
+            LOGGER.error("update app pkg file content,packageId is null");
             throw new IllegalRequestException("packageId is null", ResponseConsts.RET_REQUEST_PARAM_EMPTY);
         }
 
         AppPackage appPackage = appPackageMapper.getAppPackage(packageId);
         if (appPackage == null) {
-            LOGGER.error("packageId is error");
+            LOGGER.error("update app pkg file content,packageId is error");
             throw new DataBaseException("packageId is error", ResponseConsts.RET_QUERY_DATA_EMPTY);
         }
 
@@ -322,7 +322,8 @@ public class AppPackageServiceImpl implements AppPackageService {
         if (StringUtils.isEmpty(fileName)) {
             LOGGER.error("Generation container app package error.");
             deletePackage(appPackage);
-            throw new FileOperateException("Generation container app package error.", ResponseConsts.RET_CREATE_FILE_FAIL);
+            throw new FileOperateException("Generation container app package error.",
+                ResponseConsts.RET_CREATE_FILE_FAIL);
         }
         appPackage.setPackageFileName(fileName);
         appPackage.setPackageFilePath(
@@ -352,8 +353,8 @@ public class AppPackageServiceImpl implements AppPackageService {
         }
         if (applicationDetail.getContainerApp() != null && applicationDetail.getContainerApp().getAppClass()
             .equals(EnumAppClass.CONTAINER)) {
-            ContainerPackageFileCreator packageFileCreator = new ContainerPackageFileCreator(applicationDetail.getContainerApp(),
-                appPackage.getId());
+            ContainerPackageFileCreator packageFileCreator = new ContainerPackageFileCreator(
+                applicationDetail.getContainerApp(), appPackage.getId());
             String fileName = packageFileCreator.packageFileCompress();
             if (StringUtils.isEmpty(fileName)) {
                 LOGGER.error("container zip package error.");
@@ -378,9 +379,13 @@ public class AppPackageServiceImpl implements AppPackageService {
         AppPackage appPackage = appPackageMapper.getAppPackage(packageId);
         if (appPackage == null) {
             LOGGER.error("package does not exist");
-            return true;
+            throw new DataBaseException("app pkg record does not exist!", ResponseConsts.RET_QUERY_DATA_EMPTY);
         }
-        appPackageMapper.deleteAppPackage(appPackage.getId());
+        int res = appPackageMapper.deleteAppPackage(appPackage.getId());
+        if (res <= 0) {
+            LOGGER.error("delete pkg db data fail!");
+            throw new DataBaseException("delete pkg data failed!", ResponseConsts.RET_DELETE_DATA_FAIL);
+        }
         return true;
     }
 
@@ -406,7 +411,11 @@ public class AppPackageServiceImpl implements AppPackageService {
                 DeveloperFileUtils.deleteDir(pkgFile.getParent());
             }
         }
-        appPackageMapper.deleteAppPackage(appPackage.getId());
+        int res = appPackageMapper.deleteAppPackage(appPackage.getId());
+        if (res <= 0) {
+            LOGGER.error("delete pkg in db fail!");
+            throw new DataBaseException("delete pkg failed!", ResponseConsts.RET_DELETE_DATA_FAIL);
+        }
         return true;
     }
 }

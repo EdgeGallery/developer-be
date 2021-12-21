@@ -123,7 +123,7 @@ public class AppConfigurationServiceTest {
         try {
             configurationService.createTrafficRules("test-id", null);
         } catch (EntityNotFoundException e) {
-            Assert.assertEquals("application is not exit, create failed", e.getMessage());
+            Assert.assertEquals("application does not exist, create traffic rule failed!", e.getMessage());
         }
     }
 
@@ -165,7 +165,7 @@ public class AppConfigurationServiceTest {
         try {
             configurationService.createDnsRule("test-id", null);
         } catch (EntityNotFoundException e) {
-            Assert.assertEquals("application is not exit, create failed", e.getMessage());
+            Assert.assertEquals("application does not exist, create dns rule failed!", e.getMessage());
         }
     }
 
@@ -218,7 +218,7 @@ public class AppConfigurationServiceTest {
         try {
             configurationService.createServiceProduced("test-id", null);
         } catch (EntityNotFoundException e) {
-            Assert.assertEquals("application is not exit, create failed", e.getMessage());
+            Assert.assertEquals("application does not exist!", e.getMessage());
         }
     }
 
@@ -288,7 +288,7 @@ public class AppConfigurationServiceTest {
         try {
             configurationService.createServiceRequired("test-id", null);
         } catch (EntityNotFoundException e) {
-            Assert.assertEquals("application is not exit, create failed", e.getMessage());
+            Assert.assertEquals("application does not exist!", e.getMessage());
         }
     }
 
@@ -336,7 +336,7 @@ public class AppConfigurationServiceTest {
         try {
             configurationService.createAppCertificate("test-id", null);
         } catch (EntityNotFoundException e) {
-            Assert.assertEquals("application is not exit, create failed", e.getMessage());
+            Assert.assertEquals("application does not exist!", e.getMessage());
         }
     }
 

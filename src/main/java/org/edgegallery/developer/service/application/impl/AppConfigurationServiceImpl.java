@@ -124,8 +124,8 @@ public class AppConfigurationServiceImpl implements AppConfigurationService {
     public TrafficRule createTrafficRules(String applicationId, TrafficRule trafficRule) {
         Application application = applicationMapper.getApplicationById(applicationId);
         if (application == null) {
-            LOGGER.error("get application fail by applicationId:{}", applicationId);
-            throw new EntityNotFoundException("application is not exit, create failed",
+            LOGGER.error("createTrafficRule:get application fail by applicationId:{}", applicationId);
+            throw new EntityNotFoundException("application does not exist, create traffic rule failed!",
                 ResponseConsts.RET_CERATE_DATA_FAIL);
         }
         TrafficRule result = appConfigurationMapper.getTrafficRule(applicationId, trafficRule.getTrafficRuleId());
@@ -162,8 +162,8 @@ public class AppConfigurationServiceImpl implements AppConfigurationService {
     public DnsRule createDnsRule(String applicationId, DnsRule dnsRule) {
         Application application = applicationMapper.getApplicationById(applicationId);
         if (application == null) {
-            LOGGER.error("get application fail by applicationId:{}", applicationId);
-            throw new EntityNotFoundException("application is not exit, create failed",
+            LOGGER.error("createDnsRule:get application fail by applicationId:{}", applicationId);
+            throw new EntityNotFoundException("application does not exist, create dns rule failed!",
                 ResponseConsts.RET_CERATE_DATA_FAIL);
         }
         DnsRule result = appConfigurationMapper.getDnsRule(applicationId, dnsRule.getDnsRuleId());
@@ -347,7 +347,7 @@ public class AppConfigurationServiceImpl implements AppConfigurationService {
         Application application = applicationMapper.getApplicationById(applicationId);
         if (application == null) {
             LOGGER.error("get application fail by applicationId:{}", applicationId);
-            throw new EntityNotFoundException("application is not exit, create failed",
+            throw new EntityNotFoundException("application does not exist!",
                 ResponseConsts.RET_CERATE_DATA_FAIL);
         }
     }

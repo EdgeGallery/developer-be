@@ -225,7 +225,7 @@ public class ApplicationServiceTest {
             AccessUserUtil.setUser("b27d72b5-93a6-4db4-8268-7ec502331ade", "admin");
             applicationService.deleteApplication("appId", AccessUserUtil.getUser());
         } catch (EntityNotFoundException e) {
-            Assert.assertEquals("Application does not exist.", e.getMessage());
+            Assert.assertEquals("application does not exist!", e.getMessage());
         }
     }
 
@@ -266,7 +266,7 @@ public class ApplicationServiceTest {
         try {
             applicationService.modifyApplicationDetail("appId", null);
         } catch (EntityNotFoundException e) {
-            Assert.assertEquals("Application does not exist.", e.getMessage());
+            Assert.assertEquals("Application does not exist!", e.getMessage());
         }
     }
 
