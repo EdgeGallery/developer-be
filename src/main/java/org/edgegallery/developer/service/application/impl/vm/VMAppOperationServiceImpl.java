@@ -474,7 +474,7 @@ public class VMAppOperationServiceImpl extends AppOperationServiceImpl implement
         VMInstantiateInfo vmInstantiateInfo = vm.getVmInstantiateInfo();
         ImageExportInfo imageExportInfo = vm.getImageExportInfo();
         if (imageExportInfo != null && StringUtils.isNotEmpty(imageExportInfo.getImageInstanceId())) {
-            HttpClientUtil.deleteVmImage(basePath, user.getUserId(), vmInstantiateInfo.getAppInstanceId(),
+            HttpClientUtil.deleteVmImage(basePath, user.getUserId(), mepHost.getMecHostIp(),
                 imageExportInfo.getImageInstanceId(), user.getToken());
         }
         if (vmInstantiateInfo == null) {
