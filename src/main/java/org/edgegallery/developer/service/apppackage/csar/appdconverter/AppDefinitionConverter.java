@@ -137,7 +137,11 @@ public class AppDefinitionConverter {
     private Map<Integer, VMImage> queryImages(VMApplication application) {
         Set<Integer> imageIds = new HashSet<>();
         for (VirtualMachine vm : application.getVmList()) {
-            imageIds.add(vm.getImageId());
+            if (vm.getTargetImageId()!=null) {
+                imageIds.add(vm.getTargetImageId());
+            }else {
+                imageIds.add(vm.getImageId());
+            }
         }
         Map<Integer, VMImage> imageMap = new HashMap<>();
         for (Integer imageId : imageIds) {

@@ -19,8 +19,8 @@ import java.util.ArrayList;
 import java.util.List;
 import org.edgegallery.developer.model.application.vm.VMApplication;
 import org.edgegallery.developer.model.application.vm.VirtualMachine;
-import org.edgegallery.developer.model.apppackage.appd.AppDefinition;
 import org.edgegallery.developer.model.apppackage.ImageDesc;
+import org.edgegallery.developer.model.apppackage.appd.AppDefinition;
 import org.edgegallery.developer.model.resource.vm.VMImage;
 import org.edgegallery.developer.service.apppackage.csar.appdconverter.AppDefinitionConverter;
 import org.edgegallery.developer.service.recource.vm.VMImageService;
@@ -75,6 +75,9 @@ public class VMPackageFileCreator extends PackageFileCreator {
         List<ImageDesc> imageDescs = new ArrayList<>();
         for (VirtualMachine vm : application.getVmList()) {
             int imageId = vm.getImageId();
+            if (vm.getTargetImageId() != null) {
+                imageId = vm.getTargetImageId();
+            }
             boolean res = findImageDesByImageId(imageDescs, String.valueOf(imageId));
             if (!res) {
                 continue;
@@ -97,10 +100,10 @@ public class VMPackageFileCreator extends PackageFileCreator {
     }
 
     private boolean findImageDesByImageId(List<ImageDesc> imageDescs, String imageId) {
-        if(CollectionUtils.isEmpty(imageDescs)) {
+        if (CollectionUtils.isEmpty(imageDescs)) {
             return true;
         }
-        for(ImageDesc imageDesc:imageDescs) {
+        for (ImageDesc imageDesc : imageDescs) {
             if (imageDesc.getId().equals(imageId)) {
                 return false;
             }
