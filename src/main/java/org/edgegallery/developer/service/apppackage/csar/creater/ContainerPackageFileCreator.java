@@ -15,6 +15,9 @@
 package org.edgegallery.developer.service.apppackage.csar.creater;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
 import io.kubernetes.client.openapi.models.V1Deployment;
 import io.kubernetes.client.openapi.models.V1Pod;
 import java.io.File;
@@ -189,9 +192,11 @@ public class ContainerPackageFileCreator extends PackageFileCreator {
             imageDesc.setSwImage(imageInfo);
             imageDescList.add(imageDesc);
         }
-        Gson gson = new Gson();
         File imageJson = new File(getPackagePath() + APPD_IMAGE_DES_PATH);
-        writeFile(imageJson, gson.toJson(imageDescList));
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        JsonParser jsonParser = new JsonParser();
+        JsonElement jsonElement = jsonParser.parse(gson.toJson(imageDescList));
+        writeFile(imageJson, gson.toJson(jsonElement));
     }
 
     private boolean generateScript() {
