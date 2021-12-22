@@ -23,7 +23,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class ImageInfo {
 
     @JsonProperty("image-end-offset")
-    private String imageSize;
+    private String imageEndOffset;
 
     @JsonProperty("check-errors")
     private String checkErrors;
@@ -32,5 +32,12 @@ public class ImageInfo {
 
     @JsonProperty("filename")
     private String fileName;
+
+    @JsonProperty("virtual_size")
+    private String virtualSize;
+
+    @JsonProperty("disk_size")
+    private String imageSize;
+
 
 }

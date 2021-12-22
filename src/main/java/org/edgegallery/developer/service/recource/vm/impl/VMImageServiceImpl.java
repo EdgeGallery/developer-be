@@ -78,7 +78,9 @@ public class VMImageServiceImpl implements VMImageService {
 
     private static final String FILE_FORMAT_QCOW2 = "qcow2";
 
-    private static final int CHECK_STATUS_SUCCESS = 0;
+    private static final String FILE_FORMAT_ISO = "iso";
+
+    private static final int[] CHECK_STATUS_SUCCESS = new int[]{0, 1, 2};
 
     private static final int CHECK_STATUS_PROGRESS = 4;
 
@@ -290,6 +292,14 @@ public class VMImageServiceImpl implements VMImageService {
         LOGGER.info("upload vm image file, fileName = {}, identifier = {}, chunkNum = {}", chunk.getFilename(),
             chunk.getIdentifier(), chunk.getChunkNumber());
 
+        String fileName = chunk.getFilename();
+
+        String fileFormat = fileName.substring(fileName.lastIndexOf(".") + 1);
+        if (!fileFormat.equals(FILE_FORMAT_QCOW2) && !fileFormat.equals(FILE_FORMAT_ISO)) {
+            LOGGER.error("upload fileFormat is error.");
+            return ResponseEntity.badRequest().build();
+        }
+
         boolean isMultipart = ServletFileUpload.isMultipartContent(request);
         if (!isMultipart) {
             LOGGER.error("upload request is invalid.");
@@ -414,27 +424,37 @@ public class VMImageServiceImpl implements VMImageService {
             return ResponseEntity.status(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode()).build();
         }
 
-        String uploadedSystemPath = fileServerAddress + String
-            .format(Consts.SYSTEM_IMAGE_DOWNLOAD_URL, filesystemImageId);
+        String fileFormat = fileName.substring(fileName.lastIndexOf(".") + 1);
+        boolean result;
+        if (fileFormat.equals(FILE_FORMAT_ISO)) {
+            UploadFileInfo uploadFileInfo = queryIsoImageCheckFromFileSystem(filesystemImageId, fileFormat);
+            result = updateUploadFileToVmImage(uploadFileInfo, filesystemImageId, imageId);
 
-        UploadFileInfo uploadFileInfo = queryImageCheckFromFileSystem(filesystemImageId);
+        } else {
+            UploadFileInfo uploadFileInfo = queryImageCheckFromFileSystem(filesystemImageId);
+            result = updateUploadFileToVmImage(uploadFileInfo, filesystemImageId, imageId);
+        }
+        if (!result) {
+            return ResponseEntity.status(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode()).build();
+        }
+        return ResponseEntity.ok().build();
+    }
 
+    private Boolean updateUploadFileToVmImage(UploadFileInfo uploadFileInfo, String filesystemImageId, int imageId) {
+        String uploadedSystemPath = fileServerAddress + String.format(Consts.SYSTEM_IMAGE_DOWNLOAD_URL, filesystemImageId);
         if (StringUtils.isNotEmpty(uploadFileInfo.getErrorType())) {
             // delete file system image
             LOGGER.error("query image info failed on file server!");
-            HttpClientUtil.deleteSystemImage(uploadedSystemPath);
+            HttpClientUtil.deleteSystemImage(fileServerAddress + String.format(Consts.SYSTEM_IMAGE_GET_URL, filesystemImageId));
             vmImageMapper.updateVmImageStatus(imageId, EnumVmImageStatus.UPLOAD_FAILED.toString());
             vmImageMapper.updateVmImageErrorType(imageId, uploadFileInfo.getErrorType());
-            return ResponseEntity.status(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode()).build();
+            return false;
         }
-
         LOGGER.info("vm image file upload succeed.");
-        uploadFileInfo.assign(imageId, FILE_FORMAT_QCOW2.equalsIgnoreCase(uploadFileInfo.getFileFormat())
-            ? EnumVmImageStatus.PUBLISHED
-            : EnumVmImageStatus.UPLOAD_SUCCEED, uploadedSystemPath);
+        uploadFileInfo.assign(imageId, EnumVmImageStatus.PUBLISHED, uploadedSystemPath);
         vmImageMapper.updateVmImageUploadInfo(uploadFileInfo);
         vmImageMapper.updateVmImageSlimStatus(imageId, EnumVmImageSlimStatus.SLIM_WAIT.toString());
-        return ResponseEntity.ok().build();
+        return true;
     }
 
     private UploadFileInfo queryImageCheckFromFileSystem(String filesystemImageId) {
@@ -454,13 +474,61 @@ public class VMImageServiceImpl implements VMImageService {
                 return new UploadFileInfo(3, EnumProcessErrorType.FILESYSTEM_CHECK_FAILED.getErrorType());
             }
             int status = imageCheckResult.getCheckStatusResponse().getStatus();
-            if (status == CHECK_STATUS_SUCCESS) {
+            if (imageStatusBySuccess(status)) {
                 String checkSum = imageCheckResult.getCheckStatusResponse().getCheckInfo().getChecksum();
                 String imageName = imageCheckResult.getFileName();
-                String imageFormat = imageCheckResult.getCheckStatusResponse().getCheckInfo().getImageInfo()
-                    .getFormat();
+                String imageFormat = imageCheckResult.getCheckStatusResponse().getCheckInfo().getImageInfo().getFormat();
                 String imageSize = imageCheckResult.getCheckStatusResponse().getCheckInfo().getImageInfo()
                     .getImageSize();
+                return new UploadFileInfo(imageName, checkSum, imageFormat, Long.parseLong(imageSize));
+            } else if (status == CHECK_STATUS_PROGRESS) {
+                try {
+                    Thread.sleep(INTERVAL);
+                    waitingTime += INTERVAL;
+                } catch (Exception e) {
+                    Thread.currentThread().interrupt();
+                }
+            } else {
+                String msg = imageCheckResult.getCheckStatusResponse().getMsg();
+                return new UploadFileInfo(status, msg);
+            }
+
+        }
+        return new UploadFileInfo(3, EnumProcessErrorType.FILESYSTEM_CHECK_FAILED.getErrorType());
+
+    }
+
+    private Boolean imageStatusBySuccess(int resultStatus) {
+        for (int status:CHECK_STATUS_SUCCESS) {
+            if (status==resultStatus) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private UploadFileInfo queryIsoImageCheckFromFileSystem(String filesystemImageId, String imageFormat) {
+
+        String filesystemUrl = fileServerAddress + String.format(Consts.SYSTEM_IMAGE_GET_URL, filesystemImageId);
+        int waitingTime = 0;
+        try {
+            Thread.sleep(INTERVAL);
+            waitingTime += INTERVAL;
+        } catch (Exception e) {
+            Thread.currentThread().interrupt();
+        }
+        while (waitingTime < TIMEOUT) {
+
+            FileSystemResponse imageCheckResult = HttpClientUtil.queryImageCheck(filesystemUrl);
+            if (imageCheckResult == null) {
+                return new UploadFileInfo(3, EnumProcessErrorType.FILESYSTEM_CHECK_FAILED.getErrorType());
+            }
+            String imageSize = imageCheckResult.getCheckStatusResponse().getCheckInfo().getImageInfo()
+                .getImageSize();
+            String checkSum = imageCheckResult.getCheckStatusResponse().getCheckInfo().getChecksum();
+            int status = imageCheckResult.getCheckStatusResponse().getStatus();
+            if (status != CHECK_STATUS_PROGRESS && !StringUtils.isEmpty(imageSize) && !StringUtils.isEmpty(checkSum)) {
+                String imageName = imageCheckResult.getFileName();
                 return new UploadFileInfo(imageName, checkSum, imageFormat, Long.parseLong(imageSize));
             } else if (status == CHECK_STATUS_PROGRESS) {
                 try {
@@ -732,4 +800,5 @@ public class VMImageServiceImpl implements VMImageService {
         }
 
     }
+
 }
