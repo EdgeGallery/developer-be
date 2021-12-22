@@ -14,6 +14,9 @@
 
 package org.edgegallery.developer.service.apppackage.csar.creater;
 
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -94,9 +97,11 @@ public class VMPackageFileCreator extends PackageFileCreator {
             imageDescs.add(imageDesc);
         }
         // write data into imageJson file
-        Gson gson = new Gson();
         File imageJson = new File(getPackagePath() + APPD_IMAGE_DES_PATH);
-        writeFile(imageJson, gson.toJson(imageDescs));
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        JsonParser jsonParser = new JsonParser();
+        JsonElement jsonElement = jsonParser.parse(gson.toJson(imageDescs));
+        writeFile(imageJson, gson.toJson(jsonElement));
     }
 
     private boolean findImageDesByImageId(List<ImageDesc> imageDescs, String imageId) {

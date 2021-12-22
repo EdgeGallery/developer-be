@@ -165,13 +165,6 @@ public class AppPackageServiceImpl implements AppPackageService {
             throw new FileFoundFailException("app pkg not decompress", ResponseConsts.RET_FILE_NOT_FOUND);
         }
         String content = ReleasedPackageUtil.getContentByInnerPath(structureReqDto.getFilePath(), zipDecompressDir);
-        if (structureReqDto.getFilePath().endsWith("json") && StringUtils.isNotEmpty(content)) {
-            Gson gson = new GsonBuilder().setPrettyPrinting().create();
-            JsonParser jsonParser = new JsonParser();
-            JsonElement jsonElement = jsonParser.parse(content);
-            content = gson.toJson(jsonElement);
-        }
-
         ReleasedPkgFileContent pkgFileContent = new ReleasedPkgFileContent();
         pkgFileContent.setFilePath(structureReqDto.getFilePath());
         pkgFileContent.setContent(content);
