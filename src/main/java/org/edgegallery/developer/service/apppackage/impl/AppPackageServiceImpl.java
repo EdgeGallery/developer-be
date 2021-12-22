@@ -16,6 +16,10 @@
 
 package org.edgegallery.developer.service.apppackage.impl;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
@@ -160,8 +164,14 @@ public class AppPackageServiceImpl implements AppPackageService {
             LOGGER.error("app pkg {} not decompress!", zipDecompressDir);
             throw new FileFoundFailException("app pkg not decompress", ResponseConsts.RET_FILE_NOT_FOUND);
         }
-
         String content = ReleasedPackageUtil.getContentByInnerPath(structureReqDto.getFilePath(), zipDecompressDir);
+        if (structureReqDto.getFilePath().endsWith("json") && StringUtils.isNotEmpty(content)) {
+            Gson gson = new GsonBuilder().setPrettyPrinting().create();
+            JsonParser jsonParser = new JsonParser();
+            JsonElement jsonElement = jsonParser.parse(content);
+            content = gson.toJson(jsonElement);
+        }
+
         ReleasedPkgFileContent pkgFileContent = new ReleasedPkgFileContent();
         pkgFileContent.setFilePath(structureReqDto.getFilePath());
         pkgFileContent.setContent(content);
