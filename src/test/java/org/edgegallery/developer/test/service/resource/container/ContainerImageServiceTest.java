@@ -18,7 +18,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 import mockit.Mock;
 import mockit.MockUp;
@@ -38,6 +41,7 @@ import org.edgegallery.developer.model.resource.container.ContainerImageReq;
 import org.edgegallery.developer.model.resource.container.EnumContainerImageStatus;
 import org.edgegallery.developer.service.recource.container.ContainerImageService;
 import org.edgegallery.developer.service.recource.container.impl.ContainerImageServiceImpl;
+import org.edgegallery.developer.util.ContainerImageUtil;
 import org.edgegallery.developer.util.SpringContextUtil;
 import org.junit.Assert;
 import org.junit.Before;
@@ -362,5 +366,35 @@ public class ContainerImageServiceTest extends AbstractJUnit4SpringContextTests 
         ResponseEntity res = containerImageService.synchronizeHarborImage();
         Assert.assertEquals(200, res.getStatusCode().value());
     }
+
+    @Test
+    public void testSynchronizeHarborImageSuccess() throws IOException {
+        MockUp mockUp = new MockUp<ContainerImageUtil>(){
+             @Mock
+             public  List<String> getHarborImageList(){
+                 return Collections.emptyList();
+             }
+        };
+        ResponseEntity res =  containerImageService.synchronizeHarborImage();
+        Assert.assertEquals("harbor repo no images!",res.getBody());
+
+    }
+
+    @Test
+    public void testSynchronizeHarborImageSuccess1() throws IOException {
+        AccessUserUtil.setUser("fac94f94-1b35-4b15-9a9a-6bfa295f5d54", "admin", Consts.ROLE_DEVELOPER_ADMIN);
+        MockUp mockUp = new MockUp<ContainerImageUtil>(){
+            @Mock
+            public  List<String> getHarborImageList(){
+                List<String> list = new ArrayList<>();
+                list.add("1.1.1.1/developer/test1:1.0+2021-12-22T09:20:06.137Z");
+                return list;
+            }
+        };
+        ResponseEntity res =  containerImageService.synchronizeHarborImage();
+        Assert.assertEquals("synchronized successfully!",res.getBody());
+
+    }
+
 
 }
