@@ -86,7 +86,7 @@ public class InputConstant {
 
     public static final String FLAVOR_EXTRA_SPECS_GPU = "pci_passthrough:alias";
 
-    public static final String FLAVOR_EXTRA_SPECS_HOST_AGGR = "aggregate_instance_extra_spec";
+    public static final String FLAVOR_EXTRA_SPECS_HOST_AGGR = "aggregate_instance_extra_specs";
 
     public static final String INPUT_CAMPUS_SEGMENT = "Enterprise_Campus";
 

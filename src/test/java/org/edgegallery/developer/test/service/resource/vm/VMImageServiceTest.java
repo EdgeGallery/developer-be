@@ -234,6 +234,7 @@ public class VMImageServiceTest {
     @Test
     public void testUploadVmImageBadWithErrRequest() {
         Chunk chunk = new Chunk();
+        chunk.setFilename("test.qcow2");
         ResponseEntity responseEntity = vmImageService.uploadVmImage(request, chunk, null);
         Assert.assertEquals(400, responseEntity.getStatusCode().value());
     }
@@ -241,6 +242,7 @@ public class VMImageServiceTest {
     @Test
     public void testUploadVmImageBadWithErrFileFormat() {
         Chunk chunk = new Chunk();
+        chunk.setFilename("test.qcow2");
         request.setContentType("multipart/form-data");
         request.setMethod(RequestMethod.POST.name());
         ResponseEntity responseEntity = vmImageService.uploadVmImage(request, chunk, null);
