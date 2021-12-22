@@ -498,7 +498,7 @@ public class VMImageServiceImpl implements VMImageService {
 
     }
 
-    private Boolean imageStatusBySuccess(int resultStatus) {
+    private boolean imageStatusBySuccess(int resultStatus) {
         for (int status:CHECK_STATUS_SUCCESS) {
             if (status==resultStatus) {
                 return true;
@@ -573,6 +573,10 @@ public class VMImageServiceImpl implements VMImageService {
         if (vmImage == null) {
             LOGGER.error("vm image not found, imageId = {}", imageId);
             throw new IllegalRequestException("vm image not found", ResponseConsts.RET_QUERY_DATA_FAIL);
+        }
+        if (vmImage.getImageFormat().equals(FILE_FORMAT_ISO)) {
+            LOGGER.error("iso not support slim, imageId = {}", imageId);
+            throw new IllegalRequestException("iso not support slim", ResponseConsts.RET_QUERY_DATA_FAIL);
         }
 
         if (!isAdminUser() && !vmImage.getUserId().equalsIgnoreCase(user.getUserId())) {
