@@ -56,9 +56,9 @@ public class ContainerAppHelmChartCtlAnotherTest {
     public void setUp() throws IOException {
         mockup = new MockUp<ContainerAppHelmChartUtil>() {
             @Mock
-            public boolean checkImageExist(List<String> imageList) {
+            public String getImageCheckInfo(List<String> imageList) {
                 {
-                    return true;
+                    return null;
                 }
             }
         };

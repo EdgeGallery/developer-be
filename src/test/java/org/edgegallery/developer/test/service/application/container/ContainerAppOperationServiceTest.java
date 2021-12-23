@@ -104,8 +104,8 @@ public class ContainerAppOperationServiceTest extends AbstractJUnit4SpringContex
         prepareFilesForTestApplication();
         mockup = new MockUp<ContainerAppHelmChartUtil>() {
             @Mock
-            public boolean checkImageExist(List<String> imageList) {
-                return true;
+            public String getImageCheckInfo(List<String> imageList) {
+                return null;
             }
         };
         MultipartFile uploadFile = new MockMultipartFile("namespacetest.tgz", "namespacetest.tgz", null,
@@ -124,8 +124,8 @@ public class ContainerAppOperationServiceTest extends AbstractJUnit4SpringContex
     public void generatePackageTest() throws IOException {
         MockUp mockup = new MockUp<ContainerAppHelmChartUtil>() {
             @Mock
-            public boolean checkImageExist(List<String> imageList) {
-                return true;
+            public String getImageCheckInfo(List<String> imageList) {
+                return null;
             }
         };
         File file = Resources.getResourceAsFile("testdata/demo.yaml");

@@ -80,9 +80,9 @@ public class ContainerAppHelmChartServiceTest {
             }
 
             @Mock
-            public boolean checkImageExist(List<String> imageList) {
+            public String getImageCheckInfo(List<String> imageList) {
                 {
-                    return true;
+                    return null;
                 }
             }
 

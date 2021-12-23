@@ -78,34 +78,38 @@ public class ContainerAppHelmChartUtilTest {
     @Test
     public void testCheckImageExistFail1() throws IOException {
         List<String> imageList = new ArrayList<>();
-        Assert.assertFalse(ContainerAppHelmChartUtil.checkImageExist(imageList));
+        Assert.assertNull(ContainerAppHelmChartUtil.getImageCheckInfo(imageList));
     }
 
     @Test
     public void testCheckImageExistFail2() throws IOException {
         List<String> imageList = new ArrayList<>();
         imageList.add("test");
-        Assert.assertFalse(ContainerAppHelmChartUtil.checkImageExist(imageList));
+        String res = ContainerAppHelmChartUtil.getImageCheckInfo(imageList);
+        Assert.assertEquals("image test is not in standard format",res);
     }
 
     @Test
     public void testCheckImageExistFail3() throws IOException {
         List<String> imageList = new ArrayList<>();
         imageList.add("test:");
-        Assert.assertFalse(ContainerAppHelmChartUtil.checkImageExist(imageList));
+        String res = ContainerAppHelmChartUtil.getImageCheckInfo(imageList);
+        Assert.assertEquals("image test: is not in standard format",res);
     }
 
     @Test
     public void testCheckImageExistFail4() throws IOException {
         List<String> imageList = new ArrayList<>();
         imageList.add("test:1");
-        Assert.assertFalse(ContainerAppHelmChartUtil.checkImageExist(imageList));
+        String res = ContainerAppHelmChartUtil.getImageCheckInfo(imageList);
+        Assert.assertEquals("image test:1 is not in standard format",res);
     }
 
     @Test
     public void testCheckImageExistFail5() throws IOException {
         List<String> imageList = new ArrayList<>();
         imageList.add("1.1.1.1/test/name:version");
-        Assert.assertFalse(ContainerAppHelmChartUtil.checkImageExist(imageList));
+        String res = ContainerAppHelmChartUtil.getImageCheckInfo(imageList);
+        Assert.assertEquals("image 1.1.1.1/test/name:version does not exist in harbor repo!",res);
     }
 }
