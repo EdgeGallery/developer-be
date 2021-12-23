@@ -22,6 +22,8 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import org.apache.commons.lang3.StringUtils;
 import org.edgegallery.developer.model.application.Application;
 import org.edgegallery.developer.model.instantiate.vm.EnumImageExportStatus;
@@ -88,7 +90,8 @@ public class CreateImageAction extends AbstractAction {
             updateActionError(actionStatus, "Sandbox not selected. Failed to instantiate package");
             return false;
         }
-        String imageName = vmAppVmService.getVm(applicationId, vmId).getName();
+        SimpleDateFormat date = new SimpleDateFormat("yyyyMMddHHmm");
+        String imageName = vmAppVmService.getVm(applicationId, vmId).getName() + date.format(new Date());
         MepHost mepHost = mepHostService.getHost(mepHostId);
 
         //create image.
