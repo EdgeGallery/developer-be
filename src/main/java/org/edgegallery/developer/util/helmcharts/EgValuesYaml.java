@@ -46,7 +46,7 @@ public class EgValuesYaml {
     @SerializedName("imagelocation")
     private ImageLocation imageLocation;
 
-    private boolean hasMep;
+    private transient boolean hasMep;
 
     public static EgValuesYaml createDefaultEgValues(boolean hasMep) {
         EgValuesYaml defaultValues = new EgValuesYaml();
