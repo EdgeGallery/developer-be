@@ -57,7 +57,7 @@ public class LoadK8sYamlHandlerImpl extends AbstractContainerFileHandler {
         try {
             Files.createDirectory(Paths.get(helmChartsDir, TEMPLATES_DIR_NAME));
             EgValuesYaml defaultValues = this.getDefaultValues();
-            if (defaultValues.isHasMep()) {
+            if (defaultValues.getGlobal().getMepAgent().isEnabled()) {
                 createMepTemplates();
             }
             for (String filePath : filePaths) {

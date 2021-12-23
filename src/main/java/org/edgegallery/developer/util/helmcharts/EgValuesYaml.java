@@ -53,7 +53,6 @@ public class EgValuesYaml {
         defaultValues.setGlobal(Global.builder().mepAgent(Global.MepAgent.builder().enabled(hasMep).build()).build());
         defaultValues.setAppConfig(AppConfig.builder().build());
         defaultValues.setImageLocation(ImageLocation.builder().build());
-        defaultValues.setHasMep(hasMep);
         return defaultValues;
     }
 
