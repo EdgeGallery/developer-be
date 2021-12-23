@@ -134,9 +134,9 @@ public class BuildVMPackageAction extends AbstractAction {
             LOGGER.warn("Get set pwd script failed.", e);
             return;
         }
-        setPwdScript = setPwdScript.replace(USER_NAME_PARAM_STR,
+        setPwdScript = setPwdScript.replaceAll(USER_NAME_PARAM_STR,
             vm.getVmCertificate().getPwdCertificate().getUsername());
-        setPwdScript = setPwdScript.replace(PASSWORD_PARAM_STR,
+        setPwdScript = setPwdScript.replaceAll(PASSWORD_PARAM_STR,
             vm.getVmCertificate().getPwdCertificate().getPassword());
         String userdataContent = vm.getUserData();
         if (StringUtils.isEmpty(userdataContent)) {
