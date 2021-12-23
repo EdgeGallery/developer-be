@@ -151,8 +151,8 @@ public class ProfileControllerTest {
 
         MockUp mockup = new MockUp<ContainerAppHelmChartUtil>() {
             @Mock
-            public boolean checkImageExist(List<String> imageList) {
-                return true;
+            public String getImageCheckInfo(List<String> imageList) {
+                return null;
             }
         };
 

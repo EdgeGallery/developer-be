@@ -186,11 +186,10 @@ public class ContainerAppHelmChartServiceImpl implements ContainerAppHelmChartSe
             throw new FileOperateException(errMsg, ResponseConsts.RET_FILE_FORMAT_ERROR);
         }
         // verify image exist
-        boolean ret = ContainerAppHelmChartUtil.checkImageExist(imageList);
-        if (!ret) {
-            String errMsg = "some images are not found in harbor repo!";
-            LOGGER.error(errMsg);
-            throw new HarborException(errMsg, ResponseConsts.RET_GET_HARBOR_IMAGE_LIST_FAIL);
+        String ret = ContainerAppHelmChartUtil.getImageCheckInfo(imageList);
+        if (ret != null) {
+            LOGGER.error(ret);
+            throw new HarborException(ret, ResponseConsts.RET_GET_HARBOR_IMAGE_LIST_FAIL);
         }
 
     }

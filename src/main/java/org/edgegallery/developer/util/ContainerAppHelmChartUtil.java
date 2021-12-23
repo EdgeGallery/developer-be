@@ -31,7 +31,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
@@ -42,6 +41,10 @@ public final class ContainerAppHelmChartUtil {
     private static final RestTemplate REST_TEMPLATE = new RestTemplate();
 
     private static final String HARBOR_PROTOCOL = "https";
+
+    private static final String CHECK_IMAGE_PREFIX = "image ";
+
+    private static final String CHECK_IMAGE_SUFFIX = " is not in standard format";
 
     private ContainerAppHelmChartUtil() {
 
@@ -91,16 +94,12 @@ public final class ContainerAppHelmChartUtil {
      * @param imageList image list
      * @return
      */
-    public static boolean checkImageExist(List<String> imageList) {
-        if (CollectionUtils.isEmpty(imageList)) {
-            LOGGER.error("image list is empty!");
-            return false;
-        }
+    public static String getImageCheckInfo(List<String> imageList) {
         for (String image : imageList) {
             //judge image in format
             if (!image.contains(":") || image.endsWith(":")) {
                 LOGGER.error("image {} must be in xxx:xxx format!", image);
-                return false;
+                return CHECK_IMAGE_PREFIX + image + CHECK_IMAGE_SUFFIX;
             }
             String project = "";
             String imageName = "";
@@ -119,19 +118,19 @@ public final class ContainerAppHelmChartUtil {
                     imageVersion = images[1];
                 } else {
                     LOGGER.error("image {} non-standard format domainname/project/name:version", image);
-                    return false;
+                    return CHECK_IMAGE_PREFIX + image + CHECK_IMAGE_SUFFIX;
                 }
             } else {
                 LOGGER.error("image {} non-standard format domainname/project/name:version", image);
-                return false;
+                return CHECK_IMAGE_PREFIX + image + CHECK_IMAGE_SUFFIX;
             }
             String ret = getHarborImageInfo(project, imageName, imageVersion);
             if (StringUtils.isEmpty(ret)) {
                 LOGGER.error("image {} does not exist in harbor repo", imageName);
-                return false;
+                return CHECK_IMAGE_PREFIX + image + " does not exist in harbor repo!";
             }
         }
-        return true;
+        return null;
     }
 
     /**
