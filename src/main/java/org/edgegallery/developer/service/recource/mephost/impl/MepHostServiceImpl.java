@@ -159,7 +159,7 @@ public class MepHostServiceImpl implements MepHostService {
         }
 
         host.setId(hostId); // no need to set hostId by user
-        host.setUserId(currentHost.getUserId());
+        host.setUserId(user.getUserId());
         // check host parameter
         checkMepHost(host);
         // config mepHost to lcm
