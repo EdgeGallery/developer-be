@@ -247,12 +247,12 @@ public class ReverseProxyServiceImpl implements ReverseProxyService {
     }
 
     private String genProxyUrl(String url, String proxyHostIp, int proxyHostPort) {
-        String regex = "(\\d{1,3}(.\\d{1,3}){3}):(\\d+)";
+        String regex = "https?://(.+):(\\d+)/";
         Pattern pattern = Pattern.compile(regex);
         Matcher matcher = pattern.matcher(url);
         if (matcher.find()) {
             String vncUrl = url.replace(matcher.group(1), proxyHostIp)
-                .replace(matcher.group(3), String.valueOf(proxyHostPort));
+                .replace(matcher.group(2), String.valueOf(proxyHostPort));
             LOGGER.debug("vnc url : {}, origin url : {}", vncUrl, url);
             return vncUrl;
         }
