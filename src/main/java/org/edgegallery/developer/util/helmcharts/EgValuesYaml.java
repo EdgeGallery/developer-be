@@ -16,12 +16,15 @@ package org.edgegallery.developer.util.helmcharts;
 
 import com.google.gson.Gson;
 import com.google.gson.annotations.SerializedName;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import org.edgegallery.developer.service.apppackage.csar.appdconverter.CustomRepresenter;
+import org.springframework.util.CollectionUtils;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.SafeConstructor;
@@ -32,7 +35,9 @@ import org.yaml.snakeyaml.nodes.Tag;
 public class EgValuesYaml {
 
     public static final String VALUES_KEY_IMAGE_DOMAIN_NAME = ".Values.imagelocation.domainname";
+
     public static final String VALUES_KEY_IMAGE_PROJECT = ".Values.imagelocation.project";
+
     public static final String VALUES_KEY_APPCONFIG_NAMESPACE = ".Values.appconfig.appnamespace";
 
     private Global global;
@@ -59,7 +64,15 @@ public class EgValuesYaml {
     public String getContent() {
         String json = new Gson().toJson(this);
         Yaml yaml = new Yaml(new SafeConstructor(), new CustomRepresenter());
-        return yaml.dumpAs(new Gson().fromJson(json, Object.class), Tag.MAP, DumperOptions.FlowStyle.BLOCK);
+        String content = yaml.dumpAs(new Gson().fromJson(json, Object.class), Tag.MAP, DumperOptions.FlowStyle.BLOCK);
+        List<String> portList = Arrays.stream(content.split("\n")).filter(item -> item.contains("port:"))
+            .collect(Collectors.toList());
+        if (!CollectionUtils.isEmpty(portList)) {
+            for (String port : portList) {
+                content = content.replace(port, port.substring(0, port.lastIndexOf(".")));
+            }
+        }
+        return content;
     }
 
     @Getter
