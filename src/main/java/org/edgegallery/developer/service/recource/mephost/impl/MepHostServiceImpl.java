@@ -18,8 +18,6 @@ package org.edgegallery.developer.service.recource.mephost.impl;
 
 import static org.edgegallery.developer.util.HttpClientUtil.getUrlPrefix;
 
-import com.github.pagehelper.PageHelper;
-import com.github.pagehelper.PageInfo;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -55,6 +53,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 
 @Service("mepHostService")
 public class MepHostServiceImpl implements MepHostService {
@@ -117,9 +117,9 @@ public class MepHostServiceImpl implements MepHostService {
         // config mepHost to lcm
         configMepHostToLCM(host, user.getToken());
         int ret = mepHostMapper.createHost(host);
-        if (ret > 0) {
+        if (ret > 0 && host.getVimType() != EnumVimType.K8S) {
             LOGGER.info("Crete host {} success ", host.getId());
-            reverseProxyService.addReverseProxy(host.getId(), Consts.DEFAULT_OPENSTACK_VNC_PORT, token);
+            reverseProxyService.addReverseProxy(host.getId(), host.getMecHostPort(), token);
             return true;
         }
         LOGGER.error("Create host failed!");
