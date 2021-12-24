@@ -46,14 +46,13 @@ public class EgValuesYaml {
     @SerializedName("imagelocation")
     private ImageLocation imageLocation;
 
-    private boolean hasMep;
+    private transient boolean hasMep;
 
     public static EgValuesYaml createDefaultEgValues(boolean hasMep) {
         EgValuesYaml defaultValues = new EgValuesYaml();
         defaultValues.setGlobal(Global.builder().mepAgent(Global.MepAgent.builder().enabled(hasMep).build()).build());
         defaultValues.setAppConfig(AppConfig.builder().build());
         defaultValues.setImageLocation(ImageLocation.builder().build());
-        defaultValues.setHasMep(hasMep);
         return defaultValues;
     }
 
