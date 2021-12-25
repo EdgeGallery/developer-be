@@ -251,12 +251,14 @@ public class AppPackageServiceImpl implements AppPackageService {
             // compress tgz
             String tgzDir = tempPackagePath + CHARTS_TGZ_PATH;
             File chartsDir = new File(tgzDir);
-            File[] charts = chartsDir.listFiles();
-            if (charts == null || charts.length == 0) {
-                LOGGER.error("can not found any tgz file under path  {}!", tgzDir);
-                throw new FileFoundFailException("can not found any tgz file!", ResponseConsts.RET_FILE_NOT_FOUND);
+            if (chartsDir.exists() && chartsDir.isDirectory()) {
+                File[] charts = chartsDir.listFiles();
+                if (charts == null || charts.length == 0) {
+                    LOGGER.error("can not found any tgz file under path  {}!", tgzDir);
+                    throw new FileFoundFailException("can not found any tgz file!", ResponseConsts.RET_FILE_NOT_FOUND);
+                }
+                CompressFileUtils.compressToTgzAndDeleteSrc(charts[0].getCanonicalPath(), tgzDir, charts[0].getName());
             }
-            CompressFileUtils.compressToTgzAndDeleteSrc(charts[0].getCanonicalPath(), tgzDir, charts[0].getName());
 
             //sign package
             boolean encryptedResult = encryptedService.encryptedCMS(tempPackagePath);
