@@ -15,6 +15,8 @@
  */
 package org.edgegallery.developer.service.application.action.impl.vm;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import org.apache.commons.lang3.StringUtils;
 import org.edgegallery.developer.model.application.vm.EnumVMStatus;
 import org.edgegallery.developer.model.application.vm.VirtualMachine;
@@ -98,7 +100,8 @@ public class DownloadImageAction extends AbstractAction {
         String vmId = (String) getContext().getParameter(IContextParameter.PARAM_VM_ID);
         VirtualMachine vm = vmAppVmService.getVm(applicationId, vmId);
         VMImage vmImage = vmImageService.getVmImageById(vm.getImageId());
-        vmImage.setName(vm.getImageExportInfo().getName());
+        SimpleDateFormat date = new SimpleDateFormat("yyyyMMddHHmm");
+        vmImage.setName(vm.getImageExportInfo().getName() + "-" + date.format(new Date()));
         vmImage.setDownLoadUrl(vm.getImageExportInfo().getDownloadUrl());
         vmImage.setFileMd5(vm.getImageExportInfo().getCheckSum());
         vmImage.setImageFileName(vm.getImageExportInfo().getImageFileName());
