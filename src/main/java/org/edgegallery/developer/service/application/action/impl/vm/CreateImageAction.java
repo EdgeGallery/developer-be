@@ -17,8 +17,6 @@
 package org.edgegallery.developer.service.application.action.impl.vm;
 
 import java.lang.reflect.Type;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import org.apache.commons.lang3.StringUtils;
 import org.edgegallery.developer.model.application.Application;
 import org.edgegallery.developer.model.instantiate.vm.EnumImageExportStatus;
@@ -90,9 +88,8 @@ public class CreateImageAction extends AbstractAction {
             updateActionError(actionStatus, "Sandbox not selected. Failed to instantiate package");
             return false;
         }
-        SimpleDateFormat date = new SimpleDateFormat("yyyyMMddHHmm");
-        String imageName = vmAppVmService.getVm(applicationId, vmId).getName() + "-" + date.format(new Date());
-        LOGGER.info("imageName:{}",imageName);
+        String imageName = vmAppVmService.getVm(applicationId, vmId).getName();
+        LOGGER.info("imageName:{}", imageName);
         MepHost mepHost = mepHostService.getHost(mepHostId);
 
         //create image.
