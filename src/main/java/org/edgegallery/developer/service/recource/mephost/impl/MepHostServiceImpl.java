@@ -117,13 +117,16 @@ public class MepHostServiceImpl implements MepHostService {
         // config mepHost to lcm
         configMepHostToLCM(host, user.getToken());
         int ret = mepHostMapper.createHost(host);
-        if (ret > 0 && host.getVimType() != EnumVimType.K8S) {
+        if (ret < 1) {
+            LOGGER.error("Create host failed!");
+            throw new DataBaseException("Create host failed!", ResponseConsts.RET_CERATE_DATA_FAIL);
+        }
+        if (host.getVimType() != EnumVimType.K8S) {
             LOGGER.info("Crete host {} success ", host.getId());
             reverseProxyService.addReverseProxy(host.getId(), host.getMecHostPort(), token);
             return true;
         }
-        LOGGER.error("Create host failed!");
-        throw new DataBaseException("Create host failed!", ResponseConsts.RET_CERATE_DATA_FAIL);
+        return true;
     }
 
     /**
