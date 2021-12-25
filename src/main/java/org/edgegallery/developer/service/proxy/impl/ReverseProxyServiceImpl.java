@@ -119,10 +119,10 @@ public class ReverseProxyServiceImpl implements ReverseProxyService {
         MepHost mepHost = mepHostService.getHost(hostId);
         String mecHostIp = mepHost.getMecHostIp();
         String url = new StringBuffer(getReverseProxyBaseUrl()).append("/dest-host-ip/").append(mecHostIp)
-            .append("/dest-host-port/").append(hostConsolePort).toString();
+            .append("/dest-host-port/").append(mepHost.getMecHostPort()).toString();
         sendHttpRequest(url, token, HttpMethod.DELETE, null);
         LOGGER.info("succeed in deleting reverse proxy, dest host ip is: {}, dest host port is: {}", mecHostIp,
-            hostConsolePort);
+            mepHost.getMecHostPort());
     }
 
     @Override
@@ -148,7 +148,7 @@ public class ReverseProxyServiceImpl implements ReverseProxyService {
             .fromJson(getVncUrlResult, new TypeToken<ConsoleResponse>() { }.getType());
         String vncUrl = consoleResponse.getConsole().getUrl();
         String url = new StringBuffer(getReverseProxyBaseUrl()).append("/dest-host-ip/").append(mepHost.getMecHostIp())
-            .append("/dest-host-port/").append(Consts.DEFAULT_OPENSTACK_VNC_PORT).toString();
+            .append("/dest-host-port/").append(mepHost.getMecHostPort()).toString();
         String resp = sendHttpRequest(url, token, HttpMethod.GET, null);
         ReverseProxy reverseProxy = gson.fromJson(resp, ReverseProxy.class);
 
