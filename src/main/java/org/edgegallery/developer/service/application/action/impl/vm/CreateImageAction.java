@@ -92,6 +92,7 @@ public class CreateImageAction extends AbstractAction {
         }
         SimpleDateFormat date = new SimpleDateFormat("yyyyMMddHHmm");
         String imageName = vmAppVmService.getVm(applicationId, vmId).getName() + "-" + date.format(new Date());
+        LOGGER.info("imageName:{}",imageName);
         MepHost mepHost = mepHostService.getHost(mepHostId);
 
         //create image.
