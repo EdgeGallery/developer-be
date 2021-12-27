@@ -34,7 +34,6 @@ import org.edgegallery.developer.model.application.container.ContainerApplicatio
 import org.edgegallery.developer.model.application.vm.VMApplication;
 import org.edgegallery.developer.model.apppackage.AppPackage;
 import org.edgegallery.developer.model.releasedpackage.AppPkgFile;
-import org.edgegallery.developer.model.releasedpackage.ReleasedPackage;
 import org.edgegallery.developer.model.releasedpackage.ReleasedPkgFileContent;
 import org.edgegallery.developer.model.releasedpackage.ReleasedPkgFileContentReqDto;
 import org.edgegallery.developer.model.restful.ApplicationDetail;
@@ -212,8 +211,11 @@ public class AppPackageServiceImpl implements AppPackageService {
             throw new FileOperateException("modify file content failed!", ResponseConsts.RET_WRITE_FILE_FAIL);
         }
         if (StringUtils.isEmpty(appId)) {
-            ReleasedPackage releasedPackage = releasedPackageService.getReleasedPackageByPkgId(packageId);
-            String compressZipName = getAppFileName(releasedPackage, "");
+            String compressZipName = ReleasedPackageUtil.getZipFileName(zipDecompressDir);
+            if (compressZipName == null) {
+                LOGGER.error("get mf file Name failed!");
+                throw new FileOperateException("get mf file Name fail", ResponseConsts.RET_FILE_NOT_FOUND);
+            }
             //compress to csar
             if (!compressToCsar(packageId, compressZipName)) {
                 LOGGER.error("compress csar file failed!");
@@ -274,11 +276,6 @@ public class AppPackageServiceImpl implements AppPackageService {
             return false;
         }
         return true;
-    }
-
-    private String getAppFileName(ReleasedPackage releasedPackage, String format) {
-        return releasedPackage.getName() + "_" + releasedPackage.getProvider() + "_" + releasedPackage.getVersion()
-            + "_" + releasedPackage.getArchitecture() + format;
     }
 
     @Override
