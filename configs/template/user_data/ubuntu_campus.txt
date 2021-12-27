@@ -1,20 +1,19 @@
 #!/bin/bash
-rm -rf /home/mep.ca
-rm -rf /home/init.txt
-echo "$certificate_info$" >> /home/mep.ca
+# Startup script for Ubuntu_1804 IPV4 #
+
 echo "app_instance_id_key=($$APP_INSTANCE_ID)" >> /home/init.txt
-echo "mep_ip=$MEP_IP$" >> /home/init.txt
-echo "mep_port=$MEP_PORT$" >> /home/init.txt
+
 function prefix() {
 declare -A dic
 dic=([255]=8 [254]=7 [252]=6 [248]=5 [240]=4 [224]=3 [192]=2 [128]=1 [0]=0)
 count=0
-a=$(echo "$1" | awk -F "." '{print $1" "$2" "$3" "$4}')
+a=$((echo "$1" | awk -F "." '{print $1" "$2" "$3" "$4}'))
 for num in $a;do
 (((count=$count+${dic[$num]})))
 done
 return $count
 }
+
 rm -f /etc/netplan/*.yaml
 echo "network:" >> /etc/netplan/50-cloud-init.yaml
 echo "    version: 2" >> /etc/netplan/50-cloud-init.yaml
@@ -41,9 +40,6 @@ echo "            mtu: 1500" >> /etc/netplan/50-cloud-init.yaml
 ip a | grep '^4:' | awk '{print "       "$2}' >> /etc/netplan/50-cloud-init.yaml
 prefix $APP_MP1_MASK$
 echo "            addresses: [$APP_MP1_IP$/$?]" >> /etc/netplan/50-cloud-init.yaml
-echo "            routes:" >> /etc/netplan/50-cloud-init.yaml
-echo "                    - to: $MEP_IP$/32" >> /etc/netplan/50-cloud-init.yaml
-echo "                      via: $APP_MP1_GW$" >> /etc/netplan/50-cloud-init.yaml
-echo "                      metric: 100" >> /etc/netplan/50-cloud-init.yaml
 echo "            mtu: 1500" >> /etc/netplan/50-cloud-init.yaml
+
 netplan apply
