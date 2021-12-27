@@ -21,6 +21,7 @@ import org.edgegallery.developer.model.apppackage.constant.AppdConstants;
 import org.edgegallery.developer.model.instantiate.vm.PortInstantiateInfo;
 import org.edgegallery.developer.model.instantiate.vm.VMInstantiateInfo;
 import org.edgegallery.developer.model.lcm.ConsoleResponse;
+import org.edgegallery.developer.model.resource.mephost.EnumVimType;
 import org.edgegallery.developer.model.resource.mephost.MepHost;
 import org.edgegallery.developer.model.resource.pkgspec.PkgSpec;
 import org.edgegallery.developer.model.restful.ApplicationDetail;
@@ -147,9 +148,13 @@ public class ReverseProxyServiceImpl implements ReverseProxyService {
         ConsoleResponse consoleResponse = gson
             .fromJson(getVncUrlResult, new TypeToken<ConsoleResponse>() { }.getType());
         String vncUrl = consoleResponse.getConsole().getUrl();
+        if (mepHost.getVimType()== EnumVimType.FusionSphere) {
+            return genProxyUrl(vncUrl, mepHost.getMecHostIp(), mepHost.getMecHostPort());
+        }
         String url = new StringBuffer(getReverseProxyBaseUrl()).append("/dest-host-ip/").append(mepHost.getMecHostIp())
             .append("/dest-host-port/").append(mepHost.getMecHostPort()).toString();
         String resp = sendHttpRequest(url, token, HttpMethod.GET, null);
+
         ReverseProxy reverseProxy = gson.fromJson(resp, ReverseProxy.class);
 
         return genProxyUrl(vncUrl, developerIp, reverseProxy.getLocalPort());
