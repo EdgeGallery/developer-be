@@ -1,10 +1,8 @@
 #!/bin/bash
-rm -rf /home/mep.ca
-rm -rf /home/init.txt
-echo "$certificate_info$" >> /home/mep.ca
+# Startup script for CentOS_7 IPV4 #
+
 echo "app_instance_id_key=($$APP_INSTANCE_ID)" >> /home/init.txt
-echo "mep_ip=$MEP_IP$" >> /home/init.txt
-echo "mep_port=$MEP_PORT$" >> /home/init.txt
+
 rm -f /etc/sysconfig/network-scripts/*ifcfg-e*
 rm -f /etc/sysconfig/network-scripts/*route-e*
 netname1=`ip a | grep '^2:' | awk -F ':' '{print $2}'|sed 's/^[ \\t]*//g'`
@@ -46,5 +44,5 @@ echo "IPV4_FAILURE_FATAL=no" >> /etc/sysconfig/network-scripts/"ifcfg-${netname3
 echo "MTU=1500" >> /etc/sysconfig/network-scripts/"ifcfg-${netname3}"
 echo "IPADDR=$APP_MP1_IP$" >> /etc/sysconfig/network-scripts/"ifcfg-${netname3}"
 echo "NETMASK=$APP_MP1_MASK$" >> /etc/sysconfig/network-scripts/"ifcfg-${netname3}"
-echo "$MEP_IP$$/32 via $APP_MP1_GW$" >> /etc/sysconfig/network-scripts/"ifcfg-${netname3}"
+
 systemctl restart network
