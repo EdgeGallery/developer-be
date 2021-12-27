@@ -155,7 +155,7 @@ public class ReverseProxyServiceTest {
             String vmId = "6a75a2bd-9811-432f-bbe8-2813aa97d758";
             proxyService.getVmConsoleUrl(applicationId, vmId, "", "");
         } catch (DeveloperException e) {
-            Assert.assertEquals("failed to generate proxy url", e.getMessage());
+            Assert.assertEquals("Failed to send http request", e.getMessage());
         }
         mockup.tearDown();
     }

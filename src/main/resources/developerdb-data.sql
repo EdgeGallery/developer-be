@@ -288,6 +288,26 @@
         ('537a5768-72e3-4234-ad18-b32ea1100583', 'unified gateway.jpg', false, 'admin', '2020-01-01 00:00:00.000000', '/mep_capability/images/unified gateway.jpg')
         ON CONFLICT(file_id) do nothing;
 
+        INSERT INTO tbl_uploaded_file (file_id, file_name, is_temp, user_id, upload_date, file_path) VALUES
+        ('7e17b78b-651c-49f7-a515-42ad5ff667cd', 'DiseaseClassification.md', false, 'admin', '2020-01-01 00:00:00.000000', '/mep_capability/DiseaseClassification.md')
+        ON CONFLICT(file_id) do nothing;
+        INSERT INTO tbl_uploaded_file (file_id, file_name, is_temp, user_id, upload_date, file_path) VALUES
+        ('bb512111-c758-4e77-b1e4-fc2c27284093', 'DiseaseClassification.yaml', false, 'admin', '2020-01-01 00:00:00.000000', '/mep_capability/DiseaseClassification.yaml')
+        ON CONFLICT(file_id) do nothing;
+        INSERT INTO tbl_uploaded_file (file_id, file_name, is_temp, user_id, upload_date, file_path) VALUES
+        ('6581a5be-3b91-4cd9-b119-c5bdefb6293a', 'plant-disease-classification.jpg', false, 'admin', '2020-01-01 00:00:00.000000', '/mep_capability/images/plant-disease-classification.jpg')
+        ON CONFLICT(file_id) do nothing;
+
+        INSERT INTO tbl_uploaded_file (file_id, file_name, is_temp, user_id, upload_date, file_path) VALUES
+        ('37b1a4c8-0b7e-4340-bfc9-054987df7ca8', 'MushroomIdentification.md', false, 'admin', '2020-01-01 00:00:00.000000', '/mep_capability/MushroomIdentification.md')
+        ON CONFLICT(file_id) do nothing;
+        INSERT INTO tbl_uploaded_file (file_id, file_name, is_temp, user_id, upload_date, file_path) VALUES
+        ('ac0e9878-64e3-4a88-8ece-9a61db1ed415', 'MushroomIdentification.yaml', false, 'admin', '2020-01-01 00:00:00.000000', '/mep_capability/MushroomIdentification.yaml')
+        ON CONFLICT(file_id) do nothing;
+        INSERT INTO tbl_uploaded_file (file_id, file_name, is_temp, user_id, upload_date, file_path) VALUES
+        ('6df7779c-05ff-46fc-9cd3-e8dd9081848b', 'mushroom-identification.jpg', false, 'admin', '2020-01-01 00:00:00.000000', '/mep_capability/images/mushroom-identification.jpg')
+        ON CONFLICT(file_id) do nothing;
+
         -- workspace ETSI capability init --
 
         INSERT INTO tbl_uploaded_file (file_id, file_name, is_temp, user_id, upload_date, file_path) VALUES
@@ -430,7 +450,7 @@
 
 
         -- capability & group
-        insert into tbl_capability_group(id,name,name_en,type,author,create_time,update_time)values('406593b4-c782-409c-8f46-a6fd5e1f6221','电信网络能力','Telecom network','OPENMEP','admin',1628239515017,1628239515017)ON CONFLICT(id) do nothing;
+    insert into tbl_capability_group(id,name,name_en,type,author,create_time,update_time)values('406593b4-c782-409c-8f46-a6fd5e1f6221','电信网络能力','Telecom network','OPENMEP','admin',1628239515017,1628239515017)ON CONFLICT(id) do nothing;
     insert into tbl_capability_group(id,name,name_en,type,author,create_time,update_time)values('c0db376b-ae50-48fc-b9f7-58a609e3ee12','平台基础服务','Platform services','OPENMEP','admin',1628239515017,1628239515017)ON CONFLICT(id) do nothing;
     insert into tbl_capability_group(id,name,name_en,type,author,create_time,update_time)values('b8ddc4c4-07ca-4b49-a3dd-c018f120bff1','昇腾AI能力','Ascend AI','OPENMEP','admin',1628239515017,1628239515017)ON CONFLICT(id) do nothing;
     insert into tbl_capability_group(id,name,name_en,type,author,create_time,update_time)values('0a96b3f8-72a8-4373-a129-cc30329e73bf','3GPP','3GPP','STANDARD','admin',1628239515017,1628239515017)ON CONFLICT(id) do nothing;
@@ -498,6 +518,8 @@
   insert into tbl_capability(id, name, name_en, version, description, description_en, provider,group_id, api_file_id, guide_file_id, guide_file_id_en, upload_time,host, port, protocol, user_id, select_count, icon_file_id)values('365e47bf-c2cf-424b-8948-06cc99923427','对象检测(TFL)','Object Detection(TFL)','v1.0','基于Tensorflow Lite的对象检测','Object detection based on tensorflow Lite','Huawei','ab88bc3a-e1c0-4d0d-a4e5-242902f39b12','d25966ba-5c2c-4a5f-b1fb-98c5a0d13bb6','3b563e43-d2c5-4d62-bd46-9754c1edb579','3b563e43-d2c5-4d62-bd46-9754c1edb579',1631689098055,'tensorflowlite-be-service',33333,'http','admin',0,'bf384358-cf86-4046-bffd-264a556b1b4f')ON CONFLICT(id) do nothing;
   insert into tbl_capability(id, name, name_en, version, description, description_en, provider,group_id, api_file_id, guide_file_id, guide_file_id_en, upload_time,host, port, protocol, user_id, select_count, icon_file_id)values('9aa1153b-d738-41ae-b332-1a19beda39fb','图片风格化(TFL)','Style Transfer(TFL)','v1.0','基于Tensorflow Lite的图片风格化','Style transfer based on tensorflow Lite','Huawei','ab88bc3a-e1c0-4d0d-a4e5-242902f39b12','d25966ba-5c2c-4a5f-b1fb-98c5a0d13bb6','3b563e43-d2c5-4d62-bd46-9754c1edb579','3b563e43-d2c5-4d62-bd46-9754c1edb579',1631689098055,'tensorflowlite-be-service',33333,'http','admin',0,'8ab98359-99ed-4437-911c-92ad6d63f85a')ON CONFLICT(id) do nothing;
   insert into tbl_capability(id, name, name_en, version, description, description_en, provider,group_id, api_file_id, guide_file_id, guide_file_id_en, upload_time,host, port, protocol, user_id, select_count, icon_file_id)values('92abcaf8-e891-45f5-878a-b969bb31347a','超分辨率(TFL)','Super Resolution(TFL)','v1.0','基于Tensorflow Lite的超分辨率','Super resolution based on tensorflow Lite','Huawei','ab88bc3a-e1c0-4d0d-a4e5-242902f39b12','d25966ba-5c2c-4a5f-b1fb-98c5a0d13bb6','3b563e43-d2c5-4d62-bd46-9754c1edb579','3b563e43-d2c5-4d62-bd46-9754c1edb579',1631689098055,'tensorflowlite-be-service',33333,'http','admin',0,'6c5e9142-0a05-4ab6-929c-967010315121')ON CONFLICT(id) do nothing;
+  insert into tbl_capability(id, name, name_en, version, description, description_en, provider,group_id, api_file_id, guide_file_id, guide_file_id_en, upload_time,host, port, protocol, user_id, select_count, icon_file_id)values('c4aecbf4-26b2-41d7-95cc-f4f12ffd9f7e','蘑菇类型识别','MushroomIdentification','v1.0','基于Tensorflow Lite的蘑菇类型识别','Mushroon Idetification based on tensorflow Lite','Huawei','ab88bc3a-e1c0-4d0d-a4e5-242902f39b12','ac0e9878-64e3-4a88-8ece-9a61db1ed415','37b1a4c8-0b7e-4340-bfc9-054987df7ca8','37b1a4c8-0b7e-4340-bfc9-054987df7ca8',1631689098055,'tensorflowlite-be-service',33333,'http','admin',0,'6df7779c-05ff-46fc-9cd3-e8dd9081848b')ON CONFLICT(id) do nothing;
+  insert into tbl_capability(id, name, name_en, version, description, description_en, provider,group_id, api_file_id, guide_file_id, guide_file_id_en, upload_time,host, port, protocol, user_id, select_count, icon_file_id)values('662c9456-30b6-40f8-8fc4-13677edc95e7','农作物病虫害识别','DiseaseClassification','v1.0','基于Tensorflow Lite的农作物病虫害识别','Disease Classification based on tensorflow Lite','Huawei','ab88bc3a-e1c0-4d0d-a4e5-242902f39b12','bb512111-c758-4e77-b1e4-fc2c27284093','7e17b78b-651c-49f7-a515-42ad5ff667cd','7e17b78b-651c-49f7-a515-42ad5ff667cd',1631689098055,'tensorflowlite-be-service',33333,'http','admin',0,'6581a5be-3b91-4cd9-b119-c5bdefb6293a')ON CONFLICT(id) do nothing;
 
   INSERT INTO tbl_network (id, app_id, description, name) VALUES('Network_N6', 'init-application', 'N6 network, when end-side devices access edge applications, they need to access through this network', 'MEC_APP_Private')ON CONFLICT(app_id, name) do nothing;
   INSERT INTO tbl_network (id, app_id, description, name) VALUES('Network_MEP', 'init-application', 'The network with the edge computing platform, when the application has service dependency or needs to publish the service, the network is needed', 'MEC_APP_MP1') ON CONFLICT(app_id, name) do nothing;
