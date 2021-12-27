@@ -278,4 +278,24 @@ public class ReleasedPackageUtil {
         return InitConfigUtil.getWorkSpaceBaseDir() + BusinessConfigUtil.getReleasedPackagesPath() + packageId
             + File.separator;
     }
+
+    public static String getZipFileName(String zipDecompressDir) {
+        // get mf file name
+        File decompressDir = new File(zipDecompressDir);
+        if (!decompressDir.exists() || !decompressDir.isDirectory()) {
+            LOGGER.error("can not found app pkg decompress dir");
+            return null;
+        }
+        // FileUtils.list
+        File[] files = decompressDir.listFiles();
+        if (files != null) {
+            for (File file : files) {
+                if (file.isFile() && file.getName().endsWith("mf")) {
+                    return file.getName().substring(0, file.getName().lastIndexOf("."));
+                }
+            }
+        }
+        return null;
+
+    }
 }
