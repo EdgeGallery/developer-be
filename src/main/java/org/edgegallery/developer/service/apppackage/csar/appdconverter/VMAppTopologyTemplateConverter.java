@@ -175,13 +175,8 @@ public class VMAppTopologyTemplateConverter extends TopologyTemplateConverter {
     private LinkedHashMap<String, String> getVDUNodeUserDataParams(String vduName, List<VMPort> ports,
         List<Network> networkLst) {
         LinkedHashMap<String, String> mapPortParams = new LinkedHashMap<>();
-        mapPortParams.put(InputConstant.USER_DATA_PARAM_CERTIFICATE_INFO,
-            getInputStr(InputConstant.INPUT_NAME_MAP_CERTIFICATE));
         mapPortParams.put(InputConstant.INPUT_NAME_UE_IP_SEGMENT.toUpperCase(),
             getInputStr(InputConstant.INPUT_NAME_UE_IP_SEGMENT));
-        mapPortParams.put(InputConstant.INPUT_NAME_MEP_IP.toUpperCase(), getInputStr(InputConstant.INPUT_NAME_MEP_IP));
-        mapPortParams.put(InputConstant.INPUT_NAME_MEP_PORT.toUpperCase(),
-            getInputStr(InputConstant.INPUT_NAME_MEP_PORT));
         pkgSpecsUtil.updateUserDataParam(topologyTemplate, mapPortParams);
         for (int i = 0; i < ports.size(); i++) {
             //generate port inputs
