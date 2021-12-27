@@ -6,18 +6,6 @@ az_dc:
   type: string
   default: nova
   description: AZ.DZ
-mep_certificate:
-  type: text
-  default: YHXGFTWU!@$%@&%#(DH(122479+_)
-  description: MEP Certificate
-mep_ip:
-  type: string
-  default: 127.0.0.1
-  description: mep_ip
-mep_port:
-  type: string
-  default: 8443
-  description: mep_port
 ue_ip_segment:
   type: string
   default: 0.0.0.0/0

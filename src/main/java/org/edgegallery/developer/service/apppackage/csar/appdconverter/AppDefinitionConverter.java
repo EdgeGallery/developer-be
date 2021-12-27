@@ -21,6 +21,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -60,6 +61,8 @@ public class AppDefinitionConverter {
     private static final String INPUT_PARAM_REPLACEMENT = "{get_input: $2}";
 
     private static final String TEMPLATE_CSAR_BASE_PATH = "/APPD/Definition/app-name.yaml";
+
+    private static final String PACKAGE_NODE_TYPE_TEMPLATE_PATH = "./configs/template/package_template/APPD/Definition";
 
     public String getAppdPath(String applicationId, String appPackageId) {
         return InitConfigUtil.getWorkSpaceBaseDir() + BusinessConfigUtil.getWorkspacePath() + applicationId
@@ -101,6 +104,7 @@ public class AppDefinitionConverter {
         appDefinition.getMetadata().setVnfdId(application.getName());
         appDefinition.getMetadata().setVnfdName(application.getName());
 
+        appDefinition.setImports(Arrays.asList(getImportNodeTypeFileName()));
         //update the nodeTemplates
         TopologyTemplate topologyTemplate = new VMAppTopologyTemplateConverter().convertNodeTemplates(application,
             queryFlavors(application), queryImages(application));
@@ -150,4 +154,14 @@ public class AppDefinitionConverter {
         return imageMap;
     }
 
+    private static String getImportNodeTypeFileName(){
+        File file  = new File(PACKAGE_NODE_TYPE_TEMPLATE_PATH);
+        if(file.isDirectory()){
+            File[] files = file.listFiles();
+            if(files.length == 1){
+                return files[0].getName();
+            }
+        }
+        return "nfv_vnfd_types_v1_0.yaml";
+    }
 }
