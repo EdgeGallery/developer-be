@@ -330,7 +330,6 @@ public class AppPackageServiceImpl implements AppPackageService {
         appPackage.setPackageFilePath(
             BusinessConfigUtil.getWorkspacePath().concat(application.getId()).concat(File.separator).concat(fileName));
         appPackageMapper.modifyAppPackage(appPackage);
-        applicationService.updateApplicationStatus(application.getId(), EnumApplicationStatus.PACKAGED);
         return appPackage;
     }
 
@@ -362,6 +361,7 @@ public class AppPackageServiceImpl implements AppPackageService {
                 throw new FileOperateException("container zip package error.", ResponseConsts.RET_CREATE_FILE_FAIL);
             }
         }
+        applicationService.updateApplicationStatus(appPackage.getAppId(), EnumApplicationStatus.PACKAGED);
         return appPackage;
     }
 
