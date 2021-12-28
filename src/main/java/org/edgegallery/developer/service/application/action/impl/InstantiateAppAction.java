@@ -41,9 +41,9 @@ public abstract class InstantiateAppAction extends AbstractAction {
     public static final String ACTION_NAME = "Instantiate Application";
 
     // time out: 10 min.
-    public static final int TIMEOUT = 5 * 60 * 1000;
+    public static final int TIMEOUT = 30 * 60 * 1000;
 
-    //interval of the query, 5s.
+    //interval of the query, 20s.
     public static final int INTERVAL = 20000;
 
     ApplicationService applicationService = (ApplicationService) SpringContextUtil.getBean(ApplicationService.class);
