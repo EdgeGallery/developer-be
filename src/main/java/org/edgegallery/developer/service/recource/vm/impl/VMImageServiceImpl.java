@@ -91,8 +91,8 @@ public class VMImageServiceImpl implements VMImageService {
     // time out: 10 min.
     public static final int TIMEOUT = 10 * 60 * 1000;
 
-    //interval of the query, 5s.
-    public static final int INTERVAL = 10000;
+    //interval of the query, 20s.
+    public static final int INTERVAL = 20000;
 
     private static Gson gson = new Gson();
 
@@ -458,7 +458,8 @@ public class VMImageServiceImpl implements VMImageService {
     }
 
     private UploadFileInfo queryImageCheckFromFileSystem(String filesystemImageId) {
-
+        // try to 3 time if return null
+        int failNum = 0;
         String filesystemUrl = fileServerAddress + String.format(Consts.SYSTEM_IMAGE_GET_URL, filesystemImageId);
         int waitingTime = 0;
         try {
@@ -471,26 +472,31 @@ public class VMImageServiceImpl implements VMImageService {
 
             FileSystemResponse imageCheckResult = HttpClientUtil.queryImageCheck(filesystemUrl);
             if (imageCheckResult == null) {
+                failNum++;
+            }else {
+                int status = imageCheckResult.getCheckStatusResponse().getStatus();
+                if (imageStatusBySuccess(status)) {
+                    String checkSum = imageCheckResult.getCheckStatusResponse().getCheckInfo().getChecksum();
+                    String imageName = imageCheckResult.getFileName();
+                    String imageFormat = imageCheckResult.getCheckStatusResponse().getCheckInfo().getImageInfo().getFormat();
+                    String imageSize = imageCheckResult.getCheckStatusResponse().getCheckInfo().getImageInfo()
+                        .getImageSize();
+                    return new UploadFileInfo(imageName, checkSum, imageFormat, Long.parseLong(imageSize));
+                } else if (status == CHECK_STATUS_PROGRESS) {
+                    LOGGER.info("filesystem is checking! ");
+                } else {
+                    String msg = imageCheckResult.getCheckStatusResponse().getMsg();
+                    return new UploadFileInfo(status, msg);
+                }
+            }
+            if (failNum >= 3) {
                 return new UploadFileInfo(3, EnumProcessErrorType.FILESYSTEM_CHECK_FAILED.getErrorType());
             }
-            int status = imageCheckResult.getCheckStatusResponse().getStatus();
-            if (imageStatusBySuccess(status)) {
-                String checkSum = imageCheckResult.getCheckStatusResponse().getCheckInfo().getChecksum();
-                String imageName = imageCheckResult.getFileName();
-                String imageFormat = imageCheckResult.getCheckStatusResponse().getCheckInfo().getImageInfo().getFormat();
-                String imageSize = imageCheckResult.getCheckStatusResponse().getCheckInfo().getImageInfo()
-                    .getImageSize();
-                return new UploadFileInfo(imageName, checkSum, imageFormat, Long.parseLong(imageSize));
-            } else if (status == CHECK_STATUS_PROGRESS) {
-                try {
-                    Thread.sleep(INTERVAL);
-                    waitingTime += INTERVAL;
-                } catch (Exception e) {
-                    Thread.currentThread().interrupt();
-                }
-            } else {
-                String msg = imageCheckResult.getCheckStatusResponse().getMsg();
-                return new UploadFileInfo(status, msg);
+            try {
+                Thread.sleep(INTERVAL);
+                waitingTime += INTERVAL;
+            } catch (Exception e) {
+                Thread.currentThread().interrupt();
             }
 
         }
