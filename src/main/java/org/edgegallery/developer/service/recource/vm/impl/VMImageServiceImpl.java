@@ -14,7 +14,6 @@
 
 package org.edgegallery.developer.service.recource.vm.impl;
 
-import com.google.gson.Gson;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -68,6 +67,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import org.springframework.web.multipart.MultipartFile;
+import com.google.gson.Gson;
 
 @Service("VMImageService")
 public class VMImageServiceImpl implements VMImageService {
@@ -91,8 +91,8 @@ public class VMImageServiceImpl implements VMImageService {
     // time out: 10 min.
     public static final int TIMEOUT = 10 * 60 * 1000;
 
-    //interval of the query, 5s.
-    public static final int INTERVAL = 10000;
+    //interval of the query, 20s.
+    public static final int INTERVAL = 20000;
 
     private static Gson gson = new Gson();
 
@@ -184,12 +184,18 @@ public class VMImageServiceImpl implements VMImageService {
         vmImage.setUserName(AccessUserUtil.getUser().getUserName());
         vmImage.setStatus(EnumVmImageStatus.UPLOAD_WAIT);
         int ret = vmImageMapper.createVmImage(vmImage);
-        if (ret > 0) {
-            LOGGER.info("Create vm image {} success ", vmImage.getUserId());
-            return true;
+        if (ret < 1) {
+            LOGGER.error("Create vm image failed.");
+            throw new DataBaseException("Create vm image failed", ResponseConsts.RET_CERATE_DATA_FAIL);
         }
-        LOGGER.error("Create vm image failed.");
-        throw new DataBaseException("Create vm image failed", ResponseConsts.RET_CERATE_DATA_FAIL);
+        VMImage newVmImage = vmImageMapper.getVmImageByName(vmImage.getName(), vmImage.getUserId());
+        File uploadRootDir = new File(getUploadVmImageRootDir(newVmImage.getId()));
+        if (!uploadRootDir.exists()) {
+            LOGGER.info("file dir does not exist, mkdir dirName:{}", newVmImage.getId());
+            uploadRootDir.mkdirs();
+        }
+        LOGGER.info("Create vm image {} success ", newVmImage.getId());
+        return true;
     }
 
     @Override
@@ -441,11 +447,13 @@ public class VMImageServiceImpl implements VMImageService {
     }
 
     private Boolean updateUploadFileToVmImage(UploadFileInfo uploadFileInfo, String filesystemImageId, int imageId) {
-        String uploadedSystemPath = fileServerAddress + String.format(Consts.SYSTEM_IMAGE_DOWNLOAD_URL, filesystemImageId);
+        String uploadedSystemPath =
+            fileServerAddress + String.format(Consts.SYSTEM_IMAGE_DOWNLOAD_URL, filesystemImageId);
         if (StringUtils.isNotEmpty(uploadFileInfo.getErrorType())) {
             // delete file system image
             LOGGER.error("query image info failed on file server!");
-            HttpClientUtil.deleteSystemImage(fileServerAddress + String.format(Consts.SYSTEM_IMAGE_GET_URL, filesystemImageId));
+            HttpClientUtil
+                .deleteSystemImage(fileServerAddress + String.format(Consts.SYSTEM_IMAGE_GET_URL, filesystemImageId));
             vmImageMapper.updateVmImageStatus(imageId, EnumVmImageStatus.UPLOAD_FAILED.toString());
             vmImageMapper.updateVmImageErrorType(imageId, uploadFileInfo.getErrorType());
             return false;
@@ -458,7 +466,8 @@ public class VMImageServiceImpl implements VMImageService {
     }
 
     private UploadFileInfo queryImageCheckFromFileSystem(String filesystemImageId) {
-
+        // try to 3 time if return null
+        int failNum = 0;
         String filesystemUrl = fileServerAddress + String.format(Consts.SYSTEM_IMAGE_GET_URL, filesystemImageId);
         int waitingTime = 0;
         try {
@@ -471,26 +480,32 @@ public class VMImageServiceImpl implements VMImageService {
 
             FileSystemResponse imageCheckResult = HttpClientUtil.queryImageCheck(filesystemUrl);
             if (imageCheckResult == null) {
+                failNum++;
+            } else {
+                int status = imageCheckResult.getCheckStatusResponse().getStatus();
+                if (imageStatusBySuccess(status)) {
+                    String checkSum = imageCheckResult.getCheckStatusResponse().getCheckInfo().getChecksum();
+                    String imageName = imageCheckResult.getFileName();
+                    String imageFormat = imageCheckResult.getCheckStatusResponse().getCheckInfo().getImageInfo()
+                        .getFormat();
+                    String imageSize = imageCheckResult.getCheckStatusResponse().getCheckInfo().getImageInfo()
+                        .getImageSize();
+                    return new UploadFileInfo(imageName, checkSum, imageFormat, Long.parseLong(imageSize));
+                } else if (status == CHECK_STATUS_PROGRESS) {
+                    LOGGER.info("filesystem is checking! ");
+                } else {
+                    String msg = imageCheckResult.getCheckStatusResponse().getMsg();
+                    return new UploadFileInfo(status, msg);
+                }
+            }
+            if (failNum >= 3) {
                 return new UploadFileInfo(3, EnumProcessErrorType.FILESYSTEM_CHECK_FAILED.getErrorType());
             }
-            int status = imageCheckResult.getCheckStatusResponse().getStatus();
-            if (imageStatusBySuccess(status)) {
-                String checkSum = imageCheckResult.getCheckStatusResponse().getCheckInfo().getChecksum();
-                String imageName = imageCheckResult.getFileName();
-                String imageFormat = imageCheckResult.getCheckStatusResponse().getCheckInfo().getImageInfo().getFormat();
-                String imageSize = imageCheckResult.getCheckStatusResponse().getCheckInfo().getImageInfo()
-                    .getImageSize();
-                return new UploadFileInfo(imageName, checkSum, imageFormat, Long.parseLong(imageSize));
-            } else if (status == CHECK_STATUS_PROGRESS) {
-                try {
-                    Thread.sleep(INTERVAL);
-                    waitingTime += INTERVAL;
-                } catch (Exception e) {
-                    Thread.currentThread().interrupt();
-                }
-            } else {
-                String msg = imageCheckResult.getCheckStatusResponse().getMsg();
-                return new UploadFileInfo(status, msg);
+            try {
+                Thread.sleep(INTERVAL);
+                waitingTime += INTERVAL;
+            } catch (Exception e) {
+                Thread.currentThread().interrupt();
             }
 
         }
@@ -499,8 +514,8 @@ public class VMImageServiceImpl implements VMImageService {
     }
 
     private boolean imageStatusBySuccess(int resultStatus) {
-        for (int status:CHECK_STATUS_SUCCESS) {
-            if (status==resultStatus) {
+        for (int status : CHECK_STATUS_SUCCESS) {
+            if (status == resultStatus) {
                 return true;
             }
         }
@@ -511,6 +526,8 @@ public class VMImageServiceImpl implements VMImageService {
 
         String filesystemUrl = fileServerAddress + String.format(Consts.SYSTEM_IMAGE_GET_URL, filesystemImageId);
         int waitingTime = 0;
+        // try to 3 time if return null
+        int failNum = 0;
         try {
             Thread.sleep(INTERVAL);
             waitingTime += INTERVAL;
@@ -518,30 +535,34 @@ public class VMImageServiceImpl implements VMImageService {
             Thread.currentThread().interrupt();
         }
         while (waitingTime < TIMEOUT) {
-
             FileSystemResponse imageCheckResult = HttpClientUtil.queryImageCheck(filesystemUrl);
             if (imageCheckResult == null) {
+                failNum++;
+            } else {
+                String imageSize = imageCheckResult.getCheckStatusResponse().getCheckInfo().getImageInfo()
+                    .getImageSize();
+                String checkSum = imageCheckResult.getCheckStatusResponse().getCheckInfo().getChecksum();
+                int status = imageCheckResult.getCheckStatusResponse().getStatus();
+                if (status != CHECK_STATUS_PROGRESS && !StringUtils.isEmpty(imageSize) && !StringUtils
+                    .isEmpty(checkSum)) {
+                    String imageName = imageCheckResult.getFileName();
+                    return new UploadFileInfo(imageName, checkSum, imageFormat, Long.parseLong(imageSize));
+                } else if (status == CHECK_STATUS_PROGRESS) {
+                    LOGGER.info("filesystem is checking iso image! ");
+                } else {
+                    String msg = imageCheckResult.getCheckStatusResponse().getMsg();
+                    return new UploadFileInfo(status, msg);
+                }
+            }
+            if (failNum >= 3) {
                 return new UploadFileInfo(3, EnumProcessErrorType.FILESYSTEM_CHECK_FAILED.getErrorType());
             }
-            String imageSize = imageCheckResult.getCheckStatusResponse().getCheckInfo().getImageInfo()
-                .getImageSize();
-            String checkSum = imageCheckResult.getCheckStatusResponse().getCheckInfo().getChecksum();
-            int status = imageCheckResult.getCheckStatusResponse().getStatus();
-            if (status != CHECK_STATUS_PROGRESS && !StringUtils.isEmpty(imageSize) && !StringUtils.isEmpty(checkSum)) {
-                String imageName = imageCheckResult.getFileName();
-                return new UploadFileInfo(imageName, checkSum, imageFormat, Long.parseLong(imageSize));
-            } else if (status == CHECK_STATUS_PROGRESS) {
-                try {
-                    Thread.sleep(INTERVAL);
-                    waitingTime += INTERVAL;
-                } catch (Exception e) {
-                    Thread.currentThread().interrupt();
-                }
-            } else {
-                String msg = imageCheckResult.getCheckStatusResponse().getMsg();
-                return new UploadFileInfo(status, msg);
+            try {
+                Thread.sleep(INTERVAL);
+                waitingTime += INTERVAL;
+            } catch (Exception e) {
+                Thread.currentThread().interrupt();
             }
-
         }
         return new UploadFileInfo(3, EnumProcessErrorType.FILESYSTEM_CHECK_FAILED.getErrorType());
 

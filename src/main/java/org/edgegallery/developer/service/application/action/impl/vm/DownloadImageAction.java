@@ -124,13 +124,14 @@ public class DownloadImageAction extends AbstractAction {
         String vmId = (String) getContext().getParameter(IContextParameter.PARAM_VM_ID);
         ImageExportInfo imageExportInfo = vmAppOperationService.getImageExportInfo(vmId);
         int waitingTime = 0;
+        // try to 3 time if return null
+        int failNum = 0;
         String url = imageExportInfo.getDownloadUrl();
         while (waitingTime < TIMEOUT) {
             FileSystemResponse imageResult = HttpClientUtil.queryImageCheck(url);
             if (imageResult == null) {
-                return false;
-            }
-            try {
+                failNum++;
+            } else {
                 String checkSum = imageResult.getCheckStatusResponse().getCheckInfo().getChecksum();
                 if (!StringUtils.isEmpty(checkSum)) {
                     imageExportInfo.setCheckSum(checkSum);
@@ -144,6 +145,11 @@ public class DownloadImageAction extends AbstractAction {
                     vmAppOperationService.modifyExportInfo(vmId, imageExportInfo);
                     return true;
                 }
+            }
+            if (failNum >= 3) {
+                return false;
+            }
+            try {
                 Thread.sleep(INTERVAL);
                 waitingTime += INTERVAL;
             } catch (InterruptedException e) {
