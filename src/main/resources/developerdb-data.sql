@@ -456,7 +456,7 @@
     insert into tbl_capability_group(id,name,name_en,type,author,create_time,update_time)values('0a96b3f8-72a8-4373-a129-cc30329e73bf','3GPP','3GPP','STANDARD','admin',1628239515017,1628239515017)ON CONFLICT(id) do nothing;
     insert into tbl_capability_group(id,name,name_en,type,author,create_time,update_time)values('24b9aa35-ec95-4827-a6ae-213d581bf9f2','ETSI','ETSI','STANDARD','admin',1628239515017,1628239515017)ON CONFLICT(id) do nothing;
     insert into tbl_capability_group(id,name,name_en,type,author,create_time,update_time)values('4466a11e-c213-40ef-9d28-1907b63b8844','公共框架','Public framework','OPENMEP','admin',1628239515017,1628239515017)ON CONFLICT(id) do nothing;
-    insert into tbl_capability_group(id,name,name_en,type,author,create_time,update_time)values('293bebd8-a226-4df6-adff-2d4bed7b08d3','数据库','DateBase','OPENMEP','admin',1628239515017,1628239515017)ON CONFLICT(id) do nothing;
+    insert into tbl_capability_group(id,name,name_en,type,author,create_time,update_time)values('293bebd8-a226-4df6-adff-2d4bed7b08d3','数据库','DataBase','OPENMEP','admin',1628239515017,1628239515017)ON CONFLICT(id) do nothing;
     insert into tbl_capability_group(id,name,name_en,type,author,create_time,update_time)values('ab88bc3a-e1c0-4d0d-a4e5-242902f39b12','AI能力','AI capabilities','OPENMEP','admin',1628239515017,1628239515017)ON CONFLICT(id) do nothing;
     insert into tbl_capability_group(id,name,name_en,type,author,create_time,update_time)values('4dba5f43-d802-4ec2-89c5-a2b5d3ffa5fd','视频处理','Video processing','OPENMEP','admin',1628239515017,1628239515017)ON CONFLICT(id) do nothing;
 
