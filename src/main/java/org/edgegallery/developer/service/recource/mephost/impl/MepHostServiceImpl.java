@@ -119,7 +119,7 @@ public class MepHostServiceImpl implements MepHostService {
         int ret = mepHostMapper.createHost(host);
         if (ret < 1) {
             LOGGER.error("Create host failed!");
-            throw new DataBaseException("Create host failed!", ResponseConsts.RET_CERATE_DATA_FAIL);
+            throw new DataBaseException("Create host failed!", ResponseConsts.RET_CREATE_DATA_FAIL);
         }
         if (host.getVimType() != EnumVimType.K8S) {
             LOGGER.info("Crete host {} success ", host.getId());
@@ -228,7 +228,7 @@ public class MepHostServiceImpl implements MepHostService {
         UploadFile result = uploadService.saveFileToLocal(uploadFile, userId);
         if (result == null) {
             LOGGER.error("save config file failed!");
-            throw new DataBaseException("Failed to save file!", ResponseConsts.RET_CERATE_DATA_FAIL);
+            throw new DataBaseException("Failed to save file!", ResponseConsts.RET_CREATE_DATA_FAIL);
         }
         return result;
     }

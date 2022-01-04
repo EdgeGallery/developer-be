@@ -58,7 +58,7 @@ public class OperationStatusServiceImpl implements OperationStatusService {
         if (res < 1) {
             LOGGER.error("Create operationStatus in db error.");
             throw new DataBaseException("Create operationStatus in db error.",
-                ResponseConsts.RET_CERATE_DATA_FAIL);
+                ResponseConsts.RET_CREATE_DATA_FAIL);
         }
         return true;
     }
@@ -69,7 +69,7 @@ public class OperationStatusServiceImpl implements OperationStatusService {
         if (res <1) {
             LOGGER.error("Modify operationStatus in db error.");
             throw new DataBaseException("Modify operationStatus in db error.",
-                ResponseConsts.RET_CERATE_DATA_FAIL);
+                ResponseConsts.RET_CREATE_DATA_FAIL);
         }
         return true;
     }

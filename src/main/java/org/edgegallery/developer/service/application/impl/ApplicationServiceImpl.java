@@ -134,7 +134,7 @@ public class ApplicationServiceImpl implements ApplicationService {
         int res = applicationMapper.createApplication(application);
         if (res < 1) {
             LOGGER.error("Create application in db error.");
-            throw new DataBaseException("Create application in db error.", ResponseConsts.RET_CERATE_DATA_FAIL);
+            throw new DataBaseException("Create application in db error.", ResponseConsts.RET_CREATE_DATA_FAIL);
         }
         LOGGER.info("Create application success.");
         //query db to get model with default values.

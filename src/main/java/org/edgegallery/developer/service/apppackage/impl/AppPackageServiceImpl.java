@@ -367,7 +367,7 @@ public class AppPackageServiceImpl implements AppPackageService {
         int res = appPackageMapper.createAppPackage(appPackage);
         if (res <= 0) {
             LOGGER.error("create app package failed.");
-            throw new DataBaseException("create app package failed.", ResponseConsts.RET_CERATE_DATA_FAIL);
+            throw new DataBaseException("create app package failed.", ResponseConsts.RET_CREATE_DATA_FAIL);
         }
         return true;
     }

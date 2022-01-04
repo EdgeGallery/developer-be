@@ -94,7 +94,7 @@ public class CapabilityServiceImpl implements CapabilityService {
                 CapabilityGroup result = capbilityGroupService.create(group);
                 if (result == null) {
                     LOGGER.error("create group failed!");
-                    throw new DataBaseException("create group failed!", ResponseConsts.RET_CERATE_DATA_FAIL);
+                    throw new DataBaseException("create group failed!", ResponseConsts.RET_CREATE_DATA_FAIL);
                 }
             } else {
                 if (findGroups.size() == 1) {
