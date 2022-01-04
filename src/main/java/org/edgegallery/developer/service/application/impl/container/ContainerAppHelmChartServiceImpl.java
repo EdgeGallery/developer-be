@@ -140,7 +140,7 @@ public class ContainerAppHelmChartServiceImpl implements ContainerAppHelmChartSe
             int res = helmChartMapper.createHelmChart(applicationId, helmChart);
             if (res < 1) {
                 LOGGER.error("Failed to save helm chart!");
-                throw new DataBaseException("Failed to save helm chart!", ResponseConsts.RET_CERATE_DATA_FAIL);
+                throw new DataBaseException("Failed to save helm chart!", ResponseConsts.RET_CREATE_DATA_FAIL);
             }
             //update application status
             applicationService.updateApplicationStatus(applicationId, EnumApplicationStatus.CONFIGURED);
@@ -457,7 +457,7 @@ public class ContainerAppHelmChartServiceImpl implements ContainerAppHelmChartSe
         int ret = uploadFileService.saveFile(result);
         if (ret < 1) {
             LOGGER.error("save file record to db failed!");
-            throw new DataBaseException("save file record to db failed!", ResponseConsts.RET_CERATE_DATA_FAIL);
+            throw new DataBaseException("save file record to db failed!", ResponseConsts.RET_CREATE_DATA_FAIL);
         }
     }
 

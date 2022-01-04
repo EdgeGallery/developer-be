@@ -246,7 +246,7 @@ public class ContainerImageServiceImpl implements ContainerImageService {
         if (retCode < 1) {
             String errorMsg = "Create ContainerImage failed.";
             LOGGER.error(errorMsg);
-            throw new DataBaseException(errorMsg, ResponseConsts.RET_CERATE_DATA_FAIL);
+            throw new DataBaseException(errorMsg, ResponseConsts.RET_CREATE_DATA_FAIL);
         }
         LOGGER.info("create ContainerImage success");
         return containerImageMapper.getContainerImage(containerImage.getImageId());

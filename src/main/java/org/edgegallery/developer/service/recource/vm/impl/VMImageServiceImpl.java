@@ -186,7 +186,7 @@ public class VMImageServiceImpl implements VMImageService {
         int ret = vmImageMapper.createVmImage(vmImage);
         if (ret < 1) {
             LOGGER.error("Create vm image failed.");
-            throw new DataBaseException("Create vm image failed", ResponseConsts.RET_CERATE_DATA_FAIL);
+            throw new DataBaseException("Create vm image failed", ResponseConsts.RET_CREATE_DATA_FAIL);
         }
         VMImage newVmImage = vmImageMapper.getVmImageByName(vmImage.getName(), vmImage.getUserId());
         File uploadRootDir = new File(getUploadVmImageRootDir(newVmImage.getId()));
@@ -618,7 +618,7 @@ public class VMImageServiceImpl implements VMImageService {
         if (res < 1) {
             LOGGER.error("Create vm image slim operationStatus in db error.");
             throw new DataBaseException("Create vm image slim operationStatus in db error.",
-                ResponseConsts.RET_CERATE_DATA_FAIL);
+                ResponseConsts.RET_CREATE_DATA_FAIL);
         }
 
         LOGGER.info("update image status to SLIMMING.");

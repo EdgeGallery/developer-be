@@ -324,7 +324,7 @@ public class VMAppOperationServiceImpl extends AppOperationServiceImpl implement
         int res = vmInstantiateInfoMapper.createVMInstantiateInfo(vmId, instantiateInfo);
         if (res < 1) {
             LOGGER.error("create vm instantiate info failed");
-            throw new DataBaseException("create vm instantiate info failed.", ResponseConsts.RET_CERATE_DATA_FAIL);
+            throw new DataBaseException("create vm instantiate info failed.", ResponseConsts.RET_CREATE_DATA_FAIL);
         }
         return true;
     }
@@ -347,7 +347,7 @@ public class VMAppOperationServiceImpl extends AppOperationServiceImpl implement
         int res = imageExportInfoMapper.createImageExportInfoInfo(vmId, imageExportInfo);
         if (res < 1) {
             LOGGER.warn("create image export info baseDate fail");
-            throw new DataBaseException("create image export info baseDate fail.", ResponseConsts.RET_CERATE_DATA_FAIL);
+            throw new DataBaseException("create image export info baseDate fail.", ResponseConsts.RET_CREATE_DATA_FAIL);
         }
         return true;
     }
@@ -357,7 +357,7 @@ public class VMAppOperationServiceImpl extends AppOperationServiceImpl implement
         int res = imageExportInfoMapper.modifyImageExportInfoInfoByVMId(vmId, imageExportInfo);
         if (res < 1) {
             LOGGER.warn("modify image export info baseDate fail");
-            throw new DataBaseException("modify image export info baseDate fail.", ResponseConsts.RET_CERATE_DATA_FAIL);
+            throw new DataBaseException("modify image export info baseDate fail.", ResponseConsts.RET_CREATE_DATA_FAIL);
         }
         return true;
     }

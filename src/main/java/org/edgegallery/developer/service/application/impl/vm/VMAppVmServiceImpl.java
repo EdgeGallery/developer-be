@@ -62,7 +62,7 @@ public class VMAppVmServiceImpl implements VMAppVmService {
         int res = vmMapper.createVM(applicationId, virtualMachine);
         if (res < 1) {
             LOGGER.error("Create vm in db error.");
-            throw new DataBaseException("Create vm in db error.", ResponseConsts.RET_CERATE_DATA_FAIL);
+            throw new DataBaseException("Create vm in db error.", ResponseConsts.RET_CREATE_DATA_FAIL);
         }
         if (virtualMachine.getVmCertificate() != null) {
             vmMapper.createVMCertificate(virtualMachine.getId(), virtualMachine.getVmCertificate());
@@ -162,7 +162,7 @@ public class VMAppVmServiceImpl implements VMAppVmService {
         int res = vmMapper.createVMPort(vmId, port);
         if (res < 1) {
             LOGGER.error("Create VMPort in db error.");
-            throw new DataBaseException("Create VMPort in db error.", ResponseConsts.RET_CERATE_DATA_FAIL);
+            throw new DataBaseException("Create VMPort in db error.", ResponseConsts.RET_CREATE_DATA_FAIL);
         }
         return res;
     }

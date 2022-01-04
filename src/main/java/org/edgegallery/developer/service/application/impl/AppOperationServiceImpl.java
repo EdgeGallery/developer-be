@@ -255,7 +255,7 @@ public class AppOperationServiceImpl implements AppOperationService {
         int res = capabilityMapper.insert(capability);
         if (res < 1) {
             LOGGER.error("store db to tbl_capability fail!");
-            throw new DataBaseException("save capability db fail!", ResponseConsts.RET_CERATE_DATA_FAIL);
+            throw new DataBaseException("save capability db fail!", ResponseConsts.RET_CREATE_DATA_FAIL);
         }
         return true;
     }
