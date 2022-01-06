@@ -34,7 +34,7 @@ public class ImageInfo {
     private String fileName;
 
     @JsonProperty("virtual_size")
-    private String virtualSize;
+    private float virtualSize;
 
     @JsonProperty("disk_size")
     private String imageSize;

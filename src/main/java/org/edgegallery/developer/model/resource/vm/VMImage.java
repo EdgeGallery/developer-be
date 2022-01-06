@@ -43,6 +43,12 @@ public class VMImage {
     @Range(min = 1, max = 9999)
     private Integer systemDiskSize;
 
+    @ApiModelProperty(example = "virtio")
+    @Pattern(regexp = "virtio|ide|scsi|")
+    private String diskBus;
+
+    private float virtualSize;
+
     @Length(max = 128)
     private String name;
 
