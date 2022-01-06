@@ -25,6 +25,8 @@
     <result property="osVersion" column="os_version"/>
     <result property="osBitType" column="os_bit_type"/>
     <result property="systemDiskSize" column="system_disk_size"/>
+    <result property="diskBus" column="disk_bus"/>
+    <result property="virtualSize" column="virtual_ize"/>
     <result property="imageFileName" column="image_file_name"/>
     <result property="createTime" column="create_time"/>
     <result property="modifyTime" column="modify_time"/>
@@ -42,15 +44,15 @@
   </resultMap>
 
   <sql id="AllColumn">
-    id, name, visible_type, os_type, os_version, os_bit_type, system_disk_size, image_file_name,
-    create_time, modify_time, image_format, upload_time, down_load_url, image_size, status, image_slim_status,
-    user_id, user_name, file_md5, file_identifier, error_type
+    id, name, visible_type, os_type, os_version, os_bit_type, system_disk_size, disk_bus, virtual_size,
+    image_file_name, create_time, modify_time, image_format, upload_time, down_load_url, image_size, status,
+    image_slim_status, user_id, user_name, file_md5, file_identifier, error_type
   </sql>
 
   <select id="getVmImagesByCondition" parameterType="java.util.Map"
     resultMap="VmImageMap">
-    SELECT id, name, visible_type, os_type, os_version, os_bit_type, system_disk_size, user_id, user_name,
-    image_format, image_slim_status, image_size, to_char(upload_time, 'YYYY-MM-DD HH24:MI:SS') as upload_time,
+    SELECT id, name, visible_type, os_type, os_version, os_bit_type, system_disk_size, disk_bus, virtual_size,
+    user_id, user_name, image_format, image_slim_status, image_size, to_char(upload_time, 'YYYY-MM-DD HH24:MI:SS') as upload_time,
     status, to_char(create_time, 'YYYY-MM-DD HH24:MI:SS') as create_time, error_type
     FROM tbl_vm_image
     <where>
@@ -157,16 +159,16 @@
   </select>
 
   <insert id="createVmImage" parameterType="org.edgegallery.developer.model.resource.vm.VMImage">
-    insert into tbl_vm_image (name, visible_type, os_type, os_version, os_bit_type, system_disk_size,
+    insert into tbl_vm_image (name, visible_type, os_type, os_version, os_bit_type, system_disk_size, disk_bus,
     user_id, user_name, create_time, modify_time, status)
-    values (#{name}, #{visibleType}, #{osType}, #{osVersion}, #{osBitType}, #{systemDiskSize}, #{userId}, #{userName}, now(), now(), #{status})
+    values (#{name}, #{visibleType}, #{osType}, #{osVersion}, #{osBitType}, #{systemDiskSize}, #{diskBus}, #{userId}, #{userName}, now(), now(), #{status})
   </insert>
 
   <update id="updateVmImage" parameterType="org.edgegallery.developer.model.resource.vm.VMImage">
     UPDATE tbl_vm_image
     SET name=#{name}, visible_type=#{visibleType},
     os_type=#{osType}, os_version=#{osVersion},
-    os_bit_type=#{osBitType}, system_disk_size=#{systemDiskSize}, modify_time=now()
+    os_bit_type=#{osBitType}, system_disk_size=#{systemDiskSize}, disk_bus=#{diskBus}, modify_time=now()
     WHERE id = #{id}
     <if test="userId != null">
       and user_id = #{userId}
@@ -200,7 +202,7 @@
     UPDATE tbl_vm_image
     SET status = #{status}, down_load_url = #{downLoadUrl}, image_file_name=#{fileName},
     file_md5=#{fileMd5}, image_format=#{fileFormat}, upload_time=now(),
-    image_size=#{fileSize}
+    image_size=#{fileSize}, virtual_size=#{virtualSize}
     WHERE id = #{fileId}
   </update>
 
@@ -211,9 +213,9 @@
   </update>
 
   <insert id="createVmImageAllInfo" parameterType="org.edgegallery.developer.model.resource.vm.VMImage" useGeneratedKeys="true" keyProperty="id">
-    insert into tbl_vm_image (name, visible_type, os_type, os_version, os_bit_type, system_disk_size,
+    insert into tbl_vm_image (name, visible_type, os_type, os_version, os_bit_type, system_disk_size, disk_bus, virtual_size,
     user_id, user_name, create_time, modify_time, upload_time, status, down_load_url, image_file_name, file_md5, image_format, image_size, image_slim_status)
-    values (#{name}, #{visibleType}, #{osType}, #{osVersion}, #{osBitType}, #{systemDiskSize}, #{userId}, #{userName}, now(), now(), now(), #{status},
+    values (#{name}, #{visibleType}, #{osType}, #{osVersion}, #{osBitType}, #{systemDiskSize}, #{diskBus}, #{virtualSize}, #{userId}, #{userName}, now(), now(), now(), #{status},
     #{downLoadUrl}, #{imageFileName}, #{fileMd5}, #{imageFormat}, #{imageSize}, #{imageSlimStatus})
   </insert>
 </mapper>

@@ -35,7 +35,7 @@ public class ImageDesc {
 
     private String containerFormat = "bare";
 
-    private String diskFormat = "raw";
+    private String diskFormat = "qcow2";
 
     private int minDisk = 0;
 
@@ -75,6 +75,7 @@ public class ImageDesc {
         setChecksum(vmImage.getFileMd5());
         setDiskFormat(vmImage.getImageFormat());
         setMinDisk(vmImage.getSystemDiskSize());
+        setHwDiskBus(vmImage.getDiskBus());
         setSwImage(url);
         setOperatingSystem(vmImage.getOsType());
     }

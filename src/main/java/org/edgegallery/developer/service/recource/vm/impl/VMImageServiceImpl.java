@@ -490,7 +490,8 @@ public class VMImageServiceImpl implements VMImageService {
                         .getFormat();
                     String imageSize = imageCheckResult.getCheckStatusResponse().getCheckInfo().getImageInfo()
                         .getImageSize();
-                    return new UploadFileInfo(imageName, checkSum, imageFormat, Long.parseLong(imageSize));
+                    float virtualSize = imageCheckResult.getCheckStatusResponse().getCheckInfo().getImageInfo().getVirtualSize();
+                    return new UploadFileInfo(imageName, checkSum, imageFormat, Long.parseLong(imageSize), virtualSize);
                 } else if (status == CHECK_STATUS_PROGRESS) {
                     LOGGER.info("filesystem is checking! ");
                 } else {
@@ -542,11 +543,12 @@ public class VMImageServiceImpl implements VMImageService {
                 String imageSize = imageCheckResult.getCheckStatusResponse().getCheckInfo().getImageInfo()
                     .getImageSize();
                 String checkSum = imageCheckResult.getCheckStatusResponse().getCheckInfo().getChecksum();
+                float virtualSize = imageCheckResult.getCheckStatusResponse().getCheckInfo().getImageInfo().getVirtualSize();
                 int status = imageCheckResult.getCheckStatusResponse().getStatus();
                 if (status != CHECK_STATUS_PROGRESS && !StringUtils.isEmpty(imageSize) && !StringUtils
                     .isEmpty(checkSum)) {
                     String imageName = imageCheckResult.getFileName();
-                    return new UploadFileInfo(imageName, checkSum, imageFormat, Long.parseLong(imageSize));
+                    return new UploadFileInfo(imageName, checkSum, imageFormat, Long.parseLong(imageSize), virtualSize);
                 } else if (status == CHECK_STATUS_PROGRESS) {
                     LOGGER.info("filesystem is checking iso image! ");
                 } else {

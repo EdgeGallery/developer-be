@@ -38,6 +38,8 @@ public class UploadFileInfo {
 
     private Long fileSize;
 
+    private float virtualSize;
+
     private String status;
 
     private String downLoadUrl;
@@ -76,12 +78,13 @@ public class UploadFileInfo {
      * @param fileFormat File Format
      * @param fileSize File size
      */
-    public UploadFileInfo(String fileName, String fileMd5, String fileFormat, long fileSize) {
+    public UploadFileInfo(String fileName, String fileMd5, String fileFormat, long fileSize, float virtualSize) {
         this.succeeded = true;
         setFileName(fileName);
         setFileMd5(fileMd5);
         setFileFormat(fileFormat);
         setFileSize(fileSize);
+        setVirtualSize(virtualSize);
     }
 
     /**

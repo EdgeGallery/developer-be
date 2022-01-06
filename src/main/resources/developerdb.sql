@@ -321,6 +321,8 @@
     "os_version" varchar(255) DEFAULT NULL,
     "os_bit_type" varchar(255) DEFAULT NULL,
     "system_disk_size" int4 DEFAULT NULL,
+    "disk_bus" varchar(255) DEFAULT NULL,
+    "virtual_size" float4 DEFAULT NULL,
     "image_file_name" varchar(255) DEFAULT NULL,
     "image_format" varchar(255) DEFAULT NULL,
     "down_load_url" varchar(255) DEFAULT NULL,
