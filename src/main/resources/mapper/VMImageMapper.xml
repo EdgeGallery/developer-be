@@ -26,7 +26,7 @@
     <result property="osBitType" column="os_bit_type"/>
     <result property="systemDiskSize" column="system_disk_size"/>
     <result property="diskBus" column="disk_bus"/>
-    <result property="virtualSize" column="virtual_ize"/>
+    <result property="virtualSize" column="virtual_size"/>
     <result property="imageFileName" column="image_file_name"/>
     <result property="createTime" column="create_time"/>
     <result property="modifyTime" column="modify_time"/>
@@ -52,7 +52,7 @@
   <select id="getVmImagesByCondition" parameterType="java.util.Map"
     resultMap="VmImageMap">
     SELECT id, name, visible_type, os_type, os_version, os_bit_type, system_disk_size, disk_bus, virtual_size,
-    user_id, user_name, image_format, image_slim_status, image_size, to_char(upload_time, 'YYYY-MM-DD HH24:MI:SS') as upload_time,
+    image_file_name, down_load_url, file_md5, user_id, user_name, image_format, image_slim_status, image_size, to_char(upload_time, 'YYYY-MM-DD HH24:MI:SS') as upload_time,
     status, to_char(create_time, 'YYYY-MM-DD HH24:MI:SS') as create_time, error_type
     FROM tbl_vm_image
     <where>
