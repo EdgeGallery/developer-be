@@ -187,11 +187,11 @@ MERGE INTO tbl_released_package KEY(id) VALUES('f69fc98c-51d9-4c20-b2ad-20b50359
 MERGE INTO tbl_released_package KEY(id) VALUES('f69fc98c-51d9-4c20-b2ad-20b50359f1cd','appId2','f2759fcb-bb4b-42f5-bc6c-8e1635348fdd','name','v1.0','eg','smart','video','X86','desc','2021-12-14 11:52:10.456+08','userId','userName','testTaskId');
 -- Records of tbl_mep_host
 -- ----------------------------
-MERGE INTO tbl_mep_host KEY(host_id) VALUES('fe934a92-1cfc-42fe-919d-422e2e3bd1f9','k8s-sandbox','localhost','http',31252,'X86','NORMAL','localhost','K8S','test','test',20000,
+MERGE INTO tbl_mep_host KEY(host_id) VALUES('fe934a92-1cfc-42fe-919d-422e2e3bd1f9','k8s-sandbox','localhost','http',31252,'X86','NORMAL','localhost','http','K8S','test','test',20000,
 '5ce78873-d73d-4e7d-84a4-ab75ac95400f',null,null,null,'xian');
-MERGE INTO tbl_mep_host KEY(host_id) VALUES('fe934a92-1cfc-42fe-919d-422e2e3bd1f8','open-stack-sandbox','1.1.1.3','https',30100,'X86','NORMAL','1.1.1.3','OpenStack','test','test',20000,
+MERGE INTO tbl_mep_host KEY(host_id) VALUES('fe934a92-1cfc-42fe-919d-422e2e3bd1f8','open-stack-sandbox','1.1.1.3','https',30100,'X86','NORMAL','1.1.1.3','http','OpenStack','test','test',20000,
 '5ce78873-d73d-4e7d-84a4-ab75ac95400f',null,'VDU1_APP_Plane01_IP=192.168.220.0/24;VDU1_APP_Plane03_IP=192.168.222.0/24;VDU1_APP_Plane02_IP=192.168.221.0/24',null,'xian');
-MERGE INTO tbl_mep_host KEY(host_id) VALUES('fe934a92-1cfc-42fe-919d-422e2e3bd1f7','k8s-sandbox','1.1.1.1','https',30100,'X86','NORMAL','1.1.1.1','K8S','test','test',20000,
+MERGE INTO tbl_mep_host KEY(host_id) VALUES('fe934a92-1cfc-42fe-919d-422e2e3bd1f7','k8s-sandbox','1.1.1.1','https',30100,'X86','NORMAL','1.1.1.1','http','K8S','test','test',20000,
 '5ce78873-d73d-4e7d-84a4-ab75ac95400f',null,null,null,'xian');
 -- ----------------------------
 -- Records of tbl_plugin

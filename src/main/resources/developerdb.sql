@@ -109,6 +109,7 @@
       "architecture" varchar(100) DEFAULT NULL,
       "status" varchar(20) DEFAULT NULL,
       "mec_host_ip" varchar(20) DEFAULT NULL,
+      "mec_host_protocol" varchar(20) DEFAULT NULL,
       "vim_type" varchar(255) DEFAULT NULL,
       "mec_host_user_name" varchar(50) DEFAULT NULL,
       "mec_host_password" varchar(50) DEFAULT NULL,

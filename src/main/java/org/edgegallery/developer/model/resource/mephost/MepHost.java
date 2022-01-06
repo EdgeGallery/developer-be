@@ -14,12 +14,13 @@
 
 package org.edgegallery.developer.model.resource.mephost;
 
-import lombok.Getter;
-import lombok.Setter;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.Range;
+
 @Getter
 @Setter
 public class MepHost {
@@ -47,6 +48,8 @@ public class MepHost {
 
     @NotBlank
     private String mecHostIp;
+
+    private String mecHostProtocol = "http";
 
     @NotNull
     private EnumVimType vimType;
