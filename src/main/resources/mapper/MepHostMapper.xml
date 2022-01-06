@@ -27,6 +27,7 @@
         <result property="architecture" column="architecture"/>
         <result property="status" column="status"/>
         <result property="mecHostIp" column="mec_host_ip"/>
+        <result property="mecHostProtocol" column="mec_host_protocol"/>
         <result property="vimType" column="vim_type"/>
         <result property="mecHostUserName" column="mec_host_user_name"/>
         <result property="mecHostPassword" column="mec_host_password"/>
@@ -39,7 +40,7 @@
     </resultMap>
 
     <sql id="AllColumn">
-        host_id, name, lcm_ip,lcm_protocol,lcm_port,architecture,status,mec_host_ip,
+        host_id, name, lcm_ip,lcm_protocol,lcm_port,architecture,status,mec_host_ip,mec_host_protocol,
         vim_type,mec_host_user_name,mec_host_password,mec_host_port,user_id,config_file_id,net_work_parameter,
         resource,address
     </sql>
@@ -47,11 +48,11 @@
     <insert id="createHost"
             parameterType="org.edgegallery.developer.model.resource.mephost.MepHost">
         insert into
-        tbl_mep_host (host_id, name, lcm_ip,lcm_protocol,lcm_port,architecture,status,mec_host_ip,
+        tbl_mep_host (host_id, name, lcm_ip,lcm_protocol,lcm_port,architecture,status,mec_host_ip,mec_host_protocol,
         vim_type,mec_host_user_name,mec_host_password,mec_host_port,user_id,config_file_id,net_work_parameter,
         resource,address)
         values
-        ( #{id}, #{name}, #{lcmIp},#{lcmProtocol},#{lcmPort},#{architecture},#{status},#{mecHostIp},
+        ( #{id}, #{name}, #{lcmIp},#{lcmProtocol},#{lcmPort},#{architecture},#{status},#{mecHostIp},#{mecHostProtocol},
         #{vimType},#{mecHostUserName},#{mecHostPassword},#{mecHostPort},#{userId},#{configId},#{networkParameter},
         #{resource},#{address})
     </insert>
@@ -93,6 +94,9 @@
             </if>
             <if test="mecHostIp != null and mecHostIp!=''">
                 mec_host_ip=#{mecHostIp},
+            </if>
+            <if test="mecHostIp != null and mecHostIp!=''">
+                mec_host_protocol=#{mecHostProtocol},
             </if>
             <if test="vimType != null">
                 vim_type=#{vimType},
