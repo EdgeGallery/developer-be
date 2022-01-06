@@ -125,7 +125,7 @@ public class MepHostServiceImpl implements MepHostService {
         }
         if (host.getVimType() != EnumVimType.K8S) {
             LOGGER.info("Crete host {} success ", host.getId());
-            //  reverseProxyService.addReverseProxy(host.getId(), host.getMecHostPort(), token);
+            reverseProxyService.addReverseProxy(host.getId(), host.getMecHostPort(), token);
             return true;
         }
         return true;
@@ -151,7 +151,7 @@ public class MepHostServiceImpl implements MepHostService {
                 throw new FileOperateException("delete config file failed!", ResponseConsts.RET_DELETE_FILE_FAIL);
             }
         }
-        //reverseProxyService.deleteReverseProxy(hostId, Consts.DEFAULT_OPENSTACK_VNC_PORT, token);
+        reverseProxyService.deleteReverseProxy(hostId, Consts.DEFAULT_OPENSTACK_VNC_PORT, token);
 
         int res = mepHostMapper.deleteHost(hostId);
         if (res < 1) {
