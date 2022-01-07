@@ -25,6 +25,7 @@ import java.util.UUID;
 import org.apache.commons.lang3.StringUtils;
 import org.edgegallery.developer.common.ResponseConsts;
 import org.edgegallery.developer.exception.DataBaseException;
+import org.edgegallery.developer.exception.DeveloperException;
 import org.edgegallery.developer.exception.EntityNotFoundException;
 import org.edgegallery.developer.exception.FileOperateException;
 import org.edgegallery.developer.exception.IllegalRequestException;
@@ -200,11 +201,12 @@ public class AppOperationServiceImpl implements AppOperationService {
         map.put("affinity", app.getArchitecture());
         map.put("industry", app.getIndustry());
         map.put("testTaskId", testList.get(0).getId());
-        String uploadReslut = AppStoreUtil.storeToAppStore(map, user);
-        checkInnerParamNull(uploadReslut, "upload app to appstore fail!");
+        String uploadResult = AppStoreUtil.storeToAppStore(map, user);
+        checkInnerParamNull(uploadResult, "upload app to appstore fail!");
+        checkResultLength(uploadResult, "upload app to appstore fail!",Integer.parseInt(uploadResult));
 
-        LOGGER.info("upload appstore result:{}", uploadReslut);
-        JsonObject jsonObject = new JsonParser().parse(uploadReslut).getAsJsonObject();
+        LOGGER.info("upload appstore result:{}", uploadResult);
+        JsonObject jsonObject = new JsonParser().parse(uploadResult).getAsJsonObject();
         JsonElement appStoreAppId = jsonObject.get("appId");
         JsonElement appStorePackageId = jsonObject.get("packageId");
 
@@ -215,6 +217,8 @@ public class AppOperationServiceImpl implements AppOperationService {
             .publishToAppStore(appStoreAppId.getAsString(), appStorePackageId.getAsString(), user.getToken(),
                 publishAppDto);
         checkInnerParamNull(publishRes, "publish app to appstore fail!");
+        checkResultLength(publishRes, "publish app to appstore fail!",Integer.parseInt(publishRes));
+
         //release service
         releaseServiceProduced(applicationId, jsonObject);
         applicationMapper.updateApplicationStatus(applicationId, EnumApplicationStatus.RELEASED.toString());
@@ -305,7 +309,7 @@ public class AppOperationServiceImpl implements AppOperationService {
     private <T> void checkInnerParamNull(T innerParam, String msg) {
         if (null == innerParam) {
             LOGGER.error(msg);
-            throw new IllegalRequestException(msg, ResponseConsts.RET_REQUEST_PARAM_EMPTY);
+            throw new DeveloperException(msg, ResponseConsts.RET_PUBLISH_APP_PKG_FAIL);
         }
     }
 
@@ -313,6 +317,13 @@ public class AppOperationServiceImpl implements AppOperationService {
         if (null == param) {
             LOGGER.error(msg);
             throw new EntityNotFoundException(msg, ResponseConsts.RET_QUERY_DATA_EMPTY);
+        }
+    }
+
+    private void checkResultLength(String innerParam, String msg, int retCode) {
+        if (innerParam != null && innerParam.length() <= 5) {
+            LOGGER.error(msg);
+            throw new DeveloperException(msg, retCode);
         }
     }
 

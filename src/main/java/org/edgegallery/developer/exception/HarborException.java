@@ -28,4 +28,15 @@ public class HarborException extends CommonException {
         super(message, ret);
     }
 
+    /**
+     * Constructor to create HarborException with retCode and params.
+     *
+     * @param ret retCode
+     * @param args params of error message
+     */
+    public HarborException(String message, int ret, Object... args) {
+        super(message, ret, args);
+
+    }
+
 }

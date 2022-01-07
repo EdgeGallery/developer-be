@@ -260,7 +260,7 @@ public class MepHostServiceImpl implements MepHostService {
         if (healRes == null) {
             String msg = "health check failed,current ip or port can not be used!";
             LOGGER.error(msg);
-            throw new IllegalRequestException(msg, ResponseConsts.RET_REQUEST_PARAM_ERROR);
+            throw new IllegalRequestException(msg, ResponseConsts.RET_CREATE_SANDBOX_HEALTH_CHECK_FAIL);
         }
         // add mechost to lcm
         boolean addMecHostRes = MepHostUtil.addMecHostToLcm(host, token);
@@ -295,7 +295,7 @@ public class MepHostServiceImpl implements MepHostService {
                 || !getParams.containsKey("VDU1_APP_Plane01_IP")) {
                 LOGGER.error("Network params config error");
                 throw new IllegalRequestException("Network params config error!",
-                    ResponseConsts.RET_REQUEST_PARAM_ERROR);
+                    ResponseConsts.RET_CREATE_SANDBOX_CONFIG_NETWORK_FAIL);
             }
         }
     }

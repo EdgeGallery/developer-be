@@ -126,13 +126,13 @@ public class AppStoreUtilTest {
 
     @Test
     public void testGetPkgInfoSuccess() {
-        ResponseEntity<String> ret = AppStoreUtil.getPkgInfo("appId", "packageId", "");
-        Assert.assertEquals("ok", ret.getBody());
+        String ret = AppStoreUtil.getPkgInfo("appId", "packageId", "");
+        Assert.assertEquals("ok", ret);
     }
 
     @Test
     public void testDownloadPkgSuccess() {
-        ResponseEntity<byte[]> ret = AppStoreUtil.downloadPkg("appId", "packageId", "");
+        byte[] ret = AppStoreUtil.downloadPkg("appId", "packageId", "");
         Assert.assertNotNull(ret);
     }
 

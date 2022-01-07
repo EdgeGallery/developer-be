@@ -176,20 +176,20 @@ public class ContainerAppHelmChartServiceImpl implements ContainerAppHelmChartSe
         if (CollectionUtils.isEmpty(imageList)) {
             String errMsg = "Image info not found in deployment yaml!";
             LOGGER.error(errMsg);
-            throw new FileOperateException(errMsg, ResponseConsts.RET_FILE_FORMAT_ERROR);
+            throw new FileOperateException(errMsg, ResponseConsts.RET_CHECK_IMAGE_EXIST_IN_YAML_FAIL);
         }
         //check service
         boolean isExist = ContainerAppHelmChartUtil.checkServiceExist(tgzPath);
         if (!isExist) {
             String errMsg = "Service info not found in deployment yaml!";
             LOGGER.error(errMsg);
-            throw new FileOperateException(errMsg, ResponseConsts.RET_FILE_FORMAT_ERROR);
+            throw new FileOperateException(errMsg, ResponseConsts.RET_CHECK_SERVICE_EXIST_IN_YAML_FAIL);
         }
         // verify image exist
         String ret = ContainerAppHelmChartUtil.getImageCheckInfo(imageList);
         if (ret != null) {
             LOGGER.error(ret);
-            throw new HarborException(ret, ResponseConsts.RET_GET_HARBOR_IMAGE_LIST_FAIL);
+            throw new HarborException(ret, ResponseConsts.RET_CHECK_IMAGE_EXIST_IN_HARBOR_FAIL, imageList);
         }
 
     }
