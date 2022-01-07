@@ -202,7 +202,7 @@ public class ReverseProxyServiceImpl implements ReverseProxyService {
         String password = vm.getVmCertificate().getPwdCertificate().getPassword();
         LOGGER.info("ip:{}", networkIp);
         LOGGER.info("username:{}", username);
-        String basePath = HttpClientUtil.getUrlPrefix("http", mepHost.getLcmIp(), 30209);
+        String basePath = HttpClientUtil.getUrlPrefix("https", mepHost.getLcmIp(), 30209);
         SshResponseInfo sshResponseInfo = HttpClientUtil
             .sendWebSshRequest(basePath, networkIp, 22, username, password, xsrfValue);
         if (sshResponseInfo == null) {
