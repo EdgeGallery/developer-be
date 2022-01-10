@@ -43,7 +43,7 @@ RUN apk add openssh
 
 RUN  useradd -r -u $UID -g $GID -d $APP_HOME -s /sbin/nologin -c "Docker image user" $USER_NAME
 
-RUN groupadd docker && \
+RUN groupadd -g 1166 docker && \
     gpasswd -a $USER_NAME docker
 
 WORKDIR $APP_HOME
