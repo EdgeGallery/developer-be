@@ -61,9 +61,9 @@ public final class ResponseConsts {
     public static final int RET_QUERY_DATA_FAIL = 20008;
 
     /**
-     * push vm Image  fail.
+     * sandbox health check fail.
      */
-    public static final int RET_PUSH_VM_IMAGE_FAIL = 20009;
+    public static final int RET_CREATE_SANDBOX_HEALTH_CHECK_FAIL = 20009;
 
     /**
      * push harbor Image  fail.
@@ -131,9 +131,9 @@ public final class ResponseConsts {
     public static final int RET_DOWNLOAD_FILE_FAIL = 20022;
 
     /**
-     * download file is null.
+     * sandbox config network fail.
      */
-    public static final int RET_DOWNLOAD_FILE_EMPTY = 20023;
+    public static final int RET_CREATE_SANDBOX_CONFIG_NETWORK_FAIL = 20023;
 
     /**
      *  file format error.
@@ -141,9 +141,9 @@ public final class ResponseConsts {
     public static final int RET_FILE_FORMAT_ERROR = 20024;
 
     /**
-     *  sign file fail.
+     *  image info doesn't exist in harbor.
      */
-    public static final int RET_SIGN_FILE_FAIL= 20025;
+    public static final int RET_CHECK_IMAGE_EXIST_IN_HARBOR_FAIL= 20025;
 
     /**
      *  hash file fail.
@@ -151,9 +151,9 @@ public final class ResponseConsts {
     public static final int RET_HASH_FILE_FAIL= 20026;
 
     /**
-     *  move file fail.
+     *  image info doesn't exist in yaml.
      */
-    public static final int RET_MOVE_FILE_FAIL= 20027;
+    public static final int RET_CHECK_IMAGE_EXIST_IN_YAML_FAIL= 20027;
 
     /**
      *  call lcm interce fail.
@@ -188,7 +188,7 @@ public final class ResponseConsts {
     /**
      *  compress file fail.
      */
-    public static final int RET_COPRESS_FILE_FAIL= 20034;
+    public static final int RET_COMPRESS_FILE_FAIL= 20034;
 
     /**
      *  build sdk project fail.
@@ -207,9 +207,9 @@ public final class ResponseConsts {
 
 
     /**
-     *   transfer file fail.
+     *  service info doesn't exist in yaml.
      */
-    public static final int RET_TRANSFER_FILE_FAIL= 20038;
+    public static final int RET_CHECK_SERVICE_EXIST_IN_YAML_FAIL= 20038;
 
     /**
      *   restful request fail.
@@ -221,6 +221,15 @@ public final class ResponseConsts {
      */
     public static final int RET_COPY_FILE_FAIL= 20040;
 
+    /**
+     *   synchronize pkg fail.
+     */
+    public static final int RET_SYNCHRONIZE_APP_PKG_FAIL= 20041;
+
+    /**
+     *   publish pkg fail.
+     */
+    public static final int RET_PUBLISH_APP_PKG_FAIL= 20042;
 
 
 }

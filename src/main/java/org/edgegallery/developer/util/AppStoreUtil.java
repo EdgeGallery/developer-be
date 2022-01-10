@@ -16,10 +16,15 @@
 
 package org.edgegallery.developer.util;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import java.lang.reflect.Type;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import org.edgegallery.developer.common.Consts;
 import org.edgegallery.developer.model.appstore.PublishAppReqDto;
 import org.edgegallery.developer.model.common.User;
+import org.edgegallery.developer.model.restful.AppStoreErrResponseDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpEntity;
@@ -33,7 +38,6 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
-import com.google.gson.Gson;
 
 public class AppStoreUtil {
 
@@ -70,7 +74,7 @@ public class AppStoreUtil {
                 return responses.getBody();
             }
             LOGGER.error("Upload appstore failed,  status is {}", responses.getStatusCode());
-            return null;
+            return getErrRetCode(responses.getBody());
         } catch (RestClientException e) {
             LOGGER.error("Failed to upload appstore,  exception {}", e.getMessage());
             return null;
@@ -102,7 +106,7 @@ public class AppStoreUtil {
                 return responses.getBody();
             }
             LOGGER.error("publish app failed: the app have exist,  status is {}", responses.getStatusCode());
-            return null;
+            return getErrRetCode(responses.getBody());
         } catch (RestClientException e) {
             LOGGER.error("publish app  failed,  exception {}", e.getMessage());
             return null;
@@ -112,7 +116,7 @@ public class AppStoreUtil {
     /**
      * get pkg info.
      */
-    public static ResponseEntity<String> getPkgInfo(String appId, String pkgId, String token) {
+    public static String getPkgInfo(String appId, String pkgId, String token) {
         SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
         requestFactory.setConnectTimeout(600000);// 设置超时
         requestFactory.setReadTimeout(600000);
@@ -129,7 +133,7 @@ public class AppStoreUtil {
             LOGGER.info("get pkg res: {}", responses);
             if (HttpStatus.OK.equals(responses.getStatusCode()) || HttpStatus.CREATED
                 .equals(responses.getStatusCode())) {
-                return responses;
+                return responses.getBody();
             }
             LOGGER.error("get pkg info failed, status is {}", responses.getStatusCode());
             return null;
@@ -142,7 +146,7 @@ public class AppStoreUtil {
     /**
      * download pkg .
      */
-    public static ResponseEntity<byte[]> downloadPkg(String appId, String pkgId, String token) {
+    public static byte[] downloadPkg(String appId, String pkgId, String token) {
         SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
         requestFactory.setConnectTimeout(600000);// 设置超时
         requestFactory.setReadTimeout(600000);
@@ -159,7 +163,7 @@ public class AppStoreUtil {
             LOGGER.info("download pkg res: {}", responses);
             if (HttpStatus.OK.equals(responses.getStatusCode()) || HttpStatus.CREATED
                 .equals(responses.getStatusCode())) {
-                return responses;
+                return responses.getBody();
             }
             LOGGER.error("download pkg failed, status is {}", responses.getStatusCode());
             return null;
@@ -167,6 +171,20 @@ public class AppStoreUtil {
             LOGGER.error("download pkg failed, exception {}", e.getMessage());
             return null;
         }
+    }
+
+    private static String getErrRetCode(String errBody) {
+        try {
+            Gson gson = new Gson();
+            Type type = new TypeToken<AppStoreErrResponseDto>() { }.getType();
+            AppStoreErrResponseDto appStoreErrResponseDto = gson.fromJson(errBody, type);
+            LOGGER.info("retCode:{}", appStoreErrResponseDto.getRetCode());
+            return String.valueOf(appStoreErrResponseDto.getRetCode());
+        } catch (Exception e) {
+            LOGGER.error("convert errBody {} to AppStoreErrResponseDto fail!", errBody);
+            return null;
+        }
+
     }
 
 }

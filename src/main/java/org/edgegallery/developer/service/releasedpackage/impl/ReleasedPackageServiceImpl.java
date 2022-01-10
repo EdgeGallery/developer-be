@@ -30,12 +30,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import org.apache.commons.io.FileUtils;
+import org.edgegallery.developer.common.Consts;
 import org.edgegallery.developer.common.ResponseConsts;
 import org.edgegallery.developer.exception.DataBaseException;
+import org.edgegallery.developer.exception.DeveloperException;
 import org.edgegallery.developer.exception.FileFoundFailException;
 import org.edgegallery.developer.exception.FileOperateException;
+import org.edgegallery.developer.exception.ForbiddenException;
 import org.edgegallery.developer.exception.IllegalRequestException;
-import org.edgegallery.developer.exception.RestfulRequestException;
 import org.edgegallery.developer.exception.UnauthorizedException;
 import org.edgegallery.developer.mapper.releasedpackage.ReleasedPackageMapper;
 import org.edgegallery.developer.model.apppackage.AppPackage;
@@ -58,7 +60,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
@@ -89,6 +90,13 @@ public class ReleasedPackageServiceImpl implements ReleasedPackageService {
             LOGGER.error("no user info was found!");
             throw new UnauthorizedException("no user info was found", ResponseConsts.RET_REQUEST_UNAUTHORIZED);
         }
+        boolean permissionRes = !StringUtils.isEmpty(user.getUserAuth()) && user.getUserAuth()
+            .contains(Consts.ROLE_DEVELOPER_ADMIN);
+        //check user permissions
+        if (!permissionRes) {
+            LOGGER.error("admin permission are required!");
+            throw new ForbiddenException("admin permission are required!", ResponseConsts.RET_REQUEST_FORBIDDEN);
+        }
 
         // check pkgReqDtos param
         if (CollectionUtils.isEmpty(pkgReqDtos)) {
@@ -98,17 +106,15 @@ public class ReleasedPackageServiceImpl implements ReleasedPackageService {
 
         for (ReleasedPkgReqDto reqDto : pkgReqDtos) {
             // call app store get pkg interface && insert released db
-            ResponseEntity<String> queryPkgRes = AppStoreUtil
-                .getPkgInfo(reqDto.getAppId(), reqDto.getPackageId(), user.getToken());
+            String queryPkgRes = AppStoreUtil.getPkgInfo(reqDto.getAppId(), reqDto.getPackageId(), user.getToken());
             if (queryPkgRes == null) {
                 String msg = "call app store query pkg interface failed!";
                 LOGGER.error(msg);
-                throw new RestfulRequestException(msg, ResponseConsts.RET_RESTFUL_REQUEST_FAIL);
+                throw new DeveloperException(msg, ResponseConsts.RET_SYNCHRONIZE_APP_PKG_FAIL);
             }
             saveReleasedPkg(user, queryPkgRes);
             // download pkg
-            ResponseEntity<byte[]> downloadPkgRes = AppStoreUtil
-                .downloadPkg(reqDto.getAppId(), reqDto.getPackageId(), user.getToken());
+            byte[] downloadPkgRes = AppStoreUtil.downloadPkg(reqDto.getAppId(), reqDto.getPackageId(), user.getToken());
             boolean res = saveDownloadResToFile(reqDto.getPackageId(), downloadPkgRes);
             if (!res) {
                 String msg = "save download res to file failed!!";
@@ -121,8 +127,8 @@ public class ReleasedPackageServiceImpl implements ReleasedPackageService {
         return true;
     }
 
-    private void saveReleasedPkg(User user, ResponseEntity<String> queryPkgRes) {
-        JsonObject jsonObject = new JsonParser().parse(queryPkgRes.getBody()).getAsJsonObject();
+    private void saveReleasedPkg(User user, String queryPkgRes) {
+        JsonObject jsonObject = new JsonParser().parse(queryPkgRes).getAsJsonObject();
         JsonObject dataObj = jsonObject.getAsJsonObject("data");
         String appId = dataObj.get("appId").getAsString();
         String packageId = dataObj.get("packageId").getAsString();
@@ -141,12 +147,11 @@ public class ReleasedPackageServiceImpl implements ReleasedPackageService {
         }
     }
 
-    private boolean saveDownloadResToFile(String packageId, ResponseEntity<byte[]> downloadPkgRes) {
+    private boolean saveDownloadResToFile(String packageId, byte[] downloadPkgRes) {
         try {
-            byte[] result = downloadPkgRes.getBody();
-            if (result == null) {
+            if (downloadPkgRes == null) {
                 LOGGER.error("download pkg failed!");
-                throw new RestfulRequestException("download pkg failed!", ResponseConsts.RET_RESTFUL_REQUEST_FAIL);
+                throw new DeveloperException("download pkg failed!", ResponseConsts.RET_SYNCHRONIZE_APP_PKG_FAIL);
             }
 
             String fileName = packageId + ".zip";
@@ -167,7 +172,7 @@ public class ReleasedPackageServiceImpl implements ReleasedPackageService {
                 throw new FileOperateException("create pkg file failed!", ResponseConsts.RET_CREATE_FILE_FAIL);
             }
 
-            FileUtils.writeByteArrayToFile(pkgFile, result);
+            FileUtils.writeByteArrayToFile(pkgFile, downloadPkgRes);
         } catch (IOException e) {
             LOGGER.error("save file occur {}", e.getMessage());
             return false;
@@ -293,11 +298,12 @@ public class ReleasedPackageServiceImpl implements ReleasedPackageService {
         map.put("affinity", releasedPackage.getArchitecture());
         map.put("industry", releasedPackage.getIndustry());
         map.put("testTaskId", releasedPackage.getTestTaskId());
-        String uploadReslut = AppStoreUtil.storeToAppStore(map, user);
-        checkInnerParamNull(uploadReslut, "upload app to appstore fail!");
+        String uploadResult = AppStoreUtil.storeToAppStore(map, user);
+        checkInnerParamNull(uploadResult, "upload app to appstore fail!");
+        checkResultLength(uploadResult, "upload app to appstore fail!", Integer.parseInt(uploadResult));
 
-        LOGGER.info("upload appstore result:{}", uploadReslut);
-        JsonObject jsonObject = new JsonParser().parse(uploadReslut).getAsJsonObject();
+        LOGGER.info("upload appstore result:{}", uploadResult);
+        JsonObject jsonObject = new JsonParser().parse(uploadResult).getAsJsonObject();
         JsonElement appStoreAppId = jsonObject.get("appId");
         JsonElement appStorePackageId = jsonObject.get("packageId");
 
@@ -308,6 +314,7 @@ public class ReleasedPackageServiceImpl implements ReleasedPackageService {
             .publishToAppStore(appStoreAppId.getAsString(), appStorePackageId.getAsString(), user.getToken(),
                 publishAppReqDto);
         checkInnerParamNull(publishRes, "publish app to appstore fail!");
+        checkResultLength(publishRes, "upload app to appstore fail!", Integer.parseInt(publishRes));
         return true;
     }
 
@@ -337,7 +344,14 @@ public class ReleasedPackageServiceImpl implements ReleasedPackageService {
     private <T> void checkInnerParamNull(T innerParam, String msg) {
         if (null == innerParam) {
             LOGGER.error(msg);
-            throw new IllegalRequestException(msg, ResponseConsts.RET_REQUEST_PARAM_EMPTY);
+            throw new DeveloperException(msg, ResponseConsts.RET_PUBLISH_APP_PKG_FAIL);
+        }
+    }
+
+    private void checkResultLength(String innerParam, String msg, int retCode) {
+        if (innerParam != null && innerParam.length() <= 5) {
+            LOGGER.error(msg);
+            throw new DeveloperException(msg, retCode);
         }
     }
 }

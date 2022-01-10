@@ -19,11 +19,14 @@ import java.util.ArrayList;
 import java.util.List;
 import mockit.Mock;
 import mockit.MockUp;
+import org.edgegallery.developer.common.Consts;
 import org.edgegallery.developer.exception.DataBaseException;
+import org.edgegallery.developer.exception.DeveloperException;
 import org.edgegallery.developer.exception.FileFoundFailException;
 import org.edgegallery.developer.exception.IllegalRequestException;
 import org.edgegallery.developer.exception.RestfulRequestException;
 import org.edgegallery.developer.exception.UnauthorizedException;
+import org.edgegallery.developer.filter.security.AccessUserUtil;
 import org.edgegallery.developer.model.appstore.PublishAppReqDto;
 import org.edgegallery.developer.model.common.User;
 import org.edgegallery.developer.model.releasedpackage.ReleasedPkgFileContent;
@@ -91,7 +94,7 @@ public class ReleasedPackageServiceTest extends AbstractJUnit4SpringContextTests
 
     @Test
     public void testSynchronizePackageFailWithNullReleasedPkgReqDto() throws IOException {
-        User user = new User("userId", "userName", "userAuth");
+        User user = new User("userId", "userName", Consts.ROLE_DEVELOPER_ADMIN);
         try {
             releasedPackageService.synchronizePackage(user, null);
         } catch (IllegalRequestException e) {
@@ -101,10 +104,10 @@ public class ReleasedPackageServiceTest extends AbstractJUnit4SpringContextTests
 
     @Test
     public void testSynchronizePackageFailWithNullQueryPkgRes() throws IOException {
-        User user = new User("userId", "userName", "userAuth");
+        User user = new User("userId", "userName", Consts.ROLE_DEVELOPER_ADMIN);
         MockUp mockup = new MockUp<AppStoreUtil>() {
             @Mock
-            public ResponseEntity<String> getPkgInfo(String appId, String pkgId, String token) {
+            public String getPkgInfo(String appId, String pkgId, String token) {
                 return null;
             }
         };
@@ -115,7 +118,7 @@ public class ReleasedPackageServiceTest extends AbstractJUnit4SpringContextTests
             releasedPkgReqDto.setPackageId("pkgId");
             pkgReqDtos.add(releasedPkgReqDto);
             releasedPackageService.synchronizePackage(user, pkgReqDtos);
-        } catch (RestfulRequestException e) {
+        } catch (DeveloperException e) {
             Assert.assertEquals("call app store query pkg interface failed!", e.getMessage());
         }
         mockup.tearDown();
@@ -123,10 +126,10 @@ public class ReleasedPackageServiceTest extends AbstractJUnit4SpringContextTests
 
     @Test
     public void testSynchronizePackageFailWithFalseDownloadPkgRes() throws IOException {
-        User user = new User("userId", "userName", "userAuth");
+        User user = new User("userId", "userName", Consts.ROLE_DEVELOPER_ADMIN);
         MockUp mockup = new MockUp<AppStoreUtil>() {
             @Mock
-            public ResponseEntity<String> getPkgInfo(String appId, String pkgId, String token) {
+            public String getPkgInfo(String appId, String pkgId, String token) {
                 String res = "{\n" + "    \"data\": {\n"
                     + "        \"packageId\": \"fbdfee842a444c9fa2a940f240b3fcef\",\n"
                     + "        \"size\": \"50961\",\n"
@@ -144,13 +147,13 @@ public class ReleasedPackageServiceTest extends AbstractJUnit4SpringContextTests
                     + "        \"deployMode\": \"container\",\n" + "        \"experienceAble\": false\n" + "    },\n"
                     + "    \"retCode\": 0,\n" + "    \"params\": null,\n"
                     + "    \"message\": \"query package by packageId success.\"\n" + "}";
-                return ResponseEntity.ok(res);
+                return res;
             }
 
             @Mock
-            public ResponseEntity<byte[]> downloadPkg(String appId, String pkgId, String token) {
+            public byte[] downloadPkg(String appId, String pkgId, String token) {
                 byte[] bytes = new byte[10];
-                return ResponseEntity.ok(bytes);
+                return bytes;
             }
         };
         try {
@@ -168,10 +171,10 @@ public class ReleasedPackageServiceTest extends AbstractJUnit4SpringContextTests
 
     @Test
     public void testSynchronizePackageSuccess() throws IOException {
-        User user = new User("userId", "userName", "userAuth");
+        User user = new User("userId", "userName", Consts.ROLE_DEVELOPER_ADMIN);
         MockUp mockup = new MockUp<AppStoreUtil>() {
             @Mock
-            public ResponseEntity<String> getPkgInfo(String appId, String pkgId, String token) {
+            public String getPkgInfo(String appId, String pkgId, String token) {
                 String res = "{\n" + "    \"data\": {\n"
                     + "        \"packageId\": \"fbdfee842a444c9fa2a940f240b3fcef\",\n"
                     + "        \"size\": \"50961\",\n"
@@ -189,13 +192,13 @@ public class ReleasedPackageServiceTest extends AbstractJUnit4SpringContextTests
                     + "        \"deployMode\": \"container\",\n" + "        \"experienceAble\": false\n" + "    },\n"
                     + "    \"retCode\": 0,\n" + "    \"params\": null,\n"
                     + "    \"message\": \"query package by packageId success.\"\n" + "}";
-                return ResponseEntity.ok(res);
+                return res;
             }
 
             @Mock
-            public ResponseEntity<byte[]> downloadPkg(String appId, String pkgId, String token) {
+            public byte[] downloadPkg(String appId, String pkgId, String token) {
                 byte[] bytes = "Any String you want".getBytes();
-                return ResponseEntity.ok(bytes);
+                return bytes;
             }
         };
         List<ReleasedPkgReqDto> pkgReqDtos = new ArrayList<>();

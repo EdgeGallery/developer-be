@@ -355,7 +355,7 @@ public class UploadFileServiceImpl implements UploadFileService {
                     config.getProjectName());
         } catch (IOException e) {
             LOGGER.error("Failed to compress project {}", e.getMessage());
-            throw new FileOperateException("Failed to compress project", ResponseConsts.RET_COPRESS_FILE_FAIL);
+            throw new FileOperateException("Failed to compress project", ResponseConsts.RET_COMPRESS_FILE_FAIL);
         }
 
         File tar = new File(sdkPath + ".tgz");
