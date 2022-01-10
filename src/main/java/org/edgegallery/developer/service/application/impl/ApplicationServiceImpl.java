@@ -279,7 +279,7 @@ public class ApplicationServiceImpl implements ApplicationService {
         int res = applicationMapper.updateApplicationStatus(applicationId, status.toString());
         if (res < 1) {
             LOGGER.error("update application status by applicationId:{} failed.", applicationId);
-            throw new DataBaseException("update application status failed.", ResponseConsts.RET_DELETE_DATA_FAIL);
+            throw new DataBaseException("update application status failed.", ResponseConsts.RET_UPDATE_DATA_FAIL);
         }
         return true;
     }

@@ -282,7 +282,7 @@ public class VMImageServiceImpl implements VMImageService {
 
         if (!isAdminUser() && !vmImage.getUserId().equalsIgnoreCase(AccessUserUtil.getUserId())) {
             LOGGER.error("forbidden reset the image");
-            throw new UnauthorizedException("forbidden reset the image", ResponseConsts.RET_REQUEST_UNAUTHORIZED);
+            throw new UnauthorizedException("forbidden reset the image", ResponseConsts.RET_REQUEST_FORBIDDEN);
         }
 
         LOGGER.info("clean uploaded file.");
@@ -604,7 +604,7 @@ public class VMImageServiceImpl implements VMImageService {
 
         if (!isAdminUser() && !vmImage.getUserId().equalsIgnoreCase(user.getUserId())) {
             LOGGER.error("forbidden slim the image");
-            throw new UnauthorizedException("forbidden slim the image", ResponseConsts.RET_REQUEST_UNAUTHORIZED);
+            throw new UnauthorizedException("forbidden slim the image", ResponseConsts.RET_REQUEST_FORBIDDEN);
         }
         // create OperationStatus
         OperationStatus operationStatus = new OperationStatus();

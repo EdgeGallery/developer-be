@@ -162,13 +162,13 @@ public class VMAppOperationServiceImpl extends AppOperationServiceImpl implement
         boolean isMultipart = ServletFileUpload.isMultipartContent(request);
         if (!isMultipart) {
             LOGGER.error("upload request is invalid.");
-            throw new IllegalRequestException("upload request is invalid.", ResponseConsts.RET_UPLOAD_FILE_FAIL);
+            throw new IllegalRequestException("upload request is invalid.", ResponseConsts.RET_REQUEST_PARAM_ERROR);
         }
 
         MultipartFile file = chunk.getFile();
         if (file == null) {
             LOGGER.error("can not find any needed file");
-            throw new IllegalRequestException("can not find any needed file.", ResponseConsts.RET_UPLOAD_FILE_FAIL);
+            throw new IllegalRequestException("can not find any needed file.", ResponseConsts.RET_FILE_NOT_FOUND);
         }
 
         File tmpUploadDir = new File(getUploadFileRootDir());
@@ -357,7 +357,7 @@ public class VMAppOperationServiceImpl extends AppOperationServiceImpl implement
         int res = imageExportInfoMapper.modifyImageExportInfoInfoByVMId(vmId, imageExportInfo);
         if (res < 1) {
             LOGGER.warn("modify image export info baseDate fail");
-            throw new DataBaseException("modify image export info baseDate fail.", ResponseConsts.RET_CREATE_DATA_FAIL);
+            throw new DataBaseException("modify image export info baseDate fail.", ResponseConsts.RET_UPDATE_DATA_FAIL);
         }
         return true;
     }

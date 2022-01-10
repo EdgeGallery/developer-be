@@ -203,7 +203,7 @@ public class AppOperationServiceImpl implements AppOperationService {
         map.put("testTaskId", testList.get(0).getId());
         String uploadResult = AppStoreUtil.storeToAppStore(map, user);
         checkInnerParamNull(uploadResult, "upload app to appstore fail!");
-        checkResultLength(uploadResult, "upload app to appstore fail!",Integer.parseInt(uploadResult));
+        checkResultLength(uploadResult, "upload app to appstore fail!");
 
         LOGGER.info("upload appstore result:{}", uploadResult);
         JsonObject jsonObject = new JsonParser().parse(uploadResult).getAsJsonObject();
@@ -217,7 +217,7 @@ public class AppOperationServiceImpl implements AppOperationService {
             .publishToAppStore(appStoreAppId.getAsString(), appStorePackageId.getAsString(), user.getToken(),
                 publishAppDto);
         checkInnerParamNull(publishRes, "publish app to appstore fail!");
-        checkResultLength(publishRes, "publish app to appstore fail!",Integer.parseInt(publishRes));
+        checkResultLength(publishRes, "publish app to appstore fail!");
 
         //release service
         releaseServiceProduced(applicationId, jsonObject);
@@ -320,10 +320,10 @@ public class AppOperationServiceImpl implements AppOperationService {
         }
     }
 
-    private void checkResultLength(String innerParam, String msg, int retCode) {
+    private void checkResultLength(String innerParam, String msg) {
         if (innerParam != null && innerParam.length() <= 5) {
             LOGGER.error(msg);
-            throw new DeveloperException(msg, retCode);
+            throw new DeveloperException(msg, Integer.parseInt(innerParam));
         }
     }
 

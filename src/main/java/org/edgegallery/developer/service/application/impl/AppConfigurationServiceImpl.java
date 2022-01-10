@@ -126,13 +126,13 @@ public class AppConfigurationServiceImpl implements AppConfigurationService {
         if (application == null) {
             LOGGER.error("createTrafficRule:get application fail by applicationId:{}", applicationId);
             throw new EntityNotFoundException("application does not exist, create traffic rule failed!",
-                ResponseConsts.RET_CREATE_DATA_FAIL);
+                ResponseConsts.RET_QUERY_DATA_EMPTY);
         }
         TrafficRule result = appConfigurationMapper.getTrafficRule(applicationId, trafficRule.getTrafficRuleId());
         if (result != null) {
             LOGGER.error("create trafficRule failed: ruleId have exit");
             throw new DeveloperException("create trafficRule failed: ruleId have exit",
-                ResponseConsts.RET_CREATE_DATA_FAIL);
+                ResponseConsts.RET_QUERY_DATA_FAIL);
         }
         int res = appConfigurationMapper.createTrafficRule(applicationId, trafficRule);
         if (res < 1) {
@@ -164,7 +164,7 @@ public class AppConfigurationServiceImpl implements AppConfigurationService {
         if (application == null) {
             LOGGER.error("createDnsRule:get application fail by applicationId:{}", applicationId);
             throw new EntityNotFoundException("application does not exist, create dns rule failed!",
-                ResponseConsts.RET_CREATE_DATA_FAIL);
+                ResponseConsts.RET_QUERY_DATA_EMPTY);
         }
         DnsRule result = appConfigurationMapper.getDnsRule(applicationId, dnsRule.getDnsRuleId());
         if (result != null) {
@@ -348,7 +348,7 @@ public class AppConfigurationServiceImpl implements AppConfigurationService {
         if (application == null) {
             LOGGER.error("get application fail by applicationId:{}", applicationId);
             throw new EntityNotFoundException("application does not exist!",
-                ResponseConsts.RET_CREATE_DATA_FAIL);
+                ResponseConsts.RET_QUERY_DATA_EMPTY);
         }
     }
 
