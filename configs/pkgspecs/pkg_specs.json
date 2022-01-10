@@ -1,5 +1,6 @@
 {
   "supportPkgSpecs": true,
+  "useScenes": "edgeGallery",
   "pkgSpecs": [
     {
       "id": "PKG_SPEC_SUPPORT_DYNAMIC_FLAVOR",
