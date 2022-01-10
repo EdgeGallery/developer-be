@@ -25,4 +25,6 @@ public interface PkgSpecService {
     PkgSpec getPkgSpecById(String pkgSpecId);
 
     List<Network> getNetworkResourceByPkgSpecId(String pkgSpecId);
+
+    String getUseScenes();
 }

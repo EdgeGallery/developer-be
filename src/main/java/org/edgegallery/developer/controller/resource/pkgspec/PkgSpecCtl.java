@@ -56,4 +56,20 @@ public class PkgSpecCtl {
         return ResponseEntity.ok(pkgSpecService.getPkgSpecs());
     }
 
+    /**
+     * get use scenes
+     *
+     * @return
+     */
+    @ApiOperation(value = "get use scenes", response = String.class)
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = "OK", response = String.class),
+        @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
+    })
+    @RequestMapping(value = "/useScenes", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
+    public ResponseEntity<String> getUseScenes() {
+        return ResponseEntity.ok(pkgSpecService.getUseScenes());
+    }
+
 }

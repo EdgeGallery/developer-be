@@ -23,5 +23,7 @@ public class PkgSpecConfig {
 
     private boolean supportPkgSpecs;
 
+    private String useScenes;
+
     private List<PkgSpec> pkgSpecs;
 }

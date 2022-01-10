@@ -39,6 +39,8 @@ public class PkgSpecServiceImpl implements PkgSpecService {
 
     private static final String PKG_SPECS_FILE_PATH = "./configs/pkgspecs/pkg_specs.json";
 
+    private static final String DEFAULT_USE_SCENES = "edgeGallery";
+
     @Autowired
     private VMAppNetworkService vmAppNetworkService;
 
@@ -79,6 +81,22 @@ public class PkgSpecServiceImpl implements PkgSpecService {
             network.setName(getDefaultVLName(pkgSpec, network.getName()));
         }
         return networks;
+    }
+
+    @Override
+    public String getUseScenes() {
+        PkgSpecConfig pkgSpecConfig = null;
+        try {
+            File file = new File(PKG_SPECS_FILE_PATH);
+            pkgSpecConfig = new ObjectMapper().readValue(file, PkgSpecConfig.class);
+
+        } catch (IOException e) {
+            LOGGER.error("Load the package specification file failed.", e);
+        }
+        if (null != pkgSpecConfig &&StringUtils.isNotEmpty(pkgSpecConfig.getUseScenes())) {
+            return pkgSpecConfig.getUseScenes();
+        }
+        return DEFAULT_USE_SCENES;
     }
 
     private String getDefaultVLName(PkgSpec pkgSpec, String networkName) {
