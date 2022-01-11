@@ -137,7 +137,7 @@ public class ReleasedPackageServiceImpl implements ReleasedPackageService {
         if (res <= 0) {
             String msg = "save released pkg info failed!";
             LOGGER.error(msg);
-            throw new DataBaseException(msg, ResponseConsts.RET_CERATE_DATA_FAIL);
+            throw new DataBaseException(msg, ResponseConsts.RET_CREATE_DATA_FAIL);
         }
     }
 
@@ -193,7 +193,7 @@ public class ReleasedPackageServiceImpl implements ReleasedPackageService {
         if (!res) {
             String msg = "save released pkg info to table app package failed!";
             LOGGER.error(msg);
-            throw new DataBaseException(msg, ResponseConsts.RET_CERATE_DATA_FAIL);
+            throw new DataBaseException(msg, ResponseConsts.RET_CREATE_DATA_FAIL);
         }
     }
 

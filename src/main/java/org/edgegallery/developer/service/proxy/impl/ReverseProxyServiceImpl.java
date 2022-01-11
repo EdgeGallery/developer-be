@@ -114,6 +114,7 @@ public class ReverseProxyServiceImpl implements ReverseProxyService {
     public void addReverseProxy(String hostId, int hostConsolePort, String token) {
         MepHost mepHost = mepHostService.getHost(hostId);
         String mecHostIp = mepHost.getMecHostIp();
+        String mecHostProtocol = mepHost.getMecHostProtocol();
         String lcmIp = mepHost.getLcmIp();
         String nextHopProtocol = null;
         String nextHopIp = null;
@@ -124,7 +125,8 @@ public class ReverseProxyServiceImpl implements ReverseProxyService {
             nextHopIp = lcmIp;
         }
 
-        ReverseProxy reverseProxy = new ReverseProxy(mecHostIp, hostConsolePort, nextHopProtocol, nextHopIp, 1);
+        ReverseProxy reverseProxy = new ReverseProxy(mecHostProtocol, mecHostIp,
+                hostConsolePort, nextHopProtocol, nextHopIp, 1);
         sendHttpRequest(getReverseProxyBaseUrl(), token, HttpMethod.POST, reverseProxy);
         LOGGER.info("succeed in adding reverse proxy, param is: {}", reverseProxy);
     }
@@ -202,7 +204,7 @@ public class ReverseProxyServiceImpl implements ReverseProxyService {
         String password = vm.getVmCertificate().getPwdCertificate().getPassword();
         LOGGER.info("ip:{}", networkIp);
         LOGGER.info("username:{}", username);
-        String basePath = HttpClientUtil.getUrlPrefix("http", mepHost.getLcmIp(), 30209);
+        String basePath = HttpClientUtil.getUrlPrefix("https", mepHost.getLcmIp(), 30209);
         SshResponseInfo sshResponseInfo = HttpClientUtil
             .sendWebSshRequest(basePath, networkIp, 22, username, password, xsrfValue);
         if (sshResponseInfo == null) {
@@ -232,7 +234,7 @@ public class ReverseProxyServiceImpl implements ReverseProxyService {
         LOGGER.info("ip:{}", mepHost.getMecHostIp());
         LOGGER.info("username:{}", username);
         String password = AesUtil.decode(clientId, mepHost.getMecHostPassword());
-        String basePath = HttpClientUtil.getUrlPrefix("http", mepHost.getLcmIp(), 30209);
+        String basePath = HttpClientUtil.getUrlPrefix("https", mepHost.getLcmIp(), 30209);
         SshResponseInfo sshResponseInfo = HttpClientUtil
             .sendWebSshRequest(basePath, mepHost.getMecHostIp(), mepHost.getMecHostPort(), username, password,
                 xsrfValue);

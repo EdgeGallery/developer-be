@@ -186,7 +186,7 @@ public class VMImageServiceImpl implements VMImageService {
         int ret = vmImageMapper.createVmImage(vmImage);
         if (ret < 1) {
             LOGGER.error("Create vm image failed.");
-            throw new DataBaseException("Create vm image failed", ResponseConsts.RET_CERATE_DATA_FAIL);
+            throw new DataBaseException("Create vm image failed", ResponseConsts.RET_CREATE_DATA_FAIL);
         }
         VMImage newVmImage = vmImageMapper.getVmImageByName(vmImage.getName(), vmImage.getUserId());
         File uploadRootDir = new File(getUploadVmImageRootDir(newVmImage.getId()));
@@ -490,7 +490,8 @@ public class VMImageServiceImpl implements VMImageService {
                         .getFormat();
                     String imageSize = imageCheckResult.getCheckStatusResponse().getCheckInfo().getImageInfo()
                         .getImageSize();
-                    return new UploadFileInfo(imageName, checkSum, imageFormat, Long.parseLong(imageSize));
+                    float virtualSize = imageCheckResult.getCheckStatusResponse().getCheckInfo().getImageInfo().getVirtualSize();
+                    return new UploadFileInfo(imageName, checkSum, imageFormat, Long.parseLong(imageSize), virtualSize);
                 } else if (status == CHECK_STATUS_PROGRESS) {
                     LOGGER.info("filesystem is checking! ");
                 } else {
@@ -542,11 +543,12 @@ public class VMImageServiceImpl implements VMImageService {
                 String imageSize = imageCheckResult.getCheckStatusResponse().getCheckInfo().getImageInfo()
                     .getImageSize();
                 String checkSum = imageCheckResult.getCheckStatusResponse().getCheckInfo().getChecksum();
+                float virtualSize = imageCheckResult.getCheckStatusResponse().getCheckInfo().getImageInfo().getVirtualSize();
                 int status = imageCheckResult.getCheckStatusResponse().getStatus();
                 if (status != CHECK_STATUS_PROGRESS && !StringUtils.isEmpty(imageSize) && !StringUtils
                     .isEmpty(checkSum)) {
                     String imageName = imageCheckResult.getFileName();
-                    return new UploadFileInfo(imageName, checkSum, imageFormat, Long.parseLong(imageSize));
+                    return new UploadFileInfo(imageName, checkSum, imageFormat, Long.parseLong(imageSize), virtualSize);
                 } else if (status == CHECK_STATUS_PROGRESS) {
                     LOGGER.info("filesystem is checking iso image! ");
                 } else {
@@ -618,7 +620,7 @@ public class VMImageServiceImpl implements VMImageService {
         if (res < 1) {
             LOGGER.error("Create vm image slim operationStatus in db error.");
             throw new DataBaseException("Create vm image slim operationStatus in db error.",
-                ResponseConsts.RET_CERATE_DATA_FAIL);
+                ResponseConsts.RET_CREATE_DATA_FAIL);
         }
 
         LOGGER.info("update image status to SLIMMING.");

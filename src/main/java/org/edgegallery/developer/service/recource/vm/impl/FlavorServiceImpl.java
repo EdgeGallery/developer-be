@@ -51,7 +51,7 @@ public class FlavorServiceImpl implements FlavorService {
         int res = flavorMapper.createFavor(flavor);
         if (res < 1) {
             LOGGER.error("Create flavor in db error.");
-            throw new DataBaseException("Create flavor in db error.", ResponseConsts.RET_CERATE_DATA_FAIL);
+            throw new DataBaseException("Create flavor in db error.", ResponseConsts.RET_CREATE_DATA_FAIL);
         }
         return flavor;
     }
@@ -61,7 +61,7 @@ public class FlavorServiceImpl implements FlavorService {
         int res = flavorMapper.deleteFavorById(flavorId);
         if (res < 1) {
             LOGGER.error("delete flavor in db error.");
-            throw new DataBaseException("delete flavor in db error.", ResponseConsts.RET_CERATE_DATA_FAIL);
+            throw new DataBaseException("delete flavor in db error.", ResponseConsts.RET_CREATE_DATA_FAIL);
         }
         return true;
     }

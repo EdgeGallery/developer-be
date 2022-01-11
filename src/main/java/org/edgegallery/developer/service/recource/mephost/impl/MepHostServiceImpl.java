@@ -18,6 +18,9 @@ package org.edgegallery.developer.service.recource.mephost.impl;
 
 import static org.edgegallery.developer.util.HttpClientUtil.getUrlPrefix;
 
+
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -27,6 +30,7 @@ import org.edgegallery.developer.common.ResponseConsts;
 import org.edgegallery.developer.exception.DataBaseException;
 import org.edgegallery.developer.exception.DeveloperException;
 import org.edgegallery.developer.exception.EntityNotFoundException;
+import org.edgegallery.developer.exception.FileOperateException;
 import org.edgegallery.developer.exception.IllegalRequestException;
 import org.edgegallery.developer.exception.UnauthorizedException;
 import org.edgegallery.developer.filter.security.AccessUserUtil;
@@ -53,8 +57,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-import com.github.pagehelper.PageHelper;
-import com.github.pagehelper.PageInfo;
 
 @Service("mepHostService")
 public class MepHostServiceImpl implements MepHostService {
@@ -119,7 +121,7 @@ public class MepHostServiceImpl implements MepHostService {
         int ret = mepHostMapper.createHost(host);
         if (ret < 1) {
             LOGGER.error("Create host failed!");
-            throw new DataBaseException("Create host failed!", ResponseConsts.RET_CERATE_DATA_FAIL);
+            throw new DataBaseException("Create host failed!", ResponseConsts.RET_CREATE_DATA_FAIL);
         }
         if (host.getVimType() != EnumVimType.K8S) {
             LOGGER.info("Crete host {} success ", host.getId());
@@ -137,7 +139,20 @@ public class MepHostServiceImpl implements MepHostService {
     @Transactional
     @Override
     public boolean deleteHost(String hostId, String token) {
+        MepHost host = mepHostMapper.getHost(hostId);
+        if (host == null) {
+            LOGGER.error("hostId {} is error!", hostId);
+            throw new DataBaseException("query host is empty!", ResponseConsts.RET_QUERY_DATA_EMPTY);
+        }
+        if (StringUtils.isNotEmpty(host.getConfigId())) {
+            boolean res = uploadService.deleteFile(host.getConfigId());
+            if (!res) {
+                LOGGER.warn("config id {} is error!", host.getConfigId());
+                throw new FileOperateException("delete config file failed!", ResponseConsts.RET_DELETE_FILE_FAIL);
+            }
+        }
         reverseProxyService.deleteReverseProxy(hostId, Consts.DEFAULT_OPENSTACK_VNC_PORT, token);
+
         int res = mepHostMapper.deleteHost(hostId);
         if (res < 1) {
             LOGGER.error("Delete host {} failed", hostId);
@@ -228,7 +243,7 @@ public class MepHostServiceImpl implements MepHostService {
         UploadFile result = uploadService.saveFileToLocal(uploadFile, userId);
         if (result == null) {
             LOGGER.error("save config file failed!");
-            throw new DataBaseException("Failed to save file!", ResponseConsts.RET_CERATE_DATA_FAIL);
+            throw new DataBaseException("Failed to save file!", ResponseConsts.RET_CREATE_DATA_FAIL);
         }
         return result;
     }
@@ -243,7 +258,7 @@ public class MepHostServiceImpl implements MepHostService {
         String basePath = getUrlPrefix(host.getLcmProtocol(), host.getLcmIp(), host.getLcmPort());
         String healRes = HttpClientUtil.getHealth(basePath);
         if (healRes == null) {
-            String msg = "health check faild,current ip or port cann't be used!";
+            String msg = "health check failed,current ip or port can not be used!";
             LOGGER.error(msg);
             throw new IllegalRequestException(msg, ResponseConsts.RET_REQUEST_PARAM_ERROR);
         }
@@ -257,6 +272,10 @@ public class MepHostServiceImpl implements MepHostService {
         if (StringUtils.isNotBlank(host.getConfigId())) {
             // upload file
             UploadFile uploadedFile = uploadFileMapper.getFileById(host.getConfigId());
+            if (uploadedFile == null) {
+                LOGGER.error("config file id is error");
+                throw new DeveloperException("config file does not exist!", ResponseConsts.RET_QUERY_DATA_EMPTY);
+            }
             boolean uploadRes = MepHostUtil.uploadFileToLcm(host, uploadedFile.getFilePath(), token);
             if (!uploadRes) {
                 LOGGER.error("create host failed,upload config file error");

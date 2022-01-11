@@ -109,6 +109,7 @@ public class DownloadImageAction extends AbstractAction {
         vmImage.setImageFormat(vm.getImageExportInfo().getFormat());
         vmImage.setImageSlimStatus(EnumVmImageSlimStatus.SLIM_SUCCEED);
         vmImage.setStatus(EnumVmImageStatus.PUBLISHED);
+        vmImage.setVirtualSize(vmImage.getSystemDiskSize());
         vmImage.setVisibleType("private");
         VMImage res = vmImageService.createVmImageAllInfo(vmImage);
         if (res == null) {

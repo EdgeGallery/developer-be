@@ -200,7 +200,7 @@ public class ContainerAppOperationServiceImpl extends AppOperationServiceImpl im
         if (res < 1) {
             LOGGER.error("Create container App instantiate info in db error.");
             throw new DataBaseException("Create container App instantiate info in db error.",
-                ResponseConsts.RET_CERATE_DATA_FAIL);
+                ResponseConsts.RET_CREATE_DATA_FAIL);
         }
         return true;
     }

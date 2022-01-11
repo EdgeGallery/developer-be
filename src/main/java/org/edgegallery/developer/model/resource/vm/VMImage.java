@@ -20,6 +20,7 @@ import lombok.Setter;
 import javax.validation.constraints.Pattern;
 import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.Range;
+
 @Getter
 @Setter
 public class VMImage {
@@ -42,6 +43,12 @@ public class VMImage {
 
     @Range(min = 1, max = 9999)
     private Integer systemDiskSize;
+
+    @ApiModelProperty(example = "virtio")
+    @Pattern(regexp = "virtio|ide|scsi|")
+    private String diskBus = "virtio";
+
+    private float virtualSize;
 
     @Length(max = 128)
     private String name;

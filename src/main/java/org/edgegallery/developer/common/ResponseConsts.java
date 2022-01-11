@@ -38,7 +38,7 @@ public final class ResponseConsts {
     /**
      * insert data  fail.
      */
-    public static final int RET_CERATE_DATA_FAIL = 20004;
+    public static final int RET_CREATE_DATA_FAIL = 20004;
 
     /**
      * update data  fail.

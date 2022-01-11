@@ -59,7 +59,7 @@ public class CapabilityGroupServiceImpl implements CapabilityGroupService {
         int ret = capabilityGroupMapper.insert(capabilityGroup);
         if (ret <= 0) {
             LOGGER.error("Create capabilityGroup {} failed!", capabilityGroup.getName());
-            throw new DataBaseException("Create capability group failed.", ResponseConsts.RET_CERATE_DATA_FAIL);
+            throw new DataBaseException("Create capability group failed.", ResponseConsts.RET_CREATE_DATA_FAIL);
         }
         return capabilityGroup;
     }

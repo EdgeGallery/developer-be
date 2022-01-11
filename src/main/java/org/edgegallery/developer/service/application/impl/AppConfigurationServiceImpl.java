@@ -126,18 +126,18 @@ public class AppConfigurationServiceImpl implements AppConfigurationService {
         if (application == null) {
             LOGGER.error("createTrafficRule:get application fail by applicationId:{}", applicationId);
             throw new EntityNotFoundException("application does not exist, create traffic rule failed!",
-                ResponseConsts.RET_CERATE_DATA_FAIL);
+                ResponseConsts.RET_CREATE_DATA_FAIL);
         }
         TrafficRule result = appConfigurationMapper.getTrafficRule(applicationId, trafficRule.getTrafficRuleId());
         if (result != null) {
             LOGGER.error("create trafficRule failed: ruleId have exit");
             throw new DeveloperException("create trafficRule failed: ruleId have exit",
-                ResponseConsts.RET_CERATE_DATA_FAIL);
+                ResponseConsts.RET_CREATE_DATA_FAIL);
         }
         int res = appConfigurationMapper.createTrafficRule(applicationId, trafficRule);
         if (res < 1) {
             LOGGER.error("create TrafficRule failed");
-            throw new DataBaseException("create TrafficRule failed", ResponseConsts.RET_CERATE_DATA_FAIL);
+            throw new DataBaseException("create TrafficRule failed", ResponseConsts.RET_CREATE_DATA_FAIL);
         }
         return trafficRule;
     }
@@ -164,7 +164,7 @@ public class AppConfigurationServiceImpl implements AppConfigurationService {
         if (application == null) {
             LOGGER.error("createDnsRule:get application fail by applicationId:{}", applicationId);
             throw new EntityNotFoundException("application does not exist, create dns rule failed!",
-                ResponseConsts.RET_CERATE_DATA_FAIL);
+                ResponseConsts.RET_CREATE_DATA_FAIL);
         }
         DnsRule result = appConfigurationMapper.getDnsRule(applicationId, dnsRule.getDnsRuleId());
         if (result != null) {
@@ -175,7 +175,7 @@ public class AppConfigurationServiceImpl implements AppConfigurationService {
         int res = appConfigurationMapper.createDnsRule(applicationId, dnsRule);
         if (res < 1) {
             LOGGER.error("create DnsRule failed");
-            throw new DataBaseException("create DnsRule failed", ResponseConsts.RET_CERATE_DATA_FAIL);
+            throw new DataBaseException("create DnsRule failed", ResponseConsts.RET_CREATE_DATA_FAIL);
         }
         return dnsRule;
     }
@@ -220,7 +220,7 @@ public class AppConfigurationServiceImpl implements AppConfigurationService {
         int res = appConfigurationMapper.createServiceProduced(applicationId, serviceProduced);
         if (res < 1) {
             LOGGER.error("create serviceProduced failed");
-            throw new DataBaseException("create serviceProduced failed", ResponseConsts.RET_CERATE_DATA_FAIL);
+            throw new DataBaseException("create serviceProduced failed", ResponseConsts.RET_CREATE_DATA_FAIL);
         }
         return serviceProduced;
     }
@@ -290,7 +290,7 @@ public class AppConfigurationServiceImpl implements AppConfigurationService {
         int res = appConfigurationMapper.createServiceRequired(applicationId, serviceRequired);
         if (res < 1) {
             LOGGER.error("create serviceRequired failed");
-            throw new DataBaseException("create serviceRequired failed", ResponseConsts.RET_CERATE_DATA_FAIL);
+            throw new DataBaseException("create serviceRequired failed", ResponseConsts.RET_CREATE_DATA_FAIL);
         }
         return serviceRequired;
     }
@@ -321,7 +321,7 @@ public class AppConfigurationServiceImpl implements AppConfigurationService {
         int res = appConfigurationMapper.createAppCertificate(applicationId, appCertificate);
         if (res < 1) {
             LOGGER.error("create appCertificate failed");
-            throw new DataBaseException("create appCertificate failed", ResponseConsts.RET_CERATE_DATA_FAIL);
+            throw new DataBaseException("create appCertificate failed", ResponseConsts.RET_CREATE_DATA_FAIL);
         }
         return appCertificate;
     }
@@ -348,7 +348,7 @@ public class AppConfigurationServiceImpl implements AppConfigurationService {
         if (application == null) {
             LOGGER.error("get application fail by applicationId:{}", applicationId);
             throw new EntityNotFoundException("application does not exist!",
-                ResponseConsts.RET_CERATE_DATA_FAIL);
+                ResponseConsts.RET_CREATE_DATA_FAIL);
         }
     }
 
