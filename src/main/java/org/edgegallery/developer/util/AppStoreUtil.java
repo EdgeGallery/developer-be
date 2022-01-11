@@ -19,7 +19,6 @@ package org.edgegallery.developer.util;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
-import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import org.edgegallery.developer.common.Consts;
 import org.edgegallery.developer.model.appstore.PublishAppReqDto;
@@ -166,10 +165,10 @@ public class AppStoreUtil {
                 return responses.getBody();
             }
             LOGGER.error("download pkg failed, status is {}", responses.getStatusCode());
-            return null;
+            return new byte[0];
         } catch (RestClientException e) {
             LOGGER.error("download pkg failed, exception {}", e.getMessage());
-            return null;
+            return new byte[0];
         }
     }
 
