@@ -149,7 +149,7 @@ public class ReleasedPackageServiceImpl implements ReleasedPackageService {
 
     private boolean saveDownloadResToFile(String packageId, byte[] downloadPkgRes) {
         try {
-            if (downloadPkgRes == null) {
+            if (downloadPkgRes.length == 0) {
                 LOGGER.error("download pkg failed!");
                 throw new DeveloperException("download pkg failed!", ResponseConsts.RET_SYNCHRONIZE_APP_PKG_FAIL);
             }
@@ -314,7 +314,7 @@ public class ReleasedPackageServiceImpl implements ReleasedPackageService {
             .publishToAppStore(appStoreAppId.getAsString(), appStorePackageId.getAsString(), user.getToken(),
                 publishAppReqDto);
         checkInnerParamNull(publishRes, "publish app to appstore fail!");
-        checkResultLength(publishRes, "upload app to appstore fail!");
+        checkResultLength(publishRes, "publish app to appstore fail!");
         return true;
     }
 
