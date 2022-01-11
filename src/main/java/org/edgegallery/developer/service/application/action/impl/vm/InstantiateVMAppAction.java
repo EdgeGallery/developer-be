@@ -18,11 +18,6 @@ package org.edgegallery.developer.service.application.action.impl.vm;
 
 import static org.edgegallery.developer.util.HttpClientUtil.getUrlPrefix;
 
-
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
 import java.util.Map;
 import org.edgegallery.developer.model.application.vm.EnumVMStatus;
@@ -45,6 +40,10 @@ import org.edgegallery.developer.util.InputParameterUtil;
 import org.edgegallery.developer.util.IpCalculateUtil;
 import org.edgegallery.developer.util.SpringContextUtil;
 import org.springframework.util.CollectionUtils;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.google.gson.reflect.TypeToken;
 
 public class InstantiateVMAppAction extends InstantiateAppAction {
 
@@ -98,13 +97,21 @@ public class InstantiateVMAppAction extends InstantiateAppAction {
         if (vmInputParams.getOrDefault("VDU1_APP_Plane02_GW", null) == null) {
             vmInputParams.put("VDU1_APP_Plane02_GW", IpCalculateUtil.getStartIp(internetRange, 0));
         }
+        if (vmInputParams.getOrDefault("VDU1_APP_Plane04_IP", null) != null) {
+            String internalRange = vmInputParams.get("VDU1_APP_Plane04_IP");
+            vmInputParams.put("VDU1_APP_Plane04_IP", IpCalculateUtil.getStartIp(internalRange, count));
+            if (vmInputParams.getOrDefault("VDU1_APP_Plane04_GW", null) == null) {
+                vmInputParams.put("VDU1_APP_Plane04_GW", IpCalculateUtil.getStartIp(internalRange, 0));
+            }
+        }
         return vmInputParams;
     }
 
     public boolean saveWorkloadToInstantiateInfo(String respBody) {
         String vmId = (String) getContext().getParameter(IContextParameter.PARAM_VM_ID);
         VMInstantiateInfo vmInstantiateInfo = vmAppOperationService.getInstantiateInfo(vmId);
-        Type vmInfoType = new TypeToken<VmInstantiateWorkload>() { }.getType();
+        Type vmInfoType = new TypeToken<VmInstantiateWorkload>() {
+        }.getType();
         VmInstantiateWorkload vmInstantiateWorkload = gson.fromJson(respBody, vmInfoType);
         vmInstantiateInfo.setLog(respBody);
         if (!CollectionUtils.isEmpty(vmInstantiateWorkload.getData())) {
