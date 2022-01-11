@@ -114,6 +114,7 @@ public class ReverseProxyServiceImpl implements ReverseProxyService {
     public void addReverseProxy(String hostId, int hostConsolePort, String token) {
         MepHost mepHost = mepHostService.getHost(hostId);
         String mecHostIp = mepHost.getMecHostIp();
+        String mecHostProtocol = mepHost.getMecHostProtocol();
         String lcmIp = mepHost.getLcmIp();
         String nextHopProtocol = null;
         String nextHopIp = null;
@@ -124,7 +125,8 @@ public class ReverseProxyServiceImpl implements ReverseProxyService {
             nextHopIp = lcmIp;
         }
 
-        ReverseProxy reverseProxy = new ReverseProxy(mecHostIp, hostConsolePort, nextHopProtocol, nextHopIp, 1);
+        ReverseProxy reverseProxy = new ReverseProxy(mecHostProtocol, mecHostIp,
+                hostConsolePort, nextHopProtocol, nextHopIp, 1);
         sendHttpRequest(getReverseProxyBaseUrl(), token, HttpMethod.POST, reverseProxy);
         LOGGER.info("succeed in adding reverse proxy, param is: {}", reverseProxy);
     }
