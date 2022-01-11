@@ -37,8 +37,8 @@ public class AppdConstants {
 
     private static final String DEFAULT_NETWORK_MP1 = "MEC_APP_MP1";
 
-    public static final List<String> NETWORK_NAME_SORTED_LIST = Arrays.asList("Internal_Network", DEFAULT_NETWORK_MP1,
-        "MEC_APP_Internet", DEFAULT_NETWORK_INTERNET, "MEC_APP_N6", DEFAULT_NETWORK_N6);
+    public static final List<String> NETWORK_NAME_SORTED_LIST = Arrays.asList(DEFAULT_NETWORK_MP1,
+        "MEC_APP_Internet", DEFAULT_NETWORK_INTERNET, "MEC_APP_N6", DEFAULT_NETWORK_N6, "Internal_Network");
 
     public static final String GROUPS_NODE_NAME = "AntiAffinityGroup";
 
