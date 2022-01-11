@@ -30,6 +30,7 @@ import lombok.ToString;
 @Setter
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ReverseProxy {
+    private String destHostProtocol;
     private String destHostIp;
     private int destHostPort;
     private int localPort;
@@ -38,7 +39,8 @@ public class ReverseProxy {
     private int nextHopPort;
     private int hopIndex;
 
-    public ReverseProxy(String destHostIp, int destHostPort, String nextHopProtocol, String nextHopIp, int hopIndex) {
+    public ReverseProxy(String destHostProtocol, String destHostIp, int destHostPort,
+                        String nextHopProtocol, String nextHopIp, int hopIndex) {
         this.destHostIp = destHostIp;
         this.destHostPort = destHostPort;
         this.nextHopProtocol = nextHopProtocol;
