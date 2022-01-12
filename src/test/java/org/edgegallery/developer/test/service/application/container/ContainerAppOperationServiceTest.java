@@ -111,12 +111,11 @@ public class ContainerAppOperationServiceTest extends AbstractJUnit4SpringContex
         MultipartFile uploadFile = new MockMultipartFile("namespacetest.tgz", "namespacetest.tgz", null,
             ContainerAppHelmChartServiceTest.class.getClassLoader()
                 .getResourceAsStream("testdata/helmcharts/namespacetest.tgz"));
-        containerAppHelmChartService
-            .uploadHelmChartFile(APPLICATION_ID, uploadFile);
+        containerAppHelmChartService.uploadHelmChartFile(APPLICATION_ID, uploadFile);
     }
 
     @After
-    public void shutdown(){
+    public void shutdown() {
         mockup.tearDown();
     }
 
@@ -255,8 +254,8 @@ public class ContainerAppOperationServiceTest extends AbstractJUnit4SpringContex
         OperationStatus status = null;
         for (int i = 0; i < MAX_TRY_NUMBER; i++) {
             status = operationStatusService.getOperationStatusById(operationInfo.getOperationId());
-            if (EnumActionStatus.SUCCESS.equals(status.getStatus()) || EnumActionStatus.FAILED.equals(
-                status.getStatus())) {
+            if (EnumActionStatus.SUCCESS.equals(status.getStatus()) || EnumActionStatus.FAILED
+                .equals(status.getStatus())) {
                 break;
             }
             try {
@@ -290,7 +289,7 @@ public class ContainerAppOperationServiceTest extends AbstractJUnit4SpringContex
             }
 
             @Mock
-            public String getDistributeRes(String basePath, String userId, String token, String pkgId) {
+            public String getDistributeRes(String basePath, String userId, String token, String pkgId, LcmLog lcmLog) {
                 if (lcmReturnType
                     .equals(ContainerAppOperationServiceTest.LcmReturnMockTypeEnum.GET_DISTRIBUTE_RES_FAILED)) {
                     return null;
@@ -317,7 +316,8 @@ public class ContainerAppOperationServiceTest extends AbstractJUnit4SpringContex
             }
 
             @Mock
-            public String getWorkloadStatus(String basePath, String appInstanceId, String userId, String token) {
+            public String getWorkloadStatus(String basePath, String appInstanceId, String userId, String token,
+                LcmLog lcmLog) {
                 if (lcmReturnType
                     .equals(ContainerAppOperationServiceTest.LcmReturnMockTypeEnum.GET_WORKLOAD_STATUS_FAILED)) {
                     return null;
@@ -334,8 +334,8 @@ public class ContainerAppOperationServiceTest extends AbstractJUnit4SpringContex
             }
 
             @Mock
-            public String getWorkloadEvents(String basePath, String appInstanceId, String userId,
-                String token) {
+            public String getWorkloadEvents(String basePath, String appInstanceId, String userId, String token,
+                LcmLog lcmLog) {
                 if (lcmReturnType
                     .equals(ContainerAppOperationServiceTest.LcmReturnMockTypeEnum.GET_WORKLOAD_STATUS_FAILED)) {
                     return null;

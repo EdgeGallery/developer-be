@@ -92,7 +92,7 @@ public abstract class InstantiateAppAction extends AbstractAction {
         saveInstanceIdToInstantiateInfo(appInstanceId, EnumAppInstantiateStatus.INSTANTIATE_SUCCESS);
 
         //Query instantiate status.
-        EnumInstantiateStatus status = queryInstantiateStatus(appInstanceId, mepHost);
+        EnumInstantiateStatus status = queryInstantiateStatus(appInstanceId, mepHost,lcmLog);
         if (!EnumInstantiateStatus.INSTANTIATE_STATUS_SUCCESS.equals(status)) {
             msg = "Query instantiate status failed, the result is: " + status;
             saveInstanceIdToInstantiateInfo(appInstanceId, EnumAppInstantiateStatus.INSTANTIATE_FAILED);
@@ -133,7 +133,7 @@ public abstract class InstantiateAppAction extends AbstractAction {
         return new HashMap<>();
     }
 
-    public EnumInstantiateStatus queryInstantiateStatus(String appInstanceId, MepHost mepHost) {
+    public EnumInstantiateStatus queryInstantiateStatus(String appInstanceId, MepHost mepHost,LcmLog lcmLog) {
         return EnumInstantiateStatus.INSTANTIATE_STATUS_SUCCESS;
     }
 }

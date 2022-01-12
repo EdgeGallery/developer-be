@@ -64,7 +64,7 @@ public class BuildContainerPackageAction extends AbstractAction {
         LOGGER.info(statusLog);
         updateActionProgress(actionStatus, 50, statusLog);
 
-        //save vm instantiate info.
+        //save container instantiate info.
         boolean saveResult = saveBuildContainerPackageInfo(applicationId, appPkg.getId());
         if (!saveResult) {
             updateActionError(actionStatus, "Update instantiate info for container failed.");

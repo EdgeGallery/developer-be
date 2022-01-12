@@ -70,15 +70,14 @@ public final class HttpClientUtil {
         LcmLog lcmLog, String pkgId, String mecHost, Map<String, String> inputParams) {
         //before instantiate ,call distribute result interface
         LOGGER.info("inter instant");
-        String disRes = getDistributeRes(basePath, userId, token, pkgId);
+        String disRes = getDistributeRes(basePath, userId, token, pkgId, lcmLog);
         LOGGER.info("get distribute {}", disRes);
         if (StringUtils.isEmpty(disRes)) {
             LOGGER.error("instantiateApplication get pkg distribute res failed!");
             return false;
         }
         //parse dis res
-        List<DistributeResponse> list = gson.fromJson(disRes, new TypeToken<List<DistributeResponse>>() {
-        }.getType());
+        List<DistributeResponse> list = gson.fromJson(disRes, new TypeToken<List<DistributeResponse>>() { }.getType());
         String appName = list.get(0).getAppPkgName();
         //set instantiate headers
         HttpHeaders headers = new HttpHeaders();
@@ -243,7 +242,7 @@ public final class HttpClientUtil {
     /**
      * get distribute result.
      */
-    public static String getDistributeRes(String basePath, String userId, String token, String pkgId) {
+    public static String getDistributeRes(String basePath, String userId, String token, String pkgId, LcmLog lcmLog) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.set(Consts.ACCESS_TOKEN_STR, token);
@@ -253,6 +252,12 @@ public final class HttpClientUtil {
         try {
             response = REST_TEMPLATE.exchange(url, HttpMethod.GET, requestEntity, String.class);
             LOGGER.info("APPlCM get distribute res log:{}", response);
+        } catch (CustomException e) {
+            e.printStackTrace();
+            String errorLog = e.getBody();
+            LOGGER.error("Failed get distribute res pkgId is {} exception {}", pkgId, errorLog);
+            lcmLog.setLog(errorLog);
+            return null;
         } catch (RestClientException e) {
             LOGGER.error("Failed get distribute res pkgId is {} exception {}", pkgId, e.getMessage());
             return null;
@@ -296,7 +301,8 @@ public final class HttpClientUtil {
      *
      * @return String
      */
-    public static String getWorkloadStatus(String basePath, String appInstanceId, String userId, String token) {
+    public static String getWorkloadStatus(String basePath, String appInstanceId, String userId, String token,
+        LcmLog lcmLog) {
         String url = basePath + String.format(Consts.APP_LCM_GET_WORKLOAD_STATUS_URL, userId, appInstanceId);
         LOGGER.info("url is {}", url);
         HttpHeaders headers = new HttpHeaders();
@@ -306,6 +312,13 @@ public final class HttpClientUtil {
         ResponseEntity<String> response;
         try {
             response = REST_TEMPLATE.exchange(url, HttpMethod.GET, new HttpEntity<>(headers), String.class);
+        } catch (CustomException e) {
+            e.printStackTrace();
+            String errorLog = e.getBody();
+            LOGGER
+                .error("Failed to get workload status which appInstanceId is {} exception {}", appInstanceId, errorLog);
+            lcmLog.setLog(errorLog);
+            return null;
         } catch (RestClientException e) {
             LOGGER.error("Failed to get workload status which appInstanceId is {} exception {}", appInstanceId,
                 e.getMessage());
@@ -357,7 +370,8 @@ public final class HttpClientUtil {
      *
      * @return String
      */
-    public static String getWorkloadEvents(String basePath, String appInstanceId, String userId, String token) {
+    public static String getWorkloadEvents(String basePath, String appInstanceId, String userId, String token,
+        LcmLog lcmLog) {
         String url = basePath + String.format(Consts.APP_LCM_GET_WORKLOAD_EVENTS_URL, userId, appInstanceId);
         LOGGER.info("work event url is {}", url);
         HttpHeaders headers = new HttpHeaders();
@@ -366,6 +380,13 @@ public final class HttpClientUtil {
         ResponseEntity<String> response;
         try {
             response = REST_TEMPLATE.exchange(url, HttpMethod.GET, new HttpEntity<>(headers), String.class);
+        } catch (CustomException e) {
+            e.printStackTrace();
+            String errorLog = e.getBody();
+            LOGGER
+                .error("Failed to get workload events which appInstanceId is {} exception {}", appInstanceId, errorLog);
+            lcmLog.setLog(errorLog);
+            return null;
         } catch (RestClientException e) {
             LOGGER.error("Failed to get workload events which appInstanceId is {} exception {}", appInstanceId,
                 e.getMessage());
@@ -405,8 +426,8 @@ public final class HttpClientUtil {
     /**
      * vmInstantiateImage.
      */
-    public static String vmInstantiateImage(String basePath, String userId, String lcmToken, String vmId,
-        String hostIp, String imageName, LcmLog lcmLog) {
+    public static String vmInstantiateImage(String basePath, String userId, String lcmToken, String vmId, String hostIp,
+        String imageName, LcmLog lcmLog) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.set(Consts.ACCESS_TOKEN_STR, lcmToken);
@@ -430,8 +451,7 @@ public final class HttpClientUtil {
             lcmLog.setLog(errorLog);
             return null;
         } catch (Exception e) {
-            LOGGER.error("Failed to create vm image  which vmId is {} exception {}", vmId,
-                e.getMessage());
+            LOGGER.error("Failed to create vm image  which vmId is {} exception {}", vmId, e.getMessage());
             return null;
         }
         if (response.getStatusCode() == HttpStatus.OK) {
@@ -471,8 +491,7 @@ public final class HttpClientUtil {
     /**
      * deleteVmImage.
      */
-    public static boolean deleteVmImage(String basePath, String userId, String hostIp, String imageId,
-        String token) {
+    public static boolean deleteVmImage(String basePath, String userId, String hostIp, String imageId, String token) {
 
         String url = basePath + String.format(Consts.APP_LCM_GET_IMAGE_STATUS_URL, userId, hostIp, imageId);
         LOGGER.info("url is {}", url);
@@ -496,8 +515,8 @@ public final class HttpClientUtil {
      * slice upload file.
      *
      * @param fileServerAddr File Server Address
-     * @param chunk          File Chunk
-     * @param filePath       File Path
+     * @param chunk File Chunk
+     * @param filePath File Path
      * @return upload result
      */
     public static boolean sliceUploadFile(String fileServerAddr, Chunk chunk, String filePath) {
@@ -538,7 +557,7 @@ public final class HttpClientUtil {
      * cancel slice upload file.
      *
      * @param fileServerAddr File Server Address
-     * @param identifier     File Identifier
+     * @param identifier File Identifier
      * @return cancel result
      */
     public static boolean cancelSliceUpload(String fileServerAddr, String identifier) {
@@ -581,9 +600,9 @@ public final class HttpClientUtil {
      * slice merge file.
      *
      * @param fileServerAddr File Server Address
-     * @param identifier     File Identifier
-     * @param fileName       File Name
-     * @param userId         User ID
+     * @param identifier File Identifier
+     * @param fileName File Name
+     * @param userId User ID
      * @return merge result
      */
     public static String sliceMergeFile(String fileServerAddr, String identifier, String fileName, String userId) {
