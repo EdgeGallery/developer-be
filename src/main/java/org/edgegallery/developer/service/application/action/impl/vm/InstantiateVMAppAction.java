@@ -25,6 +25,7 @@ import org.edgegallery.developer.model.application.vm.VirtualMachine;
 import org.edgegallery.developer.model.instantiate.EnumAppInstantiateStatus;
 import org.edgegallery.developer.model.instantiate.vm.PortInstantiateInfo;
 import org.edgegallery.developer.model.instantiate.vm.VMInstantiateInfo;
+import org.edgegallery.developer.model.lcm.LcmLog;
 import org.edgegallery.developer.model.lcm.NetworkInfo;
 import org.edgegallery.developer.model.lcm.VmInstantiateWorkload;
 import org.edgegallery.developer.model.operation.EnumOperationObjectType;
@@ -128,12 +129,12 @@ public class InstantiateVMAppAction extends InstantiateAppAction {
     }
 
     @Override
-    public EnumInstantiateStatus queryInstantiateStatus(String appInstanceId, MepHost mepHost) {
+    public EnumInstantiateStatus queryInstantiateStatus(String appInstanceId, MepHost mepHost, LcmLog lcmLog) {
         int waitingTime = 0;
         while (waitingTime < TIMEOUT) {
             String basePath = getUrlPrefix(mepHost.getLcmProtocol(), mepHost.getLcmIp(), mepHost.getLcmPort());
             String workStatus = HttpClientUtil
-                .getWorkloadStatus(basePath, appInstanceId, getContext().getUserId(), getContext().getToken());
+                .getWorkloadStatus(basePath, appInstanceId, getContext().getUserId(), getContext().getToken(),lcmLog);
             LOGGER.info("get instantiate status: {}", workStatus);
             if (workStatus == null) {
                 // compare time between now and deployDate

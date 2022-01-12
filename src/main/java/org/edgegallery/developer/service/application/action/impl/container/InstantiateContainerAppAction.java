@@ -18,6 +18,9 @@ package org.edgegallery.developer.service.application.action.impl.container;
 
 import static org.edgegallery.developer.util.HttpClientUtil.getUrlPrefix;
 
+
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -34,6 +37,7 @@ import org.edgegallery.developer.model.instantiate.container.PodStatusInfo;
 import org.edgegallery.developer.model.instantiate.container.PodStatusInfos;
 import org.edgegallery.developer.model.instantiate.container.ServiceInfo;
 import org.edgegallery.developer.model.instantiate.container.ServicePort;
+import org.edgegallery.developer.model.lcm.LcmLog;
 import org.edgegallery.developer.model.resource.mephost.MepHost;
 import org.edgegallery.developer.service.application.action.impl.InstantiateAppAction;
 import org.edgegallery.developer.service.application.common.EnumInstantiateStatus;
@@ -43,8 +47,6 @@ import org.edgegallery.developer.util.HttpClientUtil;
 import org.edgegallery.developer.util.SpringContextUtil;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 
 public class InstantiateContainerAppAction extends InstantiateAppAction {
 
@@ -140,21 +142,21 @@ public class InstantiateContainerAppAction extends InstantiateAppAction {
     }
 
     @Override
-    public EnumInstantiateStatus queryInstantiateStatus(String appInstanceId, MepHost mepHost) {
+    public EnumInstantiateStatus queryInstantiateStatus(String appInstanceId, MepHost mepHost, LcmLog lcmLog) {
         int waitingTime = 0;
         PodStatusInfos status = null;
         PodEventsRes events = null;
         while (waitingTime < TIMEOUT) {
             String basePath = getUrlPrefix(mepHost.getLcmProtocol(), mepHost.getLcmIp(), mepHost.getLcmPort());
             String workStatus = HttpClientUtil
-                .getWorkloadStatus(basePath, appInstanceId, getContext().getUserId(), getContext().getToken());
+                .getWorkloadStatus(basePath, appInstanceId, getContext().getUserId(), getContext().getToken(), lcmLog);
             LOGGER.info("Container app instantiate workStatus: {}", workStatus);
             String workEvents = HttpClientUtil
-                .getWorkloadEvents(basePath, appInstanceId, getContext().getUserId(), getContext().getToken());
+                .getWorkloadEvents(basePath, appInstanceId, getContext().getUserId(), getContext().getToken(), lcmLog);
             LOGGER.info("Container app instantiate workEvents: {}", workEvents);
             if (null != workStatus && null != workEvents) {
-                status = gson.fromJson(workStatus, new TypeToken<PodStatusInfos>() {}.getType());
-                events = gson.fromJson(workEvents, new TypeToken<PodEventsRes>() {}.getType());
+                status = gson.fromJson(workStatus, new TypeToken<PodStatusInfos>() { }.getType());
+                events = gson.fromJson(workEvents, new TypeToken<PodEventsRes>() { }.getType());
                 boolean podStatus = queryPodStatus(status.getPods());
                 if (podStatus) {
                     saveWorkloadToInstantiateInfo(status, events);

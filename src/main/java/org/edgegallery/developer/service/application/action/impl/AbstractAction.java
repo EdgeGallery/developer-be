@@ -13,6 +13,7 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
+
 package org.edgegallery.developer.service.application.action.impl;
 
 import java.util.UUID;
@@ -24,18 +25,18 @@ import org.edgegallery.developer.service.application.action.IContext;
 
 public abstract class AbstractAction implements IAction {
 
-    private
-    IContext context;
+    private IContext context;
 
     public void setContext(IContext context) {
         this.context = context;
     }
 
-    public IContext getContext(){
+    public IContext getContext() {
         return context;
     }
 
-    public ActionStatus  initActionStatus(EnumOperationObjectType objectType, String objectId, String actionName, String statusLog){
+    public ActionStatus initActionStatus(EnumOperationObjectType objectType, String objectId, String actionName,
+        String statusLog) {
         ActionStatus actionStatus = new ActionStatus();
         actionStatus.setId(UUID.randomUUID().toString());
         actionStatus.setObjectType(objectType);
@@ -48,16 +49,16 @@ public abstract class AbstractAction implements IAction {
         return actionStatus;
     }
 
-    public void updateActionProgress(ActionStatus actionStatus, int progress, String statusLog){
+    public void updateActionProgress(ActionStatus actionStatus, int progress, String statusLog) {
         actionStatus.setProgress(progress);
         actionStatus.appendStatusLog(statusLog);
-        getContext().updateActionStatus(actionStatus);
-        if (progress==100) {
+        if (progress == 100) {
             actionStatus.setStatus(EnumActionStatus.SUCCESS);
         }
+        getContext().updateActionStatus(actionStatus);
     }
 
-    public void updateActionError(ActionStatus actionStatus, String errorMsg){
+    public void updateActionError(ActionStatus actionStatus, String errorMsg) {
         actionStatus.setStatus(EnumActionStatus.FAILED);
         actionStatus.setErrorMsg(errorMsg);
         actionStatus.appendStatusLog(errorMsg);

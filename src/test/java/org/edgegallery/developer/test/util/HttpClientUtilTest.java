@@ -14,6 +14,9 @@
 
 package org.edgegallery.developer.test.util;
 
+import com.sun.net.httpserver.HttpExchange;
+import com.sun.net.httpserver.HttpHandler;
+import com.sun.net.httpserver.HttpServer;
 import java.io.File;
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -38,9 +41,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
-import com.sun.net.httpserver.HttpExchange;
-import com.sun.net.httpserver.HttpHandler;
-import com.sun.net.httpserver.HttpServer;
 
 @SpringBootTest(classes = DeveloperApplicationTests.class)
 @RunWith(SpringRunner.class)
@@ -341,26 +341,27 @@ public class HttpClientUtilTest {
             }
         });
 
-        httpServer.createContext(String.format(Consts.APP_LCM_GET_VNC_CONSOLE_URL, USER_ID, MEC_HOST, VM_ID), new HttpHandler() {
-            @Override
-            public void handle(HttpExchange exchange) throws IOException {
-                String method = exchange.getRequestMethod();
-                if (method.equals("POST")) {
-                    String jsonStr = null;
-                    try {
-                        File file = Resources.getResourceAsFile("testdata/json/package_upload.json");
-                        jsonStr = FileUtils.readFileToString(file, StandardCharsets.UTF_8);
+        httpServer.createContext(String.format(Consts.APP_LCM_GET_VNC_CONSOLE_URL, USER_ID, MEC_HOST, VM_ID),
+            new HttpHandler() {
+                @Override
+                public void handle(HttpExchange exchange) throws IOException {
+                    String method = exchange.getRequestMethod();
+                    if (method.equals("POST")) {
+                        String jsonStr = null;
+                        try {
+                            File file = Resources.getResourceAsFile("testdata/json/package_upload.json");
+                            jsonStr = FileUtils.readFileToString(file, StandardCharsets.UTF_8);
 
-                    } catch (IOException e) {
-                        LOGGER.error("Load the mock json data for getDistributeRes failed.");
+                        } catch (IOException e) {
+                            LOGGER.error("Load the mock json data for getDistributeRes failed.");
+                        }
+                        byte[] response = jsonStr.getBytes();
+                        exchange.sendResponseHeaders(HttpURLConnection.HTTP_OK, response.length);
+                        exchange.getResponseBody().write(response);
                     }
-                    byte[] response = jsonStr.getBytes();
-                    exchange.sendResponseHeaders(HttpURLConnection.HTTP_OK, response.length);
-                    exchange.getResponseBody().write(response);
+                    exchange.close();
                 }
-                exchange.close();
-            }
-        });
+            });
 
         httpServer.start();
     }
@@ -405,7 +406,7 @@ public class HttpClientUtilTest {
 
     @Test
     public void testGetDistributeResSuccess() {
-        String result = HttpClientUtil.getDistributeRes(LCM_URL, USER_ID, TOKEN, PACKAGE_ID);
+        String result = HttpClientUtil.getDistributeRes(LCM_URL, USER_ID, TOKEN, PACKAGE_ID, LCM_LOG);
         Assert.assertNotNull(result);
     }
 
@@ -417,13 +418,13 @@ public class HttpClientUtilTest {
 
     @Test
     public void testGetWorkloadStatusSuccess() {
-        String result = HttpClientUtil.getWorkloadStatus(LCM_URL, APPLICATION_ID, USER_ID, TOKEN);
+        String result = HttpClientUtil.getWorkloadStatus(LCM_URL, APPLICATION_ID, USER_ID, TOKEN, LCM_LOG);
         Assert.assertEquals("ok", result);
     }
 
     @Test
     public void testGetWorkloadEventsSuccess() {
-        String result = HttpClientUtil.getWorkloadEvents(LCM_URL, APPLICATION_ID, USER_ID, TOKEN);
+        String result = HttpClientUtil.getWorkloadEvents(LCM_URL, APPLICATION_ID, USER_ID, TOKEN, LCM_LOG);
         Assert.assertEquals("ok", result);
     }
 
@@ -508,8 +509,7 @@ public class HttpClientUtilTest {
 
     @Test
     public void testGetVncUrlSuccess() {
-        String result = HttpClientUtil
-            .getVncUrl(LCM_URL, USER_ID, MEC_HOST, VM_ID, "");
+        String result = HttpClientUtil.getVncUrl(LCM_URL, USER_ID, MEC_HOST, VM_ID, "");
         Assert.assertNotNull(result);
     }
 

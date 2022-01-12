@@ -14,6 +14,7 @@
 
 package org.edgegallery.developer.test.service.application.vm;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -64,7 +65,6 @@ import org.springframework.test.context.junit4.AbstractJUnit4SpringContextTests;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 @SpringBootTest(classes = DeveloperApplicationTests.class)
 @RunWith(SpringRunner.class)
@@ -122,8 +122,8 @@ public class VMAppOperationServiceTest extends AbstractJUnit4SpringContextTests 
         try {
             MultipartFile iconFile = new MockMultipartFile("test-icon.png", "test-icon.png", null,
                 VMAppOperationServiceTest.class.getClassLoader().getResourceAsStream("testdata/test-icon.png"));
-            UploadFile iconFileInfo = uploadFileService.uploadFile("db22dc00-8f44-408c-a106-402e60c643de", "icon",
-                iconFile);
+            UploadFile iconFileInfo = uploadFileService
+                .uploadFile("db22dc00-8f44-408c-a106-402e60c643de", "icon", iconFile);
             LOGGER.info("Icon file id {}", iconFileInfo.getFileId());
             MultipartFile mdFile = new MockMultipartFile("template-zoneminder.md", "template-zoneminder.md", null,
                 VMAppOperationServiceTest.class.getClassLoader()
@@ -277,14 +277,14 @@ public class VMAppOperationServiceTest extends AbstractJUnit4SpringContextTests 
                 chunk.setId((long) chunkNumber);
                 chunk.setTotalChunks(totalSize);
                 chunk.setIdentifier("IDEAPluginDev");
-                Boolean res = vmAppOperationService.uploadFileToVm(PRESET_APPLICATION_ID, PRESET_VM1_ID, mockRequest,
-                    chunk);
+                Boolean res = vmAppOperationService
+                    .uploadFileToVm(PRESET_APPLICATION_ID, PRESET_VM1_ID, mockRequest, chunk);
                 Assert.assertTrue(res);
                 chunkNumber++;
             }
 
-            Boolean mergeResult = vmAppOperationService.mergeAppFile(PRESET_APPLICATION_ID, PRESET_VM1_ID,
-                "IDEAPluginDev.zip", "IDEAPluginDev");
+            Boolean mergeResult = vmAppOperationService
+                .mergeAppFile(PRESET_APPLICATION_ID, PRESET_VM1_ID, "IDEAPluginDev.zip", "IDEAPluginDev");
             Assert.assertTrue(mergeResult);
         } catch (IOException e) {
             LOGGER.error("Exception happens", e);
@@ -326,8 +326,8 @@ public class VMAppOperationServiceTest extends AbstractJUnit4SpringContextTests 
         OperationStatus status = null;
         for (int i = 0; i < MAX_TRY_NUMBER; i++) {
             status = operationStatusService.getOperationStatusById(operationInfo.getOperationId());
-            if (EnumActionStatus.SUCCESS.equals(status.getStatus()) || EnumActionStatus.FAILED.equals(
-                status.getStatus())) {
+            if (EnumActionStatus.SUCCESS.equals(status.getStatus()) || EnumActionStatus.FAILED
+                .equals(status.getStatus())) {
                 break;
             }
             try {
@@ -347,8 +347,8 @@ public class VMAppOperationServiceTest extends AbstractJUnit4SpringContextTests 
         OperationStatus status = null;
         for (int i = 0; i < MAX_TRY_NUMBER; i++) {
             status = operationStatusService.getOperationStatusById(operationInfo.getOperationId());
-            if (EnumActionStatus.SUCCESS.equals(status.getStatus()) || EnumActionStatus.FAILED.equals(
-                status.getStatus())) {
+            if (EnumActionStatus.SUCCESS.equals(status.getStatus()) || EnumActionStatus.FAILED
+                .equals(status.getStatus())) {
                 break;
             }
             try {
@@ -423,7 +423,7 @@ public class VMAppOperationServiceTest extends AbstractJUnit4SpringContextTests 
             }
 
             @Mock
-            public String getDistributeRes(String basePath, String userId, String token, String pkgId) {
+            public String getDistributeRes(String basePath, String userId, String token, String pkgId, LcmLog lcmLog) {
                 if (lcmReturnType.equals(LcmReturnMockTypeEnum.GET_DISTRIBUTE_RES_FAILED)) {
                     return null;
                 }
@@ -448,8 +448,8 @@ public class VMAppOperationServiceTest extends AbstractJUnit4SpringContextTests 
             }
 
             @Mock
-            public String getWorkloadStatus(String basePath, String appInstanceId, String userId,
-                String token) {
+            public String getWorkloadStatus(String basePath, String appInstanceId, String userId, String token,
+                LcmLog lcmLog) {
                 if (lcmReturnType.equals(LcmReturnMockTypeEnum.GET_WORKLOAD_STATUS_FAILED)) {
                     return null;
                 }

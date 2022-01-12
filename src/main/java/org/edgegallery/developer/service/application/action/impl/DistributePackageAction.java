@@ -16,12 +16,14 @@
 
 package org.edgegallery.developer.service.application.action.impl;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import java.util.List;
-import org.edgegallery.developer.model.lcm.LcmLog;
 import org.edgegallery.developer.model.application.Application;
 import org.edgegallery.developer.model.apppackage.AppPackage;
 import org.edgegallery.developer.model.instantiate.EnumAppInstantiateStatus;
 import org.edgegallery.developer.model.lcm.DistributeResponse;
+import org.edgegallery.developer.model.lcm.LcmLog;
 import org.edgegallery.developer.model.lcm.MecHostInfo;
 import org.edgegallery.developer.model.lcm.UploadResponse;
 import org.edgegallery.developer.model.operation.ActionStatus;
@@ -37,8 +39,6 @@ import org.edgegallery.developer.util.SpringContextUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 
 public abstract class DistributePackageAction extends AbstractAction {
 
@@ -87,9 +87,10 @@ public abstract class DistributePackageAction extends AbstractAction {
         LOGGER.info("Distribute package destination: {}", mepHost.getMecHostIp());
         // Upload package file to lcm.
         AppPackage appPkg = appPackageService.getAppPackage(packageId);
-        String mepmPkgId = uploadPackageToLcm(getContext().getUserId(), appPkg.queryPkgPath(), mepHost);
+        LcmLog lcmLog = new LcmLog();
+        String mepmPkgId = uploadPackageToLcm(getContext().getUserId(), appPkg.queryPkgPath(), mepHost, lcmLog);
         if (null == mepmPkgId) {
-            updateActionError(actionStatus, "Upload app package file to lcm failed.");
+            updateActionError(actionStatus, "Upload app package file to lcm failed, lcm log is: " + lcmLog.getLog());
             saveDistributeInstantiateInfo("", "", EnumAppInstantiateStatus.PACKAGE_DISTRIBUTE_FAILED);
             return false;
         }
@@ -97,11 +98,12 @@ public abstract class DistributePackageAction extends AbstractAction {
         updateActionProgress(actionStatus, 25, "Upload app package to lcm success.");
 
         //Distribute package to edge host.
-        boolean res = distributePackageToEdgeHost(getContext().getUserId(), mepmPkgId, mepHost);
+        boolean res = distributePackageToEdgeHost(getContext().getUserId(), mepmPkgId, mepHost, lcmLog);
         if (!res) {
             saveDistributeInstantiateInfo(mepHost.getMecHostIp(), mepmPkgId,
                 EnumAppInstantiateStatus.PACKAGE_DISTRIBUTE_FAILED);
-            updateActionError(actionStatus, "Distribute app package file to edge host failed.");
+            updateActionError(actionStatus,
+                "Distribute app package file to edge host failed. lcm log: " + lcmLog.getLog());
             return false;
         }
         updateActionProgress(actionStatus, 50, "Distribute app package to edge host success.");
@@ -113,9 +115,11 @@ public abstract class DistributePackageAction extends AbstractAction {
             return false;
         }
         //Query Distribute Status
-        EnumDistributeStatus distributeStatus = getDistributeStatus(getContext().getUserId(), mepmPkgId, mepHost);
+        EnumDistributeStatus distributeStatus = getDistributeStatus(getContext().getUserId(), mepmPkgId, mepHost,
+            lcmLog);
         if (!EnumDistributeStatus.DISTRIBUTE_PACKAGE_STATUS_SUCCESS.equals(distributeStatus)) {
-            String msg = "Query Distribute package status failed, the result is: " + distributeStatus;
+            String msg = "Query Distribute package status failed, the result is: " + distributeStatus + " lcm log: "
+                + lcmLog.getLog();
             updateActionError(actionStatus, msg);
             return false;
         }
@@ -130,11 +134,10 @@ public abstract class DistributePackageAction extends AbstractAction {
         return true;
     }
 
-    private String uploadPackageToLcm(String userId, String packagePath, MepHost mepHost) {
-        String basePath = HttpClientUtil.getUrlPrefix(mepHost.getLcmProtocol(), mepHost.getLcmIp(),
-            mepHost.getLcmPort());
-        String uploadRes = HttpClientUtil.uploadPkg(basePath, packagePath, userId, getContext().getToken(),
-            new LcmLog());
+    private String uploadPackageToLcm(String userId, String packagePath, MepHost mepHost, LcmLog lcmLog) {
+        String basePath = HttpClientUtil
+            .getUrlPrefix(mepHost.getLcmProtocol(), mepHost.getLcmIp(), mepHost.getLcmPort());
+        String uploadRes = HttpClientUtil.uploadPkg(basePath, packagePath, userId, getContext().getToken(), lcmLog);
         LOGGER.info("Upload package result: {}", uploadRes);
         if (StringUtils.isEmpty(uploadRes)) {
             LOGGER.error("Upload package to lcm failed, package:{}  result: {}", packagePath, uploadRes);
@@ -144,11 +147,11 @@ public abstract class DistributePackageAction extends AbstractAction {
         return uploadResponse.getPackageId();
     }
 
-    private boolean distributePackageToEdgeHost(String userId, String packageId, MepHost mepHost) {
-        String basePath = HttpClientUtil.getUrlPrefix(mepHost.getLcmProtocol(), mepHost.getLcmIp(),
-            mepHost.getLcmPort());
-        String distributeRes = HttpClientUtil.distributePkg(basePath, userId, getContext().getToken(), packageId,
-            mepHost.getMecHostIp(), new LcmLog());
+    private boolean distributePackageToEdgeHost(String userId, String packageId, MepHost mepHost, LcmLog lcmLog) {
+        String basePath = HttpClientUtil
+            .getUrlPrefix(mepHost.getLcmProtocol(), mepHost.getLcmIp(), mepHost.getLcmPort());
+        String distributeRes = HttpClientUtil
+            .distributePkg(basePath, userId, getContext().getToken(), packageId, mepHost.getMecHostIp(), lcmLog);
         LOGGER.info("Distribute package result: {}", distributeRes);
         if (distributeRes == null) {
             LOGGER.error("Distribute package failed. packageId： {}", packageId);
@@ -157,20 +160,20 @@ public abstract class DistributePackageAction extends AbstractAction {
         return true;
     }
 
-    private EnumDistributeStatus getDistributeStatus(String userId, String packageId, MepHost mepHost) {
-        String basePath = HttpClientUtil.getUrlPrefix(mepHost.getLcmProtocol(), mepHost.getLcmIp(),
-            mepHost.getLcmPort());
+    private EnumDistributeStatus getDistributeStatus(String userId, String packageId, MepHost mepHost, LcmLog lcmLog) {
+        String basePath = HttpClientUtil
+            .getUrlPrefix(mepHost.getLcmProtocol(), mepHost.getLcmIp(), mepHost.getLcmPort());
         int waitingTime = 0;
         while (waitingTime < TIMEOUT) {
-            String distributeResult = HttpClientUtil.getDistributeRes(basePath, userId, getContext().getToken(),
-                packageId);
+            String distributeResult = HttpClientUtil
+                .getDistributeRes(basePath, userId, getContext().getToken(), packageId, lcmLog);
             LOGGER.info("Get distribute package result: {}", distributeResult);
             if (distributeResult == null) {
                 LOGGER.error("Get distribute package result failed");
                 return EnumDistributeStatus.DISTRIBUTE_PACKAGE_STATUS_ERROR;
             }
-            List<DistributeResponse> list = gson.fromJson(distributeResult,
-                new TypeToken<List<DistributeResponse>>() { }.getType());
+            List<DistributeResponse> list = gson
+                .fromJson(distributeResult, new TypeToken<List<DistributeResponse>>() { }.getType());
             List<MecHostInfo> mecHostInfo = list.get(0).getMecHostInfo();
             if (mecHostInfo == null) {
                 LOGGER.error("Get distribute package status failed, null mec host info.");
