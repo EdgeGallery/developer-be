@@ -31,8 +31,8 @@ public class VMImage {
     @Pattern(regexp = "All|public|private")
     private String visibleType;
 
-    @ApiModelProperty(example = "ubuntu")
-    @Pattern(regexp = "ubuntu|centos|windows|cirros")
+    @ApiModelProperty(example = "Ubuntu")
+    @Pattern(regexp = "Ubuntu|CentOS|Windows|Debian|SUSE|cirros|Oracle|EulerOS|Red Hat|NeoKylin")
     private String osType;
 
     @Length(max = 50)
