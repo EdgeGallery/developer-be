@@ -41,6 +41,7 @@ public class ReverseProxy {
 
     public ReverseProxy(String destHostProtocol, String destHostIp, int destHostPort,
                         String nextHopProtocol, String nextHopIp, int hopIndex) {
+        this.destHostProtocol = destHostProtocol;
         this.destHostIp = destHostIp;
         this.destHostPort = destHostPort;
         this.nextHopProtocol = nextHopProtocol;
