@@ -19,9 +19,9 @@ package org.edgegallery.developer.service.application.action.impl;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-import org.edgegallery.developer.model.lcm.LcmLog;
 import org.edgegallery.developer.model.application.Application;
 import org.edgegallery.developer.model.instantiate.EnumAppInstantiateStatus;
+import org.edgegallery.developer.model.lcm.LcmLog;
 import org.edgegallery.developer.model.operation.ActionStatus;
 import org.edgegallery.developer.model.operation.EnumOperationObjectType;
 import org.edgegallery.developer.model.resource.mephost.MepHost;
@@ -92,9 +92,9 @@ public abstract class InstantiateAppAction extends AbstractAction {
         saveInstanceIdToInstantiateInfo(appInstanceId, EnumAppInstantiateStatus.INSTANTIATE_SUCCESS);
 
         //Query instantiate status.
-        EnumInstantiateStatus status = queryInstantiateStatus(appInstanceId, mepHost,lcmLog);
+        EnumInstantiateStatus status = queryInstantiateStatus(appInstanceId, mepHost, lcmLog);
         if (!EnumInstantiateStatus.INSTANTIATE_STATUS_SUCCESS.equals(status)) {
-            msg = "Query instantiate status failed, the result is: " + status;
+            msg = "Query instantiate status failed, the result is: " + status + "lcm log:" + lcmLog.getLog();
             saveInstanceIdToInstantiateInfo(appInstanceId, EnumAppInstantiateStatus.INSTANTIATE_FAILED);
             updateActionError(actionStatus, msg);
             return false;
@@ -109,8 +109,8 @@ public abstract class InstantiateAppAction extends AbstractAction {
     }
 
     public String instantiateApplication(String userId, String mepmPackageId, MepHost mepHost, LcmLog lcmLog) {
-        String basePath = HttpClientUtil.getUrlPrefix(mepHost.getLcmProtocol(), mepHost.getLcmIp(),
-            mepHost.getLcmPort());
+        String basePath = HttpClientUtil
+            .getUrlPrefix(mepHost.getLcmProtocol(), mepHost.getLcmIp(), mepHost.getLcmPort());
         // instantiate application
         Map<String, String> inputParams;
         try {
@@ -120,8 +120,9 @@ public abstract class InstantiateAppAction extends AbstractAction {
             return null;
         }
         String appInstanceId = UUID.randomUUID().toString();
-        boolean instantRes = HttpClientUtil.instantiateApplication(basePath, appInstanceId, userId,
-            getContext().getToken(), lcmLog, mepmPackageId, mepHost.getMecHostIp(), inputParams);
+        boolean instantRes = HttpClientUtil
+            .instantiateApplication(basePath, appInstanceId, userId, getContext().getToken(), lcmLog, mepmPackageId,
+                mepHost.getMecHostIp(), inputParams);
         LOGGER.info("Instantiate application result: {}", instantRes);
         if (!instantRes) {
             return null;
@@ -133,7 +134,7 @@ public abstract class InstantiateAppAction extends AbstractAction {
         return new HashMap<>();
     }
 
-    public EnumInstantiateStatus queryInstantiateStatus(String appInstanceId, MepHost mepHost,LcmLog lcmLog) {
+    public EnumInstantiateStatus queryInstantiateStatus(String appInstanceId, MepHost mepHost, LcmLog lcmLog) {
         return EnumInstantiateStatus.INSTANTIATE_STATUS_SUCCESS;
     }
 }

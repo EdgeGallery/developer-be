@@ -54,6 +54,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 @Service
 public class AppPackageServiceImpl implements AppPackageService {
@@ -305,6 +306,11 @@ public class AppPackageServiceImpl implements AppPackageService {
 
     @Override
     public AppPackage generateAppPackage(ContainerApplication application) {
+        if (CollectionUtils.isEmpty(application.getHelmChartList())) {
+            LOGGER.error("container application does not upload any yaml.");
+            throw new FileOperateException("container application does not upload any yaml.",
+                ResponseConsts.RET_CREATE_FILE_FAIL);
+        }
         AppPackage appPackage = appPackageMapper.getAppPackageByAppId(application.getId());
         if (null == appPackage) {
             appPackage = new AppPackage();
