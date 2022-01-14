@@ -304,7 +304,7 @@
     "name" varchar(255) NOT NULL,
     "description" varchar(255) DEFAULT NULL,
     "architecture" varchar(255) DEFAULT NULL,
-    "cpu" text DEFAULT NULL,
+    "cpu" int4 DEFAULT NULL,
     "memory" varchar(255) DEFAULT NULL,
     "system_disk_size" int4 DEFAULT NULL,
     "data_disk_size"  int4 DEFAULT NULL,
