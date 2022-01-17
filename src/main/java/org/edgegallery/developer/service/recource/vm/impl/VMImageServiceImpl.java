@@ -780,39 +780,50 @@ public class VMImageServiceImpl implements VMImageService {
         private boolean querySlimProgress(int imageId) {
             String imagePath = vmImageMapper.getVmImagesPath(imageId);
             String url = imagePath.substring(0, imagePath.length() - 16);
-            long startTime = System.currentTimeMillis();
-            while (System.currentTimeMillis() - startTime < MAX_SECONDS * 60) {
-                try {
-                    Thread.sleep(15000);
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                    LOGGER.error("sleep fail! {}", e.getMessage());
-                }
+            int failNum = 0;
+            int waitingTime = 0;
+            try {
+                Thread.sleep(INTERVAL);
+                waitingTime += INTERVAL;
+            } catch (Exception e) {
+                Thread.currentThread().interrupt();
+            }
+            while (waitingTime < TIMEOUT) {
                 FileSystemResponse slimResult = HttpClientUtil.queryImageCheck(url);
                 if (slimResult == null) {
-                    vmImageMapper.updateVmImageSlimStatus(imageId, EnumVmImageSlimStatus.SLIM_FAILED.toString());
+                    failNum++;
+                } else {
+                    LOGGER.info("image slim result: {}", slimResult);
+                    int slimStatus = slimResult.getSlimStatus();
+
+                    if (slimStatus == 2) {
+                        vmImageMapper.updateVmImageSlimStatus(imageId, EnumVmImageSlimStatus.SLIM_SUCCEED.toString());
+                        Long imageSize = Long
+                            .parseLong(slimResult.getCheckStatusResponse().getCheckInfo().getImageInfo().getImageSize());
+                        String checkSum = slimResult.getCheckStatusResponse().getCheckInfo().getChecksum();
+                        saveOperationInfo(operationStatus, EnumActionStatus.ONGOING, 100,
+                            slimResult.getCompressInfo().getCompressMsg());
+                        vmImageMapper.updateVmImageInfo(imageId, imageSize, checkSum);
+                        return true;
+                    } else if (slimStatus == 1) {
+                        vmImageMapper.updateVmImageSlimStatus(imageId, EnumVmImageSlimStatus.SLIMMING.toString());
+                        int progress = (int) (10 + slimResult.getCompressInfo().getCompressRate() * 70);
+                        saveOperationInfo(operationStatus, EnumActionStatus.ONGOING, progress,
+                            slimResult.getCompressInfo().getCompressMsg());
+                    } else {
+                        vmImageMapper.updateVmImageSlimStatus(imageId, EnumVmImageSlimStatus.SLIM_FAILED.toString());
+                        return false;
+                    }
+                }
+                if (failNum >= 3) {
+                    LOGGER.info("image slim result fail three time.");
                     return false;
                 }
-                LOGGER.info("image slim result: {}", slimResult);
-                int slimStatus = slimResult.getSlimStatus();
-
-                if (slimStatus == 2) {
-                    vmImageMapper.updateVmImageSlimStatus(imageId, EnumVmImageSlimStatus.SLIM_SUCCEED.toString());
-                    Long imageSize = Long
-                        .parseLong(slimResult.getCheckStatusResponse().getCheckInfo().getImageInfo().getImageSize());
-                    String checkSum = slimResult.getCheckStatusResponse().getCheckInfo().getChecksum();
-                    saveOperationInfo(operationStatus, EnumActionStatus.ONGOING, 100,
-                        slimResult.getCompressInfo().getCompressMsg());
-                    vmImageMapper.updateVmImageInfo(imageId, imageSize, checkSum);
-                    return true;
-                } else if (slimStatus == 1) {
-                    vmImageMapper.updateVmImageSlimStatus(imageId, EnumVmImageSlimStatus.SLIMMING.toString());
-                    int progress = (int) (10 + slimResult.getCompressInfo().getCompressRate() * 70);
-                    saveOperationInfo(operationStatus, EnumActionStatus.ONGOING, progress,
-                        slimResult.getCompressInfo().getCompressMsg());
-                } else {
-                    vmImageMapper.updateVmImageSlimStatus(imageId, EnumVmImageSlimStatus.SLIM_FAILED.toString());
-                    return false;
+                try {
+                    Thread.sleep(INTERVAL);
+                    waitingTime += INTERVAL;
+                } catch (Exception e) {
+                    Thread.currentThread().interrupt();
                 }
             }
             return false;
