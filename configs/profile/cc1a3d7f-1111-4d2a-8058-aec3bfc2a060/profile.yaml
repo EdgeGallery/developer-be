@@ -14,4 +14,4 @@ profile:
   config: iot_config.sh
   appList: fledge, kuiper, tdengine, mqtt, emqx # if not contain this field, will corresponding to app field
   type: Internet of Things #enum type,corresponding to developer project model type
-  industry: Open Source #enum type,corresponding to developer project model industry
+  industry: Industrial Internet #enum type,corresponding to developer project model industry
