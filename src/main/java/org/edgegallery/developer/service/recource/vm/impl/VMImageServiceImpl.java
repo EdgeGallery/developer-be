@@ -14,6 +14,7 @@
 
 package org.edgegallery.developer.service.recource.vm.impl;
 
+import com.google.gson.Gson;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -31,6 +32,7 @@ import org.apache.tomcat.util.http.fileupload.servlet.ServletFileUpload;
 import org.edgegallery.developer.common.Consts;
 import org.edgegallery.developer.common.ResponseConsts;
 import org.edgegallery.developer.exception.DataBaseException;
+import org.edgegallery.developer.exception.EntityNotFoundException;
 import org.edgegallery.developer.exception.FileOperateException;
 import org.edgegallery.developer.exception.IllegalRequestException;
 import org.edgegallery.developer.exception.RestfulRequestException;
@@ -62,12 +64,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import org.springframework.web.multipart.MultipartFile;
-import com.google.gson.Gson;
 
 @Service("VMImageService")
 public class VMImageServiceImpl implements VMImageService {
@@ -80,7 +82,7 @@ public class VMImageServiceImpl implements VMImageService {
 
     private static final String FILE_FORMAT_ISO = "iso";
 
-    private static final int[] CHECK_STATUS_SUCCESS = new int[]{0, 1, 2};
+    private static final int[] CHECK_STATUS_SUCCESS = new int[] {0, 1, 2};
 
     private static final int CHECK_STATUS_PROGRESS = 4;
 
@@ -447,8 +449,8 @@ public class VMImageServiceImpl implements VMImageService {
     }
 
     private Boolean updateUploadFileToVmImage(UploadFileInfo uploadFileInfo, String filesystemImageId, int imageId) {
-        String uploadedSystemPath =
-            fileServerAddress + String.format(Consts.SYSTEM_IMAGE_DOWNLOAD_URL, filesystemImageId);
+        String uploadedSystemPath = fileServerAddress + String
+            .format(Consts.SYSTEM_IMAGE_DOWNLOAD_URL, filesystemImageId);
         if (StringUtils.isNotEmpty(uploadFileInfo.getErrorType())) {
             // delete file system image
             LOGGER.error("query image info failed on file server!");
@@ -490,7 +492,8 @@ public class VMImageServiceImpl implements VMImageService {
                         .getFormat();
                     String imageSize = imageCheckResult.getCheckStatusResponse().getCheckInfo().getImageInfo()
                         .getImageSize();
-                    float virtualSize = imageCheckResult.getCheckStatusResponse().getCheckInfo().getImageInfo().getVirtualSize();
+                    float virtualSize = imageCheckResult.getCheckStatusResponse().getCheckInfo().getImageInfo()
+                        .getVirtualSize();
                     return new UploadFileInfo(imageName, checkSum, imageFormat, Long.parseLong(imageSize), virtualSize);
                 } else if (status == CHECK_STATUS_PROGRESS) {
                     LOGGER.info("filesystem is checking! ");
@@ -543,7 +546,8 @@ public class VMImageServiceImpl implements VMImageService {
                 String imageSize = imageCheckResult.getCheckStatusResponse().getCheckInfo().getImageInfo()
                     .getImageSize();
                 String checkSum = imageCheckResult.getCheckStatusResponse().getCheckInfo().getChecksum();
-                float virtualSize = imageCheckResult.getCheckStatusResponse().getCheckInfo().getImageInfo().getVirtualSize();
+                float virtualSize = imageCheckResult.getCheckStatusResponse().getCheckInfo().getImageInfo()
+                    .getVirtualSize();
                 int status = imageCheckResult.getCheckStatusResponse().getStatus();
                 if (status != CHECK_STATUS_PROGRESS && !StringUtils.isEmpty(imageSize) && !StringUtils
                     .isEmpty(checkSum)) {
@@ -571,20 +575,29 @@ public class VMImageServiceImpl implements VMImageService {
     }
 
     @Override
-    public byte[] downloadVmImage(Integer imageId) {
+    public ResponseEntity<byte[]> downloadVmImage(Integer imageId) {
+        VMImage vmImage = getVmImageById(imageId);
+        if (vmImage == null) {
+            LOGGER.error("can not find vm image {} in db.", imageId);
+            throw new EntityNotFoundException("can not find vm image in db!", ResponseConsts.RET_QUERY_DATA_EMPTY);
+        }
+
         Assert.notNull(vmImageMapper.getVmImagesPath(imageId), "vm image path is null");
         try {
             String systemPath = vmImageMapper.getVmImagesPath(imageId);
             byte[] dataStream = HttpClientUtil.downloadSystemImage(systemPath);
             if (dataStream == null) {
                 LOGGER.error("download vm image failed!");
-                return new byte[0];
+                return null;
             }
             LOGGER.info("download vm image succeed!");
-            return dataStream;
+            HttpHeaders headers = new HttpHeaders();
+            headers.add("Content-Type", "application/octet-stream");
+            headers.add("Content-Disposition", "attachment; filename=" + vmImage.getImageFileName());
+            return ResponseEntity.ok().headers(headers).body(dataStream);
         } catch (Exception e) {
             LOGGER.error("download vm image failed!");
-            return new byte[0];
+            return null;
         }
     }
 

@@ -47,7 +47,7 @@ public interface VMImageService {
 
     ResponseEntity mergeVmImage(String fileName, String identifier, Integer imageId);
 
-    byte[] downloadVmImage(Integer imageId);
+    ResponseEntity<byte[]> downloadVmImage(Integer imageId);
 
     OperationInfoRep imageSlim(Integer imageId);
 

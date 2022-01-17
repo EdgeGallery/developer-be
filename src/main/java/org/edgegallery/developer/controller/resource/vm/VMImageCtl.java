@@ -262,16 +262,7 @@ public class VMImageCtl {
     public ResponseEntity<byte[]> downloadVmImage(
         @ApiParam(value = "imageId", required = true) @PathVariable("imageId") Integer imageId) {
         LOGGER.info("download vm image file, systemId = {}", imageId);
-        VMImage vmImage = vmImageService.getVmImageById(imageId);
-        if (vmImage == null) {
-            LOGGER.error("can not find vm image {} in db.", imageId);
-            throw new EntityNotFoundException("can not find vm image in db!", ResponseConsts.RET_QUERY_DATA_EMPTY);
-        }
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Content-Type", "application/octet-stream");
-        headers.add("Content-Disposition", "attachment; filename=" + vmImage.getImageFileName());
-        byte[] fileData = vmImageService.downloadVmImage(imageId);
-        return ResponseEntity.ok().headers(headers).body(fileData);
+        return vmImageService.downloadVmImage(imageId);
     }
 
     /**

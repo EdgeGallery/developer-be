@@ -351,8 +351,8 @@ public class VMImageServiceTest {
 
     @Test
     public void testDownloadVmImageSuccess() throws IOException {
-        byte[] data = vmImageService.downloadVmImage(2);
-        Assert.assertEquals(data.length, 0);
+        ResponseEntity data = vmImageService.downloadVmImage(2);
+        Assert.assertNull(data);
     }
 
 }

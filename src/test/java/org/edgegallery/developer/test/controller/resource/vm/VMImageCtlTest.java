@@ -194,7 +194,7 @@ public class VMImageCtlTest {
     public void testDownloadVmImageSuccess() throws Exception {
         ResponseEntity response = ResponseEntity.ok().build();
         String url = String.format("/mec/developer/v2/vmimages/%s/action/download", 1);
-        Mockito.when(vmImageService.downloadVmImage(Mockito.anyInt())).thenReturn(new byte[1000]);
+        Mockito.when(vmImageService.downloadVmImage(Mockito.anyInt())).thenReturn(response);
         Mockito.when(vmImageService.getVmImageById(Mockito.anyInt())).thenReturn(new VMImage());
         ResultActions actions = mvc
             .perform(MockMvcRequestBuilders.get(url).contentType(MediaType.APPLICATION_JSON_UTF8))

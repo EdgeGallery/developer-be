@@ -237,7 +237,7 @@ public class AppPackageServiceTest extends AbstractJUnit4SpringContextTests {
             application.setId(UUID.randomUUID().toString());
             appPackageService.generateAppPackage(application);
         } catch (FileOperateException e) {
-            Assert.assertEquals("Generation container app package error.", e.getMessage());
+            Assert.assertEquals("container application does not upload any yaml.", e.getMessage());
         }
     }
 
@@ -254,7 +254,7 @@ public class AppPackageServiceTest extends AbstractJUnit4SpringContextTests {
             application.setId(UUID.randomUUID().toString());
             appPackageService.generateAppPackage(application);
         } catch (FileOperateException e) {
-            Assert.assertEquals("Generation container app package error.", e.getMessage());
+            Assert.assertEquals("container application does not upload any yaml.", e.getMessage());
         }
     }
 
