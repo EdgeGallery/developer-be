@@ -23,7 +23,6 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -210,14 +209,7 @@ public class ReleasedPackageServiceImpl implements ReleasedPackageService {
     @Override
     public Page<ReleasedPackage> getAllPackages(String name, int limit, int offset) {
         PageHelper.offsetPage(offset, limit);
-        List<ReleasedPackage> list = releasedPackageMapper.getAllReleasedPackages(name);
-        List<ReleasedPackage> queryList = new ArrayList<>();
-        for (ReleasedPackage releasedPackage : list) {
-            AppPackage appPackage = appPackageService.getAppPackage(releasedPackage.getAppStorePackageId());
-            releasedPackage.setAppPackage(appPackage);
-            queryList.add(releasedPackage);
-        }
-        PageInfo<ReleasedPackage> pageInfo = new PageInfo<>(queryList);
+        PageInfo<ReleasedPackage> pageInfo = new PageInfo<>(releasedPackageMapper.getAllReleasedPackages(name));
         LOGGER.info("Get all released pkg success.");
         return new Page<>(pageInfo.getList(), limit, offset, pageInfo.getTotal());
     }
