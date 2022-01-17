@@ -71,10 +71,12 @@
     <select id="getAllReleasedPackages" parameterType="java.lang.String" resultMap="ReleasedPkgMap">
         SELECT
         <include refid="packageColumn"/>
-        from tbl_released_package where 1=1
-        <if test="name != null and name != ''">
-            and name like CONCAT('%',#{name},'%')
-        </if>
+        FROM tbl_released_package
+        <where>
+            <if test="name != null and name != ''">
+                and name like CONCAT('%',#{name},'%')
+            </if>
+        </where>
         order by synchronize_date desc
     </select>
 
