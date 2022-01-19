@@ -22,19 +22,16 @@ import io.swagger.annotations.ApiResponses;
 import java.io.File;
 import javax.servlet.http.HttpServletRequest;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
-import org.edgegallery.developer.common.ResponseConsts;
-import org.edgegallery.developer.exception.EntityNotFoundException;
 import org.edgegallery.developer.model.common.Chunk;
 import org.edgegallery.developer.model.resource.vm.VMImage;
+import org.edgegallery.developer.model.restful.ErrorRespDto;
 import org.edgegallery.developer.model.restful.OperationInfoRep;
 import org.edgegallery.developer.model.restful.VMImageReq;
 import org.edgegallery.developer.model.restful.VMImageRes;
-import org.edgegallery.developer.model.restful.ErrorRespDto;
 import org.edgegallery.developer.service.recource.vm.VMImageService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -67,8 +64,8 @@ public class VMImageCtl {
         @ApiResponse(code = 200, message = "OK", response = VMImageRes.class),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
-    @RequestMapping(value = "/action/get-list", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_UTF8_VALUE,
-        produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @RequestMapping(value = "/action/get-list", method = RequestMethod.POST,
+        consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_ADMIN')|| hasRole('DEVELOPER_TENANT')")
     public ResponseEntity<VMImageRes> getVmImages(
         @ApiParam(value = "VmImageReq", required = true) @RequestBody VMImageReq vmImageReq) {
