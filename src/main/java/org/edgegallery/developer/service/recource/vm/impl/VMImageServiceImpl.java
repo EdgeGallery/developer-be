@@ -98,11 +98,6 @@ public class VMImageServiceImpl implements VMImageService {
 
     private static Gson gson = new Gson();
 
-    /**
-     * the max time for wait workStatus.
-     */
-    private static final Long MAX_SECONDS = 30 * 1000L;
-
     @Value("${fileserver.address}")
     private String fileServerAddress;
 
@@ -811,8 +806,8 @@ public class VMImageServiceImpl implements VMImageService {
 
                     if (slimStatus == 2) {
                         vmImageMapper.updateVmImageSlimStatus(imageId, EnumVmImageSlimStatus.SLIM_SUCCEED.toString());
-                        Long imageSize = Long
-                            .parseLong(slimResult.getCheckStatusResponse().getCheckInfo().getImageInfo().getImageSize());
+                        Long imageSize = Long.parseLong(
+                            slimResult.getCheckStatusResponse().getCheckInfo().getImageInfo().getImageSize());
                         String checkSum = slimResult.getCheckStatusResponse().getCheckInfo().getChecksum();
                         saveOperationInfo(operationStatus, EnumActionStatus.ONGOING, 100,
                             slimResult.getCompressInfo().getCompressMsg());

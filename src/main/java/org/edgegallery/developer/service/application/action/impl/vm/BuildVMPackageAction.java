@@ -122,11 +122,6 @@ public class BuildVMPackageAction extends AbstractAction {
             vm.getVmCertificate().getPwdCertificate().getUsername())) {
             return;
         }
-        VMImage image = vmImageService.getVmImageById(vm.getImageId());
-        String osType = image.getOsType();
-        if (!(EnumImageOSType.UBUNTU.getOsType().equals(osType) || EnumImageOSType.CENTOS.getOsType().equals(osType))) {
-            return;
-        }
         String setPwdScript = "";
         try {
             setPwdScript = FileUtils.readFileToString(new File(SET_PWD_FILE_PATH), StandardCharsets.UTF_8);
