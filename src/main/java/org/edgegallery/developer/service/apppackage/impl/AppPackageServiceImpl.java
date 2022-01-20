@@ -281,6 +281,11 @@ public class AppPackageServiceImpl implements AppPackageService {
 
     @Override
     public AppPackage generateAppPackage(VMApplication application) {
+        if (CollectionUtils.isEmpty(application.getVmList())) {
+            LOGGER.error("vm application does not config vm info.");
+            throw new FileOperateException("vm application does not config vm info.",
+                ResponseConsts.RET_CREATE_FILE_FAIL);
+        }
         AppPackage appPackage = appPackageMapper.getAppPackageByAppId(application.getId());
         if (null == appPackage) {
             appPackage = new AppPackage();
