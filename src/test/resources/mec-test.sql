@@ -150,8 +150,14 @@ CREATE TABLE IF NOT EXISTS tbl_vm_flavor (
    CONSTRAINT tbl_vm_flavor_pkey PRIMARY KEY (id)
 );
 
+CREATE SEQUENCE IF NOT EXISTS tbl_vm_image_id_seq_009
+    INCREMENT BY 1
+    START WITH 10000
+    MINVALUE 1
+    MAXVALUE 2147483647;
+
 CREATE TABLE IF NOT EXISTS tbl_vm_image (
-   id SERIAL,
+   id int DEFAULT nextval('tbl_vm_image_id_seq_009'),
    name varchar(255) NOT NULL,
    visible_type varchar(255) DEFAULT NULL,
    os_type varchar(255) DEFAULT NULL,
@@ -620,7 +626,7 @@ CREATE TABLE IF NOT EXISTS tbl_host_log (
         type varchar(255) NOT NULL,
         architecture varchar(255) NOT NULL,
         short_desc varchar(255) NOT NULL,
-        synchronize_date text NOT NULL,
+        synchronize_date varchar(255) NOT NULL,
         user_id varchar(50) NOT NULL,
         user_name varchar(255) NOT NULL,
         test_task_id varchar(50) NOT NULL,
