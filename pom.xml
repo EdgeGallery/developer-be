@@ -134,16 +134,8 @@
             <artifactId>spring-boot2-starter-servlet</artifactId>
             <exclusions>
                 <exclusion>
-                    <groupId>org.apache.servicecomb</groupId>
-                    <artifactId>provider-pojo</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.apache.servicecomb</groupId>
-                    <artifactId>java-chassis-core</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.apache.servicecomb</groupId>
-                    <artifactId>foundation-vertx</artifactId>
+                    <groupId>io.netty</groupId>
+                    <artifactId>netty-common</artifactId>
                 </exclusion>
                 <exclusion>
                     <groupId>org.springframework.boot</groupId>
@@ -197,119 +189,8 @@
                     <artifactId>netty-transport</artifactId>
                     <groupId>io.netty</groupId>
                 </exclusion>
-                <exclusion>
-                    <groupId>org.apache.servicecomb</groupId>
-                    <artifactId>common-rest</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.apache.servicecomb</groupId>
-                    <artifactId>deployment</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.apache.servicecomb</groupId>
-                    <artifactId>handler-bizkeeper</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.apache.servicecomb</groupId>
-                    <artifactId>swagger-generator-core</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.apache.servicecomb</groupId>
-                    <artifactId>transport-common</artifactId>
-                </exclusion>
             </exclusions>
             <version>1.3.6</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.servicecomb</groupId>
-            <artifactId>transport-common</artifactId>
-            <version>2.6.0</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.servicecomb</groupId>
-            <artifactId>common-rest</artifactId>
-            <version>2.6.0</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.apache.servicecomb</groupId>
-                    <artifactId>java-chassis-core</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.apache.servicecomb</groupId>
-                    <artifactId>deployment</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.apache.servicecomb</groupId>
-                    <artifactId>foundation-vertx</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.servicecomb</groupId>
-            <artifactId>provider-pojo</artifactId>
-            <version>2.6.0</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.servicecomb</groupId>
-            <artifactId>deployment</artifactId>
-            <version>2.6.0</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.apache.servicecomb</groupId>
-                    <artifactId>foundation-ssl</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.apache.servicecomb</groupId>
-                    <artifactId>foundation-vertx</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>io.netty</groupId>
-                    <artifactId>netty-transport</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.servicecomb</groupId>
-            <artifactId>foundation-ssl</artifactId>
-            <version>2.6.0</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.servicecomb</groupId>
-            <artifactId>swagger-generator-core</artifactId>
-            <version>2.6.0</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.servicecomb</groupId>
-            <artifactId>java-chassis-core</artifactId>
-            <version>2.6.0</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.apache.servicecomb</groupId>
-                    <artifactId>swagger-generator-core</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.servicecomb</groupId>
-            <artifactId>handler-bizkeeper</artifactId>
-            <version>2.6.0</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.apache.servicecomb</groupId>
-                    <artifactId>java-chassis-core</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.servicecomb</groupId>
-            <artifactId>foundation-vertx</artifactId>
-            <version>2.6.0</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>io.netty</groupId>
-                    <artifactId>netty-transport</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.springframework.security.oauth.boot</groupId>
@@ -671,7 +552,16 @@
                     <artifactId>netty-transport</artifactId>
                     <groupId>io.netty</groupId>
                 </exclusion>
+                <exclusion>
+                    <groupId>io.netty</groupId>
+                    <artifactId>netty-common</artifactId>
+                </exclusion>
             </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-common</artifactId>
+            <version>4.1.72.Final</version>
         </dependency>
         <dependency>
             <groupId>io.projectreactor</groupId>
@@ -727,6 +617,12 @@
             <artifactId>netty-transport</artifactId>
             <groupId>io.netty</groupId>
             <version>4.1.72.Final</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>io.netty</groupId>
+                    <artifactId>netty-common</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.modelmapper</groupId>
@@ -851,7 +747,7 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-jdbc</artifactId>
-            <version>5.3.15</version>
+            <version>5.2.8.RELEASE</version>
             <exclusions>
                 <exclusion>
                     <artifactId>spring-beans</artifactId>
@@ -871,7 +767,7 @@
         <dependency>
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-core</artifactId>
-            <version>5.6.1</version>
+            <version>5.3.10.RELEASE</version>
             <exclusions>
                 <exclusion>
                     <artifactId>spring-beans</artifactId>
@@ -895,7 +791,7 @@
         <dependency>
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-web</artifactId>
-            <version>5.6.1</version>
+            <version>5.3.8.RELEASE</version>
             <exclusions>
                 <exclusion>
                     <artifactId>spring-beans</artifactId>
