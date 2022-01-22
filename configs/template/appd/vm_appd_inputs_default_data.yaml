@@ -1,0 +1,28 @@
+VDU1_APP_Plane01_IP:
+  default: '192.168.221.2'
+VDU1_APP_Plane01_GW:
+  default: '192.168.221.1'
+VDU1_APP_Plane02_IP:
+  default: '192.168.222.2'
+VDU1_APP_Plane02_GW:
+  default: '192.168.222.1'
+VDU1_APP_Plane03_IP:
+  default: '192.168.220.2'
+VDU1_APP_Plane03_GW:
+  default: '192.168.220.1'
+VDU1_APP_Plane04_GW:
+  default: '192.168.223.1'
+VDU1_APP_Plane04_IP:
+  default: '192.168.223.2'
+APP_Plane01_Physnet:
+  default: physnet2
+APP_Plane01_VlanId:
+  default: '2001'
+APP_Plane02_Physnet:
+  default: physnet2
+APP_Plane02_VlanId:
+  default: '2002'
+APP_Plane03_Physnet:
+  default: physnet2
+APP_Plane03_VlanId:
+  default: '2003'

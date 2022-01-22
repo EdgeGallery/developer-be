@@ -67,7 +67,23 @@ public class VMAppTopologyTemplateConverter extends TopologyTemplateConverter {
         updateVLs(application.getNetworkList());
         updateAppConfiguration(application);
         updateGroupsAndPolicies();
+
+        // set default input data
+        setDefaultInputData(this.topologyTemplate.getInputs());
+
         return this.topologyTemplate;
+    }
+
+    private void setDefaultInputData(LinkedHashMap<String, InputParam> inputs) {
+        for (Map.Entry<String, InputParam> entry : inputs.entrySet()) {
+            Object value = entry.getValue().getDefaultValue();
+            if (value == null || StringUtils.isEmpty(value.toString())) {
+                Object defaultVal = VmDefaultInputData.getDefaultData(entry.getKey());
+                if (defaultVal != null) {
+                    entry.getValue().setDefaultValue(defaultVal);
+                }
+            }
+        }
     }
 
     private void initVmInputs() {
