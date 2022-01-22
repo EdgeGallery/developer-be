@@ -79,12 +79,6 @@ public class VMAppTopologyTemplateConverter extends TopologyTemplateConverter {
             if (defaultVal != null) {
                 entry.getValue().setDefaultValue(defaultVal);
             }
-//            if (value == null || StringUtils.isEmpty(value.toString())) {
-//                Object defaultVal = VmDefaultInputData.getDefaultData(entry.getKey());
-//                if (defaultVal != null) {
-//                    entry.getValue().setDefaultValue(defaultVal);
-//                }
-//            }
         }
     }
 
