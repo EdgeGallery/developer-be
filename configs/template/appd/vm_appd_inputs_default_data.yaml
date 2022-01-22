@@ -1,28 +1,56 @@
+DC_ID:
+  default: FS_M:Manager_VPC
+az_dc:
+  default: nova
+ue_ip_segment:
+  default: '0.0.0.0/0'
+APP_Plane01_Network:
+  default: 'MEC_APP_MP1'
 VDU1_APP_Plane01_IP:
-  default: '192.168.221.2'
+  default: '192.168.221.201'
 VDU1_APP_Plane01_GW:
   default: '192.168.221.1'
-VDU1_APP_Plane02_IP:
-  default: '192.168.222.2'
-VDU1_APP_Plane02_GW:
-  default: '192.168.222.1'
-VDU1_APP_Plane03_IP:
-  default: '192.168.220.2'
-VDU1_APP_Plane03_GW:
-  default: '192.168.220.1'
-VDU1_APP_Plane04_GW:
-  default: '192.168.223.1'
-VDU1_APP_Plane04_IP:
-  default: '192.168.223.2'
-APP_Plane01_Physnet:
-  default: physnet2
 APP_Plane01_VlanId:
   default: '2001'
+APP_Plane01_Physnet:
+  default: physnet2
+APP_Plane02_Network:
+  default: 'MEC_APP_Public'
+VDU1_APP_Plane02_IP:
+  default: '192.168.222.201'
+VDU1_APP_Plane02_GW:
+  default: '192.168.222.1'
 APP_Plane02_Physnet:
   default: physnet2
 APP_Plane02_VlanId:
   default: '2002'
+APP_Plane03_Network:
+  default: 'MEC_APP_Private'
+VDU1_APP_Plane03_IP:
+  default: '192.168.220.201'
+VDU1_APP_Plane03_GW:
+  default: '192.168.220.1'
 APP_Plane03_Physnet:
   default: physnet2
 APP_Plane03_VlanId:
   default: '2003'
+APP_Plane04_Network:
+  default: 'Internal_Network'
+VDU1_APP_Plane04_IP:
+  default: '192.168.223.201'
+VDU1_APP_Plane04_GW:
+  default: '192.168.223.1'
+APP_Plane04_Physnet:
+  default: physnet2
+APP_Plane04_VlanId:
+  default: '2003'
+VDU1_vCPU:
+  default: 1
+VDU1_MEM:
+    default: 4096
+VDU1_DataDisk:
+    default: 20
+
+
+
+
