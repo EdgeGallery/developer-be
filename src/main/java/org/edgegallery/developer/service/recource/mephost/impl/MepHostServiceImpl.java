@@ -126,7 +126,6 @@ public class MepHostServiceImpl implements MepHostService {
         if (host.getVimType() != EnumVimType.K8S) {
             LOGGER.info("Crete host {} success ", host.getId());
             reverseProxyService.addReverseProxy(host.getId(), host.getMecHostPort(), token);
-            return true;
         }
         return true;
     }

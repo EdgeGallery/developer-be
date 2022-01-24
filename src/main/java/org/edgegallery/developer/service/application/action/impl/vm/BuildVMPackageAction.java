@@ -29,14 +29,11 @@ import org.edgegallery.developer.model.instantiate.EnumAppInstantiateStatus;
 import org.edgegallery.developer.model.instantiate.vm.VMInstantiateInfo;
 import org.edgegallery.developer.model.operation.ActionStatus;
 import org.edgegallery.developer.model.operation.EnumOperationObjectType;
-import org.edgegallery.developer.model.resource.vm.EnumImageOSType;
-import org.edgegallery.developer.model.resource.vm.VMImage;
 import org.edgegallery.developer.model.restful.ApplicationDetail;
 import org.edgegallery.developer.service.application.ApplicationService;
 import org.edgegallery.developer.service.application.action.impl.AbstractAction;
 import org.edgegallery.developer.service.application.common.IContextParameter;
 import org.edgegallery.developer.service.application.impl.vm.VMAppOperationServiceImpl;
-import org.edgegallery.developer.service.recource.vm.VMImageService;
 import org.edgegallery.developer.util.SpringContextUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,8 +49,6 @@ public class BuildVMPackageAction extends AbstractAction {
 
     private ApplicationService applicationService = (ApplicationService) SpringContextUtil.getBean(
         ApplicationService.class);
-
-    private VMImageService vmImageService = (VMImageService) SpringContextUtil.getBean(VMImageService.class);
 
     private static final String SET_PWD_FILE_PATH = "./configs/template/user_data/setpwd.txt";
 
