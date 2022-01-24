@@ -150,6 +150,7 @@ public class InstantiateVMAppAction extends InstantiateAppAction {
             }
             if (INSTANTIATE_FAILURE.equals(jsonObject.get("status").getAsString())) {
                 LOGGER.error("Query instantiate failed:{}", jsonObject.get("msg").getAsString());
+                lcmLog.setLog(jsonObject.get("msg").getAsString());
                 return EnumInstantiateStatus.INSTANTIATE_STATUS_FAILED;
             }
             try {
