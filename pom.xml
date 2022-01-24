@@ -122,7 +122,7 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-websocket</artifactId>
-            <version>5.1.13.RELEASE</version>
+            <version>5.2.19.RELEASE</version>
         </dependency>
         <dependency>
             <groupId>commons-net</groupId>
@@ -299,7 +299,7 @@
                 </exclusion>
             </exclusions>
             <groupId>org.springframework</groupId>
-            <version>5.1.14.RELEASE</version>
+            <version>5.2.19.RELEASE</version>
         </dependency>
         <dependency>
             <artifactId>spring-aop</artifactId>
@@ -314,7 +314,7 @@
                 </exclusion>
             </exclusions>
             <groupId>org.springframework</groupId>
-            <version>5.1.13.RELEASE</version>
+            <version>5.2.19.RELEASE</version>
         </dependency>
         <dependency>
             <artifactId>bcprov-jdk15on</artifactId>
@@ -415,7 +415,7 @@
                 </exclusion>
             </exclusions>
             <groupId>org.springframework</groupId>
-            <version>5.1.13.RELEASE</version>
+            <version>5.2.19.RELEASE</version>
         </dependency>
         <dependency>
             <artifactId>tomcat-embed-core</artifactId>
@@ -425,7 +425,7 @@
         <dependency>
             <artifactId>spring-jcl</artifactId>
             <groupId>org.springframework</groupId>
-            <version>5.1.13.RELEASE</version>
+            <version>5.2.19.RELEASE</version>
         </dependency>
         <dependency>
             <artifactId>tomcat-embed-websocket</artifactId>
@@ -465,7 +465,7 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-test</artifactId>
-            <version>5.1.13.RELEASE</version>
+            <version>5.2.19.RELEASE</version>
             <scope>test</scope>
             <exclusions>
                 <exclusion>
@@ -568,7 +568,7 @@
                 </exclusion>
             </exclusions>
             <groupId>org.springframework</groupId>
-            <version>5.1.13.RELEASE</version>
+            <version>5.2.19.RELEASE</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
