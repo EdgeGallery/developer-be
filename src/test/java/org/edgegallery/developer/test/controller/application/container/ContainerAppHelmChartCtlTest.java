@@ -19,11 +19,9 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 
 import com.google.gson.Gson;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.UUID;
-import org.apache.http.entity.ContentType;
+import org.apache.commons.io.FileUtils;
 import org.apache.ibatis.io.Resources;
 import org.edgegallery.developer.model.application.container.HelmChart;
 import org.edgegallery.developer.model.application.container.ModifyFileContentDto;
@@ -43,10 +41,10 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-import org.springframework.web.multipart.MultipartFile;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -68,12 +66,11 @@ public class ContainerAppHelmChartCtlTest {
     @WithMockUser(roles = "DEVELOPER_ADMIN")
     public void testUploadHelmChartFileSuccess() throws Exception {
         String url = String.format("/mec/developer/v2/applications/%s/helmcharts", UUID.randomUUID().toString());
-        File configFile = Resources.getResourceAsFile("testdata/config");
-        InputStream configInputStream = new FileInputStream(configFile);
-        MultipartFile configMultiFile = new MockMultipartFile(configFile.getName(), configFile.getName(),
-            ContentType.APPLICATION_OCTET_STREAM.toString(), configInputStream);
-        mvc.perform(MockMvcRequestBuilders.multipart(url).file("file", configMultiFile.getBytes()))
-            .andExpect(MockMvcResultMatchers.status().is4xxClientError());
+        File file = Resources.getResourceAsFile("testdata/config");
+        MvcResult mvcResult = mvc.perform(MockMvcRequestBuilders.multipart(url)
+            .file(new MockMultipartFile("file", "config", MediaType.TEXT_PLAIN_VALUE, FileUtils.openInputStream(file)))
+            .with(csrf())).andReturn();
+        Assert.assertEquals(200, mvcResult.getResponse().getStatus());
     }
 
     @Test

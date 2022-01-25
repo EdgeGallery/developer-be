@@ -19,32 +19,24 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 
 import com.google.gson.Gson;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import org.apache.http.entity.ContentType;
+import org.apache.commons.io.FileUtils;
 import org.apache.ibatis.io.Resources;
-import org.edgegallery.developer.filter.security.AccessUserUtil;
-import org.edgegallery.developer.controller.uploadfile.UploadFileController;
 import org.edgegallery.developer.mapper.uploadfile.UploadFileMapper;
 import org.edgegallery.developer.model.apppackage.AppPkgStructure;
 import org.edgegallery.developer.model.capability.Capability;
 import org.edgegallery.developer.model.uploadfile.UploadFile;
 import org.edgegallery.developer.service.capability.CapabilityService;
-import org.edgegallery.developer.service.uploadfile.UploadFileService;
 import org.edgegallery.developer.service.uploadfile.impl.UploadFileServiceImpl;
 import org.edgegallery.developer.test.DeveloperApplicationTests;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -54,11 +46,10 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.multipart.MultipartFile;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = DeveloperApplicationTests.class)
@@ -85,7 +76,8 @@ public class UploadFileControllerTest {
     @Test
     @WithMockUser(roles = "DEVELOPER_ADMIN")
     public void testGetFileStreamSuccess() throws Exception {
-        String url = String.format("/mec/developer/v2/upload-files/%s/action/get-file-stream", UUID.randomUUID().toString());
+        String url = String
+            .format("/mec/developer/v2/upload-files/%s/action/get-file-stream", UUID.randomUUID().toString());
         byte[] bytes = new byte[1000];
         Mockito.when(uploadService.getFileStream(Mockito.any(), Mockito.anyString())).thenReturn(bytes);
         Mockito.when(uploadService.getFile(Mockito.anyString())).thenReturn(new UploadFile());
@@ -108,13 +100,11 @@ public class UploadFileControllerTest {
     @Test
     @WithMockUser(roles = "DEVELOPER_ADMIN")
     public void testUploadFileSuccess() throws Exception {
-        AccessUserUtil.setUser(UUID.randomUUID().toString(), "admin");
-        File iconFile = Resources.getResourceAsFile("testdata/face.png");
-        InputStream configInputStream = new FileInputStream(iconFile);
-        MultipartFile configMultiFile = new MockMultipartFile(iconFile.getName(), iconFile.getName(),
-            ContentType.APPLICATION_OCTET_STREAM.toString(), configInputStream);
-        mvc.perform(MockMvcRequestBuilders.multipart("/mec/developer/v2/upload-files").file("file", configMultiFile.getBytes())
-            .param("fileType", "icon")).andExpect(MockMvcResultMatchers.status().is4xxClientError());
+        File file = Resources.getResourceAsFile("testdata/face.png");
+        MvcResult mvcResult = mvc.perform(MockMvcRequestBuilders.multipart("/mec/developer/v2/upload-files").file(
+            new MockMultipartFile("file", "face.png", MediaType.TEXT_PLAIN_VALUE, FileUtils.openInputStream(file)))
+            .param("fileType", "icon").with(csrf())).andReturn();
+        Assert.assertEquals(200, mvcResult.getResponse().getStatus());
     }
 
     @Test
@@ -154,10 +144,10 @@ public class UploadFileControllerTest {
     @WithMockUser(roles = "DEVELOPER_ADMIN")
     public void testGetSampleCodeContentSuccess() throws Exception {
         String url = String.format("/mec/developer/v2/upload-files/action/get-sample-code-content?fileName=%s", "test");
-        Mockito.when(uploadService.getSampleCodeContent(Mockito.any(),Mockito.anyString())).thenReturn(new String());
-        ResultActions actions = mvc
-            .perform(MockMvcRequestBuilders.post(url).with(csrf()).content(new Gson().toJson(new ArrayList<>())).contentType(MediaType.APPLICATION_JSON_VALUE))
-            .andExpect(MockMvcResultMatchers.status().isOk());
+        Mockito.when(uploadService.getSampleCodeContent(Mockito.any(), Mockito.anyString())).thenReturn(new String());
+        ResultActions actions = mvc.perform(
+            MockMvcRequestBuilders.post(url).with(csrf()).content(new Gson().toJson(new ArrayList<>()))
+                .contentType(MediaType.APPLICATION_JSON_VALUE)).andExpect(MockMvcResultMatchers.status().isOk());
         Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
     }
 
@@ -166,7 +156,8 @@ public class UploadFileControllerTest {
     public void testGetSdkProjectBad() {
         try {
             String url = String
-                .format("/mec/developer/v2/upload-files/%s/action/download-sdk?lan=%s", UUID.randomUUID().toString(), "java");
+                .format("/mec/developer/v2/upload-files/%s/action/download-sdk?lan=%s", UUID.randomUUID().toString(),
+                    "java");
             Mockito.when(capabilityService.findByApiFileId(Mockito.anyString())).thenReturn(null);
             mvc.perform(MockMvcRequestBuilders.get(url)).andExpect(MockMvcResultMatchers.status().isNotFound());
         } catch (Exception e) {
@@ -178,7 +169,8 @@ public class UploadFileControllerTest {
     @WithMockUser(roles = "DEVELOPER_ADMIN")
     public void testGetSdkProjectSuccess() throws Exception {
         String url = String
-            .format("/mec/developer/v2/upload-files/%s/action/download-sdk?lan=%s", UUID.randomUUID().toString(), "java");
+            .format("/mec/developer/v2/upload-files/%s/action/download-sdk?lan=%s", UUID.randomUUID().toString(),
+                "java");
         Mockito.when(uploadService.getSdkProject(Mockito.anyString(), Mockito.anyString(), Mockito.anyList()))
             .thenReturn(new byte[1000]);
         List<Capability> list = new ArrayList<>();
