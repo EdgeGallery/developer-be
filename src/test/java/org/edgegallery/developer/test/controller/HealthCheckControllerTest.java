@@ -14,43 +14,37 @@
 
 package org.edgegallery.developer.test.controller;
 
-import com.google.gson.Gson;
-import org.edgegallery.developer.controller.HealthCheckController;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
-@RunWith(MockitoJUnitRunner.class)
+@RunWith(SpringRunner.class)
+@SpringBootTest
+@AutoConfigureMockMvc
 public class HealthCheckControllerTest {
-    private Gson gson = new Gson();
 
-    @InjectMocks
-    private HealthCheckController healthCheckController;
-
+    @Autowired
     private MockMvc mvc;
 
     @Before
     public void setUp() {
-        this.mvc = MockMvcBuilders.standaloneSetup(healthCheckController).build();
         MockitoAnnotations.initMocks(this);
     }
 
     @Test
     @WithMockUser(roles = "DEVELOPER_TENANT")
     public void testHealthCheck() throws Exception {
-        mvc.perform(MockMvcRequestBuilders.get(
-            "/health")
-            .contentType(MediaType.APPLICATION_JSON_UTF8))
+        mvc.perform(MockMvcRequestBuilders.get("/health").contentType(MediaType.APPLICATION_JSON_UTF8))
             .andExpect(MockMvcResultMatchers.status().isOk());
     }
 

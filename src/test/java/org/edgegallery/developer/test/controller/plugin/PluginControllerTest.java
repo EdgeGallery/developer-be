@@ -14,6 +14,8 @@
 
 package org.edgegallery.developer.test.controller.plugin;
 
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+
 
 import com.google.gson.Gson;
 import java.io.File;
@@ -23,62 +25,64 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import org.apache.commons.io.FileUtils;
 import org.apache.http.entity.ContentType;
 import org.apache.ibatis.io.Resources;
-import org.edgegallery.developer.service.plugin.impl.PluginService;
 import org.edgegallery.developer.filter.security.AccessUserUtil;
-import org.edgegallery.developer.util.filechecker.ApiChecker;
-import org.edgegallery.developer.model.plugin.Plugin;
+import org.edgegallery.developer.model.common.Page;
 import org.edgegallery.developer.model.common.User;
-import org.edgegallery.developer.service.plugin.PluginFileService;
 import org.edgegallery.developer.model.plugin.AFile;
+import org.edgegallery.developer.model.plugin.Plugin;
+import org.edgegallery.developer.model.plugin.PluginDto;
+import org.edgegallery.developer.service.plugin.PluginFileService;
+import org.edgegallery.developer.service.plugin.impl.PluginService;
+import org.edgegallery.developer.service.plugin.impl.PluginServiceFacade;
+import org.edgegallery.developer.test.DeveloperApplicationTests;
+import org.edgegallery.developer.util.filechecker.ApiChecker;
 import org.edgegallery.developer.util.filechecker.FileChecker;
 import org.edgegallery.developer.util.filechecker.IconChecker;
-import org.edgegallery.developer.model.common.Page;
 import org.edgegallery.developer.util.filechecker.PluginChecker;
-import org.edgegallery.developer.controller.plugin.PluginController;
-import org.edgegallery.developer.service.plugin.impl.PluginServiceFacade;
-import org.edgegallery.developer.model.plugin.PluginDto;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.multipart.MultipartFile;
 
-@RunWith(MockitoJUnitRunner.Silent.class)
+@RunWith(SpringRunner.class)
+@SpringBootTest(classes = DeveloperApplicationTests.class)
+@AutoConfigureMockMvc
 public class PluginControllerTest {
     private Gson gson = new Gson();
 
-    @InjectMocks
-    private PluginController pluginController;
-
-    @Mock
+    @MockBean
     private PluginServiceFacade pluginServiceFacade;
 
-    @Mock
+    @MockBean
     private PluginService pluginService;
 
-    @Mock
+    @MockBean
     private PluginFileService pluginFileService;
 
+    @Autowired
     private MockMvc mvc;
 
     @Before
     public void setUp() throws IOException {
-        this.mvc = MockMvcBuilders.standaloneSetup(pluginController).build();
         MockitoAnnotations.initMocks(this);
     }
 
@@ -89,7 +93,8 @@ public class PluginControllerTest {
         Page<PluginDto> page = new Page<PluginDto>(list, 15, 0, 10);
         Mockito.when(pluginServiceFacade.query("1", "python", "csa", 15, 0)).thenReturn(page);
 
-        mvc.perform(MockMvcRequestBuilders.get("/mec/developer/v1/plugins/?pluginType=1&limit=15&offset=0&codeLanguage=''&pluginName=''")
+        mvc.perform(MockMvcRequestBuilders
+            .get("/mec/developer/v1/plugins/?pluginType=1&limit=15&offset=0&codeLanguage=''&pluginName=''")
             .contentType(MediaType.APPLICATION_JSON_UTF8).accept(MediaType.APPLICATION_JSON_UTF8))
             .andExpect(MockMvcResultMatchers.status().isOk());
     }
@@ -97,35 +102,30 @@ public class PluginControllerTest {
     @Test
     @WithMockUser(roles = "DEVELOPER_TENANT")
     public void testUploadPlugin() throws Exception {
+        String url = String.format("/mec/developer/v1/plugins/");
         File pluginFile = Resources.getResourceAsFile("testdata/IDEAPluginDev.zip");
         File logoFile = Resources.getResourceAsFile("testdata/idea.png");
         File apiFile = Resources.getResourceAsFile("testdata/plugin.json");
-        InputStream pluginInputStream = new FileInputStream(pluginFile);
-        InputStream logoInputStream = new FileInputStream(logoFile);
-        InputStream apiInputStream = new FileInputStream(apiFile);
-
-        MultipartFile pluginMultiFile = new MockMultipartFile(pluginFile.getName(), pluginFile.getName(),
-            ContentType.APPLICATION_OCTET_STREAM.toString(), pluginInputStream);
-        MultipartFile logoMultiFile = new MockMultipartFile(logoFile.getName(), logoFile.getName(),
-            ContentType.APPLICATION_OCTET_STREAM.toString(), logoInputStream);
-        MultipartFile apiMultiFile = new MockMultipartFile(logoFile.getName(), logoFile.getName(),
-            ContentType.APPLICATION_OCTET_STREAM.toString(), apiInputStream);
-
-        ResultActions result = mvc.perform(MockMvcRequestBuilders.multipart("/mec/developer/v1/plugins/")
-            .file("pluginFile", pluginMultiFile.getBytes()).file("logoFile", logoMultiFile.getBytes())
-            .file("apiFile", apiMultiFile.getBytes()).param("pluginId", "83891421-1338-4956-a1b5-48e29dc0539c")
-            .param("pluginName", "test").param("introduction", "introduction").param("codeLanguage", "JAVA")
-            .param("pluginType", "1").param("version", "1.0").param("userId", "a8622e9e-d619-4219-a7b7-49f099fe5f63")
-            .param("userName", "hello")).andExpect(MockMvcResultMatchers.status().isOk())
-            .andDo(MockMvcResultHandlers.print());
+        MvcResult mvcResult = mvc.perform(MockMvcRequestBuilders.multipart(url).file(
+            new MockMultipartFile("pluginFile", "IDEAPluginDev.zip", MediaType.TEXT_PLAIN_VALUE,
+                FileUtils.openInputStream(pluginFile))).file(
+            new MockMultipartFile("logoFile", "idea.png", MediaType.TEXT_PLAIN_VALUE,
+                FileUtils.openInputStream(logoFile))).file(
+            new MockMultipartFile("apiFile", "plugin.json", MediaType.TEXT_PLAIN_VALUE,
+                FileUtils.openInputStream(apiFile))).param("pluginName", "test").param("introduction", "introduction")
+            .param("codeLanguage", "JAVA").param("pluginType", "1").param("version", "1.0")
+            .param("userId", "a8622e9e-d619-4219-a7b7-49f099fe5f63").param("userName", "hello").with(csrf()))
+            .andReturn();
+        Assert.assertEquals(200, mvcResult.getResponse().getStatus());
     }
 
     @Test
     @WithMockUser(roles = "DEVELOPER_TENANT")
     public void testDeletePlugin() throws Exception {
         AccessUserUtil.setUser("f24ea0a2-d8e6-467c-8039-94f0d29bac43", "helongfei999");
-        mvc.perform(MockMvcRequestBuilders.delete("/mec/developer/v1/plugins/586224da-e1a2-4893-a5b5-bf766fdfb8c7")
-            .contentType(MediaType.APPLICATION_JSON_UTF8).accept(MediaType.APPLICATION_JSON_UTF8))
+        mvc.perform(
+            MockMvcRequestBuilders.delete("/mec/developer/v1/plugins/586224da-e1a2-4893-a5b5-bf766fdfb8c7").with(csrf())
+                .contentType(MediaType.APPLICATION_JSON_UTF8).accept(MediaType.APPLICATION_JSON_UTF8))
             .andExpect(MockMvcResultMatchers.status().isOk());
     }
 
@@ -210,7 +210,7 @@ public class PluginControllerTest {
 
         ResultActions result = mvc.perform(MockMvcRequestBuilders.put(
             "/mec/developer/v1/plugins/586224da-e1a2-4893-a5b5-bf766fdfb8c7/action/score?score=5&userId=f24ea0a2-d8e6-467c-8039-94f0d29bac43&userName=helongfei999")
-            .contentType(MediaType.APPLICATION_JSON_UTF8).accept(MediaType.APPLICATION_JSON_UTF8))
+            .contentType(MediaType.APPLICATION_JSON_UTF8).accept(MediaType.APPLICATION_JSON_UTF8).with(csrf()))
             .andExpect(MockMvcResultMatchers.status().isOk());
 
     }

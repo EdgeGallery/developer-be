@@ -19,53 +19,51 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 
 import com.google.gson.Gson;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.UUID;
-import org.apache.http.entity.ContentType;
+import org.apache.commons.io.FileUtils;
 import org.apache.ibatis.io.Resources;
 import org.edgegallery.developer.common.Consts;
 import org.edgegallery.developer.filter.security.AccessUserUtil;
-import org.edgegallery.developer.controller.resource.mephost.MepHostCtl;
 import org.edgegallery.developer.model.common.Page;
 import org.edgegallery.developer.model.resource.mephost.EnumMepHostStatus;
 import org.edgegallery.developer.model.resource.mephost.EnumVimType;
 import org.edgegallery.developer.model.resource.mephost.MepHost;
 import org.edgegallery.developer.service.recource.mephost.MepHostService;
+import org.edgegallery.developer.test.DeveloperApplicationTests;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.multipart.MultipartFile;
 
-@RunWith(MockitoJUnitRunner.class)
+@RunWith(SpringRunner.class)
+@SpringBootTest(classes = DeveloperApplicationTests.class)
+@AutoConfigureMockMvc
 public class MepHostCtlTest {
 
-    @InjectMocks
-    private MepHostCtl mepHostCtl;
-
-    @Mock
+    @MockBean
     private MepHostService mepHostService;
 
+    @Autowired
     private MockMvc mvc;
 
     @Before
     public void setUp() {
-        this.mvc = MockMvcBuilders.standaloneSetup(mepHostCtl).build();
         MockitoAnnotations.initMocks(this);
     }
 
@@ -140,14 +138,13 @@ public class MepHostCtlTest {
     @Test
     @WithMockUser(roles = "DEVELOPER_ADMIN")
     public void testUpLoadHostConfigFileSuccess() throws Exception {
-        AccessUserUtil.setUser("7b53626b-135d-4e57-ae00-0111a2b05d74","admin", Consts.ROLE_DEVELOPER_ADMIN);
-        File configFile = Resources.getResourceAsFile("testdata/config");
-        InputStream configInputStream = new FileInputStream(configFile);
-        MultipartFile configMultiFile = new MockMultipartFile(configFile.getName(), configFile.getName(),
-            ContentType.APPLICATION_OCTET_STREAM.toString(), configInputStream);
-        mvc.perform(MockMvcRequestBuilders.multipart("/mec/developer/v2/mephosts/action/upload-config-file")
-            .file("file", configMultiFile.getBytes()).param("userId", AccessUserUtil.getUserId()))
-            .andExpect(MockMvcResultMatchers.status().isOk());
+        AccessUserUtil.setUser("7b53626b-135d-4e57-ae00-0111a2b05d74", "admin", Consts.ROLE_DEVELOPER_ADMIN);
+        String url = String.format("/mec/developer/v2/mephosts/action/upload-config-file");
+        File file = Resources.getResourceAsFile("testdata/config");
+        MvcResult mvcResult = mvc.perform(MockMvcRequestBuilders.multipart(url)
+            .file(new MockMultipartFile("file", "config", MediaType.TEXT_PLAIN_VALUE, FileUtils.openInputStream(file)))
+            .param("userId", AccessUserUtil.getUserId()).with(csrf())).andReturn();
+        Assert.assertEquals(200, mvcResult.getResponse().getStatus());
     }
 
     private MepHost createNewHost() {

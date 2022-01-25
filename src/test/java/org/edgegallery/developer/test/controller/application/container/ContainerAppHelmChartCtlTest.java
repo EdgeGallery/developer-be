@@ -19,54 +19,46 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 
 import com.google.gson.Gson;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.UUID;
-import mockit.MockUp;
-import org.apache.http.entity.ContentType;
+import org.apache.commons.io.FileUtils;
 import org.apache.ibatis.io.Resources;
-import org.edgegallery.developer.controller.application.container.ContainerAppHelmChartCtl;
 import org.edgegallery.developer.model.application.container.HelmChart;
 import org.edgegallery.developer.model.application.container.ModifyFileContentDto;
-import org.edgegallery.developer.model.reverseproxy.ScpConnectEntity;
-import org.edgegallery.developer.model.uploadfile.FileUploadEntity;
-import org.edgegallery.developer.service.application.container.ContainerAppHelmChartService;
-import org.edgegallery.developer.util.ContainerAppHelmChartUtil;
-import org.edgegallery.developer.util.ShhFileUploadUtil;
+import org.edgegallery.developer.service.application.impl.container.ContainerAppHelmChartServiceImpl;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.multipart.MultipartFile;
 
-@RunWith(MockitoJUnitRunner.class)
+@RunWith(SpringRunner.class)
+@SpringBootTest
+@AutoConfigureMockMvc
 public class ContainerAppHelmChartCtlTest {
 
-    @Mock
-    private ContainerAppHelmChartService containerAppHelmChartService;
+    @MockBean
+    private ContainerAppHelmChartServiceImpl containerAppHelmChartService;
 
+    @Autowired
     private MockMvc mvc;
-
-    @InjectMocks
-    private ContainerAppHelmChartCtl appHelmChartCtl;
 
     @Before
     public void setUp() {
-        this.mvc = MockMvcBuilders.standaloneSetup(appHelmChartCtl).build();
         MockitoAnnotations.initMocks(this);
     }
 
@@ -74,12 +66,11 @@ public class ContainerAppHelmChartCtlTest {
     @WithMockUser(roles = "DEVELOPER_ADMIN")
     public void testUploadHelmChartFileSuccess() throws Exception {
         String url = String.format("/mec/developer/v2/applications/%s/helmcharts", UUID.randomUUID().toString());
-        File configFile = Resources.getResourceAsFile("testdata/config");
-        InputStream configInputStream = new FileInputStream(configFile);
-        MultipartFile configMultiFile = new MockMultipartFile(configFile.getName(), configFile.getName(),
-            ContentType.APPLICATION_OCTET_STREAM.toString(), configInputStream);
-        mvc.perform(MockMvcRequestBuilders.multipart(url).file("file", configMultiFile.getBytes()))
-            .andExpect(MockMvcResultMatchers.status().isOk());
+        File file = Resources.getResourceAsFile("testdata/config");
+        MvcResult mvcResult = mvc.perform(MockMvcRequestBuilders.multipart(url)
+            .file(new MockMultipartFile("file", "config", MediaType.TEXT_PLAIN_VALUE, FileUtils.openInputStream(file)))
+            .with(csrf())).andReturn();
+        Assert.assertEquals(200, mvcResult.getResponse().getStatus());
     }
 
     @Test
