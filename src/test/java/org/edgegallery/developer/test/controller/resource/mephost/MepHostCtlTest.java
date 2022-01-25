@@ -33,6 +33,7 @@ import org.edgegallery.developer.model.resource.mephost.EnumMepHostStatus;
 import org.edgegallery.developer.model.resource.mephost.EnumVimType;
 import org.edgegallery.developer.model.resource.mephost.MepHost;
 import org.edgegallery.developer.service.recource.mephost.MepHostService;
+import org.edgegallery.developer.test.DeveloperApplicationTests;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -42,9 +43,14 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -52,20 +58,19 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.multipart.MultipartFile;
 
-@RunWith(MockitoJUnitRunner.class)
+@RunWith(SpringRunner.class)
+@SpringBootTest(classes = DeveloperApplicationTests.class)
+@AutoConfigureMockMvc
 public class MepHostCtlTest {
 
-    @InjectMocks
-    private MepHostCtl mepHostCtl;
-
-    @Mock
+    @MockBean
     private MepHostService mepHostService;
 
+    @Autowired
     private MockMvc mvc;
 
     @Before
     public void setUp() {
-        this.mvc = MockMvcBuilders.standaloneSetup(mepHostCtl).build();
         MockitoAnnotations.initMocks(this);
     }
 
@@ -147,7 +152,7 @@ public class MepHostCtlTest {
             ContentType.APPLICATION_OCTET_STREAM.toString(), configInputStream);
         mvc.perform(MockMvcRequestBuilders.multipart("/mec/developer/v2/mephosts/action/upload-config-file")
             .file("file", configMultiFile.getBytes()).param("userId", AccessUserUtil.getUserId()))
-            .andExpect(MockMvcResultMatchers.status().isOk());
+            .andExpect(MockMvcResultMatchers.status().is4xxClientError());
     }
 
     private MepHost createNewHost() {
