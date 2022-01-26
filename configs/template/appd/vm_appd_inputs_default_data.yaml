@@ -44,13 +44,6 @@ APP_Plane04_Physnet:
   default: physnet2
 APP_Plane04_VlanId:
   default: '2003'
-VDU1_vCPU:
-  default: 1
-VDU1_MEM:
-    default: 4096
-VDU1_DataDisk:
-    default: 20
-
 
 
 
