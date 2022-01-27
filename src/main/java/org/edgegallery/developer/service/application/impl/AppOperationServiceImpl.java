@@ -16,6 +16,9 @@
 
 package org.edgegallery.developer.service.application.impl;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import java.io.File;
 import java.util.Date;
 import java.util.HashMap;
@@ -60,9 +63,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 
 @Service("AppOperationService")
 public class AppOperationServiceImpl implements AppOperationService {
@@ -147,9 +147,8 @@ public class AppOperationServiceImpl implements AppOperationService {
         List<AtpTest> atpTests = atpTestTaskMapper.getAtpTests(applicationId);
         checkParamNull(atpTests, "atpTests do not exit. applicationId: ".concat(applicationId));
         atpTests.stream().filter(atpTestTask -> TEST_TASK_STATUS_WAITING.equalsIgnoreCase(atpTestTask.getStatus())
-            || TEST_TASK_STATUS_RUNNING.equalsIgnoreCase(atpTestTask.getStatus())
-            || TEST_TASK_STATUS_CREATED.equalsIgnoreCase(atpTestTask.getStatus()))
-            .forEach(this::queryAndUpdateTestStatus);
+            || TEST_TASK_STATUS_RUNNING.equalsIgnoreCase(atpTestTask.getStatus()) || TEST_TASK_STATUS_CREATED
+            .equalsIgnoreCase(atpTestTask.getStatus())).forEach(this::queryAndUpdateTestStatus);
         return atpTests;
     }
 
@@ -218,6 +217,9 @@ public class AppOperationServiceImpl implements AppOperationService {
                 publishAppDto);
         checkInnerParamNull(publishRes, "publish app to appstore fail!");
         checkResultLength(publishRes, "publish app to appstore fail!");
+
+        //delete icon
+        FileUtil.deleteFile(copyIcon);
 
         //release service
         releaseServiceProduced(applicationId, jsonObject);
