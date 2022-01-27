@@ -171,18 +171,18 @@ public final class FileUtil {
             return null;
         }
         File dest = new File(InitConfigUtil.getWorkSpaceBaseDir() + BusinessConfigUtil.getUploadfilesPath() + fileName);
-        if (!dest.exists()) {
-            try {
+        try {
+            if (!dest.exists()) {
                 boolean ret = dest.createNewFile();
                 if (!ret) {
                     LOGGER.error("create dest file failed!");
                     return null;
                 }
-                FileUtils.copyFile(source, dest);
-            } catch (IOException e) {
-                LOGGER.error("create dest file occur {}", e.getMessage());
-                return null;
             }
+            FileUtils.copyFile(source, dest);
+        } catch (IOException e) {
+            LOGGER.error("create dest file occur {}", e.getMessage());
+            return null;
         }
         return dest;
     }
