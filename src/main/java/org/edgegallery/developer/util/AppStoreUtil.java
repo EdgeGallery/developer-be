@@ -76,7 +76,7 @@ public class AppStoreUtil {
             }
             LOGGER.error("Upload appstore failed,  status is {}", responses.getStatusCode());
         } catch (RestClientException e) {
-            LOGGER.error("Failed to upload appstore,  exception {}", e.getMessage());
+            LOGGER.error("Failed to upload appstore,  exception {}", e);
         }
         LOGGER.info("responses:{}", responses);
         return getErrRetCode(responses.getBody());
