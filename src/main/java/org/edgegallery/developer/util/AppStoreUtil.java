@@ -65,21 +65,22 @@ public class AppStoreUtil {
             .format(Consts.UPLOAD_TO_APPSTORE_URL, user.getUserId(), user.getUserName());
         LOGGER.warn(url);
 
-        ResponseEntity<String> responses = null;
         try {
-            restTemplate.setErrorHandler(new CustomResponseErrorHandler());
-            responses = restTemplate.exchange(url, HttpMethod.POST, new HttpEntity<>(map, headers), String.class);
+            ResponseEntity<String> responses = restTemplate
+                .exchange(url, HttpMethod.POST, new HttpEntity<>(map, headers), String.class);
             LOGGER.info("upload appstore response:{}", responses);
             if (HttpStatus.OK.equals(responses.getStatusCode()) || HttpStatus.ACCEPTED
                 .equals(responses.getStatusCode())) {
                 return responses.getBody();
             }
             LOGGER.error("Upload appstore failed,  status is {}", responses.getStatusCode());
+            LOGGER.info("responses:{}", responses);
+            return getErrRetCode(responses.getBody());
         } catch (RestClientException e) {
-            LOGGER.error("Failed to upload appstore,  exception {}", e);
+            LOGGER.error("Failed to upload appstore,  exception {}", e.getMessage());
+            return null;
         }
-        LOGGER.info("responses:{}", responses);
-        return getErrRetCode(responses.getBody());
+
     }
 
     /**
