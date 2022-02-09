@@ -52,18 +52,19 @@ public class AppStoreUtil {
      * upload app to appstore.
      */
     public static String storeToAppStore(Map<String, Object> params, User user) {
-        SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
-        requestFactory.setConnectTimeout(600000);// 设置超时
-        requestFactory.setReadTimeout(600000);
-        RestTemplate restTemplate = new RestTemplate(requestFactory);
+        RestTemplate restTemplate = new RestTemplate();
+
         MultiValueMap<String, Object> map = new LinkedMultiValueMap<>();
         params.forEach(map::add);
+
         HttpHeaders headers = new HttpHeaders();
         headers.set(Consts.ACCESS_TOKEN_STR, user.getToken());
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+
         String url = InitConfigUtil.getProperties(APPSTORE_ADDRESS) + String
             .format(Consts.UPLOAD_TO_APPSTORE_URL, user.getUserId(), user.getUserName());
         LOGGER.warn(url);
+
         ResponseEntity<String> responses = null;
         try {
             restTemplate.setErrorHandler(new CustomResponseErrorHandler());
@@ -73,11 +74,11 @@ public class AppStoreUtil {
                 .equals(responses.getStatusCode())) {
                 return responses.getBody();
             }
-        } catch (Exception e) {
+            LOGGER.error("Upload appstore failed,  status is {}", responses.getStatusCode());
+        } catch (RestClientException e) {
             LOGGER.error("Failed to upload appstore,  exception {}", e.getMessage());
         }
         LOGGER.info("responses:{}", responses);
-        LOGGER.info("Upload appstore failed,  status is {}", responses.getStatusCode());
         return getErrRetCode(responses.getBody());
     }
 

@@ -1,12 +1,15 @@
 package org.edgegallery.developer.model.restful;
 
+import java.util.Date;
+import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
 public class AppStoreErrResponseDto {
-    private String timestamp;
+    
+    private Date timestamp;
 
     private int code;
 
@@ -18,5 +21,7 @@ public class AppStoreErrResponseDto {
 
     private int retCode;
 
-    private String[] params;
+    private List<String> params;
+
+    private Object data;
 }
