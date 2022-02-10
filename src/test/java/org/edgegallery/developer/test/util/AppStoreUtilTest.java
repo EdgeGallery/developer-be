@@ -111,7 +111,7 @@ public class AppStoreUtilTest {
     public void testStoreToAppStoreSuccess() {
         User user = new User("testId", "testUser", "testAuth", "testToken");
         Map<String, Object> map = new HashMap<>();
-        String result = AppStoreUtil.storeToAppStore(map, user);
+        String result = AppStoreUtil.storeToAppStore(map, user,null);
         Assert.assertEquals("ok", result);
     }
 
@@ -120,7 +120,7 @@ public class AppStoreUtilTest {
         PublishAppReqDto pubAppReqDto = new PublishAppReqDto();
         pubAppReqDto.setFree(false);
         pubAppReqDto.setPrice(10);
-        String result = AppStoreUtil.publishToAppStore("applicationId", "packageId", "", pubAppReqDto);
+        String result = AppStoreUtil.publishToAppStore("applicationId", "packageId", "", pubAppReqDto,null);
         Assert.assertEquals("ok", result);
     }
 

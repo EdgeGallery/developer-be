@@ -43,6 +43,7 @@ import org.edgegallery.developer.model.application.Application;
 import org.edgegallery.developer.model.application.EnumApplicationStatus;
 import org.edgegallery.developer.model.application.configuration.AppServiceProduced;
 import org.edgegallery.developer.model.apppackage.AppPackage;
+import org.edgegallery.developer.model.appstore.PublishAppErrResponse;
 import org.edgegallery.developer.model.appstore.PublishAppReqDto;
 import org.edgegallery.developer.model.atp.AtpTest;
 import org.edgegallery.developer.model.capability.Capability;
@@ -200,9 +201,10 @@ public class AppOperationServiceImpl implements AppOperationService {
         map.put("affinity", app.getArchitecture());
         map.put("industry", app.getIndustry());
         map.put("testTaskId", testList.get(0).getId());
-        String uploadResult = AppStoreUtil.storeToAppStore(map, user);
+        PublishAppErrResponse errResponse = new PublishAppErrResponse();
+        String uploadResult = AppStoreUtil.storeToAppStore(map, user, errResponse);
         LOGGER.info("uploadResult:{}", uploadResult);
-        checkResultLength(uploadResult, "upload app to appstore fail!");
+        checkResultLength(uploadResult, "upload app to appstore fail!", errResponse);
 
         LOGGER.info("upload appstore result:{}", uploadResult);
         JsonObject jsonObject = new JsonParser().parse(uploadResult).getAsJsonObject();
@@ -214,9 +216,9 @@ public class AppOperationServiceImpl implements AppOperationService {
 
         String publishRes = AppStoreUtil
             .publishToAppStore(appStoreAppId.getAsString(), appStorePackageId.getAsString(), user.getToken(),
-                publishAppDto);
+                publishAppDto, errResponse);
         LOGGER.info("publishRes:{}", publishRes);
-        checkResultLength(publishRes, "publish app to appstore fail!");
+        checkResultLength(publishRes, "publish app to appstore fail!", errResponse);
 
         //delete icon
         FileUtil.deleteFile(copyIcon);
@@ -322,8 +324,9 @@ public class AppOperationServiceImpl implements AppOperationService {
         }
     }
 
-    private void checkResultLength(String innerParam, String msg) {
-        if (innerParam != null) {
+    private void checkResultLength(String innerParam, String msg, PublishAppErrResponse errResponse) {
+        if (StringUtils.isNotEmpty(innerParam) && !org.springframework.util.StringUtils
+            .isEmpty(errResponse.getErrCode())) {
             LOGGER.error(msg);
             throw new DeveloperException(msg, Integer.parseInt(innerParam));
         }

@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import org.edgegallery.developer.common.Consts;
 import org.edgegallery.developer.common.ResponseConsts;
+import org.edgegallery.developer.model.appstore.PublishAppErrResponse;
 import org.edgegallery.developer.model.appstore.PublishAppReqDto;
 import org.edgegallery.developer.model.common.User;
 import org.edgegallery.developer.model.restful.AppStoreErrResponseDto;
@@ -55,7 +56,7 @@ public class AppStoreUtil {
     /**
      * upload app to appstore.
      */
-    public static String storeToAppStore(Map<String, Object> params, User user) {
+    public static String storeToAppStore(Map<String, Object> params, User user, PublishAppErrResponse errResponse) {
         RestTemplate restTemplate = new RestTemplate();
 
         MultiValueMap<String, Object> map = new LinkedMultiValueMap<>();
@@ -86,17 +87,20 @@ public class AppStoreUtil {
                 String errMsg = e.getMessage();
                 String responseBody = errMsg.substring(7, errMsg.length() - 1);
                 LOGGER.info("responseBody:{}", responseBody);
+                errResponse.setErrCode(ResponseConsts.RET_PUBLISH_UNKNOWN_EXCEPTION);
                 return getErrRetCode(responseBody);
             }
         }
         LOGGER.error("Upload app to store failed: occur unknown exception");
+        errResponse.setErrCode(ResponseConsts.RET_PUBLISH_UNKNOWN_EXCEPTION);
         return String.valueOf(ResponseConsts.RET_PUBLISH_UNKNOWN_EXCEPTION);
     }
 
     /**
      * publish app to appstore.
      */
-    public static String publishToAppStore(String appId, String pkgId, String token, PublishAppReqDto pubAppReqDto) {
+    public static String publishToAppStore(String appId, String pkgId, String token, PublishAppReqDto pubAppReqDto,
+        PublishAppErrResponse errResponse) {
         RestTemplate restTemplate = new RestTemplate();
 
         HttpHeaders headers = new HttpHeaders();
@@ -123,10 +127,12 @@ public class AppStoreUtil {
                 String errMsg = e.getMessage();
                 String responseBody = errMsg.substring(7, errMsg.length() - 1);
                 LOGGER.info("responseBody:{}", responseBody);
+                errResponse.setErrCode(ResponseConsts.RET_PUBLISH_UNKNOWN_EXCEPTION);
                 return getErrRetCode(responseBody);
             }
         }
         LOGGER.error("publish app failed: occur unknown exception");
+        errResponse.setErrCode(ResponseConsts.RET_PUBLISH_UNKNOWN_EXCEPTION);
         return String.valueOf(ResponseConsts.RET_PUBLISH_UNKNOWN_EXCEPTION);
     }
 

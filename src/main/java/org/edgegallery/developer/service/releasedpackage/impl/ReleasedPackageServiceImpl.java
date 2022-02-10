@@ -40,6 +40,7 @@ import org.edgegallery.developer.exception.IllegalRequestException;
 import org.edgegallery.developer.exception.UnauthorizedException;
 import org.edgegallery.developer.mapper.releasedpackage.ReleasedPackageMapper;
 import org.edgegallery.developer.model.apppackage.AppPackage;
+import org.edgegallery.developer.model.appstore.PublishAppErrResponse;
 import org.edgegallery.developer.model.appstore.PublishAppReqDto;
 import org.edgegallery.developer.model.common.Page;
 import org.edgegallery.developer.model.common.User;
@@ -290,9 +291,10 @@ public class ReleasedPackageServiceImpl implements ReleasedPackageService {
         map.put("affinity", releasedPackage.getArchitecture());
         map.put("industry", releasedPackage.getIndustry());
         map.put("testTaskId", releasedPackage.getTestTaskId());
-        String uploadResult = AppStoreUtil.storeToAppStore(map, user);
+        PublishAppErrResponse errResponse = new PublishAppErrResponse();
+        String uploadResult = AppStoreUtil.storeToAppStore(map, user, errResponse);
         LOGGER.info("uploadResult:{}", uploadResult);
-        checkResultLength(uploadResult, "upload app to appstore fail!");
+        checkResultLength(uploadResult, "upload app to appstore fail!",errResponse);
 
         LOGGER.info("upload appstore result:{}", uploadResult);
         JsonObject jsonObject = new JsonParser().parse(uploadResult).getAsJsonObject();
@@ -304,9 +306,9 @@ public class ReleasedPackageServiceImpl implements ReleasedPackageService {
 
         String publishRes = AppStoreUtil
             .publishToAppStore(appStoreAppId.getAsString(), appStorePackageId.getAsString(), user.getToken(),
-                publishAppReqDto);
+                publishAppReqDto, errResponse);
         LOGGER.info("publishRes:{}", publishRes);
-        checkResultLength(publishRes, "publish app to appstore fail!");
+        checkResultLength(publishRes, "publish app to appstore fail!",errResponse);
         return true;
     }
 
@@ -340,8 +342,8 @@ public class ReleasedPackageServiceImpl implements ReleasedPackageService {
         }
     }
 
-    private void checkResultLength(String innerParam, String msg) {
-        if (innerParam != null && innerParam.length() <= 5) {
+    private void checkResultLength(String innerParam, String msg,PublishAppErrResponse errResponse) {
+        if (!StringUtils.isEmpty(innerParam) && !StringUtils.isEmpty(errResponse.getErrCode())) {
             LOGGER.error(msg);
             throw new DeveloperException(msg, Integer.parseInt(innerParam));
         }
