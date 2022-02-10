@@ -343,7 +343,7 @@ public class ReleasedPackageServiceImpl implements ReleasedPackageService {
     }
 
     private void checkResultLength(String innerParam, String msg, PublishAppErrResponse errResponse) {
-        if (StringUtils.isEmpty(innerParam) || errResponse.getErrCode() != 0) {
+        if (StringUtils.isEmpty(innerParam)) {
             LOGGER.error(msg);
             throw new DeveloperException(msg, errResponse.getErrCode());
         }

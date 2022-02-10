@@ -68,6 +68,7 @@ public class AppStoreUtil {
         List<MediaType> accept = new ArrayList<>();
         accept.add(MediaType.APPLICATION_JSON);
         headers.setAccept(accept);
+
         String url = InitConfigUtil.getProperties(APPSTORE_ADDRESS) + String
             .format(Consts.UPLOAD_TO_APPSTORE_URL, user.getUserId(), user.getUserName());
         LOGGER.warn(url);
@@ -86,8 +87,9 @@ public class AppStoreUtil {
                 String errMsg = e.getMessage();
                 String responseBody = errMsg.substring(7, errMsg.length() - 1);
                 LOGGER.info("responseBody:{}", responseBody);
-                errResponse.setErrCode(ResponseConsts.RET_PUBLISH_UNKNOWN_EXCEPTION);
-                return getErrRetCode(responseBody);
+                LOGGER.info("retCode:{}", getErrRetCode(responseBody));
+                errResponse.setErrCode(getErrRetCode(responseBody));
+                return null;
             }
         }
         LOGGER.error("Upload app to store failed: occur unknown exception");
@@ -126,8 +128,9 @@ public class AppStoreUtil {
                 String errMsg = e.getMessage();
                 String responseBody = errMsg.substring(7, errMsg.length() - 1);
                 LOGGER.info("responseBody:{}", responseBody);
-                errResponse.setErrCode(ResponseConsts.RET_PUBLISH_UNKNOWN_EXCEPTION);
-                return getErrRetCode(responseBody);
+                LOGGER.info("retCode:{}", getErrRetCode(responseBody));
+                errResponse.setErrCode(getErrRetCode(responseBody));
+                return null;
             }
         }
         LOGGER.error("publish app failed: occur unknown exception");
@@ -195,16 +198,16 @@ public class AppStoreUtil {
         }
     }
 
-    private static String getErrRetCode(String errBody) {
+    private static int getErrRetCode(String errBody) {
         try {
             Gson gson = new Gson();
             Type type = new TypeToken<AppStoreErrResponseDto>() { }.getType();
             AppStoreErrResponseDto appStoreErrResponseDto = gson.fromJson(errBody, type);
             LOGGER.info("retCode:{}", appStoreErrResponseDto.getRetCode());
-            return String.valueOf(appStoreErrResponseDto.getRetCode());
+            return appStoreErrResponseDto.getRetCode();
         } catch (Exception e) {
             LOGGER.error("convert errBody {} to AppStoreErrResponseDto fail!", errBody);
-            return null;
+            return ResponseConsts.RET_PUBLISH_UNKNOWN_EXCEPTION;
         }
 
     }
