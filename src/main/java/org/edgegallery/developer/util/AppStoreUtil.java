@@ -68,8 +68,8 @@ public class AppStoreUtil {
         List<MediaType> accept = new ArrayList<>();
         accept.add(MediaType.APPLICATION_JSON);
         headers.setAccept(accept);
-
-        String url = InitConfigUtil.getProperties(APPSTORE_ADDRESS) + String
+       // InitConfigUtil.getProperties(APPSTORE_ADDRESS)
+        String url = "https://192.168.1.38:30099" + String
             .format(Consts.UPLOAD_TO_APPSTORE_URL, user.getUserId(), user.getUserName());
         LOGGER.warn(url);
 
@@ -93,7 +93,7 @@ public class AppStoreUtil {
         }
         LOGGER.error("Upload app to store failed: occur unknown exception");
         errResponse.setErrCode(ResponseConsts.RET_PUBLISH_UNKNOWN_EXCEPTION);
-        return String.valueOf(ResponseConsts.RET_PUBLISH_UNKNOWN_EXCEPTION);
+        return null;
     }
 
     /**
@@ -133,7 +133,7 @@ public class AppStoreUtil {
         }
         LOGGER.error("publish app failed: occur unknown exception");
         errResponse.setErrCode(ResponseConsts.RET_PUBLISH_UNKNOWN_EXCEPTION);
-        return String.valueOf(ResponseConsts.RET_PUBLISH_UNKNOWN_EXCEPTION);
+        return null;
     }
 
     /**
@@ -205,7 +205,7 @@ public class AppStoreUtil {
             return String.valueOf(appStoreErrResponseDto.getRetCode());
         } catch (Exception e) {
             LOGGER.error("convert errBody {} to AppStoreErrResponseDto fail!", errBody);
-            return String.valueOf(ResponseConsts.RET_PUBLISH_UNKNOWN_EXCEPTION);
+            return null;
         }
 
     }

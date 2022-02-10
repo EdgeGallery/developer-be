@@ -325,10 +325,10 @@ public class AppOperationServiceImpl implements AppOperationService {
     }
 
     private void checkResultLength(String innerParam, String msg, PublishAppErrResponse errResponse) {
-        if (StringUtils.isNotEmpty(innerParam) && !org.springframework.util.StringUtils
+        if (StringUtils.isEmpty(innerParam) || !org.springframework.util.StringUtils
             .isEmpty(errResponse.getErrCode())) {
             LOGGER.error(msg);
-            throw new DeveloperException(msg, Integer.parseInt(innerParam));
+            throw new DeveloperException(msg, errResponse.getErrCode());
         }
     }
 
