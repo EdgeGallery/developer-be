@@ -68,8 +68,7 @@ public class AppStoreUtil {
         List<MediaType> accept = new ArrayList<>();
         accept.add(MediaType.APPLICATION_JSON);
         headers.setAccept(accept);
-       // InitConfigUtil.getProperties(APPSTORE_ADDRESS)
-        String url = "https://192.168.1.38:30099" + String
+        String url = InitConfigUtil.getProperties(APPSTORE_ADDRESS) + String
             .format(Consts.UPLOAD_TO_APPSTORE_URL, user.getUserId(), user.getUserName());
         LOGGER.warn(url);
 

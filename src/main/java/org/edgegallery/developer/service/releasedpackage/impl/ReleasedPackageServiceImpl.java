@@ -294,7 +294,7 @@ public class ReleasedPackageServiceImpl implements ReleasedPackageService {
         PublishAppErrResponse errResponse = new PublishAppErrResponse();
         String uploadResult = AppStoreUtil.storeToAppStore(map, user, errResponse);
         LOGGER.info("uploadResult:{}", uploadResult);
-        checkResultLength(uploadResult, "upload app to appstore fail!",errResponse);
+        checkResultLength(uploadResult, "upload app to appstore fail!", errResponse);
 
         LOGGER.info("upload appstore result:{}", uploadResult);
         JsonObject jsonObject = new JsonParser().parse(uploadResult).getAsJsonObject();
@@ -308,7 +308,7 @@ public class ReleasedPackageServiceImpl implements ReleasedPackageService {
             .publishToAppStore(appStoreAppId.getAsString(), appStorePackageId.getAsString(), user.getToken(),
                 publishAppReqDto, errResponse);
         LOGGER.info("publishRes:{}", publishRes);
-        checkResultLength(publishRes, "publish app to appstore fail!",errResponse);
+        checkResultLength(publishRes, "publish app to appstore fail!", errResponse);
         return true;
     }
 
@@ -342,8 +342,8 @@ public class ReleasedPackageServiceImpl implements ReleasedPackageService {
         }
     }
 
-    private void checkResultLength(String innerParam, String msg,PublishAppErrResponse errResponse) {
-        if (StringUtils.isEmpty(innerParam) || !StringUtils.isEmpty(errResponse.getErrCode())) {
+    private void checkResultLength(String innerParam, String msg, PublishAppErrResponse errResponse) {
+        if (StringUtils.isEmpty(innerParam) || errResponse.getErrCode() != 0) {
             LOGGER.error(msg);
             throw new DeveloperException(msg, errResponse.getErrCode());
         }
