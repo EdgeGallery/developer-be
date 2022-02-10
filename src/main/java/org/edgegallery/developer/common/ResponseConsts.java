@@ -136,100 +136,102 @@ public final class ResponseConsts {
     public static final int RET_CREATE_SANDBOX_CONFIG_NETWORK_FAIL = 20023;
 
     /**
-     *  file format error.
+     * file format error.
      */
     public static final int RET_FILE_FORMAT_ERROR = 20024;
 
     /**
-     *  image info doesn't exist in harbor.
+     * image info doesn't exist in harbor.
      */
-    public static final int RET_CHECK_IMAGE_EXIST_IN_HARBOR_FAIL= 20025;
+    public static final int RET_CHECK_IMAGE_EXIST_IN_HARBOR_FAIL = 20025;
 
     /**
-     *  hash file fail.
+     * hash file fail.
      */
-    public static final int RET_HASH_FILE_FAIL= 20026;
+    public static final int RET_HASH_FILE_FAIL = 20026;
 
     /**
-     *  image info doesn't exist in yaml.
+     * image info doesn't exist in yaml.
      */
-    public static final int RET_CHECK_IMAGE_EXIST_IN_YAML_FAIL= 20027;
+    public static final int RET_CHECK_IMAGE_EXIST_IN_YAML_FAIL = 20027;
 
     /**
-     *  call lcm interce fail.
+     * call lcm interce fail.
      */
-    public static final int RET_CALL_LCM_FAIL= 20028;
+    public static final int RET_CALL_LCM_FAIL = 20028;
 
     /**
-     *  yaml load fail.
+     * yaml load fail.
      */
-    public static final int RET_LOAD_YAML_FAIL= 20029;
+    public static final int RET_LOAD_YAML_FAIL = 20029;
 
     /**
-     *  decompress file fail.
+     * decompress file fail.
      */
-    public static final int RET_DECOMPRESS_FILE_FAIL= 20030;
+    public static final int RET_DECOMPRESS_FILE_FAIL = 20030;
 
     /**
-     *  get file structure error.
+     * get file structure error.
      */
-    public static final int RET_FILE_STRUCTURE_FAIL= 20031;
+    public static final int RET_FILE_STRUCTURE_FAIL = 20031;
 
     /**
-     *   file is empty.
+     * file is empty.
      */
-    public static final int RET_FILE_EMPTY= 20032;
+    public static final int RET_FILE_EMPTY = 20032;
 
     /**
-     *   file not readable.
+     * file not readable.
      */
-    public static final int RET_FILE_NOT_READABLE= 20033;
+    public static final int RET_FILE_NOT_READABLE = 20033;
 
     /**
-     *  compress file fail.
+     * compress file fail.
      */
-    public static final int RET_COMPRESS_FILE_FAIL= 20034;
+    public static final int RET_COMPRESS_FILE_FAIL = 20034;
 
     /**
-     *  build sdk project fail.
+     * build sdk project fail.
      */
-    public static final int RET_BUILD_SDK_FAIL= 20035;
+    public static final int RET_BUILD_SDK_FAIL = 20035;
 
     /**
-     *   read file fail.
+     * read file fail.
      */
-    public static final int RET_READ_FILE_FAIL= 20036;
+    public static final int RET_READ_FILE_FAIL = 20036;
 
     /**
-     *   write file fail.
+     * write file fail.
      */
-    public static final int RET_WRITE_FILE_FAIL= 20037;
-
+    public static final int RET_WRITE_FILE_FAIL = 20037;
 
     /**
-     *  service info doesn't exist in yaml.
+     * service info doesn't exist in yaml.
      */
-    public static final int RET_CHECK_SERVICE_EXIST_IN_YAML_FAIL= 20038;
+    public static final int RET_CHECK_SERVICE_EXIST_IN_YAML_FAIL = 20038;
 
     /**
-     *   restful request fail.
+     * restful request fail.
      */
-    public static final int RET_RESTFUL_REQUEST_FAIL= 20039;
+    public static final int RET_RESTFUL_REQUEST_FAIL = 20039;
 
     /**
-     *   copy file fail.
+     * copy file fail.
      */
-    public static final int RET_COPY_FILE_FAIL= 20040;
+    public static final int RET_COPY_FILE_FAIL = 20040;
 
     /**
-     *   synchronize pkg fail.
+     * synchronize pkg fail.
      */
-    public static final int RET_SYNCHRONIZE_APP_PKG_FAIL= 20041;
+    public static final int RET_SYNCHRONIZE_APP_PKG_FAIL = 20041;
 
     /**
-     *   publish pkg fail.
+     * publish pkg fail.
      */
-    public static final int RET_PUBLISH_APP_PKG_FAIL= 20042;
+    public static final int RET_PUBLISH_APP_PKG_FAIL = 20042;
 
-
+    /**
+     * publish failed,unknown exception.
+     */
+    public static final int RET_PUBLISH_UNKNOWN_EXCEPTION = 28888;
 }
