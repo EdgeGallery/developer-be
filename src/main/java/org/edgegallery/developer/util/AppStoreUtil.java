@@ -16,8 +16,6 @@
 
 package org.edgegallery.developer.util;
 
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
@@ -36,18 +34,21 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 public class AppStoreUtil {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AppStoreUtil.class);
 
     private static final String APPSTORE_ADDRESS = "appstore.address";
+
+    private static final RestTemplate REST_TEMPLATE = new RestTemplate();
 
     private AppStoreUtil() {
         throw new IllegalStateException("AppStoreUtil class");
@@ -57,7 +58,6 @@ public class AppStoreUtil {
      * upload app to appstore.
      */
     public static String storeToAppStore(Map<String, Object> params, User user, PublishAppErrResponse errResponse) {
-        RestTemplate restTemplate = new RestTemplate();
 
         MultiValueMap<String, Object> map = new LinkedMultiValueMap<>();
         params.forEach(map::add);
@@ -74,7 +74,7 @@ public class AppStoreUtil {
         LOGGER.warn(url);
 
         try {
-            ResponseEntity<String> responses = restTemplate
+            ResponseEntity<String> responses = REST_TEMPLATE
                 .exchange(url, HttpMethod.POST, new HttpEntity<>(map, headers), String.class);
             LOGGER.info("upload appstore response:{}", responses);
             if (HttpStatus.OK.equals(responses.getStatusCode()) || HttpStatus.ACCEPTED
@@ -87,12 +87,13 @@ public class AppStoreUtil {
                 String errMsg = e.getMessage();
                 String responseBody = errMsg.substring(7, errMsg.length() - 1);
                 LOGGER.info("responseBody:{}", responseBody);
-                LOGGER.info("retCode:{}", getErrRetCode(responseBody));
-                errResponse.setErrCode(getErrRetCode(responseBody));
+                AppStoreErrResponseDto appStoreErrResponseDto = getErrRetCode(responseBody);
+                errResponse.setErrCode(appStoreErrResponseDto.getRetCode());
+                errResponse.setMessage(appStoreErrResponseDto.getMessage());
                 return null;
             }
         }
-        LOGGER.error("Upload app to store failed: occur unknown exception");
+        errResponse.setMessage("Upload app to store failed: occur unknown exception");
         errResponse.setErrCode(ResponseConsts.RET_PUBLISH_UNKNOWN_EXCEPTION);
         return null;
     }
@@ -102,18 +103,19 @@ public class AppStoreUtil {
      */
     public static String publishToAppStore(String appId, String pkgId, String token, PublishAppReqDto pubAppReqDto,
         PublishAppErrResponse errResponse) {
-        RestTemplate restTemplate = new RestTemplate();
 
         HttpHeaders headers = new HttpHeaders();
         headers.set(Consts.ACCESS_TOKEN_STR, token);
         headers.setContentType(MediaType.APPLICATION_JSON);
-
+        List<MediaType> accept = new ArrayList<>();
+        accept.add(MediaType.APPLICATION_JSON);
+        headers.setAccept(accept);
         String url = InitConfigUtil.getProperties(APPSTORE_ADDRESS) + String
             .format(Consts.PUBLISH_TO_APPSTORE_URL, appId, pkgId);
         LOGGER.info("isFree: {}, price: {}", pubAppReqDto.isFree(), pubAppReqDto.getPrice());
         LOGGER.info("publish url: {}", url);
         try {
-            ResponseEntity<String> responses = restTemplate
+            ResponseEntity<String> responses = REST_TEMPLATE
                 .exchange(url, HttpMethod.POST, new HttpEntity<>(new Gson().toJson(pubAppReqDto), headers),
                     String.class);
             LOGGER.info("publish res: {}", responses);
@@ -123,17 +125,18 @@ public class AppStoreUtil {
             }
 
         } catch (RestClientException e) {
-            LOGGER.error("publish app  failed,  exception {}", e.getMessage());
+            LOGGER.error("Failed to publish appstore,  exception {}", e.getMessage());
             if (!StringUtils.isEmpty(e.getMessage())) {
                 String errMsg = e.getMessage();
                 String responseBody = errMsg.substring(7, errMsg.length() - 1);
                 LOGGER.info("responseBody:{}", responseBody);
-                LOGGER.info("retCode:{}", getErrRetCode(responseBody));
-                errResponse.setErrCode(getErrRetCode(responseBody));
+                AppStoreErrResponseDto appStoreErrResponseDto = getErrRetCode(responseBody);
+                errResponse.setErrCode(appStoreErrResponseDto.getRetCode());
+                errResponse.setMessage(appStoreErrResponseDto.getMessage());
                 return null;
             }
         }
-        LOGGER.error("publish app failed: occur unknown exception");
+        errResponse.setMessage("Upload app to store failed: occur unknown exception");
         errResponse.setErrCode(ResponseConsts.RET_PUBLISH_UNKNOWN_EXCEPTION);
         return null;
     }
@@ -142,10 +145,7 @@ public class AppStoreUtil {
      * get pkg info.
      */
     public static String getPkgInfo(String appId, String pkgId, String token) {
-        SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
-        requestFactory.setConnectTimeout(600000);// 设置超时
-        requestFactory.setReadTimeout(600000);
-        RestTemplate restTemplate = new RestTemplate(requestFactory);
+
         HttpHeaders headers = new HttpHeaders();
         headers.set(Consts.ACCESS_TOKEN_STR, token);
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -153,7 +153,7 @@ public class AppStoreUtil {
             .format(Consts.QUERY_APPSTORE_PKG_URL, InitConfigUtil.getProperties(APPSTORE_ADDRESS), appId, pkgId);
         LOGGER.info("get pkg url: {}", url);
         try {
-            ResponseEntity<String> responses = restTemplate
+            ResponseEntity<String> responses = REST_TEMPLATE
                 .exchange(url, HttpMethod.GET, new HttpEntity<>(headers), String.class);
             LOGGER.info("get pkg res: {}", responses);
             if (HttpStatus.OK.equals(responses.getStatusCode()) || HttpStatus.CREATED
@@ -172,10 +172,6 @@ public class AppStoreUtil {
      * download pkg .
      */
     public static byte[] downloadPkg(String appId, String pkgId, String token) {
-        SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
-        requestFactory.setConnectTimeout(600000);// 设置超时
-        requestFactory.setReadTimeout(600000);
-        RestTemplate restTemplate = new RestTemplate(requestFactory);
         HttpHeaders headers = new HttpHeaders();
         headers.set("access_token", token);
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -183,7 +179,7 @@ public class AppStoreUtil {
             .format(Consts.DOWNLOAD_APPSTORE_PKG_URL, InitConfigUtil.getProperties(APPSTORE_ADDRESS), appId, pkgId);
         LOGGER.info("download pkg url: {}", url);
         try {
-            ResponseEntity<byte[]> responses = restTemplate
+            ResponseEntity<byte[]> responses = REST_TEMPLATE
                 .exchange(url, HttpMethod.GET, new HttpEntity<>(headers), byte[].class);
             LOGGER.info("download pkg res: {}", responses);
             if (HttpStatus.OK.equals(responses.getStatusCode()) || HttpStatus.CREATED
@@ -198,16 +194,19 @@ public class AppStoreUtil {
         }
     }
 
-    private static int getErrRetCode(String errBody) {
+    private static AppStoreErrResponseDto getErrRetCode(String errBody) {
         try {
             Gson gson = new Gson();
-            Type type = new TypeToken<AppStoreErrResponseDto>() { }.getType();
+            Type type = new TypeToken<AppStoreErrResponseDto>() {}.getType();
             AppStoreErrResponseDto appStoreErrResponseDto = gson.fromJson(errBody, type);
             LOGGER.info("retCode:{}", appStoreErrResponseDto.getRetCode());
-            return appStoreErrResponseDto.getRetCode();
+            return appStoreErrResponseDto;
         } catch (Exception e) {
+            AppStoreErrResponseDto appStoreErrResponseDto = new AppStoreErrResponseDto();
             LOGGER.error("convert errBody {} to AppStoreErrResponseDto fail!", errBody);
-            return ResponseConsts.RET_PUBLISH_UNKNOWN_EXCEPTION;
+            appStoreErrResponseDto.setCode(ResponseConsts.RET_PUBLISH_UNKNOWN_EXCEPTION);
+            appStoreErrResponseDto.setMessage("Upload app to store failed: occur unknown exception");
+            return appStoreErrResponseDto;
         }
 
     }
