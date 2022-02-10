@@ -129,7 +129,7 @@ public class AppPackageServiceImpl implements AppPackageService {
     public ReleasedPkgFileContent getAppPackageFileContent(ReleasedPkgFileContentReqDto structureReqDto,
         String packageId) {
         // check packageId
-        if (org.springframework.util.StringUtils.isEmpty(packageId)) {
+        if (StringUtils.isEmpty(packageId)) {
             LOGGER.error("get app pkg file content,packageId is null");
             throw new IllegalRequestException("packageId is null", ResponseConsts.RET_REQUEST_PARAM_EMPTY);
         }
@@ -172,7 +172,7 @@ public class AppPackageServiceImpl implements AppPackageService {
     public ReleasedPkgFileContent updateAppPackageFileContent(ReleasedPkgFileContent releasedPkgFileContent,
         String packageId) {
         // check packageId
-        if (org.springframework.util.StringUtils.isEmpty(packageId)) {
+        if (StringUtils.isEmpty(packageId)) {
             LOGGER.error("update app pkg file content,packageId is null");
             throw new IllegalRequestException("packageId is null", ResponseConsts.RET_REQUEST_PARAM_EMPTY);
         }

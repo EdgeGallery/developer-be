@@ -8,4 +8,6 @@ import lombok.Setter;
 public class PublishAppErrResponse {
 
     private int errCode;
+
+    private String message;
 }
