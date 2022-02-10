@@ -19,8 +19,11 @@ package org.edgegallery.developer.util;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import org.edgegallery.developer.common.Consts;
+import org.edgegallery.developer.common.ResponseConsts;
 import org.edgegallery.developer.model.appstore.PublishAppReqDto;
 import org.edgegallery.developer.model.common.User;
 import org.edgegallery.developer.model.restful.AppStoreErrResponseDto;
@@ -35,6 +38,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
@@ -60,6 +64,9 @@ public class AppStoreUtil {
         HttpHeaders headers = new HttpHeaders();
         headers.set(Consts.ACCESS_TOKEN_STR, user.getToken());
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+        List<MediaType> accept = new ArrayList<>();
+        accept.add(MediaType.APPLICATION_JSON);
+        headers.setAccept(accept);
 
         String url = InitConfigUtil.getProperties(APPSTORE_ADDRESS) + String
             .format(Consts.UPLOAD_TO_APPSTORE_URL, user.getUserId(), user.getUserName());
@@ -73,27 +80,29 @@ public class AppStoreUtil {
                 .equals(responses.getStatusCode())) {
                 return responses.getBody();
             }
-            LOGGER.error("Upload appstore failed,  status is {}", responses.getStatusCode());
-            LOGGER.info("responses:{}", responses);
-            return getErrRetCode(responses.getBody());
         } catch (RestClientException e) {
             LOGGER.error("Failed to upload appstore,  exception {}", e.getMessage());
-            return null;
+            if (!StringUtils.isEmpty(e.getMessage())) {
+                String errMsg = e.getMessage();
+                String responseBody = errMsg.substring(7, errMsg.length() - 1);
+                LOGGER.info("responseBody:{}", responseBody);
+                return getErrRetCode(responseBody);
+            }
         }
-
+        LOGGER.error("Upload app to store failed: occur unknown exception");
+        return String.valueOf(ResponseConsts.RET_PUBLISH_UNKNOWN_EXCEPTION);
     }
 
     /**
      * publish app to appstore.
      */
     public static String publishToAppStore(String appId, String pkgId, String token, PublishAppReqDto pubAppReqDto) {
-        SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
-        requestFactory.setConnectTimeout(600000);// 设置超时
-        requestFactory.setReadTimeout(600000);
-        RestTemplate restTemplate = new RestTemplate(requestFactory);
+        RestTemplate restTemplate = new RestTemplate();
+
         HttpHeaders headers = new HttpHeaders();
         headers.set(Consts.ACCESS_TOKEN_STR, token);
         headers.setContentType(MediaType.APPLICATION_JSON);
+
         String url = InitConfigUtil.getProperties(APPSTORE_ADDRESS) + String
             .format(Consts.PUBLISH_TO_APPSTORE_URL, appId, pkgId);
         LOGGER.info("isFree: {}, price: {}", pubAppReqDto.isFree(), pubAppReqDto.getPrice());
@@ -107,12 +116,18 @@ public class AppStoreUtil {
                 .equals(responses.getStatusCode())) {
                 return responses.getBody();
             }
-            LOGGER.error("publish app failed: the app have exist,  status is {}", responses.getStatusCode());
-            return getErrRetCode(responses.getBody());
+
         } catch (RestClientException e) {
             LOGGER.error("publish app  failed,  exception {}", e.getMessage());
-            return null;
+            if (!StringUtils.isEmpty(e.getMessage())) {
+                String errMsg = e.getMessage();
+                String responseBody = errMsg.substring(7, errMsg.length() - 1);
+                LOGGER.info("responseBody:{}", responseBody);
+                return getErrRetCode(responseBody);
+            }
         }
+        LOGGER.error("publish app failed: occur unknown exception");
+        return String.valueOf(ResponseConsts.RET_PUBLISH_UNKNOWN_EXCEPTION);
     }
 
     /**
@@ -184,7 +199,7 @@ public class AppStoreUtil {
             return String.valueOf(appStoreErrResponseDto.getRetCode());
         } catch (Exception e) {
             LOGGER.error("convert errBody {} to AppStoreErrResponseDto fail!", errBody);
-            return null;
+            return String.valueOf(ResponseConsts.RET_PUBLISH_UNKNOWN_EXCEPTION);
         }
 
     }

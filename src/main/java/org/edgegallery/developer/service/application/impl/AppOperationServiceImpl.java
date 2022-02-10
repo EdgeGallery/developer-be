@@ -201,7 +201,7 @@ public class AppOperationServiceImpl implements AppOperationService {
         map.put("industry", app.getIndustry());
         map.put("testTaskId", testList.get(0).getId());
         String uploadResult = AppStoreUtil.storeToAppStore(map, user);
-        checkInnerParamNull(uploadResult, "upload app to appstore fail!");
+        LOGGER.info("uploadResult:{}", uploadResult);
         checkResultLength(uploadResult, "upload app to appstore fail!");
 
         LOGGER.info("upload appstore result:{}", uploadResult);
@@ -215,7 +215,7 @@ public class AppOperationServiceImpl implements AppOperationService {
         String publishRes = AppStoreUtil
             .publishToAppStore(appStoreAppId.getAsString(), appStorePackageId.getAsString(), user.getToken(),
                 publishAppDto);
-        checkInnerParamNull(publishRes, "publish app to appstore fail!");
+        LOGGER.info("publishRes:{}", publishRes);
         checkResultLength(publishRes, "publish app to appstore fail!");
 
         //delete icon
@@ -323,7 +323,7 @@ public class AppOperationServiceImpl implements AppOperationService {
     }
 
     private void checkResultLength(String innerParam, String msg) {
-        if (innerParam != null && innerParam.length() <= 5) {
+        if (innerParam != null) {
             LOGGER.error(msg);
             throw new DeveloperException(msg, Integer.parseInt(innerParam));
         }

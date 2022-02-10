@@ -291,7 +291,7 @@ public class ReleasedPackageServiceImpl implements ReleasedPackageService {
         map.put("industry", releasedPackage.getIndustry());
         map.put("testTaskId", releasedPackage.getTestTaskId());
         String uploadResult = AppStoreUtil.storeToAppStore(map, user);
-        checkInnerParamNull(uploadResult, "upload app to appstore fail!");
+        LOGGER.info("uploadResult:{}", uploadResult);
         checkResultLength(uploadResult, "upload app to appstore fail!");
 
         LOGGER.info("upload appstore result:{}", uploadResult);
@@ -305,7 +305,7 @@ public class ReleasedPackageServiceImpl implements ReleasedPackageService {
         String publishRes = AppStoreUtil
             .publishToAppStore(appStoreAppId.getAsString(), appStorePackageId.getAsString(), user.getToken(),
                 publishAppReqDto);
-        checkInnerParamNull(publishRes, "publish app to appstore fail!");
+        LOGGER.info("publishRes:{}", publishRes);
         checkResultLength(publishRes, "publish app to appstore fail!");
         return true;
     }

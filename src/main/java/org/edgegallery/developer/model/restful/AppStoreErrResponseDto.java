@@ -9,7 +9,7 @@ import lombok.Setter;
 @Setter
 public class AppStoreErrResponseDto {
     
-    private Date timestamp;
+    private String timestamp;
 
     private int code;
 
