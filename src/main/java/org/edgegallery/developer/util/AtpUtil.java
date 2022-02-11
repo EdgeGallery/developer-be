@@ -39,8 +39,6 @@ public class AtpUtil {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AtpUtil.class);
 
-    private static final String ATP_ADDRESS = "atp_address";
-
     private static final RestTemplate restTemplate = new RestTemplate();
 
     private AtpUtil() {
@@ -63,8 +61,11 @@ public class AtpUtil {
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);
         headers.set(Consts.ACCESS_TOKEN_STR, token);
 
+        RestSvcAddressConfig svcAddressConfig = (RestSvcAddressConfig) SpringContextUtil
+            .getBean(RestSvcAddressConfig.class);
+
         HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
-        String url = InitConfigUtil.getProperties(ATP_ADDRESS).concat(Consts.CREATE_TASK_FROM_ATP);
+        String url = svcAddressConfig.getAtpAddress().concat(Consts.CREATE_TASK_FROM_ATP);
         LOGGER.info("url: {}", url);
         try {
             ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.POST, requestEntity, String.class);
@@ -89,7 +90,10 @@ public class AtpUtil {
         HttpHeaders headers = new HttpHeaders();
         HttpEntity<String> request = new HttpEntity<>(headers);
 
-        String url = InitConfigUtil.getProperties(ATP_ADDRESS).concat(String.format(Consts.GET_TASK_FROM_ATP, taskId));
+        RestSvcAddressConfig svcAddressConfig = (RestSvcAddressConfig) SpringContextUtil
+            .getBean(RestSvcAddressConfig.class);
+
+        String url = svcAddressConfig.getAtpAddress().concat(String.format(Consts.GET_TASK_FROM_ATP, taskId));
         LOGGER.info("get task status frm atp, url: {}", url);
         ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, request, String.class);
         if (!HttpStatus.OK.equals(response.getStatusCode())) {

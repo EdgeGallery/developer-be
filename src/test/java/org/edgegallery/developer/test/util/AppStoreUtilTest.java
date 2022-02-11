@@ -22,10 +22,15 @@ import java.net.HttpURLConnection;
 import java.net.InetSocketAddress;
 import java.util.HashMap;
 import java.util.Map;
+import mockit.Mock;
+import mockit.MockUp;
 import org.edgegallery.developer.model.appstore.PublishAppReqDto;
 import org.edgegallery.developer.model.common.User;
 import org.edgegallery.developer.test.DeveloperApplicationTests;
 import org.edgegallery.developer.util.AppStoreUtil;
+import org.edgegallery.developer.util.ImageConfig;
+import org.edgegallery.developer.util.RestSvcAddressConfig;
+import org.edgegallery.developer.util.SpringContextUtil;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -43,8 +48,18 @@ public class AppStoreUtilTest {
 
     private HttpServer httpServer;
 
+    MockUp  mockup;
     @Before
     public void setUp() throws IOException {
+       mockup = new MockUp<SpringContextUtil>() {
+            @Mock
+            public Object getBean(Class<?> requiredType) {
+                RestSvcAddressConfig  restSvcAddressConfig = new RestSvcAddressConfig();
+                restSvcAddressConfig.setAppstoreAddress("http://localhost:8099");
+                return restSvcAddressConfig;
+            }
+        };
+
         httpServer = HttpServer.create(new InetSocketAddress("", 8099), 0);
         httpServer.createContext("/mec/appstore/v1/apps", new HttpHandler() {
             @Override
@@ -105,6 +120,7 @@ public class AppStoreUtilTest {
     @After
     public void after() {
         httpServer.stop(1);
+        mockup.tearDown();
     }
 
     @Test
