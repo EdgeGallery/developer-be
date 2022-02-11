@@ -53,6 +53,17 @@ public class AppStoreUtil {
     }
 
     /**
+     * get RestSvcAddressConfig instance.
+     *
+     * @return
+     */
+    public static RestSvcAddressConfig getRestInstance() {
+        RestSvcAddressConfig svcAddressConfig = (RestSvcAddressConfig) SpringContextUtil
+            .getBean(RestSvcAddressConfig.class);
+        return svcAddressConfig;
+    }
+
+    /**
      * upload app to appstore.
      */
     public static String storeToAppStore(Map<String, Object> params, User user, PublishAppErrResponse errResponse) {
@@ -66,10 +77,8 @@ public class AppStoreUtil {
         List<MediaType> accept = new ArrayList<>();
         accept.add(MediaType.APPLICATION_JSON);
         headers.setAccept(accept);
-        RestSvcAddressConfig svcAddressConfig = (RestSvcAddressConfig) SpringContextUtil
-            .getBean(RestSvcAddressConfig.class);
 
-        String url = svcAddressConfig.getAppstoreAddress() + String
+        String url = getRestInstance().getAppstoreAddress() + String
             .format(Consts.UPLOAD_TO_APPSTORE_URL, user.getUserId(), user.getUserName());
         LOGGER.warn(url);
 
@@ -110,10 +119,8 @@ public class AppStoreUtil {
         List<MediaType> accept = new ArrayList<>();
         accept.add(MediaType.APPLICATION_JSON);
         headers.setAccept(accept);
-        RestSvcAddressConfig svcAddressConfig = (RestSvcAddressConfig) SpringContextUtil
-            .getBean(RestSvcAddressConfig.class);
 
-        String url = svcAddressConfig.getAppstoreAddress() + String
+        String url = getRestInstance().getAppstoreAddress() + String
             .format(Consts.PUBLISH_TO_APPSTORE_URL, appId, pkgId);
         LOGGER.info("isFree: {}, price: {}", pubAppReqDto.isFree(), pubAppReqDto.getPrice());
         LOGGER.info("publish url: {}", url);
@@ -151,11 +158,8 @@ public class AppStoreUtil {
 
         HttpHeaders headers = new HttpHeaders();
         headers.set(Consts.ACCESS_TOKEN_STR, token);
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        RestSvcAddressConfig svcAddressConfig = (RestSvcAddressConfig) SpringContextUtil
-            .getBean(RestSvcAddressConfig.class);
 
-        String url = String.format(Consts.QUERY_APPSTORE_PKG_URL, svcAddressConfig.getAppstoreAddress(), appId, pkgId);
+        String url = String.format(Consts.QUERY_APPSTORE_PKG_URL, getRestInstance().getAppstoreAddress(), appId, pkgId);
         LOGGER.info("get pkg url: {}", url);
         try {
             ResponseEntity<String> responses = REST_TEMPLATE
@@ -180,11 +184,9 @@ public class AppStoreUtil {
         HttpHeaders headers = new HttpHeaders();
         headers.set("access_token", token);
         headers.setContentType(MediaType.APPLICATION_JSON);
-        RestSvcAddressConfig svcAddressConfig = (RestSvcAddressConfig) SpringContextUtil
-            .getBean(RestSvcAddressConfig.class);
 
         String url = String
-            .format(Consts.DOWNLOAD_APPSTORE_PKG_URL, svcAddressConfig.getAppstoreAddress(), appId, pkgId);
+            .format(Consts.DOWNLOAD_APPSTORE_PKG_URL, getRestInstance().getAppstoreAddress(), appId, pkgId);
         LOGGER.info("download pkg url: {}", url);
         try {
             ResponseEntity<byte[]> responses = REST_TEMPLATE
