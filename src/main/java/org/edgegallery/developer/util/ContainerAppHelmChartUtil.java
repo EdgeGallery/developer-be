@@ -17,10 +17,13 @@
 package org.edgegallery.developer.util;
 
 import io.kubernetes.client.openapi.models.V1Service;
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 import org.edgegallery.developer.common.Consts;
+import org.edgegallery.developer.util.helmcharts.HelmChartFile;
 import org.edgegallery.developer.util.helmcharts.IContainerFileHandler;
 import org.edgegallery.developer.util.helmcharts.LoadContainerFileFactory;
 import org.edgegallery.developer.util.helmcharts.k8sobject.EnumKubernetesObject;
@@ -31,6 +34,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
@@ -45,6 +49,8 @@ public final class ContainerAppHelmChartUtil {
     private static final String CHECK_IMAGE_PREFIX = "image ";
 
     private static final String CHECK_IMAGE_SUFFIX = " is not in standard format";
+
+    private static final String FILE_NAME_PATTERN = "^[a-z0-9][a-z0-9-\\.]+[a-z0-9]$";
 
     private ContainerAppHelmChartUtil() {
 
@@ -68,6 +74,41 @@ public final class ContainerAppHelmChartUtil {
             LOGGER.error("Failed to load file. file={}", helmChartsPackagePath);
         }
         return images;
+    }
+
+    /**
+     * check tgz file name and deploy yaml name in format.
+     *
+     * @param helmChartsPackagePath helmChartsPackagePath
+     * @return
+     */
+    public static boolean checkFileNameFormat(String helmChartsPackagePath) {
+        File tgzFile = new File(helmChartsPackagePath);
+        Pattern pattern = Pattern.compile(FILE_NAME_PATTERN);
+        if (tgzFile.exists() && tgzFile.isFile() && pattern.matcher(tgzFile.getName()).matches()) {
+            try (IContainerFileHandler containerFileHandler = LoadContainerFileFactory
+                .createLoader(helmChartsPackagePath)) {
+                assert containerFileHandler != null;
+                containerFileHandler.load(helmChartsPackagePath);
+                List<HelmChartFile> fileList = containerFileHandler.getTemplatesFile();
+                if (CollectionUtils.isEmpty(fileList)) {
+                    LOGGER.error("there are no files in the templates folder.");
+                    return false;
+                }
+                for (HelmChartFile helmChartFile : fileList) {
+                    if (!pattern.matcher(helmChartFile.getName()).matches()) {
+                        LOGGER.error("{} name not in format.", helmChartFile.getName());
+                        return false;
+                    }
+                }
+                return true;
+            } catch (IOException e) {
+                LOGGER.error("Failed to load file. file is {}", helmChartsPackagePath);
+                return false;
+            }
+        }
+        LOGGER.error("tgz file name not in format.");
+        return false;
     }
 
     /**
