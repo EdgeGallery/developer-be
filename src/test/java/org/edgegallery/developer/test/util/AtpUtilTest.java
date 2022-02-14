@@ -18,9 +18,13 @@ import java.io.File;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.InetSocketAddress;
+import mockit.Mock;
+import mockit.MockUp;
 import org.apache.ibatis.io.Resources;
 import org.edgegallery.developer.test.DeveloperApplicationTests;
 import org.edgegallery.developer.util.AtpUtil;
+import org.edgegallery.developer.util.RestSvcAddressConfig;
+import org.edgegallery.developer.util.SpringContextUtil;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -40,8 +44,19 @@ public class AtpUtilTest {
 
     private HttpServer httpServer;
 
+    MockUp mockup;
+
     @Before
     public void setUp() throws IOException {
+        mockup = new MockUp<SpringContextUtil>() {
+            @Mock
+            public Object getBean(Class<?> requiredType) {
+                RestSvcAddressConfig restSvcAddressConfig = new RestSvcAddressConfig();
+                restSvcAddressConfig.setAtpAddress("http://localhost:8073");
+                return restSvcAddressConfig;
+            }
+        };
+
         httpServer = HttpServer.create(new InetSocketAddress("", 8073), 0);
         httpServer.createContext("/edgegallery/atp/v1/tasks", new HttpHandler() {
             @Override
@@ -74,7 +89,9 @@ public class AtpUtilTest {
 
     @After
     public void after() {
+
         httpServer.stop(1);
+        mockup.tearDown();
     }
 
     @Test

@@ -81,6 +81,11 @@ imagelocation:
   password: ${IMAGE_REPO_PASSWORD:}
   username: ${IMAGE_REPO_USERNAME:}
 
+rest:
+  appstore: ${APPSTORE_ADDRESS:https://appstore-be-svc:8099}
+  atp: ${ATP_ADDRESS:https://atp-svc:8073}
+  fileserver: ${FILESERVER_ADDRESS:}
+
 developer:
   ip: ${DEVELOPER_IP:}
   protocol: ${HTTP_PROTOCOL:http}

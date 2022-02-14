@@ -16,6 +16,8 @@
 
 package org.edgegallery.developer.util;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
@@ -39,19 +41,26 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 
 public class AppStoreUtil {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AppStoreUtil.class);
 
-    private static final String APPSTORE_ADDRESS = "appstore.address";
-
     private static final RestTemplate REST_TEMPLATE = new RestTemplate();
 
     private AppStoreUtil() {
         throw new IllegalStateException("AppStoreUtil class");
+    }
+
+    /**
+     * get RestSvcAddressConfig instance.
+     *
+     * @return
+     */
+    public static RestSvcAddressConfig getRestInstance() {
+        RestSvcAddressConfig svcAddressConfig = (RestSvcAddressConfig) SpringContextUtil
+            .getBean(RestSvcAddressConfig.class);
+        return svcAddressConfig;
     }
 
     /**
@@ -69,7 +78,7 @@ public class AppStoreUtil {
         accept.add(MediaType.APPLICATION_JSON);
         headers.setAccept(accept);
 
-        String url = InitConfigUtil.getProperties(APPSTORE_ADDRESS) + String
+        String url = getRestInstance().getAppstoreAddress() + String
             .format(Consts.UPLOAD_TO_APPSTORE_URL, user.getUserId(), user.getUserName());
         LOGGER.warn(url);
 
@@ -110,7 +119,8 @@ public class AppStoreUtil {
         List<MediaType> accept = new ArrayList<>();
         accept.add(MediaType.APPLICATION_JSON);
         headers.setAccept(accept);
-        String url = InitConfigUtil.getProperties(APPSTORE_ADDRESS) + String
+
+        String url = getRestInstance().getAppstoreAddress() + String
             .format(Consts.PUBLISH_TO_APPSTORE_URL, appId, pkgId);
         LOGGER.info("isFree: {}, price: {}", pubAppReqDto.isFree(), pubAppReqDto.getPrice());
         LOGGER.info("publish url: {}", url);
@@ -148,9 +158,8 @@ public class AppStoreUtil {
 
         HttpHeaders headers = new HttpHeaders();
         headers.set(Consts.ACCESS_TOKEN_STR, token);
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        String url = String
-            .format(Consts.QUERY_APPSTORE_PKG_URL, InitConfigUtil.getProperties(APPSTORE_ADDRESS), appId, pkgId);
+
+        String url = String.format(Consts.QUERY_APPSTORE_PKG_URL, getRestInstance().getAppstoreAddress(), appId, pkgId);
         LOGGER.info("get pkg url: {}", url);
         try {
             ResponseEntity<String> responses = REST_TEMPLATE
@@ -175,8 +184,9 @@ public class AppStoreUtil {
         HttpHeaders headers = new HttpHeaders();
         headers.set("access_token", token);
         headers.setContentType(MediaType.APPLICATION_JSON);
+
         String url = String
-            .format(Consts.DOWNLOAD_APPSTORE_PKG_URL, InitConfigUtil.getProperties(APPSTORE_ADDRESS), appId, pkgId);
+            .format(Consts.DOWNLOAD_APPSTORE_PKG_URL, getRestInstance().getAppstoreAddress(), appId, pkgId);
         LOGGER.info("download pkg url: {}", url);
         try {
             ResponseEntity<byte[]> responses = REST_TEMPLATE
@@ -197,7 +207,7 @@ public class AppStoreUtil {
     private static AppStoreErrResponseDto getErrRetCode(String errBody) {
         try {
             Gson gson = new Gson();
-            Type type = new TypeToken<AppStoreErrResponseDto>() {}.getType();
+            Type type = new TypeToken<AppStoreErrResponseDto>() { }.getType();
             AppStoreErrResponseDto appStoreErrResponseDto = gson.fromJson(errBody, type);
             LOGGER.info("retCode:{}", appStoreErrResponseDto.getRetCode());
             return appStoreErrResponseDto;

@@ -98,7 +98,7 @@ public class VMImageServiceImpl implements VMImageService {
 
     private static Gson gson = new Gson();
 
-    @Value("${fileserver.address}")
+    @Value("${rest.fileserver}")
     private String fileServerAddress;
 
     @Autowired

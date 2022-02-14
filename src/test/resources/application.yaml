@@ -47,6 +47,11 @@ imagelocation:
   password: ${IMAGE_REPO_PASSWORD:}
   username: ${IMAGE_REPO_USERNAME:}
 
+rest:
+  appstore: ${APPSTORE_ADDRESS:}
+  atp: ${ATP_ADDRESS:}
+  fileserver: ${FILESERVER_ADDRESS:}
+
 developer:
   ip: ${DEVELOPER_IP:}
   protocol: ${HTTP_PROTOCOL:http}

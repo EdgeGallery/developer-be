@@ -16,6 +16,8 @@
 
 package org.edgegallery.developer.util;
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import javax.ws.rs.core.Response;
 import org.apache.servicecomb.swagger.invocation.exception.InvocationException;
 import org.edgegallery.developer.common.Consts;
@@ -32,14 +34,10 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 
 public class AtpUtil {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AtpUtil.class);
-
-    private static final String ATP_ADDRESS = "atp_address";
 
     private static final RestTemplate restTemplate = new RestTemplate();
 
@@ -51,7 +49,7 @@ public class AtpUtil {
      * send request to atp to create test task.
      *
      * @param filePath csar file path
-     * @param token    request token
+     * @param token request token
      * @return response from atp
      */
     public static String sendCreateTask2Atp(String filePath, String token) {
@@ -64,7 +62,7 @@ public class AtpUtil {
         headers.set(Consts.ACCESS_TOKEN_STR, token);
 
         HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
-        String url = InitConfigUtil.getProperties(ATP_ADDRESS).concat(Consts.CREATE_TASK_FROM_ATP);
+        String url = AppStoreUtil.getRestInstance().getAtpAddress().concat(Consts.CREATE_TASK_FROM_ATP);
         LOGGER.info("url: {}", url);
         try {
             ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.POST, requestEntity, String.class);
@@ -89,12 +87,13 @@ public class AtpUtil {
         HttpHeaders headers = new HttpHeaders();
         HttpEntity<String> request = new HttpEntity<>(headers);
 
-        String url = InitConfigUtil.getProperties(ATP_ADDRESS).concat(String.format(Consts.GET_TASK_FROM_ATP, taskId));
+        String url = AppStoreUtil.getRestInstance().getAtpAddress()
+            .concat(String.format(Consts.GET_TASK_FROM_ATP, taskId));
         LOGGER.info("get task status frm atp, url: {}", url);
         ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, request, String.class);
         if (!HttpStatus.OK.equals(response.getStatusCode())) {
-            LOGGER.error("Get task status from atp reponse failed, the taskId is {}, The status code is {}",
-                taskId, response.getStatusCode());
+            LOGGER.error("Get task status from atp reponse failed, the taskId is {}, The status code is {}", taskId,
+                response.getStatusCode());
             throw new InvocationException(Response.Status.INTERNAL_SERVER_ERROR,
                 "Get task status from atp reponse failed.");
         }
