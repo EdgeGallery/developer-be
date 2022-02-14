@@ -171,6 +171,14 @@ public class ContainerAppHelmChartServiceImpl implements ContainerAppHelmChartSe
             + File.separator + helmChartFileName;
         LOGGER.info("tgzPath:{}", tgzPath);
 
+        //check tgz fileName and yaml name under templates folder
+        boolean checkResult = ContainerAppHelmChartUtil.checkFileNameFormat(tgzPath);
+        if (!checkResult) {
+            String errMsg = "tgz file name or deploy yaml name in tgz not in format!";
+            LOGGER.error(errMsg);
+            throw new FileOperateException(errMsg, ResponseConsts.RET_CHECK_DEPLOY_FILE_NAME_FAIL);
+        }
+
         //check image
         List<String> imageList = ContainerAppHelmChartUtil.getImagesFromHelmFile(tgzPath);
         if (CollectionUtils.isEmpty(imageList)) {

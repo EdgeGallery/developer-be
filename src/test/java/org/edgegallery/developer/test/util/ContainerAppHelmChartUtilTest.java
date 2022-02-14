@@ -17,6 +17,7 @@ package org.edgegallery.developer.test.util;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
+import java.io.File;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.InetSocketAddress;
@@ -24,6 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 import mockit.Mock;
 import mockit.MockUp;
+import org.apache.ibatis.io.Resources;
 import org.edgegallery.developer.util.ContainerAppHelmChartUtil;
 import org.edgegallery.developer.util.ImageConfig;
 import org.edgegallery.developer.util.SpringContextUtil;
@@ -111,5 +113,19 @@ public class ContainerAppHelmChartUtilTest {
         imageList.add("1.1.1.1/test/name:version");
         String res = ContainerAppHelmChartUtil.getImageCheckInfo(imageList);
         Assert.assertEquals("image 1.1.1.1/test/name:version does not exist in harbor repo!",res);
+    }
+
+    @Test
+    public void testCheckFileNameFormatFail() throws IOException {
+        File tgzFile = Resources.getResourceAsFile("testdata/helmcharts/aixiaochu1.tgz");
+        boolean res = ContainerAppHelmChartUtil.checkFileNameFormat(tgzFile.getCanonicalPath());
+        Assert.assertFalse(res);
+    }
+
+    @Test
+    public void testCheckFileNameFormatSuccess() throws IOException {
+        File tgzFile = Resources.getResourceAsFile("testdata/helmcharts/2048.tgz");
+        boolean res = ContainerAppHelmChartUtil.checkFileNameFormat(tgzFile.getCanonicalPath());
+        Assert.assertTrue(res);
     }
 }

@@ -234,4 +234,9 @@ public final class ResponseConsts {
      * publish failed,unknown exception.
      */
     public static final int RET_PUBLISH_UNKNOWN_EXCEPTION = 28888;
+
+    /**
+     * check deploy yaml name in format.
+     */
+    public static final int RET_CHECK_DEPLOY_FILE_NAME_FAIL = 20043;
 }
