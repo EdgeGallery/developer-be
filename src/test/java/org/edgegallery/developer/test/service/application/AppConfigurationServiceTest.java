@@ -17,7 +17,7 @@ package org.edgegallery.developer.test.service.application;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import org.edgegallery.developer.test.DeveloperApplicationTests;
+import org.edgegallery.developer.exception.DataBaseException;
 import org.edgegallery.developer.exception.DeveloperException;
 import org.edgegallery.developer.exception.EntityNotFoundException;
 import org.edgegallery.developer.exception.IllegalRequestException;
@@ -31,6 +31,7 @@ import org.edgegallery.developer.service.application.AppConfigurationService;
 import org.edgegallery.developer.service.application.vm.VMAppNetworkService;
 import org.edgegallery.developer.service.application.vm.VMAppVmService;
 import org.edgegallery.developer.service.uploadfile.UploadFileService;
+import org.edgegallery.developer.test.DeveloperApplicationTests;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -304,10 +305,21 @@ public class AppConfigurationServiceTest {
 
     @Test
     public void testCreateAppServiceRequiredSuccess() {
-        AppServiceRequired appServiceRequired = createNewAppServiceRequired();
+        AppServiceRequired appServiceRequired = createAnotherAppServiceRequired();
         AppServiceRequired appServiceRequiredCreated = configurationService
             .createServiceRequired("6a75a2bd-9811-432f-bbe8-2813aa97d364", appServiceRequired);
         Assert.assertNotNull(appServiceRequiredCreated);
+    }
+
+    @Test
+    public void testCreateAppServiceRequiredBad() {
+        try {
+            AppServiceRequired appServiceRequired = createNewAppServiceRequired();
+            AppServiceRequired appServiceRequiredCreated = configurationService
+                .createServiceRequired("6a75a2bd-9811-432f-bbe8-2813aa97d364", appServiceRequired);
+        } catch (DataBaseException e) {
+            Assert.assertEquals("update selectCount failed", e.getMessage());
+        }
     }
 
     @Test
@@ -345,7 +357,8 @@ public class AppConfigurationServiceTest {
         AppCertificate appCertificate = new AppCertificate();
         appCertificate.setSk("sk");
         appCertificate.setAk("ak");
-        AppCertificate appCertificateCreated = configurationService.createAppCertificate("6a75a2bd-9811-432f-bbe8-2813aa97d364", appCertificate);
+        AppCertificate appCertificateCreated = configurationService
+            .createAppCertificate("6a75a2bd-9811-432f-bbe8-2813aa97d364", appCertificate);
         Assert.assertNotNull(appCertificateCreated);
     }
 
@@ -355,7 +368,7 @@ public class AppConfigurationServiceTest {
         appCertificate.setSk("sk1");
         appCertificate.setAk("ak1");
         boolean res = configurationService.modifyAppCertificate("6a75a2bd-9811-432f-bbe8-2813aa97d365", appCertificate);
-        Assert.assertEquals(res,true);
+        Assert.assertEquals(res, true);
     }
 
     @Test
@@ -364,7 +377,7 @@ public class AppConfigurationServiceTest {
         appCertificate.setSk("sk1");
         appCertificate.setAk("ak1");
         boolean res = configurationService.deleteAppCertificate("6a75a2bd-9811-432f-bbe8-2813aa97d366");
-        Assert.assertEquals(res,true);
+        Assert.assertEquals(res, true);
     }
 
     private AppServiceProduced createNewAppServiceProduced() {
@@ -408,6 +421,21 @@ public class AppConfigurationServiceTest {
     private AppServiceRequired createNewAppServiceRequired() {
         AppServiceRequired appServiceRequired = new AppServiceRequired();
         appServiceRequired.setId("143e8608-7304-4932-9d99-4bd6b115dac8");
+        appServiceRequired.setOneLevelName("平台基础服务");
+        appServiceRequired.setOneLevelNameEn("Platform services");
+        appServiceRequired.setTwoLevelName("服务发现");
+        appServiceRequired.setTwoLevelNameEn("service discovery");
+        appServiceRequired.setSerName("serName-test");
+        appServiceRequired.setVersion("v1.0");
+        appServiceRequired.setAppId("6a75a2bd-9811-432f-bbe8-2813aa97d364");
+        appServiceRequired.setPackageId("pkgId");
+        appServiceRequired.setRequestedPermissions(true);
+        return appServiceRequired;
+    }
+
+    private AppServiceRequired createAnotherAppServiceRequired() {
+        AppServiceRequired appServiceRequired = new AppServiceRequired();
+        appServiceRequired.setId("e111f3e7-90d8-4a39-9874-ea6ea6752ef0");
         appServiceRequired.setOneLevelName("平台基础服务");
         appServiceRequired.setOneLevelNameEn("Platform services");
         appServiceRequired.setTwoLevelName("服务发现");

@@ -19,6 +19,7 @@ package org.edgegallery.developer.service.application.impl;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import org.apache.commons.lang3.StringUtils;
@@ -39,6 +40,7 @@ import org.edgegallery.developer.model.application.configuration.DstInterface;
 import org.edgegallery.developer.model.application.configuration.TrafficFilter;
 import org.edgegallery.developer.model.application.configuration.TrafficRule;
 import org.edgegallery.developer.service.application.AppConfigurationService;
+import org.edgegallery.developer.service.capability.CapabilityService;
 import org.edgegallery.developer.service.uploadfile.UploadFileService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,6 +60,9 @@ public class AppConfigurationServiceImpl implements AppConfigurationService {
 
     @Autowired
     private UploadFileService uploadFileService;
+
+    @Autowired
+    private CapabilityService capabilityService;
 
     @Override
     public AppConfiguration getAppConfiguration(String applicationId) {
@@ -292,6 +297,14 @@ public class AppConfigurationServiceImpl implements AppConfigurationService {
             LOGGER.error("create serviceRequired failed");
             throw new DataBaseException("create serviceRequired failed", ResponseConsts.RET_CREATE_DATA_FAIL);
         }
+        //update select_count in table tbl_capability
+        List<String> ids = new ArrayList<>();
+        ids.add(serviceRequired.getId());
+        boolean updaterRes = capabilityService.updateSelectCountByIds(ids);
+        if (!updaterRes) {
+            LOGGER.error("Failed to update selectCount in Capability");
+            throw new DataBaseException("update selectCount failed", ResponseConsts.RET_UPDATE_DATA_FAIL);
+        }
         return serviceRequired;
     }
 
@@ -347,8 +360,7 @@ public class AppConfigurationServiceImpl implements AppConfigurationService {
         Application application = applicationMapper.getApplicationById(applicationId);
         if (application == null) {
             LOGGER.error("get application fail by applicationId:{}", applicationId);
-            throw new EntityNotFoundException("application does not exist!",
-                ResponseConsts.RET_QUERY_DATA_EMPTY);
+            throw new EntityNotFoundException("application does not exist!", ResponseConsts.RET_QUERY_DATA_EMPTY);
         }
     }
 
