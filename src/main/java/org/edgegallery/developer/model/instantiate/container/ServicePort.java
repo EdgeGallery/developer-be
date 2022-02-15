@@ -25,4 +25,8 @@ public class ServicePort {
     private String targetPort;
 
     private String nodePort;
+
+    private String protocol;
+
+    private String name;
 }

@@ -107,6 +107,8 @@ public class InstantiateContainerAppAction extends InstantiateAppAction {
                 k8sServicePort.setPort(port.getPort());
                 k8sServicePort.setNodePort(port.getNodePort());
                 k8sServicePort.setTargetPort(port.getTargetPort());
+                k8sServicePort.setProtocol(port.getProtocol());
+                k8sServicePort.setName(port.getName());
                 k8sService.getServicePortList().add(k8sServicePort);
             }
         }
