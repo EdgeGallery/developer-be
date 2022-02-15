@@ -29,4 +29,8 @@ public class K8sServicePort {
     private String targetPort;
 
     private String nodePort;
+
+    private String protocol;
+
+    private String name;
 }

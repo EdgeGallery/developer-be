@@ -36,7 +36,6 @@ import org.edgegallery.developer.model.instantiate.container.PodEventsRes;
 import org.edgegallery.developer.model.instantiate.container.PodStatusInfo;
 import org.edgegallery.developer.model.instantiate.container.PodStatusInfos;
 import org.edgegallery.developer.model.instantiate.container.ServiceInfo;
-import org.edgegallery.developer.model.instantiate.container.ServicePort;
 import org.edgegallery.developer.model.lcm.LcmLog;
 import org.edgegallery.developer.model.resource.mephost.MepHost;
 import org.edgegallery.developer.service.application.action.impl.InstantiateAppAction;
@@ -102,11 +101,13 @@ public class InstantiateContainerAppAction extends InstantiateAppAction {
         for (ServiceInfo service : serviceInfoLst) {
             K8sService k8sService = getServiceByName(instantiateInfo, service.getServiceName());
             k8sService.setType(service.getType());
-            for (ServicePort port : service.getPorts()) {
+            for (K8sServicePort port : service.getPorts()) {
                 K8sServicePort k8sServicePort = new K8sServicePort();
                 k8sServicePort.setPort(port.getPort());
                 k8sServicePort.setNodePort(port.getNodePort());
                 k8sServicePort.setTargetPort(port.getTargetPort());
+                k8sServicePort.setProtocol(port.getProtocol());
+                k8sServicePort.setName(port.getName());
                 k8sService.getServicePortList().add(k8sServicePort);
             }
         }

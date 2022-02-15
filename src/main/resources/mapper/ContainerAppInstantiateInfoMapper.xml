@@ -50,6 +50,8 @@
     <id property="port" column="port"/>
     <result property="targetPort" column="target_port"/>
     <result property="nodePort" column="node_port"/>
+    <result property="protocol" column="protocol"/>
+    <result property="name" column="name"/>
   </resultMap>
 
   <sql id="ContainerAppInstantiateInfoAllColumn">
@@ -69,7 +71,7 @@
   </sql>
 
   <sql id="K8sServicePortAllColumn">
-    port, service_name, target_port, node_port
+    port, service_name, target_port, node_port, protocol, name
   </sql>
 
   <insert id="createContainerAppInstantiateInfo">
@@ -152,9 +154,10 @@
   </select>
 
   <insert id="createK8sServicePort">
-    insert into tbl_k8s_service_port_instantiate_info (port, service_name, target_port, node_port)
+    insert into tbl_k8s_service_port_instantiate_info (port, service_name, target_port, node_port, protocol, name)
     values
-    ( #{k8sServicePort.port}, #{k8sServiceName}, #{k8sServicePort.targetPort}, #{k8sServicePort.nodePort})
+    ( #{k8sServicePort.port}, #{k8sServiceName}, #{k8sServicePort.targetPort}, #{k8sServicePort.nodePort},
+    #{k8sServicePort.protocol}, #{k8sServicePort.name})
   </insert>
 
   <delete id="deleteK8sServicePortByK8sServiceName" parameterType="String">

@@ -421,7 +421,9 @@
     "service_name" varchar(255) NOT NULL,
     "target_port" varchar(255) DEFAULT NULL,
     "node_port" varchar(255) DEFAULT NULL,
-    CONSTRAINT "tbl_k8s_service_port_instantiate_info_pkey" PRIMARY KEY ("service_name", "port")
+    "protocol" varchar(255) DEFAULT NULL,
+    "name" varchar(255) DEFAULT NULL,
+    CONSTRAINT "tbl_k8s_service_port_instantiate_info_pkey" PRIMARY KEY ("service_name", "port","name")
     );
 
     CREATE TABLE IF NOT EXISTS "tbl_operation_status" (

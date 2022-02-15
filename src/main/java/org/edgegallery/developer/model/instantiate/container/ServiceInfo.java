@@ -25,18 +25,18 @@ public class ServiceInfo {
 
     private String type;
 
-    private ServicePort[] ports;
+    private K8sServicePort[] ports;
 
     /**
      * getPorts.
      *
      * @return
      */
-    public ServicePort[] getPorts() {
+    public K8sServicePort[] getPorts() {
         if (ports != null) {
             return ports.clone();
         }
-        return new ServicePort[0];
+        return new K8sServicePort[0];
     }
 
     /**
@@ -44,7 +44,7 @@ public class ServiceInfo {
      *
      * @param ports ports
      */
-    public void setPorts(ServicePort[] ports) {
+    public void setPorts(K8sServicePort[] ports) {
         if (ports != null) {
             this.ports = ports.clone();
         } else {
