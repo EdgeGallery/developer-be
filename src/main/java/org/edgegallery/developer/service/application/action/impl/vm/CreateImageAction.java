@@ -53,7 +53,7 @@ public class CreateImageAction extends AbstractAction {
     public static final String ACTION_NAME = "Create Image";
 
     // time out: 10 min.
-    public static final int TIMEOUT = 120 * 60 * 1000;
+    public static final int TIMEOUT = 180 * 60 * 1000;
 
     //interval of the query, 5s.
     public static final int INTERVAL = 20000;
