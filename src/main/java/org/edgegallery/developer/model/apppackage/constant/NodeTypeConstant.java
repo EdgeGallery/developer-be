@@ -28,9 +28,9 @@ public class NodeTypeConstant {
 
     public static final String NODE_TYPE_VL = "tosca.nodes.nfv.VnfVirtualLink";
 
-    public static final String NODE_TYPE_PLACEMENTGROUP = "tosca.nodes.nfv.PlacementGroup";
+    public static final String NODE_TYPE_PLACEMENTGROUP = "tosca.groups.nfv.PlacementGroup";
 
-    public static final String NODE_TYPE_AFFINITYRULE = "tosca.nodes.nfv.AntiAffinityRule";
+    public static final String NODE_TYPE_AFFINITYRULE = "tosca.policies.nfv.AntiAffinityRule";
 
     public static final String NODE_TYPE_APP_CONFIGURATIOIN = "tosca.nodes.nfv.app.configuration";
 }
