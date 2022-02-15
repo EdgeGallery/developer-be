@@ -29,11 +29,11 @@ public class VDUCPAttributes {
     private String ipv6Address = "00::00";
 
     @JsonProperty("mac")
-    private String mac = "00::00::00::00::00::00";
+    private String mac = "00:00:00:00:00:00";
 
     @JsonProperty("ipv4_vip_address")
     private String ipv4VipAddress = "0.0.0.0";
 
     @JsonProperty("ipv6_vip_address")
-    private String ipv6VipAddress = "00:00";
+    private String ipv6VipAddress = "00::00";
 }
