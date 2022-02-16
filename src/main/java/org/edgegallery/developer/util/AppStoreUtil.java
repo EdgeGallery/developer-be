@@ -48,6 +48,8 @@ public class AppStoreUtil {
 
     private static final RestTemplate REST_TEMPLATE = new RestTemplate();
 
+    private static final String ERR_MSG = "Upload app to store failed: occur unknown exception";
+
     private AppStoreUtil() {
         throw new IllegalStateException("AppStoreUtil class");
     }
@@ -58,9 +60,7 @@ public class AppStoreUtil {
      * @return
      */
     public static RestSvcAddressConfig getRestInstance() {
-        RestSvcAddressConfig svcAddressConfig = (RestSvcAddressConfig) SpringContextUtil
-            .getBean(RestSvcAddressConfig.class);
-        return svcAddressConfig;
+        return (RestSvcAddressConfig) SpringContextUtil.getBean(RestSvcAddressConfig.class);
     }
 
     /**
@@ -102,7 +102,7 @@ public class AppStoreUtil {
                 return null;
             }
         }
-        errResponse.setMessage("Upload app to store failed: occur unknown exception");
+        errResponse.setMessage(ERR_MSG);
         errResponse.setErrCode(ResponseConsts.RET_PUBLISH_UNKNOWN_EXCEPTION);
         return null;
     }
@@ -146,7 +146,7 @@ public class AppStoreUtil {
                 return null;
             }
         }
-        errResponse.setMessage("Upload app to store failed: occur unknown exception");
+        errResponse.setMessage(ERR_MSG);
         errResponse.setErrCode(ResponseConsts.RET_PUBLISH_UNKNOWN_EXCEPTION);
         return null;
     }
@@ -215,7 +215,7 @@ public class AppStoreUtil {
             AppStoreErrResponseDto appStoreErrResponseDto = new AppStoreErrResponseDto();
             LOGGER.error("convert errBody {} to AppStoreErrResponseDto fail!", errBody);
             appStoreErrResponseDto.setCode(ResponseConsts.RET_PUBLISH_UNKNOWN_EXCEPTION);
-            appStoreErrResponseDto.setMessage("Upload app to store failed: occur unknown exception");
+            appStoreErrResponseDto.setMessage(ERR_MSG);
             return appStoreErrResponseDto;
         }
 
