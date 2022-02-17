@@ -119,7 +119,7 @@ public class AppOperationServiceImpl implements AppOperationService {
 
         String filePath = appPkg.queryPkgPath();
         String response = AtpUtil.sendCreateTask2Atp(filePath, user.getToken());
-        JsonObject jsonObject = new JsonParser().parse(response).getAsJsonObject();
+        JsonObject jsonObject = JsonParser.parseString(response).getAsJsonObject();
 
         AtpTest atpTest = new AtpTest();
         atpTest.setId(jsonObject.get("id").getAsString());
@@ -127,7 +127,6 @@ public class AppOperationServiceImpl implements AppOperationService {
         atpTest.setStatus(null != jsonObject.get("status") ? jsonObject.get("status").getAsString() : null);
         atpTest.setCreateTime(null != jsonObject.get("createTime") ? jsonObject.get("createTime").getAsString() : null);
         atpTestTaskMapper.createAtpTest(applicationId, atpTest);
-        applicationMapper.updateApplicationStatus(applicationId, EnumApplicationStatus.TESTED.toString());
         LOGGER.info("atp status:{}", atpTest.getStatus());
         applicationMapper.updateApplicationStatus(applicationId, EnumApplicationStatus.TESTED.toString());
         return true;
@@ -207,7 +206,7 @@ public class AppOperationServiceImpl implements AppOperationService {
         checkAppStoreRequestResult(uploadResult, errResponse);
 
         LOGGER.info("upload appstore result:{}", uploadResult);
-        JsonObject jsonObject = new JsonParser().parse(uploadResult).getAsJsonObject();
+        JsonObject jsonObject = JsonParser.parseString(uploadResult).getAsJsonObject();
         JsonElement appStoreAppId = jsonObject.get("appId");
         JsonElement appStorePackageId = jsonObject.get("packageId");
 

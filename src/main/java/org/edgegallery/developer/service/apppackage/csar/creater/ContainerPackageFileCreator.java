@@ -194,8 +194,7 @@ public class ContainerPackageFileCreator extends PackageFileCreator {
         }
         File imageJson = new File(getPackagePath() + APPD_IMAGE_DES_PATH);
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
-        JsonParser jsonParser = new JsonParser();
-        JsonElement jsonElement = jsonParser.parse(gson.toJson(imageDescList));
+        JsonElement jsonElement = JsonParser.parseString(gson.toJson(imageDescList));
         writeFile(imageJson, gson.toJson(jsonElement));
     }
 

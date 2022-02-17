@@ -154,7 +154,7 @@ public class CreateImageAction extends AbstractAction {
         if (StringUtils.isEmpty(imageResult)) {
             return null;
         }
-        JsonObject jsonObject = new JsonParser().parse(imageResult).getAsJsonObject();
+        JsonObject jsonObject = JsonParser.parseString(imageResult).getAsJsonObject();
         JsonElement imageId = jsonObject.get("data");
         return imageId.getAsString();
     }

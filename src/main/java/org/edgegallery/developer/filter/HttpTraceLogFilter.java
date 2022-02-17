@@ -116,7 +116,7 @@ public class HttpTraceLogFilter extends OncePerRequestFilter implements Ordered 
                 try {
                     String payload = new String(buf, 0, buf.length, wrapper.getCharacterEncoding());
                     logger.error("read paylod is" + payload);
-                    JsonElement element = new JsonParser().parse(payload).getAsJsonObject().get("message");
+                    JsonElement element = JsonParser.parseString(payload).getAsJsonObject().get("message");
                     if (element != null && !element.isJsonNull()) {
                         result = element.getAsString();
                     }
@@ -127,8 +127,6 @@ public class HttpTraceLogFilter extends OncePerRequestFilter implements Ordered 
         }
         return result;
     }
-
-
 
     @Setter
     @Getter

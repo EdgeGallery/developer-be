@@ -261,8 +261,7 @@ public final class ContainerImageUtil {
             //Readmanifest.jsonContent
             File manFile = new File(rootDir + "manifest.json");
             String fileContent = FileUtils.readFileToString(manFile, "UTF-8");
-            JsonParser jp = new JsonParser();
-            JsonArray jsonArray = jp.parse(fileContent).getAsJsonArray();
+            JsonArray jsonArray = JsonParser.parseString(fileContent).getAsJsonArray();
             List<String> tagList = new ArrayList<>();
             for (JsonElement jsonElement : jsonArray) {
                 JsonObject ob = jsonElement.getAsJsonObject();
@@ -473,8 +472,7 @@ public final class ContainerImageUtil {
         InputStream inputStreamTag = tagImage.getEntity().getContent();
         String tagRes = IOUtils.toString(inputStreamTag, StandardCharsets.UTF_8);
         // convert string to json
-        JsonParser jp = new JsonParser();
-        JsonArray jsonArray = jp.parse(tagRes).getAsJsonArray();
+        JsonArray jsonArray = JsonParser.parseString(tagRes).getAsJsonArray();
         for (JsonElement jsonElement : jsonArray) {
             JsonObject ob = jsonElement.getAsJsonObject();
             if (!ob.get("tags").isJsonNull()) {

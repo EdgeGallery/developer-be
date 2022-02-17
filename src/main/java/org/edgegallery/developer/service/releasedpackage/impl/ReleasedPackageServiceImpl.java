@@ -128,7 +128,7 @@ public class ReleasedPackageServiceImpl implements ReleasedPackageService {
     }
 
     private void saveReleasedPkg(User user, String queryPkgRes) {
-        JsonObject jsonObject = new JsonParser().parse(queryPkgRes).getAsJsonObject();
+        JsonObject jsonObject = JsonParser.parseString(queryPkgRes).getAsJsonObject();
         JsonObject dataObj = jsonObject.getAsJsonObject("data");
         String appId = dataObj.get("appId").getAsString();
         String packageId = dataObj.get("packageId").getAsString();
@@ -297,7 +297,7 @@ public class ReleasedPackageServiceImpl implements ReleasedPackageService {
         checkAppStoreRequestResult(uploadResult, errResponse);
 
         LOGGER.info("upload appstore result:{}", uploadResult);
-        JsonObject jsonObject = new JsonParser().parse(uploadResult).getAsJsonObject();
+        JsonObject jsonObject = JsonParser.parseString(uploadResult).getAsJsonObject();
         JsonElement appStoreAppId = jsonObject.get("appId");
         JsonElement appStorePackageId = jsonObject.get("packageId");
 
