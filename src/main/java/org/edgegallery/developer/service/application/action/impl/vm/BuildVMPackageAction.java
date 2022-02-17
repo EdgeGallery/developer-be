@@ -125,9 +125,9 @@ public class BuildVMPackageAction extends AbstractAction {
             return;
         }
         setPwdScript = setPwdScript
-            .replace(USER_NAME_PARAM_STR, vm.getVmCertificate().getPwdCertificate().getUsername());
+            .replaceAll(USER_NAME_PARAM_STR, vm.getVmCertificate().getPwdCertificate().getUsername());
         setPwdScript = setPwdScript
-            .replace(PASSWORD_PARAM_STR, vm.getVmCertificate().getPwdCertificate().getPassword());
+            .replaceAll(PASSWORD_PARAM_STR, vm.getVmCertificate().getPwdCertificate().getPassword());
         String userdataContent = vm.getUserData();
         if (StringUtils.isEmpty(userdataContent)) {
             vm.setUserData(setPwdScript);
