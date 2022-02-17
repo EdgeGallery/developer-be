@@ -142,7 +142,7 @@ public class InstantiateVMAppAction extends InstantiateAppAction {
                 // compare time between now and deployDate
                 return EnumInstantiateStatus.INSTANTIATE_STATUS_ERROR;
             }
-            JsonObject jsonObject = new JsonParser().parse(workStatus).getAsJsonObject();
+            JsonObject jsonObject = JsonParser.parseString(workStatus).getAsJsonObject();
             if (INSTANTIATE_SUCCESS.equals(jsonObject.get("status").getAsString())) {
                 LOGGER.info("Query instantiate result, lcm return success. workload:{} ", workStatus);
                 saveWorkloadToInstantiateInfo(workStatus);

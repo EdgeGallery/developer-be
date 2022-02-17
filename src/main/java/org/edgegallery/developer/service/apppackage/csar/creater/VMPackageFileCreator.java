@@ -99,8 +99,7 @@ public class VMPackageFileCreator extends PackageFileCreator {
         // write data into imageJson file
         File imageJson = new File(getPackagePath() + APPD_IMAGE_DES_PATH);
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
-        JsonParser jsonParser = new JsonParser();
-        JsonElement jsonElement = jsonParser.parse(gson.toJson(imageDescs));
+        JsonElement jsonElement = JsonParser.parseString(gson.toJson(imageDescs));
         writeFile(imageJson, gson.toJson(jsonElement));
     }
 

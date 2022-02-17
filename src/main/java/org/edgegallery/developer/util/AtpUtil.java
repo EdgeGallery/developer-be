@@ -98,7 +98,7 @@ public class AtpUtil {
                 "Get task status from atp reponse failed.");
         }
 
-        JsonObject jsonObject = new JsonParser().parse(response.getBody()).getAsJsonObject();
+        JsonObject jsonObject = JsonParser.parseString(response.getBody()).getAsJsonObject();
         String status = jsonObject.get("status").getAsString();
         LOGGER.info("status: {}", status);
         return status;
