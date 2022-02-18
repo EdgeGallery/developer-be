@@ -175,8 +175,7 @@ public class ApplicationServiceImpl implements ApplicationService {
     public Page<Application> getApplicationByNameWithFuzzy(String appName, int limit, int offset) {
         String userId = AccessUserUtil.getUser().getUserId();
         PageHelper.offsetPage(offset, limit);
-        PageInfo<Application> pageInfo = new PageInfo<>(
-            applicationMapper.getAllApplicationsByUserId(userId, appName));
+        PageInfo<Application> pageInfo = new PageInfo<>(applicationMapper.getAllApplicationsByUserId(userId, appName));
         LOGGER.info("get all applications success.");
         return new Page<>(pageInfo.getList(), limit, offset, pageInfo.getTotal());
     }
@@ -257,8 +256,8 @@ public class ApplicationServiceImpl implements ApplicationService {
         }
         if (application.getAppClass() == EnumAppClass.VM) {
             applicationMapper.modifyApplication(applicationDetail.getVmApp());
-            appConfigurationService.modifyAppConfiguration(applicationId,
-                applicationDetail.getVmApp().getAppConfiguration());
+            appConfigurationService
+                .modifyAppConfiguration(applicationId, applicationDetail.getVmApp().getAppConfiguration());
             for (Network network : applicationDetail.getVmApp().getNetworkList()) {
                 networkService.modifyNetwork(applicationId, network.getId(), network);
             }
@@ -267,8 +266,8 @@ public class ApplicationServiceImpl implements ApplicationService {
             }
         } else {
             applicationMapper.modifyApplication(applicationDetail.getContainerApp());
-            appConfigurationService.modifyAppConfiguration(applicationId,
-                applicationDetail.getContainerApp().getAppConfiguration());
+            appConfigurationService
+                .modifyAppConfiguration(applicationId, applicationDetail.getContainerApp().getAppConfiguration());
         }
         return true;
 
@@ -280,6 +279,16 @@ public class ApplicationServiceImpl implements ApplicationService {
         if (res < 1) {
             LOGGER.error("update application status by applicationId:{} failed.", applicationId);
             throw new DataBaseException("update application status failed.", ResponseConsts.RET_UPDATE_DATA_FAIL);
+        }
+        return true;
+    }
+
+    @Override
+    public Boolean modifyMepHostById(String applicationId, String mepHostId) {
+        int res = applicationMapper.modifyMepHostById(applicationId, mepHostId);
+        if (res < 1) {
+            LOGGER.error("modify mep host  of application {} fail", applicationId);
+            throw new DataBaseException("modify mep host of application fail", ResponseConsts.RET_UPDATE_DATA_FAIL);
         }
         return true;
     }

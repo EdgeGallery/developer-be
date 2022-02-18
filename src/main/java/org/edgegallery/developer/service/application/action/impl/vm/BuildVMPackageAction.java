@@ -54,9 +54,9 @@ public class BuildVMPackageAction extends AbstractAction {
 
     private static final String BASH_TITLE = "#!/bin/bash";
 
-    private static final String USER_NAME_PARAM_STR = "\\$USERNAME\\$";
+    private static final String USER_NAME_PARAM_STR = "$USERNAME$";
 
-    private static final String PASSWORD_PARAM_STR = "\\$PASSWORD\\$";
+    private static final String PASSWORD_PARAM_STR = "$PASSWORD$";
 
     @Override
     public String getActionName() {
@@ -125,9 +125,9 @@ public class BuildVMPackageAction extends AbstractAction {
             return;
         }
         setPwdScript = setPwdScript
-            .replaceAll(USER_NAME_PARAM_STR, vm.getVmCertificate().getPwdCertificate().getUsername());
+            .replace(USER_NAME_PARAM_STR, vm.getVmCertificate().getPwdCertificate().getUsername());
         setPwdScript = setPwdScript
-            .replaceAll(PASSWORD_PARAM_STR, vm.getVmCertificate().getPwdCertificate().getPassword());
+            .replace(PASSWORD_PARAM_STR, vm.getVmCertificate().getPwdCertificate().getPassword());
         String userdataContent = vm.getUserData();
         if (StringUtils.isEmpty(userdataContent)) {
             vm.setUserData(setPwdScript);

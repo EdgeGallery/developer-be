@@ -16,10 +16,10 @@
 
 package org.edgegallery.developer.service.application;
 
-import org.edgegallery.developer.model.common.User;
-import org.edgegallery.developer.model.common.Page;
 import org.edgegallery.developer.model.application.Application;
 import org.edgegallery.developer.model.application.EnumApplicationStatus;
+import org.edgegallery.developer.model.common.Page;
+import org.edgegallery.developer.model.common.User;
 import org.edgegallery.developer.model.restful.ApplicationDetail;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,7 +32,7 @@ public interface ApplicationService {
      * @return
      */
     @Transactional
-    public Application createApplication(Application application);
+    Application createApplication(Application application);
 
     /**
      * get a application
@@ -41,7 +41,7 @@ public interface ApplicationService {
      * @return
      */
     @Transactional
-    public Application getApplication(String applicationId);
+    Application getApplication(String applicationId);
 
     /**
      * modify a application
@@ -74,5 +74,7 @@ public interface ApplicationService {
     Boolean modifyApplicationDetail(String applicationId, ApplicationDetail applicationDetail);
 
     Boolean updateApplicationStatus(String applicationId, EnumApplicationStatus status);
+
+    Boolean modifyMepHostById(String applicationId, String mepHostId);
 
 }

@@ -33,12 +33,6 @@ import org.edgegallery.developer.exception.EntityNotFoundException;
 import org.edgegallery.developer.exception.FileOperateException;
 import org.edgegallery.developer.exception.IllegalRequestException;
 import org.edgegallery.developer.filter.security.AccessUserUtil;
-import org.edgegallery.developer.mapper.application.AppConfigurationMapper;
-import org.edgegallery.developer.mapper.application.ApplicationMapper;
-import org.edgegallery.developer.mapper.atp.AtpTestTaskMapper;
-import org.edgegallery.developer.mapper.capability.CapabilityGroupMapper;
-import org.edgegallery.developer.mapper.capability.CapabilityMapper;
-import org.edgegallery.developer.mapper.uploadfile.UploadFileMapper;
 import org.edgegallery.developer.model.application.Application;
 import org.edgegallery.developer.model.application.EnumApplicationStatus;
 import org.edgegallery.developer.model.application.configuration.AppServiceProduced;
@@ -51,8 +45,14 @@ import org.edgegallery.developer.model.capability.CapabilityGroup;
 import org.edgegallery.developer.model.common.User;
 import org.edgegallery.developer.model.restful.SelectMepHostReq;
 import org.edgegallery.developer.model.uploadfile.UploadFile;
+import org.edgegallery.developer.service.application.AppConfigurationService;
 import org.edgegallery.developer.service.application.AppOperationService;
+import org.edgegallery.developer.service.application.ApplicationService;
 import org.edgegallery.developer.service.apppackage.AppPackageService;
+import org.edgegallery.developer.service.atp.AtpTestTaskService;
+import org.edgegallery.developer.service.capability.CapabilityGroupService;
+import org.edgegallery.developer.service.capability.CapabilityService;
+import org.edgegallery.developer.service.uploadfile.UploadFileService;
 import org.edgegallery.developer.util.AppStoreUtil;
 import org.edgegallery.developer.util.AtpUtil;
 import org.edgegallery.developer.util.FileUtil;
@@ -79,22 +79,22 @@ public class AppOperationServiceImpl implements AppOperationService {
     private static final String TEST_TASK_STATUS_CREATED = "created";
 
     @Autowired
-    private ApplicationMapper applicationMapper;
+    private ApplicationService applicationService;
 
     @Autowired
-    private AtpTestTaskMapper atpTestTaskMapper;
+    private AtpTestTaskService atpTestTaskService;
 
     @Autowired
-    private UploadFileMapper uploadMapper;
+    private UploadFileService uploadFileService;
 
     @Autowired
-    private AppConfigurationMapper appConfigurationMapper;
+    private AppConfigurationService appConfigurationService;
 
     @Autowired
-    private CapabilityGroupMapper capabilityGroupMapper;
+    private CapabilityGroupService capabilityGroupService;
 
     @Autowired
-    private CapabilityMapper capabilityMapper;
+    private CapabilityService capabilityService;
 
     @Autowired
     private AppPackageService appPackageService;
@@ -111,7 +111,7 @@ public class AppOperationServiceImpl implements AppOperationService {
 
     @Override
     public Boolean createAtpTest(String applicationId, User user) {
-        Application app = applicationMapper.getApplicationById(applicationId);
+        Application app = applicationService.getApplication(applicationId);
         checkParamNull(app, "application is empty. applicationId: ".concat(applicationId));
 
         AppPackage appPkg = appPackageService.getAppPackageByAppId(applicationId);
@@ -126,25 +126,22 @@ public class AppOperationServiceImpl implements AppOperationService {
         atpTest.setAppName(null != jsonObject.get("appName") ? jsonObject.get("appName").getAsString() : null);
         atpTest.setStatus(null != jsonObject.get("status") ? jsonObject.get("status").getAsString() : null);
         atpTest.setCreateTime(null != jsonObject.get("createTime") ? jsonObject.get("createTime").getAsString() : null);
-        atpTestTaskMapper.createAtpTest(applicationId, atpTest);
-        LOGGER.info("atp status:{}", atpTest.getStatus());
-        applicationMapper.updateApplicationStatus(applicationId, EnumApplicationStatus.TESTED.toString());
-        return true;
-    }
-
-    @Override
-    public Boolean selectMepHost(String applicationId, SelectMepHostReq selectMepHostReq) {
-        int res = applicationMapper.modifyMepHostById(applicationId, selectMepHostReq.getMepHostId());
-        if (res < 1) {
-            LOGGER.error("modify mep host  of application {} fail", applicationId);
-            throw new DataBaseException("modify mep host of application fail", ResponseConsts.RET_UPDATE_DATA_FAIL);
+        boolean res = atpTestTaskService.createAtpTest(applicationId, atpTest);
+        if (res) {
+            LOGGER.info("atp status:{}", atpTest.getStatus());
+            applicationService.updateApplicationStatus(applicationId, EnumApplicationStatus.TESTED);
         }
         return true;
     }
 
     @Override
+    public Boolean selectMepHost(String applicationId, SelectMepHostReq selectMepHostReq) {
+        return applicationService.modifyMepHostById(applicationId, selectMepHostReq.getMepHostId());
+    }
+
+    @Override
     public List<AtpTest> getAtpTests(String applicationId) {
-        List<AtpTest> atpTests = atpTestTaskMapper.getAtpTests(applicationId);
+        List<AtpTest> atpTests = atpTestTaskService.getAtpTests(applicationId);
         checkParamNull(atpTests, "atpTests do not exit. applicationId: ".concat(applicationId));
         atpTests.stream().filter(atpTestTask -> TEST_TASK_STATUS_WAITING.equalsIgnoreCase(atpTestTask.getStatus())
             || TEST_TASK_STATUS_RUNNING.equalsIgnoreCase(atpTestTask.getStatus()) || TEST_TASK_STATUS_CREATED
@@ -154,7 +151,7 @@ public class AppOperationServiceImpl implements AppOperationService {
 
     @Override
     public AtpTest getAtpTestById(String atpTestId) {
-        AtpTest atpTest = atpTestTaskMapper.getAtpTestById(atpTestId);
+        AtpTest atpTest = atpTestTaskService.getAtpTestById(atpTestId);
         checkParamNull(atpTest, "atpTest does not exit. atpTestId: ".concat(atpTestId));
         if (TEST_TASK_STATUS_WAITING.equalsIgnoreCase(atpTest.getStatus()) || TEST_TASK_STATUS_RUNNING
             .equalsIgnoreCase(atpTest.getStatus()) || TEST_TASK_STATUS_CREATED.equalsIgnoreCase(atpTest.getStatus())) {
@@ -179,11 +176,11 @@ public class AppOperationServiceImpl implements AppOperationService {
 
     @Override
     public Boolean releaseApp(String applicationId, User user, PublishAppReqDto publishAppDto) {
-        Application app = applicationMapper.getApplicationById(applicationId);
+        Application app = applicationService.getApplication(applicationId);
         checkParamNull(app, "application is empty. applicationId: ".concat(applicationId));
         AppPackage appPkg = appPackageService.getAppPackageByAppId(applicationId);
         checkParamNull(appPkg.getId(), "app package content is empty. applicationId: ".concat(applicationId));
-        UploadFile iconFile = uploadMapper.getFileById(app.getIconFileId());
+        UploadFile iconFile = uploadFileService.getFile(app.getIconFileId());
         checkParamNull(iconFile, "file icon is empty. iconFileId: ".concat(app.getIconFileId()));
         List<AtpTest> testList = getAtpTests(applicationId);
         checkAtpTestStatus(testList);
@@ -224,19 +221,19 @@ public class AppOperationServiceImpl implements AppOperationService {
 
         //release service
         releaseServiceProduced(applicationId, jsonObject);
-        applicationMapper.updateApplicationStatus(applicationId, EnumApplicationStatus.RELEASED.toString());
+        applicationService.updateApplicationStatus(applicationId, EnumApplicationStatus.RELEASED);
         return true;
     }
 
     private boolean releaseServiceProduced(String applicationId, JsonObject jsonObject) {
-        List<AppServiceProduced> serviceProducedList = appConfigurationMapper.getAllServiceProduced(applicationId);
+        List<AppServiceProduced> serviceProducedList = appConfigurationService.getAllServiceProduced(applicationId);
         if (CollectionUtils.isEmpty(serviceProducedList)) {
             LOGGER.warn("This project is not configured with any services and does not need to be published!");
             return false;
         }
         for (AppServiceProduced serviceProduced : serviceProducedList) {
             Capability capability = new Capability();
-            CapabilityGroup group = capabilityGroupMapper.selectByName(serviceProduced.getOneLevelName());
+            CapabilityGroup group = capabilityGroupService.findByName(serviceProduced.getOneLevelName());
             if (group == null) {
                 LOGGER.error("Can not get group {}.", serviceProduced.getOneLevelName());
                 throw new DataBaseException("Can not find selected group", ResponseConsts.RET_QUERY_DATA_FAIL);
@@ -244,8 +241,8 @@ public class AppOperationServiceImpl implements AppOperationService {
             fillCapability(serviceProduced, capability, jsonObject, group);
             saveCapability(capability);
         }
-        int ret = applicationMapper.updateApplicationStatus(applicationId, EnumApplicationStatus.RELEASED.toString());
-        if (ret < 1) {
+        boolean ret = applicationService.updateApplicationStatus(applicationId, EnumApplicationStatus.RELEASED);
+        if (!ret) {
             LOGGER.error("update application {} status RELEASE failed.", applicationId);
             throw new DataBaseException("update application status failed!", ResponseConsts.RET_UPDATE_DATA_FAIL);
         }
@@ -253,14 +250,14 @@ public class AppOperationServiceImpl implements AppOperationService {
     }
 
     private boolean saveCapability(Capability capability) {
-        List<Capability> findedCapabilities = capabilityMapper
-            .selectByNameOrNameEn(capability.getName(), capability.getNameEn());
+        List<Capability> findedCapabilities = capabilityService
+            .findByNameOrNameEn(capability.getName(), capability.getNameEn());
         if (!CollectionUtils.isEmpty(findedCapabilities)) {
             LOGGER.error("The capability name {} has exist.", capability.getName());
             throw new DataBaseException("The capability is exist", ResponseConsts.RET_QUERY_DATA_FAIL);
         }
-        int res = capabilityMapper.insert(capability);
-        if (res < 1) {
+        Capability res = capabilityService.create(capability);
+        if (res == null) {
             LOGGER.error("store db to tbl_capability fail!");
             throw new DataBaseException("save capability db fail!", ResponseConsts.RET_CREATE_DATA_FAIL);
         }
@@ -340,7 +337,7 @@ public class AppOperationServiceImpl implements AppOperationService {
         String newStatus = AtpUtil.getTaskStatusFromAtp(task.getId());
         if (!task.getStatus().equalsIgnoreCase(newStatus)) {
             task.setStatus(newStatus);
-            atpTestTaskMapper.updateAtpTestStatus(task);
+            atpTestTaskService.updateAtpTestStatus(task);
         }
     }
 }

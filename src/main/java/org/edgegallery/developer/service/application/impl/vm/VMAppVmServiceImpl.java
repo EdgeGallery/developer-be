@@ -16,7 +16,6 @@
 
 package org.edgegallery.developer.service.application.impl.vm;
 
-import com.google.gson.Gson;
 import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
@@ -44,16 +43,14 @@ public class VMAppVmServiceImpl implements VMAppVmService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(VMAppVmServiceImpl.class);
 
-    private static Gson gson = new Gson();
+    @Autowired
+    private VMMapper vmMapper;
 
     @Autowired
-    VMMapper vmMapper;
+    private VMAppOperationService vmAppOperationService;
 
     @Autowired
-    VMAppOperationService vmAppOperationService;
-
-    @Autowired
-    ApplicationService applicationService;
+    private ApplicationService applicationService;
 
     @Override
     public VirtualMachine createVm(String applicationId, VirtualMachine virtualMachine) {
