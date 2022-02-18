@@ -39,10 +39,10 @@ public class VMAppNetworkServiceImpl implements VMAppNetworkService {
     private static final Logger LOGGER = LoggerFactory.getLogger(VMAppNetworkServiceImpl.class);
 
     @Autowired
-    NetworkMapper networkMapper;
+    private NetworkMapper networkMapper;
 
     @Autowired
-    VMAppVmService vmAppVmService;
+    private VMAppVmService vmAppVmService;
 
     @Override
     public Network createNetwork(String applicationId, Network network) {

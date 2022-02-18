@@ -29,7 +29,6 @@ import org.edgegallery.developer.exception.DeveloperException;
 import org.edgegallery.developer.exception.EntityNotFoundException;
 import org.edgegallery.developer.exception.IllegalRequestException;
 import org.edgegallery.developer.mapper.application.AppConfigurationMapper;
-import org.edgegallery.developer.mapper.application.ApplicationMapper;
 import org.edgegallery.developer.model.application.Application;
 import org.edgegallery.developer.model.application.configuration.AppCertificate;
 import org.edgegallery.developer.model.application.configuration.AppConfiguration;
@@ -40,6 +39,7 @@ import org.edgegallery.developer.model.application.configuration.DstInterface;
 import org.edgegallery.developer.model.application.configuration.TrafficFilter;
 import org.edgegallery.developer.model.application.configuration.TrafficRule;
 import org.edgegallery.developer.service.application.AppConfigurationService;
+import org.edgegallery.developer.service.application.ApplicationService;
 import org.edgegallery.developer.service.capability.CapabilityService;
 import org.edgegallery.developer.service.uploadfile.UploadFileService;
 import org.slf4j.Logger;
@@ -56,7 +56,7 @@ public class AppConfigurationServiceImpl implements AppConfigurationService {
     private AppConfigurationMapper appConfigurationMapper;
 
     @Autowired
-    private ApplicationMapper applicationMapper;
+    private ApplicationService applicationService;
 
     @Autowired
     private UploadFileService uploadFileService;
@@ -127,7 +127,7 @@ public class AppConfigurationServiceImpl implements AppConfigurationService {
 
     @Override
     public TrafficRule createTrafficRules(String applicationId, TrafficRule trafficRule) {
-        Application application = applicationMapper.getApplicationById(applicationId);
+        Application application = applicationService.getApplication(applicationId);
         if (application == null) {
             LOGGER.error("createTrafficRule:get application fail by applicationId:{}", applicationId);
             throw new EntityNotFoundException("application does not exist, create traffic rule failed!",
@@ -165,7 +165,7 @@ public class AppConfigurationServiceImpl implements AppConfigurationService {
 
     @Override
     public DnsRule createDnsRule(String applicationId, DnsRule dnsRule) {
-        Application application = applicationMapper.getApplicationById(applicationId);
+        Application application = applicationService.getApplication(applicationId);
         if (application == null) {
             LOGGER.error("createDnsRule:get application fail by applicationId:{}", applicationId);
             throw new EntityNotFoundException("application does not exist, create dns rule failed!",
@@ -357,7 +357,7 @@ public class AppConfigurationServiceImpl implements AppConfigurationService {
     }
 
     private void checkApplicationById(String applicationId) {
-        Application application = applicationMapper.getApplicationById(applicationId);
+        Application application = applicationService.getApplication(applicationId);
         if (application == null) {
             LOGGER.error("get application fail by applicationId:{}", applicationId);
             throw new EntityNotFoundException("application does not exist!", ResponseConsts.RET_QUERY_DATA_EMPTY);
