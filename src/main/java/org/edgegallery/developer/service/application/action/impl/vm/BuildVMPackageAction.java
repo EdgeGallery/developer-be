@@ -44,19 +44,19 @@ public class BuildVMPackageAction extends AbstractAction {
 
     public static final String ACTION_NAME = "Build Application Package";
 
-    private VMAppOperationServiceImpl vmAppOperationService = (VMAppOperationServiceImpl) SpringContextUtil.getBean(
-        VMAppOperationServiceImpl.class);
+    private VMAppOperationServiceImpl vmAppOperationService = (VMAppOperationServiceImpl) SpringContextUtil
+        .getBean(VMAppOperationServiceImpl.class);
 
-    private ApplicationService applicationService = (ApplicationService) SpringContextUtil.getBean(
-        ApplicationService.class);
+    private ApplicationService applicationService = (ApplicationService) SpringContextUtil
+        .getBean(ApplicationService.class);
 
     private static final String SET_PWD_FILE_PATH = "./configs/template/user_data/setpwd.txt";
 
     private static final String BASH_TITLE = "#!/bin/bash";
 
-    private static final String USER_NAME_PARAM_STR = "\\$USERNAME\\$";
+    private static final String USER_NAME_PARAM_STR = "$USERNAME$";
 
-    private static final String PASSWORD_PARAM_STR = "\\$PASSWORD\\$";
+    private static final String PASSWORD_PARAM_STR = "$PASSWORD$";
 
     @Override
     public String getActionName() {
@@ -113,8 +113,8 @@ public class BuildVMPackageAction extends AbstractAction {
     }
 
     private void updateUserContentsToModifyPwd(VirtualMachine vm) {
-        if (null == vm.getVmCertificate() || null == vm.getVmCertificate().getPwdCertificate() || StringUtils.isEmpty(
-            vm.getVmCertificate().getPwdCertificate().getUsername())) {
+        if (null == vm.getVmCertificate() || null == vm.getVmCertificate().getPwdCertificate() || StringUtils
+            .isEmpty(vm.getVmCertificate().getPwdCertificate().getUsername())) {
             return;
         }
         String setPwdScript = "";
@@ -124,10 +124,10 @@ public class BuildVMPackageAction extends AbstractAction {
             LOGGER.warn("Get set pwd script failed.", e);
             return;
         }
-        setPwdScript = setPwdScript.replaceAll(USER_NAME_PARAM_STR,
-            vm.getVmCertificate().getPwdCertificate().getUsername());
-        setPwdScript = setPwdScript.replaceAll(PASSWORD_PARAM_STR,
-            vm.getVmCertificate().getPwdCertificate().getPassword());
+        setPwdScript = setPwdScript
+            .replace(USER_NAME_PARAM_STR, vm.getVmCertificate().getPwdCertificate().getUsername());
+        setPwdScript = setPwdScript
+            .replace(PASSWORD_PARAM_STR, vm.getVmCertificate().getPwdCertificate().getPassword());
         String userdataContent = vm.getUserData();
         if (StringUtils.isEmpty(userdataContent)) {
             vm.setUserData(setPwdScript);
