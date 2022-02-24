@@ -57,7 +57,7 @@ public class CapabilityController {
         @ApiResponse(code = 200, message = "OK", response = Capability.class),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
-    @PostMapping(consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<Capability> createCapability(
         @ApiParam(value = "Capability", required = true) @RequestBody Capability capability) {
@@ -69,7 +69,7 @@ public class CapabilityController {
         @ApiResponse(code = 200, message = "OK", response = Boolean.class),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
-    @DeleteMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @DeleteMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<Boolean> deleteCapabilityById(@ApiParam(value = "id", required = true) @PathVariable("id")
     @Pattern(regexp = REG_UUID, message = "id must be in UUID format") String id) {
@@ -81,7 +81,7 @@ public class CapabilityController {
         @ApiResponse(code = 200, message = "OK", response = Capability.class, responseContainer = "List"),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
-    @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN') || hasRole('DEVELOPER_GUEST')")
     public ResponseEntity<Capability> getCapabilityById(@ApiParam(value = "id", required = true) @PathVariable("id")
     @Pattern(regexp = REG_UUID, message = "id must be in UUID format") String id, HttpServletRequest request) {
@@ -93,7 +93,7 @@ public class CapabilityController {
         @ApiResponse(code = 200, message = "OK", response = Capability.class, responseContainer = "List"),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
-    @GetMapping(produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN') || hasRole('DEVELOPER_GUEST')")
     public ResponseEntity<List<Capability>> getAllCapability(
         @ApiParam(value = "filterType", required = false) @RequestParam(value = "filterType", required = false)
@@ -106,8 +106,8 @@ public class CapabilityController {
         @ApiResponse(code = 200, message = "OK", response = Capability.class),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
-    @PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_UTF8_VALUE,
-        produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE,
+        produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<Capability> modifyCapabilityById(@ApiParam(value = "id", required = true) @PathVariable
     @Pattern(regexp = REG_UUID, message = "id must be in UUID format") String id,

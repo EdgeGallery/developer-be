@@ -66,7 +66,7 @@ public class AppPackageCtl {
         @ApiResponse(code = 400, message = "Bad Request", response = AppPackage.class)
     })
     @RequestMapping(value = "/{packageId}", method = RequestMethod.GET,
-        produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+        produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<AppPackage> getAppPackage(
         @Pattern(regexp = REGEX_UUID, message = "packageId must be in UUID format")
@@ -81,7 +81,7 @@ public class AppPackageCtl {
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
     @RequestMapping(value = "/{packageId}/action/get-pkg-structure", method = RequestMethod.GET,
-        produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+        produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<List<AppPkgFile>> getAppPackageStructure(
         @ApiParam(value = "packageId", required = true) @PathVariable(value = "packageId", required = true)
@@ -130,7 +130,7 @@ public class AppPackageCtl {
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
     @RequestMapping(value = "/{packageId}/action/zip-package", method = RequestMethod.POST,
-        produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+        produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<AppPackage> zipPackage(
         @Pattern(regexp = REGEX_UUID, message = "packageId must be in UUID format")

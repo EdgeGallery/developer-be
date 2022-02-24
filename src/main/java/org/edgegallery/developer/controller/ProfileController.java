@@ -66,7 +66,7 @@ public class ProfileController {
         @ApiResponse(code = 200, message = "OK", response = ProfileInfo.class),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
-    @RequestMapping(method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @RequestMapping(method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<ProfileInfo> createProfile(
         @ApiParam(value = "profile zip file", required = true) @RequestPart("file") MultipartFile file) {
@@ -85,7 +85,7 @@ public class ProfileController {
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
     @RequestMapping(value = "/{profileId}", method = RequestMethod.PUT,
-        produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+        produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<ProfileInfo> updateProfile(
         @Pattern(regexp = REGEX_UUID, message = "profileId must be in UUID format")
@@ -106,7 +106,7 @@ public class ProfileController {
         @ApiResponse(code = 200, message = "OK", response = ProfileInfo.class),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
-    @RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<Page<ProfileInfo>> getAllProfiles(
         @ApiParam(value = "the max count of one page", required = true) @Min(1) @QueryParam("limit") int limit,
@@ -128,7 +128,7 @@ public class ProfileController {
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
     @RequestMapping(value = "/{profileId}", method = RequestMethod.GET,
-        produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+        produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<ProfileInfo> getProfileById(
         @Pattern(regexp = REGEX_UUID, message = "profileId must be in UUID format")
@@ -148,7 +148,7 @@ public class ProfileController {
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
     @RequestMapping(value = "/{profileId}", method = RequestMethod.DELETE,
-        produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+        produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<Boolean> deleteProfileById(
         @Pattern(regexp = REGEX_UUID, message = "profileId must be in UUID format")
@@ -168,7 +168,7 @@ public class ProfileController {
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
     @RequestMapping(value = "/{profileId}/action/download", method = RequestMethod.GET,
-        produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+        produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<byte[]> downloadFileById(
         @Pattern(regexp = REGEX_UUID, message = "profileId must be in UUID format")
@@ -192,7 +192,7 @@ public class ProfileController {
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
     @RequestMapping(value = "/{profileId}/create-application", method = RequestMethod.POST,
-        produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+        produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<Application> createAppByProfileId(
         @Pattern(regexp = REGEX_UUID, message = "profileId must be in UUID format")

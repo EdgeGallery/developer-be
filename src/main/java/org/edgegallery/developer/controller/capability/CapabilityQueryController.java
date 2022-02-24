@@ -56,7 +56,7 @@ public class CapabilityQueryController {
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "OK", response = Capability.class, responseContainer = "List"),
 			@ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class) })
-	@GetMapping(value = "/group-id/{groupId}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@GetMapping(value = "/group-id/{groupId}", produces = MediaType.APPLICATION_JSON_VALUE)
 	@PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN') || hasRole('DEVELOPER_GUEST')")
 	public ResponseEntity<List<Capability>> getCapabilityByGroupId(
 			@ApiParam(value = "groupId", required = true) @PathVariable(value = "groupId") String groupId) {
@@ -67,7 +67,7 @@ public class CapabilityQueryController {
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "OK", response = Capability.class, responseContainer = "List"),
 			@ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class) })
-	@GetMapping(value = "/project-id/{projectId}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@GetMapping(value = "/project-id/{projectId}", produces = MediaType.APPLICATION_JSON_VALUE)
 	@PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN') || hasRole('DEVELOPER_GUEST')")
 	public ResponseEntity<List<Capability>> getCapabilityByProjectId(
 			@ApiParam(value = "projectId", required = true) @PathVariable(value = "projectId") String projectId) {
@@ -78,7 +78,7 @@ public class CapabilityQueryController {
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "OK", response = Capability.class, responseContainer = "List"),
 			@ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class) })
-	@GetMapping(value = { "/name" }, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@GetMapping(value = { "/name" }, produces = MediaType.APPLICATION_JSON_VALUE)
 	@PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN') || hasRole('DEVELOPER_GUEST')")
 	public ResponseEntity<Page<Capability>> getCapabilityByNameWithFuzzy(
 			@ApiParam(value = "name", required = false) @RequestParam(value = "name", required = false) String name,
@@ -93,7 +93,7 @@ public class CapabilityQueryController {
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "OK", response = Capability.class, responseContainer = "List"),
 			@ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class) })
-	@GetMapping(value = { "/name-en" }, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@GetMapping(value = { "/name-en" }, produces = MediaType.APPLICATION_JSON_VALUE)
 	@PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN') || hasRole('DEVELOPER_GUEST')")
 	public ResponseEntity<Page<Capability>> getCapabilityByNameEnWithFuzzy(
 			@ApiParam(value = "nameEn", required = false) @RequestParam(value = "nameEn", required = false) String nameEn,
@@ -108,7 +108,7 @@ public class CapabilityQueryController {
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "OK", response = Capability.class, responseContainer = "List"),
 			@ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class) })
-	@GetMapping(value = "/type/{type}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@GetMapping(value = "/type/{type}", produces = MediaType.APPLICATION_JSON_VALUE)
 	@PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN') || hasRole('DEVELOPER_GUEST')")
 	public ResponseEntity<List<Capability>> getCapabilityByType(
 			@ApiParam(value = "type", required = true) @PathVariable(value = "type") String type) {

@@ -64,7 +64,7 @@ public class AppConfigurationCtl {
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
     @RequestMapping(value = "/{applicationId}/appconfiguration", method = RequestMethod.GET,
-        produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+        produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<AppConfiguration> getAppConfiguration(
         @Pattern(regexp = REGEX_UUID, message = "applicationId must be in UUID format")
@@ -81,7 +81,7 @@ public class AppConfigurationCtl {
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
     @RequestMapping(value = "/{applicationId}/appconfiguration", method = RequestMethod.PUT,
-        consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+        consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<Boolean> modifyAppConfiguration(
         @Pattern(regexp = REGEX_UUID, message = "applicationId must be in UUID format")
@@ -100,7 +100,7 @@ public class AppConfigurationCtl {
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
     @RequestMapping(value = "/{applicationId}/appconfiguration/trafficrules", method = RequestMethod.GET,
-        produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+        produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<List<TrafficRule>> getTrafficRules(
         @Pattern(regexp = REGEX_UUID, message = "applicationId must be in UUID format")
@@ -117,7 +117,7 @@ public class AppConfigurationCtl {
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
     @RequestMapping(value = "/{applicationId}/appconfiguration/trafficrules", method = RequestMethod.POST,
-        consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+        consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<TrafficRule> createTrafficRules(
         @Pattern(regexp = REGEX_UUID, message = "applicationId must be in UUID format")
@@ -136,7 +136,7 @@ public class AppConfigurationCtl {
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
     @RequestMapping(value = "/{applicationId}/appconfiguration/trafficrules/{ruleId}", method = RequestMethod.PUT,
-        consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+        consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<Boolean> modifyTrafficRule(
         @Pattern(regexp = REGEX_UUID, message = "applicationId must be in UUID format")
@@ -156,7 +156,7 @@ public class AppConfigurationCtl {
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
     @RequestMapping(value = "/{applicationId}/appconfiguration/trafficrules/{ruleId}", method = RequestMethod.DELETE,
-        produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+        produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<Boolean> deleteTrafficRule(
         @Pattern(regexp = REGEX_UUID, message = "applicationId must be in UUID format")
@@ -175,7 +175,7 @@ public class AppConfigurationCtl {
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
     @RequestMapping(value = "/{applicationId}/appconfiguration/dnsrules", method = RequestMethod.GET,
-        produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+        produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<List<DnsRule>> getAllDnsRules(
         @Pattern(regexp = REGEX_UUID, message = "applicationId must be in UUID format")
@@ -192,7 +192,7 @@ public class AppConfigurationCtl {
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
     @RequestMapping(value = "/{applicationId}/appconfiguration/dnsrules", method = RequestMethod.POST,
-        consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+        consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<DnsRule> createDnsRule(
         @Pattern(regexp = REGEX_UUID, message = "applicationId must be in UUID format")
@@ -211,7 +211,7 @@ public class AppConfigurationCtl {
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
     @RequestMapping(value = "/{applicationId}/appconfiguration/dnsrules/{ruleId}", method = RequestMethod.PUT,
-        consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+        consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<Boolean> modifyDnsRule(
         @Pattern(regexp = REGEX_UUID, message = "applicationId must be in UUID format")
@@ -231,7 +231,7 @@ public class AppConfigurationCtl {
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
     @RequestMapping(value = "/{applicationId}/appconfiguration/dnsrules/{ruleId}", method = RequestMethod.DELETE,
-        produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+        produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<Boolean> deleteDnsRule(
         @Pattern(regexp = REGEX_UUID, message = "applicationId must be in UUID format")
@@ -251,7 +251,7 @@ public class AppConfigurationCtl {
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
     @RequestMapping(value = "/{applicationId}/appconfiguration/serviceproduceds", method = RequestMethod.GET,
-        produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+        produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<List<AppServiceProduced>> getAllServiceProduced(
         @Pattern(regexp = REGEX_UUID, message = "applicationId must be in UUID format")
@@ -268,7 +268,7 @@ public class AppConfigurationCtl {
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
     @RequestMapping(value = "/{applicationId}/appconfiguration/serviceproduceds", method = RequestMethod.POST,
-        consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+        consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<AppServiceProduced> createServiceProduced(
         @Pattern(regexp = REGEX_UUID, message = "applicationId must be in UUID format")
@@ -288,8 +288,8 @@ public class AppConfigurationCtl {
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
     @RequestMapping(value = "/{applicationId}/appconfiguration/serviceproduceds/{appServiceProducedId}",
-        method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_UTF8_VALUE,
-        produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+        method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE,
+        produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<Boolean> modifyServiceProduced(
         @Pattern(regexp = REGEX_UUID, message = "applicationId must be in UUID format")
@@ -312,7 +312,7 @@ public class AppConfigurationCtl {
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
     @RequestMapping(value = "/{applicationId}/appconfiguration/serviceproduceds/{appServiceProducedId}",
-        method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+        method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<Boolean> deleteServiceProduced(
         @Pattern(regexp = REGEX_UUID, message = "applicationId must be in UUID format")
@@ -334,7 +334,7 @@ public class AppConfigurationCtl {
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
     @RequestMapping(value = "/{applicationId}/appconfiguration/servicerequireds", method = RequestMethod.GET,
-        produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+        produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<List<AppServiceRequired>> getAllServiceRequired(
         @Pattern(regexp = REGEX_UUID, message = "applicationId must be in UUID format")
@@ -351,7 +351,7 @@ public class AppConfigurationCtl {
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
     @RequestMapping(value = "/{applicationId}/appconfiguration/servicerequireds", method = RequestMethod.POST,
-        consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+        consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<AppServiceRequired> createServiceRequired(
         @Pattern(regexp = REGEX_UUID, message = "applicationId must be in UUID format")
@@ -371,7 +371,7 @@ public class AppConfigurationCtl {
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
     @RequestMapping(value = "/{applicationId}/appconfiguration/servicerequireds/{serName}", method = RequestMethod.PUT,
-        consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+        consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<Boolean> modifyServiceRequired(
         @Pattern(regexp = REGEX_UUID, message = "applicationId must be in UUID format")
@@ -392,7 +392,7 @@ public class AppConfigurationCtl {
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
     @RequestMapping(value = "/{applicationId}/appconfiguration/servicerequireds/{serviceRequiredId}",
-        method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+        method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<Boolean> deleteServiceRequired(
         @Pattern(regexp = REGEX_UUID, message = "applicationId must be in UUID format")
@@ -411,7 +411,7 @@ public class AppConfigurationCtl {
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
     @RequestMapping(value = "/{applicationId}/appconfiguration/appcertificate", method = RequestMethod.GET,
-        produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+        produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<AppCertificate> getAppCertificate(
         @Pattern(regexp = REGEX_UUID, message = "applicationId must be in UUID format")
@@ -428,7 +428,7 @@ public class AppConfigurationCtl {
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
     @RequestMapping(value = "/{applicationId}/appconfiguration/appcertificate", method = RequestMethod.POST,
-        consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+        consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<AppCertificate> createAppCertificate(
         @Pattern(regexp = REGEX_UUID, message = "applicationId must be in UUID format")
@@ -447,7 +447,7 @@ public class AppConfigurationCtl {
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
     @RequestMapping(value = "/{applicationId}/appconfiguration/appcertificate", method = RequestMethod.PUT,
-        consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+        consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<Boolean> modifyAppCertificate(
         @Pattern(regexp = REGEX_UUID, message = "applicationId must be in UUID format")
@@ -466,7 +466,7 @@ public class AppConfigurationCtl {
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
     @RequestMapping(value = "/{applicationId}/appconfiguration/appcertificate", method = RequestMethod.DELETE,
-        produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+        produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<Boolean> deleteAppCertificate(
         @Pattern(regexp = REGEX_UUID, message = "applicationId must be in UUID format")

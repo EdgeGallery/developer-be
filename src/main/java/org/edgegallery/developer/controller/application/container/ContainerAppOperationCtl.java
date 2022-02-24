@@ -64,7 +64,7 @@ public class ContainerAppOperationCtl {
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
     @RequestMapping(value = "/{applicationId}/containers/action/launch", method = RequestMethod.POST,
-        produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+        produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<OperationInfoRep> instantiateContainerApp(
         @Pattern(regexp = REGEX_UUID, message = "applicationId must be in UUID format")

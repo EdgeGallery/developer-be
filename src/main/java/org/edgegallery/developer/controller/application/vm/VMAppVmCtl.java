@@ -56,8 +56,8 @@ public class VMAppVmCtl {
         @ApiResponse(code = 200, message = "OK", response = VirtualMachine.class),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
-    @RequestMapping(value = "/{applicationId}/vms", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_UTF8_VALUE,
-        produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @RequestMapping(value = "/{applicationId}/vms", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
+        produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<VirtualMachine> createVm(
         @Pattern(regexp = REGEX_UUID, message = "applicationId must be in UUID format")
@@ -76,7 +76,7 @@ public class VMAppVmCtl {
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
     @RequestMapping(value = "/{applicationId}/vms", method = RequestMethod.GET,
-        produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+        produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<List<VirtualMachine>> getAllVm(
         @Pattern(regexp = REGEX_UUID, message = "applicationId must be in UUID format")
@@ -93,7 +93,7 @@ public class VMAppVmCtl {
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
     @RequestMapping(value = "/{applicationId}/vms/{vmId}", method = RequestMethod.GET,
-        produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+        produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<VirtualMachine> getVm(
         @Pattern(regexp = REGEX_UUID, message = "applicationId must be in UUID format")
@@ -110,8 +110,8 @@ public class VMAppVmCtl {
         @ApiResponse(code = 200, message = "OK", response = Boolean.class),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
-    @RequestMapping(value = "/{applicationId}/vms/{vmId}", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_UTF8_VALUE,
-        produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @RequestMapping(value = "/{applicationId}/vms/{vmId}", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE,
+        produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<Boolean> modifyVm(
         @Pattern(regexp = REGEX_UUID, message = "applicationId must be in UUID format")
@@ -131,7 +131,7 @@ public class VMAppVmCtl {
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
     @RequestMapping(value = "/{applicationId}/vms/{vmId}", method = RequestMethod.DELETE,
-        produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+        produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<Boolean> deleteVm(
         @Pattern(regexp = REGEX_UUID, message = "applicationId must be in UUID format")

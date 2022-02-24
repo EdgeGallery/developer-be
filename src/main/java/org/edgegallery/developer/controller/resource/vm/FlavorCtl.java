@@ -55,7 +55,7 @@ public class FlavorCtl {
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
     @RequestMapping(value = "", method = RequestMethod.GET,
-        produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+        produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<List<Flavor>> getAllFavors()  {
         return ResponseEntity.ok(flavorService.getAllFavors());
@@ -72,7 +72,7 @@ public class FlavorCtl {
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
     @RequestMapping(value = "/{flavorId}", method = RequestMethod.GET,
-        produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+        produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<Flavor> getFavorById(
         @ApiParam(value = "flavorId", required = true) @PathVariable("flavorId") String flavorId)  {
@@ -89,8 +89,8 @@ public class FlavorCtl {
         @ApiResponse(code = 200, message = "OK", response = Flavor.class),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
-    @RequestMapping(value = "", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_UTF8_VALUE,
-        produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @RequestMapping(value = "", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
+        produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<Flavor> createFavor(
         @NotNull @ApiParam(value = "Flavor", required = true) @RequestBody Flavor flavor)  {
@@ -108,7 +108,7 @@ public class FlavorCtl {
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
     @RequestMapping(value = "/{flavorId}", method = RequestMethod.DELETE,
-        produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+        produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<Boolean> deleteFavorById(
         @ApiParam(value = "flavorId", required = true) @PathVariable("flavorId") String flavorId)  {

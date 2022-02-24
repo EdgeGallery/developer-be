@@ -47,7 +47,7 @@ public class CapabilityGroupQueryController {
 	@ApiOperation(value = "Get CapabilityGroup by type", response = CapabilityGroup.class, responseContainer = "List")
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "OK", response = CapabilityGroup.class, responseContainer = "List") })
-	@GetMapping(value="/type/{type}",produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@GetMapping(value="/type/{type}",produces = MediaType.APPLICATION_JSON_VALUE)
 	@PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN') || hasRole('DEVELOPER_GUEST')")
 	public ResponseEntity<List<CapabilityGroup>> getCapabilityGroupByType(
 			@ApiParam(value = "type", required = true) @PathVariable(value="type") String type) {

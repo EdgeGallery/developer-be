@@ -50,7 +50,7 @@ public class UserDataCtl {
         @ApiResponse(code = 200, message = "OK", response = String.class),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
-    @RequestMapping(value = "", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @RequestMapping(value = "", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<String> getUserdata(
         @ApiParam(value = "osType", required = true) @QueryParam("osType") String osType,

@@ -50,7 +50,7 @@ public class PkgSpecCtl {
         @ApiResponse(code = 200, message = "OK", response = PkgSpec.class, responseContainer = "List"),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
-    @RequestMapping(value = "", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @RequestMapping(value = "", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<List<PkgSpec>> getPkgSpecs() {
         return ResponseEntity.ok(pkgSpecService.getPkgSpecs());
@@ -66,7 +66,7 @@ public class PkgSpecCtl {
         @ApiResponse(code = 200, message = "OK", response = String.class),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
-    @RequestMapping(value = "/useScenes", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @RequestMapping(value = "/useScenes", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<String> getUseScenes() {
         return ResponseEntity.ok(pkgSpecService.getUseScenes());

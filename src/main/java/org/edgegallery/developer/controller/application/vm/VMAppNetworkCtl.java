@@ -55,8 +55,8 @@ public class VMAppNetworkCtl {
         @ApiResponse(code = 200, message = "OK", response = Network.class),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
-    @RequestMapping(value = "/{applicationId}/networks", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_UTF8_VALUE,
-        produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @RequestMapping(value = "/{applicationId}/networks", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
+        produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<Network> createNetwork(
         @Pattern(regexp = REGEX_UUID, message = "applicationId must be in UUID format")
@@ -75,7 +75,7 @@ public class VMAppNetworkCtl {
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
     @RequestMapping(value = "/{applicationId}/networks", method = RequestMethod.GET,
-        produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+        produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<List<Network>> getAllNetwork(
         @Pattern(regexp = REGEX_UUID, message = "applicationId must be in UUID format")
@@ -92,7 +92,7 @@ public class VMAppNetworkCtl {
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
     @RequestMapping(value = "/{applicationId}/networks/{networkId}", method = RequestMethod.GET,
-        produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+        produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<Network> getVm(
         @Pattern(regexp = REGEX_UUID, message = "applicationId must be in UUID format")
@@ -109,8 +109,8 @@ public class VMAppNetworkCtl {
         @ApiResponse(code = 200, message = "OK", response = Boolean.class),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
-    @RequestMapping(value = "/{applicationId}/networks/{networkId}", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_UTF8_VALUE,
-        produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @RequestMapping(value = "/{applicationId}/networks/{networkId}", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE,
+        produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<Boolean> modifyNetwork(
         @Pattern(regexp = REGEX_UUID, message = "applicationId must be in UUID format")
@@ -130,7 +130,7 @@ public class VMAppNetworkCtl {
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
     @RequestMapping(value = "/{applicationId}/networks/{networkId}", method = RequestMethod.DELETE,
-        produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+        produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<Boolean> deleteNetwork(
         @Pattern(regexp = REGEX_UUID, message = "applicationId must be in UUID format")

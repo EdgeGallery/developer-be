@@ -70,7 +70,7 @@ public class MepHostCtl {
         @ApiResponse(code = 200, message = "OK", response = MepHost.class, responseContainer = "List"),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
-    @GetMapping(produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<Page<MepHost>> getAllHosts(
         @ApiParam(value = "name", required = false) @RequestParam(value = "name", required = false) String name,
@@ -91,7 +91,7 @@ public class MepHostCtl {
         @ApiResponse(code = 200, message = "OK", response = Boolean.class),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
-    @PostMapping(consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<Boolean> createHost(
         @ApiParam(value = "MepHost", required = true) @Validated @RequestBody MepHost host,
@@ -114,7 +114,7 @@ public class MepHostCtl {
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
     @RequestMapping(value = "/{mephostId}", method = RequestMethod.PUT,
-        consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+        consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<Boolean> modifyHost(@PathVariable("mephostId")
     @Pattern(regexp = REG_UUID, message = "hostId must be in UUID format") String mephostId,
@@ -134,7 +134,7 @@ public class MepHostCtl {
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
     @RequestMapping(value = "/{mephostId}", method = RequestMethod.DELETE,
-        produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+        produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<Boolean> deleteHost(@ApiParam(value = "mephostId", required = true) @PathVariable("mephostId")
     @Pattern(regexp = REG_UUID, message = "hostId must be in UUID format") String mephostId,
@@ -154,7 +154,7 @@ public class MepHostCtl {
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
     @RequestMapping(value = "/{mephostId}", method = RequestMethod.GET,
-        produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+        produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<MepHost> getHost(@ApiParam(value = "mephostId", required = true) @PathVariable("mephostId")
     @Pattern(regexp = REG_UUID, message = "hostId must be in UUID format") String mephostId) {
@@ -172,7 +172,7 @@ public class MepHostCtl {
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
     @RequestMapping(value = "/{mephostId}/logs", method = RequestMethod.GET,
-        produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+        produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<List<MepHostLog>> getHostLogByHostId(
         @ApiParam(value = "mephostId", required = true) @PathVariable String mephostId) {
@@ -188,7 +188,7 @@ public class MepHostCtl {
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
     @RequestMapping(value = "/action/upload-config-file", method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
-        produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+        produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<UploadFile> uploadFile(
         @ApiParam(value = "file", required = true) @RequestPart("file") MultipartFile uploadFile) {

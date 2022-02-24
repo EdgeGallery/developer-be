@@ -89,8 +89,8 @@ public class ContainerImageCtl {
     @ApiResponses(value = {
         @ApiResponse(code = 200, message = "OK", response = ContainerImage.class)
     })
-    @RequestMapping(value = "/action/get-all-images", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_UTF8_VALUE,
-        produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @RequestMapping(value = "/action/get-all-images", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
+        produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_ADMIN')|| hasRole('DEVELOPER_TENANT')")
     public ResponseEntity<Page<ContainerImage>> getAllContainerImage(
         @ApiParam(value = "ContainerImages", required = true) @RequestBody ContainerImageReq containerImageReq) {
@@ -107,8 +107,8 @@ public class ContainerImageCtl {
     @ApiResponses(value = {
         @ApiResponse(code = 200, message = "OK", response = ContainerImage.class)
     })
-    @RequestMapping(value = "/{imageId}", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_UTF8_VALUE,
-        produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @RequestMapping(value = "/{imageId}", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE,
+        produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_ADMIN')|| hasRole('DEVELOPER_TENANT')")
     public ResponseEntity<ContainerImage> modifyContainerImage(
         @ApiParam(value = "imageId", required = true) @PathVariable String imageId,
@@ -127,7 +127,7 @@ public class ContainerImageCtl {
         @ApiResponse(code = 200, message = "OK", response = Boolean.class)
     })
     @RequestMapping(value = "/{imageId}", method = RequestMethod.DELETE,
-        produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+        produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_ADMIN')|| hasRole('DEVELOPER_TENANT')")
     public ResponseEntity<Boolean> deleteContainerImage(
         @ApiParam(value = "imageId", required = true) @PathVariable String imageId) {

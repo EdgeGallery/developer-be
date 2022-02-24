@@ -65,7 +65,7 @@ public class VMImageCtl {
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
     @RequestMapping(value = "/action/get-list", method = RequestMethod.POST,
-        consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+        consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_ADMIN')|| hasRole('DEVELOPER_TENANT')")
     public ResponseEntity<VMImageRes> getVmImages(
         @ApiParam(value = "VmImageReq", required = true) @RequestBody VMImageReq vmImageReq) {
@@ -83,7 +83,7 @@ public class VMImageCtl {
         @ApiResponse(code = 200, message = "OK", response = VMImage.class),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
-    @RequestMapping(value = "/{imageId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @RequestMapping(value = "/{imageId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_ADMIN')|| hasRole('DEVELOPER_TENANT')")
     public ResponseEntity<VMImage> getVmImagesById(@PathVariable("imageId") Integer imageId) {
         return ResponseEntity.ok(vmImageService.getVmImageById(imageId));
@@ -99,8 +99,8 @@ public class VMImageCtl {
         @ApiResponse(code = 200, message = "OK", response = Boolean.class),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
-    @RequestMapping(value = "", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_UTF8_VALUE,
-        produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @RequestMapping(value = "", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
+        produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_ADMIN')|| hasRole('DEVELOPER_TENANT')")
     public ResponseEntity<Boolean> createVmImage(
         @ApiParam(value = "VmImage", required = true) @Validated @RequestBody VMImage vmImage) {
@@ -118,8 +118,8 @@ public class VMImageCtl {
         @ApiResponse(code = 200, message = "OK", response = Boolean.class),
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
-    @RequestMapping(value = "/{imageId}", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_UTF8_VALUE,
-        produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @RequestMapping(value = "/{imageId}", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE,
+        produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_ADMIN')|| hasRole('DEVELOPER_TENANT')")
     public ResponseEntity<Boolean> modifyVmImage(@PathVariable("imageId") Integer imageId,
         @Validated @RequestBody VMImage vmImage) {
@@ -138,7 +138,7 @@ public class VMImageCtl {
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
     @RequestMapping(value = "/{imageId}", method = RequestMethod.DELETE,
-        produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+        produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_ADMIN')|| hasRole('DEVELOPER_TENANT')")
     public ResponseEntity<Boolean> deleteVmImage(@PathVariable("imageId") Integer imageId) {
         LOGGER.info("delete vm image file, imageId = {}", imageId);
