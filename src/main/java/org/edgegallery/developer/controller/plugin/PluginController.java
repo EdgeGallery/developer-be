@@ -84,7 +84,7 @@ public class PluginController {
     /**
      * Upload a plugin by parameters.
      */
-    @RequestMapping(value = "/", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE,
+    @RequestMapping(value = "/", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE,
         consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @ApiOperation(value = "upload plugin to server", response = Plugin.class,
         notes = "The API can receive the upload request from upload form, and there are nine kinds of parameters  "
@@ -136,7 +136,7 @@ public class PluginController {
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class),
         @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorRespDto.class)
     })
-    @RequestMapping(value = "/", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @RequestMapping(value = "/", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN') || hasRole('DEVELOPER_GUEST')")
     public ResponseEntity<Page<PluginDto>> getAll(
         @ApiParam(value = "plugin type:plugin or sdk", required = true) @RequestParam("pluginType") String pluginType,
@@ -338,7 +338,7 @@ public class PluginController {
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
     @RequestMapping(value = "/{pluginId}/action/content", method = RequestMethod.GET,
-        produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+        produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<String> getApiContent(
         @Pattern(regexp = REGEX_UUID, message = "pluginId must be in UUID format")

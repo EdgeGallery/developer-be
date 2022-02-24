@@ -69,7 +69,7 @@ public class ContainerAppHelmChartCtl {
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
     @RequestMapping(value = "/{applicationId}/helmcharts", method = RequestMethod.POST,
-        consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+        consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<HelmChart> uploadHelmChartFile(
         @ApiParam(value = "file", required = true) @RequestPart(value = "file") MultipartFile helmChartFile,
@@ -87,7 +87,7 @@ public class ContainerAppHelmChartCtl {
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
     @RequestMapping(value = "/{applicationId}/helmcharts", method = RequestMethod.GET,
-        produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+        produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<List<HelmChart>> getHelmChartList(
         @Pattern(regexp = REGEX_UUID, message = "applicationId must be in UUID format")
@@ -104,7 +104,7 @@ public class ContainerAppHelmChartCtl {
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
     @RequestMapping(value = "/{applicationId}/helmcharts/{helmchartId}", method = RequestMethod.GET,
-        produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+        produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<HelmChart> getHelmChartById(
         @Pattern(regexp = REGEX_UUID, message = "applicationId must be in UUID format")
@@ -122,7 +122,7 @@ public class ContainerAppHelmChartCtl {
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
     @RequestMapping(value = "/{applicationId}/helmcharts/{helmchartId}", method = RequestMethod.DELETE,
-        produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+        produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<Boolean> deleteHelmChartById(
         @Pattern(regexp = REGEX_UUID, message = "applicationId must be in UUID format")
@@ -141,7 +141,7 @@ public class ContainerAppHelmChartCtl {
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
     @RequestMapping(value = "/{applicationId}/helmcharts/{helmchartId}/action/download", method = RequestMethod.POST,
-        produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+        produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<byte[]> downloadHelmChartsPackage(
         @Pattern(regexp = REGEX_UUID, message = "applicationId must be in UUID format")
@@ -169,7 +169,7 @@ public class ContainerAppHelmChartCtl {
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
     @RequestMapping(value = "/{applicationId}/helmcharts/{helmchartId}/action/get-inner-file",
-        method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+        method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<String> getFileContentByFilePath(
         @Pattern(regexp = REGEX_UUID, message = "applicationId must be in UUID format")
@@ -190,7 +190,7 @@ public class ContainerAppHelmChartCtl {
         @ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class)
     })
     @RequestMapping(value = "/{applicationId}/helmcharts/{helmchartId}/action/modify-inner-file",
-        method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+        method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<Boolean> modifyFileContentByFilePath(
         @Pattern(regexp = REGEX_UUID, message = "applicationId must be in UUID format")

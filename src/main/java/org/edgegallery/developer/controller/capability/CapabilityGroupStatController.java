@@ -45,7 +45,7 @@ public class CapabilityGroupStatController {
 	@ApiOperation(value = "Get CapabilityGroupStat by filter", response = CapabilityGroupStat.class, responseContainer = "List")
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "OK", response = CapabilityGroupStat.class, responseContainer = "List") })
-	@GetMapping(produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
 	@PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN') || hasRole('DEVELOPER_GUEST')")
 	public ResponseEntity<List<CapabilityGroupStat>> getCapabilityGroupStat() {
 		return ResponseEntity.ok(capabilityGroupStatService.findAll());

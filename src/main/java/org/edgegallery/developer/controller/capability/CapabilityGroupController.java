@@ -55,7 +55,7 @@ public class CapabilityGroupController {
 	@ApiOperation(value = "Create one CapabilityGroup", response = CapabilityGroup.class)
 	@ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = CapabilityGroup.class),
 			@ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class) })
-	@PostMapping(consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 	@PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
 	public ResponseEntity<CapabilityGroup> createCapabilityGroup(
 			@ApiParam(value = "CapabilityGroup", required = true) @RequestBody CapabilityGroup group) {
@@ -65,7 +65,7 @@ public class CapabilityGroupController {
 	@ApiOperation(value = "Delete one CapabilityGroup by id", response = Boolean.class)
 	@ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = Boolean.class),
 			@ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class) })
-	@DeleteMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@DeleteMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
 	@PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
 	public ResponseEntity<Boolean> deleteCapabilityGroupById(
 			@ApiParam(value = "id", required = true) @PathVariable("id") @Pattern(regexp = REG_UUID) String id) {
@@ -76,7 +76,7 @@ public class CapabilityGroupController {
 	@ApiOperation(value = "Get All CapabilityGroup", response = CapabilityGroup.class, responseContainer = "List")
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "OK", response = CapabilityGroup.class, responseContainer = "List") })
-	@GetMapping(produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
 	@PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN') || hasRole('DEVELOPER_GUEST')")
 	public ResponseEntity<List<CapabilityGroup>> getAllCapabilityGroup() {
 		return ResponseEntity.ok(capabilityGroupService.findAll());
@@ -85,7 +85,7 @@ public class CapabilityGroupController {
 	@ApiOperation(value = "Get CapabilityGroup by id", response = CapabilityGroup.class)
 	@ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = CapabilityGroup.class),
 			@ApiResponse(code = 400, message = "Bad Request", response = ErrorRespDto.class) })
-	@GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
 	@PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN') || hasRole('DEVELOPER_GUEST')")
 	public ResponseEntity<CapabilityGroup> getCapabilityGroupById(
 			@ApiParam(value = "id", required = true) @PathVariable("id") @Pattern(regexp = REG_UUID) String id) {
