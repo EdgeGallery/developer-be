@@ -215,7 +215,7 @@ public class CapabilityServiceTest {
 
     @Test
     public void testFindAllCapabilityByProjectId() {
-        List<Capability> either = capabilityService.findByProjectId("e111f3e7-90d8-4a39-9874-ea6ea6752123");
+        List<Capability> either = capabilityService.findByApplicationId("e111f3e7-90d8-4a39-9874-ea6ea6752123");
         Assert.assertNotNull(either);
     }
 

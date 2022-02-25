@@ -64,7 +64,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
-@Service
+@Service("releasedPackageService")
 public class ReleasedPackageServiceImpl implements ReleasedPackageService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ReleasedPackageServiceImpl.class);
@@ -310,11 +310,6 @@ public class ReleasedPackageServiceImpl implements ReleasedPackageService {
         LOGGER.info("publishRes:{}", publishRes);
         checkAppStoreRequestResult(publishRes, errResponse);
         return true;
-    }
-
-    @Override
-    public ReleasedPackage getReleasedPackageByPkgId(String packageId) {
-        return releasedPackageMapper.getReleasedPackageByPkgId(packageId);
     }
 
     private String getAppPkgDecompressPath(String packageId) {

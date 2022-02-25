@@ -32,7 +32,7 @@
     id, name, description, architecture, cpu, memory, system_disk_size, data_disk_size, gpu_extra_info, other_extra_info
   </sql>
 
-  <insert id="createFavor">
+  <insert id="createFlavor">
     insert into tbl_vm_flavor (id, name, description, architecture, cpu, memory, system_disk_size,
     data_disk_size, gpu_extra_info, other_extra_info)
     values
@@ -40,17 +40,17 @@
     #{flavor.memory}, #{flavor.systemDiskSize}, #{flavor.dataDiskSize}, #{flavor.gpuExtraInfo}, #{flavor.otherExtraInfo})
   </insert>
 
-  <delete id="deleteFavorById" parameterType="String">
+  <delete id="deleteFlavorById" parameterType="String">
     DELETE FROM tbl_vm_flavor WHERE id = #{flavorId}
   </delete>
 
-  <select id="getFavorById" parameterType="String" resultMap="FlavorMap">
+  <select id="getFlavorById" parameterType="String" resultMap="FlavorMap">
     SELECT
     <include refid="FlavorAllColumn"/>
     FROM tbl_vm_flavor WHERE id = #{flavorId}
   </select>
 
-  <select id="getAllFavors" resultMap="FlavorMap">
+  <select id="getAllFlavors" resultMap="FlavorMap">
     SELECT
     <include refid="FlavorAllColumn"/>
     FROM tbl_vm_flavor

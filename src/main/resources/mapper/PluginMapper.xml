@@ -35,9 +35,10 @@
         <result column="apifile" property="apiFile" jdbcType="VARCHAR"/>
         <result column="scorecount" property="scoreCount" jdbcType="INTEGER"/>
     </resultMap>
-    
+
     <sql id="AllColumn">
-      pluginid,pluginname,introduction,satisfaction,codelanguage,plugintype,version,downloadcount,logofile,pluginfile,userid,uploadtime,username,pluginsize,apifile,scorecount, pluginfilehashcode
+        pluginid,pluginname,introduction,satisfaction,codelanguage,plugintype,version,downloadcount,logofile,pluginfile,userid,uploadtime,username,pluginsize,apifile,scorecount,
+        pluginfilehashcode
     </sql>
 
     <sql id="Base_Column_List">
@@ -45,26 +46,14 @@
         satisfaction,codelanguage,plugintype,version,downloadcount,logofile,pluginfile,uploadtime,userid,username,pluginsize,apifile,scorecount
     </sql>
 
-    <select id="getAllPlugin" parameterType="java.lang.Integer" resultMap="BaseResultMap">
-        SELECT <include refid="Base_Column_List"/>
-        FROM tbl_plugin WHERE plugintype = #{pluginType} ORDER BY uploadtime DESC
-    </select>
+
     <select id="getPluginById" parameterType="java.lang.String"
             resultType="org.edgegallery.developer.model.plugin.PluginPO">
-        SELECT <include refid="AllColumn"/> FROM tbl_plugin WHERE pluginid =#{pluginId}
+        SELECT
+        <include refid="AllColumn"/>
+        FROM tbl_plugin WHERE pluginid =#{pluginId}
     </select>
-    <select id="getPluginByUploadTime" parameterType="java.util.Date" resultType="org.edgegallery.developer.model.plugin.PluginPO">
-        SELECT <include refid="AllColumn"/> FROM tbl_plugin WHERE uploadtime =#{uploadtime}
-    </select>
-    <update id="updateScore" parameterType="java.util.Map">
-        UPDATE tbl_plugin SET satisfaction = #{satisfaction},scorecount =#{scoreCount} WHERE pluginid = #{pluginId}
-    </update>
-    <select id="getScorecount" parameterType="java.lang.String" resultType="java.lang.Integer">
-        SELECT scorecount FROM tbl_plugin WHERE pluginid = #{pluginId}
-    </select>
-    <select id="getSatisfaction" parameterType="java.lang.String" resultType="java.lang.Float">
-        SELECT satisfaction FROM tbl_plugin WHERE pluginid = #{pluginId}
-    </select>
+
 
     <insert id="insert" parameterType="org.edgegallery.developer.model.plugin.PluginPO">
         INSERT INTO tbl_plugin
@@ -85,18 +74,7 @@
     <delete id="delPlugin" parameterType="java.lang.String">
         DELETE FROM tbl_plugin WHERE pluginid = #{pluginId}
     </delete>
-    <select id="getPluginPath" parameterType="java.lang.String" resultType="java.lang.String">
-        SELECT pluginfile FROM tbl_plugin WHERE pluginid = #{pluginId}
-    </select>
-    <select id="getLogoPath" parameterType="java.lang.String" resultType="java.lang.String">
-        SELECT logofile FROM tbl_plugin WHERE pluginid = #{pluginId}
-    </select>
-    <select id="getApiPath" parameterType="java.lang.String" resultType="java.lang.String">
-        SELECT apifile FROM tbl_plugin WHERE pluginid = #{pluginId}
-    </select>
-    <update id="updownloadCount" parameterType="java.lang.String">
-        UPDATE tbl_plugin SET downloadcount = downloadcount+1 WHERE pluginid=#{pluginId}
-    </update>
+
     <update id="update" parameterType="org.edgegallery.developer.model.plugin.PluginPO">
         UPDATE tbl_plugin SET
         pluginname = #{pluginName},
@@ -130,7 +108,9 @@
     </select>
 
     <select id="findAllWithPagination" resultMap="BaseResultMap">
-        select <include refid="AllColumn"/> from tbl_plugin
+        select
+        <include refid="AllColumn"/>
+        from tbl_plugin
         <where>
             <if test="criteria.pluginName != null and criteria.pluginName != ''">
                 pluginname like concat('%', #{criteria.pluginName}, '%')
@@ -142,7 +122,7 @@
                 and plugintype = #{criteria.type}
             </if>
         </where>
-        order by uploadtime desc 
+        order by uploadtime desc
         limit #{criteria.limit} offset #{criteria.offset}
     </select>
 

@@ -58,7 +58,7 @@ public class FlavorCtl {
         produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<List<Flavor>> getAllFavors()  {
-        return ResponseEntity.ok(flavorService.getAllFavors());
+        return ResponseEntity.ok(flavorService.getAllFlavors());
     }
 
     /**
@@ -76,7 +76,7 @@ public class FlavorCtl {
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<Flavor> getFavorById(
         @ApiParam(value = "flavorId", required = true) @PathVariable("flavorId") String flavorId)  {
-        return ResponseEntity.ok(flavorService.getFavorById(flavorId));
+        return ResponseEntity.ok(flavorService.getFlavorById(flavorId));
     }
 
     /**
@@ -94,7 +94,7 @@ public class FlavorCtl {
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<Flavor> createFavor(
         @NotNull @ApiParam(value = "Flavor", required = true) @RequestBody Flavor flavor)  {
-        return ResponseEntity.ok(flavorService.createFavor(flavor));
+        return ResponseEntity.ok(flavorService.createFlavor(flavor));
     }
 
     /**
@@ -112,7 +112,7 @@ public class FlavorCtl {
     @PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN')")
     public ResponseEntity<Boolean> deleteFavorById(
         @ApiParam(value = "flavorId", required = true) @PathVariable("flavorId") String flavorId)  {
-        return ResponseEntity.ok(flavorService.deleteFavorById(flavorId));
+        return ResponseEntity.ok(flavorService.deleteFlavorById(flavorId));
     }
 
 }

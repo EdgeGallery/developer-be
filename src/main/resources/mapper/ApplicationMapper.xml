@@ -82,13 +82,6 @@
     DELETE FROM tbl_application WHERE id = #{id};
   </delete>
 
-  <select id="getAllApplications" resultMap="ApplicationMap">
-    SELECT
-    id, name, description, version, provider, architecture, app_class, type, industry, icon_file_id, guide_file_id,
-    app_create_type, to_char(create_time, 'YYYY-MM-DD HH24:MI:SS') as create_time, user_id, user_name, status, mep_host_id, pkg_spec_id
-    FROM tbl_application
-  </select>
-
   <select id="getAllApplicationsByUserId" parameterType="String" resultMap="ApplicationMap">
     SELECT
     id, name, description, version, provider, architecture, app_class, type, industry, icon_file_id, guide_file_id,

@@ -13,6 +13,7 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
+
 package org.edgegallery.developer.mapper.apppackage;
 
 import org.apache.ibatis.annotations.Mapper;
@@ -24,8 +25,6 @@ public interface AppPackageMapper {
     int createAppPackage(AppPackage pkg);
 
     int deleteAppPackage(String id);
-
-    int deleteAppPackageByAppId(String appId);
 
     int modifyAppPackage(AppPackage pkg);
 

@@ -30,8 +30,6 @@ public interface ApplicationMapper {
 
     int deleteApplication(String id);
 
-    List<Application> getAllApplications();
-
     List<Application> getAllApplicationsByUserId(@Param("userId") String userId, @Param("name") String name);
 
     Application getApplicationById(String id);

@@ -76,7 +76,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
 
-@Service
+@Service("vmAppOperationService")
 public class VMAppOperationServiceImpl extends AppOperationServiceImpl implements VMAppOperationService {
 
     public static final String OPERATION_LAUNCH_NAME = "VirtualMachine launch";

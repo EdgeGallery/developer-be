@@ -307,7 +307,7 @@ public class AppConfigurationServiceTest {
     public void testCreateAppServiceRequiredSuccess() {
         AppServiceRequired appServiceRequired = createAnotherAppServiceRequired();
         AppServiceRequired appServiceRequiredCreated = configurationService
-            .createServiceRequired("6a75a2bd-9811-432f-bbe8-2813aa97d364", appServiceRequired);
+            .createServiceRequired("6a75a2bd-9811-432f-bbe8-2813aa97d366", appServiceRequired);
         Assert.assertNotNull(appServiceRequiredCreated);
     }
 

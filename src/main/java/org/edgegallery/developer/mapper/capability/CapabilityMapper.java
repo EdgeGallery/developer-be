@@ -39,8 +39,6 @@ public interface CapabilityMapper {
 
     List<Capability> selectByNameEnWithFuzzy(@Param("nameEn") String nameEn);
 
-    Capability selectByName(@Param("name") String name);
-
     List<Capability> selectByNameOrNameEn(@Param("name") String name, @Param("nameEn") String nameEn);
 
     List<Capability> selectByProjectId(@Param("projectId") String projectId);

@@ -13,25 +13,65 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
+
 package org.edgegallery.developer.service.application.container;
 
-import org.edgegallery.developer.model.common.User;
 import org.edgegallery.developer.model.application.container.ContainerApplication;
 import org.edgegallery.developer.model.apppackage.AppPackage;
+import org.edgegallery.developer.model.common.User;
 import org.edgegallery.developer.model.instantiate.container.ContainerAppInstantiateInfo;
 import org.edgegallery.developer.model.restful.OperationInfoRep;
 
 public interface ContainerAppOperationService {
 
+    /**
+     * instantiate container application.
+     *
+     * @param applicationId applicationId
+     * @param user operator
+     * @return
+     */
     OperationInfoRep instantiateContainerApp(String applicationId, User user);
 
+    /**
+     * get container application instantiate info.
+     *
+     * @param applicationId applicationId
+     * @return
+     */
     ContainerAppInstantiateInfo getInstantiateInfo(String applicationId);
 
+    /**
+     * save container application instantiate info.
+     *
+     * @param applicationId applicationId
+     * @param instantiateInfo instantiateInfo
+     * @return
+     */
     Boolean createContainerAppInstantiateInfo(String applicationId, ContainerAppInstantiateInfo instantiateInfo);
 
+    /**
+     * update container application instantiate info.
+     *
+     * @param applicationId applicationId
+     * @param instantiateInfo instantiateInfo
+     * @return
+     */
     Boolean updateInstantiateInfo(String applicationId, ContainerAppInstantiateInfo instantiateInfo);
 
+    /**
+     * delete container application instantiate info.
+     *
+     * @param applicationId applicationId
+     * @return
+     */
     Boolean deleteInstantiateInfo(String applicationId);
 
+    /**
+     * generate csar package(when deploy and test application).
+     *
+     * @param application container application
+     * @return
+     */
     AppPackage generatePackage(ContainerApplication application);
 }

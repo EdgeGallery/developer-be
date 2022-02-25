@@ -16,5 +16,12 @@ package org.edgegallery.developer.service.recource.vm;
 
 public interface UserDataService {
 
+    /**
+     * get user data.
+     *
+     * @param osType os type
+     * @param pkgSpecId package specification id
+     * @return
+     */
     String getUserData(String osType, String pkgSpecId);
 }

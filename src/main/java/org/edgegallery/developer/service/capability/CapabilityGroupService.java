@@ -20,19 +20,59 @@ import java.util.List;
 import org.edgegallery.developer.model.capability.CapabilityGroup;
 
 public interface CapabilityGroupService {
+    /**
+     * create capability group.
+     *
+     * @param capabilityGroup capabilityGroup
+     * @return
+     */
     CapabilityGroup create(CapabilityGroup capabilityGroup);
 
-    CapabilityGroup updateById(CapabilityGroup capabilityGroup);
-
+    /**
+     * delete capability group.
+     *
+     * @param id group id
+     * @return
+     */
     boolean deleteById(String id);
 
+    /**
+     * get all capability group.
+     *
+     * @return
+     */
     List<CapabilityGroup> findAll();
 
+    /**
+     * get capability group by type.
+     *
+     * @param type group typea
+     * @return
+     */
     List<CapabilityGroup> findByType(String type);
 
+    /**
+     * get capability group by id.
+     *
+     * @param id group id
+     * @return
+     */
     CapabilityGroup findById(String id);
 
+    /**
+     * get capability group by name.
+     *
+     * @param name group name
+     * @return
+     */
     CapabilityGroup findByName(String name);
 
+    /**
+     * get capability group by name or english name.
+     *
+     * @param name group chinese name
+     * @param nameEn group english name
+     * @return
+     */
     List<CapabilityGroup> findByNameOrNameEn(String name, String nameEn);
 }

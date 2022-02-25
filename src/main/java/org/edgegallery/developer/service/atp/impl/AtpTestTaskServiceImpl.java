@@ -48,14 +48,4 @@ public class AtpTestTaskServiceImpl implements AtpTestTaskService {
         }
         return true;
     }
-
-    @Override
-    public boolean deleteAtpTestByAppId(String applicationId) {
-        int res = atpTestTaskMapper.deleteAtpTestByAppId(applicationId);
-        if (res < 1) {
-            LOGGER.error("delete atp test failed!");
-            throw new DataBaseException("delete atp test failed!", ResponseConsts.RET_DELETE_DATA_FAIL);
-        }
-        return true;
-    }
 }

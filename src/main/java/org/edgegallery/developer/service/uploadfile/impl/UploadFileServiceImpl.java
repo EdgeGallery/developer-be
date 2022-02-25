@@ -499,14 +499,4 @@ public class UploadFileServiceImpl implements UploadFileService {
         }
     }
 
-    @Override
-    public boolean deleteFileRecord(String fileId) {
-        int ret = uploadFileMapper.deleteFile(fileId);
-        if (ret < 1) {
-            LOGGER.error("delete file failed!");
-            throw new DataBaseException("delete file failed!", ResponseConsts.RET_DELETE_DATA_FAIL);
-        }
-        return true;
-    }
-
 }

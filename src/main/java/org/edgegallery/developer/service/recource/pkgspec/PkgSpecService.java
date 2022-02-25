@@ -20,11 +20,33 @@ import org.edgegallery.developer.model.resource.pkgspec.PkgSpec;
 
 public interface PkgSpecService {
 
+    /**
+     * get all vm package specifications.
+     *
+     * @return
+     */
     List<PkgSpec> getPkgSpecs();
 
+    /**
+     * get vm package specification by id.
+     *
+     * @param pkgSpecId pkgSpecId
+     * @return
+     */
     PkgSpec getPkgSpecById(String pkgSpecId);
 
+    /**
+     * get vm network by specification id.
+     *
+     * @param pkgSpecId pkgSpecId
+     * @return
+     */
     List<Network> getNetworkResourceByPkgSpecId(String pkgSpecId);
 
+    /**
+     * get vm specification use scenes.
+     *
+     * @return
+     */
     String getUseScenes();
 }

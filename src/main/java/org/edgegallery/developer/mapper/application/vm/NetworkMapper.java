@@ -16,9 +16,11 @@
 package org.edgegallery.developer.mapper.application.vm;
 
 import java.util.List;
+import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.edgegallery.developer.model.application.vm.Network;
 
+@Mapper
 public interface NetworkMapper {
 
     int createNetwork(@Param("applicationId")String applicationId, @Param("network")Network network);

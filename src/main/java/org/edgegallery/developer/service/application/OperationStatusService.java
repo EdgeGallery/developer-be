@@ -23,15 +23,57 @@ import org.edgegallery.developer.service.application.common.ActionProgressRange;
 
 public interface OperationStatusService {
 
+    /**
+     * when launch application(deploy and test),get this operation's status.
+     *
+     * @param operationId operationId
+     * @return
+     */
     OperationStatus getOperationStatusById(String operationId);
 
+    /**
+     * create operation status.
+     *
+     * @param operationStatus operationStatus
+     * @return
+     */
     Boolean createOperationStatus(OperationStatus operationStatus);
 
+    /**
+     * When running to a certain stage, it needs to change its state.
+     *
+     * @param operationStatus operationStatus
+     * @return
+     */
     Boolean modifyOperationStatus(OperationStatus operationStatus);
 
+    /**
+     * get operation's count with object type.
+     *
+     * @param objectType objectType
+     * @return
+     */
     int getOperationCountByObjectType(String objectType);
 
-    int addActionStatusWithUpdateOperationStatus(String operationId, ActionStatus status, Map<String, ActionProgressRange> actionProgressRangeMap);
+    /**
+     * add action status with operation status.
+     *
+     * @param operationId operationId
+     * @param status status
+     * @param actionProgressRangeMap actionProgressRangeMap
+     * @return
+     */
+    int addActionStatusWithUpdateOperationStatus(String operationId, ActionStatus status,
+        Map<String, ActionProgressRange> actionProgressRangeMap);
 
-    int updateActionStatusWithUpdateOperationStatus(String operationId, ActionStatus status, Map<String, ActionProgressRange> actionProgressRangeMap);
+    /**
+     * update action status with operation status.
+     *
+     * @param operationId operationId
+     * @param status status
+     * @param actionProgressRangeMap actionProgressRangeMap
+     * @return
+     */
+    int updateActionStatusWithUpdateOperationStatus(String operationId, ActionStatus status,
+        Map<String, ActionProgressRange> actionProgressRangeMap);
 }

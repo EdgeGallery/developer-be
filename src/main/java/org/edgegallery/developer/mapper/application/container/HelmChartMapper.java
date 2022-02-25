@@ -30,8 +30,6 @@ public interface HelmChartMapper {
 
     HelmChart getHelmChartById(String id);
 
-    HelmChart getHelmChartByFileId(@Param("fileId") String fileId);
-
     int deleteHelmChart(@Param("id") String id, @Param("helmChartId") String helmChartId);
 
 }

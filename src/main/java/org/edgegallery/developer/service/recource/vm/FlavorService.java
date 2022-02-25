@@ -19,11 +19,34 @@ import org.edgegallery.developer.model.resource.vm.Flavor;
 
 public interface FlavorService {
 
-    List<Flavor> getAllFavors();
+    /**
+     * get all vm flavor.
+     *
+     * @return
+     */
+    List<Flavor> getAllFlavors();
 
-    Flavor getFavorById(String flavorId);
+    /**
+     * get flavor by id.
+     *
+     * @param flavorId flavor id
+     * @return
+     */
+    Flavor getFlavorById(String flavorId);
 
-    Flavor createFavor(Flavor flavor);
+    /**
+     * create vm flavor.
+     *
+     * @param flavor flavor
+     * @return
+     */
+    Flavor createFlavor(Flavor flavor);
 
-    Boolean deleteFavorById(String flavorId);
+    /**
+     * delete vm flavor by id.
+     *
+     * @param flavorId flavor id
+     * @return
+     */
+    Boolean deleteFlavorById(String flavorId);
 }

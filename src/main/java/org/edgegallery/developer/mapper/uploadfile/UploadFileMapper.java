@@ -24,11 +24,7 @@ public interface UploadFileMapper {
 
     int saveFile(UploadFile file);
 
-    int updateFile(UploadFile file);
-
     int updateFileStatus(String fileId, boolean isTemp);
-
-    int updateFilePath(String fileId, String filePath);
 
     int deleteFile(String fileId);
 

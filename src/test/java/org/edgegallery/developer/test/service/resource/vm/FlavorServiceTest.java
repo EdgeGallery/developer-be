@@ -49,13 +49,13 @@ public class FlavorServiceTest {
 
     @Test
     public void testGetAllFavorsSuccess() {
-        List<Flavor> flavors = flavorService.getAllFavors();
+        List<Flavor> flavors = flavorService.getAllFlavors();
         Assert.assertNotNull(flavors);
     }
 
     @Test
     public void testGetFavorByIdSuccess() {
-        Flavor flavor = flavorService.getFavorById("3ef2bea0-5e23-4fab-952d-cc9e6741dbe7");
+        Flavor flavor = flavorService.getFlavorById("3ef2bea0-5e23-4fab-952d-cc9e6741dbe7");
         Assert.assertNotNull(flavor);
     }
 
@@ -71,7 +71,7 @@ public class FlavorServiceTest {
         flavor.setDataDiskSize(50);
         flavor.setGpuExtraInfo("gpuInfo");
         flavor.setOtherExtraInfo("otherInfo");
-        Flavor createdFlavor = flavorService.createFavor(flavor);
+        Flavor createdFlavor = flavorService.createFlavor(flavor);
         Assert.assertNotNull(createdFlavor);
     }
 
@@ -87,9 +87,9 @@ public class FlavorServiceTest {
         flavor.setDataDiskSize(50);
         flavor.setGpuExtraInfo("gpuInfo");
         flavor.setOtherExtraInfo("otherInfo");
-        Flavor createdFlavor = flavorService.createFavor(flavor);
+        Flavor createdFlavor = flavorService.createFlavor(flavor);
         Assert.assertNotNull(createdFlavor);
-        boolean res = flavorService.deleteFavorById(createdFlavor.getId());
+        boolean res = flavorService.deleteFlavorById(createdFlavor.getId());
         Assert.assertEquals(true, res);
     }
 

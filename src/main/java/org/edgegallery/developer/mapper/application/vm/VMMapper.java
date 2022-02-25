@@ -13,6 +13,7 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
+
 package org.edgegallery.developer.mapper.application.vm;
 
 import java.util.List;
@@ -25,40 +26,28 @@ import org.edgegallery.developer.model.application.vm.VirtualMachine;
 @Mapper
 public interface VMMapper {
 
-
-    int createVM(@Param("applicationId")String applicationId, @Param("vm")VirtualMachine vm);
+    int createVM(@Param("applicationId") String applicationId, @Param("vm") VirtualMachine vm);
 
     int modifyVM(VirtualMachine vm);
 
-    int updateVmStatus(@Param("vmId")String vmId, @Param("status")String status, @Param("targetImageId")Integer targetImageId);
+    int updateVmStatus(@Param("vmId") String vmId, @Param("status") String status,
+        @Param("targetImageId") Integer targetImageId);
 
     int deleteVM(String id);
 
-    int deleteAllVMsByAppId(String applicationId);
-
     List<VirtualMachine> getAllVMsByAppId(String applicationId);
 
-    VirtualMachine getVMById(@Param("applicationId")String applicationId, @Param("vmId")String vmId);
+    VirtualMachine getVMById(@Param("applicationId") String applicationId, @Param("vmId") String vmId);
 
-    int createVMPort(@Param("vmId")String vmId, @Param("port")VMPort port);
-
-    int modifyVMPort(VMPort port);
-
-    int deleteVMPort(String id);
+    int createVMPort(@Param("vmId") String vmId, @Param("port") VMPort port);
 
     int deleteAllVMPortsByVMId(String vmId);
 
-    List<VMPort> getAllVMPorts();
-
     List<VMPort> getAllVMPortsByVMId(String vmId);
 
-    VMPort getVMPortById(String id);
+    int createVMCertificate(@Param("vmId") String vmId, @Param("certificate") VMCertificate certificate);
 
-    int createVMCertificate(@Param("vmId")String vmId, @Param("certificate")VMCertificate certificate);
-
-    int modifyVMCertificate(@Param("vmId")String vmId, @Param("certificate")VMCertificate certificate);
-
-    int deleteVMCertificate(String vmId);
+    int modifyVMCertificate(@Param("vmId") String vmId, @Param("certificate") VMCertificate certificate);
 
     VMCertificate getVMCertificate(String vmId);
 

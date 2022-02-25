@@ -34,10 +34,6 @@
     DELETE FROM tbl_app_package WHERE id = #{id};
   </delete>
 
-  <delete id="deleteAppPackageByAppId" parameterType="String">
-    DELETE FROM tbl_app_package WHERE app_id = #{appId};
-  </delete>
-
   <select id="getAppPackage" parameterType="String" resultMap="AppPackageMap">
     SELECT
     id, app_id, package_file_name,package_file_path

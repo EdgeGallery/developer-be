@@ -72,7 +72,7 @@ public class CapabilityQueryControllerTest {
         List<Capability> either = new ArrayList<>();
         String url = String
             .format("/mec/developer/v2/query/capabilities/project-id/%s", "4c22f069-e489-47cd-9c3c-e21741c85790");
-        Mockito.when(capabilityService.findByProjectId(Mockito.anyString())).thenReturn(either);
+        Mockito.when(capabilityService.findByApplicationId(Mockito.anyString())).thenReturn(either);
         ResultActions actions = mvc
             .perform(MockMvcRequestBuilders.get(url).contentType(MediaType.APPLICATION_JSON_UTF8))
             .andExpect(MockMvcResultMatchers.status().isOk());
