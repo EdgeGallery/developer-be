@@ -48,4 +48,12 @@ public class AtpTestTaskServiceImpl implements AtpTestTaskService {
         }
         return true;
     }
+
+    @Override
+    public void deleteAtpTestByAppId(String applicationId) {
+        int res = atpTestTaskMapper.deleteAtpTestByAppId(applicationId);
+        if (res < 1) {
+            LOGGER.warn("delete atp test failed with applicationId:{}", applicationId);
+        }
+    }
 }

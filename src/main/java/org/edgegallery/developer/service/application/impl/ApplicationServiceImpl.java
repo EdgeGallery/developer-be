@@ -29,7 +29,6 @@ import org.edgegallery.developer.exception.FileFoundFailException;
 import org.edgegallery.developer.exception.FileOperateException;
 import org.edgegallery.developer.filter.security.AccessUserUtil;
 import org.edgegallery.developer.mapper.application.ApplicationMapper;
-import org.edgegallery.developer.mapper.atp.AtpTestTaskMapper;
 import org.edgegallery.developer.model.application.Application;
 import org.edgegallery.developer.model.application.EnumAppClass;
 import org.edgegallery.developer.model.application.EnumApplicationStatus;
@@ -51,6 +50,7 @@ import org.edgegallery.developer.service.application.impl.vm.VMAppOperationServi
 import org.edgegallery.developer.service.application.vm.VMAppNetworkService;
 import org.edgegallery.developer.service.application.vm.VMAppVmService;
 import org.edgegallery.developer.service.apppackage.AppPackageService;
+import org.edgegallery.developer.service.atp.AtpTestTaskService;
 import org.edgegallery.developer.service.recource.pkgspec.PkgSpecService;
 import org.edgegallery.developer.service.uploadfile.UploadFileService;
 import org.edgegallery.developer.util.DeveloperFileUtils;
@@ -96,7 +96,7 @@ public class ApplicationServiceImpl implements ApplicationService {
     private ContainerAppOperationService containerAppOperationService;
 
     @Autowired
-    private AtpTestTaskMapper atpTestTaskMapper;
+    private AtpTestTaskService atpTestTaskService;
 
     @Autowired
     private VMAppOperationServiceImpl vmAppOperationServiceImpl;
@@ -190,7 +190,7 @@ public class ApplicationServiceImpl implements ApplicationService {
         // clean env
         appServiceFactory.getAppOperationService(applicationId).cleanEnv(applicationId, user);
         // clean atp db
-        atpTestTaskMapper.deleteAtpTestByAppId(applicationId);
+        atpTestTaskService.deleteAtpTestByAppId(applicationId);
         //clean other config
         appConfigurationService.deleteAppConfiguration(applicationId);
         //clean package record
