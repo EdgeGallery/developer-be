@@ -290,4 +290,12 @@
         <include refid="AppCertificateAllColumn"/>
         FROM tbl_app_certificate where app_id = #{applicationId}
     </select>
+
+    <delete id="deleteAppConfigurationByAppId" parameterType="String">
+        DELETE FROM tbl_app_certificate WHERE app_id = #{applicationId};
+        DELETE FROM tbl_app_service_required WHERE app_id = #{applicationId};
+        DELETE FROM tbl_app_service_produced WHERE app_id = #{applicationId};
+        DELETE FROM tbl_app_dns_rule WHERE app_id = #{applicationId};
+        DELETE FROM tbl_app_traffic_rule WHERE app_id = #{applicationId};
+    </delete>
 </mapper>

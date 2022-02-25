@@ -191,6 +191,10 @@ public class ApplicationServiceImpl implements ApplicationService {
         appServiceFactory.getAppOperationService(applicationId).cleanEnv(applicationId, user);
         // clean atp db
         atpTestTaskMapper.deleteAtpTestByAppId(applicationId);
+        //clean other config
+        appConfigurationService.deleteAppConfiguration(applicationId);
+        //clean package record
+        appPackageService.deletePackageByAppId(applicationId);
         // clean vm db
         if (application.getAppClass().equals(EnumAppClass.VM)) {
             vmService.deleteVmByAppId(applicationId, user);

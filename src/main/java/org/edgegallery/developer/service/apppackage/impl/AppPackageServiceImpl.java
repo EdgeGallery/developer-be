@@ -399,6 +399,14 @@ public class AppPackageServiceImpl implements AppPackageService {
     }
 
     @Override
+    public void deletePackageByAppId(String applicationId) {
+        int res = appPackageMapper.deleteAppPackageByAppId(applicationId);
+        if (res < 1) {
+            LOGGER.warn("delete app package record fail by applicationId:{}", applicationId);
+        }
+    }
+
+    @Override
     public boolean deletePackage(String packageId) {
         AppPackage appPackage = appPackageMapper.getAppPackage(packageId);
         if (appPackage == null) {

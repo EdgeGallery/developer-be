@@ -115,4 +115,10 @@ public interface AppPackageService {
      * @return return true or false
      */
     boolean deletePackageRecord(String packageId);
+
+    /**
+     * delete app package by application id.
+     * @param applicationId applicationId
+     */
+    void deletePackageByAppId(String applicationId);
 }

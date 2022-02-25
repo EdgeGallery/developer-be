@@ -35,6 +35,13 @@ public interface AppConfigurationService {
     AppConfiguration getAppConfiguration(String applicationId);
 
     /**
+     * delete AppConfiguration.
+     *
+     * @param applicationId applicationId
+     */
+    void deleteAppConfiguration(String applicationId);
+
+    /**
      * modify AppConfiguration.
      *
      * @param applicationId applicationId
