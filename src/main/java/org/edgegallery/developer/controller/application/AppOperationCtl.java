@@ -182,7 +182,7 @@ public class AppOperationCtl {
      * release app.
      *
      * @param applicationId applicationId
-     * @param request       request
+     * @param request  request
      * @return true
      */
     @ApiOperation(value = "release app.", response = Boolean.class)

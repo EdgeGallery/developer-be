@@ -86,4 +86,6 @@ public interface AppConfigurationMapper {
 
     int deleteAppCertificate(String applicationId);
 
+    int deleteAppConfigurationByAppId(String applicationId);
+
 }

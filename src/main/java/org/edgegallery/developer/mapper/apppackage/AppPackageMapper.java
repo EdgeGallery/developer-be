@@ -31,4 +31,7 @@ public interface AppPackageMapper {
     AppPackage getAppPackage(String id);
 
     AppPackage getAppPackageByAppId(String appId);
+
+    int deleteAppPackageByAppId(String appId);
+
 }

@@ -87,6 +87,14 @@
     id = #{id}
   </update>
 
+  <delete id="deleteOperationStatus" parameterType="String">
+    DELETE FROM tbl_operation_status WHERE id = #{id};
+  </delete>
+
+  <delete id="deleteActionStatus" parameterType="String">
+    DELETE FROM tbl_action_status WHERE id = #{id};
+  </delete>
+
   <select id="getActionStatusByOperationId" parameterType="String" resultMap="ActionStatusMap">
     SELECT
     id, operation_id, object_type, object_id, action_name, progress, status, error_msg, status_log, to_char(update_time, 'YYYY-MM-DD HH24:MI:SS') as update_time

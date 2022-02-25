@@ -30,6 +30,10 @@
     ( #{id}, #{appId}, #{packageFileName},#{packageFilePath})
   </insert>
 
+  <delete id="deleteAppPackageByAppId" parameterType="String">
+    DELETE FROM tbl_app_package WHERE app_id = #{appId};
+  </delete>
+
   <delete id="deleteAppPackage" parameterType="String">
     DELETE FROM tbl_app_package WHERE id = #{id};
   </delete>

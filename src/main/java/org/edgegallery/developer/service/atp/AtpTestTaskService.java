@@ -38,4 +38,11 @@ public interface AtpTestTaskService {
      */
     boolean updateAtpTestStatus(AtpTest task);
 
+    /**
+     * delete atp task.
+     *
+     * @param applicationId applicationId
+     */
+    void deleteAtpTestByAppId(String applicationId);
+
 }
