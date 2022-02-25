@@ -22,26 +22,91 @@ import org.springframework.web.multipart.MultipartFile;
 
 public interface UploadFileService {
 
+    /**
+     * download uploaded file.
+     *
+     * @param uploadedFile uploaded file
+     * @param userId userId
+     * @return
+     */
     byte[] getFileStream(UploadFile uploadedFile, String userId);
 
+    /**
+     * get upload file.
+     *
+     * @param fileId fileId
+     * @return
+     */
     UploadFile getFile(String fileId);
 
+    /**
+     * save file.
+     *
+     * @param uploadFile upload file
+     * @return
+     */
     int saveFile(UploadFile uploadFile);
 
+    /**
+     * upload file.
+     *
+     * @param userId userId
+     * @param fileType file Type(icon,api,md,script)
+     * @param uploadFile file
+     * @return
+     */
     UploadFile uploadFile(String userId, String fileType, MultipartFile uploadFile);
 
+    /**
+     * delete file.
+     *
+     * @param fileId fileId
+     * @return
+     */
     boolean deleteFile(String fileId);
 
+    /**
+     * download sample code.
+     *
+     * @param apiFileIds fileId list
+     * @return
+     */
     byte[] downloadSampleCode(List<String> apiFileIds);
 
+    /**
+     * get sample code structure.
+     *
+     * @param apiFileIds fileId list
+     * @return
+     */
     AppPkgStructure getSampleCodeStru(List<String> apiFileIds);
 
-    String getSampleCodeContent(List<String> apiFileIds,String fileName);
+    /**
+     * get sample code content.
+     *
+     * @param apiFileIds fileId list
+     * @param fileName file name
+     * @return
+     */
+    String getSampleCodeContent(List<String> apiFileIds, String fileName);
 
+    /**
+     * download sdk.
+     *
+     * @param fileId file id
+     * @param lan language
+     * @param capabilities capability list
+     * @return
+     */
     byte[] getSdkProject(String fileId, String lan, List<Capability> capabilities);
 
+    /**
+     * save file locally.
+     *
+     * @param uploadFile upload file
+     * @param userId user id
+     * @return
+     */
     UploadFile saveFileToLocal(MultipartFile uploadFile, String userId);
-
-    boolean deleteFileRecord(String fileId);
 
 }

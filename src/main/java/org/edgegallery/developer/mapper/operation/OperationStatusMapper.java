@@ -13,6 +13,7 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
+
 package org.edgegallery.developer.mapper.operation;
 
 import java.util.List;
@@ -28,17 +29,11 @@ public interface OperationStatusMapper {
 
     int modifyOperationStatus(OperationStatus operationStatus);
 
-    int deleteOperationStatus(String id);
-
     OperationStatus getOperationStatusById(String id);
 
-    int createActionStatus(@Param("operationId")String operationId, @Param("action")ActionStatus action);
+    int createActionStatus(@Param("operationId") String operationId, @Param("action") ActionStatus action);
 
     int modifyActionStatus(ActionStatus operationStatus);
-
-    int deleteActionStatus(String id);
-
-    ActionStatus getActionStatusById(String id);
 
     List<ActionStatus> getActionStatusByOperationId(String operationId);
 

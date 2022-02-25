@@ -65,7 +65,7 @@ import org.springframework.core.io.FileSystemResource;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
-@Service("AppOperationService")
+@Service("appOperationService")
 public class AppOperationServiceImpl implements AppOperationService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AppOperationServiceImpl.class);

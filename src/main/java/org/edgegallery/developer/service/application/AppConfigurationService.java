@@ -23,187 +23,185 @@ import org.edgegallery.developer.model.application.configuration.AppServiceProdu
 import org.edgegallery.developer.model.application.configuration.AppServiceRequired;
 import org.edgegallery.developer.model.application.configuration.DnsRule;
 import org.edgegallery.developer.model.application.configuration.TrafficRule;
-import org.springframework.transaction.annotation.Transactional;
 
 public interface AppConfigurationService {
 
     /**
-     * get AppConfiguration
+     * get AppConfiguration.
      *
      * @param applicationId applicationId
      * @return
      */
-    @Transactional
-    public AppConfiguration getAppConfiguration(String applicationId);
+    AppConfiguration getAppConfiguration(String applicationId);
 
     /**
-     * modify AppConfiguration
+     * modify AppConfiguration.
      *
      * @param applicationId applicationId
      * @return
      */
-    @Transactional
     Boolean modifyAppConfiguration(String applicationId, AppConfiguration appConfiguration);
 
     /**
-     * modify AppConfiguration
+     * get AppConfiguration TrafficRules.
      *
      * @param applicationId applicationId
      * @return
      */
-    @Transactional
-    void deleteAppConfiguration(String applicationId);
-
-    /**
-     * get AppConfiguration TrafficRules
-     *
-     * @param applicationId applicationId
-     * @return
-     */
-    @Transactional
     List<TrafficRule> getAllTrafficRules(String applicationId);
 
     /**
-     * create AppConfiguration TrafficRules
+     * create AppConfiguration TrafficRules.
      *
      * @param applicationId applicationId
      * @return
      */
-    @Transactional
     TrafficRule createTrafficRules(String applicationId, TrafficRule trafficRule);
 
     /**
-     * modify a AppConfiguration TrafficRule
+     * modify a AppConfiguration TrafficRule.
      *
      * @param applicationId applicationId
      * @return
      */
-    @Transactional
     Boolean modifyTrafficRule(String applicationId, TrafficRule trafficRule);
 
     /**
-     * delete a  AppConfiguration TrafficRule
+     * delete a AppConfiguration TrafficRule.
      *
      * @param applicationId applicationId
      * @return
      */
-    @Transactional
     Boolean deleteTrafficRule(String applicationId, String id);
 
     /**
-     * create a  AppConfiguration DnsRule
+     * create a AppConfiguration DnsRule.
      *
      * @param applicationId applicationId
      * @return
      */
-    @Transactional
     DnsRule createDnsRule(String applicationId, DnsRule dnsRule);
 
     /**
-     * get all  AppConfiguration DnsRules
+     * get all AppConfiguration DnsRules.
      *
      * @param applicationId applicationId
      * @return
      */
-    @Transactional
     List<DnsRule> getAllDnsRules(String applicationId);
 
     /**
-     * delete a  AppConfiguration DnsRule
+     * delete a AppConfiguration DnsRule.
      *
      * @param applicationId applicationId
      * @return
      */
-    @Transactional
     Boolean deleteDnsRule(String applicationId, String ruleId);
 
     /**
-     * modify a  AppConfiguration DnsRule
+     * modify a AppConfiguration DnsRule.
      *
      * @param applicationId applicationId
      * @return
      */
-    @Transactional
     Boolean modifyDnsRule(String applicationId, DnsRule dnsRule);
 
     /**
-     * get all  AppConfiguration ServiceProduced
+     * get all AppConfiguration ServiceProduced.
      *
      * @param applicationId applicationId
      * @return
      */
-    @Transactional
     List<AppServiceProduced> getAllServiceProduced(String applicationId);
 
     /**
-     * create a   AppConfiguration ServiceProduced
+     * create a AppConfiguration ServiceProduced.
      *
      * @param applicationId applicationId
      * @return
      */
-    @Transactional
     AppServiceProduced createServiceProduced(String applicationId, AppServiceProduced serviceProduced);
 
     /**
-     * delete a  AppConfiguration ServiceProduced
+     * delete a AppConfiguration ServiceProduced.
      *
      * @param applicationId applicationId
      * @return
      */
-    @Transactional
     Boolean deleteServiceProduced(String applicationId, String appServiceProducedId);
 
     /**
-     * modify a  AppConfiguration ServiceProduced
+     * modify a AppConfiguration ServiceProduced.
      *
      * @param applicationId applicationId
      * @return
      */
-    @Transactional
     Boolean modifyServiceProduced(String applicationId, String appServiceProducedId,
         AppServiceProduced serviceProduced);
 
     /**
-     * get all  AppConfiguration ServiceRequired
+     * get all AppConfiguration ServiceRequired.
      *
      * @param applicationId applicationId
      * @return
      */
-    @Transactional
     List<AppServiceRequired> getAllServiceRequired(String applicationId);
 
     /**
-     * create  AppConfiguration ServiceRequired
+     * create AppConfiguration ServiceRequired.
      *
      * @param applicationId applicationId
      * @return
      */
-    @Transactional
     AppServiceRequired createServiceRequired(String applicationId, AppServiceRequired serviceRequired);
 
     /**
-     * modify a  AppConfiguration ServiceRequired
+     * modify a AppConfiguration ServiceRequired.
      *
      * @param applicationId applicationId
      * @return
      */
-    @Transactional
     Boolean modifyServiceRequired(String applicationId, AppServiceRequired serviceRequired);
 
     /**
-     * delete a   AppConfiguration ServiceRequired
+     * delete a AppConfiguration ServiceRequired.
      *
      * @param applicationId applicationId
      * @return
      */
-    @Transactional
     Boolean deleteServiceRequired(String applicationId, String serviceRequiredId);
 
+    /**
+     * get a application certificate.
+     *
+     * @param applicationId applicationId
+     * @return
+     */
     AppCertificate getAppCertificate(String applicationId);
 
+    /**
+     * create application certificate.
+     *
+     * @param applicationId applicationId
+     * @param appCertificate appCertificate
+     * @return
+     */
     AppCertificate createAppCertificate(String applicationId, AppCertificate appCertificate);
 
+    /**
+     * modify application certificate.
+     *
+     * @param applicationId applicationId
+     * @param appCertificate appCertificate
+     * @return
+     */
     Boolean modifyAppCertificate(String applicationId, AppCertificate appCertificate);
 
+    /**
+     * delete application certificate.
+     *
+     * @param applicationId applicationId
+     * @return
+     */
     Boolean deleteAppCertificate(String applicationId);
 }

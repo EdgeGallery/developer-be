@@ -63,7 +63,7 @@ public class FlavorCtlTest {
     public void testGetAllFavorsSuccess() throws Exception {
         List<Flavor> flavors = new ArrayList<>();
         String url = String.format("/mec/developer/v2/flavors");
-        Mockito.when(flavorService.getAllFavors()).thenReturn(flavors);
+        Mockito.when(flavorService.getAllFlavors()).thenReturn(flavors);
         ResultActions actions = mvc
             .perform(MockMvcRequestBuilders.get(url).contentType(MediaType.APPLICATION_JSON_UTF8))
             .andExpect(MockMvcResultMatchers.status().isOk());
@@ -74,7 +74,7 @@ public class FlavorCtlTest {
     @WithMockUser(roles = "DEVELOPER_TENANT")
     public void testGetFavorByIdSuccess() throws Exception {
         String url = String.format("/mec/developer/v2/flavors/%s", UUID.randomUUID().toString());
-        Mockito.when(flavorService.getFavorById(Mockito.anyString())).thenReturn(new Flavor());
+        Mockito.when(flavorService.getFlavorById(Mockito.anyString())).thenReturn(new Flavor());
         ResultActions actions = mvc
             .perform(MockMvcRequestBuilders.get(url).contentType(MediaType.APPLICATION_JSON_UTF8))
             .andExpect(MockMvcResultMatchers.status().isOk());
@@ -85,7 +85,7 @@ public class FlavorCtlTest {
     @WithMockUser(roles = "DEVELOPER_TENANT")
     public void testCreateFlavorSuccess() throws Exception {
         String url = String.format("/mec/developer/v2/flavors");
-        Mockito.when(flavorService.createFavor(Mockito.any())).thenReturn(new Flavor());
+        Mockito.when(flavorService.createFlavor(Mockito.any())).thenReturn(new Flavor());
         ResultActions actions = mvc.perform(
             MockMvcRequestBuilders.post(url).with(csrf()).content(new Gson().toJson(new Flavor()))
                 .contentType(MediaType.APPLICATION_JSON_UTF8)).andExpect(MockMvcResultMatchers.status().isOk());
@@ -96,7 +96,7 @@ public class FlavorCtlTest {
     @WithMockUser(roles = "DEVELOPER_TENANT")
     public void testDeleteFlavorSuccess() throws Exception {
         String url = String.format("/mec/developer/v2/flavors/%s", UUID.randomUUID().toString());
-        Mockito.when(flavorService.deleteFavorById(Mockito.anyString())).thenReturn(true);
+        Mockito.when(flavorService.deleteFlavorById(Mockito.anyString())).thenReturn(true);
         ResultActions actions = mvc
             .perform(MockMvcRequestBuilders.delete(url).with(csrf()).contentType(MediaType.APPLICATION_JSON_UTF8))
             .andExpect(MockMvcResultMatchers.status().isOk());

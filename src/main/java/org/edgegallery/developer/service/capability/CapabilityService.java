@@ -20,31 +20,107 @@ import java.util.List;
 import org.edgegallery.developer.model.capability.Capability;
 
 public interface CapabilityService {
+    /**
+     * create capability.
+     *
+     * @param capability capability
+     * @return
+     */
     Capability create(Capability capability);
 
+    /**
+     * delete capability by id.
+     *
+     * @param id capability id
+     * @return
+     */
     boolean deleteById(String id);
 
+    /**
+     * update capability by id.
+     *
+     * @param capability capability
+     * @return
+     */
     Capability updateById(Capability capability);
 
+    /**
+     * get all capabilities.
+     *
+     * @return
+     */
     List<Capability> findAll();
 
+    /**
+     * get capabilities by type.
+     *
+     * @param type capability type
+     * @return
+     */
     List<Capability> findByType(String type);
 
+    /**
+     * get capability by id.
+     *
+     * @param id capability id
+     * @return
+     */
     Capability findById(String id);
 
+    /**
+     * get capabilities by group id.
+     *
+     * @param groupId
+     * @return
+     */
     List<Capability> findByGroupId(String groupId);
 
-    List<Capability> findByProjectId(String projectId);
+    /**
+     * get capabilities by applicationId.
+     *
+     * @param applicationId applicationId
+     * @return
+     */
+    List<Capability> findByApplicationId(String applicationId);
 
-    Capability findByName(String name);
-
+    /**
+     * get capabilities by api file id.
+     *
+     * @param apiFileId api file id
+     * @return
+     */
     List<Capability> findByApiFileId(String apiFileId);
 
+    /**
+     * get capabilities by chinese name.
+     *
+     * @param name chinese name
+     * @return
+     */
     List<Capability> findByNameWithFuzzy(String name);
 
+    /**
+     * get capabilities by english name.
+     *
+     * @param nameEn english name
+     * @return
+     */
     List<Capability> findByNameEnWithFuzzy(String nameEn);
 
+    /**
+     * get capabilities by chinese name or english name.
+     *
+     * @param name chinese name
+     * @param nameEn english name
+     * @return
+     */
     List<Capability> findByNameOrNameEn(String name, String nameEn);
 
+    /**
+     * update select count in capability.
+     *
+     * @param ids capability id list
+     * @return
+     */
     boolean updateSelectCountByIds(List<String> ids);
 }

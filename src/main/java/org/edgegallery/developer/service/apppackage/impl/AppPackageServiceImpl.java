@@ -56,7 +56,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
-@Service
+@Service("appPackageService")
 public class AppPackageServiceImpl implements AppPackageService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AppPackageServiceImpl.class);

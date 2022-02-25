@@ -100,15 +100,6 @@ public class AppConfigurationServiceImpl implements AppConfigurationService {
     }
 
     @Override
-    public void deleteAppConfiguration(String applicationId) {
-
-        int res = appConfigurationMapper.deleteAppConfigurationByAppId(applicationId);
-        if (res < 1) {
-            LOGGER.warn("delete appConfiguration fail by applicationId:{}", applicationId);
-        }
-    }
-
-    @Override
     public List<TrafficRule> getAllTrafficRules(String applicationId) {
         List<TrafficRule> trafficRules = appConfigurationMapper.getAllTrafficRules(applicationId);
         if (!CollectionUtils.isEmpty(trafficRules)) {

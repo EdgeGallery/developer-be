@@ -65,16 +65,6 @@ public class CapabilityGroupServiceImpl implements CapabilityGroupService {
     }
 
     @Override
-    public CapabilityGroup updateById(CapabilityGroup capabilityGroup) {
-        int ret = capabilityGroupMapper.updateById(capabilityGroup);
-        if (ret <= 0) {
-            LOGGER.error("Update capabilityGroup {} failed!", capabilityGroup.getName());
-            throw new DataBaseException("Update capability group failed.", ResponseConsts.RET_UPDATE_DATA_FAIL);
-        }
-        return capabilityGroup;
-    }
-
-    @Override
     public boolean deleteById(String groupId) {
         int ret = capabilityGroupMapper.deleteById(groupId);
         if (ret <= 0) {

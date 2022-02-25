@@ -133,7 +133,7 @@ public class AppDefinitionConverter {
         }
         Map<String, Flavor> flavorMap = new HashMap<>();
         for (String flavorId : flavorIds) {
-            flavorMap.put(flavorId, flavorService.getFavorById(flavorId));
+            flavorMap.put(flavorId, flavorService.getFlavorById(flavorId));
         }
         return flavorMap;
     }

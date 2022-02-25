@@ -21,7 +21,18 @@ import org.edgegallery.developer.model.capability.CapabilityGroupStat;
 
 public interface CapabilityGroupStatService {
 
+    /**
+     * get all capability include group.
+     *
+     * @return
+     */
     List<CapabilityGroupStat> findAll();
 
+    /**
+     * get all capability include group by type.
+     *
+     * @param type group type
+     * @return
+     */
     List<CapabilityGroupStat> findByType(String type);
 }

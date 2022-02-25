@@ -64,7 +64,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
-@Service
+@Service("reverseProxyService")
 public class ReverseProxyServiceImpl implements ReverseProxyService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ReverseProxyService.class);
@@ -125,8 +125,8 @@ public class ReverseProxyServiceImpl implements ReverseProxyService {
             nextHopIp = lcmIp;
         }
 
-        ReverseProxy reverseProxy = new ReverseProxy(mecHostProtocol, mecHostIp,
-                hostConsolePort, nextHopProtocol, nextHopIp, 1);
+        ReverseProxy reverseProxy = new ReverseProxy(mecHostProtocol, mecHostIp, hostConsolePort, nextHopProtocol,
+            nextHopIp, 1);
         sendHttpRequest(getReverseProxyBaseUrl(), token, HttpMethod.POST, reverseProxy);
         LOGGER.info("succeed in adding reverse proxy, param is: {}", reverseProxy);
     }
@@ -164,7 +164,7 @@ public class ReverseProxyServiceImpl implements ReverseProxyService {
         ConsoleResponse consoleResponse = gson
             .fromJson(getVncUrlResult, new TypeToken<ConsoleResponse>() { }.getType());
         String vncUrl = consoleResponse.getConsole().getUrl();
-        if (mepHost.getVimType()== EnumVimType.FusionSphere) {
+        if (mepHost.getVimType() == EnumVimType.FusionSphere) {
             return genProxyUrl(vncUrl, mepHost.getMecHostIp(), mepHost.getMecHostPort());
         }
         String url = new StringBuffer(getReverseProxyBaseUrl()).append("/dest-host-ip/").append(mepHost.getMecHostIp())

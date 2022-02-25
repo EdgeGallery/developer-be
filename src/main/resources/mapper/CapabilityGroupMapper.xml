@@ -77,10 +77,4 @@
         DELETE FROM tbl_capability_group WHERE id = #{id};
     </delete>
 
-    <update id="updateById" parameterType="org.edgegallery.developer.model.capability.CapabilityGroup">
-        update tbl_capability_group 
-        set name =#{name},name_en=#{nameEn},type=#{type},description=#{description},description_en=#{descriptionEn},
-            icon_file_id =#{iconFileId},author =#{author},create_time =#{createTime},update_time =#{updateTime}
-        where id = #{id}
-    </update>
 </mapper>

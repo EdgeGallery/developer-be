@@ -226,13 +226,8 @@ public class CapabilityServiceImpl implements CapabilityService {
     }
 
     @Override
-    public List<Capability> findByProjectId(String projectId) {
-        return capabilityMapper.selectByProjectId(projectId);
-    }
-
-    @Override
-    public Capability findByName(String name) {
-        return capabilityMapper.selectByName(name);
+    public List<Capability> findByApplicationId(String applicationId) {
+        return capabilityMapper.selectByProjectId(applicationId);
     }
 
     @Override

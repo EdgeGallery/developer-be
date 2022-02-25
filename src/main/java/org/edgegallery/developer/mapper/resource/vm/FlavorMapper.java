@@ -20,12 +20,12 @@ import org.edgegallery.developer.model.resource.vm.Flavor;
 
 public interface FlavorMapper {
 
-    List<Flavor> getAllFavors();
+    List<Flavor> getAllFlavors();
 
-    int createFavor(@Param("flavor") Flavor flavor);
+    int createFlavor(@Param("flavor") Flavor flavor);
 
-    Flavor getFavorById(String flavorId);
+    Flavor getFlavorById(String flavorId);
 
-    int deleteFavorById(String flavorId);
+    int deleteFlavorById(String flavorId);
 
 }

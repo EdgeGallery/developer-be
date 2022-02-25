@@ -36,19 +36,19 @@ public class FlavorServiceImpl implements FlavorService {
 
 
     @Override
-    public List<Flavor> getAllFavors() {
-        return flavorMapper.getAllFavors();
+    public List<Flavor> getAllFlavors() {
+        return flavorMapper.getAllFlavors();
     }
 
     @Override
-    public Flavor getFavorById(String flavorId) {
-        return flavorMapper.getFavorById(flavorId);
+    public Flavor getFlavorById(String flavorId) {
+        return flavorMapper.getFlavorById(flavorId);
     }
 
     @Override
-    public Flavor createFavor(Flavor flavor) {
+    public Flavor createFlavor(Flavor flavor) {
         flavor.setId(UUID.randomUUID().toString());
-        int res = flavorMapper.createFavor(flavor);
+        int res = flavorMapper.createFlavor(flavor);
         if (res < 1) {
             LOGGER.error("Create flavor in db error.");
             throw new DataBaseException("Create flavor in db error.", ResponseConsts.RET_CREATE_DATA_FAIL);
@@ -57,8 +57,8 @@ public class FlavorServiceImpl implements FlavorService {
     }
 
     @Override
-    public Boolean deleteFavorById(String flavorId) {
-        int res = flavorMapper.deleteFavorById(flavorId);
+    public Boolean deleteFlavorById(String flavorId) {
+        int res = flavorMapper.deleteFlavorById(flavorId);
         if (res < 1) {
             LOGGER.error("delete flavor in db error.");
             throw new DataBaseException("delete flavor in db error.", ResponseConsts.RET_CREATE_DATA_FAIL);

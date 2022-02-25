@@ -71,7 +71,7 @@ public class CapabilityQueryController {
 	@PreAuthorize("hasRole('DEVELOPER_TENANT') || hasRole('DEVELOPER_ADMIN') || hasRole('DEVELOPER_GUEST')")
 	public ResponseEntity<List<Capability>> getCapabilityByProjectId(
 			@ApiParam(value = "projectId", required = true) @PathVariable(value = "projectId") String projectId) {
-		return ResponseEntity.ok(capabilityService.findByProjectId(projectId));
+		return ResponseEntity.ok(capabilityService.findByApplicationId(projectId));
 	}
 
 	@ApiOperation(value = "get Capability by name with fuzzy", response = Capability.class, responseContainer = "List")

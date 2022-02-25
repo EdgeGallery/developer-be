@@ -32,7 +32,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-@Service
+@Service("pkgSpecService")
 public class PkgSpecServiceImpl implements PkgSpecService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PkgSpecServiceImpl.class);
@@ -93,7 +93,7 @@ public class PkgSpecServiceImpl implements PkgSpecService {
         } catch (IOException e) {
             LOGGER.error("Load the package specification file failed.", e);
         }
-        if (null != pkgSpecConfig &&StringUtils.isNotEmpty(pkgSpecConfig.getUseScenes())) {
+        if (null != pkgSpecConfig && StringUtils.isNotEmpty(pkgSpecConfig.getUseScenes())) {
             return pkgSpecConfig.getUseScenes();
         }
         return DEFAULT_USE_SCENES;

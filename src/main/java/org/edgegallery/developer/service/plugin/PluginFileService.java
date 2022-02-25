@@ -24,11 +24,39 @@ import org.springframework.web.multipart.MultipartFile;
 
 public interface PluginFileService {
 
+    /**
+     * save plugin.
+     *
+     * @param file plugin file
+     * @param fileChecker check file class
+     * @return
+     * @throws IOException
+     */
     String saveTo(MultipartFile file, FileChecker fileChecker) throws IOException;
 
+    /**
+     * download plugin.
+     *
+     * @param afile encapsulated plugin class
+     * @return
+     * @throws IOException
+     */
     InputStream get(AFile afile) throws IOException;
 
+    /**
+     * get csar file content.
+     *
+     * @param fileAddress fileAddress
+     * @param filePath filePath
+     * @return
+     * @throws IOException
+     */
     String get(String fileAddress, String filePath) throws IOException;
 
+    /**
+     * delete plugin.
+     *
+     * @param afile encapsulated plugin class
+     */
     void delete(AFile afile);
 }

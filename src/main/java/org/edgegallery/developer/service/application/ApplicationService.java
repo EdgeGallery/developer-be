@@ -21,60 +21,85 @@ import org.edgegallery.developer.model.application.EnumApplicationStatus;
 import org.edgegallery.developer.model.common.Page;
 import org.edgegallery.developer.model.common.User;
 import org.edgegallery.developer.model.restful.ApplicationDetail;
-import org.springframework.transaction.annotation.Transactional;
 
 public interface ApplicationService {
 
     /**
-     * create a application
+     * create a application.
      *
      * @param application application
      * @return
      */
-    @Transactional
     Application createApplication(Application application);
 
     /**
-     * get a application
+     * get a application.
      *
      * @param applicationId applicationId
      * @return
      */
-    @Transactional
     Application getApplication(String applicationId);
 
     /**
-     * modify a application
+     * modify a application.
      *
      * @param applicationId applicationId
      * @return
      */
-    @Transactional
     Boolean modifyApplication(String applicationId, Application application);
 
     /**
-     * get a application
+     * get a application with name.
      *
+     * @param appName application name
+     * @param limit page limit
+     * @param offset page offset
      * @return
      */
-    @Transactional
     Page<Application> getApplicationByNameWithFuzzy(String appName, int limit, int offset);
 
     /**
-     * DELETE a application
+     * delete a application.
+     *
+     * @param applicationId applicationId
+     * @param user delete app author
+     * @return
+     */
+    Boolean deleteApplication(String applicationId, User user);
+
+    /**
+     * get application detail.
      *
      * @param applicationId applicationId
      * @return
      */
-    @Transactional
-    Boolean deleteApplication(String applicationId, User user);
-
     ApplicationDetail getApplicationDetail(String applicationId);
 
+    /**
+     * modify application detail.
+     *
+     * @param applicationId applicationId
+     * @param applicationDetail applicationDetail
+     * @return
+     */
     Boolean modifyApplicationDetail(String applicationId, ApplicationDetail applicationDetail);
 
+    /**
+     * update application status.
+     *
+     * @param applicationId applicationId
+     * @param status application status
+     * @return
+     */
     Boolean updateApplicationStatus(String applicationId, EnumApplicationStatus status);
 
+    /**
+     * modify host id in one application.
+     *
+     * @param applicationId applicationId
+     * @param mepHostId host id
+     * @return
+     */
     Boolean modifyMepHostById(String applicationId, String mepHostId);
 
 }

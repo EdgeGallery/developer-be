@@ -16,48 +16,28 @@
 
 package org.edgegallery.developer.mapper.plugin;
 
-import java.util.Date;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.edgegallery.developer.model.plugin.PluginPO;
-import org.edgegallery.developer.model.plugin.comment.PluginDownloadRecord;
 import org.edgegallery.developer.model.plugin.PluginPageCriteria;
+import org.edgegallery.developer.model.plugin.comment.PluginDownloadRecord;
 import org.springframework.stereotype.Component;
 
 @Mapper
 @Component
 public interface PluginMapper {
 
-    List<PluginPO> getAllPlugin(@Param("pluginType") Integer plugintype);
-
     void insert(PluginPO plugin);
 
     void delPlugin(@Param("pluginId") String pluginId);
 
-    String getPluginPath(@Param("pluginId") String pluginId);
-
-    String getLogoPath(@Param("pluginId") String pluginId);
-
-    String getApiPath(@Param("pluginId") String pluginId);
-
     void update(PluginPO plugin);
-
-    void updownloadCount(@Param("pluginId") String pluginId);
-
-    void updateScore(Map<String, Object> map);
-
-    int getScorecount(@Param("pluginId") String pluginId);
-
-    float getSatisfaction(@Param("pluginId") String pluginId);
 
     Optional<PluginPO> getPluginById(@Param("pluginId") String pluginId);
 
     void saveDownloadRecord(PluginDownloadRecord record);
-
-    Optional<PluginPO> getPluginByUploadTime(Date uploadTime);
 
     List<PluginPO> findAllWithPagination(@Param("criteria") PluginPageCriteria pluginPageCriteria);
 

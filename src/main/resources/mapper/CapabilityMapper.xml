@@ -117,13 +117,6 @@
         where a.group_id = b.id and (a.name=#{name} or a.name_en=#{nameEn})
     </select>
 
-    <select id="selectByName" resultMap="Capability">
-        select
-        <include refid="AllColumnWithCascade"/>
-        from tbl_capability a,tbl_capability_group b
-        where a.group_id = b.id and a.name=#{name}
-    </select>
-
     <select id="selectByNameWithFuzzy" resultMap="Capability">
         select
         <include refid="AllColumnWithCascade"/>
