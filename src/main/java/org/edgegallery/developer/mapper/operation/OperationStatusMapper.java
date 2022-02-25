@@ -38,4 +38,8 @@ public interface OperationStatusMapper {
     List<ActionStatus> getActionStatusByOperationId(String operationId);
 
     int getOperationCountByObjectType(String objectType);
+
+    int deleteOperationStatus(String id);
+
+    int deleteActionStatus(String id);
 }
