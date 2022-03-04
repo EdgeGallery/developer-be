@@ -333,16 +333,18 @@ public final class ContainerImageUtil {
         String imageName = imageArr[0];
         LOGGER.warn(imageArr[0]);
         List<Image> lists = dockerClient.listImagesCmd().withImageNameFilter(imageName).exec();
-        LOGGER.debug("lists is empty ?{},lists size {},number 0 {}", CollectionUtils.isEmpty(lists), lists.size(),
+        LOGGER.warn("lists is empty ?{},lists size {},number 0 {}", CollectionUtils.isEmpty(lists), lists.size(),
             lists.get(0));
         String imageId = "";
         if (!CollectionUtils.isEmpty(lists) && !StringUtils.isEmpty(repoTags)) {
             for (Image image : lists) {
-                LOGGER.warn(image.getRepoTags()[0]);
-                String[] images = image.getRepoTags();
-                if (images[0].equals(repoTags)) {
-                    imageId = image.getId();
-                    LOGGER.warn(imageId);
+                if (image.getRepoTags() != null && StringUtils.isNotEmpty(image.getRepoTags()[0])) {
+                    LOGGER.warn(image.getRepoTags()[0]);
+                    String[] images = image.getRepoTags();
+                    if (images[0].equals(repoTags)) {
+                        imageId = image.getId();
+                        LOGGER.warn(imageId);
+                    }
                 }
             }
         }
