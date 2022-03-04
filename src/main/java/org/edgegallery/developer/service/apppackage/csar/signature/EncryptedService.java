@@ -107,14 +107,14 @@ public class EncryptedService {
     }
 
     public boolean encryptedCMS(String filePath) {
-        if (StringUtils.isEmpty(keyPasswd)) {
-            LOGGER.info("not configure certificate, no need encrypt.");
-            return true;
-        }
         boolean encryptedFile = encryptedFile(filePath);
         if (!encryptedFile) {
             LOGGER.error("Hash package failed.");
             return false;
+        }
+        if (StringUtils.isEmpty(keyPasswd)) {
+            LOGGER.info("not configure certificate, no need encrypt.");
+            return true;
         }
         BufferedReader reader = null;
         BufferedWriter out = null;
