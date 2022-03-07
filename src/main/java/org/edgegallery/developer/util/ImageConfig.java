@@ -37,4 +37,7 @@ public class ImageConfig {
     @Value("${imagelocation.username}")
     private String username;
 
+    @Value("${server.ssl.enabled}")
+    private boolean sslEnabled;
+
 }
