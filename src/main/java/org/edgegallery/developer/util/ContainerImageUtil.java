@@ -176,9 +176,9 @@ public final class ContainerImageUtil {
     public static String getHarborProtocol() {
         ImageConfig imageConfig = (ImageConfig) SpringContextUtil.getBean(ImageConfig.class);
         if (imageConfig.isSslEnabled()) {
-            return HTTP_HARBOR_PROTOCOL;
-        } else {
             return HTTPS_HARBOR_PROTOCOL;
+        } else {
+            return HTTP_HARBOR_PROTOCOL;
         }
     }
 
