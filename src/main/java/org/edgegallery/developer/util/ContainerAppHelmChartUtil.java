@@ -44,8 +44,6 @@ public final class ContainerAppHelmChartUtil {
 
     private static final RestTemplate REST_TEMPLATE = new RestTemplate();
 
-    private static final String HARBOR_PROTOCOL = "https";
-
     private static final String CHECK_IMAGE_PREFIX = "image ";
 
     private static final String CHECK_IMAGE_SUFFIX = " is not in standard format";
@@ -190,9 +188,8 @@ public final class ContainerAppHelmChartUtil {
         HttpEntity requestEntity = new HttpEntity<>(headers);
         ResponseEntity<String> response;
         try {
-            String url = String
-                .format(Consts.HARBOR_IMAGE_DELETE_URL, HARBOR_PROTOCOL, imageConfig.getDomainname(), project, name,
-                    version);
+            String url = String.format(Consts.HARBOR_IMAGE_DELETE_URL, ContainerImageUtil.getHarborProtocol(),
+                imageConfig.getDomainname(), project, name, version);
             response = REST_TEMPLATE.exchange(url, HttpMethod.GET, requestEntity, String.class);
             LOGGER.warn("get harbor image log:{}", response);
         } catch (RestClientException e) {

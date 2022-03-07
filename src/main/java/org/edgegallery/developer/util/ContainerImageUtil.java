@@ -81,7 +81,9 @@ public final class ContainerImageUtil {
 
     private static final RestTemplate REST_TEMPLATE = new RestTemplate();
 
-    private static final String HARBOR_PROTOCOL = "https";
+    private static final String HTTPS_HARBOR_PROTOCOL = "https";
+
+    private static final String HTTP_HARBOR_PROTOCOL = "http";
 
     private ContainerImageUtil() {
         throw new IllegalStateException("ContainerImageUtil class");
@@ -151,11 +153,33 @@ public final class ContainerImageUtil {
      */
     public static DockerClient getDockerClient() {
         ImageConfig imageConfig = (ImageConfig) SpringContextUtil.getBean(ImageConfig.class);
-        DockerClientConfig config = DefaultDockerClientConfig.createDefaultConfigBuilder().withDockerTlsVerify(true)
-            .withDockerCertPath("/usr/app/ssl").withRegistryUrl("https://" + imageConfig.getDomainname())
-            .withRegistryUsername(imageConfig.getUsername()).withRegistryPassword(imageConfig.getPassword()).build();
+        DockerClientConfig config = null;
+        if (imageConfig.isSslEnabled()) {
+            LOGGER.info("sslEnabled:{}", imageConfig.isSslEnabled());
+            config = DefaultDockerClientConfig.createDefaultConfigBuilder().withDockerTlsVerify(true)
+                .withDockerCertPath("/usr/app/ssl")
+                .withRegistryUrl(HTTPS_HARBOR_PROTOCOL + "://" + imageConfig.getDomainname())
+                .withRegistryUsername(imageConfig.getUsername()).withRegistryPassword(imageConfig.getPassword())
+                .build();
+        } else {
+            LOGGER.info("sslEnabled:{}", imageConfig.isSslEnabled());
+            config = DefaultDockerClientConfig.createDefaultConfigBuilder().withDockerTlsVerify(false)
+                .withRegistryUrl(HTTP_HARBOR_PROTOCOL + "://" + imageConfig.getDomainname())
+                .withRegistryUsername(imageConfig.getUsername()).withRegistryPassword(imageConfig.getPassword())
+                .build();
+        }
+        LOGGER.warn("docker config: {}", config);
         LOGGER.warn("docker register url: {}", config.getRegistryUrl());
         return DockerClientBuilder.getInstance(config).build();
+    }
+
+    public static String getHarborProtocol() {
+        ImageConfig imageConfig = (ImageConfig) SpringContextUtil.getBean(ImageConfig.class);
+        if (imageConfig.isSslEnabled()) {
+            return HTTP_HARBOR_PROTOCOL;
+        } else {
+            return HTTPS_HARBOR_PROTOCOL;
+        }
     }
 
     /**
@@ -191,7 +215,7 @@ public final class ContainerImageUtil {
         ImageConfig imageConfig = (ImageConfig) SpringContextUtil.getBean(ImageConfig.class);
         try (CloseableHttpClient client = ContainerImageUtil.createIgnoreSslHttpClient()) {
             String isExistUrl = String
-                .format(Consts.HARBOR_PRO_IS_EXIST_URL, HARBOR_PROTOCOL, imageConfig.getDomainname(), projectName);
+                .format(Consts.HARBOR_PRO_IS_EXIST_URL, getHarborProtocol(), imageConfig.getDomainname(), projectName);
             LOGGER.warn(" isExist Url : {}", isExistUrl);
             HttpGet httpGet = new HttpGet(isExistUrl);
             String encodeStr = ContainerImageUtil
@@ -231,7 +255,7 @@ public final class ContainerImageUtil {
         ResponseEntity<String> response;
         try {
             String createUrl = String
-                .format(Consts.HARBOR_IMAGE_CREATE_REPO_URL, HARBOR_PROTOCOL, imageConfig.getDomainname());
+                .format(Consts.HARBOR_IMAGE_CREATE_REPO_URL, getHarborProtocol(), imageConfig.getDomainname());
             response = REST_TEMPLATE.exchange(createUrl, HttpMethod.POST, requestEntity, String.class);
             LOGGER.warn("create harbor repo log:{}", response);
         } catch (RestClientException e) {
@@ -377,12 +401,12 @@ public final class ContainerImageUtil {
             String deleteImageUrl = "";
             if (VMImageUtil.isAdminUser() && AccessUserUtil.getUser().getUserName().equals(userName)) {
                 deleteImageUrl = String
-                    .format(Consts.HARBOR_IMAGE_DELETE_URL, HARBOR_PROTOCOL, imageConfig.getDomainname(),
+                    .format(Consts.HARBOR_IMAGE_DELETE_URL, getHarborProtocol(), imageConfig.getDomainname(),
                         imageConfig.getProject(), imageName, imageVersion);
             } else {
                 userName = userName.replaceAll(Consts.PATTERN, "").toLowerCase();
                 deleteImageUrl = String
-                    .format(Consts.HARBOR_IMAGE_DELETE_URL, HARBOR_PROTOCOL, imageConfig.getDomainname(), userName,
+                    .format(Consts.HARBOR_IMAGE_DELETE_URL, getHarborProtocol(), imageConfig.getDomainname(), userName,
                         imageName, imageVersion);
             }
             LOGGER.warn("delete image url: {}", deleteImageUrl);
@@ -426,7 +450,7 @@ public final class ContainerImageUtil {
         try (CloseableHttpClient client = createIgnoreSslHttpClient()) {
             //get all image
             String getImageUrl = String
-                .format(Consts.HARBOR_IMAGE_GET_LIST_URL, HARBOR_PROTOCOL, imageConfig.getDomainname(),
+                .format(Consts.HARBOR_IMAGE_GET_LIST_URL, getHarborProtocol(), imageConfig.getDomainname(),
                     imageConfig.getProject());
             LOGGER.warn("getImageUrl : {}", getImageUrl);
             HttpGet httpImage = new HttpGet(getImageUrl);
@@ -465,7 +489,7 @@ public final class ContainerImageUtil {
         String encode, String imageDomainName, String imageProject) throws IOException {
         //get tags of one image
         String getTagUrl = String
-            .format(Consts.HARBOR_IMAGE_GET_TAGS_URL, HARBOR_PROTOCOL, imageDomainName, imageProject,
+            .format(Consts.HARBOR_IMAGE_GET_TAGS_URL, getHarborProtocol(), imageDomainName, imageProject,
                 imageName.substring(10).trim());
         LOGGER.info("getTagUrl : {}", getTagUrl);
         HttpGet httpTag = new HttpGet(getTagUrl);
