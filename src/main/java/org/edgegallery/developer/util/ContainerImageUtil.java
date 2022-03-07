@@ -352,6 +352,10 @@ public final class ContainerImageUtil {
      * @return
      */
     public static String getImageIdFromRepoTags(String repoTags, DockerClient dockerClient) {
+        ImageConfig imageConfig = (ImageConfig) SpringContextUtil.getBean(ImageConfig.class);
+        String existImage = imageConfig.getDomainname() + "/" + imageConfig.getProject() + "/" + repoTags;
+        LOGGER.info("repoTags:{}", repoTags);
+        LOGGER.info("existImage:{}", existImage);
         String[] imageArr = repoTags.split(":");
         //Judge the compressed package manifest.json in RepoTags And the value of load Are the incoming mirror images equal
         String imageName = imageArr[0];
@@ -365,9 +369,8 @@ public final class ContainerImageUtil {
                 if (image.getRepoTags() != null && StringUtils.isNotEmpty(image.getRepoTags()[0])) {
                     LOGGER.warn(image.getRepoTags()[0]);
                     String[] images = image.getRepoTags();
-                    if (images[0].equals(repoTags)) {
+                    if (images[0].equals(repoTags) || images[0].equals(existImage)) {
                         imageId = image.getId();
-                        LOGGER.warn(imageId);
                     }
                 }
             }
