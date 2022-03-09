@@ -48,7 +48,6 @@ import org.edgegallery.developer.service.proxy.ReverseProxyService;
 import org.edgegallery.developer.service.recource.mephost.MepHostService;
 import org.edgegallery.developer.service.recource.pkgspec.PkgSpecService;
 import org.edgegallery.developer.util.AesUtil;
-import org.edgegallery.developer.util.ContainerImageUtil;
 import org.edgegallery.developer.util.HttpClientUtil;
 import org.edgegallery.developer.util.InputParameterUtil;
 import org.slf4j.Logger;
@@ -205,7 +204,7 @@ public class ReverseProxyServiceImpl implements ReverseProxyService {
         String password = vm.getVmCertificate().getPwdCertificate().getPassword();
         LOGGER.info("ip:{}", networkIp);
         LOGGER.info("username:{}", username);
-        String basePath = HttpClientUtil.getUrlPrefix(ContainerImageUtil.getHarborProtocol(), mepHost.getLcmIp(), 30209);
+        String basePath = HttpClientUtil.getUrlPrefix(mepHost.getLcmProtocol(), mepHost.getLcmIp(), 30209);
         SshResponseInfo sshResponseInfo = HttpClientUtil
             .sendWebSshRequest(basePath, networkIp, 22, username, password, xsrfValue);
         if (sshResponseInfo == null) {
@@ -235,7 +234,7 @@ public class ReverseProxyServiceImpl implements ReverseProxyService {
         LOGGER.info("ip:{}", mepHost.getMecHostIp());
         LOGGER.info("username:{}", username);
         String password = AesUtil.decode(clientId, mepHost.getMecHostPassword());
-        String basePath = HttpClientUtil.getUrlPrefix(ContainerImageUtil.getHarborProtocol(), mepHost.getLcmIp(), 30209);
+        String basePath = HttpClientUtil.getUrlPrefix(mepHost.getLcmProtocol(), mepHost.getLcmIp(), 30209);
         SshResponseInfo sshResponseInfo = HttpClientUtil
             .sendWebSshRequest(basePath, mepHost.getMecHostIp(), mepHost.getMecHostPort(), username, password,
                 xsrfValue);
