@@ -14,12 +14,13 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   -->
-
-<project
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xmlns="http://maven.apache.org/POM/4.0.0"
-        xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.edgegallery</groupId>
+        <artifactId>eg-parent</artifactId>
+        <version>1.0.0</version>
+    </parent>
     <groupId>org.edgegallery.developer</groupId>
     <artifactId>developer-be</artifactId>
     <version>0.0.1-SNAPSHOT</version>
@@ -61,7 +62,6 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
-            <version>2.3.3.RELEASE</version>
             <exclusions>
                 <exclusion>
                     <artifactId>tomcat-embed-websocket</artifactId>
@@ -80,7 +80,6 @@
         <dependency>
             <groupId>io.kubernetes</groupId>
             <artifactId>client-java-api</artifactId>
-            <version>13.0.1</version>
         </dependency>
         <dependency>
             <groupId>io.kubernetes</groupId>
@@ -89,25 +88,21 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-validation</artifactId>
-            <version>2.3.3.RELEASE</version>
         </dependency>
         <!-- jschstand by -->
         <dependency>
             <groupId>com.jcraft</groupId>
             <artifactId>jsch</artifactId>
-            <version>0.1.54</version>
         </dependency>
         <!-- sshstand by -->
         <dependency>
             <groupId>ch.ethz.ganymed</groupId>
             <artifactId>ganymed-ssh2</artifactId>
-            <version>262</version>
         </dependency>
         <!-- WebSocket stand by -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-websocket</artifactId>
-            <version>2.1.18.RELEASE</version>
             <exclusions>
                 <exclusion>
                     <artifactId>spring-messaging</artifactId>
@@ -122,62 +117,50 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-websocket</artifactId>
-            <version>5.2.19.RELEASE</version>
         </dependency>
         <dependency>
             <groupId>commons-net</groupId>
             <artifactId>commons-net</artifactId>
-            <version>3.3</version>
         </dependency>
         <dependency>
             <artifactId>netty-common</artifactId>
             <groupId>io.netty</groupId>
-            <version>4.1.72.Final</version>
         </dependency>
         <dependency>
             <artifactId>netty-buffer</artifactId>
             <groupId>io.netty</groupId>
-            <version>4.1.72.Final</version>
         </dependency>
         <dependency>
             <artifactId>netty-resolver</artifactId>
             <groupId>io.netty</groupId>
-            <version>4.1.72.Final</version>
         </dependency>
         <dependency>
             <artifactId>netty-transport</artifactId>
             <groupId>io.netty</groupId>
-            <version>4.1.72.Final</version>
         </dependency>
         <dependency>
             <artifactId>netty-codec</artifactId>
             <groupId>io.netty</groupId>
-            <version>4.1.72.Final</version>
         </dependency>
         <dependency>
             <artifactId>netty-codec-dns</artifactId>
             <groupId>io.netty</groupId>
-            <version>4.1.72.Final</version>
         </dependency>
         <dependency>
             <artifactId>netty-codec-http</artifactId>
             <groupId>io.netty</groupId>
-            <version>4.1.72.Final</version>
         </dependency>
         <dependency>
             <artifactId>netty-codec-http2</artifactId>
             <groupId>io.netty</groupId>
-            <version>4.1.72.Final</version>
         </dependency>
         <dependency>
             <artifactId>netty-codec-socks</artifactId>
             <groupId>io.netty</groupId>
-            <version>4.1.72.Final</version>
         </dependency>
         <dependency>
             <artifactId>netty-handler</artifactId>
             <groupId>io.netty</groupId>
-            <version>4.1.72.Final</version>
             <exclusions>
                 <exclusion>
                     <groupId>io.netty</groupId>
@@ -188,12 +171,10 @@
         <dependency>
             <artifactId>netty-handler-proxy</artifactId>
             <groupId>io.netty</groupId>
-            <version>4.1.72.Final</version>
         </dependency>
         <dependency>
             <artifactId>netty-resolver-dns</artifactId>
             <groupId>io.netty</groupId>
-            <version>4.1.72.Final</version>
         </dependency>
         <dependency>
             <groupId>org.apache.servicecomb</groupId>
@@ -248,12 +229,10 @@
                     <groupId>org.springframework</groupId>
                 </exclusion>
             </exclusions>
-            <version>1.3.6</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.security.oauth.boot</groupId>
             <artifactId>spring-security-oauth2-autoconfigure</artifactId>
-            <version>${spring-security-oauth2-autoconfigure.version}</version>
             <exclusions>
                 <exclusion>
                     <artifactId>jackson-databind</artifactId>
@@ -284,7 +263,6 @@
         <dependency>
             <groupId>org.yaml</groupId>
             <artifactId>snakeyaml</artifactId>
-            <version>1.26</version>
         </dependency>
         <dependency>
             <artifactId>spring-web</artifactId>
@@ -299,7 +277,6 @@
                 </exclusion>
             </exclusions>
             <groupId>org.springframework</groupId>
-            <version>5.2.19.RELEASE</version>
         </dependency>
         <dependency>
             <artifactId>spring-aop</artifactId>
@@ -314,17 +291,14 @@
                 </exclusion>
             </exclusions>
             <groupId>org.springframework</groupId>
-            <version>5.2.19.RELEASE</version>
         </dependency>
         <dependency>
             <artifactId>bcprov-jdk15on</artifactId>
             <groupId>org.bouncycastle</groupId>
-            <version>1.68</version>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-beans</artifactId>
-            <version>5.2.19.RELEASE</version>
             <exclusions>
                 <exclusion>
                     <artifactId>spring-core</artifactId>
@@ -335,7 +309,6 @@
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
-            <version>2.10.5.1</version>
             <exclusions>
                 <exclusion>
                     <artifactId>jackson-core</artifactId>
@@ -346,7 +319,6 @@
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-core</artifactId>
-            <version>2.10.5</version>
         </dependency>
         <dependency>
             <artifactId>spring-security-oauth2</artifactId>
@@ -393,12 +365,10 @@
                 </exclusion>
             </exclusions>
             <groupId>org.springframework.security.oauth</groupId>
-            <version>2.3.8.RELEASE</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-config</artifactId>
-            <version>5.3.13.RELEASE</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.springframework.security</groupId>
@@ -415,17 +385,14 @@
                 </exclusion>
             </exclusions>
             <groupId>org.springframework</groupId>
-            <version>5.2.19.RELEASE</version>
         </dependency>
         <dependency>
             <artifactId>tomcat-embed-core</artifactId>
             <groupId>org.apache.tomcat.embed</groupId>
-            <version>9.0.56</version>
         </dependency>
         <dependency>
             <artifactId>spring-jcl</artifactId>
             <groupId>org.springframework</groupId>
-            <version>5.2.19.RELEASE</version>
         </dependency>
         <dependency>
             <artifactId>tomcat-embed-websocket</artifactId>
@@ -436,12 +403,10 @@
                 </exclusion>
             </exclusions>
             <groupId>org.apache.tomcat.embed</groupId>
-            <version>9.0.56</version>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
-            <version>5.2.19.RELEASE</version>
             <exclusions>
                 <exclusion>
                     <artifactId>spring-aop</artifactId>
@@ -460,12 +425,10 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-expression</artifactId>
-            <version>5.2.19.RELEASE</version>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-test</artifactId>
-            <version>5.2.19.RELEASE</version>
             <scope>test</scope>
             <exclusions>
                 <exclusion>
@@ -477,12 +440,10 @@
         <dependency>
             <groupId>org.reactivestreams</groupId>
             <artifactId>reactive-streams</artifactId>
-            <version>1.0.0</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-configuration-processor</artifactId>
-            <version>2.1.6.RELEASE</version>
             <optional>true</optional>
         </dependency>
         <dependency>
@@ -510,12 +471,10 @@
                     <groupId>org.springframework</groupId>
                 </exclusion>
             </exclusions>
-            <version>2.3.3.RELEASE</version>
         </dependency>
         <dependency>
             <groupId>org.mybatis.spring.boot</groupId>
             <artifactId>mybatis-spring-boot-starter</artifactId>
-            <version>2.2.1</version>
             <exclusions>
                 <exclusion>
                     <artifactId>mybatis</artifactId>
@@ -530,22 +489,18 @@
         <dependency>
             <groupId>org.mybatis</groupId>
             <artifactId>mybatis</artifactId>
-            <version>3.5.9</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot</artifactId>
-            <version>2.3.3.RELEASE</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-autoconfigure</artifactId>
-            <version>2.3.3.RELEASE</version>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-webmvc</artifactId>
-            <version>5.2.19.RELEASE</version>
             <exclusions>
                 <exclusion>
                     <artifactId>spring-context</artifactId>
@@ -578,7 +533,6 @@
                 </exclusion>
             </exclusions>
             <groupId>org.springframework</groupId>
-            <version>5.2.19.RELEASE</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -598,23 +552,19 @@
                     <groupId>net.minidev</groupId>
                 </exclusion>
             </exclusions>
-            <version>2.3.3.RELEASE</version>
         </dependency>
         <dependency>
             <artifactId>json-smart</artifactId>
             <groupId>net.minidev</groupId>
-            <version>2.4.7</version>
         </dependency>
         <!-- lombok -->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>${lombok.version}</version>
         </dependency>
         <dependency>
             <groupId>io.lettuce</groupId>
             <artifactId>lettuce-core</artifactId>
-            <version>5.1.8.RELEASE</version>
             <exclusions>
                 <exclusion>
                     <artifactId>netty-transport</artifactId>
@@ -629,24 +579,20 @@
         <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-common</artifactId>
-            <version>4.1.72.Final</version>
         </dependency>
         <dependency>
             <groupId>io.projectreactor</groupId>
             <artifactId>reactor-core</artifactId>
-            <version>3.2.8.RELEASE</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.persistence</groupId>
             <artifactId>javax.persistence</artifactId>
-            <version>2.1.0</version>
         </dependency>
         <!-- https://mvnrepository.com/artifact/log4j/log4j -->
         <!--log4j2 -->
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-core</artifactId>
-            <version>2.17.1</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.apache.logging.log4j</groupId>
@@ -657,12 +603,10 @@
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-api</artifactId>
-            <version>2.17.1</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
-            <version>1.7.30</version>
         </dependency>
         <!--end-->
         <dependency>
@@ -678,12 +622,10 @@
                     <artifactId>log4j-api</artifactId>
                 </exclusion>
             </exclusions>
-            <version>2.17.1</version>
         </dependency>
         <dependency>
             <groupId>com.github.docker-java</groupId>
             <artifactId>docker-java</artifactId>
-            <version>3.2.12</version>
             <exclusions>
                 <exclusion>
                     <groupId>com.github.docker-java</groupId>
@@ -694,7 +636,6 @@
         <dependency>
             <artifactId>netty-transport</artifactId>
             <groupId>io.netty</groupId>
-            <version>4.1.72.Final</version>
             <exclusions>
                 <exclusion>
                     <groupId>io.netty</groupId>
@@ -705,53 +646,44 @@
         <dependency>
             <groupId>org.modelmapper</groupId>
             <artifactId>modelmapper</artifactId>
-            <version>1.1.0</version>
         </dependency>
         <dependency>
             <groupId>javax.ws.rs</groupId>
             <artifactId>javax.ws.rs-api</artifactId>
-            <version>2.1</version>
         </dependency>
         <!-- gson -->
         <dependency>
             <groupId>com.google.code.gson</groupId>
             <artifactId>gson</artifactId>
-            <version>2.8.6</version>
         </dependency>
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
-            <version>42.2.16</version>
         </dependency>
         <!-- UT -->
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>4.13</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.jmockit</groupId>
             <artifactId>jmockit</artifactId>
-            <version>1.19</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.jmockit</groupId>
             <artifactId>jmockit-coverage</artifactId>
-            <version>1.19</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.ant</groupId>
             <artifactId>ant</artifactId>
-            <version>1.8.2</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-test</artifactId>
-            <version>5.3.13.RELEASE</version>
             <scope>test</scope>
             <exclusions>
                 <exclusion>
@@ -775,57 +707,47 @@
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-io</artifactId>
-            <version>1.3.2</version>
         </dependency>
         <!-- h2sql -->
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
-            <version>2.0.206</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>commons-fileupload</groupId>
             <artifactId>commons-fileupload</artifactId>
-            <version>1.3.3</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
-            <version>2.7</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>com.spencerwi</groupId>
             <artifactId>Either.java</artifactId>
-            <version>2.1.0</version>
         </dependency>
         <dependency>
             <groupId>net.lingala.zip4j</groupId>
             <artifactId>zip4j</artifactId>
-            <version>2.4.0</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-compress</artifactId>
-            <version>1.21</version>
         </dependency>
         <dependency>
             <groupId>commons-fileupload</groupId>
             <artifactId>commons-fileupload</artifactId>
-            <version>1.3.3</version>
         </dependency>
         <!--json -->
         <dependency>
             <groupId>com.mikesamuel</groupId>
             <artifactId>json-sanitizer</artifactId>
-            <version>1.2.2</version>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-jdbc</artifactId>
-            <version>5.2.19.RELEASE</version>
             <exclusions>
                 <exclusion>
                     <artifactId>spring-beans</artifactId>
@@ -845,7 +767,6 @@
         <dependency>
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-core</artifactId>
-            <version>5.3.13.RELEASE</version>
             <exclusions>
                 <exclusion>
                     <artifactId>spring-beans</artifactId>
@@ -869,7 +790,6 @@
         <dependency>
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-web</artifactId>
-            <version>5.3.13.RELEASE</version>
             <exclusions>
                 <exclusion>
                     <artifactId>spring-beans</artifactId>
@@ -905,25 +825,20 @@
         <dependency>
             <groupId>com.esotericsoftware.yamlbeans</groupId>
             <artifactId>yamlbeans</artifactId>
-            <version>1.13</version>
         </dependency>
         <dependency>
             <groupId>com.github.pagehelper</groupId>
             <artifactId>pagehelper-spring-boot-starter</artifactId>
-            <version>1.2.13</version>
         </dependency>
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpmime</artifactId>
-            <version>4.3.1</version>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-test</artifactId>
-            <version>5.2.19.RELEASE</version>
         </dependency>
     </dependencies>
-
     <build>
         <!-- jar name -->
         <finalName>mec-developer-platform</finalName>
@@ -931,7 +846,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.8.1</version>
                 <configuration>
                     <source>1.8</source>
                     <target>1.8</target>
@@ -955,7 +869,6 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-                <version>2.1.9.RELEASE</version>
                 <configuration>
                     <includeSystemScope>true</includeSystemScope>
                     <includes>
@@ -977,7 +890,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.20</version>
                 <configuration>
                     <forkCount>1</forkCount>
                     <reuseForks>false</reuseForks>
@@ -988,7 +900,6 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>findbugs-maven-plugin</artifactId>
-                <version>3.0.4</version>
                 <configuration>
                     <failOnError>false</failOnError>
                 </configuration>
@@ -1003,7 +914,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-pmd-plugin</artifactId>
-                <version>3.13.0</version>
                 <configuration>
                     <failOnViolation>false</failOnViolation>
                     <failurePriority>2</failurePriority>
@@ -1021,7 +931,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-checkstyle-plugin</artifactId>
-                <version>3.1.1</version>
                 <configuration>
                     <failOnViolation>false</failOnViolation>
                     <violationSeverity>warning</violationSeverity>
@@ -1085,7 +994,6 @@
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
-                <version>0.7.7.201606060606</version>
                 <configuration>
                     <destFile>target/coverage-reports/jacoco-unit.exec</destFile>
                     <dataFile>target/coverage-reports/jacoco-unit.exec</dataFile>
@@ -1113,12 +1021,10 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jxr-plugin</artifactId>
-                <version>2.3</version>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-checkstyle-plugin</artifactId>
-                <version>3.1.1</version>
                 <configuration>
                     <failOnViolation>true</failOnViolation>
                     <violationSeverity>warning</violationSeverity>
@@ -1130,7 +1036,6 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>findbugs-maven-plugin</artifactId>
-                <version>3.0.4</version>
             </plugin>
         </plugins>
     </reporting>
