@@ -28,8 +28,8 @@ import com.jcraft.jsch.SftpException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import org.edgegallery.developer.model.uploadfile.FileUploadEntity;
 import org.edgegallery.developer.model.reverseproxy.ScpConnectEntity;
+import org.edgegallery.developer.model.uploadfile.FileUploadEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Configuration;
@@ -152,19 +152,14 @@ public class ShhFileUploadUtil {
             throw new JSchException("SFTP连接服务器失败" + e.getMessage());
         }
         ChannelSftp channelSftp = (ChannelSftp) channel;
-        if (isDirExist(scpConnectEntity.getTargetPath(), channelSftp)) {
-            channel.disconnect();
-            channelSftp.disconnect();
-            sshSession.disconnect();
-            return true;
-        } else {
-            String[] pathArry = scpConnectEntity.getTargetPath().split("/");
-            StringBuffer filePath = new StringBuffer("/");
-            for (String path : pathArry) {
+        if (!isDirExist(scpConnectEntity.getTargetPath(), channelSftp)) {
+            String[] pathArray = scpConnectEntity.getTargetPath().split("/");
+            StringBuilder filePath = new StringBuilder("/");
+            for (String path : pathArray) {
                 if (path.equals("")) {
                     continue;
                 }
-                filePath.append(path + "/");
+                filePath.append(path).append("/");
                 try {
                     if (isDirExist(filePath.toString(), channelSftp)) {
                         channelSftp.cd(filePath.toString());
@@ -193,7 +188,7 @@ public class ShhFileUploadUtil {
             isDirExistFlag = true;
             return sftpAttrs.isDir();
         } catch (Exception e) {
-            if (e.getMessage().toLowerCase().equals("no such file")) {
+            if (e.getMessage().equalsIgnoreCase("no such file")) {
                 isDirExistFlag = false;
             }
         }

@@ -89,6 +89,8 @@ public class ProfileServiceImpl implements ProfileService {
 
     private static final String FIELD_DESCRIPTION_CH = "descriptionCh";
 
+    private static final String FIELD_DESCRIPTION_EN = "descriptionEn";
+
     private static final String FIELD_TYPE = "type";
 
     private static final String FIELD_INDUSTRY = "industry";
@@ -429,9 +431,9 @@ public class ProfileServiceImpl implements ProfileService {
             checkProfileName(name);
             profileInfo.setName(name);
             profileInfo.setDescription((String) profile.get(FIELD_DESCRIPTION_CH));
-            profileInfo.setDescriptionEn((String) profile.get("descriptionEn"));
-            profileInfo.setType((String) profile.get("type"));
-            profileInfo.setIndustry((String) profile.get("industry"));
+            profileInfo.setDescriptionEn((String) profile.get(FIELD_DESCRIPTION_EN));
+            profileInfo.setType((String) profile.get(FIELD_TYPE));
+            profileInfo.setIndustry((String) profile.get(FIELD_INDUSTRY));
             profileInfo
                 .setConfigFilePath(profileInfo.getId().concat(File.separator).concat((String) profile.get("config")));
             String seq = null == profile.get("seq") ? null : (String) profile.get("seq");

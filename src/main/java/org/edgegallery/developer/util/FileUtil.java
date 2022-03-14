@@ -91,12 +91,9 @@ public final class FileUtil {
         List<String> listLocal = new ArrayList<>();
         try (Stream<Path> walk = Files.walk(dir.toPath())) {
             List<Path> allPaths = walk.filter(Files::isRegularFile).collect(Collectors.toList());
+            LOGGER.info("allPaths:{}", allPaths);
             for (Path path : allPaths) {
-                try {
-                    listLocal.add(path.toFile().getCanonicalPath());
-                } catch (IOException e) {
-                    LOGGER.error("getCanonicalPath {} occur exception {}", path, e.getMessage());
-                }
+                listLocal.add(path.toFile().getCanonicalPath());
             }
         } catch (IOException ex) {
             LOGGER.error("Files.walk dir {} occur exception {}", dir, ex.getMessage());

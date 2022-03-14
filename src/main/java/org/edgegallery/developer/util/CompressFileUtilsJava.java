@@ -35,6 +35,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.CollectionUtils;
 
 public class CompressFileUtilsJava {
     private static final Logger LOGGER = LoggerFactory.getLogger(CompressFileUtilsJava.class);
@@ -86,7 +87,7 @@ public class CompressFileUtilsJava {
     private static void addFileToZip(ZipOutputStream out, File file, List<String> entryPaths) throws IOException {
         byte[] buf = new byte[1024];
         try (FileInputStream in = new FileInputStream(file)) {
-            if (entryPaths.size() > 0) {
+            if (!CollectionUtils.isEmpty(entryPaths)) {
                 out.putNextEntry(new ZipEntry(StringUtils.join(entryPaths, "/") + "/" + file.getName()));
             } else {
                 out.putNextEntry(new ZipEntry(file.getName()));

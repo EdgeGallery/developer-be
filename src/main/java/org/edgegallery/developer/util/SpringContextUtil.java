@@ -19,6 +19,11 @@ package org.edgegallery.developer.util;
 import org.springframework.context.ApplicationContext;
 
 public class SpringContextUtil {
+
+    private SpringContextUtil() {
+        throw new IllegalStateException("SpringContextUtil class");
+    }
+
     private static ApplicationContext applicationContext;
 
     public static ApplicationContext getApplicationContext() {

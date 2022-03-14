@@ -682,14 +682,14 @@ public final class HttpClientUtil {
             response = REST_TEMPLATE.exchange(url, HttpMethod.GET, requestEntity, byte[].class);
         } catch (RestClientException e) {
             LOGGER.error("Failed download system image exception {}", e.getMessage());
-            return null;
+            return new byte[0];
         }
         if (response.getStatusCode() == HttpStatus.OK) {
             LOGGER.info("Download system image file success, resp = {}", response);
             return response.getBody();
         }
         LOGGER.error("Failed to download system image!");
-        return null;
+        return new byte[0];
     }
 
     public static boolean imageSlim(String url) {
