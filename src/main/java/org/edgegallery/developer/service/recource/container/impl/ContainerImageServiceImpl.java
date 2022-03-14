@@ -520,16 +520,12 @@ public class ContainerImageServiceImpl implements ContainerImageService {
             return false;
         }
         //push
-        boolean ret = ContainerImageUtil.retagAndPush(dockerClient, imageId, projectName, repoTags);
+        boolean ret = ContainerImageUtil.reTagAndPush(dockerClient, imageId, projectName, repoTags);
         if (!ret) {
             return false;
         }
         //create container image
-        boolean retContainer = createImage(repoTags, inputImageId, fileName, projectName);
-        if (!retContainer) {
-            return false;
-        }
-        return true;
+        return createImage(repoTags, inputImageId, fileName, projectName);
     }
 
     private boolean createImage(String repoTags, String inputImageId, String fileName, String projectName) {

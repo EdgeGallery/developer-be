@@ -20,7 +20,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import org.edgegallery.developer.exception.CustomException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,12 +57,9 @@ public class CustomResponseErrorHandler implements ResponseErrorHandler {
     private String convertStreamToString(InputStream is) {
         BufferedReader reader = null;
         if (is != null) {
-            try {
-                reader = new BufferedReader(new InputStreamReader(is, "UTF-8"));
-            } catch (UnsupportedEncodingException e) {
-                LOGGER.error("inputStream to reader {}", e.getMessage());
-            }
+            reader = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8));
         }
+        LOGGER.info("reader:{}", reader);
         StringBuilder sb = new StringBuilder();
         if (reader != null) {
             String line = null;

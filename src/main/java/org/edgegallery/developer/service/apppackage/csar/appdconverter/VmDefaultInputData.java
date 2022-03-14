@@ -25,6 +25,11 @@ import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.SafeConstructor;
 
 public class VmDefaultInputData {
+
+    private VmDefaultInputData() {
+        throw new IllegalStateException("VmDefaultInputData class");
+    }
+
     private static final String VM_PACKAGE_TEMPLATE_INPUT_PATH
         = "./configs/template/appd/vm_appd_inputs_default_data.yaml";
 

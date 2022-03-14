@@ -172,7 +172,7 @@ public class ContainerImageUtilTest {
     @Test
     public void testRetagAndPush() throws IOException {
         try {
-            ContainerImageUtil.retagAndPush(ContainerImageUtil.getDockerClient(), "aa", "test", "nginx:latest");
+            ContainerImageUtil.reTagAndPush(ContainerImageUtil.getDockerClient(), "aa", "test", "nginx:latest");
         } catch (Exception e) {
             Assert.assertNotNull(e.getMessage());
         }

@@ -320,14 +320,14 @@ public final class ContainerImageUtil {
      * @param repoTags tags in image tar file
      * @return
      */
-    public static boolean retagAndPush(DockerClient dockerClient, String imageId, String projectName, String repoTags) {
+    public static boolean reTagAndPush(DockerClient dockerClient, String imageId, String projectName, String repoTags) {
         ImageConfig imageConfig = (ImageConfig) SpringContextUtil.getBean(ImageConfig.class);
         String[] images = repoTags.split(":");
         String imageName = images[0];
         String imageVersion = images[1];
         String uploadImgName = imageConfig.getDomainname() + "/" + projectName + "/" + imageName;
         LOGGER.warn("uploadImgName: {}", uploadImgName);
-        //image retag,push
+        //image reTag,push
         try {
             if (!imageId.equals("")) {
                 //tag image
@@ -335,13 +335,14 @@ public final class ContainerImageUtil {
                 LOGGER.warn("Upload tagged docker image: {}", uploadImgName);
                 //push image
                 dockerClient.pushImageCmd(uploadImgName).start().awaitCompletion();
+                return true;
             }
+            LOGGER.warn("imageId is null");
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             LOGGER.error("failed to push image {}", e.getMessage());
-            return false;
         }
-        return true;
+        return false;
     }
 
     /**

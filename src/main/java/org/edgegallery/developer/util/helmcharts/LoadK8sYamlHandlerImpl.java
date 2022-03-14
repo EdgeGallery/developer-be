@@ -120,10 +120,10 @@ public class LoadK8sYamlHandlerImpl extends AbstractContainerFileHandler {
             for (String filePath : filePaths) {
                 Yaml.loadAll(filePath);
             }
+            return true;
         } catch (IOException e) {
             LOGGER.error("Can not parse this yaml to k8s configs. msg:{}", e.getMessage());
-            return false;
         }
-        return true;
+        return false;
     }
 }

@@ -58,7 +58,7 @@ public class PackageFileCreator {
 
     private static final String PACKAGE_TEMPLATE_PATH = "./configs/template/package_template";
 
-    private static final String TEMPLATE_PACKAGE_VNFD__PATH = "/APPD/TOSCA_VNFD.meta";
+    private static final String TEMPLATE_PACKAGE_VNFD_PATH = "/APPD/TOSCA_VNFD.meta";
 
     private static final String TEMPLATE_PACKAGE_METADATA_PATH = "/TOSCA-Metadata/TOSCA.meta";
 
@@ -170,7 +170,7 @@ public class PackageFileCreator {
      * modify file: /APPD/TOSCA_VNFD.meta.
      */
     public void configVnfdMeta() {
-        File metaFile = new File(getPackagePath() + TEMPLATE_PACKAGE_VNFD__PATH);
+        File metaFile = new File(getPackagePath() + TEMPLATE_PACKAGE_VNFD_PATH);
         IACsarFile metaFileHandler = TocsarFileHandlerFactory
             .createFileHandler(TocsarFileHandlerFactory.VNFD_META_FILE);
         metaFileHandler.load(metaFile);
