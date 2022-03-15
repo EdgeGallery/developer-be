@@ -29,6 +29,7 @@ import java.util.UUID;
 import org.apache.commons.io.FileUtils;
 import org.edgegallery.developer.common.ResponseConsts;
 import org.edgegallery.developer.exception.DataBaseException;
+import org.edgegallery.developer.exception.DeveloperException;
 import org.edgegallery.developer.exception.EntityNotFoundException;
 import org.edgegallery.developer.exception.FileFoundFailException;
 import org.edgegallery.developer.exception.FileOperateException;
@@ -54,6 +55,7 @@ import org.edgegallery.developer.util.FileUtil;
 import org.edgegallery.developer.util.ImageConfig;
 import org.edgegallery.developer.util.InitConfigUtil;
 import org.edgegallery.developer.util.helmcharts.EgValuesYaml;
+import org.edgegallery.developer.util.helmcharts.HelmChartFile;
 import org.edgegallery.developer.util.helmcharts.IContainerFileHandler;
 import org.edgegallery.developer.util.helmcharts.LoadContainerFileFactory;
 import org.slf4j.Logger;
@@ -118,6 +120,9 @@ public class ContainerAppHelmChartServiceImpl implements ContainerAppHelmChartSe
             String helmChartsPackagePath = containerFileHandler.exportHelmChartsPackage();
             LOGGER.info("helmChartsPackagePath:{}", helmChartsPackagePath);
 
+            //check tgz format
+            checkTgzFileFormat(helmChartsPackagePath);
+
             String fileId = UUID.randomUUID().toString();
             String helmChartFileName = new File(helmChartsPackagePath).getName();
             // use the first fileName to create the dir
@@ -148,6 +153,30 @@ public class ContainerAppHelmChartServiceImpl implements ContainerAppHelmChartSe
         } catch (IOException e) {
             LOGGER.error("Failed to read the helmchart file. msg:{}", e.getMessage());
             return null;
+        }
+    }
+
+    private void checkTgzFileFormat(String tgzPath) {
+        try (IContainerFileHandler containerFileHandler = LoadContainerFileFactory.createLoader(tgzPath)) {
+            assert containerFileHandler != null;
+            containerFileHandler.load(tgzPath);
+            List<HelmChartFile> k8sTemplates = containerFileHandler.getTemplatesFile();
+            if (!CollectionUtils.isEmpty(k8sTemplates)) {
+                for (HelmChartFile k8sTemplate : k8sTemplates) {
+                    List<Object> k8s = containerFileHandler.getK8sTemplateObject(k8sTemplate);
+                    if (CollectionUtils.isEmpty(k8s)) {
+                        LOGGER.error("yaml file {} format failed!", k8sTemplate.getInnerPath());
+                        throw new FileOperateException("yaml file format failed!",
+                            ResponseConsts.RET_LOAD_TGZ_FILE_FAIL);
+                    }
+                }
+            } else {
+                LOGGER.error("no yaml files found in templates folder.");
+                throw new DeveloperException("no yaml files found in templates folder");
+            }
+        } catch (Exception e) {
+            LOGGER.error("load tgz file failed!");
+            throw new FileOperateException("load tgz file failed!", ResponseConsts.RET_LOAD_TGZ_FILE_FAIL);
         }
     }
 
