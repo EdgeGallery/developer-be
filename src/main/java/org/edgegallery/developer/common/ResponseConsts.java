@@ -239,4 +239,9 @@ public final class ResponseConsts {
      * check deploy yaml name in format.
      */
     public static final int RET_CHECK_DEPLOY_FILE_NAME_FAIL = 20043;
+
+    /**
+     * load tgz file error.
+     */
+    public static final int RET_LOAD_TGZ_FILE_FAIL = 20044;
 }
