@@ -26,7 +26,6 @@ import org.edgegallery.developer.exception.DataBaseException;
 import org.edgegallery.developer.exception.FileFoundFailException;
 import org.edgegallery.developer.exception.FileOperateException;
 import org.edgegallery.developer.exception.IllegalRequestException;
-import org.edgegallery.developer.mapper.application.AppScriptMapper;
 import org.edgegallery.developer.mapper.apppackage.AppPackageMapper;
 import org.edgegallery.developer.model.application.EnumAppClass;
 import org.edgegallery.developer.model.application.EnumApplicationStatus;
@@ -43,7 +42,6 @@ import org.edgegallery.developer.service.apppackage.csar.creater.ContainerPackag
 import org.edgegallery.developer.service.apppackage.csar.creater.PackageFileCreator;
 import org.edgegallery.developer.service.apppackage.csar.creater.VMPackageFileCreator;
 import org.edgegallery.developer.service.apppackage.csar.signature.EncryptedService;
-import org.edgegallery.developer.service.releasedpackage.ReleasedPackageService;
 import org.edgegallery.developer.util.BusinessConfigUtil;
 import org.edgegallery.developer.util.CompressFileUtils;
 import org.edgegallery.developer.util.CompressFileUtilsJava;
@@ -72,12 +70,6 @@ public class AppPackageServiceImpl implements AppPackageService {
 
     @Autowired
     private ApplicationService applicationService;
-
-    @Autowired
-    private AppScriptMapper appScriptMapper;
-
-    @Autowired
-    private ReleasedPackageService releasedPackageService;
 
     @Autowired
     private EncryptedService encryptedService;

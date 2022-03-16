@@ -19,9 +19,9 @@ package org.edgegallery.developer.util;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import org.edgegallery.developer.common.Consts;
 import org.edgegallery.developer.exception.CustomException;
 import org.edgegallery.developer.model.common.Chunk;
@@ -725,8 +725,17 @@ public final class HttpClientUtil {
         if (response.getStatusCode() == HttpStatus.OK) {
             LOGGER.info("get image info success, resp = {}", response);
             try {
-                return new ObjectMapper()
-                    .readValue(Objects.requireNonNull(response.getBody()).getBytes(), FileSystemResponse.class);
+                String body = response.getBody();
+                if (!StringUtils.isEmpty(body)) {
+                    byte[] resBodyArr = body.getBytes(StandardCharsets.UTF_8);
+                    LOGGER.info("resBodyArr len:{}", resBodyArr.length);
+                    if (resBodyArr.length > 0) {
+                        return new ObjectMapper().readValue(resBodyArr, FileSystemResponse.class);
+                    }
+                } else {
+                    LOGGER.error("response body is null.");
+                    return null;
+                }
 
             } catch (Exception e) {
                 LOGGER.error("get image info fail from filesystem. {}", e.getMessage());
@@ -763,9 +772,17 @@ public final class HttpClientUtil {
         if (response.getStatusCode() == HttpStatus.OK) {
             LOGGER.info("send WebSsh request success, resp = {}", response);
             try {
-                return new ObjectMapper()
-                    .readValue(Objects.requireNonNull(response.getBody()).getBytes(), SshResponseInfo.class);
-
+                String body = response.getBody();
+                if (!StringUtils.isEmpty(body)) {
+                    byte[] resBodyArr = body.getBytes(StandardCharsets.UTF_8);
+                    LOGGER.info("resBodyArr len:{}", resBodyArr.length);
+                    if (resBodyArr.length > 0) {
+                        return new ObjectMapper().readValue(resBodyArr, SshResponseInfo.class);
+                    }
+                } else {
+                    LOGGER.error("response body is null.");
+                    return null;
+                }
             } catch (Exception e) {
                 LOGGER.error("send WebSsh request fail from filesystem. {}", e.getMessage());
                 return null;

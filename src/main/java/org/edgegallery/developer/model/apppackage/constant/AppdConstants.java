@@ -15,6 +15,7 @@
 package org.edgegallery.developer.model.apppackage.constant;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 public class AppdConstants {
@@ -37,22 +38,17 @@ public class AppdConstants {
 
     private static final String DEFAULT_NETWORK_MP1 = "MEC_APP_MP1";
 
-    public static final List<String> NETWORK_NAME_SORTED_LIST = Arrays.asList(DEFAULT_NETWORK_MP1,
-        "MEC_APP_Internet", DEFAULT_NETWORK_INTERNET, "MEC_APP_N6", DEFAULT_NETWORK_N6, "Internal_Network");
+    private static final List<String> NETWORK_NAME_SORTED_LIST = Arrays
+        .asList(DEFAULT_NETWORK_MP1, "MEC_APP_Internet", DEFAULT_NETWORK_INTERNET, "MEC_APP_N6", DEFAULT_NETWORK_N6,
+            "Internal_Network");
 
     public static final String GROUPS_NODE_NAME = "AntiAffinityGroup";
 
     public static final String POLICY_NODE_NAME = "antiaffinity_policy";
 
-    public static final String QUOTATION_MARK = "\"";
-
-    public static final String SINGLE_QUOTATION_MARK = "'";
-
-    public static final String COLON_MARK = ":";
-
-    public static final String CLOSING_BRACE_MARK = "}";
-
-    public static final String REGEX_LINE_SEPARATOR = "\r\n|\n";
-
     public static final int MEMORY_SIZE_UNIT = 1024;
+
+    public static List<String> getNetworkNameSortedList() {
+        return Collections.unmodifiableList(NETWORK_NAME_SORTED_LIST);
+    }
 }

@@ -82,17 +82,8 @@ public class ContainerImageServiceImpl implements ContainerImageService {
     @Value("${imagelocation.domainname:}")
     private String devRepoEndpoint;
 
-    @Value("${imagelocation.username:}")
-    private String devRepoUsername;
-
-    @Value("${imagelocation.password:}")
-    private String devRepoPassword;
-
     @Value("${imagelocation.project:}")
     private String devRepoProject;
-
-    @Value("${security.oauth2.resource.jwt.key-uri:}")
-    private String loginUrl;
 
     /**
      * uploadContainerImage.

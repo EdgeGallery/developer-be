@@ -18,10 +18,11 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileWriter;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 import java.text.Normalizer;
 import java.util.ArrayList;
@@ -87,7 +88,8 @@ public class EncryptedService {
                 bf.append(tempString).append("\r\n");
             }
             br.close();
-            try (BufferedWriter out = new BufferedWriter(new FileWriter(mfFile));) {
+            try (BufferedWriter out = new BufferedWriter(
+                new OutputStreamWriter(new FileOutputStream(mfFile), StandardCharsets.UTF_8))) {
                 out.write(bf.toString());
                 out.flush();
             }
@@ -134,7 +136,7 @@ public class EncryptedService {
             br.close();
 
             String encrypted = signPackage(mfFile.getCanonicalPath(), keyPasswd);
-            out = new BufferedWriter(new FileWriter(mfFile));
+            out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(mfFile), StandardCharsets.UTF_8));
             out.write(bf.toString());
             out.write("-----BEGIN CMS-----");
             out.write("\n");
@@ -171,15 +173,15 @@ public class EncryptedService {
     }
 
     private File getMfFile(String filePath) {
-        ArrayList<String> files = new ArrayList<>();
         File file = new File(filePath);
         File mfFile = null;
         File[] fileList = file.listFiles();
-        for (int i = 0; i < fileList.length; i++) {
-            files.add(fileList[i].toString());
-            String fileName = fileList[i].getName();
-            if (fileName.contains(".mf")) {
-                mfFile = fileList[i];
+        if (fileList != null) {
+            for (int i = 0; i < fileList.length; i++) {
+                String fileName = fileList[i].getName();
+                if (fileName.contains(".mf")) {
+                    mfFile = fileList[i];
+                }
             }
         }
         return mfFile;

@@ -40,4 +40,21 @@ public class HelmChart {
 
     private List<HelmChartFile> helmChartFileList;
 
+    /**
+     * get create time.
+     */
+    public Date getCreateTime() {
+        return this.createTime != null ? new Date(this.createTime.getTime()) : null;
+    }
+
+    /**
+     * set create time.
+     */
+    public void setCreateTime(Date createTime) {
+        if (createTime != null) {
+            this.createTime = (Date) createTime.clone();
+        } else {
+            this.createTime = null;
+        }
+    }
 }

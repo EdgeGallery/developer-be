@@ -13,6 +13,7 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
+
 package org.edgegallery.developer.model.instantiate.container;
 
 import java.util.ArrayList;
@@ -48,5 +49,21 @@ public class ContainerAppInstantiateInfo {
 
     private List<K8sService> serviceList = new ArrayList<>(0);
 
+    /**
+     * get instantiateTime.
+     */
+    public Date getInstantiateTime() {
+        return this.instantiateTime != null ? new Date(this.instantiateTime.getTime()) : null;
+    }
 
+    /**
+     * set instantiateTime.
+     */
+    public void setInstantiateTime(Date instantiateTime) {
+        if (instantiateTime != null) {
+            this.instantiateTime = (Date) instantiateTime.clone();
+        } else {
+            this.instantiateTime = null;
+        }
+    }
 }
