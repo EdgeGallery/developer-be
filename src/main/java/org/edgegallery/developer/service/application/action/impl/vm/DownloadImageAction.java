@@ -13,6 +13,7 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
+
 package org.edgegallery.developer.service.application.action.impl.vm;
 
 import java.text.SimpleDateFormat;
@@ -38,18 +39,16 @@ import org.edgegallery.developer.util.HttpClientUtil;
 import org.edgegallery.developer.util.SpringContextUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.google.gson.Gson;
 
 public class DownloadImageAction extends AbstractAction {
 
     public static final Logger LOGGER = LoggerFactory.getLogger(DownloadImageAction.class);
 
-    private static Gson gson = new Gson();
-
     public static final String ACTION_NAME = "Download Image";
 
     // time out: 120 min.
     public static final int TIMEOUT = 120 * 60 * 1000;
+
     //interval of the query, 20s.
     public static final int INTERVAL = 20000;
 
@@ -59,7 +58,6 @@ public class DownloadImageAction extends AbstractAction {
     VMImageService vmImageService = (VMImageService) SpringContextUtil.getBean(VMImageService.class);
 
     VMAppVmService vmAppVmService = (VMAppVmService) SpringContextUtil.getBean(VMAppVmService.class);
-
 
     @Override
     public String getActionName() {
@@ -72,8 +70,8 @@ public class DownloadImageAction extends AbstractAction {
         String vmId = (String) getContext().getParameter(IContextParameter.PARAM_VM_ID);
         String statusLog = "Start to download vm image for vm Id：" + vmId;
         LOGGER.info(statusLog);
-        ActionStatus actionStatus = initActionStatus(EnumOperationObjectType.VM_IMAGE_INSTANCE, vmId,
-            ACTION_NAME, statusLog);
+        ActionStatus actionStatus = initActionStatus(EnumOperationObjectType.VM_IMAGE_INSTANCE, vmId, ACTION_NAME,
+            statusLog);
         //create image.
         updateActionProgress(actionStatus, 30, "start to query image info");
         LcmLog lcmLog = new LcmLog();

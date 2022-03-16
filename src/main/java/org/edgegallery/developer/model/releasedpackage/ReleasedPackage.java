@@ -76,4 +76,22 @@ public class ReleasedPackage {
         testTaskId = dataObj.get("testTaskId").getAsString();
     }
 
+    /**
+     * get synchronizeDate.
+     */
+    public Date getSynchronizeDate() {
+        return this.synchronizeDate != null ? new Date(this.synchronizeDate.getTime()) : null;
+    }
+
+    /**
+     * set synchronizeDate.
+     */
+    public void setSynchronizeDate(Date synchronizeDate) {
+        if (synchronizeDate != null) {
+            this.synchronizeDate = (Date) synchronizeDate.clone();
+        } else {
+            this.synchronizeDate = null;
+        }
+    }
+
 }

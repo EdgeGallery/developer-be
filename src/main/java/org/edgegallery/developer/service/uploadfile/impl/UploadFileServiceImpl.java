@@ -32,7 +32,6 @@ import org.edgegallery.developer.exception.DeveloperException;
 import org.edgegallery.developer.exception.FileFoundFailException;
 import org.edgegallery.developer.exception.FileOperateException;
 import org.edgegallery.developer.exception.IllegalRequestException;
-import org.edgegallery.developer.mapper.capability.CapabilityMapper;
 import org.edgegallery.developer.mapper.resource.mephost.MepHostMapper;
 import org.edgegallery.developer.mapper.uploadfile.UploadFileMapper;
 import org.edgegallery.developer.model.apppackage.AppPkgStructure;
@@ -71,9 +70,6 @@ public class UploadFileServiceImpl implements UploadFileService {
 
     @Autowired
     private MepHostMapper mepHostMapper;
-
-    @Autowired
-    private CapabilityMapper capabilityMapper;
 
     @Override
     public byte[] getFileStream(UploadFile uploadFile, String userId) {

@@ -131,9 +131,6 @@ public class VMAppVmServiceImpl implements VMAppVmService {
     @Override
     public Boolean deleteVm(String applicationId, String vmId, User user) {
         VirtualMachine vm = getVm(applicationId, vmId);
-        if (vm == null) {
-            return true;
-        }
         String mepHostId = applicationService.getApplication(applicationId).getMepHostId();
         vmAppOperationService.cleanVmLaunchInfo(mepHostId, vm, user);
         int res = vmMapper.deleteVM(vmId);
@@ -169,8 +166,8 @@ public class VMAppVmServiceImpl implements VMAppVmService {
         ports.sort(new Comparator<VMPort>() {
             @Override
             public int compare(VMPort o1, VMPort o2) {
-                int index1 = AppdConstants.NETWORK_NAME_SORTED_LIST.indexOf(o1.getNetworkName());
-                int index2 = AppdConstants.NETWORK_NAME_SORTED_LIST.indexOf(o2.getNetworkName());
+                int index1 = AppdConstants.getNetworkNameSortedList().indexOf(o1.getNetworkName());
+                int index2 = AppdConstants.getNetworkNameSortedList().indexOf(o2.getNetworkName());
                 return index1 - index2;
             }
         });

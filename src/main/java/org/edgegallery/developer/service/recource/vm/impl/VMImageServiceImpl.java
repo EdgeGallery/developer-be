@@ -189,7 +189,11 @@ public class VMImageServiceImpl implements VMImageService {
         File uploadRootDir = new File(getUploadVmImageRootDir(newVmImage.getId()));
         if (!uploadRootDir.exists()) {
             LOGGER.info("file dir does not exist, mkdir dirName:{}", newVmImage.getId());
-            uploadRootDir.mkdirs();
+            boolean isMk = uploadRootDir.mkdirs();
+            if (!isMk) {
+                LOGGER.error("Create upload root dir failed.");
+                throw new FileOperateException("Create upload root dir failed", ResponseConsts.RET_CREATE_FILE_FAIL);
+            }
         }
         LOGGER.info("Create vm image {} success ", newVmImage.getId());
         return true;

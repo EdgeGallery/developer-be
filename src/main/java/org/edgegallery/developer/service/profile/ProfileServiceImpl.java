@@ -44,7 +44,6 @@ import org.edgegallery.developer.exception.IllegalRequestException;
 import org.edgegallery.developer.filter.security.AccessUserUtil;
 import org.edgegallery.developer.mapper.application.ApplicationMapper;
 import org.edgegallery.developer.mapper.profile.ProfileMapper;
-import org.edgegallery.developer.mapper.uploadfile.UploadFileMapper;
 import org.edgegallery.developer.model.application.Application;
 import org.edgegallery.developer.model.application.EnumAppClass;
 import org.edgegallery.developer.model.application.EnumApplicationType;
@@ -112,9 +111,6 @@ public class ProfileServiceImpl implements ProfileService {
 
     @Autowired
     private AppScriptService appScriptService;
-
-    @Autowired
-    private UploadFileMapper uploadFileMapper;
 
     @Autowired
     private ApplicationMapper applicationMapper;

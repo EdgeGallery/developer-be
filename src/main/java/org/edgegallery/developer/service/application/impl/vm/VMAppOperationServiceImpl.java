@@ -118,17 +118,12 @@ public class VMAppOperationServiceImpl extends AppOperationServiceImpl implement
     public OperationInfoRep instantiateVM(String applicationId, String vmId, User user) {
 
         Application application = applicationService.getApplication(applicationId);
-        if (application == null) {
-            LOGGER.error("application does not exist,id:{}", applicationId);
-            throw new EntityNotFoundException("application does not exist.", ResponseConsts.RET_QUERY_DATA_EMPTY);
+        VirtualMachine virtualMachine = vmAppVmServiceImpl.getVm(applicationId, vmId);
+        if (application == null || virtualMachine == null) {
+            LOGGER.error("application {} or instantiate vm {} does not exist", applicationId, vmId);
+            throw new EntityNotFoundException("application or vm does not exist.", ResponseConsts.RET_QUERY_DATA_EMPTY);
         }
 
-        VirtualMachine virtualMachine = vmAppVmServiceImpl.getVm(applicationId, vmId);
-        if (virtualMachine == null) {
-            LOGGER.error("instantiate vm app fail ,vm does not exit,vmId:{}", vmId);
-            throw new EntityNotFoundException("instantiate vm app fail ,vm does not exit.",
-                ResponseConsts.RET_QUERY_DATA_EMPTY);
-        }
         if (virtualMachine.getVmInstantiateInfo() != null) {
             LOGGER.error("instantiate vm app fail ,vm has instantiated. please clean env, vmId:{}", vmId);
             throw new IllegalRequestException("instantiate vm app fail ,vm has instantiated. please clean env.",
@@ -469,13 +464,14 @@ public class VMAppOperationServiceImpl extends AppOperationServiceImpl implement
 
     public void cleanVmLaunchInfo(String mepHostId, VirtualMachine vm, User user) {
         MepHost mepHost = mepHostService.getHost(mepHostId);
-        String basePath = HttpClientUtil.getUrlPrefix(mepHost.getLcmProtocol(), mepHost.getLcmIp(),
-            mepHost.getLcmPort());
+        String basePath = HttpClientUtil
+            .getUrlPrefix(mepHost.getLcmProtocol(), mepHost.getLcmIp(), mepHost.getLcmPort());
         VMInstantiateInfo vmInstantiateInfo = vm.getVmInstantiateInfo();
         ImageExportInfo imageExportInfo = vm.getImageExportInfo();
         if (imageExportInfo != null && StringUtils.isNotEmpty(imageExportInfo.getImageInstanceId())) {
-            HttpClientUtil.deleteVmImage(basePath, user.getUserId(), mepHost.getMecHostIp(),
-                imageExportInfo.getImageInstanceId(), user.getToken());
+            HttpClientUtil
+                .deleteVmImage(basePath, user.getUserId(), mepHost.getMecHostIp(), imageExportInfo.getImageInstanceId(),
+                    user.getToken());
         }
         if (vmInstantiateInfo == null) {
             return;
@@ -503,9 +499,8 @@ public class VMAppOperationServiceImpl extends AppOperationServiceImpl implement
         String password = vm.getVmCertificate().getPwdCertificate().getPassword();
         List<PortInstantiateInfo> portInstantiateInfos = vmInstantiateInfo.getPortInstanceList();
         PkgSpec pkgSpec = pkgSpecService.getPkgSpecById(application.getPkgSpecId());
-        String defaultNetworkName =
-            AppdConstants.NETWORK_NAME_PREFIX + pkgSpec.getSpecifications().getAppdSpecs().getNetworkNameSpecs()
-                .getNetworkNameN6();
+        String defaultNetworkName = AppdConstants.NETWORK_NAME_PREFIX + pkgSpec.getSpecifications().getAppdSpecs()
+            .getNetworkNameSpecs().getNetworkNameN6();
         Map<String, String> vmInputParams = InputParameterUtil.getParams(mepHost.getNetworkParameter());
         String networkName = vmInputParams.getOrDefault("APP_Plane03_Network", defaultNetworkName);
         LOGGER.info("defaultNetworkName:{}, networkName:{}", defaultNetworkName, networkName);

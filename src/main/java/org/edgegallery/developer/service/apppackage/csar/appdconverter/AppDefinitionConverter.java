@@ -106,8 +106,8 @@ public class AppDefinitionConverter {
 
         appDefinition.setImports(Arrays.asList(getImportNodeTypeFileName()));
         //update the nodeTemplates
-        TopologyTemplate topologyTemplate = new VMAppTopologyTemplateConverter().convertNodeTemplates(application,
-            queryFlavors(application), queryImages(application));
+        TopologyTemplate topologyTemplate = new VMAppTopologyTemplateConverter()
+            .convertNodeTemplates(application, queryFlavors(application), queryImages(application));
         appDefinition.setTopologyTemplate(topologyTemplate);
         return appDefinition;
     }
@@ -119,8 +119,8 @@ public class AppDefinitionConverter {
         appDefinition.getMetadata().setVnfdName(application.getName());
 
         //update the nodeTemplates
-        TopologyTemplate topologyTemplate = new ContainerAppTopologyTemplateConverter().convertNodeTemplates(
-            application, imageDescList);
+        TopologyTemplate topologyTemplate = new ContainerAppTopologyTemplateConverter()
+            .convertNodeTemplates(application, imageDescList);
         appDefinition.setTopologyTemplate(topologyTemplate);
 
         return appDefinition;
@@ -141,9 +141,9 @@ public class AppDefinitionConverter {
     private Map<Integer, VMImage> queryImages(VMApplication application) {
         Set<Integer> imageIds = new HashSet<>();
         for (VirtualMachine vm : application.getVmList()) {
-            if (vm.getTargetImageId()!=null) {
+            if (vm.getTargetImageId() != null) {
                 imageIds.add(vm.getTargetImageId());
-            }else {
+            } else {
                 imageIds.add(vm.getImageId());
             }
         }
@@ -154,11 +154,11 @@ public class AppDefinitionConverter {
         return imageMap;
     }
 
-    private static String getImportNodeTypeFileName(){
-        File file  = new File(PACKAGE_NODE_TYPE_TEMPLATE_PATH);
-        if(file.isDirectory()){
+    private static String getImportNodeTypeFileName() {
+        File file = new File(PACKAGE_NODE_TYPE_TEMPLATE_PATH);
+        if (file.isDirectory()) {
             File[] files = file.listFiles();
-            if(files.length == 1){
+            if (files != null && files.length == 1) {
                 return files[0].getName();
             }
         }

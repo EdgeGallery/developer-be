@@ -47,7 +47,6 @@ import org.edgegallery.developer.model.uploadfile.UploadFile;
 import org.edgegallery.developer.service.application.AppConfigurationService;
 import org.edgegallery.developer.service.application.ApplicationService;
 import org.edgegallery.developer.service.application.container.ContainerAppHelmChartService;
-import org.edgegallery.developer.service.application.container.ContainerAppOperationService;
 import org.edgegallery.developer.service.uploadfile.UploadFileService;
 import org.edgegallery.developer.util.BusinessConfigUtil;
 import org.edgegallery.developer.util.ContainerAppHelmChartUtil;
@@ -65,6 +64,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
+import org.yaml.snakeyaml.error.YAMLException;
 
 @Service("containerAppHelmChartService")
 public class ContainerAppHelmChartServiceImpl implements ContainerAppHelmChartService {
@@ -82,9 +82,6 @@ public class ContainerAppHelmChartServiceImpl implements ContainerAppHelmChartSe
 
     @Autowired
     private AppConfigurationService appConfigurationService;
-
-    @Autowired
-    private ContainerAppOperationService containerAppOperationService;
 
     @Autowired
     private ImageConfig imageConfig;
@@ -174,7 +171,7 @@ public class ContainerAppHelmChartServiceImpl implements ContainerAppHelmChartSe
                 LOGGER.error("no yaml files found in templates folder.");
                 throw new DeveloperException("no yaml files found in templates folder");
             }
-        } catch (Exception e) {
+        } catch (IOException | YAMLException e) {
             LOGGER.error("load tgz file failed!");
             throw new FileOperateException("load tgz file failed!", ResponseConsts.RET_LOAD_TGZ_FILE_FAIL);
         }

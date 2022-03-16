@@ -21,12 +21,12 @@ import java.util.List;
 import java.util.UUID;
 import org.edgegallery.developer.common.Consts;
 import org.edgegallery.developer.filter.security.AccessUserUtil;
-import org.edgegallery.developer.util.filechecker.ScriptChecker;
 import org.edgegallery.developer.mapper.application.AppScriptMapper;
 import org.edgegallery.developer.model.application.Script;
 import org.edgegallery.developer.model.uploadfile.UploadFile;
 import org.edgegallery.developer.service.application.AppScriptService;
 import org.edgegallery.developer.service.uploadfile.UploadFileService;
+import org.edgegallery.developer.util.filechecker.ScriptChecker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,8 +49,11 @@ public class AppScriptServiceImpl implements AppScriptService {
         new ScriptChecker().check(scriptFile);
         UploadFile uploadFile = uploadFileService
             .uploadFile(AccessUserUtil.getUser().getUserId(), Consts.FILE_TYPE_SCRIPT, scriptFile);
-        Script script = new Script(UUID.randomUUID().toString(), uploadFile.getFileName(), uploadFile.getFileId(),
-            new Date());
+        Script script = new Script();
+        script.setId(UUID.randomUUID().toString());
+        script.setName(uploadFile.getFileName());
+        script.setScriptFileId(uploadFile.getFileId());
+        script.setCreateTime(new Date());
         appScriptMapper.createAppScript(applicationId, script);
         LOGGER.info("upload script successfully.");
         return script;

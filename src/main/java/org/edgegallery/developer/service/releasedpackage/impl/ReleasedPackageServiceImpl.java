@@ -50,9 +50,7 @@ import org.edgegallery.developer.model.releasedpackage.ReleasedPkgFileContent;
 import org.edgegallery.developer.model.releasedpackage.ReleasedPkgFileContentReqDto;
 import org.edgegallery.developer.model.releasedpackage.ReleasedPkgReqDto;
 import org.edgegallery.developer.service.apppackage.AppPackageService;
-import org.edgegallery.developer.service.apppackage.csar.signature.EncryptedService;
 import org.edgegallery.developer.service.releasedpackage.ReleasedPackageService;
-import org.edgegallery.developer.service.uploadfile.UploadFileService;
 import org.edgegallery.developer.util.AppStoreUtil;
 import org.edgegallery.developer.util.BusinessConfigUtil;
 import org.edgegallery.developer.util.InitConfigUtil;
@@ -75,13 +73,7 @@ public class ReleasedPackageServiceImpl implements ReleasedPackageService {
     private ReleasedPackageMapper releasedPackageMapper;
 
     @Autowired
-    private UploadFileService uploadFileService;
-
-    @Autowired
     private AppPackageService appPackageService;
-
-    @Autowired
-    private EncryptedService encryptedService;
 
     @Override
     public boolean synchronizePackage(User user, List<ReleasedPkgReqDto> pkgReqDtos) {

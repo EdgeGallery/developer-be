@@ -61,8 +61,8 @@ public class VMAppNetworkServiceImpl implements VMAppNetworkService {
         networks.sort(new Comparator<Network>() {
             @Override
             public int compare(Network o1, Network o2) {
-                int index1 = AppdConstants.NETWORK_NAME_SORTED_LIST.indexOf(o1.getName());
-                int index2 = AppdConstants.NETWORK_NAME_SORTED_LIST.indexOf(o2.getName());
+                int index1 = AppdConstants.getNetworkNameSortedList().indexOf(o1.getName());
+                int index2 = AppdConstants.getNetworkNameSortedList().indexOf(o2.getName());
                 return index1 - index2;
             }
         });

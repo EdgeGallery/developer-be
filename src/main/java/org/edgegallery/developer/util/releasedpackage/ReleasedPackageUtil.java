@@ -26,7 +26,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -108,8 +107,11 @@ public class ReleasedPackageUtil {
             String filePath = root.getPath().replaceAll("\\\\", "/");
             file.setFilePath(filePath.replace(appPkgRootDir, ""));
             files.add(file);
-            for (File childrenFile : Objects.requireNonNull(root.listFiles())) {
-                deepReadDir(children, childrenFile, childrenFile.getParent(), appPkgRootDir);
+            File[] fileArray = root.listFiles();
+            if (fileArray != null) {
+                for (File childrenFile : fileArray) {
+                    deepReadDir(children, childrenFile, childrenFile.getParent(), appPkgRootDir);
+                }
             }
         }
         return files;

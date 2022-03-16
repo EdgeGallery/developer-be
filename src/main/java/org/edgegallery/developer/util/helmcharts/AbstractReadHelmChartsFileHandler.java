@@ -25,7 +25,6 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.commons.io.FileUtils;
@@ -124,8 +123,11 @@ public abstract class AbstractReadHelmChartsFileHandler extends AbstractDefaultF
             List<HelmChartFile> children = new ArrayList<>();
             file.setChildren(children);
             files.add(file);
-            for (File childrenFile : Objects.requireNonNull(root.listFiles())) {
-                deepReadDir(children, childrenFile);
+            File[] fileArray = root.listFiles();
+            if (fileArray != null) {
+                for (File childrenFile : fileArray) {
+                    deepReadDir(children, childrenFile);
+                }
             }
         }
         return files;

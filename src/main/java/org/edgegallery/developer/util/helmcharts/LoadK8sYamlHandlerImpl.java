@@ -17,6 +17,7 @@ package org.edgegallery.developer.util.helmcharts;
 import io.kubernetes.client.util.Yaml;
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -76,14 +77,16 @@ public class LoadK8sYamlHandlerImpl extends AbstractContainerFileHandler {
         // create charts.yaml
         EgChartsYaml defaultCharts = this.getDefaultChart(helmChartsName);
         Path chartsYaml = Files.createFile(Paths.get(helmChartsDir, "Chart.yaml"));
-        FileUtils.writeByteArrayToFile(chartsYaml.toFile(), defaultCharts.getContent().getBytes(), false);
+        FileUtils.writeByteArrayToFile(chartsYaml.toFile(), defaultCharts.getContent().getBytes(StandardCharsets.UTF_8),
+            false);
     }
 
     private void genDefaultValuesYaml() throws IOException {
         // create values.yaml
         EgValuesYaml defaultValues = this.getDefaultValues();
         Path valuesYaml = Files.createFile(Paths.get(helmChartsDir, "values.yaml"));
-        FileUtils.writeByteArrayToFile(valuesYaml.toFile(), defaultValues.getContent().getBytes(), false);
+        FileUtils.writeByteArrayToFile(valuesYaml.toFile(), defaultValues.getContent().getBytes(StandardCharsets.UTF_8),
+            false);
     }
 
     private String getHelmChartName(String inputFile) {
@@ -102,7 +105,8 @@ public class LoadK8sYamlHandlerImpl extends AbstractContainerFileHandler {
     private void createMepTemplates() throws IOException {
         File egMepTemplatePath = new File(MEP_TEMPLATES_PATH);
         if (egMepTemplatePath.exists() && egMepTemplatePath.isDirectory()) {
-            Path k8sYaml = Files.createDirectory(Paths.get(helmChartsDir, TEMPLATES_DIR_NAME, egMepTemplatePath.getName()));
+            Path k8sYaml = Files
+                .createDirectory(Paths.get(helmChartsDir, TEMPLATES_DIR_NAME, egMepTemplatePath.getName()));
             FileUtils.copyDirectory(egMepTemplatePath, k8sYaml.toFile());
         }
     }

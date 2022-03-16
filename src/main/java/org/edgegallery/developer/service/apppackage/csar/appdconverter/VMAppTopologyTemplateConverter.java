@@ -83,18 +83,17 @@ public class VMAppTopologyTemplateConverter extends TopologyTemplateConverter {
     }
 
     private void initVmInputs() {
-        InputStream inputStream = null;
-        try {
-            inputStream = new FileInputStream(new File(VM_PACKAGE_TEMPLATE_INPUT_PATH));
+        try (InputStream inputStream = new FileInputStream(new File(VM_PACKAGE_TEMPLATE_INPUT_PATH))) {
+            Yaml yaml = new Yaml(new SafeConstructor());
+            LinkedHashMap<String, LinkedHashMap<String, String>> vmInputs = yaml.load(inputStream);
+            for (Map.Entry<String, LinkedHashMap<String, String>> entry : vmInputs.entrySet()) {
+                topologyTemplate.getInputs().put(entry.getKey(), new InputParam(entry.getValue()));
+            }
         } catch (IOException e) {
             LOGGER.error("init vm inputs read file failed. {}", e.getMessage());
             throw new FileOperateException("init vm inputs read file failed.", ResponseConsts.RET_LOAD_YAML_FAIL);
         }
-        Yaml yaml = new Yaml(new SafeConstructor());
-        LinkedHashMap<String, LinkedHashMap<String, String>> vmInputs = yaml.load(inputStream);
-        for (Map.Entry<String, LinkedHashMap<String, String>> entry : vmInputs.entrySet()) {
-            topologyTemplate.getInputs().put(entry.getKey(), new InputParam(entry.getValue()));
-        }
+
     }
 
     protected void updateVLs(List<Network> networkLst) {
